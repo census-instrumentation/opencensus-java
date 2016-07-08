@@ -1,30 +1,8 @@
 # Description:
 #   Open source Census for cloud services.
 
-# _DEP_MAP = {
-#     '//java/com/google/common/annotations': '//external:guava-jar',
-#     '//java/com/google/common/base': '//external:guava-jar',
-#     '//java/com/google/common/collect': '//external:guava-jar',
-#     '//java/com/google/common/flags': '//external:guava-jar',
-#     '//java/com/google/common/io': '//external:guava-jar',
-#     '//java/com/google/common/inject': '//external:guava-jar',
-#     '//java/com/google/common/labs/collect': '//external:guava-jar',
-#     '//java/com/google/common/primitives': '//external:guava-jar',
-#     '//java/com/google/common/util/concurrent': '//external:guava-jar',
-#     '//third_party/java/android/android_sdk_linux:dx': '//external:dx-jar',
-#     '//third_party/java/asm': '//external:asm-jar',
-#     '//third_party/java/asm:asm-util': '//external:asm-jar',
-#     '//third_party/java/auto:auto_value': '//third_party:auto_value',
-#     '//third_party/java/checker_framework:annotations': '//external:checkerframework-jar',
-#     '//third_party/java/fastutil': '//external:fastutil-jar',
-#     '//third_party/java/guice': '//external:guice-jar',
-#     '//third_party/java/guice:guice-multibindings': '//external:guice-multibindings-jar',
-#     '//third_party/java/jsr305_annotations': '//external:jsr305-jar',
-#     '//third_party/java/jsr330_inject': '//external:javax_inject-jar',
-# }
-
 java_library(
-    name = "census",
+    name = "census-core",
     srcs = glob(["core/java/com/google/census/*.java"]),
     deps = [
         "@guava//jar",
@@ -33,7 +11,7 @@ java_library(
 )
 
 java_library(
-    name = "census_native",
+    name = "census-core_native",
     srcs = glob(["core_native/java/com/google/census/*.java"]),
     deps = [
         ":census",
@@ -47,8 +25,8 @@ java_binary(
     srcs = ["CensusRunner.java"],
     main_class = "com.google.census.CensusRunner",
     deps = [
-        ":census",
-        ":census_native",
+        ":census-core",
+        ":census-core_native",
         "@guava//jar",
         "@jsr305//jar",
     ],
