@@ -8,7 +8,7 @@ We commonly need to know what platform you are on:
 
 # How to contribute
 
-We definitely welcome patches and contributions to grpc! Here are some
+We definitely welcome patches and contributions to Census! Here are some
 guideline and information about how to do so.
 
 ## Before getting started
@@ -26,15 +26,8 @@ style configurations are commonly useful. For IntelliJ 14, copy the style to
 `~/.IdeaIC14/config/codestyles/`, start IntelliJ, go to File > Settings > Code
 Style, and set the Scheme to `GoogleStyle`.
 
-If planning on making a large change, feel free to [create an issue on
-GitHub](https://github.com/grpc/grpc-java/issues/new), visit the [#grpc IRC
-channel on Freenode](http://webchat.freenode.net/?channels=grpc), or send an
-email to [grpc-io@googlegroups.com](grpc-io@googlegroups.com) to discuss
-beforehand.
-
 ## Proposing changes
 
-Make sure that `./gradlew build` (`gradlew build` on Windows) completes
-successfully without any new warnings. Then create a Pull Request with your
-changes. When the changes are accepted, they will be merged or cherry-picked by
-a gRPC core developer.
+Make sure that `bazel build :all` completes successfully without any new warnings.
+Then create a Pull Request with your changes. When the changes are accepted, they
+will be merged or cherry-picked by a Census core developer.
