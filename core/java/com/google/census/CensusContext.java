@@ -31,34 +31,16 @@
 
 package com.google.census;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import java.nio.ByteBuffer;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * An immutable Census-specific context for an operation.
  */
 @ThreadSafe
-public class CensusContext {
-  @VisibleForTesting
-  static final CensusContextFactory contextFactory = new Provider<CensusContextFactory>(
-      "com.google.census.CensusContextFactoryImpl").newInstance();
-
-  /** The default {@link CensusContext}. */
-  public static final CensusContext DEFAULT = new CensusContext(contextFactory.getDefault());
-
-  /** Creates a new {@link CensusContext} built from the given on-the-wire encoded representation.
-   *
-   * @param buffer on-the-wire representation of a {@link CensusContext}
-   * @return a {@link CensusContext} deserialized from {@code buffer}
-   */
-  public static CensusContext deserialize(ByteBuffer buffer) {
-    CensusContextFactory.CensusContext tmpContext = contextFactory.deserialize(buffer);
-    return tmpContext == null ? DEFAULT : new CensusContext(tmpContext);
-  }
-
+public abstract class CensusContext {
   /**
    * Creates a new {@link CensusContext} by adding the given tags to the tags in this
    * {@link CensusContext}.
@@ -66,9 +48,7 @@ public class CensusContext {
    * @param tags the Census key/value pairs to add to {@code this}
    * @return a {@link CensusContext} comprised of the original with the {@code tags} added
    */
-  public CensusContext with(TagMap tags) {
-    return new CensusContext(context.with(tags));
-  }
+  public abstract CensusContext with(TagMap tags);
 
   /**
    * Records the given metrics against this {@link CensusContext}.
@@ -76,53 +56,25 @@ public class CensusContext {
    * @param metrics the metrics to record against the saved {@link CensusContext}
    * @return this
    */
-  public CensusContext record(MetricMap metrics) {
-    context.record(metrics);
-    return this;
-  }
+  public abstract CensusContext record(MetricMap metrics);
 
   /**
    * Serializes the {@link CensusContext} into the on-the-wire representation.
    *
    * @return serialized bytes.
    */
-  public ByteBuffer serialize() {
-    return context.serialize();
-  }
+  public abstract ByteBuffer serialize();
 
-  final CensusContextFactory.CensusContext context;
+  // Note: These method should be static. They are accessed via CensusContextFactory.
+  @Nullable
+  abstract CensusContext deserialize(ByteBuffer buffer);
 
-  private CensusContext(CensusContextFactory.CensusContext context) {
-    this.context = context;
-  }
+  abstract CensusContext getCurrent();
 
-  // Returns the current thread-local CensusContext.
-  static CensusContext getCurrent() {
-    return new CensusContext(contextFactory.getCurrent());
-  }
-
+  // TODO(dpo): condsider moving these methods to another class.
   // Sets this CensusContext as current in the thread-local context.
-  void setCurrent() {
-    context.setCurrent();
-  }
+  abstract void setCurrent();
 
   // Transfers the current thread's Census stats to this CensusContext.
-  void transferCurrentThreadUsage() {
-    context.transferCurrentThreadUsage();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return (obj instanceof CensusContext) && context.equals(((CensusContext) obj).context);
-  }
-
-  @Override
-  public int hashCode() {
-    return context.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return context.toString();
-  }
+  abstract void transferCurrentThreadUsage();
 }

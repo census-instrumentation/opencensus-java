@@ -46,6 +46,19 @@ java_test(
 )
 
 java_test(
+    name = "CensusContextFactoryTest",
+    srcs = ["core/javatests/com/google/census/CensusContextFactoryTest.java"],
+    deps = [
+        ":census-core",
+        ":census-core_native",
+        "@guava//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
     name = "CensusScopeTest",
     srcs = ["core/javatests/com/google/census/CensusScopeTest.java"],
     deps = [

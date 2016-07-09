@@ -32,9 +32,34 @@
 package com.google.census;
 
 public class CensusRunner {
+  private static final CensusContext DEFAULT = CensusContextFactory.getDefault();
+
+  private static final TagKey K1 = new TagKey("k1");
+  private static final TagKey K2 = new TagKey("k2");
+  private static final TagKey K3 = new TagKey("k3");
+  private static final TagKey K4 = new TagKey("k4");
+
+  private static final MetricName M1 = new MetricName("m1");
+  private static final MetricName M2 = new MetricName("m2");
+
   public static void main(String args[]) {
-    System.err.println("Hello Census World");
-    TagMap tags = TagMap.of(new TagKey("foo"), "bar", new TagKey("baz"), "bin");
-    System.err.println("Tags: " + CensusContext.DEFAULT.with(tags));
+    System.out.println("Hello Census World");
+    System.out.println("Default Tags: " + CensusContextFactory.getDefault());
+    System.out.println("Current Tags: " + CensusContextFactory.getCurrent());
+    TagMap tags1 = TagMap.of(K1, "v1", K2, "v2");
+    try (CensusScope scope1 = new CensusScope(tags1)) {
+        System.out.println("  Current Tags: " + CensusContextFactory.getCurrent());
+        System.out.println("  Current == Default + tags1: "
+            + CensusContextFactory.getCurrent().equals(DEFAULT.with(tags1)));
+        TagMap tags2 = TagMap.of(K3, "v3", K4, "v4");
+        try (CensusScope scope2 = new CensusScope(tags2)) {
+            System.out.println("    Current Tags: " + CensusContextFactory.getCurrent());
+            System.out.println("    Current == Default + tags1 + tags2: "
+                + CensusContextFactory.getCurrent().equals(DEFAULT.with(tags1).with(tags2)));
+            CensusContextFactory.getCurrent().record(MetricMap.of(M1, 0.2, M2, 0.4));
+        }
+    }
+    System.out.println("Current == Default: " +
+        CensusContextFactory.getCurrent().equals(CensusContextFactory.getDefault()));
   }
 }

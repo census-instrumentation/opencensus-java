@@ -31,60 +31,58 @@
 
 package com.google.census;
 
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.nio.ByteBuffer;
+
 /**
- * Tests for {@link CensusScope}
+ * Tests for {@link CensusContextFactory}.
  */
 @RunWith(JUnit4.class)
-public class CensusScopeTest {
+public class CensusContextFactoryTest {
   @Test
-  public void testNoScope() {
-    assertEquals(CensusContextFactory.getCurrent(), CensusContextFactory.getDefault());
-  }
-
-  @Test
-  public void testExplicitScope() {
-    CensusScope scope = new CensusScope(TAG_MAP1);
-    assertEquals(
-        CensusContextFactory.getDefault().with(TAG_MAP1),
-        CensusContextFactory.getCurrent());
-    scope.close();
-    assertEquals(CensusContextFactory.getDefault(), CensusContextFactory.getCurrent());
-  }
-
-  @Test
-  public void testImplicitScope() {
-    try (CensusScope scope = new CensusScope(TAG_MAP1)) {
-      assertEquals(
-          CensusContextFactory.getDefault().with(TAG_MAP1),
-          CensusContextFactory.getCurrent());
+  public void testDeserialize() {
+    String s = new String(DEFAULT.serialize().array(), UTF_8);
+    TagMap.Builder builder = TagMap.builder();
+    String key = "k";
+    String val = "v";
+    for (int ix = 0; ix < 5; ix++) {
+      builder.put(new TagKey(key), val);
+      s += "\2" + key + "\3" + val;
+      assertThat(DEFAULT.with(builder.build()))
+          .isEqualTo(CensusContextFactory.deserialize(encode(s)));
+      key += key;
+      val += val;
     }
-    assertEquals(CensusContextFactory.getDefault(), CensusContextFactory.getCurrent());
   }
 
   @Test
-  public void testNestedScope() {
-    try (CensusScope s1 = new CensusScope(TAG_MAP1)) {
-      assertEquals(
-          CensusContextFactory.getDefault().with(TAG_MAP1),
-          CensusContextFactory.getCurrent());
-      try (CensusScope s2 = new CensusScope(TAG_MAP2)) {
-        assertEquals(
-             CensusContextFactory.getDefault().with(TAG_MAP1).with(TAG_MAP2),
-            CensusContextFactory.getCurrent());
-      }
-      assertEquals(
-          CensusContextFactory.getDefault().with(TAG_MAP1),
-          CensusContextFactory.getCurrent());
-    }
-    assertEquals(CensusContextFactory.getDefault(), CensusContextFactory.getCurrent());
+  public void testDeserializeEdgeCases() {
+    assertThat(CensusContextFactory.deserialize(encode(""))).isEqualTo(DEFAULT);
+    assertThat(CensusContextFactory.deserialize(encode("\2\3")))
+        .isEqualTo(DEFAULT.with(TagMap.of(new TagKey(""), "")));
   }
 
-  private static final TagMap TAG_MAP1 = TagMap.of(new TagKey("k1"), "v1");
-  private static final TagMap TAG_MAP2 = TagMap.of(new TagKey("k2"), "v2");
+  @Test
+  public void testDeserializeMalformedContext() {
+    assertThat(CensusContextFactory.deserialize(encode("g"))).isNull();
+    assertThat(CensusContextFactory.deserialize(encode("garbagedata"))).isNull();
+    assertThat(CensusContextFactory.deserialize(encode("\2key"))).isNull();
+    assertThat(CensusContextFactory.deserialize(encode("\3val"))).isNull();
+    assertThat(CensusContextFactory.deserialize(encode("\2key\2\3val"))).isNull();
+    assertThat(CensusContextFactory.deserialize(encode("\2key\3val\3"))).isNull();
+    assertThat(CensusContextFactory.deserialize(encode("\2key\3val\2key2"))).isNull();
+  }
+
+  private static final CensusContext DEFAULT = CensusContextFactory.getDefault();
+
+  private static ByteBuffer encode(String s) {
+    return ByteBuffer.wrap(s.getBytes(UTF_8));
+  }
 }

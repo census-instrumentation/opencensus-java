@@ -35,12 +35,13 @@ import java.nio.ByteBuffer;
 
 import javax.annotation.Nullable;
 
-interface CensusContextFactory {
-  /** Returns the default {@link CensusContext}. */
-  CensusContext getDefault();
-
-  /** Returns the current thread-local {@link CensusContext}. */
-  CensusContext getCurrent();
+/**
+ * Factory class for {@link CensusContext}.
+ */
+public class CensusContextFactory {
+  // The default {@link CensusContext}.
+  private static final CensusContext DEFAULT = new Provider<CensusContext>(
+      "com.google.census.CensusContextImpl").newInstance();
 
   /** Creates a new {@link CensusContext} built from the given on-the-wire encoded representation.
    *
@@ -48,57 +49,17 @@ interface CensusContextFactory {
    * @return a {@link CensusContext} deserialized from {@code buffer}
    */
   @Nullable
-  CensusContext deserialize(ByteBuffer buffer);
+  public static CensusContext deserialize(ByteBuffer buffer) {
+    return DEFAULT.deserialize(buffer);
+  }
 
-  interface CensusContext {
-    /**
-     * Creates a new {@link CensusContext} by adding the given tags to the tags in this
-     * {@link CensusContext}.
-     */
-    CensusContext with(TagMap tags);
+  /** Returns the current thread-local {@link CensusContext}. */
+  public static CensusContext getCurrent() {
+    return DEFAULT.getCurrent();
+  }
 
-    /**
-     * Serializes the {@link CensusContext} into the on-the-wire representation.
-     *
-     * @return serialized bytes.
-     */
-    ByteBuffer serialize();
-
-    /**
-     * Records stats against the {@link CensusContext} for the given metrics.
-     */
-    void record(MetricMap stats);
-
-    /** Sets this {@link CensusContext} as current in the thread-local context. */
-    void setCurrent();
-
-    // Tracing API's - these are placeholders at the moment and need more work.
-
-    /**
-     * Transfers the current thread's usage, as recorded by {@link record}, to the given
-     * {@link CensusContext}.
-     */
-    void transferCurrentThreadUsage();
-
-    /**
-     * Records start of an operation. Caller must call {@link opEnd()} when the operation completes.
-     */
-    void opStart();
-
-    /**
-     * Records end of an operation.
-     *
-     * @throws IllegalStateException operation has already ended
-     */
-    void opEnd();
-
-    /**
-     * Prints annotations for the {@link CensusContext}.
-     *
-     * @param format printf-style format string
-     * @param args annotations to record
-     * @throws IllegalStateException operation has already ended
-     */
-    void print(String format, Object... args);
+  /** Returns the default {@link CensusContext}. */
+  public static CensusContext getDefault() {
+    return DEFAULT;
   }
 }

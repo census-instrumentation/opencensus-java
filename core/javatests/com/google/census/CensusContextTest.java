@@ -48,23 +48,23 @@ import java.nio.ByteBuffer;
 public class CensusContextTest {
   @Test
   public void testDefault() {
-    assertThat(DEFAULT.context).isEqualTo(CensusContext.contextFactory.getDefault());
+    assertThat(DEFAULT).isEqualTo(CensusContextFactory.getDefault());
   }
 
   @Test
   public void testGetCurrent() {
-    assertThat(CensusContext.getCurrent()).isEqualTo(DEFAULT);
+    assertThat(CensusContextFactory.getCurrent()).isEqualTo(DEFAULT);
   }
 
   @Test
   public void testDeserializeEmpty() {
-    assertThat(CensusContext.deserialize(ByteBuffer.wrap(new byte[0]))).isEqualTo(DEFAULT);
+    assertThat(CensusContextFactory.deserialize(ByteBuffer.wrap(new byte[0]))).isEqualTo(DEFAULT);
   }
 
   @Test
   public void testDeserializeBadData() {
-    assertThat(CensusContext.deserialize(ByteBuffer.wrap("\2as\3df\2".getBytes(UTF_8))))
-        .isEqualTo(DEFAULT);
+    assertThat(CensusContextFactory.deserialize(ByteBuffer.wrap("\2as\3df\2".getBytes(UTF_8))))
+        .isNull();
   }
 
   @Test
@@ -121,34 +121,19 @@ public class CensusContextTest {
 
   @Test
   public void testGetAndSetCurrent() {
-    assertThat(DEFAULT).isEqualTo(CensusContext.getCurrent());
+    assertThat(DEFAULT).isEqualTo(CensusContextFactory.getCurrent());
 
     CensusContext context = DEFAULT.with(TAG_MAP1);
     context.setCurrent();
-    assertThat(context).isEqualTo(CensusContext.getCurrent());
+    assertThat(context).isEqualTo(CensusContextFactory.getCurrent());
 
     DEFAULT.setCurrent();
-    assertThat(DEFAULT).isEqualTo(CensusContext.getCurrent());
+    assertThat(DEFAULT).isEqualTo(CensusContextFactory.getCurrent());
   }
 
   @Test
   public void testTransferCurrentThreadUsage() {
     DEFAULT.transferCurrentThreadUsage();
-  }
-
-  @Test
-  public void testOpStart() {
-    DEFAULT.context.opStart();
-  }
-
-  @Test
-  public void testOpEnd() {
-    DEFAULT.context.opEnd();
-  }
-
-  @Test
-  public void testPrint() {
-    DEFAULT.context.print("some interesting event");
   }
 
   // Tests for overrides.
@@ -188,7 +173,7 @@ public class CensusContextTest {
         .isNotEqualTo(DEFAULT.with(TAG_MAP1).toString());
   }
 
-  private static final CensusContext DEFAULT = CensusContext.DEFAULT;
+  private static final CensusContext DEFAULT = CensusContextFactory.getDefault();
   private static final MetricName[] CensusMetricNames = {
     RpcConstants.RPC_CLIENT_BYTES_RECEIVED, RpcConstants.RPC_CLIENT_BYTES_SENT,
     RpcConstants.RPC_CLIENT_LATENCY, RpcConstants.RPC_SERVER_BYTES_RECEIVED,
@@ -210,7 +195,7 @@ public class CensusContextTest {
 
   private static void testSerialization(TagMap tags) {
     CensusContext expected = DEFAULT.with(tags);
-    CensusContext actual = CensusContext.deserialize(expected.serialize());
+    CensusContext actual = CensusContextFactory.deserialize(expected.serialize());
     assertThat(actual).isEqualTo(expected);
   }
 }

@@ -57,7 +57,7 @@ public final class CensusScope implements AutoCloseable {
    * @param tags additional tags to associate with this scope.
    */
   public CensusScope(TagMap tags) {
-    context = CensusContext.getCurrent();
+    context = CensusContextFactory.getCurrent();
     context.with(tags).setCurrent();
   }
 

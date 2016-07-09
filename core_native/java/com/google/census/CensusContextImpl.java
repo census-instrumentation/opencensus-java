@@ -37,16 +37,29 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-/** Native Implementation of {@link CensusContextFactory.CenusContext} */
-final class CensusContextImpl implements CensusContextFactory.CensusContext {
+import javax.annotation.Nullable;
+
+/** Native Implementation of {@link CenusContext} */
+final class CensusContextImpl extends CensusContext {
+  static final ThreadLocal<CensusContextImpl> contexts = new ThreadLocal<CensusContextImpl>() {
+    @Override
+    protected CensusContextImpl initialValue() {
+      return DEFAULT;
+    }
+  };
   static final char TAG_PREFIX = '\2';
   static final char TAG_DELIM = '\3';
+  static final CensusContextImpl DEFAULT = new CensusContextImpl();
+
+  private final HashMap<String, String> tags;
+
+  CensusContextImpl() {
+    this(new HashMap<String, String>(0));
+  }
 
   CensusContextImpl(HashMap<String, String> tags) {
     this.tags = tags;
   }
-
-  private final HashMap<String, String> tags;
 
   @Override
   public CensusContextImpl with(TagMap tags) {
@@ -56,6 +69,16 @@ final class CensusContextImpl implements CensusContextFactory.CensusContext {
       newTags.put(tag.getKey(), tag.getValue());
     }
     return new CensusContextImpl(newTags);
+  }
+
+  @Override
+  public CensusContextImpl record(MetricMap stats) {
+    System.out.print("record: tags:" + toString() + ", stats:");
+    for (Metric m : stats) {
+      System.out.print("<" + m.getName() + "," + m.getValue() + ">");
+    }
+    System.out.println();
+    return this;
   }
 
   @Override
@@ -75,29 +98,40 @@ final class CensusContextImpl implements CensusContextFactory.CensusContext {
     return ByteBuffer.wrap(builder.toString().getBytes(UTF_8));
   }
 
+  // The serialized tags are of the form:  (<tag prefix> + 'key' + <tag delim> + 'value')*
   @Override
-  public void record(MetricMap stats) {
+  @Nullable
+  CensusContextImpl deserialize(ByteBuffer buffer) {
+    String input = new String(buffer.array(), UTF_8);
+    HashMap<String, String> tags = new HashMap<String, String>();
+    if (!input.matches("(\2[^\2\3]*\3[^\2\3]*)*")) {
+      return null;
+    }
+    if (!input.isEmpty()) {
+      int keyIndex = 0;
+      do {
+        int valIndex = input.indexOf(CensusContextImpl.TAG_DELIM, keyIndex + 1);
+        String key = input.substring(keyIndex + 1, valIndex);
+        keyIndex = input.indexOf(CensusContextImpl.TAG_PREFIX, valIndex + 1);
+        String val = input.substring(valIndex + 1, keyIndex == -1 ? input.length() : keyIndex);
+        tags.put(key, val);
+      } while (keyIndex != -1);
+    }
+    return new CensusContextImpl(tags);
+  }
+
+  @Override
+  CensusContextImpl getCurrent() {
+    return contexts.get();
   }
 
   @Override
   public void setCurrent() {
-    CensusContextFactoryImpl.contexts.set(this);
+    contexts.set(this);
   }
 
   @Override
   public void transferCurrentThreadUsage() {
-  }
-
-  @Override
-  public void opStart() {
-  }
-
-  @Override
-  public void opEnd() {
-  }
-
-  @Override
-  public void print(String format, Object... args) {
   }
 
   @Override
