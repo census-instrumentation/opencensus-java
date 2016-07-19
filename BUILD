@@ -23,7 +23,7 @@ java_library(
 java_binary(
     name = "CensusRunner",
     srcs = ["examples/java/com/google/census/CensusRunner.java"],
-    main_class = "com.google.census.CensusRunner",
+    main_class = "com.google.census.examples.CensusRunner",
     deps = [
         ":census-core",
         ":census-core_native",

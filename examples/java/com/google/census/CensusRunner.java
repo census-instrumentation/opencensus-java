@@ -29,7 +29,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.google.census;
+package com.google.census.examples;
+
+import com.google.census.Census;
+import com.google.census.CensusContext;
+import com.google.census.CensusScope;
+import com.google.census.MetricMap;
+import com.google.census.MetricName;
+import com.google.census.TagKey;
+import com.google.census.TagValue;
 
 public class CensusRunner {
   private static final TagKey K1 = new TagKey("k1");
@@ -53,7 +61,6 @@ public class CensusRunner {
         CensusContext context1 = Census.getDefault().with(K1, V1, K2, V2);
         System.out.println("  Current Tags: " + Census.getCurrent());
         System.out.println("  Current == Default + tags1: " + Census.getCurrent().equals(context1));
-        TagMap tags2 = TagMap.of();
         try (CensusScope scope2 = CensusScope.of(K3, V3, K4, V4)) {
             CensusContext context2 = context1.with(K3, V3, K4, V4);
             System.out.println("    Current Tags: " + Census.getCurrent());
