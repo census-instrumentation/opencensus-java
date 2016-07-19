@@ -33,54 +33,30 @@ package com.google.census;
 
 import java.nio.ByteBuffer;
 
+import javax.annotation.Nullable;
+
 /**
- * An immutable Census-specific context for an operation.
+ * {@link Census}.
  */
-public interface CensusContext {
-  /** Returns a builder based on this {@link CensusContext} */
-  Builder builder();
+public final class Census {
+  private static final CensusContextFactory CONTEXT_FACTORY = new Provider<CensusContextFactory>(
+      "com.google.census.CensusContextFactoryImpl").newInstance();
 
-  /** Shorthand for builder().set(k1, v1).build() */
-  CensusContext with(TagKey k1, TagValue v1);
+  private static final CensusContext DEFAULT = CONTEXT_FACTORY.getCurrent();
 
-  /** Shorthand for builder().set(k1, v1).set(k2, v2).build() */
-  CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2);
+  /** Returns the default {@link CensusContext}. */
+  public static CensusContext getDefault() {
+    return DEFAULT;
+  }
 
-  /** Shorthand for builder().set(k1, v1).set(k2, v2).set(k3, v3).build() */
-  CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3);
+  /** Returns the current thread-local {@link CensusContext}. */
+  public static CensusContext getCurrent() {
+    return CONTEXT_FACTORY.getCurrent();
+  }
 
-  /**
-   * Records the given metrics against this {@link CensusContext}.
-   *
-   * @param metrics the metrics to record against the saved {@link CensusContext}
-   * @return this
-   */
-  CensusContext record(MetricMap metrics);
-
-  /**
-   * Serializes the {@link CensusContext} into the on-the-wire representation.
-   *
-   * @return serialized bytes.
-   */
-  ByteBuffer serialize();
-
-  /** Sets the current thread-local {@link CensusContext}. */
-  void setCurrent();
-
-  /** Builder for {@link Context}. */
-  interface Builder {
-    /**
-     * Associates the given tag key with the given tag value.
-     *
-     * @param key the key
-     * @param value the value to be associated with {@code key}
-     * @return {@code this}
-     */
-    Builder set(TagKey key, TagValue value);
-
-    /**
-     * Builds a {@link CensusContext} from the specified keys and values.
-     */
-    CensusContext build();
+  /** Creates a {@link CensusContext} from the given on-the-wire encoded representation. */
+  @Nullable
+  public static CensusContext deserialize(ByteBuffer buffer) {
+    return CONTEXT_FACTORY.deserialize(buffer);
   }
 }

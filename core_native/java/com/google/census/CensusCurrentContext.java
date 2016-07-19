@@ -31,56 +31,20 @@
 
 package com.google.census;
 
-import java.nio.ByteBuffer;
+/** Native implementation of thread-local {@link CensusContext} */
+class CensusCurrentContext {
+  static final ThreadLocal<CensusContextImpl> contexts = new ThreadLocal<CensusContextImpl>() {
+    @Override
+    protected CensusContextImpl initialValue() {
+      return CensusContextFactoryImpl.DEFAULT;
+    }
+  };
 
-/**
- * An immutable Census-specific context for an operation.
- */
-public interface CensusContext {
-  /** Returns a builder based on this {@link CensusContext} */
-  Builder builder();
+  public static void set(CensusContextImpl context) {
+    contexts.set(context);
+  }
 
-  /** Shorthand for builder().set(k1, v1).build() */
-  CensusContext with(TagKey k1, TagValue v1);
-
-  /** Shorthand for builder().set(k1, v1).set(k2, v2).build() */
-  CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2);
-
-  /** Shorthand for builder().set(k1, v1).set(k2, v2).set(k3, v3).build() */
-  CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3);
-
-  /**
-   * Records the given metrics against this {@link CensusContext}.
-   *
-   * @param metrics the metrics to record against the saved {@link CensusContext}
-   * @return this
-   */
-  CensusContext record(MetricMap metrics);
-
-  /**
-   * Serializes the {@link CensusContext} into the on-the-wire representation.
-   *
-   * @return serialized bytes.
-   */
-  ByteBuffer serialize();
-
-  /** Sets the current thread-local {@link CensusContext}. */
-  void setCurrent();
-
-  /** Builder for {@link Context}. */
-  interface Builder {
-    /**
-     * Associates the given tag key with the given tag value.
-     *
-     * @param key the key
-     * @param value the value to be associated with {@code key}
-     * @return {@code this}
-     */
-    Builder set(TagKey key, TagValue value);
-
-    /**
-     * Builds a {@link CensusContext} from the specified keys and values.
-     */
-    CensusContext build();
+  public static CensusContextImpl get() {
+    return contexts.get();
   }
 }

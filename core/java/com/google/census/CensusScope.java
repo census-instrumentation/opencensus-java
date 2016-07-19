@@ -40,7 +40,7 @@ package com.google.census;
  * void handleRead() {
  *   ...
  *   if (ssdRead) {
- *     try (CensusScope scope = new CensusScope(TagMap.builder().set("ReadType", "ssd").build())) {
+ *     try (CensusScope scope = CensusScope.builder().set("ReadType", "ssd").build()) {
  *       // In scope.
  *       ...
  *     }
@@ -50,24 +50,55 @@ package com.google.census;
  * </pre>
  */
 public final class CensusScope implements AutoCloseable {
-  /**
-   * Creates and starts a {@link CensusScope}. Inherits {@link TagMap} from the parent scope
-   * and adds specified {@code tags} to it.
-   *
-   * @param tags additional tags to associate with this scope.
-   */
-  public CensusScope(TagMap tags) {
-    context = CensusContextFactory.getCurrent();
-    context.with(tags).setCurrent();
-  }
+  private final CensusContext saved;
 
   /**
-   * Ends this scope and restores the parent {@link CensusScope}.
+   * Saves the current {@link CensusContext} ands installs the given {@link CensusContext} as
+   * current. Restores the saved {@link CensusContext} on close.
    */
-  @Override
-  public void close() {
+  public CensusScope(CensusContext context) {
+    saved = Census.getCurrent();
     context.setCurrent();
   }
 
-  private final CensusContext context;
+  /** Ends this scope and restores the saved {@link CensusContext}.  */
+  @Override
+  public void close() {
+    saved.setCurrent();
+  }
+
+  /** Returns a {@link Builder} for {@link CensusScope}. */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  /** Shorthand for builder().set(k1, v1).build() */
+  public static CensusScope of(TagKey k1, TagValue v1) {
+    return builder().set(k1, v1).build();
+  }
+
+  /** Shorthand for builder().set(k1, v1).set(k2, v2).build() */
+  public static CensusScope of(TagKey k1, TagValue v1, TagKey k2, TagValue v2) {
+    return builder().set(k1, v1).set(k2, v2).build();
+  }
+
+  /** Shorthand for builder().set(k1, v1).set(k2, v2).set(k3, v3).build() */
+  public static CensusScope of(
+      TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3) {
+    return builder().set(k1, v1).set(k2, v2).set(k3, v3).build();
+  }
+
+  /** Builder for {@link CensusScope}. */
+  public static final class Builder {
+    private final CensusContext.Builder builder = Census.getCurrent().builder();
+
+    public Builder set(TagKey key, TagValue value) {
+      builder.set(key, value);
+      return this;
+    }
+
+    public CensusScope build() {
+      return new CensusScope(builder.build());
+    }
+  }
 }

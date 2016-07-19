@@ -31,107 +31,51 @@
 
 package com.google.census;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Map.Entry;
-
-import javax.annotation.Nullable;
 
 /** Native Implementation of {@link CenusContext} */
-final class CensusContextImpl extends CensusContext {
-  static final ThreadLocal<CensusContextImpl> contexts = new ThreadLocal<CensusContextImpl>() {
-    @Override
-    protected CensusContextImpl initialValue() {
-      return DEFAULT;
-    }
-  };
-  static final char TAG_PREFIX = '\2';
-  static final char TAG_DELIM = '\3';
-  static final CensusContextImpl DEFAULT = new CensusContextImpl();
-
-  private final HashMap<String, String> tags;
-
-  CensusContextImpl() {
-    this(new HashMap<String, String>(0));
-  }
+final class CensusContextImpl implements CensusContext {
+  final HashMap<String, String> tags;
 
   CensusContextImpl(HashMap<String, String> tags) {
     this.tags = tags;
   }
 
   @Override
-  public CensusContextImpl with(TagMap tags) {
-    HashMap<String, String> newTags = new HashMap(this.tags.size() + tags.size());
-    newTags.putAll(this.tags);
-    for (Entry<String, String> tag : tags) {
-      newTags.put(tag.getKey(), tag.getValue());
-    }
-    return new CensusContextImpl(newTags);
+  public Builder builder() {
+    return new Builder(tags);
+  }
+
+  @Override
+  public CensusContext with(TagKey k1, TagValue v1) {
+    return builder().set(k1, v1).build();
+  }
+
+  @Override
+  public CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2) {
+    return builder().set(k1, v1).set(k2, v2).build();
+  }
+
+  @Override
+  public CensusContext with(
+      TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3) {
+    return builder().set(k1, v1).set(k2, v2).set(k3, v3).build();
   }
 
   @Override
   public CensusContextImpl record(MetricMap stats) {
-    System.out.print("record: tags:" + toString() + ", stats:");
-    for (Metric m : stats) {
-      System.out.print("<" + m.getName() + "," + m.getValue() + ">");
-    }
-    System.out.println();
     return this;
   }
 
   @Override
   public ByteBuffer serialize() {
-    // Note: for now we serialize into the Google3 Census on-the-wire format. Eventually
-    // we will standardize on format (likely protobuf based).
-    //
-    // TODO(dpo): update encoding once format has been finalized.
-    StringBuilder builder = new StringBuilder();
-    for (Entry<String, String> tag : tags.entrySet()) {
-      builder
-          .append(TAG_PREFIX)
-          .append(tag.getKey())
-          .append(TAG_DELIM)
-          .append(tag.getValue());
-    }
-    return ByteBuffer.wrap(builder.toString().getBytes(UTF_8));
-  }
-
-  // The serialized tags are of the form:  (<tag prefix> + 'key' + <tag delim> + 'value')*
-  @Override
-  @Nullable
-  CensusContextImpl deserialize(ByteBuffer buffer) {
-    String input = new String(buffer.array(), UTF_8);
-    HashMap<String, String> tags = new HashMap<String, String>();
-    if (!input.matches("(\2[^\2\3]*\3[^\2\3]*)*")) {
-      return null;
-    }
-    if (!input.isEmpty()) {
-      int keyIndex = 0;
-      do {
-        int valIndex = input.indexOf(CensusContextImpl.TAG_DELIM, keyIndex + 1);
-        String key = input.substring(keyIndex + 1, valIndex);
-        keyIndex = input.indexOf(CensusContextImpl.TAG_PREFIX, valIndex + 1);
-        String val = input.substring(valIndex + 1, keyIndex == -1 ? input.length() : keyIndex);
-        tags.put(key, val);
-      } while (keyIndex != -1);
-    }
-    return new CensusContextImpl(tags);
-  }
-
-  @Override
-  CensusContextImpl getCurrent() {
-    return contexts.get();
+    return CensusSerializer.serialize(this);
   }
 
   @Override
   public void setCurrent() {
-    contexts.set(this);
-  }
-
-  @Override
-  public void transferCurrentThreadUsage() {
+    CensusCurrentContext.set(this);
   }
 
   @Override
@@ -147,5 +91,24 @@ final class CensusContextImpl extends CensusContext {
   @Override
   public String toString() {
     return tags.toString();
+  }
+
+  private static final class Builder implements CensusContext.Builder {
+    private final HashMap<String, String> tags;
+
+    private Builder(HashMap<String, String> tags) {
+      this.tags = new HashMap<>(tags);
+    }
+
+    @Override
+    public Builder set(TagKey key, TagValue value) {
+      tags.put(key.toString(), value.toString());
+      return this;
+    }
+
+    @Override
+    public CensusContext build() {
+      return new CensusContextImpl(new HashMap<>(tags));
+    }
   }
 }

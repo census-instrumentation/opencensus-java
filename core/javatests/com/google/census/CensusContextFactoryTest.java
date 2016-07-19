@@ -47,42 +47,18 @@ import java.nio.ByteBuffer;
 @RunWith(JUnit4.class)
 public class CensusContextFactoryTest {
   @Test
-  public void testDeserialize() {
-    String s = new String(DEFAULT.serialize().array(), UTF_8);
-    TagMap.Builder builder = TagMap.builder();
-    String key = "k";
-    String val = "v";
-    for (int ix = 0; ix < 5; ix++) {
-      builder.put(new TagKey(key), val);
-      s += "\2" + key + "\3" + val;
-      assertThat(DEFAULT.with(builder.build()))
-          .isEqualTo(CensusContextFactory.deserialize(encode(s)));
-      key += key;
-      val += val;
-    }
+  public void testDeserializeEmpty() {
+    assertThat(Census.deserialize(ByteBuffer.wrap(new byte[0]))).isEqualTo(Census.getDefault());
   }
 
   @Test
-  public void testDeserializeEdgeCases() {
-    assertThat(CensusContextFactory.deserialize(encode(""))).isEqualTo(DEFAULT);
-    assertThat(CensusContextFactory.deserialize(encode("\2\3")))
-        .isEqualTo(DEFAULT.with(TagMap.of(new TagKey(""), "")));
+  public void testDeserializeBadData() {
+    assertThat(Census.deserialize(ByteBuffer.wrap("\2as\3df\2".getBytes(UTF_8))))
+        .isNull();
   }
 
   @Test
-  public void testDeserializeMalformedContext() {
-    assertThat(CensusContextFactory.deserialize(encode("g"))).isNull();
-    assertThat(CensusContextFactory.deserialize(encode("garbagedata"))).isNull();
-    assertThat(CensusContextFactory.deserialize(encode("\2key"))).isNull();
-    assertThat(CensusContextFactory.deserialize(encode("\3val"))).isNull();
-    assertThat(CensusContextFactory.deserialize(encode("\2key\2\3val"))).isNull();
-    assertThat(CensusContextFactory.deserialize(encode("\2key\3val\3"))).isNull();
-    assertThat(CensusContextFactory.deserialize(encode("\2key\3val\2key2"))).isNull();
-  }
-
-  private static final CensusContext DEFAULT = CensusContextFactory.getDefault();
-
-  private static ByteBuffer encode(String s) {
-    return ByteBuffer.wrap(s.getBytes(UTF_8));
+  public void testGetCurrent() {
+    assertThat(Census.getCurrent()).isEqualTo(Census.getDefault());
   }
 }

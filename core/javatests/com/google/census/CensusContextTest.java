@@ -33,147 +33,21 @@ package com.google.census;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Tests for {@link CensusContext}.
  */
 @RunWith(JUnit4.class)
 public class CensusContextTest {
-  @Test
-  public void testDefault() {
-    assertThat(DEFAULT).isEqualTo(CensusContextFactory.getDefault());
-  }
+  private static final CensusContext DEFAULT = Census.getDefault();
 
-  @Test
-  public void testGetCurrent() {
-    assertThat(CensusContextFactory.getCurrent()).isEqualTo(DEFAULT);
-  }
-
-  @Test
-  public void testDeserializeEmpty() {
-    assertThat(CensusContextFactory.deserialize(ByteBuffer.wrap(new byte[0]))).isEqualTo(DEFAULT);
-  }
-
-  @Test
-  public void testDeserializeBadData() {
-    assertThat(CensusContextFactory.deserialize(ByteBuffer.wrap("\2as\3df\2".getBytes(UTF_8))))
-        .isNull();
-  }
-
-  @Test
-  public void testSerializeDeserialize() {
-    testSerialization(TagMap.of());
-    testSerialization(TAG_MAP1);
-    testSerialization(TagMap.of(K1, "v1", K2, "v2", K3, "v3"));
-    testSerialization(TagMap.of(K1, ""));
-    testSerialization(TagMap.of(K_EMPTY, "v1"));
-    testSerialization(TagMap.of(K_EMPTY, ""));
-  }
-
-  @Test
-  public void testWith() {
-    CensusContext context1 = DEFAULT.with(TAG_MAP1);
-    assertEquivalent(TagMap.of(K1, "v1"), context1);
-
-    CensusContext context2 = context1.with(TagMap.of(K1, "v10", K2, "v2"));
-    assertEquivalent(TagMap.of(K1, "v10", K2, "v2"), context2);
-
-    CensusContext context3 = context2.with(TagMap.of(K1, "v100", K2, "v20", K3, "v3"));
-    assertEquivalent(TagMap.of(K1, "v100", K2, "v20", K3, "v3"), context3);
-
-    CensusContext context4 = context3.with(TagMap.of(K3, "v30", K4, "v4"));
-    assertEquivalent(
-        TagMap.builder().put(K1, "v100").put(K2, "v20").put(K3, "v30").put(K4, "v4").build(),
-        context4);
-  }
-
-  @Test
-  public void testRecordEachMetric() {
-    CensusContext context = DEFAULT.with(TAG_MAP1);
-    double value = 44.0;
-    for (MetricName metric : CensusMetricNames) {
-      MetricMap metrics = MetricMap.of(metric, value);
-      context.record(metrics);
-      //verify(context.context).record(metrics);
-      value++;
-    }
-  }
-
-  @Test
-  public void testRecordAllMetrics() {
-    CensusContext context = DEFAULT.with(TAG_MAP1);
-    double value = 44.0;
-    MetricMap.Builder builder = MetricMap.builder();
-    for (MetricName metric : CensusMetricNames) {
-      MetricMap metrics = builder.put(metric, value).build();
-      context.record(metrics);
-      //verify(context.context).record(metrics);
-      value++;
-    }
-  }
-
-  @Test
-  public void testGetAndSetCurrent() {
-    assertThat(DEFAULT).isEqualTo(CensusContextFactory.getCurrent());
-
-    CensusContext context = DEFAULT.with(TAG_MAP1);
-    context.setCurrent();
-    assertThat(context).isEqualTo(CensusContextFactory.getCurrent());
-
-    DEFAULT.setCurrent();
-    assertThat(DEFAULT).isEqualTo(CensusContextFactory.getCurrent());
-  }
-
-  @Test
-  public void testTransferCurrentThreadUsage() {
-    DEFAULT.transferCurrentThreadUsage();
-  }
-
-  // Tests for overrides.
-  @Test
-  public void testEquals() {
-    assertThat(DEFAULT).isEqualTo(DEFAULT);
-    assertThat(DEFAULT.with(TAG_MAP1)).isEqualTo(DEFAULT.with(TAG_MAP1));
-    assertThat(DEFAULT.with(TagMap.of(K1, "v1", K2, "v2")))
-        .isEqualTo(DEFAULT.with(TagMap.of(K1, "v1", K2, "v2")));
-    assertThat(DEFAULT.with(TagMap.of(K1, "v1", K2, "v2")))
-        .isEqualTo(DEFAULT.with(TagMap.of(K2, "v2", K1, "v1")));
-
-    assertThat(DEFAULT).isNotEqualTo(DEFAULT.with(TAG_MAP1));
-    assertThat(DEFAULT.with(TAG_MAP1)).isNotEqualTo(DEFAULT);
-    assertThat(DEFAULT.with(TAG_MAP1)).isNotEqualTo(DEFAULT.with(TagMap.of(K10, "v1")));
-    assertThat(DEFAULT.with(TAG_MAP1)).isNotEqualTo(DEFAULT.with(TagMap.of(K1, "v10")));
-    assertThat(DEFAULT.with(TAG_MAP1)).isNotEqualTo(DEFAULT.with(TagMap.of(K1, "v1", K2, "v2")));
-    assertThat(DEFAULT.with(TAG_MAP1)).isNotEqualTo("foo");
-  }
-
-  @Test
-  public void testHashCode() {
-    assertThat(DEFAULT.with(TAG_MAP1).hashCode()).isEqualTo(DEFAULT.with(TAG_MAP1).hashCode());
-    assertThat(DEFAULT.with(TAG_MAP1).hashCode()).isNotEqualTo(DEFAULT.hashCode());
-    assertThat(DEFAULT.with(TagMap.of(K10, "v1")).hashCode())
-        .isNotEqualTo(DEFAULT.with(TAG_MAP1).hashCode());
-    assertThat(DEFAULT.with(TagMap.of(K1, "v10")).hashCode())
-        .isNotEqualTo(DEFAULT.with(TAG_MAP1).hashCode());
-  }
-
-  @Test
-  public void testToString() {
-    assertThat(DEFAULT.with(TAG_MAP1).toString()).isEqualTo(DEFAULT.with(TAG_MAP1).toString());
-    assertThat(DEFAULT.with(TagMap.of(K10, "v1")).toString())
-        .isNotEqualTo(DEFAULT.with(TAG_MAP1).toString());
-    assertThat(DEFAULT.with(TagMap.of(K1, "v10")).toString())
-        .isNotEqualTo(DEFAULT.with(TAG_MAP1).toString());
-  }
-
-  private static final CensusContext DEFAULT = CensusContextFactory.getDefault();
   private static final MetricName[] CensusMetricNames = {
     RpcConstants.RPC_CLIENT_BYTES_RECEIVED, RpcConstants.RPC_CLIENT_BYTES_SENT,
     RpcConstants.RPC_CLIENT_LATENCY, RpcConstants.RPC_SERVER_BYTES_RECEIVED,
@@ -187,15 +61,151 @@ public class CensusContextTest {
   private static final TagKey K4 = new TagKey("k4");
   private static final TagKey K10 = new TagKey("k10");
 
-  private static final TagMap TAG_MAP1 = TagMap.of(K1, "v1");
+  private static final TagValue V_EMPTY = new TagValue("");
+  private static final TagValue V1 = new TagValue("v1");
+  private static final TagValue V2 = new TagValue("v2");
+  private static final TagValue V3 = new TagValue("v3");
+  private static final TagValue V4 = new TagValue("v4");
+  private static final TagValue V10 = new TagValue("v10");
+  private static final TagValue V20 = new TagValue("v20");
+  private static final TagValue V30 = new TagValue("v30");
+  private static final TagValue V100 = new TagValue("v100");
 
-  private static void assertEquivalent(TagMap tags, CensusContext actual) {
-    assertThat(DEFAULT.with(tags)).isEqualTo(actual);
+  @Test
+  public void testWith() {
+    assertThat(DEFAULT.builder().set(K1, V1).build()).isEqualTo(DEFAULT.with(K1, V1));
+
+    assertThat(DEFAULT.builder().set(K1, V1).set(K2, V2).build())
+        .isEqualTo(DEFAULT.with(K1, V1, K2, V2));
+
+    assertThat(DEFAULT.builder().set(K1, V1).set(K2, V2).set(K3, V3).build())
+        .isEqualTo(DEFAULT.with(K1, V1, K2, V2, K3, V3));
   }
 
-  private static void testSerialization(TagMap tags) {
-    CensusContext expected = DEFAULT.with(tags);
-    CensusContext actual = CensusContextFactory.deserialize(expected.serialize());
+  @Test
+  public void testWithComposed() {
+    CensusContext context1 = DEFAULT.with(K1, V1);
+    assertThat(DEFAULT.builder().set(K1, V1).build()).isEqualTo(context1);
+
+    CensusContext context2 = context1.with(K1, V10, K2, V2);
+    assertThat(DEFAULT.with(K1, V10, K2, V2)).isEqualTo(context2);
+
+    CensusContext context3 = context2.with(K1, V100, K2, V20, K3, V3);
+    assertThat(DEFAULT.with(K1, V100, K2, V20, K3, V3)).isEqualTo(context3);
+
+    CensusContext context4 = context3.with(K3, V30, K4, V4);
+    assertThat(DEFAULT.builder().set(K1, V100).set(K2, V20).set(K3, V30).set(K4, V4).build())
+        .isEqualTo(context4);
+  }
+
+
+  @Test
+  public void testRecordEachMetric() {
+    CensusContext context = DEFAULT.with(K1, V1);
+    double value = 44.0;
+    for (MetricName metric : CensusMetricNames) {
+      MetricMap metrics = MetricMap.of(metric, value);
+      context.record(metrics);
+      //verify(context.context).record(metrics);
+      value++;
+    }
+  }
+
+  @Test
+  public void testRecordAllMetrics() {
+    CensusContext context = DEFAULT.with(K1, V1);
+    double value = 44.0;
+    MetricMap.Builder builder = MetricMap.builder();
+    for (MetricName metric : CensusMetricNames) {
+      MetricMap metrics = builder.put(metric, value).build();
+      context.record(metrics);
+      //verify(context.context).record(metrics);
+      value++;
+    }
+  }
+
+  @Test
+  public void testSerialize() {
+    testSerialization(DEFAULT.builder().build());
+    testSerialization(DEFAULT.with(K1, V1));
+    testSerialization(DEFAULT.with(K1, V1, K2, V2, K3, V3));
+    testSerialization(DEFAULT.with(K1, V_EMPTY));
+    testSerialization(DEFAULT.with(K_EMPTY, V1));
+    testSerialization(DEFAULT.with(K_EMPTY, V_EMPTY));
+  }
+
+  @Test
+  public void testSetCurrent() {
+    assertThat(DEFAULT).isEqualTo(Census.getCurrent());
+
+    CensusContext context = DEFAULT.with(K1, V1);
+    context.setCurrent();
+    assertThat(context).isEqualTo(Census.getCurrent());
+
+    DEFAULT.setCurrent();
+    assertThat(DEFAULT).isEqualTo(Census.getCurrent());
+  }
+
+  @Test
+  public void testMultipleThreadsWithContext() throws Exception {
+    CensusContext currentContext = Census.getCurrent();
+    CensusContext c1 = Census.getDefault().with(K1, V1);
+    CensusContext c2 = Census.getDefault().with(K2, V2);
+    ExecutorService executor = Executors.newFixedThreadPool(1);
+    // Attach c1 to the executor thread.
+    Future<?> future = executor.submit(withContext(Census.getDefault(), c1));
+    future.get();
+    // Verify that the context for the current thread was not updated.
+    assertThat(Census.getCurrent()).isEqualTo(currentContext);
+    // Attach c2 to the executor thread.
+    future = executor.submit(withContext(c1, c2));
+    future.get();
+  }
+
+  // Tests for Object overrides.
+  @Test
+  public void testEquals() {
+    assertThat(DEFAULT).isEqualTo(DEFAULT);
+    assertThat(DEFAULT.with(K1, V1)).isEqualTo(DEFAULT.with(K1, V1));
+    assertThat(DEFAULT.with(K1, V1, K2, V2)).isEqualTo(DEFAULT.with(K1, V1, K2, V2));
+    assertThat(DEFAULT.with(K1, V1, K2, V2)).isEqualTo(DEFAULT.with(K2, V2, K1, V1));
+
+    assertThat(DEFAULT).isNotEqualTo(DEFAULT.with(K1, V1));
+    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT);
+    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT.with(K10, V1));
+    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT.with(K1, V10));
+    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT.with(K1, V1, K2, V2));
+    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo("foo");
+  }
+
+  @Test
+  public void testHashCode() {
+    assertThat(DEFAULT.with(K1, V1).hashCode()).isEqualTo(DEFAULT.with(K1, V1).hashCode());
+    assertThat(DEFAULT.with(K1, V1).hashCode()).isNotEqualTo(DEFAULT.hashCode());
+    assertThat(DEFAULT.with(K10, V1).hashCode()).isNotEqualTo(DEFAULT.with(K1, V1).hashCode());
+    assertThat(DEFAULT.with(K1, V10).hashCode()).isNotEqualTo(DEFAULT.with(K1, V1).hashCode());
+  }
+
+  @Test
+  public void testToString() {
+    assertThat(DEFAULT.with(K1, V1).toString()).isEqualTo(DEFAULT.with(K1, V1).toString());
+    assertThat(DEFAULT.with(K10, V1).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
+    assertThat(DEFAULT.with(K1, V10).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
+  }
+
+  private static void testSerialization(CensusContext expected) {
+    CensusContext actual = Census.deserialize(expected.serialize());
     assertThat(actual).isEqualTo(expected);
+  }
+
+  private static final Runnable withContext(final CensusContext prev, final CensusContext next) {
+    return new Runnable() {
+      @Override
+      public void run() {
+        assertThat(Census.getCurrent()).isEqualTo(prev);
+        next.setCurrent();
+        assertThat(Census.getCurrent()).isEqualTo(next);
+      }
+    };
   }
 }

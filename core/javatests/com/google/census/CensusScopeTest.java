@@ -42,49 +42,88 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class CensusScopeTest {
+  private static final TagKey K1 = new TagKey("k1");
+  private static final TagKey K2 = new TagKey("k2");
+  private static final TagKey K3 = new TagKey("k3");
+  private static final TagKey K4 = new TagKey("k4");
+
+  private static final TagValue V1 = new TagValue("v1");
+  private static final TagValue V2 = new TagValue("v2");
+  private static final TagValue V3 = new TagValue("v3");
+  private static final TagValue V4 = new TagValue("v4");
+
   @Test
   public void testNoScope() {
-    assertEquals(CensusContextFactory.getCurrent(), CensusContextFactory.getDefault());
+    assertEquals(Census.getCurrent(), Census.getDefault());
   }
 
   @Test
-  public void testExplicitScope() {
-    CensusScope scope = new CensusScope(TAG_MAP1);
-    assertEquals(
-        CensusContextFactory.getDefault().with(TAG_MAP1),
-        CensusContextFactory.getCurrent());
-    scope.close();
-    assertEquals(CensusContextFactory.getDefault(), CensusContextFactory.getCurrent());
-  }
-
-  @Test
-  public void testImplicitScope() {
-    try (CensusScope scope = new CensusScope(TAG_MAP1)) {
+  public void testScope() {
+    try (CensusScope scope = new CensusScope(Census.getCurrent().with(K1, V1))) {
       assertEquals(
-          CensusContextFactory.getDefault().with(TAG_MAP1),
-          CensusContextFactory.getCurrent());
+          Census.getDefault().with(K1, V1),
+          Census.getCurrent());
     }
-    assertEquals(CensusContextFactory.getDefault(), CensusContextFactory.getCurrent());
+    assertEquals(Census.getDefault(), Census.getCurrent());
   }
 
   @Test
   public void testNestedScope() {
-    try (CensusScope s1 = new CensusScope(TAG_MAP1)) {
+    try (CensusScope s1 = new CensusScope(Census.getCurrent().with(K1, V1))) {
       assertEquals(
-          CensusContextFactory.getDefault().with(TAG_MAP1),
-          CensusContextFactory.getCurrent());
-      try (CensusScope s2 = new CensusScope(TAG_MAP2)) {
+          Census.getDefault().with(K1, V1),
+          Census.getCurrent());
+      try (CensusScope s2 = new CensusScope(Census.getCurrent().with(K2, V2))) {
         assertEquals(
-             CensusContextFactory.getDefault().with(TAG_MAP1).with(TAG_MAP2),
-            CensusContextFactory.getCurrent());
+            Census.getDefault().with(K1, V1).with(K2, V2),
+            Census.getCurrent());
       }
       assertEquals(
-          CensusContextFactory.getDefault().with(TAG_MAP1),
-          CensusContextFactory.getCurrent());
+          Census.getDefault().with(K1, V1),
+          Census.getCurrent());
     }
-    assertEquals(CensusContextFactory.getDefault(), CensusContextFactory.getCurrent());
+    assertEquals(Census.getDefault(), Census.getCurrent());
   }
 
-  private static final TagMap TAG_MAP1 = TagMap.of(new TagKey("k1"), "v1");
-  private static final TagMap TAG_MAP2 = TagMap.of(new TagKey("k2"), "v2");
+  @Test
+  public void testOf1() {
+    try (CensusScope scope = CensusScope.of(K1, V1)) {
+      assertEquals(
+          Census.getDefault().with(K1, V1),
+          Census.getCurrent());
+    }
+    assertEquals(Census.getDefault(), Census.getCurrent());
+  }
+
+  @Test
+  public void testOf2() {
+    try (CensusScope scope = CensusScope.of(K1, V1, K2, V2)) {
+      assertEquals(
+          Census.getDefault().with(K1, V1, K2, V2),
+          Census.getCurrent());
+    }
+    assertEquals(Census.getDefault(), Census.getCurrent());
+  }
+
+  @Test
+  public void testOf3() {
+    try (CensusScope scope = CensusScope.of(K1, V1, K2, V2, K3, V3)) {
+      assertEquals(
+          Census.getDefault().with(K1, V1, K2, V2, K3, V3),
+          Census.getCurrent());
+    }
+    assertEquals(Census.getDefault(), Census.getCurrent());
+  }
+
+  @Test
+  public void testBuilder() {
+    CensusScope.Builder builder =
+        CensusScope.builder().set(K1, V1).set(K2, V2).set(K3, V3).set(K4, V4);
+    try (CensusScope scope = builder.build()) {
+      assertEquals(
+          Census.getDefault().builder().set(K1, V1).set(K2, V2).set(K3, V3).set(K4, V4).build(),
+          Census.getCurrent());
+    }
+    assertEquals(Census.getDefault(), Census.getCurrent());
+  }
 }
