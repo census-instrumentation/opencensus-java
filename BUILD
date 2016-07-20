@@ -124,19 +124,6 @@ java_test(
 )
 
 java_test(
-    name = "TagMapTest",
-    srcs = ["core/javatests/com/google/census/TagMapTest.java"],
-    deps = [
-        ":census-core",
-        ":census-core_native",
-        "@guava//jar",
-        "@jsr305//jar",
-        "@junit//jar",
-        "@truth//jar",
-    ],
-)
-
-java_test(
     name = "TagTest",
     srcs = ["core/javatests/com/google/census/TagTest.java"],
     deps = [
