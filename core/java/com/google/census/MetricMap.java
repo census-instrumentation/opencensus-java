@@ -52,7 +52,7 @@ public class MetricMap implements Iterable<Metric> {
   }
 
   /**
-   * Returns the number of metrics in this {@link MetricsMap}.
+   * Returns the number of metrics in this {@link MetricMap}.
    */
   public int size() {
     return metrics.size();

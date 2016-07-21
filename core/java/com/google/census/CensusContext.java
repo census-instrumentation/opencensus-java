@@ -49,7 +49,7 @@ public interface CensusContext {
   /** Sets the current thread-local {@link CensusContext}. */
   void setCurrent();
 
-  /** Builder for {@link Context}. */
+  /** Builder for {@link CensusContext}. */
   interface Builder {
     /**
      * Associates the given tag key with the given tag value.

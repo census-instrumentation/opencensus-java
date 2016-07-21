@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-/** Native implementation {@link CenusContext} serialization. */
+/** Native implementation {@link CensusContext} serialization. */
 final class CensusSerializer {
   private static final char TAG_PREFIX = '\2';
   private static final char TAG_DELIM = '\3';
