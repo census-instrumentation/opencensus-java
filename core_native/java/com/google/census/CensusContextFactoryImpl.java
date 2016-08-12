@@ -24,7 +24,7 @@ class CensusContextFactoryImpl implements CensusContextFactory {
 
   /**
    * The serialized tags are of the form:
-   *   (<tag prefix> + 'key' + <tag delim> + 'value')*
+   * {@code (<tag prefix> + 'key' + <tag delim> + 'value')}
    */
   @Override
   @Nullable

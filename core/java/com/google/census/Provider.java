@@ -16,13 +16,13 @@ package com.google.census;
 /**
  * Census-specific service provider mechanism.
  *
- * <pre>
- * // Define a {@link Provider} during static initialization.
+ * <pre>{@code
+ * // Define a Provider during static initialization.
  * static final Provider<FooProvider> fooProvider = new Provider("FooProvider");
  *
- * // Use the {@link Provider} during execution to generate new instances of the provided class.
+ * // Use the Provider during execution to generate new instances of the provided class.
  * FooProvider providerInstance = fooProvider.newInstance();
- * </pre>
+ * }</pre>
  */
 class Provider<T> {
   Class<?> provider;
