@@ -26,6 +26,11 @@ public final class Census {
 
   private static final CensusContext DEFAULT = CONTEXT_FACTORY.getCurrent();
 
+  /** Returns the default {@link CensusContextFactory}. */
+  public static CensusContextFactory getCensusContextFactory() {
+    return CONTEXT_FACTORY;
+  }
+
   /** Returns the default {@link CensusContext}. */
   public static CensusContext getDefault() {
     return DEFAULT;
