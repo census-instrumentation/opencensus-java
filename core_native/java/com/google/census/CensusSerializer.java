@@ -13,12 +13,12 @@
 
 package com.google.census;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.google.census.proto.CensusContextProto;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
 import javax.annotation.Nullable;
 
 /** Native implementation {@link CensusContext} serialization. */
@@ -26,7 +26,9 @@ final class CensusSerializer {
   private static final char TAG_PREFIX = '\2';
   private static final char TAG_DELIM = '\3';
 
-  // The serialized tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
+
+  // Serializes a CensusContext by transforming it into a CensusContextProto. The
+  // encoded tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
   static ByteBuffer serialize(CensusContextImpl context) {
     StringBuilder builder = new StringBuilder();
     for (Entry<String, String> tag : context.tags.entrySet()) {
@@ -36,27 +38,58 @@ final class CensusSerializer {
           .append(TAG_DELIM)
           .append(tag.getValue());
     }
-    return ByteBuffer.wrap(builder.toString().getBytes(UTF_8));
+    return ByteBuffer.wrap(CensusContextProto.CensusContext.
+        newBuilder().setTags(builder.toString()).build().toByteArray());
   }
 
-  // The serialized tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
+  // Deserializes based on an serialized CensusContextProto. The encoded tags are of the form:
+  // (<tag prefix> + 'key' + <tag delim> + 'value')*
   @Nullable
   static CensusContextImpl deserialize(ByteBuffer buffer) {
-    String input = new String(buffer.array(), UTF_8);
-    HashMap<String, String> tags = new HashMap<>();
-    if (!input.matches("(\2[^\2\3]*\3[^\2\3]*)*")) {
+    try {
+      CensusContextProto.CensusContext context =
+          CensusContextProto.CensusContext.parser().parseFrom(buffer.array());
+      return new CensusContextImpl(fromString(context.getTags()));
+    } catch (IllegalArgumentException | InvalidProtocolBufferException e) {
       return null;
     }
-    if (!input.isEmpty()) {
-      int keyIndex = 0;
-      do {
-        int valIndex = input.indexOf(TAG_DELIM, keyIndex + 1);
-        String key = input.substring(keyIndex + 1, valIndex);
-        keyIndex = input.indexOf(TAG_PREFIX, valIndex + 1);
-        String val = input.substring(valIndex + 1, keyIndex == -1 ? input.length() : keyIndex);
-        tags.put(key, val);
-      } while (keyIndex != -1);
+  }
+
+  private static HashMap<String, String> fromString(String encoded) {
+    HashMap<String, String> tags = new HashMap<>();
+    int length = encoded.length();
+    int index = 0;
+    while (index != length) {
+      int valIndex = endOfKey(encoded, index);
+      String key = encoded.substring(index + 1, valIndex);
+      index = endOfValue(encoded, valIndex);
+      String val = encoded.substring(valIndex + 1, index);
+      tags.put(key, val);
     }
-    return new CensusContextImpl(tags);
+    return tags;
+  }
+
+  private static int endOfKey(String encoded, int index) {
+    int valIndex = encoded.indexOf(TAG_DELIM, index);
+    if (valIndex == -1) {
+      throw new IllegalArgumentException("Missing tag delimiter.");
+    }
+    int keyIndex = encoded.lastIndexOf(TAG_PREFIX, valIndex);
+    if (keyIndex != index) {
+      throw new IllegalArgumentException("Missing tag prefix.");
+    }
+    return valIndex;
+  }
+
+  private static int endOfValue(String encoded, int index) {
+    int keyIndex = encoded.indexOf(TAG_PREFIX, index);
+    if (keyIndex == -1) {
+      keyIndex = encoded.length();
+    }
+    int valIndex = encoded.lastIndexOf(TAG_DELIM, keyIndex);
+    if (valIndex != index) {
+      throw new IllegalArgumentException("Missing tag delimiter.");
+    }
+    return keyIndex;
   }
 }

@@ -15,13 +15,10 @@ package com.google.census;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.nio.ByteBuffer;
 
 /**
  * Tests for {@link CensusContextFactory}.
@@ -31,12 +28,6 @@ public class CensusContextFactoryTest {
   @Test
   public void testDeserializeEmpty() {
     assertThat(Census.deserialize(ByteBuffer.wrap(new byte[0]))).isEqualTo(Census.getDefault());
-  }
-
-  @Test
-  public void testDeserializeBadData() {
-    assertThat(Census.deserialize(ByteBuffer.wrap("\2as\3df\2".getBytes(UTF_8))))
-        .isNull();
   }
 
   @Test

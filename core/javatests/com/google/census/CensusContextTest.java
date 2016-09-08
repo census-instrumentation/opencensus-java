@@ -147,7 +147,7 @@ public class CensusContextTest {
   // Tests for Object overrides.
   @Test
   public void testEquals() {
-    assertThat(DEFAULT).isEqualTo(DEFAULT);
+    assertThat(DEFAULT).isEqualTo(DEFAULT.builder().build());
     assertThat(DEFAULT.with(K1, V1)).isEqualTo(DEFAULT.with(K1, V1));
     assertThat(DEFAULT.with(K1, V1, K2, V2)).isEqualTo(DEFAULT.with(K1, V1, K2, V2));
     assertThat(DEFAULT.with(K1, V1, K2, V2)).isEqualTo(DEFAULT.with(K2, V2, K1, V1));

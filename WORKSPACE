@@ -25,6 +25,17 @@ maven_jar(
 )
 
 maven_jar(
+    name = "protobuf",
+    artifact = "com.google.protobuf:protobuf-java:3.0.0",
+)
+
+maven_jar(
     name = "truth",
     artifact = "com.google.truth:truth:0.28",
+)
+
+git_repository(
+    name = "io_bazel",
+    remote = "https://github.com/bazelbuild/bazel",
+    tag = "0.3.1",
 )
