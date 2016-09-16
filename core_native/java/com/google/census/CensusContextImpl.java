@@ -68,7 +68,7 @@ final class CensusContextImpl extends CensusContext {
     private final HashMap<String, String> tags;
 
     private Builder(HashMap<String, String> tags) {
-      this.tags = new HashMap<>(tags);
+      this.tags = new HashMap<String, String>(tags);
     }
 
     @Override
@@ -79,7 +79,7 @@ final class CensusContextImpl extends CensusContext {
 
     @Override
     public CensusContext build() {
-      return new CensusContextImpl(new HashMap<>(tags));
+      return new CensusContextImpl(new HashMap<String, String>(tags));
     }
   }
 }

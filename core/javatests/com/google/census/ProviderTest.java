@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 public class ProviderTest {
   @Test
   public void testGoodClass() throws Exception {
-    Provider<GetGen> provider = new Provider<>("com.google.census.ProviderTest$GetGen");
+    Provider<GetGen> provider = new Provider<GetGen>("com.google.census.ProviderTest$GetGen");
     GetGen getGen0 = provider.newInstance();
     assertThat(getGen0.getGen()).isEqualTo(0);
     for (int i = 1; i < 10; i++) {
@@ -37,7 +37,7 @@ public class ProviderTest {
 
   @Test
   public void testBadClass() throws Exception {
-    Provider<GetGen> provider = new Provider<>("com.google.census.ProviderTest$BadClass");
+    Provider<GetGen> provider = new Provider<GetGen>("com.google.census.ProviderTest$BadClass");
     assertThat(provider).isNotNull();
     assertThat(provider.newInstance()).isNull();
   }

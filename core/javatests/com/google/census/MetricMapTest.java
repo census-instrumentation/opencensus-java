@@ -62,7 +62,7 @@ public class MetricMapTest {
 
   @Test
   public void testBuilder() {
-    ArrayList<Metric> expected = new ArrayList<>(10);
+    ArrayList<Metric> expected = new ArrayList<Metric>(10);
     MetricMap.Builder builder = MetricMap.builder();
     for (int i = 1; i <= 10; i++) {
       expected.add(new Metric(new MetricName("m" + i), i * 11.1));

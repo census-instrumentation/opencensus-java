@@ -39,17 +39,23 @@ public class CensusRunner {
     System.out.println("Hello Census World");
     System.out.println("Default Tags: " + Census.getDefault());
     System.out.println("Current Tags: " + Census.getCurrent());
-    try (CensusScope scope1 = CensusScope.of(K1, V1, K2, V2)) {
+    CensusScope scope1 = CensusScope.of(K1, V1, K2, V2);
+    try {
         CensusContext context1 = Census.getDefault().with(K1, V1, K2, V2);
         System.out.println("  Current Tags: " + Census.getCurrent());
         System.out.println("  Current == Default + tags1: " + Census.getCurrent().equals(context1));
-        try (CensusScope scope2 = CensusScope.of(K3, V3, K4, V4)) {
+        CensusScope scope2 = CensusScope.of(K3, V3, K4, V4);
+        try {
             CensusContext context2 = context1.with(K3, V3, K4, V4);
             System.out.println("    Current Tags: " + Census.getCurrent());
             System.out.println("    Current == Default + tags1 + tags2: "
                 + Census.getCurrent().equals(context2));
             Census.getCurrent().record(MetricMap.of(M1, 0.2, M2, 0.4));
+        } finally {
+          scope2.close();
         }
+    } finally {
+      scope1.close();
     }
     System.out.println("Current == Default: " +
         Census.getCurrent().equals(Census.getDefault()));

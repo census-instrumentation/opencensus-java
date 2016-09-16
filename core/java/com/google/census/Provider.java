@@ -42,7 +42,10 @@ class Provider<T> {
       if (provider != null) {
         return (T) provider.newInstance();
       }
-    } catch (InstantiationException | IllegalAccessException e) {
+    } catch (InstantiationException e) {
+      // TODO(dpo): decide what to do here - log, crash, or both.
+      System.err.println(e);
+    } catch (IllegalAccessException e) {
       // TODO(dpo): decide what to do here - log, crash, or both.
       System.err.println(e);
     }

@@ -50,13 +50,15 @@ final class CensusSerializer {
       CensusContextProto.CensusContext context =
           CensusContextProto.CensusContext.parser().parseFrom(buffer.array());
       return new CensusContextImpl(tagsFromString(context.getTags()));
-    } catch (IllegalArgumentException | InvalidProtocolBufferException e) {
+    } catch (IllegalArgumentException e) {
+      return null;
+    } catch (InvalidProtocolBufferException e) {
       return null;
     }
   }
 
   private static HashMap<String, String> tagsFromString(String encoded) {
-    HashMap<String, String> tags = new HashMap<>();
+    HashMap<String, String> tags = new HashMap<String, String>();
     int length = encoded.length();
     int index = 0;
     while (index != length) {
