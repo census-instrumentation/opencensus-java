@@ -13,6 +13,8 @@
 
 package com.google.census;
 
+import java.io.Closeable;
+
 /**
  * {@link CensusScope} defines an arbitrary scope of code as a traceable operation. Supports
  * try-with-resources idiom.
@@ -31,7 +33,7 @@ package com.google.census;
  * }
  * </pre>
  */
-public final class CensusScope implements AutoCloseable {
+public final class CensusScope implements Closeable {
   private final CensusContext saved;
 
   /**
