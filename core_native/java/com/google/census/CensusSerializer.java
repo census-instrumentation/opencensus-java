@@ -49,13 +49,13 @@ final class CensusSerializer {
     try {
       CensusContextProto.CensusContext context =
           CensusContextProto.CensusContext.parser().parseFrom(buffer.array());
-      return new CensusContextImpl(fromString(context.getTags()));
+      return new CensusContextImpl(tagsFromString(context.getTags()));
     } catch (IllegalArgumentException | InvalidProtocolBufferException e) {
       return null;
     }
   }
 
-  private static HashMap<String, String> fromString(String encoded) {
+  private static HashMap<String, String> tagsFromString(String encoded) {
     HashMap<String, String> tags = new HashMap<>();
     int length = encoded.length();
     int index = 0;
