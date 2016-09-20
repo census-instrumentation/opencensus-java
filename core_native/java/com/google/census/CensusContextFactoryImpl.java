@@ -19,7 +19,7 @@ import java.util.HashMap;
 import javax.annotation.Nullable;
 
 /** Native Implementation of {@link CensusContextFactory} */
-class CensusContextFactoryImpl implements CensusContextFactory {
+final class CensusContextFactoryImpl extends CensusContextFactory {
   static final CensusContextImpl DEFAULT = new CensusContextImpl(new HashMap<String, String>(0));
 
   /**

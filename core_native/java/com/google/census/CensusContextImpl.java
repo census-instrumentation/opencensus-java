@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 /** Native Implementation of {@link CensusContext} */
-final class CensusContextImpl implements CensusContext {
+final class CensusContextImpl extends CensusContext {
   final HashMap<String, String> tags;
 
   CensusContextImpl(HashMap<String, String> tags) {
@@ -27,22 +27,6 @@ final class CensusContextImpl implements CensusContext {
   @Override
   public Builder builder() {
     return new Builder(tags);
-  }
-
-  @Override
-  public CensusContext with(TagKey k1, TagValue v1) {
-    return builder().set(k1, v1).build();
-  }
-
-  @Override
-  public CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2) {
-    return builder().set(k1, v1).set(k2, v2).build();
-  }
-
-  @Override
-  public CensusContext with(
-      TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3) {
-    return builder().set(k1, v1).set(k2, v2).set(k3, v3).build();
   }
 
   @Override
@@ -75,7 +59,7 @@ final class CensusContextImpl implements CensusContext {
     return tags.toString();
   }
 
-  private static final class Builder implements CensusContext.Builder {
+  private static final class Builder extends CensusContext.Builder {
     private final HashMap<String, String> tags;
 
     private Builder(HashMap<String, String> tags) {

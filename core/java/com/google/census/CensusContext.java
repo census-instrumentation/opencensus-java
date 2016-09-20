@@ -18,18 +18,25 @@ import java.nio.ByteBuffer;
 /**
  * An immutable Census-specific context for an operation.
  */
-public interface CensusContext {
+public abstract class CensusContext {
   /** Returns a builder based on this {@link CensusContext} */
-  Builder builder();
+  public abstract Builder builder();
 
   /** Shorthand for builder().set(k1, v1).build() */
-  CensusContext with(TagKey k1, TagValue v1);
+  public final CensusContext with(TagKey k1, TagValue v1) {
+    return builder().set(k1, v1).build();
+  }
 
   /** Shorthand for builder().set(k1, v1).set(k2, v2).build() */
-  CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2);
+  public final CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2) {
+    return builder().set(k1, v1).set(k2, v2).build();
+  }
 
   /** Shorthand for builder().set(k1, v1).set(k2, v2).set(k3, v3).build() */
-  CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3);
+  public final CensusContext with(
+      TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3) {
+    return builder().set(k1, v1).set(k2, v2).set(k3, v3).build();
+  }
 
   /**
    * Records the given metrics against this {@link CensusContext}.
@@ -37,20 +44,20 @@ public interface CensusContext {
    * @param metrics the metrics to record against the saved {@link CensusContext}
    * @return this
    */
-  CensusContext record(MetricMap metrics);
+  public abstract CensusContext record(MetricMap metrics);
 
   /**
    * Serializes the {@link CensusContext} into the on-the-wire representation.
    *
    * @return serialized bytes.
    */
-  ByteBuffer serialize();
+  public abstract ByteBuffer serialize();
 
   /** Sets the current thread-local {@link CensusContext}. */
-  void setCurrent();
+  public abstract void setCurrent();
 
   /** Builder for {@link CensusContext}. */
-  interface Builder {
+  public abstract static class Builder {
     /**
      * Associates the given tag key with the given tag value.
      *
@@ -58,11 +65,11 @@ public interface CensusContext {
      * @param value the value to be associated with {@code key}
      * @return {@code this}
      */
-    Builder set(TagKey key, TagValue value);
+    public abstract Builder set(TagKey key, TagValue value);
 
     /**
      * Builds a {@link CensusContext} from the specified keys and values.
      */
-    CensusContext build();
+    public abstract CensusContext build();
   }
 }

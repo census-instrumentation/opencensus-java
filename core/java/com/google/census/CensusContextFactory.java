@@ -20,18 +20,18 @@ import javax.annotation.Nullable;
 /**
  * Factory class for {@link CensusContext}.
  */
-public interface CensusContextFactory {
+public abstract class CensusContextFactory {
   /** Creates a new {@link CensusContext} built from the given on-the-wire encoded representation.
    *
    * @param buffer on-the-wire representation of a {@link CensusContext}
    * @return a {@link CensusContext} deserialized from {@code buffer}
    */
   @Nullable
-  CensusContext deserialize(ByteBuffer buffer);
+  public abstract CensusContext deserialize(ByteBuffer buffer);
 
   /** Returns the current thread-local {@link CensusContext}. */
-  CensusContext getCurrent();
+  public abstract CensusContext getCurrent();
 
   /** Returns the default {@link CensusContext}. */
-  CensusContext getDefault();
+  public abstract CensusContext getDefault();
 }
