@@ -42,9 +42,10 @@ public final class Census {
   }
 
   /**
-   * Creates a {@link CensusContext} from the given on-the-wire encoded representation. Should be
-   * the inverse of {@link CensusContext#serialize()}. The serialized representation should be
-   * based on the {@link CensusContext} protobuf representation.
+   * Creates a {@link CensusContext} from the given on-the-wire encoded representation.
+   *
+   * <p>Should be the inverse of {@link CensusContext#serialize()}. The serialized representation
+   * should be based on the {@link CensusContext} protobuf representation.
    */
   @Nullable
   public static CensusContext deserialize(ByteBuffer buffer) {

@@ -35,8 +35,9 @@ final class CensusContextImpl extends CensusContext {
   }
 
   /**
-   * Serializes a {@link CensusContextImpl} into {@link CensusContextProto} serialized format. The
-   * encoded tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
+   * Serializes a {@link CensusContextImpl} into {@link CensusContextProto} serialized format.
+   *
+   * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
   @Override
   public ByteBuffer serialize() {
