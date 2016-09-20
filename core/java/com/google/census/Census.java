@@ -41,7 +41,12 @@ public final class Census {
     return CONTEXT_FACTORY.getCurrent();
   }
 
-  /** Creates a {@link CensusContext} from the given on-the-wire encoded representation. */
+  /**
+   * Creates a {@link CensusContext} from the given on-the-wire encoded representation.
+   *
+   * <p>Should be the inverse of {@link CensusContext#serialize()}. The serialized representation
+   * should be based on the {@link CensusContext} protobuf representation.
+   */
   @Nullable
   public static CensusContext deserialize(ByteBuffer buffer) {
     return CONTEXT_FACTORY.deserialize(buffer);

@@ -15,7 +15,6 @@ package com.google.census;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-
 import javax.annotation.Nullable;
 
 /** Native Implementation of {@link CensusContextFactory} */
@@ -23,8 +22,9 @@ final class CensusContextFactoryImpl extends CensusContextFactory {
   static final CensusContextImpl DEFAULT = new CensusContextImpl(new HashMap<String, String>(0));
 
   /**
-   * The serialized tags are of the form:
-   * {@code (<tag prefix> + 'key' + <tag delim> + 'value')}
+   * Deserializes a {@link CensusContextImpl} from a serialized {@link CensusContextProto}.
+   *
+   * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
   @Override
   @Nullable
@@ -32,13 +32,11 @@ final class CensusContextFactoryImpl extends CensusContextFactory {
     return CensusSerializer.deserialize(buffer);
   }
 
-  /** Returns the current thread-local {@link CensusContext}. */
   @Override
   public CensusContext getCurrent() {
     return CensusCurrentContext.get();
   }
 
-  /** Returns the default {@link CensusContext}. */
   @Override
   public CensusContext getDefault() {
     return DEFAULT;

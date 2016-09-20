@@ -14,14 +14,17 @@
 package com.google.census;
 
 import java.nio.ByteBuffer;
-
 import javax.annotation.Nullable;
 
 /**
  * Factory class for {@link CensusContext}.
  */
 public abstract class CensusContextFactory {
-  /** Creates a new {@link CensusContext} built from the given on-the-wire encoded representation.
+  /**
+   * Creates a {@link CensusContext} from the given on-the-wire encoded representation.
+   *
+   * <p>Should be the inverse of {@link CensusContext#serialize()}. The serialized representation
+   * should be based on the {@link CensusContext} protobuf representation.
    *
    * @param buffer on-the-wire representation of a {@link CensusContext}
    * @return a {@link CensusContext} deserialized from {@code buffer}
