@@ -25,6 +25,14 @@ install:
   - case "$BUILD" in
       "BAZEL")
         sudo apt-get install bazel ;;
+      "MVN")
+        mkdir protoc ;
+        cd protoc ;
+        curl -L -o protoc.zip https://github.com/google/protobuf/releases/download/v3.0.2/protoc-3.0.2-linux-x86_64.zip ;
+        unzip protoc.zip ;
+        export PATH=`pwd`/bin/:$PATH ;
+        protoc --version ;
+        cd .. ;;
     esac
 
 script:
