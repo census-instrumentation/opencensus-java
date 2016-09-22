@@ -22,7 +22,7 @@ final class CensusContextFactoryImpl extends CensusContextFactory {
   static final CensusContextImpl DEFAULT = new CensusContextImpl(new HashMap<String, String>(0));
 
   /**
-   * Deserializes a {@link CensusContextImpl} from a serialized {@link CensusContextProto}.
+   * Deserializes a {@link CensusContextImpl} from a serialized {@code CensusContextProto}.
    *
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */

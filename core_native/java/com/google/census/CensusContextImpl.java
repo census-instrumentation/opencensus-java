@@ -35,7 +35,7 @@ final class CensusContextImpl extends CensusContext {
   }
 
   /**
-   * Serializes a {@link CensusContextImpl} into {@link CensusContextProto} serialized format.
+   * Serializes a {@link CensusContextImpl} into {@code CensusContextProto} serialized format.
    *
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
