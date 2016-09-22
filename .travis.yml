@@ -11,6 +11,9 @@ matrix:
     env: BUILD=MVN
 
   - jdk: oraclejdk8
+    env: BUILD=MVN
+
+  - jdk: oraclejdk8
     env: BUILD=BAZEL
 
 before_install:
