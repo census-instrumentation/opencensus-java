@@ -15,11 +15,11 @@ package com.google.census;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.Arrays;
 
 /**
  * Tests for {@link MetricName}
@@ -44,14 +44,10 @@ public final class MetricNameTest {
 
   @Test
   public void testEquals() {
-    assertThat(new MetricName("foo").equals(new MetricName("foo"))).isTrue();
-    assertThat(new MetricName("foo").equals(new MetricName("bar"))).isFalse();
-  }
-
-  @Test
-  public void testHashCode() {
-    assertThat(new MetricName("foo").hashCode()).isEqualTo(new MetricName("foo").hashCode());
-    assertThat(new MetricName("foo").hashCode()).isNotEqualTo(new MetricName("bar").hashCode());
+    new EqualsTester()
+        .addEqualityGroup(new MetricName("foo"), new MetricName("foo"))
+        .addEqualityGroup(new MetricName("bar"))
+        .testEquals();
   }
 
   @Test
