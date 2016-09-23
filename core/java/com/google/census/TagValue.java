@@ -19,10 +19,10 @@ package com.google.census;
  * TagValue's are {@link String}s with enforced restrictions.
  */
 public final class TagValue {
-  public static final int MAX_LENGTH = Tag.MAX_LENGTH;
+  public static final int MAX_LENGTH = StringSanitization.MAX_LENGTH;
 
   public TagValue(String value) {
-    this.value = Tag.sanitize(value);
+    this.value = StringSanitization.sanitize(value);
   }
 
   @Override

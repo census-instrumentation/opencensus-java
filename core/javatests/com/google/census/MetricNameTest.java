@@ -39,7 +39,8 @@ public final class MetricNameTest {
   @Test
   public void testNameBadChar() {
     assertThat(new MetricName("\2ab\3cd").toString())
-        .isEqualTo(Tag.UNPRINTABLE_CHAR_SUBSTITUTE + "ab" + Tag.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
+        .isEqualTo(StringSanitization.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
+                 + StringSanitization.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
   }
 
   @Test
