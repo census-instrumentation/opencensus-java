@@ -48,6 +48,7 @@ java_test(
         ":census-core",
         ":census-core_native",
         "@guava//jar",
+        "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
@@ -94,6 +95,20 @@ java_test(
 )
 
 java_test(
+    name = "MetricNameTest",
+    srcs = ["core/javatests/com/google/census/MetricNameTest.java"],
+    deps = [
+        ":census-core",
+        ":census-core_native",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
     name = "ProviderTest",
     srcs = ["core/javatests/com/google/census/ProviderTest.java"],
     deps = [
@@ -126,6 +141,7 @@ java_test(
         ":census-core",
         ":census-core_native",
         "@guava//jar",
+        "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
@@ -139,6 +155,7 @@ java_test(
         ":census-core",
         ":census-core_native",
         "@guava//jar",
+        "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
@@ -152,6 +169,7 @@ java_test(
         ":census-core",
         ":census-core_native",
         "@guava//jar",
+        "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",

@@ -15,6 +15,7 @@ package com.google.census;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -50,19 +51,13 @@ public final class TagTest {
 
   @Test
   public void testEquals() {
-    assertThat(new Tag("key", "val").equals(new Tag(KEY, VAL))).isTrue();
-    assertThat(new Tag("key1", "val").equals(new Tag(KEY, VAL))).isFalse();
-    assertThat(new Tag("key", "val1").equals(new Tag(KEY, VAL))).isFalse();
-    assertThat(new Tag("key1", "val1").equals(new Tag(KEY, VAL))).isFalse();
-    assertThat(new Tag("key", "val").equals("foo")).isFalse();
-  }
-
-  @Test
-  public void testHashCode() {
-    assertThat(new Tag("key", "val").hashCode()).isEqualTo(new Tag(KEY, VAL).hashCode());
-    assertThat(new Tag("key1", "val").hashCode()).isNotEqualTo(new Tag(KEY, VAL).hashCode());
-    assertThat(new Tag("key", "val1").hashCode()).isNotEqualTo(new Tag(KEY, VAL).hashCode());
-    assertThat(new Tag("key1", "val1").hashCode()).isNotEqualTo(new Tag(KEY, VAL).hashCode());
+    new EqualsTester()
+        .addEqualityGroup(new Tag("key", "val"), new Tag(KEY, VAL))
+        .addEqualityGroup(new Tag("key1", "val"))
+        .addEqualityGroup(new Tag("key", "val1"))
+        .addEqualityGroup(new Tag("key1", "val1"))
+        .addEqualityGroup("foo")
+        .testEquals();
   }
 
   private static final TagKey KEY = new TagKey("key");

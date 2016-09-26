@@ -15,11 +15,11 @@ package com.google.census;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.Arrays;
 
 /**
  * Tests for {@link TagValue}
@@ -45,14 +45,10 @@ public final class TagValueTest {
 
   @Test
   public void testEquals() {
-    assertThat(new TagValue("foo").equals(new TagValue("foo"))).isTrue();
-    assertThat(new TagValue("foo").equals(new TagValue("bar"))).isFalse();
-  }
-
-  @Test
-  public void testHashCode() {
-    assertThat(new TagValue("foo").hashCode()).isEqualTo(new TagValue("foo").hashCode());
-    assertThat(new TagValue("foo").hashCode()).isNotEqualTo(new TagValue("bar").hashCode());
+    new EqualsTester()
+        .addEqualityGroup(new TagValue("foo"), new TagValue("foo"))
+        .addEqualityGroup(new TagValue("bar"))
+        .testEquals();
   }
 
   @Test

@@ -15,13 +15,13 @@ package com.google.census;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
+import com.google.common.testing.EqualsTester;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  * Tests for {@link CensusContext}.
@@ -145,27 +145,20 @@ public class CensusContextTest {
   }
 
   // Tests for Object overrides.
+
   @Test
   public void testEquals() {
-    assertThat(DEFAULT).isEqualTo(DEFAULT.builder().build());
-    assertThat(DEFAULT.with(K1, V1)).isEqualTo(DEFAULT.with(K1, V1));
-    assertThat(DEFAULT.with(K1, V1, K2, V2)).isEqualTo(DEFAULT.with(K1, V1, K2, V2));
-    assertThat(DEFAULT.with(K1, V1, K2, V2)).isEqualTo(DEFAULT.with(K2, V2, K1, V1));
-
-    assertThat(DEFAULT).isNotEqualTo(DEFAULT.with(K1, V1));
-    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT);
-    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT.with(K10, V1));
-    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT.with(K1, V10));
-    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo(DEFAULT.with(K1, V1, K2, V2));
-    assertThat(DEFAULT.with(K1, V1)).isNotEqualTo("foo");
-  }
-
-  @Test
-  public void testHashCode() {
-    assertThat(DEFAULT.with(K1, V1).hashCode()).isEqualTo(DEFAULT.with(K1, V1).hashCode());
-    assertThat(DEFAULT.with(K1, V1).hashCode()).isNotEqualTo(DEFAULT.hashCode());
-    assertThat(DEFAULT.with(K10, V1).hashCode()).isNotEqualTo(DEFAULT.with(K1, V1).hashCode());
-    assertThat(DEFAULT.with(K1, V10).hashCode()).isNotEqualTo(DEFAULT.with(K1, V1).hashCode());
+    new EqualsTester()
+        .addEqualityGroup(DEFAULT, DEFAULT)
+        .addEqualityGroup(DEFAULT.with(K1, V1), DEFAULT.with(K1, V1))
+        .addEqualityGroup(
+            DEFAULT.with(K1, V1, K2, V2),
+            DEFAULT.with(K1, V1, K2, V2),
+            DEFAULT.with(K2, V2, K1, V1))
+        .addEqualityGroup(DEFAULT.with(K10, V1))
+        .addEqualityGroup(DEFAULT.with(K1, V10))
+        .addEqualityGroup("foo")
+        .testEquals();
   }
 
   @Test

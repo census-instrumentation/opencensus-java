@@ -15,6 +15,11 @@ maven_jar(
 )
 
 maven_jar(
+    name = "guava_testlib",
+    artifact = "com.google.guava:guava-testlib:19.0",
+)
+
+maven_jar(
     name = "jsr305",
     artifact = "com.google.code.findbugs:jsr305:3.0.0",
 )
