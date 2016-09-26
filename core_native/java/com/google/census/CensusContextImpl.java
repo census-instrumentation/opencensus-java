@@ -35,7 +35,7 @@ final class CensusContextImpl extends CensusContext {
   }
 
   /**
-   * Serializes a {@link CensusContextImpl} into {@link CensusContextProto} serialized format.
+   * Serializes a {@link CensusContextImpl} into {@code CensusContextProto} serialized format.
    *
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
@@ -68,7 +68,7 @@ final class CensusContextImpl extends CensusContext {
     private final HashMap<String, String> tags;
 
     private Builder(HashMap<String, String> tags) {
-      this.tags = new HashMap<>(tags);
+      this.tags = new HashMap<String, String>(tags);
     }
 
     @Override
@@ -79,7 +79,7 @@ final class CensusContextImpl extends CensusContext {
 
     @Override
     public CensusContext build() {
-      return new CensusContextImpl(new HashMap<>(tags));
+      return new CensusContextImpl(new HashMap<String, String>(tags));
     }
   }
 }

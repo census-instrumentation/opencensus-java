@@ -107,7 +107,7 @@ public class MetricMap implements Iterable<Metric> {
       return new MetricMap(metrics);
     }
 
-    private ArrayList<Metric> metrics = new ArrayList<>();
+    private ArrayList<Metric> metrics = new ArrayList<Metric>();
 
     private Builder() {
     }
