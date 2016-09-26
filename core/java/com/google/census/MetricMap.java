@@ -13,9 +13,8 @@
 
 package com.google.census;
 
-import com.google.common.collect.UnmodifiableIterator;
-
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A map from Census metric names to metric values.
@@ -59,11 +58,12 @@ public class MetricMap implements Iterable<Metric> {
   }
 
   /**
-   * Returns an {@link UnmodifiableIterator} over the name/value mappings in this {@link MetricMap}.
+   * Returns an {@link Iterator} over the name/value mappings in this {@link MetricMap}. The
+   * {@code Iterator} does not support {@link Iterator#remove()}.
    */
   @Override
-  public UnmodifiableIterator<Metric> iterator() {
-    return new Iterator();
+  public Iterator<Metric> iterator() {
+    return new MetricMapIterator();
   }
 
   private final ArrayList<Metric> metrics;
@@ -113,14 +113,19 @@ public class MetricMap implements Iterable<Metric> {
     }
   }
 
-  // Provides an UnmodifiableIterator over this instance's metrics.
-  private class Iterator extends UnmodifiableIterator<Metric> {
+  // Provides an unmodifiable Iterator over this instance's metrics.
+  private class MetricMapIterator implements Iterator<Metric> {
     @Override public boolean hasNext() {
       return position < length;
     }
 
     @Override public Metric next() {
       return metrics.get(position++);
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
     }
 
     private final int length = metrics.size();

@@ -13,8 +13,6 @@
 
 package com.google.census;
 
-import com.google.common.annotations.VisibleForTesting;
-
 /**
  * Census constants for collecting rpc stats.
  */
@@ -38,7 +36,8 @@ public final class RpcConstants {
   public static final MetricName RPC_SERVER_BYTES_SENT = new MetricName("/rpc/server/bytes_sent");
   public static final MetricName RPC_SERVER_LATENCY = new MetricName("/rpc/server/latency");
 
-  @VisibleForTesting RpcConstants() {
+  //Visible for testing
+  RpcConstants() {
     throw new AssertionError();
   }
 }
