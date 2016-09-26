@@ -30,22 +30,23 @@ public final class RpcConstantsTest {
     assertThat(RpcConstants.RPC_CLIENT_METHOD).isNotNull();
     assertThat(RpcConstants.RPC_SERVER_METHOD).isNotNull();
 
-    assertThat(RpcConstants.RPC_CLIENT_BYTES_RECEIVED).isNotNull();
-    assertThat(RpcConstants.RPC_CLIENT_BYTES_SENT).isNotNull();
-    assertThat(RpcConstants.RPC_CLIENT_LATENCY).isNotNull();
-    assertThat(RpcConstants.RPC_SERVER_BYTES_RECEIVED).isNotNull();
-    assertThat(RpcConstants.RPC_SERVER_BYTES_SENT).isNotNull();
-    assertThat(RpcConstants.RPC_SERVER_LATENCY).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_ERROR_COUNT).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_REQUEST_BYTES).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_RESPONSE_BYTES).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES).isNotNull();
+
+    assertThat(RpcConstants.RPC_SERVER_ERROR_COUNT).isNotNull();
+    assertThat(RpcConstants.RPC_SERVER_REQUEST_BYTES).isNotNull();
+    assertThat(RpcConstants.RPC_SERVER_RESPONSE_BYTES).isNotNull();
+    assertThat(RpcConstants.RPC_SERVER_SERVER_LATENCY).isNotNull();
+    assertThat(RpcConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES).isNotNull();
+    assertThat(RpcConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES).isNotNull();
   }
 
-  @Test
+  @Test(expected = AssertionError.class)
   public void testConstructor() {
-    boolean threw = false;
-    try {
-      new RpcConstants();
-    } catch (AssertionError expected) {
-      threw = true;
-    }
-    assertThat(threw).isTrue();
+    new RpcConstants();
   }
 }

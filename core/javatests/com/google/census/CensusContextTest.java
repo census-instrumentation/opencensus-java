@@ -31,9 +31,9 @@ public class CensusContextTest {
   private static final CensusContext DEFAULT = Census.getDefault();
 
   private static final MetricName[] CensusMetricNames = {
-    RpcConstants.RPC_CLIENT_BYTES_RECEIVED, RpcConstants.RPC_CLIENT_BYTES_SENT,
-    RpcConstants.RPC_CLIENT_LATENCY, RpcConstants.RPC_SERVER_BYTES_RECEIVED,
-    RpcConstants.RPC_SERVER_BYTES_SENT, RpcConstants.RPC_SERVER_LATENCY
+    RpcConstants.RPC_CLIENT_REQUEST_BYTES, RpcConstants.RPC_CLIENT_RESPONSE_BYTES,
+    RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, RpcConstants.RPC_SERVER_REQUEST_BYTES,
+    RpcConstants.RPC_SERVER_RESPONSE_BYTES, RpcConstants.RPC_SERVER_SERVER_LATENCY
   };
 
   private static final TagKey K_EMPTY = new TagKey("");
