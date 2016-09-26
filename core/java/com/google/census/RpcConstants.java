@@ -27,14 +27,29 @@ public final class RpcConstants {
   /**
    * Census defined metric names.
    */
-  public static final MetricName RPC_CLIENT_BYTES_RECEIVED =
-      new MetricName("/rpc/client/bytes_received");
-  public static final MetricName RPC_CLIENT_BYTES_SENT = new MetricName("/rpc/client/bytes_sent");
-  public static final MetricName RPC_CLIENT_LATENCY = new MetricName("/rpc/client/latency");
-  public static final MetricName RPC_SERVER_BYTES_RECEIVED =
-      new MetricName("/rpc/server/bytes_received");
-  public static final MetricName RPC_SERVER_BYTES_SENT = new MetricName("/rpc/server/bytes_sent");
-  public static final MetricName RPC_SERVER_LATENCY = new MetricName("/rpc/server/latency");
+  public static final MetricName RPC_CLIENT_ERROR_COUNT = new MetricName("/rpc/client/error_count");
+  public static final MetricName RPC_CLIENT_REQUEST_BYTES =
+      new MetricName("/rpc/client/request_bytes");
+  public static final MetricName RPC_CLIENT_RESPONSE_BYTES =
+      new MetricName("/rpc/client/response_bytes");
+  public static final MetricName RPC_CLIENT_ROUNDTRIP_LATENCY =
+      new MetricName("/rpc/client/roundtrip_latency");
+  public static final MetricName RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
+      new MetricName("/rpc/client/uncompressed_request_bytes");
+  public static final MetricName RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
+      new MetricName("/rpc/client/uncompressed_response_bytes");
+
+  public static final MetricName RPC_SERVER_ERROR_COUNT = new MetricName("/rpc/server/error_count");
+  public static final MetricName RPC_SERVER_REQUEST_BYTES =
+      new MetricName("/rpc/server/request_bytes");
+  public static final MetricName RPC_SERVER_RESPONSE_BYTES =
+      new MetricName("/rpc/server/response_bytes");
+  public static final MetricName RPC_SERVER_SERVER_LATENCY =
+      new MetricName("/rpc/server/server_latency");
+  public static final MetricName RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
+      new MetricName("/rpc/server/uncompressed_request_bytes");
+  public static final MetricName RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
+      new MetricName("/rpc/server/uncompressed_response_bytes");
 
   //Visible for testing
   RpcConstants() {
