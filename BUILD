@@ -15,7 +15,7 @@
 java_library(
     name = "census-core",
     srcs = glob(["core/java/com/google/census/*.java"]),
-    deps = ["@jsr305//jar"],
+    deps = [],
 )
 
 java_library(
