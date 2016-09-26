@@ -15,10 +15,7 @@
 java_library(
     name = "census-core",
     srcs = glob(["core/java/com/google/census/*.java"]),
-    deps = [
-        "@guava//jar",
-        "@jsr305//jar",
-    ],
+    deps = ["@jsr305//jar"],
 )
 
 java_library(
@@ -27,7 +24,6 @@ java_library(
     deps = [
         ":census-core",
         "//proto:census_context-proto-java",
-        "@guava//jar",
         "@jsr305//jar",
         "@protobuf//jar",
     ],
