@@ -13,10 +13,6 @@
 
 package com.google.census;
 
-import java.nio.ByteBuffer;
-
-import javax.annotation.Nullable;
-
 /**
  * {@link Census}.
  */
@@ -24,31 +20,13 @@ public final class Census {
   private static final CensusContextFactory CONTEXT_FACTORY = new Provider<CensusContextFactory>(
       "com.google.census.CensusContextFactoryImpl").newInstance();
 
-  private static final CensusContext DEFAULT = CONTEXT_FACTORY.getCurrent();
-
   /** Returns the default {@link CensusContextFactory}. */
   public static CensusContextFactory getCensusContextFactory() {
     return CONTEXT_FACTORY;
   }
 
-  /** Returns the default {@link CensusContext}. */
-  public static CensusContext getDefault() {
-    return DEFAULT;
-  }
-
-  /** Returns the current thread-local {@link CensusContext}. */
-  public static CensusContext getCurrent() {
-    return CONTEXT_FACTORY.getCurrent();
-  }
-
-  /**
-   * Creates a {@link CensusContext} from the given on-the-wire encoded representation.
-   *
-   * <p>Should be the inverse of {@link CensusContext#serialize()}. The serialized representation
-   * should be based on the {@link CensusContext} protobuf representation.
-   */
-  @Nullable
-  public static CensusContext deserialize(ByteBuffer buffer) {
-    return CONTEXT_FACTORY.deserialize(buffer);
+  // VisibleForTesting
+  Census() {
+    throw new AssertionError();
   }
 }

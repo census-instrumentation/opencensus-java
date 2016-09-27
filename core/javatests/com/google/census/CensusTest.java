@@ -15,25 +15,22 @@ package com.google.census;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link CensusContextFactory}.
+ * Tests for {@link RpcConstants}
  */
 @RunWith(JUnit4.class)
-public class CensusContextFactoryTest {
+public final class CensusTest {
   @Test
-  public void testDeserializeEmpty() {
-    assertThat(Census.getCensusContextFactory().deserialize(ByteBuffer.wrap(new byte[0])))
-        .isEqualTo(Census.getCensusContextFactory().getDefault());
+  public void getCensusContextFactory() {
+    assertThat(Census.getCensusContextFactory()).isNotNull();
   }
 
-  @Test
-  public void testGetCurrent() {
-    assertThat(Census.getCensusContextFactory().getCurrent())
-        .isEqualTo(Census.getCensusContextFactory().getDefault());
+  @Test(expected = AssertionError.class)
+  public void testConstructor() {
+    new Census();
   }
 }

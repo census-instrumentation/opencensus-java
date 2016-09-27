@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class CensusContextTest {
-  private static final CensusContext DEFAULT = Census.getDefault();
+  private static final CensusContext DEFAULT = Census.getCensusContextFactory().getDefault();
 
   private static final MetricName[] CensusMetricNames = {
     RpcConstants.RPC_CLIENT_REQUEST_BYTES, RpcConstants.RPC_CLIENT_RESPONSE_BYTES,
@@ -118,27 +118,28 @@ public class CensusContextTest {
 
   @Test
   public void testSetCurrent() {
-    assertThat(DEFAULT).isEqualTo(Census.getCurrent());
+    assertThat(DEFAULT).isEqualTo(Census.getCensusContextFactory().getCurrent());
 
     CensusContext context = DEFAULT.with(K1, V1);
     context.setCurrent();
-    assertThat(context).isEqualTo(Census.getCurrent());
+    assertThat(context).isEqualTo(Census.getCensusContextFactory().getCurrent());
 
     DEFAULT.setCurrent();
-    assertThat(DEFAULT).isEqualTo(Census.getCurrent());
+    assertThat(DEFAULT).isEqualTo(Census.getCensusContextFactory().getCurrent());
   }
 
   @Test
   public void testMultipleThreadsWithContext() throws Exception {
-    CensusContext currentContext = Census.getCurrent();
-    CensusContext c1 = Census.getDefault().with(K1, V1);
-    CensusContext c2 = Census.getDefault().with(K2, V2);
+    CensusContext currentContext = Census.getCensusContextFactory().getCurrent();
+    CensusContext c1 = Census.getCensusContextFactory().getDefault().with(K1, V1);
+    CensusContext c2 = Census.getCensusContextFactory().getDefault().with(K2, V2);
     ExecutorService executor = Executors.newFixedThreadPool(1);
     // Attach c1 to the executor thread.
-    Future<?> future = executor.submit(withContext(Census.getDefault(), c1));
+    Future<?> future =
+        executor.submit(withContext(Census.getCensusContextFactory().getDefault(), c1));
     future.get();
     // Verify that the context for the current thread was not updated.
-    assertThat(Census.getCurrent()).isEqualTo(currentContext);
+    assertThat(Census.getCensusContextFactory().getCurrent()).isEqualTo(currentContext);
     // Attach c2 to the executor thread.
     future = executor.submit(withContext(c1, c2));
     future.get();
@@ -169,7 +170,7 @@ public class CensusContextTest {
   }
 
   private static void testSerialization(CensusContext expected) {
-    CensusContext actual = Census.deserialize(expected.serialize());
+    CensusContext actual = Census.getCensusContextFactory().deserialize(expected.serialize());
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -177,9 +178,9 @@ public class CensusContextTest {
     return new Runnable() {
       @Override
       public void run() {
-        assertThat(Census.getCurrent()).isEqualTo(prev);
+        assertThat(Census.getCensusContextFactory().getCurrent()).isEqualTo(prev);
         next.setCurrent();
-        assertThat(Census.getCurrent()).isEqualTo(next);
+        assertThat(Census.getCensusContextFactory().getCurrent()).isEqualTo(next);
       }
     };
   }

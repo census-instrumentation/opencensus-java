@@ -36,44 +36,50 @@ public class CensusScopeTest {
 
   @Test
   public void testNoScope() {
-    assertEquals(Census.getCurrent(), Census.getDefault());
+    assertEquals(
+        Census.getCensusContextFactory().getCurrent(),
+        Census.getCensusContextFactory().getDefault());
   }
 
   @Test
   public void testScope() {
-    CensusScope scope = new CensusScope(Census.getCurrent().with(K1, V1));
+    CensusScope scope = new CensusScope(Census.getCensusContextFactory().getCurrent().with(K1, V1));
     try {
       assertEquals(
-          Census.getDefault().with(K1, V1),
-          Census.getCurrent());
+          Census.getCensusContextFactory().getDefault().with(K1, V1),
+          Census.getCensusContextFactory().getCurrent());
     } finally {
       scope.close();
     }
-    assertEquals(Census.getDefault(), Census.getCurrent());
+    assertEquals(
+        Census.getCensusContextFactory().getDefault(),
+        Census.getCensusContextFactory().getCurrent());
   }
 
   @Test
   public void testNestedScope() {
-    CensusScope s1 = new CensusScope(Census.getCurrent().with(K1, V1));
+    CensusScope s1 = new CensusScope(Census.getCensusContextFactory().getCurrent().with(K1, V1));
     try {
       assertEquals(
-          Census.getDefault().with(K1, V1),
-          Census.getCurrent());
-      CensusScope s2 = new CensusScope(Census.getCurrent().with(K2, V2));
+          Census.getCensusContextFactory().getDefault().with(K1, V1),
+          Census.getCensusContextFactory().getCurrent());
+      CensusScope s2 = new CensusScope(Census.getCensusContextFactory().getCurrent().with(K2, V2));
       try {
         assertEquals(
-            Census.getDefault().with(K1, V1).with(K2, V2),
-            Census.getCurrent());
+            Census.getCensusContextFactory().getDefault().with(K1, V1).with(K2, V2),
+            Census.getCensusContextFactory().getCurrent());
       } finally {
         s2.close();
       }
       assertEquals(
-          Census.getDefault().with(K1, V1),
-          Census.getCurrent());
+          Census.getCensusContextFactory().getDefault().with(K1, V1),
+          Census.getCensusContextFactory().getCurrent());
     } finally {
       s1.close();
     }
-    assertEquals(Census.getDefault(), Census.getCurrent());
+    assertEquals(
+        Census.getCensusContextFactory().getDefault(),
+        Census.getCensusContextFactory().getCurrent());
   }
 
   @Test
@@ -81,12 +87,14 @@ public class CensusScopeTest {
     CensusScope scope = CensusScope.of(K1, V1);
     try {
       assertEquals(
-          Census.getDefault().with(K1, V1),
-          Census.getCurrent());
+          Census.getCensusContextFactory().getDefault().with(K1, V1),
+          Census.getCensusContextFactory().getCurrent());
     } finally {
       scope.close();
     }
-    assertEquals(Census.getDefault(), Census.getCurrent());
+    assertEquals(
+        Census.getCensusContextFactory().getDefault(),
+        Census.getCensusContextFactory().getCurrent());
   }
 
   @Test
@@ -94,12 +102,14 @@ public class CensusScopeTest {
     CensusScope scope = CensusScope.of(K1, V1, K2, V2);
     try {
       assertEquals(
-          Census.getDefault().with(K1, V1, K2, V2),
-          Census.getCurrent());
+          Census.getCensusContextFactory().getDefault().with(K1, V1, K2, V2),
+          Census.getCensusContextFactory().getCurrent());
     } finally {
       scope.close();
     }
-    assertEquals(Census.getDefault(), Census.getCurrent());
+    assertEquals(
+        Census.getCensusContextFactory().getDefault(),
+        Census.getCensusContextFactory().getCurrent());
   }
 
   @Test
@@ -107,12 +117,14 @@ public class CensusScopeTest {
     CensusScope scope = CensusScope.of(K1, V1, K2, V2, K3, V3);
     try {
       assertEquals(
-          Census.getDefault().with(K1, V1, K2, V2, K3, V3),
-          Census.getCurrent());
+          Census.getCensusContextFactory().getDefault().with(K1, V1, K2, V2, K3, V3),
+          Census.getCensusContextFactory().getCurrent());
     } finally {
       scope.close();
     }
-    assertEquals(Census.getDefault(), Census.getCurrent());
+    assertEquals(
+        Census.getCensusContextFactory().getDefault(),
+        Census.getCensusContextFactory().getCurrent());
   }
 
   @Test
@@ -122,11 +134,12 @@ public class CensusScopeTest {
     CensusScope scope = builder.build();
     try {
       assertEquals(
-          Census.getDefault().builder().set(K1, V1).set(K2, V2).set(K3, V3).set(K4, V4).build(),
-          Census.getCurrent());
+          Census.getCensusContextFactory().getDefault()
+          .builder().set(K1, V1).set(K2, V2).set(K3, V3).set(K4, V4).build(),
+          Census.getCensusContextFactory().getCurrent());
     } finally {
       scope.close();
     }
-    assertEquals(Census.getDefault(), Census.getCurrent());
+    assertEquals(Census.getCensusContextFactory().getDefault(), Census.getCensusContextFactory().getCurrent());
   }
 }
