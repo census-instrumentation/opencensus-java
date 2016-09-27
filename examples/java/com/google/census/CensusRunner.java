@@ -11,18 +11,13 @@
  * limitations under the License.
  */
 
-package com.google.census.examples;
-
-import com.google.census.Census;
-import com.google.census.CensusContext;
-import com.google.census.CensusGrpcContext;
-import com.google.census.MetricMap;
-import com.google.census.MetricName;
-import com.google.census.TagKey;
-import com.google.census.TagValue;
+package com.google.census;
 
 import io.grpc.Context;
 
+/**
+ * Simple program that uses Census contexts.
+ */
 public class CensusRunner {
   private static final TagKey K1 = new TagKey("k1");
   private static final TagKey K2 = new TagKey("k2");
@@ -37,7 +32,7 @@ public class CensusRunner {
   private static final MetricName M1 = new MetricName("m1");
   private static final MetricName M2 = new MetricName("m2");
 
-  public static void main(String args[]) {
+  public static void main(String[] args) {
     System.out.println("Hello Census World");
     System.out.println("Default Tags: " + DEFAULT);
     System.out.println("Current Tags: " + getCurrentCensusContext());
