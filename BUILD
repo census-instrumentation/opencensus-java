@@ -162,8 +162,8 @@ java_test(
 )
 
 java_test(
-    name = "StringSanitizationTest",
-    srcs = ["core/javatests/com/google/census/StringSanitizationTest.java"],
+    name = "StringUtilTest",
+    srcs = ["core/javatests/com/google/census/StringUtilTest.java"],
     deps = [
         ":census-core",
         ":census-core_native",

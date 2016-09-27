@@ -14,9 +14,9 @@
 package com.google.census;
 
 /**
- * Utility methods for sanitizing tag keys, tag values, and metric names.
+ * Utility methods for working with tag keys, tag values, and metric names.
  */
-final class StringSanitization {
+final class StringUtil {
 
   static final int MAX_LENGTH = 255;
   static final char UNPRINTABLE_CHAR_SUBSTITUTE = '_';
@@ -50,7 +50,7 @@ final class StringSanitization {
   }
 
   //Visible for testing
-  StringSanitization() {
+  StringUtil() {
     throw new AssertionError();
   }
 }

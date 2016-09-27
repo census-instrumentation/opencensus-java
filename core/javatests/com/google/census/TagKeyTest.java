@@ -41,8 +41,8 @@ public final class TagKeyTest {
   public void testKeyBadChar() {
     String key = "\2ab\3cd";
     assertThat(new TagKey(key).toString())
-        .isEqualTo(StringSanitization.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
-                 + StringSanitization.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
+        .isEqualTo(StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
+                 + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
   }
 
   @Test

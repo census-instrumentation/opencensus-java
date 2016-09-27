@@ -19,10 +19,10 @@ package com.google.census;
  * TagKey's are {@link String}s with enforced restrictions.
  */
 public final class TagKey {
-  public static final int MAX_LENGTH = StringSanitization.MAX_LENGTH;
+  public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
   public TagKey(String key) {
-    this.key = StringSanitization.sanitize(key);
+    this.key = StringUtil.sanitize(key);
   }
 
   @Override
