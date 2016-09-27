@@ -10,6 +10,11 @@
 # limitations under the License.
 
 maven_jar(
+    name = "grpc_context",
+    artifact = "io.grpc:grpc-context:1.0.1",
+)
+
+maven_jar(
     name = "guava",
     artifact = "com.google.guava:guava:19.0",
 )
