@@ -45,11 +45,6 @@ final class CensusContextImpl extends CensusContext {
   }
 
   @Override
-  public void setCurrent() {
-    CensusCurrentContext.set(this);
-  }
-
-  @Override
   public boolean equals(Object obj) {
     return (obj instanceof CensusContextImpl) && tags.equals(((CensusContextImpl) obj).tags);
   }

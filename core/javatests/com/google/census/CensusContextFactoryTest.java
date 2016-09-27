@@ -30,10 +30,4 @@ public class CensusContextFactoryTest {
     assertThat(Census.getCensusContextFactory().deserialize(ByteBuffer.wrap(new byte[0])))
         .isEqualTo(Census.getCensusContextFactory().getDefault());
   }
-
-  @Test
-  public void testGetCurrent() {
-    assertThat(Census.getCensusContextFactory().getCurrent())
-        .isEqualTo(Census.getCensusContextFactory().getDefault());
-  }
 }

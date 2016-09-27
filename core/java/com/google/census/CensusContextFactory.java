@@ -32,9 +32,6 @@ public abstract class CensusContextFactory {
   @Nullable
   public abstract CensusContext deserialize(ByteBuffer buffer);
 
-  /** Returns the current thread-local {@link CensusContext}. */
-  public abstract CensusContext getCurrent();
-
   /** Returns the default {@link CensusContext}. */
   public abstract CensusContext getDefault();
 }

@@ -16,9 +16,6 @@ package com.google.census;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -116,35 +113,6 @@ public class CensusContextTest {
     testSerialization(DEFAULT.with(K_EMPTY, V_EMPTY));
   }
 
-  @Test
-  public void testSetCurrent() {
-    assertThat(DEFAULT).isEqualTo(Census.getCensusContextFactory().getCurrent());
-
-    CensusContext context = DEFAULT.with(K1, V1);
-    context.setCurrent();
-    assertThat(context).isEqualTo(Census.getCensusContextFactory().getCurrent());
-
-    DEFAULT.setCurrent();
-    assertThat(DEFAULT).isEqualTo(Census.getCensusContextFactory().getCurrent());
-  }
-
-  @Test
-  public void testMultipleThreadsWithContext() throws Exception {
-    CensusContext currentContext = Census.getCensusContextFactory().getCurrent();
-    CensusContext c1 = Census.getCensusContextFactory().getDefault().with(K1, V1);
-    CensusContext c2 = Census.getCensusContextFactory().getDefault().with(K2, V2);
-    ExecutorService executor = Executors.newFixedThreadPool(1);
-    // Attach c1 to the executor thread.
-    Future<?> future =
-        executor.submit(withContext(Census.getCensusContextFactory().getDefault(), c1));
-    future.get();
-    // Verify that the context for the current thread was not updated.
-    assertThat(Census.getCensusContextFactory().getCurrent()).isEqualTo(currentContext);
-    // Attach c2 to the executor thread.
-    future = executor.submit(withContext(c1, c2));
-    future.get();
-  }
-
   // Tests for Object overrides.
 
   @Test
@@ -172,16 +140,5 @@ public class CensusContextTest {
   private static void testSerialization(CensusContext expected) {
     CensusContext actual = Census.getCensusContextFactory().deserialize(expected.serialize());
     assertThat(actual).isEqualTo(expected);
-  }
-
-  private static final Runnable withContext(final CensusContext prev, final CensusContext next) {
-    return new Runnable() {
-      @Override
-      public void run() {
-        assertThat(Census.getCensusContextFactory().getCurrent()).isEqualTo(prev);
-        next.setCurrent();
-        assertThat(Census.getCensusContextFactory().getCurrent()).isEqualTo(next);
-      }
-    };
   }
 }

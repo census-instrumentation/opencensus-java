@@ -56,9 +56,6 @@ public abstract class CensusContext {
    */
   public abstract ByteBuffer serialize();
 
-  /** Sets the current thread-local {@link CensusContext}. */
-  public abstract void setCurrent();
-
   /** Builder for {@link CensusContext}. */
   public abstract static class Builder {
     /**
