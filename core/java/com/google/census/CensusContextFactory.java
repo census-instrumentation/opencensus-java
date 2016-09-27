@@ -21,9 +21,10 @@ import javax.annotation.Nullable;
  */
 public abstract class CensusContextFactory {
   /**
-   * Creates a {@link CensusContext} from the given on-the-wire encoded representation. Should be
-   * the inverse of {@link CensusContext#serialize()}. The serialized representation should be
-   * based on the {@link CensusContext} protobuf representation.
+   * Creates a {@link CensusContext} from the given on-the-wire encoded representation.
+   *
+   * <p>Should be the inverse of {@link CensusContext#serialize()}. The serialized representation
+   * should be based on the {@link CensusContext} protobuf representation.
    *
    * @param buffer on-the-wire representation of a {@link CensusContext}
    * @return a {@link CensusContext} deserialized from {@code buffer}
