@@ -41,7 +41,7 @@ public final class CensusScope implements Closeable {
    * current. Restores the saved {@link CensusContext} on close.
    */
   public CensusScope(CensusContext context) {
-    saved = Census.getCurrent();
+    saved = Census.getCensusContextFactory().getCurrent();
     context.setCurrent();
   }
 
@@ -74,7 +74,8 @@ public final class CensusScope implements Closeable {
 
   /** Builder for {@link CensusScope}. */
   public static final class Builder {
-    private final CensusContext.Builder builder = Census.getCurrent().builder();
+    private final CensusContext.Builder builder =
+        Census.getCensusContextFactory().getCurrent().builder();
 
     public Builder set(TagKey key, TagValue value) {
       builder.set(key, value);

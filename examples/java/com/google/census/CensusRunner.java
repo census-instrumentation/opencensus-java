@@ -37,20 +37,22 @@ public class CensusRunner {
 
   public static void main(String args[]) {
     System.out.println("Hello Census World");
-    System.out.println("Default Tags: " + Census.getDefault());
-    System.out.println("Current Tags: " + Census.getCurrent());
+    System.out.println("Default Tags: " + Census.getCensusContextFactory().getDefault());
+    System.out.println("Current Tags: " + Census.getCensusContextFactory().getCurrent());
     CensusScope scope1 = CensusScope.of(K1, V1, K2, V2);
     try {
-        CensusContext context1 = Census.getDefault().with(K1, V1, K2, V2);
-        System.out.println("  Current Tags: " + Census.getCurrent());
-        System.out.println("  Current == Default + tags1: " + Census.getCurrent().equals(context1));
+        CensusContext context1 = Census.getCensusContextFactory().getDefault().with(K1, V1, K2, V2);
+        System.out.println("  Current Tags: " + Census.getCensusContextFactory().getCurrent());
+        System.out.println("  Current == Default + tags1: "
+            + Census.getCensusContextFactory().getCurrent().equals(context1));
         CensusScope scope2 = CensusScope.of(K3, V3, K4, V4);
         try {
             CensusContext context2 = context1.with(K3, V3, K4, V4);
-            System.out.println("    Current Tags: " + Census.getCurrent());
+            System.out.println("    Current Tags: "
+                + Census.getCensusContextFactory().getCurrent());
             System.out.println("    Current == Default + tags1 + tags2: "
-                + Census.getCurrent().equals(context2));
-            Census.getCurrent().record(MetricMap.of(M1, 0.2, M2, 0.4));
+                + Census.getCensusContextFactory().getCurrent().equals(context2));
+            Census.getCensusContextFactory().getCurrent().record(MetricMap.of(M1, 0.2, M2, 0.4));
         } finally {
           scope2.close();
         }
@@ -58,6 +60,7 @@ public class CensusRunner {
       scope1.close();
     }
     System.out.println("Current == Default: " +
-        Census.getCurrent().equals(Census.getDefault()));
+        Census.getCensusContextFactory().getCurrent()
+        .equals(Census.getCensusContextFactory().getDefault()));
   }
 }
