@@ -17,8 +17,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import java.util.Arrays;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-public class StringSanitizationTest {
+/**
+ * Tests for {@link StringUtil}.
+ */
+@RunWith(JUnit4.class)
+public final class StringSanitizationTest {
   @Test
   public void testMaxLength() {
     char[] string = new char[StringSanitization.MAX_LENGTH];
