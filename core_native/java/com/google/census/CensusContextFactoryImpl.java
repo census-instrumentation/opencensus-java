@@ -21,6 +21,8 @@ import javax.annotation.Nullable;
 final class CensusContextFactoryImpl extends CensusContextFactory {
   static final CensusContextImpl DEFAULT = new CensusContextImpl(new HashMap<String, String>(0));
 
+  public CensusContextFactoryImpl() {}
+
   /**
    * Deserializes a {@link CensusContextImpl} from a serialized {@code CensusContextProto}.
    *
