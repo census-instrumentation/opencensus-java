@@ -48,16 +48,12 @@ public abstract class CensusContext {
 
   /**
    * Serializes the {@link CensusContext} into the on-the-wire representation.
-   *
-   * <p>The inverse of {@link CensusContextFactory#deserialize(ByteBuffer)} and should be based on
-   * the {@link CensusContext} protobuf representation.
+   * The inverse of {@link CensusContextFactory#deserialize()} and should be based on the
+   * {@link CensusContext} protobuf representation.
    *
    * @return serialized bytes.
    */
   public abstract ByteBuffer serialize();
-
-  /** Sets the current thread-local {@link CensusContext}. */
-  public abstract void setCurrent();
 
   /** Builder for {@link CensusContext}. */
   public abstract static class Builder {

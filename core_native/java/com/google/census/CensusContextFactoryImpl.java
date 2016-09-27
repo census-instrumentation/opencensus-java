@@ -33,11 +33,6 @@ final class CensusContextFactoryImpl extends CensusContextFactory {
   }
 
   @Override
-  public CensusContext getCurrent() {
-    return CensusCurrentContext.get();
-  }
-
-  @Override
   public CensusContext getDefault() {
     return DEFAULT;
   }
