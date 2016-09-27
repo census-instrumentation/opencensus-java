@@ -19,10 +19,10 @@ package com.google.census;
  * MetricName's are {@link String}s with enforced restrictions.
  */
 public final class MetricName {
-  public static final int MAX_LENGTH = Tag.MAX_LENGTH;
+  public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
   public MetricName(String name) {
-    this.name = Tag.sanitize(name);
+    this.name = StringUtil.sanitize(name);
   }
 
   @Override

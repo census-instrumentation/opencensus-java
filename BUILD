@@ -162,8 +162,8 @@ java_test(
 )
 
 java_test(
-    name = "TagKeyTest",
-    srcs = ["core/javatests/com/google/census/TagKeyTest.java"],
+    name = "StringUtilTest",
+    srcs = ["core/javatests/com/google/census/StringUtilTest.java"],
     deps = [
         ":census-core",
         ":census-core_native",
@@ -176,8 +176,8 @@ java_test(
 )
 
 java_test(
-    name = "TagTest",
-    srcs = ["core/javatests/com/google/census/TagTest.java"],
+    name = "TagKeyTest",
+    srcs = ["core/javatests/com/google/census/TagKeyTest.java"],
     deps = [
         ":census-core",
         ":census-core_native",

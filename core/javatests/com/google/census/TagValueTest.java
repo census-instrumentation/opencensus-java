@@ -40,7 +40,8 @@ public final class TagValueTest {
   public void testValueBadChar() {
     String value = "\2ab\3cd";
     assertThat(new TagValue(value).toString())
-        .isEqualTo(Tag.UNPRINTABLE_CHAR_SUBSTITUTE + "ab" + Tag.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
+        .isEqualTo(StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
+                 + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
   }
 
   @Test

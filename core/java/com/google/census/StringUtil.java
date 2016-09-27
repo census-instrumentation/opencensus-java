@@ -13,52 +13,10 @@
 
 package com.google.census;
 
-import java.util.Map.Entry;
-
 /**
- * Immutable representation of a Tag.
+ * Utility methods for working with tag keys, tag values, and metric names.
  */
-public class Tag implements Entry<String, String> {
-
-  public Tag(TagKey key, TagValue value) {
-    this.key = key.toString();
-    this.value = value.toString();
-  }
-
-  @Override
-  public String getKey() {
-    return key;
-  }
-
-  @Override
-  public String getValue() {
-    return value;
-  }
-
-  @Override
-  public String setValue(String value) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Tag)) {
-      return false;
-    }
-    Tag that = (Tag) obj;
-    return key.equals(that.key) && value.equals(that.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return key.hashCode() * 31 + value.hashCode();
-  }
-
-  // Assumes key and value have already been sanitized.
-  Tag(String key, String value) {
-    this.key = key;
-    this.value = value;
-  }
+final class StringUtil {
 
   static final int MAX_LENGTH = 255;
   static final char UNPRINTABLE_CHAR_SUBSTITUTE = '_';
@@ -91,6 +49,8 @@ public class Tag implements Entry<String, String> {
     return c >= ' ' && c <= '~';
   }
 
-  private final String key;
-  private final String value;
+  //Visible for testing
+  StringUtil() {
+    throw new AssertionError();
+  }
 }
