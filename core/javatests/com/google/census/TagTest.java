@@ -38,15 +38,9 @@ public final class TagTest {
     assertThat(new Tag("key", "val").getValue()).isEqualTo("val");
   }
 
-  @Test
+  @Test(expected = UnsupportedOperationException.class)
   public void testSetValue() {
-    boolean fail = true;
-    try {
-      new Tag("key", "val").setValue("val1");
-      fail = false;
-    } catch (UnsupportedOperationException expected) {
-    }
-    assertThat(fail).isTrue();
+    new Tag("key", "val").setValue("val1");
   }
 
   @Test

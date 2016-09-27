@@ -13,6 +13,8 @@
 
 package com.google.census;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Census-specific service provider mechanism.
  *
@@ -40,12 +42,18 @@ class Provider<T> {
   T newInstance() {
     try {
       if (provider != null) {
-        return (T) provider.newInstance();
+        return (T) provider.getConstructor().newInstance();
       }
     } catch (InstantiationException e) {
       // TODO(dpo): decide what to do here - log, crash, or both.
       System.err.println(e);
     } catch (IllegalAccessException e) {
+      // TODO(dpo): decide what to do here - log, crash, or both.
+      System.err.println(e);
+    } catch (NoSuchMethodException e) {
+      // TODO(dpo): decide what to do here - log, crash, or both.
+      System.err.println(e);
+    } catch (InvocationTargetException e) {
       // TODO(dpo): decide what to do here - log, crash, or both.
       System.err.println(e);
     }
