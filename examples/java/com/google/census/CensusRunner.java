@@ -15,10 +15,13 @@ package com.google.census.examples;
 
 import com.google.census.Census;
 import com.google.census.CensusContext;
+import com.google.census.CensusGrpcContext;
 import com.google.census.MetricMap;
 import com.google.census.MetricName;
 import com.google.census.TagKey;
 import com.google.census.TagValue;
+
+import io.grpc.Context;
 
 public class CensusRunner {
   private static final TagKey K1 = new TagKey("k1");
@@ -36,11 +39,42 @@ public class CensusRunner {
 
   public static void main(String args[]) {
     System.out.println("Hello Census World");
-    System.out.println("Default Tags: " + Census.getCensusContextFactory().getDefault());
-    CensusContext context1 = Census.getCensusContextFactory().getDefault().with(K1, V1, K2, V2);
-    System.out.println("Context1 Tags: " + context1);
-    CensusContext context2 = context1.with(K3, V3, K4, V4);
-    System.out.println("Context2 Tags: " + context2);
-    context2.record(MetricMap.of(M1, 0.2, M2, 0.4));
+    System.out.println("Default Tags: " + DEFAULT);
+    System.out.println("Current Tags: " + getCurrentCensusContext());
+    Context context1 = withCurrent(DEFAULT.with(K1, V1, K2, V2));
+    Context original = context1.attach();
+    try {
+        System.out.println("  Current Tags: " + getCurrentCensusContext());
+        System.out.println("  Current == Default + tags1: "
+            + getCurrentCensusContext().equals(getCensusContext(context1)));
+        Context context2 = withCurrent(getCurrentCensusContext().with(K3, V3, K4, V4));
+        context2.attach();
+        try {
+          System.out.println("    Current Tags: " + getCurrentCensusContext());
+          System.out.println("    Current == Default + tags1 + tags2: "
+              + getCurrentCensusContext().equals(getCensusContext(context2)));
+          getCurrentCensusContext().record(MetricMap.of(M1, 0.2, M2, 0.4));
+        } finally {
+          context2.detach(context1);
+        }
+    } finally {
+      context1.detach(original);
+    }
+    System.out.println("Current == Default: "
+        + getCurrentCensusContext().equals(DEFAULT));
+  }
+
+  private static final CensusContext DEFAULT = Census.getCensusContextFactory().getDefault();
+
+  private static final CensusContext getCurrentCensusContext() {
+    return getCensusContext(Context.current());
+  }
+
+  private static final CensusContext getCensusContext(Context context) {
+    return CensusGrpcContext.getInstance().get(context);
+  }
+
+  private static final Context withCurrent(CensusContext context) {
+    return CensusGrpcContext.getInstance().withCensusContext(Context.current(), context);
   }
 }

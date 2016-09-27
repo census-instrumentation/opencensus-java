@@ -29,6 +29,27 @@ java_library(
     ],
 )
 
+java_library(
+    name = "census-grpc",
+    srcs = glob(["grpc/java/com/google/census/*.java"]),
+    deps = [
+        ":census-core",
+        "@grpc_context//jar",
+        "@jsr305//jar",
+    ],
+)
+
+java_library(
+    name = "census-grpc_native",
+    srcs = glob(["grpc_native/java/com/google/census/*.java"]),
+    deps = [
+        ":census-core",
+        ":census-grpc",
+        "@grpc_context//jar",
+        "@jsr305//jar",
+    ],
+)
+
 java_binary(
     name = "CensusRunner",
     srcs = ["examples/java/com/google/census/CensusRunner.java"],
@@ -36,6 +57,9 @@ java_binary(
     deps = [
         ":census-core",
         ":census-core_native",
+        ":census-grpc",
+        ":census-grpc_native",
+        "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
     ],
@@ -61,6 +85,22 @@ java_test(
     deps = [
         ":census-core",
         ":census-core_native",
+        "@guava//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "CensusGrpcContextTest",
+    srcs = ["grpc/javatests/com/google/census/CensusGrpcContextTest.java"],
+    deps = [
+        ":census-core",
+        ":census-core_native",
+        ":census-grpc",
+        ":census-grpc_native",
+        "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
