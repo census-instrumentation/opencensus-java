@@ -37,10 +37,10 @@ public final class StringUtilTest {
   @Test
   public void testBadChar() {
     String string = "\2ab\3cd";
-    assertThat(StringUtil.sanitize(string).toString()).isEqualTo("_ab_cd");
+    assertThat(StringUtil.sanitize(string)).isEqualTo("_ab_cd");
   }
 
-  @Test(expected=AssertionError.class)
+  @Test(expected = AssertionError.class)
   public void testConstructor() {
     new StringUtil();
   }
