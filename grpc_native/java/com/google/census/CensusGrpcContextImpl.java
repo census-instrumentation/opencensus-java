@@ -19,7 +19,7 @@ import io.grpc.Context;
  * Utils for embedding {@link CensusContext} in gRPC {@link Context} to support thread-local
  * implicit propagation of the {@link CensusContext}.
  */
-public class CensusGrpcContextImpl extends CensusGrpcContext {
+public final class CensusGrpcContextImpl extends CensusGrpcContext {
   private static final Context.Key<CensusContext> CENSUS_CONTEXT_KEY =
       Context.keyWithDefault("CensusContextKey", Census.getCensusContextFactory().getDefault());
 
