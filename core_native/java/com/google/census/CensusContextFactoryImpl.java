@@ -20,10 +20,8 @@ import javax.annotation.Nullable;
 /**
  * Native Implementation of {@link CensusContextFactory}.
  */
-final class CensusContextFactoryImpl extends CensusContextFactory {
+public final class CensusContextFactoryImpl extends CensusContextFactory {
   static final CensusContextImpl DEFAULT = new CensusContextImpl(new HashMap<String, String>(0));
-
-  public CensusContextFactoryImpl() {}
 
   /**
    * Deserializes a {@link CensusContextImpl} from a serialized {@code CensusContextProto}.
