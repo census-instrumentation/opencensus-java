@@ -1,2 +1,6 @@
 bazel-*
-
+target
+TAGS
+.classpath
+.project
+.settings
