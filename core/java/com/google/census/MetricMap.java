@@ -15,6 +15,7 @@ package com.google.census;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A map from Census metric names to metric values.
@@ -120,6 +121,9 @@ public class MetricMap implements Iterable<Metric> {
     }
 
     @Override public Metric next() {
+      if (position >= metrics.size()) {
+        throw new NoSuchElementException();
+      }
       return metrics.get(position++);
     }
 
