@@ -16,7 +16,7 @@ package com.google.census;
 /**
  * Census Tag values.
  *
- * TagValue's are {@link String}s with enforced restrictions.
+ * <p>TagValue's are {@link String}s with enforced restrictions.
  */
 public final class TagValue {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
