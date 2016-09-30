@@ -43,5 +43,5 @@ script:
       "BAZEL")
         bazel test ... ;;
       "MVN")
-        mvn package ;;
+        mvn verify ;;
     esac
