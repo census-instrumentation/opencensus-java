@@ -13,7 +13,9 @@
 
 package com.google.census;
 
-/** Native implementation of thread-local {@link CensusContext} */
+/**
+ * Native implementation of thread-local {@link CensusContext}.
+ */
 class CensusCurrentContext {
   static final ThreadLocal<CensusContextImpl> contexts = new ThreadLocal<CensusContextImpl>() {
     @Override

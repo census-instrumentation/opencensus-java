@@ -17,7 +17,9 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import javax.annotation.Nullable;
 
-/** Native Implementation of {@link CensusContextFactory} */
+/**
+ * Native Implementation of {@link CensusContextFactory}.
+ */
 final class CensusContextFactoryImpl extends CensusContextFactory {
   static final CensusContextImpl DEFAULT = new CensusContextImpl(new HashMap<String, String>(0));
 
