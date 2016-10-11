@@ -43,5 +43,10 @@ script:
       "BAZEL")
         bazel test ... ;;
       "MVN")
-        mvn package ;;
+        case "$TRAVIS_JDK_VERSION" in
+          "openjdk6")
+            mvn verify -P java6 ;;
+          *)
+            mvn verify ;;
+        esac
     esac
