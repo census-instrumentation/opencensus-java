@@ -16,7 +16,7 @@ package com.google.census;
 /**
  * Census Metric names.
  *
- * MetricName's are {@link String}s with enforced restrictions.
+ * <p>MetricName's are {@link String}s with enforced restrictions.
  */
 public final class MetricName {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;

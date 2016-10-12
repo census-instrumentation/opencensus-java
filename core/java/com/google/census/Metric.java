@@ -23,14 +23,14 @@ public class Metric {
   }
 
   /**
-   * Extracts the {@link Metric} name;
+   * Extracts the {@link Metric} name.
    */
   public MetricName getName() {
     return name;
   }
 
   /**
-   * Extracts the {@link Metric} value;
+   * Extracts the {@link Metric} value.
    */
   public double getValue() {
     return value;

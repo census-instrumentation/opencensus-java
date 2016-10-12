@@ -19,7 +19,9 @@ import java.nio.ByteBuffer;
  * An immutable Census-specific context for an operation.
  */
 public abstract class CensusContext {
-  /** Returns a builder based on this {@link CensusContext} */
+  /**
+   * Returns a builder based on this {@link CensusContext}.
+   */
   public abstract Builder builder();
 
   /** Shorthand for builder().set(k1, v1).build() */
@@ -56,7 +58,9 @@ public abstract class CensusContext {
    */
   public abstract ByteBuffer serialize();
 
-  /** Builder for {@link CensusContext}. */
+  /**
+   * Builder for {@link CensusContext}.
+   */
   public abstract static class Builder {
     /**
      * Associates the given tag key with the given tag value.

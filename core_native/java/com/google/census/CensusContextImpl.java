@@ -16,7 +16,9 @@ package com.google.census;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
-/** Native Implementation of {@link CensusContext} */
+/**
+ * Native Implementation of {@link CensusContext}.
+ */
 final class CensusContextImpl extends CensusContext {
   final HashMap<String, String> tags;
 

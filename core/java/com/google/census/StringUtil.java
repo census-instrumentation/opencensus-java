@@ -21,32 +21,32 @@ final class StringUtil {
   static final int MAX_LENGTH = 255;
   static final char UNPRINTABLE_CHAR_SUBSTITUTE = '_';
 
-  static String sanitize(String s) {
-    if (s.length() > MAX_LENGTH) {
-      s = s.substring(0, MAX_LENGTH);
+  static String sanitize(String str) {
+    if (str.length() > MAX_LENGTH) {
+      str = str.substring(0, MAX_LENGTH);
     }
-    if (isPrintableString(s)) {
-      return s;
+    if (isPrintableString(str)) {
+      return str;
     }
-    StringBuilder builder = new StringBuilder(s.length());
-    for (int i = 0; i < s.length(); i++) {
-      char c = s.charAt(i);
-      builder.append(isPrintableChar(c) ? c : UNPRINTABLE_CHAR_SUBSTITUTE);
+    StringBuilder builder = new StringBuilder(str.length());
+    for (int i = 0; i < str.length(); i++) {
+      char ch = str.charAt(i);
+      builder.append(isPrintableChar(ch) ? ch : UNPRINTABLE_CHAR_SUBSTITUTE);
     }
     return builder.toString();
   }
 
-  private static boolean isPrintableString(String s) {
-    for (int i = 0; i < s.length(); i++) {
-      if (!isPrintableChar(s.charAt(i))) {
+  private static boolean isPrintableString(String str) {
+    for (int i = 0; i < str.length(); i++) {
+      if (!isPrintableChar(str.charAt(i))) {
         return false;
       }
     }
     return true;
   }
 
-  private static boolean isPrintableChar(char c) {
-    return c >= ' ' && c <= '~';
+  private static boolean isPrintableChar(char ch) {
+    return ch >= ' ' && ch <= '~';
   }
 
   //Visible for testing

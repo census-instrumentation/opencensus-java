@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
-/** Native implementation {@link CensusContext} serialization. */
+/**
+ * Native implementation {@link CensusContext} serialization.
+ */
 final class CensusSerializer {
   private static final char TAG_PREFIX = '\2';
   private static final char TAG_DELIM = '\3';
@@ -38,8 +40,8 @@ final class CensusSerializer {
           .append(TAG_DELIM)
           .append(tag.getValue());
     }
-    return ByteBuffer.wrap(CensusContextProto.CensusContext.
-        newBuilder().setTags(builder.toString()).build().toByteArray());
+    return ByteBuffer.wrap(CensusContextProto.CensusContext
+        .newBuilder().setTags(builder.toString()).build().toByteArray());
   }
 
   // Deserializes based on an serialized CensusContextProto. The encoded tags are of the form:

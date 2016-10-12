@@ -20,7 +20,9 @@ public final class Census {
   private static final CensusContextFactory CONTEXT_FACTORY = new Provider<CensusContextFactory>(
       "com.google.census.CensusContextFactoryImpl").newInstance();
 
-  /** Returns the default {@link CensusContextFactory}. */
+  /**
+   * Returns the default {@link CensusContextFactory}.
+   */
   public static CensusContextFactory getCensusContextFactory() {
     return CONTEXT_FACTORY;
   }

@@ -32,6 +32,8 @@ public abstract class CensusContextFactory {
   @Nullable
   public abstract CensusContext deserialize(ByteBuffer buffer);
 
-  /** Returns the default {@link CensusContext}. */
+  /**
+   * Returns the default {@link CensusContext}.
+   */
   public abstract CensusContext getDefault();
 }
