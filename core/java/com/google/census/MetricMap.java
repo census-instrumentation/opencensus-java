@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 /**
  * A map from Census metric names to metric values.
  */
-public class MetricMap implements Iterable<Metric> {
+public final class MetricMap implements Iterable<Metric> {
   /**
    * Constructs a {@link MetricMap} from the given metrics.
    */
@@ -115,7 +115,7 @@ public class MetricMap implements Iterable<Metric> {
   }
 
   // Provides an unmodifiable Iterator over this instance's metrics.
-  private class MetricMapIterator implements Iterator<Metric> {
+  private final class MetricMapIterator implements Iterator<Metric> {
     @Override public boolean hasNext() {
       return position < length;
     }
