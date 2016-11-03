@@ -14,7 +14,6 @@
 package com.google.census;
 
 import java.nio.ByteBuffer;
-import javax.annotation.Nullable;
 
 /**
  * Factory class for {@link CensusContext}.
@@ -27,9 +26,9 @@ public abstract class CensusContextFactory {
    * should be based on the {@link CensusContext} protobuf representation.
    *
    * @param buffer on-the-wire representation of a {@link CensusContext}
-   * @return a {@link CensusContext} deserialized from {@code buffer}
+   * @return a {@link CensusContext} deserialized from {@code buffer}, or {@code null} if the input
+   *         is invalid
    */
-  @Nullable
   public abstract CensusContext deserialize(ByteBuffer buffer);
 
   /**
