@@ -13,7 +13,7 @@
     Census provides a framework to define and collect stats against metrics and
     to break those stats down across user-defined dimensions.
   </description>
-  <url>https://github.com/google/census-java</url>
+  <url>https://github.com/google/instrumentation-java</url>
 
   <packaging>pom</packaging>
 
