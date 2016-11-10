@@ -13,16 +13,16 @@
 #   Open source Census for cloud services.
 
 java_library(
-    name = "census-core",
-    srcs = glob(["core/java/com/google/census/*.java"]),
+    name = "stats-core",
+    srcs = glob(["core/java/com/google/instrumentation/stats/*.java"]),
     deps = ["@jsr305//jar"],
 )
 
 java_library(
-    name = "census-core_native",
-    srcs = glob(["core_native/java/com/google/census/*.java"]),
+    name = "stats-core_native",
+    srcs = glob(["core_native/java/com/google/instrumentation/stats/*.java"]),
     deps = [
-        ":census-core",
+        ":stats-core",
         "//proto:census_context-proto-java",
         "@jsr305//jar",
         "@protobuf//jar",
@@ -30,21 +30,21 @@ java_library(
 )
 
 java_library(
-    name = "census-grpc",
-    srcs = glob(["grpc/java/com/google/census/*.java"]),
+    name = "stats-grpc",
+    srcs = glob(["grpc/java/com/google/instrumentation/stats/*.java"]),
     deps = [
-        ":census-core",
+        ":stats-core",
         "@grpc_context//jar",
         "@jsr305//jar",
     ],
 )
 
 java_library(
-    name = "census-grpc_native",
-    srcs = glob(["grpc_native/java/com/google/census/*.java"]),
+    name = "stats-grpc_native",
+    srcs = glob(["grpc_native/java/com/google/instrumentation/stats/*.java"]),
     deps = [
-        ":census-core",
-        ":census-grpc",
+        ":stats-core",
+        ":stats-grpc",
         "@grpc_context//jar",
         "@jsr305//jar",
     ],
@@ -52,13 +52,13 @@ java_library(
 
 java_binary(
     name = "CensusRunner",
-    srcs = ["examples/java/com/google/census/CensusRunner.java"],
-    main_class = "com.google.census.examples.CensusRunner",
+    srcs = ["examples/java/com/google/instrumentation/stats/CensusRunner.java"],
+    main_class = "com.google.instrumentation.stats.CensusRunner",
     deps = [
-        ":census-core",
-        ":census-core_native",
-        ":census-grpc",
-        ":census-grpc_native",
+        ":stats-core",
+        ":stats-core_native",
+        ":stats-grpc",
+        ":stats-grpc_native",
         "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
@@ -67,10 +67,10 @@ java_binary(
 
 java_test(
     name = "CensusContextTest",
-    srcs = ["core/javatests/com/google/census/CensusContextTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/CensusContextTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -81,10 +81,10 @@ java_test(
 
 java_test(
     name = "CensusContextFactoryTest",
-    srcs = ["core/javatests/com/google/census/CensusContextFactoryTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/CensusContextFactoryTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
@@ -94,12 +94,12 @@ java_test(
 
 java_test(
     name = "CensusGrpcContextTest",
-    srcs = ["grpc/javatests/com/google/census/CensusGrpcContextTest.java"],
+    srcs = ["grpc/javatests/com/google/instrumentation/stats/CensusGrpcContextTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
-        ":census-grpc",
-        ":census-grpc_native",
+        ":stats-core",
+        ":stats-core_native",
+        ":stats-grpc",
+        ":stats-grpc_native",
         "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
@@ -110,10 +110,10 @@ java_test(
 
 java_test(
     name = "MetricMapTest",
-    srcs = ["core/javatests/com/google/census/MetricMapTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/MetricMapTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
@@ -123,10 +123,10 @@ java_test(
 
 java_test(
     name = "MetricNameTest",
-    srcs = ["core/javatests/com/google/census/MetricNameTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/MetricNameTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -137,10 +137,10 @@ java_test(
 
 java_test(
     name = "ProviderTest",
-    srcs = ["core/javatests/com/google/census/ProviderTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/ProviderTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
@@ -150,10 +150,10 @@ java_test(
 
 java_test(
     name = "RpcConstantsTest",
-    srcs = ["core/javatests/com/google/census/RpcConstantsTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/RpcConstantsTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
@@ -163,10 +163,10 @@ java_test(
 
 java_test(
     name = "StringUtilTest",
-    srcs = ["core/javatests/com/google/census/StringUtilTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/StringUtilTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -177,10 +177,10 @@ java_test(
 
 java_test(
     name = "TagKeyTest",
-    srcs = ["core/javatests/com/google/census/TagKeyTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/TagKeyTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -191,10 +191,10 @@ java_test(
 
 java_test(
     name = "TagValueTest",
-    srcs = ["core/javatests/com/google/census/TagValueTest.java"],
+    srcs = ["core/javatests/com/google/instrumentation/stats/TagValueTest.java"],
     deps = [
-        ":census-core",
-        ":census-core_native",
+        ":stats-core",
+        ":stats-core_native",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
