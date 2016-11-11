@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.census.proto.CensusContextProto;
+import com.google.instrumentation.stats.proto.CensusContextProto;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.nio.ByteBuffer;
