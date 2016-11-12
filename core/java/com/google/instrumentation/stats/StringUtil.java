@@ -49,7 +49,7 @@ final class StringUtil {
     return ch >= ' ' && ch <= '~';
   }
 
-  //Visible for testing
+  // Visible for testing
   StringUtil() {
     throw new AssertionError();
   }
