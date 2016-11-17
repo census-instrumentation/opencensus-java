@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -107,9 +108,6 @@ public final class MeasurementDescriptor {
    *     numerator: SECS
    */
   public static final class MeasurementUnit {
-    private final List<BasicUnit> numerators;
-    private final List<BasicUnit> denominators;
-
     /**
      * Unit multiplier.
      */
@@ -117,25 +115,25 @@ public final class MeasurementDescriptor {
 
     /**
      * Unit Numerators.
+     *
+     * <p>Note: This list is unmodifiable, attempts to update it will throw an UnsupportedOperationException.
      */
-    public List<BasicUnit> getNumerators() {
-      return new ArrayList<BasicUnit>(numerators);
-    }
+    public final List<BasicUnit> numerators;
 
     /**
      * Unit Denominators.
+     *
+     * <p>Note: This list is unmodifiable, attempts to update it will throw an UnsupportedOperationException.
      */
-    public List<BasicUnit> getDenominators() {
-      return new ArrayList<BasicUnit>(denominators);
-    }
+    public final List<BasicUnit> denominators;
 
     /**
      * Basic constructor that takes all fields.
      */
     public MeasurementUnit(int power10, List<BasicUnit> numerators, List<BasicUnit> denominators) {
       this.power10 = power10;
-      this.numerators = new ArrayList<BasicUnit>(numerators);
-      this.denominators = new ArrayList<BasicUnit>(denominators);
+      this.numerators = Collections.unmodifiableList(new ArrayList<BasicUnit>(numerators));
+      this.denominators =  Collections.unmodifiableList(new ArrayList<BasicUnit>(denominators));
     }
 
     /**

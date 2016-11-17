@@ -57,10 +57,10 @@ public final class MeasurementDescriptorTest {
     assertThat(measurement.name).isEqualTo("Foo");
     assertThat(measurement.description).isEqualTo("The description of Foo");
     assertThat(measurement.unit.power10).isEqualTo(6);
-    assertThat(measurement.unit.getNumerators().size()).isEqualTo(1);
-    assertThat(measurement.unit.getNumerators().get(0)).isEqualTo(BasicUnit.BITS);
-    assertThat(measurement.unit.getDenominators().size()).isEqualTo(1);
-    assertThat(measurement.unit.getDenominators().get(0)).isEqualTo(BasicUnit.SECS);
+    assertThat(measurement.unit.numerators.size()).isEqualTo(1);
+    assertThat(measurement.unit.numerators.get(0)).isEqualTo(BasicUnit.BITS);
+    assertThat(measurement.unit.denominators.size()).isEqualTo(1);
+    assertThat(measurement.unit.denominators.get(0)).isEqualTo(BasicUnit.SECS);
   }
 
   @Test
