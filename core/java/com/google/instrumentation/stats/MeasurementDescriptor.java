@@ -13,21 +13,36 @@
 
 package com.google.instrumentation.stats;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Census Metric names.
+ * MeasurementDescriptor.
  *
- * <p>MetricName's are {@link String}s with enforced restrictions.
+ * <p>MeasurementDescriptor's names are {@link String}s with enforced restrictions.
  */
-public final class MetricName {
+public final class MeasurementDescriptor {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
-  public MetricName(String name) {
+  /** Name of measurement, e.g. rpc_latency, cpu. Must be unique. */
+  public final String name;
+
+  /** Detailed description of the measurement, used in documentation. */
+  public final String description;
+
+  /** The units in which {@link MeasurementDescriptor} values are measured. */
+  public MeasurementUnit unit;
+
+  public MeasurementDescriptor(String name, String description, MeasurementUnit unit) {
     this.name = StringUtil.sanitize(name);
+    this.description = description;
+    this.unit = unit;
   }
 
   @Override
   public boolean equals(Object obj) {
-    return (obj instanceof MetricName) && name.equals(((MetricName) obj).name);
+    return (obj instanceof MeasurementDescriptor)
+        && name.equals(((MeasurementDescriptor) obj).name);
   }
 
   @Override
@@ -40,5 +55,73 @@ public final class MetricName {
     return name;
   }
 
-  private final String name;
+  /**
+   * Fundamental units of measurement.
+   */
+  public enum BasicUnit {
+    UNKNOWN,
+    BITS,
+    BYTES,
+    SCALAR,
+    SECS,
+    CORES,
+    MAX_UNITS;
+  }
+
+  /** MeasurementUnit lets you build compound units of the form
+   * 10^n * (A * B * ...) / (X * Y * ...),
+   * where the elements in the numerator and denominator are all BasicUnits.  A
+   * MeasurementUnit must have at least one BasicUnit in its numerator.
+   *
+   * To specify multiplication in the numerator or denominator, simply specify
+   * multiple numerator or denominator fields.  For example:
+   *
+   * - byte-seconds (i.e. bytes * seconds):
+   *     numerator: BYTES
+   *     numerator: SECS
+   *
+   * - events/sec^2 (i.e. rate of change of events/sec):
+   *     numerator: SCALAR
+   *     denominator: SECS
+   *     denominator: SECS
+   *
+   * To specify multiples (in power of 10) of units, specify a non-zero power10
+   * value, for example:
+   *
+   * - MB/s (i.e. megabytes / s):
+   *     power10: 6
+   *     numerator: BYTES
+   *     denominator: SECS
+   *
+   * - nanoseconds
+   *     power10: -9
+   *     numerator: SECS
+   */
+  public static final class MeasurementUnit {
+    private final List<BasicUnit> numerators;
+    private final List<BasicUnit> denominators;
+
+    /** Unit multiplier. */
+    public final int power10;
+
+    /** Unit Numerators. */
+    public List<BasicUnit> getNumerators() {
+      return new ArrayList<BasicUnit>(numerators);
+    }
+
+    /** Unit Denominators. */
+    public List<BasicUnit> getDenominators() {
+      return new ArrayList<BasicUnit>(denominators);
+    }
+
+    public MeasurementUnit(int power10, List<BasicUnit> numerators, List<BasicUnit> denominators) {
+      this.power10 = power10;
+      this.numerators = new ArrayList<BasicUnit>(numerators);
+      this.denominators = new ArrayList<BasicUnit>(denominators);
+    }
+
+    public MeasurementUnit(int power10, List<BasicUnit> numerators) {
+      this(power10, numerators, new ArrayList<BasicUnit>());
+    }
+  }
 }
