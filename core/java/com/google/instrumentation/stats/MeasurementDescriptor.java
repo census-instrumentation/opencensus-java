@@ -18,21 +18,29 @@ import java.util.List;
 
 /**
  * MeasurementDescriptor.
- *
- * <p>MeasurementDescriptor's names are {@link String}s with enforced restrictions.
+ * <p>Note: MeasurementDescriptor names are {@link String}s with enforced restrictions.
  */
 public final class MeasurementDescriptor {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
-  /** Name of measurement, e.g. rpc_latency, cpu. Must be unique. */
+  /**
+   * Name of measurement, e.g. rpc_latency, cpu. Must be unique.
+   */
   public final String name;
 
-  /** Detailed description of the measurement, used in documentation. */
+  /**
+   * Detailed description of the measurement, used in documentation.
+   */
   public final String description;
 
-  /** The units in which {@link MeasurementDescriptor} values are measured. */
+  /**
+   * The units in which {@link MeasurementDescriptor} values are measured.
+   */
   public MeasurementUnit unit;
 
+  /**
+   * Construtor.
+   */
   public MeasurementDescriptor(String name, String description, MeasurementUnit unit) {
     this.name = StringUtil.sanitize(name);
     this.description = description;
@@ -72,27 +80,27 @@ public final class MeasurementDescriptor {
    * 10^n * (A * B * ...) / (X * Y * ...),
    * where the elements in the numerator and denominator are all BasicUnits.  A
    * MeasurementUnit must have at least one BasicUnit in its numerator.
-   *
+   * <p>
    * To specify multiplication in the numerator or denominator, simply specify
    * multiple numerator or denominator fields.  For example:
-   *
+   * <p>
    * - byte-seconds (i.e. bytes * seconds):
    *     numerator: BYTES
    *     numerator: SECS
-   *
+   * <p>
    * - events/sec^2 (i.e. rate of change of events/sec):
    *     numerator: SCALAR
    *     denominator: SECS
    *     denominator: SECS
-   *
+   * <p>
    * To specify multiples (in power of 10) of units, specify a non-zero power10
    * value, for example:
-   *
+   * <p>
    * - MB/s (i.e. megabytes / s):
    *     power10: 6
    *     numerator: BYTES
    *     denominator: SECS
-   *
+   * <p>
    * - nanoseconds
    *     power10: -9
    *     numerator: SECS
@@ -101,25 +109,37 @@ public final class MeasurementDescriptor {
     private final List<BasicUnit> numerators;
     private final List<BasicUnit> denominators;
 
-    /** Unit multiplier. */
+    /**
+     * Unit multiplier.
+     */
     public final int power10;
 
-    /** Unit Numerators. */
+    /**
+     * Unit Numerators.
+     */
     public List<BasicUnit> getNumerators() {
       return new ArrayList<BasicUnit>(numerators);
     }
 
-    /** Unit Denominators. */
+    /**
+     * Unit Denominators.
+     */
     public List<BasicUnit> getDenominators() {
       return new ArrayList<BasicUnit>(denominators);
     }
 
+    /**
+     * Constructor
+     */
     public MeasurementUnit(int power10, List<BasicUnit> numerators, List<BasicUnit> denominators) {
       this.power10 = power10;
       this.numerators = new ArrayList<BasicUnit>(numerators);
       this.denominators = new ArrayList<BasicUnit>(denominators);
     }
 
+    /**
+     * Constructor without optional denominators.
+     */
     public MeasurementUnit(int power10, List<BasicUnit> numerators) {
       this(power10, numerators, new ArrayList<BasicUnit>());
     }

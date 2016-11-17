@@ -97,8 +97,9 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
      * Constructs a {@link MeasurementMap} from the current measurements.
      */
     public MeasurementMap build() {
-      // Note: this makes adding measurements quadratic but is fastest for the sizes of MeasurementMaps that
-      // we should see. We may want to go to a strategy of sort/eliminate for larger MeasurementMaps.
+      // Note: this makes adding measurements quadratic but is fastest for the sizes of
+      // MeasurementMaps that we should see. We may want to go to a strategy of sort/eliminate
+      // for larger MeasurementMaps.
       for (int i = 0; i < measurements.size(); i++) {
         MeasurementDescriptor current = measurements.get(i).getName();
         for (int j = i + 1; j < measurements.size(); j++) {
