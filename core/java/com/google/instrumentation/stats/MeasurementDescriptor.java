@@ -37,7 +37,7 @@ public final class MeasurementDescriptor {
   /**
    * The units in which {@link MeasurementDescriptor} values are measured.
    */
-  public MeasurementUnit unit;
+  public final MeasurementUnit unit;
 
   /**
    * Construtor.
