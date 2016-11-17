@@ -18,6 +18,7 @@ import java.util.List;
 
 /**
  * MeasurementDescriptor.
+ *
  * <p>Note: MeasurementDescriptor names are {@link String}s with enforced restrictions.
  */
 public final class MeasurementDescriptor {
@@ -80,28 +81,28 @@ public final class MeasurementDescriptor {
    * 10^n * (A * B * ...) / (X * Y * ...),
    * where the elements in the numerator and denominator are all BasicUnits.  A
    * MeasurementUnit must have at least one BasicUnit in its numerator.
-   * <p>
-   * To specify multiplication in the numerator or denominator, simply specify
+   *
+   * <p>To specify multiplication in the numerator or denominator, simply specify
    * multiple numerator or denominator fields.  For example:
-   * <p>
-   * - byte-seconds (i.e. bytes * seconds):
+   *
+   * <p>- byte-seconds (i.e. bytes * seconds):
    *     numerator: BYTES
    *     numerator: SECS
-   * <p>
-   * - events/sec^2 (i.e. rate of change of events/sec):
+   *
+   * <p>- events/sec^2 (i.e. rate of change of events/sec):
    *     numerator: SCALAR
    *     denominator: SECS
    *     denominator: SECS
-   * <p>
-   * To specify multiples (in power of 10) of units, specify a non-zero power10
+   *
+   * <p>To specify multiples (in power of 10) of units, specify a non-zero power10
    * value, for example:
-   * <p>
-   * - MB/s (i.e. megabytes / s):
+   *
+   * <p>- MB/s (i.e. megabytes / s):
    *     power10: 6
    *     numerator: BYTES
    *     denominator: SECS
-   * <p>
-   * - nanoseconds
+   *
+   * <p>- nanoseconds
    *     power10: -9
    *     numerator: SECS
    */
@@ -129,7 +130,7 @@ public final class MeasurementDescriptor {
     }
 
     /**
-     * Constructor
+     * Basic constructor that takes all fields.
      */
     public MeasurementUnit(int power10, List<BasicUnit> numerators, List<BasicUnit> denominators) {
       this.power10 = power10;
