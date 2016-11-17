@@ -109,8 +109,8 @@ java_test(
 )
 
 java_test(
-    name = "MetricMapTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/MetricMapTest.java"],
+    name = "MeasurementMapTest",
+    srcs = ["core/javatests/com/google/instrumentation/stats/MeasurementMapTest.java"],
     deps = [
         ":stats-core",
         ":stats-core_native",
@@ -122,8 +122,8 @@ java_test(
 )
 
 java_test(
-    name = "MetricNameTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/MetricNameTest.java"],
+    name = "MeasurementDescriptorTest",
+    srcs = ["core/javatests/com/google/instrumentation/stats/MeasurementDescriptorTest.java"],
     deps = [
         ":stats-core",
         ":stats-core_native",

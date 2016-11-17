@@ -41,12 +41,12 @@ public abstract class CensusContext {
   }
 
   /**
-   * Records the given metrics against this {@link CensusContext}.
+   * Records the given measurements against this {@link CensusContext}.
    *
-   * @param metrics the metrics to record against the saved {@link CensusContext}
+   * @param measurements the measurements to record against the saved {@link CensusContext}
    * @return this
    */
-  public abstract CensusContext record(MetricMap metrics);
+  public abstract CensusContext record(MeasurementMap measurements);
 
   /**
    * Serializes the {@link CensusContext} into the on-the-wire representation.
