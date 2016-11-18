@@ -41,7 +41,7 @@ public final class MeasurementDescriptor {
   public final MeasurementUnit unit;
 
   /**
-   * Construtor.
+   * Constructor.
    */
   public MeasurementDescriptor(String name, String description, MeasurementUnit unit) {
     this.name = StringUtil.sanitize(name);
@@ -69,10 +69,9 @@ public final class MeasurementDescriptor {
    * Fundamental units of measurement.
    */
   public enum BasicUnit {
-    UNKNOWN,
+    SCALAR,
     BITS,
     BYTES,
-    SCALAR,
     SECS,
     CORES,
     MAX_UNITS;

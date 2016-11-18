@@ -58,7 +58,7 @@ public final class RpcConstants {
       new MeasurementDescriptor(
           "/rpc/client/roundtrip_latency",
           "RPC roundtrip latency us",
-          new MeasurementUnit(1, scalar));
+          new MeasurementUnit(-6, scalar));
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
       new MeasurementDescriptor(
           "/rpc/client/uncompressed_request_bytes",
@@ -89,7 +89,7 @@ public final class RpcConstants {
       new MeasurementDescriptor(
           "/rpc/server/server_latency",
           "Latency in msecs",
-          new MeasurementUnit(3, scalar));
+          new MeasurementUnit(-3, scalar));
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
       new MeasurementDescriptor(
           "/rpc/server/uncompressed_request_bytes",
