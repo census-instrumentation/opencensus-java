@@ -115,14 +115,16 @@ public final class MeasurementDescriptor {
     /**
      * Unit Numerators.
      *
-     * <p>Note: This list is unmodifiable, attempts to update it will throw an UnsupportedOperationException.
+     * <p>Note: This list is unmodifiable, attempts to update it will throw an
+     * UnsupportedOperationException.
      */
     public final List<BasicUnit> numerators;
 
     /**
      * Unit Denominators.
      *
-     * <p>Note: This list is unmodifiable, attempts to update it will throw an UnsupportedOperationException.
+     * <p>Note: This list is unmodifiable, attempts to update it will throw an
+     * UnsupportedOperationException.
      */
     public final List<BasicUnit> denominators;
 
