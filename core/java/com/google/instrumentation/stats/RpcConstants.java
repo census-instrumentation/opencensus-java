@@ -42,7 +42,7 @@ public final class RpcConstants {
       new MeasurementDescriptor(
           "/rpc/client/error_count",
           "RPC Errors",
-          new MeasurementUnit(1, scalar));
+          new MeasurementUnit(0, scalar));
   public static final MeasurementDescriptor RPC_CLIENT_REQUEST_BYTES =
       new MeasurementDescriptor(
           "/rpc/client/request_bytes",
@@ -74,7 +74,7 @@ public final class RpcConstants {
       new MeasurementDescriptor(
           "/rpc/server/error_count",
           "RPC Errors",
-          new MeasurementUnit(1, scalar));
+          new MeasurementUnit(0, scalar));
   public static final MeasurementDescriptor RPC_SERVER_REQUEST_BYTES =
       new MeasurementDescriptor(
           "/rpc/server/request_bytes",

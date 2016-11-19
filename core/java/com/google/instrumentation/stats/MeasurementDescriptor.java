@@ -77,7 +77,8 @@ public final class MeasurementDescriptor {
     MAX_UNITS;
   }
 
-  /** MeasurementUnit lets you build compound units of the form
+  /**
+   * MeasurementUnit lets you build compound units of the form
    * 10^n * (A * B * ...) / (X * Y * ...),
    * where the elements in the numerator and denominator are all BasicUnits.  A
    * MeasurementUnit must have at least one BasicUnit in its numerator.
@@ -108,7 +109,7 @@ public final class MeasurementDescriptor {
    */
   public static final class MeasurementUnit {
     /**
-     * Unit multiplier.
+     * Unit multiplier (i.e. 10^power10).
      */
     public final int power10;
 
