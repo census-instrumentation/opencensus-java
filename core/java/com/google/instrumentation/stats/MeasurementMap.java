@@ -25,26 +25,28 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
    * Constructs a {@link MeasurementMap} from the given {@link MeasurementDescriptor}
    * and associated value.
    */
-  public static MeasurementMap of(MeasurementDescriptor name, double value) {
-    return builder().put(name, value).build();
+  public static MeasurementMap of(MeasurementDescriptor measurement, double value) {
+    return builder().put(measurement, value).build();
   }
 
   /**
    * Constructs a {@link MeasurementMap} from the given {@link MeasurementDescriptor}'s
    * and associated values.
    */
-  public static MeasurementMap of(MeasurementDescriptor name1, double value1,
-      MeasurementDescriptor name2, double value2) {
-    return builder().put(name1, value1).put(name2, value2).build();
+  public static MeasurementMap of(MeasurementDescriptor measurement1, double value1,
+      MeasurementDescriptor measurement2, double value2) {
+    return builder().put(measurement1, value1).put(measurement2, value2).build();
   }
 
   /**
    * Constructs a {@link MeasurementMap} from the given {@link MeasurementDescriptor}'s
    * and associated values.
    */
-  public static MeasurementMap of(MeasurementDescriptor name1, double value1,
-      MeasurementDescriptor name2, double value2, MeasurementDescriptor name3, double value3) {
-    return builder().put(name1, value1).put(name2, value2).put(name3, value3).build();
+  public static MeasurementMap of(MeasurementDescriptor measurement1, double value1,
+      MeasurementDescriptor measurement2, double value2,
+      MeasurementDescriptor measurement3, double value3) {
+    return builder().put(measurement1, value1).put(measurement2, value2).put(measurement3, value3)
+        .build();
   }
 
   /**
@@ -62,8 +64,8 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
   }
 
   /**
-   * Returns an {@link Iterator} over the name/value mappings in this {@link MeasurementMap}. The
-   * {@code Iterator} does not support {@link Iterator#remove()}.
+   * Returns an {@link Iterator} over the measurement/value mappings in this {@link MeasurementMap}.
+   * The {@code Iterator} does not support {@link Iterator#remove()}.
    */
   @Override
   public Iterator<MeasurementValue> iterator() {
@@ -84,12 +86,12 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
      * Associates the {@link MeasurementDescriptor} with the given value. Subsequent updates to the
      * same {@link MeasurementDescriptor} are ignored.
      *
-     * @param name the {@link MeasurementDescriptor}
-     * @param value the value to be associated with {@code name}
+     * @param measurement the {@link MeasurementDescriptor}
+     * @param value the value to be associated with {@code measurement}
      * @return this
      */
-    public Builder put(MeasurementDescriptor name, double value) {
-      measurements.add(new MeasurementValue(name, value));
+    public Builder put(MeasurementDescriptor measurement, double value) {
+      measurements.add(MeasurementValue.create(measurement, value));
       return this;
     }
 
@@ -101,9 +103,9 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
       // MeasurementMaps that we should see. We may want to go to a strategy of sort/eliminate
       // for larger MeasurementMaps.
       for (int i = 0; i < measurements.size(); i++) {
-        MeasurementDescriptor current = measurements.get(i).getName();
+        MeasurementDescriptor current = measurements.get(i).getMeasurement();
         for (int j = i + 1; j < measurements.size(); j++) {
-          if (current.equals(measurements.get(j).getName())) {
+          if (current.equals(measurements.get(j).getMeasurement())) {
             measurements.remove(j);
             j--;
           }

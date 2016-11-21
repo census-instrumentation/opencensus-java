@@ -17,15 +17,18 @@ package com.google.instrumentation.stats;
  * Immutable representation of a MeasurementValue.
  */
 public class MeasurementValue {
-  public MeasurementValue(MeasurementDescriptor name, double value) {
-    this.name = name;
-    this.value = value;
+
+  /**
+   * Constructs a measured value.
+   */
+  public static MeasurementValue create(MeasurementDescriptor name, double value) {
+    return new MeasurementValue(name, value);
   }
 
   /**
-   * Extracts the {@link MeasurementDescriptor} name.
+   * Extracts the measured {@link MeasurementDescriptor}.
    */
-  public MeasurementDescriptor getName() {
+  public MeasurementDescriptor getMeasurement() {
     return name;
   }
 
@@ -38,4 +41,9 @@ public class MeasurementValue {
 
   private final MeasurementDescriptor name;
   private final double value;
+
+  private MeasurementValue(MeasurementDescriptor name, double value) {
+    this.name = name;
+    this.value = value;
+  }
 }

@@ -33,11 +33,11 @@ public class CensusRunner {
   private static final TagValue V4 = new TagValue("v4");
 
   private static final MeasurementUnit simpleMeasurementUnit =
-      new MeasurementUnit(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
+      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
   private static final MeasurementDescriptor M1 =
-      new MeasurementDescriptor("m1", "1st test metric", simpleMeasurementUnit);
+      MeasurementDescriptor.create("m1", "1st test metric", simpleMeasurementUnit);
   private static final MeasurementDescriptor M2 =
-      new MeasurementDescriptor("m2", "2nd test metric", simpleMeasurementUnit);
+      MeasurementDescriptor.create("m2", "2nd test metric", simpleMeasurementUnit);
 
   public static void main(String[] args) {
     System.out.println("Hello Census World");

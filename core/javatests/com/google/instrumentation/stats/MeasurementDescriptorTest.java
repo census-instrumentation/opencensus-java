@@ -47,20 +47,20 @@ public final class MeasurementDescriptorTest {
 
   @Test
   public void testComponents() {
-    MeasurementDescriptor measurement = new MeasurementDescriptor(
+    MeasurementDescriptor measurement = MeasurementDescriptor.create(
         "Foo",
         "The description of Foo",
-        new MeasurementUnit(
+        MeasurementUnit.create(
             6,
             Arrays.asList(new BasicUnit[] { BasicUnit.BITS }),
             Arrays.asList(new BasicUnit[] { BasicUnit.SECS })));
-    assertThat(measurement.name).isEqualTo("Foo");
-    assertThat(measurement.description).isEqualTo("The description of Foo");
-    assertThat(measurement.unit.power10).isEqualTo(6);
-    assertThat(measurement.unit.numerators.size()).isEqualTo(1);
-    assertThat(measurement.unit.numerators.get(0)).isEqualTo(BasicUnit.BITS);
-    assertThat(measurement.unit.denominators.size()).isEqualTo(1);
-    assertThat(measurement.unit.denominators.get(0)).isEqualTo(BasicUnit.SECS);
+    assertThat(measurement.getName()).isEqualTo("Foo");
+    assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
+    assertThat(measurement.getUnit().getPower10()).isEqualTo(6);
+    assertThat(measurement.getUnit().getNumerators().size()).isEqualTo(1);
+    assertThat(measurement.getUnit().getNumerators().get(0)).isEqualTo(BasicUnit.BITS);
+    assertThat(measurement.getUnit().getDenominators().size()).isEqualTo(1);
+    assertThat(measurement.getUnit().getDenominators().get(0)).isEqualTo(BasicUnit.SECS);
   }
 
   @Test
@@ -78,9 +78,9 @@ public final class MeasurementDescriptorTest {
   }
 
   private static final MeasurementDescriptor makeSimpleDescriptor(String name) {
-    return new MeasurementDescriptor(name, name + " description", simpleMeasurementUnit);
+    return MeasurementDescriptor.create(
+        name,
+        name + " description",
+        MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
   }
-
-  private static final MeasurementUnit simpleMeasurementUnit =
-      new MeasurementUnit(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
 }

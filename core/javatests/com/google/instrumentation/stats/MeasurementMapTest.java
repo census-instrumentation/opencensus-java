@@ -32,7 +32,7 @@ import org.junit.runners.JUnit4;
 public class MeasurementMapTest {
   @Test
   public void testOf1() {
-    ImmutableList<MeasurementValue> expected = ImmutableList.of(new MeasurementValue(M1, 44.4));
+    ImmutableList<MeasurementValue> expected = ImmutableList.of(MeasurementValue.create(M1, 44.4));
     MeasurementMap metrics = MeasurementMap.of(M1, 44.4);
     assertEquals(expected, metrics);
   }
@@ -40,7 +40,7 @@ public class MeasurementMapTest {
   @Test
   public void testOf2() {
     ImmutableList<MeasurementValue> expected = ImmutableList.of(
-        new MeasurementValue(M1, 44.4), new MeasurementValue(M2, 66.6));
+        MeasurementValue.create(M1, 44.4), MeasurementValue.create(M2, 66.6));
     MeasurementMap metrics = MeasurementMap.of(M1, 44.4, M2, 66.6);
     assertEquals(expected, metrics);
   }
@@ -48,9 +48,9 @@ public class MeasurementMapTest {
   @Test
   public void testOf3() {
     ImmutableList<MeasurementValue> expected = ImmutableList.of(
-        new MeasurementValue(M1, 44.4),
-        new MeasurementValue(M2, 66.6),
-        new MeasurementValue(M3, 88.8));
+        MeasurementValue.create(M1, 44.4),
+        MeasurementValue.create(M2, 66.6),
+        MeasurementValue.create(M3, 88.8));
     MeasurementMap metrics = MeasurementMap.of(
         M1, 44.4, M2, 66.6, M3, 88.8);
     assertEquals(expected, metrics);
@@ -68,8 +68,8 @@ public class MeasurementMapTest {
     ArrayList<MeasurementValue> expected = new ArrayList<MeasurementValue>(10);
     MeasurementMap.Builder builder = MeasurementMap.builder();
     for (int i = 1; i <= 10; i++) {
-      expected.add(new MeasurementValue(makeSimpleDescriptor("m" + i), i * 11.1));
-      builder.put(makeSimpleDescriptor("m" + i), i * 11.1);
+      expected.add(MeasurementValue.create(makeSimpleMeasurement("m" + i), i * 11.1));
+      builder.put(makeSimpleMeasurement("m" + i), i * 11.1);
       assertEquals(expected, builder.build());
     }
   }
@@ -87,19 +87,20 @@ public class MeasurementMapTest {
   public void testSize() {
     MeasurementMap.Builder builder = MeasurementMap.builder();
     for (int i = 1; i <= 10; i++) {
-      builder.put(makeSimpleDescriptor("m" + i), i * 11.1);
+      builder.put(makeSimpleMeasurement("m" + i), i * 11.1);
       assertThat(builder.build().size()).isEqualTo(i);
     }
   }
 
   private static final MeasurementUnit simpleMeasurementUnit =
-      new MeasurementUnit(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
-  private static final MeasurementDescriptor M1 = makeSimpleDescriptor("m1");
-  private static final MeasurementDescriptor M2 = makeSimpleDescriptor("m2");
-  private static final MeasurementDescriptor M3 = makeSimpleDescriptor("m3");
+      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
+  private static final MeasurementDescriptor M1 = makeSimpleMeasurement("m1");
+  private static final MeasurementDescriptor M2 = makeSimpleMeasurement("m2");
+  private static final MeasurementDescriptor M3 = makeSimpleMeasurement("m3");
 
-  private static final MeasurementDescriptor makeSimpleDescriptor(String name) {
-    return new MeasurementDescriptor(name, name + " description", simpleMeasurementUnit);
+  private static final MeasurementDescriptor makeSimpleMeasurement(String measurement) {
+    return MeasurementDescriptor.create(
+        measurement, measurement + " description", simpleMeasurementUnit);
   }
 
   private static void assertEquals(
@@ -109,8 +110,10 @@ public class MeasurementMapTest {
     while (e.hasNext() && a.hasNext()) {
       MeasurementValue expectedMeasurement = e.next();
       MeasurementValue actualMeasurement = a.next();
-      assertThat(expectedMeasurement.getName()).isEqualTo(actualMeasurement.getName());
-      assertThat(expectedMeasurement.getValue()).isWithin(0.00000001).of(actualMeasurement.getValue());
+      assertThat(expectedMeasurement.getMeasurement())
+          .isEqualTo(actualMeasurement.getMeasurement());
+      assertThat(expectedMeasurement.getValue())
+          .isWithin(0.00000001).of(actualMeasurement.getValue());
     }
     assertThat(e.hasNext()).isFalse();
     assertThat(a.hasNext()).isFalse();
