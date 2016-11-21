@@ -15,7 +15,6 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import java.util.Arrays;
@@ -34,13 +33,13 @@ public final class MeasurementDescriptorTest {
     char[] truncName = new char[MeasurementDescriptor.MAX_LENGTH + 10];
     Arrays.fill(name, 'n');
     Arrays.fill(truncName, 'n');
-    assertThat(makeSimpleDescriptor(new String(name)).toString())
-        .isEqualTo(makeSimpleDescriptor(new String(truncName)).toString());
+    assertThat(makeSimpleDescriptor(new String(name)).getName())
+        .isEqualTo(makeSimpleDescriptor(new String(truncName)).getName());
   }
 
   @Test
   public void testNameBadChar() {
-    assertThat(makeSimpleDescriptor("\2ab\3cd").toString())
+    assertThat(makeSimpleDescriptor("\2ab\3cd").getName())
         .isEqualTo(StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
                  + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
   }
@@ -61,20 +60,6 @@ public final class MeasurementDescriptorTest {
     assertThat(measurement.getUnit().getNumerators().get(0)).isEqualTo(BasicUnit.BITS);
     assertThat(measurement.getUnit().getDenominators().size()).isEqualTo(1);
     assertThat(measurement.getUnit().getDenominators().get(0)).isEqualTo(BasicUnit.SECS);
-  }
-
-  @Test
-  public void testEquals() {
-    new EqualsTester()
-        .addEqualityGroup(makeSimpleDescriptor("foo"), makeSimpleDescriptor("foo"))
-        .addEqualityGroup(makeSimpleDescriptor("bar"))
-        .testEquals();
-  }
-
-  @Test
-  public void testToString() {
-    assertThat(makeSimpleDescriptor("foo").toString()).isEqualTo("foo");
-    assertThat(makeSimpleDescriptor("bar").toString()).isEqualTo("bar");
   }
 
   private static final MeasurementDescriptor makeSimpleDescriptor(String name) {

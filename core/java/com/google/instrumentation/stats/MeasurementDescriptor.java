@@ -54,22 +54,6 @@ public final class MeasurementDescriptor {
     return unit;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    return (obj instanceof MeasurementDescriptor)
-        && name.equals(((MeasurementDescriptor) obj).name);
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return name;
-  }
-
   private final String name;
   private final String description;
   private final MeasurementUnit unit;
@@ -88,8 +72,7 @@ public final class MeasurementDescriptor {
     BITS,
     BYTES,
     SECS,
-    CORES,
-    MAX_UNITS;
+    CORES;
   }
 
   /**
