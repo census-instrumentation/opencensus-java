@@ -32,7 +32,7 @@ final class CensusContextImpl extends CensusContext {
   }
 
   @Override
-  public CensusContextImpl record(MetricMap stats) {
+  public CensusContextImpl record(MeasurementMap stats) {
     return this;
   }
 

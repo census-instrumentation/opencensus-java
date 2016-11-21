@@ -13,7 +13,10 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
+import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import io.grpc.Context;
+import java.util.Arrays;
 
 /**
  * Simple program that uses Census contexts.
@@ -29,8 +32,12 @@ public class CensusRunner {
   private static final TagValue V3 = new TagValue("v3");
   private static final TagValue V4 = new TagValue("v4");
 
-  private static final MetricName M1 = new MetricName("m1");
-  private static final MetricName M2 = new MetricName("m2");
+  private static final MeasurementUnit simpleMeasurementUnit =
+      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
+  private static final MeasurementDescriptor M1 =
+      MeasurementDescriptor.create("m1", "1st test metric", simpleMeasurementUnit);
+  private static final MeasurementDescriptor M2 =
+      MeasurementDescriptor.create("m2", "2nd test metric", simpleMeasurementUnit);
 
   public static void main(String[] args) {
     System.out.println("Hello Census World");
@@ -48,7 +55,7 @@ public class CensusRunner {
           System.out.println("    Current Tags: " + getCurrentCensusContext());
           System.out.println("    Current == Default + tags1 + tags2: "
               + getCurrentCensusContext().equals(getCensusContext(context2)));
-          getCurrentCensusContext().record(MetricMap.of(M1, 0.2, M2, 0.4));
+          getCurrentCensusContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
         } finally {
           context2.detach(context1);
         }

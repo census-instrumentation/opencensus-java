@@ -13,6 +13,12 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
+import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
+
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Census constants for collecting rpc stats.
  */
@@ -24,34 +30,81 @@ public final class RpcConstants {
   public static final TagKey RPC_CLIENT_METHOD = new TagKey("/rpc/client_method");
   public static final TagKey RPC_SERVER_METHOD = new TagKey("/rpc/server_method");
 
+  // Constants used to define the following MeasurementDescriptors.
+  private static final List<BasicUnit> bytes = Arrays.asList(new BasicUnit[] { BasicUnit.BYTES });
+  private static final List<BasicUnit> scalar = Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR });
+  private static final List<BasicUnit> secs = Arrays.asList(new BasicUnit[] { BasicUnit.SECS });
+
   /**
-   * Census defined metric names.
+   * Census defined rpc client {@link MeasurementDescriptor}s.
    */
-  public static final MetricName RPC_CLIENT_ERROR_COUNT = new MetricName("/rpc/client/error_count");
-  public static final MetricName RPC_CLIENT_REQUEST_BYTES =
-      new MetricName("/rpc/client/request_bytes");
-  public static final MetricName RPC_CLIENT_RESPONSE_BYTES =
-      new MetricName("/rpc/client/response_bytes");
-  public static final MetricName RPC_CLIENT_ROUNDTRIP_LATENCY =
-      new MetricName("/rpc/client/roundtrip_latency");
-  public static final MetricName RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
-      new MetricName("/rpc/client/uncompressed_request_bytes");
-  public static final MetricName RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
-      new MetricName("/rpc/client/uncompressed_response_bytes");
+  public static final MeasurementDescriptor RPC_CLIENT_ERROR_COUNT =
+      MeasurementDescriptor.create(
+          "/rpc/client/error_count",
+          "RPC Errors",
+          MeasurementUnit.create(0, scalar));
+  public static final MeasurementDescriptor RPC_CLIENT_REQUEST_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/client/request_bytes",
+          "Request MB/s",
+          MeasurementUnit.create(6, bytes, secs));
+  public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/client/response_bytes",
+          "Response MB/s",
+          MeasurementUnit.create(6, bytes, secs));
+  // TODO(dpo): verify this encoding
+  public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
+      MeasurementDescriptor.create(
+          "/rpc/client/roundtrip_latency",
+          "RPC roundtrip latency us",
+          MeasurementUnit.create(-6, scalar));
+  public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/client/uncompressed_request_bytes",
+          "Uncompressed Request MB/s",
+          MeasurementUnit.create(6, bytes, secs));
+  public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/client/uncompressed_response_bytes",
+          "Uncompressed Request MB/s",
+          MeasurementUnit.create(6, bytes, secs));
 
-  public static final MetricName RPC_SERVER_ERROR_COUNT = new MetricName("/rpc/server/error_count");
-  public static final MetricName RPC_SERVER_REQUEST_BYTES =
-      new MetricName("/rpc/server/request_bytes");
-  public static final MetricName RPC_SERVER_RESPONSE_BYTES =
-      new MetricName("/rpc/server/response_bytes");
-  public static final MetricName RPC_SERVER_SERVER_LATENCY =
-      new MetricName("/rpc/server/server_latency");
-  public static final MetricName RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
-      new MetricName("/rpc/server/uncompressed_request_bytes");
-  public static final MetricName RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
-      new MetricName("/rpc/server/uncompressed_response_bytes");
+  /**
+   * Census defined rpc server {@link MeasurementDescriptor}s.
+   */
+  public static final MeasurementDescriptor RPC_SERVER_ERROR_COUNT =
+      MeasurementDescriptor.create(
+          "/rpc/server/error_count",
+          "RPC Errors",
+          MeasurementUnit.create(0, scalar));
+  public static final MeasurementDescriptor RPC_SERVER_REQUEST_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/server/request_bytes",
+          "Request MB/s",
+          MeasurementUnit.create(6, bytes, secs));
+  public static final MeasurementDescriptor RPC_SERVER_RESPONSE_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/server/response_bytes",
+          "Response MB/s",
+          MeasurementUnit.create(6, bytes, secs));
+  public static final MeasurementDescriptor RPC_SERVER_SERVER_LATENCY =
+      MeasurementDescriptor.create(
+          "/rpc/server/server_latency",
+          "Latency in msecs",
+          MeasurementUnit.create(-3, scalar));
+  public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/server/uncompressed_request_bytes",
+          "Uncompressed Request MB/s",
+          MeasurementUnit.create(6, bytes, secs));
+  public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
+      MeasurementDescriptor.create(
+          "/rpc/server/uncompressed_response_bytes",
+          "Uncompressed Request MB/s",
+          MeasurementUnit.create(6, bytes, secs));
 
-  //Visible for testing
+  // Visible for testing
   RpcConstants() {
     throw new AssertionError();
   }

@@ -14,28 +14,36 @@
 package com.google.instrumentation.stats;
 
 /**
- * Immutable representation of a Metric.
+ * Immutable representation of a MeasurementValue.
  */
-public class Metric {
-  public Metric(MetricName name, double value) {
-    this.name = name;
-    this.value = value;
+public class MeasurementValue {
+
+  /**
+   * Constructs a measured value.
+   */
+  public static MeasurementValue create(MeasurementDescriptor name, double value) {
+    return new MeasurementValue(name, value);
   }
 
   /**
-   * Extracts the {@link Metric} name.
+   * Extracts the measured {@link MeasurementDescriptor}.
    */
-  public MetricName getName() {
+  public MeasurementDescriptor getMeasurement() {
     return name;
   }
 
   /**
-   * Extracts the {@link Metric} value.
+   * Extracts the associated value.
    */
   public double getValue() {
     return value;
   }
 
-  private final MetricName name;
+  private final MeasurementDescriptor name;
   private final double value;
+
+  private MeasurementValue(MeasurementDescriptor name, double value) {
+    this.name = name;
+    this.value = value;
+  }
 }

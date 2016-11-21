@@ -27,7 +27,7 @@ import org.junit.runners.JUnit4;
 public class CensusContextTest {
   private static final CensusContext DEFAULT = Census.getCensusContextFactory().getDefault();
 
-  private static final MetricName[] CensusMetricNames = {
+  private static final MeasurementDescriptor[] CensusMeasurementDescriptors = {
     RpcConstants.RPC_CLIENT_REQUEST_BYTES, RpcConstants.RPC_CLIENT_RESPONSE_BYTES,
     RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, RpcConstants.RPC_SERVER_REQUEST_BYTES,
     RpcConstants.RPC_SERVER_RESPONSE_BYTES, RpcConstants.RPC_SERVER_SERVER_LATENCY
@@ -79,26 +79,26 @@ public class CensusContextTest {
 
 
   @Test
-  public void testRecordEachMetric() {
+  public void testRecordEachMeasurement() {
     CensusContext context = DEFAULT.with(K1, V1);
     double value = 44.0;
-    for (MetricName metric : CensusMetricNames) {
-      MetricMap metrics = MetricMap.of(metric, value);
-      context.record(metrics);
-      //verify(context.context).record(metrics);
+    for (MeasurementDescriptor descriptor : CensusMeasurementDescriptors) {
+      MeasurementMap measurements = MeasurementMap.of(descriptor, value);
+      context.record(measurements);
+      //verify(context.context).record(measurements);
       value++;
     }
   }
 
   @Test
-  public void testRecordAllMetrics() {
+  public void testRecordAllMeasurements() {
     CensusContext context = DEFAULT.with(K1, V1);
     double value = 44.0;
-    MetricMap.Builder builder = MetricMap.builder();
-    for (MetricName metric : CensusMetricNames) {
-      MetricMap metrics = builder.put(metric, value).build();
-      context.record(metrics);
-      //verify(context.context).record(metrics);
+    MeasurementMap.Builder builder = MeasurementMap.builder();
+    for (MeasurementDescriptor descriptor : CensusMeasurementDescriptors) {
+      MeasurementMap measurements = builder.put(descriptor, value).build();
+      context.record(measurements);
+      //verify(context.context).record(measurements);
       value++;
     }
   }
