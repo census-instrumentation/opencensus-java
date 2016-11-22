@@ -44,7 +44,7 @@ public abstract class AggregationDescriptor {
    * This defines `size(bounds) + 1` (= N) buckets. The boundaries for bucket index i are:
    * <ul>
    * <li>[-infinity, bounds[i]) for i == 0
-   * <li>[bounds[i-1], bounds[i]) for 0 < i < N-2
+   * <li>[bounds[i-1], bounds[i]) for 0 <lt> i <lt> N-2
    * <li>[bounds[i-1], +infinity) for i == N-1
    * </ul>
    * i.e. an underflow bucket (number 0), zero or more finite buckets (1 through N - 2, and an

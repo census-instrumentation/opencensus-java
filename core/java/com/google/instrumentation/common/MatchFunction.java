@@ -14,7 +14,7 @@
 package com.google.instrumentation.common;
 
 /**
- * Encodes functions f: A -> B for use in encoding disjoint-unions.
+ * Encodes functions {@code func: A -> B} for use in encoding disjoint-unions.
  */
 public interface MatchFunction<A, B> {
   B func(A arg);
