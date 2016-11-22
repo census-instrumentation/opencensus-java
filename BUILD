@@ -215,6 +215,8 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/common/DurationTest.java"],
     deps = [
         ":common-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
@@ -226,6 +228,8 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/common/TimestampTest.java"],
     deps = [
         ":common-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
