@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.MatchFunction;
 import com.google.instrumentation.stats.AggregationDescriptor.DistributionAggregationDescriptor;
 import com.google.instrumentation.stats.AggregationDescriptor.IntervalAggregationDescriptor;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
@@ -46,12 +47,12 @@ public final class ViewDescriptorTest {
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasurement().getName()).isEqualTo(measurement.getName());
     assertThat(view.getAggregation().match(
-        new Function<DistributionAggregationDescriptor, Boolean> () {
+        new MatchFunction<DistributionAggregationDescriptor, Boolean> () {
           @Override public Boolean f(DistributionAggregationDescriptor d) {
             return false;
           }
         },
-        new Function<IntervalAggregationDescriptor, Boolean> () {
+        new MatchFunction<IntervalAggregationDescriptor, Boolean> () {
           @Override public Boolean f(IntervalAggregationDescriptor d) {
             return d.getIntervalSizes() == null;
           }

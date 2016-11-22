@@ -249,3 +249,17 @@ java_test(
         "@truth//jar",
     ],
 )
+
+java_test(
+    name = "ViewDescriptorTest",
+    srcs = ["core/javatests/com/google/instrumentation/stats/ViewDescriptorTest.java"],
+    deps = [
+        ":common-core",
+        ":stats-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
