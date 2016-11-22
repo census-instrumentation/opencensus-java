@@ -13,23 +13,11 @@
 
 package com.google.instrumentation.common;
 
-import java.util.Objects;
-
 /**
  * A representation of an instant in time. The instant is the number of nanoseconds after the number
  * of seconds since the Unix Epoch.
  */
 public class Timestamp {
-  private static final long NUM_MILLIS_PER_SECOND = 1000L;
-  private static final int NUM_NANOS_PER_MILLI = 1000000;
-  private final long seconds;
-  private final int nanos;
-
-  private Timestamp(long seconds, int nanos) {
-    this.seconds = seconds;
-    this.nanos = nanos;
-  }
-
   /**
    * Creates a new timestamp from given seconds and nanoseconds.
    */
@@ -81,6 +69,20 @@ public class Timestamp {
 
   @Override
   public int hashCode() {
-    return Objects.hash(seconds, nanos);
+    int result = 17;
+    result = 31 * result + (int) (seconds ^ (seconds >>> 32));
+    result = 31 * result + nanos;
+    return result;
   }
+
+  private static final long NUM_MILLIS_PER_SECOND = 1000L;
+  private static final int NUM_NANOS_PER_MILLI = 1000000;
+  private final long seconds;
+  private final int nanos;
+
+  private Timestamp(long seconds, int nanos) {
+    this.seconds = seconds;
+    this.nanos = nanos;
+  }
+
 }

@@ -13,36 +13,24 @@
 
 package com.google.instrumentation.common;
 
-import java.util.Objects;
-
 /**
  * Represents a signed, fixed-length span of time represented as a count of seconds and fractions
  * of seconds at nanosecond resolution. It is independent of any calendar and concepts like "day"
  * or "month". Range is approximately +-10,000 years.
  */
 public class Duration {
-  private static final long NUM_MILLIS_PER_SECOND = 1000L;
-  private static final int NUM_NANOS_PER_MILLI = 1000000;
-
-  // Signed seconds of the span of time. Must be from -315,576,000,000
-  // to +315,576,000,000 inclusive.
-  private final long seconds;
-
-  // Signed fractions of a second at nanosecond resolution of the span
-  // of time. Durations less than one second are represented with a 0
-  // `seconds` field and a positive or negative `nanos` field. For durations
-  // of one second or more, a non-zero value for the `nanos` field must be
-  // of the same sign as the `seconds` field. Must be from -999,999,999
-  // to +999,999,999 inclusive.
-  private final int nanos;
-
-  private Duration(long seconds, int nanos) {
-    this.seconds = seconds;
-    this.nanos = nanos;
-  }
-
   /**
    * Creates a new timestamp from given seconds and nanoseconds.
+   *
+   * @param seconds Signed seconds of the span of time. Must be from -315,576,000,000
+   *     to +315,576,000,000 inclusive.
+   *
+   * @param nanos Signed fractions of a second at nanosecond resolution of the span
+   *     of time. Durations less than one second are represented with a 0
+   *     `seconds` field and a positive or negative `nanos` field. For durations
+   *     of one second or more, a non-zero value for the `nanos` field must be
+   *     of the same sign as the `seconds` field. Must be from -999,999,999
+   *     to +999,999,999 inclusive.
    */
   public static Duration create(long seconds, int nanos) {
     return new Duration(seconds, nanos);
@@ -92,6 +80,19 @@ public class Duration {
 
   @Override
   public int hashCode() {
-    return Objects.hash(seconds, nanos);
+    int result = 17;
+    result = 31 * result + (int) (seconds ^ (seconds >>> 32));
+    result = 31 * result + nanos;
+    return result;
+  }
+
+  private static final long NUM_MILLIS_PER_SECOND = 1000L;
+  private static final int NUM_NANOS_PER_MILLI = 1000000;
+  private final long seconds;
+  private final int nanos;
+
+  private Duration(long seconds, int nanos) {
+    this.seconds = seconds;
+    this.nanos = nanos;
   }
 }
