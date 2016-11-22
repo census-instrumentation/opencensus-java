@@ -33,7 +33,8 @@ public final class RpcConstants {
   // Constants used to define the following MeasurementDescriptors.
   private static final List<BasicUnit> bytes = Arrays.asList(new BasicUnit[] { BasicUnit.BYTES });
   private static final List<BasicUnit> scalar = Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR });
-  private static final List<BasicUnit> secs = Arrays.asList(new BasicUnit[] { BasicUnit.SECS });
+  private static final List<BasicUnit> seconds =
+      Arrays.asList(new BasicUnit[] { BasicUnit.SECONDS });
 
   /**
    * Census defined rpc client {@link MeasurementDescriptor}s.
@@ -47,12 +48,12 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/client/request_bytes",
           "Request MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
   public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/response_bytes",
           "Response MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
   // TODO(dpo): verify this encoding
   public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
       MeasurementDescriptor.create(
@@ -63,12 +64,12 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_request_bytes",
           "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_response_bytes",
           "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
 
   /**
    * Census defined rpc server {@link MeasurementDescriptor}s.
@@ -82,12 +83,12 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/server/request_bytes",
           "Request MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
   public static final MeasurementDescriptor RPC_SERVER_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/response_bytes",
           "Response MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
   public static final MeasurementDescriptor RPC_SERVER_SERVER_LATENCY =
       MeasurementDescriptor.create(
           "/rpc/server/server_latency",
@@ -97,12 +98,12 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_request_bytes",
           "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_response_bytes",
           "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, secs));
+          MeasurementUnit.create(6, bytes, seconds));
 
   // Visible for testing
   RpcConstants() {
