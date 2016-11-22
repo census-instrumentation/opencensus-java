@@ -71,7 +71,7 @@ public final class MeasurementDescriptor {
     SCALAR,
     BITS,
     BYTES,
-    SECS,
+    SECONDS,
     CORES;
   }
 

@@ -52,14 +52,14 @@ public final class MeasurementDescriptorTest {
         MeasurementUnit.create(
             6,
             Arrays.asList(new BasicUnit[] { BasicUnit.BITS }),
-            Arrays.asList(new BasicUnit[] { BasicUnit.SECS })));
+            Arrays.asList(new BasicUnit[] { BasicUnit.SECONDS })));
     assertThat(measurement.getName()).isEqualTo("Foo");
     assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
     assertThat(measurement.getUnit().getPower10()).isEqualTo(6);
     assertThat(measurement.getUnit().getNumerators().size()).isEqualTo(1);
     assertThat(measurement.getUnit().getNumerators().get(0)).isEqualTo(BasicUnit.BITS);
     assertThat(measurement.getUnit().getDenominators().size()).isEqualTo(1);
-    assertThat(measurement.getUnit().getDenominators().get(0)).isEqualTo(BasicUnit.SECS);
+    assertThat(measurement.getUnit().getDenominators().get(0)).isEqualTo(BasicUnit.SECONDS);
   }
 
   private static final MeasurementDescriptor makeSimpleDescriptor(String name) {
