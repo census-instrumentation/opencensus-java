@@ -95,7 +95,7 @@ public class Duration {
 
   @Override
   public String toString() {
-    return "<" + seconds + "," + nanos + ">";
+    return "Duration<" + seconds + "," + nanos + ">";
   }
 
   private static final long MAX_SECONDS = 315576000000L;
