@@ -22,14 +22,14 @@ public class Timestamp {
    * Creates a new timestamp from given seconds and nanoseconds.
    *
    * @param seconds Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z. Must
-   * be from from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.
+   *     be from from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.
    *
    * @param nanos Non-negative fractions of a second at nanosecond resolution. Negative
-   * second values with fractions must still have non-negative nanos values that count forward
-   * in time. Must be from 0 to 999,999,999 inclusive.
+   *     second values with fractions must still have non-negative nanos values that count forward
+   *     in time. Must be from 0 to 999,999,999 inclusive.
    *
-   * @return new {@link Timestamp} with specified fields. For invalid inputs, a {@link Timestamp} of
-   *     zero is returned.
+   * @return new {@link Timestamp} with specified fields. For invalid inputs, a {@link Timestamp}
+   *     of zero is returned.
    */
   public static Timestamp create(long seconds, int nanos) {
     if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
