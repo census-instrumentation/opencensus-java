@@ -20,18 +20,38 @@ package com.google.instrumentation.common;
 public class Timestamp {
   /**
    * Creates a new timestamp from given seconds and nanoseconds.
+   *
+   * @param seconds Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z. Must
+   * be from from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.
+   *
+   * @param nanos Non-negative fractions of a second at nanosecond resolution. Negative
+   * second values with fractions must still have non-negative nanos values that count forward
+   * in time. Must be from 0 to 999,999,999 inclusive.
+   *
+   * @return new {@link Timestamp} with specified fields. For invalid inputs, a {@link Timestamp} of
+   *     zero is returned.
    */
   public static Timestamp create(long seconds, int nanos) {
+    if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
+      return new Timestamp(0, 0);
+    }
+    if (nanos < 0 || nanos > MAX_NANOS) {
+      return new Timestamp(0, 0);
+    }
     return new Timestamp(seconds, nanos);
   }
 
   /**
-   * Creates a new timestamp from given seconds and nanoseconds.
+   * Creates a new timestamp from given milliseconds.
    */
   public static Timestamp fromMillis(long millis) {
     long seconds = millis / NUM_MILLIS_PER_SECOND;
     int nanos = (int) (millis % NUM_MILLIS_PER_SECOND) * NUM_NANOS_PER_MILLI;
-    return new Timestamp(seconds, seconds < 0 ? -nanos : nanos);
+    if (nanos < 0) {
+      return new Timestamp(seconds - 1, MAX_NANOS + nanos + 1);
+    } else {
+      return new Timestamp(seconds, nanos);
+    }
   }
 
   /**
@@ -75,6 +95,13 @@ public class Timestamp {
     return result;
   }
 
+  @Override
+  public String toString() {
+    return "<" + seconds + "," + nanos + ">";
+  }
+
+  private static final long MAX_SECONDS = 315576000000L;
+  private static final int MAX_NANOS = 999999999;
   private static final long NUM_MILLIS_PER_SECOND = 1000L;
   private static final int NUM_NANOS_PER_MILLI = 1000000;
   private final long seconds;

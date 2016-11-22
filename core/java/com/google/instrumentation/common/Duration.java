@@ -20,7 +20,7 @@ package com.google.instrumentation.common;
  */
 public class Duration {
   /**
-   * Creates a new timestamp from given seconds and nanoseconds.
+   * Creates a new time duration from given seconds and nanoseconds.
    *
    * @param seconds Signed seconds of the span of time. Must be from -315,576,000,000
    *     to +315,576,000,000 inclusive.
@@ -31,34 +31,41 @@ public class Duration {
    *     of one second or more, a non-zero value for the `nanos` field must be
    *     of the same sign as the `seconds` field. Must be from -999,999,999
    *     to +999,999,999 inclusive.
+   *
+   * @return new {@link Duration} with specified fields. For invalid inputs, a {@link Duration} of
+   *     zero is returned.
    */
   public static Duration create(long seconds, int nanos) {
+    if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
+      return new Duration(0, 0);
+    }
+    if (nanos < -MAX_NANOS || nanos > MAX_NANOS) {
+      return new Duration(0, 0);
+    }
+    if ((seconds < 0 && nanos > 0) || (seconds > 0 && nanos < 0)) {
+      return new Duration(0, 0);
+    }
     return new Duration(seconds, nanos);
   }
 
   /**
-   * Creates a new timestamp from given seconds and nanoseconds.
+   * Creates a new {@link Duration} from given milliseconds.
    */
   public static Duration fromMillis(long millis) {
     long seconds = millis / NUM_MILLIS_PER_SECOND;
     int nanos = (int) (millis % NUM_MILLIS_PER_SECOND) * NUM_NANOS_PER_MILLI;
-    return new Duration(seconds, seconds < 0 ? -nanos : nanos);
+    return new Duration(seconds, nanos);
   }
 
   /**
-   * Returns the number of seconds since the Unix Epoch represented by this timestamp.
-   *
-   * @return the number of seconds since the Unix Epoch.
+   * Returns the number of seconds in the {@link Duration}.
    */
   public long getSeconds() {
     return seconds;
   }
 
   /**
-   * Returns the number of nanoseconds after the number of seconds since the Unix Epoch represented
-   * by this timestamp.
-   *
-   * @return the number of nanoseconds after the number of seconds since the Unix Epoch.
+   * Returns the number of nanoseconds in the {@link Duration}.
    */
   public int getNanos() {
     return nanos;
@@ -86,6 +93,13 @@ public class Duration {
     return result;
   }
 
+  @Override
+  public String toString() {
+    return "<" + seconds + "," + nanos + ">";
+  }
+
+  private static final long MAX_SECONDS = 315576000000L;
+  private static final int MAX_NANOS = 999999999;
   private static final long NUM_MILLIS_PER_SECOND = 1000L;
   private static final int NUM_NANOS_PER_MILLI = 1000000;
   private final long seconds;
