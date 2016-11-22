@@ -13,9 +13,18 @@
 #   Open source Census for cloud services.
 
 java_library(
+    name = "common-core",
+    srcs = glob(["core/java/com/google/instrumentation/common/*.java"]),
+    deps = ["@jsr305//jar"],
+)
+
+java_library(
     name = "stats-core",
     srcs = glob(["core/java/com/google/instrumentation/stats/*.java"]),
-    deps = ["@jsr305//jar"],
+    deps = [
+        ":common-core",
+        "@jsr305//jar",
+    ],
 )
 
 java_library(
@@ -113,7 +122,6 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/MeasurementMapTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
@@ -126,7 +134,6 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/MeasurementDescriptorTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -195,6 +202,32 @@ java_test(
     deps = [
         ":stats-core",
         ":stats-core_native",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "DurationTest",
+    srcs = ["core/javatests/com/google/instrumentation/common/DurationTest.java"],
+    deps = [
+        ":common-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "TimestampTest",
+    srcs = ["core/javatests/com/google/instrumentation/common/TimestampTest.java"],
+    deps = [
+        ":common-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
