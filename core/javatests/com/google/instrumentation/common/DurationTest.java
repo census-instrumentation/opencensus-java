@@ -15,6 +15,14 @@ public class DurationTest {
     assertThat(Duration.create(24, 42).getNanos()).isEqualTo(42);
     assertThat(Duration.create(-24, -42).getSeconds()).isEqualTo(-24);
     assertThat(Duration.create(-24, -42).getNanos()).isEqualTo(-42);
+    assertThat(Duration.create(315576000000L, 999999999).getSeconds())
+        .isEqualTo(315576000000L);
+    assertThat(Duration.create(315576000000L, 999999999).getNanos())
+        .isEqualTo(999999999);
+    assertThat(Duration.create(-315576000000L, -999999999).getSeconds())
+        .isEqualTo(-315576000000L);
+    assertThat(Duration.create(-315576000000L, -999999999).getNanos())
+        .isEqualTo(-999999999);
   }
 
   @Test
