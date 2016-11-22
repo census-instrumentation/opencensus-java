@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.MatchFunction;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,13 +77,13 @@ public abstract class AggregationDescriptor {
     @Nullable
     public List<Double> getBucketBoundaries() {
       return bucketBoundaries;
-    };
+    }
 
     @Override
     public <T> T match(
         MatchFunction<DistributionAggregationDescriptor, T> p0,
         MatchFunction<IntervalAggregationDescriptor, T> p1) {
-      return p0.f(this);
+      return p0.func(this);
     }
 
     @Nullable
@@ -127,7 +128,7 @@ public abstract class AggregationDescriptor {
     public <T> T match(
         MatchFunction<DistributionAggregationDescriptor, T> p0,
         MatchFunction<IntervalAggregationDescriptor, T> p1) {
-      return p1.f(this);
+      return p1.func(this);
     }
 
     @Nullable

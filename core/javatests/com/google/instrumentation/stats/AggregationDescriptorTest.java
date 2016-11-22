@@ -74,7 +74,7 @@ public final class AggregationDescriptorTest {
         DistributionAggregationDescriptor.create(Arrays.asList(buckets));
     assertThat(descriptor.match(
         new MatchFunction<DistributionAggregationDescriptor, Boolean> () {
-          @Override public Boolean f(DistributionAggregationDescriptor d) {
+          @Override public Boolean func(DistributionAggregationDescriptor d) {
             if (d.getBucketBoundaries().size() != buckets.length) {
               return false;
             }
@@ -86,7 +86,7 @@ public final class AggregationDescriptorTest {
             return true;
           }},
         new MatchFunction<IntervalAggregationDescriptor, Boolean> () {
-          @Override public Boolean f(IntervalAggregationDescriptor d) {
+          @Override public Boolean func(IntervalAggregationDescriptor d) {
             return false;
           }
         })).isTrue();
@@ -100,12 +100,12 @@ public final class AggregationDescriptorTest {
         IntervalAggregationDescriptor.create(Arrays.asList(intervals));
     assertThat(descriptor.match(
         new MatchFunction<DistributionAggregationDescriptor, Boolean> () {
-          @Override public Boolean f(DistributionAggregationDescriptor d) {
+          @Override public Boolean func(DistributionAggregationDescriptor d) {
             return false;
           }
         },
         new MatchFunction<IntervalAggregationDescriptor, Boolean> () {
-          @Override public Boolean f(IntervalAggregationDescriptor d) {
+          @Override public Boolean func(IntervalAggregationDescriptor d) {
             if (d.getIntervalSizes().size() != intervals.length) {
               return false;
             }

@@ -48,12 +48,12 @@ public final class ViewDescriptorTest {
     assertThat(view.getMeasurement().getName()).isEqualTo(measurement.getName());
     assertThat(view.getAggregation().match(
         new MatchFunction<DistributionAggregationDescriptor, Boolean> () {
-          @Override public Boolean f(DistributionAggregationDescriptor d) {
+          @Override public Boolean func(DistributionAggregationDescriptor d) {
             return false;
           }
         },
         new MatchFunction<IntervalAggregationDescriptor, Boolean> () {
-          @Override public Boolean f(IntervalAggregationDescriptor d) {
+          @Override public Boolean func(IntervalAggregationDescriptor d) {
             return d.getIntervalSizes() == null;
           }
         })).isTrue();
