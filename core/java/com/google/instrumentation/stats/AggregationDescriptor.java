@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Duration;
-import com.google.instrumentation.common.MatchFunction;
+import com.google.instrumentation.common.Function;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,8 +30,8 @@ public abstract class AggregationDescriptor {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      MatchFunction<DistributionAggregationDescriptor, T> p0,
-      MatchFunction<IntervalAggregationDescriptor, T> p1);
+      Function<DistributionAggregationDescriptor, T> p0,
+      Function<IntervalAggregationDescriptor, T> p1);
 
   // Seals the disjoint union.
   private AggregationDescriptor() {
@@ -57,7 +57,8 @@ public abstract class AggregationDescriptor {
    */
   public static final class DistributionAggregationDescriptor extends AggregationDescriptor {
     /**
-     * Constructs a new {@link DistributionAggregationDescriptor}.
+     * Constructs a new {@link DistributionAggregationDescriptor} with the optional
+     * histogram bucket boundaries.
      */
     public static DistributionAggregationDescriptor create(List<Double> bucketBoundaries) {
       return new DistributionAggregationDescriptor(
@@ -73,7 +74,7 @@ public abstract class AggregationDescriptor {
     }
 
     /**
-     * The (possibly null) histogram bucket boundaries for a distribution.
+     * The optional histogram bucket boundaries for a distribution.
      *
      * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
@@ -85,9 +86,9 @@ public abstract class AggregationDescriptor {
 
     @Override
     public <T> T match(
-        MatchFunction<DistributionAggregationDescriptor, T> p0,
-        MatchFunction<IntervalAggregationDescriptor, T> p1) {
-      return p0.func(this);
+        Function<DistributionAggregationDescriptor, T> p0,
+        Function<IntervalAggregationDescriptor, T> p1) {
+      return p0.apply(this);
     }
 
     @Nullable
@@ -121,7 +122,7 @@ public abstract class AggregationDescriptor {
     }
 
     /**
-     * The (possibly null) time intervals to record for Intervals.
+     * The optional time intervals to record for Intervals.
      *
      * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
@@ -133,9 +134,9 @@ public abstract class AggregationDescriptor {
 
     @Override
     public <T> T match(
-        MatchFunction<DistributionAggregationDescriptor, T> p0,
-        MatchFunction<IntervalAggregationDescriptor, T> p1) {
-      return p1.func(this);
+        Function<DistributionAggregationDescriptor, T> p0,
+        Function<IntervalAggregationDescriptor, T> p1) {
+      return p1.apply(this);
     }
 
     @Nullable

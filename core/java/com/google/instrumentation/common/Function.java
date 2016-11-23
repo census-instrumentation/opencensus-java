@@ -14,8 +14,11 @@
 package com.google.instrumentation.common;
 
 /**
- * Encodes functions {@code func: A -> B} for use in encoding disjoint-unions.
+ * Used to specify matching functions for use encoding tagged unions (i.e. sum types) in Java. See
+ * {@link com.google.instrumentation.AggregationDescriptor} for an example of it's use.
+ *
+ * This class is based on the java.util.Function class added in Java 1.8.
  */
-public interface MatchFunction<A, B> {
-  B func(A arg);
+public interface Function<A, B> {
+  B apply(A arg);
 }
