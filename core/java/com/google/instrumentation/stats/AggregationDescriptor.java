@@ -24,6 +24,13 @@ import javax.annotation.Nullable;
 /**
  * An {@link AggregationDescriptor} describes an Aggregation, which is a series of individual
  * measurements.
+
+ * <p>An {@link AggregationDescriptor} describes an Aggregation, which is a series of individual
+ * <p> Each measurments can be one of either:
+ * <ul>
+ * <li> {@link DistributionAggregationDescriptor}
+ * <li> {@link IntervalAggregationDescriptor}
+ * </ul>
  */
 public abstract class AggregationDescriptor {
   /**
