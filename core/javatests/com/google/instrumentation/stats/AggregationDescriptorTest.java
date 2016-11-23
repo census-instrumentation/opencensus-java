@@ -69,7 +69,7 @@ public final class AggregationDescriptorTest {
 
   @Test
   public void testDistributionAggregationDescriptorMatch() {
-    final DistributionAggregationDescriptor descriptor =
+    final AggregationDescriptor descriptor =
         DistributionAggregationDescriptor.create(Arrays.asList(new Double[] { 0.1, 2.2, 33.3 }));
     assertThat(descriptor.match(
         new Function<DistributionAggregationDescriptor, Boolean> () {
@@ -88,8 +88,8 @@ public final class AggregationDescriptorTest {
     // Tests that match passes an IntervalAggregationDescriptor value through to the associated
     // match function.
     final AggregationDescriptor descriptor =
-        IntervalAggregationDescriptor.create(Arrays.asList(Duration[] {
-                  Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)}));
+        IntervalAggregationDescriptor.create(Arrays.asList(new Duration[] {
+                  Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333) }));
     assertThat(descriptor.match(
         new Function<DistributionAggregationDescriptor, Boolean> () {
           @Override public Boolean apply(DistributionAggregationDescriptor dDescriptor) {

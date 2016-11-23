@@ -39,7 +39,7 @@ public final class ViewDescriptorTest {
         "measurement",
         "measurement description",
         MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
-    AggregationDescriptor aDescriptor = IntervalAggregationDescriptor.create();
+    final AggregationDescriptor aDescriptor = IntervalAggregationDescriptor.create();
     List<TagKey> keys = Arrays.asList(new TagKey[] { new TagKey("foo"), new TagKey("bar") });
     ViewDescriptor view = ViewDescriptor.create(name, description, mDescriptor, aDescriptor, keys);
 
@@ -54,7 +54,7 @@ public final class ViewDescriptorTest {
         },
         new Function<IntervalAggregationDescriptor, Boolean> () {
           @Override public Boolean apply(IntervalAggregationDescriptor iDescriptor) {
-            return iDescriptor.getIntervalSizes() == null;
+            return iDescriptor == aDescriptor;
           }
         })).isTrue();
     assertThat(view.getTagKeys().size()).isEqualTo(2);
