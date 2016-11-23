@@ -22,7 +22,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /**
- * An AggregationDescriptor describes an Aggregation, which is a series of individual measurements.
+ * An {@link AggregationDescriptor} describes an Aggregation, which is a series of individual
+ * measurements.
  */
 public abstract class AggregationDescriptor {
   /**
@@ -40,8 +41,9 @@ public abstract class AggregationDescriptor {
    * An {@link AggregationDescriptor} based on distributions.
    *
    * <p>A distribution aggregation may optionally contain a histogram of the values in the
-   * population. The bucket boundaries for that histogram are described by `bucket_boundaries`.
-   * This defines `size(bounds) + 1` (= N) buckets. The boundaries for bucket index i are:
+   * population. The bucket boundaries for that histogram are described by
+   * {@link getBucketBoundaries}, which defines {@code getBucketBoundaries.size() + 1 (= N)}
+   * buckets. The boundaries for bucket index i are:
    * <ul>
    * <li>[-infinity, bounds[i]) for i == 0
    * <li>[bounds[i-1], bounds[i]) for 0 &lt; i &lt; N-2
@@ -50,9 +52,8 @@ public abstract class AggregationDescriptor {
    * i.e. an underflow bucket (number 0), zero or more finite buckets (1 through N - 2, and an
    * overflow bucket (N - 1), with inclusive lower bounds and exclusive upper bounds.
    *
-   * <p>There must be at least one element in `bounds`.  If `bounds` has only one element, there
-   * are no finite buckets, and that single element is the common boundary of the overflow and
-   * underflow buckets.
+   * <p>Note: If N = 1, there are no finite buckets and the single bucket is both the overflow
+   * and underflow bucket.
    */
   public static final class DistributionAggregationDescriptor extends AggregationDescriptor {
     /**
@@ -73,6 +74,9 @@ public abstract class AggregationDescriptor {
 
     /**
      * The (possibly null) histogram bucket boundaries for a distribution.
+     *
+     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
+     * UnsupportedOperationException.
      */
     @Nullable
     public List<Double> getBucketBoundaries() {
@@ -97,11 +101,12 @@ public abstract class AggregationDescriptor {
   /**
    * An {@link AggregationDescriptor} based on intervals.
    *
-   * <p>An interval aggregation may optionally contain the sizes of each time intervals.
+   * <p>An interval aggregation may optionally contain the sizes of each time interval.
    */
   public static final class IntervalAggregationDescriptor extends AggregationDescriptor {
     /**
-     * Constructs a new {@link IntervalAggregationDescriptor}.
+     * Constructs a new {@link IntervalAggregationDescriptor} with the optional sizes of time
+     * intervals.
      */
     public static IntervalAggregationDescriptor create(List<Duration> intervalSizes) {
       return new IntervalAggregationDescriptor(
@@ -109,15 +114,17 @@ public abstract class AggregationDescriptor {
     }
 
     /**
-     * Constructs a new {@link IntervalAggregationDescriptor} without the optional
-     * interval size boundaries.
+     * Constructs a new {@link IntervalAggregationDescriptor}.
      */
     public static IntervalAggregationDescriptor create() {
       return new IntervalAggregationDescriptor(null);
     }
 
     /**
-     * The (possibly null) time intervals to record for IntervalStats.
+     * The (possibly null) time intervals to record for Intervals.
+     *
+     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
+     * UnsupportedOperationException.
      */
     @Nullable
     public List<Duration> getIntervalSizes() {

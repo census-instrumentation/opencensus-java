@@ -35,26 +35,26 @@ public final class ViewDescriptorTest {
   public void testViewDescriptor() {
     String name = "test-view-name";
     String description = "test-view-name description";
-    MeasurementDescriptor measurement = MeasurementDescriptor.create(
+    MeasurementDescriptor mDescriptor = MeasurementDescriptor.create(
         "measurement",
         "measurement description",
         MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
-    AggregationDescriptor aggregation = IntervalAggregationDescriptor.create();
+    AggregationDescriptor aDescriptor = IntervalAggregationDescriptor.create();
     List<TagKey> keys = Arrays.asList(new TagKey[] { new TagKey("foo"), new TagKey("bar") });
-    ViewDescriptor view = ViewDescriptor.create(name, description, measurement, aggregation, keys);
+    ViewDescriptor view = ViewDescriptor.create(name, description, mDescriptor, aDescriptor, keys);
 
     assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
-    assertThat(view.getMeasurement().getName()).isEqualTo(measurement.getName());
-    assertThat(view.getAggregation().match(
+    assertThat(view.getMeasurementDescriptor().getName()).isEqualTo(mDescriptor.getName());
+    assertThat(view.getAggregationDescriptor().match(
         new MatchFunction<DistributionAggregationDescriptor, Boolean> () {
-          @Override public Boolean func(DistributionAggregationDescriptor d) {
+          @Override public Boolean func(DistributionAggregationDescriptor dDescriptor) {
             return false;
           }
         },
         new MatchFunction<IntervalAggregationDescriptor, Boolean> () {
-          @Override public Boolean func(IntervalAggregationDescriptor d) {
-            return d.getIntervalSizes() == null;
+          @Override public Boolean func(IntervalAggregationDescriptor iDescriptor) {
+            return iDescriptor.getIntervalSizes() == null;
           }
         })).isTrue();
     assertThat(view.getTagKeys().size()).isEqualTo(2);

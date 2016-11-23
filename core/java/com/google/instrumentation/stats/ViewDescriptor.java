@@ -28,10 +28,11 @@ public final class ViewDescriptor {
   public static ViewDescriptor create(
       String name,
       String description,
-      MeasurementDescriptor measurement,
-      AggregationDescriptor aggregation,
+      MeasurementDescriptor measurementDescriptor,
+      AggregationDescriptor aggregationDescriptor,
       List<TagKey> tagKeys) {
-    return new ViewDescriptor(name, description, measurement, aggregation, tagKeys);
+    return new ViewDescriptor(
+        name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
   }
 
   /**
@@ -51,20 +52,20 @@ public final class ViewDescriptor {
   /**
    * Measurement type of this view.
    */
-  public final MeasurementDescriptor getMeasurement() {
-    return measurement;
+  public final MeasurementDescriptor getMeasurementDescriptor() {
+    return measurementDescriptor;
   }
 
   /**
    * Aggregation type of this ViewDescriptor.
    */
-  public final AggregationDescriptor getAggregation() {
-    return aggregation;
+  public final AggregationDescriptor getAggregationDescriptor() {
+    return aggregationDescriptor;
   }
 
   /**
-   * Tag keys to match with a given MeasurementDescriptor measure. If no keys are specified, then
-   * all stats are recorded. Keys must be unique.
+   * Tag keys to match with the associated {@link MeasurementDescriptor}. If no keys are specified,
+   * then all stats are recorded. Keys must be unique.
    *
    * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
    * UnsupportedOperationException.
@@ -75,20 +76,20 @@ public final class ViewDescriptor {
 
   private final String name;
   private final String description;
-  private final MeasurementDescriptor measurement;
-  private final AggregationDescriptor aggregation;
+  private final MeasurementDescriptor measurementDescriptor;
+  private final AggregationDescriptor aggregationDescriptor;
   private final List<TagKey> tagKeys;
 
   private ViewDescriptor(
       String name,
       String description,
-      MeasurementDescriptor measurement,
-      AggregationDescriptor aggregation,
+      MeasurementDescriptor measurementDescriptor,
+      AggregationDescriptor aggregationDescriptor,
       List<TagKey> tagKeys) {
     this.name = name;
     this.description = description;
-    this.measurement = measurement;
-    this.aggregation = aggregation;
+    this.measurementDescriptor = measurementDescriptor;
+    this.aggregationDescriptor = aggregationDescriptor;
     this.tagKeys = Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys));
   }
 }
