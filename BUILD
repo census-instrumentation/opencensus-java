@@ -75,6 +75,20 @@ java_binary(
 )
 
 java_test(
+    name = "AggregationDescriptorTest",
+    srcs = ["core/javatests/com/google/instrumentation/stats/AggregationDescriptorTest.java"],
+    deps = [
+        ":common-core",
+        ":stats-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
     name = "CensusContextTest",
     srcs = ["core/javatests/com/google/instrumentation/stats/CensusContextTest.java"],
     deps = [
@@ -228,6 +242,20 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/common/TimestampTest.java"],
     deps = [
         ":common-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "ViewDescriptorTest",
+    srcs = ["core/javatests/com/google/instrumentation/stats/ViewDescriptorTest.java"],
+    deps = [
+        ":common-core",
+        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
