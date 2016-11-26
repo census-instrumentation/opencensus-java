@@ -47,8 +47,8 @@ public final class View {
   /**
    * Start {@link Timestamp} over which the Aggregations were accumulated.
    *
-   * <p>Note: This value is not relevant/defined for {@link IntervalAggregations}, which are
-   * always accumulated over a fixed time period.
+   * <p>Note: This value is not relevant/defined for {@link Aggregation.IntervalAggregation}s, which
+   * are always accumulated over a fixed time period.
    */
   public Timestamp getStart() {
     return start;
@@ -57,8 +57,8 @@ public final class View {
   /**
    * End {@link Timestamp} over which the Aggregations were accumulated.
    *
-   * <p>Note: This value is not relevant/defined for {@link IntervalAggregations}, which are
-   * always accumulated over a fixed time period.
+   * <p>Note: This value is not relevant/defined for {@link Aggregation.IntervalAggregation}s, which
+   * are always accumulated over a fixed time period.
    */
   public Timestamp getEnd() {
     return end;

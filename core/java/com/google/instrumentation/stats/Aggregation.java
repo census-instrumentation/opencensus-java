@@ -60,7 +60,8 @@ public abstract class Aggregation {
    *
    * <p> A distribution contains summary statistics for a population of values and, optionally, a
    * histogram representing the distribution of those values across a specified set of histogram
-   * buckets, as defined in {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
+   * buckets, as defined in
+   * {@link AggregationDescriptor.DistributionAggregationDescriptor#getBucketBoundaries()}.
    *
    * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities
    * or NaNs) in the population of values, as this will render the {@code mean} meaningless.
@@ -118,7 +119,7 @@ public abstract class Aggregation {
      * A Distribution may optionally contain a histogram of the values in the population. The
      * histogram is given in {@link getBucketCounts()} as counts of values that fall into one of a
      * sequence of non-overlapping buckets, described by
-     * {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
+     * {@link AggregationDescriptor.DistributionAggregationDescriptor#getBucketBoundaries()}.
      * The sum of the values in {@link getBucketCounts()} must equal the value in
      * {@link getCount()}.
      *
@@ -127,7 +128,7 @@ public abstract class Aggregation {
      * have numbers 1 through N-2; the overflow bucket has number N-1).
      *
      * <p>The size of {@link getBucketCounts()} must be no greater than N as defined in
-     * {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
+     * {@link AggregationDescriptor.DistributionAggregationDescriptor#getBucketBoundaries()}.
      *
      * <p>Any suffix of trailing buckets containing only zero may be omitted.
      */
