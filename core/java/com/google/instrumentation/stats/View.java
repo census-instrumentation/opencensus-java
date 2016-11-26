@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Timestamp;
+
 import java.util.List;
 
 /**
@@ -23,8 +24,8 @@ public final class View {
   /**
    * Creates a new {@link View}.
    */
-  public static View create(
-      ViewDescriptor viewDescriptor, List<Aggregation> aggregations, Timestamp start, Timestamp end) {
+  public static View create(ViewDescriptor viewDescriptor, List<Aggregation> aggregations,
+      Timestamp start, Timestamp end) {
     return new View(viewDescriptor, aggregations, start, end);
   }
 
@@ -68,7 +69,8 @@ public final class View {
   private final Timestamp start;
   private final Timestamp end;
 
-  private View(ViewDescriptor viewDescriptor, List<Aggregation> aggregations, Timestamp start, Timestamp end) {
+  private View(ViewDescriptor viewDescriptor, List<Aggregation> aggregations,
+      Timestamp start, Timestamp end) {
     this.viewDescriptor = viewDescriptor;
     this.aggregations = aggregations;
     this.start = start;
