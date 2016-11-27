@@ -48,7 +48,7 @@ public abstract class Aggregation {
       Function<DistributionAggregation, T> p0,
       Function<IntervalAggregation, T> p1);
 
-  private List<Tag> tags;
+  private final List<Tag> tags;
 
   // Seals the tagged union.
   private Aggregation(List<Tag> tags) {
@@ -131,6 +131,8 @@ public abstract class Aggregation {
      * {@link AggregationDescriptor.DistributionAggregationDescriptor#getBucketBoundaries()}.
      *
      * <p>Any suffix of trailing buckets containing only zero may be omitted.
+     *
+     * <p>Note: If the bucket boundaries are absent, this value is empty.
      */
     public List<Long> getBucketCounts() {
       return bucketCounts;
@@ -185,8 +187,8 @@ public abstract class Aggregation {
         return max;
       }
 
-      private double min;
-      private double max;
+      private final double min;
+      private final double max;
 
       private Range(double min, double max) {
         this.min = min;

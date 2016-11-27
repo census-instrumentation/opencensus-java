@@ -38,8 +38,8 @@ public final class Tag {
     return value;
   }
 
-  private TagKey key;
-  private TagValue value;
+  private final TagKey key;
+  private final TagValue value;
 
   private Tag(TagKey key, TagValue value) {
     this.key = key;
