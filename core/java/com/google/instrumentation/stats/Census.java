@@ -13,12 +13,14 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.common.Provider;
+
 /**
  * {@link Census}.
  */
 public final class Census {
-  private static final CensusContextFactory CONTEXT_FACTORY = new Provider<CensusContextFactory>(
-      "com.google.instrumentation.stats.CensusContextFactoryImpl").newInstance();
+  private static final CensusContextFactory CONTEXT_FACTORY = Provider.newInstance(
+      "com.google.instrumentation.stats.CensusContextFactoryImpl", null);
 
   /**
    * Returns the default {@link CensusContextFactory}.
