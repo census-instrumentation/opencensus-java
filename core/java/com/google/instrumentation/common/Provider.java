@@ -34,12 +34,16 @@ public final class Provider {
       Class<?> provider = Class.forName(name);
       return (T) provider.getConstructor().newInstance();
     } catch (ClassNotFoundException e) {
+      // No implementation available. Return the default value.
     } catch (IllegalAccessException e) {
+      // No implementation available. Return the default value.
     } catch (InstantiationException e) {
+      // No implementation available. Return the default value.
     } catch (InvocationTargetException e) {
+      // No implementation available. Return the default value.
     } catch (NoSuchMethodException e) {
+      // No implementation available. Return the default value.
     }
-    // No implementation available. Return the default value.
     return defaultValue;
   }
 }
