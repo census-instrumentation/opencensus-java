@@ -24,6 +24,10 @@ import java.lang.reflect.InvocationTargetException;
  * }</pre>
  */
 public final class Provider {
+  /**
+   * Returns a new instance of the class specified with {@code name} by invoking the empty-argument
+   * constructor via reflections. If there are any errors, the {@code defaultValue} is returned.
+   */
   @SuppressWarnings("unchecked")
   public static <T> T newInstance(String name, T defaultValue) {
     try {
