@@ -14,6 +14,7 @@
 package com.google.instrumentation.common;
 
 import java.lang.reflect.InvocationTargetException;
+import javax.annotation.Nullable;
 
 /**
  * Instrumentation specific service provider mechanism.
@@ -29,7 +30,8 @@ public final class Provider {
    * constructor via reflections. If there are any errors, the {@code defaultValue} is returned.
    */
   @SuppressWarnings("unchecked")
-  public static <T> T newInstance(String name, T defaultValue) {
+  @Nullable
+  public static <T> T newInstance(String name, @Nullable T defaultValue) {
     try {
       Class<?> provider = Class.forName(name);
       return (T) provider.getConstructor().newInstance();
