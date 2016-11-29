@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * // Initialize a static variable using reflection.
- * static final Foo foo = Provider<Foo>.newInstance("Foo", new NoopFoo());
+ * static final Foo foo = Provider.newInstance("Foo", new NoopFoo());
  * }</pre>
  */
 public final class Provider {
