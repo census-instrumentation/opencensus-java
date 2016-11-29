@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.stats;
+package com.google.instrumentation.common;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -26,22 +26,23 @@ import org.junit.runners.JUnit4;
 public class ProviderTest {
   @Test
   public void testGoodClass() throws Exception {
-    Provider<GetGen> provider =
-        new Provider<GetGen>("com.google.instrumentation.stats.ProviderTest$GetGen");
-    GetGen getGen0 = provider.newInstance();
+    GetGen getGen0 = Provider.newInstance("com.google.instrumentation.common.ProviderTest$GetGen", null);
+    assertThat(getGen0).isNotNull();
     assertThat(getGen0.getGen()).isEqualTo(0);
     for (int i = 1; i < 10; i++) {
-      assertThat(provider.newInstance().getGen()).isEqualTo(i);
+      GetGen getGenI =
+          Provider.newInstance("com.google.instrumentation.common.ProviderTest$GetGen", null);
+      assertThat(getGenI).isNotNull();
+      assertThat(getGenI.getGen()).isEqualTo(i);
     }
     assertThat(getGen0.getGen()).isEqualTo(0);
   }
 
   @Test
   public void testBadClass() throws Exception {
-    Provider<GetGen> provider =
-        new Provider<GetGen>("com.google.instrumentation.stats.ProviderTest$BadClass");
-    assertThat(provider).isNotNull();
-    assertThat(provider.newInstance()).isNull();
+    GetGen getGen =
+        Provider.newInstance("com.google.instrumentation.common.ProviderTest$BadClass", null);
+    assertThat(getGen).isNull();
   }
 
   static class GetGen {

@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.common.Provider;
 import io.grpc.Context;
 
 /**
@@ -20,8 +21,8 @@ import io.grpc.Context;
  * implicit propagation of the {@link CensusContext}.
  */
 public abstract class CensusGrpcContext {
-  private static final CensusGrpcContext INSTANCE = new Provider<CensusGrpcContext>(
-      "com.google.instrumentation.stats.CensusGrpcContextImpl").newInstance();
+  private static final CensusGrpcContext INSTANCE = Provider.newInstance(
+      "com.google.instrumentation.stats.CensusGrpcContextImpl", null);
 
   /** Returns the default {@link CensusGrpContext} instance. */
   public static CensusGrpcContext getInstance() {

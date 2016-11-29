@@ -42,6 +42,7 @@ java_library(
     name = "stats-grpc",
     srcs = glob(["grpc/java/com/google/instrumentation/stats/*.java"]),
     deps = [
+        ":common-core",
         ":stats-core",
         "@grpc_context//jar",
         "@jsr305//jar",
@@ -157,19 +158,6 @@ java_test(
 )
 
 java_test(
-    name = "ProviderTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/ProviderTest.java"],
-    deps = [
-        ":stats-core",
-        ":stats-core_native",
-        "@guava//jar",
-        "@jsr305//jar",
-        "@junit//jar",
-        "@truth//jar",
-    ],
-)
-
-java_test(
     name = "RpcConstantsTest",
     srcs = ["core/javatests/com/google/instrumentation/stats/RpcConstantsTest.java"],
     deps = [
@@ -231,6 +219,19 @@ java_test(
         ":common-core",
         "@guava//jar",
         "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "ProviderTest",
+    srcs = ["core/javatests/com/google/instrumentation/common/ProviderTest.java"],
+    deps = [
+        ":common-core",
+        ":stats-core",
+        "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
