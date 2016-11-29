@@ -22,9 +22,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /**
- * An {@link Aggregation} is a series of individual measurements.
+ * An {@link Aggregation} is a series of individual measurement values.
  *
- * <p> Each measurments can be one of either:
+ * <p> An {@link Aggregation} can be one of either:
  * <ul>
  * <li> {@link DistributionAggregation}
  * <li> {@link IntervalAggregation}
@@ -50,7 +50,7 @@ public abstract class Aggregation {
 
   private final List<Tag> tags;
 
-  // Seals the tagged union.
+  // Constructor is private in order to limit the subclasses of the tagged union.
   private Aggregation(List<Tag> tags) {
     this.tags = Collections.unmodifiableList(new ArrayList<Tag>(tags));
   }
