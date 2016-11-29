@@ -68,15 +68,18 @@ public class CensusRunner {
 
   private static final CensusContext DEFAULT = Census.getCensusContextFactory().getDefault();
 
+  private static final Context.Key<CensusContext> CENSUS_CONTEXT_KEY =
+      Context.keyWithDefault("CensusContextKey", DEFAULT);
+
   private static final CensusContext getCurrentCensusContext() {
     return getCensusContext(Context.current());
   }
 
   private static final CensusContext getCensusContext(Context context) {
-    return CensusGrpcContext.getInstance().get(context);
+    return CENSUS_CONTEXT_KEY.get(context);
   }
 
   private static final Context withCurrent(CensusContext context) {
-    return CensusGrpcContext.getInstance().withCensusContext(Context.current(), context);
+    return Context.current().withValue(CENSUS_CONTEXT_KEY, context);
   }
 }
