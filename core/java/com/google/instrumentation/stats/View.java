@@ -18,7 +18,8 @@ import com.google.instrumentation.common.Timestamp;
 import java.util.List;
 
 /**
- * Container for the {@link Aggregation}s for a particular {@link ViewDescriptor}.
+ * Provides the actual measurment data for the associated {@link ViewDescriptor} over an interval
+ * of time.
  */
 public final class View {
   /**
