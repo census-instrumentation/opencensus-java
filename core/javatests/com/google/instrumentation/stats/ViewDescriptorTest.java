@@ -15,11 +15,13 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Function;
-import com.google.instrumentation.stats.AggregationDescriptor.DistributionAggregationDescriptor;
-import com.google.instrumentation.stats.AggregationDescriptor.IntervalAggregationDescriptor;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
+import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -32,33 +34,70 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class ViewDescriptorTest {
   @Test
-  public void testViewDescriptor() {
+  public void testDistributionViewDescriptor() {
     String name = "test-view-name";
     String description = "test-view-name description";
     MeasurementDescriptor mDescriptor = MeasurementDescriptor.create(
         "measurement",
         "measurement description",
         MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
-    final AggregationDescriptor aDescriptor = IntervalAggregationDescriptor.create();
+    DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
     List<TagKey> keys = Arrays.asList(new TagKey[] { new TagKey("foo"), new TagKey("bar") });
-    ViewDescriptor view = ViewDescriptor.create(name, description, mDescriptor, aDescriptor, keys);
+    final DistributionViewDescriptor viewDescriptor =
+        DistributionViewDescriptor.create(name, description, mDescriptor, dAggrDescriptor, keys);
 
-    assertThat(view.getName()).isEqualTo(name);
-    assertThat(view.getDescription()).isEqualTo(description);
-    assertThat(view.getMeasurementDescriptor().getName()).isEqualTo(mDescriptor.getName());
-    assertThat(view.getAggregationDescriptor().match(
-        new Function<DistributionAggregationDescriptor, Boolean> () {
-          @Override public Boolean apply(DistributionAggregationDescriptor dDescriptor) {
+    assertThat(viewDescriptor.getName()).isEqualTo(name);
+    assertThat(viewDescriptor.getDescription()).isEqualTo(description);
+    assertThat(viewDescriptor.getMeasurementDescriptor().getName()).isEqualTo(mDescriptor.getName());
+    assertThat(viewDescriptor.getDistributionAggregationDescriptor()).isEqualTo(dAggrDescriptor);
+    assertThat(viewDescriptor.getTagKeys().size()).isEqualTo(2);
+    assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
+    assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
+    assertThat(viewDescriptor.match(
+        new Function<DistributionViewDescriptor, Boolean> () {
+          @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
+            return dViewDescriptor == viewDescriptor;
+          }
+        },
+        new Function<IntervalViewDescriptor, Boolean> () {
+          @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
+            return false;
+          }
+        })).isTrue();
+  }
+
+  @Test
+  public void testIntervalViewDescriptor() {
+    String name = "test-view-name";
+    String description = "test-view-name description";
+    MeasurementDescriptor mDescriptor = MeasurementDescriptor.create(
+        "measurement",
+        "measurement description",
+        MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
+    List<Duration> intervals = Arrays.asList(new Duration[] {
+          Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)});
+    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(intervals);
+    List<TagKey> keys = Arrays.asList(new TagKey[] { new TagKey("foo"), new TagKey("bar") });
+    final IntervalViewDescriptor viewDescriptor =
+        IntervalViewDescriptor.create(name, description, mDescriptor, iAggrDescriptor, keys);
+
+    assertThat(viewDescriptor.getName()).isEqualTo(name);
+    assertThat(viewDescriptor.getDescription()).isEqualTo(description);
+    assertThat(viewDescriptor.getMeasurementDescriptor().getName()).isEqualTo(mDescriptor.getName());
+    assertThat(viewDescriptor.getIntervalAggregationDescriptor()).isEqualTo(iAggrDescriptor);
+    assertThat(viewDescriptor.getTagKeys().size()).isEqualTo(2);
+    assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
+    assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
+    assertThat(viewDescriptor.match(
+        new Function<DistributionViewDescriptor, Boolean> () {
+          @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
             return false;
           }
         },
-        new Function<IntervalAggregationDescriptor, Boolean> () {
-          @Override public Boolean apply(IntervalAggregationDescriptor iDescriptor) {
-            return iDescriptor == aDescriptor;
+        new Function<IntervalViewDescriptor, Boolean> () {
+          @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
+            return iViewDescriptor == viewDescriptor;
           }
         })).isTrue();
-    assertThat(view.getTagKeys().size()).isEqualTo(2);
-    assertThat(view.getTagKeys().get(0).toString()).isEqualTo("foo");
-    assertThat(view.getTagKeys().get(1).toString()).isEqualTo("bar");
   }
 }
