@@ -99,7 +99,7 @@ public abstract class ViewDescriptor {
 
     /**
      * The {@link DistributionAggregationDescriptor} associated with this
-     * {@lik DistributionViewDescriptor}.
+     * {@link DistributionViewDescriptor}.
      */
     public DistributionAggregationDescriptor getDistributionAggregationDescriptor() {
       return distributionAggregationDescriptor;
@@ -144,7 +144,7 @@ public abstract class ViewDescriptor {
 
     /**
      * The {@link IntervalAggregationDescriptor} associated with this
-     * {@lik IntervalViewDescriptor}.
+     * {@link IntervalViewDescriptor}.
      */
     public IntervalAggregationDescriptor getIntervalAggregationDescriptor() {
       return intervalAggregationDescriptor;
