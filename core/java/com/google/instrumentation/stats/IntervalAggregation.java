@@ -35,7 +35,7 @@ public final class IntervalAggregation {
   }
 
   /**
-   * {@link Tag}s associated with this {@link Aggregation}.
+   * {@link Tag}s associated with this aggregation.
    *
    * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
    * UnsupportedOperationException.

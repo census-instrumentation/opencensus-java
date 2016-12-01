@@ -68,7 +68,7 @@ public final class DistributionAggregation {
   }
 
   /**
-   * The arithmetic mean of the values in the population. If {@link getCount()} is zero then this
+   * The arithmetic mean of the values in the population. If {@link #getCount()} is zero then this
    * value must also be zero.
    */
   public double getMean() {
@@ -76,7 +76,7 @@ public final class DistributionAggregation {
   }
 
   /**
-   * The sum of the values in the population.  If {@link getCount()} is zero then this values must
+   * The sum of the values in the population.  If {@link #getCount()} is zero then this values must
    * also be zero.
    */
   public double getSum() {
@@ -84,7 +84,7 @@ public final class DistributionAggregation {
   }
 
   /**
-   * The range of the population values. If {@link getCount()} is zero then this returned range is
+   * The range of the population values. If {@link #getCount()} is zero then this returned range is
    * implementation-dependent.
    */
   public Range getRange() {
@@ -93,17 +93,17 @@ public final class DistributionAggregation {
 
   /**
    * A Distribution may optionally contain a histogram of the values in the population. The
-   * histogram is given in {@link getBucketCounts()} as counts of values that fall into one of a
+   * histogram is given in {@link #getBucketCounts()} as counts of values that fall into one of a
    * sequence of non-overlapping buckets, described by
    * {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
-   * The sum of the values in {@link getBucketCounts()} must equal the value in
-   * {@link getCount()}.
+   * The sum of the values in {@link #getBucketCounts()} must equal the value in
+   * {@link #getCount()}.
    *
    * <p>Bucket counts are given in order under the numbering scheme described
    * above (the underflow bucket has number 0; the finite buckets, if any,
    * have numbers 1 through N-2; the overflow bucket has number N-1).
    *
-   * <p>The size of {@link getBucketCounts()} must be no greater than N as defined in
+   * <p>The size of {@link #getBucketCounts()} must be no greater than N as defined in
    * {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
    *
    * <p>Any suffix of trailing buckets containing only zero may be omitted.
