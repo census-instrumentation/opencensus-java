@@ -38,7 +38,7 @@ public final class DistributionAggregationDescriptorTest {
     DistributionAggregationDescriptor dDescriptor =
         DistributionAggregationDescriptor.create(Arrays.asList(buckets));
     assertThat(dDescriptor.getBucketBoundaries()).isNotNull();
-    assertThat(dDescriptor.getBucketBoundaries().size()).isEqualTo(3);
+    assertThat(dDescriptor.getBucketBoundaries()).hasSize(buckets.length);
     for (int i = 0; i < buckets.length; i++) {
       assertThat(dDescriptor.getBucketBoundaries().get(i))
           .isWithin(0.00000001).of(buckets[i]);

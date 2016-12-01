@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A ViewDescriptor specifies an aggregation and a set of tag keys. The Aggregation will be broken
+ * A ViewDescriptor specifies an aggregation and a set of tag keys. The aggregation will be broken
  * down by the unique set of matching tag values for each measurement.
  */
 public abstract class ViewDescriptor {

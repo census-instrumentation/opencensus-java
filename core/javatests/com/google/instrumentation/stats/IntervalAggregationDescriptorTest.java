@@ -22,7 +22,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link AggregationDescriptor}
+ * Tests for {@link IntervalAggregationDescriptor}
  */
 @RunWith(JUnit4.class)
 public final class IntervalAggregationDescriptorTest {
@@ -33,9 +33,15 @@ public final class IntervalAggregationDescriptorTest {
     IntervalAggregationDescriptor iDescriptor =
          IntervalAggregationDescriptor.create(Arrays.asList(intervals));
     assertThat(iDescriptor.getIntervalSizes()).isNotNull();
-    assertThat(iDescriptor.getIntervalSizes().size()).isEqualTo(intervals.length);
+    assertThat(iDescriptor.getIntervalSizes()).hasSize(intervals.length);
     for (int i = 0; i < intervals.length; i++) {
       assertThat(iDescriptor.getIntervalSizes().get(i)).isEqualTo(intervals[i]);
     }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIntervalAggregationDescriptorEmptyIntervalSizes() {
+    IntervalAggregationDescriptor iDescriptor =
+        IntervalAggregationDescriptor.create(Arrays.asList(new Duration[] { }));
   }
 }

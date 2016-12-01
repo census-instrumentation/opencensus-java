@@ -24,9 +24,13 @@ import java.util.List;
  */
 public final class IntervalAggregationDescriptor {
   /**
-   * Constructs a new {@link IntervalAggregationDescriptor}.
+   * Constructs a new {@link IntervalAggregationDescriptor}. The given {@code intervalSizes} must
+   * have at least one entry.
    */
   public static IntervalAggregationDescriptor create(List<Duration> intervalSizes) {
+    if (intervalSizes.isEmpty()) {
+      throw new IllegalArgumentException("There must be at least one interval size.");
+    }
     return new IntervalAggregationDescriptor(
         Collections.unmodifiableList(new ArrayList<Duration>(intervalSizes)));
   }

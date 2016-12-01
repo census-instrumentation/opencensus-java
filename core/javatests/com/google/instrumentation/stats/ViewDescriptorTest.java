@@ -15,6 +15,8 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
@@ -35,25 +37,18 @@ import org.junit.runners.JUnit4;
 public final class ViewDescriptorTest {
   @Test
   public void testDistributionViewDescriptor() {
-    String name = "test-view-name";
-    String description = "test-view-name description";
-    MeasurementDescriptor mDescriptor = MeasurementDescriptor.create(
-        "measurement",
-        "measurement description",
-        MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
     DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
-    List<TagKey> keys = Arrays.asList(new TagKey[] { new TagKey("foo"), new TagKey("bar") });
-    final DistributionViewDescriptor viewDescriptor =
-        DistributionViewDescriptor.create(name, description, mDescriptor, dAggrDescriptor, keys);
+    final ViewDescriptor viewDescriptor = DistributionViewDescriptor.create(
+        name, description, measurementDescriptor, dAggrDescriptor, keys);
 
     assertThat(viewDescriptor.getName()).isEqualTo(name);
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
-    assertThat(viewDescriptor.getMeasurementDescriptor().getName()).isEqualTo(mDescriptor.getName());
-    assertThat(viewDescriptor.getDistributionAggregationDescriptor()).isEqualTo(dAggrDescriptor);
-    assertThat(viewDescriptor.getTagKeys().size()).isEqualTo(2);
+    assertThat(viewDescriptor.getMeasurementDescriptor().getName())
+        .isEqualTo(measurementDescriptor.getName());
+    assertThat(viewDescriptor.getTagKeys()).hasSize(2);
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
-    assertThat(viewDescriptor.match(
+    assertTrue(viewDescriptor.match(
         new Function<DistributionViewDescriptor, Boolean> () {
           @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
             return dViewDescriptor == viewDescriptor;
@@ -63,32 +58,26 @@ public final class ViewDescriptorTest {
           @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
             return false;
           }
-        })).isTrue();
+        }));
   }
 
   @Test
   public void testIntervalViewDescriptor() {
-    String name = "test-view-name";
-    String description = "test-view-name description";
-    MeasurementDescriptor mDescriptor = MeasurementDescriptor.create(
-        "measurement",
-        "measurement description",
-        MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
-    List<Duration> intervals = Arrays.asList(new Duration[] {
-          Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)});
-    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(intervals);
-    List<TagKey> keys = Arrays.asList(new TagKey[] { new TagKey("foo"), new TagKey("bar") });
-    final IntervalViewDescriptor viewDescriptor =
-        IntervalViewDescriptor.create(name, description, mDescriptor, iAggrDescriptor, keys);
+    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
+        Arrays.asList(new Duration[] {
+          Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)
+            }));
+    final ViewDescriptor viewDescriptor = IntervalViewDescriptor.create(
+        name, description, measurementDescriptor, iAggrDescriptor, keys);
 
     assertThat(viewDescriptor.getName()).isEqualTo(name);
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
-    assertThat(viewDescriptor.getMeasurementDescriptor().getName()).isEqualTo(mDescriptor.getName());
-    assertThat(viewDescriptor.getIntervalAggregationDescriptor()).isEqualTo(iAggrDescriptor);
-    assertThat(viewDescriptor.getTagKeys().size()).isEqualTo(2);
+    assertThat(viewDescriptor.getMeasurementDescriptor().getName())
+        .isEqualTo(measurementDescriptor.getName());
+    assertThat(viewDescriptor.getTagKeys()).hasSize(2);
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
-    assertThat(viewDescriptor.match(
+    assertTrue(viewDescriptor.match(
         new Function<DistributionViewDescriptor, Boolean> () {
           @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
             return false;
@@ -98,6 +87,15 @@ public final class ViewDescriptorTest {
           @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
             return iViewDescriptor == viewDescriptor;
           }
-        })).isTrue();
+        }));
   }
+
+  private final String name = "test-view-name";
+  private final String description = "test-view-name description";
+  private final MeasurementDescriptor measurementDescriptor = MeasurementDescriptor.create(
+      "measurement",
+      "measurement description",
+      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
+  private final List<TagKey> keys = Arrays.asList(
+      new TagKey[] { new TagKey("foo"), new TagKey("bar") });
 }
