@@ -13,68 +13,121 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
-
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
+import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.List;
 
 /**
- * Provides the actual measurment data for the associated {@link ViewDescriptor} over an interval
- * of time.
+ * The aggregated data for a particular {@link ViewDescriptor}.
  */
-public final class View {
+public abstract class View {
   /**
-   * Creates a new {@link View}.
+   * The {@link ViewDescriptor} associated with this {@link View}.
    */
-  public static View create(ViewDescriptor viewDescriptor, List<Aggregation> aggregations,
-      Timestamp start, Timestamp end) {
-    return new View(viewDescriptor, aggregations, start, end);
+  public abstract ViewDescriptor getViewDescriptor();
+
+  /**
+   * Applies the given match function to the underlying data type.
+   */
+  public abstract <T> T match(
+      Function<DistributionView, T> p0,
+      Function<IntervalView, T> p1);
+
+  // Prevents this class from being subclassed anywhere else.
+  private View() {
   }
 
   /**
-   * The {@link ViewDescriptor} asscoiated with this {@link View}.
+   * A {@link View} for distribution-based aggregations.
    */
-  public ViewDescriptor getViewDescriptor() {
-    return viewDescriptor;
+  public static final class DistributionView extends View {
+    /**
+     * Constructs a new {@link DistributionView}.
+     */
+    public static DistributionView create(DistributionViewDescriptor distributionViewDescriptor,
+        List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
+      return new DistributionView(distributionViewDescriptor, distributionAggregations, start, end);
+    }
+
+    /**
+     * The {@link DistributionAggregation}s associated with this {@link DistributionView}.
+     *
+     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
+     * UnsupportedOperationException.
+     */
+    public List<DistributionAggregation> getDistributionAggregations() {
+      return distributionAggregations;
+    }
+
+    @Override
+    public DistributionViewDescriptor getViewDescriptor() {
+      return distributionViewDescriptor;
+    }
+
+    @Override
+    public <T> T match(
+        Function<DistributionView, T> p0,
+        Function<IntervalView, T> p1) {
+      return p0.apply(this);
+    }
+
+    private final DistributionViewDescriptor distributionViewDescriptor;
+    private final List<DistributionAggregation> distributionAggregations;
+    private final Timestamp start;
+    private final Timestamp end;
+
+    private DistributionView(DistributionViewDescriptor distributionViewDescriptor,
+        List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
+      this.distributionViewDescriptor = distributionViewDescriptor;
+      this.distributionAggregations = distributionAggregations;
+      this.start = start;
+      this.end = end;
+    }
   }
 
   /**
-   * The data for this View. Aggregations will have a unique set of {@link TagValue}s associated
-   * with the {@link View}'s {@link TagKey}s.
+   * A {@link View} for interval-base aggregations.
    */
-  public List<Aggregation> getAggregations() {
-    return aggregations;
-  }
+  public static final class IntervalView extends View {
+    /**
+     * Constructs a new {@link IntervalView}.
+     */
+    public static IntervalView create(IntervalViewDescriptor intervalViewDescriptor,
+        List<IntervalAggregation> intervalAggregations) {
+      return new IntervalView(intervalViewDescriptor, intervalAggregations);
+    }
 
-  /**
-   * Start {@link Timestamp} over which the Aggregations were accumulated.
-   *
-   * <p>Note: This value is not relevant/defined for {@link Aggregation.IntervalAggregation}s, which
-   * are always accumulated over a fixed time period.
-   */
-  public Timestamp getStart() {
-    return start;
-  }
+    /**
+     * The {@link IntervalAggregation}s associated with this {@link IntervalView}.
+     *
+     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
+     * UnsupportedOperationException.
+     */
+    public List<IntervalAggregation> getIntervalAggregations() {
+      return intervalAggregations;
+    }
 
-  /**
-   * End {@link Timestamp} over which the Aggregations were accumulated.
-   *
-   * <p>Note: This value is not relevant/defined for {@link Aggregation.IntervalAggregation}s, which
-   * are always accumulated over a fixed time period.
-   */
-  public Timestamp getEnd() {
-    return end;
-  }
+    @Override
+    public IntervalViewDescriptor getViewDescriptor() {
+      return intervalViewDescriptor;
+    }
 
-  private final ViewDescriptor viewDescriptor;
-  private final List<Aggregation> aggregations;
-  private final Timestamp start;
-  private final Timestamp end;
+    @Override
+    public <T> T match(
+        Function<DistributionView, T> p0,
+        Function<IntervalView, T> p1) {
+      return p1.apply(this);
+    }
 
-  private View(ViewDescriptor viewDescriptor, List<Aggregation> aggregations,
-      Timestamp start, Timestamp end) {
-    this.viewDescriptor = viewDescriptor;
-    this.aggregations = aggregations;
-    this.start = start;
-    this.end = end;
+    private final IntervalViewDescriptor intervalViewDescriptor;
+    private final List<IntervalAggregation> intervalAggregations;
+
+    private IntervalView(IntervalViewDescriptor intervalViewDescriptor,
+        List<IntervalAggregation> intervalAggregations) {
+      this.intervalViewDescriptor = intervalViewDescriptor;
+      this.intervalAggregations = intervalAggregations;
+    }
   }
 }

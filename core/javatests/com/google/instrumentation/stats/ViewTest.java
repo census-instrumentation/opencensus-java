@@ -15,16 +15,20 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertTrue;
+
 import com.google.instrumentation.common.Duration;
+import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
-import com.google.instrumentation.stats.Aggregation.DistributionAggregation;
-import com.google.instrumentation.stats.Aggregation.DistributionAggregation.Range;
-import com.google.instrumentation.stats.Aggregation.IntervalAggregation;
-import com.google.instrumentation.stats.Aggregation.IntervalAggregation.Interval;
-import com.google.instrumentation.stats.AggregationDescriptor.DistributionAggregationDescriptor;
-import com.google.instrumentation.stats.AggregationDescriptor.IntervalAggregationDescriptor;
+import com.google.instrumentation.stats.DistributionAggregation.Range;
+import com.google.instrumentation.stats.IntervalAggregation.Interval;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
+import com.google.instrumentation.stats.View.DistributionView;
+import com.google.instrumentation.stats.View.IntervalView;
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
+import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -38,49 +42,63 @@ import org.junit.runners.JUnit4;
 public final class ViewTest {
   @Test
   public void testDistributionView() {
-    DistributionAggregationDescriptor distributionAggrDescriptor =
+    DistributionAggregationDescriptor aggregationDescriptor =
         DistributionAggregationDescriptor.create();
-    ViewDescriptor distributionViewDescriptor =
-        ViewDescriptor.create(
-            name, description, measurementDescriptor, distributionAggrDescriptor, tagKeys);
-    List<Aggregation> aggrs = Arrays.asList(new Aggregation[] {
+    DistributionViewDescriptor viewDescriptor =
+        DistributionViewDescriptor.create(
+            name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
+    List<DistributionAggregation> aggregations = Arrays.asList(new DistributionAggregation[] {
           DistributionAggregation.create(tags1, 5, 5.0, 15.0, Range.create(1.0, 5.0),
               Arrays.asList(new Long[] { 1L, 1L, 1L, 1L, 1L })),
           DistributionAggregation.create(tags2, 10, 5.0, 30.0, Range.create(1.0, 5.0),
               Arrays.asList(new Long[] { 2L, 2L, 2L, 2L, 2L }))
         });
+    Timestamp start = Timestamp.fromMillis(1000);
+    Timestamp end = Timestamp.fromMillis(2000);
+    final View view = DistributionView.create(viewDescriptor, aggregations, start, end);
 
-    View view = View.create(distributionViewDescriptor, aggrs, start, end);
-    assertThat(view.getViewDescriptor()).isEqualTo(distributionViewDescriptor);
-    assertThat(view.getAggregations().size()).isEqualTo(aggrs.size());
-    for (int i = 0; i < aggrs.size(); i++) {
-      assertThat(view.getAggregations().get(i)).isEqualTo(aggrs.get(i));
-    }
-    assertThat(view.getStart()).isEqualTo(start);
-    assertThat(view.getEnd()).isEqualTo(end);
+    assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
+    assertTrue(view.match(
+        new Function<DistributionView, Boolean> () {
+          @Override public Boolean apply(DistributionView dView) {
+            return dView == view;
+          }
+        },
+        new Function<IntervalView, Boolean> () {
+          @Override public Boolean apply(IntervalView iView) {
+            return false;
+          }
+        }));
   }
 
   @Test
   public void testIntervalView() {
-    IntervalAggregationDescriptor intervalAggrDescriptor = IntervalAggregationDescriptor.create();
-    ViewDescriptor intervalViewDescriptor =
-        ViewDescriptor.create(
-            name, description, measurementDescriptor, intervalAggrDescriptor, tagKeys);
-    List<Aggregation> aggrs = Arrays.asList(new Aggregation[] {
+    IntervalAggregationDescriptor aggregationDescriptor =
+        IntervalAggregationDescriptor.create(
+            Arrays.asList (new Duration[] { Duration.fromMillis(111) }));
+    IntervalViewDescriptor viewDescriptor =
+        IntervalViewDescriptor.create(
+            name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
+    List<IntervalAggregation> aggregations = Arrays.asList(new IntervalAggregation[] {
           IntervalAggregation.create(tags1, Arrays.asList(
               new Interval[] { Interval.create(Duration.fromMillis(111), 10, 100) })),
           IntervalAggregation.create(tags2, Arrays.asList(
               new Interval[] { Interval.create(Duration.fromMillis(111), 10, 100) }))
         });
 
-    View view = View.create(intervalViewDescriptor, aggrs, start, end);
-    assertThat(view.getViewDescriptor()).isEqualTo(intervalViewDescriptor);
-    assertThat(view.getAggregations().size()).isEqualTo(aggrs.size());
-    for (int i = 0; i < aggrs.size(); i++) {
-      assertThat(view.getAggregations().get(i)).isEqualTo(aggrs.get(i));
-    }
-    assertThat(view.getStart()).isEqualTo(start);
-    assertThat(view.getEnd()).isEqualTo(end);
+    final View view = IntervalView.create(viewDescriptor, aggregations);
+    assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
+    assertTrue(view.match(
+        new Function<DistributionView, Boolean> () {
+          @Override public Boolean apply(DistributionView dView) {
+            return false;
+          }
+        },
+        new Function<IntervalView, Boolean> () {
+          @Override public Boolean apply(IntervalView iView) {
+            return iView == view;
+          }
+        }));
   }
 
   // tag keys
@@ -107,7 +125,4 @@ public final class ViewTest {
       "measurement-descriptor",
       "measurement-descriptor description",
       MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
-  // time stamps
-  private final Timestamp start = Timestamp.fromMillis(1000);
-  private final Timestamp end = Timestamp.fromMillis(2000);
 }
