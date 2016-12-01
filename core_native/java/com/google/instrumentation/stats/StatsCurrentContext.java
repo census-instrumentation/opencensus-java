@@ -14,21 +14,21 @@
 package com.google.instrumentation.stats;
 
 /**
- * Native implementation of thread-local {@link CensusContext}.
+ * Native implementation of thread-local {@link StatsContext}.
  */
-class CensusCurrentContext {
-  static final ThreadLocal<CensusContextImpl> contexts = new ThreadLocal<CensusContextImpl>() {
+class StatsCurrentContext {
+  static final ThreadLocal<StatsContextImpl> contexts = new ThreadLocal<StatsContextImpl>() {
     @Override
-    protected CensusContextImpl initialValue() {
-      return CensusContextFactoryImpl.DEFAULT;
+    protected StatsContextImpl initialValue() {
+      return StatsContextFactoryImpl.DEFAULT;
     }
   };
 
-  public static void set(CensusContextImpl context) {
+  public static void set(StatsContextImpl context) {
     contexts.set(context);
   }
 
-  public static CensusContextImpl get() {
+  public static StatsContextImpl get() {
     return contexts.get();
   }
 }

@@ -22,16 +22,16 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 /**
- * Native implementation {@link CensusContext} serialization.
+ * Native implementation {@link StatsContext} serialization.
  */
-final class CensusSerializer {
+final class StatsSerializer {
   private static final char TAG_PREFIX = '\2';
   private static final char TAG_DELIM = '\3';
 
 
-  // Serializes a CensusContext by transforming it into a CensusContextProto. The
+  // Serializes a StatsContext by transforming it into a CensusContextProto. The
   // encoded tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
-  static ByteBuffer serialize(CensusContextImpl context) {
+  static ByteBuffer serialize(StatsContextImpl context) {
     StringBuilder builder = new StringBuilder();
     for (Entry<String, String> tag : context.tags.entrySet()) {
       builder
@@ -47,11 +47,11 @@ final class CensusSerializer {
   // Deserializes based on an serialized CensusContextProto. The encoded tags are of the form:
   // (<tag prefix> + 'key' + <tag delim> + 'value')*
   @Nullable
-  static CensusContextImpl deserialize(ByteBuffer buffer) {
+  static StatsContextImpl deserialize(ByteBuffer buffer) {
     try {
       CensusContextProto.CensusContext context =
           CensusContextProto.CensusContext.parser().parseFrom(buffer.array());
-      return new CensusContextImpl(tagsFromString(context.getTags()));
+      return new StatsContextImpl(tagsFromString(context.getTags()));
     } catch (IllegalArgumentException e) {
       return null;
     } catch (InvalidProtocolBufferException e) {

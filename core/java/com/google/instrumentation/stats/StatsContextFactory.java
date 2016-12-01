@@ -17,23 +17,23 @@ import java.nio.ByteBuffer;
 import javax.annotation.Nullable;
 
 /**
- * Factory class for {@link CensusContext}.
+ * Factory class for {@link StatsContext}.
  */
-public abstract class CensusContextFactory {
+public abstract class StatsContextFactory {
   /**
-   * Creates a {@link CensusContext} from the given on-the-wire encoded representation.
+   * Creates a {@link StatsContext} from the given on-the-wire encoded representation.
    *
-   * <p>Should be the inverse of {@link CensusContext#serialize()}. The serialized representation
-   * should be based on the {@link CensusContext} protobuf representation.
+   * <p>Should be the inverse of {@link StatsContext#serialize()}. The serialized representation
+   * should be based on the {@link StatsContext} protobuf representation.
    *
-   * @param buffer on-the-wire representation of a {@link CensusContext}
-   * @return a {@link CensusContext} deserialized from {@code buffer}
+   * @param buffer on-the-wire representation of a {@link StatsContext}
+   * @return a {@link StatsContext} deserialized from {@code buffer}
    */
   @Nullable
-  public abstract CensusContext deserialize(ByteBuffer buffer);
+  public abstract StatsContext deserialize(ByteBuffer buffer);
 
   /**
-   * Returns the default {@link CensusContext}.
+   * Returns the default {@link StatsContext}.
    */
-  public abstract CensusContext getDefault();
+  public abstract StatsContext getDefault();
 }

@@ -23,14 +23,14 @@ import org.junit.runners.JUnit4;
  * Tests for {@link RpcConstants}
  */
 @RunWith(JUnit4.class)
-public final class CensusTest {
+public final class StatsTest {
   @Test
-  public void getCensusContextFactory() {
-    assertThat(Census.getCensusContextFactory()).isNotNull();
+  public void getStatsContextFactory() {
+    assertThat(Stats.getStatsContextFactory()).isNotNull();
   }
 
   @Test(expected = AssertionError.class)
   public void testConstructor() {
-    new Census();
+    new Stats();
   }
 }

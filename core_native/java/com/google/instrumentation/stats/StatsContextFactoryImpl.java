@@ -18,26 +18,26 @@ import java.util.HashMap;
 import javax.annotation.Nullable;
 
 /**
- * Native Implementation of {@link CensusContextFactory}.
+ * Native Implementation of {@link StatsContextFactory}.
  */
-public final class CensusContextFactoryImpl extends CensusContextFactory {
-  static final CensusContextImpl DEFAULT = new CensusContextImpl(new HashMap<String, String>(0));
+public final class StatsContextFactoryImpl extends StatsContextFactory {
+  static final StatsContextImpl DEFAULT = new StatsContextImpl(new HashMap<String, String>(0));
 
-  public CensusContextFactoryImpl() {}
+  public StatsContextFactoryImpl() {}
 
   /**
-   * Deserializes a {@link CensusContextImpl} from a serialized {@code CensusContextProto}.
+   * Deserializes a {@link StatsContextImpl} from a serialized {@code StatsContextProto}.
    *
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
   @Override
   @Nullable
-  public CensusContextImpl deserialize(ByteBuffer buffer) {
-    return CensusSerializer.deserialize(buffer);
+  public StatsContextImpl deserialize(ByteBuffer buffer) {
+    return StatsSerializer.deserialize(buffer);
   }
 
   @Override
-  public CensusContext getDefault() {
+  public StatsContext getDefault() {
     return DEFAULT;
   }
 }

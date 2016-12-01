@@ -13,21 +13,24 @@
 
 package com.google.instrumentation.stats;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import java.nio.ByteBuffer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import com.google.instrumentation.common.Provider;
 
 /**
- * Tests for {@link CensusContextFactory}.
+ * {@link Stats}.
  */
-@RunWith(JUnit4.class)
-public class CensusContextFactoryTest {
-  @Test
-  public void testDeserializeEmpty() {
-    assertThat(Census.getCensusContextFactory().deserialize(ByteBuffer.wrap(new byte[0])))
-        .isEqualTo(Census.getCensusContextFactory().getDefault());
+public final class Stats {
+  private static final StatsContextFactory CONTEXT_FACTORY = Provider.newInstance(
+      "com.google.instrumentation.stats.StatsContextFactoryImpl", null);
+
+  /**
+   * Returns the default {@link StatsContextFactory}.
+   */
+  public static StatsContextFactory getStatsContextFactory() {
+    return CONTEXT_FACTORY;
+  }
+
+  // VisibleForTesting
+  Stats() {
+    throw new AssertionError();
   }
 }
