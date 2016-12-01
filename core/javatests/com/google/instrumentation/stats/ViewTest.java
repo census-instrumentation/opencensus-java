@@ -44,7 +44,7 @@ public final class ViewTest {
   public void testDistributionView() {
     DistributionAggregationDescriptor aggregationDescriptor =
         DistributionAggregationDescriptor.create();
-    DistributionViewDescriptor viewDescriptor =
+    final DistributionViewDescriptor viewDescriptor =
         DistributionViewDescriptor.create(
             name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
     List<DistributionAggregation> aggregations = Arrays.asList(new DistributionAggregation[] {
@@ -53,15 +53,19 @@ public final class ViewTest {
           DistributionAggregation.create(tags2, 10, 5.0, 30.0, Range.create(1.0, 5.0),
               Arrays.asList(new Long[] { 2L, 2L, 2L, 2L, 2L }))
         });
-    Timestamp start = Timestamp.fromMillis(1000);
-    Timestamp end = Timestamp.fromMillis(2000);
+    final Timestamp start = Timestamp.fromMillis(1000);
+    final Timestamp end = Timestamp.fromMillis(2000);
     final View view = DistributionView.create(viewDescriptor, aggregations, start, end);
 
     assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
     assertTrue(view.match(
         new Function<DistributionView, Boolean> () {
           @Override public Boolean apply(DistributionView dView) {
-            return dView == view;
+            return dView == view
+                && dView.getViewDescriptor().equals(viewDescriptor)
+                && shallowListEquals(dView.getDistributionAggregations(), aggregations)
+                && dView.getStart().equals(start)
+                && dView.getEnd().equals(end);
           }
         },
         new Function<IntervalView, Boolean> () {
@@ -76,10 +80,10 @@ public final class ViewTest {
     IntervalAggregationDescriptor aggregationDescriptor =
         IntervalAggregationDescriptor.create(
             Arrays.asList (new Duration[] { Duration.fromMillis(111) }));
-    IntervalViewDescriptor viewDescriptor =
+    final IntervalViewDescriptor viewDescriptor =
         IntervalViewDescriptor.create(
             name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
-    List<IntervalAggregation> aggregations = Arrays.asList(new IntervalAggregation[] {
+    final List<IntervalAggregation> aggregations = Arrays.asList(new IntervalAggregation[] {
           IntervalAggregation.create(tags1, Arrays.asList(
               new Interval[] { Interval.create(Duration.fromMillis(111), 10, 100) })),
           IntervalAggregation.create(tags2, Arrays.asList(
@@ -96,7 +100,9 @@ public final class ViewTest {
         },
         new Function<IntervalView, Boolean> () {
           @Override public Boolean apply(IntervalView iView) {
-            return iView == view;
+            return iView == view
+                && iView.getViewDescriptor().equals(viewDescriptor)
+                && shallowListEquals(iView.getIntervalAggregations(), aggregations);
           }
         }));
   }
@@ -125,4 +131,16 @@ public final class ViewTest {
       "measurement-descriptor",
       "measurement-descriptor description",
       MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
+
+  private static final <T> boolean shallowListEquals(List<T> l1, List <T> l2) {
+    if (l1.size() != l2.size()) {
+      return false;
+    }
+    for (int i = 0; i < l1.size(); i++) {
+      if (l1.get(i) != l2.get(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

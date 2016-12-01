@@ -62,6 +62,20 @@ public abstract class View {
       return distributionAggregations;
     }
 
+    /**
+     * Returns start timestamp for this aggregation.
+     */
+    Timestamp getStart() {
+      return start;
+    }
+
+    /**
+     * Returns end timestamp for this aggregation.
+     */
+    Timestamp getEnd() {
+      return end;
+    }
+
     @Override
     public DistributionViewDescriptor getViewDescriptor() {
       return distributionViewDescriptor;
