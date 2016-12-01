@@ -15,8 +15,9 @@ package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Function;
-import java.util.Arrays;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -80,7 +81,7 @@ public final class DistributionAggregation {
    */
   public double getSum() {
     return sum;
-  };
+  }
 
   /**
    * The range of the population values. If {@link getCount()} is zero then this returned range is
