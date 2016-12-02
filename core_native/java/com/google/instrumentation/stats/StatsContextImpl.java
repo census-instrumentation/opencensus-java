@@ -17,12 +17,12 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 /**
- * Native Implementation of {@link CensusContext}.
+ * Native Implementation of {@link StatsContext}.
  */
-final class CensusContextImpl extends CensusContext {
+final class StatsContextImpl extends StatsContext {
   final HashMap<String, String> tags;
 
-  CensusContextImpl(HashMap<String, String> tags) {
+  StatsContextImpl(HashMap<String, String> tags) {
     this.tags = tags;
   }
 
@@ -32,23 +32,23 @@ final class CensusContextImpl extends CensusContext {
   }
 
   @Override
-  public CensusContextImpl record(MeasurementMap stats) {
+  public StatsContextImpl record(MeasurementMap stats) {
     return this;
   }
 
   /**
-   * Serializes a {@link CensusContextImpl} into {@code CensusContextProto} serialized format.
+   * Serializes a {@link StatsContextImpl} into {@code CensusContextProto} serialized format.
    *
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
   @Override
   public ByteBuffer serialize() {
-    return CensusSerializer.serialize(this);
+    return StatsSerializer.serialize(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    return (obj instanceof CensusContextImpl) && tags.equals(((CensusContextImpl) obj).tags);
+    return (obj instanceof StatsContextImpl) && tags.equals(((StatsContextImpl) obj).tags);
   }
 
   @Override
@@ -61,7 +61,7 @@ final class CensusContextImpl extends CensusContext {
     return tags.toString();
   }
 
-  private static final class Builder extends CensusContext.Builder {
+  private static final class Builder extends StatsContext.Builder {
     private final HashMap<String, String> tags;
 
     private Builder(HashMap<String, String> tags) {
@@ -75,8 +75,8 @@ final class CensusContextImpl extends CensusContext {
     }
 
     @Override
-    public CensusContext build() {
-      return new CensusContextImpl(new HashMap<String, String>(tags));
+    public StatsContext build() {
+      return new StatsContextImpl(new HashMap<String, String>(tags));
     }
   }
 }

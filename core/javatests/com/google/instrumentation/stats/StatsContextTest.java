@@ -21,13 +21,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link CensusContext}.
+ * Tests for {@link StatsContext}.
  */
 @RunWith(JUnit4.class)
-public class CensusContextTest {
-  private static final CensusContext DEFAULT = Census.getCensusContextFactory().getDefault();
+public class StatsContextTest {
+  private static final StatsContext DEFAULT = Stats.getStatsContextFactory().getDefault();
 
-  private static final MeasurementDescriptor[] CensusMeasurementDescriptors = {
+  private static final MeasurementDescriptor[] StatsMeasurementDescriptors = {
     RpcConstants.RPC_CLIENT_REQUEST_BYTES, RpcConstants.RPC_CLIENT_RESPONSE_BYTES,
     RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, RpcConstants.RPC_SERVER_REQUEST_BYTES,
     RpcConstants.RPC_SERVER_RESPONSE_BYTES, RpcConstants.RPC_SERVER_SERVER_LATENCY
@@ -63,16 +63,16 @@ public class CensusContextTest {
 
   @Test
   public void testWithComposed() {
-    CensusContext context1 = DEFAULT.with(K1, V1);
+    StatsContext context1 = DEFAULT.with(K1, V1);
     assertThat(DEFAULT.builder().set(K1, V1).build()).isEqualTo(context1);
 
-    CensusContext context2 = context1.with(K1, V10, K2, V2);
+    StatsContext context2 = context1.with(K1, V10, K2, V2);
     assertThat(DEFAULT.with(K1, V10, K2, V2)).isEqualTo(context2);
 
-    CensusContext context3 = context2.with(K1, V100, K2, V20, K3, V3);
+    StatsContext context3 = context2.with(K1, V100, K2, V20, K3, V3);
     assertThat(DEFAULT.with(K1, V100, K2, V20, K3, V3)).isEqualTo(context3);
 
-    CensusContext context4 = context3.with(K3, V30, K4, V4);
+    StatsContext context4 = context3.with(K3, V30, K4, V4);
     assertThat(DEFAULT.builder().set(K1, V100).set(K2, V20).set(K3, V30).set(K4, V4).build())
         .isEqualTo(context4);
   }
@@ -80,9 +80,9 @@ public class CensusContextTest {
 
   @Test
   public void testRecordEachMeasurement() {
-    CensusContext context = DEFAULT.with(K1, V1);
+    StatsContext context = DEFAULT.with(K1, V1);
     double value = 44.0;
-    for (MeasurementDescriptor descriptor : CensusMeasurementDescriptors) {
+    for (MeasurementDescriptor descriptor : StatsMeasurementDescriptors) {
       MeasurementMap measurements = MeasurementMap.of(descriptor, value);
       context.record(measurements);
       //verify(context.context).record(measurements);
@@ -92,10 +92,10 @@ public class CensusContextTest {
 
   @Test
   public void testRecordAllMeasurements() {
-    CensusContext context = DEFAULT.with(K1, V1);
+    StatsContext context = DEFAULT.with(K1, V1);
     double value = 44.0;
     MeasurementMap.Builder builder = MeasurementMap.builder();
-    for (MeasurementDescriptor descriptor : CensusMeasurementDescriptors) {
+    for (MeasurementDescriptor descriptor : StatsMeasurementDescriptors) {
       MeasurementMap measurements = builder.put(descriptor, value).build();
       context.record(measurements);
       //verify(context.context).record(measurements);
@@ -137,8 +137,8 @@ public class CensusContextTest {
     assertThat(DEFAULT.with(K1, V10).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
   }
 
-  private static void testSerialization(CensusContext expected) {
-    CensusContext actual = Census.getCensusContextFactory().deserialize(expected.serialize());
+  private static void testSerialization(StatsContext expected) {
+    StatsContext actual = Stats.getStatsContextFactory().deserialize(expected.serialize());
     assertThat(actual).isEqualTo(expected);
   }
 }

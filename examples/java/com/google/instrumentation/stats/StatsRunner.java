@@ -19,9 +19,9 @@ import io.grpc.Context;
 import java.util.Arrays;
 
 /**
- * Simple program that uses Census contexts.
+ * Simple program that uses Stats contexts.
  */
-public class CensusRunner {
+public class StatsRunner {
   private static final TagKey K1 = new TagKey("k1");
   private static final TagKey K2 = new TagKey("k2");
   private static final TagKey K3 = new TagKey("k3");
@@ -40,22 +40,22 @@ public class CensusRunner {
       MeasurementDescriptor.create("m2", "2nd test metric", simpleMeasurementUnit);
 
   public static void main(String[] args) {
-    System.out.println("Hello Census World");
+    System.out.println("Hello Stats World");
     System.out.println("Default Tags: " + DEFAULT);
-    System.out.println("Current Tags: " + getCurrentCensusContext());
+    System.out.println("Current Tags: " + getCurrentStatsContext());
     Context context1 = withCurrent(DEFAULT.with(K1, V1, K2, V2));
     Context original = context1.attach();
     try {
-        System.out.println("  Current Tags: " + getCurrentCensusContext());
+        System.out.println("  Current Tags: " + getCurrentStatsContext());
         System.out.println("  Current == Default + tags1: "
-            + getCurrentCensusContext().equals(getCensusContext(context1)));
-        Context context2 = withCurrent(getCurrentCensusContext().with(K3, V3, K4, V4));
+            + getCurrentStatsContext().equals(getStatsContext(context1)));
+        Context context2 = withCurrent(getCurrentStatsContext().with(K3, V3, K4, V4));
         context2.attach();
         try {
-          System.out.println("    Current Tags: " + getCurrentCensusContext());
+          System.out.println("    Current Tags: " + getCurrentStatsContext());
           System.out.println("    Current == Default + tags1 + tags2: "
-              + getCurrentCensusContext().equals(getCensusContext(context2)));
-          getCurrentCensusContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
+              + getCurrentStatsContext().equals(getStatsContext(context2)));
+          getCurrentStatsContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
         } finally {
           context2.detach(context1);
         }
@@ -63,23 +63,23 @@ public class CensusRunner {
       context1.detach(original);
     }
     System.out.println("Current == Default: "
-        + getCurrentCensusContext().equals(DEFAULT));
+        + getCurrentStatsContext().equals(DEFAULT));
   }
 
-  private static final CensusContext DEFAULT = Census.getCensusContextFactory().getDefault();
+  private static final StatsContext DEFAULT = Stats.getStatsContextFactory().getDefault();
 
-  private static final Context.Key<CensusContext> CENSUS_CONTEXT_KEY =
-      Context.keyWithDefault("CensusContextKey", DEFAULT);
+  private static final Context.Key<StatsContext> STATS_CONTEXT_KEY =
+      Context.keyWithDefault("StatsContextKey", DEFAULT);
 
-  private static final CensusContext getCurrentCensusContext() {
-    return getCensusContext(Context.current());
+  private static final StatsContext getCurrentStatsContext() {
+    return getStatsContext(Context.current());
   }
 
-  private static final CensusContext getCensusContext(Context context) {
-    return CENSUS_CONTEXT_KEY.get(context);
+  private static final StatsContext getStatsContext(Context context) {
+    return STATS_CONTEXT_KEY.get(context);
   }
 
-  private static final Context withCurrent(CensusContext context) {
-    return Context.current().withValue(CENSUS_CONTEXT_KEY, context);
+  private static final Context withCurrent(StatsContext context) {
+    return Context.current().withValue(STATS_CONTEXT_KEY, context);
   }
 }

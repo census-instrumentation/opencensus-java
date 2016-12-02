@@ -14,26 +14,30 @@
 package com.google.instrumentation.stats;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import javax.annotation.Nullable;
 
 /**
- * Factory class for {@link CensusContext}.
+ * Native Implementation of {@link StatsContextFactory}.
  */
-public abstract class CensusContextFactory {
-  /**
-   * Creates a {@link CensusContext} from the given on-the-wire encoded representation.
-   *
-   * <p>Should be the inverse of {@link CensusContext#serialize()}. The serialized representation
-   * should be based on the {@link CensusContext} protobuf representation.
-   *
-   * @param buffer on-the-wire representation of a {@link CensusContext}
-   * @return a {@link CensusContext} deserialized from {@code buffer}
-   */
-  @Nullable
-  public abstract CensusContext deserialize(ByteBuffer buffer);
+public final class StatsContextFactoryImpl extends StatsContextFactory {
+  static final StatsContextImpl DEFAULT = new StatsContextImpl(new HashMap<String, String>(0));
+
+  public StatsContextFactoryImpl() {}
 
   /**
-   * Returns the default {@link CensusContext}.
+   * Deserializes a {@link StatsContextImpl} from a serialized {@code CensusContextProto}.
+   *
+   * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
-  public abstract CensusContext getDefault();
+  @Override
+  @Nullable
+  public StatsContextImpl deserialize(ByteBuffer buffer) {
+    return StatsSerializer.deserialize(buffer);
+  }
+
+  @Override
+  public StatsContext getDefault() {
+    return DEFAULT;
+  }
 }

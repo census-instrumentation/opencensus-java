@@ -16,50 +16,50 @@ package com.google.instrumentation.stats;
 import java.nio.ByteBuffer;
 
 /**
- * An immutable Census-specific context for an operation.
+ * An immutable context for stats operations.
  */
-public abstract class CensusContext {
+public abstract class StatsContext {
   /**
-   * Returns a builder based on this {@link CensusContext}.
+   * Returns a builder based on this {@link StatsContext}.
    */
   public abstract Builder builder();
 
   /** Shorthand for builder().set(k1, v1).build() */
-  public final CensusContext with(TagKey k1, TagValue v1) {
+  public final StatsContext with(TagKey k1, TagValue v1) {
     return builder().set(k1, v1).build();
   }
 
   /** Shorthand for builder().set(k1, v1).set(k2, v2).build() */
-  public final CensusContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2) {
+  public final StatsContext with(TagKey k1, TagValue v1, TagKey k2, TagValue v2) {
     return builder().set(k1, v1).set(k2, v2).build();
   }
 
   /** Shorthand for builder().set(k1, v1).set(k2, v2).set(k3, v3).build() */
-  public final CensusContext with(
+  public final StatsContext with(
       TagKey k1, TagValue v1, TagKey k2, TagValue v2, TagKey k3, TagValue v3) {
     return builder().set(k1, v1).set(k2, v2).set(k3, v3).build();
   }
 
   /**
-   * Records the given measurements against this {@link CensusContext}.
+   * Records the given measurements against this {@link StatsContext}.
    *
-   * @param measurements the measurements to record against the saved {@link CensusContext}
+   * @param measurements the measurements to record against the saved {@link StatsContext}
    * @return this
    */
-  public abstract CensusContext record(MeasurementMap measurements);
+  public abstract StatsContext record(MeasurementMap measurements);
 
   /**
-   * Serializes the {@link CensusContext} into the on-the-wire representation.
+   * Serializes the {@link StatsContext} into the on-the-wire representation.
    *
-   * <p>The inverse of {@link CensusContextFactory#deserialize(ByteBuffer)} and should be based on
-   * the {@link CensusContext} protobuf representation.
+   * <p>The inverse of {@link StatsContextFactory#deserialize(ByteBuffer)} and should be based on
+   * the {@link StatsContext} protobuf representation.
    *
    * @return serialized bytes.
    */
   public abstract ByteBuffer serialize();
 
   /**
-   * Builder for {@link CensusContext}.
+   * Builder for {@link StatsContext}.
    */
   public abstract static class Builder {
     /**
@@ -72,8 +72,8 @@ public abstract class CensusContext {
     public abstract Builder set(TagKey key, TagValue value);
 
     /**
-     * Builds a {@link CensusContext} from the specified keys and values.
+     * Builds a {@link StatsContext} from the specified keys and values.
      */
-    public abstract CensusContext build();
+    public abstract StatsContext build();
   }
 }

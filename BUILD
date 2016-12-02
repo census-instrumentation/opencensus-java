@@ -39,42 +39,15 @@ java_library(
 )
 
 java_binary(
-    name = "CensusRunner",
-    srcs = ["examples/java/com/google/instrumentation/stats/CensusRunner.java"],
-    main_class = "com.google.instrumentation.stats.CensusRunner",
+    name = "StatsRunner",
+    srcs = ["examples/java/com/google/instrumentation/stats/StatsRunner.java"],
+    main_class = "com.google.instrumentation.stats.StatsRunner",
     deps = [
         ":stats-core",
         ":stats-core_native",
         "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
-    ],
-)
-
-java_test(
-    name = "CensusContextTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/CensusContextTest.java"],
-    deps = [
-        ":stats-core",
-        ":stats-core_native",
-        "@guava//jar",
-        "@guava_testlib//jar",
-        "@jsr305//jar",
-        "@junit//jar",
-        "@truth//jar",
-    ],
-)
-
-java_test(
-    name = "CensusContextFactoryTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/CensusContextFactoryTest.java"],
-    deps = [
-        ":stats-core",
-        ":stats-core_native",
-        "@guava//jar",
-        "@jsr305//jar",
-        "@junit//jar",
-        "@truth//jar",
     ],
 )
 
@@ -137,6 +110,33 @@ java_test(
 java_test(
     name = "RpcConstantsTest",
     srcs = ["core/javatests/com/google/instrumentation/stats/RpcConstantsTest.java"],
+    deps = [
+        ":stats-core",
+        ":stats-core_native",
+        "@guava//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "StatsContextTest",
+    srcs = ["core/javatests/com/google/instrumentation/stats/StatsContextTest.java"],
+    deps = [
+        ":stats-core",
+        ":stats-core_native",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "StatsContextFactoryTest",
+    srcs = ["core/javatests/com/google/instrumentation/stats/StatsContextFactoryTest.java"],
     deps = [
         ":stats-core",
         ":stats-core_native",
