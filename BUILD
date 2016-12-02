@@ -28,8 +28,8 @@ java_library(
 )
 
 java_library(
-    name = "stats-core_native",
-    srcs = glob(["core_native/java/com/google/instrumentation/stats/*.java"]),
+    name = "stats-core_impl",
+    srcs = glob(["core_impl/java/com/google/instrumentation/stats/*.java"]),
     deps = [
         ":stats-core",
         "//proto:census_context-proto-java",
@@ -44,7 +44,7 @@ java_binary(
     main_class = "com.google.instrumentation.stats.StatsRunner",
     deps = [
         ":stats-core",
-        ":stats-core_native",
+        ":stats-core_impl",
         "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
@@ -112,7 +112,7 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/RpcConstantsTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
+        ":stats-core_impl",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
@@ -125,7 +125,7 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/StatsContextTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
+        ":stats-core_impl",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -139,7 +139,7 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/StatsContextFactoryTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
+        ":stats-core_impl",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
@@ -152,7 +152,7 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/StringUtilTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
+        ":stats-core_impl",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -166,7 +166,7 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/TagKeyTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
+        ":stats-core_impl",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
@@ -180,7 +180,7 @@ java_test(
     srcs = ["core/javatests/com/google/instrumentation/stats/TagValueTest.java"],
     deps = [
         ":stats-core",
-        ":stats-core_native",
+        ":stats-core_impl",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",

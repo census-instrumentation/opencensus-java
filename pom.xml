@@ -33,7 +33,7 @@
 
   <modules>
     <module>core</module>
-    <module>core_native</module>
+    <module>core_impl</module>
     <module>proto</module>
   </modules>
 
