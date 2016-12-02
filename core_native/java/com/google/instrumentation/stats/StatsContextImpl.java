@@ -37,7 +37,7 @@ final class StatsContextImpl extends StatsContext {
   }
 
   /**
-   * Serializes a {@link StatsContextImpl} into {@code StatsContextProto} serialized format.
+   * Serializes a {@link StatsContextImpl} into {@code CensusContextProto} serialized format.
    *
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
