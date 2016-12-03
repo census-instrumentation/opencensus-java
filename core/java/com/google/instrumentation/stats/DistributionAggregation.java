@@ -37,16 +37,16 @@ public final class DistributionAggregation {
    * Constructs a new {@link DistributionAggregation}.
    */
   public static final DistributionAggregation create(
-      List<Tag> tags, long count, double mean, double sum, Range range) {
-    return new DistributionAggregation(tags, count, mean, sum, range, null);
+      long count, double mean, double sum, Range range, List<Tag> tags) {
+    return new DistributionAggregation(count, mean, sum, range, tags, null);
   }
 
   /**
    * Constructs a new {@link DistributionAggregation} with the optional {@code bucketCount}s.
    */
   public static final DistributionAggregation create(
-      List<Tag> tags, long count, double mean, double sum, Range range, List<Long> bucketCounts) {
-    return new DistributionAggregation(tags, count, mean, sum, range,
+      long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
+    return new DistributionAggregation(count, mean, sum, range, tags,
         Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
   }
 
@@ -107,27 +107,30 @@ public final class DistributionAggregation {
    * {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
    *
    * <p>Any suffix of trailing buckets containing only zero may be omitted.
+   *
+   * <p>{@link #getBucketCounts()} will return null iff the associated
+   * {@link DistributionAggregationDescriptor#getBucketBoundaries()} returns null.
    */
   @Nullable
   public List<Long> getBucketCounts() {
     return bucketCounts;
   }
 
-  private final List<Tag> tags;
   private final long count;
   private final double mean;
   private final double sum;
   private final Range range;
+  private final List<Tag> tags;
   private final List<Long> bucketCounts;
 
   private DistributionAggregation(
-      List<Tag> tags, long count, double mean, double sum, Range range,
+      long count, double mean, double sum, Range range, List<Tag> tags,
       @Nullable List<Long> bucketCounts) {
-    this.tags = tags;
     this.count = count;
     this.mean = mean;
     this.sum = sum;
     this.range = range;
+    this.tags = tags;
     this.bucketCounts = bucketCounts;
   }
 

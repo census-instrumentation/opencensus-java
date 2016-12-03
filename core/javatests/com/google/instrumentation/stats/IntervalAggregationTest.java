@@ -30,10 +30,9 @@ import org.junit.runners.JUnit4;
 public final class IntervalAggregationTest {
   @Test
   public void testIntervalAggregation() {
-    List<Interval> intervals =  Arrays.asList(new Interval[] {
-          Interval.create(Duration.fromMillis(10), 100, 1000),
-          Interval.create(Duration.fromMillis(11), 101, 1001)
-        });
+    List<Interval> intervals =  Arrays.asList(
+        Interval.create(Duration.fromMillis(10), 100.0, 1000.0),
+        Interval.create(Duration.fromMillis(11), 101.0, 1001.0));
     IntervalAggregation aggr = IntervalAggregation.create(TAGS, intervals);
 
     assertThat(aggr.getTags()).hasSize(TAGS.size());
@@ -46,12 +45,21 @@ public final class IntervalAggregationTest {
     }
   }
 
+  @Test
+  public void testInterval() {
+    Duration duration = Duration.fromMillis(10);
+    Interval interval = Interval.create(duration, 100.0, 1000.0);
+
+    assertThat(interval.getIntervalSize()).isEqualTo(duration);
+    assertThat(interval.getCount()).isWithin(0.00000001).of(100.0);
+    assertThat(interval.getSum()).isWithin(0.00000001).of(1000.0);
+  }
+
   private static final TagKey K1 = new TagKey("k1");
   private static final TagKey K2 = new TagKey("k2");
 
   private static final TagValue V1 = new TagValue("v1");
   private static final TagValue V2 = new TagValue("v2");
 
-  private static final List<Tag> TAGS =
-      Arrays.asList(new Tag[] { Tag.create(K1, V1), Tag.create(K2, V2) });
+  private static final List<Tag> TAGS = Arrays.asList(Tag.create(K1, V1), Tag.create(K2, V2));
 }

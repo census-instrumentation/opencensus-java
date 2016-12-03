@@ -51,7 +51,7 @@ public final class IntervalAggregation {
     return intervals;
   }
 
-  private List<Tag> tags;
+  private final List<Tag> tags;
   private final List<Interval> intervals;
 
   private IntervalAggregation(List<Tag> tags, List<Interval> intervals) {
@@ -68,8 +68,8 @@ public final class IntervalAggregation {
      *
      * <p>Note: {@code intervalSize} must be positive otherwise behavior is unspecified.
      */
-    public static Interval create(Duration intervalSize, long count, double mean) {
-      return new Interval(intervalSize, count, mean);
+    public static Interval create(Duration intervalSize, double count, double sum) {
+      return new Interval(intervalSize, count, sum);
     }
 
     /**
@@ -82,25 +82,25 @@ public final class IntervalAggregation {
     /**
      * The number of measurements in this interval.
      */
-    public long getCount() {
+    public double getCount() {
       return count;
     }
 
     /**
-     * The arithmetic mean of all measurements in the interval.
+     * The cumulative sum of measurements in this interval.
      */
-    public double getMean() {
-      return mean;
+    public double getSum() {
+      return sum;
     }
 
     private final Duration intervalSize;
-    private final long count;
-    private final double mean;
+    private final double count;
+    private final double sum;
 
-    private Interval(Duration intervalSize, long count, double mean) {
+    private Interval(Duration intervalSize, double count, double sum) {
       this.intervalSize = intervalSize;
       this.count = count;
-      this.mean = mean;
+      this.sum = sum;
     }
   }
 }

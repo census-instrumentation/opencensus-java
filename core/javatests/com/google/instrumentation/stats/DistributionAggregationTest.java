@@ -30,31 +30,27 @@ import org.junit.runners.JUnit4;
 public final class DistributionAggregationTest {
   @Test
   public void testDistributionAggregationWithOutBuckets() {
-    DistributionAggregation aggr = DistributionAggregation.create(TAGS, 10, 5.0, 30.0,
-        Range.create(1.0, 5.0));
+    DistributionAggregation aggr = DistributionAggregation.create(10, 5.0, 30.0,
+        Range.create(1.0, 5.0), TAGS);
 
-    assertThat(aggr.getTags()).hasSize(TAGS.size());
-    for (int i = 0; i < aggr.getTags().size(); i++) {
-      assertThat(aggr.getTags().get(i)).isEqualTo(TAGS.get(i));
-    }
     assertThat(aggr.getCount()).isEqualTo(10);
     assertThat(aggr.getMean()).isEqualTo(5.0);
     assertThat(aggr.getSum()).isEqualTo(30.0);
     assertThat(aggr.getRange().getMin()).isEqualTo(1.0);
     assertThat(aggr.getRange().getMax()).isEqualTo(5.0);
+    assertThat(aggr.getTags()).hasSize(TAGS.size());
+    for (int i = 0; i < aggr.getTags().size(); i++) {
+      assertThat(aggr.getTags().get(i)).isEqualTo(TAGS.get(i));
+    }
     assertThat(aggr.getBucketCounts()).isNull();
   }
 
   @Test
   public void testDistributionAggregationWithBuckets() {
-    List<Long> buckets = Arrays.asList(new Long[] { 2L, 2L, 2L, 2L, 2L });
-    DistributionAggregation aggr = DistributionAggregation.create(TAGS, 10, 5.0, 30.0,
-        Range.create(1.0, 5.0), buckets);
+    List<Long> buckets = Arrays.asList(2L, 2L, 2L, 2L, 2L);
+    DistributionAggregation aggr = DistributionAggregation.create(10, 5.0, 30.0,
+        Range.create(1.0, 5.0), TAGS, buckets);
 
-    assertThat(aggr.getTags()).hasSize(TAGS.size());
-    for (int i = 0; i < aggr.getTags().size(); i++) {
-      assertThat(aggr.getTags().get(i)).isEqualTo(TAGS.get(i));
-    }
     assertThat(aggr.getCount()).isEqualTo(10);
     assertThat(aggr.getMean()).isEqualTo(5.0);
     assertThat(aggr.getSum()).isEqualTo(30.0);
@@ -62,6 +58,10 @@ public final class DistributionAggregationTest {
     assertThat(aggr.getRange().getMax()).isEqualTo(5.0);
     assertThat(aggr.getBucketCounts()).isNotNull();
     assertThat(aggr.getBucketCounts()).hasSize(buckets.size());
+    assertThat(aggr.getTags()).hasSize(TAGS.size());
+    for (int i = 0; i < aggr.getTags().size(); i++) {
+      assertThat(aggr.getTags().get(i)).isEqualTo(TAGS.get(i));
+    }
     for (int i = 0; i < aggr.getBucketCounts().size(); i++) {
       assertThat(aggr.getBucketCounts().get(i)).isEqualTo(buckets.get(i));
     }
@@ -73,6 +73,5 @@ public final class DistributionAggregationTest {
   private static final TagValue V1 = new TagValue("v1");
   private static final TagValue V2 = new TagValue("v2");
 
-  private static final List<Tag> TAGS =
-      Arrays.asList(new Tag[] { Tag.create(K1, V1), Tag.create(K2, V2) });
+  private static final List<Tag> TAGS = Arrays.asList(Tag.create(K1, V1), Tag.create(K2, V2));
 }

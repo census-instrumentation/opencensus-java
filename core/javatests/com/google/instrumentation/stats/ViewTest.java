@@ -43,16 +43,15 @@ public final class ViewTest {
   @Test
   public void testDistributionView() {
     DistributionAggregationDescriptor aggregationDescriptor =
-        DistributionAggregationDescriptor.create();
+        DistributionAggregationDescriptor.create(Arrays.asList(0.0, 10.0, 20.0, 30.0, 40.0));
     final DistributionViewDescriptor viewDescriptor =
         DistributionViewDescriptor.create(
             name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
-    List<DistributionAggregation> aggregations = Arrays.asList(new DistributionAggregation[] {
-          DistributionAggregation.create(tags1, 5, 5.0, 15.0, Range.create(1.0, 5.0),
-              Arrays.asList(new Long[] { 1L, 1L, 1L, 1L, 1L })),
-          DistributionAggregation.create(tags2, 10, 5.0, 30.0, Range.create(1.0, 5.0),
-              Arrays.asList(new Long[] { 2L, 2L, 2L, 2L, 2L }))
-        });
+    List<DistributionAggregation> aggregations = Arrays.asList(
+        DistributionAggregation.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
+            Arrays.asList(1L, 1L, 1L, 1L, 1L)),
+        DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), tags2,
+            Arrays.asList(2L, 2L, 2L, 2L, 2L)));
     final Timestamp start = Timestamp.fromMillis(1000);
     final Timestamp end = Timestamp.fromMillis(2000);
     final View view = DistributionView.create(viewDescriptor, aggregations, start, end);
@@ -78,17 +77,15 @@ public final class ViewTest {
   @Test
   public void testIntervalView() {
     IntervalAggregationDescriptor aggregationDescriptor =
-        IntervalAggregationDescriptor.create(
-            Arrays.asList (new Duration[] { Duration.fromMillis(111) }));
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111)));
     final IntervalViewDescriptor viewDescriptor =
         IntervalViewDescriptor.create(
             name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
-    final List<IntervalAggregation> aggregations = Arrays.asList(new IntervalAggregation[] {
-          IntervalAggregation.create(tags1, Arrays.asList(
-              new Interval[] { Interval.create(Duration.fromMillis(111), 10, 100) })),
-          IntervalAggregation.create(tags2, Arrays.asList(
-              new Interval[] { Interval.create(Duration.fromMillis(111), 10, 100) }))
-        });
+    final List<IntervalAggregation> aggregations = Arrays.asList(
+        IntervalAggregation.create(tags1, Arrays.asList(
+            Interval.create(Duration.fromMillis(111), 10, 100))),
+        IntervalAggregation.create(tags2, Arrays.asList(
+            Interval.create(Duration.fromMillis(111), 10, 100))));
 
     final View view = IntervalView.create(viewDescriptor, aggregations);
     assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
@@ -110,7 +107,7 @@ public final class ViewTest {
   // tag keys
   private static final TagKey K1 = new TagKey("k1");
   private static final TagKey K2 = new TagKey("k2");
-  private final List<TagKey> tagKeys = Arrays.asList(new TagKey[] { K1, K2 });
+  private final List<TagKey> tagKeys = Arrays.asList(K1, K2);
 
   // tag values
   private static final TagValue V1 = new TagValue("v1");
@@ -119,8 +116,8 @@ public final class ViewTest {
   private static final TagValue V20 = new TagValue("v20");
 
   // tags
-  List<Tag> tags1 = Arrays.asList(new Tag[] { Tag.create(K1, V1), Tag.create(K2, V2) });
-  List<Tag> tags2 = Arrays.asList(new Tag[] { Tag.create(K1, V10), Tag.create(K2, V20) });
+  List<Tag> tags1 = Arrays.asList(Tag.create(K1, V1), Tag.create(K2, V2));
+  List<Tag> tags2 = Arrays.asList(Tag.create(K1, V10), Tag.create(K2, V20));
 
   // name
   private final String name = "test-view-descriptor";
@@ -130,7 +127,7 @@ public final class ViewTest {
   private final MeasurementDescriptor measurementDescriptor = MeasurementDescriptor.create(
       "measurement-descriptor",
       "measurement-descriptor description",
-      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
+      MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR)));
 
   private static final <T> boolean shallowListEquals(List<T> l1, List <T> l2) {
     if (l1.size() != l2.size()) {
