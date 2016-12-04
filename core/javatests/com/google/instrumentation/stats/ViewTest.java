@@ -43,7 +43,7 @@ public final class ViewTest {
   @Test
   public void testDistributionView() {
     DistributionAggregationDescriptor aggregationDescriptor =
-        DistributionAggregationDescriptor.create(Arrays.asList(0.0, 10.0, 20.0, 30.0, 40.0));
+        DistributionAggregationDescriptor.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
     final DistributionViewDescriptor viewDescriptor =
         DistributionViewDescriptor.create(
             name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
