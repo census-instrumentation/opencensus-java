@@ -26,11 +26,8 @@ public final class IntervalAggregationDescriptor {
   /**
    * Constructs a new {@link IntervalAggregationDescriptor}.
    *
-   * <p> The number of internal sub-intervals to use when collecting stats for each interval. The
-   * max error in interval measurements will be approximately 1/getNumSubIntervals()
-   * (although in practice, this will only be approached in the presence of very large and bursty
-   * workload changes), and underlying memory usage will be roughly proportional to the value of
-   * this field. Must be in the range [2, 20]. A value of 5 will be used if this is unspecified.
+   * <p> The given {@coded numSubIntervals} must be in the range [2, 20], see
+   * {@link #getSubIntervals()} for more details.
    *
    * <p> The given {@code intervalSizes} must have at least one entry.
    */
@@ -58,9 +55,14 @@ public final class IntervalAggregationDescriptor {
 
   /**
    * The number of sub intervals.
+   *
+   * <p> The number of internal sub-intervals to use when collecting stats for each interval. The
+   * max error in interval measurements will be approximately 1/getNumSubIntervals()
+   * (although in practice, this will only be approached in the presence of very large and bursty
+   * workload changes), and underlying memory usage will be roughly proportional to the value of
+   * this field. Must be in the range [2, 20]. A value of 5 will be used if this is unspecified.
    */
-
-  public int getNumSubintervals() {
+  public int getNumSubIntervals() {
     return numSubIntervals;
   }
 
