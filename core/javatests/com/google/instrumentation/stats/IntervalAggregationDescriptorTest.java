@@ -31,12 +31,42 @@ public final class IntervalAggregationDescriptorTest {
     Duration[] intervals =
         new Duration[] { Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)};
     IntervalAggregationDescriptor iDescriptor =
-         IntervalAggregationDescriptor.create(Arrays.asList(intervals));
+        IntervalAggregationDescriptor.create(12, Arrays.asList(intervals));
+    assertThat(iDescriptor.getNumSubintervals()).isEqualTo(12);
     assertThat(iDescriptor.getIntervalSizes()).isNotNull();
     assertThat(iDescriptor.getIntervalSizes()).hasSize(intervals.length);
     for (int i = 0; i < intervals.length; i++) {
       assertThat(iDescriptor.getIntervalSizes().get(i)).isEqualTo(intervals[i]);
     }
+  }
+
+  @Test
+  public void testIntervalAggregationDescriptorWithDefaultNumSubintervals() {
+    IntervalAggregationDescriptor iDescriptor =
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1)));
+    assertThat(iDescriptor.getNumSubintervals()).isEqualTo(5);
+  }
+
+  @Test
+  public void testIntervalAggregationDescriptorNumSubintervalsRange() {
+    assertThat(IntervalAggregationDescriptor.create(2,
+            Arrays.asList(Duration.fromMillis(1))).getNumSubintervals())
+        .isEqualTo(2);
+    assertThat(IntervalAggregationDescriptor.create(20,
+            Arrays.asList(Duration.fromMillis(1))).getNumSubintervals())
+        .isEqualTo(20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIntervalAggregationDescriptorLowNumSubintervals() {
+    IntervalAggregationDescriptor iDescriptor =
+        IntervalAggregationDescriptor.create(1, Arrays.asList(Duration.fromMillis(1)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIntervalAggregationDescriptorHighNumSubintervals() {
+    IntervalAggregationDescriptor iDescriptor =
+        IntervalAggregationDescriptor.create(21, Arrays.asList(Duration.fromMillis(1)));
   }
 
   @Test(expected = IllegalArgumentException.class)
