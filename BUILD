@@ -32,7 +32,7 @@ java_library(
     srcs = glob(["core_impl/java/com/google/instrumentation/stats/*.java"]),
     deps = [
         ":stats-core",
-        "//proto:census_context-proto-java",
+        "//proto:stats_context-proto-java",
         "@jsr305//jar",
         "@protobuf//jar",
     ],
