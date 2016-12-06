@@ -56,9 +56,9 @@ public final class MeasurementDescriptorTest {
     assertThat(measurement.getName()).isEqualTo("Foo");
     assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
     assertThat(measurement.getUnit().getPower10()).isEqualTo(6);
-    assertThat(measurement.getUnit().getNumerators().size()).isEqualTo(1);
+    assertThat(measurement.getUnit().getNumerators()).hasSize(1);
     assertThat(measurement.getUnit().getNumerators().get(0)).isEqualTo(BasicUnit.BITS);
-    assertThat(measurement.getUnit().getDenominators().size()).isEqualTo(1);
+    assertThat(measurement.getUnit().getDenominators()).hasSize(1);
     assertThat(measurement.getUnit().getDenominators().get(0)).isEqualTo(BasicUnit.SECONDS);
   }
 
