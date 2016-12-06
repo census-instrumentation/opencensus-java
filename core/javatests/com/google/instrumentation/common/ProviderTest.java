@@ -26,7 +26,8 @@ import org.junit.runners.JUnit4;
 public class ProviderTest {
   @Test
   public void testGoodClass() throws Exception {
-    GetGen getGen0 = Provider.newInstance("com.google.instrumentation.common.ProviderTest$GetGen", null);
+    GetGen getGen0 =
+        Provider.newInstance("com.google.instrumentation.common.ProviderTest$GetGen", null);
     assertThat(getGen0).isNotNull();
     assertThat(getGen0.getGen()).isEqualTo(0);
     for (int i = 1; i < 10; i++) {

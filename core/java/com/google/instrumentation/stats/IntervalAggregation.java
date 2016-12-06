@@ -14,13 +14,10 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Duration;
-import com.google.instrumentation.common.Function;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * Contains summary stats over various time intervals.

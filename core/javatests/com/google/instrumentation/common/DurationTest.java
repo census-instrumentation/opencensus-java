@@ -37,14 +37,14 @@ public class DurationTest {
 
   @Test
   public void testDurationFromMillis() {
-    assertThat(Duration.fromMillis(0)).isEqualTo(Duration.create(0,0));
+    assertThat(Duration.fromMillis(0)).isEqualTo(Duration.create(0, 0));
     assertThat(Duration.fromMillis(987)).isEqualTo(Duration.create(0, 987000000));
     assertThat(Duration.fromMillis(3456)).isEqualTo(Duration.create(3, 456000000));
   }
 
   @Test
   public void testDurationFromMillisNegative() {
-    assertThat(Duration.fromMillis(-1)).isEqualTo(Duration.create(0,-1000000));
+    assertThat(Duration.fromMillis(-1)).isEqualTo(Duration.create(0, -1000000));
     assertThat(Duration.fromMillis(-999)).isEqualTo(Duration.create(0, -999000000));
     assertThat(Duration.fromMillis(-1000)).isEqualTo(Duration.create(-1, 0));
     assertThat(Duration.fromMillis(-3456)).isEqualTo(Duration.create(-3, -456000000));
