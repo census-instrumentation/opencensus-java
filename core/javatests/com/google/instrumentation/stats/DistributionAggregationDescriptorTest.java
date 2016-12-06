@@ -15,7 +15,6 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.common.Duration;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;

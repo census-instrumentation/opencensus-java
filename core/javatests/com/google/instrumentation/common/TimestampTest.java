@@ -37,7 +37,7 @@ public class TimestampTest {
 
   @Test
   public void testTimestampFromMillis() {
-    assertThat(Timestamp.fromMillis(0)).isEqualTo(Timestamp.create(0,0));
+    assertThat(Timestamp.fromMillis(0)).isEqualTo(Timestamp.create(0, 0));
     assertThat(Timestamp.fromMillis(987)).isEqualTo(Timestamp.create(0, 987000000));
     assertThat(Timestamp.fromMillis(3456)).isEqualTo(Timestamp.create(3, 456000000));
   }
