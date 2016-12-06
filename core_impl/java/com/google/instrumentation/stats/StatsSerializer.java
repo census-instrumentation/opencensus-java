@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.stats.proto.CensusContextProto;
+import com.google.instrumentation.stats.proto.StatsContextProto;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.nio.ByteBuffer;
@@ -29,7 +29,7 @@ final class StatsSerializer {
   private static final char TAG_DELIM = '\3';
 
 
-  // Serializes a StatsContext by transforming it into a CensusContextProto. The
+  // Serializes a StatsContext by transforming it into a StatsContextProto. The
   // encoded tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
   static ByteBuffer serialize(StatsContextImpl context) {
     StringBuilder builder = new StringBuilder();
@@ -40,17 +40,17 @@ final class StatsSerializer {
           .append(TAG_DELIM)
           .append(tag.getValue());
     }
-    return ByteBuffer.wrap(CensusContextProto.CensusContext
+    return ByteBuffer.wrap(StatsContextProto.StatsContext
         .newBuilder().setTags(builder.toString()).build().toByteArray());
   }
 
-  // Deserializes based on an serialized CensusContextProto. The encoded tags are of the form:
+  // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
   // (<tag prefix> + 'key' + <tag delim> + 'value')*
   @Nullable
   static StatsContextImpl deserialize(ByteBuffer buffer) {
     try {
-      CensusContextProto.CensusContext context =
-          CensusContextProto.CensusContext.parser().parseFrom(buffer.array());
+      StatsContextProto.StatsContext context =
+          StatsContextProto.StatsContext.parser().parseFrom(buffer.array());
       return new StatsContextImpl(tagsFromString(context.getTags()));
     } catch (IllegalArgumentException e) {
       return null;
