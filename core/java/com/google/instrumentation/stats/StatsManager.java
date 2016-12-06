@@ -21,8 +21,8 @@ import java.util.List;
  */
 public abstract class StatsManager {
   /**
-   * Pull model for stats. Registers a {@link @View} that will collect data to be accessed via
-   * {@link getView(ViewDescriptor)}.
+   * Pull model for stats. Registers a {@link View} that will collect data to be accessed via
+   * {@link #getView(ViewDescriptor)}.
    */
   public abstract void registerView(ViewDescriptor view);
 
