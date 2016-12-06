@@ -41,7 +41,7 @@ maven_jar(
 
 maven_jar(
     name = "truth",
-    artifact = "com.google.truth:truth:0.28",
+    artifact = "com.google.truth:truth:0.30",
 )
 
 git_repository(
