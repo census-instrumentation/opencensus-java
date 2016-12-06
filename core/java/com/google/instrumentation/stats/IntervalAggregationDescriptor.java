@@ -26,8 +26,8 @@ public final class IntervalAggregationDescriptor {
   /**
    * Constructs a new {@link IntervalAggregationDescriptor}.
    *
-   * <p> The given {@coded numSubIntervals} must be in the range [2, 20], see
-   * {@link #getSubIntervals()} for more details.
+   * <p> The given {@code numSubIntervals} must be in the range [2, 20], see
+   * {@link #getNumSubIntervals()} for more details.
    *
    * <p> The given {@code intervalSizes} must have at least one entry.
    */
