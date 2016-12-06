@@ -42,36 +42,36 @@ public final class IntervalAggregationDescriptorTest {
 
   @Test
   public void testIntervalAggregationDescriptorWithDefaultNumSubIntervals() {
-    IntervalAggregationDescriptor iDescriptor =
-        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1)));
-    assertThat(iDescriptor.getNumSubIntervals()).isEqualTo(5);
+    assertThat(
+        IntervalAggregationDescriptor.create(
+            Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
+        .isEqualTo(5);
   }
 
   @Test
   public void testIntervalAggregationDescriptorNumSubIntervalsRange() {
-    assertThat(IntervalAggregationDescriptor.create(2,
-            Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
+    assertThat(
+        IntervalAggregationDescriptor.create(
+            2, Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
         .isEqualTo(2);
-    assertThat(IntervalAggregationDescriptor.create(20,
-            Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
+    assertThat(
+        IntervalAggregationDescriptor.create(
+            20, Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
         .isEqualTo(20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testIntervalAggregationDescriptorLowNumSubIntervals() {
-    IntervalAggregationDescriptor iDescriptor =
-        IntervalAggregationDescriptor.create(1, Arrays.asList(Duration.fromMillis(1)));
+    IntervalAggregationDescriptor.create(1, Arrays.asList(Duration.fromMillis(1)));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testIntervalAggregationDescriptorHighNumSubIntervals() {
-    IntervalAggregationDescriptor iDescriptor =
-        IntervalAggregationDescriptor.create(21, Arrays.asList(Duration.fromMillis(1)));
+    IntervalAggregationDescriptor.create(21, Arrays.asList(Duration.fromMillis(1)));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testIntervalAggregationDescriptorEmptyIntervalSizes() {
-    IntervalAggregationDescriptor iDescriptor =
-        IntervalAggregationDescriptor.create(Arrays.asList(new Duration[] { }));
+    IntervalAggregationDescriptor.create(Arrays.asList(new Duration[] { }));
   }
 }
