@@ -15,6 +15,8 @@ package com.google.instrumentation.stats;
 
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
+import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +28,9 @@ public final class RpcConstants {
   /**
    * Census defined tag keys.
    */
-  public static final TagKey RPC_STATUS = new TagKey("/rpc/status");
-  public static final TagKey RPC_CLIENT_METHOD = new TagKey("/rpc/client_method");
-  public static final TagKey RPC_SERVER_METHOD = new TagKey("/rpc/server_method");
+  public static final TagKey RPC_STATUS = TagKey.create("/rpc/status");
+  public static final TagKey RPC_CLIENT_METHOD = TagKey.create("/rpc/client_method");
+  public static final TagKey RPC_SERVER_METHOD = TagKey.create("/rpc/server_method");
 
   // Constants used to define the following MeasurementDescriptors.
   private static final List<BasicUnit> bytes = Arrays.asList(new BasicUnit[] { BasicUnit.BYTES });
@@ -58,8 +60,13 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
       MeasurementDescriptor.create(
           "/rpc/client/roundtrip_latency",
-          "RPC roundtrip latency us",
-          MeasurementUnit.create(-6, scalar));
+          "RPC roundtrip latency msecs",
+          MeasurementUnit.create(-3, scalar));
+  public static final MeasurementDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME =
+      MeasurementDescriptor.create(
+          "/rpc/client/server_elapsed_time",
+          "Server elapsed time in msecs",
+          MeasurementUnit.create(-3, scalar));
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_request_bytes",
@@ -89,6 +96,11 @@ public final class RpcConstants {
           "/rpc/server/response_bytes",
           "Response MB/s",
           MeasurementUnit.create(6, bytes, seconds));
+  public static final MeasurementDescriptor RPC_SERVER_SERVER_ELAPSED_TIME =
+      MeasurementDescriptor.create(
+          "/rpc/server/server_elapsed_time",
+          "Server elapsed time in msecs",
+          MeasurementUnit.create(-3, scalar));
   public static final MeasurementDescriptor RPC_SERVER_SERVER_LATENCY =
       MeasurementDescriptor.create(
           "/rpc/server/server_latency",

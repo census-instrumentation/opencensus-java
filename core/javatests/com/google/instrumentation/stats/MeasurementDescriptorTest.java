@@ -50,9 +50,7 @@ public final class MeasurementDescriptorTest {
         "Foo",
         "The description of Foo",
         MeasurementUnit.create(
-            6,
-            Arrays.asList(new BasicUnit[] { BasicUnit.BITS }),
-            Arrays.asList(new BasicUnit[] { BasicUnit.SECONDS })));
+            6, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS)));
     assertThat(measurement.getName()).isEqualTo("Foo");
     assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
     assertThat(measurement.getUnit().getPower10()).isEqualTo(6);
@@ -66,6 +64,6 @@ public final class MeasurementDescriptorTest {
     return MeasurementDescriptor.create(
         name,
         name + " description",
-        MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
+        MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR)));
   }
 }

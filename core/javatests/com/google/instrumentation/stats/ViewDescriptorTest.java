@@ -64,9 +64,7 @@ public final class ViewDescriptorTest {
   @Test
   public void testIntervalViewDescriptor() {
     IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
-        Arrays.asList(new Duration[] {
-          Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)
-            }));
+        Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
     final ViewDescriptor viewDescriptor = IntervalViewDescriptor.create(
         name, description, measurementDescriptor, iAggrDescriptor, keys);
 
@@ -95,7 +93,6 @@ public final class ViewDescriptorTest {
   private final MeasurementDescriptor measurementDescriptor = MeasurementDescriptor.create(
       "measurement",
       "measurement description",
-      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR })));
-  private final List<TagKey> keys = Arrays.asList(
-      new TagKey[] { new TagKey("foo"), new TagKey("bar") });
+      MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR)));
+  private final List<TagKey> keys = Arrays.asList(TagKey.create("foo"), TagKey.create("bar"));
 }

@@ -18,7 +18,7 @@ package com.google.instrumentation.stats;
  */
 public final class Tag {
   /**
-   * Constructs a new {@link Tag} from the give key and value.
+   * Constructs a new {@link Tag} from the given key and value.
    */
   public static Tag create(TagKey key, TagValue value) {
     return new Tag(key, value);

@@ -21,8 +21,11 @@ package com.google.instrumentation.stats;
 public final class TagKey {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
-  public TagKey(String key) {
-    this.key = StringUtil.sanitize(key);
+  /**
+   * Constructs a new {@link TagKey} from the given string.
+   */
+  public static TagKey create(String key) {
+    return new TagKey(key);
   }
 
   @Override
@@ -41,4 +44,8 @@ public final class TagKey {
   }
 
   private final String key;
+
+  private TagKey(String key) {
+    this.key = StringUtil.sanitize(key);
+  }
 }
