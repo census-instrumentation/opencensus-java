@@ -13,8 +13,6 @@
 
 package com.google.instrumentation.stats;
 
-import java.util.List;
-
 /**
  * Provides facillities to register {@link ViewDescriptor}s for collecting stats and retrieving
  * stats data as a {@link View}.
