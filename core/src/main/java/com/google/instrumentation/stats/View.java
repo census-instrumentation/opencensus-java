@@ -19,6 +19,7 @@ import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescripto
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The aggregated data for a particular {@link ViewDescriptor}.
@@ -47,18 +48,23 @@ public abstract class View {
     /**
      * Constructs a new {@link DistributionView}.
      */
-    public static DistributionView create(DistributionViewDescriptor distributionViewDescriptor,
-        List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
+    public static DistributionView create(
+        DistributionViewDescriptor distributionViewDescriptor,
+        Map<List<TagValue>, DistributionAggregation> distributionAggregations,
+        Timestamp start,
+        Timestamp end) {
       return new DistributionView(distributionViewDescriptor, distributionAggregations, start, end);
     }
 
     /**
      * The {@link DistributionAggregation}s associated with this {@link DistributionView}.
+     * Each one is associated with a different set of tag values. The tag value at index n
+     * corresponds to the tag key at index n in the associated ViewDescriptor.
      *
-     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
+     * <p>Note: The returned map is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
      */
-    public List<DistributionAggregation> getDistributionAggregations() {
+    public Map<List<TagValue>, DistributionAggregation> getDistributionAggregations() {
       return distributionAggregations;
     }
 
@@ -89,12 +95,15 @@ public abstract class View {
     }
 
     private final DistributionViewDescriptor distributionViewDescriptor;
-    private final List<DistributionAggregation> distributionAggregations;
+    private final Map<List<TagValue>, DistributionAggregation> distributionAggregations;
     private final Timestamp start;
     private final Timestamp end;
 
-    private DistributionView(DistributionViewDescriptor distributionViewDescriptor,
-        List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
+    private DistributionView(
+        DistributionViewDescriptor distributionViewDescriptor,
+        Map<List<TagValue>, DistributionAggregation> distributionAggregations,
+        Timestamp start,
+        Timestamp end) {
       this.distributionViewDescriptor = distributionViewDescriptor;
       this.distributionAggregations = distributionAggregations;
       this.start = start;
@@ -110,17 +119,19 @@ public abstract class View {
      * Constructs a new {@link IntervalView}.
      */
     public static IntervalView create(IntervalViewDescriptor intervalViewDescriptor,
-        List<IntervalAggregation> intervalAggregations) {
+        Map<List<TagValue>, IntervalAggregation> intervalAggregations) {
       return new IntervalView(intervalViewDescriptor, intervalAggregations);
     }
 
     /**
      * The {@link IntervalAggregation}s associated with this {@link IntervalView}.
+     * Each one is associated with a different set of tag values. The tag value at index n
+     * corresponds to the tag key at index n in the associated ViewDescriptor.
      *
-     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
+     * <p>Note: The returned map is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
      */
-    public List<IntervalAggregation> getIntervalAggregations() {
+    public Map<List<TagValue>, IntervalAggregation> getIntervalAggregations() {
       return intervalAggregations;
     }
 
@@ -137,10 +148,10 @@ public abstract class View {
     }
 
     private final IntervalViewDescriptor intervalViewDescriptor;
-    private final List<IntervalAggregation> intervalAggregations;
+    private final Map<List<TagValue>, IntervalAggregation> intervalAggregations;
 
     private IntervalView(IntervalViewDescriptor intervalViewDescriptor,
-        List<IntervalAggregation> intervalAggregations) {
+        Map<List<TagValue>, IntervalAggregation> intervalAggregations) {
       this.intervalViewDescriptor = intervalViewDescriptor;
       this.intervalAggregations = intervalAggregations;
     }

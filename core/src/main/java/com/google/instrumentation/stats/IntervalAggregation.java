@@ -27,18 +27,8 @@ public final class IntervalAggregation {
    * Constructs new {@link IntervalAggregation}.
    * TODO(dpo): Determine what we should do it intervals is empty.
    */
-  public static final IntervalAggregation create(List<Tag> tags, List<Interval> intervals) {
-    return new IntervalAggregation(tags, intervals);
-  }
-
-  /**
-   * {@link Tag}s associated with this aggregation.
-   *
-   * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-   * UnsupportedOperationException.
-   */
-  public final List<Tag> getTags() {
-    return tags;
+  public static final IntervalAggregation create(List<Interval> intervals) {
+    return new IntervalAggregation(intervals);
   }
 
   /**
@@ -48,11 +38,9 @@ public final class IntervalAggregation {
     return intervals;
   }
 
-  private final List<Tag> tags;
   private final List<Interval> intervals;
 
-  private IntervalAggregation(List<Tag> tags, List<Interval> intervals) {
-    this.tags = tags;
+  private IntervalAggregation(List<Interval> intervals) {
     this.intervals = Collections.unmodifiableList(new ArrayList<Interval>(intervals));
   }
 
