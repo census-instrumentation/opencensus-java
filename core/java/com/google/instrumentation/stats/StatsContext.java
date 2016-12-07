@@ -52,8 +52,8 @@ public abstract class StatsContext {
   /**
    * Serializes the {@link StatsContext} into the on-the-wire representation.
    *
-   * <p>The inverse of {@link StatsContextFactory#deserialize(ByteBuffer)} and should be based on
-   * the {@link StatsContext} protobuf representation.
+   * <p>The inverse of {@link StatsContextFactory#deserialize(java.io.InputStream)} and should be
+   * based on the {@link StatsContext} protobuf representation.
    *
    * @param output the {@link OutputStream} to add the serialized form of this {@link StatsContext}.
    */
