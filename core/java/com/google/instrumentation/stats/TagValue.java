@@ -22,7 +22,12 @@ public final class TagValue {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
   /**
-   * Constructs a new {@link TagKey} from the given string.
+   * Constructs a new {@link TagValue} from the given string. The string will be sanitize such that:
+   * <ol>
+   * <li>length is restricted to {@link MAX_LENGTH}, strings longer than that will be truncated.
+   * <li>characters are restricted to printable ascii characters, non-printable characters will be
+   * replaced by an underscore '_'.
+   * </ol>
    */
   public static TagValue create(String value) {
     return new TagValue(value);
