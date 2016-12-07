@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 
@@ -42,8 +43,8 @@ final class StatsContextImpl extends StatsContext {
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
   @Override
-  public OutputStream serialize(OutputStream output) {
-    return StatsSerializer.serialize(this, output);
+  public void serialize(OutputStream output) throws IOException {
+    StatsSerializer.serialize(this, output);
   }
 
   @Override

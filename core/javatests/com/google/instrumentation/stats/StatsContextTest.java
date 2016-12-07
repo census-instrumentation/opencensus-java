@@ -18,6 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -142,7 +143,11 @@ public class StatsContextTest {
 
   private static void testSerialization(StatsContext expected) {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    expected.serialize(output);
+    try {
+      expected.serialize(output);
+    } catch (IOException exn) {
+      // ignore
+    }
     ByteBuffer input = ByteBuffer.wrap(output.toByteArray());
     StatsContext actual = Stats.getStatsContextFactory().deserialize(input);
     assertThat(actual).isEqualTo(expected);

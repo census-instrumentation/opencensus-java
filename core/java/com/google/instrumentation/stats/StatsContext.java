@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -55,9 +56,8 @@ public abstract class StatsContext {
    * the {@link StatsContext} protobuf representation.
    *
    * @param output the {@link OutputStream} to add the serialized form of this {@link StatsContext}.
-   * @return the given {@link OutputStream}
    */
-  public abstract OutputStream serialize(OutputStream output);
+  public abstract void serialize(OutputStream output) throws IOException;
 
   /**
    * Builder for {@link StatsContext}.

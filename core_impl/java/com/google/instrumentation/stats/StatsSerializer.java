@@ -33,7 +33,7 @@ final class StatsSerializer {
 
   // Serializes a StatsContext by transforming it into a StatsContextProto. The
   // encoded tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
-  static OutputStream serialize(StatsContextImpl context, OutputStream output) {
+  static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
     StringBuilder builder = new StringBuilder();
     for (Entry<String, String> tag : context.tags.entrySet()) {
       builder
@@ -42,13 +42,7 @@ final class StatsSerializer {
           .append(TAG_DELIM)
           .append(tag.getValue());
     }
-    try {
-      StatsContextProto.StatsContext.newBuilder().setTags(builder.toString()).build()
-          .writeTo(output);
-    } catch (IOException exn) {
-      // ignored
-    }
-    return output;
+    StatsContextProto.StatsContext.newBuilder().setTags(builder.toString()).build().writeTo(output);
   }
 
   // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
