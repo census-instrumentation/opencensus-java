@@ -8,10 +8,13 @@ matrix:
     env: BUILD=MVN
 
   - jdk: oraclejdk7
-    env: BUILD=MVN
+    env: BUILD=MVN STYLE_CHECK=google_checks.xml
 
   - jdk: oraclejdk8
-    env: BUILD=MVN
+    env: BUILD=MVN STYLE_CHECK=google_checks.xml
+
+  - jdk: oraclejdk8
+    env: BUILD=MVN STYLE_CHECK=checkstyle_custom_checks.xml
 
   - jdk: oraclejdk8
     env: BUILD=BAZEL
@@ -49,6 +52,6 @@ script:
           "openjdk6")
             mvn verify -P java6 ;;
           *)
-            mvn verify ;;
+            mvn verify -Dcheckstyle.config=$STYLE_CHECK ;;
         esac
     esac
