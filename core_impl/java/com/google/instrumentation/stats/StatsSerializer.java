@@ -14,14 +14,12 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.stats.proto.StatsContextProto;
-import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 
 /**
  * Native implementation {@link StatsContext} serialization.
@@ -47,17 +45,9 @@ final class StatsSerializer {
 
   // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
   // (<tag prefix> + 'key' + <tag delim> + 'value')*
-  @Nullable
-  static StatsContextImpl deserialize(ByteBuffer input) {
-    try {
-      StatsContextProto.StatsContext context =
-          StatsContextProto.StatsContext.parser().parseFrom(input.array());
-      return new StatsContextImpl(tagsFromString(context.getTags()));
-    } catch (IllegalArgumentException e) {
-      return null;
-    } catch (InvalidProtocolBufferException e) {
-      return null;
-    }
+  static StatsContextImpl deserialize(InputStream input) throws IOException {
+    StatsContextProto.StatsContext context = StatsContextProto.StatsContext.parseFrom(input);
+    return new StatsContextImpl(tagsFromString(context.getTags()));
   }
 
   private static HashMap<String, String> tagsFromString(String encoded) {

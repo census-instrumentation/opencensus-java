@@ -13,9 +13,9 @@
 
 package com.google.instrumentation.stats;
 
-import java.nio.ByteBuffer;
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.HashMap;
-import javax.annotation.Nullable;
 
 /**
  * Native Implementation of {@link StatsContextFactory}.
@@ -31,9 +31,8 @@ public final class StatsContextFactoryImpl extends StatsContextFactory {
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
   @Override
-  @Nullable
-  public StatsContextImpl deserialize(ByteBuffer buffer) {
-    return StatsSerializer.deserialize(buffer);
+  public StatsContextImpl deserialize(InputStream input) throws IOException {
+    return StatsSerializer.deserialize(input);
   }
 
   @Override

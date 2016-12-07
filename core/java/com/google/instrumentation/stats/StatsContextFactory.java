@@ -13,8 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import java.nio.ByteBuffer;
-import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * Factory class for {@link StatsContext}.
@@ -26,11 +26,10 @@ public abstract class StatsContextFactory {
    * <p>Should be the inverse of {@link StatsContext#serialize(java.io.OutputStream)}. The
    * serialized representation should be based on the {@link StatsContext} protobuf representation.
    *
-   * @param buffer on-the-wire representation of a {@link StatsContext}
-   * @return a {@link StatsContext} deserialized from {@code buffer}
+   * @param input on-the-wire representation of a {@link StatsContext}
+   * @return a {@link StatsContext} deserialized from {@code input}
    */
-  @Nullable
-  public abstract StatsContext deserialize(ByteBuffer buffer);
+  public abstract StatsContext deserialize(InputStream input) throws IOException;
 
   /**
    * Returns the default {@link StatsContext}.
