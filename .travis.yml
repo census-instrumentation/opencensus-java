@@ -38,10 +38,12 @@ install:
         cd .. ;;
     esac
 
+# TODO(sebright) Turn on the deprecation warning after the next version of Truth
+# is released. It will undeprecate DoubleSubject.isEqualTo(Double).
 script:
   - case "$BUILD" in
       "BAZEL")
-        bazel test ... ;;
+        bazel test ... --javacopt=-Werror --javawarn=all --javawarn=-deprecation;;
       "MVN")
         case "$TRAVIS_JDK_VERSION" in
           "openjdk6")
