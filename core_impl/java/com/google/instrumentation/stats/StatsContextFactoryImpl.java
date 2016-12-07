@@ -13,8 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 /**
