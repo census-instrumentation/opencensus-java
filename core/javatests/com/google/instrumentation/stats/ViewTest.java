@@ -105,15 +105,15 @@ public final class ViewTest {
   }
 
   // tag keys
-  private static final TagKey K1 = new TagKey("k1");
-  private static final TagKey K2 = new TagKey("k2");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
   private final List<TagKey> tagKeys = Arrays.asList(K1, K2);
 
   // tag values
-  private static final TagValue V1 = new TagValue("v1");
-  private static final TagValue V2 = new TagValue("v2");
-  private static final TagValue V10 = new TagValue("v10");
-  private static final TagValue V20 = new TagValue("v20");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
+  private static final TagValue V10 = TagValue.create("v10");
+  private static final TagValue V20 = TagValue.create("v20");
 
   // tags
   List<Tag> tags1 = Arrays.asList(Tag.create(K1, V1), Tag.create(K2, V2));

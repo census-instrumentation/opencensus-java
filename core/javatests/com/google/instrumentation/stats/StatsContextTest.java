@@ -33,22 +33,22 @@ public class StatsContextTest {
     RpcConstants.RPC_SERVER_RESPONSE_BYTES, RpcConstants.RPC_SERVER_SERVER_LATENCY
   };
 
-  private static final TagKey K_EMPTY = new TagKey("");
-  private static final TagKey K1 = new TagKey("k1");
-  private static final TagKey K2 = new TagKey("k2");
-  private static final TagKey K3 = new TagKey("k3");
-  private static final TagKey K4 = new TagKey("k4");
-  private static final TagKey K10 = new TagKey("k10");
+  private static final TagKey K_EMPTY = TagKey.create("");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
+  private static final TagKey K3 = TagKey.create("k3");
+  private static final TagKey K4 = TagKey.create("k4");
+  private static final TagKey K10 = TagKey.create("k10");
 
-  private static final TagValue V_EMPTY = new TagValue("");
-  private static final TagValue V1 = new TagValue("v1");
-  private static final TagValue V2 = new TagValue("v2");
-  private static final TagValue V3 = new TagValue("v3");
-  private static final TagValue V4 = new TagValue("v4");
-  private static final TagValue V10 = new TagValue("v10");
-  private static final TagValue V20 = new TagValue("v20");
-  private static final TagValue V30 = new TagValue("v30");
-  private static final TagValue V100 = new TagValue("v100");
+  private static final TagValue V_EMPTY = TagValue.create("");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
+  private static final TagValue V3 = TagValue.create("v3");
+  private static final TagValue V4 = TagValue.create("v4");
+  private static final TagValue V10 = TagValue.create("v10");
+  private static final TagValue V20 = TagValue.create("v20");
+  private static final TagValue V30 = TagValue.create("v30");
+  private static final TagValue V100 = TagValue.create("v100");
 
   @Test
   public void testWith() {

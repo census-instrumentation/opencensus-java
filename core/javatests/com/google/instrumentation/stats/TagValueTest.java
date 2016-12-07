@@ -32,14 +32,14 @@ public final class TagValueTest {
     char[] truncValue = new char[TagValue.MAX_LENGTH + 10];
     Arrays.fill(value, 'v');
     Arrays.fill(truncValue, 'v');
-    assertThat(new TagValue(new String(value)).toString())
-        .isEqualTo(new TagValue(new String(truncValue)).toString());
+    assertThat(TagValue.create(new String(value)).toString())
+        .isEqualTo(TagValue.create(new String(truncValue)).toString());
   }
 
   @Test
   public void testValueBadChar() {
     String value = "\2ab\3cd";
-    assertThat(new TagValue(value).toString())
+    assertThat(TagValue.create(value).toString())
         .isEqualTo(StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
                  + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
   }
@@ -47,13 +47,13 @@ public final class TagValueTest {
   @Test
   public void testEquals() {
     new EqualsTester()
-        .addEqualityGroup(new TagValue("foo"), new TagValue("foo"))
-        .addEqualityGroup(new TagValue("bar"))
+        .addEqualityGroup(TagValue.create("foo"), TagValue.create("foo"))
+        .addEqualityGroup(TagValue.create("bar"))
         .testEquals();
   }
 
   @Test
   public void testToString() {
-    assertThat(new TagValue("foo").toString()).isEqualTo("foo");
+    assertThat(TagValue.create("foo").toString()).isEqualTo("foo");
   }
 }

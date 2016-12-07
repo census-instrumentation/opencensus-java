@@ -32,14 +32,14 @@ public final class TagKeyTest {
     char[] truncKey = new char[TagKey.MAX_LENGTH + 10];
     Arrays.fill(key, 'k');
     Arrays.fill(truncKey, 'k');
-    assertThat(new TagKey(new String(key)).toString())
-        .isEqualTo(new TagKey(new String(truncKey)).toString());
+    assertThat(TagKey.create(new String(key)).toString())
+        .isEqualTo(TagKey.create(new String(truncKey)).toString());
   }
 
   @Test
   public void testKeyBadChar() {
     String key = "\2ab\3cd";
-    assertThat(new TagKey(key).toString())
+    assertThat(TagKey.create(key).toString())
         .isEqualTo(StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
                  + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
   }
@@ -47,13 +47,13 @@ public final class TagKeyTest {
   @Test
   public void testEquals() {
     new EqualsTester()
-        .addEqualityGroup(new TagKey("foo"), new TagKey("foo"))
-        .addEqualityGroup(new TagKey("bar"))
+        .addEqualityGroup(TagKey.create("foo"), TagKey.create("foo"))
+        .addEqualityGroup(TagKey.create("bar"))
         .testEquals();
   }
 
   @Test
   public void testToString() {
-    assertThat(new TagKey("foo").toString()).isEqualTo("foo");
+    assertThat(TagKey.create("foo").toString()).isEqualTo("foo");
   }
 }

@@ -93,7 +93,7 @@ public class MeasurementMapTest {
   }
 
   private static final MeasurementUnit simpleMeasurementUnit =
-      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
+      MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR));
   private static final MeasurementDescriptor M1 = makeSimpleMeasurement("m1");
   private static final MeasurementDescriptor M2 = makeSimpleMeasurement("m2");
   private static final MeasurementDescriptor M3 = makeSimpleMeasurement("m3");

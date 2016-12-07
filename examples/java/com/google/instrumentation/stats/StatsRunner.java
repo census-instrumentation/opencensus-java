@@ -22,18 +22,18 @@ import java.util.Arrays;
  * Simple program that uses Stats contexts.
  */
 public class StatsRunner {
-  private static final TagKey K1 = new TagKey("k1");
-  private static final TagKey K2 = new TagKey("k2");
-  private static final TagKey K3 = new TagKey("k3");
-  private static final TagKey K4 = new TagKey("k4");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
+  private static final TagKey K3 = TagKey.create("k3");
+  private static final TagKey K4 = TagKey.create("k4");
 
-  private static final TagValue V1 = new TagValue("v1");
-  private static final TagValue V2 = new TagValue("v2");
-  private static final TagValue V3 = new TagValue("v3");
-  private static final TagValue V4 = new TagValue("v4");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
+  private static final TagValue V3 = TagValue.create("v3");
+  private static final TagValue V4 = TagValue.create("v4");
 
   private static final MeasurementUnit simpleMeasurementUnit =
-      MeasurementUnit.create(1, Arrays.asList(new BasicUnit[] { BasicUnit.SCALAR }));
+      MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR));
   private static final MeasurementDescriptor M1 =
       MeasurementDescriptor.create("m1", "1st test metric", simpleMeasurementUnit);
   private static final MeasurementDescriptor M2 =

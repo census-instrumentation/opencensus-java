@@ -67,11 +67,11 @@ public final class DistributionAggregationTest {
     }
   }
 
-  private static final TagKey K1 = new TagKey("k1");
-  private static final TagKey K2 = new TagKey("k2");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
 
-  private static final TagValue V1 = new TagValue("v1");
-  private static final TagValue V2 = new TagValue("v2");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
 
   private static final List<Tag> TAGS = Arrays.asList(Tag.create(K1, V1), Tag.create(K2, V2));
 }

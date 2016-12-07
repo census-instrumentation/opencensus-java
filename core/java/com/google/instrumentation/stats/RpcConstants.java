@@ -15,6 +15,8 @@ package com.google.instrumentation.stats;
 
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
+import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +28,9 @@ public final class RpcConstants {
   /**
    * Census defined tag keys.
    */
-  public static final TagKey RPC_STATUS = new TagKey("/rpc/status");
-  public static final TagKey RPC_CLIENT_METHOD = new TagKey("/rpc/client_method");
-  public static final TagKey RPC_SERVER_METHOD = new TagKey("/rpc/server_method");
+  public static final TagKey RPC_STATUS = TagKey.create("/rpc/status");
+  public static final TagKey RPC_CLIENT_METHOD = TagKey.create("/rpc/client_method");
+  public static final TagKey RPC_SERVER_METHOD = TagKey.create("/rpc/server_method");
 
   // Constants used to define the following MeasurementDescriptors.
   private static final List<BasicUnit> bytes = Arrays.asList(new BasicUnit[] { BasicUnit.BYTES });

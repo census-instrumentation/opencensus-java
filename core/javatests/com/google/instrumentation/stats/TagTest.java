@@ -31,6 +31,6 @@ public final class TagTest {
     assertThat(tag.getValue()).isEqualTo(V1);
   }
 
-  private static final TagKey K1 = new TagKey("k1");
-  private static final TagValue V1 = new TagValue("v1");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagValue V1 = TagValue.create("v1");
 }
