@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.stats;
 
-import java.nio.ByteBuffer;
+import java.io.OutputStream;
 
 /**
  * An immutable context for stats operations.
@@ -51,12 +51,13 @@ public abstract class StatsContext {
   /**
    * Serializes the {@link StatsContext} into the on-the-wire representation.
    *
-   * <p>The inverse of {@link StatsContextFactory#deserialize(ByteBuffer)} and should be based on
+   * <p>The inverse of {@link StatsContextFactory#deserialize(OutputStream)} and should be based on
    * the {@link StatsContext} protobuf representation.
    *
-   * @return serialized bytes.
+   * @param output the {@link OutputStream} to add the serialized form of this {@link StatsContext}.
+   * @return the given {@link OutputStream}
    */
-  public abstract ByteBuffer serialize();
+  public abstract OutputStream serialize(OutputStream output);
 
   /**
    * Builder for {@link StatsContext}.

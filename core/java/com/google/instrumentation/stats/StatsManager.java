@@ -19,10 +19,10 @@ package com.google.instrumentation.stats;
  */
 public abstract class StatsManager {
   /**
-   * Pull model for stats. Registers a {@link View} that will collect data to be accessed via
-   * {@link #getView(ViewDescriptor)}.
+   * Pull model for stats. Registers a {@link ViewDescriptor} that will collect data to be accessed
+   * via {@link #getView(ViewDescriptor)}.
    */
-  public abstract void registerView(ViewDescriptor view);
+  public abstract void registerView(ViewDescriptor viewDescriptor);
 
   /**
    * Returns the current stats data, {@link View}, associated with the given {@link ViewDescriptor}.

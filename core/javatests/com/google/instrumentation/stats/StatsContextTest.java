@@ -16,6 +16,9 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -138,7 +141,10 @@ public class StatsContextTest {
   }
 
   private static void testSerialization(StatsContext expected) {
-    StatsContext actual = Stats.getStatsContextFactory().deserialize(expected.serialize());
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    expected.serialize(output);
+    ByteBuffer input = ByteBuffer.wrap(output.toByteArray());
+    StatsContext actual = Stats.getStatsContextFactory().deserialize(input);
     assertThat(actual).isEqualTo(expected);
   }
 }

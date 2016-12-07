@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.stats;
 
-import java.nio.ByteBuffer;
+import java.io.OutputStream;
 import java.util.HashMap;
 
 /**
@@ -42,8 +42,8 @@ final class StatsContextImpl extends StatsContext {
    * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
    */
   @Override
-  public ByteBuffer serialize() {
-    return StatsSerializer.serialize(this);
+  public OutputStream serialize(OutputStream output) {
+    return StatsSerializer.serialize(this, output);
   }
 
   @Override
