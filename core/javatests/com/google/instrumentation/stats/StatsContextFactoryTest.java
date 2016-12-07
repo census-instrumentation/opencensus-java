@@ -15,7 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,8 +26,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class StatsContextFactoryTest {
   @Test
-  public void testDeserializeEmpty() {
-    assertThat(Stats.getStatsContextFactory().deserialize(ByteBuffer.wrap(new byte[0])))
+  public void testDeserializeEmpty() throws Exception {
+    assertThat(Stats.getStatsContextFactory().deserialize(new ByteArrayInputStream(new byte[0])))
         .isEqualTo(Stats.getStatsContextFactory().getDefault());
   }
 }

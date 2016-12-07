@@ -14,12 +14,12 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.stats.proto.StatsContextProto;
-import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.nio.ByteBuffer;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 
 /**
  * Native implementation {@link StatsContext} serialization.
@@ -31,7 +31,7 @@ final class StatsSerializer {
 
   // Serializes a StatsContext by transforming it into a StatsContextProto. The
   // encoded tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
-  static ByteBuffer serialize(StatsContextImpl context) {
+  static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
     StringBuilder builder = new StringBuilder();
     for (Entry<String, String> tag : context.tags.entrySet()) {
       builder
@@ -40,23 +40,14 @@ final class StatsSerializer {
           .append(TAG_DELIM)
           .append(tag.getValue());
     }
-    return ByteBuffer.wrap(StatsContextProto.StatsContext
-        .newBuilder().setTags(builder.toString()).build().toByteArray());
+    StatsContextProto.StatsContext.newBuilder().setTags(builder.toString()).build().writeTo(output);
   }
 
   // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
   // (<tag prefix> + 'key' + <tag delim> + 'value')*
-  @Nullable
-  static StatsContextImpl deserialize(ByteBuffer buffer) {
-    try {
-      StatsContextProto.StatsContext context =
-          StatsContextProto.StatsContext.parser().parseFrom(buffer.array());
-      return new StatsContextImpl(tagsFromString(context.getTags()));
-    } catch (IllegalArgumentException e) {
-      return null;
-    } catch (InvalidProtocolBufferException e) {
-      return null;
-    }
+  static StatsContextImpl deserialize(InputStream input) throws IOException {
+    StatsContextProto.StatsContext context = StatsContextProto.StatsContext.parseFrom(input);
+    return new StatsContextImpl(tagsFromString(context.getTags()));
   }
 
   private static HashMap<String, String> tagsFromString(String encoded) {

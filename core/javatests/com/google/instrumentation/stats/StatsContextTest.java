@@ -16,6 +16,10 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -104,7 +108,7 @@ public class StatsContextTest {
   }
 
   @Test
-  public void testSerialize() {
+  public void testSerialize() throws Exception {
     testSerialization(DEFAULT.builder().build());
     testSerialization(DEFAULT.with(K1, V1));
     testSerialization(DEFAULT.with(K1, V1, K2, V2, K3, V3));
@@ -137,8 +141,11 @@ public class StatsContextTest {
     assertThat(DEFAULT.with(K1, V10).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
   }
 
-  private static void testSerialization(StatsContext expected) {
-    StatsContext actual = Stats.getStatsContextFactory().deserialize(expected.serialize());
+  private static void testSerialization(StatsContext expected) throws Exception {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    expected.serialize(output);
+    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+    StatsContext actual = Stats.getStatsContextFactory().deserialize(input);
     assertThat(actual).isEqualTo(expected);
   }
 }
