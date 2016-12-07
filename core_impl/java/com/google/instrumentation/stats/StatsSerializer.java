@@ -43,7 +43,8 @@ final class StatsSerializer {
           .append(tag.getValue());
     }
     try {
-      StatsContextProto.StatsContext.writeTo(output);
+      StatsContextProto.StatsContext.newBuilder().setTags(builder.toString()).build()
+          .writeTo(output);
     } catch (IOException exn) {
       // ignored
     }
