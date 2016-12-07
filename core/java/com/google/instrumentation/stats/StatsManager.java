@@ -13,16 +13,18 @@
 
 package com.google.instrumentation.stats;
 
+import java.util.List;
+
 /**
  * Provides facillities to register {@link ViewDescriptor}s for collecting stats and retrieving
  * stats data as a {@link View}.
  */
 public abstract class StatsManager {
   /**
-   * Pull model for stats. Registers a {@link View} that will collect data to be accessed via
-   * {@link #getView(ViewDescriptor)}.
+   * Pull model for stats. Registers a {@link ViewDescriptor} that will collect data to be accessed
+   * via {@link #getView(ViewDescriptor)}.
    */
-  public abstract void registerView(ViewDescriptor view);
+  public abstract void registerView(ViewDescriptor viewDescriptor);
 
   /**
    * Returns the current stats data, {@link View}, associated with the given {@link ViewDescriptor}.
