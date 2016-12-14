@@ -59,12 +59,12 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/client/roundtrip_latency",
           "RPC roundtrip latency us",
-          MeasurementUnit.create(-6, scalar));
+          MeasurementUnit.create(-6, seconds));
   public static final MeasurementDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME =
       MeasurementDescriptor.create(
           "/rpc/client/server_elapsed_time",
           "Server elapsed time in msecs",
-          MeasurementUnit.create(-3, scalar));
+          MeasurementUnit.create(-3, seconds));
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_request_bytes",
@@ -98,12 +98,12 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/server/server_elapsed_time",
           "Server elapsed time in msecs",
-          MeasurementUnit.create(-3, scalar));
+          MeasurementUnit.create(-3, seconds));
   public static final MeasurementDescriptor RPC_SERVER_SERVER_LATENCY =
       MeasurementDescriptor.create(
           "/rpc/server/server_latency",
           "Latency in msecs",
-          MeasurementUnit.create(-3, scalar));
+          MeasurementUnit.create(-3, seconds));
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_request_bytes",
