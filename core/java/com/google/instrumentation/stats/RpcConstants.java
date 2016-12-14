@@ -47,13 +47,13 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_CLIENT_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/request_bytes",
-          "Request MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          "Request MB",
+          MeasurementUnit.create(6, bytes));
   public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/response_bytes",
-          "Response MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          "Response MB",
+          MeasurementUnit.create(6, bytes));
   // TODO(dpo): verify this encoding
   public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
       MeasurementDescriptor.create(
@@ -69,12 +69,12 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_request_bytes",
           "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          MeasurementUnit.create(6, bytes));
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_response_bytes",
-          "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          "Uncompressed Request MB",
+          MeasurementUnit.create(6, bytes));
 
   /**
    * Census defined rpc server {@link MeasurementDescriptor}s.
@@ -87,13 +87,13 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_SERVER_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/request_bytes",
-          "Request MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          "Request MB",
+          MeasurementUnit.create(6, bytes));
   public static final MeasurementDescriptor RPC_SERVER_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/response_bytes",
-          "Response MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          "Response MB",
+          MeasurementUnit.create(6, bytes));
   public static final MeasurementDescriptor RPC_SERVER_SERVER_ELAPSED_TIME =
       MeasurementDescriptor.create(
           "/rpc/server/server_elapsed_time",
@@ -107,20 +107,21 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_request_bytes",
-          "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          "Uncompressed Request MB",
+          MeasurementUnit.create(6, bytes));
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_response_bytes",
-          "Uncompressed Request MB/s",
-          MeasurementUnit.create(6, bytes, seconds));
+          "Uncompressed Request MB",
+          MeasurementUnit.create(6, bytes));
 
-  // Common sized histogram bucket boundaries.
-  private static final List<Double> bytes_bucket_boundaries = Arrays.asList(
+  // Common histogram bucket boundaries for bytes received/sets DistributionViewDescriptors.
+  private static final List<Double> BYTES_BUCKET_BOUNDARIES = Arrays.asList(
         0.0, 1024.0, 2048.0, 4096.0, 16384.0, 65536.0, 262144.0, 1048576.0, 4194304.0, 16777216.0,
         67108864.0, 268435456.0, 1073741824.0, 4294967296.0);
 
-  private static final List<Double> millis_bucket_boundaries = Arrays.asList(
+  // Common histogram bucket boundaries for latency and elapsed-time DistributionViewDescriptors.
+  private static final List<Double> MILLIS_BUCKET_BOUNDARIES = Arrays.asList(
         0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0, 50.0,
         65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0, 800.0, 1000.0,
         2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0);
@@ -140,28 +141,28 @@ public final class RpcConstants {
           "rpc client roundtrip latency",
           "Latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
-          DistributionAggregationDescriptor.create(millis_bucket_boundaries),
+          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW =
       DistributionViewDescriptor.create(
           "rpc client server_elapsed_time",
           "Server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
-          DistributionAggregationDescriptor.create(millis_bucket_boundaries),
+          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc client request_bytes",
-          "Request MB/s",
+          "Request MB",
           RPC_CLIENT_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(bytes_bucket_boundaries),
+          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "/rpc/client/response_bytes",
-          "Response MB/s",
+          "Response MB",
           RPC_CLIENT_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(bytes_bucket_boundaries),
+          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   /**
@@ -179,40 +180,40 @@ public final class RpcConstants {
           "rpc server latency",
           "Latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
-          DistributionAggregationDescriptor.create(millis_bucket_boundaries),
+          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
       DistributionViewDescriptor.create(
           "rpc server elapsed_time",
           "Server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
-          DistributionAggregationDescriptor.create(millis_bucket_boundaries),
+          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc server request_bytes",
-          "Request MB/s",
+          "Request MB",
           RPC_SERVER_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(bytes_bucket_boundaries),
+          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "/rpc/server/response_bytes",
-          "Response MB/s",
+          "Response MB",
           RPC_SERVER_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(bytes_bucket_boundaries),
+          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "/rpc/server/uncompressed_request_bytes",
-          "Uncompressed Request MB/s",
+          "Uncompressed Request MB",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "/rpc/server/uncompressed_response_bytes",
-          "Uncompressed Request MB/s",
+          "Uncompressed Request MB",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_SERVER_METHOD));
