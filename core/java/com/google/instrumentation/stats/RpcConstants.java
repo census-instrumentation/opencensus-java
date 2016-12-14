@@ -68,7 +68,7 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_request_bytes",
-          "Uncompressed Request MB/s",
+          "Uncompressed Request MB",
           MeasurementUnit.create(6, bytes));
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
