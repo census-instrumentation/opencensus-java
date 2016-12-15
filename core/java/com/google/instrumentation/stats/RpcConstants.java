@@ -116,12 +116,12 @@ public final class RpcConstants {
           MeasurementUnit.create(6, bytes));
 
   // Common histogram bucket boundaries for bytes received/sets DistributionViewDescriptors.
-  private static final List<Double> BYTES_BUCKET_BOUNDARIES = Arrays.asList(
+  private static final List<Double> RPC_BYTES_BUCKET_BOUNDARIES = Arrays.asList(
         0.0, 1024.0, 2048.0, 4096.0, 16384.0, 65536.0, 262144.0, 1048576.0, 4194304.0, 16777216.0,
         67108864.0, 268435456.0, 1073741824.0, 4294967296.0);
 
   // Common histogram bucket boundaries for latency and elapsed-time DistributionViewDescriptors.
-  private static final List<Double> MILLIS_BUCKET_BOUNDARIES = Arrays.asList(
+  private static final List<Double> RPC_MILLIS_BUCKET_BOUNDARIES = Arrays.asList(
         0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0, 50.0,
         65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0, 800.0, 1000.0,
         2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0);
@@ -141,28 +141,28 @@ public final class RpcConstants {
           "rpc client roundtrip latency",
           "Latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
-          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW =
       DistributionViewDescriptor.create(
           "rpc client server_elapsed_time",
           "Server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
-          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc client request_bytes",
           "Request MB",
           RPC_CLIENT_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "/rpc/client/response_bytes",
           "Response MB",
           RPC_CLIENT_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   /**
@@ -180,28 +180,28 @@ public final class RpcConstants {
           "rpc server latency",
           "Latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
-          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
       DistributionViewDescriptor.create(
           "rpc server elapsed_time",
           "Server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
-          DistributionAggregationDescriptor.create(MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc server request_bytes",
           "Request MB",
           RPC_SERVER_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "/rpc/server/response_bytes",
           "Response MB",
           RPC_SERVER_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
