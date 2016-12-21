@@ -32,12 +32,45 @@ public abstract class View {
   /**
    * Applies the given match function to the underlying data type.
    */
-  public abstract <T> T match(
-      Function<DistributionView, T> p0,
-      Function<IntervalView, T> p1);
+  public abstract <T> T match(Visitor<T> visitor);
 
   // Prevents this class from being subclassed anywhere else.
   private View() {
+  }
+
+  /**
+   * Visitor for the View type.
+   */
+  public abstract static class Visitor<T> {
+    public abstract T apply(DistributionView view);
+
+    public abstract T apply(IntervalView view);
+
+    /**
+     * Creates a Visitor with two {@link Function} objects.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     *   int numAggregations = myView.match(View.Visitor.create(
+     *       d -> d.getDistributionAggregations().size(),
+     *       i -> i.getIntervalAggregations().size()));
+     *  }</pre>
+     */
+    public static <T> Visitor<T> create(
+        final Function<DistributionView, T> f1, final Function<IntervalView, T> f2) {
+      return new Visitor<T>() {
+        @Override
+        public T apply(DistributionView view) {
+          return f1.apply(view);
+        }
+
+        @Override
+        public T apply(IntervalView view) {
+          return f2.apply(view);
+        }
+      };
+    }
   }
 
   /**
@@ -82,10 +115,8 @@ public abstract class View {
     }
 
     @Override
-    public <T> T match(
-        Function<DistributionView, T> p0,
-        Function<IntervalView, T> p1) {
-      return p0.apply(this);
+    public <T> T match(Visitor<T> visitor) {
+      return visitor.apply(this);
     }
 
     private final DistributionViewDescriptor distributionViewDescriptor;
@@ -130,10 +161,8 @@ public abstract class View {
     }
 
     @Override
-    public <T> T match(
-        Function<DistributionView, T> p0,
-        Function<IntervalView, T> p1) {
-      return p1.apply(this);
+    public <T> T match(Visitor<T> visitor) {
+      return visitor.apply(this);
     }
 
     private final IntervalViewDescriptor intervalViewDescriptor;

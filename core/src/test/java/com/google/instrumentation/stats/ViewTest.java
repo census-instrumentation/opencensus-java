@@ -58,7 +58,7 @@ public final class ViewTest {
 
     assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
     assertTrue(view.match(
-        new Function<DistributionView, Boolean> () {
+        new View.Visitor<Boolean>() {
           @Override public Boolean apply(DistributionView dView) {
             return dView == view
                 && dView.getViewDescriptor().equals(viewDescriptor)
@@ -66,8 +66,6 @@ public final class ViewTest {
                 && dView.getStart().equals(start)
                 && dView.getEnd().equals(end);
           }
-        },
-        new Function<IntervalView, Boolean> () {
           @Override public Boolean apply(IntervalView iView) {
             return false;
           }
@@ -90,12 +88,10 @@ public final class ViewTest {
     final View view = IntervalView.create(viewDescriptor, aggregations);
     assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
     assertTrue(view.match(
-        new Function<DistributionView, Boolean> () {
+        new View.Visitor<Boolean> () {
           @Override public Boolean apply(DistributionView dView) {
             return false;
           }
-        },
-        new Function<IntervalView, Boolean> () {
           @Override public Boolean apply(IntervalView iView) {
             return iView == view
                 && iView.getViewDescriptor().equals(viewDescriptor)

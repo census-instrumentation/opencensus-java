@@ -49,12 +49,10 @@ public final class ViewDescriptorTest {
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
     assertTrue(viewDescriptor.match(
-        new Function<DistributionViewDescriptor, Boolean> () {
+        new ViewDescriptor.Visitor<Boolean>(){
           @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
             return dViewDescriptor == viewDescriptor;
           }
-        },
-        new Function<IntervalViewDescriptor, Boolean> () {
           @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
             return false;
           }
@@ -76,12 +74,10 @@ public final class ViewDescriptorTest {
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
     assertTrue(viewDescriptor.match(
-        new Function<DistributionViewDescriptor, Boolean> () {
+        new ViewDescriptor.Visitor<Boolean>() {
           @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
             return false;
           }
-        },
-        new Function<IntervalViewDescriptor, Boolean> () {
           @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
             return iViewDescriptor == viewDescriptor;
           }
