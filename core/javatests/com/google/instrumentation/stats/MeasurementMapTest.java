@@ -88,7 +88,7 @@ public class MeasurementMapTest {
     MeasurementMap.Builder builder = MeasurementMap.builder();
     for (int i = 1; i <= 10; i++) {
       builder.put(makeSimpleMeasurement("m" + i), i * 11.1);
-      assertThat(builder.build().size()).isEqualTo(i);
+      assertThat(builder.build()).hasSize(i);
     }
   }
 
