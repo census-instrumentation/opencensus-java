@@ -41,36 +41,37 @@ public abstract class View {
   /**
    * Visitor for the View type.
    */
-  public abstract static class Visitor<T> {
-    public abstract T apply(DistributionView view);
+  public interface Visitor<T> {
+    T apply(DistributionView view);
 
-    public abstract T apply(IntervalView view);
+    T apply(IntervalView view);
+  }
 
-    /**
-     * Creates a Visitor with two {@link Function} objects.
-     *
-     * <p>Example:
-     *
-     * <pre>{@code
-     *   int numAggregations = myView.match(View.Visitor.create(
-     *       d -> d.getDistributionAggregations().size(),
-     *       i -> i.getIntervalAggregations().size()));
-     *  }</pre>
-     */
-    public static <T> Visitor<T> create(
-        final Function<DistributionView, T> f1, final Function<IntervalView, T> f2) {
-      return new Visitor<T>() {
-        @Override
-        public T apply(DistributionView view) {
-          return f1.apply(view);
-        }
+  /**
+   * Creates a Visitor with two {@link Function} objects. This method may be more convenient than
+   * extending Visitor when lambdas are available.
+   *
+   * <p>For example, the following visitor counts the aggregations in a View:
+   *
+   * <pre>{@code
+   *   int numAggregations = myView.match(View.createVisitor(
+   *       d -> d.getDistributionAggregations().size(),
+   *       i -> i.getIntervalAggregations().size()));
+   *  }</pre>
+   */
+  public static <T> Visitor<T> createVisitor(
+      final Function<DistributionView, T> f1, final Function<IntervalView, T> f2) {
+    return new Visitor<T>() {
+      @Override
+      public T apply(DistributionView view) {
+        return f1.apply(view);
+      }
 
-        @Override
-        public T apply(IntervalView view) {
-          return f2.apply(view);
-        }
-      };
-    }
+      @Override
+      public T apply(IntervalView view) {
+        return f2.apply(view);
+      }
+    };
   }
 
   /**

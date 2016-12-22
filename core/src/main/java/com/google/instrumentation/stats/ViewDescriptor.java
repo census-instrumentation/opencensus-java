@@ -81,38 +81,39 @@ public abstract class ViewDescriptor {
   /**
    * Visitor for the ViewDescriptor type.
    */
-  public abstract static class Visitor<T> {
-    public abstract T apply(DistributionViewDescriptor descriptor);
+  public interface Visitor<T> {
+    T apply(DistributionViewDescriptor descriptor);
 
-    public abstract T apply(IntervalViewDescriptor descriptor);
+    T apply(IntervalViewDescriptor descriptor);
+  }
 
-    /**
-     * Creates a Visitor with two {@link Function} objects.
-     *
-     * <p>Example:
-     *
-     * <pre>{@code
-     *   boolean hasHistogram =
-     *       myViewDescriptor.match(ViewDescriptor.Visitor.create(
-     *           d -> d.getDistributionAggregationDescriptor().getBucketBoundaries() != null,
-     *           i -> false));
-     * }</pre>
-     */
-    public static <T> Visitor<T> create(
-        final Function<DistributionViewDescriptor, T> f1,
-        final Function<IntervalViewDescriptor, T> f2) {
-      return new Visitor<T>() {
-        @Override
-        public T apply(DistributionViewDescriptor descriptor) {
-          return f1.apply(descriptor);
-        }
+  /**
+   * Creates a Visitor with two {@link Function} objects. This method may be more convenient than
+   * extending Visitor when lambdas are available.
+   *
+   * <p>For example, the following visitor determines whether a ViewDescriptor contains a histogram:
+   *
+   * <pre>{@code
+   * boolean hasHistogram =
+   *     myViewDescriptor.match(ViewDescriptor.createVisitor(
+   *         d -> d.getDistributionAggregationDescriptor().getBucketBoundaries() != null,
+   *         i -> false));
+   * }</pre>
+   */
+  public static <T> Visitor<T> createVisitor(
+      final Function<DistributionViewDescriptor, T> f1,
+      final Function<IntervalViewDescriptor, T> f2) {
+    return new Visitor<T>() {
+      @Override
+      public T apply(DistributionViewDescriptor descriptor) {
+        return f1.apply(descriptor);
+      }
 
-        @Override
-        public T apply(IntervalViewDescriptor descriptor) {
-          return f2.apply(descriptor);
-        }
-      };
-    }
+      @Override
+      public T apply(IntervalViewDescriptor descriptor) {
+        return f2.apply(descriptor);
+      }
+    };
   }
 
   /**
