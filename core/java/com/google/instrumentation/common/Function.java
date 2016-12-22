@@ -17,7 +17,8 @@ package com.google.instrumentation.common;
  * Used to specify matching functions for use encoding tagged unions (i.e. sum types) in Java. See
  * {@link com.google.instrumentation.stats.ViewDescriptor} for an example of it's use.
  *
- * <p>Note: This class is based on the java.util.Function class added in Java 1.8.
+ * <p>Note: This class is based on the java.util.Function class added in Java 1.8.  We cannot use
+ * the Function from Java 1.8 because this library is Java 1.6 compatible.
  */
 public interface Function<A, B> {
   B apply(A arg);
