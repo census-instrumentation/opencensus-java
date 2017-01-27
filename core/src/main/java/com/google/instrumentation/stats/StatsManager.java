@@ -25,7 +25,8 @@ public abstract class StatsManager {
   public abstract void registerView(ViewDescriptor viewDescriptor);
 
   /**
-   * Returns the current stats data, {@link View}, associated with the given {@link ViewDescriptor}.
+   * Returns the current stats data, {@link View}, associated with the {@link ViewDescriptor} with
+   * the specified name.
    */
-  public abstract View getView(ViewDescriptor viewDescriptor);
+  public abstract View getView(String viewDescriptorName);
 }
