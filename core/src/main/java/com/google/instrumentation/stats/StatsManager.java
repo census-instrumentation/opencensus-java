@@ -20,7 +20,7 @@ package com.google.instrumentation.stats;
 public abstract class StatsManager {
   /**
    * Pull model for stats. Registers a {@link ViewDescriptor} that will collect data to be accessed
-   * via {@link #getView(ViewDescriptor)}.
+   * via {@link #getView(String)}.
    */
   public abstract void registerView(ViewDescriptor viewDescriptor);
 
