@@ -24,6 +24,7 @@ install:
     fi
 
 script:
+  - python check-git-history.py
   - case "$TASK" in
       "BUILD")
         case "$TRAVIS_JDK_VERSION" in
