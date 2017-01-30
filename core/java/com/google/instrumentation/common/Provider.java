@@ -14,6 +14,8 @@
 package com.google.instrumentation.common;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
@@ -25,27 +27,30 @@ import javax.annotation.Nullable;
  * }</pre>
  */
 public final class Provider {
+  private static final Logger logger = Logger.getLogger(Provider.class.getName());
+
   /**
    * Returns a new instance of the class specified with {@code name} by invoking the empty-argument
-   * constructor via reflections. If there are any errors, the {@code defaultValue} is returned.
+   * constructor via reflections. If the specified class is not found, the {@code defaultValue} is
+   * returned.
    */
   @SuppressWarnings("unchecked")
   @Nullable
   public static <T> T newInstance(String name, @Nullable T defaultValue) {
     try {
       Class<?> provider = Class.forName(name);
-      return (T) provider.getConstructor().newInstance();
+      T result = (T) provider.getConstructor().newInstance();
+      logger.fine("Loaded: " + name);
+      return result;
     } catch (ClassNotFoundException e) {
-      // No implementation available. Return the default value.
-    } catch (IllegalAccessException e) {
-      // No implementation available. Return the default value.
-    } catch (InstantiationException e) {
-      // No implementation available. Return the default value.
-    } catch (InvocationTargetException e) {
-      // No implementation available. Return the default value.
-    } catch (NoSuchMethodException e) {
-      // No implementation available. Return the default value.
+      logger.log(Level.FINE, "Falling back to " + defaultValue, e);
+      return defaultValue;
+    } catch (Exception e) {
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException) e;
+      } else {
+        throw new RuntimeException(e);
+      }
     }
-    return defaultValue;
   }
 }
