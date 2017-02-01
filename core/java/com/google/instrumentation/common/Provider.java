@@ -13,7 +13,6 @@
 
 package com.google.instrumentation.common;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
