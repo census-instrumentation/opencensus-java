@@ -46,7 +46,7 @@ install:
 script:
   - case "$BUILD" in
       "BAZEL")
-        bazel test ... --javacopt=-Werror --javawarn=all --javawarn=-deprecation;;
+        bazel test ... --javacopt=-Werror --javacopt=-Xlint:all --javacopt=-Xlint:-deprecation ;;
       "MVN")
         case "$TRAVIS_JDK_VERSION" in
           "openjdk6")
