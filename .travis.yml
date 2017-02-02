@@ -43,10 +43,12 @@ install:
 
 # TODO(sebright) Turn on the deprecation warning after the next version of Truth
 # is released. It will undeprecate DoubleSubject.isEqualTo(Double).
+
+# TODO(sebright) Find a way to disable the "cast" warning only for Protocol Buffer generated code.
 script:
   - case "$BUILD" in
       "BAZEL")
-        bazel test ... --javacopt=-Werror --javacopt=-Xlint:all --javacopt=-Xlint:-deprecation ;;
+        bazel test ... --javacopt=-Werror --javacopt=-Xlint:all --javacopt=-Xlint:-deprecation --javacopt=-Xlint:-cast ;;
       "MVN")
         case "$TRAVIS_JDK_VERSION" in
           "openjdk6")
