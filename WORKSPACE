@@ -16,12 +16,12 @@ maven_jar(
 
 maven_jar(
     name = "guava",
-    artifact = "com.google.guava:guava:19.0",
+    artifact = "com.google.guava:guava:20.0",
 )
 
 maven_jar(
     name = "guava_testlib",
-    artifact = "com.google.guava:guava-testlib:19.0",
+    artifact = "com.google.guava:guava-testlib:20.0",
 )
 
 maven_jar(
@@ -41,7 +41,7 @@ maven_jar(
 
 maven_jar(
     name = "truth",
-    artifact = "com.google.truth:truth:0.30",
+    artifact = "com.google.truth:truth:0.31",
 )
 
 git_repository(
