@@ -27,9 +27,7 @@ import java.util.List;
  * Constants for collecting rpc stats.
  */
 public final class RpcConstants {
-  /**
-   * Rpc tag keys.
-   */
+  // Rpc tag keys.
   public static final TagKey RPC_STATUS = TagKey.create("OpStatus");
   public static final TagKey RPC_CLIENT_METHOD = TagKey.create("method");
   public static final TagKey RPC_SERVER_METHOD = TagKey.create("method");
@@ -39,9 +37,7 @@ public final class RpcConstants {
   private static final List<BasicUnit> scalar = Arrays.asList(BasicUnit.SCALAR);
   private static final List<BasicUnit> seconds = Arrays.asList(BasicUnit.SECONDS);
 
-  /**
-   * Census defined rpc client {@link MeasurementDescriptor}s.
-   */
+  // Census defined rpc client {@link MeasurementDescriptor}s.
   public static final MeasurementDescriptor RPC_CLIENT_ERROR_COUNT =
       MeasurementDescriptor.create(
           "/rpc/client/error_count",
@@ -79,9 +75,7 @@ public final class RpcConstants {
           "Uncompressed Request MB",
           MeasurementUnit.create(6, bytes));
 
-  /**
-   * Census defined rpc server {@link MeasurementDescriptor}s.
-   */
+  // Census defined rpc server {@link MeasurementDescriptor}s.
   public static final MeasurementDescriptor RPC_SERVER_ERROR_COUNT =
       MeasurementDescriptor.create(
           "/rpc/server/error_count",
@@ -129,19 +123,17 @@ public final class RpcConstants {
           40.0, 50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
           800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0));
 
-  /**
-   * Census defined rpc client {@link ViewDescriptor}s.
-   */
+  // Census defined rpc client {@link ViewDescriptor}s.
   public static final DistributionViewDescriptor RPC_CLIENT_ERROR_COUNT_VIEW =
       DistributionViewDescriptor.create(
-          "rpc client error count",
+          "rpc client error_count",
           "RPC Errors",
           RPC_CLIENT_ERROR_COUNT,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_STATUS, RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW =
       DistributionViewDescriptor.create(
-          "rpc client roundtrip latency",
+          "rpc client roundtrip_latency",
           "Latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
           DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
@@ -168,19 +160,17 @@ public final class RpcConstants {
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
 
-  /**
-   * Census defined rpc server {@link ViewDescriptor}s.
-   */
+  // Census defined rpc server {@link ViewDescriptor}s.
   public static final DistributionViewDescriptor RPC_SERVER_ERROR_COUNT_VIEW =
       DistributionViewDescriptor.create(
-          "rpc server error count",
+          "rpc server error_count",
           "RPC Errors",
           RPC_SERVER_ERROR_COUNT,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_STATUS, RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_SERVER_LATENCY_VIEW =
       DistributionViewDescriptor.create(
-          "rpc server latency",
+          "rpc server server_latency",
           "Latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
           DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
@@ -225,12 +215,10 @@ public final class RpcConstants {
   static final Duration MINUTE = Duration.create(60, 0);
   static final Duration HOUR = Duration.create(60 * 60, 0);
 
-  /**
-   * Census defined rpc client {@link IntervalViewDescriptor}s.
-   */
+  // Census defined rpc client {@link IntervalViewDescriptor}s.
   public static final IntervalViewDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
-          "rpc client roundtrip latency",
+          "rpc client roundtrip_latency",
           "Latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
@@ -254,7 +242,7 @@ public final class RpcConstants {
 
   public static final IntervalViewDescriptor RPC_CLIENT_ERROR_COUNT_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
-          "rpc client error count",
+          "rpc client error_count",
           "RPC Errors",
           RPC_CLIENT_ERROR_COUNT,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
@@ -272,7 +260,7 @@ public final class RpcConstants {
       IntervalViewDescriptor.create(
           "rpc client uncompressed_response_bytes",
           "Uncompressed Response MB",
-          RPC_CLIENT_RESPONSE_BYTES,
+          RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
@@ -284,12 +272,10 @@ public final class RpcConstants {
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
-  /**
-   * Census defined rpc server {@link IntervalViewDescriptor}s.
-   */
+  // Census defined rpc server {@link IntervalViewDescriptor}s.
   public static final IntervalViewDescriptor RPC_SERVER_SERVER_LATENCY_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
-          "rpc server roundtrip latency",
+          "rpc server server_latency",
           "Latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
@@ -313,7 +299,7 @@ public final class RpcConstants {
 
   public static final IntervalViewDescriptor RPC_SERVER_ERROR_COUNT_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
-          "rpc server error count",
+          "rpc server error_count",
           "RPC Errors",
           RPC_SERVER_ERROR_COUNT,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
@@ -331,7 +317,7 @@ public final class RpcConstants {
       IntervalViewDescriptor.create(
           "rpc server uncompressed_response_bytes",
           "Uncompressed Response MB",
-          RPC_SERVER_RESPONSE_BYTES,
+          RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
