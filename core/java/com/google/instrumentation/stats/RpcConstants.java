@@ -114,6 +114,16 @@ public final class RpcConstants {
           "/rpc/server/uncompressed_response_bytes",
           "Uncompressed Request MB",
           MeasurementUnit.create(6, bytes));
+  public static final MeasurementDescriptor RPC_SERVER_STARTED_COUNT =
+      MeasurementDescriptor.create(
+          "/rpc/server/started_count",
+          "Number of RPCs started",
+          MeasurementUnit.create(0, scalar));
+  public static final MeasurementDescriptor RPC_SERVER_FINISHED_COUNT =
+      MeasurementDescriptor.create(
+          "/rpc/server/finished_count",
+          "Number of RPCs finished",
+          MeasurementUnit.create(0, scalar));
 
   // Common histogram bucket boundaries for bytes received/sets DistributionViewDescriptors.
   static final List<Double> RPC_BYTES_BUCKET_BOUNDARIES = Arrays.asList(
