@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.stats;
+package com.google.io.base;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,11 +21,11 @@ import java.nio.ByteBuffer;
 /**
  * Common methods to encode and decode varints and varlongs into ByteBuffers and
  * arrays.
- *
+ * <p>
  * Note: this class is package-private because it is meant to be replaced by an
  * external class eventually (e.g. from protobuf).
  */
-class VarInt {
+public class VarInt {
 
   /**
    * Maximum encoded size of 32-bit positive integers (in bytes)

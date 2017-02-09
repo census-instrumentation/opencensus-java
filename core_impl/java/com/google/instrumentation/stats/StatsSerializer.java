@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.stats.proto.StatsContextProto;
+import com.google.io.base.VarInt;
 import com.google.protobuf.ByteString;
 
 import java.io.InputStream;
