@@ -48,7 +48,7 @@ final class StatsSerializer {
   }
 
   // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
-  // (<tag prefix> + 'key' + <tag delim> + 'value')*
+  //   num_tags [key_len key_bytes value_len value_bytes]*
   static StatsContextImpl deserialize(InputStream input) throws IOException {
     try {
       StatsContextProto.StatsContext context = StatsContextProto.StatsContext.parseFrom(input);
