@@ -62,7 +62,7 @@ final class StatsSerializer {
       }
       return new StatsContextImpl(tags);
     } catch (BufferUnderflowException exn) {
-      throw new IOException(exn.toString());
+      throw new IOException(exn);
     }
   }
 

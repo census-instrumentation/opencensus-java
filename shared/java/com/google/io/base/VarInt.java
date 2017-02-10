@@ -21,9 +21,6 @@ import java.nio.ByteBuffer;
 /**
  * Common methods to encode and decode varints and varlongs into ByteBuffers and
  * arrays.
- * <p>
- * Note: this class is package-private because it is meant to be replaced by an
- * external class eventually (e.g. from protobuf).
  */
 public class VarInt {
 
