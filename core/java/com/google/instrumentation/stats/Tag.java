@@ -38,6 +38,26 @@ public final class Tag {
     return value;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    return (obj instanceof Tag)
+        && key.equals(((Tag) obj).key)
+        && value.equals(((Tag) obj).value);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 17;
+    result = 31 * result + key.hashCode();
+    result = 31 * result + value.hashCode();
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "Tag<" + key + "," + value + ">";
+  }
+
   private final TagKey key;
   private final TagValue value;
 
