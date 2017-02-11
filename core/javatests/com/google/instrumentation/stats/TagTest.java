@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -33,23 +34,29 @@ public final class TagTest {
 
   @Test
   public void testEquals() {
-    assertThat(Tag.create(K1, V1)).isEqualTo(Tag.create(K1, V1));
-    assertThat(Tag.create(K1, V1)).isNotEqualTo(Tag.create(K2, V1));
-    assertThat(Tag.create(K1, V1)).isNotEqualTo(Tag.create(K1, V2));
+    new EqualsTester()
+        .addEqualityGroup(Tag.create(K1, V1), Tag.create(K1, V1))
+        .addEqualityGroup(Tag.create(K2, V1))
+        .addEqualityGroup(Tag.create(K1, V2))
+        .testEquals();
   }
 
   @Test
   public void testHashCode() {
-    assertThat(Tag.create(K1, V1).hashCode()).isEqualTo(Tag.create(K1, V1).hashCode());
-    assertThat(Tag.create(K1, V1).hashCode()).isNotEqualTo(Tag.create(K2, V1).hashCode());
-    assertThat(Tag.create(K1, V1).hashCode()).isNotEqualTo(Tag.create(K1, V2).hashCode());
+    new EqualsTester()
+        .addEqualityGroup(Tag.create(K1, V1).hashCode(), Tag.create(K1, V1).hashCode())
+        .addEqualityGroup(Tag.create(K2, V1).hashCode())
+        .addEqualityGroup(Tag.create(K1, V2).hashCode())
+        .testEquals();
   }
 
   @Test
   public void testToString() {
-    assertThat(Tag.create(K1, V1).toString()).isEqualTo("Tag<k1,v1>");
-    assertThat(Tag.create(K2, V1).toString()).isEqualTo("Tag<k2,v1>");
-    assertThat(Tag.create(K1, V2).toString()).isEqualTo("Tag<k1,v2>");
+    new EqualsTester()
+        .addEqualityGroup(Tag.create(K1, V1).toString(), "Tag<k1,v1>")
+        .addEqualityGroup(Tag.create(K2, V1).toString(), "Tag<k2,v1>")
+        .addEqualityGroup(Tag.create(K1, V2).toString(), "Tag<k1,v2>")
+        .testEquals();
   }
 
   private static final TagKey K1 = TagKey.create("k1");
