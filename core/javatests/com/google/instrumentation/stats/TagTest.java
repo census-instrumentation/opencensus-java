@@ -52,11 +52,9 @@ public final class TagTest {
 
   @Test
   public void testToString() {
-    new EqualsTester()
-        .addEqualityGroup(Tag.create(K1, V1).toString(), "Tag<k1,v1>")
-        .addEqualityGroup(Tag.create(K2, V1).toString(), "Tag<k2,v1>")
-        .addEqualityGroup(Tag.create(K1, V2).toString(), "Tag<k1,v2>")
-        .testEquals();
+    assertThat(Tag.create(K1, V1).toString()).isEqualTo("Tag<k1,v1>");
+    assertThat(Tag.create(K2, V1).toString()).isEqualTo("Tag<k2,v1>");
+    assertThat(Tag.create(K1, V2).toString()).isEqualTo("Tag<k1,v2>");
   }
 
   private static final TagKey K1 = TagKey.create("k1");
