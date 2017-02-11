@@ -14,77 +14,71 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.stats.proto.StatsContextProto;
+import com.google.io.base.VarInt;
+import com.google.protobuf.ByteString;
 
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Native implementation {@link StatsContext} serialization.
  */
 final class StatsSerializer {
-  private static final char TAG_PREFIX = '\2';
-  private static final char TAG_DELIM = '\3';
-
-
   // Serializes a StatsContext by transforming it into a StatsContextProto. The
-  // encoded tags are of the form: (<tag prefix> + 'key' + <tag delim> + 'value')*
+  // encoded tags are of the form:
+  //   num_tags [key_len key_bytes value_len value_bytes]*
   static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
-    StringBuilder builder = new StringBuilder();
-    for (Entry<String, String> tag : context.tags.entrySet()) {
-      builder
-          .append(TAG_PREFIX)
-          .append(tag.getKey())
-          .append(TAG_DELIM)
-          .append(tag.getValue());
+    ByteBuffer buffer = ByteBuffer.allocate(1024);
+    Set<Entry<String, String>> tags = context.tags.entrySet();
+    VarInt.putVarInt(tags.size(), buffer);
+    for (Entry<String, String> tag : tags) {
+      encode(tag.getKey(), buffer);
+      encode(tag.getValue(), buffer);
     }
-    StatsContextProto.StatsContext.newBuilder().setTags(builder.toString()).build().writeTo(output);
+    int length = buffer.capacity() - buffer.remaining();
+    buffer.rewind();
+    ByteString encodedTags = ByteString.copyFrom(buffer, length);
+    StatsContextProto.StatsContext.newBuilder().setTags(encodedTags).build().writeTo(output);
   }
 
   // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
-  // (<tag prefix> + 'key' + <tag delim> + 'value')*
+  //   num_tags [key_len key_bytes value_len value_bytes]*
   static StatsContextImpl deserialize(InputStream input) throws IOException {
-    StatsContextProto.StatsContext context = StatsContextProto.StatsContext.parseFrom(input);
-    return new StatsContextImpl(tagsFromString(context.getTags()));
+    try {
+      StatsContextProto.StatsContext context = StatsContextProto.StatsContext.parseFrom(input);
+      ByteBuffer buffer = context.getTags().asReadOnlyByteBuffer();
+      int numTags = VarInt.getVarInt(buffer);
+      HashMap<String, String> tags = new HashMap<String, String>(numTags);
+      for (int i = 0; i < numTags; i++) {
+        String key = decode(buffer);
+        String val = decode(buffer);
+        tags.put(key, val);
+      }
+      return new StatsContextImpl(tags);
+    } catch (BufferUnderflowException exn) {
+      throw new IOException(exn);
+    }
   }
 
-  private static HashMap<String, String> tagsFromString(String encoded) {
-    HashMap<String, String> tags = new HashMap<String, String>();
-    int length = encoded.length();
-    int index = 0;
-    while (index != length) {
-      int valIndex = endOfKey(encoded, index);
-      String key = encoded.substring(index + 1, valIndex);
-      index = endOfValue(encoded, valIndex);
-      String val = encoded.substring(valIndex + 1, index);
-      tags.put(key, val);
+  private static final void encode(String input, ByteBuffer buffer) {
+    VarInt.putVarInt(input.length(), buffer);
+    for (int i = 0; i < input.length(); i++) {
+      buffer.put((byte) input.charAt(i));
     }
-    return tags;
   }
 
-  private static int endOfKey(String encoded, int index) {
-    int valIndex = encoded.indexOf(TAG_DELIM, index);
-    if (valIndex == -1) {
-      throw new IllegalArgumentException("Missing tag delimiter.");
+  private static final String decode(ByteBuffer buffer) {
+    int length = VarInt.getVarInt(buffer);
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < length; i++) {
+      builder.append((char) buffer.get());
     }
-    int keyIndex = encoded.lastIndexOf(TAG_PREFIX, valIndex);
-    if (keyIndex != index) {
-      throw new IllegalArgumentException("Missing tag prefix.");
-    }
-    return valIndex;
-  }
-
-  private static int endOfValue(String encoded, int index) {
-    int keyIndex = encoded.indexOf(TAG_PREFIX, index);
-    if (keyIndex == -1) {
-      keyIndex = encoded.length();
-    }
-    int valIndex = encoded.lastIndexOf(TAG_DELIM, keyIndex);
-    if (valIndex != index) {
-      throw new IllegalArgumentException("Missing tag delimiter.");
-    }
-    return keyIndex;
+    return builder.toString();
   }
 }

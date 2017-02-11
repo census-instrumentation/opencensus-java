@@ -19,6 +19,11 @@ java_library(
 )
 
 java_library(
+    name = "shared",
+    srcs = glob(["shared/java/com/google/io/base/*.java"]),
+)
+
+java_library(
     name = "stats-core",
     srcs = glob(["core/java/com/google/instrumentation/stats/*.java"]),
     deps = [
@@ -31,6 +36,7 @@ java_library(
     name = "stats-core_impl",
     srcs = glob(["core_impl/java/com/google/instrumentation/stats/*.java"]),
     deps = [
+        ":shared",
         ":stats-core",
         "//proto:stats_context-proto-java",
         "@jsr305//jar",

@@ -35,6 +35,7 @@
     <module>core</module>
     <module>core_impl</module>
     <module>proto</module>
+    <module>shared</module>
   </modules>
 
   <dependencies>
