@@ -46,7 +46,7 @@ java_library(
 
 java_binary(
     name = "StatsRunner",
-    srcs = ["examples/java/com/google/instrumentation/stats/StatsRunner.java"],
+    srcs = ["examples/src/main/com/google/instrumentation/stats/StatsRunner.java"],
     main_class = "com.google.instrumentation.stats.StatsRunner",
     deps = [
         ":stats-core",
