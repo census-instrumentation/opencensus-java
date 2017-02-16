@@ -65,14 +65,14 @@ public abstract class View {
     /**
      * Returns start timestamp for this aggregation.
      */
-    Timestamp getStart() {
+    public Timestamp getStart() {
       return start;
     }
 
     /**
      * Returns end timestamp for this aggregation.
      */
-    Timestamp getEnd() {
+    public Timestamp getEnd() {
       return end;
     }
 
