@@ -72,7 +72,7 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_response_bytes",
-          "Uncompressed Request MB",
+          "Uncompressed Response MB",
           MeasurementUnit.create(6, bytes));
 
   // Census defined rpc server {@link MeasurementDescriptor}s.
@@ -109,7 +109,7 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_response_bytes",
-          "Uncompressed Request MB",
+          "Uncompressed Response MB",
           MeasurementUnit.create(6, bytes));
   public static final MeasurementDescriptor RPC_SERVER_STARTED_COUNT =
       MeasurementDescriptor.create(
@@ -169,6 +169,21 @@ public final class RpcConstants {
           RPC_CLIENT_RESPONSE_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
+  public static final DistributionViewDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW =
+      DistributionViewDescriptor.create(
+          "rpc client uncompressed_request_bytes",
+          "Uncompressed Request MB",
+          RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
+          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          Arrays.asList(RPC_CLIENT_METHOD));
+  public static final DistributionViewDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
+      DistributionViewDescriptor.create(
+          "rpc client uncompressed_response_bytes",
+          "Uncompressed Response MB",
+          RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
+          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          Arrays.asList(RPC_CLIENT_METHOD));
+
 
   // Census defined rpc server {@link ViewDescriptor}s.
   public static final DistributionViewDescriptor RPC_SERVER_ERROR_COUNT_VIEW =
@@ -216,7 +231,7 @@ public final class RpcConstants {
   public static final DistributionViewDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc server uncompressed_response_bytes",
-          "Uncompressed Request MB",
+          "Uncompressed Response MB",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
