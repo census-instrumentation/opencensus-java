@@ -20,7 +20,7 @@ java_library(
 
 java_library(
     name = "shared",
-    srcs = glob(["shared/java/com/google/io/base/*.java"]),
+    srcs = glob(["shared/src/main/java/com/google/io/base/*.java"]),
 )
 
 java_library(
