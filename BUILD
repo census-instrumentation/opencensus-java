@@ -34,7 +34,7 @@ java_library(
 
 java_library(
     name = "stats-core_impl",
-    srcs = glob(["core_impl/java/com/google/instrumentation/stats/*.java"]),
+    srcs = glob(["core_impl/src/main/java/com/google/instrumentation/stats/*.java"]),
     deps = [
         ":shared",
         ":stats-core",
