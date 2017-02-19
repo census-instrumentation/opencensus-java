@@ -17,8 +17,8 @@ import com.google.instrumentation.stats.proto.StatsContextProto;
 import com.google.io.base.VarInt;
 import com.google.protobuf.ByteString;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
