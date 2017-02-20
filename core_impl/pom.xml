@@ -38,7 +38,6 @@
     </dependency>
   </dependencies>
   <build>
-    <sourceDirectory>java</sourceDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
