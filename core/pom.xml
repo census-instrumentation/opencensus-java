@@ -21,7 +21,6 @@
   </properties>
 
   <build>
-    <sourceDirectory>java</sourceDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -30,6 +29,18 @@
           <source>1.6</source>
           <target>1.6</target>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>

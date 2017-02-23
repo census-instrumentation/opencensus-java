@@ -14,7 +14,7 @@
 
 java_library(
     name = "common-core",
-    srcs = glob(["core/java/com/google/instrumentation/common/*.java"]),
+    srcs = glob(["core/src/main/java/com/google/instrumentation/common/*.java"]),
     deps = ["@jsr305//jar"],
 )
 
@@ -25,7 +25,7 @@ java_library(
 
 java_library(
     name = "stats-core",
-    srcs = glob(["core/java/com/google/instrumentation/stats/*.java"]),
+    srcs = glob(["core/src/main/java/com/google/instrumentation/stats/*.java"]),
     deps = [
         ":common-core",
         "@jsr305//jar",
@@ -60,7 +60,7 @@ java_binary(
 java_test(
     name = "DistributionAggregationDescriptorTest",
     srcs = [
-        "core/javatests/com/google/instrumentation/stats/DistributionAggregationDescriptorTest.java",
+        "core/src/test/java/com/google/instrumentation/stats/DistributionAggregationDescriptorTest.java",
     ],
     deps = [
         ":stats-core",
@@ -75,7 +75,7 @@ java_test(
 java_test(
     name = "DistributionAggregationTest",
     srcs = [
-        "core/javatests/com/google/instrumentation/stats/DistributionAggregationTest.java",
+        "core/src/test/java/com/google/instrumentation/stats/DistributionAggregationTest.java",
     ],
     deps = [
         ":stats-core",
@@ -90,7 +90,7 @@ java_test(
 java_test(
     name = "IntervalAggregationDescriptorTest",
     srcs = [
-        "core/javatests/com/google/instrumentation/stats/IntervalAggregationDescriptorTest.java",
+        "core/src/test/java/com/google/instrumentation/stats/IntervalAggregationDescriptorTest.java",
     ],
     deps = [
         ":common-core",
@@ -106,7 +106,7 @@ java_test(
 java_test(
     name = "IntervalAggregationTest",
     srcs = [
-        "core/javatests/com/google/instrumentation/stats/IntervalAggregationTest.java",
+        "core/src/test/java/com/google/instrumentation/stats/IntervalAggregationTest.java",
     ],
     deps = [
         ":common-core",
@@ -121,7 +121,7 @@ java_test(
 
 java_test(
     name = "MeasurementMapTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/MeasurementMapTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/MeasurementMapTest.java"],
     deps = [
         ":stats-core",
         "@guava//jar",
@@ -133,7 +133,7 @@ java_test(
 
 java_test(
     name = "MeasurementDescriptorTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/MeasurementDescriptorTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/MeasurementDescriptorTest.java"],
     deps = [
         ":stats-core",
         "@guava//jar",
@@ -146,7 +146,7 @@ java_test(
 
 java_test(
     name = "RpcConstantsTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/RpcConstantsTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/RpcConstantsTest.java"],
     deps = [
         ":stats-core",
         ":stats-core_impl",
@@ -159,7 +159,7 @@ java_test(
 
 java_test(
     name = "StatsContextTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/StatsContextTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/StatsContextTest.java"],
     deps = [
         ":stats-core",
         ":stats-core_impl",
@@ -173,7 +173,7 @@ java_test(
 
 java_test(
     name = "StatsContextFactoryTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/StatsContextFactoryTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/StatsContextFactoryTest.java"],
     deps = [
         ":stats-core",
         ":stats-core_impl",
@@ -186,7 +186,7 @@ java_test(
 
 java_test(
     name = "StringUtilTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/StringUtilTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/StringUtilTest.java"],
     deps = [
         ":stats-core",
         ":stats-core_impl",
@@ -200,7 +200,7 @@ java_test(
 
 java_test(
     name = "TagKeyTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/TagKeyTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/TagKeyTest.java"],
     deps = [
         ":stats-core",
         "@guava//jar",
@@ -213,7 +213,7 @@ java_test(
 
 java_test(
     name = "TagTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/TagTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/TagTest.java"],
     deps = [
         ":stats-core",
         "@guava//jar",
@@ -226,7 +226,7 @@ java_test(
 
 java_test(
     name = "TagValueTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/TagValueTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/TagValueTest.java"],
     deps = [
         ":stats-core",
         "@guava//jar",
@@ -239,7 +239,7 @@ java_test(
 
 java_test(
     name = "DurationTest",
-    srcs = ["core/javatests/com/google/instrumentation/common/DurationTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/common/DurationTest.java"],
     deps = [
         ":common-core",
         "@guava//jar",
@@ -252,7 +252,7 @@ java_test(
 
 java_test(
     name = "ProviderTest",
-    srcs = ["core/javatests/com/google/instrumentation/common/ProviderTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/common/ProviderTest.java"],
     deps = [
         ":common-core",
         ":stats-core",
@@ -265,7 +265,7 @@ java_test(
 
 java_test(
     name = "TimestampTest",
-    srcs = ["core/javatests/com/google/instrumentation/common/TimestampTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/common/TimestampTest.java"],
     deps = [
         ":common-core",
         "@guava//jar",
@@ -278,7 +278,7 @@ java_test(
 
 java_test(
     name = "ViewDescriptorTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/ViewDescriptorTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/ViewDescriptorTest.java"],
     deps = [
         ":common-core",
         ":stats-core",
@@ -292,7 +292,7 @@ java_test(
 
 java_test(
     name = "ViewTest",
-    srcs = ["core/javatests/com/google/instrumentation/stats/ViewTest.java"],
+    srcs = ["core/src/test/java/com/google/instrumentation/stats/ViewTest.java"],
     deps = [
         ":common-core",
         ":stats-core",
