@@ -20,18 +20,8 @@ maven_jar(
 )
 
 maven_jar(
-    name = "guava_testlib",
-    artifact = "com.google.guava:guava-testlib:19.0",
-)
-
-maven_jar(
     name = "jsr305",
     artifact = "com.google.code.findbugs:jsr305:3.0.0",
-)
-
-maven_jar(
-    name = "junit",
-    artifact = "junit:junit:4.11",
 )
 
 maven_jar(
@@ -39,9 +29,26 @@ maven_jar(
     artifact = "com.google.protobuf:protobuf-java:3.0.0",
 )
 
+# Test dependencies
+
+maven_jar(
+    name = "guava_testlib",
+    artifact = "com.google.guava:guava-testlib:19.0",
+)
+
 maven_jar(
     name = "truth",
     artifact = "com.google.truth:truth:0.30",
+)
+
+maven_jar(
+    name = "mockito",
+    artifact = "org.mockito:mockito-all:1.9.5",
+)
+
+maven_jar(
+    name = "junit",
+    artifact = "junit:junit:4.11",
 )
 
 git_repository(
