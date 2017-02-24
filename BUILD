@@ -33,6 +33,16 @@ java_library(
 )
 
 java_library(
+    name = "trace-core",
+    srcs = glob(["core/src/main/java/com/google/instrumentation/trace/*.java"]),
+    deps = [
+        ":common-core",
+        "@guava//jar",
+        "@jsr305//jar",
+    ],
+)
+
+java_library(
     name = "stats-core_impl",
     srcs = glob(["core_impl/src/main/java/com/google/instrumentation/stats/*.java"]),
     deps = [
@@ -300,6 +310,205 @@ java_test(
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "BlankSpanTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/BlankSpanTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "EndSpanOptionsTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/EndSpanOptionsTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "LabelValueTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/LabelValueTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "LabelsTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/LabelsTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "NetworkEventTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/NetworkEventTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "SamplersTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/SamplersTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "ScopedSpanHandleTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/ScopedSpanHandleTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@mockito//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "SpanContextTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanContextTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "SpanTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@mockito//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "StartSpanOptionsTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/StartSpanOptionsTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "StatusTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/StatusTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "TraceIdTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/TraceIdTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "TraceOptionsTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/TraceOptionsTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "TracerTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/TracerTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@mockito//jar",
         "@truth//jar",
     ],
 )

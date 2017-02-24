@@ -49,10 +49,13 @@ install:
 # It undeprecates DoubleSubject.isEqualTo(Double).
 
 # TODO(sebright) Find a way to disable the "cast" warning only for Protocol Buffer generated code.
+
+# TODO(bdrutu): Find a way to enable try. We use try-with-resources without
+# using the local variable.
 script:
   - case "$BUILD" in
       "BAZEL")
-        bazel test ... --javacopt=-Werror --javacopt=-Xlint:all --javacopt=-Xlint:-cast --javacopt=-Xlint:-deprecation ;;
+        bazel test ... --javacopt=-Werror --javacopt=-Xlint:all --javacopt=-Xlint:-cast --javacopt=-Xlint:-deprecation --javacopt=-Xlint:-try ;;
       "MVN")
         case "$TRAVIS_JDK_VERSION" in
           "openjdk6")
