@@ -30,14 +30,27 @@ import java.util.Set;
  * Native implementation {@link StatsContext} serialization.
  */
 final class StatsSerializer {
+  //  * tag_type is one byte, and is used to describe the format of value_bytes.
+  //    In particular, the low 2 bits of this byte are used as follows:
+  //    00 (value 0): string (UTF-8) encoding
+  //    01 (value 1): integer (varint int64 encoding).
+  //    10 (value 2): boolean format.
+  //    11 (value 3): byte sequence. Arbitrary uninterpreted bytes.
+  //    TODO(songya): Currently we only support encoding on string type.
+  static final int TYPE_STRING = 0;
+  static final int TYPE_INTEGER = 1;
+  static final int TYPE_BOOLEAN = 2;
+  static final int TYPE_BYTE_SEQUENCE = 3;
+
   // Serializes a StatsContext by transforming it into a StatsContextProto. The
   // encoded tags are of the form:
-  //   num_tags [key_len key_bytes value_len value_bytes]*
+  //   [tag_type key_len key_bytes value_len value_bytes]*
   static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
     ByteBuffer buffer = ByteBuffer.allocate(1024);
+    // TODO(songya): add support for tag types integer, boolean and byte sequence
     Set<Entry<String, String>> tags = context.tags.entrySet();
-    VarInt.putVarInt(tags.size(), buffer);
     for (Entry<String, String> tag : tags) {
+      VarInt.putVarInt(TYPE_STRING, buffer);
       encode(tag.getKey(), buffer);
       encode(tag.getValue(), buffer);
     }
@@ -48,17 +61,29 @@ final class StatsSerializer {
   }
 
   // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
-  //   num_tags [key_len key_bytes value_len value_bytes]*
+  //   [tag_type key_len key_bytes value_len value_bytes]*
   static StatsContextImpl deserialize(InputStream input) throws IOException {
     try {
       StatsContextProto.StatsContext context = StatsContextProto.StatsContext.parseFrom(input);
       ByteBuffer buffer = context.getTags().asReadOnlyByteBuffer();
-      int numTags = VarInt.getVarInt(buffer);
-      HashMap<String, String> tags = new HashMap<String, String>(numTags);
-      for (int i = 0; i < numTags; i++) {
-        String key = decode(buffer);
-        String val = decode(buffer);
-        tags.put(key, val);
+      HashMap<String, String> tags = new HashMap<String, String>();
+      int limit = buffer.limit();
+      while (buffer.position() < limit) {
+        int type = (int) buffer.get();
+        switch (type) {
+          case TYPE_STRING:
+            String key = decode(buffer);
+            String val = decode(buffer);
+            tags.put(key, val);
+            break;
+          case TYPE_INTEGER:
+          case TYPE_BOOLEAN:
+          case TYPE_BYTE_SEQUENCE:
+            // TODO(songya): add support for tag types integer, boolean and byte sequence
+            break;
+          default:
+            break;
+        }
       }
       return new StatsContextImpl(tags);
     } catch (BufferUnderflowException exn) {
