@@ -38,20 +38,4 @@
     <module>shared</module>
   </modules>
 
-  <properties>
-    <guava.version>19.0</guava.version>
-  </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>3.0.0</version>
-    </dependency>
-  </dependencies>
 </project>

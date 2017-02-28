@@ -8,16 +8,32 @@
   <version>0.1.0-SNAPSHOT</version>
 
   <name>Census Java Core Impl</name>
+
+  <description>
+    Census provides a framework to define and collect stats against metrics and
+    to break those stats down across user-defined dimensions.
+  </description>
   <url>https://github.com/google/instrumentation-java</url>
 
+  <packaging>pom</packaging>
+
   <parent>
-    <groupId>com.google.census</groupId>
-    <artifactId>census-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <groupId>com.google</groupId>
+    <artifactId>google</artifactId>
+    <version>5</version>
   </parent>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <properties>
     <checkstyle.config>google_checks.xml</checkstyle.config>
+    <guava.version>19.0</guava.version>
   </properties>
 
   <dependencies>
@@ -35,6 +51,16 @@
       <groupId>com.google.io</groupId>
       <artifactId>shared</artifactId>
       <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.0</version>
     </dependency>
   </dependencies>
   <build>
