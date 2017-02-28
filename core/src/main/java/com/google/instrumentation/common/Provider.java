@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.common;
 
+import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -50,6 +51,49 @@ public final class Provider {
       } else {
         throw new RuntimeException(e);
       }
+    }
+  }
+
+  /**
+   * Tries to create an instance of the given rawClass as a subclass of the given superclass.
+   *
+   * @param rawClass The class that is initialized.
+   * @param superclass The initialized class must be a subclass of this.
+   * @return an instance of the class given rawClass which is a subclass of the given superclass.
+   * @throws ServiceConfigurationError if any error happens.
+   */
+  public static <T> T createInstance(Class<?> rawClass, Class<T> superclass) {
+    try {
+      return rawClass.asSubclass(superclass).getConstructor().newInstance();
+    } catch (Exception e) {
+      throw new ServiceConfigurationError(
+          "Provider " + rawClass.getName() + " could not be instantiated.", e);
+    }
+  }
+
+  /**
+   * Get the correct {@link ClassLoader} that must be used when loading using reflection.
+   *
+   * @return The correct {@code ClassLoader} that must be used when loading using reflection.
+   */
+  public static <T> ClassLoader getCorrectClassLoader(Class<T> superClass) {
+    if (isAndroid()) {
+      // When android:sharedUserId or android:process is used, Android will setup a dummy
+      // ClassLoader for the thread context (http://stackoverflow.com/questions/13407006),
+      // instead of letting users to manually set context class loader, we choose the
+      // correct class loader here.
+      return superClass.getClassLoader();
+    }
+    return Thread.currentThread().getContextClassLoader();
+  }
+
+  private static boolean isAndroid() {
+    try {
+      Class.forName("android.app.Application", /*initialize=*/ false, null);
+      return true;
+    } catch (Exception e) {
+      // If Application isn't loaded, it might as well not be Android.
+      return false;
     }
   }
 }
