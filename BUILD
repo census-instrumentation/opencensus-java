@@ -67,6 +67,64 @@ java_binary(
     ],
 )
 
+java_binary(
+    name = "BasicTracing",
+    srcs = ["examples/src/main/java/com/google/instrumentation/trace/BasicTracing.java"],
+    main_class = "com.google.instrumentation.trace.BasicTracing",
+    deps = [
+        ":trace-core",
+    ],
+)
+
+java_binary(
+    name = "BasicContextTracing",
+    srcs = ["examples/src/main/java/com/google/instrumentation/trace/BasicContextTracing.java"],
+    main_class = "com.google.instrumentation.trace.BasicContextTracing",
+    deps = [
+        ":common-core",
+        ":trace-core",
+    ],
+)
+
+java_binary(
+    name = "BasicScopedTracing",
+    srcs = ["examples/src/main/java/com/google/instrumentation/trace/BasicScopedTracing.java"],
+    main_class = "com.google.instrumentation.trace.BasicScopedTracing",
+    deps = [
+        ":common-core",
+        ":trace-core",
+    ],
+)
+
+java_binary(
+    name = "MultiSpansTracing",
+    srcs = ["examples/src/main/java/com/google/instrumentation/trace/MultiSpansTracing.java"],
+    main_class = "com.google.instrumentation.trace.MultiSpansTracing",
+    deps = [
+        ":trace-core",
+    ],
+)
+
+java_binary(
+    name = "MultiSpansContextTracing",
+    srcs = ["examples/src/main/java/com/google/instrumentation/trace/MultiSpansContextTracing.java"],
+    main_class = "com.google.instrumentation.trace.MultiSpansContextTracing",
+    deps = [
+        ":common-core",
+        ":trace-core",
+    ],
+)
+
+java_binary(
+    name = "MultiSpansScopedTracing",
+    srcs = ["examples/src/main/java/com/google/instrumentation/trace/MultiSpansScopedTracing.java"],
+    main_class = "com.google.instrumentation.trace.MultiSpansScopedTracing",
+    deps = [
+        ":common-core",
+        ":trace-core",
+    ],
+)
+
 java_test(
     name = "DistributionAggregationDescriptorTest",
     srcs = [
