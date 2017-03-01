@@ -24,8 +24,14 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class StatsContextFactoryTest {
-  @Test(expected = IOException.class)
+  @Test
   public void testDeserializeEmpty() throws Exception {
     Stats.getStatsContextFactory().deserialize(new ByteArrayInputStream(new byte[0]));
+  }
+
+  @Test(expected = IOException.class)
+  public void testDeserializeWrongFormat() throws Exception {
+    // encoded tags should follow the format [tag_type key_len key_bytes value_len value_bytes]*
+    Stats.getStatsContextFactory().deserialize(new ByteArrayInputStream(new byte[1]));
   }
 }

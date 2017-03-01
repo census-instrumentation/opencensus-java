@@ -69,7 +69,7 @@ final class StatsSerializer {
       HashMap<String, String> tags = new HashMap<String, String>();
       int limit = buffer.limit();
       while (buffer.position() < limit) {
-        int type = (int) buffer.get();
+        int type = VarInt.getVarInt(buffer);
         switch (type) {
           case TYPE_STRING:
             String key = decode(buffer);
