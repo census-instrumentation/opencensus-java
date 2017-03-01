@@ -15,47 +15,113 @@ package com.google.instrumentation.common;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.util.ServiceConfigurationError;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link Provider}
- */
+/** Tests for {@link Provider} */
 @RunWith(JUnit4.class)
 public class ProviderTest {
-  @Test
-  public void testGoodClass() throws Exception {
-    GetGen getGen0 =
-        Provider.newInstance("com.google.instrumentation.common.ProviderTest$GetGen", null);
-    assertThat(getGen0).isNotNull();
-    assertThat(getGen0.getGen()).isEqualTo(0);
-    for (int i = 1; i < 10; i++) {
-      GetGen getGenI =
-          Provider.newInstance("com.google.instrumentation.common.ProviderTest$GetGen", null);
-      assertThat(getGenI).isNotNull();
-      assertThat(getGenI.getGen()).isEqualTo(i);
-    }
-    assertThat(getGen0.getGen()).isEqualTo(0);
+  static class GoodClass {
+    public GoodClass() {}
+  }
+
+  static class PrivateConstructorClass {
+    private PrivateConstructorClass() {}
+  }
+
+  static class NoDefaultConstructorClass {
+    public NoDefaultConstructorClass(int arg) {}
+  }
+
+  private static class PrivateClass {}
+
+  static interface MyInterface {}
+
+  static class MyInterfaceImpl implements MyInterface {
+    public MyInterfaceImpl() {}
   }
 
   @Test
-  public void testBadClass() throws Exception {
-    GetGen getGen =
-        Provider.newInstance("com.google.instrumentation.common.ProviderTest$BadClass", null);
-    assertThat(getGen).isNull();
+  public void testGoodClass() {
+    assertThat(
+            Provider.<GoodClass>newInstance(
+                "com.google.instrumentation.common.ProviderTest$GoodClass", null))
+        .isNotNull();
   }
 
-  static class GetGen {
-    static int genCount = 0;
-    int gen;
+  @Test
+  public void testBadClass() {
+    assertThat(
+            Provider.<GoodClass>newInstance(
+                "com.google.instrumentation.common.ProviderTest$BadClass", null))
+        .isNull();
+  }
 
-    public GetGen() {
-      gen = genCount++;
-    }
+  @Test(expected = ServiceConfigurationError.class)
+  public void createInstance_ThrowsErrorWhenClassIsPrivate() throws ClassNotFoundException {
+    Provider.createInstance(
+        Class.forName(
+            "com.google.instrumentation.common.ProviderTest$PrivateClass",
+            true,
+            Provider.getCorrectClassLoader(ProviderTest.class)),
+        PrivateClass.class);
+  }
 
-    public int getGen() {
-      return gen;
-    }
+  @Test(expected = ServiceConfigurationError.class)
+  public void createInstance_ThrowsErrorWhenClassHasPrivateConstructor()
+      throws ClassNotFoundException {
+    Provider.createInstance(
+        Class.forName(
+            "com.google.instrumentation.common.ProviderTest$PrivateConstructorClass",
+            true,
+            Provider.getCorrectClassLoader(ProviderTest.class)),
+        PrivateConstructorClass.class);
+  }
+
+  @Test(expected = ServiceConfigurationError.class)
+  public void createInstance_ThrowsErrorWhenClassDoesNotHaveDefaultConstructor()
+      throws ClassNotFoundException {
+    Provider.createInstance(
+        Class.forName(
+            "com.google.instrumentation.common.ProviderTest$NoDefaultConstructorClass",
+            true,
+            Provider.getCorrectClassLoader(ProviderTest.class)),
+        NoDefaultConstructorClass.class);
+  }
+
+  @Test(expected = ServiceConfigurationError.class)
+  public void createInstance_ThrowsErrorWhenClassIsNotASubclass() throws ClassNotFoundException {
+    Provider.createInstance(
+        Class.forName(
+            "com.google.instrumentation.common.ProviderTest$GoodClass",
+            true,
+            Provider.getCorrectClassLoader(ProviderTest.class)),
+        MyInterface.class);
+  }
+
+  @Test
+  public void createInstance_GoodClass() throws ClassNotFoundException {
+    assertThat(
+            Provider.createInstance(
+                Class.forName(
+                    "com.google.instrumentation.common.ProviderTest$GoodClass",
+                    true,
+                    Provider.getCorrectClassLoader(ProviderTest.class)),
+                GoodClass.class))
+        .isNotNull();
+  }
+
+  @Test
+  public void createInstance_GoodSubclass() throws ClassNotFoundException {
+    assertThat(
+            Provider.createInstance(
+                Class.forName(
+                    "com.google.instrumentation.common.ProviderTest$MyInterfaceImpl",
+                    true,
+                    Provider.getCorrectClassLoader(ProviderTest.class)),
+                MyInterface.class))
+        .isNotNull();
   }
 }
