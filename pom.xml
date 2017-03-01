@@ -10,8 +10,8 @@
   <name>Census Java</name>
 
   <description>
-    Census provides a framework to define and collect stats against metrics and
-    to break those stats down across user-defined dimensions.
+    Instrumentation provides a library that includes functionality for tracing,
+    tagging and stats recording.
   </description>
   <url>https://github.com/google/instrumentation-java</url>
 
