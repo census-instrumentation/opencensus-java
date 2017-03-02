@@ -13,23 +13,20 @@
 
 package com.google.instrumentation.trace;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * The {@code BlankSpan} is a singleton class, which is the default {@link Span} that is used when
  * no {@code Span} implementation is available. All operations are no-op.
  *
  * <p>Used also to stop tracing, see {@link Tracer#withSpan}.
  */
+@Immutable
 public final class BlankSpan extends Span {
-  private static final BlankSpan INSTANCE = new BlankSpan();
-
   /**
-   * Returns the instance of this class.
-   *
-   * @return the instance of this class.
+   * Singleton instance of this class.
    */
-  public static BlankSpan getInstance() {
-    return INSTANCE;
-  }
+  public static final BlankSpan INSTANCE = new BlankSpan();
 
   private BlankSpan() {
     super(SpanContext.getInvalid(), null);
