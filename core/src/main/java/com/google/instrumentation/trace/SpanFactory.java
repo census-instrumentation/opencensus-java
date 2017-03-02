@@ -13,8 +13,6 @@
 
 package com.google.instrumentation.trace;
 
-import com.google.instrumentation.common.Timestamp;
-
 import javax.annotation.Nullable;
 
 /**

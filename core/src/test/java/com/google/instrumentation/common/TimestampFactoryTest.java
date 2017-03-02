@@ -11,7 +11,7 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TimestampFactory}. */
 @RunWith(JUnit4.class)
 public class TimestampFactoryTest {
-  private static final int NUM_NANOS_PER_MILLI = 1000000;
+  private static final int NUM_NANOS_PER_MILLI = 1000 * 1000;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -20,7 +20,7 @@ public class TimestampFactoryTest {
   public void millisGranularity() {
     for (int i = 0; i < 1000000; i++) {
       Timestamp now = TimestampFactory.now();
-      assertThat(now.getSeconds).isGreaterThan(0);
+      assertThat(now.getSeconds()).isGreaterThan(0L);
       assertThat(now.getNanos() % NUM_NANOS_PER_MILLI).isEqualTo(0);
     }
   }
@@ -30,7 +30,7 @@ public class TimestampFactoryTest {
     final RuntimeException toThrow = new RuntimeException("UseClassLoader");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("UseClassLoader");
-    GrpcTraceUtil.loadProtoPropagationHandler(new ClassLoader() {
+    TimestampFactory.loadTimestampFactoryHandler(new ClassLoader() {
       @Override
       public Class<?> loadClass(String name) {
         throw toThrow;
@@ -40,8 +40,8 @@ public class TimestampFactoryTest {
 
   @Test
   public void loadProtoPropagationHandler_IgnoresMissingClasses() {
-    assertThat(GrpcTraceUtil
-                   .loadProtoPropagationHandler(new ClassLoader() {
+    assertThat(TimestampFactory
+                   .loadTimestampFactoryHandler(new ClassLoader() {
                      @Override
                      public Class<?> loadClass(String name) throws ClassNotFoundException {
                        throw new ClassNotFoundException();
@@ -49,6 +49,6 @@ public class TimestampFactoryTest {
                    })
                    .getClass()
                    .getName())
-        .isEqualTo("com.google.instrumentation.common.TimestampFactory$Handler");
+        .isEqualTo("com.google.instrumentation.common.TimestampFactory$DefaultHandler");
   }
 }

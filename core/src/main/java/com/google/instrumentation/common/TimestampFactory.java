@@ -25,7 +25,7 @@ import javax.annotation.concurrent.Immutable;
 public final class TimestampFactory {
   private static final Logger logger = Logger.getLogger(TimestampFactory.class.getName());
   private static final Handler HANDLER =
-      loadTimestamFactoryHandler(Provider.getCorrectClassLoader(Handler.class));
+      loadTimestampFactoryHandler(Provider.getCorrectClassLoader(Handler.class));
 
   private TimestampFactory() {}
 
@@ -40,17 +40,20 @@ public final class TimestampFactory {
 
   // This class cannot be final because in case of java8 runtime we can have a better granularity
   // timestamp.
-  @Immutable
-  static class Handler {
-    protected Handler() {};
+  interface Handler {
+    Timestamp timeNow();
+  }
 
-    protected Timestamp timeNow() {
+  @Immutable
+  static final class DefaultHandler implements Handler {
+    @Override
+    public Timestamp timeNow() {
       return Timestamp.fromMillis(System.currentTimeMillis());
     }
   }
 
   @VisibleForTesting
-  static Handler loadTimestamFactoryHandler(ClassLoader classLoader) {
+  static Handler loadTimestampFactoryHandler(ClassLoader classLoader) {
     try {
       return Provider.createInstance(
           Class.forName(
@@ -59,6 +62,6 @@ public final class TimestampFactory {
     } catch (ClassNotFoundException e) {
       logger.log(Level.FINE, "Using default implementation for TimestampFactory$Handler.", e);
     }
-    return new Handler();
+    return new DefaultHandler();
   }
 }

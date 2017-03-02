@@ -359,6 +359,19 @@ java_test(
 )
 
 java_test(
+    name = "TimestampFactoryTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/common/TimestampFactoryTest.java"],
+    deps = [
+        ":common-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
     name = "ViewDescriptorTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/ViewDescriptorTest.java"],
     deps = [

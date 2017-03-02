@@ -24,7 +24,7 @@ public final class Timestamp {
   private static final long MAX_SECONDS = 315576000000L;
   private static final int MAX_NANOS = 999999999;
   private static final long NUM_MILLIS_PER_SECOND = 1000L;
-  private static final int NUM_NANOS_PER_MILLI = 1000000;
+  private static final int NUM_NANOS_PER_MILLI = 1000 * 1000;
   private final long seconds;
   private final int nanos;
 
