@@ -24,27 +24,27 @@ import org.junit.runners.JUnit4;
 public class BlankSpanTest {
   @Test
   public void hasInvalidContextAndDefaultSpanOptions() {
-    assertThat(BlankSpan.getInstance().getContext()).isEqualTo(SpanContext.getInvalid());
-    assertThat(BlankSpan.getInstance().getOptions().isEmpty()).isTrue();
+    assertThat(BlankSpan.INSTANCE.getContext()).isEqualTo(SpanContext.getInvalid());
+    assertThat(BlankSpan.INSTANCE.getOptions().isEmpty()).isTrue();
   }
 
   @Test
   public void doNotCrash() {
     // Tests only that all the methods are not crashing/throwing errors.
-    BlankSpan.getInstance()
+    BlankSpan.INSTANCE
         .addLabels(Labels.builder().putStringLabel("MyLabelKey", "MyLabelValue").build());
-    BlankSpan.getInstance().addAnnotation("MyAnnotation");
-    BlankSpan.getInstance()
+    BlankSpan.INSTANCE.addAnnotation("MyAnnotation");
+    BlankSpan.INSTANCE
         .addAnnotation(
             "MyAnnotation", Labels.builder().putStringLabel("MyLabelKey", "MyLabelValue").build());
-    BlankSpan.getInstance()
+    BlankSpan.INSTANCE
         .addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).build());
-    BlankSpan.getInstance().addChildLink(BlankSpan.getInstance());
-    BlankSpan.getInstance().end(EndSpanOptions.getDefault());
+    BlankSpan.INSTANCE.addChildLink(BlankSpan.INSTANCE);
+    BlankSpan.INSTANCE.end(EndSpanOptions.getDefault());
   }
 
   @Test
   public void blankSpan_ToString() {
-    assertThat(BlankSpan.getInstance().toString()).isEqualTo("BlankSpan");
+    assertThat(BlankSpan.INSTANCE.toString()).isEqualTo("BlankSpan");
   }
 }

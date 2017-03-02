@@ -26,9 +26,8 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link StartSpanOptions}. */
 @RunWith(JUnit4.class)
 public class StartSpanOptionsTest {
-  private final Span singleParent = BlankSpan.getInstance();
-  private final List<Span> parentList =
-      Arrays.asList(BlankSpan.getInstance(), BlankSpan.getInstance());
+  private final Span singleParent = BlankSpan.INSTANCE;
+  private final List<Span> parentList = Arrays.asList(BlankSpan.INSTANCE, BlankSpan.INSTANCE);
 
   @Test
   public void defaultOptions() {

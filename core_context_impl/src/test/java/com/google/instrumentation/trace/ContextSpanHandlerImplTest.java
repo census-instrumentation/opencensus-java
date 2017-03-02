@@ -39,7 +39,7 @@ public class ContextSpanHandlerImplTest {
   @Test
   public void getCurrentSpan_WhenNoContext() {
     assertThat(new ContextSpanHandlerImpl().getCurrentSpan()).isNull();
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.getInstance());
+    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test

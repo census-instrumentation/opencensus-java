@@ -95,7 +95,7 @@ public final class Tracer {
    */
   public Span getCurrentSpan() {
     Span currentSpan = contextSpanHandler.getCurrentSpan();
-    return currentSpan != null ? currentSpan : BlankSpan.getInstance();
+    return currentSpan != null ? currentSpan : BlankSpan.INSTANCE;
   }
 
   // TODO(bdrutu): Add error_prone annotation @MustBeClosed when the 2.0.16 jar is fixed.
@@ -377,13 +377,13 @@ public final class Tracer {
 
     @Override
     public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
-      return BlankSpan.getInstance();
+      return BlankSpan.INSTANCE;
     }
 
     @Override
     public Span startSpanWithRemoteParent(
         @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
-      return BlankSpan.getInstance();
+      return BlankSpan.INSTANCE;
     }
   }
 
