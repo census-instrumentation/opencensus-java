@@ -13,16 +13,52 @@
 
 package com.google.instrumentation.common;
 
+import com.google.common.annotations.VisibleForTesting;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.concurrent.Immutable;
+
 /**
- * An interface for a factory that generates timestamps.
- *
- * @see Timestamp
+ * Factory for {@link Timestamp}. See {@link #now} for how to use this class.
  */
-public interface TimestampFactory {
+public final class TimestampFactory {
+  private static final Logger logger = Logger.getLogger(TimestampFactory.class.getName());
+  private static final Handler HANDLER =
+      loadTimestamFactoryHandler(Provider.getCorrectClassLoader(Handler.class));
+
+  private TimestampFactory() {}
+
   /**
-   * Returns a new timestamp that represents the instant this method was called.
+   * Obtains the current instant from the system clock.
    *
-   * @return the new timestamp.
+   * @return the current instant using the system clock, not null.
    */
-  Timestamp now();
+  public static Timestamp now() {
+    return HANDLER.timeNow();
+  }
+
+  // This class cannot be final because in case of java8 runtime we can have a better granularity
+  // timestamp.
+  @Immutable
+  static class Handler {
+    protected Handler() {};
+
+    protected Timestamp timeNow() {
+      return Timestamp.fromMillis(System.currentTimeMillis());
+    }
+  }
+
+  @VisibleForTesting
+  static Handler loadTimestamFactoryHandler(ClassLoader classLoader) {
+    try {
+      return Provider.createInstance(
+          Class.forName(
+              "com.google.instrumentation.common.TimestampFactoryHandlerImpl", true, classLoader),
+          Handler.class);
+    } catch (ClassNotFoundException e) {
+      logger.log(Level.FINE, "Using default implementation for TimestampFactory$Handler.", e);
+    }
+    return new Handler();
+  }
 }

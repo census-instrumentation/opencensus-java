@@ -73,15 +73,6 @@ public final class Tracer {
   }
 
   /**
-   * Returns the current {@link Timestamp timestamp}.
-   *
-   * @return the current timestamp.
-   */
-  public Timestamp timeNow() {
-    return spanFactory.timeNow();
-  }
-
-  /**
    * Gets the current Span from the current Context.
    *
    * <p>To install a {@link Span} to the current Context use {@link #withSpan(Span)} OR use {@link
@@ -368,13 +359,6 @@ public final class Tracer {
 
   // No-op implementation of the SpanFactory
   private static final class NoopSpanFactory extends SpanFactory {
-    private static final Timestamp ZERO_TIME = Timestamp.create(0, 0);
-
-    @Override
-    public Timestamp timeNow() {
-      return ZERO_TIME;
-    }
-
     @Override
     public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
       return BlankSpan.INSTANCE;

@@ -16,8 +16,25 @@ package com.google.instrumentation.common;
 /**
  * A representation of an instant in time. The instant is the number of nanoseconds after the number
  * of seconds since the Unix Epoch.
+ *
+ * <p>Use {@link TimestampFactory#now} to get the current timestamp since epoch
+ * (1970-01-01T00:00:00Z).
  */
-public class Timestamp {
+public final class Timestamp {
+  private static final long MAX_SECONDS = 315576000000L;
+  private static final int MAX_NANOS = 999999999;
+  private static final long NUM_MILLIS_PER_SECOND = 1000L;
+  private static final int NUM_NANOS_PER_MILLI = 1000000;
+  private final long seconds;
+  private final int nanos;
+
+  private Timestamp(long seconds, int nanos) {
+    this.seconds = seconds;
+    this.nanos = nanos;
+  }
+
+  // TODO(bdrutu): Make create and fromMillis package-protected.
+
   /**
    * Creates a new timestamp from given seconds and nanoseconds.
    *
@@ -99,17 +116,4 @@ public class Timestamp {
   public String toString() {
     return "Timestamp<" + seconds + "," + nanos + ">";
   }
-
-  private static final long MAX_SECONDS = 315576000000L;
-  private static final int MAX_NANOS = 999999999;
-  private static final long NUM_MILLIS_PER_SECOND = 1000L;
-  private static final int NUM_NANOS_PER_MILLI = 1000000;
-  private final long seconds;
-  private final int nanos;
-
-  private Timestamp(long seconds, int nanos) {
-    this.seconds = seconds;
-    this.nanos = nanos;
-  }
-
 }

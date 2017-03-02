@@ -15,7 +15,10 @@
 java_library(
     name = "common-core",
     srcs = glob(["core/src/main/java/com/google/instrumentation/common/*.java"]),
-    deps = ["@jsr305//jar"],
+    deps = [
+        "@guava//jar",
+        "@jsr305//jar",
+    ],
 )
 
 java_library(

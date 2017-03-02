@@ -18,18 +18,9 @@ import com.google.instrumentation.common.Timestamp;
 import javax.annotation.Nullable;
 
 /**
- * Class to create and start a {@link Span}. It also provides an implementation specific way to grab
- * the current {@link Timestamp}s for events like {@code Span} start and end or {@link NetworkEvent}
- * kernel timestamps.
+ * Factory class to create and start a {@link Span}.
  */
 abstract class SpanFactory {
-  /**
-   * Returns the current {@link Timestamp}. This is implementation specific.
-   *
-   * @return the current {@code Timestamp}.
-   */
-  abstract Timestamp timeNow();
-
   /**
    * Creates and starts a new child {@link Span} (or root if parent is {@code null}), with parent
    * being the designated {@code Span} and the given options.
