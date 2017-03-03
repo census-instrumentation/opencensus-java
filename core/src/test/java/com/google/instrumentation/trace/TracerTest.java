@@ -21,7 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
-import com.google.instrumentation.common.Timestamp;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
