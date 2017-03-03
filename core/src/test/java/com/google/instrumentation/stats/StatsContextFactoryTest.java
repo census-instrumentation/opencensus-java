@@ -63,7 +63,7 @@ public class StatsContextFactoryTest {
     testDeserialize(new ByteArrayInputStream(new byte[1]));
   }
 
-  private StatsContext testDeserialize(InputStream inputStream) throws IOException {
+  private static StatsContext testDeserialize(InputStream inputStream) throws IOException {
     return Stats.getStatsContextFactory().deserialize(inputStream);
   }
 
@@ -93,20 +93,20 @@ public class StatsContextFactoryTest {
     return new ByteArrayInputStream(buffer.array());
   }
 
-  private void encodeString(String input, ByteBuffer buffer) {
+  private static void encodeString(String input, ByteBuffer buffer) {
     VarInt.putVarInt(input.length(), buffer);
     for (int i = 0; i < input.length(); i++) {
       buffer.put((byte) input.charAt(i));
     }
   }
 
-  private void encodeInteger(int input, ByteBuffer buffer) {
-    VarInt.putVarInt(Integer.valueOf(input).toString().length(), buffer);
+  private static void encodeInteger(int input, ByteBuffer buffer) {
+    VarInt.putVarInt(Integer.toString(input).length(), buffer);
     buffer.put((byte) input);
   }
 
-  private void encodeBoolean(boolean input, ByteBuffer buffer) {
-    VarInt.putVarInt(Boolean.valueOf(input).toString().length(), buffer);
+  private static void encodeBoolean(boolean input, ByteBuffer buffer) {
+    VarInt.putVarInt(Boolean.toString(input).length(), buffer);
     buffer.put((byte) (input? 1 : 0));
   }
 }
