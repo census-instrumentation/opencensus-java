@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.common.Provider;
-import com.google.instrumentation.common.Timestamp;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,15 +69,6 @@ public final class Tracer {
    */
   public static Tracer getTracer() {
     return INSTANCE;
-  }
-
-  /**
-   * Returns the current {@link Timestamp timestamp}.
-   *
-   * @return the current timestamp.
-   */
-  public Timestamp timeNow() {
-    return spanFactory.timeNow();
   }
 
   /**
@@ -368,13 +358,6 @@ public final class Tracer {
 
   // No-op implementation of the SpanFactory
   private static final class NoopSpanFactory extends SpanFactory {
-    private static final Timestamp ZERO_TIME = Timestamp.create(0, 0);
-
-    @Override
-    public Timestamp timeNow() {
-      return ZERO_TIME;
-    }
-
     @Override
     public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
       return BlankSpan.INSTANCE;

@@ -15,7 +15,10 @@
 java_library(
     name = "common-core",
     srcs = glob(["core/src/main/java/com/google/instrumentation/common/*.java"]),
-    deps = ["@jsr305//jar"],
+    deps = [
+        "@guava//jar",
+        "@jsr305//jar",
+    ],
 )
 
 java_library(
@@ -345,6 +348,19 @@ java_test(
 java_test(
     name = "TimestampTest",
     srcs = ["core/src/test/java/com/google/instrumentation/common/TimestampTest.java"],
+    deps = [
+        ":common-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "TimestampFactoryTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/common/TimestampFactoryTest.java"],
     deps = [
         ":common-core",
         "@guava//jar",

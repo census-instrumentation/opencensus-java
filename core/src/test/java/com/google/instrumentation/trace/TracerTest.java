@@ -42,11 +42,6 @@ public class TracerTest {
   @Mock private Span span;
   @Mock private NonThrowingCloseable withSpan;
 
-  @Test
-  public void defaultTimeNow() {
-    assertThat(tracer.timeNow()).isEqualTo(Timestamp.create(0, 0));
-  }
-
   @Test(expected = NullPointerException.class)
   public void withSpan_NullSpan() {
     try (NonThrowingCloseable ws = tracer.withSpan(null)) {}
