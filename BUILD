@@ -185,6 +185,7 @@ java_test(
     name = "StatsContextFactoryTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/StatsContextFactoryTest.java"],
     deps = [
+        ":shared",
         ":stats-core",
         ":stats-core_impl",
         "@guava//jar",
