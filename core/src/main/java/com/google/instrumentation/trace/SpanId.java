@@ -24,7 +24,7 @@ import javax.annotation.concurrent.Immutable;
  * A class that represents a span identifier. A span identifier is a 64-bit, unsigned integer.
  */
 @Immutable
-public class SpanId {
+public final class SpanId {
   private static final long INVALID_SPAN_ID = 0;
   private final long spanId;
 

@@ -432,7 +432,6 @@ java_test(
     name = "LabelValueTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/LabelValueTest.java"],
     deps = [
-        ":common-core",
         ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
@@ -446,7 +445,6 @@ java_test(
     name = "LabelsTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/LabelsTest.java"],
     deps = [
-        ":common-core",
         ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
@@ -474,7 +472,6 @@ java_test(
     name = "SamplersTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SamplersTest.java"],
     deps = [
-        ":common-core",
         ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
@@ -503,7 +500,19 @@ java_test(
     name = "SpanContextTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanContextTest.java"],
     deps = [
-        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
+    name = "SpanIdTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanIdTest.java"],
+    deps = [
         ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
@@ -546,7 +555,6 @@ java_test(
     name = "StatusTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/StatusTest.java"],
     deps = [
-        ":common-core",
         ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
@@ -560,7 +568,6 @@ java_test(
     name = "TraceIdTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/TraceIdTest.java"],
     deps = [
-        ":common-core",
         ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",

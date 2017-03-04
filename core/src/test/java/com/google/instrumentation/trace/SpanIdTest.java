@@ -38,7 +38,7 @@ public class SpanIdTest {
 
   @Test
   public void getSpanId() {
-    assertThat(first.getSpanId()).isEqualTo(0);
+    assertThat(first.getSpanId()).isEqualTo(123);
   }
 
   @Test

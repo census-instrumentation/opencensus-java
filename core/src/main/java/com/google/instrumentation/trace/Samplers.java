@@ -53,7 +53,7 @@ public final class Samplers {
         @Nullable SpanContext parentContext,
         boolean remoteParent,
         TraceId traceId,
-        long spanId,
+        SpanId spanId,
         String name,
         List<Span> parentLinks) {
       return true;
@@ -74,7 +74,7 @@ public final class Samplers {
         @Nullable SpanContext parentContext,
         boolean remoteParent,
         TraceId traceId,
-        long spanId,
+        SpanId spanId,
         String name,
         List<Span> parentLinks) {
       return false;
