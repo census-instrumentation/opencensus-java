@@ -19,7 +19,6 @@ build:error_prone_warnings \
     --javacopt='-Xep:FloatingPointLiteralPrecision:ERROR' \
     --javacopt='-Xep:FragmentInjection:ERROR' \
     --javacopt='-Xep:FragmentNotInstantiable:ERROR' \
-    --javacopt='-Xep:FunctionalInterfaceClash:ERROR' \
     --javacopt='-Xep:FutureReturnValueIgnored:ERROR' \
     --javacopt='-Xep:GetClassOnEnum:ERROR' \
     --javacopt='-Xep:ImmutableAnnotationChecker:ERROR' \
@@ -32,7 +31,6 @@ build:error_prone_warnings \
     --javacopt='-Xep:JUnitAmbiguousTestClass:ERROR' \
     --javacopt='-Xep:LiteralClassName:ERROR' \
     --javacopt='-Xep:MissingFail:ERROR' \
-    --javacopt='-Xep:MissingOverride:ERROR' \
     --javacopt='-Xep:MutableConstantField:ERROR' \
     --javacopt='-Xep:NarrowingCompoundAssignment:ERROR' \
     --javacopt='-Xep:NonAtomicVolatileUpdate:ERROR' \
@@ -45,7 +43,6 @@ build:error_prone_warnings \
     --javacopt='-Xep:PreconditionsInvalidPlaceholder:ERROR' \
     --javacopt='-Xep:ProtoFieldPreconditionsCheckNotNull:ERROR' \
     --javacopt='-Xep:ProtocolBufferOrdinal:ERROR' \
-    --javacopt='-Xep:ReferenceEquality:ERROR' \
     --javacopt='-Xep:RequiredModifiers:ERROR' \
     --javacopt='-Xep:ShortCircuitBoolean:ERROR' \
     --javacopt='-Xep:SimpleDateFormatConstant:ERROR' \
@@ -57,3 +54,12 @@ build:error_prone_warnings \
     --javacopt='-Xep:URLEqualsHashCode:ERROR' \
     --javacopt='-Xep:UnsynchronizedOverridesSynchronized:ERROR' \
     --javacopt='-Xep:WaitNotInLoop:ERROR' \
+
+# TODO(sebright): Suppress warnings from generated Protocol Buffer classes and
+# then enable these three warnings.  It may become easier to suppress warnings
+# in Protocol Buffer code once we switch to using the java_proto_library build
+# rule (https://github.com/google/instrumentation-proto/issues/21).
+
+    # --javacopt='-Xep:FunctionalInterfaceClash:ERROR' \
+    # --javacopt='-Xep:MissingOverride:ERROR' \
+    # --javacopt='-Xep:ReferenceEquality:ERROR' \
