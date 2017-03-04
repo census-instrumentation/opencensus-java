@@ -16,26 +16,25 @@ package com.google.instrumentation.trace;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-import java.util.Formatter;
-import java.util.Locale;
 import javax.annotation.concurrent.Immutable;
 
 /**
  * A class that represents a span context. A span context contains the state that must propagate
  * to child {@link Span}s and across process boundaries. It contains the identifiers (a {@link
- * TraceId trace_id} and span_id) associated with the {@link Span} and a set of {@link TraceOptions
- * options}.
+ * TraceId trace_id} and {@link SpanId span_id}) associated with the {@link Span} and a set of
+ * {@link TraceOptions options}.
  */
 @Immutable
 public final class SpanContext {
-  private static final long INVALID_SPAN_ID = 0;
-
-  private static final SpanContext INVALID_CONTEXT =
-      new SpanContext(TraceId.getInvalid(), INVALID_SPAN_ID, TraceOptions.getDefault());
-
   private final TraceId traceId;
-  private final long spanId;
+  private final SpanId spanId;
   private final TraceOptions traceOptions;
+
+  /**
+   * The invalid {@code SpanContext}.
+   */
+  public static final SpanContext INVALID =
+      new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.getDefault());
 
   /**
    * Creates a new {@code SpanContext} with the given identifiers and options.
@@ -44,7 +43,7 @@ public final class SpanContext {
    * @param spanId the span identifier of the span context.
    * @param traceOptions the trace options for the span context.
    */
-  SpanContext(TraceId traceId, long spanId, TraceOptions traceOptions) {
+  SpanContext(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
     this.traceId = traceId;
     this.spanId = spanId;
     this.traceOptions = traceOptions;
@@ -64,7 +63,7 @@ public final class SpanContext {
    *
    * @return the span identifier associated with this {@code SpanContext}.
    */
-  public long getSpanId() {
+  public SpanId getSpanId() {
     return spanId;
   }
 
@@ -83,16 +82,7 @@ public final class SpanContext {
    * @return true if this {@code SpanContext} is valid.
    */
   public boolean isValid() {
-    return traceId.isValid() && spanId != INVALID_SPAN_ID;
-  }
-
-  /**
-   * Returns an invalid {@code SpanContext}.
-   *
-   * @return an invalid {@code SpanContext}.
-   */
-  public static SpanContext getInvalid() {
-    return INVALID_CONTEXT;
+    return traceId.isValid() && spanId.isValid();
   }
 
   @Override
@@ -107,7 +97,7 @@ public final class SpanContext {
 
     SpanContext that = (SpanContext) obj;
     return traceId.equals(that.traceId)
-        && spanId == that.spanId
+        && spanId.equals(that.spanId)
         && traceOptions.equals(that.traceOptions);
   }
 
@@ -120,7 +110,7 @@ public final class SpanContext {
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("traceId", traceId)
-        .add("spanId", new Formatter(Locale.US).format("%016x", spanId).toString())
+        .add("spanId", spanId)
         .add("traceOptions", traceOptions)
         .toString();
   }

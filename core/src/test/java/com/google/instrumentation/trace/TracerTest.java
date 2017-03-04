@@ -229,7 +229,7 @@ public class TracerTest {
     when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
     try (NonThrowingCloseable ss = mockTracer.startScopedSpan("MySpanName")) {}
     verify(withSpan).close();
-    verify(span).end(same(EndSpanOptions.getDefault()));
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
@@ -243,7 +243,7 @@ public class TracerTest {
     when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
     try (NonThrowingCloseable ss = mockTracer.startScopedSpan("MySpanName", startSpanOptions)) {}
     verify(withSpan).close();
-    verify(span).end(same(EndSpanOptions.getDefault()));
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
@@ -254,7 +254,7 @@ public class TracerTest {
     when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
     try (NonThrowingCloseable ss = mockTracer.startScopedSpan(span, "MySpanName")) {}
     verify(withSpan).close();
-    verify(span).end(same(EndSpanOptions.getDefault()));
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
@@ -267,7 +267,7 @@ public class TracerTest {
     try (NonThrowingCloseable ss =
         mockTracer.startScopedSpan(span, "MySpanName", startSpanOptions)) {}
     verify(withSpan).close();
-    verify(span).end(same(EndSpanOptions.getDefault()));
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
@@ -291,7 +291,8 @@ public class TracerTest {
   @Test
   public void startSpanWitRemoteParent() {
     Tracer mockTracer = newTracerWithMocks();
-    SpanContext spanContext = new SpanContext(new TraceId(10, 20), 30, TraceOptions.getDefault());
+    SpanContext spanContext = new SpanContext(new TraceId(10, 20), new SpanId(30),
+        TraceOptions.getDefault());
     StartSpanOptions startSpanOptions = StartSpanOptions.builder().build();
     when(spanFactory.startSpanWithRemoteParent(
             same(spanContext), eq("MySpanName"), same(startSpanOptions)))

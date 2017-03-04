@@ -31,8 +31,8 @@ public class EndSpanOptionsTest {
 
   @Test
   public void endSpanOptions_DefaultOptions() {
-    assertThat(EndSpanOptions.getDefault().getStatus()).isEqualTo(Status.OK);
-    assertThat(EndSpanOptions.getDefault().getEndTime()).isNull();
+    assertThat(EndSpanOptions.DEFAULT.getStatus()).isEqualTo(Status.OK);
+    assertThat(EndSpanOptions.DEFAULT.getEndTime()).isNull();
   }
 
   @Test
@@ -70,7 +70,7 @@ public class EndSpanOptionsTest {
             .setEndTime(Timestamp.fromMillis(123456L))
             .setStatus(Status.CANCELLED.withDescription("ThisIsAnError"))
             .build());
-    tester.addEqualityGroup(EndSpanOptions.builder().build(), EndSpanOptions.getDefault());
+    tester.addEqualityGroup(EndSpanOptions.builder().build(), EndSpanOptions.DEFAULT);
     tester.testEquals();
   }
 

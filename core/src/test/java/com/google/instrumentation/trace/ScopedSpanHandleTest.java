@@ -46,6 +46,6 @@ public class ScopedSpanHandleTest {
       // Do nothing.
     }
     verify(ntc).close();
-    verify(span).end(same(EndSpanOptions.getDefault()));
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 }

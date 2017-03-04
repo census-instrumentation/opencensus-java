@@ -26,11 +26,12 @@ public class SamplersTest {
   @Test
   public void alwaysSampleSampler_AlwaysReturnTrue() {
     TraceId traceId = new TraceId(2, 3);
+    SpanId spanId = new SpanId(17);
     // Traced parent.
     assertThat(
             Samplers.alwaysSample()
                 .shouldSample(
-                    new SpanContext(traceId, 17, new TraceOptions(TraceOptions.IS_SAMPLED)),
+                    new SpanContext(traceId, spanId, new TraceOptions(TraceOptions.IS_SAMPLED)),
                     false,
                     traceId,
                     42,
@@ -41,7 +42,7 @@ public class SamplersTest {
     assertThat(
             Samplers.alwaysSample()
                 .shouldSample(
-                    new SpanContext(traceId, 19, new TraceOptions(0)),
+                    new SpanContext(traceId, spanId, new TraceOptions(0)),
                     false,
                     traceId,
                     42,
@@ -58,11 +59,12 @@ public class SamplersTest {
   @Test
   public void neverSampleSampler_AlwaysReturnFalse() {
     TraceId traceId = new TraceId(4, 5);
+    SpanId spanId = new SpanId(19);
     // Traced parent.
     assertThat(
             Samplers.neverSample()
                 .shouldSample(
-                    new SpanContext(traceId, 17, new TraceOptions(TraceOptions.IS_SAMPLED)),
+                    new SpanContext(traceId, spanId, new TraceOptions(TraceOptions.IS_SAMPLED)),
                     false,
                     traceId,
                     42,
@@ -73,7 +75,7 @@ public class SamplersTest {
     assertThat(
             Samplers.neverSample()
                 .shouldSample(
-                    new SpanContext(traceId, 17, new TraceOptions(0)),
+                    new SpanContext(traceId, spanId, new TraceOptions(0)),
                     false,
                     traceId,
                     42,

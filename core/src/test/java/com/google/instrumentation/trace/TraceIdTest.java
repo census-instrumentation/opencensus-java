@@ -29,13 +29,13 @@ public class TraceIdTest {
 
   @Test
   public void invalidTraceId() {
-    assertThat(TraceId.getInvalid().getTraceIdLo()).isEqualTo(0);
-    assertThat(TraceId.getInvalid().getTraceIdHi()).isEqualTo(0);
+    assertThat(TraceId.INVALID.getTraceIdLo()).isEqualTo(0);
+    assertThat(TraceId.INVALID.getTraceIdHi()).isEqualTo(0);
   }
 
   @Test
   public void isValid() {
-    assertThat(TraceId.getInvalid().isValid()).isFalse();
+    assertThat(TraceId.INVALID.isValid()).isFalse();
     assertThat(second.isValid()).isTrue();
     assertThat(third.isValid()).isTrue();
     assertThat(first.isValid()).isTrue();
@@ -58,7 +58,7 @@ public class TraceIdTest {
   @Test
   public void traceId_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
-    tester.addEqualityGroup(TraceId.getInvalid(), TraceId.getInvalid());
+    tester.addEqualityGroup(TraceId.INVALID, TraceId.INVALID);
     tester.addEqualityGroup(first, new TraceId(123, 456));
     tester.addEqualityGroup(second, new TraceId(0, 789));
     tester.addEqualityGroup(third, new TraceId(987, 0));
@@ -67,7 +67,7 @@ public class TraceIdTest {
 
   @Test
   public void traceId_ToString() {
-    assertThat(TraceId.getInvalid().toString()).contains("00000000000000000000000000000000");
+    assertThat(TraceId.INVALID.toString()).contains("00000000000000000000000000000000");
     assertThat(new TraceId(0, 0xFEDCBA9876543210L).toString())
         .contains("0000000000000000fedcba9876543210");
     assertThat(new TraceId(0x0123456789ABCDEFL, 0).toString())

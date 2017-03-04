@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4;
 public class BlankSpanTest {
   @Test
   public void hasInvalidContextAndDefaultSpanOptions() {
-    assertThat(BlankSpan.INSTANCE.getContext()).isEqualTo(SpanContext.getInvalid());
+    assertThat(BlankSpan.INSTANCE.getContext()).isEqualTo(SpanContext.INVALID);
     assertThat(BlankSpan.INSTANCE.getOptions().isEmpty()).isTrue();
   }
 
@@ -40,7 +40,7 @@ public class BlankSpanTest {
     BlankSpan.INSTANCE
         .addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).build());
     BlankSpan.INSTANCE.addChildLink(BlankSpan.INSTANCE);
-    BlankSpan.INSTANCE.end(EndSpanOptions.getDefault());
+    BlankSpan.INSTANCE.end(EndSpanOptions.DEFAULT);
   }
 
   @Test

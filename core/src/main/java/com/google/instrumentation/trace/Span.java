@@ -122,7 +122,7 @@ public abstract class Span implements NonThrowingCloseable {
    * implementations are free to ignore all further calls.
    */
   public final void end() {
-    end(EndSpanOptions.getDefault());
+    end(EndSpanOptions.DEFAULT);
   }
 
   /**
@@ -148,6 +148,6 @@ public abstract class Span implements NonThrowingCloseable {
    */
   @Override
   public final void close() {
-    end(EndSpanOptions.getDefault());
+    end(EndSpanOptions.DEFAULT);
   }
 }
