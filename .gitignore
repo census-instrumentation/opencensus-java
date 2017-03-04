@@ -1,6 +1,26 @@
+# Bazel
 bazel-*
+
+# Maven (examples)
 target
-TAGS
+
+# IntelliJ IDEA
+.idea
+*.iml
+
+# Eclipse
 .classpath
 .project
 .settings
+.gitignore
+bin
+
+# OS X
+.DS_Store
+
+# Emacs
+*~
+\#*\#
+
+# Other
+TAGS
