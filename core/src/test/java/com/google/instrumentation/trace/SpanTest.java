@@ -27,7 +27,7 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public class SpanTest {
   private static final SpanContext spanContext =
-      new SpanContext(new TraceId(10, 20), 30, TraceOptions.getDefault());
+      new SpanContext(new TraceId(10, 20), new SpanId(30), TraceOptions.getDefault());
   private static final EnumSet<Span.Options> spanOptions = EnumSet.of(Span.Options.RECORD_EVENTS);
 
   @Test(expected = NullPointerException.class)
@@ -52,14 +52,14 @@ public class SpanTest {
   public void endCallsEndWithDefaultOptions() {
     Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
     span.end();
-    verify(span).end(same(EndSpanOptions.getDefault()));
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
   public void closeCallsEndWithDefaultOptions() {
     Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
     span.close();
-    verify(span).end(same(EndSpanOptions.getDefault()));
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   // No-op implementation of the Span for testing only.

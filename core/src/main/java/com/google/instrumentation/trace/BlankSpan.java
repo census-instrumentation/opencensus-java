@@ -29,7 +29,7 @@ public final class BlankSpan extends Span {
   public static final BlankSpan INSTANCE = new BlankSpan();
 
   private BlankSpan() {
-    super(SpanContext.getInvalid(), null);
+    super(SpanContext.INVALID, null);
   }
 
   /**

@@ -28,24 +28,17 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class EndSpanOptions {
-  // Default set of options.
-  private static final EndSpanOptions DEFAULT_OPTIONS = builder().build();
-
   private final Status status;
   private final Timestamp endTime;
+
+  /**
+   * The default {@code EndSpanOptions}.
+   */
+  public static final EndSpanOptions DEFAULT = builder().build();
 
   private EndSpanOptions(Timestamp endTime, Status status) {
     this.endTime = endTime;
     this.status = status;
-  }
-
-  /**
-   * Returns default {@code EndSpanOptions}.
-   *
-   * @return default {@code EndSpanOptions}.
-   */
-  public static EndSpanOptions getDefault() {
-    return DEFAULT_OPTIONS;
   }
 
   /**

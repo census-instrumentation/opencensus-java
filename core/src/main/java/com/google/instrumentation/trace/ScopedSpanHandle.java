@@ -44,6 +44,6 @@ final class ScopedSpanHandle implements NonThrowingCloseable {
   @Override
   public void close() {
     withSpan.close();
-    span.end(EndSpanOptions.getDefault());
+    span.end(EndSpanOptions.DEFAULT);
   }
 }

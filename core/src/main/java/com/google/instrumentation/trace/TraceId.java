@@ -26,9 +26,13 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class TraceId {
-  private static final TraceId INVALID_ID = new TraceId(0, 0);
   private final long traceIdHi;
   private final long traceIdLo;
+
+  /**
+   * The invalid {@code TraceId}.
+   */
+  public static final TraceId INVALID = new TraceId(0, 0);
 
   /**
    * Creates a new {@code TraceId} whose value is taken from the given params.
@@ -65,16 +69,7 @@ public final class TraceId {
    * @return true if the {@code TraceId} is valid.
    */
   public boolean isValid() {
-    return !this.equals(INVALID_ID);
-  }
-
-  /**
-   * Returns the invalid {@code TraceId}.
-   *
-   * @return the invalid {@code TraceId}.
-   */
-  public static TraceId getInvalid() {
-    return INVALID_ID;
+    return traceIdLo != 0 || traceIdHi != 0;
   }
 
   @Override

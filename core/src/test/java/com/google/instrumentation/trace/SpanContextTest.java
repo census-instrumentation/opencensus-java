@@ -24,23 +24,26 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class SpanContextTest {
   private static final SpanContext first =
-      new SpanContext(new TraceId(0, 10), 30, TraceOptions.getDefault());
+      new SpanContext(new TraceId(0, 10), new SpanId(30), TraceOptions.getDefault());
   private static final SpanContext second =
-      new SpanContext(new TraceId(0, 20), 40, new TraceOptions(TraceOptions.IS_SAMPLED));
+      new SpanContext(
+          new TraceId(0, 20), new SpanId(40), new TraceOptions(TraceOptions.IS_SAMPLED));
 
   @Test
   public void invalidSpanContext() {
-    assertThat(SpanContext.getInvalid().getTraceId()).isEqualTo(TraceId.getInvalid());
-    assertThat(SpanContext.getInvalid().getSpanId()).isEqualTo(0);
-    assertThat(SpanContext.getInvalid().getTraceOptions()).isEqualTo(TraceOptions.getDefault());
+    assertThat(SpanContext.INVALID.getTraceId()).isEqualTo(TraceId.INVALID);
+    assertThat(SpanContext.INVALID.getSpanId()).isEqualTo(SpanId.INVALID);
+    assertThat(SpanContext.INVALID.getTraceOptions()).isEqualTo(TraceOptions.getDefault());
   }
 
   @Test
   public void isValid() {
-    assertThat(SpanContext.getInvalid().isValid()).isFalse();
-    assertThat(new SpanContext(new TraceId(0, 10), 0, TraceOptions.getDefault()).isValid())
+    assertThat(SpanContext.INVALID.isValid()).isFalse();
+    assertThat(
+            new SpanContext(new TraceId(0, 10), SpanId.INVALID, TraceOptions.getDefault()).isValid())
         .isFalse();
-    assertThat(new SpanContext(TraceId.getInvalid(), 10, TraceOptions.getDefault()).isValid())
+    assertThat(
+            new SpanContext(TraceId.INVALID, new SpanId(10), TraceOptions.getDefault()).isValid())
         .isFalse();
     assertThat(first.isValid()).isTrue();
     assertThat(second.isValid()).isTrue();
@@ -54,8 +57,8 @@ public class SpanContextTest {
 
   @Test
   public void getSpanId() {
-    assertThat(first.getSpanId()).isEqualTo(30);
-    assertThat(second.getSpanId()).isEqualTo(40);
+    assertThat(first.getSpanId()).isEqualTo(new SpanId(30));
+    assertThat(second.getSpanId()).isEqualTo(new SpanId(40));
   }
 
   @Test
@@ -68,19 +71,21 @@ public class SpanContextTest {
   public void spanContext_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(
-        first, new SpanContext(new TraceId(0, 10), 30, TraceOptions.getDefault()));
+        first, new SpanContext(new TraceId(0, 10), new SpanId(30), TraceOptions.getDefault()));
     tester.addEqualityGroup(
-        second, new SpanContext(new TraceId(0, 20), 40, new TraceOptions(TraceOptions.IS_SAMPLED)));
+        second,
+        new SpanContext(
+            new TraceId(0, 20), new SpanId(40), new TraceOptions(TraceOptions.IS_SAMPLED)));
     tester.testEquals();
   }
 
   @Test
   public void spanContext_ToString() {
     assertThat(first.toString()).contains(new TraceId(0, 10).toString());
-    assertThat(first.toString()).contains("spanId=000000000000001e");
+    assertThat(first.toString()).contains(new SpanId(30).toString());
     assertThat(first.toString()).contains(TraceOptions.getDefault().toString());
     assertThat(second.toString()).contains(new TraceId(0, 20).toString());
-    assertThat(second.toString()).contains("spanId=0000000000000028");
+    assertThat(second.toString()).contains(new SpanId(40).toString());
     assertThat(second.toString()).contains(new TraceOptions(TraceOptions.IS_SAMPLED).toString());
   }
 }
