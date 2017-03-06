@@ -107,6 +107,6 @@ public class StatsContextFactoryTest {
 
   private static void encodeBoolean(boolean input, ByteBuffer buffer) {
     VarInt.putVarInt(Boolean.toString(input).length(), buffer);
-    buffer.put((byte) (input? 1 : 0));
+    buffer.put((byte) (input ? 1 : 0));
   }
 }

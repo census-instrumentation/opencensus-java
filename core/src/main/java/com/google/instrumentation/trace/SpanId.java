@@ -52,7 +52,7 @@ public final class SpanId {
       return false;
     }
 
-    SpanId that = (SpanId)obj;
+    SpanId that = (SpanId) obj;
     return spanId == that.spanId;
   }
 

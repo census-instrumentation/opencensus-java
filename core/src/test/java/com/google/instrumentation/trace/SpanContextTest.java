@@ -40,7 +40,8 @@ public class SpanContextTest {
   public void isValid() {
     assertThat(SpanContext.INVALID.isValid()).isFalse();
     assertThat(
-            new SpanContext(new TraceId(0, 10), SpanId.INVALID, TraceOptions.getDefault()).isValid())
+            new SpanContext(new TraceId(0, 10), SpanId.INVALID, TraceOptions.getDefault())
+                .isValid())
         .isFalse();
     assertThat(
             new SpanContext(TraceId.INVALID, new SpanId(10), TraceOptions.getDefault()).isValid())
