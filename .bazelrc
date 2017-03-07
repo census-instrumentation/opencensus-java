@@ -63,3 +63,77 @@ build:error_prone_warnings \
     # --javacopt='-Xep:FunctionalInterfaceClash:ERROR' \
     # --javacopt='-Xep:MissingOverride:ERROR' \
     # --javacopt='-Xep:ReferenceEquality:ERROR' \
+
+
+# Enable all Error Prone experimental bug patterns, and treat them as errors.
+build:error_prone_experimental_warnings \
+    --javacopt='-Xep:AssistedInjectAndInjectOnSameConstructor:ERROR' \
+    --javacopt='-Xep:AutoFactoryAtInject:ERROR' \
+    --javacopt='-Xep:ClassName:ERROR' \
+    --javacopt='-Xep:ComparisonContractViolated:ERROR' \
+    --javacopt='-Xep:DepAnn:ERROR' \
+    --javacopt='-Xep:DivZero:ERROR' \
+    --javacopt='-Xep:EmptyIf:ERROR' \
+    --javacopt='-Xep:InjectInvalidTargetingOnScopingAnnotation:ERROR' \
+    --javacopt='-Xep:InjectMoreThanOneQualifier:ERROR' \
+    --javacopt='-Xep:InjectScopeAnnotationOnInterfaceOrAbstractClass:ERROR' \
+    --javacopt='-Xep:InjectScopeOrQualifierAnnotationRetention:ERROR' \
+    --javacopt='-Xep:InjectedConstructorAnnotations:ERROR' \
+    --javacopt='-Xep:InsecureCryptoUsage:ERROR' \
+    --javacopt='-Xep:JMockTestWithoutRunWithOrRuleAnnotation:ERROR' \
+    --javacopt='-Xep:JavaxInjectOnFinalField:ERROR' \
+    --javacopt='-Xep:LockMethodChecker:ERROR' \
+    --javacopt='-Xep:LongLiteralLowerCaseSuffix:ERROR' \
+    --javacopt='-Xep:MultibindsInsteadOfMultibindings:ERROR' \
+    --javacopt='-Xep:NoAllocation:ERROR' \
+    --javacopt='-Xep:NonRuntimeAnnotation:ERROR' \
+    --javacopt='-Xep:NumericEquality:ERROR' \
+    --javacopt='-Xep:ProtoStringFieldReferenceEquality:ERROR' \
+    --javacopt='-Xep:QualifierOnMethodWithoutProvides:ERROR' \
+    --javacopt='-Xep:StaticOrDefaultInterfaceMethod:ERROR' \
+    --javacopt='-Xep:UnlockMethod:ERROR' \
+    --javacopt='-Xep:ArgumentParameterMismatch:ERROR' \
+    --javacopt='-Xep:AssertFalse:ERROR' \
+    --javacopt='-Xep:AssistedInjectAndInjectOnConstructors:ERROR' \
+    --javacopt='-Xep:BigDecimalLiteralDouble:ERROR' \
+    --javacopt='-Xep:BindingToUnqualifiedCommonType:ERROR' \
+    --javacopt='-Xep:EmptyTopLevelDeclaration:ERROR' \
+    --javacopt='-Xep:ExpectedExceptionChecker:ERROR' \
+    --javacopt='-Xep:HardCodedSdCardPath:ERROR' \
+    --javacopt='-Xep:MissingDefault:ERROR' \
+    --javacopt='-Xep:NonCanonicalStaticMemberImport:ERROR' \
+    --javacopt='-Xep:PrimitiveArrayPassedToVarargsMethod:ERROR' \
+    --javacopt='-Xep:QualifierWithTypeUse:ERROR' \
+    --javacopt='-Xep:RedundantThrows:ERROR' \
+    --javacopt='-Xep:StaticQualifiedUsingExpression:ERROR' \
+    --javacopt='-Xep:StringEquality:ERROR' \
+    --javacopt='-Xep:TestExceptionChecker:ERROR' \
+    --javacopt='-Xep:UnnecessaryDefaultInEnumSwitch:ERROR' \
+    --javacopt='-Xep:ConstantField:ERROR' \
+    --javacopt='-Xep:EmptySetMultibindingContributions:ERROR' \
+    --javacopt='-Xep:FieldMissingNullable:ERROR' \
+    --javacopt='-Xep:MixedArrayDimensions:ERROR' \
+    --javacopt='-Xep:MultiVariableDeclaration:ERROR' \
+    --javacopt='-Xep:MultipleTopLevelClasses:ERROR' \
+    --javacopt='-Xep:PackageLocation:ERROR' \
+    --javacopt='-Xep:ParameterNotNullable:ERROR' \
+    --javacopt='-Xep:PrivateConstructorForNoninstantiableModuleTest:ERROR' \
+    --javacopt='-Xep:RemoveUnusedImports:ERROR' \
+    --javacopt='-Xep:ReturnMissingNullable:ERROR' \
+    --javacopt='-Xep:ThrowsUncheckedException:ERROR' \
+    --javacopt='-Xep:UnnecessaryStaticImport:ERROR' \
+    --javacopt='-Xep:UseBinds:ERROR' \
+    --javacopt='-Xep:WildcardImport:ERROR' \
+
+# TODO(sebright): Suppress warnings from generated Protocol Buffer classes and
+# then enable these three warnings.
+    # --javacopt='-Xep:ParameterPackage:ERROR' \
+    # --javacopt='-Xep:MethodCanBeStatic:ERROR' \
+
+# TODO(sebright): Try enabling this warning after the fix for
+# https://github.com/google/error-prone/issues/490 is released.
+    # --javacopt='-Xep:ArgumentParameterSwap:ERROR' \
+
+# These warnings are noisy.
+    # --javacopt='-Xep:Var:ERROR' \
+    # --javacopt='-Xep:PrivateConstructorForUtilityClass:ERROR' \
