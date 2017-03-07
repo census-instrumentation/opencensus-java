@@ -29,7 +29,8 @@ public final class BasicScopedTracing {
   }
 
   public static void main(String[] args) {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan(null, "MyRootSpan")) {
+    try (NonThrowingCloseable ss =
+        tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {
       doWork();
     }
   }

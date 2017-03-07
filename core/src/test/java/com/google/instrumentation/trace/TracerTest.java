@@ -41,6 +41,11 @@ public class TracerTest {
   @Mock private Span span;
   @Mock private NonThrowingCloseable withSpan;
 
+  @Test
+  public void defaultGetCurrentSpan() {
+    assertThat(tracer.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
+  }
+
   @Test(expected = NullPointerException.class)
   public void withSpan_NullSpan() {
     try (NonThrowingCloseable ws = tracer.withSpan(null)) {}
@@ -54,96 +59,35 @@ public class TracerTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void startScopedSpanWithName_NullName() {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan(null)) {}
+  public void spanBuilderWithName_NullName() {
+    assertThat(tracer.spanBuilder(null).startSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test
-  public void defaultStartScopedSpanWithName() {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan("MySpanName")) {
-      assertThat(tracer.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
-    }
+  public void defaultSpanBuilderWithName() {
+    assertThat(tracer.spanBuilder("MySpanName").startSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test(expected = NullPointerException.class)
-  public void startScopedSpanWithNameAndOptions_NullName() {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan(null, StartSpanOptions.getDefault())) {}
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void startScopedSpanWithNameAndOptions_NullOptions() {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan("MySpanName", null)) {}
+  public void spanBuilderWithParentAndName_NullName() {
+    assertThat(tracer.spanBuilder(null, null).startSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test
-  public void defaultStartScopedSpanWithNameAndOptions() {
-    try (NonThrowingCloseable ss =
-        tracer.startScopedSpan("MySpanName", StartSpanOptions.getDefault())) {
-      assertThat(tracer.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
-    }
+  public void defaultSpanBuilderWithParentAndName() {
+    assertThat(tracer.spanBuilder(null, "MySpanName").startSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test(expected = NullPointerException.class)
-  public void startScopedSpanWithParentAndName_NullName() {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan((Span) null, null)) {}
+  public void spanBuilderWithRemoteParent_NullName() {
+    assertThat(tracer.spanBuilderWithRemoteParent(null, null).startSpan())
+        .isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test
-  public void defaultStartScopedSpanWithParentAndName() {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan(null, "MySpanName")) {
-      assertThat(tracer.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
-    }
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void startScopedSpanWithParentAndNameAndOptions_NullName() {
-    try (NonThrowingCloseable ss =
-        tracer.startScopedSpan(null, null, StartSpanOptions.getDefault())) {}
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void startScopedSpanWithParentAndNameAndOptions_NullOptions() {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan(null, "MySpanName", null)) {}
-  }
-
-  @Test
-  public void defaultStartScopedSpanWithParentAndNameAndOptions() {
-    try (NonThrowingCloseable ss =
-        tracer.startScopedSpan(null, "MySpanName", StartSpanOptions.getDefault())) {
-      assertThat(tracer.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
-    }
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void startSpan_NullName() {
-    tracer.startSpan(null, null, StartSpanOptions.getDefault());
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void startSpan_NullOptions() {
-    tracer.startSpan(null, "MySpanName", null);
-  }
-
-  @Test
-  public void defaultStartSpan() {
-    assertThat(tracer.startSpan(null, "MySpanName", StartSpanOptions.getDefault()))
-        .isEqualTo(BlankSpan.INSTANCE);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void startSpanWithRemoteParent_NullName() {
-    tracer.startSpanWithRemoteParent(null, null, StartSpanOptions.getDefault());
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void startSpanWithRemoteParent_NullOptions() {
-    tracer.startSpanWithRemoteParent(null, "MySpanName", null);
-  }
-
-  @Test
-  public void defaultStartSpanWitRemoteParent() {
-    assertThat(tracer.startSpanWithRemoteParent(null, "MySpanName", StartSpanOptions.getDefault()))
-        .isEqualTo(BlankSpan.INSTANCE);
+  public void defaultSpanBuilderWitRemoteParent() {
+    assertThat(tracer.spanBuilderWithRemoteParent(null, "MySpanName").startSpan())
+        .isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test
@@ -220,72 +164,61 @@ public class TracerTest {
   }
 
   @Test
-  public void startScopedSpanWithName() {
+  public void startScopedSpanRoot() {
     Tracer mockTracer = newTracerWithMocks();
     when(contextSpanHandler.getCurrentSpan()).thenReturn(null);
     when(spanFactory.startSpan(
-            same(BlankSpan.INSTANCE), eq("MySpanName"), same(StartSpanOptions.getDefault())))
-        .thenReturn(span);
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss = mockTracer.startScopedSpan("MySpanName")) {}
-    verify(withSpan).close();
-    verify(span).end(same(EndSpanOptions.DEFAULT));
-  }
-
-  @Test
-  public void startScopedSpanWithNameAndOptions() {
-    Tracer mockTracer = newTracerWithMocks();
-    when(contextSpanHandler.getCurrentSpan()).thenReturn(null);
-    StartSpanOptions startSpanOptions = StartSpanOptions.builder().build();
-    when(spanFactory.startSpan(
-            same(BlankSpan.INSTANCE), eq("MySpanName"), same(startSpanOptions)))
-        .thenReturn(span);
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss = mockTracer.startScopedSpan("MySpanName", startSpanOptions)) {}
-    verify(withSpan).close();
-    verify(span).end(same(EndSpanOptions.DEFAULT));
-  }
-
-  @Test
-  public void startScopedSpanWithParentAndName() {
-    Tracer mockTracer = newTracerWithMocks();
-    when(spanFactory.startSpan(same(span), eq("MySpanName"), same(StartSpanOptions.getDefault())))
-        .thenReturn(span);
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss = mockTracer.startScopedSpan(span, "MySpanName")) {}
-    verify(withSpan).close();
-    verify(span).end(same(EndSpanOptions.DEFAULT));
-  }
-
-  @Test
-  public void startScopedSpanWithParentAndNameAndOptions() {
-    Tracer mockTracer = newTracerWithMocks();
-    StartSpanOptions startSpanOptions = StartSpanOptions.builder().build();
-    when(spanFactory.startSpan(same(span), eq("MySpanName"), same(startSpanOptions)))
+            isNull(SpanContext.class), eq(false), eq("MySpanName"), eq(new StartSpanOptions())))
         .thenReturn(span);
     when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
     try (NonThrowingCloseable ss =
-        mockTracer.startScopedSpan(span, "MySpanName", startSpanOptions)) {}
+        mockTracer.spanBuilder("MySpanName").becomeRoot().startScopedSpan()) {}
     verify(withSpan).close();
+    verify(span).end(same(EndSpanOptions.DEFAULT));
+  }
+
+  @Test
+  public void startScopedSpanChild() {
+    Tracer mockTracer = newTracerWithMocks();
+    when(contextSpanHandler.getCurrentSpan()).thenReturn(BlankSpan.INSTANCE);
+    when(spanFactory.startSpan(
+            same(BlankSpan.INSTANCE.getContext()),
+            eq(false),
+            eq("MySpanName"),
+            eq(new StartSpanOptions())))
+        .thenReturn(span);
+    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
+    try (NonThrowingCloseable ss = mockTracer.spanBuilder("MySpanName").startScopedSpan()) {}
+    verify(withSpan).close();
+    verify(span).end(same(EndSpanOptions.DEFAULT));
+  }
+
+  @Test
+  public void startRootSpan() {
+    Tracer mockTracer = newTracerWithMocks();
+    when(spanFactory.startSpan(
+            isNull(SpanContext.class), eq(false), eq("MySpanName"), eq(new StartSpanOptions())))
+        .thenReturn(span);
+    try (Span rootSpan =
+        mockTracer.spanBuilder(BlankSpan.INSTANCE, "MySpanName").becomeRoot().startSpan()) {
+      assertThat(rootSpan).isEqualTo(span);
+    }
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
   public void startChildSpan() {
     Tracer mockTracer = newTracerWithMocks();
-    StartSpanOptions startSpanOptions = StartSpanOptions.builder().build();
-    when(spanFactory.startSpan(same(span), eq("MySpanName"), same(startSpanOptions)))
+    when(spanFactory.startSpan(
+            same(BlankSpan.INSTANCE.getContext()),
+            eq(false),
+            eq("MySpanName"),
+            eq(new StartSpanOptions())))
         .thenReturn(span);
-    assertThat(mockTracer.startSpan(span, "MySpanName", startSpanOptions)).isEqualTo(span);
-  }
-
-  @Test
-  public void startRootSpan() {
-    Tracer mockTracer = newTracerWithMocks();
-    StartSpanOptions startSpanOptions = StartSpanOptions.builder().build();
-    when(spanFactory.startSpan(isNull(Span.class), eq("MySpanName"), same(startSpanOptions)))
-        .thenReturn(span);
-    assertThat(mockTracer.startSpan(null, "MySpanName", startSpanOptions)).isEqualTo(span);
+    try (Span childSpan = mockTracer.spanBuilder(BlankSpan.INSTANCE, "MySpanName").startSpan()) {
+      assertThat(childSpan).isEqualTo(span);
+    }
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
@@ -293,23 +226,13 @@ public class TracerTest {
     Tracer mockTracer = newTracerWithMocks();
     SpanContext spanContext = new SpanContext(new TraceId(10, 20), new SpanId(30),
         TraceOptions.getDefault());
-    StartSpanOptions startSpanOptions = StartSpanOptions.builder().build();
-    when(spanFactory.startSpanWithRemoteParent(
-            same(spanContext), eq("MySpanName"), same(startSpanOptions)))
+    when(spanFactory.startSpan(
+            same(spanContext), eq(true), eq("MySpanName"), eq(new StartSpanOptions())))
         .thenReturn(span);
-    assertThat(mockTracer.startSpanWithRemoteParent(spanContext, "MySpanName", startSpanOptions))
-        .isEqualTo(span);
-  }
-
-  @Test
-  public void startSpanWitRemoteParent_WithNullParent() {
-    Tracer mockTracer = newTracerWithMocks();
-    StartSpanOptions startSpanOptions = StartSpanOptions.builder().build();
-    when(spanFactory.startSpanWithRemoteParent(
-            isNull(SpanContext.class), eq("MySpanName"), same(startSpanOptions)))
-        .thenReturn(span);
-    assertThat(mockTracer.startSpanWithRemoteParent(null, "MySpanName", startSpanOptions))
-        .isEqualTo(span);
+    try (Span remoteChildSpan =
+        mockTracer.spanBuilderWithRemoteParent(spanContext, "MySpanName").startSpan()) {
+      assertThat(remoteChildSpan).isEqualTo(span);
+    }
   }
 
   private Tracer newTracerWithMocks() {

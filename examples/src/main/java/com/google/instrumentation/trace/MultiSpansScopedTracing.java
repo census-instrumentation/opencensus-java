@@ -29,7 +29,7 @@ public final class MultiSpansScopedTracing {
 
   private static void doSomeMoreWork() {
     // Create a child Span of the current Span.
-    try (NonThrowingCloseable ss = tracer.startScopedSpan("MyChildSpan")) {
+    try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
       doSomeOtherWork();
     }
   }
@@ -41,7 +41,8 @@ public final class MultiSpansScopedTracing {
   }
 
   public static void main(String[] args) {
-    try (NonThrowingCloseable ss = tracer.startScopedSpan(null, "MyRootSpan")) {
+    try (NonThrowingCloseable ss =
+        tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {
       doWork();
     }
   }

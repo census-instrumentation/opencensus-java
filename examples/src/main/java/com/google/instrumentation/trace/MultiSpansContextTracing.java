@@ -29,8 +29,7 @@ public final class MultiSpansContextTracing {
 
   private static void doSomeMoreWork() {
     // Create a child Span of the current Span.
-    Span span =
-        tracer.startSpan(tracer.getCurrentSpan(), "MyChildSpan", StartSpanOptions.getDefault());
+    Span span = tracer.spanBuilder("MyChildSpan").startSpan();
     try (NonThrowingCloseable ws = tracer.withSpan(span)) {
       doSomeOtherWork();
     }
@@ -44,7 +43,7 @@ public final class MultiSpansContextTracing {
   }
 
   public static void main(String[] args) {
-    Span span = tracer.startSpan(null, "MyRootSpan", StartSpanOptions.getDefault());
+    Span span = tracer.spanBuilder("MyRootSpan").becomeRoot().startSpan();
     try (NonThrowingCloseable ws = tracer.withSpan(span)) {
       doWork();
     }
