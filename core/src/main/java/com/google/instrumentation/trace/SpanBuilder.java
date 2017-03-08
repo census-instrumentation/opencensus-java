@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  *     // Create a Span as a child of the given parent.
  *     try (Span span = tracer.spanBuilder(parent, "MyChildSpan").startSpan()) {
  *       span.addAnnotation("my annotation");
- *       doSomeWork(span);
+ *       doSomeWork(span); // Manually propagate the new span down the stack.
  *     }
  *     // "span" will be ended here.
  *   }
@@ -50,7 +50,8 @@ import javax.annotation.Nullable;
  *     // Create a Span as a child of the current Span.
  *     try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
  *       tracer.getCurrentSpan().addAnnotation("my annotation");
- *       doSomeWork();  // Here the new span is in the current Context.
+ *       doSomeWork();  // Here the new span is in the current Context, so it can be used
+ *                      // implicitly anywhere down the stack.
  *     }
  *   }
  * }
@@ -60,29 +61,36 @@ import javax.annotation.Nullable;
  * Context is automatically propagated:
  *
  * <pre>{@code
- * class MyWorkClass {
+ * class MyRpcServerInterceptorListener implements RpcServerInterceptor.Listener {
  *   private static final Tracer tracer = Tracer.getTracer();
- *   Span mySpan;
+ *   private Span mySpan;
  *
- *   MyWorkClass() {
- *     // Create a Span as a child of the current Span.
- *     mySpan = tracer.spanBuilder("MyChildSpan").startSpan();
+ *   public MyRpcInterceptor() {}
+ *
+ *   public void onRequest(String rpcName, Metadata metadata) {
+ *     // Create a Span as a child of the remote Span.
+ *     mySpan = tracer.spanBuilderWithRemoteParent(
+ *         getTraceContextFromMetadata(metadata), rpcName).startSpan();
  *   }
  *
- *   void doInitialWork {
+ *   public void onExecuteHandler(ServerCallHandler serverCallHandler) {
  *     try (NonThrowingCloseable ws = tracer.withSpan(mySpan)) {
- *       tracer.getCurrentSpan().addAnnotation("my annotation in initial work");
- *       doSomeInitialWork(); // Here the new span is in the current Context.
+ *       tracer.getCurrentSpan().addAnnotation("Start rpc execution.");
+ *       serverCallHandler.run();  // Here the new span is in the current Context, so it can be
+ *                                 // used implicitly anywhere down the stack.
  *     }
  *   }
  *
- *   void doFinalWork() {
- *     try (NonThrowingCloseable ws = tracer.withSpan(mySpan)) {
- *       tracer.getCurrentSpan().addAnnotation("my annotation in final work");
- *       doSomeFinalWork(); // Here the new span is in the current Context.
- *     }
- *     // IMPORTANT: DO NOT forget to ended the Span here.
- *     mySpan.end();
+ *   // Called when the RPC is canceled and guaranteed onComplete will not be called.
+ *   public void onCancel() {
+ *     // IMPORTANT: DO NOT forget to ended the Span here as the work is done.
+ *     mySpan.end(EndSpanOptions.builder().setStatus(Status.CANCELLED));
+ *   }
+ *
+ *   // Called when the RPC is done and guaranteed onCancel will not be called.
+ *   public void onComplete(RpcStatus rpcStatus) {
+ *     // IMPORTANT: DO NOT forget to ended the Span here as the work is done.
+ *     mySpan.end(EndSpanOptions.builder().setStatus(rpcStatusToCanonicalTraceStatus(status));
  *   }
  * }
  * }</pre>
@@ -165,6 +173,9 @@ public final class SpanBuilder {
    * any parent specified (or inherited from the Context) will be ignored (N.B. does not apply to
    * linked parents set through {@link #setParentLinks}).
    *
+   * <p>This is useful when {@link Tracer#spanBuilder(String)} is used and the newly created {@code
+   * Span} needs to be decoupled from the parent {@code Span}.
+   *
    * @return this.
    */
   public SpanBuilder becomeRoot() {
@@ -174,7 +185,7 @@ public final class SpanBuilder {
   }
 
   /**
-   * Creates and starts a new {@link Span}.
+   * Starts a new {@link Span}.
    *
    * <p>If used without try-with-resources <b>must</b> manually call {@link Span#end}.
    *
@@ -193,8 +204,8 @@ public final class SpanBuilder {
    * }
    * }</pre>
    *
-   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed
-   * regardless of whether the try statement completes normally or abruptly.
+   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed (the
+   * {@code Span} is ended) regardless of whether the try statement completes normally or abruptly.
    *
    * <p>Example of usage prior to Java SE7:
    *
@@ -220,10 +231,12 @@ public final class SpanBuilder {
 
   // TODO(bdrutu): Add error_prone annotation @MustBeClosed when the 2.0.16 jar is fixed.
   /**
-   * Creates and starts a new {@link Span} and returns an object that defines a scope where the
-   * newly created {@code Span} is set in the current Context. The scope is exited when the returned
-   * object is closed then the previous Context is restored and the newly created {@code Span} is
-   * ended using {@link Span#end}.
+   * Starts a new new span and sets it as the {@link Tracer#getCurrentSpan current span}.
+   *
+   * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
+   * returns an object that represents that scope. The scope is exited when the returned object is
+   * closed then the previous Context is restored and the newly created {@code Span} is ended using
+   * {@link Span#end}.
    *
    * <p>Supports try-with-resource idiom.
    *
@@ -236,14 +249,17 @@ public final class SpanBuilder {
    *     // Create a Span as a child of the current Span.
    *     try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
    *       tracer.getCurrentSpan().addAnnotation("my annotation");
-   *       doSomeWork();  // Here the new span is in the current Context.
+   *       doSomeWork();  // Here the new span is in the current Context, so it can be used
+   *                      // implicitly anywhere down the stack. Anytime in this closure the span
+   *                      // can be accessed via tracer.getCurrentSpan().
    *     }
    *   }
    * }
    * }</pre>
    *
-   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed
-   * regardless of whether the try statement completes normally or abruptly.
+   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed (the
+   * {@code Span} is ended and removed from the Context) regardless of whether the try statement
+   * completes normally or abruptly.
    *
    * <p>Example of usage prior to Java SE7:
    *
@@ -255,7 +271,9 @@ public final class SpanBuilder {
    *     NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan();
    *     try {
    *       tracer.getCurrentSpan().addAnnotation("my annotation");
-   *       doSomeWork();  // Here the new span is in the current Context.
+   *       doSomeWork();  // Here the new span is in the current Context, so it can be used
+   *                      // implicitly anywhere down the stack. Anytime in this closure the span
+   *                      // can be accessed via tracer.getCurrentSpan().
    *     } finally {
    *       ss.close();
    *     }

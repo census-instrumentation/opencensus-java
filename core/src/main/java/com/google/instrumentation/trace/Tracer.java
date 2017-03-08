@@ -32,19 +32,6 @@ import javax.annotation.Nullable;
  * <p>Users may choose to use manual or automatic Context propagation. Because of that this class
  * offers APIs to facilitate both usages.
  *
- * <p>Example usage with manual context propagation:
- *
- * <pre>{@code
- * class MyClass {
- *   private static final Tracer tracer = Tracer.getTracer();
- *   void DoWork(Span parent) {
- *     try(NonThrowingCloseable ss = tracer.spanBuilder(parent, "MyClass.DoWork").startScopedSpan) {
- *       tracer.getCurrentSpan().addAnnotation("We did the work.");
- *     }
- *   }
- * }
- * }</pre>
- *
  * <p>Example usage with automatic context propagation:
  *
  * <pre>{@code
@@ -52,6 +39,19 @@ import javax.annotation.Nullable;
  *   private static final Tracer tracer = Tracer.getTracer();
  *   void DoWork() {
  *     try(NonThrowingCloseable ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
+ *       tracer.getCurrentSpan().addAnnotation("We did the work.");
+ *     }
+ *   }
+ * }
+ * }</pre>
+ *
+ * <p>Example usage with manual context propagation:
+ *
+ * <pre>{@code
+ * class MyClass {
+ *   private static final Tracer tracer = Tracer.getTracer();
+ *   void DoWork(Span parent) {
+ *     try(NonThrowingCloseable ss = tracer.spanBuilder(parent, "MyClass.DoWork").startScopedSpan) {
  *       tracer.getCurrentSpan().addAnnotation("We did the work.");
  *     }
  *   }
