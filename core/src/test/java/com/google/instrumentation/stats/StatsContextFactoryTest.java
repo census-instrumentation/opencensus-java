@@ -17,9 +17,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -72,41 +72,41 @@ public class StatsContextFactoryTest {
    * remove this method and use StatsContext.serialize() instead.
    * Currently StatsContext.serialize() can only serialize strings.
    */
-  private InputStream constructInputStream(int valueType) {
-    // TODO(songya): please note that ByteBuffer will overflow if > 1024 bytes were appended.
-    ByteBuffer buffer = ByteBuffer.allocate(1024);
-    VarInt.putVarInt(valueType, buffer);
-    encodeString(KEY1, buffer);
+  private static InputStream constructInputStream(int valueType) throws IOException {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    VarInt.putVarInt(valueType, byteArrayOutputStream);
+    encodeString(KEY1, byteArrayOutputStream);
     switch (valueType) {
       case VALUE_TYPE_STRING:
-        encodeString(VALUE_STRING, buffer);
+        encodeString(VALUE_STRING, byteArrayOutputStream);
         break;
       case VALUE_TYPE_INTEGER:
-        encodeInteger(VALUE_INT, buffer);
+        encodeInteger(VALUE_INT, byteArrayOutputStream);
         break;
       case VALUE_TYPE_BOOLEAN:
-        encodeBoolean(VALUE_BOOL, buffer);
+        encodeBoolean(VALUE_BOOL, byteArrayOutputStream);
         break;
       default:
         return null;
     }
-    return new ByteArrayInputStream(buffer.array());
+    return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
   }
 
-  private static void encodeString(String input, ByteBuffer buffer) {
-    VarInt.putVarInt(input.length(), buffer);
-    for (int i = 0; i < input.length(); i++) {
-      buffer.put((byte) input.charAt(i));
-    }
+  private static void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
+      throws IOException {
+    VarInt.putVarInt(input.length(), byteArrayOutputStream);
+    byteArrayOutputStream.write(input.getBytes("UTF-8"));
   }
 
-  private static void encodeInteger(int input, ByteBuffer buffer) {
-    VarInt.putVarInt(Integer.toString(input).length(), buffer);
-    buffer.put((byte) input);
+  private static void encodeInteger(int input, ByteArrayOutputStream byteArrayOutputStream)
+      throws IOException {
+    VarInt.putVarInt(Integer.toString(input).length(), byteArrayOutputStream);
+    byteArrayOutputStream.write((byte) input);
   }
 
-  private static void encodeBoolean(boolean input, ByteBuffer buffer) {
-    VarInt.putVarInt(Boolean.toString(input).length(), buffer);
-    buffer.put((byte) (input ? 1 : 0));
+  private static void encodeBoolean(boolean input, ByteArrayOutputStream byteArrayOutputStream)
+      throws IOException {
+    VarInt.putVarInt(Boolean.toString(input).length(), byteArrayOutputStream);
+    byteArrayOutputStream.write((byte) (input ? 1 : 0));
   }
 }

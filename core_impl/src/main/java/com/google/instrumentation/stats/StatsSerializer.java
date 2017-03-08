@@ -17,6 +17,7 @@ import com.google.instrumentation.stats.proto.StatsContextProto;
 import com.google.io.base.VarInt;
 import com.google.protobuf.ByteString;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,19 +48,14 @@ final class StatsSerializer {
   // encoded tags are of the form:
   //   [tag_metadata key_len key_bytes value_len value_bytes]*
   static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
-    // TODO(songya): please note that ByteBuffer will overflow if > 1024 bytes were appended
-    ByteBuffer buffer = ByteBuffer.allocate(1024);
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
     // TODO(songya): add support for value types integer and boolean
     Set<Entry<String, String>> tags = context.tags.entrySet();
     for (Entry<String, String> tag : tags) {
-      VarInt.putVarInt(VALUE_TYPE_STRING, buffer);
-      encode(tag.getKey(), buffer);
-      encode(tag.getValue(), buffer);
+      encodeTagWithType(VALUE_TYPE_STRING, tag.getKey(), tag.getValue(), byteArrayOutputStream);
     }
-    int length = buffer.capacity() - buffer.remaining();
-    buffer.rewind();
-    ByteString encodedTags = ByteString.copyFrom(buffer, length);
+    ByteString encodedTags = ByteString.copyFrom(byteArrayOutputStream.toByteArray());
     StatsContextProto.StatsContext.newBuilder().setTags(encodedTags).build().writeTo(output);
   }
 
@@ -92,11 +88,18 @@ final class StatsSerializer {
     }
   }
 
-  private static final void encode(String input, ByteBuffer buffer) {
-    VarInt.putVarInt(input.length(), buffer);
-    for (int i = 0; i < input.length(); i++) {
-      buffer.put((byte) input.charAt(i));
-    }
+  private static final void encodeTagWithType(
+      int valueType, String key, String value, ByteArrayOutputStream byteArrayOutputStream)
+      throws IOException {
+    VarInt.putVarInt(valueType, byteArrayOutputStream);
+    encode(key, byteArrayOutputStream);
+    encode(value, byteArrayOutputStream);
+  }
+
+  private static final void encode(String input, ByteArrayOutputStream byteArrayOutputStream)
+      throws IOException {
+    VarInt.putVarInt(input.length(), byteArrayOutputStream);
+    byteArrayOutputStream.write(input.getBytes("UTF-8"));
   }
 
   private static final String decode(ByteBuffer buffer) {
