@@ -200,10 +200,10 @@ public class TracerTest {
     when(spanFactory.startSpan(
             isNull(SpanContext.class), eq(false), eq("MySpanName"), eq(new StartSpanOptions())))
         .thenReturn(span);
-    try (Span rootSpan =
-        mockTracer.spanBuilder(BlankSpan.INSTANCE, "MySpanName").becomeRoot().startSpan()) {
-      assertThat(rootSpan).isEqualTo(span);
-    }
+    Span rootSpan =
+        mockTracer.spanBuilder(BlankSpan.INSTANCE, "MySpanName").becomeRoot().startSpan();
+    assertThat(rootSpan).isEqualTo(span);
+    rootSpan.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
@@ -216,9 +216,9 @@ public class TracerTest {
             eq("MySpanName"),
             eq(new StartSpanOptions())))
         .thenReturn(span);
-    try (Span childSpan = mockTracer.spanBuilder(BlankSpan.INSTANCE, "MySpanName").startSpan()) {
-      assertThat(childSpan).isEqualTo(span);
-    }
+    Span childSpan = mockTracer.spanBuilder(BlankSpan.INSTANCE, "MySpanName").startSpan();
+    assertThat(childSpan).isEqualTo(span);
+    childSpan.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
@@ -234,10 +234,11 @@ public class TracerTest {
     when(spanFactory.startSpan(
             same(spanContext), eq(true), eq("MySpanName"), eq(new StartSpanOptions())))
         .thenReturn(span);
-    try (Span remoteChildSpan =
-        mockTracer.spanBuilderWithRemoteParent(spanContext, "MySpanName").startSpan()) {
-      assertThat(remoteChildSpan).isEqualTo(span);
-    }
+    Span remoteChildSpan =
+        mockTracer.spanBuilderWithRemoteParent(spanContext, "MySpanName").startSpan();
+    assertThat(remoteChildSpan).isEqualTo(span);
+    remoteChildSpan.end();
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   private Tracer newTracerWithMocks() {

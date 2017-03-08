@@ -18,7 +18,7 @@ import com.google.instrumentation.common.NonThrowingCloseable;
 /**
  * Defines a scope of code where the given {@link Span} is in the current context. The scope is
  * exited when the object is closed and the previous context is restored. When the scope exits the
- * given {@link Span} will be ended using {@link Span#end}.
+ * given {@code Span} will be ended using {@link Span#end}.
  *
  * <p>Supports try-with-resource idiom.
  */
@@ -27,7 +27,7 @@ final class ScopedSpanHandle implements NonThrowingCloseable {
   private final NonThrowingCloseable withSpan;
 
   /**
-   * Creates a {@link ScopedSpanHandle}
+   * Creates a {@code ScopedSpanHandle}
    *
    * @param span The span that will be installed in the current context.
    * @param contextSpanHandler The handler that is used to interact with the current context.
@@ -38,12 +38,11 @@ final class ScopedSpanHandle implements NonThrowingCloseable {
   }
 
   /**
-   * Uninstalls the {@code Span} from the current context and ends it with default options. If the
-   * span has been already ended then {@link Span#end()} is a no-op.
+   * Uninstalls the {@code Span} from the current context and ends it by calling {@link Span#end()}.
    */
   @Override
   public void close() {
     withSpan.close();
-    span.end(EndSpanOptions.DEFAULT);
+    span.end();
   }
 }

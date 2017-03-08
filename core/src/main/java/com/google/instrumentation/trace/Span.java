@@ -15,8 +15,6 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.instrumentation.common.NonThrowingCloseable;
-
 import java.util.EnumSet;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -27,10 +25,9 @@ import javax.annotation.Nullable;
  *
  * <p>Spans are created by the {@link SpanBuilder#startSpan} method.
  *
- * <p>{@code Span} implements NonThrowingCloseable, to support try-with-resource idiom. See {@link
- * Span#close}.
+ * <p>{@code Span} <b>must</b> be ended by calling {@link #end()} or {@link #end(EndSpanOptions)}
  */
-public abstract class Span implements NonThrowingCloseable {
+public abstract class Span {
   // Contains the identifiers associated with this Span.
   private final SpanContext context;
 
@@ -146,7 +143,6 @@ public abstract class Span implements NonThrowingCloseable {
   /**
    * Ends the current {@code Span} by calling {@link #end}.
    */
-  @Override
   public final void close() {
     end(EndSpanOptions.DEFAULT);
   }

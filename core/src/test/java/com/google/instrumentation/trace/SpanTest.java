@@ -68,13 +68,6 @@ public class SpanTest {
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
-  @Test
-  public void closeCallsEndWithDefaultOptions() {
-    Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
-    span.close();
-    verify(span).end(same(EndSpanOptions.DEFAULT));
-  }
-
   // No-op implementation of the Span for testing only.
   private static class NoopSpan extends Span {
     private NoopSpan(SpanContext context, EnumSet<Span.Options> options) {

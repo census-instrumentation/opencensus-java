@@ -31,11 +31,10 @@ import javax.annotation.Nullable;
  *   private static final Tracer tracer = Tracer.getTracer();
  *   void doWork(Span parent) {
  *     // Create a Span as a child of the given parent.
- *     try (Span span = tracer.spanBuilder(parent, "MyChildSpan").startSpan()) {
- *       span.addAnnotation("my annotation");
- *       doSomeWork(span); // Manually propagate the new span down the stack.
- *     }
- *     // "span" will be ended here.
+ *     Span span = tracer.spanBuilder(parent, "MyChildSpan").startSpan();
+ *     span.addAnnotation("my annotation");
+ *     doSomeWork(span); // Manually propagate the new span down the stack.
+ *     span.end();  // Manually end the span.
  *   }
  * }
  * }</pre>
@@ -187,7 +186,8 @@ public final class SpanBuilder {
   /**
    * Starts a new {@link Span}.
    *
-   * <p>If used without try-with-resources <b>must</b> manually call {@link Span#end}.
+   * <p>Users <b>must</b> manually call {@link Span#end()} or {@link Span#end(EndSpanOptions)} to
+   * end this {@code Span}.
    *
    * <p>Does not install the newly created {@code Span} to the current Context.
    *
@@ -197,30 +197,16 @@ public final class SpanBuilder {
    * class MyClass {
    *   private static final Tracer tracer = Tracer.getTracer();
    *   void DoWork() {
-   *     try (Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan()) {
-   *       span.addAnnotation("We did X");
+   *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+   *     span.addAnnotation("my annotation");
+   *     try {
+   *       doSomeWork(span); // Manually propagate the new span down the stack.
+   *     } finally {
+   *       // To make sure we end the span even in case of an exception.
+   *       span.end();  // Manually end the span.
    *     }
    *   }
    * }
-   * }</pre>
-   *
-   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed (the
-   * {@code Span} is ended) regardless of whether the try statement completes normally or abruptly.
-   *
-   * <p>Example of usage prior to Java SE7:
-   *
-   * <pre>{@code
-   * class MyClass {
-   *   private static final Tracer tracer = Tracer.getTracer();
-   *   void DoWork() {
-   *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
-   *     try {
-   *       span.addAnnotation("We did X");
-   *     } finally {
-   *       span.close();
-   *     }
-   *   }
-   *  }
    * }</pre>
    *
    * @return the newly created {@code Span}.
