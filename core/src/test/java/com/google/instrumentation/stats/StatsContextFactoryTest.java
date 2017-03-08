@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -96,9 +95,7 @@ public class StatsContextFactoryTest {
   private static void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
     VarInt.putVarInt(input.length(), byteArrayOutputStream);
-    for (int i = 0; i < input.length(); i++) {
-      byteArrayOutputStream.write((byte) input.charAt(i));
-    }
+    byteArrayOutputStream.write(input.getBytes("UTF-8"));
   }
 
   private static void encodeInteger(int input, ByteArrayOutputStream byteArrayOutputStream)

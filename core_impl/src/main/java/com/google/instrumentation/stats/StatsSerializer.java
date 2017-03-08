@@ -99,9 +99,7 @@ final class StatsSerializer {
   private static final void encode(String input, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
     VarInt.putVarInt(input.length(), byteArrayOutputStream);
-    for (int i = 0; i < input.length(); i++) {
-      byteArrayOutputStream.write((byte) input.charAt(i));
-    }
+    byteArrayOutputStream.write(input.getBytes("UTF-8"));
   }
 
   private static final String decode(ByteBuffer buffer) {
