@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  * An abstract class that represents a span. It has an associated {@link SpanContext} and a set of
  * {@link Options}.
  *
- * <p>Spans are created by the {@link Tracer#startSpan} method.
+ * <p>Spans are created by the {@link SpanBuilder#startSpan} method.
  *
  * <p>{@code Span} implements NonThrowingCloseable, to support try-with-resource idiom. See {@link
  * Span#close}.

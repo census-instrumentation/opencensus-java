@@ -18,6 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.common.Timestamp;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,21 +27,21 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link StartSpanOptions}. */
 @RunWith(JUnit4.class)
 public class StartSpanOptionsTest {
-  private final Span singleParent = BlankSpan.INSTANCE;
-  private final List<Span> parentList = Arrays.asList(BlankSpan.INSTANCE, BlankSpan.INSTANCE);
+  private final List<Span> singleParentList = Arrays.asList(BlankSpan.INSTANCE);
 
   @Test
   public void defaultOptions() {
-    assertThat(StartSpanOptions.getDefault().getStartTime()).isNull();
-    assertThat(StartSpanOptions.getDefault().getSampler()).isNull();
-    assertThat(StartSpanOptions.getDefault().getParentLinks().isEmpty()).isTrue();
-    assertThat(StartSpanOptions.getDefault().getRecordEvents()).isNull();
+    StartSpanOptions defaultOptions = new StartSpanOptions();
+    assertThat(defaultOptions.getStartTime()).isNull();
+    assertThat(defaultOptions.getSampler()).isNull();
+    assertThat(defaultOptions.getParentLinks().isEmpty()).isTrue();
+    assertThat(defaultOptions.getRecordEvents()).isNull();
   }
 
   @Test
   public void setStartTime() {
-    StartSpanOptions options =
-        StartSpanOptions.builder().setStartTime(Timestamp.fromMillis(1234567L)).build();
+    StartSpanOptions options = new StartSpanOptions();
+    options.setStartTime(Timestamp.fromMillis(1234567L));
     assertThat(options.getStartTime()).isEqualTo(Timestamp.fromMillis(1234567L));
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks().isEmpty()).isTrue();
@@ -49,8 +50,8 @@ public class StartSpanOptionsTest {
 
   @Test
   public void setSampler() {
-    StartSpanOptions options =
-        StartSpanOptions.builder().setSampler(Samplers.neverSample()).build();
+    StartSpanOptions options = new StartSpanOptions();
+    options.setSampler(Samplers.neverSample());
     assertThat(options.getStartTime()).isNull();
     assertThat(options.getSampler()).isEqualTo(Samplers.neverSample());
     assertThat(options.getParentLinks().isEmpty()).isTrue();
@@ -58,36 +59,39 @@ public class StartSpanOptionsTest {
   }
 
   @Test
-  public void addParentLink() {
-    StartSpanOptions options = StartSpanOptions.builder().addParentLink(singleParent).build();
+  public void setParentLinks() {
+    StartSpanOptions options = new StartSpanOptions();
+    options.setParentLinks(singleParentList);
     assertThat(options.getStartTime()).isNull();
     assertThat(options.getSampler()).isNull();
-    assertThat(options.getParentLinks().size()).isEqualTo(1);
+    assertThat(options.getParentLinks()).isEqualTo(singleParentList);
     assertThat(options.getRecordEvents()).isNull();
   }
 
-  @Test(expected = NullPointerException.class)
-  public void addParentLink_Null() {
-    StartSpanOptions.builder().addParentLink(null).build();
+  @Test
+  public void setParentLinks_EmptyList() {
+    StartSpanOptions options = new StartSpanOptions();
+    options.setParentLinks(new LinkedList<Span>());
+    assertThat(options.getStartTime()).isNull();
+    assertThat(options.getSampler()).isNull();
+    assertThat(options.getParentLinks().size()).isEqualTo(0);
+    assertThat(options.getRecordEvents()).isNull();
   }
 
   @Test
-  public void addParentLinks() {
-    StartSpanOptions options = StartSpanOptions.builder().addParentLinks(parentList).build();
+  public void setParentLinks_MultipleParents() {
+    StartSpanOptions options = new StartSpanOptions();
+    options.setParentLinks(Arrays.asList(BlankSpan.INSTANCE, BlankSpan.INSTANCE));
     assertThat(options.getStartTime()).isNull();
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks().size()).isEqualTo(2);
     assertThat(options.getRecordEvents()).isNull();
   }
 
-  @Test(expected = NullPointerException.class)
-  public void addParentLinks_Null() {
-    StartSpanOptions.builder().addParentLinks(null).build();
-  }
-
   @Test
   public void setRecordEvents() {
-    StartSpanOptions options = StartSpanOptions.builder().setRecordEvents(true).build();
+    StartSpanOptions options = new StartSpanOptions();
+    options.setRecordEvents(true);
     assertThat(options.getStartTime()).isNull();
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks().isEmpty()).isTrue();
@@ -96,46 +100,33 @@ public class StartSpanOptionsTest {
 
   @Test
   public void setAllProperties() {
-    StartSpanOptions options =
-        StartSpanOptions.builder()
-            .setStartTime(Timestamp.fromMillis(1234567L))
-            .setSampler(Samplers.neverSample())
-            .setSampler(Samplers.alwaysSample()) // second SetSampler should apply
-            .addParentLink(singleParent)
-            .setRecordEvents(true)
-            .addParentLinks(parentList)
-            .build();
+    StartSpanOptions options = new StartSpanOptions();
+    options.setStartTime(Timestamp.fromMillis(1234567L));
+    options.setSampler(Samplers.neverSample());
+    options.setSampler(Samplers.alwaysSample()); // second SetSampler should apply
+    options.setRecordEvents(true);
+    options.setParentLinks(singleParentList);
     assertThat(options.getStartTime()).isEqualTo(Timestamp.fromMillis(1234567L));
     assertThat(options.getSampler()).isEqualTo(Samplers.alwaysSample());
-    assertThat(options.getParentLinks().size()).isEqualTo(3);
+    assertThat(options.getParentLinks()).isEqualTo(singleParentList);
     assertThat(options.getRecordEvents()).isTrue();
-  }
-
-  @Test
-  public void startSpanOptions_ToString() {
-    StartSpanOptions options =
-        StartSpanOptions.builder()
-            .setStartTime(Timestamp.fromMillis(1234567L))
-            .setSampler(Samplers.neverSample())
-            .addParentLink(singleParent)
-            .setRecordEvents(true)
-            .build();
-    assertThat(options.toString()).contains(Timestamp.fromMillis(1234567L).toString());
-    assertThat(options.toString()).contains(Samplers.neverSample().toString());
-    assertThat(options.toString()).contains(singleParent.toString());
-    assertThat(options.toString()).contains("recordEvents=true");
   }
 
   @Test
   public void startSpanOptions_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
-    tester.addEqualityGroup(
-        StartSpanOptions.builder().setStartTime(Timestamp.fromMillis(1234567L)).build(),
-        StartSpanOptions.builder().setStartTime(Timestamp.fromMillis(1234567L)).build());
-    tester.addEqualityGroup(
-        StartSpanOptions.builder().setRecordEvents(true).build(),
-        StartSpanOptions.builder().setRecordEvents(true).build());
-    tester.addEqualityGroup(StartSpanOptions.getDefault(), StartSpanOptions.builder().build());
+    StartSpanOptions optionsWithStartTime1 = new StartSpanOptions();
+    optionsWithStartTime1.setStartTime(Timestamp.fromMillis(1234567L));
+    StartSpanOptions optionsWithStartTime2 = new StartSpanOptions();
+    optionsWithStartTime2.setStartTime(Timestamp.fromMillis(1234567L));
+    tester.addEqualityGroup(optionsWithStartTime1, optionsWithStartTime2);
+    StartSpanOptions optionsWithAlwaysSampler = new StartSpanOptions();
+    optionsWithAlwaysSampler.setSampler(Samplers.alwaysSample());
+    tester.addEqualityGroup(optionsWithAlwaysSampler);
+    StartSpanOptions optionsWithNeverSampler = new StartSpanOptions();
+    optionsWithNeverSampler.setSampler(Samplers.neverSample());
+    tester.addEqualityGroup(optionsWithNeverSampler);
+    tester.addEqualityGroup(new StartSpanOptions());
     tester.testEquals();
   }
 }

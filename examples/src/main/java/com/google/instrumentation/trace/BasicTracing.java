@@ -19,7 +19,7 @@ public final class BasicTracing {
   private static final Tracer tracer = Tracer.getTracer();
 
   private static void doWork() {
-    try (Span span = tracer.startSpan(null, "MyRootSpan", StartSpanOptions.getDefault())) {
+    try (Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan()) {
       span.addAnnotation("This annotation is added directly to the span.");
     }
   }

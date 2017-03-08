@@ -29,25 +29,34 @@ import javax.annotation.Nullable;
  *
  * <p>This can be used similarly to {@link java.util.logging.Logger}.
  *
- * <p>Example usage:
+ * <p>Users may choose to use manual or automatic Context propagation. Because of that this class
+ * offers APIs to facilitate both usages.
+ *
+ * <p>Example usage with automatic context propagation:
  *
  * <pre>{@code
  * class MyClass {
  *   private static final Tracer tracer = Tracer.getTracer();
  *   void DoWork() {
- *     try(NonThrowingCloseable ss = tracer.startScopedSpan("MyClass.DoWork")) {
+ *     try(NonThrowingCloseable ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
  *       tracer.getCurrentSpan().addAnnotation("We did the work.");
  *     }
  *   }
  * }
  * }</pre>
  *
- * <p>{@code Tracer} manages the following modules:
+ * <p>Example usage with manual context propagation:
  *
- * <ul>
- *   <li>In process interaction between the {@code Span} and the Context.
- *   <li>{@code Span} creation.
- * </ul>
+ * <pre>{@code
+ * class MyClass {
+ *   private static final Tracer tracer = Tracer.getTracer();
+ *   void DoWork(Span parent) {
+ *     try(NonThrowingCloseable ss = tracer.spanBuilder(parent, "MyClass.DoWork").startScopedSpan) {
+ *       tracer.getCurrentSpan().addAnnotation("We did the work.");
+ *     }
+ *   }
+ * }
+ * }</pre>
  */
 public final class Tracer {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
@@ -75,7 +84,7 @@ public final class Tracer {
    * Gets the current Span from the current Context.
    *
    * <p>To install a {@link Span} to the current Context use {@link #withSpan(Span)} OR use {@link
-   * #startScopedSpan} methods to start a new {@code Span}.
+   * SpanBuilder#startScopedSpan} methods to start a new {@code Span}.
    *
    * <p>startSpan methods do NOT modify the current Context {@code Span}.
    *
@@ -88,7 +97,6 @@ public final class Tracer {
     return currentSpan != null ? currentSpan : BlankSpan.INSTANCE;
   }
 
-  // TODO(bdrutu): Add error_prone annotation @MustBeClosed when the 2.0.16 jar is fixed.
   /**
    * Enters the scope of code where the given {@link Span} is in the current Context, and returns an
    * object that represents that scope. The scope is exited when the returned object is closed.
@@ -134,7 +142,7 @@ public final class Tracer {
    * }</pre>
    *
    * @param span The {@link Span} to be set to the current Context.
-   * @return An object that defines a scope where the given {@link Span} will be set to the current
+   * @return an object that defines a scope where the given {@link Span} will be set to the current
    *     Context.
    * @throws NullPointerException if span is null.
    */
@@ -143,190 +151,66 @@ public final class Tracer {
   }
 
   /**
-   * Creates and starts a new child {@link Span} as a child of to the current {@code Span} if any,
-   * otherwise creates a root Span with the default options.
+   * Returns a {@link SpanBuilder} to create and start a new child {@link Span} as a child of to the
+   * current {@code Span} if any, otherwise create a root Span with the default options.
    *
-   * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
-   * returns an object that represents that scope. The scope is exited when the returned object is
-   * closed then the previous Context is restored and the newly created {@code Span} is ended using
-   * {@link Span#end}.
+   * <p>See {@link SpanBuilder} for usage examples.
    *
-   * <p>Supports try-with-resource idiom.
-   *
-   * <p>Example of usage:
-   *
-   * <pre>{@code
-   * private static Tracer tracer = Tracer.getTracer();
-   * void doWork {
-   *   // Create a Span as a child of the current Span.
-   *   try (NonThrowingCloseable ss = tracer.startScopedSpan("my span")) {
-   *     tracer.getCurrentSpan().addAnnotation("my annotation");
-   *     doSomeOtherWork();  // Here "span" is the current Span.
-   *   }
-   * }
-   * }</pre>
-   *
-   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed
-   * regardless of whether the try statement completes normally or abruptly.
-   *
-   * <p>Example of usage prior to Java SE7:
-   *
-   * <pre>{@code
-   * private static Tracer tracer = Tracer.getTracer();
-   * void doWork {
-   *   // Create a Span as a child of the current Span.
-   *   NonThrowingCloseable ss = tracer.startScopedSpan("my span");
-   *   try {
-   *     tracer.getCurrentSpan().addAnnotation("my annotation");
-   *     doSomeOtherWork();  // Here "span" is the current Span.
-   *   } finally {
-   *     ss.close();
-   *   }
-   * }
-   * }</pre>
+   * <p>This <b>must</b> be used to create a {@code Span} when automatic Context propagation is
+   * used.
    *
    * @param name The name of the returned Span.
-   * @return An object that defines a scope where the newly created child will be set to the current
-   *     Context.
+   * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if name is null.
    */
-  public NonThrowingCloseable startScopedSpan(String name) {
-    return new ScopedSpanHandle(
-        spanFactory.startSpan(
-            getCurrentSpan(), checkNotNull(name, "name"), StartSpanOptions.getDefault()),
-        contextSpanHandler);
+  public SpanBuilder spanBuilder(String name) {
+    return spanBuilder(contextSpanHandler.getCurrentSpan(), name);
   }
 
   /**
-   * Creates and starts a new child {@link Span} as a child of to the current {@code Span} if any,
-   * otherwise creates a root Span with the given options.
+   * Returns a {@link SpanBuilder} to create and start a new child {@link Span} (or root if parent
+   * is null), with parent being the designated {@code Span}.
    *
-   * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
-   * returns an object that represents that scope. The scope is exited when the returned object is
-   * closed then the previous Context is restored and the newly created {@code Span} is ended using
-   * {@link Span#end}.
+   * <p>See {@link SpanBuilder} for usage examples.
    *
-   * <p>Supports try-with-resource idiom.
+   * <p>This <b>must</b> be used to create a {@code Span} when manual Context propagation is used.
    *
-   * <p>See {@link #startScopedSpan(String)} for example to use.
-   *
+   * @param parent The parent of the returned Span. If null the {@code SpanBuilder} will build a
+   *     root {@code Span}.
    * @param name The name of the returned Span.
-   * @param options The options for the start of the Span.
-   * @return An object that defines a scope where the newly created child will be set to the current
-   *     Context.
-   * @throws NullPointerException if name or options is null.
-   */
-  public NonThrowingCloseable startScopedSpan(String name, StartSpanOptions options) {
-    return new ScopedSpanHandle(
-        spanFactory.startSpan(
-            getCurrentSpan(), checkNotNull(name, "name"), checkNotNull(options, "options")),
-        contextSpanHandler);
-  }
-
-  /**
-   * Creates and starts a new child {@link Span} (or root if parent is null), with parent being the
-   * designated {@code Span} and the default options.
-   *
-   * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
-   * returns an object that represents that scope. The scope is exited when the returned object is
-   * closed then the previous Context is restored and the newly created {@code Span} is ended using
-   * {@link Span#end}.
-   *
-   * <p>Supports try-with-resource idiom.
-   *
-   * <p>See {@link #startScopedSpan(String)} for example to use.
-   *
-   * @param parent The parent of the returned Span.
-   * @param name The name of the returned Span.
-   * @return An object that defines a scope where the newly created child will be set to the current
-   *     Context.
+   * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if name is null.
    */
-  public NonThrowingCloseable startScopedSpan(@Nullable Span parent, String name) {
-    return new ScopedSpanHandle(
-        spanFactory.startSpan(parent, checkNotNull(name, "name"), StartSpanOptions.getDefault()),
-        contextSpanHandler);
+  public SpanBuilder spanBuilder(@Nullable Span parent, String name) {
+    return new SpanBuilder(
+        spanFactory,
+        contextSpanHandler,
+        parent == null ? null : parent.getContext(),
+        /* hasRemoteParent = */ false,
+        checkNotNull(name, "name"));
   }
 
   /**
-   * Creates and starts a new child {@link Span} (or root if parent is null), with parent being the
-   * designated {@code Span} and the given options.
+   * Returns a {@link SpanBuilder} to create and start a new child {@link Span} (or root if parent
+   * is null), with parent being the {@link Span} designated by the {@link SpanContext}.
    *
-   * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
-   * returns an object that represents that scope. The scope is exited when the returned object is
-   * closed then the previous Context is restored and the newly created {@code Span} is ended using
-   * {@link Span#end}.
+   * <p>See {@link SpanBuilder} for usage examples.
    *
-   * <p>Supports try-with-resource idiom.
-   *
-   * <p>See {@link #startScopedSpan(String)} for example to use.
-   *
-   * @param parent The parent of the returned Span.
-   * @param name The name of the returned Span.
-   * @param options The options for the start of the Span.
-   * @return An object that defines a scope where the newly created child will be set to the current
-   *     Context.
-   * @throws NullPointerException if name or options is null.
-   */
-  public NonThrowingCloseable startScopedSpan(
-      @Nullable Span parent, String name, StartSpanOptions options) {
-    return new ScopedSpanHandle(
-        spanFactory.startSpan(parent, checkNotNull(name, "name"), checkNotNull(options, "options")),
-        contextSpanHandler);
-  }
-
-  /**
-   * Creates and starts a new child {@link Span} (or root if parent is null), with parent being the
-   * designated {@code Span} and the given options.
-   *
-   * <p>Users must manually end the newly created {@code Span}.
-   *
-   * <p>Does not install the newly created {@code Span} to the current Context.
-   *
-   * <p>Example of usage:
-   *
-   * <pre>{@code
-   * class MyClass {
-   *   private static final Tracer tracer = Tracer.getTracer();
-   *   void DoWork() {
-   *     try (Span span = tracer.startSpan(null, "MyRootSpan", StartSpanOptions.getDefault())) {
-   *       span.addAnnotation("We did X");
-   *     }
-   *   }
-   * }
-   * }</pre>
-   *
-   * @param parent The parent of the returned Span.
-   * @param name The name of the returned Span.
-   * @param options The options for the start of the Span.
-   * @return A child span that will have the name provided.
-   * @throws NullPointerException if name or options is null.
-   */
-  public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
-    return spanFactory.startSpan(
-        parent, checkNotNull(name, "name"), checkNotNull(options, "options"));
-  }
-
-  /**
-   * Creates and starts a new child {@link Span} (or root if parent is null), with parent being the
-   * {@link Span} designated by the {@link SpanContext} and the given options.
-   *
-   * <p>This must be used to create a {@code Span} when the parent is on a different process.
-   *
-   * <p>Users must manually end the newly created {@code Span}.
-   *
-   * <p>Does not install the newly created {@code Span} to the current Context.
+   * <p>This <b>must</b> be used to create a {@code Span} when the parent is in a different process.
+   * This is only intended for use by RPC systems or similar.
    *
    * @param remoteParent The remote parent of the returned Span.
    * @param name The name of the returned Span.
-   * @param options The options for the start of the Span.
-   * @return A child span that will have the name provided.
-   * @throws NullPointerException if name or options is null.
+   * @return a {@code SpanBuilder} to create and start a new {@code Span}.
+   * @throws NullPointerException if name is null.
    */
-  public Span startSpanWithRemoteParent(
-      @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
-    return spanFactory.startSpanWithRemoteParent(
-        remoteParent, checkNotNull(name, "name"), checkNotNull(options, "options"));
+  public SpanBuilder spanBuilderWithRemoteParent(@Nullable SpanContext remoteParent, String name) {
+    return new SpanBuilder(
+        spanFactory,
+        contextSpanHandler,
+        remoteParent,
+        /* hasRemoteParent = */ true,
+        checkNotNull(name, "name"));
   }
 
   @VisibleForTesting
@@ -346,6 +230,7 @@ public final class Tracer {
         };
 
     @Override
+    @Nullable
     public Span getCurrentSpan() {
       return null;
     }
@@ -359,13 +244,11 @@ public final class Tracer {
   // No-op implementation of the SpanFactory
   private static final class NoopSpanFactory extends SpanFactory {
     @Override
-    public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
-      return BlankSpan.INSTANCE;
-    }
-
-    @Override
-    public Span startSpanWithRemoteParent(
-        @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
+    public Span startSpan(
+        @Nullable SpanContext parent,
+        boolean hasRemoteParent,
+        String name,
+        StartSpanOptions options) {
       return BlankSpan.INSTANCE;
     }
   }
