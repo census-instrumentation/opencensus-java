@@ -23,37 +23,49 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link SpanId}. */
 @RunWith(JUnit4.class)
 public class SpanIdTest {
-  private static final SpanId first = new SpanId(123);
+  private static final byte[] firstBytes = new byte[] {0, 0, 0, 0, 0, 0, 0, 'a'};
+  private static final byte[] secondBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 0};
+  private static final SpanId first = SpanId.fromBytes(firstBytes);
+  private static final SpanId second = SpanId.fromBytes(secondBytes);
 
   @Test
   public void invalidSpanId() {
-    assertThat(SpanId.INVALID.getSpanId()).isEqualTo(0);
+    assertThat(SpanId.INVALID.getBytes()).isEqualTo(new byte[8]);
   }
 
   @Test
   public void isValid() {
     assertThat(SpanId.INVALID.isValid()).isFalse();
     assertThat(first.isValid()).isTrue();
+    assertThat(second.isValid()).isTrue();
   }
 
   @Test
-  public void getSpanId() {
-    assertThat(first.getSpanId()).isEqualTo(123);
+  public void getBytes() {
+    assertThat(first.getBytes()).isEqualTo(firstBytes);
+    assertThat(second.getBytes()).isEqualTo(secondBytes);
+  }
+
+  @Test
+  public void traceId_CompareTo() {
+    assertThat(first.compareTo(second)).isGreaterThan(0);
+    assertThat(second.compareTo(first)).isLessThan(0);
+    assertThat(first.compareTo(SpanId.fromBytes(firstBytes))).isEqualTo(0);
   }
 
   @Test
   public void traceId_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(SpanId.INVALID, SpanId.INVALID);
-    tester.addEqualityGroup(first, new SpanId(123));
+    tester.addEqualityGroup(first, SpanId.fromBytes(firstBytes));
+    tester.addEqualityGroup(second, SpanId.fromBytes(secondBytes));
     tester.testEquals();
   }
 
   @Test
   public void traceId_ToString() {
     assertThat(SpanId.INVALID.toString()).contains("0000000000000000");
-    assertThat(new SpanId(0xFEDCBA9876543210L).toString())
-        .contains("fedcba9876543210");
-    assertThat(new SpanId(-1).toString()).contains("ffffffffffffffff");
+    assertThat(first.toString()).contains("0000000000000061");
+    assertThat(second.toString()).contains("ff00000000000000");
   }
 }

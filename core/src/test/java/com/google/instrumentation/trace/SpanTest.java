@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
+import java.security.SecureRandom;
 import java.util.EnumSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,10 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public class SpanTest {
   private static final SpanContext spanContext =
-      new SpanContext(new TraceId(10, 20), new SpanId(30), TraceOptions.getDefault());
+      new SpanContext(
+          TraceId.generateRandomId(new SecureRandom()),
+          SpanId.generateRandomId(new SecureRandom()),
+          TraceOptions.getDefault());
   private static final EnumSet<Span.Options> spanOptions = EnumSet.of(Span.Options.RECORD_EVENTS);
 
   @Test(expected = NullPointerException.class)

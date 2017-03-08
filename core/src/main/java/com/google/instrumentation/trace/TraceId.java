@@ -13,63 +13,79 @@
 
 package com.google.instrumentation.trace;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.Formatter;
-import java.util.Locale;
+import com.google.common.base.MoreObjects;
+import com.google.common.io.BaseEncoding;
+
+import java.util.Arrays;
+import java.util.Random;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a trace identifier. A trace identifier is a 128-bit, unsigned integer.
- * The value 0 is considered invalid.
+ * A class that represents a trace identifier. A valid trace identifier is a 16-bytes array with
+ * at least one non-zero byte.
  */
 @Immutable
-public final class TraceId {
-  private final long traceIdHi;
-  private final long traceIdLo;
+public final class TraceId implements Comparable<TraceId> {
+  // The size in bytes of the trace id.
+  private static final int TRACE_ID_SIZE = 16;
+  private final byte[] bytes;
 
   /**
-   * The invalid {@code TraceId}.
+   * The invalid {@code TraceId}. All bytes are '\0'.
    */
-  public static final TraceId INVALID = new TraceId(0, 0);
+  public static final TraceId INVALID = new TraceId(new byte[TRACE_ID_SIZE]);
 
-  /**
-   * Creates a new {@code TraceId} whose value is taken from the given params.
-   *
-   * @param traceIdHi the higher bits.
-   * @param traceIdLo the lower bits.
-   */
-  TraceId(long traceIdHi, long traceIdLo) {
-    this.traceIdHi = traceIdHi;
-    this.traceIdLo = traceIdLo;
+  private TraceId(byte[] bytes) {
+    this.bytes = bytes;
   }
 
   /**
-   * Returns the high 64 bits of the {@code TraceId}.
+   * Creates a new {@code TraceId} whose value is taken from the given param.
    *
-   * @return the high 64 bits of the {@code TraceId}.
+   * @param bytes the 16-bytes representation.
+   * @return a new {@code TraceId} or {@link TraceId#INVALID} if all bytes are '\0'.
+   * @throws NullPointerException if bytes is null.
+   * @throws IllegalArgumentException if bytes length is not 16.
    */
-  public long getTraceIdHi() {
-    return traceIdHi;
+  public static TraceId fromBytes(byte[] bytes) {
+    checkArgument(bytes.length == TRACE_ID_SIZE, "bytes");
+    byte[] bytesCopy = Arrays.copyOf(bytes, TRACE_ID_SIZE);
+    return Arrays.equals(bytesCopy, INVALID.bytes) ? INVALID : new TraceId(bytes);
   }
 
   /**
-   * Returns the low 64 bits of the {@code TraceId}.
+   * Generates a new random {@code TraceId}.
    *
-   * @return the low 64 bits of the {@code TraceId}.
+   * @param random the random number generator.
+   * @return a new valid {@code TraceId}.
    */
-  public long getTraceIdLo() {
-    return traceIdLo;
+  public static TraceId generateRandomId(Random random) {
+    byte[] bytes = new byte[TRACE_ID_SIZE];
+    do {
+      random.nextBytes(bytes);
+    } while (Arrays.equals(bytes, INVALID.bytes));
+    return new TraceId(bytes);
   }
 
   /**
-   * Returns true if the {@code TraceId} is valid.
+   * Returns the 16-bytes array representation of the {@code TraceId}.
    *
-   * @return true if the {@code TraceId} is valid.
+   * @return the 16-bytes array representation of the {@code TraceId}.
+   */
+  public byte[] getBytes() {
+    return Arrays.copyOf(bytes, TRACE_ID_SIZE);
+  }
+
+  /**
+   * Returns whether the {@code TraceId} is valid. A valid trace identifier is a 16-bytes array with
+   * at least one non-zero byte.
+   *
+   * @return {@code true} if the {@code TraceId} is valid.
    */
   public boolean isValid() {
-    return traceIdLo != 0 || traceIdHi != 0;
+    return !Arrays.equals(bytes, INVALID.bytes);
   }
 
   @Override
@@ -83,18 +99,31 @@ public final class TraceId {
     }
 
     TraceId that = (TraceId) obj;
-    return traceIdLo == that.traceIdLo && traceIdHi == that.traceIdHi;
+    return Arrays.equals(bytes, that.bytes);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(traceIdHi, traceIdLo);
+    return Arrays.hashCode(bytes);
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("traceId", new Formatter(Locale.US).format("%016x%016x", traceIdHi, traceIdLo))
+        .add(
+            "traceId",
+            BaseEncoding.base16().lowerCase().encode(bytes))
         .toString();
+  }
+
+  @Override
+  public int compareTo(TraceId that) {
+    for (int i = 0; i < TRACE_ID_SIZE; i++) {
+      if (bytes[i] == that.bytes[i]) {
+        continue;
+      }
+      return bytes[i] < that.bytes[i] ? -1 : 1;
+    }
+    return 0;
   }
 }

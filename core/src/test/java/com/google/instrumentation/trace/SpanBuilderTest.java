@@ -40,7 +40,7 @@ public class SpanBuilderTest {
   @Mock private NonThrowingCloseable withSpan;
 
   private static final SpanContext SPAN_CONTEXT =
-      new SpanContext(new TraceId(10, 20), new SpanId(30), TraceOptions.getDefault());
+      new SpanContext(TraceId.fromLongs(10, 20), SpanId.fromLong(30), TraceOptions.getDefault());
   private static final String SPAN_NAME = "MySpanName";
   private SpanBuilder spanBuilder;
 
