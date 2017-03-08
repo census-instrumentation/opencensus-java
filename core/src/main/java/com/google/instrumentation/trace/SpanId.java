@@ -45,7 +45,7 @@ public final class SpanId implements Comparable<SpanId> {
    * Creates a new {@code SpanId} whose value is taken from the given param.
    *
    * @param bytes the 8-bytes representation.
-   * @return a new {@code SpanId} or {@link SpanId#INVALID} if all bytes are '\0'.
+   * @return a new {@code SpanId}.
    * @throws NullPointerException if bytes is null.
    * @throws IllegalArgumentException if bytes length is not 8.
    */

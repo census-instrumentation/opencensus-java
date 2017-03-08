@@ -45,7 +45,7 @@ public final class TraceId implements Comparable<TraceId> {
    * Creates a new {@code TraceId} whose value is taken from the given param.
    *
    * @param bytes the 16-bytes representation.
-   * @return a new {@code TraceId} or {@link TraceId#INVALID} if all bytes are '\0'.
+   * @return a new {@code TraceId}.
    * @throws NullPointerException if bytes is null.
    * @throws IllegalArgumentException if bytes length is not 16.
    */

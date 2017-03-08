@@ -16,6 +16,7 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -57,8 +58,9 @@ public class SpanIdTest {
   public void traceId_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(SpanId.INVALID, SpanId.INVALID);
-    tester.addEqualityGroup(first, SpanId.fromBytes(firstBytes));
-    tester.addEqualityGroup(second, SpanId.fromBytes(secondBytes));
+    tester.addEqualityGroup(first, SpanId.fromBytes(Arrays.copyOf(firstBytes, firstBytes.length)));
+    tester.addEqualityGroup(
+        second, SpanId.fromBytes(Arrays.copyOf(secondBytes, secondBytes.length)));
     tester.testEquals();
   }
 

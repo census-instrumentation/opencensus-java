@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -24,11 +25,13 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link Samplers}. */
 @RunWith(JUnit4.class)
 public class SamplersTest {
+  private static Random random = new SecureRandom(new byte[] {0, 1, 2, 3, 4, 5, 6});
+
   @Test
   public void alwaysSampleSampler_AlwaysReturnTrue() {
-    TraceId traceId = TraceId.generateRandomId(new SecureRandom());
-    SpanId parentSpanId = SpanId.generateRandomId(new SecureRandom());
-    SpanId spanId = SpanId.generateRandomId(new SecureRandom());
+    TraceId traceId = TraceId.generateRandomId(random);
+    SpanId parentSpanId = SpanId.generateRandomId(random);
+    SpanId spanId = SpanId.generateRandomId(random);
     // Traced parent.
     assertThat(
             Samplers.alwaysSample()
@@ -61,9 +64,9 @@ public class SamplersTest {
 
   @Test
   public void neverSampleSampler_AlwaysReturnFalse() {
-    TraceId traceId = TraceId.generateRandomId(new SecureRandom());
-    SpanId parentSpanId = SpanId.generateRandomId(new SecureRandom());
-    SpanId spanId = SpanId.generateRandomId(new SecureRandom());
+    TraceId traceId = TraceId.generateRandomId(random);
+    SpanId parentSpanId = SpanId.generateRandomId(random);
+    SpanId spanId = SpanId.generateRandomId(random);
     // Traced parent.
     assertThat(
             Samplers.neverSample()

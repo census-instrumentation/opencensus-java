@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
 import java.security.SecureRandom;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,6 +37,7 @@ public class TracerTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   private static final Tracer tracer = Tracer.getTracer();
+  private static Random random = new SecureRandom(new byte[] {0, 1, 2, 3, 4, 5, 6});
 
   @Mock private ContextSpanHandler contextSpanHandler;
   @Mock private SpanFactory spanFactory;
@@ -227,8 +229,8 @@ public class TracerTest {
     Tracer mockTracer = newTracerWithMocks();
     SpanContext spanContext =
         new SpanContext(
-            TraceId.generateRandomId(new SecureRandom()),
-            SpanId.generateRandomId(new SecureRandom()),
+            TraceId.generateRandomId(random),
+            SpanId.generateRandomId(random),
             TraceOptions.getDefault());
     when(spanFactory.startSpan(
             same(spanContext), eq(true), eq("MySpanName"), eq(new StartSpanOptions())))

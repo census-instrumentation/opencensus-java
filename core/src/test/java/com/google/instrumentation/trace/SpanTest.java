@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 
 import java.security.SecureRandom;
 import java.util.EnumSet;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -27,10 +28,11 @@ import org.mockito.Mockito;
 /** Unit tests for {@link Span}. */
 @RunWith(JUnit4.class)
 public class SpanTest {
+  private static Random random = new SecureRandom(new byte[] {0, 1, 2, 3, 4, 5, 6});
   private static final SpanContext spanContext =
       new SpanContext(
-          TraceId.generateRandomId(new SecureRandom()),
-          SpanId.generateRandomId(new SecureRandom()),
+          TraceId.generateRandomId(random),
+          SpanId.generateRandomId(random),
           TraceOptions.getDefault());
   private static final EnumSet<Span.Options> spanOptions = EnumSet.of(Span.Options.RECORD_EVENTS);
 
