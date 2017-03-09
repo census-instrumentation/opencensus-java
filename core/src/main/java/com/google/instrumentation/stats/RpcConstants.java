@@ -53,11 +53,10 @@ public final class RpcConstants {
           "/rpc/client/response_bytes",
           "Response MB",
           MeasurementUnit.create(6, bytes));
-  // TODO(dpo): verify this encoding
   public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
       MeasurementDescriptor.create(
           "/rpc/client/roundtrip_latency",
-          "RPC roundtrip latency us",
+          "RPC roundtrip latency msec",
           MeasurementUnit.create(-6, seconds));
   public static final MeasurementDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME =
       MeasurementDescriptor.create(
