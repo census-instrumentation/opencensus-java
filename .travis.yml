@@ -5,19 +5,19 @@ language: java
 matrix:
   include:
   - jdk: openjdk6
-    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=checkstyle_google_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=19.0
 
   - jdk: oraclejdk7
-    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=checkstyle_google_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=19.0
 
   - jdk: oraclejdk7
-    env: BUILD=MVN GUAVA_VERSION=21.0 STYLE_CHECK=checkstyle_google_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=21.0
 
   - jdk: oraclejdk8
-    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=checkstyle_google_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=19.0
 
   - jdk: oraclejdk8
-    env: BUILD=MVN GUAVA_VERSION=20.0 STYLE_CHECK=checkstyle_google_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=20.0
 
   - jdk: oraclejdk8
     env: BUILD=BAZEL
@@ -58,9 +58,9 @@ script:
         bazel test ... --javacopt=-Werror --javacopt=-Xlint:all --javacopt=-Xlint:-cast --javacopt=-Xlint:-deprecation --javacopt=-Xlint:-try --config=error_prone_warnings --config=error_prone_experimental_warnings ;;
       "MVN")
         case "$TRAVIS_JDK_VERSION" in
-          "openjdk6")
-            mvn verify -P java6 -Dguava.version=$GUAVA_VERSION ;;
+          "oraclejdk8")
+            mvn verify -P dev -Dguava.version=$GUAVA_VERSION ;;
           *)
-            mvn verify -Dguava.version=$GUAVA_VERSION -Dcheckstyle.config=$STYLE_CHECK ;;
+            mvn verify -Dguava.version=$GUAVA_VERSION ;;
         esac
     esac
