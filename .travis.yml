@@ -5,19 +5,19 @@ language: java
 matrix:
   include:
   - jdk: openjdk6
-    env: BUILD=MVN GUAVA_VERSION=19.0
+    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=checkstyle_google_checks.xml
 
   - jdk: oraclejdk7
-    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=checkstyle_custom_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=checkstyle_google_checks.xml
 
   - jdk: oraclejdk7
-    env: BUILD=MVN GUAVA_VERSION=21.0 STYLE_CHECK=google_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=21.0 STYLE_CHECK=checkstyle_google_checks.xml
 
   - jdk: oraclejdk8
-    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=google_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=19.0 STYLE_CHECK=checkstyle_google_checks.xml
 
   - jdk: oraclejdk8
-    env: BUILD=MVN GUAVA_VERSION=20.0 STYLE_CHECK=checkstyle_custom_checks.xml
+    env: BUILD=MVN GUAVA_VERSION=20.0 STYLE_CHECK=checkstyle_google_checks.xml
 
   - jdk: oraclejdk8
     env: BUILD=BAZEL

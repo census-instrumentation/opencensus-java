@@ -41,6 +41,7 @@
 
   <properties>
     <guava.version>19.0</guava.version>
+    <checkstyle.config>checkstyle_google_checks.xml</checkstyle.config>
   </properties>
 
   <dependencies>
