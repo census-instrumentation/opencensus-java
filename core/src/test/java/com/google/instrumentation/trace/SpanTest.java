@@ -18,6 +18,8 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
 import java.util.EnumSet;
+import java.util.Random;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,9 +28,20 @@ import org.mockito.Mockito;
 /** Unit tests for {@link Span}. */
 @RunWith(JUnit4.class)
 public class SpanTest {
-  private static final SpanContext spanContext =
-      new SpanContext(new TraceId(10, 20), new SpanId(30), TraceOptions.getDefault());
-  private static final EnumSet<Span.Options> spanOptions = EnumSet.of(Span.Options.RECORD_EVENTS);
+  private Random random;
+  private SpanContext spanContext;
+  private EnumSet<Span.Options> spanOptions;
+
+  @Before
+  public void setUp() {
+    random = new Random(1234);
+    spanContext =
+        new SpanContext(
+            TraceId.generateRandomId(random),
+            SpanId.generateRandomId(random),
+            TraceOptions.getDefault());
+    spanOptions = EnumSet.of(Span.Options.RECORD_EVENTS);
+  }
 
   @Test(expected = NullPointerException.class)
   public void newSpan_WithNullContext() {

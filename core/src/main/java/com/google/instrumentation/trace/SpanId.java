@@ -13,33 +13,80 @@
 
 package com.google.instrumentation.trace;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.Formatter;
-import java.util.Locale;
+import com.google.common.base.MoreObjects;
+import com.google.common.io.BaseEncoding;
+
+import java.util.Arrays;
+import java.util.Random;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a span identifier. A span identifier is a 64-bit, unsigned integer.
+ * A class that represents a span identifier. A valid span identifier is a 8-bytes array with
+ * at least one non-zero byte.
  */
 @Immutable
-public final class SpanId {
-  private static final long INVALID_SPAN_ID = 0;
-  private final long spanId;
+public final class SpanId implements Comparable<SpanId> {
+  // The size in bytes of the span id.
+  private static final int SPAN_ID_SIZE = 8;
+  private final byte[] bytes;
+
+  private SpanId(byte[] bytes) {
+    this.bytes = bytes;
+  }
 
   /**
-   * The invalid {@code SpanId}.
+   * The invalid {@code SpanId}. All bytes are 0.
    */
-  public static final SpanId INVALID = new SpanId(INVALID_SPAN_ID);
+  public static final SpanId INVALID = new SpanId(new byte[SPAN_ID_SIZE]);
 
   /**
-   * Creates a span identifier whose value is taken from the given {@code long}.
+   * Returns a {@code SpanId} whose representation is given param.
    *
-   * @param spanId a long used as the span identifier.
+   * @param bytes the representation of the {@code SpanId}.
+   * @return a {@code SpanId} whose representation is given param.
+   * @throws NullPointerException if bytes is null.
+   * @throws IllegalArgumentException if bytes length is not 8.
    */
-  SpanId(long spanId) {
-    this.spanId = spanId;
+  public static SpanId fromBytes(byte[] bytes) {
+    checkArgument(bytes.length == SPAN_ID_SIZE, "bytes");
+    byte[] bytesCopy = Arrays.copyOf(bytes, SPAN_ID_SIZE);
+    return Arrays.equals(bytesCopy, INVALID.bytes) ? INVALID : new SpanId(bytes);
+  }
+
+  /**
+   * Generates a new random {@code SpanId}.
+   *
+   * @param random The random number generator.
+   * @return a valid new {@code SpanId}.
+   */
+  public static SpanId generateRandomId(Random random) {
+    byte[] bytes = new byte[SPAN_ID_SIZE];
+    do {
+      random.nextBytes(bytes);
+    } while (Arrays.equals(bytes, INVALID.bytes));
+    return new SpanId(bytes);
+  }
+
+  /**
+   * Returns the 8-bytes array representation of the {@code SpanId}.
+   *
+   * @return the 8-bytes array representation of the {@code SpanId}.
+   */
+  public byte[] getBytes() {
+    return Arrays.copyOf(bytes, SPAN_ID_SIZE);
+  }
+
+
+  /**
+   * Returns whether the span identifier is valid. A valid span identifier is a 8-bytes array with
+   * at least one non-zero byte.
+   *
+   * @return {@code true} if the span identifier is valid.
+   */
+  public boolean isValid() {
+    return !Arrays.equals(bytes, INVALID.bytes);
   }
 
   @Override
@@ -53,35 +100,31 @@ public final class SpanId {
     }
 
     SpanId that = (SpanId) obj;
-    return spanId == that.spanId;
+    return Arrays.equals(bytes, that.bytes);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(spanId);
+    return Arrays.hashCode(bytes);
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("spanId", new Formatter(Locale.US).format("%016x", spanId))
+        .add(
+            "spanId",
+            BaseEncoding.base16().lowerCase().encode(bytes))
         .toString();
   }
-  /**
-   * Returns whether the span identifier is valid. A valid span identifer is non-zero long value.
-   *
-   * @return whether the span identifier is valid.
-   */
-  public boolean isValid() {
-    return spanId != INVALID_SPAN_ID;
-  }
 
-  /**
-   * Returns the long that represents the span identifier.
-   *
-   * @return the span identifier.
-   */
-  public long getSpanId() {
-    return spanId;
+  @Override
+  public int compareTo(SpanId that) {
+    for (int i = 0; i < SPAN_ID_SIZE; i++) {
+      if (bytes[i] == that.bytes[i]) {
+        continue;
+      }
+      return bytes[i] < that.bytes[i] ? -1 : 1;
+    }
+    return 0;
   }
 }

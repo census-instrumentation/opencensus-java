@@ -23,11 +23,23 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link SpanContext}. */
 @RunWith(JUnit4.class)
 public class SpanContextTest {
+  private static final byte[] firstTraceIdBytes =
+      new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'a'};
+  private static final byte[] secondTraceIdBytes =
+      new byte[] {0, 0, 0, 0, 0, 0, 0, '0', 0, 0, 0, 0, 0, 0, 0, 0};
+  private static final byte[] firstSpanIdBytes = new byte[] {0, 0, 0, 0, 0, 0, 0, 'a'};
+  private static final byte[] secondSpanIdBytes = new byte[] {'0', 0, 0, 0, 0, 0, 0, 0};
+
   private static final SpanContext first =
-      new SpanContext(new TraceId(0, 10), new SpanId(30), TraceOptions.getDefault());
+      new SpanContext(
+          TraceId.fromBytes(firstTraceIdBytes),
+          SpanId.fromBytes(firstSpanIdBytes),
+          TraceOptions.getDefault());
   private static final SpanContext second =
       new SpanContext(
-          new TraceId(0, 20), new SpanId(40), new TraceOptions(TraceOptions.IS_SAMPLED));
+          TraceId.fromBytes(secondTraceIdBytes),
+          SpanId.fromBytes(secondSpanIdBytes),
+          new TraceOptions(TraceOptions.IS_SAMPLED));
 
   @Test
   public void invalidSpanContext() {
@@ -40,11 +52,14 @@ public class SpanContextTest {
   public void isValid() {
     assertThat(SpanContext.INVALID.isValid()).isFalse();
     assertThat(
-            new SpanContext(new TraceId(0, 10), SpanId.INVALID, TraceOptions.getDefault())
+            new SpanContext(
+                    TraceId.fromBytes(firstTraceIdBytes), SpanId.INVALID, TraceOptions.getDefault())
                 .isValid())
         .isFalse();
     assertThat(
-            new SpanContext(TraceId.INVALID, new SpanId(10), TraceOptions.getDefault()).isValid())
+            new SpanContext(
+                    TraceId.INVALID, SpanId.fromBytes(firstSpanIdBytes), TraceOptions.getDefault())
+                .isValid())
         .isFalse();
     assertThat(first.isValid()).isTrue();
     assertThat(second.isValid()).isTrue();
@@ -52,14 +67,14 @@ public class SpanContextTest {
 
   @Test
   public void getTraceId() {
-    assertThat(first.getTraceId()).isEqualTo(new TraceId(0, 10));
-    assertThat(second.getTraceId()).isEqualTo(new TraceId(0, 20));
+    assertThat(first.getTraceId()).isEqualTo(TraceId.fromBytes(firstTraceIdBytes));
+    assertThat(second.getTraceId()).isEqualTo(TraceId.fromBytes(secondTraceIdBytes));
   }
 
   @Test
   public void getSpanId() {
-    assertThat(first.getSpanId()).isEqualTo(new SpanId(30));
-    assertThat(second.getSpanId()).isEqualTo(new SpanId(40));
+    assertThat(first.getSpanId()).isEqualTo(SpanId.fromBytes(firstSpanIdBytes));
+    assertThat(second.getSpanId()).isEqualTo(SpanId.fromBytes(secondSpanIdBytes));
   }
 
   @Test
@@ -72,21 +87,27 @@ public class SpanContextTest {
   public void spanContext_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(
-        first, new SpanContext(new TraceId(0, 10), new SpanId(30), TraceOptions.getDefault()));
+        first,
+        new SpanContext(
+            TraceId.fromBytes(firstTraceIdBytes),
+            SpanId.fromBytes(firstSpanIdBytes),
+            TraceOptions.getDefault()));
     tester.addEqualityGroup(
         second,
         new SpanContext(
-            new TraceId(0, 20), new SpanId(40), new TraceOptions(TraceOptions.IS_SAMPLED)));
+            TraceId.fromBytes(secondTraceIdBytes),
+            SpanId.fromBytes(secondSpanIdBytes),
+            new TraceOptions(TraceOptions.IS_SAMPLED)));
     tester.testEquals();
   }
 
   @Test
   public void spanContext_ToString() {
-    assertThat(first.toString()).contains(new TraceId(0, 10).toString());
-    assertThat(first.toString()).contains(new SpanId(30).toString());
+    assertThat(first.toString()).contains(TraceId.fromBytes(firstTraceIdBytes).toString());
+    assertThat(first.toString()).contains(SpanId.fromBytes(firstSpanIdBytes).toString());
     assertThat(first.toString()).contains(TraceOptions.getDefault().toString());
-    assertThat(second.toString()).contains(new TraceId(0, 20).toString());
-    assertThat(second.toString()).contains(new SpanId(40).toString());
+    assertThat(second.toString()).contains(TraceId.fromBytes(secondTraceIdBytes).toString());
+    assertThat(second.toString()).contains(SpanId.fromBytes(secondSpanIdBytes).toString());
     assertThat(second.toString()).contains(new TraceOptions(TraceOptions.IS_SAMPLED).toString());
   }
 }

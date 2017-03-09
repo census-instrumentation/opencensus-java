@@ -24,6 +24,7 @@ import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.common.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,17 +40,23 @@ public class SpanBuilderTest {
   @Mock private SpanFactory spanFactory;
   @Mock private NonThrowingCloseable withSpan;
 
-  private static final SpanContext SPAN_CONTEXT =
-      new SpanContext(new TraceId(10, 20), new SpanId(30), TraceOptions.getDefault());
   private static final String SPAN_NAME = "MySpanName";
+  private Random random;
+  private SpanContext spanContext;
   private SpanBuilder spanBuilder;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
+    random = new Random(1234);
+    spanContext =
+        new SpanContext(
+            TraceId.generateRandomId(random),
+            SpanId.generateRandomId(random),
+            TraceOptions.getDefault());
     spanBuilder =
         new SpanBuilder(
-            spanFactory, contextSpanHandler, SPAN_CONTEXT, false /* hasRemoteParent */, SPAN_NAME);
+            spanFactory, contextSpanHandler, spanContext, false /* hasRemoteParent */, SPAN_NAME);
   }
 
   @Test
@@ -127,7 +134,7 @@ public class SpanBuilderTest {
   @Test
   public void startChildSpan() {
     when(spanFactory.startSpan(
-            same(SPAN_CONTEXT), eq(false), same(SPAN_NAME), eq(new StartSpanOptions())))
+            same(spanContext), eq(false), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
     try (Span childSpan = spanBuilder.startSpan()) {
       assertThat(childSpan).isEqualTo(span);
@@ -139,8 +146,7 @@ public class SpanBuilderTest {
     StartSpanOptions startSpanOptions = new StartSpanOptions();
     startSpanOptions.setSampler(Samplers.neverSample());
     startSpanOptions.setRecordEvents(true);
-    when(spanFactory.startSpan(
-            same(SPAN_CONTEXT), eq(false), same(SPAN_NAME), eq(startSpanOptions)))
+    when(spanFactory.startSpan(same(spanContext), eq(false), same(SPAN_NAME), eq(startSpanOptions)))
         .thenReturn(span);
     try (Span childSpan =
         spanBuilder.setSampler(Samplers.neverSample()).setRecordEvents(true).startSpan()) {
@@ -152,9 +158,9 @@ public class SpanBuilderTest {
   public void startSpanWitRemoteParent() {
     spanBuilder =
         new SpanBuilder(
-            spanFactory, contextSpanHandler, SPAN_CONTEXT, true /* hasRemoteParent */, SPAN_NAME);
+            spanFactory, contextSpanHandler, spanContext, true /* hasRemoteParent */, SPAN_NAME);
     when(spanFactory.startSpan(
-            same(SPAN_CONTEXT), eq(true), same(SPAN_NAME), eq(new StartSpanOptions())))
+            same(spanContext), eq(true), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
     try (Span remoteChildSpan = spanBuilder.startSpan()) {
       assertThat(remoteChildSpan).isEqualTo(span);

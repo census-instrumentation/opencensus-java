@@ -16,6 +16,7 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import java.util.Collections;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -25,9 +26,10 @@ import org.junit.runners.JUnit4;
 public class SamplersTest {
   @Test
   public void alwaysSampleSampler_AlwaysReturnTrue() {
-    TraceId traceId = new TraceId(2, 3);
-    SpanId parentSpanId = new SpanId(17);
-    SpanId spanId = new SpanId(42);
+    Random random = new Random(1234);
+    TraceId traceId = TraceId.generateRandomId(random);
+    SpanId parentSpanId = SpanId.generateRandomId(random);
+    SpanId spanId = SpanId.generateRandomId(random);
     // Traced parent.
     assertThat(
             Samplers.alwaysSample()
@@ -60,9 +62,10 @@ public class SamplersTest {
 
   @Test
   public void neverSampleSampler_AlwaysReturnFalse() {
-    TraceId traceId = new TraceId(4, 5);
-    SpanId parentSpanId = new SpanId(19);
-    SpanId spanId = new SpanId(42);
+    Random random = new Random(1234);
+    TraceId traceId = TraceId.generateRandomId(random);
+    SpanId parentSpanId = SpanId.generateRandomId(random);
+    SpanId spanId = SpanId.generateRandomId(random);
     // Traced parent.
     assertThat(
             Samplers.neverSample()

@@ -16,6 +16,7 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -23,57 +24,52 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TraceId}. */
 @RunWith(JUnit4.class)
 public class TraceIdTest {
-  private static final TraceId first = new TraceId(123, 456);
-  private static final TraceId second = new TraceId(0, 789);
-  private static final TraceId third = new TraceId(987, 0);
+  private static final byte[] firstBytes =
+      new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'a'};
+  private static final byte[] secondBytes =
+      new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'A'};
+  private static final TraceId first = TraceId.fromBytes(firstBytes);
+  private static final TraceId second = TraceId.fromBytes(secondBytes);
 
   @Test
   public void invalidTraceId() {
-    assertThat(TraceId.INVALID.getTraceIdLo()).isEqualTo(0);
-    assertThat(TraceId.INVALID.getTraceIdHi()).isEqualTo(0);
+    assertThat(TraceId.INVALID.getBytes()).isEqualTo(new byte[16]);
   }
 
   @Test
   public void isValid() {
     assertThat(TraceId.INVALID.isValid()).isFalse();
-    assertThat(second.isValid()).isTrue();
-    assertThat(third.isValid()).isTrue();
     assertThat(first.isValid()).isTrue();
+    assertThat(second.isValid()).isTrue();
   }
 
   @Test
-  public void getTraceIdLo() {
-    assertThat(first.getTraceIdLo()).isEqualTo(456);
-    assertThat(second.getTraceIdLo()).isEqualTo(789);
-    assertThat(third.getTraceIdLo()).isEqualTo(0);
+  public void getBytes() {
+    assertThat(first.getBytes()).isEqualTo(firstBytes);
+    assertThat(second.getBytes()).isEqualTo(secondBytes);
   }
 
   @Test
-  public void getTraceIdHi() {
-    assertThat(first.getTraceIdHi()).isEqualTo(123);
-    assertThat(second.getTraceIdHi()).isEqualTo(0);
-    assertThat(third.getTraceIdHi()).isEqualTo(987);
+  public void traceId_CompareTo() {
+    assertThat(first.compareTo(second)).isGreaterThan(0);
+    assertThat(second.compareTo(first)).isLessThan(0);
+    assertThat(first.compareTo(TraceId.fromBytes(firstBytes))).isEqualTo(0);
   }
 
   @Test
   public void traceId_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(TraceId.INVALID, TraceId.INVALID);
-    tester.addEqualityGroup(first, new TraceId(123, 456));
-    tester.addEqualityGroup(second, new TraceId(0, 789));
-    tester.addEqualityGroup(third, new TraceId(987, 0));
+    tester.addEqualityGroup(first, TraceId.fromBytes(Arrays.copyOf(firstBytes, firstBytes.length)));
+    tester.addEqualityGroup(
+        second, TraceId.fromBytes(Arrays.copyOf(secondBytes, secondBytes.length)));
     tester.testEquals();
   }
 
   @Test
   public void traceId_ToString() {
     assertThat(TraceId.INVALID.toString()).contains("00000000000000000000000000000000");
-    assertThat(new TraceId(0, 0xFEDCBA9876543210L).toString())
-        .contains("0000000000000000fedcba9876543210");
-    assertThat(new TraceId(0x0123456789ABCDEFL, 0).toString())
-        .contains("0123456789abcdef0000000000000000");
-    assertThat(new TraceId(0x0123456789ABCDEFL, 0xFEDCBA9876543210L).toString())
-        .contains("0123456789abcdeffedcba9876543210");
-    assertThat(new TraceId(-1, -2).toString()).contains("fffffffffffffffffffffffffffffffe");
+    assertThat(first.toString()).contains("00000000000000000000000000000061");
+    assertThat(second.toString()).contains("00000000000000000000000000000041");
   }
 }
