@@ -251,7 +251,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_CLIENT_REQUEST_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc client request_bytes",
-          "Minute and Hour stats for request in bytes",
+          "Minute and Hour stats for request size in bytes",
           RPC_CLIENT_REQUEST_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
@@ -259,7 +259,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_CLIENT_RESPONSE_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc client response_bytes",
-          "Minute and Hour stats for response size bytes",
+          "Minute and Hour stats for response size in bytes",
           RPC_CLIENT_RESPONSE_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
