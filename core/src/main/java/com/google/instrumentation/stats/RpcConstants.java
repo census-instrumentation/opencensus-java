@@ -46,13 +46,13 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_CLIENT_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/request_bytes",
-          "Request MB",
-          MeasurementUnit.create(6, bytes));
+          "Request bytes",
+          MeasurementUnit.create(0, bytes));
   public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/response_bytes",
-          "Response MB",
-          MeasurementUnit.create(6, bytes));
+          "Response bytes",
+          MeasurementUnit.create(0, bytes));
   public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
       MeasurementDescriptor.create(
           "/rpc/client/roundtrip_latency",
@@ -66,13 +66,13 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_request_bytes",
-          "Uncompressed Request MB",
-          MeasurementUnit.create(6, bytes));
+          "Uncompressed Request bytes",
+          MeasurementUnit.create(0, bytes));
   public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/client/uncompressed_response_bytes",
-          "Uncompressed Response MB",
-          MeasurementUnit.create(6, bytes));
+          "Uncompressed Response bytes",
+          MeasurementUnit.create(0, bytes));
 
   // Census defined rpc server {@link MeasurementDescriptor}s.
   public static final MeasurementDescriptor RPC_SERVER_ERROR_COUNT =
@@ -83,13 +83,13 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_SERVER_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/request_bytes",
-          "Request MB",
-          MeasurementUnit.create(6, bytes));
+          "Request bytes",
+          MeasurementUnit.create(0, bytes));
   public static final MeasurementDescriptor RPC_SERVER_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/response_bytes",
-          "Response MB",
-          MeasurementUnit.create(6, bytes));
+          "Response bytes",
+          MeasurementUnit.create(0, bytes));
   public static final MeasurementDescriptor RPC_SERVER_SERVER_ELAPSED_TIME =
       MeasurementDescriptor.create(
           "/rpc/server/server_elapsed_time",
@@ -103,13 +103,13 @@ public final class RpcConstants {
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_request_bytes",
-          "Uncompressed Request MB",
-          MeasurementUnit.create(6, bytes));
+          "Uncompressed Request bytes",
+          MeasurementUnit.create(0, bytes));
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
       MeasurementDescriptor.create(
           "/rpc/server/uncompressed_response_bytes",
-          "Uncompressed Response MB",
-          MeasurementUnit.create(6, bytes));
+          "Uncompressed Response bytes",
+          MeasurementUnit.create(0, bytes));
   public static final MeasurementDescriptor RPC_SERVER_STARTED_COUNT =
       MeasurementDescriptor.create(
           "/rpc/server/started_count",
@@ -157,28 +157,28 @@ public final class RpcConstants {
   public static final DistributionViewDescriptor RPC_CLIENT_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc client request_bytes",
-          "Request MB",
+          "Request bytes",
           RPC_CLIENT_REQUEST_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc client response_bytes",
-          "Response MB",
+          "Response bytes",
           RPC_CLIENT_RESPONSE_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc client uncompressed_request_bytes",
-          "Uncompressed Request MB",
+          "Uncompressed Request bytes",
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc client uncompressed_response_bytes",
-          "Uncompressed Response MB",
+          "Uncompressed Response bytes",
           RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
@@ -209,28 +209,28 @@ public final class RpcConstants {
   public static final DistributionViewDescriptor RPC_SERVER_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc server request_bytes",
-          "Request MB",
+          "Request bytes",
           RPC_SERVER_REQUEST_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc server response_bytes",
-          "Response MB",
+          "Response bytes",
           RPC_SERVER_RESPONSE_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc server uncompressed_request_bytes",
-          "Uncompressed Request MB",
+          "Uncompressed Request bytes",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       DistributionViewDescriptor.create(
           "rpc server uncompressed_response_bytes",
-          "Uncompressed Response MB",
+          "Uncompressed Response bytes",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
@@ -251,7 +251,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_CLIENT_REQUEST_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc client request_bytes",
-          "Minute and Hour stats for request in MBs",
+          "Minute and Hour stats for request size in bytes",
           RPC_CLIENT_REQUEST_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
@@ -259,7 +259,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_CLIENT_RESPONSE_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc client response_bytes",
-          "Minute and Hour stats for response size MBs",
+          "Minute and Hour stats for response size in bytes",
           RPC_CLIENT_RESPONSE_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
@@ -275,7 +275,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc client uncompressed_request_bytes",
-          "Minute and Hour stats for uncompressed request size in MB",
+          "Minute and Hour stats for uncompressed request size in bytes",
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
@@ -283,7 +283,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc client uncompressed_response_bytes",
-          "Minute and Hour stats for uncompressed response size in MBs",
+          "Minute and Hour stats for uncompressed response size in bytes",
           RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
@@ -308,7 +308,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_SERVER_REQUEST_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc server request_bytes",
-          "Minute and Hour stats for request size in MB",
+          "Minute and Hour stats for request size in bytes",
           RPC_SERVER_REQUEST_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
@@ -316,7 +316,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_SERVER_RESPONSE_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc server response_bytes",
-          "Minute and Hour stats for response size in MBs",
+          "Minute and Hour stats for response size in bytes",
           RPC_SERVER_RESPONSE_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
@@ -332,7 +332,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc server uncompressed_request_bytes",
-          "Minute and Hour stats for uncompressed request size in MBs",
+          "Minute and Hour stats for uncompressed request size in bytes",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
@@ -340,7 +340,7 @@ public final class RpcConstants {
   public static final IntervalViewDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc server uncompressed_response_bytes",
-          "Minute and Hour stats for uncompressed response size in MBs",
+          "Minute and Hour stats for uncompressed response size in bytes",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
