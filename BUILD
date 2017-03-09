@@ -497,6 +497,21 @@ java_test(
 )
 
 java_test(
+    name = "SpanBuilderTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanBuilderTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@mockito//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
     name = "SpanContextTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanContextTest.java"],
     deps = [

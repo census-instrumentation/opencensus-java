@@ -42,10 +42,10 @@ public final class SpanId implements Comparable<SpanId> {
   public static final SpanId INVALID = new SpanId(new byte[SPAN_ID_SIZE]);
 
   /**
-   * Creates a new {@code SpanId} whose value is taken from the given param.
+   * Returns a {@code SpanId} whose representation is given param.
    *
-   * @param bytes the 8-bytes representation.
-   * @return a new {@code SpanId}.
+   * @param bytes the representation of the {@code SpanId}.
+   * @return a {@code SpanId} whose representation is given param.
    * @throws NullPointerException if bytes is null.
    * @throws IllegalArgumentException if bytes length is not 8.
    */
