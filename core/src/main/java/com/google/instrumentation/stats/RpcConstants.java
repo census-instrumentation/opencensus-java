@@ -57,7 +57,7 @@ public final class RpcConstants {
       MeasurementDescriptor.create(
           "/rpc/client/roundtrip_latency",
           "RPC roundtrip latency msec",
-          MeasurementUnit.create(-6, seconds));
+          MeasurementUnit.create(-3, seconds));
   public static final MeasurementDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME =
       MeasurementDescriptor.create(
           "/rpc/client/server_elapsed_time",
