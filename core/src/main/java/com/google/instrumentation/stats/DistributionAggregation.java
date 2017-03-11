@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 /**
  * An aggregation of data based on distributions.
  *
- * <p> A distribution contains summary statistics for a population of values and, optionally, a
+ * <p>A distribution contains summary statistics for a population of values and, optionally, a
  * histogram representing the distribution of those values across a specified set of histogram
  * buckets, as defined in {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
  *
