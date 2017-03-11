@@ -19,13 +19,13 @@ public final class MultiSpansTracing {
   private static final Tracer tracer = Tracer.getTracer();
 
   private static void doWork() {
-    try (Span rootSpan = tracer.spanBuilder(null, "MyRootSpan").startSpan()) {
-      rootSpan.addAnnotation("Annotation to the root Span before child is created.");
-      try (Span childSpan = tracer.spanBuilder(rootSpan, "MyChildSpan").startSpan()) {
-        childSpan.addAnnotation("Annotation to the child Span");
-      }
-      rootSpan.addAnnotation("Annotation to the root Span after child is ended.");
-    }
+    Span rootSpan = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+    rootSpan.addAnnotation("Annotation to the root Span before child is created.");
+    Span childSpan = tracer.spanBuilder(rootSpan, "MyChildSpan").startSpan();
+    childSpan.addAnnotation("Annotation to the child Span");
+    childSpan.end();
+    rootSpan.addAnnotation("Annotation to the root Span after child is ended.");
+    rootSpan.end();
   }
 
   public static void main(String[] args) {
