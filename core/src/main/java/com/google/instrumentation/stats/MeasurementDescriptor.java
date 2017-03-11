@@ -13,6 +13,8 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.auto.value.AutoValue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +24,8 @@ import java.util.List;
  *
  * <p>Note: MeasurementDescriptor names are {@link String}s with enforced restrictions.
  */
-public final class MeasurementDescriptor {
+@AutoValue
+public abstract class MeasurementDescriptor {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
   /**
@@ -30,39 +33,23 @@ public final class MeasurementDescriptor {
    */
   public static MeasurementDescriptor create(
       String name, String description, MeasurementUnit unit) {
-    return new MeasurementDescriptor(name, description, unit);
+    return new AutoValue_MeasurementDescriptor(StringUtil.sanitize(name), description, unit);
   }
 
   /**
    * Name of measurement, e.g. rpc_latency, cpu. Must be unique.
    */
-  public String getName() {
-    return name;
-  }
+  public abstract String getName();
 
   /**
    * Detailed description of the measurement, used in documentation.
    */
-  public String getDescription() {
-    return description;
-  }
+  public abstract String getDescription();
 
   /**
    * The units in which {@link MeasurementDescriptor} values are measured.
    */
-  public MeasurementUnit getUnit() {
-    return unit;
-  }
-
-  private final String name;
-  private final String description;
-  private final MeasurementUnit unit;
-
-  private MeasurementDescriptor(String name, String description, MeasurementUnit unit) {
-    this.name = StringUtil.sanitize(name);
-    this.description = description;
-    this.unit = unit;
-  }
+  public abstract MeasurementUnit getUnit();
 
   /**
    * Fundamental units of measurement.
@@ -105,28 +92,31 @@ public final class MeasurementDescriptor {
    *     power10: -9
    *     numerator: SECS
    */
-  public static final class MeasurementUnit {
+  @AutoValue
+  public abstract static class MeasurementUnit {
     /**
      * Constructs a {@link MeasurementUnit}.
      */
     public static MeasurementUnit create(
         int power10, List<BasicUnit> numerators, List<BasicUnit> denominators) {
-      return new MeasurementUnit(power10, numerators, denominators);
+      return new AutoValue_MeasurementDescriptor_MeasurementUnit(
+          power10,
+          Collections.unmodifiableList(new ArrayList<BasicUnit>(numerators)),
+          Collections.unmodifiableList(new ArrayList<BasicUnit>(denominators)));
     }
 
     /**
      * Constructs a {@link MeasurementUnit} without the optional {@code denominators}.
      */
     public static MeasurementUnit create(int power10, List<BasicUnit> numerators) {
-      return new MeasurementUnit(power10, numerators, new ArrayList<BasicUnit>());
+      return new AutoValue_MeasurementDescriptor_MeasurementUnit(
+          power10, numerators, Collections.<BasicUnit>emptyList());
     }
 
     /**
      * Unit multiplier (i.e. 10^power10).
      */
-    public int getPower10() {
-      return power10;
-    }
+    public abstract int getPower10();
 
     /**
      * Unit Numerators.
@@ -134,9 +124,7 @@ public final class MeasurementDescriptor {
      * <p>Note: The returned list is unmodifiable and attempts to update it will throw an
      * UnsupportedOperationException.
      */
-    public List<BasicUnit> getNumerators() {
-      return numerators;
-    }
+    public abstract List<BasicUnit> getNumerators();
 
     /**
      * Unit Denominators.
@@ -144,18 +132,6 @@ public final class MeasurementDescriptor {
      * <p>Note: The returned list is unmodifiable and attempts to update it will throw an
      * UnsupportedOperationException.
      */
-    public final List<BasicUnit> getDenominators() {
-      return denominators;
-    }
-
-    private final int power10;
-    private final List<BasicUnit> numerators;
-    private final List<BasicUnit> denominators;
-
-    private MeasurementUnit(int power10, List<BasicUnit> numerators, List<BasicUnit> denominators) {
-      this.power10 = power10;
-      this.numerators = Collections.unmodifiableList(new ArrayList<BasicUnit>(numerators));
-      this.denominators =  Collections.unmodifiableList(new ArrayList<BasicUnit>(denominators));
-    }
+    public abstract List<BasicUnit> getDenominators();
   }
 }
