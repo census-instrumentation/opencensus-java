@@ -23,32 +23,56 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TraceOptions}. */
 @RunWith(JUnit4.class)
 public class TraceOptionsTest {
-  private static final TraceOptions noneEnabled = TraceOptions.getDefault();
-  private static final TraceOptions sampledOptions = new TraceOptions(TraceOptions.IS_SAMPLED);
+  private static byte[] firstBytes = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
+  private static byte[] secondBytes = {0, 0, 0, 1};
+  private static byte[] thirdBytes = {0, 0, 1, 0};
 
   @Test
   public void getOptions() {
-    assertThat(noneEnabled.getOptions()).isEqualTo(0);
-    assertThat(sampledOptions.getOptions()).isEqualTo(TraceOptions.IS_SAMPLED);
+    assertThat(TraceOptions.DEFAULT.getOptions()).isEqualTo(0);
+    assertThat(TraceOptions.builder().setIsSampled().build().getOptions()).isEqualTo(1);
+    assertThat(TraceOptions.fromBytes(firstBytes).getOptions()).isEqualTo(-1);
+    assertThat(TraceOptions.fromBytes(secondBytes).getOptions()).isEqualTo(1);
+    assertThat(TraceOptions.fromBytes(thirdBytes).getOptions()).isEqualTo(1 << 8);
   }
 
   @Test
   public void isSampled() {
-    assertThat(noneEnabled.isSampled()).isFalse();
-    assertThat(sampledOptions.isSampled()).isTrue();
+    assertThat(TraceOptions.DEFAULT.isSampled()).isFalse();
+    assertThat(TraceOptions.builder().setIsSampled().build().isSampled()).isTrue();
+  }
+
+  @Test
+  public void toFromBytes() {
+    assertThat(TraceOptions.fromBytes(firstBytes).getBytes()).isEqualTo(firstBytes);
+    assertThat(TraceOptions.fromBytes(secondBytes).getBytes()).isEqualTo(secondBytes);
+    assertThat(TraceOptions.fromBytes(thirdBytes).getBytes()).isEqualTo(thirdBytes);
+    assertThat(TraceOptions.fromBytes(firstBytes).getBytes()).isNotEqualTo(secondBytes);
+  }
+
+  @Test
+  public void builder_FromOptions() {
+    assertThat(
+            TraceOptions.builder(TraceOptions.fromBytes(thirdBytes))
+                .setIsSampled()
+                .build()
+                .getOptions())
+        .isEqualTo((1 << 8) + 1);
   }
 
   @Test
   public void traceOptions_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
-    tester.addEqualityGroup(noneEnabled, TraceOptions.getDefault());
-    tester.addEqualityGroup(sampledOptions, new TraceOptions(TraceOptions.IS_SAMPLED));
+    tester.addEqualityGroup(TraceOptions.DEFAULT);
+    tester.addEqualityGroup(
+        TraceOptions.fromBytes(secondBytes), TraceOptions.builder().setIsSampled().build());
+    tester.addEqualityGroup(TraceOptions.fromBytes(firstBytes));
     tester.testEquals();
   }
 
   @Test
   public void traceOptions_ToString() {
-    assertThat(noneEnabled.toString()).contains("sampled=false");
-    assertThat(sampledOptions.toString()).contains("sampled=true");
+    assertThat(TraceOptions.DEFAULT.toString()).contains("sampled=false");
+    assertThat(TraceOptions.builder().setIsSampled().build().toString()).contains("sampled=true");
   }
 }

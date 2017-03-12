@@ -35,7 +35,7 @@ public class SamplersTest {
             Samplers.alwaysSample()
                 .shouldSample(
                     new SpanContext(
-                        traceId, parentSpanId, new TraceOptions(TraceOptions.IS_SAMPLED)),
+                        traceId, parentSpanId, TraceOptions.builder().setIsSampled().build()),
                     false,
                     traceId,
                     spanId,
@@ -46,7 +46,7 @@ public class SamplersTest {
     assertThat(
             Samplers.alwaysSample()
                 .shouldSample(
-                    new SpanContext(traceId, parentSpanId, new TraceOptions(0)),
+                    new SpanContext(traceId, parentSpanId, TraceOptions.DEFAULT),
                     false,
                     traceId,
                     spanId,
@@ -71,7 +71,7 @@ public class SamplersTest {
             Samplers.neverSample()
                 .shouldSample(
                     new SpanContext(
-                        traceId, parentSpanId, new TraceOptions(TraceOptions.IS_SAMPLED)),
+                        traceId, parentSpanId, TraceOptions.builder().setIsSampled().build()),
                     false,
                     traceId,
                     spanId,
@@ -82,7 +82,7 @@ public class SamplersTest {
     assertThat(
             Samplers.neverSample()
                 .shouldSample(
-                    new SpanContext(traceId, parentSpanId, new TraceOptions(0)),
+                    new SpanContext(traceId, parentSpanId, TraceOptions.DEFAULT),
                     false,
                     traceId,
                     spanId,

@@ -53,7 +53,7 @@ public class SpanBuilderTest {
         new SpanContext(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
-            TraceOptions.getDefault());
+            TraceOptions.DEFAULT);
     spanBuilder =
         new SpanBuilder(
             spanFactory, contextSpanHandler, spanContext, false /* hasRemoteParent */, SPAN_NAME);

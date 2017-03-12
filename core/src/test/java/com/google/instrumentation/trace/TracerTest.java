@@ -230,7 +230,7 @@ public class TracerTest {
         new SpanContext(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
-            TraceOptions.getDefault());
+            TraceOptions.DEFAULT);
     when(spanFactory.startSpan(
             same(spanContext), eq(true), eq("MySpanName"), eq(new StartSpanOptions())))
         .thenReturn(span);
