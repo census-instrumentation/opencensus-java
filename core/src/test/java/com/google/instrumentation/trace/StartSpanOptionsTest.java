@@ -27,7 +27,7 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link StartSpanOptions}. */
 @RunWith(JUnit4.class)
 public class StartSpanOptionsTest {
-  private final List<Span> singleParentList = Arrays.asList(BlankSpan.INSTANCE);
+  private final List<Span> singleParentList = Arrays.<Span>asList(BlankSpan.INSTANCE);
 
   @Test
   public void defaultOptions() {
@@ -81,7 +81,7 @@ public class StartSpanOptionsTest {
   @Test
   public void setParentLinks_MultipleParents() {
     StartSpanOptions options = new StartSpanOptions();
-    options.setParentLinks(Arrays.asList(BlankSpan.INSTANCE, BlankSpan.INSTANCE));
+    options.setParentLinks(Arrays.<Span>asList(BlankSpan.INSTANCE, BlankSpan.INSTANCE));
     assertThat(options.getStartTime()).isNull();
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks().size()).isEqualTo(2);

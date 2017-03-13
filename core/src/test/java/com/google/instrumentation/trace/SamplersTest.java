@@ -40,7 +40,7 @@ public class SamplersTest {
                     traceId,
                     spanId,
                     "Another name",
-                    Collections.emptyList()))
+                    Collections.<Span>emptyList()))
         .isTrue();
     // Untraced parent.
     assertThat(
@@ -51,7 +51,7 @@ public class SamplersTest {
                     traceId,
                     spanId,
                     "Yet another name",
-                    Collections.emptyList()))
+                    Collections.<Span>emptyList()))
         .isTrue();
   }
 
@@ -76,7 +76,7 @@ public class SamplersTest {
                     traceId,
                     spanId,
                     "bar",
-                    Collections.emptyList()))
+                    Collections.<Span>emptyList()))
         .isFalse();
     // Untraced parent.
     assertThat(
@@ -87,7 +87,7 @@ public class SamplersTest {
                     traceId,
                     spanId,
                     "quux",
-                    Collections.emptyList()))
+                    Collections.<Span>emptyList()))
         .isFalse();
   }
 
