@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
@@ -121,6 +121,13 @@
                 <consoleOutput>true</consoleOutput>
                 <failsOnError>true</failsOnError>
                 <violationSeverity>warning</violationSeverity>
+                <!--
+                Remove the SingleLineJavadoc to be able to use google-java-formatter. See
+                https://github.com/checkstyle/checkstyle/issues/3762
+                https://github.com/checkstyle/checkstyle/issues/3755
+                https://github.com/checkstyle/checkstyle/issues/3888
+                -->
+                <violationIgnore>SingleLineJavadoc</violationIgnore>
               </configuration>
               <goals>
                 <goal>check</goal>
