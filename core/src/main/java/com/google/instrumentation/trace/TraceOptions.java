@@ -55,14 +55,14 @@ public final class TraceOptions {
   }
 
   /**
-   * Returns a {@code TraceOptions} whose representation is given param.
+   * Returns a {@code TraceOptions} built from a byte representation.
    *
    * @param bytes the representation of the {@code TraceOptions}.
-   * @return a {@code TraceOptions} whose representation is given param.
-   * @throws NullPointerException if bytes is null.
-   * @throws IllegalArgumentException if bytes length is not 4.
+   * @return a {@code TraceOptions} whose representation is given by the {@code bytes} parameter.
+   * @throws NullPointerException if {@code bytes} is null.
+   * @throws IllegalArgumentException if {@code bytes.length} is not 4.
    */
-  static TraceOptions fromBytes(byte[] bytes) {
+  public static TraceOptions fromBytes(byte[] bytes) {
     checkNotNull(bytes);
     checkArgument(bytes.length == SIZE);
     return new TraceOptions(intFromBytes(bytes, 0));
@@ -135,7 +135,7 @@ public final class TraceOptions {
   /**
    * Builder class for {@link TraceOptions}.
    */
-  public static class Builder {
+  public static final class Builder {
     private int options;
 
     private Builder(int options) {

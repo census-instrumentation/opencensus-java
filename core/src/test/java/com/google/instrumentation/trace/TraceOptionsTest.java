@@ -23,9 +23,9 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TraceOptions}. */
 @RunWith(JUnit4.class)
 public class TraceOptionsTest {
-  private static byte[] firstBytes = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
-  private static byte[] secondBytes = {0, 0, 0, 1};
-  private static byte[] thirdBytes = {0, 0, 1, 0};
+  private static final byte[] firstBytes = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
+  private static final byte[] secondBytes = {0, 0, 0, 1};
+  private static final byte[] thirdBytes = {0, 0, 1, 0};
 
   @Test
   public void getOptions() {
@@ -47,7 +47,6 @@ public class TraceOptionsTest {
     assertThat(TraceOptions.fromBytes(firstBytes).getBytes()).isEqualTo(firstBytes);
     assertThat(TraceOptions.fromBytes(secondBytes).getBytes()).isEqualTo(secondBytes);
     assertThat(TraceOptions.fromBytes(thirdBytes).getBytes()).isEqualTo(thirdBytes);
-    assertThat(TraceOptions.fromBytes(firstBytes).getBytes()).isNotEqualTo(secondBytes);
   }
 
   @Test
