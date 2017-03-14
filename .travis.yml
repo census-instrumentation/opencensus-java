@@ -65,9 +65,12 @@ script:
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
             mvn verify -P dev -Dguava.version=$GUAVA_VERSION ;;
+          "oraclejdk7")
+            mvn verify -Dguava.version=$GUAVA_VERSION ;;
           "openjdk6")
             mvn verify -Dmaven.test.skip -Dguava.version=$GUAVA_VERSION ;;
           *)
-            mvn verify -Dguava.version=$GUAVA_VERSION ;;
+            echo "Missing case $TRAVIS_JDK_VERSION" ;
+            exit 1 ;;
         esac
     esac
