@@ -47,7 +47,7 @@ public final class ViewTest {
     final DistributionViewDescriptor viewDescriptor =
         DistributionViewDescriptor.create(
             name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
-    List<DistributionAggregation> aggregations = Arrays.asList(
+    final List<DistributionAggregation> aggregations = Arrays.asList(
         DistributionAggregation.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
             Arrays.asList(1L, 1L, 1L, 1L, 1L)),
         DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), tags2,

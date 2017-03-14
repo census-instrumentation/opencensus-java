@@ -116,7 +116,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startRootSpanWithOptions() {
-    List<Span> parentList = Arrays.asList(BlankSpan.INSTANCE);
+    List<Span> parentList = Arrays.<Span>asList(BlankSpan.INSTANCE);
     StartSpanOptions startSpanOptions = new StartSpanOptions();
     startSpanOptions.setParentLinks(parentList);
     startSpanOptions.setSampler(Samplers.neverSample());

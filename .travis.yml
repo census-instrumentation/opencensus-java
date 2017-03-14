@@ -55,6 +55,8 @@ install:
 
 # TODO(bdrutu): Find a way to enable try. We use try-with-resources without
 # using the local variable.
+
+# We skip building the tests with Java 6, because they use try-with-resources.
 script:
   - case "$BUILD" in
       "BAZEL")
@@ -63,7 +65,12 @@ script:
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
             mvn verify -P dev -Dguava.version=$GUAVA_VERSION ;;
-          *)
+          "oraclejdk7")
             mvn verify -Dguava.version=$GUAVA_VERSION ;;
+          "openjdk6")
+            mvn verify -Dmaven.test.skip -Dguava.version=$GUAVA_VERSION ;;
+          *)
+            echo "Missing case $TRAVIS_JDK_VERSION" ;
+            exit 1 ;;
         esac
     esac
