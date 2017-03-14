@@ -23,7 +23,7 @@ import java.util.Random;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a span identifier. A valid span identifier is a 8-bytes array with
+ * A class that represents a span identifier. A valid span identifier is an 8-byte array with
  * at least one non-zero byte.
  */
 @Immutable
@@ -80,7 +80,7 @@ public final class SpanId implements Comparable<SpanId> {
 
 
   /**
-   * Returns whether the span identifier is valid. A valid span identifier is a 8-bytes array with
+   * Returns whether the span identifier is valid. A valid span identifier is an 8-byte array with
    * at least one non-zero byte.
    *
    * @return {@code true} if the span identifier is valid.
@@ -120,10 +120,9 @@ public final class SpanId implements Comparable<SpanId> {
   @Override
   public int compareTo(SpanId that) {
     for (int i = 0; i < SPAN_ID_SIZE; i++) {
-      if (bytes[i] == that.bytes[i]) {
-        continue;
+      if (bytes[i] != that.bytes[i]) {
+        return bytes[i] < that.bytes[i] ? -1 : 1;
       }
-      return bytes[i] < that.bytes[i] ? -1 : 1;
     }
     return 0;
   }

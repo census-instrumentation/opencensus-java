@@ -29,12 +29,15 @@ import javax.annotation.Nullable;
  * <pre>{@code
  * class MyClass {
  *   private static final Tracer tracer = Tracer.getTracer();
- *   void doWork(Span parent) {
- *     // Create a Span as a child of the given parent.
- *     Span span = tracer.spanBuilder(parent, "MyChildSpan").startSpan();
+ *   void DoWork() {
+ *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
  *     span.addAnnotation("my annotation");
- *     doSomeWork(span); // Manually propagate the new span down the stack.
- *     span.end();  // Manually end the span.
+ *     try {
+ *       doSomeWork(span); // Manually propagate the new span down the stack.
+ *     } finally {
+ *       // To make sure we end the span even in case of an exception.
+ *       span.end();  // Manually end the span.
+ *     }
  *   }
  * }
  * }</pre>

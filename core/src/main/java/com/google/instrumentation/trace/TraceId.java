@@ -23,7 +23,7 @@ import java.util.Random;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a trace identifier. A valid trace identifier is a 16-bytes array with
+ * A class that represents a trace identifier. A valid trace identifier is a 16-byte array with
  * at least one non-zero byte.
  */
 @Immutable
@@ -79,7 +79,7 @@ public final class TraceId implements Comparable<TraceId> {
   }
 
   /**
-   * Returns whether the {@code TraceId} is valid. A valid trace identifier is a 16-bytes array with
+   * Returns whether the {@code TraceId} is valid. A valid trace identifier is a 16-byte array with
    * at least one non-zero byte.
    *
    * @return {@code true} if the {@code TraceId} is valid.
@@ -119,10 +119,9 @@ public final class TraceId implements Comparable<TraceId> {
   @Override
   public int compareTo(TraceId that) {
     for (int i = 0; i < TRACE_ID_SIZE; i++) {
-      if (bytes[i] == that.bytes[i]) {
-        continue;
+      if (bytes[i] != that.bytes[i]) {
+        return bytes[i] < that.bytes[i] ? -1 : 1;
       }
-      return bytes[i] < that.bytes[i] ? -1 : 1;
     }
     return 0;
   }
