@@ -34,7 +34,7 @@ public final class SpanContext {
    * The invalid {@code SpanContext}.
    */
   public static final SpanContext INVALID =
-      new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.getDefault());
+      new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT);
 
   /**
    * Creates a new {@code SpanContext} with the given identifiers and options.

@@ -39,7 +39,7 @@ public class SpanTest {
         new SpanContext(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
-            TraceOptions.getDefault());
+            TraceOptions.DEFAULT);
     spanOptions = EnumSet.of(Span.Options.RECORD_EVENTS);
   }
 
