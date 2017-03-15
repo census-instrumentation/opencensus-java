@@ -650,3 +650,16 @@ java_test(
         "@truth//jar",
     ],
 )
+
+java_binary(
+    name = "HttpPropagationUtilBenchmark",
+    srcs = [
+        "benchmark/src/main/java/com/google/instrumentation/trace/HttpPropagationUtilBenchmark.java",
+    ],
+    main_class = "com.google.instrumentation.trace.HttpPropagationUtilBenchmark",
+    deps = [
+        ":trace-core",
+        "@guava//jar",
+        "@jmh//jar",
+    ],
+)
