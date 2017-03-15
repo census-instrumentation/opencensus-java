@@ -71,7 +71,7 @@ public final class TraceOptions {
 
   /**
    * Returns a {@code TraceOptions} whose representation is copied from the {@code src} beginning at
-   * the {@code srcOffset} position.
+   * the {@code srcOffset} offset.
    *
    * @param src the buffer where the representation of the {@code TraceOptions} is copied.
    * @param srcOffset the offset in the buffer where the representation of the {@code TraceOptions}
@@ -98,22 +98,22 @@ public final class TraceOptions {
 
   /**
    * Copies the byte representations of the {@code TraceOptions} into the {@code dest} beginning at
-   * the {@code destPos} position.
+   * the {@code destOffset} offset.
    *
    * <p>Equivalent with (but faster because it avoids any new allocations):
    *
    * <pre>{@code
-   * System.arraycopy(getBytes(), 0, dest, destPos, TraceOptions.SIZE);
+   * System.arraycopy(getBytes(), 0, dest, destOffset, TraceOptions.SIZE);
    * }</pre>
    *
    * @param dest the destination buffer.
-   * @param destPos the starting position in the destination buffer.
+   * @param destOffset the starting offset in the destination buffer.
    * @throws NullPointerException if {@code dest} is null.
-   * @throws IndexOutOfBoundsException if {@code destPos+TraceOptions.SIZE} is greater than {@code
-   *     dest.length}.
+   * @throws IndexOutOfBoundsException if {@code destOffset+TraceOptions.SIZE} is greater than
+   *     {@code dest.length}.
    */
-  public void copyBytesTo(byte[] dest, int destPos) {
-    intToBytes(options, dest, destPos);
+  public void copyBytesTo(byte[] dest, int destOffset) {
+    intToBytes(options, dest, destOffset);
   }
 
   /**
@@ -207,19 +207,21 @@ public final class TraceOptions {
     return (this.options & mask) != 0;
   }
 
-  // Returns the int value whose big-endian representation is stored in the first 4 bytes of src.
-  private static int intFromBytes(byte[] src, int srcPos) {
-    return src[srcPos] << (3 * Byte.SIZE)
-        | (src[srcPos + 1] & BYTE_MASK) << (2 * Byte.SIZE)
-        | (src[srcPos + 2] & BYTE_MASK) << Byte.SIZE
-        | (src[srcPos + 3] & BYTE_MASK);
+  // Returns the int value whose big-endian representation is stored in the first 4 bytes of src
+  // starting from the given offset.
+  private static int intFromBytes(byte[] src, int srcOffset) {
+    return src[srcOffset] << (3 * Byte.SIZE)
+        | (src[srcOffset + 1] & BYTE_MASK) << (2 * Byte.SIZE)
+        | (src[srcOffset + 2] & BYTE_MASK) << Byte.SIZE
+        | (src[srcOffset + 3] & BYTE_MASK);
   }
 
-  // Appends the big-endian representation of value as a 4-element byte array to the destination.
-  private static void intToBytes(int value, byte[] dest, int destPos) {
-    dest[destPos] = (byte) (value >> (3 * Byte.SIZE));
-    dest[destPos + 1] = (byte) (value >> (2 * Byte.SIZE));
-    dest[destPos + 2] = (byte) (value >> Byte.SIZE);
-    dest[destPos + 3] = (byte) value;
+  // Appends the big-endian representation of value as a 4-element byte array to the destination
+  // starting at the given offset.
+  private static void intToBytes(int value, byte[] dest, int destOffset) {
+    dest[destOffset] = (byte) (value >> (3 * Byte.SIZE));
+    dest[destOffset + 1] = (byte) (value >> (2 * Byte.SIZE));
+    dest[destOffset + 2] = (byte) (value >> Byte.SIZE);
+    dest[destOffset + 3] = (byte) value;
   }
 }

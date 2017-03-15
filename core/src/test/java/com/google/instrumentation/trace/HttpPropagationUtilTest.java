@@ -49,7 +49,7 @@ public class HttpPropagationUtilTest {
 
   @Test
   public void getHttpHeaderName() {
-    assertThat(HttpPropagationUtil.getHttpHeaderName()).isEqualTo("Trace-Context");
+    assertThat(HttpPropagationUtil.HTTP_HEADER_NAME).isEqualTo("Trace-Context");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class HttpPropagationUtilTest {
   public void format_SpanContext() {
     assertThat(
             HttpPropagationUtil.toHttpHeaderValue(new SpanContext(traceId, spanId, traceOptions)))
-        .isEqualTo("0000000000000000000000000000000061ff0000000000000012340001");
+        .isEqualTo("0000000000000000000000000000000061FF0000000000000012340001");
   }
 
   @Test(expected = NullPointerException.class)
@@ -75,21 +75,22 @@ public class HttpPropagationUtilTest {
     HttpPropagationUtil.toHttpHeaderValue(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void toHttpHeaderValue_InvalidSpanContext() {
-    HttpPropagationUtil.toHttpHeaderValue(SpanContext.INVALID);
+    assertThat(HttpPropagationUtil.toHttpHeaderValue(SpanContext.INVALID)).isEqualTo
+        ("0000000000000000000000000000000000000000000000000000000000");
   }
 
   @Test
   public void parseHeaderValue_ValidValues() {
     assertThat(
             HttpPropagationUtil.fromHttpHeaderValue(
-                "0000000000000000000000000000000061ff0000000000000012340001"))
+                "0000000000000000000000000000000061FF0000000000000012340001"))
         .isEqualTo(new SpanContext(traceId, spanId, traceOptions));
 
     assertThat(
             HttpPropagationUtil.fromHttpHeaderValue(
-                "0000000000000000000000000000000000ff0000000000000012340001"))
+                "0000000000000000000000000000000000FF0000000000000012340001"))
         .isEqualTo(new SpanContext(TraceId.INVALID, spanId, traceOptions));
 
     assertThat(
@@ -99,7 +100,7 @@ public class HttpPropagationUtilTest {
 
     assertThat(
             HttpPropagationUtil.fromHttpHeaderValue(
-                "0000000000000000000000000000000061ff0000000000000000000000"))
+                "0000000000000000000000000000000061FF0000000000000000000000"))
         .isEqualTo(new SpanContext(traceId, spanId, TraceOptions.DEFAULT));
   }
 
@@ -107,7 +108,7 @@ public class HttpPropagationUtilTest {
   public void parseHeaderValue_ExampleValue() {
     assertThat(
             HttpPropagationUtil.fromHttpHeaderValue(
-                "00404142434445464748494a4b4c4d4e4f616263646566676800000001"))
+                "00404142434445464748494A4B4C4D4E4F616263646566676800000001"))
         .isEqualTo(
             new SpanContext(
                 TraceId.fromBytes(
@@ -129,13 +130,13 @@ public class HttpPropagationUtilTest {
   @Test(expected = IllegalArgumentException.class)
   public void parseHeaderValue_InvalidVersionId() {
     HttpPropagationUtil.fromHttpHeaderValue(
-        "0100000000000000000000000000000061ff0000000000000000000001");
+        "0100000000000000000000000000000061FF0000000000000000000001");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void parseHeaderValue_LongerVersionFormat() {
     HttpPropagationUtil.fromHttpHeaderValue(
-        "0000000000000000000000000000000061ff000000000000000000000100");
+        "0000000000000000000000000000000061FF000000000000000000000100");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -145,20 +146,20 @@ public class HttpPropagationUtilTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseHeaderValue_InvalidCharactesInTraceId() {
+  public void parseHeaderValue_InvalidCharactersInTraceId() {
     HttpPropagationUtil.fromHttpHeaderValue(
         "00000000000000007b0000SPAN000001c8ff0000000000000000000001");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseHeaderValue_InvalidCharactesInSpanId() {
+  public void parseHeaderValue_InvalidCharactersInSpanId() {
     HttpPropagationUtil.fromHttpHeaderValue(
         "0000000000000000000000000000000061000000ROOT00031500000001");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void parseHeaderValue_InvalidCharactesInTraceOptions() {
+  public void parseHeaderValue_InvalidCharactersInTraceOptions() {
     HttpPropagationUtil.fromHttpHeaderValue(
-        "0000000000000000000000000000000061ff0000000000000000att001");
+        "0000000000000000000000000000000061FF0000000000000000BAR001");
   }
 }

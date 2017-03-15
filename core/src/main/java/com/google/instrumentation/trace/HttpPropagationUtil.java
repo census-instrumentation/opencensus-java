@@ -36,7 +36,7 @@ import com.google.common.io.BaseEncoding;
  *     <li>trace-options: 4-byte array representing the trace_options.
  *     <li>Valid value example:
  *         <ul>
- *         <li>"0040414243444546474848494a4b4c4d4e4f616263646566676800000001"
+ *         <li>"00404142434445464748494A4B4C4D4E4F616263646566676800000001"
  *         <li>version_id = 0;
  *         <li>trace_id = {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}
  *         <li>span_id = {97, 98, 99, 100, 101, 102, 103, 104};
@@ -46,7 +46,7 @@ import com.google.common.io.BaseEncoding;
  *
  * </ul>
  *
- * <p>All characters in the header value must be lower case and US-ASCII encoded.
+ * <p>All characters in the header value must be upper case and US-ASCII encoded.
  *
  * <p>It is strongly encouraged to use this format when using HTTP as a RPC transport.
  *
@@ -56,7 +56,7 @@ import com.google.common.io.BaseEncoding;
  * private static final Tracer tracer = Tracer.getTracer();
  * void onSendRequest() {
  *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest")) {
- *     String headerName = HttpPropagationUtil.getHttpHeaderName();
+ *     String headerName = HttpPropagationUtil.HTTP_HEADER_NAME;
  *     String headerValue = HttpPropagationUtil.toHttpHeaderValue(span.context());
  *     headers.add(headerName, headerValue);
  *     // Send the HTTP request and wait for the response.
@@ -69,7 +69,7 @@ import com.google.common.io.BaseEncoding;
  * <pre>{@code
  * private static final Tracer tracer = Tracer.getTracer();
  * void onRequestReceived() {
- *   String headerName = HttpPropagationUtil.getHttpHeaderName();
+ *   String headerName = HttpPropagationUtil.HTTP_HEADER_NAME;
  *   SpanContext spanContext = HttpPropagationUtil.fromHttpHeaderValue(headers.find(headerName));
  *   try (NonThrowingCloseable ss =
  *            tracer.spanBuilderWithRemoteParent(spanContext, "Recv.MyRequest").startScopedSpan() {
@@ -79,8 +79,6 @@ import com.google.common.io.BaseEncoding;
  * }</pre>
  */
 public final class HttpPropagationUtil {
-  // The name of the HTTP header.
-  private static final String HTTP_HEADER_NAME = "Trace-Context";
   private static final byte VERSION_ID = 0;
   // The version_id size in bytes.
   private static final byte VERSION_ID_SIZE = 1;
@@ -92,17 +90,12 @@ public final class HttpPropagationUtil {
       VERSION_ID_SIZE + TraceId.SIZE + SpanId.SIZE + TraceOptions.SIZE;
   private static final int HEX_VERSION_FORMAT_LENGTH = 2 * BINARY_VERSION_FORMAT_LENGTH;
 
+  /** The header name that must be used in the HTTP request for the tracing context. */
+  public static final String HTTP_HEADER_NAME = "Trace-Context";
+
   // Disallow instances of this class.
   private HttpPropagationUtil() {}
 
-  /**
-   * Returns the header name that must be used in the HTTP request for the tracing context.
-   *
-   * @return the header name that must be used in the HTTP request for the tracing context.
-   */
-  public static String getHttpHeaderName() {
-    return HTTP_HEADER_NAME;
-  }
 
   /**
    * Serializes a {@link SpanContext} using the HTTP standard format.
@@ -110,17 +103,15 @@ public final class HttpPropagationUtil {
    * @param spanContext the {@code SpanContext} to serialize.
    * @return the serialized US-ASCII encoded HTTP header value.
    * @throws NullPointerException if the {@code spanContext} is null.
-   * @throws IllegalArgumentException if the {@code spanContext} is invalid.
    */
   public static String toHttpHeaderValue(SpanContext spanContext) {
     checkNotNull(spanContext, "spanContext");
-    checkArgument(spanContext.isValid(), "Invalid spanContext.");
     byte[] bytes = new byte[BINARY_VERSION_FORMAT_LENGTH];
     bytes[0] = VERSION_ID;
     spanContext.getTraceId().copyBytesTo(bytes, BINARY_VERSION_TRACE_ID_OFFSET);
     spanContext.getSpanId().copyBytesTo(bytes, BINARY_VERSION_SPAN_ID_OFFSET);
     spanContext.getTraceOptions().copyBytesTo(bytes, BINARY_VERSION_TRACE_OPTIONS_OFFSET);
-    return BaseEncoding.base16().lowerCase().encode(bytes);
+    return BaseEncoding.base16().encode(bytes);
   }
 
   /**
@@ -139,7 +130,7 @@ public final class HttpPropagationUtil {
         "Invalid input size: expected %s, got %s",
         HEX_VERSION_FORMAT_LENGTH,
         input.length());
-    byte[] bytes = BaseEncoding.base16().lowerCase().decode(input);
+    byte[] bytes = BaseEncoding.base16().decode(input);
     checkArgument(bytes[0] == VERSION_ID, "Unsupported version.");
     return new SpanContext(
         TraceId.fromBytes(bytes, BINARY_VERSION_TRACE_ID_OFFSET),

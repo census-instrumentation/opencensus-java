@@ -64,7 +64,7 @@ public final class SpanId implements Comparable<SpanId> {
 
   /**
    * Returns a {@code SpanId} whose representation is copied from the {@code src} beginning at the
-   * {@code srcOffset} position.
+   * {@code srcOffset} offset.
    *
    * @param src the buffer where the representation of the {@code SpanId} is copied.
    * @param srcOffset the offset in the buffer where the representation of the {@code SpanId}
@@ -105,22 +105,22 @@ public final class SpanId implements Comparable<SpanId> {
 
   /**
    * Copies the byte array representations of the {@code SpanId} into the {@code dest} beginning at
-   * the {@code destPos} position.
+   * the {@code destOffset} offset.
    *
    * <p>Equivalent with (but faster because it avoids any new allocations):
    *
    * <pre>{@code
-   * System.arraycopy(getBytes(), 0, dest, destPos, SpanId.SIZE);
+   * System.arraycopy(getBytes(), 0, dest, destOffset, SpanId.SIZE);
    * }</pre>
    *
    * @param dest the destination buffer.
-   * @param destPos the starting position in the destination buffer.
+   * @param destOffset the starting offset in the destination buffer.
    * @throws NullPointerException if {@code dest} is null.
-   * @throws IndexOutOfBoundsException if {@code destPos+SpanId.SIZE} is greater than {@code
+   * @throws IndexOutOfBoundsException if {@code destOffset+SpanId.SIZE} is greater than {@code
    *     dest.length}.
    */
-  public void copyBytesTo(byte[] dest, int destPos) {
-    System.arraycopy(bytes, 0, dest, destPos, SIZE);
+  public void copyBytesTo(byte[] dest, int destOffset) {
+    System.arraycopy(bytes, 0, dest, destOffset, SIZE);
   }
 
   /**
