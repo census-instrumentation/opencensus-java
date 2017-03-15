@@ -5,9 +5,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.google.census</groupId>
   <artifactId>census-core_impl</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
 
   <name>Census Java Core Impl</name>
   <url>https://github.com/google/instrumentation-java</url>
