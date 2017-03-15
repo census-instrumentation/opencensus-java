@@ -14,45 +14,70 @@
 package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
-
 import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a trace identifier. A valid trace identifier is a 16-byte array with
- * at least one non-zero byte.
+ * A class that represents a trace identifier. A valid trace identifier is a 16-byte array with at
+ * least one non-zero byte.
  */
 @Immutable
 public final class TraceId implements Comparable<TraceId> {
-  // The size in bytes of the trace id.
-  private static final int TRACE_ID_SIZE = 16;
-  private final byte[] bytes;
+  /** The size in bytes of the {@code TraceId}. */
+  public static final int SIZE = 16;
 
-  /**
-   * The invalid {@code TraceId}. All bytes are '\0'.
-   */
-  public static final TraceId INVALID = new TraceId(new byte[TRACE_ID_SIZE]);
+  /** The invalid {@code TraceId}. All bytes are '\0'. */
+  public static final TraceId INVALID = new TraceId(new byte[SIZE]);
+
+  // The internal representation of the TraceId.
+  private final byte[] bytes;
 
   private TraceId(byte[] bytes) {
     this.bytes = bytes;
   }
 
   /**
-   * Returns a {@code TraceId} whose representation is given param.
+   * Returns a {@code TraceId} built from a byte representation.
    *
-   * @param bytes the representation of the {@code TraceId}.
-   * @return a {@code TraceId} whose representation is given param.
-   * @throws NullPointerException if bytes is null.
-   * @throws IllegalArgumentException if bytes length is not 16.
+   * <p>Equivalent with:
+   *
+   * <pre>{@code
+   * TraceId.fromBytes(buffer, 0);
+   * }</pre>
+   *
+   * @param buffer the representation of the {@code TraceId}.
+   * @return a {@code TraceId} whose representation is given by the {@code buffer} parameter.
+   * @throws NullPointerException if {@code buffer} is null.
+   * @throws IllegalArgumentException if {@code buffer.length} is not {@link TraceId#SIZE}.
    */
-  public static TraceId fromBytes(byte[] bytes) {
-    checkArgument(bytes.length == TRACE_ID_SIZE, "bytes");
-    byte[] bytesCopy = Arrays.copyOf(bytes, TRACE_ID_SIZE);
-    return Arrays.equals(bytesCopy, INVALID.bytes) ? INVALID : new TraceId(bytes);
+  public static TraceId fromBytes(byte[] buffer) {
+    checkNotNull(buffer, "buffer");
+    checkArgument(buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
+    byte[] bytesCopied = Arrays.copyOf(buffer, SIZE);
+    return new TraceId(bytesCopied);
+  }
+
+  /**
+   * Returns a {@code TraceId} whose representation is copied from the {@code src} beginning at the
+   * {@code srcOffset} position.
+   *
+   * @param src the buffer where the representation of the {@code TraceId} is copied.
+   * @param srcOffset the offset in the buffer where the representation of the {@code TraceId}
+   *     begins.
+   * @return a {@code TraceId} whose representation is copied from the buffer.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if {@code srcOffset+TraceId.SIZE} is greater than {@code
+   *     src.length}.
+   */
+  public static TraceId fromBytes(byte[] src, int srcOffset) {
+    byte[] bytes = new byte[SIZE];
+    System.arraycopy(src, srcOffset, bytes, 0, SIZE);
+    return new TraceId(bytes);
   }
 
   /**
@@ -62,7 +87,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @return a new valid {@code TraceId}.
    */
   public static TraceId generateRandomId(Random random) {
-    byte[] bytes = new byte[TRACE_ID_SIZE];
+    byte[] bytes = new byte[SIZE];
     do {
       random.nextBytes(bytes);
     } while (Arrays.equals(bytes, INVALID.bytes));
@@ -75,7 +100,27 @@ public final class TraceId implements Comparable<TraceId> {
    * @return the 16-bytes array representation of the {@code TraceId}.
    */
   public byte[] getBytes() {
-    return Arrays.copyOf(bytes, TRACE_ID_SIZE);
+    return Arrays.copyOf(bytes, SIZE);
+  }
+
+  /**
+   * Copies the byte array representations of the {@code TraceId} into the {@code dest} beginning at
+   * the {@code destPos} position.
+   *
+   * <p>Equivalent with (but faster because it avoids any new allocations):
+   *
+   * <pre>{@code
+   * System.arraycopy(getBytes(), 0, dest, destPos, TraceId.SIZE);
+   * }</pre>
+   *
+   * @param dest the destination buffer.
+   * @param destPos the starting position in the destination buffer.
+   * @throws NullPointerException if {@code dest} is null.
+   * @throws IndexOutOfBoundsException if {@code destPos+TraceId.SIZE} is greater than {@code
+   *     dest.length}.
+   */
+  public void copyBytesTo(byte[] dest, int destPos) {
+    System.arraycopy(bytes, 0, dest, destPos, SIZE);
   }
 
   /**
@@ -110,15 +155,13 @@ public final class TraceId implements Comparable<TraceId> {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add(
-            "traceId",
-            BaseEncoding.base16().lowerCase().encode(bytes))
+        .add("traceId", BaseEncoding.base16().lowerCase().encode(bytes))
         .toString();
   }
 
   @Override
   public int compareTo(TraceId that) {
-    for (int i = 0; i < TRACE_ID_SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
       if (bytes[i] != that.bytes[i]) {
         return bytes[i] < that.bytes[i] ? -1 : 1;
       }
