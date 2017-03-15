@@ -429,6 +429,19 @@ java_test(
 )
 
 java_test(
+    name = "HttpPropagationUtilTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/HttpPropagationUtilTest.java"],
+    deps = [
+        ":trace-core",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
     name = "LabelValueTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/LabelValueTest.java"],
     deps = [

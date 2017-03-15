@@ -19,7 +19,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -36,14 +35,10 @@ public final class TraceOptions {
   // Bit to represent whether trace is sampled or not.
   private static final int IS_SAMPLED = 0x1;
 
-  /**
-   * The size in bytes of the {@code TraceOptions}.
-   */
+  /** The size in bytes of the {@code TraceOptions}. */
   public static final int SIZE = 4;
 
-  /**
-   * The default {@code TraceOptions}.
-   */
+  /** The default {@code TraceOptions}. */
   public static final TraceOptions DEFAULT = new TraceOptions(DEFAULT_OPTIONS);
 
   // The set of enabled features is determined by all the enabled bits.
@@ -57,15 +52,37 @@ public final class TraceOptions {
   /**
    * Returns a {@code TraceOptions} built from a byte representation.
    *
-   * @param bytes the representation of the {@code TraceOptions}.
-   * @return a {@code TraceOptions} whose representation is given by the {@code bytes} parameter.
-   * @throws NullPointerException if {@code bytes} is null.
-   * @throws IllegalArgumentException if {@code bytes.length} is not 4.
+   * <p>Equivalent with:
+   *
+   * <pre>{@code
+   * TraceOptions.fromBytes(buffer, 0);
+   * }</pre>
+   *
+   * @param buffer the representation of the {@code TraceOptions}.
+   * @return a {@code TraceOptions} whose representation is given by the {@code buffer} parameter.
+   * @throws NullPointerException if {@code buffer} is null.
+   * @throws IllegalArgumentException if {@code buffer.length} is not {@link TraceOptions#SIZE}.
    */
-  public static TraceOptions fromBytes(byte[] bytes) {
-    checkNotNull(bytes);
-    checkArgument(bytes.length == SIZE);
-    return new TraceOptions(intFromBytes(bytes, 0));
+  public static TraceOptions fromBytes(byte[] buffer) {
+    checkNotNull(buffer, "buffer");
+    checkArgument(buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
+    return new TraceOptions(intFromBytes(buffer, 0));
+  }
+
+  /**
+   * Returns a {@code TraceOptions} whose representation is copied from the {@code src} beginning at
+   * the {@code srcOffset} offset.
+   *
+   * @param src the buffer where the representation of the {@code TraceOptions} is copied.
+   * @param srcOffset the offset in the buffer where the representation of the {@code TraceOptions}
+   *     begins.
+   * @return a {@code TraceOptions} whose representation is copied from the buffer.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if {@code srcOffset+TraceOptions.SIZE} is greater than {@code
+   *     src.length}.
+   */
+  public static TraceOptions fromBytes(byte[] src, int srcOffset) {
+    return new TraceOptions(intFromBytes(src, srcOffset));
   }
 
   /**
@@ -77,6 +94,26 @@ public final class TraceOptions {
     byte[] bytes = new byte[SIZE];
     intToBytes(options, bytes, 0);
     return bytes;
+  }
+
+  /**
+   * Copies the byte representations of the {@code TraceOptions} into the {@code dest} beginning at
+   * the {@code destOffset} offset.
+   *
+   * <p>Equivalent with (but faster because it avoids any new allocations):
+   *
+   * <pre>{@code
+   * System.arraycopy(getBytes(), 0, dest, destOffset, TraceOptions.SIZE);
+   * }</pre>
+   *
+   * @param dest the destination buffer.
+   * @param destOffset the starting offset in the destination buffer.
+   * @throws NullPointerException if {@code dest} is null.
+   * @throws IndexOutOfBoundsException if {@code destOffset+TraceOptions.SIZE} is greater than
+   *     {@code dest.length}.
+   */
+  public void copyBytesTo(byte[] dest, int destOffset) {
+    intToBytes(options, dest, destOffset);
   }
 
   /**
@@ -132,9 +169,7 @@ public final class TraceOptions {
     return MoreObjects.toStringHelper(this).add("sampled", isSampled()).toString();
   }
 
-  /**
-   * Builder class for {@link TraceOptions}.
-   */
+  /** Builder class for {@link TraceOptions}. */
   public static final class Builder {
     private int options;
 
@@ -172,19 +207,21 @@ public final class TraceOptions {
     return (this.options & mask) != 0;
   }
 
-  // Returns the int value whose big-endian representation is stored in the first 4 bytes of src.
-  private static int intFromBytes(byte[] src, int srcPos) {
-    return src[srcPos] << (3 * Byte.SIZE)
-        | (src[srcPos + 1] & BYTE_MASK) << (2 * Byte.SIZE)
-        | (src[srcPos + 2] & BYTE_MASK) << Byte.SIZE
-        | (src[srcPos + 3] & BYTE_MASK);
+  // Returns the int value whose big-endian representation is stored in the first 4 bytes of src
+  // starting from the given offset.
+  private static int intFromBytes(byte[] src, int srcOffset) {
+    return src[srcOffset] << (3 * Byte.SIZE)
+        | (src[srcOffset + 1] & BYTE_MASK) << (2 * Byte.SIZE)
+        | (src[srcOffset + 2] & BYTE_MASK) << Byte.SIZE
+        | (src[srcOffset + 3] & BYTE_MASK);
   }
 
-  // Appends the big-endian representation of value as a 4-element byte array to the destination.
-  private static void intToBytes(int value, byte[] dest, int destPos) {
-    dest[destPos] = (byte) (value >> (3 * Byte.SIZE));
-    dest[destPos + 1] = (byte) (value >> (2 * Byte.SIZE));
-    dest[destPos + 2] = (byte) (value >> Byte.SIZE);
-    dest[destPos + 3] = (byte) value;
+  // Appends the big-endian representation of value as a 4-element byte array to the destination
+  // starting at the given offset.
+  private static void intToBytes(int value, byte[] dest, int destOffset) {
+    dest[destOffset] = (byte) (value >> (3 * Byte.SIZE));
+    dest[destOffset + 1] = (byte) (value >> (2 * Byte.SIZE));
+    dest[destOffset + 2] = (byte) (value >> Byte.SIZE);
+    dest[destOffset + 3] = (byte) value;
   }
 }

@@ -14,22 +14,27 @@
 package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
-
 import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a span identifier. A valid span identifier is an 8-byte array with
- * at least one non-zero byte.
+ * A class that represents a span identifier. A valid span identifier is an 8-byte array with at
+ * least one non-zero byte.
  */
 @Immutable
 public final class SpanId implements Comparable<SpanId> {
-  // The size in bytes of the span id.
-  private static final int SPAN_ID_SIZE = 8;
+  /** The size in bytes of the {@code SpanId}. */
+  public static final int SIZE = 8;
+
+  /** The invalid {@code SpanId}. All bytes are 0. */
+  public static final SpanId INVALID = new SpanId(new byte[SIZE]);
+
+  // The internal representation of the SpanId.
   private final byte[] bytes;
 
   private SpanId(byte[] bytes) {
@@ -37,22 +42,42 @@ public final class SpanId implements Comparable<SpanId> {
   }
 
   /**
-   * The invalid {@code SpanId}. All bytes are 0.
+   * Returns a {@code SpanId} built from a byte representation.
+   *
+   * <p>Equivalent with:
+   *
+   * <pre>{@code
+   * SpanId.fromBytes(buffer, 0);
+   * }</pre>
+   *
+   * @param buffer the representation of the {@code SpanId}.
+   * @return a {@code SpanId} whose representation is given by the {@code buffer} parameter.
+   * @throws NullPointerException if {@code buffer} is null.
+   * @throws IllegalArgumentException if {@code buffer.length} is not {@link SpanId#SIZE}.
    */
-  public static final SpanId INVALID = new SpanId(new byte[SPAN_ID_SIZE]);
+  public static SpanId fromBytes(byte[] buffer) {
+    checkNotNull(buffer, "buffer");
+    checkArgument(buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
+    byte[] bytesCopied = Arrays.copyOf(buffer, SIZE);
+    return new SpanId(bytesCopied);
+  }
 
   /**
-   * Returns a {@code SpanId} whose representation is given param.
+   * Returns a {@code SpanId} whose representation is copied from the {@code src} beginning at the
+   * {@code srcOffset} offset.
    *
-   * @param bytes the representation of the {@code SpanId}.
-   * @return a {@code SpanId} whose representation is given param.
-   * @throws NullPointerException if bytes is null.
-   * @throws IllegalArgumentException if bytes length is not 8.
+   * @param src the buffer where the representation of the {@code SpanId} is copied.
+   * @param srcOffset the offset in the buffer where the representation of the {@code SpanId}
+   *     begins.
+   * @return a {@code SpanId} whose representation is copied from the buffer.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if {@code srcOffset+SpanId.SIZE} is greater than {@code
+   *     src.length}.
    */
-  public static SpanId fromBytes(byte[] bytes) {
-    checkArgument(bytes.length == SPAN_ID_SIZE, "bytes");
-    byte[] bytesCopy = Arrays.copyOf(bytes, SPAN_ID_SIZE);
-    return Arrays.equals(bytesCopy, INVALID.bytes) ? INVALID : new SpanId(bytes);
+  public static SpanId fromBytes(byte[] src, int srcOffset) {
+    byte[] bytes = new byte[SIZE];
+    System.arraycopy(src, srcOffset, bytes, 0, SIZE);
+    return new SpanId(bytes);
   }
 
   /**
@@ -62,7 +87,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @return a valid new {@code SpanId}.
    */
   public static SpanId generateRandomId(Random random) {
-    byte[] bytes = new byte[SPAN_ID_SIZE];
+    byte[] bytes = new byte[SIZE];
     do {
       random.nextBytes(bytes);
     } while (Arrays.equals(bytes, INVALID.bytes));
@@ -70,14 +95,33 @@ public final class SpanId implements Comparable<SpanId> {
   }
 
   /**
-   * Returns the 8-bytes array representation of the {@code SpanId}.
+   * Returns the byte representation of the {@code SpanId}.
    *
-   * @return the 8-bytes array representation of the {@code SpanId}.
+   * @return the byte representation of the {@code SpanId}.
    */
   public byte[] getBytes() {
-    return Arrays.copyOf(bytes, SPAN_ID_SIZE);
+    return Arrays.copyOf(bytes, SIZE);
   }
 
+  /**
+   * Copies the byte array representations of the {@code SpanId} into the {@code dest} beginning at
+   * the {@code destOffset} offset.
+   *
+   * <p>Equivalent with (but faster because it avoids any new allocations):
+   *
+   * <pre>{@code
+   * System.arraycopy(getBytes(), 0, dest, destOffset, SpanId.SIZE);
+   * }</pre>
+   *
+   * @param dest the destination buffer.
+   * @param destOffset the starting offset in the destination buffer.
+   * @throws NullPointerException if {@code dest} is null.
+   * @throws IndexOutOfBoundsException if {@code destOffset+SpanId.SIZE} is greater than {@code
+   *     dest.length}.
+   */
+  public void copyBytesTo(byte[] dest, int destOffset) {
+    System.arraycopy(bytes, 0, dest, destOffset, SIZE);
+  }
 
   /**
    * Returns whether the span identifier is valid. A valid span identifier is an 8-byte array with
@@ -111,15 +155,13 @@ public final class SpanId implements Comparable<SpanId> {
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add(
-            "spanId",
-            BaseEncoding.base16().lowerCase().encode(bytes))
+        .add("spanId", BaseEncoding.base16().lowerCase().encode(bytes))
         .toString();
   }
 
   @Override
   public int compareTo(SpanId that) {
-    for (int i = 0; i < SPAN_ID_SIZE; i++) {
+    for (int i = 0; i < SIZE; i++) {
       if (bytes[i] != that.bytes[i]) {
         return bytes[i] < that.bytes[i] ? -1 : 1;
       }
