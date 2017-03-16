@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.common.Provider;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;

@@ -17,7 +17,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -193,13 +192,9 @@ public final class Status {
   public static final Status OK = CanonicalCode.OK.toStatus();
   /** The operation was cancelled (typically by the caller). */
   public static final Status CANCELLED = CanonicalCode.CANCELLED.toStatus();
-  /**
-   * Unknown error. See {@link CanonicalCode#UNKNOWN}.
-   */
+  /** Unknown error. See {@link CanonicalCode#UNKNOWN}. */
   public static final Status UNKNOWN = CanonicalCode.UNKNOWN.toStatus();
-  /**
-   * Client specified an invalid argument. See {@link CanonicalCode#INVALID_ARGUMENT}.
-   */
+  /** Client specified an invalid argument. See {@link CanonicalCode#INVALID_ARGUMENT}. */
   public static final Status INVALID_ARGUMENT = CanonicalCode.INVALID_ARGUMENT.toStatus();
   /**
    * Deadline expired before operation could complete. See {@link CanonicalCode#DEADLINE_EXCEEDED}.
@@ -231,19 +226,13 @@ public final class Status {
    * transaction aborts, etc. See {@link CanonicalCode#ABORTED}.
    */
   public static final Status ABORTED = CanonicalCode.ABORTED.toStatus();
-  /**
-   * Operation was attempted past the valid range. See {@link CanonicalCode#OUT_OF_RANGE}.
-   */
+  /** Operation was attempted past the valid range. See {@link CanonicalCode#OUT_OF_RANGE}. */
   public static final Status OUT_OF_RANGE = CanonicalCode.OUT_OF_RANGE.toStatus();
   /** Operation is not implemented or not supported/enabled in this service. */
   public static final Status UNIMPLEMENTED = CanonicalCode.UNIMPLEMENTED.toStatus();
-  /**
-   * Internal errors. See {@link CanonicalCode#INTERNAL}.
-   */
+  /** Internal errors. See {@link CanonicalCode#INTERNAL}. */
   public static final Status INTERNAL = CanonicalCode.INTERNAL.toStatus();
-  /**
-   * The service is currently unavailable. See {@link CanonicalCode#UNAVAILABLE}.
-   */
+  /** The service is currently unavailable. See {@link CanonicalCode#UNAVAILABLE}. */
   public static final Status UNAVAILABLE = CanonicalCode.UNAVAILABLE.toStatus();
   /** Unrecoverable data loss or corruption. */
   public static final Status DATA_LOSS = CanonicalCode.DATA_LOSS.toStatus();

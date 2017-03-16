@@ -16,7 +16,6 @@ package com.google.instrumentation.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,9 +78,7 @@ public final class Labels {
     return toStringHelper.toString();
   }
 
-  /**
-   * Builder class for {@link Labels}.
-   */
+  /** Builder class for {@link Labels}. */
   public static final class Builder {
     private final Map<String, LabelValue> labels = new HashMap<String, LabelValue>();
 

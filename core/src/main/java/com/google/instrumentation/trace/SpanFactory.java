@@ -15,9 +15,7 @@ package com.google.instrumentation.trace;
 
 import javax.annotation.Nullable;
 
-/**
- * Factory class to create and start a {@link Span}.
- */
+/** Factory class to create and start a {@link Span}. */
 abstract class SpanFactory {
   /**
    * Creates and starts a new child {@link Span} (or root if parent is {@code null}), with parent

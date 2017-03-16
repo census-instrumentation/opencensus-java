@@ -25,25 +25,24 @@ import com.google.common.io.BaseEncoding;
  * <p>HTTP header format:
  *
  * <ul>
- * <li>Header name: Trace-Context
- * <li>Header value: base16(&lt;version_id&gt;)&lt;version_format&gt;
- * <li>version_id: 1-byte representing the version id.
- * <li>For version_id = 0:
- *     <ul>
- *     <li>version_format: base16(&lt;trace-id&gt;&lt;span-id&gt;&lt;trace-options&gt;)
- *     <li>trace-id: 16-byte array representing the trace_id.
- *     <li>span-id: 8-byte array representing the span_id.
- *     <li>trace-options: 4-byte array representing the trace_options.
- *     <li>Valid value example:
- *         <ul>
- *         <li>"00404142434445464748494A4B4C4D4E4F616263646566676800000001"
- *         <li>version_id = 0;
- *         <li>trace_id = {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}
- *         <li>span_id = {97, 98, 99, 100, 101, 102, 103, 104};
- *         <li>trace_options = {0, 0, 0, 1};
- *         </ul>
- *     </ul>
- *
+ *   <li>Header name: Trace-Context
+ *   <li>Header value: base16(&lt;version_id&gt;)&lt;version_format&gt;
+ *   <li>version_id: 1-byte representing the version id.
+ *   <li>For version_id = 0:
+ *       <ul>
+ *         <li>version_format: base16(&lt;trace-id&gt;&lt;span-id&gt;&lt;trace-options&gt;)
+ *         <li>trace-id: 16-byte array representing the trace_id.
+ *         <li>span-id: 8-byte array representing the span_id.
+ *         <li>trace-options: 4-byte array representing the trace_options.
+ *         <li>Valid value example:
+ *             <ul>
+ *               <li>"00404142434445464748494A4B4C4D4E4F616263646566676800000001"
+ *               <li>version_id = 0;
+ *               <li>trace_id = {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}
+ *               <li>span_id = {97, 98, 99, 100, 101, 102, 103, 104};
+ *               <li>trace_options = {0, 0, 0, 1};
+ *             </ul>
+ *       </ul>
  * </ul>
  *
  * <p>All characters in the header value must be upper case and US-ASCII encoded.
@@ -95,7 +94,6 @@ public final class HttpPropagationUtil {
 
   // Disallow instances of this class.
   private HttpPropagationUtil() {}
-
 
   /**
    * Serializes a {@link SpanContext} using the HTTP standard format.

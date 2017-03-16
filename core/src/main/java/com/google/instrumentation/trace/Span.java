@@ -140,9 +140,7 @@ public abstract class Span {
     return options;
   }
 
-  /**
-   * Ends the current {@code Span} by calling {@link #end}.
-   */
+  /** Ends the current {@code Span} by calling {@link #end}. */
   public final void close() {
     end(EndSpanOptions.DEFAULT);
   }

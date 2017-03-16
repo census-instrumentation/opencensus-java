@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.instrumentation.common.Timestamp;
-
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -31,9 +30,7 @@ public final class EndSpanOptions {
   private final Status status;
   private final Timestamp endTime;
 
-  /**
-   * The default {@code EndSpanOptions}.
-   */
+  /** The default {@code EndSpanOptions}. */
   public static final EndSpanOptions DEFAULT = builder().build();
 
   private EndSpanOptions(Timestamp endTime, Status status) {
@@ -96,9 +93,7 @@ public final class EndSpanOptions {
         .toString();
   }
 
-  /**
-   * Builder class for {@link EndSpanOptions}.
-   */
+  /** Builder class for {@link EndSpanOptions}. */
   public static final class Builder {
     private Timestamp endTime;
     private Status status = Status.OK;

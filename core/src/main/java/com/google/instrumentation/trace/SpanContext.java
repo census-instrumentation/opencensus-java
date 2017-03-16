@@ -15,14 +15,13 @@ package com.google.instrumentation.trace;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a span context. A span context contains the state that must propagate
- * to child {@link Span}s and across process boundaries. It contains the identifiers (a {@link
- * TraceId trace_id} and {@link SpanId span_id}) associated with the {@link Span} and a set of
- * {@link TraceOptions options}.
+ * A class that represents a span context. A span context contains the state that must propagate to
+ * child {@link Span}s and across process boundaries. It contains the identifiers (a {@link TraceId
+ * trace_id} and {@link SpanId span_id}) associated with the {@link Span} and a set of {@link
+ * TraceOptions options}.
  */
 @Immutable
 public final class SpanContext {
@@ -30,9 +29,7 @@ public final class SpanContext {
   private final SpanId spanId;
   private final TraceOptions traceOptions;
 
-  /**
-   * The invalid {@code SpanContext}.
-   */
+  /** The invalid {@code SpanContext}. */
   public static final SpanContext INVALID =
       new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT);
 
