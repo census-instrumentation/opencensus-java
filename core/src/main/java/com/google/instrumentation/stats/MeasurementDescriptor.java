@@ -28,6 +28,8 @@ import java.util.List;
 public abstract class MeasurementDescriptor {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
+  MeasurementDescriptor() {}
+
   /**
    * Constructs a new {@link MeasurementDescriptor}.
    */
@@ -94,6 +96,9 @@ public abstract class MeasurementDescriptor {
    */
   @AutoValue
   public abstract static class MeasurementUnit {
+
+    MeasurementUnit() {}
+
     /**
      * Constructs a {@link MeasurementUnit}.
      */
