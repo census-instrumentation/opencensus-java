@@ -218,11 +218,6 @@
       <id>dev</id>
       <modules>
         <module>benchmark</module>
-        <module>core</module>
-        <module>core_context_impl</module>
-        <module>core_impl</module>
-        <module>proto</module>
-        <module>shared</module>
       </modules>
     </profile>
   </profiles>

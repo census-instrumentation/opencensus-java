@@ -84,6 +84,10 @@ public class HttpPropagationUtilBenchmark {
         HttpPropagationUtil.toHttpHeaderValue(spanContext));
   }
 
+  /**
+   * This benchmark attempts to measure performance of base16 encoding from {@link
+   * HttpPropagationUtil#toHttpHeaderValue(SpanContext)}.
+   */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -91,6 +95,10 @@ public class HttpPropagationUtilBenchmark {
     return BaseEncoding.base16().lowerCase().encode(spanContextBytes);
   }
 
+  /**
+   * This benchmark attempts to measure performance of base16 decoding from {@link
+   * HttpPropagationUtil#fromHttpHeaderValue(CharSequence)}.
+   */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -98,6 +106,11 @@ public class HttpPropagationUtilBenchmark {
     return BaseEncoding.base16().lowerCase().decode(spanContextString);
   }
 
+  /**
+   * This benchmark attempts to measure performance of base16 encoding and decoding from {@link
+   * HttpPropagationUtil#toHttpHeaderValue(SpanContext)} then {@link
+   * HttpPropagationUtil#fromHttpHeaderValue(CharSequence)}.
+   */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
