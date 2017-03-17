@@ -100,7 +100,6 @@ build:error_prone_experimental_warnings \
     --javacopt='-Xep:EmptyTopLevelDeclaration:ERROR' \
     --javacopt='-Xep:ExpectedExceptionChecker:ERROR' \
     --javacopt='-Xep:HardCodedSdCardPath:ERROR' \
-    --javacopt='-Xep:MissingDefault:ERROR' \
     --javacopt='-Xep:NonCanonicalStaticMemberImport:ERROR' \
     --javacopt='-Xep:PrimitiveArrayPassedToVarargsMethod:ERROR' \
     --javacopt='-Xep:QualifierWithTypeUse:ERROR' \
@@ -127,6 +126,7 @@ build:error_prone_experimental_warnings \
 
 # TODO(sebright): Suppress warnings from generated Protocol Buffer classes and
 # then enable these three warnings.
+    # --javacopt='-Xep:MissingDefault:ERROR' \
     # --javacopt='-Xep:ParameterPackage:ERROR' \
     # --javacopt='-Xep:MethodCanBeStatic:ERROR' \
 
