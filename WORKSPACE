@@ -26,7 +26,7 @@ maven_jar(
 
 maven_jar(
     name = "protobuf",
-    artifact = "com.google.protobuf:protobuf-java:3.0.0",
+    artifact = "com.google.protobuf:protobuf-java:3.2.0",
 )
 
 # Test dependencies
@@ -59,5 +59,5 @@ maven_jar(
 git_repository(
     name = "io_bazel",
     remote = "https://github.com/bazelbuild/bazel",
-    tag = "0.4.4",
+    tag = "0.4.5",
 )
