@@ -51,6 +51,11 @@ maven_jar(
     artifact = "junit:junit:4.11",
 )
 
+maven_jar(
+    name = "jmh",
+    artifact = "org.openjdk.jmh:jmh-core:1.18",
+)
+
 git_repository(
     name = "io_bazel",
     remote = "https://github.com/bazelbuild/bazel",
