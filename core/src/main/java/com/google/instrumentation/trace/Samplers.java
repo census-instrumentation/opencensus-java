@@ -16,9 +16,7 @@ package com.google.instrumentation.trace;
 import java.util.List;
 import javax.annotation.Nullable;
 
-/**
- * Static class to access a set of pre-defined {@link Sampler Samplers}.
- */
+/** Static class to access a set of pre-defined {@link Sampler Samplers}. */
 public final class Samplers {
   private static final Sampler ALWAYS_SAMPLE = new AlwaysSampleSampler();
   private static final Sampler NEVER_SAMPLE = new NeverSampleSampler();

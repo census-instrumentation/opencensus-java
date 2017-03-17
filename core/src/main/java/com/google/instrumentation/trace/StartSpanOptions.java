@@ -15,7 +15,6 @@ package com.google.instrumentation.trace;
 
 import com.google.common.base.Objects;
 import com.google.instrumentation.common.Timestamp;
-
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;

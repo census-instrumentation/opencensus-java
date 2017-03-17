@@ -17,7 +17,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.instrumentation.common.Timestamp;
-
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -28,9 +27,7 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class NetworkEvent {
-  /**
-   * Available types for a {@code NetworkEvent}.
-   */
+  /** Available types for a {@code NetworkEvent}. */
   public enum Type {
     /** When the message was sent. */
     SENT,
@@ -113,9 +110,7 @@ public final class NetworkEvent {
         .toString();
   }
 
-  /**
-   * Builder class for {@link NetworkEvent}.
-   */
+  /** Builder class for {@link NetworkEvent}. */
   public static final class Builder {
     // Required fields.
     private final Type type;

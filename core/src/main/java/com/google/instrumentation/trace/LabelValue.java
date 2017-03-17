@@ -15,7 +15,6 @@ package com.google.instrumentation.trace;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 

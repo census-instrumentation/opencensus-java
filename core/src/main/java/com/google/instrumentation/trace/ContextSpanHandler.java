@@ -15,9 +15,7 @@ package com.google.instrumentation.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
 
-/**
- * Class to assist in {@link Span}/Context interactions.
- */
+/** Class to assist in {@link Span}/Context interactions. */
 abstract class ContextSpanHandler {
   /**
    * Returns The {@link Span} from the current context.
