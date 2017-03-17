@@ -56,6 +56,9 @@ install:
 # TODO(bdrutu): Find a way to enable try. We use try-with-resources without
 # using the local variable.
 
+# TODO(bdrutu): rawtypes, serial and unchecked are removed because
+# com_google_protobuf_java. Re-enable them when the issue gets fixed.
+
 # We skip building the tests with Java 6, because they use try-with-resources.
 script:
   - case "$BUILD" in
