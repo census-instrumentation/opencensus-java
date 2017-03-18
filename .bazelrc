@@ -3,10 +3,8 @@
 # because there is no way to enable all Error Prone warnings in Bazel:
 # https://github.com/bazelbuild/bazel/issues/2237
 build:error_prone_warnings \
-    --javacopt='-Xep:AmbiguousMethodReference:ERROR' \
     --javacopt='-Xep:BadAnnotationImplementation:ERROR' \
     --javacopt='-Xep:BadComparable:ERROR' \
-    --javacopt='-Xep:BoxedPrimitiveConstructor:ERROR' \
     --javacopt='-Xep:CannotMockFinalClass:ERROR' \
     --javacopt='-Xep:ClassCanBeStatic:ERROR' \
     --javacopt='-Xep:ClassNewInstance:ERROR' \
@@ -22,14 +20,12 @@ build:error_prone_warnings \
     --javacopt='-Xep:FutureReturnValueIgnored:ERROR' \
     --javacopt='-Xep:GetClassOnEnum:ERROR' \
     --javacopt='-Xep:ImmutableAnnotationChecker:ERROR' \
-    --javacopt='-Xep:ImmutableEnumChecker:ERROR' \
     --javacopt='-Xep:IncompatibleModifiers:ERROR' \
     --javacopt='-Xep:InjectOnConstructorOfAbstractClass:ERROR' \
     --javacopt='-Xep:InputStreamSlowMultibyteRead:ERROR' \
     --javacopt='-Xep:IterableAndIterator:ERROR' \
     --javacopt='-Xep:JUnit3FloatingPointComparisonWithoutDelta:ERROR' \
     --javacopt='-Xep:JUnitAmbiguousTestClass:ERROR' \
-    --javacopt='-Xep:LiteralClassName:ERROR' \
     --javacopt='-Xep:MissingFail:ERROR' \
     --javacopt='-Xep:MutableConstantField:ERROR' \
     --javacopt='-Xep:NarrowingCompoundAssignment:ERROR' \
@@ -38,7 +34,6 @@ build:error_prone_warnings \
     --javacopt='-Xep:NullableConstructor:ERROR' \
     --javacopt='-Xep:NullablePrimitive:ERROR' \
     --javacopt='-Xep:NullableVoid:ERROR' \
-    --javacopt='-Xep:OperatorPrecedence:ERROR' \
     --javacopt='-Xep:OverridesGuiceInjectableMethod:ERROR' \
     --javacopt='-Xep:PreconditionsInvalidPlaceholder:ERROR' \
     --javacopt='-Xep:ProtoFieldPreconditionsCheckNotNull:ERROR' \
@@ -49,7 +44,6 @@ build:error_prone_warnings \
     --javacopt='-Xep:StaticGuardedByInstance:ERROR' \
     --javacopt='-Xep:SynchronizeOnNonFinalField:ERROR' \
     --javacopt='-Xep:TruthConstantAsserts:ERROR' \
-    --javacopt='-Xep:TypeParameterShadowing:ERROR' \
     --javacopt='-Xep:TypeParameterUnusedInFormals:ERROR' \
     --javacopt='-Xep:URLEqualsHashCode:ERROR' \
     --javacopt='-Xep:UnsynchronizedOverridesSynchronized:ERROR' \
@@ -92,7 +86,6 @@ build:error_prone_experimental_warnings \
     --javacopt='-Xep:QualifierOnMethodWithoutProvides:ERROR' \
     --javacopt='-Xep:StaticOrDefaultInterfaceMethod:ERROR' \
     --javacopt='-Xep:UnlockMethod:ERROR' \
-    --javacopt='-Xep:ArgumentParameterMismatch:ERROR' \
     --javacopt='-Xep:AssertFalse:ERROR' \
     --javacopt='-Xep:AssistedInjectAndInjectOnConstructors:ERROR' \
     --javacopt='-Xep:BigDecimalLiteralDouble:ERROR' \
@@ -111,24 +104,34 @@ build:error_prone_experimental_warnings \
     --javacopt='-Xep:ConstantField:ERROR' \
     --javacopt='-Xep:EmptySetMultibindingContributions:ERROR' \
     --javacopt='-Xep:FieldMissingNullable:ERROR' \
-    --javacopt='-Xep:MixedArrayDimensions:ERROR' \
-    --javacopt='-Xep:MultiVariableDeclaration:ERROR' \
     --javacopt='-Xep:MultipleTopLevelClasses:ERROR' \
     --javacopt='-Xep:PackageLocation:ERROR' \
     --javacopt='-Xep:ParameterNotNullable:ERROR' \
     --javacopt='-Xep:PrivateConstructorForNoninstantiableModuleTest:ERROR' \
-    --javacopt='-Xep:RemoveUnusedImports:ERROR' \
     --javacopt='-Xep:ReturnMissingNullable:ERROR' \
-    --javacopt='-Xep:ThrowsUncheckedException:ERROR' \
     --javacopt='-Xep:UnnecessaryStaticImport:ERROR' \
     --javacopt='-Xep:UseBinds:ERROR' \
-    --javacopt='-Xep:WildcardImport:ERROR' \
 
 # TODO(sebright): Suppress warnings from generated Protocol Buffer classes and
 # then enable these three warnings.
     # --javacopt='-Xep:MissingDefault:ERROR' \
     # --javacopt='-Xep:ParameterPackage:ERROR' \
     # --javacopt='-Xep:MethodCanBeStatic:ERROR' \
+
+# TODO(bdrutu): Suppress warnings from generated Protocol Buffer classes caused
+# by com_google_protobuf_java then enable these warnings.
+    # --javacopt='-Xep:MixedArrayDimensions:ERROR' \
+    # --javacopt='-Xep:AmbiguousMethodReference:ERROR' \
+    # --javacopt='-Xep:TypeParameterShadowing:ERROR' \
+    # --javacopt='-Xep:LiteralClassName:ERROR' \
+    # --javacopt='-Xep:OperatorPrecedence:ERROR' \
+    # --javacopt='-Xep:MultiVariableDeclaration:ERROR' \
+    # --javacopt='-Xep:RemoveUnusedImports:ERROR' \
+    # --javacopt='-Xep:BoxedPrimitiveConstructor:ERROR' \
+    # --javacopt='-Xep:ImmutableEnumChecker:ERROR' \
+    # --javacopt='-Xep:WildcardImport:ERROR' \
+    # --javacopt='-Xep:ThrowsUncheckedException:ERROR' \
+    # --javacopt='-Xep:ArgumentParameterMismatch:ERROR' \
 
 # TODO(sebright): Try enabling this warning after the fix for
 # https://github.com/google/error-prone/issues/490 is released.
