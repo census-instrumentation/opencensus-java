@@ -654,7 +654,7 @@ java_test(
 java_binary(
     name = "HttpPropagationUtilBenchmark",
     srcs = [
-        "benchmark/src/main/java/com/google/instrumentation/trace/HttpPropagationUtilBenchmark.java",
+        "benchmarks/src/main/java/com/google/instrumentation/trace/HttpPropagationUtilBenchmark.java",
     ],
     main_class = "com.google.instrumentation.trace.HttpPropagationUtilBenchmark",
     deps = [

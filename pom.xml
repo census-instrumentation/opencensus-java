@@ -217,7 +217,7 @@
     <profile>
       <id>dev</id>
       <modules>
-        <module>benchmark</module>
+        <module>benchmarks</module>
       </modules>
     </profile>
   </profiles>
