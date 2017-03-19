@@ -25,12 +25,20 @@ matrix:
   - jdk: oraclejdk8
     env: BUILD=BAZEL
 
+  - jdk: oraclejdk8
+    env: BUILD=GRADLE
+
 before_install:
   - case "$BUILD" in
       "BAZEL")
         echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list ;
         curl https://storage.googleapis.com/bazel-apt/doc/apt-key.pub.gpg | sudo apt-key add - ;
         sudo apt-get update ;;
+      "GRADLE")
+        mkdir -p $HOME/.gradle ;
+        echo "checkstyle.ignoreFailures=false" >> $HOME/.gradle/gradle.properties ;
+        echo "failOnWarnings=true" >> $HOME/.gradle/gradle.properties ;
+        echo "errorProne=true" >> $HOME/.gradle/gradle.properties ;;
     esac
 
 install:
@@ -64,6 +72,8 @@ script:
   - case "$BUILD" in
       "BAZEL")
         bazel test ... --javacopt=-Werror --javacopt=-Xlint:all --javacopt=-Xlint:-cast --javacopt=-Xlint:-deprecation --javacopt=-Xlint:-try --javacopt=-Xlint:-rawtypes --javacopt=-Xlint:-serial --javacopt=-Xlint:-unchecked --config=error_prone_warnings --config=error_prone_experimental_warnings ;;
+      "GRADLE")
+        ./gradlew check :instrumentation-all:jacocoTestReport --stacktrace ;;
       "MVN")
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
@@ -77,3 +87,22 @@ script:
             exit 1 ;;
         esac
     esac
+
+after_success:
+  - case "$BUILD" in
+      "GRADLE")
+        ./gradlew :instrumentation-all:coveralls --stacktrace ;
+   	bash <(curl -s https://codecov.io/bash) ;;
+       *)
+        echo "No GRADLE" ;
+        exit 0 ;;
+    esac
+
+before_cache:
+  - rm -fr $HOME/.gradle/caches/modules-2/modules-2.lock
+
+cache:
+  directories:
+    - $HOME/.gradle
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/

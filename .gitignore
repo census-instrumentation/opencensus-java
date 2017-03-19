@@ -1,3 +1,9 @@
+# Gradle
+build
+gradle.properties
+.gradle
+local.properties
+
 # Bazel
 bazel-*
 

@@ -1,0 +1,10 @@
+description = 'Instrumentation: Core'
+
+dependencies {
+    compile project(':shared'),
+            libraries.guava,
+            libraries.errorprone,
+            libraries.jsr305
+
+    testCompile project(':instrumentation-core-impl')
+}

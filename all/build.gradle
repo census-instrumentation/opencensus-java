@@ -1,0 +1,73 @@
+apply plugin: 'com.github.kt3k.coveralls'
+
+description = "Instrumentation: All"
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
+    }
+}
+
+def subprojects = [
+  project(':instrumentation-core'),
+  project(':instrumentation-core-context-impl'),
+  project(':instrumentation-core-impl'),
+]
+
+for (subproject in rootProject.subprojects) {
+    if (subproject == project) {
+        continue
+    }
+    evaluationDependsOn(subproject.path)
+}
+
+dependencies {
+    compile subprojects
+}
+
+javadoc {
+    classpath = files(subprojects.collect { subproject ->
+        subproject.javadoc.classpath
+    })
+    for (subproject in subprojects) {
+        if (subproject == project) {
+            continue;
+        }
+        source subproject.javadoc.source
+        options.links subproject.javadoc.options.links.toArray(new String[0])
+    }
+}
+
+task jacocoMerge(type: JacocoMerge) {
+    dependsOn(subprojects.jacocoTestReport.dependsOn)
+    mustRunAfter(subprojects.jacocoTestReport.mustRunAfter)
+    destinationFile = file("${buildDir}/jacoco/test.exec")
+    executionData = files(subprojects.jacocoTestReport.executionData)
+        .filter { f -> f.exists() }
+}
+
+jacocoTestReport {
+    dependsOn(jacocoMerge)
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
+    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(subprojects.sourceSets.main.output)
+    classDirectories = files(classDirectories.files.collect {
+        fileTree(dir: it)
+    })
+}
+
+coveralls {
+    sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
+}
+
+tasks.coveralls {
+    dependsOn(jacocoTestReport)
+}
