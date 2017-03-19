@@ -14,40 +14,42 @@
 package com.google.instrumentation.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
-
 import io.grpc.Context;
 
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
 /**
- * This is an implementation of the {@link ContextSpanHandler} using {@link io.grpc.Context}. Users
- * may interact directly with the {@code io.grpc.Context} using the key {@link
- * GrpcTraceUtils#getContextSpanKey}.
+ * Util methods/functionality to interact with the {@link io.grpc.Context}.
  *
- * <p>Users of the instrumentation library must propagate the {@code io.grpc.Context} between
- * different threads. See {@link io.grpc.Context}.
- *
- * <p>{@code io.grpc.Context} is a gRPC independent implementation for in-process Context
- * propagation mechanism which can carry scoped-values across API boundaries and between threads.
+ * <p>Users must interact with the current Context via the public APIs in {@link Tracer} and avoid
+ * usages of the {@link #CONTEXT_SPAN_KEY} directly.
  */
-@Immutable
-public final class ContextSpanHandlerImpl extends ContextSpanHandler {
-  /**
-   * Constructor for {@code ContextSpanHandlerImpl}. Needs to be public to allow loading with
-   * reflection.
-   */
-  public ContextSpanHandlerImpl() {}
+public final class ContextUtils {
+  /** The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}. */
+  public static final Context.Key<Span> CONTEXT_SPAN_KEY = Context.key("instrumentation-trace-key");
 
-  @Override
-  @Nullable
-  public Span getCurrentSpan() {
-    return GrpcTraceUtils.getContextSpanKey().get(Context.current());
+  // No instance of this class.
+  private ContextUtils() {}
+
+  /**
+   * Returns The {@link Span} from the current context.
+   *
+   * @return The {@code Span} from the current context.
+   */
+  static Span getCurrentSpan() {
+    return CONTEXT_SPAN_KEY.get(Context.current());
   }
 
-  @Override
-  public NonThrowingCloseable withSpan(Span span) {
-    return new WithSpan(span, GrpcTraceUtils.getContextSpanKey());
+  /**
+   * Enters the scope of code where the given {@link Span} is in the current context, and returns an
+   * object that represents that scope. The scope is exited when the returned object is closed.
+   *
+   * <p>Supports try-with-resource idiom.
+   *
+   * @param span The {@code Span} to be set to the current context.
+   * @return An object that defines a scope where the given {@code Span} will be set to the current
+   *     context.
+   */
+  static NonThrowingCloseable withSpan(Span span) {
+    return new WithSpan(span, CONTEXT_SPAN_KEY);
   }
 
   // Defines an arbitrary scope of code as a traceable operation. Supports try-with-resources idiom.

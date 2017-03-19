@@ -31,14 +31,21 @@ import javax.annotation.Nullable;
  * <p>Users may choose to use manual or automatic Context propagation. Because of that this class
  * offers APIs to facilitate both usages.
  *
+ * <p>The automatic context propagation is done using {@link io.grpc.Context} which is a gRPC
+ * independent implementation for in-process Context propagation mechanism which can carry
+ * scoped-values across API boundaries and between threads. Users of the library must propagate the
+ * {@link io.grpc.Context} between different threads.
+ *
  * <p>Example usage with automatic context propagation:
  *
  * <pre>{@code
  * class MyClass {
  *   private static final Tracer tracer = Tracer.getTracer();
- *   void DoWork() {
+ *   void doWork() {
  *     try(NonThrowingCloseable ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
- *       tracer.getCurrentSpan().addAnnotation("We did the work.");
+ *       tracer.getCurrentSpan().addAnnotation("Starting the work.");
+ *       doWorkInternal();
+ *       tracer.getCurrentSpan().addAnnotation("Finished working.");
  *     }
  *   }
  * }
@@ -49,9 +56,15 @@ import javax.annotation.Nullable;
  * <pre>{@code
  * class MyClass {
  *   private static final Tracer tracer = Tracer.getTracer();
- *   void DoWork(Span parent) {
- *     try(NonThrowingCloseable ss = tracer.spanBuilder(parent, "MyClass.DoWork").startScopedSpan) {
- *       tracer.getCurrentSpan().addAnnotation("We did the work.");
+ *   void doWork() {
+ *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+ *     span.addAnnotation("Starting the work.");
+ *     try {
+ *       doSomeWork(span); // Manually propagate the new span down the stack.
+ *     } finally {
+ *       span.addAnnotation("Finished working.");
+ *       // To make sure we end the span even in case of an exception.
+ *       span.end();  // Manually end the span.
  *     }
  *   }
  * }
@@ -60,23 +73,37 @@ import javax.annotation.Nullable;
 public final class Tracer {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
   private static final Tracer INSTANCE =
-      new Tracer(
-          loadContextSpanHandler(Provider.getCorrectClassLoader(ContextSpanHandler.class)),
-          loadSpanFactory(Provider.getCorrectClassLoader(SpanFactory.class)));
-  private final ContextSpanHandler contextSpanHandler;
+      new Tracer(loadSpanFactory(Provider.getCorrectClassLoader(SpanFactory.class)));
   private final SpanFactory spanFactory;
 
+  @VisibleForTesting
+  Tracer(SpanFactory spanFactory) {
+    this.spanFactory = checkNotNull(spanFactory, "spanFactory");
+  }
+
   /**
-   * Returns the {@link Tracer} with the provided implementations for {@link ContextSpanHandler} and
-   * {@link SpanFactory}.
+   * Returns the {@link Tracer}. If no implementation is provided for any of the {@code Tracer}
+   * modules then no-op implementations will be used.
    *
-   * <p>If no implementation is provided for any of the {@link Tracer} modules then no-op
-   * implementations will be used.
-   *
-   * @return the {@link Tracer}.
+   * @return the {@code Tracer}.
    */
   public static Tracer getTracer() {
     return INSTANCE;
+  }
+
+  // Any provider that may be used for SpanFactory can be added here.
+  @VisibleForTesting
+  static SpanFactory loadSpanFactory(ClassLoader classLoader) {
+    try {
+      // Because of shading tools we must call Class.forName with the literal string name of the
+      // class.
+      return Provider.createInstance(
+          Class.forName("com.google.instrumentation.trace.SpanFactoryImpl", true, classLoader),
+          SpanFactory.class);
+    } catch (ClassNotFoundException e) {
+      logger.log(Level.FINE, "Using default implementation for SpanFactory.", e);
+    }
+    return new NoopSpanFactory();
   }
 
   /**
@@ -92,7 +119,7 @@ public final class Tracer {
    *     from the Context.
    */
   public Span getCurrentSpan() {
-    Span currentSpan = contextSpanHandler.getCurrentSpan();
+    Span currentSpan = ContextUtils.getCurrentSpan();
     return currentSpan != null ? currentSpan : BlankSpan.INSTANCE;
   }
 
@@ -146,7 +173,7 @@ public final class Tracer {
    * @throws NullPointerException if span is null.
    */
   public NonThrowingCloseable withSpan(Span span) {
-    return contextSpanHandler.withSpan(checkNotNull(span, "span"));
+    return ContextUtils.withSpan(checkNotNull(span, "span"));
   }
 
   /**
@@ -163,7 +190,7 @@ public final class Tracer {
    * @throws NullPointerException if name is null.
    */
   public SpanBuilder spanBuilder(String name) {
-    return spanBuilder(contextSpanHandler.getCurrentSpan(), name);
+    return spanBuilder(ContextUtils.getCurrentSpan(), name);
   }
 
   /**
@@ -183,7 +210,6 @@ public final class Tracer {
   public SpanBuilder spanBuilder(@Nullable Span parent, String name) {
     return new SpanBuilder(
         spanFactory,
-        contextSpanHandler,
         parent == null ? null : parent.getContext(),
         /* hasRemoteParent = */ false,
         checkNotNull(name, "name"));
@@ -205,39 +231,7 @@ public final class Tracer {
    */
   public SpanBuilder spanBuilderWithRemoteParent(@Nullable SpanContext remoteParent, String name) {
     return new SpanBuilder(
-        spanFactory,
-        contextSpanHandler,
-        remoteParent,
-        /* hasRemoteParent = */ true,
-        checkNotNull(name, "name"));
-  }
-
-  @VisibleForTesting
-  Tracer(ContextSpanHandler contextSpanHandler, SpanFactory spanFactory) {
-    this.contextSpanHandler = checkNotNull(contextSpanHandler, "contextSpanHandler");
-    this.spanFactory = checkNotNull(spanFactory, "spanFactory");
-  }
-
-  // No-op implementation of the ContextSpanHandler
-  private static final class NoopContextSpanHandler extends ContextSpanHandler {
-    private static final NonThrowingCloseable defaultWithSpan =
-        new NonThrowingCloseable() {
-          @Override
-          public void close() {
-            // Do nothing.
-          }
-        };
-
-    @Override
-    @Nullable
-    public Span getCurrentSpan() {
-      return null;
-    }
-
-    @Override
-    public NonThrowingCloseable withSpan(Span span) {
-      return defaultWithSpan;
-    }
+        spanFactory, remoteParent, /* hasRemoteParent = */ true, checkNotNull(name, "name"));
   }
 
   // No-op implementation of the SpanFactory
@@ -250,36 +244,5 @@ public final class Tracer {
         StartSpanOptions options) {
       return BlankSpan.INSTANCE;
     }
-  }
-
-  // Any provider that may be used for SpanFactory can be added here.
-  @VisibleForTesting
-  static SpanFactory loadSpanFactory(ClassLoader classLoader) {
-    try {
-      // Because of shading tools we must call Class.forName with the literal string name of the
-      // class.
-      return Provider.createInstance(
-          Class.forName("com.google.instrumentation.trace.SpanFactoryImpl", true, classLoader),
-          SpanFactory.class);
-    } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Using default implementation for SpanFactory.", e);
-    }
-    return new NoopSpanFactory();
-  }
-
-  // Any provider that may be used for ContextSpanHandler can be added here.
-  @VisibleForTesting
-  static ContextSpanHandler loadContextSpanHandler(ClassLoader classLoader) {
-    try {
-      // Because of shading tools we must call Class.forName with the literal string name of the
-      // class.
-      return Provider.createInstance(
-          Class.forName(
-              "com.google.instrumentation.trace.ContextSpanHandlerImpl", true, classLoader),
-          ContextSpanHandler.class);
-    } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Using default implementation for ContextSpanHandler.", e);
-    }
-    return new NoopContextSpanHandler();
   }
 }

@@ -21,7 +21,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
+import io.grpc.Context;
 import java.util.Random;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,14 +35,15 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link Tracer}. */
 @RunWith(JUnit4.class)
 public class TracerTest {
-  @Rule public ExpectedException thrown = ExpectedException.none();
-
   private static final Tracer tracer = Tracer.getTracer();
-
-  @Mock private ContextSpanHandler contextSpanHandler;
+  @Rule public ExpectedException thrown = ExpectedException.none();
   @Mock private SpanFactory spanFactory;
   @Mock private Span span;
-  @Mock private NonThrowingCloseable withSpan;
+
+  @Before
+  public void setUp() {
+    MockitoAnnotations.initMocks(this);
+  }
 
   @Test
   public void defaultGetCurrentSpan() {
@@ -49,14 +52,42 @@ public class TracerTest {
 
   @Test(expected = NullPointerException.class)
   public void withSpan_NullSpan() {
-    try (NonThrowingCloseable ws = tracer.withSpan(null)) {}
+    NonThrowingCloseable ws = tracer.withSpan(null);
   }
 
   @Test
-  public void defaultWithSpan() {
-    try (NonThrowingCloseable ss = tracer.withSpan(BlankSpan.INSTANCE)) {
-      assertThat(tracer.getCurrentSpan()).isEqualTo(BlankSpan.INSTANCE);
+  public void getCurrentSpan_WithSpan() {
+    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    NonThrowingCloseable ws = tracer.withSpan(span);
+    try {
+      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+    } finally {
+      ws.close();
     }
+    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+  }
+
+  @Test
+  public void propagationViaRunnable() {
+    Runnable runnable = null;
+    NonThrowingCloseable ws = tracer.withSpan(span);
+    try {
+      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+      runnable =
+          Context.current()
+              .wrap(
+                  new Runnable() {
+                    @Override
+                    public void run() {
+                      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+                    }
+                  });
+    } finally {
+      ws.close();
+    }
+    assertThat(tracer.getCurrentSpan()).isNotSameAs(span);
+    // When we run the runnable we will have the span in the current Context.
+    runnable.run();
   }
 
   @Test(expected = NullPointerException.class)
@@ -92,35 +123,6 @@ public class TracerTest {
   }
 
   @Test
-  public void loadContextSpanHandler_UsesProvidedClassLoader() {
-    final RuntimeException toThrow = new RuntimeException("UseClassLoader");
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("UseClassLoader");
-    Tracer.loadContextSpanHandler(
-        new ClassLoader() {
-          @Override
-          public Class<?> loadClass(String name) {
-            throw toThrow;
-          }
-        });
-  }
-
-  @Test
-  public void loadContextSpanHandler_IgnoresMissingClasses() {
-    assertThat(
-            Tracer.loadContextSpanHandler(
-                    new ClassLoader() {
-                      @Override
-                      public Class<?> loadClass(String name) throws ClassNotFoundException {
-                        throw new ClassNotFoundException();
-                      }
-                    })
-                .getClass()
-                .getName())
-        .isEqualTo("com.google.instrumentation.trace.Tracer$NoopContextSpanHandler");
-  }
-
-  @Test
   public void loadSpanFactory_UsesProvidedClassLoader() {
     final RuntimeException toThrow = new RuntimeException("UseClassLoader");
     thrown.expect(RuntimeException.class);
@@ -150,47 +152,39 @@ public class TracerTest {
   }
 
   @Test
-  public void getCurrentSpan() {
-    Tracer mockTracer = newTracerWithMocks();
-    when(contextSpanHandler.getCurrentSpan()).thenReturn(span);
-    assertThat(mockTracer.getCurrentSpan()).isEqualTo(span);
-  }
-
-  @Test
-  public void withSpan() {
-    Tracer mockTracer = newTracerWithMocks();
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss = mockTracer.withSpan(span)) {}
-    verify(withSpan).close();
-  }
-
-  @Test
   public void startScopedSpanRoot() {
     Tracer mockTracer = newTracerWithMocks();
-    when(contextSpanHandler.getCurrentSpan()).thenReturn(null);
     when(spanFactory.startSpan(
             isNull(SpanContext.class), eq(false), eq("MySpanName"), eq(new StartSpanOptions())))
         .thenReturn(span);
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss =
-        mockTracer.spanBuilder("MySpanName").becomeRoot().startScopedSpan()) {}
-    verify(withSpan).close();
+    NonThrowingCloseable ss = mockTracer.spanBuilder("MySpanName").becomeRoot().startScopedSpan();
+    try {
+      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+    } finally {
+      ss.close();
+    }
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
   public void startScopedSpanChild() {
     Tracer mockTracer = newTracerWithMocks();
-    when(contextSpanHandler.getCurrentSpan()).thenReturn(BlankSpan.INSTANCE);
-    when(spanFactory.startSpan(
-            same(BlankSpan.INSTANCE.getContext()),
-            eq(false),
-            eq("MySpanName"),
-            eq(new StartSpanOptions())))
-        .thenReturn(span);
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss = mockTracer.spanBuilder("MySpanName").startScopedSpan()) {}
-    verify(withSpan).close();
+    NonThrowingCloseable ws = mockTracer.withSpan(BlankSpan.INSTANCE);
+    try {
+      assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+      when(spanFactory.startSpan(
+              same(SpanContext.INVALID), eq(false), eq("MySpanName"), eq(new StartSpanOptions())))
+          .thenReturn(span);
+      NonThrowingCloseable ss = mockTracer.spanBuilder("MySpanName").startScopedSpan();
+      try {
+        assertThat(tracer.getCurrentSpan()).isSameAs(span);
+      } finally {
+        ss.close();
+      }
+      assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    } finally {
+      ws.close();
+    }
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
@@ -242,7 +236,6 @@ public class TracerTest {
   }
 
   private Tracer newTracerWithMocks() {
-    MockitoAnnotations.initMocks(this);
-    return new Tracer(contextSpanHandler, spanFactory);
+    return new Tracer(spanFactory);
   }
 }

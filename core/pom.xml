@@ -33,7 +33,10 @@
               Don't build the tests, because they currently create a circular
               dependency between the 'core' and 'core_impl' directories.
               -->
-              <skip>true</skip>
+              <skip>false</skip>
+              <testExcludes>
+                <exclude>**/stats/*.java</exclude>
+              </testExcludes>
             </configuration>
           </execution>
         </executions>
@@ -76,4 +79,13 @@
       </build>
     </profile>
   </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.io</groupId>
+      <artifactId>shared</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>

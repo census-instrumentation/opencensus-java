@@ -46,17 +46,6 @@ java_library(
 )
 
 java_library(
-    name = "trace-core_context_impl",
-    srcs = glob(["core_context_impl/src/main/java/com/google/instrumentation/trace/*.java"]),
-    deps = [
-        ":common-core",
-        ":trace-core",
-        "@grpc_context//jar",
-        "@jsr305//jar",
-    ],
-)
-
-java_library(
     name = "stats-core_impl",
     srcs = glob(["core_impl/src/main/java/com/google/instrumentation/stats/*.java"]),
     deps = [
@@ -625,23 +614,6 @@ java_test(
     deps = [
         ":common-core",
         ":trace-core",
-        "@guava//jar",
-        "@guava_testlib//jar",
-        "@jsr305//jar",
-        "@junit//jar",
-        "@mockito//jar",
-        "@truth//jar",
-    ],
-)
-
-java_test(
-    name = "ContextSpanHandlerImplTest",
-    srcs = ["core_context_impl/src/test/java/com/google/instrumentation/trace/ContextSpanHandlerImplTest.java"],
-    deps = [
-        ":common-core",
-        ":trace-core",
-        ":trace-core_context_impl",
-        "@grpc_context//jar",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
