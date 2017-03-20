@@ -16,11 +16,15 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.google.census</groupId>
       <artifactId>census-core</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
