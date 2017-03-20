@@ -23,48 +23,34 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class BlankSpan extends Span {
-  /**
-   * Singleton instance of this class.
-   */
+  /** Singleton instance of this class. */
   public static final BlankSpan INSTANCE = new BlankSpan();
 
   private BlankSpan() {
     super(SpanContext.INVALID, null);
   }
 
-  /**
-   * No-op implementation of the {@link Span#addLabels(Labels)} method.
-   */
+  /** No-op implementation of the {@link Span#addLabels(Labels)} method. */
   @Override
   public void addLabels(Labels labels) {}
 
-  /**
-   * No-op implementation of the {@link Span#addAnnotation(String)} method.
-   */
+  /** No-op implementation of the {@link Span#addAnnotation(String)} method. */
   @Override
   public void addAnnotation(String description) {}
 
-  /**
-   * No-op implementation of the {@link Span#addAnnotation(String, Labels)} method.
-   */
+  /** No-op implementation of the {@link Span#addAnnotation(String, Labels)} method. */
   @Override
   public void addAnnotation(String description, Labels labels) {}
 
-  /**
-   * No-op implementation of the {@link Span#addNetworkEvent(NetworkEvent)} method.
-   */
+  /** No-op implementation of the {@link Span#addNetworkEvent(NetworkEvent)} method. */
   @Override
   public void addNetworkEvent(NetworkEvent networkEvent) {}
 
-  /**
-   * No-op implementation of the {@link Span#addChildLink(Span)} method.
-   */
+  /** No-op implementation of the {@link Span#addChildLink(Span)} method. */
   @Override
   public void addChildLink(Span childLink) {}
 
-  /**
-   * No-op implementation of the {@link Span#end(EndSpanOptions)} method.
-   */
+  /** No-op implementation of the {@link Span#end(EndSpanOptions)} method. */
   @Override
   public void end(EndSpanOptions options) {}
 

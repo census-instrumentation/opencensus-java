@@ -16,9 +16,7 @@ package com.google.instrumentation.trace;
 import java.util.List;
 import javax.annotation.Nullable;
 
-/**
- * Sampler is used to make decisions on {@link Span} sampling.
- */
+/** Sampler is used to make decisions on {@link Span} sampling. */
 public abstract class Sampler {
   /**
    * Called during {@link Span} creation to make a sampling decision.

@@ -206,4 +206,19 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <modules>
+        <module>benchmarks</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

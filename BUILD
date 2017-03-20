@@ -671,3 +671,16 @@ java_test(
         ":trace-core_context_impl",
     ],
 )
+
+java_binary(
+    name = "HttpPropagationUtilBenchmark",
+    srcs = [
+        "benchmarks/src/main/java/com/google/instrumentation/trace/HttpPropagationUtilBenchmark.java",
+    ],
+    main_class = "com.google.instrumentation.trace.HttpPropagationUtilBenchmark",
+    deps = [
+        ":trace-core",
+        "@guava//jar",
+        "@jmh//jar",
+    ],
+)
