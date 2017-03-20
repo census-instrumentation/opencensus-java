@@ -70,29 +70,9 @@ maven_jar(
     artifact = "junit:junit:4.11",
 )
 
-<<<<<<< HEAD
-# proto_library rules implicitly depend on @com_google_protobuf//:protoc,
-# which is the proto-compiler.
-# This statement defines the @com_google_protobuf repo.
-http_archive(
-    name = "com_google_protobuf",
-    sha256 = "ff771a662fb6bd4d3cc209bcccedef3e93980a49f71df1e987f6afa3bcdcba3a",
-    strip_prefix = "protobuf-b4b0e304be5a68de3d0ee1af9b286f958750f5e4",
-    urls = ["https://github.com/google/protobuf/archive/b4b0e304be5a68de3d0ee1af9b286f958750f5e4.zip"],
-)
-
-# java_proto_library rules implicitly depend on @com_google_protobuf_java//:java_toolchain,
-# which is the Java proto runtime (base classes and common utilities).
-http_archive(
-    name = "com_google_protobuf_java",
-    sha256 = "ff771a662fb6bd4d3cc209bcccedef3e93980a49f71df1e987f6afa3bcdcba3a",
-    strip_prefix = "protobuf-b4b0e304be5a68de3d0ee1af9b286f958750f5e4",
-    urls = ["https://github.com/google/protobuf/archive/b4b0e304be5a68de3d0ee1af9b286f958750f5e4.zip"],
-=======
 maven_jar(
     name = "jmh",
     artifact = "org.openjdk.jmh:jmh-core:1.18",
->>>>>>> 0ed88a869a1d414dd067796c7b7a360970e247f8
 )
 
 git_repository(
