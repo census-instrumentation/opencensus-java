@@ -40,6 +40,7 @@ java_library(
     srcs = glob(["core/src/main/java/com/google/instrumentation/trace/*.java"]),
     deps = [
         ":common-core",
+        "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
     ],
@@ -404,6 +405,22 @@ java_test(
 )
 
 java_test(
+    name = "ContextUtilsTest",
+    srcs = ["core/src/test/java/com/google/instrumentation/trace/ContextUtilsTest.java"],
+    deps = [
+        ":common-core",
+        ":trace-core",
+        "@grpc_context//jar",
+        "@guava//jar",
+        "@guava_testlib//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@mockito//jar",
+        "@truth//jar",
+    ],
+)
+
+java_test(
     name = "EndSpanOptionsTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/EndSpanOptionsTest.java"],
     deps = [
@@ -614,6 +631,7 @@ java_test(
     deps = [
         ":common-core",
         ":trace-core",
+        "@grpc_context//jar",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",

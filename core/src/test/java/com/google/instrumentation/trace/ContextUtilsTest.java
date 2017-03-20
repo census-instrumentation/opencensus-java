@@ -52,7 +52,6 @@ public class ContextUtilsTest {
   @Test
   public void withSpan() {
     assertThat(ContextUtils.getCurrentSpan()).isNull();
-    ;
     NonThrowingCloseable ws = ContextUtils.withSpan(span);
     try {
       assertThat(ContextUtils.getCurrentSpan()).isSameAs(span);

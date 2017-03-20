@@ -95,8 +95,7 @@ public final class Tracer {
   @VisibleForTesting
   static SpanFactory loadSpanFactory(ClassLoader classLoader) {
     try {
-      // Because of shading tools we must call Class.forName with the literal string name of the
-      // class.
+      // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
           Class.forName("com.google.instrumentation.trace.SpanFactoryImpl", true, classLoader),
           SpanFactory.class);
