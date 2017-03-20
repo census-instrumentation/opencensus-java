@@ -16,10 +16,6 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <properties>
-    <maven.javadoc.skip>true</maven.javadoc.skip>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.google.census</groupId>
@@ -56,10 +52,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
