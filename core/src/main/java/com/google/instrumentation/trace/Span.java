@@ -48,7 +48,8 @@ public abstract class Span {
     RECORD_EVENTS;
   }
 
-  private static final EnumSet<Options> DEFAULT_OPTIONS = EnumSet.noneOf(Options.class);
+  private static final Set<Options> DEFAULT_OPTIONS =
+      Collections.unmodifiableSet(EnumSet.noneOf(Options.class));
 
   /**
    * Creates a new {@code Span}.
@@ -57,16 +58,16 @@ public abstract class Span {
    * @param options The options associated with this {@code Span}. If {@code null} then default
    *     options will be set.
    * @throws NullPointerException if context is {@code null}.
-   * @throws IllegalArgumentException is the {@code SpanContext} is sampled but no RECORD_EVENTS
+   * @throws IllegalArgumentException if the {@code SpanContext} is sampled but no RECORD_EVENTS
    *     options.
    */
   protected Span(SpanContext context, @Nullable EnumSet<Options> options) {
     this.context = checkNotNull(context, "context");
     this.options =
-        Collections.unmodifiableSet(options == null ? DEFAULT_OPTIONS : EnumSet.copyOf(options));
+        options == null ? DEFAULT_OPTIONS : Collections.unmodifiableSet(EnumSet.copyOf(options));
     checkArgument(
         !context.getTraceOptions().isSampled() || (this.options.contains(Options.RECORD_EVENTS)),
-        "Span without record_events but sampled.");
+        "Span is sampled, but does not have RECORD_EVENTS set.");
   }
 
   /**
