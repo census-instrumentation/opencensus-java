@@ -1,0 +1,131 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.9'
+    }
+}
+
+subprojects {
+    apply plugin: "checkstyle"
+    apply plugin: 'maven'
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: "signing"
+    apply plugin: "jacoco"
+    // TODO(bdrutu): enable all checks.
+    apply plugin: "net.ltgt.errorprone"
+
+    group = "com.google.instrumentation"
+    version = "0.4.0-SNAPSHOT" // CURRENT_INSTRUMENTATION_VERSION
+
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    [compileJava, compileTestJava].each() {
+        it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try"]
+        it.options.encoding = "UTF-8"
+        if (rootProject.hasProperty('failOnWarnings') && rootProject.failOnWarnings.toBoolean()) {
+            it.options.compilerArgs += ["-Werror"]
+        }
+    }
+
+    compileTestJava {
+        // serialVersionUID is basically guaranteed to be useless in tests
+        options.compilerArgs += ["-Xlint:-serial"]
+        // It undeprecates DoubleSubject.isEqualTo(Double).
+        options.compilerArgs += ["-Xlint:-deprecation"]
+        sourceCompatibility = 1.7
+        targetCompatibility = 1.7
+    }
+
+    jar.manifest {
+        attributes('Implementation-Title': name,
+                'Implementation-Version': version,
+                'Built-By': System.getProperty('user.name'),
+                'Built-JDK': System.getProperty('java.version'),
+                'Source-Compatibility': sourceCompatibility,
+                'Target-Compatibility': targetCompatibility)
+    }
+
+    javadoc.options {
+        encoding = 'UTF-8'
+        links 'https://docs.oracle.com/javase/8/docs/api/'
+    }
+
+    ext {
+        guavaVersion = '19.0'
+        protobufVersion = '3.2.0'
+        grpcContextVersion = '1.1.2'
+
+        libraries = [
+                errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
+                grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",
+                guava        : "com.google.guava:guava:${guavaVersion}",
+                jsr305       : 'com.google.code.findbugs:jsr305:3.0.0',
+                protobuf     : "com.google.protobuf:protobuf-java:${protobufVersion}",
+
+                // Test dependencies.
+                guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
+                junit        : 'junit:junit:4.11',
+                mockito      : 'org.mockito:mockito-core:1.9.5',
+                truth        : 'com.google.truth:truth:0.30',
+        ]
+    }
+
+    dependencies {
+        testCompile libraries.guava_testlib,
+                libraries.junit,
+                libraries.mockito,
+                libraries.truth
+
+        // The ErrorProne plugin defaults to the latest, which would break our
+        // build if error prone releases a new version with a new check
+        errorprone 'com.google.errorprone:error_prone_core:2.0.19'
+    }
+
+    checkstyle {
+        configFile = file("$rootDir/checkstyle.xml")
+        toolVersion = "7.6"
+        ignoreFailures = false
+        if (rootProject.hasProperty("checkstyle.ignoreFailures")) {
+            ignoreFailures = rootProject.properties["checkstyle.ignoreFailures"].toBoolean()
+        }
+        configProperties["rootDir"] = rootDir
+    }
+
+    checkstyleMain {
+        // This skips proto generated files beucasue they are in gen_gradle/src/main/**
+        source = fileTree(dir: "src/main", include: "**/*.java")
+    }
+    checkstyleMain.onlyIf { !name.contains("proto") && !name.contains("shared")}
+
+    checkstyleTest {
+        // TODO(bdrutu): Enable this when we have tests checkstyle clean.
+        // source = fileTree(dir: "src/test", include: "**/*.java")
+        excludes = ["**"]
+    }
+    checkstyleTest.onlyIf { !name.contains("proto") && !name.contains("shared")}
+
+    // At a test failure, log the stack trace to the console so that we don't
+    // have to open the HTML in a browser.
+    test {
+        testLogging {
+            exceptionFormat = 'full'
+            showExceptions true
+            showCauses true
+            showStackTraces true
+        }
+        maxHeapSize = '1500m'
+    }
+}
