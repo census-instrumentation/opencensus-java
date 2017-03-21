@@ -69,6 +69,7 @@ subprojects {
         grpcContextVersion = '1.1.2'
 
         libraries = [
+	        disruptor    : 'com.lmax:disruptor:3.3.6',
                 errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
                 grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",
                 guava        : "com.google.guava:guava:${guavaVersion}",
