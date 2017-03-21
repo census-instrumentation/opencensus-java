@@ -1,8 +1,3 @@
-// TODO(bdrutu): Default build directory is build but on MacOs with a case-insensitive
-// File System would conflict with Bazel BUILD file.  Remove this and update the
-// .gitignore entry once Bazel is removed.
-buildDir = 'build_gradle'
-
 buildscript {
     repositories {
         mavenCentral()
@@ -39,7 +34,7 @@ subprojects {
     }
 
     [compileJava, compileTestJava].each() {
-        it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-path"]
+        it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try"]
         it.options.encoding = "UTF-8"
         if (rootProject.hasProperty('failOnWarnings') && rootProject.failOnWarnings.toBoolean()) {
             it.options.compilerArgs += ["-Werror"]
@@ -97,7 +92,7 @@ subprojects {
 
         // The ErrorProne plugin defaults to the latest, which would break our
         // build if error prone releases a new version with a new check
-        errorprone 'com.google.errorprone:error_prone_core:2.0.15'
+        errorprone 'com.google.errorprone:error_prone_core:2.0.19'
     }
 
     checkstyle {
