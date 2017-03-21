@@ -30,8 +30,12 @@ java_library(
     name = "stats-core",
     srcs = glob(["core/src/main/java/com/google/instrumentation/stats/*.java"]),
     deps = [
-        ":common-core",
+        "@guava//jar",
         "@jsr305//jar",
+        "@protobuf//jar",
+        ":common-core",
+        "//proto:census-proto-java",
+        "//proto:view_descriptor_constants-proto-java",
     ],
 )
 
@@ -39,9 +43,9 @@ java_library(
     name = "trace-core",
     srcs = glob(["core/src/main/java/com/google/instrumentation/trace/*.java"]),
     deps = [
-        ":common-core",
         "@guava//jar",
         "@jsr305//jar",
+        ":common-core",
     ],
 )
 
@@ -49,10 +53,10 @@ java_library(
     name = "trace-core_context_impl",
     srcs = glob(["core_context_impl/src/main/java/com/google/instrumentation/trace/*.java"]),
     deps = [
-        ":common-core",
-        ":trace-core",
         "@grpc_context//jar",
         "@jsr305//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -60,11 +64,11 @@ java_library(
     name = "stats-core_impl",
     srcs = glob(["core_impl/src/main/java/com/google/instrumentation/stats/*.java"]),
     deps = [
+        "@jsr305//jar",
+        "@protobuf//jar",
         ":shared",
         ":stats-core",
         "//proto:stats_context-proto-java",
-        "@jsr305//jar",
-        "@protobuf//jar",
     ],
 )
 
@@ -73,11 +77,11 @@ java_binary(
     srcs = ["examples/src/main/java/com/google/instrumentation/stats/StatsRunner.java"],
     main_class = "com.google.instrumentation.stats.StatsRunner",
     deps = [
-        ":stats-core",
-        ":stats-core_impl",
         "@grpc_context//jar",
         "@guava//jar",
         "@jsr305//jar",
+        ":stats-core",
+        ":stats-core_impl",
     ],
 )
 
@@ -145,12 +149,12 @@ java_test(
         "core/src/test/java/com/google/instrumentation/stats/DistributionAggregationDescriptorTest.java",
     ],
     deps = [
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
     ],
 )
 
@@ -160,12 +164,12 @@ java_test(
         "core/src/test/java/com/google/instrumentation/stats/DistributionAggregationTest.java",
     ],
     deps = [
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
     ],
 )
 
@@ -175,13 +179,13 @@ java_test(
         "core/src/test/java/com/google/instrumentation/stats/IntervalAggregationDescriptorTest.java",
     ],
     deps = [
-        ":common-core",
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":stats-core",
     ],
 )
 
@@ -191,13 +195,13 @@ java_test(
         "core/src/test/java/com/google/instrumentation/stats/IntervalAggregationTest.java",
     ],
     deps = [
-        ":common-core",
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":stats-core",
     ],
 )
 
@@ -205,11 +209,11 @@ java_test(
     name = "MeasurementMapTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/MeasurementMapTest.java"],
     deps = [
-        ":stats-core",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
     ],
 )
 
@@ -217,12 +221,12 @@ java_test(
     name = "MeasurementDescriptorTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/MeasurementDescriptorTest.java"],
     deps = [
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
     ],
 )
 
@@ -230,12 +234,29 @@ java_test(
     name = "RpcConstantsTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/RpcConstantsTest.java"],
     deps = [
-        ":stats-core",
-        ":stats-core_impl",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
+        ":stats-core_impl",
+    ],
+)
+
+java_test(
+    name = "RpcConstantsFromProtoBinaryTest",
+    srcs = [
+        "core/src/test/java/com/google/instrumentation/stats/RpcConstantsFromProtoBinaryTest.java",
+    ],
+    deps = [
+        "@guava//jar",
+        "@jsr305//jar",
+        "@junit//jar",
+        "@protobuf//jar",
+        "@truth//jar",
+        ":stats-core",
+        ":stats-core_impl",
+        "//proto:census-proto-java",
     ],
 )
 
@@ -243,13 +264,13 @@ java_test(
     name = "StatsContextTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/StatsContextTest.java"],
     deps = [
-        ":stats-core",
-        ":stats-core_impl",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
+        ":stats-core_impl",
     ],
 )
 
@@ -257,13 +278,13 @@ java_test(
     name = "StatsContextFactoryTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/StatsContextFactoryTest.java"],
     deps = [
-        ":shared",
-        ":stats-core",
-        ":stats-core_impl",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":shared",
+        ":stats-core",
+        ":stats-core_impl",
     ],
 )
 
@@ -271,13 +292,13 @@ java_test(
     name = "StringUtilTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/StringUtilTest.java"],
     deps = [
-        ":stats-core",
-        ":stats-core_impl",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
+        ":stats-core_impl",
     ],
 )
 
@@ -285,12 +306,12 @@ java_test(
     name = "TagKeyTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/TagKeyTest.java"],
     deps = [
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
     ],
 )
 
@@ -298,12 +319,12 @@ java_test(
     name = "TagTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/TagTest.java"],
     deps = [
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
     ],
 )
 
@@ -311,12 +332,12 @@ java_test(
     name = "TagValueTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/TagValueTest.java"],
     deps = [
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":stats-core",
     ],
 )
 
@@ -324,12 +345,12 @@ java_test(
     name = "DurationTest",
     srcs = ["core/src/test/java/com/google/instrumentation/common/DurationTest.java"],
     deps = [
-        ":common-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
     ],
 )
 
@@ -337,12 +358,12 @@ java_test(
     name = "ProviderTest",
     srcs = ["core/src/test/java/com/google/instrumentation/common/ProviderTest.java"],
     deps = [
-        ":common-core",
-        ":stats-core",
         "@guava//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":stats-core",
     ],
 )
 
@@ -350,12 +371,12 @@ java_test(
     name = "TimestampTest",
     srcs = ["core/src/test/java/com/google/instrumentation/common/TimestampTest.java"],
     deps = [
-        ":common-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
     ],
 )
 
@@ -363,12 +384,12 @@ java_test(
     name = "TimestampFactoryTest",
     srcs = ["core/src/test/java/com/google/instrumentation/common/TimestampFactoryTest.java"],
     deps = [
-        ":common-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
     ],
 )
 
@@ -376,13 +397,13 @@ java_test(
     name = "ViewDescriptorTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/ViewDescriptorTest.java"],
     deps = [
-        ":common-core",
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":stats-core",
     ],
 )
 
@@ -390,13 +411,13 @@ java_test(
     name = "ViewTest",
     srcs = ["core/src/test/java/com/google/instrumentation/stats/ViewTest.java"],
     deps = [
-        ":common-core",
-        ":stats-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":stats-core",
     ],
 )
 
@@ -404,13 +425,13 @@ java_test(
     name = "BlankSpanTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/BlankSpanTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -418,13 +439,13 @@ java_test(
     name = "EndSpanOptionsTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/EndSpanOptionsTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -432,12 +453,12 @@ java_test(
     name = "HttpPropagationUtilTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/HttpPropagationUtilTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -445,12 +466,12 @@ java_test(
     name = "LabelValueTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/LabelValueTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -458,12 +479,12 @@ java_test(
     name = "LabelsTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/LabelsTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -471,13 +492,13 @@ java_test(
     name = "NetworkEventTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/NetworkEventTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -485,12 +506,12 @@ java_test(
     name = "SamplersTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SamplersTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -498,14 +519,14 @@ java_test(
     name = "ScopedSpanHandleTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/ScopedSpanHandleTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@mockito//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -513,14 +534,14 @@ java_test(
     name = "SpanBuilderTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanBuilderTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@mockito//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -528,12 +549,12 @@ java_test(
     name = "SpanContextTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanContextTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -541,12 +562,12 @@ java_test(
     name = "SpanIdTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanIdTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -554,14 +575,14 @@ java_test(
     name = "SpanTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/SpanTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@mockito//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -569,13 +590,13 @@ java_test(
     name = "StartSpanOptionsTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/StartSpanOptionsTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -583,12 +604,12 @@ java_test(
     name = "StatusTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/StatusTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -596,12 +617,12 @@ java_test(
     name = "TraceIdTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/TraceIdTest.java"],
     deps = [
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":trace-core",
     ],
 )
 
@@ -609,13 +630,13 @@ java_test(
     name = "TraceOptionsTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/TraceOptionsTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -623,14 +644,14 @@ java_test(
     name = "TracerTest",
     srcs = ["core/src/test/java/com/google/instrumentation/trace/TracerTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
         "@guava//jar",
         "@guava_testlib//jar",
         "@jsr305//jar",
         "@junit//jar",
         "@mockito//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
     ],
 )
 
@@ -638,9 +659,6 @@ java_test(
     name = "ContextSpanHandlerImplTest",
     srcs = ["core_context_impl/src/test/java/com/google/instrumentation/trace/ContextSpanHandlerImplTest.java"],
     deps = [
-        ":common-core",
-        ":trace-core",
-        ":trace-core_context_impl",
         "@grpc_context//jar",
         "@guava//jar",
         "@guava_testlib//jar",
@@ -648,6 +666,9 @@ java_test(
         "@junit//jar",
         "@mockito//jar",
         "@truth//jar",
+        ":common-core",
+        ":trace-core",
+        ":trace-core_context_impl",
     ],
 )
 
