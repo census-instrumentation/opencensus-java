@@ -13,8 +13,10 @@
 
 package com.google.instrumentation.trace;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -32,7 +34,7 @@ public abstract class Span {
   private final SpanContext context;
 
   // Contains the options associated with this Span. This object is immutable.
-  private final EnumSet<Options> options;
+  private final Set<Options> options;
 
   /**
    * {@code Span} options. These options are NOT propagated to child spans. These options determine
@@ -46,6 +48,8 @@ public abstract class Span {
     RECORD_EVENTS;
   }
 
+  private static final EnumSet<Options> DEFAULT_OPTIONS = EnumSet.noneOf(Options.class);
+
   /**
    * Creates a new {@code Span}.
    *
@@ -53,10 +57,16 @@ public abstract class Span {
    * @param options The options associated with this {@code Span}. If {@code null} then default
    *     options will be set.
    * @throws NullPointerException if context is {@code null}.
+   * @throws IllegalArgumentException is the {@code SpanContext} is sampled but no RECORD_EVENTS
+   *     options.
    */
   protected Span(SpanContext context, @Nullable EnumSet<Options> options) {
     this.context = checkNotNull(context, "context");
-    this.options = options == null ? EnumSet.noneOf(Options.class) : EnumSet.copyOf(options);
+    this.options =
+        Collections.unmodifiableSet(options == null ? DEFAULT_OPTIONS : EnumSet.copyOf(options));
+    checkArgument(
+        !context.getTraceOptions().isSampled() || (this.options.contains(Options.RECORD_EVENTS)),
+        "Span without record_events but sampled.");
   }
 
   /**
@@ -138,10 +148,5 @@ public abstract class Span {
    */
   public final Set<Options> getOptions() {
     return options;
-  }
-
-  /** Ends the current {@code Span} by calling {@link #end}. */
-  public final void close() {
-    end(EndSpanOptions.DEFAULT);
   }
 }
