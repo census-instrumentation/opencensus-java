@@ -29,6 +29,11 @@ matrix:
     env: BUILD=GRADLE
 
 before_install:
+  - git branch --all -v
+  - git remote -v
+  - git status
+  - git log --oneline --graph --decorate
+  - git log --oneline --graph --decorate --first-parent
   - case "$BUILD" in
       "BAZEL")
         echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list ;
