@@ -6,5 +6,5 @@ dependencies {
             libraries.disruptor,
             libraries.guava
 
-    signature "org.codehaus.mojo.signature:java16:+@signature"
+    testCompile project(':instrumentation-core')
 }

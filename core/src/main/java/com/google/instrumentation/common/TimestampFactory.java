@@ -38,8 +38,9 @@ public final class TimestampFactory {
     return HANDLER.timeNow();
   }
 
-  // This class cannot be final because in case of java8 runtime we can have a better granularity
-  // timestamp.
+  /**
+   * Interface to get the current {@link Timestamp}.
+   */
   interface Handler {
     Timestamp timeNow();
   }

@@ -13,6 +13,10 @@
 
 package com.google.instrumentation.common;
 
+import com.google.common.math.LongMath;
+import java.math.RoundingMode;
+import javax.annotation.concurrent.Immutable;
+
 /**
  * A representation of an instant in time. The instant is the number of nanoseconds after the number
  * of seconds since the Unix Epoch.
@@ -20,11 +24,13 @@ package com.google.instrumentation.common;
  * <p>Use {@link TimestampFactory#now} to get the current timestamp since epoch
  * (1970-01-01T00:00:00Z).
  */
+@Immutable
 public final class Timestamp {
   private static final long MAX_SECONDS = 315576000000L;
   private static final int MAX_NANOS = 999999999;
   private static final long NUM_MILLIS_PER_SECOND = 1000L;
   private static final int NUM_NANOS_PER_MILLI = 1000 * 1000;
+  private static final long NUM_NANOS_PER_SECOND = NUM_MILLIS_PER_SECOND * NUM_NANOS_PER_MILLI;
   private final long seconds;
   private final int nanos;
 
@@ -40,11 +46,9 @@ public final class Timestamp {
    *
    * @param seconds Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z. Must
    *     be from from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.
-   *
    * @param nanos Non-negative fractions of a second at nanosecond resolution. Negative
    *     second values with fractions must still have non-negative nanos values that count forward
    *     in time. Must be from 0 to 999,999,999 inclusive.
-   *
    * @return new {@link Timestamp} with specified fields. For invalid inputs, a {@link Timestamp}
    *     of zero is returned.
    */
@@ -60,12 +64,14 @@ public final class Timestamp {
 
   /**
    * Creates a new timestamp from given milliseconds.
+   *
+   * @return a new timestamp from
    */
   public static Timestamp fromMillis(long millis) {
     long seconds = millis / NUM_MILLIS_PER_SECOND;
     int nanos = (int) (millis % NUM_MILLIS_PER_SECOND) * NUM_NANOS_PER_MILLI;
     if (nanos < 0) {
-      return new Timestamp(seconds - 1, MAX_NANOS + nanos + 1);
+      return new Timestamp(seconds - 1, (int)(nanos + NUM_NANOS_PER_SECOND));
     } else {
       return new Timestamp(seconds, nanos);
     }
@@ -88,6 +94,23 @@ public final class Timestamp {
    */
   public int getNanos() {
     return nanos;
+  }
+
+  /**
+   * Returns the {@code Timestamp} calculated as this {@code Timestamp} plus {@code nanos}.
+   *
+   * @param nanos the nanoseconds to be added to the current timestamp.
+   * @return the {@code Timestamp} calculated as this {@code Timestamp} plus {@code nanos}.
+   */
+  public Timestamp addNanos(long nanos) {
+    long newNanos = nanos + this.nanos;
+    long newSeconds = seconds + (newNanos / NUM_NANOS_PER_SECOND);
+    newNanos %= NUM_NANOS_PER_SECOND;
+    if (newNanos >= 0) {
+      return Timestamp.create(newSeconds, (int) newNanos);
+    } else {
+      return Timestamp.create(newSeconds - 1, (int)(newNanos + NUM_NANOS_PER_SECOND));
+    }
   }
 
   @Override
