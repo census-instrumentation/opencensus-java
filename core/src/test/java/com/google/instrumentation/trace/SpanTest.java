@@ -30,12 +30,18 @@ import org.mockito.Mockito;
 public class SpanTest {
   private Random random;
   private SpanContext spanContext;
+  private SpanContext notSampledSpanContext;
   private EnumSet<Span.Options> spanOptions;
 
   @Before
   public void setUp() {
     random = new Random(1234);
     spanContext =
+        new SpanContext(
+            TraceId.generateRandomId(random),
+            SpanId.generateRandomId(random),
+            TraceOptions.builder().setIsSampled().build());
+    notSampledSpanContext =
         new SpanContext(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
@@ -48,9 +54,19 @@ public class SpanTest {
     new NoopSpan(null, null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void newSpan_SampledContextAndNullOptions() {
+    new NoopSpan(spanContext, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void newSpan_SampledContextAndEmptyOptions() {
+    new NoopSpan(spanContext, EnumSet.noneOf(Span.Options.class));
+  }
+
   @Test
   public void getOptions_WhenNullOptions() {
-    Span span = new NoopSpan(spanContext, null);
+    Span span = new NoopSpan(notSampledSpanContext, null);
     assertThat(span.getOptions()).isEmpty();
   }
 
