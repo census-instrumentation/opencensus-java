@@ -13,7 +13,6 @@ buildscript {
 
 def subprojects = [
   project(':instrumentation-core'),
-  project(':instrumentation-core-context-impl'),
   project(':instrumentation-core-impl'),
 ]
 
