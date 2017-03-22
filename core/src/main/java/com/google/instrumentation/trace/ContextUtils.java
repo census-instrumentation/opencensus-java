@@ -45,7 +45,7 @@ public final class ContextUtils {
    * <p>Supports try-with-resource idiom.
    *
    * @param span The {@code Span} to be set to the current context.
-   * @return An object that defines a scope where the given {@code Span} will be set to the current
+   * @return An object that defines a scope where the given {@code Span} is set to the current
    *     context.
    */
   static NonThrowingCloseable withSpan(Span span) {

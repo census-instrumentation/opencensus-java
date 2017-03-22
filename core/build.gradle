@@ -7,5 +7,6 @@ dependencies {
             libraries.errorprone,
             libraries.jsr305
 
-    testCompile project(':instrumentation-core-impl')
+    testCompile project(':instrumentation-core-impl'),
+            libraries.grpc_context
 }

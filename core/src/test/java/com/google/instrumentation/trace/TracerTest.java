@@ -52,7 +52,7 @@ public class TracerTest {
 
   @Test(expected = NullPointerException.class)
   public void withSpan_NullSpan() {
-    NonThrowingCloseable ws = tracer.withSpan(null);
+    tracer.withSpan(null);
   }
 
   @Test
@@ -85,9 +85,10 @@ public class TracerTest {
     } finally {
       ws.close();
     }
-    assertThat(tracer.getCurrentSpan()).isNotSameAs(span);
+    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
     // When we run the runnable we will have the span in the current Context.
     runnable.run();
+    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test(expected = NullPointerException.class)

@@ -82,8 +82,8 @@ public final class Tracer {
   }
 
   /**
-   * Returns the {@link Tracer}. If no implementation is provided for any of the {@code Tracer}
-   * modules then no-op implementations will be used.
+   * Returns the {@link Tracer} with the provided implementations for {@link SpanFactory}. If no
+   * implementation is provided then no-op implementations will be used.
    *
    * @return the {@code Tracer}.
    */

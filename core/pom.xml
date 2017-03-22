@@ -39,10 +39,9 @@
             </goals>
             <configuration>
               <!--
-              Don't build the tests, because they currently create a circular
+              Don't build the stats tests, because they currently create a circular
               dependency between the 'core' and 'core_impl' directories.
               -->
-              <skip>false</skip>
               <testExcludes>
                 <exclude>**/stats/*.java</exclude>
               </testExcludes>
