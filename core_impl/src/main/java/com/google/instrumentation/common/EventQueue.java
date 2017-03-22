@@ -117,6 +117,7 @@ public final class EventQueue {
   // The single instance of the class.
   private static final EventQueue eventQueue = new EventQueue();
   // The event queue is built on this {@link Disruptor}.
+  @SuppressWarnings({"unchecked", "varargs"})  // Suppress warnings for call to handleEventsWith method.
   private final Disruptor<InstrumentationEvent> disruptor;
   // Ring Buffer for the {@link Disruptor} that underlies the queue.
   private final RingBuffer<InstrumentationEvent> ringBuffer;

@@ -35,12 +35,10 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link Tracer}. */
 @RunWith(JUnit4.class)
 public class SpanBuilderTest {
-  @Mock private ContextSpanHandler contextSpanHandler;
+  private static final String SPAN_NAME = "MySpanName";
+  private static final Tracer tracer = Tracer.getTracer();
   @Mock private Span span;
   @Mock private SpanFactory spanFactory;
-  @Mock private NonThrowingCloseable withSpan;
-
-  private static final String SPAN_NAME = "MySpanName";
   private Random random;
   private SpanContext spanContext;
   private SpanBuilder spanBuilder;
@@ -54,9 +52,7 @@ public class SpanBuilderTest {
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT);
-    spanBuilder =
-        new SpanBuilder(
-            spanFactory, contextSpanHandler, spanContext, false /* hasRemoteParent */, SPAN_NAME);
+    spanBuilder = new SpanBuilder(spanFactory, spanContext, false /* hasRemoteParent */, SPAN_NAME);
   }
 
   @Test
@@ -64,9 +60,12 @@ public class SpanBuilderTest {
     when(spanFactory.startSpan(
             isNull(SpanContext.class), eq(false), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss = spanBuilder.becomeRoot().startScopedSpan()) {}
-    verify(withSpan).close();
+    NonThrowingCloseable ss = spanBuilder.becomeRoot().startScopedSpan();
+    try {
+      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+    } finally {
+      ss.close();
+    }
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
@@ -78,14 +77,17 @@ public class SpanBuilderTest {
     when(spanFactory.startSpan(
             isNull(SpanContext.class), eq(false), same(SPAN_NAME), eq(startSpanOptions)))
         .thenReturn(span);
-    when(contextSpanHandler.withSpan(same(span))).thenReturn(withSpan);
-    try (NonThrowingCloseable ss =
+    NonThrowingCloseable ss =
         spanBuilder
             .becomeRoot()
             .setSampler(Samplers.neverSample())
             .setStartTime(Timestamp.fromMillis(1234567L))
-            .startScopedSpan()) {}
-    verify(withSpan).close();
+            .startScopedSpan();
+    try {
+      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+    } finally {
+      ss.close();
+    }
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
@@ -102,9 +104,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startSpan_WithNullParent() {
-    spanBuilder =
-        new SpanBuilder(
-            spanFactory, contextSpanHandler, null, false /* hasRemoteParent */, SPAN_NAME);
+    spanBuilder = new SpanBuilder(spanFactory, null, false /* hasRemoteParent */, SPAN_NAME);
     when(spanFactory.startSpan(
             isNull(SpanContext.class), eq(false), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
@@ -161,9 +161,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startSpanWitRemoteParent() {
-    spanBuilder =
-        new SpanBuilder(
-            spanFactory, contextSpanHandler, spanContext, true /* hasRemoteParent */, SPAN_NAME);
+    spanBuilder = new SpanBuilder(spanFactory, spanContext, true /* hasRemoteParent */, SPAN_NAME);
     when(spanFactory.startSpan(
             same(spanContext), eq(true), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
@@ -175,9 +173,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startSpanWitRemoteParent_WithNullParent() {
-    spanBuilder =
-        new SpanBuilder(
-            spanFactory, contextSpanHandler, null, true /* hasRemoteParent */, SPAN_NAME);
+    spanBuilder = new SpanBuilder(spanFactory, null, true /* hasRemoteParent */, SPAN_NAME);
     when(spanFactory.startSpan(
             isNull(SpanContext.class), eq(true), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);

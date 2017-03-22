@@ -1,9 +1,0 @@
-description = 'Instrumentation Core Context Impl'
-
-dependencies {
-    compile project(':instrumentation-core'),
-            libraries.guava,
-            libraries.errorprone,
-            libraries.jsr305,
-            libraries.grpc_context
-}

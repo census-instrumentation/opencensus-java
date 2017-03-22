@@ -4,7 +4,5 @@ dependencies {
     compile project(':instrumentation-core'),
             project(':proto'),
             libraries.disruptor,
-            libraries.guava,
-            libraries.errorprone,
-            libraries.jsr305
+            libraries.guava
 }
