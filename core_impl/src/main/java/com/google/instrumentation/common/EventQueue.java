@@ -25,13 +25,13 @@ import javax.annotation.concurrent.ThreadSafe;
 /**
  * A low-latency event queue for background updating of (possibly contended) objects. This is
  * intended for use by instrumentation methods to ensure that they do not block foreground
- * activities. To customize the action taken on reading the queue, derive a new class from
- * {@link EventQueueEntry} and pass it to the {@link #enqueue} method.  The
- * {@link EventQueueEntry#process} method of your class will be called and executed in a background
- * thread. This class is a Singleton.
+ * activities. To customize the action taken on reading the queue, derive a new class from {@link
+ * EventQueueEntry} and pass it to the {@link #enqueue} method. The {@link EventQueueEntry#process}
+ * method of your class will be called and executed in a background thread. This class is a
+ * Singleton.
  *
- * <p>Example Usage:
- * Given a class as follows:
+ * <p>Example Usage: Given a class as follows:
+ *
  * <pre>
  * public class someClass {
  *   public void doSomething() {
@@ -49,6 +49,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * </pre>
  *
  * <p>The work of calling {@code someClass.update()} can be executed in the backgound as follows:
+ *
  * <pre>
  * public class someClass {
  *   // Add a EventQueueEntry class that will process the update call.
@@ -75,21 +76,20 @@ import javax.annotation.concurrent.ThreadSafe;
  *     EventQueue.getInstance.enqueue(new SomeClassUpdateEvent(this, measurement));
  *   }
  * }
- *</pre>
+ * </pre>
  */
-
 @ThreadSafe
 public final class EventQueue {
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueueEntry.
   private static final class InstrumentationEvent {
     private EventQueueEntry entry = null;
 
-    // Set the EventQueueEntry associated with this InstrumentationEvent.
+    // Sets the EventQueueEntry associated with this InstrumentationEvent.
     void setEntry(EventQueueEntry entry) {
       this.entry = entry;
     }
 
-    // Get the EventQueueEntry associated with this InstrumentationEvent.
+    // Returns the EventQueueEntry associated with this InstrumentationEvent.
     EventQueueEntry getEntry() {
       return entry;
     }
@@ -104,10 +104,8 @@ public final class EventQueue {
     }
   }
 
-  /**
-   * Every event that gets added to {@link EventQueue} will get processed here. Just calls the
-   * underlying process() method.
-   */
+  // Every event that gets added to {@link EventQueue} will get processed here. Just calls the
+  // underlying process() method.
   private static final class InstrumentationEventHandler
       implements EventHandler<InstrumentationEvent> {
     @Override
@@ -133,15 +131,21 @@ public final class EventQueue {
     final int bufferSize = 8192;
     // Create new Disruptor for processing. Note that this uses a single thread for processing; this
     // ensures that the event handler can take unsynchronized actions whenever possible.
-    disruptor = new Disruptor<InstrumentationEvent>(new InstrumentationEventFactory(), bufferSize,
-        Executors.newSingleThreadExecutor(), ProducerType.MULTI, new SleepingWaitStrategy());
+    disruptor =
+        new Disruptor<InstrumentationEvent>(
+            new InstrumentationEventFactory(),
+            bufferSize,
+            Executors.newSingleThreadExecutor(),
+            ProducerType.MULTI,
+            new SleepingWaitStrategy());
     disruptor.handleEventsWith(new InstrumentationEventHandler());
     disruptor.start();
     ringBuffer = disruptor.getRingBuffer();
   }
 
   /**
-   * Get the {@link EventQueue} instance.
+   * Returns the {@link EventQueue} instance.
+   *
    * @return the singleton {@code EventQueue} instance.
    */
   public static EventQueue getInstance() {

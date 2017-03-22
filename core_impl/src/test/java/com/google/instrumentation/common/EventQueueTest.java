@@ -19,29 +19,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Unit tests for {@link EventQueue}.
- */
+/** Unit tests for {@link EventQueue}. */
 @RunWith(JUnit4.class)
 public class EventQueueTest {
-  /**
-   * Simple class to use that keeps an incrementing counter. Will fail with an assertion if
-   * increment is used from multiple threads, or if the stored value is different from that expected
-   * by the caller.
-   */
+  // Simple class to use that keeps an incrementing counter. Will fail with an assertion if
+  // increment is used from multiple threads, or if the stored value is different from that expected
+  // by the caller.
   private static class Counter {
     private int count;
-    private volatile long id;  // stores thread ID used in first increment operation.
+    private volatile long id; // stores thread ID used in first increment operation.
 
     public Counter() {
       count = 0;
       id = -1;
     }
 
-    /**
-     * Increment counter by 1. Will fail in assertion if multiple different threads are used
-     * (the {@link EventQueue} backend should be single-threaded).
-     */
+    // Increments counter by 1. Will fail in assertion if multiple different threads are used
+    // (the EventQueue backend should be single-threaded).
     public void increment() {
       long tid = Thread.currentThread().getId();
       if (id == -1) {
@@ -53,17 +47,13 @@ public class EventQueueTest {
       count++;
     }
 
-    /**
-     * Check the current value of the counter. Assert if it is not the expected value.
-     */
+    // Check the current value of the counter. Assert if it is not the expected value.
     public void check(int value) {
       assertThat(count).isEqualTo(value);
     }
   }
 
-  /**
-   * {@link EventQueueEntry} for incrementing a {@link Counter}.
-   */
+  // EventQueueEntry for incrementing a Counter.
   private static class IncrementEvent implements EventQueueEntry {
     private final Counter counter;
 
@@ -77,7 +67,8 @@ public class EventQueueTest {
     }
   }
 
-  @Test public void incrementOnce() {
+  @Test
+  public void incrementOnce() {
     Counter counter = new Counter();
     IncrementEvent ie = new IncrementEvent(counter);
     EventQueue.getInstance().enqueue(ie);
@@ -90,7 +81,8 @@ public class EventQueueTest {
     counter.check(1);
   }
 
-  @Test public void incrementTenK() {
+  @Test
+  public void incrementTenK() {
     final int tenK = 10000;
     Counter counter = new Counter();
     for (int i = 0; i < tenK; i++) {
