@@ -7,4 +7,6 @@ dependencies {
 
     testCompile project(':instrumentation-core-impl'),
             libraries.grpc_context
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
 }

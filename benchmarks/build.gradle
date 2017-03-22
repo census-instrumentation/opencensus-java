@@ -29,3 +29,6 @@ dependencies {
 compileJmhJava {
     options.compilerArgs = compileJava.options.compilerArgs
 }
+
+// Disable checkstyle if not java8.
+checkstyleJmh.enabled = JavaVersion.current().isJava8Compatible()
