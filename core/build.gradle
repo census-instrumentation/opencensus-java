@@ -2,9 +2,11 @@ description = 'Instrumentation: Core'
 
 dependencies {
     compile project(':shared'),
+            libraries.grpc_context,
             libraries.guava,
             libraries.errorprone,
             libraries.jsr305
 
-    testCompile project(':instrumentation-core-impl')
+    testCompile project(':instrumentation-core-impl'),
+            libraries.grpc_context
 }

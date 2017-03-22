@@ -13,9 +13,9 @@
 
 package com.google.instrumentation.trace;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
 import org.junit.Before;
@@ -28,11 +28,8 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link ScopedSpanHandle}. */
 @RunWith(JUnit4.class)
 public class ScopedSpanHandleTest {
+  private static final Tracer tracer = Tracer.getTracer();
   @Mock private Span span;
-
-  @Mock private ContextSpanHandler csh;
-
-  @Mock private NonThrowingCloseable ntc;
 
   @Before
   public void setUp() {
@@ -41,11 +38,14 @@ public class ScopedSpanHandleTest {
 
   @Test
   public void initAttachesSpan_CloseDetachesAndEndsSpan() {
-    when(csh.withSpan(same(span))).thenReturn(ntc);
-    try (NonThrowingCloseable ss = new ScopedSpanHandle(span, csh)) {
-      // Do nothing.
+    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    NonThrowingCloseable ss = new ScopedSpanHandle(span);
+    try {
+      assertThat(tracer.getCurrentSpan()).isSameAs(span);
+    } finally {
+      ss.close();
     }
-    verify(ntc).close();
+    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 }

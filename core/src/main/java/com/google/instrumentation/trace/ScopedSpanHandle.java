@@ -30,11 +30,10 @@ final class ScopedSpanHandle implements NonThrowingCloseable {
    * Creates a {@code ScopedSpanHandle}
    *
    * @param span The span that will be installed in the current context.
-   * @param contextSpanHandler The handler that is used to interact with the current context.
    */
-  ScopedSpanHandle(Span span, ContextSpanHandler contextSpanHandler) {
+  ScopedSpanHandle(Span span) {
     this.span = span;
-    this.withSpan = contextSpanHandler.withSpan(span);
+    this.withSpan = ContextUtils.withSpan(span);
   }
 
   /**

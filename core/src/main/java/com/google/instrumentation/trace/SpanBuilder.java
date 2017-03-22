@@ -22,25 +22,6 @@ import javax.annotation.Nullable;
  * {@link SpanBuilder} is used to construct {@link Span} instances which define arbitrary scopes of
  * code that are sampled for distributed tracing as a single atomic unit.
  *
- * <p>This is a simple example where all the work is being done within a single scope and the
- * Context is manually propagated:
- *
- * <pre>{@code
- * class MyClass {
- *   private static final Tracer tracer = Tracer.getTracer();
- *   void DoWork() {
- *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
- *     span.addAnnotation("my annotation");
- *     try {
- *       doSomeWork(span); // Manually propagate the new span down the stack.
- *     } finally {
- *       // To make sure we end the span even in case of an exception.
- *       span.end();  // Manually end the span.
- *     }
- *   }
- * }
- * }</pre>
- *
  * <p>This is a simple example where all the work is being done within a single scope and a single
  * thread and the Context is automatically propagated:
  *
@@ -96,20 +77,37 @@ import javax.annotation.Nullable;
  * }
  * }</pre>
  *
+ * <p>This is a simple example where all the work is being done within a single scope and the
+ * Context is manually propagated:
+ *
+ * <pre>{@code
+ * class MyClass {
+ *   private static final Tracer tracer = Tracer.getTracer();
+ *   void DoWork() {
+ *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+ *     span.addAnnotation("my annotation");
+ *     try {
+ *       doSomeWork(span); // Manually propagate the new span down the stack.
+ *     } finally {
+ *       // To make sure we end the span even in case of an exception.
+ *       span.end();  // Manually end the span.
+ *     }
+ *   }
+ * }
+ * }</pre>
+ *
  * <p>If your Java version is less than Java SE 7, see {@link SpanBuilder#startSpan} and {@link
  * SpanBuilder#startScopedSpan} for usage examples.
  */
 public final class SpanBuilder {
   private final SpanFactory spanFactory;
-  private final ContextSpanHandler contextSpanHandler;
-  private SpanContext parentSpanContext;
-  private boolean hasRemoteParent;
   private final String name;
   private final StartSpanOptions startSpanOption = new StartSpanOptions();
+  private SpanContext parentSpanContext;
+  private boolean hasRemoteParent;
 
   SpanBuilder(
       SpanFactory spanFactory,
-      ContextSpanHandler contextSpanHandler,
       SpanContext parentSpanContext,
       boolean hasRemoteParent,
       String name) {
@@ -117,7 +115,6 @@ public final class SpanBuilder {
     this.hasRemoteParent = hasRemoteParent;
     this.name = name;
     this.spanFactory = spanFactory;
-    this.contextSpanHandler = contextSpanHandler;
   }
 
   /**
@@ -273,7 +270,7 @@ public final class SpanBuilder {
    *     current Context.
    */
   public NonThrowingCloseable startScopedSpan() {
-    return new ScopedSpanHandle(start(), contextSpanHandler);
+    return new ScopedSpanHandle(start());
   }
 
   // Utility method to start a Span.

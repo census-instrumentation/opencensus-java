@@ -35,7 +35,6 @@
 
   <modules>
     <module>core</module>
-    <module>core_context_impl</module>
     <module>core_impl</module>
     <module>proto</module>
     <module>shared</module>
@@ -56,20 +55,6 @@
             <source>1.6</source>
             <target>1.6</target>
           </configuration>
-          <executions>
-            <execution>
-              <id>default-testCompile</id>
-              <phase>test-compile</phase>
-              <goals>
-                <goal>testCompile</goal>
-              </goals>
-              <configuration>
-                <!-- Tests use try-with-resources -->
-                <source>1.7</source>
-                <target>1.7</target>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -168,6 +153,11 @@
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <version>3.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-context</artifactId>
+      <version>1.1.2</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

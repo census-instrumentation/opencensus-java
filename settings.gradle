@@ -1,6 +1,5 @@
 rootProject.name = "instrumentation"
 include ":instrumentation-core"
-include ":instrumentation-core-context-impl"
 include ":instrumentation-core-impl"
 include ":instrumentation-all"
 include ":proto"
@@ -8,7 +7,6 @@ include ":shared"
 
 project(':instrumentation-all').projectDir = "$rootDir/all" as File
 project(':instrumentation-core').projectDir = "$rootDir/core" as File
-project(':instrumentation-core-context-impl').projectDir = "$rootDir/core_context_impl" as File
 project(':instrumentation-core-impl').projectDir = "$rootDir/core_impl" as File
 project(':proto').projectDir = "$rootDir/proto" as File
 project(':shared').projectDir = "$rootDir/shared" as File
