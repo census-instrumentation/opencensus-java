@@ -28,6 +28,7 @@ public final class MultiSpansTracing {
     rootSpan.end();
   }
 
+  /** Main method. */
   public static void main(String[] args) {
     doWork();
   }

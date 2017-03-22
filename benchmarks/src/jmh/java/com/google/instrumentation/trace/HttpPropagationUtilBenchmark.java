@@ -38,8 +38,11 @@ public class HttpPropagationUtilBenchmark {
   private SpanContext spanContext;
   private String spanContextStringHttp;
 
+  /**
+   * Setup function for benchmarks.
+   */
   @Setup
-  public void setUp() throws Exception {
+  public void setUp() {
     spanContext = new SpanContext(traceId, spanId, traceOptions);
     spanContextStringHttp = HttpPropagationUtil.toHttpHeaderValue(spanContext);
     spanContextBytes = new byte[16 + 8 + 4];

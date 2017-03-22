@@ -28,6 +28,7 @@ public final class BasicScopedTracing {
     tracer.getCurrentSpan().addAnnotation("This is a doWork() annotation.");
   }
 
+  /** Main method. */
   public static void main(String[] args) {
     try (NonThrowingCloseable ss =
         tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {

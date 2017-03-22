@@ -40,6 +40,7 @@ public final class MultiSpansScopedTracing {
     tracer.getCurrentSpan().addAnnotation("Annotation to the root Span after child is ended.");
   }
 
+  /** Main method. */
   public static void main(String[] args) {
     try (NonThrowingCloseable ss =
         tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {

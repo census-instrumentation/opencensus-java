@@ -1,0 +1,14 @@
+description = 'Instrumentation: Examples'
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+dependencies {
+    compile project(':instrumentation-core'),
+            project(':instrumentation-core-impl'),
+            libraries.grpc_context
+}
+
+// TODO(bdrutu): Add application plugin and create jars for each example.
