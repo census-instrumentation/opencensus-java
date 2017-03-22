@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 /**
- * Census Tag keys.
+ * Tag keys.
  *
  * <p>TagKey's are {@link String}s with enforced restrictions.
  */
