@@ -2,6 +2,7 @@ description = 'Instrumentation: Core'
 
 dependencies {
     compile project(':shared'),
+            libraries.auto_value,
             libraries.grpc_context,
             libraries.guava
 
