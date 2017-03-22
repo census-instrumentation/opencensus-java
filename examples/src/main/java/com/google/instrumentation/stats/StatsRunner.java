@@ -18,9 +18,7 @@ import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import io.grpc.Context;
 import java.util.Arrays;
 
-/**
- * Simple program that uses Stats contexts.
- */
+/** Simple program that uses Stats contexts. */
 public class StatsRunner {
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
@@ -39,6 +37,7 @@ public class StatsRunner {
   private static final MeasurementDescriptor M2 =
       MeasurementDescriptor.create("m2", "2nd test metric", simpleMeasurementUnit);
 
+  /** Main method. */
   public static void main(String[] args) {
     System.out.println("Hello Stats World");
     System.out.println("Default Tags: " + DEFAULT);
@@ -46,24 +45,25 @@ public class StatsRunner {
     Context context1 = withCurrent(DEFAULT.with(K1, V1, K2, V2));
     Context original = context1.attach();
     try {
-        System.out.println("  Current Tags: " + getCurrentStatsContext());
-        System.out.println("  Current == Default + tags1: "
-            + getCurrentStatsContext().equals(getStatsContext(context1)));
-        Context context2 = withCurrent(getCurrentStatsContext().with(K3, V3, K4, V4));
-        context2.attach();
-        try {
-          System.out.println("    Current Tags: " + getCurrentStatsContext());
-          System.out.println("    Current == Default + tags1 + tags2: "
-              + getCurrentStatsContext().equals(getStatsContext(context2)));
-          getCurrentStatsContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
-        } finally {
-          context2.detach(context1);
-        }
+      System.out.println("  Current Tags: " + getCurrentStatsContext());
+      System.out.println(
+          "  Current == Default + tags1: "
+              + getCurrentStatsContext().equals(getStatsContext(context1)));
+      Context context2 = withCurrent(getCurrentStatsContext().with(K3, V3, K4, V4));
+      context2.attach();
+      try {
+        System.out.println("    Current Tags: " + getCurrentStatsContext());
+        System.out.println(
+            "    Current == Default + tags1 + tags2: "
+                + getCurrentStatsContext().equals(getStatsContext(context2)));
+        getCurrentStatsContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
+      } finally {
+        context2.detach(context1);
+      }
     } finally {
       context1.detach(original);
     }
-    System.out.println("Current == Default: "
-        + getCurrentStatsContext().equals(DEFAULT));
+    System.out.println("Current == Default: " + getCurrentStatsContext().equals(DEFAULT));
   }
 
   private static final StatsContext DEFAULT = Stats.getStatsContextFactory().getDefault();

@@ -1,0 +1,31 @@
+description = 'Instrumentation: Benchmarks'
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.3.1"
+    }
+}
+
+apply plugin: "me.champeau.gradle.jmh"
+
+jmh {
+    jmhVersion = '1.18'
+    warmupIterations = 10
+    iterations = 10
+    fork = 1
+    jvmArgs = "-server -Xms2g -Xmx2g"
+}
+
+dependencies {
+    compile project(':instrumentation-core')
+}
+
+compileJmhJava {
+    options.compilerArgs = compileJava.options.compilerArgs
+}

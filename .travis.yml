@@ -35,9 +35,7 @@ before_install:
         curl https://storage.googleapis.com/bazel-apt/doc/apt-key.pub.gpg | sudo apt-key add - ;
         sudo apt-get update ;;
       "GRADLE")
-        mkdir -p $HOME/.gradle ;
-        echo "checkstyle.ignoreFailures=false" >> $HOME/.gradle/gradle.properties ;
-        echo "failOnWarnings=true" >> $HOME/.gradle/gradle.properties ;;
+        mkdir -p $HOME/.gradle ;;
     esac
 
 install:

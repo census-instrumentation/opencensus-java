@@ -20,6 +20,7 @@ subprojects {
     apply plugin: "jacoco"
     // TODO(bdrutu): enable all checks.
     apply plugin: "net.ltgt.errorprone"
+    apply plugin: 'findbugs'
 
     group = "com.google.instrumentation"
     version = "0.4.0-SNAPSHOT" // CURRENT_INSTRUMENTATION_VERSION
@@ -35,9 +36,7 @@ subprojects {
     [compileJava, compileTestJava].each() {
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try"]
         it.options.encoding = "UTF-8"
-        if (rootProject.hasProperty('failOnWarnings') && rootProject.failOnWarnings.toBoolean()) {
-            it.options.compilerArgs += ["-Werror"]
-        }
+        it.options.compilerArgs += ["-Werror"]
     }
 
     compileTestJava {
@@ -45,8 +44,6 @@ subprojects {
         options.compilerArgs += ["-Xlint:-serial"]
         // It undeprecates DoubleSubject.isEqualTo(Double).
         options.compilerArgs += ["-Xlint:-deprecation"]
-        sourceCompatibility = 1.7
-        targetCompatibility = 1.7
     }
 
     jar.manifest {
@@ -69,21 +66,24 @@ subprojects {
         grpcContextVersion = '1.1.2'
 
         libraries = [
-                errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
-                grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",
-                guava        : "com.google.guava:guava:${guavaVersion}",
-                jsr305       : 'com.google.code.findbugs:jsr305:3.0.0',
-                protobuf     : "com.google.protobuf:protobuf-java:${protobufVersion}",
+                errorprone     : 'com.google.errorprone:error_prone_annotations:2.0.11',
+                grpc_context   : "io.grpc:grpc-context:${grpcContextVersion}",
+                guava          : "com.google.guava:guava:${guavaVersion}",
+                jsr305         : 'com.google.code.findbugs:jsr305:3.0.0',
+                protobuf       : "com.google.protobuf:protobuf-java:${protobufVersion}",
 
                 // Test dependencies.
-                guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
-                junit        : 'junit:junit:4.11',
-                mockito      : 'org.mockito:mockito-core:1.9.5',
-                truth        : 'com.google.truth:truth:0.30',
+                guava_testlib  : "com.google.guava:guava-testlib:${guavaVersion}",
+                junit          : 'junit:junit:4.11',
+                mockito        : 'org.mockito:mockito-core:1.9.5',
+                truth          : 'com.google.truth:truth:0.30',
         ]
     }
 
     dependencies {
+        compile libraries.errorprone,
+                libraries.jsr305
+
         testCompile libraries.guava_testlib,
                 libraries.junit,
                 libraries.mockito,
@@ -93,6 +93,19 @@ subprojects {
         // build if error prone releases a new version with a new check
         errorprone 'com.google.errorprone:error_prone_core:2.0.19'
     }
+
+    findbugs {
+        toolVersion = '3.0.1'
+        ignoreFailures = false 	        // bug free or it doesn't ship!
+        effort = 'max'
+        reportLevel = 'low'		        // low = sensitive to even minor mistakes
+        omitVisitors = []		        // bugs that we want to ignore
+    }
+    // TODO(bdrutu): Enable this when the proto will generate the builds in build not in
+    // build_gradle.
+    findbugsMain.onlyIf { !name.contains("proto") }
+    // Disable findbugs for tests.
+    findbugsTest.enabled = false
 
     checkstyle {
         configFile = file("$rootDir/checkstyle.xml")
@@ -108,14 +121,14 @@ subprojects {
         // This skips proto generated files beucasue they are in gen_gradle/src/main/**
         source = fileTree(dir: "src/main", include: "**/*.java")
     }
-    checkstyleMain.onlyIf { !name.contains("proto") && !name.contains("shared")}
+    checkstyleMain.onlyIf { !name.contains("proto") && !name.contains("shared") }
 
     checkstyleTest {
         // TODO(bdrutu): Enable this when we have tests checkstyle clean.
         // source = fileTree(dir: "src/test", include: "**/*.java")
         excludes = ["**"]
     }
-    checkstyleTest.onlyIf { !name.contains("proto") && !name.contains("shared")}
+    checkstyleTest.onlyIf { !name.contains("proto") && !name.contains("shared") }
 
     // At a test failure, log the stack trace to the console so that we don't
     // have to open the HTML in a browser.
