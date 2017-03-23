@@ -37,7 +37,7 @@ public final class RpcConstants {
   private static final List<BasicUnit> scalar = Arrays.asList(BasicUnit.SCALAR);
   private static final List<BasicUnit> seconds = Arrays.asList(BasicUnit.SECONDS);
 
-  // Census defined rpc client {@link MeasurementDescriptor}s.
+  // RPC client {@link MeasurementDescriptor}s.
   public static final MeasurementDescriptor RPC_CLIENT_ERROR_COUNT =
       MeasurementDescriptor.create(
           "/rpc/client/error_count",
@@ -74,7 +74,7 @@ public final class RpcConstants {
           "Uncompressed Response bytes",
           MeasurementUnit.create(0, bytes));
 
-  // Census defined rpc server {@link MeasurementDescriptor}s.
+  // RPC server {@link MeasurementDescriptor}s.
   public static final MeasurementDescriptor RPC_SERVER_ERROR_COUNT =
       MeasurementDescriptor.create(
           "/rpc/server/error_count",
@@ -132,7 +132,7 @@ public final class RpcConstants {
           40.0, 50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
           800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0));
 
-  // Census defined rpc client {@link ViewDescriptor}s.
+  // Rpc client {@link ViewDescriptor}s.
   public static final DistributionViewDescriptor RPC_CLIENT_ERROR_COUNT_VIEW =
       DistributionViewDescriptor.create(
           "rpc client error_count",
@@ -184,7 +184,7 @@ public final class RpcConstants {
           Arrays.asList(RPC_CLIENT_METHOD));
 
 
-  // Census defined rpc server {@link ViewDescriptor}s.
+  // Rpc server {@link ViewDescriptor}s.
   public static final DistributionViewDescriptor RPC_SERVER_ERROR_COUNT_VIEW =
       DistributionViewDescriptor.create(
           "rpc server error_count",
@@ -239,7 +239,7 @@ public final class RpcConstants {
   static final Duration MINUTE = Duration.create(60, 0);
   static final Duration HOUR = Duration.create(60 * 60, 0);
 
-  // Census defined rpc client {@link IntervalViewDescriptor}s.
+  // RPC client {@link IntervalViewDescriptor}s.
   public static final IntervalViewDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc client roundtrip_latency",
@@ -296,7 +296,7 @@ public final class RpcConstants {
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
-  // Census defined rpc server {@link IntervalViewDescriptor}s.
+  // RPC server {@link IntervalViewDescriptor}s.
   public static final IntervalViewDescriptor RPC_SERVER_SERVER_LATENCY_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
           "rpc server server_latency",

@@ -122,7 +122,8 @@ public final class EventQueue {
   private final RingBuffer<InstrumentationEvent> ringBuffer;
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
-  @SuppressWarnings({"unchecked", "varargs"})  // Suppress warnings for disruptor.handleEventsWith
+  // Suppress warnings for disruptor.handleEventsWith and Disruptor constructor
+  @SuppressWarnings({"deprecation", "unchecked", "varargs"})
   private EventQueue() {
     // Number of events that can be enqueued at any one time. If more than this are enqueued,
     // then subsequent attempts to enqueue new entries will block.

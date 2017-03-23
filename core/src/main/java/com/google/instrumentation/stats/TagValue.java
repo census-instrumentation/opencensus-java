@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 /**
- * Census Tag values.
+ * Tag values.
  *
  * <p>TagValue's are {@link String}s with enforced restrictions.
  */
