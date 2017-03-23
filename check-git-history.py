@@ -4,9 +4,8 @@ import traceback
 
 def main(argv):
   try:
-    # Only check the history if the build is running on a pull request. Travis
-    # always merges pull requests into the base branch before running the build.
-    if is_merged_pull_request():
+    # Only check the history if the build is running on a pull request.
+    if is_travis_pull_request():
       # This function assumes that HEAD^1 is the base branch and HEAD^2 is the
       # pull request.
       exit_if_pull_request_has_merge_commits()
@@ -17,12 +16,9 @@ def main(argv):
     # Don't stop the build if this script has a bug.
     traceback.print_exc(e)
 
-def is_merged_pull_request():
-    '''Returns true if the current commit is a merge between a pull request and
-       an existing branch.'''
-    # When Travis merges a pull request, the commit has no branches pointing to
-    # it, and the only decoration is HEAD.
-    return read_process('git show --no-patch --format="%D"').strip() == 'HEAD'
+def is_travis_pull_request():
+  '''Returns true if TRAVIS_PULL_REQUEST is set to indicate a pull request.'''
+  return os.environ['TRAVIS_PULL_REQUEST'] != 'false'
 
 def exit_if_pull_request_has_merge_commits():
   '''Exits with an error if any of the commits added by the pull request are
