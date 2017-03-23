@@ -7,7 +7,7 @@ local.properties
 # Bazel
 bazel-*
 
-# Maven (examples)
+# Maven (proto)
 target
 
 # IntelliJ IDEA
@@ -26,6 +26,9 @@ bin
 # Emacs
 *~
 \#*\#
+
+# Vim
+.swp
 
 # Other
 TAGS

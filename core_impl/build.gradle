@@ -4,4 +4,6 @@ dependencies {
     compile project(':instrumentation-core'),
             project(':proto'),
             libraries.guava
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
 }
