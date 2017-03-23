@@ -76,11 +76,12 @@ subprojects {
         grpcContextVersion = '1.1.2'
 
         libraries = [
-                errorprone     : 'com.google.errorprone:error_prone_annotations:2.0.11',
-                grpc_context   : "io.grpc:grpc-context:${grpcContextVersion}",
-                guava          : "com.google.guava:guava:${guavaVersion}",
-                jsr305         : 'com.google.code.findbugs:jsr305:3.0.0',
-                protobuf       : "com.google.protobuf:protobuf-java:${protobufVersion}",
+                disruptor    : 'com.lmax:disruptor:3.3.6',
+                errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
+                grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",
+                guava        : "com.google.guava:guava:${guavaVersion}",
+                jsr305       : 'com.google.code.findbugs:jsr305:3.0.0',
+                protobuf     : "com.google.protobuf:protobuf-java:${protobufVersion}",
 
                 // Test dependencies.
                 guava_testlib  : "com.google.guava:guava-testlib:${guavaVersion}",
