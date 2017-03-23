@@ -10,7 +10,7 @@
 # limitations under the License.
 
 # Description:
-#   Open source Census for cloud services.
+#   Open source Instrumentation for cloud services.
 
 java_library(
     name = "common-core",

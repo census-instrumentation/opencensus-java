@@ -8,7 +8,7 @@ We commonly need to know what platform you are on:
 
 # How to contribute
 
-We definitely welcome patches and contributions to Census! Here are some
+We definitely welcome patches and contributions to Instrumentation! Here are some
 guideline and information about how to do so.
 
 ## Before getting started
@@ -30,4 +30,4 @@ Style, and set the Scheme to `GoogleStyle`.
 
 Make sure that `bazel build :all` completes successfully without any new warnings.
 Then create a Pull Request with your changes. When the changes are accepted, they
-will be merged or cherry-picked by a Census core developer.
+will be merged or cherry-picked by an Instrumentation core developer.

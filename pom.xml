@@ -9,7 +9,7 @@
   <artifactId>census-parent</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
-  <name>Census Java</name>
+  <name>Instrumentation Java</name>
 
   <description>
     Instrumentation provides a library that includes functionality for tracing,

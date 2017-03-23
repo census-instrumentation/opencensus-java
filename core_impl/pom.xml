@@ -7,7 +7,7 @@
 
   <artifactId>census-core_impl</artifactId>
 
-  <name>Census Java Core Impl</name>
+  <name>Instrumentation Java Core Impl</name>
   <url>https://github.com/google/instrumentation-java</url>
 
   <parent>
