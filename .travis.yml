@@ -20,7 +20,10 @@ before_install:
         curl https://storage.googleapis.com/bazel-apt/doc/apt-key.pub.gpg | sudo apt-key add - ;
         sudo apt-get update ;;
       "GRADLE")
-        mkdir -p $HOME/.gradle ;;
+        mkdir -p $HOME/.gradle ;
+        cat gradle/errorprone/warnings > $HOME/.gradle/gradle.properties ;
+        cat gradle/errorprone/experimental_errors >> $HOME/.gradle/gradle.properties ;
+        cat gradle/errorprone/experimental_warnings  >> $HOME/.gradle/gradle.properties ;;
     esac
 
 install:
@@ -62,10 +65,10 @@ script:
     esac
 
 after_success:
-  - if \[ "$BUILD" = "GRADLE" &&  "$TRAVIS_JDK_VERSION" == "oraclejdk8"\]; then
+  - if \[ "$BUILD" = "GRADLE" \] &&  \[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" \]; then
     ./gradlew :instrumentation-all:coveralls --stacktrace ;
     bash <(curl -s https://codecov.io/bash) ;
-    fi ;;
+    fi
 
 before_cache:
   - rm -fr $HOME/.gradle/caches/modules-2/modules-2.lock
