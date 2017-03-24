@@ -23,7 +23,7 @@ jmh {
 }
 
 dependencies {
-    compile project(':instrumentation-core')
+    compile project(':instrumentation-java-core')
 }
 
 compileJmhJava {

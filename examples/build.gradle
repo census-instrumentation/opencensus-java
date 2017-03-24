@@ -6,8 +6,8 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    compile project(':instrumentation-core'),
-            project(':instrumentation-core-impl'),
+    compile project(':instrumentation-java-core'),
+            project(':instrumentation-java-core-impl'),
             libraries.grpc_context
 }
 

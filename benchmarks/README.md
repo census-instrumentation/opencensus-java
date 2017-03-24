@@ -1,8 +1,7 @@
-Instrumentation Benchmarks
-==============================================
+# Instrumentation Benchmarks
 
 ## To run the benchmark type
 
 ```
-$ ./gradlew :instrumentation-benchmarks:jmh
+$ ./gradlew :instrumentation-java-benchmarks:jmh
 ```
