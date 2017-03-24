@@ -31,11 +31,11 @@ public class BlankSpanTest {
   @Test
   public void doNotCrash() {
     // Tests only that all the methods are not crashing/throwing errors.
-    BlankSpan.INSTANCE.addLabels(
-        Labels.builder().putStringLabel("MyLabelKey", "MyLabelValue").build());
+    BlankSpan.INSTANCE.addAttributes(
+        Attributes.builder().putStringAttribute("MyAttributeKey", "MyAttributeValue").build());
     BlankSpan.INSTANCE.addAnnotation("MyAnnotation");
     BlankSpan.INSTANCE.addAnnotation(
-        "MyAnnotation", Labels.builder().putStringLabel("MyLabelKey", "MyLabelValue").build());
+        "MyAnnotation", Attributes.builder().putStringAttribute("MyAttributeKey", "MyAttributeValue").build());
     BlankSpan.INSTANCE.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).build());
     BlankSpan.INSTANCE.addChildLink(BlankSpan.INSTANCE);
     BlankSpan.INSTANCE.end(EndSpanOptions.DEFAULT);

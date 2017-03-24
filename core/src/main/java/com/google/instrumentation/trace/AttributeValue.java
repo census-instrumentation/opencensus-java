@@ -19,38 +19,39 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents all the possible values for a label in {@link Labels}.. A label can have
- * 3 types of values: {@link String}, {@link Boolean} or {@link Long}.
+ * A class that represents all the possible values for an attribute in {@link Attributes}. A
+ * attribute can have 3 types of values: {@code String}, {@code Boolean} or {@code Long}.
  */
 @Immutable
-public final class LabelValue {
+public final class AttributeValue {
   private final String stringValue;
   private final Boolean booleanValue;
   private final Long longValue;
 
-  static LabelValue stringLabelValue(String stringValue) {
-    return new LabelValue(stringValue, null, null);
+  static AttributeValue stringAttributeValue(String stringValue) {
+    return new AttributeValue(stringValue, null, null);
   }
 
-  static LabelValue booleanLabelValue(boolean booleanValue) {
-    return new LabelValue(null, booleanValue, null);
+  static AttributeValue booleanAttributeValue(boolean booleanValue) {
+    return new AttributeValue(null, booleanValue, null);
   }
 
-  static LabelValue longLabelValue(long longValue) {
-    return new LabelValue(null, null, longValue);
+  static AttributeValue longAttributeValue(long longValue) {
+    return new AttributeValue(null, null, longValue);
   }
 
-  private LabelValue(String stringValue, Boolean booleanValue, Long longValue) {
+  private AttributeValue(
+      @Nullable String stringValue, @Nullable Boolean booleanValue, @Nullable Long longValue) {
     this.stringValue = stringValue;
     this.booleanValue = booleanValue;
     this.longValue = longValue;
   }
 
   /**
-   * Returns the {@link String} value if this is a string {@code LabelValue}, otherwise {@code
+   * Returns the {@code String} value if this is a string {@code AttributeValue}, otherwise {@code
    * null}.
    *
-   * @return the {@link String} value if this is a string {@code LabelValue}, otherwise {@code
+   * @return the {@code String} value if this is a string {@code AttributeValue}, otherwise {@code
    *     null}.
    */
   @Nullable
@@ -59,10 +60,10 @@ public final class LabelValue {
   }
 
   /**
-   * Returns the {@link Boolean} value if this is a boolean {@code LabelValue}, otherwise {@code
+   * Returns the {@code Boolean} value if this is a boolean {@code AttributeValue}, otherwise {@code
    * null}.
    *
-   * @return the {@link Boolean} value if this is a boolean {@code LabelValue}, otherwise {@code
+   * @return the {@code Boolean} value if this is a boolean {@code AttributeValue}, otherwise {@code
    *     null}.
    */
   @Nullable
@@ -71,9 +72,11 @@ public final class LabelValue {
   }
 
   /**
-   * Returns the {@link Long} value if this is a long {@code LabelValue}, otherwise {@code null}.
+   * Returns the {@code Long} value if this is a long {@code AttributeValue}, otherwise {@code
+   * null}.
    *
-   * @return the {@link Long} value if this is a long {@code LabelValue}, otherwise {@code null}.
+   * @return the {@code Long} value if this is a long {@code AttributeValue}, otherwise {@code
+   *     null}.
    */
   @Nullable
   public Long getLongValue() {
@@ -86,11 +89,11 @@ public final class LabelValue {
       return true;
     }
 
-    if (!(obj instanceof LabelValue)) {
+    if (!(obj instanceof AttributeValue)) {
       return false;
     }
 
-    LabelValue that = (LabelValue) obj;
+    AttributeValue that = (AttributeValue) obj;
     return Objects.equal(stringValue, that.stringValue)
         && Objects.equal(booleanValue, that.booleanValue)
         && Objects.equal(longValue, that.longValue);
@@ -120,6 +123,6 @@ public final class LabelValue {
           .toString();
     }
     // This should never happen
-    throw new RuntimeException("Not a supported label value");
+    throw new RuntimeException("Not a supported attribute value");
   }
 }
