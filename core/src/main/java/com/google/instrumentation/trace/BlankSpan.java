@@ -30,17 +30,17 @@ public final class BlankSpan extends Span {
     super(SpanContext.INVALID, null);
   }
 
-  /** No-op implementation of the {@link Span#addLabels(Labels)} method. */
+  /** No-op implementation of the {@link Span#addAttributes(Attributes)} method. */
   @Override
-  public void addLabels(Labels labels) {}
+  public void addAttributes(Attributes attributes) {}
 
   /** No-op implementation of the {@link Span#addAnnotation(String)} method. */
   @Override
   public void addAnnotation(String description) {}
 
-  /** No-op implementation of the {@link Span#addAnnotation(String, Labels)} method. */
+  /** No-op implementation of the {@link Span#addAnnotation(String, Attributes)} method. */
   @Override
-  public void addAnnotation(String description, Labels labels) {}
+  public void addAnnotation(String description, Attributes attributes) {}
 
   /** No-op implementation of the {@link Span#addNetworkEvent(NetworkEvent)} method. */
   @Override

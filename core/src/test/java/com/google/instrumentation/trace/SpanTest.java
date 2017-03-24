@@ -91,13 +91,13 @@ public class SpanTest {
     }
 
     @Override
-    public void addLabels(Labels labels) {}
+    public void addAttributes(Attributes attributes) {}
 
     @Override
     public void addAnnotation(String description) {}
 
     @Override
-    public void addAnnotation(String description, Labels labels) {}
+    public void addAnnotation(String description, Attributes attributes) {}
 
     @Override
     public void addNetworkEvent(NetworkEvent networkEvent) {}

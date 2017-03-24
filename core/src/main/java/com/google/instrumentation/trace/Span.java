@@ -71,11 +71,11 @@ public abstract class Span {
   }
 
   /**
-   * Adds a set of labels to the {@code Span}.
+   * Adds a set of attributes to the {@code Span}.
    *
-   * @param labels The labels that will be added and associated with the {@code Span}.
+   * @param attributes The attributes that will be added and associated with the {@code Span}.
    */
-  public abstract void addLabels(Labels labels);
+  public abstract void addAttributes(Attributes attributes);
 
   /**
    * Adds an annotation to the {@code Span}.
@@ -88,10 +88,10 @@ public abstract class Span {
    * Adds an annotation to the {@code Span}.
    *
    * @param description The description of the annotation time event.
-   * @param labels The labels that will be added; these are associated with this annotation, not the
-   *     {@code Span} as for {@link #addLabels}.
+   * @param attributes The attributes that will be added; these are associated with this annotation,
+   *     not the {@code Span} as for {@link #addAttributes}.
    */
-  public abstract void addAnnotation(String description, Labels labels);
+  public abstract void addAnnotation(String description, Attributes attributes);
 
   /**
    * Adds a NetworkEvent to the {@code Span}.
