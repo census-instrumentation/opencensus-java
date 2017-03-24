@@ -3,13 +3,14 @@
 If you received an error message, please include it and any exceptions.
 
 We commonly need to know what platform you are on:
- * JDK/JRE version (i.e., ```java -version```)
- * Operating system (i.e., ```uname -a```)
+
+*   JDK/JRE version (i.e., `java -version`)
+*   Operating system (i.e., `uname -a`)
 
 # How to contribute
 
-We definitely welcome patches and contributions to Instrumentation! Here are some
-guideline and information about how to do so.
+We definitely welcome patches and contributions to Instrumentation! Here are
+some guidelines and information about how to do so.
 
 ## Before getting started
 
@@ -28,6 +29,7 @@ Style, and set the Scheme to `GoogleStyle`.
 
 ## Proposing changes
 
-Make sure that `bazel build :all` completes successfully without any new warnings.
-Then create a Pull Request with your changes. When the changes are accepted, they
-will be merged or cherry-picked by an Instrumentation core developer.
+Make sure that `./gradlew clean assemble check` completes successfully without
+any new warnings. Then create a Pull Request with your changes. When the changes
+are accepted, they will be merged or cherry-picked by an Instrumentation core
+developer.
