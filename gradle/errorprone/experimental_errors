@@ -1,0 +1,27 @@
+errorProneExperimentalErrors = \
+-Xep:ArgumentParameterSwap:ERROR,\
+-Xep:AssistedInjectAndInjectOnSameConstructor:ERROR,\
+-Xep:AutoFactoryAtInject:ERROR,\
+-Xep:ClassName:ERROR,\
+-Xep:ComparisonContractViolated:ERROR,\
+-Xep:DepAnn:ERROR,\
+-Xep:DivZero:ERROR,\
+-Xep:EmptyIf:ERROR,\
+-Xep:InjectInvalidTargetingOnScopingAnnotation:ERROR,\
+-Xep:InjectMoreThanOneQualifier:ERROR,\
+-Xep:InjectScopeAnnotationOnInterfaceOrAbstractClass:ERROR,\
+-Xep:InjectScopeOrQualifierAnnotationRetention:ERROR,\
+-Xep:InjectedConstructorAnnotations:ERROR,\
+-Xep:InsecureCryptoUsage:ERROR,\
+-Xep:JMockTestWithoutRunWithOrRuleAnnotation:ERROR,\
+-Xep:JavaxInjectOnFinalField:ERROR,\
+-Xep:LockMethodChecker:ERROR,\
+-Xep:LongLiteralLowerCaseSuffix:ERROR,\
+-Xep:NoAllocation:ERROR,\
+-Xep:NonRuntimeAnnotation:ERROR,\
+-Xep:NumericEquality:ERROR,\
+-Xep:ParameterPackage:OFF,\
+-Xep:ProtoStringFieldReferenceEquality:ERROR,\
+-Xep:QualifierOnMethodWithoutProvides:ERROR,\
+-Xep:StaticOrDefaultInterfaceMethod:ERROR,\
+-Xep:UnlockMethod:ERROR

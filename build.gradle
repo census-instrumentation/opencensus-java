@@ -41,6 +41,25 @@ subprojects {
 
     [compileJava, compileTestJava].each() {
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try"]
+        // Disable errorprone for proto because we cannot control the generated code.
+        if (JavaVersion.current().isJava8Compatible() && !name.contains("proto")) {
+            // TODO(bdrutu): Read files directly instead of reading from properties.
+            if (rootProject.hasProperty("errorProneWarnings")) {
+                it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
+                    it as String
+                }
+            }
+            if (rootProject.hasProperty("errorProneExperimentalErrors")) {
+                it.options.compilerArgs += rootProject.properties["errorProneExperimentalErrors"].split(',').collect {
+                    it as String
+                }
+            }
+            if (rootProject.hasProperty("errorProneExperimentalWarnings")) {
+                it.options.compilerArgs += rootProject.properties["errorProneExperimentalWarnings"].split(',').collect {
+                    it as String
+                }
+            }
+        }
         it.options.encoding = "UTF-8"
         // TODO(bdrutu): Enable when fix the issue with configuring bootstrap class.
         // [options] bootstrap class path not set in conjunction with -source 1.6

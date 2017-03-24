@@ -1,0 +1,19 @@
+errorProneExperimentalWarnings = \
+-Xep:ArgumentParameterMismatch:ERROR,\
+-Xep:AssertFalse:ERROR,\
+-Xep:AssistedInjectAndInjectOnConstructors:ERROR,\
+-Xep:BigDecimalLiteralDouble:ERROR,\
+-Xep:BindingToUnqualifiedCommonType:ERROR,\
+-Xep:EmptyTopLevelDeclaration:ERROR,\
+-Xep:ExpectedExceptionChecker:ERROR,\
+-Xep:HardCodedSdCardPath:ERROR,\
+-Xep:MissingDefault:OFF,\
+-Xep:NonCanonicalStaticMemberImport:ERROR,\
+-Xep:PrimitiveArrayPassedToVarargsMethod:ERROR,\
+-Xep:QualifierWithTypeUse:ERROR,\
+-Xep:RedundantThrows:ERROR,\
+-Xep:StaticQualifiedUsingExpression:ERROR,\
+-Xep:StringEquality:ERROR,\
+-Xep:TestExceptionChecker:ERROR,\
+-Xep:UnnecessaryDefaultInEnumSwitch:ERROR,\
+-Xep:Var:OFF
