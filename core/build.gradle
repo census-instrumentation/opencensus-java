@@ -5,7 +5,7 @@ dependencies {
             libraries.grpc_context,
             libraries.guava
 
-    testCompile project(':instrumentation-core-impl'),
+    testCompile project(':instrumentation-java-core-impl'),
             libraries.grpc_context
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
