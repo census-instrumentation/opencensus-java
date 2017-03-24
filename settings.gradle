@@ -3,6 +3,7 @@ include ":instrumentation-java-all"
 include ":instrumentation-java-benchmarks"
 include ":instrumentation-java-core"
 include ":instrumentation-java-core-impl"
+include ":instrumentation-java-core-util"
 include ":proto"
 include ":shared"
 
@@ -10,6 +11,7 @@ project(':instrumentation-java-all').projectDir = "$rootDir/all" as File
 project(':instrumentation-java-benchmarks').projectDir = "$rootDir/benchmarks" as File
 project(':instrumentation-java-core').projectDir = "$rootDir/core" as File
 project(':instrumentation-java-core-impl').projectDir = "$rootDir/core_impl" as File
+project(':instrumentation-java-core-util').projectDir = "$rootDir/util" as File
 project(':proto').projectDir = "$rootDir/proto" as File
 project(':shared').projectDir = "$rootDir/shared" as File
 

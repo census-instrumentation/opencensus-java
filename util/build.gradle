@@ -1,0 +1,10 @@
+description = 'Instrumentation Core Util'
+
+dependencies {
+    compile project(':instrumentation-java-core'),
+            project(':proto'),
+            libraries.disruptor,
+            libraries.guava
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}
