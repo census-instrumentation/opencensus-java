@@ -3,18 +3,14 @@ import sys
 import traceback
 
 def main(argv):
-  try:
-    # Only check the history if the build is running on a pull request.
-    if is_travis_pull_request():
-      # This function assumes that HEAD^1 is the base branch and HEAD^2 is the
-      # pull request.
-      exit_if_pull_request_has_merge_commits()
-      print 'Checked pull request history.'
-    else:
-      print 'Skipped history check.'
-  except Exception as e:
-    # Don't stop the build if this script has a bug.
-    traceback.print_exc(e)
+  # Only check the history if the build is running on a pull request.
+  if is_travis_pull_request():
+    # This function assumes that HEAD^1 is the base branch and HEAD^2 is the
+    # pull request.
+    exit_if_pull_request_has_merge_commits()
+    print 'Checked pull request history.'
+  else:
+    print 'Skipped history check.'
 
 def is_travis_pull_request():
   '''Returns true if TRAVIS_PULL_REQUEST is set to indicate a pull request.'''
