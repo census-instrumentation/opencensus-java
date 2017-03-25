@@ -8,7 +8,7 @@ def main(argv):
     # This function assumes that HEAD^1 is the base branch and HEAD^2 is the
     # pull request.
     exit_if_pull_request_has_merge_commits()
-    print 'Checked pull request history.'
+    print 'Checked pull request history: SUCCEEDED'
   else:
     print 'Skipped history check.'
 
@@ -27,6 +27,7 @@ def exit_if_pull_request_has_merge_commits():
     if len(parents) > 1:
       print 'Pull request contains a merge commit:'
       print_history()
+      print 'Checked pull request history: FAILED'
       sys.exit(1)
 
 def print_history():
