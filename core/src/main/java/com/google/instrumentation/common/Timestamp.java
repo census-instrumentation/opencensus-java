@@ -13,8 +13,6 @@
 
 package com.google.instrumentation.common;
 
-import com.google.common.math.LongMath;
-import java.math.RoundingMode;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -30,7 +28,7 @@ public final class Timestamp {
   private static final int MAX_NANOS = 999999999;
   private static final long NUM_MILLIS_PER_SECOND = 1000L;
   private static final int NUM_NANOS_PER_MILLI = 1000 * 1000;
-  private static final long NUM_NANOS_PER_SECOND = NUM_MILLIS_PER_SECOND * NUM_NANOS_PER_MILLI;
+  private static final long NUM_NANOS_PER_SECOND = NUM_NANOS_PER_MILLI * NUM_MILLIS_PER_SECOND;
   private final long seconds;
   private final int nanos;
 
@@ -63,9 +61,9 @@ public final class Timestamp {
   }
 
   /**
-   * Creates a new timestamp from given milliseconds.
+   * Creates a new timestamp from the given milliseconds.
    *
-   * @return a new timestamp from
+   * @return a new timestamp from the given milliseconds.
    */
   public static Timestamp fromMillis(long millis) {
     long seconds = millis / NUM_MILLIS_PER_SECOND;
@@ -97,14 +95,20 @@ public final class Timestamp {
   }
 
   /**
-   * Returns the {@code Timestamp} calculated as this {@code Timestamp} plus {@code nanos}.
+   * Returns a {@code Timestamp} calculated as this {@code Timestamp} plus some number of
+   * nanoseconds.
    *
    * @param nanos the nanoseconds to be added to the current timestamp.
-   * @return the {@code Timestamp} calculated as this {@code Timestamp} plus {@code nanos}.
+   * @return a {@code Timestamp} calculated as this {@code Timestamp} plus some number of
+   *     nanoseconds.
    */
   public Timestamp addNanos(long nanos) {
+    long newSeconds = seconds + nanos / NUM_NANOS_PER_SECOND;
+    nanos %= NUM_NANOS_PER_SECOND;
+    // Cannot overflow because: abs(nanos) < NUM_NANOS_PER_SECOND AND
+    // this.nanos < NUM_NANOS_PER_SECOND.
     long newNanos = nanos + this.nanos;
-    long newSeconds = seconds + (newNanos / NUM_NANOS_PER_SECOND);
+    newSeconds += (newNanos / NUM_NANOS_PER_SECOND);
     newNanos %= NUM_NANOS_PER_SECOND;
     if (newNanos >= 0) {
       return Timestamp.create(newSeconds, (int) newNanos);

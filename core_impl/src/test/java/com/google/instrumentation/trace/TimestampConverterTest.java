@@ -20,22 +20,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TimeConverter}. */
+/** Unit tests for {@link TimestampConverter}. */
 @RunWith(JUnit4.class)
-public class TimeConverterTest {
+public class TimestampConverterTest {
   @Test
-  public void convertTime_WithTimestamp() {
-    TimeConverter timeConverter = TimeConverter.now();
-    Timestamp timestamp = Timestamp.create(1234, 0);
-    Time time = Time.withTimestamp(timestamp);
-    assertThat(timeConverter.convert(time)).isEqualTo(timestamp);
-  }
-
-  @Test
-  public void convertTime_WithNanoTime() {
-    Timestamp timestamp = Timestamp.create(1234, 0);
-    TimeConverter timeConverter = new TimeConverter(timestamp, 1000);
-    assertThat(timeConverter.convert(Time.withNanoTime(1234))).isEqualTo(timestamp.addNanos(-234));
-    assertThat(timeConverter.convert(Time.withNanoTime(678))).isEqualTo(timestamp.addNanos(322));
+  public void convertNanoTime() {
+    Timestamp timestamp = Timestamp.create(1234, 5678);
+    TimestampConverter timeConverter = new TimestampConverter(timestamp, 2345);
+    assertThat(timeConverter.convertNanoTime(1234)).isEqualTo(timestamp.addNanos(-1111));
+    assertThat(timeConverter.convertNanoTime(3456)).isEqualTo(timestamp.addNanos(1111));
   }
 }

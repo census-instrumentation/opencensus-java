@@ -19,36 +19,31 @@ import com.google.instrumentation.common.TimestampFactory;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * This class provides a mechanism for converting {@link Time} values to {@link Timestamp}. An
- * instance of this class in initialized with a pair of timestamp/nanoTime measurements that wre
- * taken at approximately the same time.
+ * This class provides a mechanism for converting {@link System#nanoTime() nanoTime} values to
+ * {@link Timestamp}.
  */
 @Immutable
-final class TimeConverter {
+final class TimestampConverter {
   private final Timestamp timestamp;
   private final long nanoTime;
 
-  static TimeConverter now() {
-    return new TimeConverter(TimestampFactory.now(), System.nanoTime());
+  // Returns a WallTimeConverter initialized to now.
+  static TimestampConverter now() {
+    return new TimestampConverter(TimestampFactory.now(), System.nanoTime());
   }
 
   /**
-   * Converts a {@link Time} value to {@link Timestamp}. If the given {@code Time} has a {@code
-   * Timestamp} it returns it otherwise converts the nanoTime to a {@code Timestamp} using this
-   * converter.
+   * Converts a {@link System#nanoTime() nanoTime} value to {@link Timestamp}.
    *
-   * @param time value to convert.
+   * @param nanoTime value to convert.
    * @return the {@code Timestamp} representation of the {@code time}.
    */
-  Timestamp convert(Time time) {
-    if (time.hasTimestamp()) {
-      return time.getTimestamp();
-    }
-    return timestamp.addNanos(nanoTime - time.getNanoTime());
+  Timestamp convertNanoTime(long nanoTime) {
+    return timestamp.addNanos(nanoTime - this.nanoTime);
   }
 
   @VisibleForTesting
-  TimeConverter(Timestamp timestamp, long nanoTime) {
+  TimestampConverter(Timestamp timestamp, long nanoTime) {
     this.timestamp = timestamp;
     this.nanoTime = nanoTime;
   }

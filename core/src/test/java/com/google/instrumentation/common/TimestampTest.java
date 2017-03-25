@@ -15,14 +15,10 @@ public class TimestampTest {
     assertThat(Timestamp.create(24, 42).getNanos()).isEqualTo(42);
     assertThat(Timestamp.create(-24, 42).getSeconds()).isEqualTo(-24);
     assertThat(Timestamp.create(-24, 42).getNanos()).isEqualTo(42);
-    assertThat(Timestamp.create(315576000000L, 999999999).getSeconds())
-        .isEqualTo(315576000000L);
-    assertThat(Timestamp.create(315576000000L, 999999999).getNanos())
-        .isEqualTo(999999999);
-    assertThat(Timestamp.create(-315576000000L, 999999999).getSeconds())
-        .isEqualTo(-315576000000L);
-    assertThat(Timestamp.create(-315576000000L, 999999999).getNanos())
-        .isEqualTo(999999999);
+    assertThat(Timestamp.create(315576000000L, 999999999).getSeconds()).isEqualTo(315576000000L);
+    assertThat(Timestamp.create(315576000000L, 999999999).getNanos()).isEqualTo(999999999);
+    assertThat(Timestamp.create(-315576000000L, 999999999).getSeconds()).isEqualTo(-315576000000L);
+    assertThat(Timestamp.create(-315576000000L, 999999999).getNanos()).isEqualTo(999999999);
   }
 
   @Test
@@ -57,6 +53,8 @@ public class TimestampTest {
     assertThat(timestamp.addNanos(1300200500)).isEqualTo(Timestamp.create(1235, 300200723));
     assertThat(timestamp.addNanos(1999999777)).isEqualTo(Timestamp.create(1236, 0));
     assertThat(timestamp.addNanos(9876543789L)).isEqualTo(Timestamp.create(1243, 876544012));
+    assertThat(timestamp.addNanos(Long.MAX_VALUE))
+        .isEqualTo(Timestamp.create(1234L + 9223372036L, 223 + 854775807));
   }
 
   @Test
@@ -66,6 +64,8 @@ public class TimestampTest {
     assertThat(timestamp.addNanos(-1000000223)).isEqualTo(Timestamp.create(1233, 0));
     assertThat(timestamp.addNanos(-1300200500)).isEqualTo(Timestamp.create(1232, 699799723));
     assertThat(timestamp.addNanos(-4123456213L)).isEqualTo(Timestamp.create(1229, 876544010));
+    assertThat(timestamp.addNanos(Long.MIN_VALUE))
+        .isEqualTo(Timestamp.create(1234L - 9223372036L - 1, 223 + 145224192));
   }
 
   @Test
