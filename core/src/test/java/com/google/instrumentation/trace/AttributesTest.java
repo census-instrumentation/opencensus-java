@@ -15,6 +15,8 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -25,11 +27,34 @@ public class AttributesTest {
   @Test
   public void putStringAttribute() {
     Attributes attributes =
-        Attributes.builder().putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue").build();
+        Attributes.builder()
+            .putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue")
+            .build();
     assertThat(attributes.getAll().size()).isEqualTo(1);
     assertThat(attributes.getAll().containsKey("MyStringAttributeKey")).isTrue();
     assertThat(attributes.getAttributeValue("MyStringAttributeKey"))
         .isEqualTo(AttributeValue.stringAttributeValue("MyStringAttributeValue"));
+  }
+
+  @Test
+  public void emptyAttributes() {
+    assertThat(Attributes.EMPTY.getAll().size()).isEqualTo(0);
+    assertThat(Attributes.builder().build().getAll().size()).isEqualTo(0);
+  }
+
+  @Test
+  public void fromMap() {
+    Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+    attributes.put(
+        "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
+    attributes.put("MyBooleanAttributeKey", AttributeValue.booleanAttributeValue(true));
+    attributes.put("MyLongAttributeKey", AttributeValue.longAttributeValue(123));
+    assertThat(Attributes.fromMap(attributes).getAll()).isEqualTo(attributes);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void fromMap_NullRepresentation() {
+    Attributes.fromMap(null);
   }
 
   @Test(expected = NullPointerException.class)
@@ -44,7 +69,8 @@ public class AttributesTest {
 
   @Test
   public void putBooleanAttribute() {
-    Attributes attributes = Attributes.builder().putBooleanAttribute("MyBooleanAttributeKey", true).build();
+    Attributes attributes =
+        Attributes.builder().putBooleanAttribute("MyBooleanAttributeKey", true).build();
     assertThat(attributes.getAll().size()).isEqualTo(1);
     assertThat(attributes.getAll().containsKey("MyBooleanAttributeKey")).isTrue();
     assertThat(attributes.getAttributeValue("MyBooleanAttributeKey"))
@@ -58,10 +84,12 @@ public class AttributesTest {
 
   @Test
   public void putLongAttribute() {
-    Attributes attributes = Attributes.builder().putLongAttribute("MyLongAttributeKey", 123L).build();
+    Attributes attributes =
+        Attributes.builder().putLongAttribute("MyLongAttributeKey", 123L).build();
     assertThat(attributes.getAll().size()).isEqualTo(1);
     assertThat(attributes.getAll().containsKey("MyLongAttributeKey")).isTrue();
-    assertThat(attributes.getAttributeValue("MyLongAttributeKey")).isEqualTo(AttributeValue.longAttributeValue(123L));
+    assertThat(attributes.getAttributeValue("MyLongAttributeKey"))
+        .isEqualTo(AttributeValue.longAttributeValue(123L));
   }
 
   @Test(expected = NullPointerException.class)
@@ -93,7 +121,8 @@ public class AttributesTest {
     assertThat(attributes.getAttributeValue("MyBooleanAttributeKey"))
         .isEqualTo(AttributeValue.booleanAttributeValue(true));
     assertThat(attributes.getAll().containsKey("MyLongAttributeKey")).isTrue();
-    assertThat(attributes.getAttributeValue("MyLongAttributeKey")).isEqualTo(AttributeValue.longAttributeValue(123L));
+    assertThat(attributes.getAttributeValue("MyLongAttributeKey"))
+        .isEqualTo(AttributeValue.longAttributeValue(123L));
   }
 
   @Test
@@ -105,7 +134,8 @@ public class AttributesTest {
             .build();
     assertThat(attributes.getAll().size()).isEqualTo(1);
     assertThat(attributes.getAll().containsKey("MyAttributeKey")).isTrue();
-    assertThat(attributes.getAttributeValue("MyAttributeKey")).isEqualTo(AttributeValue.longAttributeValue(123L));
+    assertThat(attributes.getAttributeValue("MyAttributeKey"))
+        .isEqualTo(AttributeValue.longAttributeValue(123L));
   }
 
   @Test
@@ -118,9 +148,11 @@ public class AttributesTest {
             .build();
     assertThat(attributes.getAll().size()).isEqualTo(3);
     assertThat(attributes.getAll().containsKey("MyLongAttributeKey1")).isTrue();
-    assertThat(attributes.getAttributeValue("MyLongAttributeKey1")).isEqualTo(AttributeValue.longAttributeValue(1L));
+    assertThat(attributes.getAttributeValue("MyLongAttributeKey1"))
+        .isEqualTo(AttributeValue.longAttributeValue(1L));
     assertThat(attributes.getAll().containsKey("MyLongAttributeKey12")).isTrue();
-    assertThat(attributes.getAttributeValue("MyLongAttributeKey12")).isEqualTo(AttributeValue.longAttributeValue(12L));
+    assertThat(attributes.getAttributeValue("MyLongAttributeKey12"))
+        .isEqualTo(AttributeValue.longAttributeValue(12L));
     assertThat(attributes.getAll().containsKey("MyLongAttributeKey123")).isTrue();
     assertThat(attributes.getAttributeValue("MyLongAttributeKey123"))
         .isEqualTo(AttributeValue.longAttributeValue(123L));
@@ -129,13 +161,16 @@ public class AttributesTest {
   @Test
   public void attributes_ToString() {
     Attributes attributes =
-        Attributes.builder().putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue").build();
+        Attributes.builder()
+            .putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue")
+            .build();
     assertThat(attributes.toString()).contains("MyStringAttributeKey");
     assertThat(attributes.toString())
         .contains(AttributeValue.stringAttributeValue("MyStringAttributeValue").toString());
     attributes = Attributes.builder().putBooleanAttribute("MyBooleanAttributeKey", true).build();
     assertThat(attributes.toString()).contains("MyBooleanAttributeKey");
-    assertThat(attributes.toString()).contains(AttributeValue.booleanAttributeValue(true).toString());
+    assertThat(attributes.toString())
+        .contains(AttributeValue.booleanAttributeValue(true).toString());
     attributes = Attributes.builder().putLongAttribute("MyLongAttributeKey", 123L).build();
     assertThat(attributes.toString()).contains("MyLongAttributeKey");
     assertThat(attributes.toString()).contains(AttributeValue.longAttributeValue(123L).toString());

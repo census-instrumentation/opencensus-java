@@ -42,13 +42,17 @@ public final class BlankSpan extends Span {
   @Override
   public void addAnnotation(String description, Attributes attributes) {}
 
+  /** No-op implementation of the {@link Span#addAnnotation(Annotation)} method. */
+  @Override
+  public void addAnnotation(Annotation annotation) {}
+
   /** No-op implementation of the {@link Span#addNetworkEvent(NetworkEvent)} method. */
   @Override
   public void addNetworkEvent(NetworkEvent networkEvent) {}
 
-  /** No-op implementation of the {@link Span#addChildLink(Span)} method. */
+  /** No-op implementation of the {@link Span#addLink(Link)} method. */
   @Override
-  public void addChildLink(Span childLink) {}
+  public void addLink(Link link) {}
 
   /** No-op implementation of the {@link Span#end(EndSpanOptions)} method. */
   @Override

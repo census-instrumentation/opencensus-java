@@ -100,10 +100,13 @@ public class SpanTest {
     public void addAnnotation(String description, Attributes attributes) {}
 
     @Override
+    public void addAnnotation(Annotation annotation) {}
+
+    @Override
     public void addNetworkEvent(NetworkEvent networkEvent) {}
 
     @Override
-    public void addChildLink(Span childLink) {}
+    public void addLink(Link link) {}
 
     @Override
     public void end(EndSpanOptions options) {}

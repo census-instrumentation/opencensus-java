@@ -28,6 +28,10 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class Attributes {
+  /** Empty {@code Attributes} value. */
+  public static final Attributes EMPTY =
+      new Attributes(Collections.<String, AttributeValue>emptyMap());
+
   // This object is an immutable Map.
   private final Map<String, AttributeValue> attributes;
 
@@ -43,6 +47,17 @@ public final class Attributes {
    */
   public static Builder builder() {
     return new Builder();
+  }
+
+  /**
+   * Returns a new {@code Attributes} with the given values.
+   *
+   * @param attributes a map representation of the {@code Attributes}.
+   * @return a new {@code Attributes} with the given values.
+   * @throws NullPointerException if {@code attribute} is {@code null}.
+   */
+  public static Attributes fromMap(Map<String, AttributeValue> attributes) {
+    return new Attributes((checkNotNull(attributes, "attributes")));
   }
 
   /**

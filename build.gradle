@@ -133,6 +133,13 @@ subprojects {
         reportLevel = 'low'		        // low = sensitive to even minor mistakes
         omitVisitors = []		        // bugs that we want to ignore
     }
+    // Generate html report for findbugs.
+    findbugsMain {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
     // TODO(bdrutu): Enable this when the proto will generate the builds in build not in
     // build_gradle.
     findbugsMain.onlyIf { !name.contains("proto") }

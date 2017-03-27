@@ -54,9 +54,11 @@ public class AttributeValueTest {
         AttributeValue.stringAttributeValue("MyStringAttributeValue"),
         AttributeValue.stringAttributeValue("MyStringAttributeValue"));
     tester.addEqualityGroup(AttributeValue.stringAttributeValue("MyStringAttributeDiffValue"));
-    tester.addEqualityGroup(AttributeValue.booleanAttributeValue(true), AttributeValue.booleanAttributeValue(true));
+    tester.addEqualityGroup(
+        AttributeValue.booleanAttributeValue(true), AttributeValue.booleanAttributeValue(true));
     tester.addEqualityGroup(AttributeValue.booleanAttributeValue(false));
-    tester.addEqualityGroup(AttributeValue.longAttributeValue(123456L), AttributeValue.longAttributeValue(123456L));
+    tester.addEqualityGroup(
+        AttributeValue.longAttributeValue(123456L), AttributeValue.longAttributeValue(123456L));
     tester.addEqualityGroup(AttributeValue.longAttributeValue(1234567L));
     tester.testEquals();
   }
