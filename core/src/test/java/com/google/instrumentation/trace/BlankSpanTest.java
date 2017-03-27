@@ -35,10 +35,13 @@ public class BlankSpanTest {
         Attributes.builder().putStringAttribute("MyAttributeKey", "MyAttributeValue").build());
     BlankSpan.INSTANCE.addAnnotation("MyAnnotation");
     BlankSpan.INSTANCE.addAnnotation(
-        "MyAnnotation", Attributes.builder().putStringAttribute("MyAttributeKey", "MyAttributeValue").build());
+        "MyAnnotation",
+        Attributes.builder().putStringAttribute("MyAttributeKey", "MyAttributeValue").build());
+    BlankSpan.INSTANCE.addAnnotation(Annotation.fromDescription("MyAnnotation"));
     BlankSpan.INSTANCE.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).build());
-    BlankSpan.INSTANCE.addChildLink(BlankSpan.INSTANCE);
+    BlankSpan.INSTANCE.addLink(Link.fromSpanContext(SpanContext.INVALID, Link.Type.CHILD));
     BlankSpan.INSTANCE.end(EndSpanOptions.DEFAULT);
+    BlankSpan.INSTANCE.end();
   }
 
   @Test
