@@ -15,6 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.trace.Link.Type;
 import java.util.Random;
 import org.junit.Before;
@@ -52,5 +53,32 @@ public class LinkTest {
     assertThat(link.getTraceId()).isEqualTo(spanContext.getTraceId());
     assertThat(link.getSpanId()).isEqualTo(spanContext.getSpanId());
     assertThat(link.getType()).isEqualTo(Type.PARENT);
+  }
+
+  @Test
+  public void link_EqualsAndHashCode() {
+    EqualsTester tester = new EqualsTester();
+    tester
+        .addEqualityGroup(
+            Link.fromSpanContext(spanContext, Type.PARENT),
+            Link.fromSpanContext(spanContext, Type.PARENT))
+        .addEqualityGroup(
+            Link.fromSpanContext(spanContext, Type.CHILD),
+            Link.fromSpanContext(spanContext, Type.CHILD))
+        .addEqualityGroup(Link.fromSpanContext(SpanContext.INVALID, Type.CHILD))
+        .addEqualityGroup(Link.fromSpanContext(SpanContext.INVALID, Type.PARENT));
+    tester.testEquals();
+  }
+
+  @Test
+  public void link_ToString() {
+    Link link = Link.fromSpanContext(spanContext, Type.CHILD);
+    assertThat(link.toString()).contains(spanContext.getTraceId().toString());
+    assertThat(link.toString()).contains(spanContext.getSpanId().toString());
+    assertThat(link.toString()).contains("CHILD");
+    link = Link.fromSpanContext(spanContext, Type.PARENT);
+    assertThat(link.toString()).contains(spanContext.getTraceId().toString());
+    assertThat(link.toString()).contains(spanContext.getSpanId().toString());
+    assertThat(link.toString()).contains("PARENT");
   }
 }

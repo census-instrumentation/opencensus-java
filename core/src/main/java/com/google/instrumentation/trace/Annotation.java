@@ -15,6 +15,8 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import javax.annotation.concurrent.Immutable;
 
 /** A text annotation with a set of attributes. */
@@ -62,6 +64,34 @@ public final class Annotation {
    */
   public Attributes getAttributes() {
     return attributes;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+
+    if (!(obj instanceof Annotation)) {
+      return false;
+    }
+
+    Annotation that = (Annotation) obj;
+    return Objects.equal(description, that.description)
+        && Objects.equal(attributes, that.attributes);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(description, attributes);
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("description", description)
+        .add("attributes", attributes.getAll())
+        .toString();
   }
 
   private Annotation(String description, Attributes attributes) {

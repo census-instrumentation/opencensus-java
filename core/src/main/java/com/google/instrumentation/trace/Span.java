@@ -141,9 +141,9 @@ public abstract class Span {
   }
 
   /**
-   * Returns the span context associated with this {@code Span}.
+   * Returns the {@code SpanContext} associated with this {@code Span}.
    *
-   * @return the span context associated with this {@code Span}.
+   * @return the {@code SpanContext} associated with this {@code Span}.
    */
   public final SpanContext getContext() {
     return context;
