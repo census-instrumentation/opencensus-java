@@ -54,8 +54,8 @@ public abstract class Span {
   /**
    * Creates a new {@code Span}.
    *
-   * @param context The context associated with this {@code Span}.
-   * @param options The options associated with this {@code Span}. If {@code null} then default
+   * @param context the context associated with this {@code Span}.
+   * @param options the options associated with this {@code Span}. If {@code null} then default
    *     options will be set.
    * @throws NullPointerException if context is {@code null}.
    * @throws IllegalArgumentException if the {@code SpanContext} is sampled but no RECORD_EVENTS
@@ -73,25 +73,32 @@ public abstract class Span {
   /**
    * Adds a set of attributes to the {@code Span}.
    *
-   * @param attributes The attributes that will be added and associated with the {@code Span}.
+   * @param attributes the attributes that will be added and associated with the {@code Span}.
    */
   public abstract void addAttributes(Attributes attributes);
 
   /**
    * Adds an annotation to the {@code Span}.
    *
-   * @param description The description of the annotation time event.
+   * @param description the description of the annotation time event.
    */
   public abstract void addAnnotation(String description);
 
   /**
    * Adds an annotation to the {@code Span}.
    *
-   * @param description The description of the annotation time event.
-   * @param attributes The attributes that will be added; these are associated with this annotation,
+   * @param description the description of the annotation time event.
+   * @param attributes the attributes that will be added; these are associated with this annotation,
    *     not the {@code Span} as for {@link #addAttributes}.
    */
   public abstract void addAnnotation(String description, Attributes attributes);
+
+  /**
+   * Adds an annotation to the {@code Span}.
+   *
+   * @param annotation the annotations to add.
+   */
+  public abstract void addAnnotation(Annotation annotation);
 
   /**
    * Adds a NetworkEvent to the {@code Span}.
@@ -99,19 +106,19 @@ public abstract class Span {
    * <p>This function is only intended to be used by RPC systems (either client or server), not by
    * higher level applications.
    *
-   * @param networkEvent The network event to add.
+   * @param networkEvent the network event to add.
    */
   public abstract void addNetworkEvent(NetworkEvent networkEvent);
 
   /**
-   * Adds a child link to the {@code Span}.
+   * Adds a {@link Link} to the {@code Span}.
    *
    * <p>Used (for example) in batching operations, where a single batch handler processes multiple
    * requests from different traces.
    *
-   * @param childLink The child link to add.
+   * @param link the link to add.
    */
-  public abstract void addChildLink(Span childLink);
+  public abstract void addLink(Link link);
 
   /**
    * Marks the end of {@code Span} execution with the given options.
@@ -119,7 +126,7 @@ public abstract class Span {
    * <p>Only the timing of the first end call for a given {@code Span} will be recorded, and
    * implementations are free to ignore all further calls.
    *
-   * @param options The options to be used for the end of the {@code Span}.
+   * @param options the options to be used for the end of the {@code Span}.
    */
   public abstract void end(EndSpanOptions options);
 

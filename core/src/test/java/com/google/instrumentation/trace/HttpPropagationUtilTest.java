@@ -77,8 +77,8 @@ public class HttpPropagationUtilTest {
 
   @Test
   public void toHttpHeaderValue_InvalidSpanContext() {
-    assertThat(HttpPropagationUtil.toHttpHeaderValue(SpanContext.INVALID)).isEqualTo
-        ("0000000000000000000000000000000000000000000000000000000000");
+    assertThat(HttpPropagationUtil.toHttpHeaderValue(SpanContext.INVALID))
+        .isEqualTo("0000000000000000000000000000000000000000000000000000000000");
   }
 
   @Test
