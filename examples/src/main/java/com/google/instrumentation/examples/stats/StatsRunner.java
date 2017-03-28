@@ -11,10 +11,16 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.stats;
+package com.google.instrumentation.examples.stats;
 
+import com.google.instrumentation.stats.MeasurementDescriptor;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
+import com.google.instrumentation.stats.MeasurementMap;
+import com.google.instrumentation.stats.Stats;
+import com.google.instrumentation.stats.StatsContext;
+import com.google.instrumentation.stats.TagKey;
+import com.google.instrumentation.stats.TagValue;
 import io.grpc.Context;
 import java.util.Arrays;
 
