@@ -11,4 +11,43 @@ dependencies {
             libraries.grpc_context
 }
 
-// TODO(bdrutu): Add application plugin and create jars for each example.
+// Provide convenience executables for trying out the examples.
+apply plugin: 'application'
+
+startScripts.enabled = false
+
+task statsRunner(type: CreateStartScripts) {
+    mainClassName = 'com.google.instrumentation.trace.examples.StatsRunner'
+    applicationName = 'StatsRunner'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task multiSpansTracing(type: CreateStartScripts) {
+    mainClassName = 'com.google.instrumentation.trace.examples.MultiSpansTracing'
+    applicationName = 'MultiSpansTracing'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task multiSpansScopedTracing(type: CreateStartScripts) {
+    mainClassName = 'com.google.instrumentation.trace.examples.MultiSpansScopedTracing'
+    applicationName = 'MultiSpansScopedTracing'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task multiSpansContextTracing(type: CreateStartScripts) {
+    mainClassName = 'com.google.instrumentation.trace.examples.MultiSpansContextTracing'
+    applicationName = 'MultiSpansContextTracing'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+applicationDistribution.into('bin') {
+    from(multiSpansTracing)
+    from(multiSpansScopedTracing)
+    from(multiSpansContextTracing)
+    from(statsRunner)
+    fileMode = 0755
+}

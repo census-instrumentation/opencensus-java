@@ -11,12 +11,14 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.trace;
+package com.google.instrumentation.examples.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
+import com.google.instrumentation.trace.Span;
+import com.google.instrumentation.trace.Tracer;
 
 /**
- * Example showing how to create a child {@link Span} using {@link ScopedSpan}, install it in the
+ * Example showing how to create a child {@link Span} using scoped Spans, install it in the
  * current context, and add annotations.
  */
 public final class MultiSpansScopedTracing {

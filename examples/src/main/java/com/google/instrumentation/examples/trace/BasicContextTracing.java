@@ -11,15 +11,17 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.trace;
+package com.google.instrumentation.examples.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
+import com.google.instrumentation.trace.Span;
+import com.google.instrumentation.trace.Tracer;
 
 /**
- * Example showing how to create a {@link Span} using {@link ScopedSpan}, install it in the current
- * context, and add annotations.
+ * Example showing how to create a {@link Span}, install it to the current context and add
+ * annotations.
  */
-public final class BasicScopedTracing {
+public final class BasicContextTracing {
   // Per class Tracer.
   private static final Tracer tracer = Tracer.getTracer();
 
@@ -30,9 +32,10 @@ public final class BasicScopedTracing {
 
   /** Main method. */
   public static void main(String[] args) {
-    try (NonThrowingCloseable ss =
-        tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {
+    Span span = tracer.spanBuilder("MyRootSpan").becomeRoot().startSpan();
+    try (NonThrowingCloseable ws = tracer.withSpan(span)) {
       doWork();
     }
+    span.end();
   }
 }

@@ -11,29 +11,28 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.trace;
+package com.google.instrumentation.examples.trace;
 
-import com.google.instrumentation.common.NonThrowingCloseable;
+import com.google.instrumentation.trace.Span;
+import com.google.instrumentation.trace.Tracer;
 
-/**
- * Example showing how to create a {@link Span}, install it to the current context and add
- * annotations.
- */
-public final class BasicContextTracing {
+/** Example showing how to directly create a child {@link Span} and add annotations. */
+public final class MultiSpansTracing {
   // Per class Tracer.
   private static final Tracer tracer = Tracer.getTracer();
 
   private static void doWork() {
-    // Add an annotation to the current Span.
-    tracer.getCurrentSpan().addAnnotation("This is a doWork() annotation.");
+    Span rootSpan = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+    rootSpan.addAnnotation("Annotation to the root Span before child is created.");
+    Span childSpan = tracer.spanBuilder(rootSpan, "MyChildSpan").startSpan();
+    childSpan.addAnnotation("Annotation to the child Span");
+    childSpan.end();
+    rootSpan.addAnnotation("Annotation to the root Span after child is ended.");
+    rootSpan.end();
   }
 
   /** Main method. */
   public static void main(String[] args) {
-    Span span = tracer.spanBuilder("MyRootSpan").becomeRoot().startSpan();
-    try (NonThrowingCloseable ws = tracer.withSpan(span)) {
-      doWork();
-    }
-    span.end();
+    doWork();
   }
 }

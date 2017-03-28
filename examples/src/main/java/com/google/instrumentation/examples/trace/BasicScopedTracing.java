@@ -11,21 +11,30 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.trace;
+package com.google.instrumentation.examples.trace;
 
-/** Example showing how to create a {@link Span} and add annotations. */
-public final class BasicTracing {
+import com.google.instrumentation.common.NonThrowingCloseable;
+import com.google.instrumentation.trace.Span;
+import com.google.instrumentation.trace.Tracer;
+
+/**
+ * Example showing how to create a {@link Span} using scoped Span, install it in the current
+ * context, and add annotations.
+ */
+public final class BasicScopedTracing {
   // Per class Tracer.
   private static final Tracer tracer = Tracer.getTracer();
 
   private static void doWork() {
-    Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
-    span.addAnnotation("This annotation is added directly to the span.");
-    span.end();
+    // Add an annotation to the current Span.
+    tracer.getCurrentSpan().addAnnotation("This is a doWork() annotation.");
   }
 
   /** Main method. */
   public static void main(String[] args) {
-    doWork();
+    try (NonThrowingCloseable ss =
+        tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {
+      doWork();
+    }
   }
 }
