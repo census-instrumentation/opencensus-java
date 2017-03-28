@@ -1,3 +1,16 @@
+/*
+ * Copyright 2016, Google Inc.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
@@ -50,8 +63,6 @@ public final class RpcConstantsFromProto {
       measurementDescriptorMap.get("grpc.io/server/response_bytes");
   public static final MeasurementDescriptor RPC_SERVER_LATENCY =
       measurementDescriptorMap.get("grpc.io/server/server_latency");
-  public static final MeasurementDescriptor RPC_SERVER_SERVER_ELAPSED_TIME =
-      measurementDescriptorMap.get("grpc.io/server/server_elapsed_time");
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
       measurementDescriptorMap.get("grpc.io/server/uncompressed_request_bytes");
   public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
@@ -104,9 +115,6 @@ public final class RpcConstantsFromProto {
   public static final DistributionViewDescriptor RPC_SERVER_LATENCY_VIEW =
       (DistributionViewDescriptor)
           viewDescriptorMap.get("grpc.io/server/server_latency/distribution_cumulative");
-  public static final DistributionViewDescriptor RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
-      (DistributionViewDescriptor)
-          viewDescriptorMap.get("grpc.io/server/server_elapsed_time/distribution_cumulative");
   public static final DistributionViewDescriptor RPC_SERVER_REQUEST_BYTES_VIEW =
       (DistributionViewDescriptor)
           viewDescriptorMap.get("grpc.io/server/request_bytes/distribution_cumulative");
@@ -176,9 +184,6 @@ public final class RpcConstantsFromProto {
   public static final IntervalViewDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW =
       (IntervalViewDescriptor)
           viewDescriptorMap.get("grpc.io/server/uncompressed_response_bytes/interval");
-  public static final IntervalViewDescriptor RPC_SERVER_SERVER_ELAPSED_TIME_INTERVAL_VIEW =
-      (IntervalViewDescriptor)
-          viewDescriptorMap.get("grpc.io/server/server_elapsed_time/interval");
   public static final IntervalViewDescriptor RPC_SERVER_STARTED_COUNT_INTERVAL_VIEW =
       (IntervalViewDescriptor)
           viewDescriptorMap.get("grpc.io/server/started_count/interval");
