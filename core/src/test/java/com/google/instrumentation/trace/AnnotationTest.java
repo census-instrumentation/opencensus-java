@@ -15,6 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -61,5 +62,37 @@ public class AnnotationTest {
         Annotation.fromDescriptionAndAttributes("MyAnnotationText", Attributes.EMPTY);
     assertThat(annotation.getDescription()).isEqualTo("MyAnnotationText");
     assertThat(annotation.getAttributes().getAll().size()).isEqualTo(0);
+  }
+
+  @Test
+  public void annotation_EqualsAndHashCode() {
+    EqualsTester tester = new EqualsTester();
+    Attributes attributes =
+        Attributes.builder()
+            .putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue")
+            .build();
+    tester
+        .addEqualityGroup(
+            Annotation.fromDescription("MyAnnotationText"),
+            Annotation.fromDescriptionAndAttributes("MyAnnotationText", Attributes.EMPTY))
+        .addEqualityGroup(
+            Annotation.fromDescriptionAndAttributes("MyAnnotationText", attributes),
+            Annotation.fromDescriptionAndAttributes("MyAnnotationText", attributes))
+        .addEqualityGroup(Annotation.fromDescription("MyAnnotationText2"));
+    tester.testEquals();
+  }
+
+  @Test
+  public void annotation_ToString() {
+    Annotation annotation = Annotation.fromDescription("MyAnnotationText");
+    assertThat(annotation.toString()).contains("MyAnnotationText");
+    assertThat(annotation.toString()).contains(Attributes.EMPTY.getAll().toString());
+    Attributes attributes =
+        Attributes.builder()
+            .putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue")
+            .build();
+    annotation = Annotation.fromDescriptionAndAttributes("MyAnnotationText2", attributes);
+    assertThat(annotation.toString()).contains("MyAnnotationText2");
+    assertThat(annotation.toString()).contains(attributes.getAll().toString());
   }
 }
