@@ -216,14 +216,14 @@ public final class RpcConstants {
   public static final DistributionViewDescriptor RPC_CLIENT_REQUEST_COUNT_VIEW =
       DistributionViewDescriptor.create(
           "grpc.io/client/request_count/distribution_cumulative",
-          "Count of client RPC requests",
+          "Count of request messages per client RPC",
           RPC_CLIENT_REQUEST_COUNT,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionViewDescriptor RPC_CLIENT_RESPONSE_COUNT_VIEW =
       DistributionViewDescriptor.create(
           "grpc.io/client/response_count/distribution_cumulative",
-          "Count of client RPC responses",
+          "Count of response messages per client RPC",
           RPC_CLIENT_RESPONSE_COUNT,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_CLIENT_METHOD));
@@ -282,14 +282,14 @@ public final class RpcConstants {
   public static final DistributionViewDescriptor RPC_SERVER_REQUEST_COUNT_VIEW =
       DistributionViewDescriptor.create(
           "grpc.io/server/request_count/distribution_cumulative",
-          "Count of server RPC requests",
+          "Count of request messages per server RPC",
           RPC_SERVER_REQUEST_COUNT,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionViewDescriptor RPC_SERVER_RESPONSE_COUNT_VIEW =
       DistributionViewDescriptor.create(
           "grpc.io/server/response_count/distribution_cumulative",
-          "Count of server RPC responses",
+          "Count of response messages per server RPC",
           RPC_SERVER_RESPONSE_COUNT,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(RPC_SERVER_METHOD));
@@ -371,6 +371,22 @@ public final class RpcConstants {
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
+  public static final IntervalViewDescriptor RPC_CLIENT_REQUEST_COUNT_INTERVAL_VIEW =
+      IntervalViewDescriptor.create(
+          "grpc.io/client/request_count/interval",
+          "Minute and Hour stats on the count of request messages per client RPC",
+          RPC_CLIENT_REQUEST_COUNT,
+          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          Arrays.asList(RPC_CLIENT_METHOD));
+
+  public static final IntervalViewDescriptor RPC_CLIENT_RESPONSE_COUNT_INTERVAL_VIEW =
+      IntervalViewDescriptor.create(
+          "grpc.io/client/response_count/interval",
+          "Minute and Hour stats on the count of response messages per client RPC",
+          RPC_CLIENT_RESPONSE_COUNT,
+          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          Arrays.asList(RPC_CLIENT_METHOD));
+
   // RPC server {@link IntervalViewDescriptor}s.
   public static final IntervalViewDescriptor RPC_SERVER_SERVER_LATENCY_INTERVAL_VIEW =
       IntervalViewDescriptor.create(
@@ -441,6 +457,22 @@ public final class RpcConstants {
           "grpc.io/server/finished_count/interval",
           "Minute and Hour stats on the number of server RPCs finished",
           RPC_SERVER_FINISHED_COUNT,
+          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          Arrays.asList(RPC_SERVER_METHOD));
+
+  public static final IntervalViewDescriptor RPC_SERVER_REQUEST_COUNT_INTERVAL_VIEW =
+      IntervalViewDescriptor.create(
+          "grpc.io/server/request_count/interval",
+          "Minute and Hour stats on the count of request messages per server RPC",
+          RPC_SERVER_REQUEST_COUNT,
+          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          Arrays.asList(RPC_SERVER_METHOD));
+
+  public static final IntervalViewDescriptor RPC_SERVER_RESPONSE_COUNT_INTERVAL_VIEW =
+      IntervalViewDescriptor.create(
+          "grpc.io/server/response_count/interval",
+          "Minute and Hour stats on the count of response messages per server RPC",
+          RPC_SERVER_RESPONSE_COUNT,
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 

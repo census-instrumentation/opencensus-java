@@ -86,6 +86,8 @@ public final class RpcConstantsTest {
     assertThat(RpcConstants.RPC_CLIENT_STARTED_COUNT_INTERVAL_VIEW).isNotNull();
     assertThat(RpcConstants.RPC_CLIENT_FINISHED_COUNT_INTERVAL_VIEW).isNotNull();
     assertThat(RpcConstants.RPC_CLIENT_SERVER_ELAPSED_TIME_INTERVAL_VIEW).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_REQUEST_COUNT_INTERVAL_VIEW).isNotNull();
+    assertThat(RpcConstants.RPC_CLIENT_RESPONSE_COUNT_INTERVAL_VIEW).isNotNull();
 
     // Test server interval view descriptors.
     assertThat(RpcConstants.RPC_SERVER_ERROR_COUNT_INTERVAL_VIEW).isNotNull();
@@ -96,6 +98,8 @@ public final class RpcConstantsTest {
     assertThat(RpcConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW).isNotNull();
     assertThat(RpcConstants.RPC_SERVER_STARTED_COUNT_INTERVAL_VIEW).isNotNull();
     assertThat(RpcConstants.RPC_SERVER_FINISHED_COUNT_INTERVAL_VIEW).isNotNull();
+    assertThat(RpcConstants.RPC_SERVER_REQUEST_COUNT_INTERVAL_VIEW).isNotNull();
+    assertThat(RpcConstants.RPC_SERVER_RESPONSE_COUNT_INTERVAL_VIEW).isNotNull();
   }
 
   @Test(expected = AssertionError.class)
