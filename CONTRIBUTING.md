@@ -27,6 +27,13 @@ style configurations are commonly useful. For IntelliJ 14, copy the style to
 `~/.IdeaIC14/config/codestyles/`, start IntelliJ, go to File > Settings > Code
 Style, and set the Scheme to `GoogleStyle`.
 
+## Style
+
+* Use [AutoValue](https://github.com/google/auto/tree/master/value), when
+  possible, for any new value classes. Remember to add package-private
+  constructors to all AutoValue classes to prevent classes in other packages
+  from extending them.
+
 ## Proposing changes
 
 Make sure that `./gradlew clean assemble check` completes successfully without
