@@ -1,0 +1,5 @@
+install:
+  - git submodule update --init --recursive
+
+build_script:
+  - gradlew.bat clean assemble check --stacktrace
