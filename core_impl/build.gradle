@@ -3,6 +3,7 @@ description = 'Instrumentation Core Impl'
 dependencies {
     compile project(':instrumentation-java-core'),
             project(':proto'),
+            libraries.auto_value,
             libraries.disruptor,
             libraries.guava
 
