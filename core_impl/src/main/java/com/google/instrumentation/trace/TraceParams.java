@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 abstract class TraceParams {
 
   // These values are the default values for all the global parameters.
+  // TODO(aveitch): Change this when a rate/probability sampler will be available.
   private static final Sampler DEFAULT_SAMPLER = Samplers.neverSample();
   private static final int DEFAULT_SPAN_MAX_NUM_ATTRIBUTES = 32;
   private static final int DEFAULT_SPAN_MAX_NUM_ANNOTATIONS = 32;
@@ -86,7 +87,8 @@ abstract class TraceParams {
   abstract static class Builder {
 
     /**
-     * Sets the global default {@code Sampler}.
+     * Sets the global default {@code Sampler}. It must be not {@code null} otherwise
+     * {@link #build()} will throw an exception.
      *
      * @param sampler the global default {@code Sampler}.
      * @return this.
@@ -97,7 +99,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link Attributes} per {@link Span}.
      *
      * @param maxNumberOfAttributes the global default max number of {@link Attributes} per {@link
-     *     Span}. It must be positive.
+     *     Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     abstract Builder setMaxNumberOfAttributes(int maxNumberOfAttributes);
@@ -106,7 +108,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link Annotation} events per {@link Span}.
      *
      * @param maxNumberOfAnnotations the global default max number of {@link Annotation} events per
-     *     {@link Span}. It must be positive.
+     *     {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     abstract Builder setMaxNumberOfAnnotations(int maxNumberOfAnnotations);
@@ -115,7 +117,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link NetworkEvent} events per {@link Span}.
      *
      * @param maxNumberOfNetworkEvents the global default max number of {@link NetworkEvent} events
-     *     per {@link Span}. It must be positive.
+     *     per {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     abstract Builder setMaxNumberOfNetworkEvents(int maxNumberOfNetworkEvents);
@@ -124,7 +126,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link Link} entries per {@link Span}.
      *
      * @param maxNumberOfLinks the global default max number of {@link Link} entries per {@link
-     *     Span}. It must be positive.
+     *     Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     abstract Builder setMaxNumberOfLinks(int maxNumberOfLinks);
@@ -135,6 +137,8 @@ abstract class TraceParams {
      * Builds and returns a {@code TraceParams} with the desired values.
      *
      * @return a {@code TraceParams} with the desired values.
+     * @throws NullPointerException if the sampler is null.
+     * @throws IllegalStateException if any of the max numbers are not positive.
      */
     TraceParams build() {
       TraceParams traceParams = autoBuild();
