@@ -22,82 +22,38 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TraceParams}. */
 @RunWith(JUnit4.class)
 public class TraceParamsTest {
-
   @Test
   public void defaultTraceParams() {
-    assertThat(TraceParams.DEFAULT.getSampler()).isEqualTo(TraceParams.DEFAULT_SAMPLERS);
-    assertThat(TraceParams.DEFAULT.getMaxNumberOfAttributes())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ATTRIBUTES);
-    assertThat(TraceParams.DEFAULT.getMaxNumberOfAnnotations())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ANNOTATIONS);
-    assertThat(TraceParams.DEFAULT.getMaxNumberOfNetworkEvents())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS);
-    assertThat(TraceParams.DEFAULT.getMaxNumberOfLinks())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_LINKS);
+    assertThat(TraceParams.DEFAULT.getSampler()).isEqualTo(Samplers.neverSample());
+    assertThat(TraceParams.DEFAULT.getMaxNumberOfAttributes()).isEqualTo(32);
+    assertThat(TraceParams.DEFAULT.getMaxNumberOfAnnotations()).isEqualTo(32);
+    assertThat(TraceParams.DEFAULT.getMaxNumberOfNetworkEvents()).isEqualTo(128);
+    assertThat(TraceParams.DEFAULT.getMaxNumberOfLinks()).isEqualTo(128);
   }
 
-  @Test
-  public void updateTraceParams_OnlySampler() {
-    TraceParams traceParams =
-        TraceParams.DEFAULT.toBuilder().setSampler(Samplers.alwaysSample()).build();
-    assertThat(traceParams.getSampler()).isEqualTo(Samplers.alwaysSample());
-    assertThat(traceParams.getMaxNumberOfAttributes())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ATTRIBUTES);
-    assertThat(traceParams.getMaxNumberOfAnnotations())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ANNOTATIONS);
-    assertThat(traceParams.getMaxNumberOfNetworkEvents())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS);
-    assertThat(traceParams.getMaxNumberOfLinks()).isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_LINKS);
+  @Test(expected = NullPointerException.class)
+  public void updateTraceParams_NullSampler() {
+    TraceParams.DEFAULT.toBuilder().setSampler(null).build();
   }
 
-  @Test
-  public void updateTraceParams_OnlyMaxNumberOfAttributes() {
-    TraceParams traceParams = TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(8).build();
-    assertThat(traceParams.getSampler()).isEqualTo(TraceParams.DEFAULT_SAMPLERS);
-    assertThat(traceParams.getMaxNumberOfAttributes()).isEqualTo(8);
-    assertThat(traceParams.getMaxNumberOfAnnotations())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ANNOTATIONS);
-    assertThat(traceParams.getMaxNumberOfNetworkEvents())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS);
-    assertThat(traceParams.getMaxNumberOfLinks()).isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_LINKS);
+  @Test(expected = IllegalStateException.class)
+  public void updateTraceParams_NonPositiveMaxNumberOfAttributes() {
+    TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(0).build();
   }
 
-  @Test
-  public void updateTraceParams_OnlyMaxNumberOfAnnotations() {
-    TraceParams traceParams = TraceParams.DEFAULT.toBuilder().setMaxNumberOfAnnotations(8).build();
-    assertThat(traceParams.getSampler()).isEqualTo(TraceParams.DEFAULT_SAMPLERS);
-    assertThat(traceParams.getMaxNumberOfAttributes())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ATTRIBUTES);
-    assertThat(traceParams.getMaxNumberOfAnnotations()).isEqualTo(8);
-    assertThat(traceParams.getMaxNumberOfNetworkEvents())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS);
-    assertThat(traceParams.getMaxNumberOfLinks()).isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_LINKS);
+  @Test(expected = IllegalStateException.class)
+  public void updateTraceParams_NonPositiveMaxNumberOfAnnotations() {
+    TraceParams.DEFAULT.toBuilder().setMaxNumberOfAnnotations(0).build();
   }
 
-  @Test
-  public void updateTraceParams_OnlyMaxNumberOfNetworkEvents() {
-    TraceParams traceParams =
-        TraceParams.DEFAULT.toBuilder().setMaxNumberOfNetworkEvents(8).build();
-    assertThat(traceParams.getSampler()).isEqualTo(TraceParams.DEFAULT_SAMPLERS);
-    assertThat(traceParams.getMaxNumberOfAttributes())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ATTRIBUTES);
-    assertThat(traceParams.getMaxNumberOfAnnotations())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ANNOTATIONS);
-    assertThat(traceParams.getMaxNumberOfNetworkEvents()).isEqualTo(8);
-    assertThat(traceParams.getMaxNumberOfLinks()).isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_LINKS);
+  @Test(expected = IllegalStateException.class)
+  public void updateTraceParams_NonPositiveMaxNumberOfNetworkEvents() {
+    TraceParams.DEFAULT.toBuilder().setMaxNumberOfNetworkEvents(0).build();
   }
 
-  @Test
-  public void updateTraceParams_OnlyMaxNumberOfLinks() {
-    TraceParams traceParams = TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(8).build();
-    assertThat(traceParams.getSampler()).isEqualTo(TraceParams.DEFAULT_SAMPLERS);
-    assertThat(traceParams.getMaxNumberOfAttributes())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ATTRIBUTES);
-    assertThat(traceParams.getMaxNumberOfAnnotations())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_ANNOTATIONS);
-    assertThat(traceParams.getMaxNumberOfNetworkEvents())
-        .isEqualTo(TraceParams.DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS);
-    assertThat(traceParams.getMaxNumberOfLinks()).isEqualTo(8);
+  @Test(expected = IllegalStateException.class)
+  public void updateTraceParams_NonPositiveMaxNumberOfLinks() {
+    TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(0).build();
   }
 
   @Test

@@ -14,9 +14,9 @@
 package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.concurrent.Immutable;
 
 /** Class that holds global trace parameters. */
@@ -25,15 +25,15 @@ import javax.annotation.concurrent.Immutable;
 abstract class TraceParams {
 
   // These values are the default values for all the global parameters.
-  @VisibleForTesting static final Sampler DEFAULT_SAMPLERS = Samplers.neverSample();
-  @VisibleForTesting static final int DEFAULT_SPAN_MAX_NUM_ATTRIBUTES = 32;
-  @VisibleForTesting static final int DEFAULT_SPAN_MAX_NUM_ANNOTATIONS = 32;
-  @VisibleForTesting static final int DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS = 128;
-  @VisibleForTesting static final int DEFAULT_SPAN_MAX_NUM_LINKS = 128;
+  private static final Sampler DEFAULT_SAMPLER = Samplers.neverSample();
+  private static final int DEFAULT_SPAN_MAX_NUM_ATTRIBUTES = 32;
+  private static final int DEFAULT_SPAN_MAX_NUM_ANNOTATIONS = 32;
+  private static final int DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS = 128;
+  private static final int DEFAULT_SPAN_MAX_NUM_LINKS = 128;
 
-  public static final TraceParams DEFAULT =
+  static final TraceParams DEFAULT =
       TraceParams.builder()
-          .setSampler(DEFAULT_SAMPLERS)
+          .setSampler(DEFAULT_SAMPLER)
           .setMaxNumberOfAttributes(DEFAULT_SPAN_MAX_NUM_ATTRIBUTES)
           .setMaxNumberOfAnnotations(DEFAULT_SPAN_MAX_NUM_ANNOTATIONS)
           .setMaxNumberOfNetworkEvents(DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS)
@@ -80,7 +80,7 @@ abstract class TraceParams {
     return new AutoValue_TraceParams.Builder();
   }
 
-  public abstract Builder toBuilder();
+  abstract Builder toBuilder();
 
   @AutoValue.Builder
   abstract static class Builder {
@@ -97,7 +97,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link Attributes} per {@link Span}.
      *
      * @param maxNumberOfAttributes the global default max number of {@link Attributes} per {@link
-     *     Span}.
+     *     Span}. It must be positive.
      * @return this.
      */
     abstract Builder setMaxNumberOfAttributes(int maxNumberOfAttributes);
@@ -106,7 +106,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link Annotation} events per {@link Span}.
      *
      * @param maxNumberOfAnnotations the global default max number of {@link Annotation} events per
-     *     {@link Span}.
+     *     {@link Span}. It must be positive.
      * @return this.
      */
     abstract Builder setMaxNumberOfAnnotations(int maxNumberOfAnnotations);
@@ -115,7 +115,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link NetworkEvent} events per {@link Span}.
      *
      * @param maxNumberOfNetworkEvents the global default max number of {@link NetworkEvent} events
-     *     per {@link Span}.
+     *     per {@link Span}. It must be positive.
      * @return this.
      */
     abstract Builder setMaxNumberOfNetworkEvents(int maxNumberOfNetworkEvents);
@@ -124,7 +124,7 @@ abstract class TraceParams {
      * Sets the global default max number of {@link Link} entries per {@link Span}.
      *
      * @param maxNumberOfLinks the global default max number of {@link Link} entries per {@link
-     *     Span}.
+     *     Span}. It must be positive.
      * @return this.
      */
     abstract Builder setMaxNumberOfLinks(int maxNumberOfLinks);
@@ -138,7 +138,11 @@ abstract class TraceParams {
      */
     TraceParams build() {
       TraceParams traceParams = autoBuild();
-      checkNotNull(traceParams.getSampler());
+      checkNotNull(traceParams.getSampler(), "sampler");
+      checkState(traceParams.getMaxNumberOfAttributes() > 0, "maxNumberOfAttributes");
+      checkState(traceParams.getMaxNumberOfAnnotations() > 0, "maxNumberOfAnnotations");
+      checkState(traceParams.getMaxNumberOfNetworkEvents() > 0, "maxNumberOfNetworkEvents");
+      checkState(traceParams.getMaxNumberOfLinks() > 0, "maxNumberOfLinks");
       return traceParams;
     }
   }
