@@ -40,7 +40,9 @@ subprojects {
     }
 
     [compileJava, compileTestJava].each() {
-        it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try"]
+        // We suppress the "processing" warning as suggested in
+        // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
+        it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
         // Disable errorprone for proto because we cannot control the generated code.
         if (JavaVersion.current().isJava8Compatible() && !name.contains("proto")) {
             // TODO(bdrutu): Read files directly instead of reading from properties.
@@ -90,11 +92,13 @@ subprojects {
     }
 
     ext {
+        autoValueVersion = '1.4'
         guavaVersion = '19.0'
         protobufVersion = '3.2.0'
         grpcContextVersion = '1.1.2'
 
         libraries = [
+                auto_value     : "com.google.auto.value:auto-value:${autoValueVersion}",
                 disruptor    : 'com.lmax:disruptor:3.3.6',
                 errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
                 grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",

@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import java.util.Arrays;
@@ -58,6 +59,44 @@ public final class MeasurementDescriptorTest {
     assertThat(measurement.getUnit().getNumerators().get(0)).isEqualTo(BasicUnit.BITS);
     assertThat(measurement.getUnit().getDenominators()).hasSize(1);
     assertThat(measurement.getUnit().getDenominators().get(0)).isEqualTo(BasicUnit.SECONDS);
+  }
+
+  @Test
+  public void testMeasurementUnitEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            MeasurementUnit.create(
+                1, Arrays.asList(BasicUnit.BYTES), Arrays.asList(BasicUnit.SECONDS)),
+            MeasurementUnit.create(
+                1, Arrays.asList(BasicUnit.BYTES), Arrays.asList(BasicUnit.SECONDS)))
+        .addEqualityGroup(
+            MeasurementUnit.create(
+                2, Arrays.asList(BasicUnit.BYTES), Arrays.asList(BasicUnit.SECONDS)))
+        .addEqualityGroup(MeasurementUnit.create(1, Arrays.asList(BasicUnit.BYTES)))
+        .testEquals();
+  }
+
+  @Test
+  public void testMeasurementDescriptorEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            MeasurementDescriptor.create(
+                "name",
+                "description",
+                MeasurementUnit.create(
+                    1, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS))),
+            MeasurementDescriptor.create(
+                "name",
+                "description",
+                MeasurementUnit.create(
+                    1, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS))))
+        .addEqualityGroup(
+            MeasurementDescriptor.create(
+                "name",
+                "description 2",
+                MeasurementUnit.create(
+                    1, Arrays.asList(BasicUnit.BYTES), Arrays.asList(BasicUnit.SECONDS))))
+        .testEquals();
   }
 
   private static final MeasurementDescriptor makeSimpleDescriptor(String name) {
