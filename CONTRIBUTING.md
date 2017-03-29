@@ -54,9 +54,15 @@ We also follow these project-specific guidelines:
   constructors to all AutoValue classes to prevent classes in other packages
   from extending them.
 
+## Building instrumentation-java
+
+Run `./gradlew clean assemble check` on OS X or Linux, or run
+`gradlew.bat clean assemble check` on Windows. This command performs the same
+checks as the continuous integration build.
+
 ## Proposing changes
 
-Make sure that `./gradlew clean assemble check` completes successfully without
-any new warnings. Then create a Pull Request with your changes. When the changes
-are accepted, they will be merged or cherry-picked by an Instrumentation core
-developer.
+Create a Pull Request with your changes. The continuous integration build will
+run the tests and static analysis. It will also check that the pull request
+branch has no merge commits. When the changes are accepted, they will be merged
+or cherry-picked by an Instrumentation core developer.
