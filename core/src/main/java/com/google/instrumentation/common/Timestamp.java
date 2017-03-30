@@ -69,7 +69,7 @@ public final class Timestamp {
     long seconds = millis / NUM_MILLIS_PER_SECOND;
     int nanos = (int) (millis % NUM_MILLIS_PER_SECOND) * NUM_NANOS_PER_MILLI;
     if (nanos < 0) {
-      return new Timestamp(seconds - 1, (int)(nanos + NUM_NANOS_PER_SECOND));
+      return new Timestamp(seconds - 1, (int) (nanos + NUM_NANOS_PER_SECOND));
     } else {
       return new Timestamp(seconds, nanos);
     }
@@ -113,7 +113,7 @@ public final class Timestamp {
     if (newNanos >= 0) {
       return Timestamp.create(newSeconds, (int) newNanos);
     } else {
-      return Timestamp.create(newSeconds - 1, (int)(newNanos + NUM_NANOS_PER_SECOND));
+      return Timestamp.create(newSeconds - 1, (int) (newNanos + NUM_NANOS_PER_SECOND));
     }
   }
 
