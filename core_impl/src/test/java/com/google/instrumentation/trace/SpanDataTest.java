@@ -35,8 +35,8 @@ public class SpanDataTest {
   private static final Timestamp eventTimestamp2 = Timestamp.create(123, 458);
   private static final Timestamp eventTimestamp3 = Timestamp.create(123, 459);
   private static final Timestamp endTimestamp = Timestamp.create(123, 460);
-  private static final String displayName = "MySpanDisplayName";
-  private static final String annotationText = "MyAnnotationText";
+  private static final String DISPLAY_NAME = "MySpanDisplayName";
+  private static final String ANNOTATION_TEXT = "MyAnnotationText";
   private static final Status status = Status.DEADLINE_EXCEEDED.withDescription("TooSlow");
   private Random random;
   private SpanContext spanContext;
@@ -57,9 +57,9 @@ public class SpanDataTest {
             TraceOptions.DEFAULT);
     parentSpanId = SpanId.generateRandomId(random);
     annotations.add(new TimedEvent<Annotation>(eventTimestamp1, Annotation.fromDescription
-        (annotationText)));
+        (ANNOTATION_TEXT)));
     annotations.add(new TimedEvent<Annotation>(eventTimestamp3, Annotation.fromDescription
-        (annotationText)));
+        (ANNOTATION_TEXT)));
     networkEvents.add(new TimedEvent<NetworkEvent>(eventTimestamp1, NetworkEvent.builder
         (NetworkEvent.Type.RECV, 1).build()));
     networkEvents.add(new TimedEvent<NetworkEvent>(eventTimestamp2, NetworkEvent.builder
@@ -73,7 +73,7 @@ public class SpanDataTest {
     SpanData spanData = new SpanData(
         spanContext,
         parentSpanId,
-        displayName,
+        DISPLAY_NAME,
         startTimestamp,
         attributes,
         annotations,
@@ -83,7 +83,7 @@ public class SpanDataTest {
         endTimestamp);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
-    assertThat(spanData.getDisplayName()).isEqualTo(displayName);
+    assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes()).isEqualTo(attributes);
     assertThat(spanData.getAnnotations()).isEqualTo(annotations);
@@ -98,7 +98,7 @@ public class SpanDataTest {
     SpanData spanData = new SpanData(
         spanContext,
         null,
-        displayName,
+        DISPLAY_NAME,
         startTimestamp,
         attributes,
         annotations,
@@ -108,7 +108,7 @@ public class SpanDataTest {
         null);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getDisplayName()).isEqualTo(displayName);
+    assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes()).isEqualTo(attributes);
     assertThat(spanData.getAnnotations()).isEqualTo(annotations);
@@ -123,7 +123,7 @@ public class SpanDataTest {
     SpanData spanData = new SpanData(
         spanContext,
         parentSpanId,
-        displayName,
+        DISPLAY_NAME,
         startTimestamp,
         Collections.<String, AttributeValue>emptyMap(),
         Collections.<TimedEvent<Annotation>>emptyList(),
@@ -133,7 +133,7 @@ public class SpanDataTest {
         endTimestamp);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
-    assertThat(spanData.getDisplayName()).isEqualTo(displayName);
+    assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes().isEmpty()).isTrue();
     assertThat(spanData.getAnnotations().isEmpty()).isTrue();
@@ -148,7 +148,7 @@ public class SpanDataTest {
     String spanDataString = new SpanData(
         spanContext,
         parentSpanId,
-        displayName,
+        DISPLAY_NAME,
         startTimestamp,
         attributes,
         annotations,
@@ -158,7 +158,7 @@ public class SpanDataTest {
         endTimestamp).toString();
     assertThat(spanDataString).contains(spanContext.toString());
     assertThat(spanDataString).contains(parentSpanId.toString());
-    assertThat(spanDataString).contains(displayName);
+    assertThat(spanDataString).contains(DISPLAY_NAME);
     assertThat(spanDataString).contains(startTimestamp.toString());
     assertThat(spanDataString).contains(attributes.toString());
     assertThat(spanDataString).contains(annotations.toString());
