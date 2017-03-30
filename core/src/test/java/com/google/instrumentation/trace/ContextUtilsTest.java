@@ -19,10 +19,13 @@ import com.google.instrumentation.common.NonThrowingCloseable;
 import io.grpc.Context;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /** Unit tests for {@link ContextUtils}. */
+@RunWith(JUnit4.class)
 public class ContextUtilsTest {
   @Mock private Span span;
 
