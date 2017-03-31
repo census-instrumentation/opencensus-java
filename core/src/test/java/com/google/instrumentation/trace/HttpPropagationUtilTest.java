@@ -108,29 +108,19 @@ public class HttpPropagationUtilTest {
   public void parseHeaderValue_ExampleValue() {
     assertThat(
             HttpPropagationUtil.fromHttpHeaderValue(
-                "00404142434445464748494A4B4C4D4E4F616263646566676800000001"))
+                "00404142434445464748494A4B4C4D4E4F616263646566676801000000"))
         .isEqualTo(
             new SpanContext(
                 TraceId.fromBytes(
                     new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}),
                 SpanId.fromBytes(new byte[] {97, 98, 99, 100, 101, 102, 103, 104}),
-                TraceOptions.fromBytes(new byte[] {0, 0, 0, 1})));
-    assertThat(
-            HttpPropagationUtil.fromHttpHeaderValue(
-                    "00404142434445464748494A4B4C4D4E4F616263646566676800000001")
-                .getTraceOptions()
-                .getOptions())
-        .isEqualTo(1 << 24);
-  }
-
-  @Test
-  public void parseHeaderValue_SampledContext() {
+                TraceOptions.fromBytes(new byte[] {1, 0, 0, 0})));
     assertThat(
             HttpPropagationUtil.fromHttpHeaderValue(
                     "00404142434445464748494A4B4C4D4E4F616263646566676801000000")
                 .getTraceOptions()
-                .isSampled())
-        .isTrue();
+                .getOptions())
+        .isEqualTo(1);
   }
 
   @Test(expected = NullPointerException.class)
