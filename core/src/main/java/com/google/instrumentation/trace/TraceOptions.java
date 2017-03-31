@@ -207,21 +207,21 @@ public final class TraceOptions {
     return (this.options & mask) != 0;
   }
 
-  // Returns the int value whose big-endian representation is stored in the first 4 bytes of src
+  // Returns the int value whose little-endian representation is stored in the first 4 bytes of src
   // starting from the given offset.
   private static int intFromBytes(byte[] src, int srcOffset) {
-    return src[srcOffset] << (3 * Byte.SIZE)
-        | (src[srcOffset + 1] & BYTE_MASK) << (2 * Byte.SIZE)
-        | (src[srcOffset + 2] & BYTE_MASK) << Byte.SIZE
-        | (src[srcOffset + 3] & BYTE_MASK);
+    return (src[srcOffset] & BYTE_MASK)
+        | (src[srcOffset + 1] & BYTE_MASK) << Byte.SIZE
+        | (src[srcOffset + 2] & BYTE_MASK) << (2 * Byte.SIZE)
+        | (src[srcOffset + 3] & BYTE_MASK) << (3 * Byte.SIZE);
   }
 
-  // Appends the big-endian representation of value as a 4-element byte array to the destination
+  // Appends the little-endian representation of value as a 4-element byte array to the destination
   // starting at the given offset.
   private static void intToBytes(int value, byte[] dest, int destOffset) {
-    dest[destOffset] = (byte) (value >> (3 * Byte.SIZE));
-    dest[destOffset + 1] = (byte) (value >> (2 * Byte.SIZE));
-    dest[destOffset + 2] = (byte) (value >> Byte.SIZE);
-    dest[destOffset + 3] = (byte) value;
+    dest[destOffset] = (byte) value;
+    dest[destOffset + 1] = (byte) (value >> Byte.SIZE);
+    dest[destOffset + 2] = (byte) (value >> (2 * Byte.SIZE));
+    dest[destOffset + 3] = (byte) (value >> (3 * Byte.SIZE));
   }
 }
