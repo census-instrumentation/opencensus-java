@@ -17,13 +17,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
 /** A text annotation with a set of attributes. */
 @Immutable
 public final class Annotation {
+  private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES = Collections.emptyMap();
+
   private final String description;
-  private final Attributes attributes;
+  private final Map<String, AttributeValue> attributes;
 
   /**
    * Returns a new {@code Annotation} with the given description.
@@ -33,7 +38,7 @@ public final class Annotation {
    * @throws NullPointerException if {@code description} is {@code null}.
    */
   public static Annotation fromDescription(String description) {
-    return new Annotation(description, Attributes.EMPTY);
+    return new Annotation(description, EMPTY_ATTRIBUTES);
   }
 
   /**
@@ -44,7 +49,8 @@ public final class Annotation {
    * @return a new {@code Annotation} with the given description and set of attributes.
    * @throws NullPointerException if {@code description} or {@code attributes} are {@code null}.
    */
-  public static Annotation fromDescriptionAndAttributes(String description, Attributes attributes) {
+  public static Annotation fromDescriptionAndAttributes(
+      String description, Map<String, AttributeValue> attributes) {
     return new Annotation(description, attributes);
   }
 
@@ -62,7 +68,7 @@ public final class Annotation {
    *
    * @return the attributes of the {@code Annotation}.
    */
-  public Attributes getAttributes() {
+  public Map<String, AttributeValue> getAttributes() {
     return attributes;
   }
 
@@ -90,12 +96,14 @@ public final class Annotation {
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("description", description)
-        .add("attributes", attributes.getAll())
+        .add("attributes", attributes)
         .toString();
   }
 
-  private Annotation(String description, Attributes attributes) {
+  private Annotation(String description, Map<String, AttributeValue> attributes) {
     this.description = checkNotNull(description, "description");
-    this.attributes = checkNotNull(attributes, "attributes");
+    this.attributes =
+        Collections.unmodifiableMap(
+            new HashMap<String, AttributeValue>(checkNotNull(attributes, "attributes")));
   }
 }

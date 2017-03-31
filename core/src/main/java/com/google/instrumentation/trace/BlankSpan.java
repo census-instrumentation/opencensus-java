@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.trace;
 
+import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -30,17 +31,13 @@ public final class BlankSpan extends Span {
     super(SpanContext.INVALID, null);
   }
 
-  /** No-op implementation of the {@link Span#addAttributes(Attributes)} method. */
+  /** No-op implementation of the {@link Span#addAttributes(Map)} method. */
   @Override
-  public void addAttributes(Attributes attributes) {}
+  public void addAttributes(Map<String, AttributeValue> attributes) {}
 
-  /** No-op implementation of the {@link Span#addAnnotation(String)} method. */
+  /** No-op implementation of the {@link Span#addAnnotation(String, Map)} method. */
   @Override
-  public void addAnnotation(String description) {}
-
-  /** No-op implementation of the {@link Span#addAnnotation(String, Attributes)} method. */
-  @Override
-  public void addAnnotation(String description, Attributes attributes) {}
+  public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
 
   /** No-op implementation of the {@link Span#addAnnotation(Annotation)} method. */
   @Override

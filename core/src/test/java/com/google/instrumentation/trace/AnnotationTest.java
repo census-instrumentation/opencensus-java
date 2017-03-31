@@ -16,6 +16,9 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,12 +35,12 @@ public class AnnotationTest {
   public void fromDescription() {
     Annotation annotation = Annotation.fromDescription("MyAnnotationText");
     assertThat(annotation.getDescription()).isEqualTo("MyAnnotationText");
-    assertThat(annotation.getAttributes().getAll().size()).isEqualTo(0);
+    assertThat(annotation.getAttributes().size()).isEqualTo(0);
   }
 
   @Test(expected = NullPointerException.class)
   public void fromDescriptionAndAttributes_NullDescription() {
-    Annotation.fromDescriptionAndAttributes(null, Attributes.EMPTY);
+    Annotation.fromDescriptionAndAttributes(null, Collections.<String, AttributeValue>emptyMap());
   }
 
   @Test(expected = NullPointerException.class)
@@ -47,34 +50,34 @@ public class AnnotationTest {
 
   @Test
   public void fromDescriptionAndAttributes() {
-    Attributes attributes =
-        Attributes.builder()
-            .putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue")
-            .build();
+    Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+    attributes.put(
+        "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
     Annotation annotation = Annotation.fromDescriptionAndAttributes("MyAnnotationText", attributes);
     assertThat(annotation.getDescription()).isEqualTo("MyAnnotationText");
-    assertThat(annotation.getAttributes().getAll()).isEqualTo(attributes.getAll());
+    assertThat(annotation.getAttributes()).isEqualTo(attributes);
   }
 
   @Test
   public void fromDescriptionAndAttributes_EmptyAttributes() {
     Annotation annotation =
-        Annotation.fromDescriptionAndAttributes("MyAnnotationText", Attributes.EMPTY);
+        Annotation.fromDescriptionAndAttributes(
+            "MyAnnotationText", Collections.<String, AttributeValue>emptyMap());
     assertThat(annotation.getDescription()).isEqualTo("MyAnnotationText");
-    assertThat(annotation.getAttributes().getAll().size()).isEqualTo(0);
+    assertThat(annotation.getAttributes().size()).isEqualTo(0);
   }
 
   @Test
   public void annotation_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
-    Attributes attributes =
-        Attributes.builder()
-            .putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue")
-            .build();
+    Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+    attributes.put(
+        "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
     tester
         .addEqualityGroup(
             Annotation.fromDescription("MyAnnotationText"),
-            Annotation.fromDescriptionAndAttributes("MyAnnotationText", Attributes.EMPTY))
+            Annotation.fromDescriptionAndAttributes(
+                "MyAnnotationText", Collections.<String, AttributeValue>emptyMap()))
         .addEqualityGroup(
             Annotation.fromDescriptionAndAttributes("MyAnnotationText", attributes),
             Annotation.fromDescriptionAndAttributes("MyAnnotationText", attributes))
@@ -86,13 +89,11 @@ public class AnnotationTest {
   public void annotation_ToString() {
     Annotation annotation = Annotation.fromDescription("MyAnnotationText");
     assertThat(annotation.toString()).contains("MyAnnotationText");
-    assertThat(annotation.toString()).contains(Attributes.EMPTY.getAll().toString());
-    Attributes attributes =
-        Attributes.builder()
-            .putStringAttribute("MyStringAttributeKey", "MyStringAttributeValue")
-            .build();
+    Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+    attributes.put(
+        "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
     annotation = Annotation.fromDescriptionAndAttributes("MyAnnotationText2", attributes);
     assertThat(annotation.toString()).contains("MyAnnotationText2");
-    assertThat(annotation.toString()).contains(attributes.getAll().toString());
+    assertThat(annotation.toString()).contains(attributes.toString());
   }
 }

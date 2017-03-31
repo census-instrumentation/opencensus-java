@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -30,6 +31,8 @@ import javax.annotation.Nullable;
  * <p>{@code Span} <b>must</b> be ended by calling {@link #end()} or {@link #end(EndSpanOptions)}
  */
 public abstract class Span {
+  private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES = Collections.emptyMap();
+
   // Contains the identifiers associated with this Span.
   private final SpanContext context;
 
@@ -75,14 +78,16 @@ public abstract class Span {
    *
    * @param attributes the attributes that will be added and associated with the {@code Span}.
    */
-  public abstract void addAttributes(Attributes attributes);
+  public abstract void addAttributes(Map<String, AttributeValue> attributes);
 
   /**
    * Adds an annotation to the {@code Span}.
    *
    * @param description the description of the annotation time event.
    */
-  public abstract void addAnnotation(String description);
+  public final void addAnnotation(String description) {
+    addAnnotation(description, EMPTY_ATTRIBUTES);
+  }
 
   /**
    * Adds an annotation to the {@code Span}.
@@ -91,7 +96,7 @@ public abstract class Span {
    * @param attributes the attributes that will be added; these are associated with this annotation,
    *     not the {@code Span} as for {@link #addAttributes}.
    */
-  public abstract void addAnnotation(String description, Attributes attributes);
+  public abstract void addAnnotation(String description, Map<String, AttributeValue> attributes);
 
   /**
    * Adds an annotation to the {@code Span}.
