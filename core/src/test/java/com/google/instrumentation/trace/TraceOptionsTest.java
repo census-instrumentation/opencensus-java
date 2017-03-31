@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TraceOptionsTest {
   private static final byte[] firstBytes = {(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
-  private static final byte[] secondBytes = {0, 0, 0, 1};
+  private static final byte[] secondBytes = {1, 0, 0, 0};
   private static final byte[] thirdBytes = {0, 0, 1, 0};
 
   @Test
@@ -33,7 +33,7 @@ public class TraceOptionsTest {
     assertThat(TraceOptions.builder().setIsSampled().build().getOptions()).isEqualTo(1);
     assertThat(TraceOptions.fromBytes(firstBytes).getOptions()).isEqualTo(-1);
     assertThat(TraceOptions.fromBytes(secondBytes).getOptions()).isEqualTo(1);
-    assertThat(TraceOptions.fromBytes(thirdBytes).getOptions()).isEqualTo(1 << 8);
+    assertThat(TraceOptions.fromBytes(thirdBytes).getOptions()).isEqualTo(1 << 16);
   }
 
   @Test
@@ -56,7 +56,7 @@ public class TraceOptionsTest {
                 .setIsSampled()
                 .build()
                 .getOptions())
-        .isEqualTo((1 << 8) + 1);
+        .isEqualTo((1 << 16) + 1);
   }
 
   @Test
