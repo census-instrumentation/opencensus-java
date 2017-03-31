@@ -15,6 +15,8 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,13 +32,22 @@ public class BlankSpanTest {
 
   @Test
   public void doNotCrash() {
+    Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+    attributes.put(
+        "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
+    Map<String, AttributeValue> multipleAttributes = new HashMap<String, AttributeValue>();
+    multipleAttributes.put(
+        "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
+    multipleAttributes.put(
+        "MyBooleanAttributeKey", AttributeValue.booleanAttributeValue(true));
+    multipleAttributes.put(
+        "MyLongAttributeKey", AttributeValue.longAttributeValue(123));
     // Tests only that all the methods are not crashing/throwing errors.
-    BlankSpan.INSTANCE.addAttributes(
-        Attributes.builder().putStringAttribute("MyAttributeKey", "MyAttributeValue").build());
+    BlankSpan.INSTANCE.addAttributes(attributes);
+    BlankSpan.INSTANCE.addAttributes(multipleAttributes);
     BlankSpan.INSTANCE.addAnnotation("MyAnnotation");
-    BlankSpan.INSTANCE.addAnnotation(
-        "MyAnnotation",
-        Attributes.builder().putStringAttribute("MyAttributeKey", "MyAttributeValue").build());
+    BlankSpan.INSTANCE.addAnnotation("MyAnnotation", attributes);
+    BlankSpan.INSTANCE.addAnnotation("MyAnnotation", multipleAttributes);
     BlankSpan.INSTANCE.addAnnotation(Annotation.fromDescription("MyAnnotation"));
     BlankSpan.INSTANCE.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).build());
     BlankSpan.INSTANCE.addLink(Link.fromSpanContext(SpanContext.INVALID, Link.Type.CHILD));

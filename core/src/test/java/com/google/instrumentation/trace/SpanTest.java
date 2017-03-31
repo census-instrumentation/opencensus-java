@@ -18,6 +18,7 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,13 +92,10 @@ public class SpanTest {
     }
 
     @Override
-    public void addAttributes(Attributes attributes) {}
+    public void addAttributes(Map<String, AttributeValue> attributes) {}
 
     @Override
-    public void addAnnotation(String description) {}
-
-    @Override
-    public void addAnnotation(String description, Attributes attributes) {}
+    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
 
     @Override
     public void addAnnotation(Annotation annotation) {}

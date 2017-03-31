@@ -97,9 +97,9 @@ public final class SpanData {
   }
 
   /**
-   * Returns the set of {@code Attributes} recorded for this {@code Span}.
+   * Returns the set of attributes recorded for this {@code Span}.
    *
-   * @return the set of {@code Attributes} recorded for this {@code Span}.
+   * @return the set of attributes recorded for this {@code Span}.
    */
   public Map<String, AttributeValue> getAttributes() {
     return attributes;

@@ -50,9 +50,9 @@ abstract class TraceParams {
   abstract Sampler getSampler();
 
   /**
-   * Returns the global default max number of {@link Attributes} per {@link Span}.
+   * Returns the global default max number of attributes per {@link Span}.
    *
-   * @return the global default max number of {@code Attributes} per {@link Span}.
+   * @return the global default max number of attributes per {@link Span}.
    */
   abstract int getMaxNumberOfAttributes();
 
@@ -96,9 +96,9 @@ abstract class TraceParams {
     abstract Builder setSampler(Sampler sampler);
 
     /**
-     * Sets the global default max number of {@link Attributes} per {@link Span}.
+     * Sets the global default max number of attributes per {@link Span}.
      *
-     * @param maxNumberOfAttributes the global default max number of {@link Attributes} per {@link
+     * @param maxNumberOfAttributes the global default max number of attributes per {@link
      *     Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */

@@ -13,14 +13,16 @@
 
 package com.google.instrumentation.trace;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents all the possible values for an attribute in {@link Attributes}. A
- * attribute can have 3 types of values: {@code String}, {@code Boolean} or {@code Long}.
+ * A class that represents all the possible values for an attribute. An attribute can have 3 types
+ * of values: {@code String}, {@code Boolean} or {@code Long}.
  */
 @Immutable
 public final class AttributeValue {
@@ -28,15 +30,34 @@ public final class AttributeValue {
   private final Boolean booleanValue;
   private final Long longValue;
 
-  static AttributeValue stringAttributeValue(String stringValue) {
-    return new AttributeValue(stringValue, null, null);
+  /**
+   * Returns an {@code AttributeValue} with a string value.
+   *
+   * @param stringValue The new value.
+   * @return an {@code AttributeValue} with a string value.
+   * @throws NullPointerException if {@code stringValue} is {@code null}.
+   */
+  public static AttributeValue stringAttributeValue(String stringValue) {
+    return new AttributeValue(checkNotNull(stringValue, "stringValue"), null, null);
   }
 
-  static AttributeValue booleanAttributeValue(boolean booleanValue) {
+  /**
+   * Returns an {@code AttributeValue} with a boolean value.
+   *
+   * @param booleanValue The new value.
+   * @return an {@code AttributeValue} with a boolean value.
+   */
+  public static AttributeValue booleanAttributeValue(boolean booleanValue) {
     return new AttributeValue(null, booleanValue, null);
   }
 
-  static AttributeValue longAttributeValue(long longValue) {
+  /**
+   * Returns an {@code AttributeValue} with a long value.
+   *
+   * @param longValue The new value.
+   * @return an {@code AttributeValue} with a long value.
+   */
+  public static AttributeValue longAttributeValue(long longValue) {
     return new AttributeValue(null, null, longValue);
   }
 
