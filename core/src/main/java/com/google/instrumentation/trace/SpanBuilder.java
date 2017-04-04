@@ -14,7 +14,6 @@
 package com.google.instrumentation.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
-import com.google.instrumentation.common.Timestamp;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -115,18 +114,6 @@ public final class SpanBuilder {
     this.hasRemoteParent = hasRemoteParent;
     this.name = name;
     this.spanFactory = spanFactory;
-  }
-
-  /**
-   * Sets the start time for the {@link Span}.
-   *
-   * @param startTime The start time for the {@code Span}. If {@code null} is used, then the current
-   *     system time at the point at which {@link #startSpan} is called will be used.
-   * @return this.
-   */
-  public SpanBuilder setStartTime(@Nullable Timestamp startTime) {
-    startSpanOption.setStartTime(startTime);
-    return this;
   }
 
   /**

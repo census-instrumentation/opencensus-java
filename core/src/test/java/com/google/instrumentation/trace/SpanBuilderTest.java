@@ -21,7 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
-import com.google.instrumentation.common.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -73,7 +72,6 @@ public class SpanBuilderTest {
   public void startScopedSpanRootWithOptions() {
     StartSpanOptions startSpanOptions = new StartSpanOptions();
     startSpanOptions.setSampler(Samplers.neverSample());
-    startSpanOptions.setStartTime(Timestamp.fromMillis(1234567L));
     when(spanFactory.startSpan(
             isNull(SpanContext.class), eq(false), same(SPAN_NAME), eq(startSpanOptions)))
         .thenReturn(span);
@@ -81,7 +79,6 @@ public class SpanBuilderTest {
         spanBuilder
             .becomeRoot()
             .setSampler(Samplers.neverSample())
-            .setStartTime(Timestamp.fromMillis(1234567L))
             .startScopedSpan();
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
