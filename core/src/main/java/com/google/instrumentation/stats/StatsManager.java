@@ -28,4 +28,9 @@ public abstract class StatsManager {
    * Returns the current stats data, {@link View}, associated with the given {@link ViewDescriptor}.
    */
   public abstract View getView(ViewDescriptor viewDescriptor);
+
+  /**
+   * Returns the default {@link StatsContextFactory}.
+   */
+  public abstract StatsContextFactory getStatsContextFactory();
 }

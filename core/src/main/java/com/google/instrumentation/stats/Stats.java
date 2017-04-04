@@ -19,17 +19,17 @@ import com.google.instrumentation.common.Provider;
  * {@link Stats}.
  */
 public final class Stats {
-  private static final StatsContextFactory CONTEXT_FACTORY = Provider.newInstance(
-      "com.google.instrumentation.stats.StatsContextFactoryImpl", null);
-
   private static final StatsManager STATS_MANAGER = Provider.newInstance(
       "com.google.instrumentation.stats.StatsManagerImpl", null);
 
   /**
    * Returns the default {@link StatsContextFactory}.
+   *
+   * @deprecated Use {@link StatsManager#getStatsContextFactory()} instead.
    */
+  @Deprecated
   public static StatsContextFactory getStatsContextFactory() {
-    return CONTEXT_FACTORY;
+    return STATS_MANAGER.getStatsContextFactory();
   }
 
   /**
