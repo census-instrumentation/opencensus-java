@@ -24,10 +24,7 @@ public final class Stats {
 
   /**
    * Returns the default {@link StatsContextFactory}.
-   *
-   * @deprecated Use {@link StatsManager#getStatsContextFactory()} instead.
    */
-  @Deprecated
   public static StatsContextFactory getStatsContextFactory() {
     return statsManager.getStatsContextFactory();
   }

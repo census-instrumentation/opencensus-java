@@ -72,8 +72,7 @@ public class StatsRunner {
     System.out.println("Current == Default: " + getCurrentStatsContext().equals(DEFAULT));
   }
 
-  private static final StatsContext DEFAULT =
-      Stats.getStatsManager().getStatsContextFactory().getDefault();
+  private static final StatsContext DEFAULT = Stats.getStatsContextFactory().getDefault();
 
   private static final Context.Key<StatsContext> STATS_CONTEXT_KEY =
       Context.keyWithDefault("StatsContextKey", DEFAULT);

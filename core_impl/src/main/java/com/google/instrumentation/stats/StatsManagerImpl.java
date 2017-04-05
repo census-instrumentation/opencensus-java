@@ -31,7 +31,7 @@ public final class StatsManagerImpl extends StatsManager {
   }
 
   @Override
-  public StatsContextFactoryImpl getStatsContextFactory() {
+  StatsContextFactoryImpl getStatsContextFactory() {
     return statsContextFactory;
   }
 }

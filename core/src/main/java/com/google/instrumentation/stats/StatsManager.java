@@ -32,5 +32,5 @@ public abstract class StatsManager {
   /**
    * Returns the default {@link StatsContextFactory}.
    */
-  public abstract StatsContextFactory getStatsContextFactory();
+  abstract StatsContextFactory getStatsContextFactory();
 }
