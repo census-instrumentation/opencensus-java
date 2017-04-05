@@ -13,39 +13,27 @@
 
 package com.google.instrumentation.stats;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
 /**
- * A singleton class that stores a mapping from MeasurementDescriptors to a set of Views.
+ * A class that stores a singleton map from MeasurementDescriptors to Views.
  */
-public final class MeasurementDescriptorToViewMap {
-
-  // We are using a preset measurement {@link RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY}
-  // for this prototype.
-  // The prototype does not support setting measurements or views dynamically.
-  // TODO(songya): remove the hard-coded preset measurement later.
-  // TODO(songya): replace View with a new MutableView class.
-  private static final Map<MeasurementDescriptor, Set<View>> mutableMap =
-      new ConcurrentHashMap<MeasurementDescriptor, Set<View>>();
-
-  static {
-    mutableMap.put(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY,
-        Collections.synchronizedSet(new HashSet<View>()));
-  }
-
-  // TODO(songya): support setting measurements and views dynamically.
-  private static final Map<MeasurementDescriptor, Set<View>> map =
-      Collections.unmodifiableMap(mutableMap);
+final class MeasurementDescriptorToViewMap {
 
   /**
-   * Returns the singleton {@link MeasurementDescriptorToViewMap}.
+   * A synchronized singleton map that storing the one-to-many mapping from MeasurementDescriptors
+   * to Views.
    */
-  public static final Map<MeasurementDescriptor, Set<View>> getMap() {
-    return map;
+  private static final Multimap<MeasurementDescriptor, View> mutableMap =
+      Multimaps.synchronizedMultimap(HashMultimap.<MeasurementDescriptor, View>create());
+
+  /**
+   * Returns the singleton MeasurementDescriptors to Views map.
+   */
+  static final Multimap<MeasurementDescriptor, View> getMap() {
+    return mutableMap;
   }
 
   // Visible for testing
