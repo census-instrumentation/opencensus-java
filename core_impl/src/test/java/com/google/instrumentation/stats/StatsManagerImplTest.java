@@ -17,9 +17,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
-import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -28,6 +29,9 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class StatsManagerImplTest {
+
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
 
   private StatsManager statsManager = new StatsManagerImpl();
 
@@ -44,19 +48,23 @@ public class StatsManagerImplTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void testRegisterUnsupportedViewDesciptor() throws Exception {
+    thrown.expect(UnsupportedOperationException.class);
     statsManager.registerView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testRegisterDuplicatedViewDesciptor() throws Exception {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+
+    thrown.expect(IllegalArgumentException.class);
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testGetNonexistentView() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
     statsManager.getView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
   }
 }
