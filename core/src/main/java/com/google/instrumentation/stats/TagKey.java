@@ -13,13 +13,18 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.auto.value.AutoValue;
+
 /**
  * Tag keys.
  *
  * <p>TagKey's are {@link String}s with enforced restrictions.
  */
-public final class TagKey {
+@AutoValue
+public abstract class TagKey {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
+
+  TagKey() {}
 
   /**
    * Constructs a new {@link TagKey} from the given string. The string will be sanitize such that:
@@ -30,27 +35,14 @@ public final class TagKey {
    * </ol>
    */
   public static TagKey create(String key) {
-    return new TagKey(key);
+    return new AutoValue_TagKey(StringUtil.sanitize(key));
   }
 
+  public abstract String asString();
+
+  // TODO(sebright) Use the default AutoValue toString(), which is more useful for debugging.
   @Override
-  public boolean equals(Object obj) {
-    return (obj instanceof TagKey) && key.equals(((TagKey) obj).key);
-  }
-
-  @Override
-  public int hashCode() {
-    return key.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return key;
-  }
-
-  private final String key;
-
-  private TagKey(String key) {
-    this.key = StringUtil.sanitize(key);
+  public final String toString() {
+    return asString();
   }
 }
