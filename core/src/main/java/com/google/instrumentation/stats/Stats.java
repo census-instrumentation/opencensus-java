@@ -19,7 +19,7 @@ import com.google.instrumentation.common.Provider;
  * {@link Stats}.
  */
 public final class Stats {
-  private static final StatsManager STATS_MANAGER = Provider.newInstance(
+  private static final StatsManager statsManager = Provider.newInstance(
       "com.google.instrumentation.stats.StatsManagerImpl", null);
 
   /**
@@ -29,14 +29,14 @@ public final class Stats {
    */
   @Deprecated
   public static StatsContextFactory getStatsContextFactory() {
-    return STATS_MANAGER.getStatsContextFactory();
+    return statsManager.getStatsContextFactory();
   }
 
   /**
    * Returns the default {@link StatsManager}.
    */
   public static StatsManager getStatsManager() {
-    return STATS_MANAGER;
+    return statsManager;
   }
 
   // VisibleForTesting
