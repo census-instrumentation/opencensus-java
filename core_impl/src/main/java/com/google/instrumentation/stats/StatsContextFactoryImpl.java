@@ -20,10 +20,8 @@ import java.util.HashMap;
 /**
  * Native Implementation of {@link StatsContextFactory}.
  */
-public final class StatsContextFactoryImpl extends StatsContextFactory {
+final class StatsContextFactoryImpl extends StatsContextFactory {
   static final StatsContextImpl DEFAULT = new StatsContextImpl(new HashMap<String, String>(0));
-
-  public StatsContextFactoryImpl() {}
 
   /**
    * Deserializes a {@link StatsContextImpl} from a serialized {@code CensusContextProto}.

@@ -14,37 +14,24 @@
 package com.google.instrumentation.trace;
 
 import com.google.common.base.Objects;
-import com.google.instrumentation.common.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
 /**
  * A class that enables overriding the default values used when starting a {@link Span}. Allows
- * overriding the {@link Timestamp start time}, the {@link Sampler sampler}, the parent links, and
- * option to record all the events even if the {@code Span} is not sampled.
+ * overriding the {@link Sampler sampler}, the parent links, and option to record all the events
+ * even if the {@code Span} is not sampled.
  */
 final class StartSpanOptions {
-  private Timestamp startTime;
   private Sampler sampler;
   private List<Span> parentLinks;
   private Boolean recordEvents;
 
   StartSpanOptions() {
-    this.startTime = null;
     this.sampler = null;
     this.parentLinks = null;
     this.recordEvents = null;
-  }
-
-  /**
-   * Returns start time to be used, or {@code null} if default.
-   *
-   * @return start time to be used, or {@code null} if default.
-   */
-  @Nullable
-  Timestamp getStartTime() {
-    return startTime;
   }
 
   /**
@@ -90,19 +77,14 @@ final class StartSpanOptions {
     }
 
     StartSpanOptions that = (StartSpanOptions) obj;
-    return Objects.equal(startTime, that.startTime)
-        && Objects.equal(sampler, that.sampler)
+    return Objects.equal(sampler, that.sampler)
         && Objects.equal(parentLinks, that.parentLinks)
         && Objects.equal(recordEvents, that.recordEvents);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(startTime, sampler, parentLinks, recordEvents);
-  }
-
-  void setStartTime(@Nullable Timestamp startTime) {
-    this.startTime = startTime;
+    return Objects.hashCode(sampler, parentLinks, recordEvents);
   }
 
   void setSampler(@Nullable Sampler sampler) {

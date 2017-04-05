@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, Google Inc.
+ * Copyright 2017, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,8 +25,10 @@ import java.util.Collection;
  * Native Implementation of {@link StatsManager}.
  */
 public final class StatsManagerImpl extends StatsManager {
+
   private final Multimap<MeasurementDescriptor, View> measurementDescriptorToViewMap =
       MeasurementDescriptorToViewMap.getMap();
+  private final StatsContextFactoryImpl statsContextFactory = new StatsContextFactoryImpl();
 
   @Override
   public void registerView(ViewDescriptor viewDescriptor) {
@@ -91,5 +93,10 @@ public final class StatsManagerImpl extends StatsManager {
     } else {
       return view;
     }
+  }
+
+  @Override
+  StatsContextFactoryImpl getStatsContextFactory() {
+    return statsContextFactory;
   }
 }
