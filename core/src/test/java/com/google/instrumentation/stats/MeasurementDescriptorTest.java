@@ -62,6 +62,21 @@ public final class MeasurementDescriptorTest {
   }
 
   @Test
+  public void testMeasurementDescriptorNameSanitization() {
+    assertThat(MeasurementDescriptor.Name.create("md\1").asString())
+        .isEqualTo("md" + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE);
+  }
+
+  @Test
+  public void testMeasurementDescriptorNameEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            MeasurementDescriptor.Name.create("md1"), MeasurementDescriptor.Name.create("md1"))
+        .addEqualityGroup(MeasurementDescriptor.Name.create("md2"))
+        .testEquals();
+  }
+
+  @Test
   public void testMeasurementUnitEquals() {
     new EqualsTester()
         .addEqualityGroup(
@@ -86,7 +101,7 @@ public final class MeasurementDescriptorTest {
                 MeasurementUnit.create(
                     1, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS))),
             MeasurementDescriptor.create(
-                "name",
+                MeasurementDescriptor.Name.create("name"),
                 "description",
                 MeasurementUnit.create(
                     1, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS))))
