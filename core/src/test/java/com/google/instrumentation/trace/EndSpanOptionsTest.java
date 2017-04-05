@@ -16,7 +16,6 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import com.google.instrumentation.common.Timestamp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,42 +31,26 @@ public class EndSpanOptionsTest {
   @Test
   public void endSpanOptions_DefaultOptions() {
     assertThat(EndSpanOptions.DEFAULT.getStatus()).isEqualTo(Status.OK);
-    assertThat(EndSpanOptions.DEFAULT.getEndTime()).isNull();
   }
 
   @Test
-  public void setEndTimestamp() {
-    EndSpanOptions endSpanOptions =
-        EndSpanOptions.builder().setEndTime(Timestamp.fromMillis(123456L)).build();
-    assertThat(endSpanOptions.getStatus()).isEqualTo(Status.OK);
-    assertThat(endSpanOptions.getEndTime()).isEqualTo(Timestamp.fromMillis(123456L));
-  }
-
-  @Test
-  public void setTimestampAndStatus() {
+  public void setStatus() {
     EndSpanOptions endSpanOptions =
         EndSpanOptions.builder()
-            .setEndTime(Timestamp.fromMillis(123456L))
             .setStatus(Status.CANCELLED.withDescription("ThisIsAnError"))
             .build();
     assertThat(endSpanOptions.getStatus())
         .isEqualTo(Status.CANCELLED.withDescription("ThisIsAnError"));
-    assertThat(endSpanOptions.getEndTime()).isEqualTo(Timestamp.fromMillis(123456L));
   }
 
   @Test
   public void endSpanOptions_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(
-        EndSpanOptions.builder().setEndTime(Timestamp.fromMillis(123456L)).build(),
-        EndSpanOptions.builder().setEndTime(Timestamp.fromMillis(123456L)).build());
-    tester.addEqualityGroup(
         EndSpanOptions.builder()
-            .setEndTime(Timestamp.fromMillis(123456L))
             .setStatus(Status.CANCELLED.withDescription("ThisIsAnError"))
             .build(),
         EndSpanOptions.builder()
-            .setEndTime(Timestamp.fromMillis(123456L))
             .setStatus(Status.CANCELLED.withDescription("ThisIsAnError"))
             .build());
     tester.addEqualityGroup(EndSpanOptions.builder().build(), EndSpanOptions.DEFAULT);
@@ -78,10 +61,8 @@ public class EndSpanOptionsTest {
   public void endSpanOptions_ToString() {
     EndSpanOptions endSpanOptions =
         EndSpanOptions.builder()
-            .setEndTime(Timestamp.fromMillis(123456L))
             .setStatus(Status.CANCELLED.withDescription("ThisIsAnError"))
             .build();
-    assertThat(endSpanOptions.toString()).contains(Timestamp.fromMillis(123456L).toString());
     assertThat(endSpanOptions.toString()).contains("ThisIsAnError");
   }
 }
