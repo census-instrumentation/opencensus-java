@@ -19,14 +19,26 @@ import javax.annotation.Nullable;
 abstract class SpanFactory {
   /**
    * Creates and starts a new child {@link Span} (or root if parent is {@code null}), with parent
-   * being the {@code Span} designated by the {@link SpanContext} and the given options.
+   * being the designated {@code Span} and the given options.
    *
    * @param parent The parent of the returned {@code Span}.
-   * @param hasRemoteParent {@code true} if this is a child of a remote {@code Span}.
    * @param name The name of the returned {@code Span}.
    * @param options The options for the start of the {@code Span}.
    * @return A child {@code Span} that will have the name provided.
    */
-  abstract Span startSpan(
-      @Nullable SpanContext parent, boolean hasRemoteParent, String name, StartSpanOptions options);
+  abstract Span startSpan(@Nullable Span parent, String name, StartSpanOptions options);
+
+  /**
+   * Creates and starts a new child {@link Span} (or root if parent is {@code null}), with parent
+   * being the {@code Span} designated by the {@link SpanContext} and the given options.
+   *
+   * <p>This must be used to create a {@code Span} when the parent is on a different process.
+   *
+   * @param remoteParent The remote parent of the returned {@code Span}.
+   * @param name The name of the returned {@code Span}.
+   * @param options The options for the start of the {@code Span}.
+   * @return A child {@code Span} that will have the name provided.
+   */
+  abstract Span startSpanWithRemoteParent(
+      @Nullable SpanContext remoteParent, String name, StartSpanOptions options);
 }

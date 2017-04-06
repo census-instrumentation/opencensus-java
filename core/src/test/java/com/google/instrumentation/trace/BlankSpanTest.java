@@ -38,10 +38,8 @@ public class BlankSpanTest {
     Map<String, AttributeValue> multipleAttributes = new HashMap<String, AttributeValue>();
     multipleAttributes.put(
         "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
-    multipleAttributes.put(
-        "MyBooleanAttributeKey", AttributeValue.booleanAttributeValue(true));
-    multipleAttributes.put(
-        "MyLongAttributeKey", AttributeValue.longAttributeValue(123));
+    multipleAttributes.put("MyBooleanAttributeKey", AttributeValue.booleanAttributeValue(true));
+    multipleAttributes.put("MyLongAttributeKey", AttributeValue.longAttributeValue(123));
     // Tests only that all the methods are not crashing/throwing errors.
     BlankSpan.INSTANCE.addAttributes(attributes);
     BlankSpan.INSTANCE.addAttributes(multipleAttributes);
