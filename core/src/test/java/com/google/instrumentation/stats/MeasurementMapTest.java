@@ -110,8 +110,8 @@ public class MeasurementMapTest {
     while (e.hasNext() && a.hasNext()) {
       MeasurementValue expectedMeasurement = e.next();
       MeasurementValue actualMeasurement = a.next();
-      assertThat(expectedMeasurement.getMeasurement().getName())
-          .isEqualTo(actualMeasurement.getMeasurement().getName());
+      assertThat(expectedMeasurement.getMeasurement().getMeasurementDescriptorName())
+          .isEqualTo(actualMeasurement.getMeasurement().getMeasurementDescriptorName());
       assertThat(expectedMeasurement.getValue())
           .isWithin(0.00000001).of(actualMeasurement.getValue());
     }

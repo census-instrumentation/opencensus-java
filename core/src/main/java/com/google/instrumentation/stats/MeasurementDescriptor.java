@@ -35,13 +35,28 @@ public abstract class MeasurementDescriptor {
    */
   public static MeasurementDescriptor create(
       String name, String description, MeasurementUnit unit) {
-    return new AutoValue_MeasurementDescriptor(StringUtil.sanitize(name), description, unit);
+    return create(Name.create(name), description, unit);
+  }
+
+  /**
+   * Constructs a new {@link MeasurementDescriptor}.
+   */
+  public static MeasurementDescriptor create(
+      Name name, String description, MeasurementUnit unit) {
+    return new AutoValue_MeasurementDescriptor(name, description, unit);
   }
 
   /**
    * Name of measurement, e.g. rpc_latency, cpu. Must be unique.
    */
-  public abstract String getName();
+  public abstract MeasurementDescriptor.Name getMeasurementDescriptorName();
+
+  /**
+   * Name of measurement, as a {@code String}.
+   */
+  public final String getName() {
+    return getMeasurementDescriptorName().asString();
+  }
 
   /**
    * Detailed description of the measurement, used in documentation.
@@ -62,6 +77,33 @@ public abstract class MeasurementDescriptor {
     BYTES,
     SECONDS,
     CORES;
+  }
+
+  /**
+   * The name of a {@code MeasurementDescriptor}.
+   */
+  // This type should be used as the key when associating data with MeasurementDescriptors.
+  @AutoValue
+  public abstract static class Name {
+
+    Name() {}
+
+    /**
+     * Returns the name as a {@code String}.
+     *
+     * @return the name as a {@code String}.
+     */
+    public abstract String asString();
+
+    /**
+     * Creates a {@code MeasurementDescriptor.Name} from a {@code String}.
+     *
+     * @param name the name {@code String}.
+     * @return a {@code MeasurementDescriptor.Name} with the given name {@code String}.
+     */
+    public static Name create(String name) {
+      return new AutoValue_MeasurementDescriptor_Name(StringUtil.sanitize(name));
+    }
   }
 
   /**

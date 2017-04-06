@@ -103,9 +103,10 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
       // MeasurementMaps that we should see. We may want to go to a strategy of sort/eliminate
       // for larger MeasurementMaps.
       for (int i = 0; i < measurements.size(); i++) {
-        String current = measurements.get(i).getMeasurement().getName();
+        MeasurementDescriptor.Name current =
+            measurements.get(i).getMeasurement().getMeasurementDescriptorName();
         for (int j = i + 1; j < measurements.size(); j++) {
-          if (current.equals(measurements.get(j).getMeasurement().getName())) {
+          if (current.equals(measurements.get(j).getMeasurement().getMeasurementDescriptorName())) {
             measurements.remove(j);
             j--;
           }
