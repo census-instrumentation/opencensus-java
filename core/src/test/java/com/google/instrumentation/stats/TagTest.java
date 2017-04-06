@@ -50,13 +50,6 @@ public final class TagTest {
         .testEquals();
   }
 
-  @Test
-  public void testToString() {
-    assertThat(Tag.create(K1, V1).toString()).isEqualTo("Tag<k1,v1>");
-    assertThat(Tag.create(K2, V1).toString()).isEqualTo("Tag<k2,v1>");
-    assertThat(Tag.create(K1, V2).toString()).isEqualTo("Tag<k1,v2>");
-  }
-
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
   private static final TagValue V1 = TagValue.create("v1");

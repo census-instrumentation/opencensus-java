@@ -13,56 +13,29 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.auto.value.AutoValue;
+
 /**
  * A pair of consisting of an associated {@link TagKey} and {@link TagValue}.
  */
-public final class Tag {
+@AutoValue
+public abstract class Tag {
+  Tag() {}
+
   /**
    * Constructs a new {@link Tag} from the given key and value.
    */
   public static Tag create(TagKey key, TagValue value) {
-    return new Tag(key, value);
+    return new AutoValue_Tag(key, value);
   }
 
   /**
    * Returns the associated tag key.
    */
-  public TagKey getKey() {
-    return key;
-  }
+  public abstract TagKey getKey();
 
   /**
    * Returns the associated tag key.
    */
-  public TagValue getValue() {
-    return value;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return (obj instanceof Tag)
-        && key.equals(((Tag) obj).key)
-        && value.equals(((Tag) obj).value);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = 17;
-    result = 31 * result + key.hashCode();
-    result = 31 * result + value.hashCode();
-    return result;
-  }
-
-  @Override
-  public String toString() {
-    return "Tag<" + key + "," + value + ">";
-  }
-
-  private final TagKey key;
-  private final TagValue value;
-
-  private Tag(TagKey key, TagValue value) {
-    this.key = key;
-    this.value = value;
-  }
+  public abstract TagValue getValue();
 }
