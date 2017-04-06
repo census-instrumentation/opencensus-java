@@ -102,18 +102,17 @@ public final class SpanBuilder {
   private final SpanFactory spanFactory;
   private final String name;
   private final StartSpanOptions startSpanOption = new StartSpanOptions();
+  private Span parentSpan;
   private SpanContext parentSpanContext;
-  private boolean hasRemoteParent;
+  private boolean remoteParent;
 
-  SpanBuilder(
-      SpanFactory spanFactory,
-      SpanContext parentSpanContext,
-      boolean hasRemoteParent,
-      String name) {
-    this.parentSpanContext = parentSpanContext;
-    this.hasRemoteParent = hasRemoteParent;
-    this.name = name;
-    this.spanFactory = spanFactory;
+  static SpanBuilder builder(SpanFactory spanFactory, Span parentSpan, String name) {
+    return new SpanBuilder(spanFactory, parentSpan, null, false, name);
+  }
+
+  static SpanBuilder builderWithRemoteParent(
+      SpanFactory spanFactory, SpanContext parentSpanContext, String name) {
+    return new SpanBuilder(spanFactory, null, parentSpanContext, true, name);
   }
 
   /**
@@ -142,13 +141,13 @@ public final class SpanBuilder {
   }
 
   /**
-   * Sets recordEvents.
+   * Sets the option {@link Span.Options#RECORD_EVENTS} for the newly created {@code Span}. If not
+   * called, the implementation will provide a default.
    *
-   * @param recordEvents New value determining if this {@code Span} should have events recorded. If
-   *     a {@code null} value is passed, the implementation will provide a default.
+   * @param recordEvents New value determining if this {@code Span} should have events recorded.
    * @return this.
    */
-  public SpanBuilder setRecordEvents(@Nullable Boolean recordEvents) {
+  public SpanBuilder setRecordEvents(boolean recordEvents) {
     startSpanOption.setRecordEvents(recordEvents);
     return this;
   }
@@ -164,8 +163,9 @@ public final class SpanBuilder {
    * @return this.
    */
   public SpanBuilder becomeRoot() {
+    parentSpan = null;
     parentSpanContext = null;
-    hasRemoteParent = false;
+    remoteParent = false;
     return this;
   }
 
@@ -260,8 +260,23 @@ public final class SpanBuilder {
     return new ScopedSpanHandle(start());
   }
 
+  private SpanBuilder(
+      SpanFactory spanFactory,
+      @Nullable Span parentSpan,
+      @Nullable SpanContext parentSpanContext,
+      boolean remoteParent,
+      String name) {
+    this.parentSpan = parentSpan;
+    this.parentSpanContext = parentSpanContext;
+    this.remoteParent = remoteParent;
+    this.name = name;
+    this.spanFactory = spanFactory;
+  }
+
   // Utility method to start a Span.
   private Span start() {
-    return spanFactory.startSpan(parentSpanContext, hasRemoteParent, name, startSpanOption);
+    return remoteParent
+        ? spanFactory.startSpanWithRemoteParent(parentSpanContext, name, startSpanOption)
+        : spanFactory.startSpan(parentSpan, name, startSpanOption);
   }
 }

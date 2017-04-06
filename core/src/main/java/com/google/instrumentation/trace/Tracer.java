@@ -207,11 +207,7 @@ public final class Tracer {
    * @throws NullPointerException if name is null.
    */
   public SpanBuilder spanBuilder(@Nullable Span parent, String name) {
-    return new SpanBuilder(
-        spanFactory,
-        parent == null ? null : parent.getContext(),
-        /* hasRemoteParent = */ false,
-        checkNotNull(name, "name"));
+    return SpanBuilder.builder(spanFactory, parent, checkNotNull(name, "name"));
   }
 
   /**
@@ -229,18 +225,20 @@ public final class Tracer {
    * @throws NullPointerException if name is null.
    */
   public SpanBuilder spanBuilderWithRemoteParent(@Nullable SpanContext remoteParent, String name) {
-    return new SpanBuilder(
-        spanFactory, remoteParent, /* hasRemoteParent = */ true, checkNotNull(name, "name"));
+    return SpanBuilder.builderWithRemoteParent(
+        spanFactory, remoteParent, checkNotNull(name, "name"));
   }
 
   // No-op implementation of the SpanFactory
   private static final class NoopSpanFactory extends SpanFactory {
     @Override
-    public Span startSpan(
-        @Nullable SpanContext parent,
-        boolean hasRemoteParent,
-        String name,
-        StartSpanOptions options) {
+    Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
+      return BlankSpan.INSTANCE;
+    }
+
+    @Override
+    Span startSpanWithRemoteParent(
+        @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
       return BlankSpan.INSTANCE;
     }
   }
