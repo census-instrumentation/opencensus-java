@@ -26,7 +26,7 @@ import java.util.Collection;
  */
 public final class StatsManagerImpl extends StatsManager {
 
-  private final Multimap<MeasurementDescriptor, View> measurementDescriptorToViewMap =
+  private final Multimap<MeasurementDescriptor.Name, View> measurementDescriptorToViewMap =
       MeasurementDescriptorToViewMap.getMap();
   private final StatsContextFactoryImpl statsContextFactory = new StatsContextFactoryImpl();
 
@@ -42,7 +42,8 @@ public final class StatsManagerImpl extends StatsManager {
     }
 
     MeasurementDescriptor measurementDescriptor = viewDescriptor.getMeasurementDescriptor();
-    Collection<View> views = measurementDescriptorToViewMap.get(measurementDescriptor);
+    Collection<View> views = measurementDescriptorToViewMap.get(
+        measurementDescriptor.getMeasurementDescriptorName());
 
     if (views != null) {
       for (View view : views) {
@@ -69,14 +70,15 @@ public final class StatsManagerImpl extends StatsManager {
           "Unknown type of ViewDescriptor " + viewDescriptor.getClass());
     }
 
-    measurementDescriptorToViewMap.put(measurementDescriptor, newView);
+    measurementDescriptorToViewMap.put(
+        measurementDescriptor.getMeasurementDescriptorName(), newView);
   }
 
   @Override
   public View getView(ViewDescriptor viewDescriptor) {
     View view = null;
     Collection<View> views = measurementDescriptorToViewMap.get(
-        viewDescriptor.getMeasurementDescriptor());
+        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
 
     if (views != null) {
       for (View v : views) {

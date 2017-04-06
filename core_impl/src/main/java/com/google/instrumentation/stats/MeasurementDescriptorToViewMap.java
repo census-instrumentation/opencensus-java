@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, Google Inc.
+ * Copyright 2017, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,13 +26,13 @@ final class MeasurementDescriptorToViewMap {
    * A synchronized singleton map that storing the one-to-many mapping from MeasurementDescriptors
    * to Views.
    */
-  private static final Multimap<MeasurementDescriptor, View> mutableMap =
-      Multimaps.synchronizedMultimap(HashMultimap.<MeasurementDescriptor, View>create());
+  private static final Multimap<MeasurementDescriptor.Name, View> mutableMap =
+      Multimaps.synchronizedMultimap(HashMultimap.<MeasurementDescriptor.Name, View>create());
 
   /**
    * Returns the singleton MeasurementDescriptors to Views map.
    */
-  static final Multimap<MeasurementDescriptor, View> getMap() {
+  static final Multimap<MeasurementDescriptor.Name, View> getMap() {
     return mutableMap;
   }
 
