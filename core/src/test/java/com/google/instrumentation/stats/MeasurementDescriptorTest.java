@@ -53,12 +53,29 @@ public final class MeasurementDescriptorTest {
         MeasurementUnit.create(
             6, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS)));
     assertThat(measurement.getName()).isEqualTo("Foo");
+    assertThat(measurement.getMeasurementDescriptorName())
+        .isEqualTo(MeasurementDescriptor.Name.create("Foo"));
     assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
     assertThat(measurement.getUnit().getPower10()).isEqualTo(6);
     assertThat(measurement.getUnit().getNumerators()).hasSize(1);
     assertThat(measurement.getUnit().getNumerators().get(0)).isEqualTo(BasicUnit.BITS);
     assertThat(measurement.getUnit().getDenominators()).hasSize(1);
     assertThat(measurement.getUnit().getDenominators().get(0)).isEqualTo(BasicUnit.SECONDS);
+  }
+
+  @Test
+  public void testMeasurementDescriptorNameSanitization() {
+    assertThat(MeasurementDescriptor.Name.create("md\1").asString())
+        .isEqualTo("md" + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE);
+  }
+
+  @Test
+  public void testMeasurementDescriptorNameEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            MeasurementDescriptor.Name.create("md1"), MeasurementDescriptor.Name.create("md1"))
+        .addEqualityGroup(MeasurementDescriptor.Name.create("md2"))
+        .testEquals();
   }
 
   @Test
@@ -86,7 +103,7 @@ public final class MeasurementDescriptorTest {
                 MeasurementUnit.create(
                     1, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS))),
             MeasurementDescriptor.create(
-                "name",
+                MeasurementDescriptor.Name.create("name"),
                 "description",
                 MeasurementUnit.create(
                     1, Arrays.asList(BasicUnit.BITS), Arrays.asList(BasicUnit.SECONDS))))
