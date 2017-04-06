@@ -119,7 +119,7 @@ public final class NetworkEvent {
     private Timestamp kernelTimestamp;
     private long messageSize;
 
-    // Contructs a new {@link Builder} with default values.
+    // Constructs a new {@link Builder} with default values.
     private Builder(Type type, long messageId) {
       this.type = checkNotNull(type, "type");
       this.messageId = messageId;
