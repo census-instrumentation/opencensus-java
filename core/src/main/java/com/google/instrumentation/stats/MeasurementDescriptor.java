@@ -34,23 +34,29 @@ public abstract class MeasurementDescriptor {
    * Constructs a new {@link MeasurementDescriptor}.
    */
   public static MeasurementDescriptor create(
-      MeasurementDescriptor.Name name, String description, MeasurementUnit unit) {
-    return new AutoValue_MeasurementDescriptor(name.asString(), description, unit);
+      String name, String description, MeasurementUnit unit) {
+    return create(Name.create(name), description, unit);
   }
 
   /**
    * Constructs a new {@link MeasurementDescriptor}.
    */
   public static MeasurementDescriptor create(
-      String name, String description, MeasurementUnit unit) {
-    return new AutoValue_MeasurementDescriptor(StringUtil.sanitize(name), description, unit);
+      Name name, String description, MeasurementUnit unit) {
+    return new AutoValue_MeasurementDescriptor(name, description, unit);
   }
 
   /**
    * Name of measurement, e.g. rpc_latency, cpu. Must be unique.
    */
-  // TODO(sebright): Change the type of this field to MeasurementDescriptor.Name.
-  public abstract String getName();
+  public abstract MeasurementDescriptor.Name getMeasurementDescriptorName();
+
+  /**
+   * Name of measurement, as a {@code String}.
+   */
+  public final String getName() {
+    return getMeasurementDescriptorName().asString();
+  }
 
   /**
    * Detailed description of the measurement, used in documentation.
