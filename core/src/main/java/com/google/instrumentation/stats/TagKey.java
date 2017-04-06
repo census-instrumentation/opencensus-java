@@ -41,6 +41,7 @@ public abstract class TagKey {
   public abstract String asString();
 
   // TODO(sebright) Use the default AutoValue toString(), which is more useful for debugging.
+  // gRPC is currently calling toString() to access the key field, so we can't change it yet.
   @Override
   public final String toString() {
     return asString();
