@@ -13,13 +13,18 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.auto.value.AutoValue;
+
 /**
  * Tag values.
  *
  * <p>TagValue's are {@link String}s with enforced restrictions.
  */
-public final class TagValue {
+@AutoValue
+public abstract class TagValue {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
+
+  TagValue() {}
 
   /**
    * Constructs a new {@link TagValue} from the given string. The string will be sanitize such that:
@@ -30,27 +35,15 @@ public final class TagValue {
    * </ol>
    */
   public static TagValue create(String value) {
-    return new TagValue(value);
+    return new AutoValue_TagValue(StringUtil.sanitize(value));
   }
 
+  public abstract String asString();
+
+  // TODO(sebright) Use the default AutoValue toString(), which is more useful for debugging.
+  // gRPC is currently calling toString() to access the value field, so we can't change it yet.
   @Override
-  public boolean equals(Object obj) {
-    return (obj instanceof TagValue) && value.equals(((TagValue) obj).value);
-  }
-
-  @Override
-  public int hashCode() {
-    return value.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return value;
-  }
-
-  private final String value;
-
-  private TagValue(String value) {
-    this.value = StringUtil.sanitize(value);
+  public final String toString() {
+    return asString();
   }
 }
