@@ -16,7 +16,6 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import com.google.instrumentation.common.Timestamp;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
