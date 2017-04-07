@@ -13,7 +13,6 @@
 
 package com.google.instrumentation.trace;
 
-import com.google.common.io.BaseEncoding;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -23,13 +22,11 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
-/** Benchmarks for {@link HttpPropagationUtil}. */
+/** Benchmarks for {@link PropagationUtil}. */
 @State(Scope.Benchmark)
-public class HttpPropagationUtilBenchmark {
+public class PropagationUtilBenchmark {
   private static final byte[] traceIdBytes =
       new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'a'};
-  private byte[] spanContextBytes;
-  private String spanContextString;
   private static final TraceId traceId = TraceId.fromBytes(traceIdBytes);
   private static final byte[] spanIdBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 0};
   private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
@@ -37,6 +34,8 @@ public class HttpPropagationUtilBenchmark {
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
   private SpanContext spanContext;
   private String spanContextStringHttp;
+  private byte[] spanContextBinary;
+
 
   /**
    * Setup function for benchmarks.
@@ -44,82 +43,77 @@ public class HttpPropagationUtilBenchmark {
   @Setup
   public void setUp() {
     spanContext = new SpanContext(traceId, spanId, traceOptions);
-    spanContextStringHttp = HttpPropagationUtil.toHttpHeaderValue(spanContext);
-    spanContextBytes = new byte[16 + 8 + 4];
-    traceId.copyBytesTo(spanContextBytes, 0);
-    spanId.copyBytesTo(spanContextBytes, 16);
-    traceOptions.copyBytesTo(spanContextBytes, 24);
-    spanContextString = BaseEncoding.base16().lowerCase().encode(spanContextBytes);
+    spanContextStringHttp = PropagationUtil.toHttpHeaderValue(spanContext);
+    spanContextBinary = PropagationUtil.toBinaryValue(spanContext);
   }
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * HttpPropagationUtil#toHttpHeaderValue(SpanContext)}.
+   * PropagationUtil#toHttpHeaderValue(SpanContext)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public String toHttpHeaderValueSpanContext() {
-    return HttpPropagationUtil.toHttpHeaderValue(spanContext);
+    return PropagationUtil.toHttpHeaderValue(spanContext);
   }
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * HttpPropagationUtil#fromHttpHeaderValue(CharSequence)}.
+   * PropagationUtil#fromHttpHeaderValue(CharSequence)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public SpanContext fromHttpHeaderValueSpanContext() {
-    return HttpPropagationUtil.fromHttpHeaderValue(spanContextStringHttp);
+    return PropagationUtil.fromHttpHeaderValue(spanContextStringHttp);
   }
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * HttpPropagationUtil#toHttpHeaderValue(SpanContext)} then {@link
-   * HttpPropagationUtil#fromHttpHeaderValue(CharSequence)}.
+   * PropagationUtil#toHttpHeaderValue(SpanContext)} then {@link
+   * PropagationUtil#fromHttpHeaderValue(CharSequence)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public SpanContext toFromHttpFormatSpanContext() {
-    return HttpPropagationUtil.fromHttpHeaderValue(
-        HttpPropagationUtil.toHttpHeaderValue(spanContext));
+    return PropagationUtil.fromHttpHeaderValue(
+        PropagationUtil.toHttpHeaderValue(spanContext));
   }
 
   /**
-   * This benchmark attempts to measure performance of base16 encoding from {@link
-   * HttpPropagationUtil#toHttpHeaderValue(SpanContext)}.
+   * This benchmark attempts to measure performance of {@link
+   * PropagationUtil#toBinaryValue(SpanContext)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public String base16EncodeSpanContext() {
-    return BaseEncoding.base16().lowerCase().encode(spanContextBytes);
+  public byte[] toBinaryValueSpanContext() {
+    return PropagationUtil.toBinaryValue(spanContext);
   }
 
   /**
-   * This benchmark attempts to measure performance of base16 decoding from {@link
-   * HttpPropagationUtil#fromHttpHeaderValue(CharSequence)}.
+   * This benchmark attempts to measure performance of {@link
+   * PropagationUtil#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] base16DecodeSpanContext() {
-    return BaseEncoding.base16().lowerCase().decode(spanContextString);
+  public SpanContext fromBinaryValueSpanContext() {
+    return PropagationUtil.fromBinaryValue(spanContextBinary);
   }
 
   /**
-   * This benchmark attempts to measure performance of base16 encoding and decoding from {@link
-   * HttpPropagationUtil#toHttpHeaderValue(SpanContext)} then {@link
-   * HttpPropagationUtil#fromHttpHeaderValue(CharSequence)}.
+   * This benchmark attempts to measure performance of {@link
+   * PropagationUtil#toBinaryValue(SpanContext)} then
+   * {@link PropagationUtil#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] base16EncodeDecodeSpanContext() {
-    return BaseEncoding.base16()
-        .lowerCase()
-        .decode(BaseEncoding.base16().lowerCase().encode(spanContextBytes));
+  public SpanContext toFromBinarySpanContext() {
+    return PropagationUtil.fromBinaryValue(
+        PropagationUtil.toBinaryValue(spanContext));
   }
 }
