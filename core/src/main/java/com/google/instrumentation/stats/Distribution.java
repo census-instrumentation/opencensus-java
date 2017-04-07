@@ -67,10 +67,11 @@ public final class Distribution {
    * @param bucketBoundaries the boundaries for the buckets in the underlying {@code Distribution}.
    * @return a new, empty {@code Distribution} with the specified boundaries.
    * @throws NullPointerException if {@code bucketBoundaries} is null.
-   * @throws IllegalArgumentException if {@code bucketBoundaries} are not sorted.
+   * @throws IllegalArgumentException if {@code bucketBoundaries} is not sorted, or has zero length.
    */
   public static final Distribution create(List<Double> bucketBoundaries) {
     checkNotNull(bucketBoundaries, "bucketBoundaries");
+    checkArgument(bucketBoundaries.size() > 0, "Zero length bucket boundaries");
     double lower = bucketBoundaries.get(0);
     for (int i = 1; i < bucketBoundaries.size(); i++) {
       double next = bucketBoundaries.get(i);

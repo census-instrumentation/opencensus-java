@@ -4,7 +4,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -12,9 +11,6 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link com.google.instrumentation.stats.Distribution}. */
 @RunWith(JUnit4.class)
 public class DistributionTest {
-
-  @Before
-  public void setUp() {}
 
   @Test
   public void testEmptyDistribution() {
@@ -36,6 +32,23 @@ public class DistributionTest {
     for (int i = 0; i < empty.getBucketCounts().size(); i++) {
       assertThat(empty.getBucketCounts().get(i)).isEqualTo(0);
     }
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testNullBoundaries() {
+    Distribution distribution = Distribution.create(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnsortedBoundaries() {
+    List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
+    Distribution distribution = Distribution.create(buckets);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNoBoundaries() {
+    List<Double> buckets = Arrays.asList();
+    Distribution distribution = Distribution.create(buckets);
   }
 
   @Test
