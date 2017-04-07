@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
+// TODO(aveitch) This class should be changed to use Distributions.
 /**
  * Describes data aggregations based on distributions.
  *
