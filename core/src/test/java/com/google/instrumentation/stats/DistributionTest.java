@@ -4,13 +4,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link com.google.instrumentation.stats.Distribution}. */
 @RunWith(JUnit4.class)
 public class DistributionTest {
+
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testEmptyDistribution() {
@@ -34,20 +39,23 @@ public class DistributionTest {
     }
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testNullBoundaries() {
+  @Test
+  public void testNullBoundaries() throws Exception {
+    thrown.expect(NullPointerException.class);
     Distribution distribution = Distribution.create(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testUnsortedBoundaries() {
+  @Test
+  public void testUnsortedBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
+    thrown.expect(IllegalArgumentException.class);
     Distribution distribution = Distribution.create(buckets);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testNoBoundaries() {
+  @Test
+  public void testNoBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList();
+    thrown.expect(IllegalArgumentException.class);
     Distribution distribution = Distribution.create(buckets);
   }
 
