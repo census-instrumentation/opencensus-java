@@ -16,28 +16,38 @@ package com.google.instrumentation.stats;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import java.util.Collection;
 
 /**
- * A class that stores a singleton map from MeasurementDescriptors to Views.
+ * A class that stores a singleton map from {@link MeasurementDescriptor.Name} to {@link View}.
  */
 final class MeasurementDescriptorToViewMap {
 
-  /**
+  /*
    * A synchronized singleton map that storing the one-to-many mapping from MeasurementDescriptors
    * to Views.
    */
-  private static final Multimap<MeasurementDescriptor.Name, View> mutableMap =
+  private final Multimap<MeasurementDescriptor.Name, View> mutableMap =
       Multimaps.synchronizedMultimap(HashMultimap.<MeasurementDescriptor.Name, View>create());
 
   /**
-   * Returns the singleton MeasurementDescriptors to Views map.
+   * Returns a {@link View} corresponding to the given {@link ViewDescriptor}.
    */
-  static final Multimap<MeasurementDescriptor.Name, View> getMap() {
-    return mutableMap;
+  final View getView(ViewDescriptor viewDescriptor) {
+    Collection<View> views = mutableMap.get(
+        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
+    for (View view : views) {
+      if (view.getViewDescriptor().equals(viewDescriptor)) {
+        return view;
+      }
+    }
+    return null;
   }
 
-  // Visible for testing
-  MeasurementDescriptorToViewMap() {
-    throw new AssertionError();
+  /**
+   * Map a new {@link View} to a {@link MeasurementDescriptor.Name}.
+   */
+  void putView(MeasurementDescriptor.Name name, View view) {
+    mutableMap.put(name, view);
   }
 }
