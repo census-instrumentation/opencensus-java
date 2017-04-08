@@ -36,10 +36,12 @@ public class PropagationUtilTest {
   private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
   private static final byte[] traceOptionsBytes = new byte[] {1, (byte) 0x34, 0, (byte) 0x12};
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
+  private static final String EXAMPLE_STRING =
+      "0000404142434445464748494A4B4C4D4E4F0161626364656667680201000000";
   private static final byte[] EXAMPLE_BYTES =
       new byte[] {
-        0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 97, 98, 99, 100, 101,
-        102, 103, 104, 1, 0, 0, 0
+        0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
+        101, 102, 103, 104, 2, 1, 0, 0, 0
       };
   private static final SpanContext EXAMPLE_SPAN_CONTEXT =
       new SpanContext(
@@ -86,7 +88,7 @@ public class PropagationUtilTest {
   @Test
   public void format_SpanContext() {
     assertThat(PropagationUtil.toHttpHeaderValue(new SpanContext(traceId, spanId, traceOptions)))
-        .isEqualTo("0000000000000000000000000000000061FF0000000000000001340012");
+        .isEqualTo("00000000000000000000000000000000006101FF000000000000000201340012");
   }
 
   @Test(expected = NullPointerException.class)
@@ -97,48 +99,62 @@ public class PropagationUtilTest {
   @Test
   public void toHttpHeaderValue_InvalidSpanContext() {
     assertThat(PropagationUtil.toHttpHeaderValue(SpanContext.INVALID))
-        .isEqualTo("0000000000000000000000000000000000000000000000000000000000");
+        .isEqualTo("0000000000000000000000000000000000000100000000000000000200000000");
   }
 
   @Test
   public void parseHeaderValue_ValidValues() {
     assertThat(
             PropagationUtil.fromHttpHeaderValue(
-                "0000000000000000000000000000000061FF0000000000000001340012"))
+                "00000000000000000000000000000000006101FF000000000000000201340012"))
         .isEqualTo(new SpanContext(traceId, spanId, traceOptions));
 
     assertThat(
             PropagationUtil.fromHttpHeaderValue(
-                "0000000000000000000000000000000000FF0000000000000001340012"))
+                "00000000000000000000000000000000000001FF000000000000000201340012"))
         .isEqualTo(new SpanContext(TraceId.INVALID, spanId, traceOptions));
 
     assertThat(
             PropagationUtil.fromHttpHeaderValue(
-                "0000000000000000000000000000000061000000000000000001340012"))
+                "0000000000000000000000000000000000610100000000000000000201340012"))
         .isEqualTo(new SpanContext(traceId, SpanId.INVALID, traceOptions));
 
     assertThat(
             PropagationUtil.fromHttpHeaderValue(
-                "0000000000000000000000000000000061FF0000000000000000000000"))
+                "00000000000000000000000000000000006101FF000000000000000200000000"))
         .isEqualTo(new SpanContext(traceId, spanId, TraceOptions.DEFAULT));
+
+    assertThat(
+            PropagationUtil.fromHttpHeaderValue(
+                "00000000000000000000000000000000006101FF00000000000000"))
+        .isEqualTo(new SpanContext(traceId, spanId, TraceOptions.DEFAULT));
+
+    assertThat(PropagationUtil.fromHttpHeaderValue("000000000000000000000000000000000061"))
+        .isEqualTo(new SpanContext(traceId, SpanId.INVALID, TraceOptions.DEFAULT));
+
+    assertThat(PropagationUtil.fromHttpHeaderValue("00"))
+        .isEqualTo(new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT));
+
+    assertThat(PropagationUtil.fromHttpHeaderValue("0001FF00000000000000"))
+        .isEqualTo(new SpanContext(TraceId.INVALID, spanId, TraceOptions.DEFAULT));
+
+    assertThat(PropagationUtil.fromHttpHeaderValue("0001FF000000000000000201340012"))
+        .isEqualTo(new SpanContext(TraceId.INVALID, spanId, traceOptions));
+
+    assertThat(PropagationUtil.fromHttpHeaderValue("000201340012"))
+        .isEqualTo(new SpanContext(TraceId.INVALID, SpanId.INVALID, traceOptions));
   }
 
   @Test
   public void parseHeaderValue_HttpExampleValue() {
-    assertThat(
-            PropagationUtil.fromHttpHeaderValue(
-                "00404142434445464748494A4B4C4D4E4F616263646566676801000000"))
+    assertThat(PropagationUtil.fromHttpHeaderValue(EXAMPLE_STRING))
         .isEqualTo(
             new SpanContext(
                 TraceId.fromBytes(
                     new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}),
                 SpanId.fromBytes(new byte[] {97, 98, 99, 100, 101, 102, 103, 104}),
                 TraceOptions.fromBytes(new byte[] {1, 0, 0, 0})));
-    assertThat(
-            PropagationUtil.fromHttpHeaderValue(
-                    "00404142434445464748494A4B4C4D4E4F616263646566676801000000")
-                .getTraceOptions()
-                .getOptions())
+    assertThat(PropagationUtil.fromHttpHeaderValue(EXAMPLE_STRING).getTraceOptions().getOptions())
         .isEqualTo(1);
   }
 
@@ -168,18 +184,7 @@ public class PropagationUtilTest {
   @Test(expected = IllegalArgumentException.class)
   public void parseHttpHeaderValue_UnsupportedVersionId() {
     PropagationUtil.fromHttpHeaderValue(
-        "4200000000000000000000000000000061FF0000000000000000000001");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void parseHttpHeaderValue_LongerVersionFormat() {
-    PropagationUtil.fromHttpHeaderValue(
-        "0000000000000000000000000000000061FF000000000000000000000100");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void parseHttpHeaderValue_ShorterVersionFormat() {
-    PropagationUtil.fromHttpHeaderValue("0000000000000000000000000000000000ff00000000000000000001");
+        "42000000000000000000000000000000006101FF000000000000000201340012");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -219,21 +224,39 @@ public class PropagationUtilTest {
         });
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void parseBinaryValue_LongerVersionFormat() {
-    PropagationUtil.fromBinaryValue(
-        new byte[] {
-          0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 97, 98, 99, 100, 101,
-          102, 103, 104, 1, 0, 0, 0, 0
-        });
+  @Test
+  public void parseBinaryValue_UnsupportedFieldIdFirst() {
+    assertThat(
+            PropagationUtil.fromBinaryValue(
+                new byte[] {
+                  0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98,
+                  99, 100, 101, 102, 103, 104, 2, 1, 0, 0, 0, 0
+                }))
+        .isEqualTo(new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
+  public void parseBinaryValue_UnsupportedFieldIdSecond() {
+    assertThat(
+            PropagationUtil.fromBinaryValue(
+                new byte[] {
+                  0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 3, 97, 98,
+                  99, 100, 101, 102, 103, 104, 2, 1, 0, 0, 0, 0
+                }))
+        .isEqualTo(
+            new SpanContext(
+                TraceId.fromBytes(
+                    new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}),
+                SpanId.INVALID,
+                TraceOptions.DEFAULT));
+  }
+
+  @Test(expected = ArrayIndexOutOfBoundsException.class)
   public void parseBinaryValue_ShorterVersionFormat() {
     PropagationUtil.fromBinaryValue(
         new byte[] {
-          0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 97, 98, 99, 100, 101,
-          102, 103, 104, 1, 0
+          0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
+          101, 102, 103, 104, 2, 1, 0
         });
   }
 
@@ -244,7 +267,7 @@ public class PropagationUtilTest {
     PropagationUtil.setHandler(mockHandler);
     try {
       assertThat(PropagationUtil.fromBinaryValue(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
-    } finally{
+    } finally {
       PropagationUtil.setHandler(DefaultHandler.INSTANCE);
     }
   }
@@ -256,7 +279,7 @@ public class PropagationUtilTest {
     PropagationUtil.setHandler(mockHandler);
     try {
       assertThat(PropagationUtil.toBinaryValue(EXAMPLE_SPAN_CONTEXT)).isEqualTo(EXAMPLE_BYTES);
-    } finally{
+    } finally {
       PropagationUtil.setHandler(DefaultHandler.INSTANCE);
     }
   }

@@ -71,7 +71,7 @@ public final class SpanId implements Comparable<SpanId> {
    *     begins.
    * @return a {@code SpanId} whose representation is copied from the buffer.
    * @throws NullPointerException if {@code src} is null.
-   * @throws IllegalArgumentException if {@code srcOffset+SpanId.SIZE} is greater than {@code
+   * @throws IndexOutOfBoundsException if {@code srcOffset+SpanId.SIZE} is greater than {@code
    *     src.length}.
    */
   public static SpanId fromBytes(byte[] src, int srcOffset) {

@@ -78,7 +78,7 @@ public final class TraceOptions {
    *     begins.
    * @return a {@code TraceOptions} whose representation is copied from the buffer.
    * @throws NullPointerException if {@code src} is null.
-   * @throws IllegalArgumentException if {@code srcOffset+TraceOptions.SIZE} is greater than {@code
+   * @throws IndexOutOfBoundsException if {@code srcOffset+TraceOptions.SIZE} is greater than {@code
    *     src.length}.
    */
   public static TraceOptions fromBytes(byte[] src, int srcOffset) {
