@@ -13,11 +13,9 @@
 
 package com.google.instrumentation.stats;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -26,13 +24,13 @@ import javax.annotation.Nullable;
  * histogram representing the distribution of those values across a specified set of histogram
  * buckets.
  *
- * <p>The bucket boundaries for that histogram are described by {@link getBucketBoundaries}, which
- * defines {@code getBucketBoundaries.size() + 1 (= N)} buckets. The boundaries for bucket index i
- * are:
+ * <p>The bucket boundaries for that histogram are described by {@link BucketBoundaries}, which
+ * defines {@code BucketBoundaries.getBoundaries().size() + 1 (= N)} buckets.
+ * The boundaries for bucket index i are:
  *
  * <ul>
  *   <li>[-infinity, bounds[i]) for i == 0
- *   <li>[bounds[i-1], bounds[i]) for 0 &lt; i &lt; N-2
+ *   <li>[bounds[i-1], bounds[i]) for 0 &lt; i &lt; N-1
  *   <li>[bounds[i-1], +infinity) for i == N-1
  * </ul>
  *
@@ -41,6 +39,7 @@ import javax.annotation.Nullable;
  *
  * <p>Note: If N = 1, there are no finite buckets and the single bucket is both the overflow and
  * underflow bucket.
+ * TODO(songya): needs to determine whether N = 1 is valid. (Currently we don't allow N = 1.)
  *
  * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities or
  * NaNs) in the population of values, as this will render the {@code mean} meaningless.
@@ -48,9 +47,9 @@ import javax.annotation.Nullable;
 public final class Distribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
-  private Range range = new Range(); // Range of values in the population.
-  private final ArrayList<Double> bucketBoundaries; // Histogram boundaries; null means no histogram
-  private Long[] bucketCounts; // Counts for each histogram bucket
+  private Range range = Range.create(); // Range of values in the population.
+  private final BucketBoundaries bucketBoundaries; // Histogram boundaries; null means no histogram
+  private long[] bucketCounts; // Counts for each histogram bucket
 
   /**
    * Constructs a new, empty {@link Distribution}.
@@ -62,22 +61,13 @@ public final class Distribution {
   }
 
   /**
-   * Constructs a new {@link Distribution} with specified {@code bucketBoundaries}.
+   * Constructs a new {@link Distribution} with specified {@code bucketBoundaryList}.
    *
    * @param bucketBoundaries the boundaries for the buckets in the underlying {@code Distribution}.
    * @return a new, empty {@code Distribution} with the specified boundaries.
-   * @throws NullPointerException if {@code bucketBoundaries} is null.
-   * @throws IllegalArgumentException if {@code bucketBoundaries} is not sorted, or has zero length.
    */
-  public static final Distribution create(List<Double> bucketBoundaries) {
-    checkNotNull(bucketBoundaries, "bucketBoundaries");
-    checkArgument(bucketBoundaries.size() > 0, "Zero length bucket boundaries");
-    double lower = bucketBoundaries.get(0);
-    for (int i = 1; i < bucketBoundaries.size(); i++) {
-      double next = bucketBoundaries.get(i);
-      checkArgument(lower < next, "Bucket boundaries not sorted.");
-      lower = next;
-    }
+  public static final Distribution create(BucketBoundaries bucketBoundaries) {
+    checkNotNull(bucketBoundaries, "bucketBoundaries Object should not be null.");
     return new Distribution(bucketBoundaries);
   }
 
@@ -86,18 +76,11 @@ public final class Distribution {
     return (bucketBoundaries != null);
   }
 
-  // Construct a new Distribution with given boundaries.
-  private Distribution(List<Double> bucketBoundaries) {
-    this.bucketBoundaries =
-        (bucketBoundaries == null) ? null : new ArrayList<Double>(bucketBoundaries.size());
+  // Construct a new Distribution with optional bucket boundaries.
+  private Distribution(@Nullable BucketBoundaries bucketBoundaries) {
+    this.bucketBoundaries = bucketBoundaries;
     if (hasBuckets()) {
-      for (Double value : bucketBoundaries) {
-        this.bucketBoundaries.add(value);
-      }
-      bucketCounts = new Long[bucketBoundaries.size() + 1];
-      for (int i = 0; i < bucketCounts.length; i++) {
-        bucketCounts[i] = 0L;
-      }
+      bucketCounts = new long[bucketBoundaries.getBoundaries().size() + 1];
     }
   }
 
@@ -132,8 +115,9 @@ public final class Distribution {
 
   /**
    * The range of the population values. If {@link #getCount()} is zero then this returned range is
-   * implementation-dependent. @ return The {code Range} representing the range of population
-   * boundaries.
+   * implementation-dependent.
+   *
+   * @return The {code Range} representing the range of population values.
    */
   public Range getRange() {
     return range;
@@ -142,36 +126,40 @@ public final class Distribution {
   /**
    * A Distribution may optionally contain a histogram of the values in the population. The
    * histogram is given in {@link #getBucketCounts()} as counts of values that fall into one of a
-   * sequence of non-overlapping buckets, described by {@link
-   * DistributionAggregationDescriptor#getBucketBoundaries()}. The sum of the values in {@link
-   * #getBucketCounts()} must equal the value in {@link #getCount()}.
+   * sequence of non-overlapping buckets, described by {@link BucketBoundaries}.
+   * The sum of the values in {@link #getBucketCounts()} must equal the value in
+   * {@link #getCount()}.
    *
    * <p>Bucket counts are given in order under the numbering scheme described above (the underflow
    * bucket has number 0; the finite buckets, if any, have numbers 1 through N-2; the overflow
    * bucket has number N-1).
    *
    * <p>The size of {@link #getBucketCounts()} must be no greater than N as defined in {@link
-   * DistributionAggregationDescriptor#getBucketBoundaries()}.
+   * BucketBoundaries}.
    *
    * <p>Any suffix of trailing buckets containing only zero may be omitted.
    *
-   * <p>{@link #getBucketCounts()} will return null iff the associated {@link
-   * DistributionAggregationDescriptor#getBucketBoundaries()} returns null.
+   * <p>{@link #getBucketCounts()} will return null iff the associated {@link BucketBoundaries}
+   * is null.
    *
-   * @return The count of population boundaries in each histogram bucket.
+   * @return The count of population values in each histogram bucket.
    */
   @Nullable
   public List<Long> getBucketCounts() {
     if (hasBuckets()) {
-      return Arrays.asList(bucketCounts);
+      List<Long> boxedBucketCounts = new ArrayList<Long>(bucketCounts.length);
+      for (long bucketCount : bucketCounts) {
+        boxedBucketCounts.add(bucketCount);
+      }
+      return boxedBucketCounts;
     }
     return null;
   }
 
   // Increment the appropriate bucket count. hasBuckets() MUST be true.
   private void putIntoBucket(double value) {
-    for (int i = 0; i < bucketBoundaries.size(); i++) {
-      if (value < bucketBoundaries.get(i)) {
+    for (int i = 0; i < bucketBoundaries.getBoundaries().size(); i++) {
+      if (value < bucketBoundaries.getBoundaries().get(i)) {
         bucketCounts[i]++;
         return;
       }
@@ -184,10 +172,10 @@ public final class Distribution {
    *
    * @param value new value to be added to population
    */
-  public void put(double value) {
+  public void add(double value) {
     count++;
     sum += value;
-    range.put(value);
+    range.add(value);
     if (hasBuckets()) {
       putIntoBucket(value);
     }
@@ -195,14 +183,18 @@ public final class Distribution {
 
   /** Describes a range of population values. */
   public static final class Range {
-    private double min = Double.POSITIVE_INFINITY;
-    private double max = Double.NEGATIVE_INFINITY;
+    // Maintain the invariant that max should always be greater than or equal to min.
+    // TODO(songya): needs to determine how we would want to initialize min and max.
+    private Double min = null;
+    private Double max = null;
 
     /** Construct a new, empty {@code Range}. */
-    public Range() {}
+    public static final Range create() {
+      return new Range();
+    }
 
     /**
-     * The minimum of the population values.
+     * The minimum of the population values. Will throw an exception if min has not been set.
      *
      * @return The minimum of the population values.
      */
@@ -211,7 +203,7 @@ public final class Distribution {
     }
 
     /**
-     * The maximum of the population values.
+     * The maximum of the population values. Will throw an exception if max has not been set.
      *
      * @return The maximum of the population values.
      */
@@ -224,13 +216,15 @@ public final class Distribution {
      *
      * @param value the new value
      */
-    public void put(double value) {
-      if (value < min) {
+    public void add(double value) {
+      if (min == null || value < min) {
         min = value;
       }
-      if (value > max) {
+      if (max == null || value > max) {
         max = value;
       }
     }
+
+    private Range() {}
   }
 }
