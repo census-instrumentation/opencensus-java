@@ -30,7 +30,7 @@ public class PropagationUtilBenchmark {
   private static final TraceId traceId = TraceId.fromBytes(traceIdBytes);
   private static final byte[] spanIdBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 0};
   private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
-  private static final byte[] traceOptionsBytes = new byte[] {0, 0, 0, 1};
+  private static final byte[] traceOptionsBytes = new byte[] {1};
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
   private SpanContext spanContext;
   private String spanContextStringHttp;

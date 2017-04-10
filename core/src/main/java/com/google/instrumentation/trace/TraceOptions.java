@@ -14,6 +14,7 @@
 package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -29,23 +30,21 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class TraceOptions {
   // Default options. Nothing set.
-  private static final int DEFAULT_OPTIONS = 0;
-  // Mask to extract a byte value.
-  private static final int BYTE_MASK = 0xFF;
+  private static final byte DEFAULT_OPTIONS = 0;
   // Bit to represent whether trace is sampled or not.
-  private static final int IS_SAMPLED = 0x1;
+  private static final byte IS_SAMPLED = 0x1;
 
   /** The size in bytes of the {@code TraceOptions}. */
-  public static final int SIZE = 4;
+  public static final int SIZE = 1;
 
   /** The default {@code TraceOptions}. */
   public static final TraceOptions DEFAULT = new TraceOptions(DEFAULT_OPTIONS);
 
   // The set of enabled features is determined by all the enabled bits.
-  private final int options;
+  private final byte options;
 
   // Creates a new {@code TraceOptions} with the given options.
-  private TraceOptions(int options) {
+  private TraceOptions(byte options) {
     this.options = options;
   }
 
@@ -66,7 +65,7 @@ public final class TraceOptions {
   public static TraceOptions fromBytes(byte[] buffer) {
     checkNotNull(buffer, "buffer");
     checkArgument(buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
-    return new TraceOptions(intFromBytes(buffer, 0));
+    return new TraceOptions(buffer[0]);
   }
 
   /**
@@ -82,17 +81,18 @@ public final class TraceOptions {
    *     src.length}.
    */
   public static TraceOptions fromBytes(byte[] src, int srcOffset) {
-    return new TraceOptions(intFromBytes(src, srcOffset));
+    checkElementIndex(srcOffset, src.length);
+    return new TraceOptions(src[srcOffset]);
   }
 
   /**
-   * Returns the 4-byte array representation of the {@code TraceOptions}.
+   * Returns the 1-byte array representation of the {@code TraceOptions}.
    *
-   * @return the 4-byte array representation of the {@code TraceOptions}.
+   * @return the 1-byte array representation of the {@code TraceOptions}.
    */
   public byte[] getBytes() {
     byte[] bytes = new byte[SIZE];
-    intToBytes(options, bytes, 0);
+    bytes[0] = options;
     return bytes;
   }
 
@@ -113,7 +113,8 @@ public final class TraceOptions {
    *     {@code dest.length}.
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
-    intToBytes(options, dest, destOffset);
+    checkElementIndex(destOffset, dest.length);
+    dest[destOffset] = options;
   }
 
   /**
@@ -171,9 +172,9 @@ public final class TraceOptions {
 
   /** Builder class for {@link TraceOptions}. */
   public static final class Builder {
-    private int options;
+    private byte options;
 
-    private Builder(int options) {
+    private Builder(byte options) {
       this.options = options;
     }
 
@@ -199,29 +200,11 @@ public final class TraceOptions {
 
   // Returns the current set of options bitmask.
   @VisibleForTesting
-  int getOptions() {
+  byte getOptions() {
     return options;
   }
 
   private boolean hasOption(int mask) {
     return (this.options & mask) != 0;
-  }
-
-  // Returns the int value whose little-endian representation is stored in the first 4 bytes of src
-  // starting from the given offset.
-  private static int intFromBytes(byte[] src, int srcOffset) {
-    return (src[srcOffset] & BYTE_MASK)
-        | (src[srcOffset + 1] & BYTE_MASK) << Byte.SIZE
-        | (src[srcOffset + 2] & BYTE_MASK) << (2 * Byte.SIZE)
-        | (src[srcOffset + 3] & BYTE_MASK) << (3 * Byte.SIZE);
-  }
-
-  // Appends the little-endian representation of value as a 4-element byte array to the destination
-  // starting at the given offset.
-  private static void intToBytes(int value, byte[] dest, int destOffset) {
-    dest[destOffset] = (byte) value;
-    dest[destOffset + 1] = (byte) (value >> Byte.SIZE);
-    dest[destOffset + 2] = (byte) (value >> (2 * Byte.SIZE));
-    dest[destOffset + 3] = (byte) (value >> (3 * Byte.SIZE));
   }
 }
