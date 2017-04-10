@@ -24,7 +24,7 @@ import java.util.Collection;
 final class MeasurementDescriptorToViewMap {
 
   /*
-   * A synchronized singleton map that storing the one-to-many mapping from MeasurementDescriptors
+   * A synchronized singleton map that stores the one-to-many mapping from MeasurementDescriptors
    * to Views.
    */
   private final Multimap<MeasurementDescriptor.Name, View> mutableMap =
@@ -36,9 +36,11 @@ final class MeasurementDescriptorToViewMap {
   final View getView(ViewDescriptor viewDescriptor) {
     Collection<View> views = mutableMap.get(
         viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
-    for (View view : views) {
-      if (view.getViewDescriptor().equals(viewDescriptor)) {
-        return view;
+    synchronized (mutableMap) {
+      for (View view : views) {
+        if (view.getViewDescriptor().equals(viewDescriptor)) {
+          return view;
+        }
       }
     }
     return null;

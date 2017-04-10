@@ -43,13 +43,24 @@ public class StatsManagerImplTest {
         Timestamp.fromMillis(System.currentTimeMillis()));
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    assertThat(actual.getViewDescriptor()).isEqualTo(expected.getViewDescriptor());
+    assertThat(actual.getViewDescriptor()).isEqualTo(
+        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    // TODO(songya): verify if the distributions of actual and expected view are equal.
   }
 
   @Test
   public void testRegisterUnsupportedViewDesciptor() throws Exception {
     thrown.expect(UnsupportedOperationException.class);
     statsManager.registerView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
+  }
+
+  @Test
+  public void testRegisterViewDesciptorTwice(){
+    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(actual.getViewDescriptor()).isEqualTo(
+        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
   }
 
   @Test
