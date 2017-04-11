@@ -19,9 +19,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link EventQueue}. */
+/** Unit tests for {@link DisruptorEventQueue}. */
 @RunWith(JUnit4.class)
-public class EventQueueTest {
+public class DisruptorEventQueueTest {
   // Simple class to use that keeps an incrementing counter. Will fail with an assertion if
   // increment is used from multiple threads, or if the stored value is different from that expected
   // by the caller.
@@ -71,7 +71,7 @@ public class EventQueueTest {
   public void incrementOnce() {
     Counter counter = new Counter();
     IncrementEvent ie = new IncrementEvent(counter);
-    EventQueue.getInstance().enqueue(ie);
+    DisruptorEventQueue.getInstance().enqueue(ie);
     // Sleep briefly, to allow background operations to complete.
     try {
       Thread.sleep(500);
@@ -87,7 +87,7 @@ public class EventQueueTest {
     Counter counter = new Counter();
     for (int i = 0; i < tenK; i++) {
       IncrementEvent ie = new IncrementEvent(counter);
-      EventQueue.getInstance().enqueue(ie);
+      DisruptorEventQueue.getInstance().enqueue(ie);
     }
     // Sleep briefly, to allow background operations to complete.
     try {

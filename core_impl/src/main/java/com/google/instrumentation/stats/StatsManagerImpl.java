@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.EventQueue;
+import com.google.instrumentation.common.DisruptorEventQueue;
 import com.google.instrumentation.common.EventQueueEntry;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
@@ -27,13 +27,13 @@ import java.util.Map;
  * Native Implementation of {@link StatsManager}.
  */
 public final class StatsManagerImpl extends StatsManager {
-  private final EventQueue queue;
+  private final DisruptorEventQueue queue;
 
   public StatsManagerImpl() {
-    queue = EventQueue.getInstance();
+    queue = DisruptorEventQueue.getInstance();
   }
 
-  StatsManagerImpl(EventQueue queue) {
+  StatsManagerImpl(DisruptorEventQueue queue) {
     this.queue = queue;
   }
 

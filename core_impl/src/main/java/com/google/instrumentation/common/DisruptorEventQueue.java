@@ -79,7 +79,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * </pre>
  */
 @ThreadSafe
-public final class EventQueue {
+public final class DisruptorEventQueue {
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueueEntry.
   private static final class InstrumentationEvent {
     private EventQueueEntry entry = null;
@@ -115,7 +115,7 @@ public final class EventQueue {
   }
 
   // The single instance of the class.
-  private static final EventQueue eventQueue = new EventQueue();
+  private static final DisruptorEventQueue eventQueue = new DisruptorEventQueue();
   // The event queue is built on this {@link Disruptor}.
   private final Disruptor<InstrumentationEvent> disruptor;
   // Ring Buffer for the {@link Disruptor} that underlies the queue.
@@ -124,7 +124,7 @@ public final class EventQueue {
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
   // Suppress warnings for disruptor.handleEventsWith and Disruptor constructor
   @SuppressWarnings({"deprecation", "unchecked", "varargs"})
-  private EventQueue() {
+  private DisruptorEventQueue() {
     // Number of events that can be enqueued at any one time. If more than this are enqueued,
     // then subsequent attempts to enqueue new entries will block.
     // TODO(aveitch): consider making this a parameter to the constructor, so the queue can be
@@ -146,16 +146,16 @@ public final class EventQueue {
   }
 
   /**
-   * Returns the {@link EventQueue} instance.
+   * Returns the {@link DisruptorEventQueue} instance.
    *
    * @return the singleton {@code EventQueue} instance.
    */
-  public static EventQueue getInstance() {
+  public static DisruptorEventQueue getInstance() {
     return eventQueue;
   }
 
   /**
-   * Enqueues an event on the {@link EventQueue}.
+   * Enqueues an event on the {@link DisruptorEventQueue}.
    *
    * @param entry a class encapsulating the actions to be taken for event processing.
    */
