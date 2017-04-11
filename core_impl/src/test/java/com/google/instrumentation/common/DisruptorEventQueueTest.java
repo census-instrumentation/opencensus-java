@@ -54,7 +54,7 @@ public class DisruptorEventQueueTest {
   }
 
   // EventQueueEntry for incrementing a Counter.
-  private static class IncrementEvent implements EventQueueEntry {
+  private static class IncrementEvent implements EventQueue.Entry {
     private final Counter counter;
 
     IncrementEvent(Counter counter) {

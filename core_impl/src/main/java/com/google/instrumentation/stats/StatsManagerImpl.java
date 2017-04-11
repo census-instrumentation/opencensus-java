@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.DisruptorEventQueue;
-import com.google.instrumentation.common.EventQueueEntry;
+import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
@@ -27,13 +27,13 @@ import java.util.Map;
  * Native Implementation of {@link StatsManager}.
  */
 public final class StatsManagerImpl extends StatsManager {
-  private final DisruptorEventQueue queue;
+  private final EventQueue queue;
 
   public StatsManagerImpl() {
     queue = DisruptorEventQueue.getInstance();
   }
 
-  StatsManagerImpl(DisruptorEventQueue queue) {
+  StatsManagerImpl(EventQueue queue) {
     this.queue = queue;
   }
 
@@ -93,7 +93,7 @@ public final class StatsManagerImpl extends StatsManager {
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
-  private static final class StatsEvent implements EventQueueEntry {
+  private static final class StatsEvent implements EventQueue.Entry {
     private final Map<String, String> tags;
     private final MeasurementMap stats;
     private final MeasurementDescriptorToViewMap statsMap;

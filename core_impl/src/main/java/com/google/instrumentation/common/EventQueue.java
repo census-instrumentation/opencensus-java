@@ -14,13 +14,20 @@
 package com.google.instrumentation.common;
 
 /**
- * Base interface to be used for all entries in {@link DisruptorEventQueue}. For example usage, see
- * {@link DisruptorEventQueue}.
+ * A queue that processes events. See {@link DisruptorEventQueue} for an example.
  */
-public interface EventQueueEntry {
+public interface EventQueue {
+  void enqueue(Entry entry);
+
   /**
-   * Process the event associated with this entry. This will be called for every event in the
-   * associated {@link DisruptorEventQueue}.
+   * Base interface to be used for all entries in {@link EventQueue}. For example usage,
+   * see {@link DisruptorEventQueue}.
    */
-  void process();
+  public interface Entry {
+    /**
+     * Process the event associated with this entry. This will be called for every event in the
+     * associated {@link EventQueue}.
+     */
+    void process();
+  }
 }

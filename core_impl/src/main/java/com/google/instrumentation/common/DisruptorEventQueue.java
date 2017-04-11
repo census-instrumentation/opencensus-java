@@ -26,7 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * A low-latency event queue for background updating of (possibly contended) objects. This is
  * intended for use by instrumentation methods to ensure that they do not block foreground
  * activities. To customize the action taken on reading the queue, derive a new class from {@link
- * EventQueueEntry} and pass it to the {@link #enqueue} method. The {@link EventQueueEntry#process}
+ * EventQueue.Entry} and pass it to the {@link #enqueue} method. The {@link Entry#process}
  * method of your class will be called and executed in a background thread. This class is a
  * Singleton.
  *
@@ -79,18 +79,18 @@ import javax.annotation.concurrent.ThreadSafe;
  * </pre>
  */
 @ThreadSafe
-public final class DisruptorEventQueue {
+public final class DisruptorEventQueue implements EventQueue {
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueueEntry.
   private static final class InstrumentationEvent {
-    private EventQueueEntry entry = null;
+    private Entry entry = null;
 
     // Sets the EventQueueEntry associated with this InstrumentationEvent.
-    void setEntry(EventQueueEntry entry) {
+    void setEntry(Entry entry) {
       this.entry = entry;
     }
 
     // Returns the EventQueueEntry associated with this InstrumentationEvent.
-    EventQueueEntry getEntry() {
+    Entry getEntry() {
       return entry;
     }
   }
@@ -159,7 +159,8 @@ public final class DisruptorEventQueue {
    *
    * @param entry a class encapsulating the actions to be taken for event processing.
    */
-  public void enqueue(EventQueueEntry entry) {
+  @Override
+  public void enqueue(Entry entry) {
     long sequence = ringBuffer.next();
     try {
       InstrumentationEvent event = ringBuffer.get(sequence);
