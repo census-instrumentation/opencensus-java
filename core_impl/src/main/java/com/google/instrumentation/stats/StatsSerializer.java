@@ -13,10 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.stats.proto.StatsContextProto;
+import com.google.common.io.ByteStreams;
 import com.google.io.base.VarInt;
-import com.google.protobuf.ByteString;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,52 +29,81 @@ import java.util.Set;
  * Native implementation {@link StatsContext} serialization.
  */
 final class StatsSerializer {
-  //  * tag_metadata is one byte and is for encoding metadata about the tag. The
-  //    low 2 bits of this byte are used to encode the type of the value bytes.
-  //    The high 6 bits are reserved for future use. The value_bytes type is
-  //    encoded as:
-  //    00 (value 0): string (UTF-8) encoding
-  //    01 (value 1): integer (varint int64 encoding).
-  //    10 (value 2): boolean format.
-  //    11 (value 3): reserved for future use.
+
+  // This describes the encoding of stats context information (tags)
+  // for passing across RPC's.
+  // Tags are encoded in single byte sequence. The format is:
+  // <version_id><encoded_tags>
+  //   <version_id> == a single byte, value 0
+  //   <encoded_tags> == (<tag_field_id><tag_encoding>)*
+  //     <tag_field_id> == a single byte, value 0 (string tag), 1 (int tag),
+  //                       2 (true bool tag), 3 (false bool flag)
+  //     <tag_encoding> (tag_field_id == 0) ==
+  //       <tag_key_len><tag_key><tag_val_len><tag_val>
+  //         <tag_key_len> == varint encoded integer
+  //         <tag_key> == tag_key_len bytes comprising tag key name
+  //         <tag_val_len> == varint encoded integer
+  //         <tag_val> == tag_val_len bytes comprising UTF-8 string
+  //     <tag_encoding> (tag_field_id == 1) ==
+  //       <tag_key_len><tag_key><int_tag_val>
+  //         <tag_key_len> == varint encoded integer
+  //         <tag_key> == tag_key_len bytes comprising tag key name
+  //         <int_tag_value> == 8 bytes, little-endian integer
+  //     <tag_encoding> (tag_field_id == 2 || tag_field_id == 3) ==
+  //       <tag_key_len><tag_key>
+  //         <tag_key_len> == varint encoded integer
+  //         <tag_key> == tag_key_len bytes comprising tag key name
   //    TODO(songya): Currently we only support encoding on string type.
+  private static final int VERSION_ID = 0;
   private static final int VALUE_TYPE_STRING = 0;
   private static final int VALUE_TYPE_INTEGER = 1;
-  private static final int VALUE_TYPE_BOOLEAN = 2;
+  private static final int VALUE_TYPE_TRUE = 2;
+  private static final int VALUE_TYPE_FALSE = 3;
 
-  // Serializes a StatsContext by transforming it into a StatsContextProto. The
-  // encoded tags are of the form:
-  //   [tag_metadata key_len key_bytes value_len value_bytes]*
+
+  // Serializes a StatsContext to the on-the-wire format.
+  // Encoded tags are of the form: <version_id><encoded_tags>
   static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    VarInt.putVarInt(VERSION_ID, byteArrayOutputStream);
 
     // TODO(songya): add support for value types integer and boolean
     Set<Entry<String, String>> tags = context.tags.entrySet();
     for (Entry<String, String> tag : tags) {
-      encodeTagWithType(VALUE_TYPE_STRING, tag.getKey(), tag.getValue(), byteArrayOutputStream);
+      encodeStringTagWithType(
+          VALUE_TYPE_STRING, tag.getKey(), tag.getValue(), byteArrayOutputStream);
     }
-    ByteString encodedTags = ByteString.copyFrom(byteArrayOutputStream.toByteArray());
-    StatsContextProto.StatsContext.newBuilder().setTags(encodedTags).build().writeTo(output);
+    byteArrayOutputStream.writeTo(output);
   }
 
-  // Deserializes based on an serialized StatsContextProto. The encoded tags are of the form:
-  //   [tag_metadata key_len key_bytes value_len value_bytes]*
+  // Deserializes input to StatsContext based on the binary format standard.
+  // The encoded tags are of the form: <version_id><encoded_tags>
   static StatsContextImpl deserialize(InputStream input) throws IOException {
     try {
-      StatsContextProto.StatsContext context = StatsContextProto.StatsContext.parseFrom(input);
-      ByteBuffer buffer = context.getTags().asReadOnlyByteBuffer();
+      byte[] bytes = ByteStreams.toByteArray(input);
       HashMap<String, String> tags = new HashMap<String, String>();
+      if (bytes.length == 0) {
+        // Return a default StatsContext on empty input.
+        return new StatsContextImpl(tags);
+      }
+
+      ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
+      if (VarInt.getVarInt(buffer) != VERSION_ID) {
+        throw new IOException("Wrong Version ID.");
+      }
+
       int limit = buffer.limit();
       while (buffer.position() < limit) {
         int type = VarInt.getVarInt(buffer);
         switch (type) {
           case VALUE_TYPE_STRING:
-            String key = decode(buffer);
-            String val = decode(buffer);
+            String key = decodeString(buffer);
+            String val = decodeString(buffer);
             tags.put(key, val);
             break;
           case VALUE_TYPE_INTEGER:
-          case VALUE_TYPE_BOOLEAN:
+          case VALUE_TYPE_TRUE:
+          case VALUE_TYPE_FALSE:
           default:
             // TODO(songya): add support for value types integer and boolean
             throw new IOException("Unsupported tag value type.");
@@ -88,21 +115,22 @@ final class StatsSerializer {
     }
   }
 
-  private static final void encodeTagWithType(
+  //  TODO(songya): Currently we only support encoding on string type.
+  private static final void encodeStringTagWithType(
       int valueType, String key, String value, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
     VarInt.putVarInt(valueType, byteArrayOutputStream);
-    encode(key, byteArrayOutputStream);
-    encode(value, byteArrayOutputStream);
+    encodeString(key, byteArrayOutputStream);
+    encodeString(value, byteArrayOutputStream);
   }
 
-  private static final void encode(String input, ByteArrayOutputStream byteArrayOutputStream)
+  private static final void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
     VarInt.putVarInt(input.length(), byteArrayOutputStream);
     byteArrayOutputStream.write(input.getBytes("UTF-8"));
   }
 
-  private static final String decode(ByteBuffer buffer) {
+  private static final String decodeString(ByteBuffer buffer) {
     int length = VarInt.getVarInt(buffer);
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < length; i++) {
