@@ -16,7 +16,7 @@ package com.google.instrumentation.trace;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.io.BaseEncoding;
+import java.io.IOException;
 
 /**
  * This is a helper class for {@link SpanContext} propagation on the wire.
@@ -49,95 +49,21 @@ import com.google.common.io.BaseEncoding;
  *     </ul>
  *
  * </ul>
- *
- * <p>HTTP header format:
- *
- * <ul>
- * <li>Header name: Trace-Context
- * <li>Header value: base16(binary_format);
- * <li>All characters in the header value must be upper case and US-ASCII encoded.
- * <li>It is strongly encouraged to use this format when using HTTP as a RPC transport.
- * <li>Valid value example:
- *     <ul>
- *     <li>"0000404142434445464748494A4B4C4D4E4F0161626364656667680201"
- *     <li>version_id = 0;
- *     <li>trace_id = {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}
- *     <li>span_id = {97, 98, 99, 100, 101, 102, 103, 104};
- *     <li>trace_options = {1};
- *     </ul>
- *
- * </ul>
- *
- * <p>Example of usage on the client:
- *
- * <pre>{@code
- * private static final Tracer tracer = Tracer.getTracer();
- * void onSendRequest() {
- *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest")) {
- *     String headerName = PropagationUtil.HTTP_HEADER_NAME;
- *     String headerValue = PropagationUtil.toHttpHeaderValue(span.context());
- *     headers.add(headerName, headerValue);
- *     // Send the HTTP request and wait for the response.
- *   }
- * }
- * }</pre>
- *
- * <p>Example of usage on the server:
- *
- * <pre>{@code
- * private static final Tracer tracer = Tracer.getTracer();
- * void onRequestReceived() {
- *   String headerName = PropagationUtil.HTTP_HEADER_NAME;
- *   SpanContext spanContext = PropagationUtil.fromHttpHeaderValue(headers.find(headerName));
- *   try (NonThrowingCloseable ss =
- *            tracer.spanBuilderWithRemoteParent(spanContext, "Recv.MyRequest").startScopedSpan() {
- *     // Handle request and send response back.
- *   }
- * }
- * }</pre>
  */
 public final class PropagationUtil {
   // Mask to extract a byte value.
-  private static volatile Handler handler = DefaultHandler.INSTANCE;
-
-  /** The header name that must be used in the HTTP request for the tracing context. */
-  public static final String HTTP_HEADER_NAME = "Trace-Context";
-
-  /**
-   * Serializes a {@link SpanContext} using the HTTP standard format.
-   *
-   * @param spanContext the {@code SpanContext} to serialize.
-   * @return the serialized US-ASCII encoded HTTP header value.
-   * @throws NullPointerException if the {@code spanContext} is null.
-   */
-  public static String toHttpHeaderValue(SpanContext spanContext) {
-    return BaseEncoding.base16().encode(toBinaryValue(spanContext));
-  }
-
-  /**
-   * Parses the {@link SpanContext} from the HTTP standard format.
-   *
-   * @param input a US-ASCII encoded buffer of characters from which the {@code SpanContext} will be
-   *     parsed.
-   * @return the parsed {@code SpanContext}.
-   * @throws NullPointerException if the {@code input} is null.
-   * @throws IllegalArgumentException if the {@code input} is invalid.
-   * @throws IllegalStateException if the version is not supported.
-   */
-  public static SpanContext fromHttpHeaderValue(CharSequence input) {
-    return fromBinaryValue(BaseEncoding.base16().decode(input));
-  }
+  private static volatile BinaryHandler binaryHandler = DefaultBinaryHandler.INSTANCE;
 
   /**
    * Serializes a {@link SpanContext} using the binary format.
    *
    * @param spanContext the {@code SpanContext} to serialize.
    * @return the serialized binary value.
-   * @throws NullPointerException if the {@code spanContext} is null.
+   * @throws NullPointerException if the {@code spanContext} is {@code null}.
    */
   public static byte[] toBinaryValue(SpanContext spanContext) {
     checkNotNull(spanContext, "spanContext");
-    return handler.toBinaryFormat(spanContext);
+    return binaryHandler.toBinaryFormat(spanContext);
   }
 
   /**
@@ -145,26 +71,33 @@ public final class PropagationUtil {
    *
    * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
    * @return the parsed {@code SpanContext}.
-   * @throws NullPointerException if the {@code input} is null.
-   * @throws IllegalArgumentException if the {@code input} is invalid.
-   * @throws IllegalStateException if the version is not supported.
+   * @throws NullPointerException if the {@code input} is {@code null}.
+   * @throws IOException if the version is not supported or the input is invalid
    */
-  public static SpanContext fromBinaryValue(byte[] bytes) {
+  public static SpanContext fromBinaryValue(byte[] bytes) throws IOException {
     checkNotNull(bytes, "bytes");
-    return handler.fromBinaryFormat(bytes);
+    try {
+      return binaryHandler.fromBinaryFormat(bytes);
+    } catch (IllegalArgumentException e) {
+      throw new IOException("Invalid input.", e);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new IOException("Invalid input.", e);
+    } catch (IndexOutOfBoundsException e) {
+      throw new IOException("Invalid input.", e);
+    }
   }
 
   /**
-   * Sets a new {@link Handler}.
+   * Sets a new {@link BinaryHandler}.
    *
    * @param newHandler the new {@code Handler} to be set.
    */
-  static void setHandler(Handler newHandler) {
-    handler = newHandler;
+  static void setBinaryHandler(BinaryHandler newHandler) {
+    binaryHandler = newHandler;
   }
 
   /** Abstract class that allows implementation of the new version format support. */
-  public abstract static class Handler {
+  public abstract static class BinaryHandler {
     /**
      * Serializes a {@link SpanContext} using the binary format.
      *
@@ -183,9 +116,9 @@ public final class PropagationUtil {
   }
 
   /** Version 0 implementation of the {@code VersionHandler}. */
-  public static final class DefaultHandler extends Handler {
+  public static final class DefaultBinaryHandler extends BinaryHandler {
     /** Singleton instance of this class. */
-    public static final DefaultHandler INSTANCE = new DefaultHandler();
+    public static final DefaultBinaryHandler INSTANCE = new DefaultBinaryHandler();
 
     private static final byte VERSION_ID = 0;
     private static final int VERSION_ID_OFFSET = 0;
@@ -205,7 +138,6 @@ public final class PropagationUtil {
 
     @Override
     public byte[] toBinaryFormat(SpanContext spanContext) {
-      checkNotNull(spanContext, "spanContext");
       byte[] bytes = new byte[FORMAT_LENGTH];
       bytes[VERSION_ID_OFFSET] = VERSION_ID;
       bytes[TRACE_ID_FIELD_ID_OFFSET] = TRACE_ID_FIELD_ID;
@@ -219,7 +151,6 @@ public final class PropagationUtil {
 
     @Override
     public SpanContext fromBinaryFormat(byte[] bytes) {
-      checkNotNull(bytes, "bytes");
       checkArgument(bytes.length > 0 && bytes[0] == VERSION_ID, "Unsupported version.");
       TraceId traceId = TraceId.INVALID;
       SpanId spanId = SpanId.INVALID;
@@ -239,7 +170,7 @@ public final class PropagationUtil {
       return new SpanContext(traceId, spanId, traceOptions);
     }
 
-    private DefaultHandler() {}
+    private DefaultBinaryHandler() {}
   }
 
   // Disallow instances of this class.
