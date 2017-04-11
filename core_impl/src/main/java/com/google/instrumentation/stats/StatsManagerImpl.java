@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
@@ -24,6 +25,16 @@ import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
  * Native Implementation of {@link StatsManager}.
  */
 public final class StatsManagerImpl extends StatsManager {
+  @SuppressWarnings("unused")
+  private final EventQueue queue;
+
+  public StatsManagerImpl() {
+    queue = EventQueue.getInstance();
+  }
+
+  StatsManagerImpl(EventQueue queue) {
+    this.queue = queue;
+  }
 
   private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
       new MeasurementDescriptorToViewMap();
