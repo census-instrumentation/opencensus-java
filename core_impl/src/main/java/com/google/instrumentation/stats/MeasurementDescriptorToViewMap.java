@@ -17,6 +17,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * A class that stores a singleton map from {@link MeasurementDescriptor.Name} to {@link View}.
@@ -51,5 +52,24 @@ final class MeasurementDescriptorToViewMap {
    */
   void putView(MeasurementDescriptor.Name name, View view) {
     mutableMap.put(name, view);
+  }
+
+  // Records stats with a set of tags.
+  void record(Map<String, String> tags, MeasurementMap stats) {
+    for (MeasurementValue mv : stats) {
+      if (mv.getMeasurement()
+          .getMeasurementDescriptorName()
+          .equals(SupportedViews.SUPPORTED_MEASUREMENT_DESCRIPTOR.getMeasurementDescriptorName())) {
+        recordSupportedMeasurement(tags, mv.getValue());
+      }
+    }
+  }
+
+  private void recordSupportedMeasurement(Map<String, String> tags, double value) {
+    //  // TODO(sebright): Record the value in the view.
+    //
+    //  synchronized (mutableMap) {
+    //    View view = getView(SupportedViews.SUPPORTED_VIEW);
+    //  }
   }
 }

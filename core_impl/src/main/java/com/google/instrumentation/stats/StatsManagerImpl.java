@@ -14,18 +14,19 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.EventQueue;
+import com.google.instrumentation.common.EventQueueEntry;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import java.util.Map;
 
 /**
  * Native Implementation of {@link StatsManager}.
  */
 public final class StatsManagerImpl extends StatsManager {
-  @SuppressWarnings("unused")
   private final EventQueue queue;
 
   public StatsManagerImpl() {
@@ -79,6 +80,35 @@ public final class StatsManagerImpl extends StatsManager {
   @Override
   StatsContextFactoryImpl getStatsContextFactory() {
     return statsContextFactory;
+  }
+
+  /**
+   * Records a set of measurements with a set of tags.
+   *
+   * @param tags the tags associated with the measurements
+   * @param measurementValues the measurements to record
+   */
+  void record(StatsContextImpl tags, MeasurementMap measurementValues) {
+    queue.enqueue(new StatsEvent(measurementDescriptorToViewMap, tags.tags, measurementValues));
+  }
+
+  // An EventQueue entry that records the stats from one call to StatsManager.record(...).
+  private static final class StatsEvent implements EventQueueEntry {
+    private final Map<String, String> tags;
+    private final MeasurementMap stats;
+    private final MeasurementDescriptorToViewMap statsMap;
+
+    StatsEvent(
+        MeasurementDescriptorToViewMap statsMap, Map<String, String> tags, MeasurementMap stats) {
+      this.statsMap = statsMap;
+      this.tags = tags;
+      this.stats = stats;
+    }
+
+    @Override
+    public void process() {
+      statsMap.record(tags, stats);
+    }
   }
 
   private static final class CreateDistributionViewFunction
