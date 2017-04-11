@@ -13,10 +13,9 @@
 
 package com.google.instrumentation.trace;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * This is a helper class for {@link SpanContext} propagation on the wire.
@@ -28,15 +27,18 @@ import java.io.IOException;
  * <li>version_id: 1-byte representing the version id.
  * <li>For version_id = 0:
  *     <ul>
- *     <li>version_format: &lt;field&gt;&lt;field&gt;...
+ *     <li>version_format: &lt;field&gt;&lt;field&gt;
  *     <li>field_format: &lt;field_id&gt;&lt;field_format&gt;
- *     <li>TraceId: (filed_id = 0, len = 16, default = “0000000000000000”) - 16-byte array
- *         representing the trace_id.
- *     <li>SpanId: (filed_id = 1, len = 8, default = “00000000”) - 8-byte array representing the
- *         span_id.
- *     <li>TraceOptions: (filed_id = 2, len = 4, default = “0”) - 1-byte array representing the
- *         trace_options. It is in little-endian order, if represented as an int.
- *     <li>Fields MUST be encoded using the filed id order (smaller to higher).
+ *     <li>Fields:
+ *         <ul>
+ *         <li>TraceId: (field_id = 0, len = 16, default = &#34;0000000000000000&#34;) - 16-byte
+ *             array representing the trace_id.
+ *         <li>SpanId: (field_id = 1, len = 8, default = &#34;00000000&#34;) - 8-byte array
+ *             representing the span_id.
+ *         <li>TraceOptions: (field_id = 2, len = 1, default = &#34;0&#34;) - 1-byte array
+ *             representing the trace_options.
+ *         </ul>
+ *     <li>Fields MUST be encoded using the field id order (smaller to higher).
  *     <li>Valid value example:
  *         <ul>
  *         <li>{0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99,
@@ -72,19 +74,11 @@ public final class PropagationUtil {
    * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
    * @return the parsed {@code SpanContext}.
    * @throws NullPointerException if the {@code input} is {@code null}.
-   * @throws IOException if the version is not supported or the input is invalid
+   * @throws ParseException if the version is not supported or the input is invalid
    */
-  public static SpanContext fromBinaryValue(byte[] bytes) throws IOException {
+  public static SpanContext fromBinaryValue(byte[] bytes) throws ParseException {
     checkNotNull(bytes, "bytes");
-    try {
-      return binaryHandler.fromBinaryFormat(bytes);
-    } catch (IllegalArgumentException e) {
-      throw new IOException("Invalid input.", e);
-    } catch (ArrayIndexOutOfBoundsException e) {
-      throw new IOException("Invalid input.", e);
-    } catch (IndexOutOfBoundsException e) {
-      throw new IOException("Invalid input.", e);
-    }
+    return binaryHandler.fromBinaryFormat(bytes);
   }
 
   /**
@@ -111,8 +105,9 @@ public final class PropagationUtil {
      *
      * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
      * @return the parsed {@code SpanContext}.
+     * @throws ParseException is any parsing error.
      */
-    public abstract SpanContext fromBinaryFormat(byte[] bytes);
+    public abstract SpanContext fromBinaryFormat(byte[] bytes) throws ParseException;
   }
 
   /** Version 0 implementation of the {@code VersionHandler}. */
@@ -150,24 +145,32 @@ public final class PropagationUtil {
     }
 
     @Override
-    public SpanContext fromBinaryFormat(byte[] bytes) {
-      checkArgument(bytes.length > 0 && bytes[0] == VERSION_ID, "Unsupported version.");
+    public SpanContext fromBinaryFormat(byte[] bytes) throws ParseException {
+      if (bytes.length == 0 || bytes[0] != VERSION_ID) {
+        throw new ParseException("Unsupported version.", 0);
+      }
       TraceId traceId = TraceId.INVALID;
       SpanId spanId = SpanId.INVALID;
       TraceOptions traceOptions = TraceOptions.DEFAULT;
       int pos = 1;
-      if (bytes.length > pos && bytes[pos] == TRACE_ID_FIELD_ID) {
-        traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
-        pos += ID_SIZE + TraceId.SIZE;
+      try {
+        if (bytes.length > pos && bytes[pos] == TRACE_ID_FIELD_ID) {
+          traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
+          pos += ID_SIZE + TraceId.SIZE;
+        }
+        if (bytes.length > pos && bytes[pos] == SPAN_ID_FIELD_ID) {
+          spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
+          pos += ID_SIZE + SpanId.SIZE;
+        }
+        if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
+          traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
+        }
+        return new SpanContext(traceId, spanId, traceOptions);
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParseException("Invalid input: " + e.toString(), pos);
+      } catch (IndexOutOfBoundsException e) {
+        throw new ParseException("Invalid input: " + e.toString(), pos);
       }
-      if (bytes.length > pos && bytes[pos] == SPAN_ID_FIELD_ID) {
-        spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
-        pos += ID_SIZE + SpanId.SIZE;
-      }
-      if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
-        traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
-      }
-      return new SpanContext(traceId, spanId, traceOptions);
     }
 
     private DefaultBinaryHandler() {}

@@ -15,14 +15,15 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
 
 import com.google.instrumentation.trace.PropagationUtil.BinaryHandler;
 import com.google.instrumentation.trace.PropagationUtil.DefaultBinaryHandler;
-import java.io.IOException;
+import java.text.ParseException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
@@ -31,13 +32,13 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link PropagationUtil}. */
 @RunWith(JUnit4.class)
 public class PropagationUtilTest {
-  private static final byte[] traceIdBytes =
+  private static final byte[] TRACE_ID_BYTES =
       new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79};
-  private static final TraceId traceId = TraceId.fromBytes(traceIdBytes);
-  private static final byte[] spanIdBytes = new byte[] {97, 98, 99, 100, 101, 102, 103, 104};
-  private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
-  private static final byte[] traceOptionsBytes = new byte[] {1};
-  private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
+  private static final TraceId TRACE_ID = TraceId.fromBytes(TRACE_ID_BYTES);
+  private static final byte[] SPAN_ID_BYTES = new byte[] {97, 98, 99, 100, 101, 102, 103, 104};
+  private static final SpanId SPAN_ID = SpanId.fromBytes(SPAN_ID_BYTES);
+  private static final byte[] TRACE_OPTIONS_BYTES = new byte[] {1};
+  private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromBytes(TRACE_OPTIONS_BYTES);
   private static final byte[] EXAMPLE_BYTES =
       new byte[] {
         0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
@@ -50,44 +51,31 @@ public class PropagationUtilTest {
           SpanId.fromBytes(new byte[] {97, 98, 99, 100, 101, 102, 103, 104}),
           TraceOptions.fromBytes(new byte[] {1}));
   @Mock private BinaryHandler mockHandler;
+  @Rule public ExpectedException expectedException = ExpectedException.none();
 
-  private static void testHttpSpanContextConversion(SpanContext spanContext) {
+  private static void testSpanContextConversion(SpanContext spanContext) throws ParseException {
     SpanContext propagatedBinarySpanContext = null;
-    try {
-      propagatedBinarySpanContext =
-          PropagationUtil.fromBinaryValue(PropagationUtil.toBinaryValue(spanContext));
-    } catch (IOException e) {
-      fail("Unexpected exception " + e.toString());
-    }
+    propagatedBinarySpanContext =
+        PropagationUtil.fromBinaryValue(PropagationUtil.toBinaryValue(spanContext));
+
     assertWithMessage("Binary propagated context is not equal with the initial context.")
         .that(propagatedBinarySpanContext)
         .isEqualTo(spanContext);
   }
 
-  // For valid requests to avoid using try-catch everywhere.
-  private static SpanContext fromBinaryValue(byte[] bytes) {
-    try {
-      return PropagationUtil.fromBinaryValue(bytes);
-    } catch (IOException e) {
-      fail("Unexpected exception " + e.toString());
-    }
-    // Should not happen.
-    return SpanContext.INVALID;
+  @Test
+  public void propagate_SpanContextTracingEnabled() throws ParseException {
+    testSpanContextConversion(
+        new SpanContext(TRACE_ID, SPAN_ID, TraceOptions.builder().setIsSampled().build()));
   }
 
   @Test
-  public void propagate_SpanContextTracingEnabled() {
-    testHttpSpanContextConversion(
-        new SpanContext(traceId, spanId, TraceOptions.builder().setIsSampled().build()));
+  public void propagate_SpanContextNoTracing() throws ParseException {
+    testSpanContextConversion(new SpanContext(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT));
   }
 
   @Test
-  public void propagate_SpanContextNoTracing() {
-    testHttpSpanContextConversion(new SpanContext(traceId, spanId, TraceOptions.DEFAULT));
-  }
-
-  @Test
-  public void toHttpHeaderValue_InvalidSpanContext() {
+  public void toBinaryValue_InvalidSpanContext() {
     assertThat(PropagationUtil.toBinaryValue(SpanContext.INVALID))
         .isEqualTo(
             new byte[] {
@@ -96,24 +84,28 @@ public class PropagationUtilTest {
   }
 
   @Test
-  public void parseHeaderValue_BinaryExampleValue() {
-    assertThat(fromBinaryValue(EXAMPLE_BYTES))
-        .isEqualTo(new SpanContext(traceId, spanId, traceOptions));
-    assertThat(fromBinaryValue(EXAMPLE_BYTES).getTraceOptions().getOptions()).isEqualTo(1);
+  public void parseBinaryValue_BinaryExampleValue() throws ParseException {
+    assertThat(PropagationUtil.fromBinaryValue(EXAMPLE_BYTES))
+        .isEqualTo(new SpanContext(TRACE_ID, SPAN_ID, TRACE_OPTIONS));
+    assertThat(PropagationUtil.fromBinaryValue(EXAMPLE_BYTES).getTraceOptions().getOptions())
+        .isEqualTo(1);
   }
 
   @Test(expected = NullPointerException.class)
-  public void parseBinaryValue_NullInput() throws IOException {
+  public void parseBinaryValue_NullInput() throws ParseException {
     PropagationUtil.fromBinaryValue(null);
   }
 
-  @Test(expected = IOException.class)
-  public void parseBinaryValue_EmptyInput() throws IOException {
+  public void parseBinaryValue_EmptyInput() throws ParseException {
+    expectedException.expect(ParseException.class);
+    expectedException.expectMessage("Unsupported version.");
     PropagationUtil.fromBinaryValue(new byte[0]);
   }
 
-  @Test(expected = IOException.class)
-  public void parseBinaryValue_UnsupportedVersionId() throws IOException {
+  @Test
+  public void parseBinaryValue_UnsupportedVersionId() throws ParseException {
+    expectedException.expect(ParseException.class);
+    expectedException.expectMessage("Unsupported version.");
     PropagationUtil.fromBinaryValue(
         new byte[] {
           66, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 97, 98, 99, 100, 101,
@@ -122,9 +114,9 @@ public class PropagationUtilTest {
   }
 
   @Test
-  public void parseBinaryValue_UnsupportedFieldIdFirst() {
+  public void parseBinaryValue_UnsupportedFieldIdFirst() throws ParseException {
     assertThat(
-            fromBinaryValue(
+            PropagationUtil.fromBinaryValue(
                 new byte[] {
                   0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -133,9 +125,9 @@ public class PropagationUtilTest {
   }
 
   @Test
-  public void parseBinaryValue_UnsupportedFieldIdSecond() {
+  public void parseBinaryValue_UnsupportedFieldIdSecond() throws ParseException {
     assertThat(
-            fromBinaryValue(
+            PropagationUtil.fromBinaryValue(
                 new byte[] {
                   0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 3, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -148,19 +140,25 @@ public class PropagationUtilTest {
                 TraceOptions.DEFAULT));
   }
 
-  @Test(expected = IOException.class)
-  public void parseBinaryValue_ShorterTraceId() throws IOException {
+  @Test
+  public void parseBinaryValue_ShorterTraceId() throws ParseException {
+    expectedException.expect(ParseException.class);
+    expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
     PropagationUtil.fromBinaryValue(
         new byte[] {0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76});
   }
 
-  @Test(expected = IOException.class)
-  public void parseBinaryValue_ShorterSpanId() throws IOException {
+  @Test
+  public void parseBinaryValue_ShorterSpanId() throws ParseException {
+    expectedException.expect(ParseException.class);
+    expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
     PropagationUtil.fromBinaryValue(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
   }
 
-  @Test(expected = IOException.class)
-  public void parseBinaryValue_ShorterTraceOptions() throws IOException {
+  @Test
+  public void parseBinaryValue_ShorterTraceOptions() throws ParseException {
+    expectedException.expect(ParseException.class);
+    expectedException.expectMessage("Invalid input: java.lang.IndexOutOfBoundsException");
     PropagationUtil.fromBinaryValue(
         new byte[] {
           0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
@@ -169,12 +167,12 @@ public class PropagationUtilTest {
   }
 
   @Test
-  public void parseBinaryValue_WithNewAddedFormat() {
+  public void parseBinaryValue_WithNewAddedFormat() throws ParseException {
     MockitoAnnotations.initMocks(this);
     when(mockHandler.fromBinaryFormat(same(EXAMPLE_BYTES))).thenReturn(EXAMPLE_SPAN_CONTEXT);
     PropagationUtil.setBinaryHandler(mockHandler);
     try {
-      assertThat(fromBinaryValue(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
+      assertThat(PropagationUtil.fromBinaryValue(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
     } finally {
       PropagationUtil.setBinaryHandler(DefaultBinaryHandler.INSTANCE);
     }

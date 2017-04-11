@@ -14,6 +14,7 @@
 package com.google.instrumentation.trace;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -61,7 +62,7 @@ public class PropagationUtilBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext fromBinaryValueSpanContext() throws IOException {
+  public SpanContext fromBinaryValueSpanContext() throws ParseException {
     return PropagationUtil.fromBinaryValue(spanContextBinary);
   }
 
@@ -73,7 +74,7 @@ public class PropagationUtilBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext toFromBinarySpanContext() throws IOException {
+  public SpanContext toFromBinarySpanContext() throws ParseException {
     return PropagationUtil.fromBinaryValue(PropagationUtil.toBinaryValue(spanContext));
   }
 }
