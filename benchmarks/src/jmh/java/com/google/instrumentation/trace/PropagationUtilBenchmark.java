@@ -13,6 +13,8 @@
 
 package com.google.instrumentation.trace;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -30,56 +32,16 @@ public class PropagationUtilBenchmark {
   private static final TraceId traceId = TraceId.fromBytes(traceIdBytes);
   private static final byte[] spanIdBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 0};
   private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
-  private static final byte[] traceOptionsBytes = new byte[] {0, 0, 0, 1};
+  private static final byte[] traceOptionsBytes = new byte[] {1};
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
   private SpanContext spanContext;
-  private String spanContextStringHttp;
   private byte[] spanContextBinary;
 
-
-  /**
-   * Setup function for benchmarks.
-   */
+  /** Setup function for benchmarks. */
   @Setup
   public void setUp() {
     spanContext = new SpanContext(traceId, spanId, traceOptions);
-    spanContextStringHttp = PropagationUtil.toHttpHeaderValue(spanContext);
     spanContextBinary = PropagationUtil.toBinaryValue(spanContext);
-  }
-
-  /**
-   * This benchmark attempts to measure performance of {@link
-   * PropagationUtil#toHttpHeaderValue(SpanContext)}.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public String toHttpHeaderValueSpanContext() {
-    return PropagationUtil.toHttpHeaderValue(spanContext);
-  }
-
-  /**
-   * This benchmark attempts to measure performance of {@link
-   * PropagationUtil#fromHttpHeaderValue(CharSequence)}.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext fromHttpHeaderValueSpanContext() {
-    return PropagationUtil.fromHttpHeaderValue(spanContextStringHttp);
-  }
-
-  /**
-   * This benchmark attempts to measure performance of {@link
-   * PropagationUtil#toHttpHeaderValue(SpanContext)} then {@link
-   * PropagationUtil#fromHttpHeaderValue(CharSequence)}.
-   */
-  @Benchmark
-  @BenchmarkMode(Mode.SampleTime)
-  @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext toFromHttpFormatSpanContext() {
-    return PropagationUtil.fromHttpHeaderValue(
-        PropagationUtil.toHttpHeaderValue(spanContext));
   }
 
   /**
@@ -100,20 +62,19 @@ public class PropagationUtilBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext fromBinaryValueSpanContext() {
+  public SpanContext fromBinaryValueSpanContext() throws ParseException {
     return PropagationUtil.fromBinaryValue(spanContextBinary);
   }
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * PropagationUtil#toBinaryValue(SpanContext)} then
-   * {@link PropagationUtil#fromBinaryValue(byte[])}.
+   * PropagationUtil#toBinaryValue(SpanContext)} then {@link
+   * PropagationUtil#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext toFromBinarySpanContext() {
-    return PropagationUtil.fromBinaryValue(
-        PropagationUtil.toBinaryValue(spanContext));
+  public SpanContext toFromBinarySpanContext() throws ParseException {
+    return PropagationUtil.fromBinaryValue(PropagationUtil.toBinaryValue(spanContext));
   }
 }

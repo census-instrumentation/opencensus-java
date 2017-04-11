@@ -71,7 +71,7 @@ public final class TraceId implements Comparable<TraceId> {
    *     begins.
    * @return a {@code TraceId} whose representation is copied from the buffer.
    * @throws NullPointerException if {@code src} is null.
-   * @throws IllegalArgumentException if {@code srcOffset+TraceId.SIZE} is greater than {@code
+   * @throws IndexOutOfBoundsException if {@code srcOffset+TraceId.SIZE} is greater than {@code
    *     src.length}.
    */
   public static TraceId fromBytes(byte[] src, int srcOffset) {
