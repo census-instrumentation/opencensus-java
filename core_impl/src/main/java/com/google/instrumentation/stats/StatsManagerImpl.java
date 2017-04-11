@@ -35,9 +35,10 @@ public final class StatsManagerImpl extends StatsManager {
     // and view RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW for this prototype.
     // The prototype does not allow setting measurement descriptor entries dynamically for now.
     // TODO(songya): remove the logic for checking the preset descriptor.
-    if (!viewDescriptor.equals(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW)) {
+    if (!viewDescriptor.equals(SupportedViews.SUPPORTED_VIEW)) {
       throw new UnsupportedOperationException(
-          "The prototype will only support Distribution View RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW.");
+          "The prototype will only support Distribution View "
+              + SupportedViews.SUPPORTED_VIEW.getName());
     }
 
     if (measurementDescriptorToViewMap.getView(viewDescriptor) != null) {
