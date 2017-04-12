@@ -24,17 +24,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Unit tests for {@link com.google.instrumentation.stats.Distribution}.
+ * Unit tests for {@link com.google.instrumentation.stats.MutableDistribution}.
  */
 @RunWith(JUnit4.class)
-public class DistributionTest {
+public class MutableDistributionTest {
 
   @Rule
   public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testEmptyDistribution() {
-    Distribution empty = Distribution.create();
+    MutableDistribution empty = MutableDistribution.create();
     assertThat(empty.getCount()).isEqualTo(0);
     assertThat(empty.getSum()).isWithin(1e-5).of(0.0);
     assertThat(empty.getMean()).isNaN();
@@ -44,7 +44,7 @@ public class DistributionTest {
   @Test
   public void testEmptyDistributionWithBuckets() {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 2.0);
-    Distribution empty = Distribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution empty = MutableDistribution.create(BucketBoundaries.create(buckets));
     assertThat(empty.getCount()).isEqualTo(0);
     assertThat(empty.getSum()).isWithin(1e-5).of(0.0);
     assertThat(empty.getMean()).isNaN();
@@ -57,26 +57,26 @@ public class DistributionTest {
   @Test
   public void testNullBoundaries() throws Exception {
     thrown.expect(NullPointerException.class);
-    Distribution.create(null);
+    MutableDistribution.create(null);
   }
 
   @Test
   public void testUnsortedBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
     thrown.expect(IllegalArgumentException.class);
-    Distribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution.create(BucketBoundaries.create(buckets));
   }
 
   @Test
   public void testNoBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList();
     thrown.expect(IllegalArgumentException.class);
-    Distribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution.create(BucketBoundaries.create(buckets));
   }
 
   @Test
   public void testDistribution() {
-    Distribution distribution = Distribution.create();
+    MutableDistribution distribution = MutableDistribution.create();
     distribution.add(1.0);
     assertThat(distribution.getCount()).isEqualTo(1);
     assertThat(distribution.getSum()).isWithin(1e-5).of(1.0);
@@ -107,7 +107,7 @@ public class DistributionTest {
   @Test
   public void testDistributionWithOneBoundary() {
     List<Double> buckets = Arrays.asList(5.0);
-    Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution distribution = MutableDistribution.create(BucketBoundaries.create(buckets));
     assertThat(distribution.getBucketCounts()).hasSize(2);
     for (Long element : distribution.getBucketCounts()) {
       assertThat(element).isEqualTo(0);
@@ -124,7 +124,7 @@ public class DistributionTest {
   @Test
   public void testDistributionWithBoundaries() {
     List<Double> buckets = Arrays.asList(-1.0, 2.0, 5.0, 20.0);
-    Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution distribution = MutableDistribution.create(BucketBoundaries.create(buckets));
     assertThat(distribution.getBucketCounts()).hasSize(5);
     for (Long element : distribution.getBucketCounts()) {
       assertThat(element).isEqualTo(0);
