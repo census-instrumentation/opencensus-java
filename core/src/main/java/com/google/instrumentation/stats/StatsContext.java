@@ -13,8 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import java.io.IOException;
 import java.io.OutputStream;
+import java.text.ParseException;
 
 /**
  * An immutable context for stats operations.
@@ -57,7 +57,7 @@ public abstract class StatsContext {
    *
    * @param output the {@link OutputStream} to add the serialized form of this {@link StatsContext}.
    */
-  public abstract void serialize(OutputStream output) throws IOException;
+  public abstract void serialize(OutputStream output) throws ParseException;
 
   /**
    * Builder for {@link StatsContext}.

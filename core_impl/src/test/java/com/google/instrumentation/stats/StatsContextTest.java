@@ -17,8 +17,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 
+import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -35,6 +38,9 @@ public class StatsContextTest {
     RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, RpcConstants.RPC_SERVER_REQUEST_BYTES,
     RpcConstants.RPC_SERVER_RESPONSE_BYTES, RpcConstants.RPC_SERVER_SERVER_LATENCY
   };
+
+  private static final int VERSION_ID = 0;
+  private static final int VALUE_TYPE_STRING = 0;
 
   private static final TagKey K_EMPTY = TagKey.create("");
   private static final TagKey K1 = TagKey.create("k1");
@@ -107,13 +113,28 @@ public class StatsContextTest {
   }
 
   @Test
-  public void testSerialize() throws Exception {
-    testSerialization(DEFAULT.builder().build());
-    testSerialization(DEFAULT.with(K1, V1));
-    testSerialization(DEFAULT.with(K1, V1, K2, V2, K3, V3));
-    testSerialization(DEFAULT.with(K1, V_EMPTY));
-    testSerialization(DEFAULT.with(K_EMPTY, V1));
-    testSerialization(DEFAULT.with(K_EMPTY, V_EMPTY));
+  public void testSerializeDefault() throws Exception {
+    testSerialize();
+  }
+
+  @Test
+  public void testSerializeWithOneStringTag() throws Exception {
+    testSerialize(Tag.create(K1, V1));
+  }
+
+  @Test
+  public void testSerializeWithMultiStringTags() throws Exception {
+    testSerialize(Tag.create(K1, V1), Tag.create(K2, V2));
+  }
+
+  @Test
+  public void testRoundtripSerialization() throws Exception {
+    testRoundtripSerialization(DEFAULT.builder().build());
+    testRoundtripSerialization(DEFAULT.with(K1, V1));
+    testRoundtripSerialization(DEFAULT.with(K1, V1, K2, V2, K3, V3));
+    testRoundtripSerialization(DEFAULT.with(K1, V_EMPTY));
+    testRoundtripSerialization(DEFAULT.with(K_EMPTY, V1));
+    testRoundtripSerialization(DEFAULT.with(K_EMPTY, V_EMPTY));
   }
 
   // Tests for Object overrides.
@@ -140,11 +161,33 @@ public class StatsContextTest {
     assertThat(DEFAULT.with(K1, V10).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
   }
 
-  private static void testSerialization(StatsContext expected) throws Exception {
+  private static void testSerialize(Tag... tags) throws ParseException, IOException {
+    ByteArrayOutputStream actual = new ByteArrayOutputStream();
+    ByteArrayOutputStream expected = new ByteArrayOutputStream();
+    expected.write(VERSION_ID);
+    StatsContext.Builder builder = DEFAULT.builder();
+    for (Tag tag : tags) {
+      builder.set(tag.getKey(), tag.getValue());
+      expected.write(VALUE_TYPE_STRING);
+      encodeString(tag.getKey().toString(), expected);
+      encodeString(tag.getValue().toString(), expected);
+    }
+    builder.build().serialize(actual);
+
+    assertThat(actual.toByteArray()).isEqualTo(expected.toByteArray());
+  }
+
+  private static void testRoundtripSerialization(StatsContext expected) throws Exception {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     expected.serialize(output);
     ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
     StatsContext actual = Stats.getStatsContextFactory().deserialize(input);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  private static final void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
+      throws IOException {
+    VarInt.putVarInt(input.length(), byteArrayOutputStream);
+    byteArrayOutputStream.write(input.getBytes("UTF-8"));
   }
 }

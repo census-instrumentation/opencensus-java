@@ -21,38 +21,50 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
 /**
  * Native implementation {@link StatsContext} serialization.
+ * 
+ * <p>Encoding of stats context information (tags) for passing across RPC's:</p>
+ * 
+ * <ul>
+ *   <li>Tags are encoded in single byte sequence. The version 0 format is:
+ *   <li>{@code <version_id>;<encoded_tags>}
+ *   <li>{@code <version_id>; == a single byte, value 0}
+ *   <li>{@code <encoded_tags>; == (<tag_field_id>;<tag_encoding>;)*}
+ *       <ul>
+ *       <li>{@code <tag_field_id>} == a single byte, value 0 (string tag), 1 (int tag),
+ *           2 (true bool tag), 3 (false bool flag)
+ *       <li>{@code <tag_encoding>}:
+ *           <ul>
+ *           <li>{@code (tag_field_id == 0) == <tag_key_len>;<tag_key>;<tag_val_len>;<tag_val>;}
+ *               <ul>
+ *               <li>{@code <tag_key_len>} == varint encoded integer
+ *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
+ *               <li>{@code <tag_val_len>} == varint encoded integer
+ *               <li>{@code <tag_val>} == tag_val_len bytes comprising UTF-8 string
+ *               </ul>
+ *           <li>{@code (tag_field_id == 1) == <tag_key_len>;<tag_key>;<int_tag_val>;}
+ *               <ul>
+ *               <li>{@code <tag_key_len>} == varint encoded integer
+ *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
+ *               <li>{@code <int_tag_value>} == 8 bytes, little-endian integer
+ *               </ul>
+ *           <li>{@code (tag_field_id == 2 || tag_field_id == 3) == <tag_key_len>;<tag_key>;}
+ *               <ul>
+ *               <li>{@code <tag_key_len>} == varint encoded integer
+ *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
+ *               </ul>
+ *           </ul>
+ *       </ul>
+ * </ul>
  */
 final class StatsSerializer {
-
-  // This describes the encoding of stats context information (tags)
-  // for passing across RPC's.
-  // Tags are encoded in single byte sequence. The version 1 format is:
-  // <version_id><encoded_tags>
-  //   <version_id> == a single byte, value 0
-  //   <encoded_tags> == (<tag_field_id><tag_encoding>)*
-  //     <tag_field_id> == a single byte, value 0 (string tag), 1 (int tag),
-  //                       2 (true bool tag), 3 (false bool flag)
-  //     <tag_encoding> (tag_field_id == 0) ==
-  //       <tag_key_len><tag_key><tag_val_len><tag_val>
-  //         <tag_key_len> == varint encoded integer
-  //         <tag_key> == tag_key_len bytes comprising tag key name
-  //         <tag_val_len> == varint encoded integer
-  //         <tag_val> == tag_val_len bytes comprising UTF-8 string
-  //     <tag_encoding> (tag_field_id == 1) ==
-  //       <tag_key_len><tag_key><int_tag_val>
-  //         <tag_key_len> == varint encoded integer
-  //         <tag_key> == tag_key_len bytes comprising tag key name
-  //         <int_tag_value> == 8 bytes, little-endian integer
-  //     <tag_encoding> (tag_field_id == 2 || tag_field_id == 3) ==
-  //       <tag_key_len><tag_key>
-  //         <tag_key_len> == varint encoded integer
-  //         <tag_key> == tag_key_len bytes comprising tag key name
+  
   //    TODO(songya): Currently we only support encoding on string type.
   private static final int VERSION_ID = 0;
   private static final int VALUE_TYPE_STRING = 0;
@@ -63,33 +75,36 @@ final class StatsSerializer {
 
   // Serializes a StatsContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
-  static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
+  static void serialize(StatsContextImpl context, OutputStream output) throws ParseException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
     Set<Entry<String, String>> tags = context.tags.entrySet();
-    for (Entry<String, String> tag : tags) {
-      encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
+    try {
+      for (Entry<String, String> tag : tags) {
+        encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
+      }
+      byteArrayOutputStream.writeTo(output);
+    } catch (IOException e) {
+      throw new ParseException(e.getMessage(), byteArrayOutputStream.size());
     }
-    byteArrayOutputStream.writeTo(output);
   }
 
   // Deserializes input to StatsContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static StatsContextImpl deserialize(InputStream input) throws IOException {
+  static StatsContextImpl deserialize(InputStream input) throws ParseException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
       HashMap<String, String> tags = new HashMap<String, String>();
       if (bytes.length == 0) {
-        // Return a default StatsContext on empty input.
-        // TODO(songya): Shall we allow empty input here?
-        return new StatsContextImpl(tags);
+        // Does not allow empty byte array.
+        throw new ParseException("Input byte stream can not be empty.", 0);
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
       if (VarInt.getVarInt(buffer) != VERSION_ID) {
-        throw new IOException("Wrong Version ID.");
+        throw new ParseException("Wrong Version ID.", buffer.position());
       }
 
       int limit = buffer.limit();
@@ -106,12 +121,14 @@ final class StatsSerializer {
           case VALUE_TYPE_FALSE:
           default:
             // TODO(songya): add support for value types integer and boolean
-            throw new IOException("Unsupported tag value type.");
+            throw new ParseException("Unsupported tag value type.", buffer.position());
         }
       }
       return new StatsContextImpl(tags);
     } catch (BufferUnderflowException exn) {
-      throw new IOException(exn);
+      throw new ParseException(exn.getMessage(), -1);
+    } catch (IOException e) {
+      throw new ParseException(e.getMessage(), -1);
     }
   }
 
