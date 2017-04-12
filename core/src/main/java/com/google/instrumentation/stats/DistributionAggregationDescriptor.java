@@ -13,8 +13,6 @@
 
 package com.google.instrumentation.stats;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -23,11 +21,11 @@ import javax.annotation.Nullable;
  *
  * <p>A distribution aggregation may optionally contain a histogram of the values in the
  * population. The bucket boundaries for that histogram are described by
- * {@link getBucketBoundaries}, which defines {@code getBucketBoundaries.size() + 1 (= N)}
+ * {@link BucketBoundaries}, which defines {@code BucketBoundaries.getBoundaries.size() + 1 (= N)}
  * buckets. The boundaries for bucket index i are:
  * <ul>
  * <li>[-infinity, bounds[i]) for i == 0
- * <li>[bounds[i-1], bounds[i]) for 0 &lt; i &lt; N-2
+ * <li>[bounds[i-1], bounds[i]) for 0 &lt; i &lt; N-1
  * <li>[bounds[i-1], +infinity) for i == N-1
  * </ul>
  * i.e. an underflow bucket (number 0), zero or more finite buckets (1 through N - 2, and an
@@ -42,8 +40,7 @@ public final class DistributionAggregationDescriptor {
    * histogram bucket boundaries.
    */
   public static DistributionAggregationDescriptor create(List<Double> bucketBoundaries) {
-    return new DistributionAggregationDescriptor(
-        Collections.unmodifiableList(new ArrayList<Double>(bucketBoundaries)));
+    return new DistributionAggregationDescriptor(BucketBoundaries.create(bucketBoundaries));
   }
 
   /**
@@ -62,13 +59,13 @@ public final class DistributionAggregationDescriptor {
    */
   @Nullable
   public List<Double> getBucketBoundaries() {
-    return bucketBoundaries;
+    return bucketBoundaries == null ? null : bucketBoundaries.getBoundaries();
   }
 
   @Nullable
-  private final List<Double> bucketBoundaries;
+  private final BucketBoundaries bucketBoundaries;
 
-  private DistributionAggregationDescriptor(@Nullable List<Double> bucketBoundaries) {
+  private DistributionAggregationDescriptor(@Nullable BucketBoundaries bucketBoundaries) {
     this.bucketBoundaries = bucketBoundaries;
   }
 }
