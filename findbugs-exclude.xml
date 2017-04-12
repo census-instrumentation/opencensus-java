@@ -1,0 +1,8 @@
+<FindBugsFilter>
+  <Match>
+    <!-- Reason: Null has a different meaning than a zero-length array in this case. -->
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+    <Class name="com.google.instrumentation.stats.MutableDistribution" />
+    <Method name="getBucketCountsArray" />
+  </Match>
+</FindBugsFilter>
