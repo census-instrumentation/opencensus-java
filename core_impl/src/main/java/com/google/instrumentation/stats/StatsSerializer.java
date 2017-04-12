@@ -32,7 +32,7 @@ final class StatsSerializer {
 
   // This describes the encoding of stats context information (tags)
   // for passing across RPC's.
-  // Tags are encoded in single byte sequence. The format is:
+  // Tags are encoded in single byte sequence. The version 1 format is:
   // <version_id><encoded_tags>
   //   <version_id> == a single byte, value 0
   //   <encoded_tags> == (<tag_field_id><tag_encoding>)*
@@ -65,13 +65,12 @@ final class StatsSerializer {
   // Encoded tags are of the form: <version_id><encoded_tags>
   static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    VarInt.putVarInt(VERSION_ID, byteArrayOutputStream);
+    byteArrayOutputStream.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
     Set<Entry<String, String>> tags = context.tags.entrySet();
     for (Entry<String, String> tag : tags) {
-      encodeStringTagWithType(
-          VALUE_TYPE_STRING, tag.getKey(), tag.getValue(), byteArrayOutputStream);
+      encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
     }
     byteArrayOutputStream.writeTo(output);
   }
@@ -84,6 +83,7 @@ final class StatsSerializer {
       HashMap<String, String> tags = new HashMap<String, String>();
       if (bytes.length == 0) {
         // Return a default StatsContext on empty input.
+        // TODO(songya): Shall we allow empty input here?
         return new StatsContextImpl(tags);
       }
 
@@ -116,10 +116,10 @@ final class StatsSerializer {
   }
 
   //  TODO(songya): Currently we only support encoding on string type.
-  private static final void encodeStringTagWithType(
-      int valueType, String key, String value, ByteArrayOutputStream byteArrayOutputStream)
+  private static final void encodeStringTag(
+      String key, String value, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
-    VarInt.putVarInt(valueType, byteArrayOutputStream);
+    byteArrayOutputStream.write(VALUE_TYPE_STRING);
     encodeString(key, byteArrayOutputStream);
     encodeString(value, byteArrayOutputStream);
   }
