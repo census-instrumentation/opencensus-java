@@ -35,7 +35,7 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link Tracer}. */
 @RunWith(JUnit4.class)
 public class TracerTest {
-  private static final Tracer tracer = Tracer.getTracer();
+  private static final Tracer tracer = Trace.getTracer();
   private static final String SPAN_NAME = "MySpanName";
   @Rule public ExpectedException thrown = ExpectedException.none();
   @Mock private SpanFactory spanFactory;
@@ -125,37 +125,8 @@ public class TracerTest {
   }
 
   @Test
-  public void loadSpanFactory_UsesProvidedClassLoader() {
-    final RuntimeException toThrow = new RuntimeException("UseClassLoader");
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("UseClassLoader");
-    Tracer.loadSpanFactory(
-        new ClassLoader() {
-          @Override
-          public Class<?> loadClass(String name) {
-            throw toThrow;
-          }
-        });
-  }
-
-  @Test
-  public void loadSpanFactory_IgnoresMissingClasses() {
-    assertThat(
-            Tracer.loadSpanFactory(
-                    new ClassLoader() {
-                      @Override
-                      public Class<?> loadClass(String name) throws ClassNotFoundException {
-                        throw new ClassNotFoundException();
-                      }
-                    })
-                .getClass()
-                .getName())
-        .isEqualTo("com.google.instrumentation.trace.Tracer$NoopSpanFactory");
-  }
-
-  @Test
   public void startScopedSpanRoot() {
-    Tracer mockTracer = newTracerWithMocks();
+    Tracer mockTracer = new MockTracer(spanFactory);
     when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
     NonThrowingCloseable ss = mockTracer.spanBuilder(SPAN_NAME).becomeRoot().startScopedSpan();
@@ -169,7 +140,7 @@ public class TracerTest {
 
   @Test
   public void startScopedSpanChild() {
-    Tracer mockTracer = newTracerWithMocks();
+    Tracer mockTracer = new MockTracer(spanFactory);
     NonThrowingCloseable ws = mockTracer.withSpan(BlankSpan.INSTANCE);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
@@ -191,7 +162,7 @@ public class TracerTest {
 
   @Test
   public void startRootSpan() {
-    Tracer mockTracer = newTracerWithMocks();
+    Tracer mockTracer = new MockTracer(spanFactory);
     when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
     Span rootSpan = mockTracer.spanBuilder(BlankSpan.INSTANCE, SPAN_NAME).becomeRoot().startSpan();
@@ -202,7 +173,7 @@ public class TracerTest {
 
   @Test
   public void startChildSpan() {
-    Tracer mockTracer = newTracerWithMocks();
+    Tracer mockTracer = new MockTracer(spanFactory);
     when(spanFactory.startSpan(
             same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(new StartSpanOptions())))
         .thenReturn(span);
@@ -215,7 +186,7 @@ public class TracerTest {
   @Test
   public void startSpanWitRemoteParent() {
     Random random = new Random(1234);
-    Tracer mockTracer = newTracerWithMocks();
+    Tracer mockTracer = new MockTracer(spanFactory);
     SpanContext spanContext =
         new SpanContext(
             TraceId.generateRandomId(random),
@@ -231,7 +202,9 @@ public class TracerTest {
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
-  private Tracer newTracerWithMocks() {
-    return new Tracer(spanFactory);
+  private static final class MockTracer extends Tracer {
+    private MockTracer(SpanFactory spanFactory) {
+      super(spanFactory);
+    }
   }
 }

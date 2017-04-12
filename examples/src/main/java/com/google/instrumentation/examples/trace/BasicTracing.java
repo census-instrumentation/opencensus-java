@@ -14,12 +14,13 @@
 package com.google.instrumentation.examples.trace;
 
 import com.google.instrumentation.trace.Span;
+import com.google.instrumentation.trace.Trace;
 import com.google.instrumentation.trace.Tracer;
 
 /** Example showing how to create a {@link Span} and add annotations. */
 public final class BasicTracing {
   // Per class Tracer.
-  private static final Tracer tracer = Tracer.getTracer();
+  private static final Tracer tracer = Trace.getTracer();
 
   private static void doWork() {
     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();

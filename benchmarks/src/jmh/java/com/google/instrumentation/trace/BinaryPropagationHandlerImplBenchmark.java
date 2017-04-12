@@ -22,7 +22,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 
-/** Benchmarks for {@link BinaryPropagationHandler}. */
+/** Benchmarks for {@link BinaryPropagationHandlerImpl}. */
 @State(Scope.Benchmark)
 public class BinaryPropagationHandlerImplBenchmark {
   private static final byte[] traceIdBytes =

@@ -15,18 +15,11 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.instrumentation.common.NonThrowingCloseable;
-import com.google.instrumentation.common.Provider;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
- * Tracer is a simple, singleton, thin class for {@link Span} creation and in-process context
- * interaction.
- *
- * <p>This can be used similarly to {@link java.util.logging.Logger}.
+ * Tracer is a simple, thin class for {@link Span} creation and in-process context interaction.
  *
  * <p>Users may choose to use manual or automatic Context propagation. Because of that this class
  * offers APIs to facilitate both usages.
@@ -40,7 +33,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * class MyClass {
- *   private static final Tracer tracer = Tracer.getTracer();
+ *   private static final Tracer tracer = Trace.getTracer();
  *   void doWork() {
  *     try(NonThrowingCloseable ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
  *       tracer.getCurrentSpan().addAnnotation("Starting the work.");
@@ -55,7 +48,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * class MyClass {
- *   private static final Tracer tracer = Tracer.getTracer();
+ *   private static final Tracer tracer = Trace.getTracer();
  *   void doWork() {
  *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
  *     span.addAnnotation("Starting the work.");
@@ -70,39 +63,17 @@ import javax.annotation.Nullable;
  * }
  * }</pre>
  */
-public final class Tracer {
-  private static final Logger logger = Logger.getLogger(Tracer.class.getName());
-  private static final Tracer INSTANCE =
-      new Tracer(loadSpanFactory(Provider.getCorrectClassLoader(SpanFactory.class)));
+public abstract class Tracer {
+  private static final NoopTracer noopTracer = new NoopTracer();
   private final SpanFactory spanFactory;
 
-  @VisibleForTesting
-  Tracer(SpanFactory spanFactory) {
-    this.spanFactory = checkNotNull(spanFactory, "spanFactory");
-  }
-
   /**
-   * Returns the {@link Tracer} with the provided implementations for {@link SpanFactory}. If no
-   * implementation is provided then no-op implementations will be used.
+   * Returns the no-op implementation of the {@code Tracer}.
    *
-   * @return the {@code Tracer}.
+   * @return the no-op implementation of the {@code Tracer}.
    */
-  public static Tracer getTracer() {
-    return INSTANCE;
-  }
-
-  // Any provider that may be used for SpanFactory can be added here.
-  @VisibleForTesting
-  static SpanFactory loadSpanFactory(ClassLoader classLoader) {
-    try {
-      // Call Class.forName with literal string name of the class to help shading tools.
-      return Provider.createInstance(
-          Class.forName("com.google.instrumentation.trace.SpanFactoryImpl", true, classLoader),
-          SpanFactory.class);
-    } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Using default implementation for SpanFactory.", e);
-    }
-    return new NoopSpanFactory();
+  static Tracer getNoopTracer() {
+    return noopTracer;
   }
 
   /**
@@ -117,7 +88,7 @@ public final class Tracer {
    *     {@code Span} is associated with the current Context, otherwise the current {@code Span}
    *     from the Context.
    */
-  public Span getCurrentSpan() {
+  public final Span getCurrentSpan() {
     Span currentSpan = ContextUtils.getCurrentSpan();
     return currentSpan != null ? currentSpan : BlankSpan.INSTANCE;
   }
@@ -133,7 +104,7 @@ public final class Tracer {
    * <p>Example of usage:
    *
    * <pre>{@code
-   * private static Tracer tracer = Tracer.getTracer();
+   * private static Tracer tracer = Trace.getTracer();
    * void doWork {
    *   // Create a Span as a child of the current Span.
    *   Span span = tracer.startSpan("my span");
@@ -151,7 +122,7 @@ public final class Tracer {
    * <p>Example of usage prior to Java SE7:
    *
    * <pre>{@code
-   * private static Tracer tracer = Tracer.getTracer();
+   * private static Tracer tracer = Trace.getTracer();
    * void doWork {
    *   // Create a Span as a child of the current Span.
    *   Span span = tracer.startSpan("my span");
@@ -171,7 +142,7 @@ public final class Tracer {
    *     Context.
    * @throws NullPointerException if span is null.
    */
-  public NonThrowingCloseable withSpan(Span span) {
+  public final NonThrowingCloseable withSpan(Span span) {
     return ContextUtils.withSpan(checkNotNull(span, "span"));
   }
 
@@ -188,7 +159,7 @@ public final class Tracer {
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if name is null.
    */
-  public SpanBuilder spanBuilder(String name) {
+  public final SpanBuilder spanBuilder(String name) {
     return spanBuilder(ContextUtils.getCurrentSpan(), name);
   }
 
@@ -206,7 +177,7 @@ public final class Tracer {
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if name is null.
    */
-  public SpanBuilder spanBuilder(@Nullable Span parent, String name) {
+  public final SpanBuilder spanBuilder(@Nullable Span parent, String name) {
     return SpanBuilder.builder(spanFactory, parent, checkNotNull(name, "name"));
   }
 
@@ -224,22 +195,34 @@ public final class Tracer {
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if name is null.
    */
-  public SpanBuilder spanBuilderWithRemoteParent(@Nullable SpanContext remoteParent, String name) {
+  public final SpanBuilder spanBuilderWithRemoteParent(
+      @Nullable SpanContext remoteParent, String name) {
     return SpanBuilder.builderWithRemoteParent(
         spanFactory, remoteParent, checkNotNull(name, "name"));
   }
 
-  // No-op implementation of the SpanFactory
-  private static final class NoopSpanFactory extends SpanFactory {
-    @Override
-    Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
-      return BlankSpan.INSTANCE;
+  // No-Op implementation of the Tracer.
+  private static final class NoopTracer extends Tracer {
+    private NoopTracer() {
+      super(new NoopSpanFactory());
     }
 
-    @Override
-    Span startSpanWithRemoteParent(
-        @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
-      return BlankSpan.INSTANCE;
+    // No-op implementation of the SpanFactory
+    private static final class NoopSpanFactory extends SpanFactory {
+      @Override
+      Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
+        return BlankSpan.INSTANCE;
+      }
+
+      @Override
+      Span startSpanWithRemoteParent(
+          @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
+        return BlankSpan.INSTANCE;
+      }
     }
+  }
+
+  protected Tracer(SpanFactory spanFactory) {
+    this.spanFactory = checkNotNull(spanFactory, "spanFactory");
   }
 }
