@@ -15,7 +15,9 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.auto.value.AutoValue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -44,44 +46,34 @@ import javax.annotation.Nullable;
  * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities or
  * NaNs) in the population of values, as this will render the {@code mean} meaningless.
  */
-public final class Distribution {
-  private long count = 0; // The number of values in the population.
-  private double sum = 0.0; // The sum of the values in the population.
-  private final Range range = Range.create(); // Range of values in the population.
-  private final BucketBoundaries bucketBoundaries; // Histogram boundaries; null means no histogram
-  private long[] bucketCounts; // Counts for each histogram bucket
+@AutoValue
+public abstract class Distribution {
+
+  Distribution() {}
 
   /**
-   * Constructs a new, empty {@link Distribution}.
+   * Constructs a {@link Distribution} with the same contents as a {@link MutableDistribution}.
    *
-   * @return a new, empty {@code Distribution}.
+   * @param distribution the {@code MutableDistribution} to be copied.
+   * @return a {@code Distribution} with the same contents as the given {@link MutableDistribution}.
    */
-  public static final Distribution create() {
-    return new Distribution(null);
+  public static Distribution create(MutableDistribution distribution) {
+    long[] counts = distribution.getBucketCountsArray();
+    List<Long> bucketCounts = counts != null ? longArrayToImmutableList(counts) : null;
+    return new AutoValue_Distribution(
+        distribution.getCount(),
+        distribution.getSum(),
+        Range.create(distribution.getRange()),
+        distribution.getBucketBoundaries(),
+        bucketCounts);
   }
 
-  /**
-   * Constructs a new {@link Distribution} with specified {@code bucketBoundaryList}.
-   *
-   * @param bucketBoundaries the boundaries for the buckets in the underlying {@code Distribution}.
-   * @return a new, empty {@code Distribution} with the specified boundaries.
-   */
-  public static final Distribution create(BucketBoundaries bucketBoundaries) {
-    checkNotNull(bucketBoundaries, "bucketBoundaries Object should not be null.");
-    return new Distribution(bucketBoundaries);
-  }
-
-  // Returns true if the distribution has histogram buckets.
-  private boolean hasBuckets() {
-    return (bucketBoundaries != null);
-  }
-
-  // Construct a new Distribution with optional bucket boundaries.
-  private Distribution(@Nullable BucketBoundaries bucketBoundaries) {
-    this.bucketBoundaries = bucketBoundaries;
-    if (hasBuckets()) {
-      bucketCounts = new long[bucketBoundaries.getBoundaries().size() + 1];
+  private static List<Long> longArrayToImmutableList(long[] array) {
+    List<Long> boxedBucketCounts = new ArrayList<Long>(array.length);
+    for (long bucketCount : array) {
+      boxedBucketCounts.add(bucketCount);
     }
+    return Collections.unmodifiableList(boxedBucketCounts);
   }
 
   /**
@@ -89,9 +81,7 @@ public final class Distribution {
    *
    * @return The number of values in the population.
    */
-  public long getCount() {
-    return count;
-  }
+  public abstract long getCount();
 
   /**
    * The arithmetic mean of the values in the population. If {@link #getCount()} is zero then this
@@ -99,8 +89,8 @@ public final class Distribution {
    *
    * @return The arithmetic mean of all values in the population.
    */
-  public double getMean() {
-    return sum / count;
+  public final double getMean() {
+    return getSum() / getCount();
   }
 
   /**
@@ -109,9 +99,7 @@ public final class Distribution {
    *
    * @return The sum of values in the population.
    */
-  public double getSum() {
-    return sum;
-  }
+  public abstract double getSum();
 
   /**
    * The range of the population values. If {@link #getCount()} is zero then this returned range is
@@ -119,9 +107,15 @@ public final class Distribution {
    *
    * @return The {code Range} representing the range of population values.
    */
-  public Range getRange() {
-    return range;
-  }
+  public abstract Range getRange();
+
+  /**
+   * The optional histogram bucket boundaries used by this {@code MutableDistribution}.
+   *
+   * @return The bucket boundaries, or {@code null} if there is no histogram.
+   */
+  @Nullable
+  public abstract BucketBoundaries getBucketBoundaries();
 
   /**
    * A Distribution may optionally contain a histogram of the values in the population. The
@@ -145,86 +139,30 @@ public final class Distribution {
    * @return The count of population values in each histogram bucket.
    */
   @Nullable
-  public List<Long> getBucketCounts() {
-    if (hasBuckets()) {
-      List<Long> boxedBucketCounts = new ArrayList<Long>(bucketCounts.length);
-      for (long bucketCount : bucketCounts) {
-        boxedBucketCounts.add(bucketCount);
-      }
-      return boxedBucketCounts;
-    }
-    return null;
-  }
-
-  // Increment the appropriate bucket count. hasBuckets() MUST be true.
-  private void putIntoBucket(double value) {
-    for (int i = 0; i < bucketBoundaries.getBoundaries().size(); i++) {
-      if (value < bucketBoundaries.getBoundaries().get(i)) {
-        bucketCounts[i]++;
-        return;
-      }
-    }
-    bucketCounts[bucketCounts.length - 1]++;
-  }
-
-  /**
-   * Put a new value into the Distribution.
-   *
-   * @param value new value to be added to population
-   */
-  public void add(double value) {
-    count++;
-    sum += value;
-    range.add(value);
-    if (hasBuckets()) {
-      putIntoBucket(value);
-    }
-  }
+  public abstract List<Long> getBucketCounts();
 
   /** Describes a range of population values. */
-  public static final class Range {
-    // Maintain the invariant that max should always be greater than or equal to min.
-    // TODO(songya): needs to determine how we would want to initialize min and max.
-    private Double min = null;
-    private Double max = null;
+  // TODO(sebright): Decide what to do when the distribution contains no values.
+  @AutoValue
+  public abstract static class Range {
 
-    /** Construct a new, empty {@code Range}. */
-    public static final Range create() {
-      return new Range();
+    /** Constructs a {@code Range} from a {@link MutableDistribution.Range}. */
+    public static Range create(MutableDistribution.Range range) {
+      return new AutoValue_Distribution_Range(range.getMin(), range.getMax());
     }
 
     /**
-     * The minimum of the population values. Will throw an exception if min has not been set.
+     * The minimum of the population values.
      *
      * @return The minimum of the population values.
      */
-    public double getMin() {
-      return min;
-    }
+    public abstract double getMin();
 
     /**
-     * The maximum of the population values. Will throw an exception if max has not been set.
+     * The maximum of the population values.
      *
      * @return The maximum of the population values.
      */
-    public double getMax() {
-      return max;
-    }
-
-    /**
-     * Put a new value into the Range. Sets min and max values if appropriate.
-     *
-     * @param value the new value
-     */
-    public void add(double value) {
-      if (min == null || value < min) {
-        min = value;
-      }
-      if (max == null || value > max) {
-        max = value;
-      }
-    }
-
-    private Range() {}
+    public abstract double getMax();
   }
 }
