@@ -119,9 +119,10 @@ public class StatsContextFactoryTest {
   private static InputStream constructMultiTypeTagInputStream() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
-    for (int i = 0; i <= VALUE_TYPE_FALSE; i++) {
-      encodeSingleTypeTagToOutputStream(i, byteArrayOutputStream);
-    }
+    encodeSingleTypeTagToOutputStream(VALUE_TYPE_STRING, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(VALUE_TYPE_INTEGER, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(VALUE_TYPE_TRUE, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(VALUE_TYPE_FALSE, byteArrayOutputStream);
     return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
   }
   
