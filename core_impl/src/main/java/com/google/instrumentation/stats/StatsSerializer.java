@@ -103,13 +103,13 @@ final class StatsSerializer {
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
-      if (VarInt.getVarInt(buffer) != VERSION_ID) {
+      if (buffer.get() != VERSION_ID) {
         throw new ParseException("Wrong Version ID.", buffer.position());
       }
 
       int limit = buffer.limit();
       while (buffer.position() < limit) {
-        int type = VarInt.getVarInt(buffer);
+        int type = buffer.get();
         switch (type) {
           case VALUE_TYPE_STRING:
             String key = decodeString(buffer);
