@@ -1,4 +1,4 @@
-description = 'Instrumentation: Core'
+description = 'Instrumentation: API'
 
 dependencies {
     compile project(':shared'),
