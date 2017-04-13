@@ -52,7 +52,7 @@ import java.text.ParseException;
  *
  * </ul>
  */
-public final class PropagationUtil {
+public final class BinaryPropagationHandler {
   // Mask to extract a byte value.
   private static volatile BinaryHandler binaryHandler = DefaultBinaryHandler.INSTANCE;
 
@@ -177,5 +177,5 @@ public final class PropagationUtil {
   }
 
   // Disallow instances of this class.
-  private PropagationUtil() {}
+  private BinaryPropagationHandler() {}
 }

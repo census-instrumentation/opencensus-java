@@ -18,8 +18,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
 
-import com.google.instrumentation.trace.PropagationUtil.BinaryHandler;
-import com.google.instrumentation.trace.PropagationUtil.DefaultBinaryHandler;
+import com.google.instrumentation.trace.BinaryPropagationHandler.BinaryHandler;
+import com.google.instrumentation.trace.BinaryPropagationHandler.DefaultBinaryHandler;
 import java.text.ParseException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,9 +29,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link PropagationUtil}. */
+/** Unit tests for {@link BinaryPropagationHandler}. */
 @RunWith(JUnit4.class)
-public class PropagationUtilTest {
+public class BinaryPropagationHandlerTest {
   private static final byte[] TRACE_ID_BYTES =
       new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79};
   private static final TraceId TRACE_ID = TraceId.fromBytes(TRACE_ID_BYTES);
@@ -56,7 +56,7 @@ public class PropagationUtilTest {
   private static void testSpanContextConversion(SpanContext spanContext) throws ParseException {
     SpanContext propagatedBinarySpanContext = null;
     propagatedBinarySpanContext =
-        PropagationUtil.fromBinaryValue(PropagationUtil.toBinaryValue(spanContext));
+        BinaryPropagationHandler.fromBinaryValue(BinaryPropagationHandler.toBinaryValue(spanContext));
 
     assertWithMessage("Binary propagated context is not equal with the initial context.")
         .that(propagatedBinarySpanContext)
@@ -76,7 +76,7 @@ public class PropagationUtilTest {
 
   @Test
   public void toBinaryValue_InvalidSpanContext() {
-    assertThat(PropagationUtil.toBinaryValue(SpanContext.INVALID))
+    assertThat(BinaryPropagationHandler.toBinaryValue(SpanContext.INVALID))
         .isEqualTo(
             new byte[] {
               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0
@@ -85,28 +85,28 @@ public class PropagationUtilTest {
 
   @Test
   public void parseBinaryValue_BinaryExampleValue() throws ParseException {
-    assertThat(PropagationUtil.fromBinaryValue(EXAMPLE_BYTES))
+    assertThat(BinaryPropagationHandler.fromBinaryValue(EXAMPLE_BYTES))
         .isEqualTo(new SpanContext(TRACE_ID, SPAN_ID, TRACE_OPTIONS));
-    assertThat(PropagationUtil.fromBinaryValue(EXAMPLE_BYTES).getTraceOptions().getOptions())
+    assertThat(BinaryPropagationHandler.fromBinaryValue(EXAMPLE_BYTES).getTraceOptions().getOptions())
         .isEqualTo(1);
   }
 
   @Test(expected = NullPointerException.class)
   public void parseBinaryValue_NullInput() throws ParseException {
-    PropagationUtil.fromBinaryValue(null);
+    BinaryPropagationHandler.fromBinaryValue(null);
   }
 
   public void parseBinaryValue_EmptyInput() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Unsupported version.");
-    PropagationUtil.fromBinaryValue(new byte[0]);
+    BinaryPropagationHandler.fromBinaryValue(new byte[0]);
   }
 
   @Test
   public void parseBinaryValue_UnsupportedVersionId() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Unsupported version.");
-    PropagationUtil.fromBinaryValue(
+    BinaryPropagationHandler.fromBinaryValue(
         new byte[] {
           66, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 97, 98, 99, 100, 101,
           102, 103, 104, 1
@@ -116,7 +116,7 @@ public class PropagationUtilTest {
   @Test
   public void parseBinaryValue_UnsupportedFieldIdFirst() throws ParseException {
     assertThat(
-            PropagationUtil.fromBinaryValue(
+            BinaryPropagationHandler.fromBinaryValue(
                 new byte[] {
                   0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -127,7 +127,7 @@ public class PropagationUtilTest {
   @Test
   public void parseBinaryValue_UnsupportedFieldIdSecond() throws ParseException {
     assertThat(
-            PropagationUtil.fromBinaryValue(
+            BinaryPropagationHandler.fromBinaryValue(
                 new byte[] {
                   0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 3, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -144,7 +144,7 @@ public class PropagationUtilTest {
   public void parseBinaryValue_ShorterTraceId() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
-    PropagationUtil.fromBinaryValue(
+    BinaryPropagationHandler.fromBinaryValue(
         new byte[] {0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76});
   }
 
@@ -152,14 +152,14 @@ public class PropagationUtilTest {
   public void parseBinaryValue_ShorterSpanId() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
-    PropagationUtil.fromBinaryValue(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
+    BinaryPropagationHandler.fromBinaryValue(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
   }
 
   @Test
   public void parseBinaryValue_ShorterTraceOptions() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Invalid input: java.lang.IndexOutOfBoundsException");
-    PropagationUtil.fromBinaryValue(
+    BinaryPropagationHandler.fromBinaryValue(
         new byte[] {
           0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
           101, 102, 103, 104, 2
@@ -170,11 +170,11 @@ public class PropagationUtilTest {
   public void parseBinaryValue_WithNewAddedFormat() throws ParseException {
     MockitoAnnotations.initMocks(this);
     when(mockHandler.fromBinaryFormat(same(EXAMPLE_BYTES))).thenReturn(EXAMPLE_SPAN_CONTEXT);
-    PropagationUtil.setBinaryHandler(mockHandler);
+    BinaryPropagationHandler.setBinaryHandler(mockHandler);
     try {
-      assertThat(PropagationUtil.fromBinaryValue(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
+      assertThat(BinaryPropagationHandler.fromBinaryValue(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
     } finally {
-      PropagationUtil.setBinaryHandler(DefaultBinaryHandler.INSTANCE);
+      BinaryPropagationHandler.setBinaryHandler(DefaultBinaryHandler.INSTANCE);
     }
   }
 
@@ -182,11 +182,11 @@ public class PropagationUtilTest {
   public void serializeBinaryValue_WithNewAddedFormat() {
     MockitoAnnotations.initMocks(this);
     when(mockHandler.toBinaryFormat(same(EXAMPLE_SPAN_CONTEXT))).thenReturn(EXAMPLE_BYTES);
-    PropagationUtil.setBinaryHandler(mockHandler);
+    BinaryPropagationHandler.setBinaryHandler(mockHandler);
     try {
-      assertThat(PropagationUtil.toBinaryValue(EXAMPLE_SPAN_CONTEXT)).isEqualTo(EXAMPLE_BYTES);
+      assertThat(BinaryPropagationHandler.toBinaryValue(EXAMPLE_SPAN_CONTEXT)).isEqualTo(EXAMPLE_BYTES);
     } finally {
-      PropagationUtil.setBinaryHandler(DefaultBinaryHandler.INSTANCE);
+      BinaryPropagationHandler.setBinaryHandler(DefaultBinaryHandler.INSTANCE);
     }
   }
 }
