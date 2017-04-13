@@ -57,20 +57,20 @@ public class BucketBoundariesTest {
   @Test
   public void testNullBoundaries() throws Exception {
     thrown.expect(NullPointerException.class);
-    BucketBoundaries bucketBoundaries = BucketBoundaries.create(null);
+    BucketBoundaries.create(null);
   }
 
   @Test
   public void testUnsortedBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
     thrown.expect(IllegalArgumentException.class);
-    BucketBoundaries bucketBoundaries = BucketBoundaries.create(buckets);
+    BucketBoundaries.create(buckets);
   }
 
   @Test
   public void testNoBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList();
     thrown.expect(IllegalArgumentException.class);
-    BucketBoundaries bucketBoundaries = BucketBoundaries.create(buckets);
+    BucketBoundaries.create(buckets);
   }
 }

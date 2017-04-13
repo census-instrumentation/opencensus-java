@@ -48,30 +48,30 @@ public class DistributionTest {
     assertThat(empty.getCount()).isEqualTo(0);
     assertThat(empty.getSum()).isWithin(1e-5).of(0.0);
     assertThat(empty.getMean()).isNaN();
-    assertThat(empty.getBucketCounts().size()).isEqualTo(4);
-    for (int i = 0; i < empty.getBucketCounts().size(); i++) {
-      assertThat(empty.getBucketCounts().get(i)).isEqualTo(0);
+    assertThat(empty.getBucketCounts()).hasSize(4);
+    for (Long element : empty.getBucketCounts()) {
+      assertThat(element).isEqualTo(0);
     }
   }
 
   @Test
   public void testNullBoundaries() throws Exception {
     thrown.expect(NullPointerException.class);
-    Distribution distribution = Distribution.create(null);
+    Distribution.create(null);
   }
 
   @Test
   public void testUnsortedBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
     thrown.expect(IllegalArgumentException.class);
-    Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
+    Distribution.create(BucketBoundaries.create(buckets));
   }
 
   @Test
   public void testNoBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList();
     thrown.expect(IllegalArgumentException.class);
-    Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
+    Distribution.create(BucketBoundaries.create(buckets));
   }
 
   @Test
@@ -108,9 +108,9 @@ public class DistributionTest {
   public void testDistributionWithOneBoundary() {
     List<Double> buckets = Arrays.asList(5.0);
     Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
-    assertThat(distribution.getBucketCounts().size()).isEqualTo(2);
-    for (int i = 0; i < distribution.getBucketCounts().size(); i++) {
-      assertThat(distribution.getBucketCounts().get(i)).isEqualTo(0);
+    assertThat(distribution.getBucketCounts()).hasSize(2);
+    for (Long element : distribution.getBucketCounts()) {
+      assertThat(element).isEqualTo(0);
     }
     distribution.add(1.4);
     distribution.add(5.0);
@@ -125,9 +125,9 @@ public class DistributionTest {
   public void testDistributionWithBoundaries() {
     List<Double> buckets = Arrays.asList(-1.0, 2.0, 5.0, 20.0);
     Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
-    assertThat(distribution.getBucketCounts().size()).isEqualTo(5);
-    for (int i = 0; i < distribution.getBucketCounts().size(); i++) {
-      assertThat(distribution.getBucketCounts().get(i)).isEqualTo(0);
+    assertThat(distribution.getBucketCounts()).hasSize(5);
+    for (Long element : distribution.getBucketCounts()) {
+      assertThat(element).isEqualTo(0);
     }
     distribution.add(-50.0);
     distribution.add(-20.0);
