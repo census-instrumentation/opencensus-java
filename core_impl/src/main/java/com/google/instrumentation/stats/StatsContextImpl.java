@@ -40,7 +40,7 @@ final class StatsContextImpl extends StatsContext {
   /**
    * Serializes a {@link StatsContextImpl} into {@code CensusContextProto} serialized format.
    *
-   * <p>The encoded tags are of the form: {@code <tag prefix> + 'key' + <tag delim> + 'value'}*
+   * <p>The encoded tags are of the form: {@code <version_id><encoded_tags>}
    */
   @Override
   public void serialize(OutputStream output) throws IOException {

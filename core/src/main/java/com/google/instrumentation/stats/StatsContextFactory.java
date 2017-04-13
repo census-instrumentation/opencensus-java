@@ -24,7 +24,7 @@ public abstract class StatsContextFactory {
    * Creates a {@link StatsContext} from the given on-the-wire encoded representation.
    *
    * <p>Should be the inverse of {@link StatsContext#serialize(java.io.OutputStream)}. The
-   * serialized representation should be based on the {@link StatsContext} protobuf representation.
+   * serialized representation should be based on the {@link StatsContext} binary representation.
    *
    * @param input on-the-wire representation of a {@link StatsContext}
    * @return a {@link StatsContext} deserialized from {@code input}
