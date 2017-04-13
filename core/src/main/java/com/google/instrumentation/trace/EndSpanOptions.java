@@ -17,7 +17,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -74,9 +73,7 @@ public final class EndSpanOptions {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .toString();
+    return MoreObjects.toStringHelper(this).add("status", status).toString();
   }
 
   /** Builder class for {@link EndSpanOptions}. */

@@ -18,8 +18,8 @@ import com.google.instrumentation.trace.Span;
 import com.google.instrumentation.trace.Tracer;
 
 /**
- * Example showing how to create a child {@link Span} using scoped Spans, install it in the
- * current context, and add annotations.
+ * Example showing how to create a child {@link Span} using scoped Spans, install it in the current
+ * context, and add annotations.
  */
 public final class MultiSpansScopedTracing {
   // Per class Tracer.
