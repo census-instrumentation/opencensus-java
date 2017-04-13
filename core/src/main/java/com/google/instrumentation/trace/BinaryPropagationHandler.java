@@ -46,7 +46,7 @@ import java.text.ParseException;
  *   SpanContext spanContext = SpanContext.INVALID;
  *   try {
  *     if (binaryValue != null) {
- *       binaryPropagationHandler.fromBinaryValue(binaryValue);
+ *       spanContext = binaryPropagationHandler.fromBinaryValue(binaryValue);
  *     }
  *   } catch (ParseException e) {
  *     // Maybe log the exception.

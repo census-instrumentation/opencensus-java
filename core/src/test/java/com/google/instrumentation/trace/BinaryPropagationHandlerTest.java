@@ -17,8 +17,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import java.text.ParseException;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link BinaryPropagationHandler}. */
+@RunWith(JUnit4.class)
 public class BinaryPropagationHandlerTest {
   private static final BinaryPropagationHandler binaryPropagationHandler =
       BinaryPropagationHandler.getNoopBinaryPropagationHandler();
