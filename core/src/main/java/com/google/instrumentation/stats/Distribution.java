@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
 public final class Distribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
-  private Range range = Range.create(); // Range of values in the population.
+  private final Range range = Range.create(); // Range of values in the population.
   private final BucketBoundaries bucketBoundaries; // Histogram boundaries; null means no histogram
   private long[] bucketCounts; // Counts for each histogram bucket
 

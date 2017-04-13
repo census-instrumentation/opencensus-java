@@ -36,6 +36,7 @@ public class StatsManagerImplTest {
 
   @Test
   public void testRegisterAndGetView() throws Exception {
+    @SuppressWarnings("unused")
     View expected = DistributionView.create(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
         null,

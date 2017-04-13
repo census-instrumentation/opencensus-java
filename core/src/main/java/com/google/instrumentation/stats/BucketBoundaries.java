@@ -35,7 +35,7 @@ public final class BucketBoundaries {
   public static final BucketBoundaries create(List<Double> bucketBoundaries) {
     checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
     List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries);  // Deep copy.
-    checkArgument(bucketBoundariesCopy.size() > 0, "Zero length bucket boundaries");
+    checkArgument(!bucketBoundariesCopy.isEmpty(), "Zero length bucket boundaries");
     double lower = bucketBoundariesCopy.get(0);
     for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
       double next = bucketBoundariesCopy.get(i);

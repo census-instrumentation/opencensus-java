@@ -45,9 +45,7 @@ public class BinaryPropagationHandlerImplTest {
       BinaryPropagationHandlerImpl.INSTANCE;
 
   private static void testSpanContextConversion(SpanContext spanContext) throws ParseException {
-    SpanContext propagatedBinarySpanContext = null;
-    propagatedBinarySpanContext =
-        binaryPropagationHandler.fromBinaryValue(
+    SpanContext propagatedBinarySpanContext = binaryPropagationHandler.fromBinaryValue(
             binaryPropagationHandler.toBinaryValue(spanContext));
 
     assertWithMessage("Binary propagated context is not equal with the initial context.")
