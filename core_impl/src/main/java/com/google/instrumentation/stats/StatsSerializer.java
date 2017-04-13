@@ -33,28 +33,28 @@ import java.util.Set;
  * 
  * <ul>
  *   <li>Tags are encoded in single byte sequence. The version 0 format is:
- *   <li>{@code <version_id>;<encoded_tags>}
- *   <li>{@code <version_id>; == a single byte, value 0}
- *   <li>{@code <encoded_tags>; == (<tag_field_id>;<tag_encoding>;)*}
+ *   <li>{@code <version_id><encoded_tags>}
+ *   <li>{@code <version_id> == a single byte, value 0}
+ *   <li>{@code <encoded_tags> == (<tag_field_id><tag_encoding>)*}
  *       <ul>
  *       <li>{@code <tag_field_id>} == a single byte, value 0 (string tag), 1 (int tag),
- *           2 (true bool tag), 3 (false bool flag)
+ *           2 (true bool tag), 3 (false bool tag)
  *       <li>{@code <tag_encoding>}:
  *           <ul>
- *           <li>{@code (tag_field_id == 0) == <tag_key_len>;<tag_key>;<tag_val_len>;<tag_val>;}
+ *           <li>{@code (tag_field_id == 0) == <tag_key_len><tag_key><tag_val_len><tag_val>}
  *               <ul>
  *               <li>{@code <tag_key_len>} == varint encoded integer
  *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
  *               <li>{@code <tag_val_len>} == varint encoded integer
  *               <li>{@code <tag_val>} == tag_val_len bytes comprising UTF-8 string
  *               </ul>
- *           <li>{@code (tag_field_id == 1) == <tag_key_len>;<tag_key>;<int_tag_val>;}
+ *           <li>{@code (tag_field_id == 1) == <tag_key_len><tag_key><int_tag_val>}
  *               <ul>
  *               <li>{@code <tag_key_len>} == varint encoded integer
  *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
  *               <li>{@code <int_tag_value>} == 8 bytes, little-endian integer
  *               </ul>
- *           <li>{@code (tag_field_id == 2 || tag_field_id == 3) == <tag_key_len>;<tag_key>;}
+ *           <li>{@code (tag_field_id == 2 || tag_field_id == 3) == <tag_key_len><tag_key>}
  *               <ul>
  *               <li>{@code <tag_key_len>} == varint encoded integer
  *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
@@ -75,25 +75,21 @@ final class StatsSerializer {
 
   // Serializes a StatsContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
-  static void serialize(StatsContextImpl context, OutputStream output) throws ParseException {
+  static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
     Set<Entry<String, String>> tags = context.tags.entrySet();
-    try {
-      for (Entry<String, String> tag : tags) {
-        encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
-      }
-      byteArrayOutputStream.writeTo(output);
-    } catch (IOException e) {
-      throw new ParseException(e.getMessage(), byteArrayOutputStream.size());
+    for (Entry<String, String> tag : tags) {
+      encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
     }
+    byteArrayOutputStream.writeTo(output);
   }
 
   // Deserializes input to StatsContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static StatsContextImpl deserialize(InputStream input) throws ParseException {
+  static StatsContextImpl deserialize(InputStream input) throws IOException, ParseException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
       HashMap<String, String> tags = new HashMap<String, String>();
@@ -126,9 +122,7 @@ final class StatsSerializer {
       }
       return new StatsContextImpl(tags);
     } catch (BufferUnderflowException exn) {
-      throw new ParseException(exn.getMessage(), -1);
-    } catch (IOException e) {
-      throw new ParseException(e.getMessage(), -1);
+      throw new ParseException(exn.toString(), -1);  // byte array format error.
     }
   }
 

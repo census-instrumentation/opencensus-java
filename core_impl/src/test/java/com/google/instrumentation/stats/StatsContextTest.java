@@ -21,7 +21,6 @@ import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -161,7 +160,7 @@ public class StatsContextTest {
     assertThat(DEFAULT.with(K1, V10).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
   }
 
-  private static void testSerialize(Tag... tags) throws ParseException, IOException {
+  private static void testSerialize(Tag... tags) throws IOException {
     ByteArrayOutputStream actual = new ByteArrayOutputStream();
     ByteArrayOutputStream expected = new ByteArrayOutputStream();
     expected.write(VERSION_ID);

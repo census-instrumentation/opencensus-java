@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -26,10 +27,10 @@ final class StatsContextFactoryImpl extends StatsContextFactory {
   /**
    * Deserializes a {@link StatsContextImpl} from a serialized {@code CensusContextProto}.
    *
-   * <p>The encoded tags are of the form: {@code <version_id>;<encoded_tags>;}
+   * <p>The encoded tags are of the form: {@code <version_id><encoded_tags>}
    */
   @Override
-  public StatsContextImpl deserialize(InputStream input) throws ParseException {
+  public StatsContextImpl deserialize(InputStream input) throws IOException, ParseException {
     return StatsSerializer.deserialize(input);
   }
 

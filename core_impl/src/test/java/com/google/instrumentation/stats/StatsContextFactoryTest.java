@@ -119,7 +119,8 @@ public class StatsContextFactoryTest {
     testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (VERSION_ID + 1)}));
   }
 
-  private static StatsContext testDeserialize(InputStream inputStream) throws ParseException {
+  private static StatsContext testDeserialize(InputStream inputStream)
+      throws IOException, ParseException {
     return Stats.getStatsContextFactory().deserialize(inputStream);
   }
 
@@ -131,8 +132,7 @@ public class StatsContextFactoryTest {
    * remove this method and use StatsContext.serialize() instead.
    * Currently StatsContext.serialize() can only serialize strings.
    */
-  private static InputStream constructSingleTypeTagInputStream(int valueType)
-      throws ParseException, IOException {
+  private static InputStream constructSingleTypeTagInputStream(int valueType) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
     encodeSingleTypeTagToOutputStream(valueType, byteArrayOutputStream);
@@ -140,8 +140,7 @@ public class StatsContextFactoryTest {
   }
 
   // Construct an InputStream with all 4 types of tags.
-  private static InputStream constructMultiTypeTagInputStream()
-      throws ParseException, IOException {
+  private static InputStream constructMultiTypeTagInputStream() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
     encodeSingleTypeTagToOutputStream(VALUE_TYPE_STRING, byteArrayOutputStream);
@@ -152,8 +151,7 @@ public class StatsContextFactoryTest {
   }
 
   private static void encodeSingleTypeTagToOutputStream(
-      int valueType, ByteArrayOutputStream byteArrayOutputStream)
-      throws ParseException, IOException {
+      int valueType, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
     byteArrayOutputStream.write(valueType);
 
     // encode <tag_key_len><tag_key>, tag key is a string "KEY" appended by the field id here.
@@ -183,7 +181,7 @@ public class StatsContextFactoryTest {
   //         <tag_val_len> == varint encoded integer
   //         <tag_val> == tag_val_len bytes comprising UTF-8 string
   private static void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
-      throws ParseException, IOException {
+      throws IOException {
     VarInt.putVarInt(input.length(), byteArrayOutputStream);
     byteArrayOutputStream.write(input.getBytes("UTF-8"));
   }
@@ -193,8 +191,7 @@ public class StatsContextFactoryTest {
   //         <tag_key_len> == varint encoded integer
   //         <tag_key> == tag_key_len bytes comprising tag key name
   //         <int_tag_value> == 8 bytes, little-endian integer
-  private static void encodeInteger(int input, ByteArrayOutputStream byteArrayOutputStream)
-      throws ParseException {
+  private static void encodeInteger(int input, ByteArrayOutputStream byteArrayOutputStream) {
     byteArrayOutputStream.write((byte) input);
   }
 }
