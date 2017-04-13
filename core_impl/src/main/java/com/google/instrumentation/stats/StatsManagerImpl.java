@@ -89,25 +89,27 @@ public final class StatsManagerImpl extends StatsManager {
    * @param measurementValues the measurements to record
    */
   void record(StatsContextImpl tags, MeasurementMap measurementValues) {
-    queue.enqueue(new StatsEvent(measurementDescriptorToViewMap, tags.tags, measurementValues));
+    queue.enqueue(new StatsEvent(this, tags.tags, measurementValues));
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
   private static final class StatsEvent implements EventQueue.Entry {
     private final Map<String, String> tags;
     private final MeasurementMap stats;
-    private final MeasurementDescriptorToViewMap statsMap;
+    private final StatsManagerImpl statsManager;
 
     StatsEvent(
-        MeasurementDescriptorToViewMap statsMap, Map<String, String> tags, MeasurementMap stats) {
-      this.statsMap = statsMap;
+        StatsManagerImpl statsManager, Map<String, String> tags, MeasurementMap stats) {
+      this.statsManager = statsManager;
       this.tags = tags;
       this.stats = stats;
     }
 
     @Override
     public void process() {
-      statsMap.record(tags, stats);
+      statsManager
+          .measurementDescriptorToViewMap
+          .record(tags, stats);
     }
   }
 
