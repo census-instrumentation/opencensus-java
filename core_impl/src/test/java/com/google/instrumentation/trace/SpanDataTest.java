@@ -43,8 +43,8 @@ public class SpanDataTest {
   private SpanId parentSpanId;
   private final Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
   private final List<TimedEvent<Annotation>> annotations = new LinkedList<TimedEvent<Annotation>>();
-  private final List<TimedEvent<NetworkEvent>> networkEvents = new
-      LinkedList<TimedEvent<NetworkEvent>>();
+  private final List<TimedEvent<NetworkEvent>> networkEvents =
+      new LinkedList<TimedEvent<NetworkEvent>>();
   private final List<Link> links = new LinkedList<Link>();
 
   @Before
@@ -56,31 +56,34 @@ public class SpanDataTest {
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT);
     parentSpanId = SpanId.generateRandomId(random);
-    annotations.add(new TimedEvent<Annotation>(eventTimestamp1, Annotation.fromDescription
-        (ANNOTATION_TEXT)));
-    annotations.add(new TimedEvent<Annotation>(eventTimestamp3, Annotation.fromDescription
-        (ANNOTATION_TEXT)));
-    networkEvents.add(new TimedEvent<NetworkEvent>(eventTimestamp1, NetworkEvent.builder
-        (NetworkEvent.Type.RECV, 1).build()));
-    networkEvents.add(new TimedEvent<NetworkEvent>(eventTimestamp2, NetworkEvent.builder
-        (NetworkEvent.Type.SENT, 1).build()));
+    annotations.add(
+        new TimedEvent<Annotation>(eventTimestamp1, Annotation.fromDescription(ANNOTATION_TEXT)));
+    annotations.add(
+        new TimedEvent<Annotation>(eventTimestamp3, Annotation.fromDescription(ANNOTATION_TEXT)));
+    networkEvents.add(
+        new TimedEvent<NetworkEvent>(
+            eventTimestamp1, NetworkEvent.builder(NetworkEvent.Type.RECV, 1).build()));
+    networkEvents.add(
+        new TimedEvent<NetworkEvent>(
+            eventTimestamp2, NetworkEvent.builder(NetworkEvent.Type.SENT, 1).build()));
     attributes.put("MyAttributeKey1", AttributeValue.longAttributeValue(10));
     attributes.put("MyAttributeKey2", AttributeValue.booleanAttributeValue(true));
   }
 
   @Test
   public void spanData_AllValues() {
-    SpanData spanData = new SpanData(
-        spanContext,
-        parentSpanId,
-        DISPLAY_NAME,
-        startTimestamp,
-        attributes,
-        annotations,
-        networkEvents,
-        links,
-        status,
-        endTimestamp);
+    SpanData spanData =
+        new SpanData(
+            spanContext,
+            parentSpanId,
+            DISPLAY_NAME,
+            startTimestamp,
+            attributes,
+            annotations,
+            networkEvents,
+            links,
+            status,
+            endTimestamp);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
@@ -95,17 +98,18 @@ public class SpanDataTest {
 
   @Test
   public void spanData_RootActiveSpan() {
-    SpanData spanData = new SpanData(
-        spanContext,
-        null,
-        DISPLAY_NAME,
-        startTimestamp,
-        attributes,
-        annotations,
-        networkEvents,
-        links,
-        null,
-        null);
+    SpanData spanData =
+        new SpanData(
+            spanContext,
+            null,
+            DISPLAY_NAME,
+            startTimestamp,
+            attributes,
+            annotations,
+            networkEvents,
+            links,
+            null,
+            null);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isNull();
     assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
@@ -120,17 +124,18 @@ public class SpanDataTest {
 
   @Test
   public void spanData_AllDataEmpty() {
-    SpanData spanData = new SpanData(
-        spanContext,
-        parentSpanId,
-        DISPLAY_NAME,
-        startTimestamp,
-        Collections.<String, AttributeValue>emptyMap(),
-        Collections.<TimedEvent<Annotation>>emptyList(),
-        Collections.<TimedEvent<NetworkEvent>>emptyList(),
-        Collections.<Link>emptyList(),
-        status,
-        endTimestamp);
+    SpanData spanData =
+        new SpanData(
+            spanContext,
+            parentSpanId,
+            DISPLAY_NAME,
+            startTimestamp,
+            Collections.<String, AttributeValue>emptyMap(),
+            Collections.<TimedEvent<Annotation>>emptyList(),
+            Collections.<TimedEvent<NetworkEvent>>emptyList(),
+            Collections.<Link>emptyList(),
+            status,
+            endTimestamp);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
@@ -145,17 +150,19 @@ public class SpanDataTest {
 
   @Test
   public void spanData_ToString() {
-    String spanDataString = new SpanData(
-        spanContext,
-        parentSpanId,
-        DISPLAY_NAME,
-        startTimestamp,
-        attributes,
-        annotations,
-        networkEvents,
-        links,
-        status,
-        endTimestamp).toString();
+    String spanDataString =
+        new SpanData(
+                spanContext,
+                parentSpanId,
+                DISPLAY_NAME,
+                startTimestamp,
+                attributes,
+                annotations,
+                networkEvents,
+                links,
+                status,
+                endTimestamp)
+            .toString();
     assertThat(spanDataString).contains(spanContext.toString());
     assertThat(spanDataString).contains(parentSpanId.toString());
     assertThat(spanDataString).contains(DISPLAY_NAME);

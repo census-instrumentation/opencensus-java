@@ -58,8 +58,7 @@ public final class TimedEvent<T> {
     }
 
     TimedEvent<?> that = (TimedEvent<?>) obj;
-    return Objects.equal(timestamp, that.timestamp)
-        && Objects.equal(event, that.event);
+    return Objects.equal(timestamp, that.timestamp) && Objects.equal(event, that.event);
   }
 
   @Override

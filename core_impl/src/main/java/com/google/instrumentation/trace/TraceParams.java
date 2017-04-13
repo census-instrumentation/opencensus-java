@@ -87,8 +87,8 @@ abstract class TraceParams {
   abstract static class Builder {
 
     /**
-     * Sets the global default {@code Sampler}. It must be not {@code null} otherwise
-     * {@link #build()} will throw an exception.
+     * Sets the global default {@code Sampler}. It must be not {@code null} otherwise {@link
+     * #build()} will throw an exception.
      *
      * @param sampler the global default {@code Sampler}.
      * @return this.
@@ -98,8 +98,8 @@ abstract class TraceParams {
     /**
      * Sets the global default max number of attributes per {@link Span}.
      *
-     * @param maxNumberOfAttributes the global default max number of attributes per {@link
-     *     Span}. It must be positive otherwise {@link #build()} will throw an exception.
+     * @param maxNumberOfAttributes the global default max number of attributes per {@link Span}. It
+     *     must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     abstract Builder setMaxNumberOfAttributes(int maxNumberOfAttributes);

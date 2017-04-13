@@ -26,8 +26,8 @@ import org.junit.runners.JUnit4;
 public class TimedEventTest {
   private static final Timestamp timestamp = Timestamp.create(123, 456);
   private static final Annotation annotation = Annotation.fromDescription("MyTextAnnotation");
-  private static final NetworkEvent networkEvent = NetworkEvent.builder(NetworkEvent.Type.RECV,
-      1).build();
+  private static final NetworkEvent networkEvent =
+      NetworkEvent.builder(NetworkEvent.Type.RECV, 1).build();
 
   @Test
   public void timedEvent_WithAnnotation() {
