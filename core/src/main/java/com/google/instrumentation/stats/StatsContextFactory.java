@@ -15,7 +15,6 @@ package com.google.instrumentation.stats;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 
 /**
  * Factory class for {@link StatsContext}.
@@ -30,7 +29,7 @@ public abstract class StatsContextFactory {
    * @param input on-the-wire representation of a {@link StatsContext}
    * @return a {@link StatsContext} deserialized from {@code input}
    */
-  public abstract StatsContext deserialize(InputStream input) throws IOException, ParseException;
+  public abstract StatsContext deserialize(InputStream input) throws IOException;
 
   /**
    * Returns the default {@link StatsContext}.

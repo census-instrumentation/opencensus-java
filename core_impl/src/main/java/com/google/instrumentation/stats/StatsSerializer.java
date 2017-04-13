@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -89,18 +88,18 @@ final class StatsSerializer {
 
   // Deserializes input to StatsContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static StatsContextImpl deserialize(InputStream input) throws IOException, ParseException {
+  static StatsContextImpl deserialize(InputStream input) throws IOException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
       HashMap<String, String> tags = new HashMap<String, String>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
-        throw new ParseException("Input byte stream can not be empty.", 0);
+        throw new IOException("Input byte stream can not be empty.");
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
       if (buffer.get() != VERSION_ID) {
-        throw new ParseException("Wrong Version ID.", buffer.position());
+        throw new IOException("Wrong Version ID.");
       }
 
       int limit = buffer.limit();
@@ -117,12 +116,12 @@ final class StatsSerializer {
           case VALUE_TYPE_FALSE:
           default:
             // TODO(songya): add support for value types integer and boolean
-            throw new ParseException("Unsupported tag value type.", buffer.position());
+            throw new IOException("Unsupported tag value type.");
         }
       }
       return new StatsContextImpl(tags);
     } catch (BufferUnderflowException exn) {
-      throw new ParseException(exn.toString(), -1);  // byte array format error.
+      throw new IOException(exn.toString());  // byte array format error.
     }
   }
 
