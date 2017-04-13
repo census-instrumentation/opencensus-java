@@ -134,10 +134,10 @@ subprojects {
 
     findbugs {
         toolVersion = '3.0.1'
-        ignoreFailures = false 	        // bug free or it doesn't ship!
+        ignoreFailures = false   // bug free or it doesn't ship!
         effort = 'max'
-        reportLevel = 'low'		        // low = sensitive to even minor mistakes
-        omitVisitors = []		        // bugs that we want to ignore
+        reportLevel = 'low'      // low = sensitive to even minor mistakes
+        omitVisitors = []        // bugs that we want to ignore
     }
     // Generate html report for findbugs.
     findbugsMain {
@@ -180,6 +180,79 @@ subprojects {
     // Disable checkstyle if no java8.
     checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
     checkstyleTest.enabled = JavaVersion.current().isJava8Compatible()
+
+    signing {
+        required false
+        sign configurations.archives
+    }
+
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives javadocJar, sourcesJar
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                def configureAuth = {
+                    if (rootProject.hasProperty('ossrhUsername') && rootProject.hasProperty('ossrhPassword')) {
+                        authentication(userName:rootProject.ossrhUsername, password: rootProject.ossrhPassword)
+                    }
+                }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/", configureAuth)
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/", configureAuth)
+
+                pom.project {
+                    name "Instrumentation"
+                    packaging 'jar'
+                    // Add a map with all the project.name -> artifactId when we
+                    // are going to upload more artifacts.
+                    artifactId 'instrumentation-api'
+                    description project.description
+                    url 'https://github.com/google/instrumentation-java'
+
+                    scm {
+                        connection 'scm:svn:https://github.com/google/instrumentation-java'
+                        developerConnection 'scm:git:git@github.com/google/instrumentation-java'
+                        url 'https://github.com/google/instrumentation-java'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'com.google.instrumentation'
+                            name 'Instrumentation Developers'
+                            email 'instrumentation-developers@googlegroups.com'
+                            // https://issues.gradle.org/browse/GRADLE-2719
+                            organization = 'Google, Inc.'
+                            organizationUrl 'https://www.google.com'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // For the moment we upload only the artifact for the API
+    uploadArchives.onlyIf { name == 'instrumentation-java-core'}
 
     // At a test failure, log the stack trace to the console so that we don't
     // have to open the HTML in a browser.
