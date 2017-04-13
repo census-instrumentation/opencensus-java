@@ -36,12 +36,6 @@ public class StatsManagerImplTest {
 
   @Test
   public void testRegisterAndGetView() throws Exception {
-    @SuppressWarnings("unused")
-    View expected = DistributionView.create(
-        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
-        null,
-        Timestamp.fromMillis(System.currentTimeMillis()),
-        Timestamp.fromMillis(System.currentTimeMillis()));
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(actual.getViewDescriptor()).isEqualTo(
