@@ -26,7 +26,7 @@ public final class Stats {
    * Returns the default {@link StatsContextFactory}.
    */
   public static StatsContextFactory getStatsContextFactory() {
-    return statsManager.getStatsContextFactory();
+    return statsManager == null ? null : statsManager.getStatsContextFactory();
   }
 
   /**
