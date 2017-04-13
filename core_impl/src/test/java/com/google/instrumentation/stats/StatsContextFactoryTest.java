@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +55,7 @@ public class StatsContextFactoryTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeEmptyByteArrayThrowException() throws Exception {
     testDeserialize(new ByteArrayInputStream(new byte[0]));
   }
@@ -83,43 +84,43 @@ public class StatsContextFactoryTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeValueTypeInteger() throws Exception {
     // TODO(songya): test should pass after we add support for type integer
     testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_INTEGER));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeValueTypeTrue() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
     testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_TRUE));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeValueTypeFalse() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
     testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_FALSE));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeMultipleValueType() throws Exception {
     // TODO(songya): test should pass after we add support for type integer and boolean
     testDeserialize(constructMultiTypeTagInputStream());
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeWrongFormat() throws Exception {
     // encoded tags should follow the format <version_id>(<tag_field_id><tag_encoding>)*
     testDeserialize(new ByteArrayInputStream(new byte[3]));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeWrongVersionId() throws Exception {
     testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (VERSION_ID + 1)}));
   }
 
   private static StatsContext testDeserialize(InputStream inputStream)
-      throws IOException, IOException {
+      throws IOException, ParseException {
     return Stats.getStatsContextFactory().deserialize(inputStream);
   }
 
