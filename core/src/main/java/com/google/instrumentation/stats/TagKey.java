@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
+import com.google.instrumentation.internal.StringUtil;
 
 /**
  * Tag keys.
