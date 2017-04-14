@@ -13,17 +13,29 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.common.DisruptorEventQueue;
+import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import java.util.Map;
 
 /**
  * Native Implementation of {@link StatsManager}.
  */
 public final class StatsManagerImpl extends StatsManager {
+  private final EventQueue queue;
+
+  public StatsManagerImpl() {
+    queue = DisruptorEventQueue.getInstance();
+  }
+
+  StatsManagerImpl(EventQueue queue) {
+    this.queue = queue;
+  }
 
   private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
       new MeasurementDescriptorToViewMap();
@@ -35,9 +47,10 @@ public final class StatsManagerImpl extends StatsManager {
     // and view RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW for this prototype.
     // The prototype does not allow setting measurement descriptor entries dynamically for now.
     // TODO(songya): remove the logic for checking the preset descriptor.
-    if (!viewDescriptor.equals(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW)) {
+    if (!viewDescriptor.equals(SupportedViews.SUPPORTED_VIEW)) {
       throw new UnsupportedOperationException(
-          "The prototype will only support Distribution View RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW.");
+          "The prototype will only support Distribution View "
+              + SupportedViews.SUPPORTED_VIEW.getName());
     }
 
     if (measurementDescriptorToViewMap.getView(viewDescriptor) != null) {
@@ -67,6 +80,37 @@ public final class StatsManagerImpl extends StatsManager {
   @Override
   StatsContextFactoryImpl getStatsContextFactory() {
     return statsContextFactory;
+  }
+
+  /**
+   * Records a set of measurements with a set of tags.
+   *
+   * @param tags the tags associated with the measurements
+   * @param measurementValues the measurements to record
+   */
+  void record(StatsContextImpl tags, MeasurementMap measurementValues) {
+    queue.enqueue(new StatsEvent(this, tags.tags, measurementValues));
+  }
+
+  // An EventQueue entry that records the stats from one call to StatsManager.record(...).
+  private static final class StatsEvent implements EventQueue.Entry {
+    private final Map<String, String> tags;
+    private final MeasurementMap stats;
+    private final StatsManagerImpl statsManager;
+
+    StatsEvent(
+        StatsManagerImpl statsManager, Map<String, String> tags, MeasurementMap stats) {
+      this.statsManager = statsManager;
+      this.tags = tags;
+      this.stats = stats;
+    }
+
+    @Override
+    public void process() {
+      statsManager
+          .measurementDescriptorToViewMap
+          .record(tags, stats);
+    }
   }
 
   private static final class CreateDistributionViewFunction

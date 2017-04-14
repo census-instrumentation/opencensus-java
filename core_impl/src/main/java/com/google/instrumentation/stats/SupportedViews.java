@@ -11,16 +11,15 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.common;
+package com.google.instrumentation.stats;
 
 /**
- * Base interface to be used for all entries in {@link EventQueue}. For example usage, see {@link
- * EventQueue}.
+ * Constants specifying the view that is supported in the initial stats implementation.
  */
-public interface EventQueueEntry {
-  /**
-   * Process the event associated with this entry. This will be called for every event in the
-   * associated {@link EventQueue}.
-   */
-  void process();
+class SupportedViews {
+  static final ViewDescriptor SUPPORTED_VIEW = RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW;
+  static final MeasurementDescriptor SUPPORTED_MEASUREMENT_DESCRIPTOR =
+      RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY;
+
+  private SupportedViews() {}
 }

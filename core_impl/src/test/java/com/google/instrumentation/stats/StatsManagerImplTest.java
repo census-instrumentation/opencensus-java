@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.SimpleEventQueue;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,7 +31,7 @@ public class StatsManagerImplTest {
   @Rule
   public final ExpectedException thrown = ExpectedException.none();
 
-  private final StatsManager statsManager = new StatsManagerImpl();
+  private final StatsManagerImpl statsManager = new StatsManagerImpl(new SimpleEventQueue());
 
   @Test
   public void testRegisterAndGetView() throws Exception {
@@ -60,5 +61,14 @@ public class StatsManagerImplTest {
   public void testGetNonexistentView() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     statsManager.getView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
+  }
+
+  // TODO(sebright): Turn this into a real test once StatsManagerImpl.record(...) is implemented.
+  // It currently only shows that record(...) can be called with a SimpleEventQueue.
+  @Test
+  public void testRecord() {
+    statsManager.record(
+        StatsContextFactoryImpl.DEFAULT,
+        MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
   }
 }

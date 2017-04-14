@@ -15,15 +15,17 @@ package com.google.instrumentation.stats;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Native Implementation of {@link StatsContext}.
  */
 final class StatsContextImpl extends StatsContext {
-  final HashMap<String, String> tags;
+  final Map<String, String> tags;
 
-  StatsContextImpl(HashMap<String, String> tags) {
+  StatsContextImpl(Map<String, String> tags) {
     this.tags = tags;
   }
 
@@ -65,7 +67,7 @@ final class StatsContextImpl extends StatsContext {
   private static final class Builder extends StatsContext.Builder {
     private final HashMap<String, String> tags;
 
-    private Builder(HashMap<String, String> tags) {
+    private Builder(Map<String, String> tags) {
       this.tags = new HashMap<String, String>(tags);
     }
 
@@ -77,7 +79,7 @@ final class StatsContextImpl extends StatsContext {
 
     @Override
     public StatsContext build() {
-      return new StatsContextImpl(new HashMap<String, String>(tags));
+      return new StatsContextImpl(Collections.unmodifiableMap(new HashMap<String, String>(tags)));
     }
   }
 }

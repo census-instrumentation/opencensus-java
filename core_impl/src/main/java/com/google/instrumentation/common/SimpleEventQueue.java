@@ -14,20 +14,13 @@
 package com.google.instrumentation.common;
 
 /**
- * A queue that processes events. See {@link DisruptorEventQueue} for an example.
+ * An {@link EventQueue} that processes events in the current thread. This class can be used for
+ * testing.
  */
-public interface EventQueue {
-  void enqueue(Entry entry);
+public class SimpleEventQueue implements EventQueue {
 
-  /**
-   * Base interface to be used for all entries in {@link EventQueue}. For example usage,
-   * see {@link DisruptorEventQueue}.
-   */
-  public interface Entry {
-    /**
-     * Process the event associated with this entry. This will be called for every event in the
-     * associated {@link EventQueue}.
-     */
-    void process();
+  @Override
+  public void enqueue(Entry entry) {
+    entry.process();
   }
 }
