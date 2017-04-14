@@ -26,6 +26,7 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link com.google.instrumentation.stats.MutableDistribution}. */
 @RunWith(JUnit4.class)
 public class MutableDistributionTest {
+  private static final double TOLERANCE = 1e-5;
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -33,7 +34,7 @@ public class MutableDistributionTest {
   public void testEmptyDistribution() {
     MutableDistribution empty = MutableDistribution.create();
     assertThat(empty.getCount()).isEqualTo(0);
-    assertThat(empty.getSum()).isWithin(1e-5).of(0.0);
+    assertThat(empty.getSum()).isWithin(TOLERANCE).of(0.0);
     assertThat(empty.getMean()).isNaN();
     assertThat(empty.getBucketCounts()).isNull();
   }
@@ -43,7 +44,7 @@ public class MutableDistributionTest {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 2.0);
     MutableDistribution empty = MutableDistribution.create(BucketBoundaries.create(buckets));
     assertThat(empty.getCount()).isEqualTo(0);
-    assertThat(empty.getSum()).isWithin(1e-5).of(0.0);
+    assertThat(empty.getSum()).isWithin(TOLERANCE).of(0.0);
     assertThat(empty.getMean()).isNaN();
     assertThat(empty.getBucketCounts()).hasSize(4);
     for (Long element : empty.getBucketCounts()) {
@@ -76,28 +77,28 @@ public class MutableDistributionTest {
     MutableDistribution distribution = MutableDistribution.create();
     distribution.add(1.0);
     assertThat(distribution.getCount()).isEqualTo(1);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(1.0);
+    assertThat(distribution.getSum()).isWithin(TOLERANCE).of(1.0);
+    assertThat(distribution.getMean()).isWithin(TOLERANCE).of(1.0);
+    assertThat(distribution.getRange().getMin()).isWithin(TOLERANCE).of(1.0);
+    assertThat(distribution.getRange().getMax()).isWithin(TOLERANCE).of(1.0);
     distribution.add(1.0);
     assertThat(distribution.getCount()).isEqualTo(2);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(2.0);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(1.0);
+    assertThat(distribution.getSum()).isWithin(TOLERANCE).of(2.0);
+    assertThat(distribution.getMean()).isWithin(TOLERANCE).of(1.0);
+    assertThat(distribution.getRange().getMin()).isWithin(TOLERANCE).of(1.0);
+    assertThat(distribution.getRange().getMax()).isWithin(TOLERANCE).of(1.0);
     distribution.add(7.0);
     assertThat(distribution.getCount()).isEqualTo(3);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(9.0);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(3.0);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(7.0);
+    assertThat(distribution.getSum()).isWithin(TOLERANCE).of(9.0);
+    assertThat(distribution.getMean()).isWithin(TOLERANCE).of(3.0);
+    assertThat(distribution.getRange().getMin()).isWithin(TOLERANCE).of(1.0);
+    assertThat(distribution.getRange().getMax()).isWithin(TOLERANCE).of(7.0);
     distribution.add(-4.6);
     assertThat(distribution.getCount()).isEqualTo(4);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(4.4);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(1.1);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(-4.6);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(7.0);
+    assertThat(distribution.getSum()).isWithin(TOLERANCE).of(4.4);
+    assertThat(distribution.getMean()).isWithin(TOLERANCE).of(1.1);
+    assertThat(distribution.getRange().getMin()).isWithin(TOLERANCE).of(-4.6);
+    assertThat(distribution.getRange().getMax()).isWithin(TOLERANCE).of(7.0);
     assertThat(distribution.getBucketCounts()).isNull();
   }
 
