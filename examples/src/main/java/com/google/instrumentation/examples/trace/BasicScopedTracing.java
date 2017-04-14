@@ -15,8 +15,8 @@ package com.google.instrumentation.examples.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.trace.Span;
-import com.google.instrumentation.trace.Trace;
 import com.google.instrumentation.trace.Tracer;
+import com.google.instrumentation.trace.Tracing;
 
 /**
  * Example showing how to create a {@link Span} using scoped Span, install it in the current
@@ -24,7 +24,7 @@ import com.google.instrumentation.trace.Tracer;
  */
 public final class BasicScopedTracing {
   // Per class Tracer.
-  private static final Tracer tracer = Trace.getTracer();
+  private static final Tracer tracer = Tracing.getTracer();
 
   private static void doWork() {
     // Add an annotation to the current Span.

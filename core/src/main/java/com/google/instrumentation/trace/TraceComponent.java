@@ -17,10 +17,10 @@ package com.google.instrumentation.trace;
  * Class that holds the implementation instances for {@link Tracer} and {@link
  * BinaryPropagationHandler}.
  *
- * <p>This implementation of this class is loaded using reflection by the {@link Trace}.
+ * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
-public abstract class TraceService {
-  private static final NoopTraceService noopTraceService = new NoopTraceService();
+public abstract class TraceComponent {
+  private static final NoopTraceComponent noopTraceComponent = new NoopTraceComponent();
   private final Tracer tracer;
   private final BinaryPropagationHandler binaryPropagationHandler;
 
@@ -45,7 +45,7 @@ public abstract class TraceService {
   }
 
   // Disallow external overrides until we define the final API.
-  TraceService(Tracer tracer, BinaryPropagationHandler binaryPropagationHandler) {
+  TraceComponent(Tracer tracer, BinaryPropagationHandler binaryPropagationHandler) {
     this.tracer = tracer;
     this.binaryPropagationHandler = binaryPropagationHandler;
   }
@@ -55,12 +55,12 @@ public abstract class TraceService {
    *
    * @return an instance that contains no-op implementations for all the instances.
    */
-  static TraceService getNoopTraceService() {
-    return noopTraceService;
+  static TraceComponent getNoopTraceComponent() {
+    return noopTraceComponent;
   }
 
-  private static final class NoopTraceService extends TraceService {
-    private NoopTraceService() {
+  private static final class NoopTraceComponent extends TraceComponent {
+    private NoopTraceComponent() {
       super(Tracer.getNoopTracer(), BinaryPropagationHandler.getNoopBinaryPropagationHandler());
     }
   }

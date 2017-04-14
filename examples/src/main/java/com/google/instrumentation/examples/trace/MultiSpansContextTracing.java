@@ -15,8 +15,8 @@ package com.google.instrumentation.examples.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.trace.Span;
-import com.google.instrumentation.trace.Trace;
 import com.google.instrumentation.trace.Tracer;
+import com.google.instrumentation.trace.Tracing;
 
 /**
  * Example showing how to create a child {@link Span}, install it to the current context and add
@@ -24,7 +24,7 @@ import com.google.instrumentation.trace.Tracer;
  */
 public final class MultiSpansContextTracing {
   // Per class Tracer.
-  private static final Tracer tracer = Trace.getTracer();
+  private static final Tracer tracer = Tracing.getTracer();
 
   private static void doSomeOtherWork() {
     tracer.getCurrentSpan().addAnnotation("Annotation to the child Span");

@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * class MyClass {
- *   private static final Tracer tracer = Trace.getTracer();
+ *   private static final Tracer tracer = Tracing.getTracer();
  *   void doWork() {
  *     try(NonThrowingCloseable ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
  *       tracer.getCurrentSpan().addAnnotation("Starting the work.");
@@ -48,7 +48,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * class MyClass {
- *   private static final Tracer tracer = Trace.getTracer();
+ *   private static final Tracer tracer = Tracing.getTracer();
  *   void doWork() {
  *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
  *     span.addAnnotation("Starting the work.");
@@ -104,7 +104,7 @@ public abstract class Tracer {
    * <p>Example of usage:
    *
    * <pre>{@code
-   * private static Tracer tracer = Trace.getTracer();
+   * private static Tracer tracer = Tracing.getTracer();
    * void doWork {
    *   // Create a Span as a child of the current Span.
    *   Span span = tracer.startSpan("my span");
@@ -122,7 +122,7 @@ public abstract class Tracer {
    * <p>Example of usage prior to Java SE7:
    *
    * <pre>{@code
-   * private static Tracer tracer = Trace.getTracer();
+   * private static Tracer tracer = Tracing.getTracer();
    * void doWork {
    *   // Create a Span as a child of the current Span.
    *   Span span = tracer.startSpan("my span");

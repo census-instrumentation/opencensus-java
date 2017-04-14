@@ -35,7 +35,7 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link Tracer}. */
 @RunWith(JUnit4.class)
 public class TracerTest {
-  private static final Tracer tracer = Trace.getTracer();
+  private static final Tracer tracer = Tracing.getTracer();
   private static final String SPAN_NAME = "MySpanName";
   @Rule public ExpectedException thrown = ExpectedException.none();
   @Mock private SpanFactory spanFactory;

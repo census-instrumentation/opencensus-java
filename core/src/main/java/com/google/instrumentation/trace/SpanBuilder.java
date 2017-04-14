@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * class MyClass {
- *   private static final Tracer tracer = Trace.getTracer();
+ *   private static final Tracer tracer = Tracing.getTracer();
  *   void doWork {
  *     // Create a Span as a child of the current Span.
  *     try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * class MyRpcServerInterceptorListener implements RpcServerInterceptor.Listener {
- *   private static final Tracer tracer = Trace.getTracer();
+ *   private static final Tracer tracer = Tracing.getTracer();
  *   private Span mySpan;
  *
  *   public MyRpcInterceptor() {}
@@ -81,7 +81,7 @@ import javax.annotation.Nullable;
  *
  * <pre>{@code
  * class MyClass {
- *   private static final Tracer tracer = Trace.getTracer();
+ *   private static final Tracer tracer = Tracing.getTracer();
  *   void DoWork() {
  *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
  *     span.addAnnotation("my annotation");
@@ -181,7 +181,7 @@ public final class SpanBuilder {
    *
    * <pre>{@code
    * class MyClass {
-   *   private static final Tracer tracer = Trace.getTracer();
+   *   private static final Tracer tracer = Tracing.getTracer();
    *   void DoWork() {
    *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
    *     span.addAnnotation("my annotation");
@@ -216,7 +216,7 @@ public final class SpanBuilder {
    *
    * <pre>{@code
    * class MyClass {
-   *   private static final Tracer tracer = Trace.getTracer();
+   *   private static final Tracer tracer = Tracing.getTracer();
    *   void doWork {
    *     // Create a Span as a child of the current Span.
    *     try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
@@ -237,7 +237,7 @@ public final class SpanBuilder {
    *
    * <pre>{@code
    * class MyClass {
-   *   private static Tracer tracer = Trace.getTracer();
+   *   private static Tracer tracer = Tracing.getTracer();
    *   void doWork {
    *     // Create a Span as a child of the current Span.
    *     NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan();

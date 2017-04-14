@@ -18,11 +18,11 @@ import com.google.instrumentation.common.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Class that manages a global instance of the {@link TraceService}. */
-public final class Trace {
+/** Class that manages a global instance of the {@link TraceComponent}. */
+public final class Tracing {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
-  private static final TraceService traceService =
-      loadTraceService(Provider.getCorrectClassLoader(TraceService.class));
+  private static final TraceComponent traceComponent =
+      loadTraceComponent(Provider.getCorrectClassLoader(TraceComponent.class));
 
   /**
    * Returns the global {@link Tracer}.
@@ -30,7 +30,7 @@ public final class Trace {
    * @return the global {@code Tracer}.
    */
   public static Tracer getTracer() {
-    return traceService.getTracer();
+    return traceComponent.getTracer();
   }
 
   /**
@@ -39,20 +39,23 @@ public final class Trace {
    * @return the global {@code BinaryPropagationHandler}.
    */
   public static BinaryPropagationHandler getBinaryPropagationHandler() {
-    return traceService.getBinaryPropagationHandler();
+    return traceComponent.getBinaryPropagationHandler();
   }
 
-  // Any provider that may be used for TraceService can be added here.
+  // Any provider that may be used for TraceComponent can be added here.
   @VisibleForTesting
-  static TraceService loadTraceService(ClassLoader classLoader) {
+  static TraceComponent loadTraceComponent(ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("com.google.instrumentation.trace.TraceServiceImpl", true, classLoader),
-          TraceService.class);
+          Class.forName("com.google.instrumentation.trace.TraceComponentImpl", true, classLoader),
+          TraceComponent.class);
     } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Using default implementation for TraceService.", e);
+      logger.log(Level.FINE, "Using default implementation for TraceComponent.", e);
     }
-    return TraceService.getNoopTraceService();
+    return TraceComponent.getNoopTraceComponent();
   }
+
+  // No instance of this class.
+  private Tracing() {}
 }

@@ -21,9 +21,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link Trace}. */
+/** Unit tests for {@link Tracing}. */
 @RunWith(JUnit4.class)
-public class TraceTest {
+public class TracingTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
@@ -31,7 +31,7 @@ public class TraceTest {
     final RuntimeException toThrow = new RuntimeException("UseClassLoader");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("UseClassLoader");
-    Trace.loadTraceService(
+    Tracing.loadTraceComponent(
         new ClassLoader() {
           @Override
           public Class<?> loadClass(String name) {
@@ -43,7 +43,7 @@ public class TraceTest {
   @Test
   public void loadSpanFactory_IgnoresMissingClasses() {
     assertThat(
-            Trace.loadTraceService(
+        Tracing.loadTraceComponent(
                     new ClassLoader() {
                       @Override
                       public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -52,17 +52,17 @@ public class TraceTest {
                     })
                 .getClass()
                 .getName())
-        .isEqualTo("com.google.instrumentation.trace.TraceService$NoopTraceService");
+        .isEqualTo("com.google.instrumentation.trace.TraceComponent$NoopTraceComponent");
   }
 
   @Test
   public void defaultTracer() {
-    assertThat(Trace.getTracer()).isSameAs(Tracer.getNoopTracer());
+    assertThat(Tracing.getTracer()).isSameAs(Tracer.getNoopTracer());
   }
 
   @Test
   public void defaultBinaryPropagationHandler() {
-    assertThat(Trace.getBinaryPropagationHandler())
+    assertThat(Tracing.getBinaryPropagationHandler())
         .isSameAs(BinaryPropagationHandler.getNoopBinaryPropagationHandler());
   }
 }

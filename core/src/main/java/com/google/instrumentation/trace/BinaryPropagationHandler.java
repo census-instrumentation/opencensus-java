@@ -23,9 +23,9 @@ import java.text.ParseException;
  * <p>Example of usage on the client:
  *
  * <pre>{@code
- * private static final Tracer tracer = Trace.getTracer();
+ * private static final Tracer tracer = Tracing.getTracer();
  * private static final BinaryPropagationHandler binaryPropagationHandler =
- *     TraceService.getBinaryPropagationHandler();
+ *     Tracing.getBinaryPropagationHandler();
  * void onSendRequest() {
  *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
  *     byte[] binaryValue = binaryPropagationHandler.toBinaryValue(
@@ -38,9 +38,9 @@ import java.text.ParseException;
  * <p>Example of usage on the server:
  *
  * <pre>{@code
- * private static final Tracer tracer = Trace.getTracer();
+ * private static final Tracer tracer = Tracing.getTracer();
  * private static final BinaryPropagationHandler binaryPropagationHandler =
- *     TraceService.getBinaryPropagationHandler();
+ *     Tracing.getBinaryPropagationHandler();
  * void onRequestReceived() {
  *   // Get the binaryValue from the request.
  *   SpanContext spanContext = SpanContext.INVALID;
@@ -74,8 +74,7 @@ public abstract class BinaryPropagationHandler {
   /**
    * Parses the {@link SpanContext} from the binary format.
    *
-   * @param bytes a binary encoded buffer from which the {@code SpanContext} will be
-   *     parsed.
+   * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
    * @return the parsed {@code SpanContext}.
    * @throws NullPointerException if the {@code input} is {@code null}.
    * @throws ParseException if the version is not supported or the input is invalid
