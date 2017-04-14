@@ -45,8 +45,7 @@ subprojects {
         // We suppress the "processing" warning as suggested in
         // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
-        // Disable errorprone for proto because we cannot control the generated code.
-        if (JavaVersion.current().isJava8Compatible() && !name.contains("proto")) {
+        if (JavaVersion.current().isJava8Compatible()) {
             // TODO(bdrutu): Read files directly instead of reading from properties.
             if (rootProject.hasProperty("errorProneWarnings")) {
                 it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
@@ -96,7 +95,6 @@ subprojects {
     ext {
         autoValueVersion = '1.4'
         guavaVersion = '19.0'
-        protobufVersion = '3.2.0'
         grpcContextVersion = '1.2.0'
 
         libraries = [
@@ -106,7 +104,6 @@ subprojects {
                 grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",
                 guava        : "com.google.guava:guava:${guavaVersion}",
                 jsr305       : 'com.google.code.findbugs:jsr305:3.0.0',
-                protobuf     : "com.google.protobuf:protobuf-java:${protobufVersion}",
 
                 // Test dependencies.
                 guava_testlib  : "com.google.guava:guava-testlib:${guavaVersion}",
@@ -146,9 +143,6 @@ subprojects {
             html.enabled = true
         }
     }
-    // TODO(bdrutu): Enable this when the proto will generate the builds in build not in
-    // build_gradle.
-    findbugsMain.onlyIf { !name.contains("proto") }
     // Disable findbugs for tests.
     findbugsTest.enabled = false
 
@@ -162,20 +156,15 @@ subprojects {
         configProperties["rootDir"] = rootDir
     }
 
-    checkstyleMain {
-        // This skips proto generated files beucasue they are in gen_gradle/src/main/**
-        source = fileTree(dir: "src/main", include: "**/*.java")
-    }
-
     checkstyleTest {
         // TODO(bdrutu): Enable this when we have tests checkstyle clean.
         // source = fileTree(dir: "src/test", include: "**/*.java")
         excludes = ["**"]
     }
 
-    // Disable checkstyle for proto and shared.
-    checkstyleMain.onlyIf { !name.contains("proto") && !name.contains("shared") }
-    checkstyleTest.onlyIf { !name.contains("proto") && !name.contains("shared") }
+    // Disable checkstyle for shared.
+    checkstyleMain.onlyIf { !name.contains("shared") }
+    checkstyleTest.onlyIf { !name.contains("shared") }
 
     // Disable checkstyle if no java8.
     checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
