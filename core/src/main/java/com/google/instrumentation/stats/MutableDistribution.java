@@ -32,7 +32,7 @@ public final class MutableDistribution {
   private final BucketBoundaries bucketBoundaries; // Histogram boundaries; null means no histogram
 
   @Nullable
-  private long[] bucketCounts; // Counts for each histogram bucket
+  private final long[] bucketCounts; // Counts for each histogram bucket
 
   /**
    * Constructs a new, empty {@link MutableDistribution}.
