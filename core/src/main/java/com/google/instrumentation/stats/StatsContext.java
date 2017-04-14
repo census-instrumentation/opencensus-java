@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * An immutable context for stats operations.
@@ -57,6 +58,12 @@ public abstract class StatsContext {
    * @return a byte array that represents the serialized form of this {@link StatsContext}.
    */
   public abstract byte[] serialize() throws IOException;
+
+  /**
+   * Old version of {@link StatsContext} serialization.
+   */
+  @Deprecated
+  public abstract void serialize(OutputStream output) throws IOException;
 
   /**
    * Builder for {@link StatsContext}.

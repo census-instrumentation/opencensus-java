@@ -13,7 +13,9 @@
 
 package com.google.instrumentation.stats;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 
 /**
@@ -47,6 +49,14 @@ final class StatsContextImpl extends StatsContext {
   @Override
   public byte[] serialize() throws IOException {
     return StatsSerializer.serialize(this);
+  }
+
+  @Deprecated
+  @Override
+  public void serialize(OutputStream output) throws IOException {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    byteArrayOutputStream.write(this.serialize());
+    byteArrayOutputStream.writeTo(output);
   }
 
   @Override

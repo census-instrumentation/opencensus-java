@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 
 /**
@@ -30,6 +31,12 @@ public abstract class StatsContextFactory {
    * @return a {@link StatsContext} deserialized from {@code input}
    */
   public abstract StatsContext deserialize(byte[] input) throws IOException, ParseException;
+
+  /**
+   * Old version of {@link StatsContext} deserialization.
+   */
+  @Deprecated
+  public abstract StatsContext deserialize(InputStream input) throws IOException;
 
   /**
    * Returns the default {@link StatsContext}.
