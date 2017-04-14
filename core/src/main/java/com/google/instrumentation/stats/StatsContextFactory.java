@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 
 /**
  * Factory class for {@link StatsContext}.
@@ -23,12 +24,18 @@ public abstract class StatsContextFactory {
   /**
    * Creates a {@link StatsContext} from the given on-the-wire encoded representation.
    *
-   * <p>Should be the inverse of {@link StatsContext#serialize(java.io.OutputStream)}. The
+   * <p>Should be the inverse of {@link StatsContext#serialize()}. The
    * serialized representation should be based on the {@link StatsContext} binary representation.
    *
    * @param input on-the-wire representation of a {@link StatsContext}
    * @return a {@link StatsContext} deserialized from {@code input}
    */
+  public abstract StatsContext deserialize(byte[] input) throws IOException, ParseException;
+
+  /**
+   * Old version of {@link StatsContext} deserialization.
+   */
+  @Deprecated
   public abstract StatsContext deserialize(InputStream input) throws IOException;
 
   /**

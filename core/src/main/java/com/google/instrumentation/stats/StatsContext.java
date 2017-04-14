@@ -52,11 +52,17 @@ public abstract class StatsContext {
   /**
    * Serializes the {@link StatsContext} into the on-the-wire representation.
    *
-   * <p>The inverse of {@link StatsContextFactory#deserialize(java.io.InputStream)} and should be
-   * based on the {@link StatsContext} protobuf representation.
+   * <p>The inverse of {@link StatsContextFactory#deserialize(byte[])} and should be
+   * based on the {@link StatsContext} binary representation.
    *
-   * @param output the {@link OutputStream} to add the serialized form of this {@link StatsContext}.
+   * @return a byte array that represents the serialized form of this {@link StatsContext}.
    */
+  public abstract byte[] serialize() throws IOException;
+
+  /**
+   * Old version of {@link StatsContext} serialization.
+   */
+  @Deprecated
   public abstract void serialize(OutputStream output) throws IOException;
 
   /**

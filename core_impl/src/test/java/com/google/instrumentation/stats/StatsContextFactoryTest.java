@@ -16,10 +16,9 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.io.base.VarInt;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.text.ParseException;
 import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,19 +49,19 @@ public class StatsContextFactoryTest {
   public void testDeserializeNoTags() throws Exception {
     StatsContext expected = Stats.getStatsContextFactory().getDefault();
     StatsContext actual = testDeserialize(
-        new ByteArrayInputStream(new byte[]{VERSION_ID}));  // One byte that represents Version ID.
+        new byte[]{VERSION_ID});  // One byte that represents Version ID.
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeEmptyByteArrayThrowException() throws Exception {
-    testDeserialize(new ByteArrayInputStream(new byte[0]));
+    testDeserialize(new byte[0]);
   }
 
   @Test
   public void testDeserializeValueTypeString() throws Exception {
     StatsContext expected = new StatsContextImpl(sampleTags);
-    StatsContext actual = testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_STRING));
+    StatsContext actual = testDeserialize(constructSingleTypeTagInputArray(VALUE_TYPE_STRING));
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -77,76 +76,75 @@ public class StatsContextFactoryTest {
     byteArrayOutputStream.write(VALUE_TYPE_STRING);
     encodeString("Key2", byteArrayOutputStream);
     encodeString("String2", byteArrayOutputStream);
-    StatsContext actual = testDeserialize(
-        new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+    StatsContext actual = testDeserialize(byteArrayOutputStream.toByteArray());
 
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeValueTypeInteger() throws Exception {
     // TODO(songya): test should pass after we add support for type integer
-    testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_INTEGER));
+    testDeserialize(constructSingleTypeTagInputArray(VALUE_TYPE_INTEGER));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeValueTypeTrue() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_TRUE));
+    testDeserialize(constructSingleTypeTagInputArray(VALUE_TYPE_TRUE));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeValueTypeFalse() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_FALSE));
+    testDeserialize(constructSingleTypeTagInputArray(VALUE_TYPE_FALSE));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeMultipleValueType() throws Exception {
     // TODO(songya): test should pass after we add support for type integer and boolean
-    testDeserialize(constructMultiTypeTagInputStream());
+    testDeserialize(constructMultiTypeTagInputArray());
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeWrongFormat() throws Exception {
     // encoded tags should follow the format <version_id>(<tag_field_id><tag_encoding>)*
-    testDeserialize(new ByteArrayInputStream(new byte[3]));
+    testDeserialize(new byte[3]);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = ParseException.class)
   public void testDeserializeWrongVersionId() throws Exception {
-    testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (VERSION_ID + 1)}));
+    testDeserialize(new byte[]{(byte) (VERSION_ID + 1)});
   }
 
-  private static StatsContext testDeserialize(InputStream inputStream)
-      throws IOException, IOException {
-    return Stats.getStatsContextFactory().deserialize(inputStream);
+  private static StatsContext testDeserialize(byte[] input)
+      throws IOException, ParseException {
+    return Stats.getStatsContextFactory().deserialize(input);
   }
 
   /*
-   * Construct an InputStream with the given type of tag.
+   * Construct a byte array with the given type of tag.
    * The input format is:
    *   <version_id><encoded_tags>, and <encoded_tags> == (<tag_field_id><tag_encoding>)*
    * TODO(songya): after supporting serialize integer and boolean,
    * remove this method and use StatsContext.serialize() instead.
    * Currently StatsContext.serialize() can only serialize strings.
    */
-  private static InputStream constructSingleTypeTagInputStream(int valueType) throws IOException {
+  private static byte[] constructSingleTypeTagInputArray(int valueType) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
     encodeSingleTypeTagToOutputStream(valueType, byteArrayOutputStream);
-    return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+    return byteArrayOutputStream.toByteArray();
   }
 
-  // Construct an InputStream with all 4 types of tags.
-  private static InputStream constructMultiTypeTagInputStream() throws IOException {
+  // Construct a byte array with all 4 types of tags.
+  private static byte[] constructMultiTypeTagInputArray() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
     encodeSingleTypeTagToOutputStream(VALUE_TYPE_STRING, byteArrayOutputStream);
     encodeSingleTypeTagToOutputStream(VALUE_TYPE_INTEGER, byteArrayOutputStream);
     encodeSingleTypeTagToOutputStream(VALUE_TYPE_TRUE, byteArrayOutputStream);
     encodeSingleTypeTagToOutputStream(VALUE_TYPE_FALSE, byteArrayOutputStream);
-    return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+    return byteArrayOutputStream.toByteArray();
   }
 
   private static void encodeSingleTypeTagToOutputStream(

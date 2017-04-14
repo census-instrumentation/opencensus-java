@@ -18,7 +18,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 
 import com.google.io.base.VarInt;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
@@ -161,27 +160,21 @@ public class StatsContextTest {
   }
 
   private static void testSerialize(Tag... tags) throws IOException {
-    ByteArrayOutputStream actual = new ByteArrayOutputStream();
-    ByteArrayOutputStream expected = new ByteArrayOutputStream();
-    expected.write(VERSION_ID);
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    byteArrayOutputStream.write(VERSION_ID);
     StatsContext.Builder builder = DEFAULT.builder();
     for (Tag tag : tags) {
       builder.set(tag.getKey(), tag.getValue());
-      expected.write(VALUE_TYPE_STRING);
-      encodeString(tag.getKey().toString(), expected);
-      encodeString(tag.getValue().toString(), expected);
+      byteArrayOutputStream.write(VALUE_TYPE_STRING);
+      encodeString(tag.getKey().toString(), byteArrayOutputStream);
+      encodeString(tag.getValue().toString(), byteArrayOutputStream);
     }
-    builder.build().serialize(actual);
-
-    assertThat(actual.toByteArray()).isEqualTo(expected.toByteArray());
+    assertThat(builder.build().serialize()).isEqualTo(byteArrayOutputStream.toByteArray());
   }
 
   private static void testRoundtripSerialization(StatsContext expected) throws Exception {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    expected.serialize(output);
-    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-    StatsContext actual = Stats.getStatsContextFactory().deserialize(input);
-    assertThat(actual).isEqualTo(expected);
+    assertThat(Stats.getStatsContextFactory().deserialize(expected.serialize()))
+        .isEqualTo(expected);
   }
 
   private static final void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
