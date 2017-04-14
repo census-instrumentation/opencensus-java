@@ -16,6 +16,7 @@ package com.google.instrumentation.examples.trace;
 import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.trace.Span;
 import com.google.instrumentation.trace.Tracer;
+import com.google.instrumentation.trace.Tracing;
 
 /**
  * Example showing how to create a {@link Span}, install it to the current context and add
@@ -23,7 +24,7 @@ import com.google.instrumentation.trace.Tracer;
  */
 public final class BasicContextTracing {
   // Per class Tracer.
-  private static final Tracer tracer = Tracer.getTracer();
+  private static final Tracer tracer = Tracing.getTracer();
 
   private static void doWork() {
     // Add an annotation to the current Span.

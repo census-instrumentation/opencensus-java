@@ -15,11 +15,12 @@ package com.google.instrumentation.examples.trace;
 
 import com.google.instrumentation.trace.Span;
 import com.google.instrumentation.trace.Tracer;
+import com.google.instrumentation.trace.Tracing;
 
 /** Example showing how to directly create a child {@link Span} and add annotations. */
 public final class MultiSpansTracing {
   // Per class Tracer.
-  private static final Tracer tracer = Tracer.getTracer();
+  private static final Tracer tracer = Tracing.getTracer();
 
   private static void doWork() {
     Span rootSpan = tracer.spanBuilder(null, "MyRootSpan").startSpan();

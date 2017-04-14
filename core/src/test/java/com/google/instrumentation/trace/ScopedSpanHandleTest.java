@@ -28,7 +28,7 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link ScopedSpanHandle}. */
 @RunWith(JUnit4.class)
 public class ScopedSpanHandleTest {
-  private static final Tracer tracer = Tracer.getTracer();
+  private static final Tracer tracer = Tracer.getNoopTracer();
   @Mock private Span span;
 
   @Before

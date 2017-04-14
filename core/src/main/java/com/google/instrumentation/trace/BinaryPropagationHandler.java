@@ -23,9 +23,9 @@ import java.text.ParseException;
  * <p>Example of usage on the client:
  *
  * <pre>{@code
- * private static final Tracer tracer = TraceService.getTracer();
+ * private static final Tracer tracer = Tracing.getTracer();
  * private static final BinaryPropagationHandler binaryPropagationHandler =
- *     TraceService.getBinaryPropagationHandler();
+ *     Tracing.getBinaryPropagationHandler();
  * void onSendRequest() {
  *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
  *     byte[] binaryValue = binaryPropagationHandler.toBinaryValue(
@@ -38,9 +38,9 @@ import java.text.ParseException;
  * <p>Example of usage on the server:
  *
  * <pre>{@code
- * private static final Tracer tracer = TraceService.getTracer();
+ * private static final Tracer tracer = Tracing.getTracer();
  * private static final BinaryPropagationHandler binaryPropagationHandler =
- *     TraceService.getBinaryPropagationHandler();
+ *     Tracing.getBinaryPropagationHandler();
  * void onRequestReceived() {
  *   // Get the binaryValue from the request.
  *   SpanContext spanContext = SpanContext.INVALID;
@@ -59,6 +59,9 @@ import java.text.ParseException;
  * }</pre>
  */
 public abstract class BinaryPropagationHandler {
+  static final NoopBinaryPropagationHandler noopBinaryPropagationHandler =
+      new NoopBinaryPropagationHandler();
+
   /**
    * Serializes a {@link SpanContext} using the binary format.
    *
@@ -78,13 +81,16 @@ public abstract class BinaryPropagationHandler {
    */
   public abstract SpanContext fromBinaryValue(byte[] bytes) throws ParseException;
 
+  /**
+   * Returns the no-op implementation of the {@code BinaryPropagationHandler}.
+   *
+   * @return the no-op implementation of the {@code BinaryPropagationHandler}.
+   */
   static BinaryPropagationHandler getNoopBinaryPropagationHandler() {
-    return NoopBinaryPropagationHandler.INSTANCE;
+    return noopBinaryPropagationHandler;
   }
 
   private static final class NoopBinaryPropagationHandler extends BinaryPropagationHandler {
-    static final NoopBinaryPropagationHandler INSTANCE = new NoopBinaryPropagationHandler();
-
     @Override
     public byte[] toBinaryValue(SpanContext spanContext) {
       checkNotNull(spanContext, "spanContext");

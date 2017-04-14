@@ -35,7 +35,7 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnit4.class)
 public class SpanBuilderTest {
   private static final String SPAN_NAME = "MySpanName";
-  private static final Tracer tracer = Tracer.getTracer();
+  private static final Tracer tracer = Tracing.getTracer();
   @Mock private Span span;
   @Mock private SpanFactory spanFactory;
   private Random random;
