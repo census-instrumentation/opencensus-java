@@ -63,9 +63,8 @@ public final class MutableDistribution {
   // Construct a new MutableDistribution with optional bucket boundaries.
   private MutableDistribution(@Nullable BucketBoundaries bucketBoundaries) {
     this.bucketBoundaries = bucketBoundaries;
-    if (hasBuckets()) {
-      bucketCounts = new long[bucketBoundaries.getBoundaries().size() + 1];
-    }
+    bucketCounts =
+        bucketBoundaries == null ? null : new long[bucketBoundaries.getBoundaries().size() + 1];
   }
 
   /**
