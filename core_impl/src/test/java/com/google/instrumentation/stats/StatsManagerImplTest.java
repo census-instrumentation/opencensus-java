@@ -15,8 +15,6 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.common.Timestamp;
-import com.google.instrumentation.stats.View.DistributionView;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
