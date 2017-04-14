@@ -28,8 +28,8 @@ import javax.annotation.concurrent.Immutable;
  * buckets.
  *
  * <p>The bucket boundaries for that histogram are described by {@link BucketBoundaries}, which
- * defines {@code BucketBoundaries.getBoundaries().size() + 1 (= N)} buckets.
- * The boundaries for bucket index i are:
+ * defines {@code BucketBoundaries.getBoundaries().size() + 1 (= N)} buckets. The boundaries for
+ * bucket index i are:
  *
  * <ul>
  *   <li>[-infinity, bounds[i]) for i == 0
@@ -42,11 +42,11 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Note: If N = 1, there are no finite buckets and the single bucket is both the overflow and
  * underflow bucket.
- * TODO(songya): needs to determine whether N = 1 is valid. (Currently we don't allow N = 1.)
  *
  * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities or
  * NaNs) in the population of values, as this will render the {@code mean} meaningless.
  */
+//  TODO(songya): needs to determine whether N = 1 is valid. (Currently we don't allow N = 1.)
 @Immutable
 @AutoValue
 public abstract class Distribution {
@@ -122,9 +122,8 @@ public abstract class Distribution {
   /**
    * A Distribution may optionally contain a histogram of the values in the population. The
    * histogram is given in {@link #getBucketCounts()} as counts of values that fall into one of a
-   * sequence of non-overlapping buckets, described by {@link BucketBoundaries}.
-   * The sum of the values in {@link #getBucketCounts()} must equal the value in
-   * {@link #getCount()}.
+   * sequence of non-overlapping buckets, described by {@link BucketBoundaries}. The sum of the
+   * values in {@link #getBucketCounts()} must equal the value in {@link #getCount()}.
    *
    * <p>Bucket counts are given in order under the numbering scheme described above (the underflow
    * bucket has number 0; the finite buckets, if any, have numbers 1 through N-2; the overflow
@@ -135,8 +134,8 @@ public abstract class Distribution {
    *
    * <p>Any suffix of trailing buckets containing only zero may be omitted.
    *
-   * <p>{@link #getBucketCounts()} will return null iff the associated {@link BucketBoundaries}
-   * is null.
+   * <p>{@link #getBucketCounts()} will return null iff the associated {@link BucketBoundaries} is
+   * null.
    *
    * @return The count of population values in each histogram bucket.
    */

@@ -20,9 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
-/**
- * Mutable version of {@link Distribution}.
- */
+/** Mutable version of {@link Distribution}. */
 public final class MutableDistribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
@@ -31,8 +29,7 @@ public final class MutableDistribution {
   @Nullable
   private final BucketBoundaries bucketBoundaries; // Histogram boundaries; null means no histogram
 
-  @Nullable
-  private final long[] bucketCounts; // Counts for each histogram bucket
+  @Nullable private final long[] bucketCounts; // Counts for each histogram bucket
 
   /**
    * Constructs a new, empty {@link MutableDistribution}.

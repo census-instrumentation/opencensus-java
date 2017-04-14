@@ -23,9 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Unit tests for {@link com.google.instrumentation.stats.Distribution}.
- */
+/** Unit tests for {@link com.google.instrumentation.stats.Distribution}. */
 @RunWith(JUnit4.class)
 public class DistributionTest {
   private static final double TOLERANCE = 1e-6;

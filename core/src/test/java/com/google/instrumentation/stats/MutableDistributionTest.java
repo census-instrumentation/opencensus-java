@@ -23,14 +23,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Unit tests for {@link com.google.instrumentation.stats.MutableDistribution}.
- */
+/** Unit tests for {@link com.google.instrumentation.stats.MutableDistribution}. */
 @RunWith(JUnit4.class)
 public class MutableDistributionTest {
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testEmptyDistribution() {
