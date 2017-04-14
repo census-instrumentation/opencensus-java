@@ -21,8 +21,6 @@ package com.google.instrumentation.trace;
  */
 public abstract class TraceComponent {
   private static final NoopTraceComponent noopTraceComponent = new NoopTraceComponent();
-  private final Tracer tracer;
-  private final BinaryPropagationHandler binaryPropagationHandler;
 
   /**
    * Returns the {@link Tracer} with the provided implementations. If no implementation is provided
@@ -30,9 +28,7 @@ public abstract class TraceComponent {
    *
    * @return the {@code Tracer} implementation.
    */
-  public Tracer getTracer() {
-    return tracer;
-  }
+  public abstract Tracer getTracer();
 
   /**
    * Returns the {@link BinaryPropagationHandler} with the provided implementations. If no
@@ -40,15 +36,10 @@ public abstract class TraceComponent {
    *
    * @return the {@code BinaryPropagationHandler} implementation.
    */
-  public BinaryPropagationHandler getBinaryPropagationHandler() {
-    return binaryPropagationHandler;
-  }
+  public abstract BinaryPropagationHandler getBinaryPropagationHandler();
 
   // Disallow external overrides until we define the final API.
-  TraceComponent(Tracer tracer, BinaryPropagationHandler binaryPropagationHandler) {
-    this.tracer = tracer;
-    this.binaryPropagationHandler = binaryPropagationHandler;
-  }
+  TraceComponent() {}
 
   /**
    * Returns an instance that contains no-op implementations for all the instances.
@@ -60,8 +51,16 @@ public abstract class TraceComponent {
   }
 
   private static final class NoopTraceComponent extends TraceComponent {
-    private NoopTraceComponent() {
-      super(Tracer.getNoopTracer(), BinaryPropagationHandler.getNoopBinaryPropagationHandler());
+    @Override
+    public Tracer getTracer() {
+      return Tracer.getNoopTracer();
     }
+
+    @Override
+    public BinaryPropagationHandler getBinaryPropagationHandler() {
+      return BinaryPropagationHandler.getNoopBinaryPropagationHandler();
+    }
+
+    private NoopTraceComponent() {}
   }
 }
