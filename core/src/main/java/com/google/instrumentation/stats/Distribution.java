@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A distribution contains summary statistics for a population of values and, optionally, a
@@ -46,6 +47,7 @@ import javax.annotation.Nullable;
  * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities or
  * NaNs) in the population of values, as this will render the {@code mean} meaningless.
  */
+@Immutable
 @AutoValue
 public abstract class Distribution {
 
