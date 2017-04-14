@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Provider;
+import javax.annotation.Nullable;
 
 /**
  * {@link Stats}.
@@ -25,6 +26,7 @@ public final class Stats {
   /**
    * Returns the default {@link StatsContextFactory}.
    */
+  @Nullable
   public static StatsContextFactory getStatsContextFactory() {
     return statsManager == null ? null : statsManager.getStatsContextFactory();
   }
@@ -32,6 +34,7 @@ public final class Stats {
   /**
    * Returns the default {@link StatsManager}.
    */
+  @Nullable
   public static StatsManager getStatsManager() {
     return statsManager;
   }
