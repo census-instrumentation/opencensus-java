@@ -1,0 +1,15 @@
+errorProneExperimentalSuggestions = \
+-Xep:ConstantField:ERROR,\
+-Xep:EmptySetMultibindingContributions:ERROR,\
+-Xep:MethodCanBeStatic:ERROR,\
+-Xep:MixedArrayDimensions:ERROR,\
+-Xep:MultiVariableDeclaration:ERROR,\
+-Xep:MultipleTopLevelClasses:ERROR,\
+-Xep:PackageLocation:ERROR,\
+-Xep:PrivateConstructorForNoninstantiableModuleTest:ERROR,\
+-Xep:PrivateConstructorForUtilityClass:OFF,\
+-Xep:RemoveUnusedImports:ERROR,\
+-Xep:ThrowsUncheckedException:ERROR,\
+-Xep:UnnecessaryStaticImport:ERROR,\
+-Xep:UseBinds:ERROR,\
+-Xep:WildcardImport:ERROR
