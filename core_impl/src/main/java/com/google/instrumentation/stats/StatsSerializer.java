@@ -13,14 +13,12 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.common.io.ByteStreams;
 import com.google.io.base.VarInt;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -73,8 +71,9 @@ final class StatsSerializer {
 
 
   // Serializes a StatsContext to the on-the-wire format.
+  // The given byte array should be large enough.
   // Encoded tags are of the form: <version_id><encoded_tags>
-  static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
+  static byte[] serialize(StatsContextImpl context) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
 
@@ -83,23 +82,22 @@ final class StatsSerializer {
     for (Entry<String, String> tag : tags) {
       encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
     }
-    byteArrayOutputStream.writeTo(output);
+    return byteArrayOutputStream.toByteArray();
   }
 
   // Deserializes input to StatsContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static StatsContextImpl deserialize(InputStream input) throws IOException {
+  static StatsContextImpl deserialize(byte[] input) throws IOException, ParseException {
     try {
-      byte[] bytes = ByteStreams.toByteArray(input);
       HashMap<String, String> tags = new HashMap<String, String>();
-      if (bytes.length == 0) {
+      if (input.length == 0) {
         // Does not allow empty byte array.
-        throw new IOException("Input byte stream can not be empty.");
+        throw new ParseException("Input byte stream can not be empty.", 0);
       }
 
-      ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
+      ByteBuffer buffer = ByteBuffer.wrap(input).asReadOnlyBuffer();
       if (buffer.get() != VERSION_ID) {
-        throw new IOException("Wrong Version ID.");
+        throw new ParseException("Wrong Version ID.", 0);
       }
 
       int limit = buffer.limit();
@@ -116,12 +114,12 @@ final class StatsSerializer {
           case VALUE_TYPE_FALSE:
           default:
             // TODO(songya): add support for value types integer and boolean
-            throw new IOException("Unsupported tag value type.");
+            throw new ParseException("Unsupported tag value type.", buffer.position());
         }
       }
       return new StatsContextImpl(tags);
     } catch (BufferUnderflowException exn) {
-      throw new IOException(exn.toString());  // byte array format error.
+      throw new ParseException(exn.toString(), -1);  // byte array format error.
     }
   }
 

@@ -14,13 +14,13 @@
 package com.google.instrumentation.stats;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 
 /**
  * Native Implementation of {@link StatsContext}.
  */
 final class StatsContextImpl extends StatsContext {
+
   final HashMap<String, String> tags;
 
   StatsContextImpl(HashMap<String, String> tags) {
@@ -38,13 +38,15 @@ final class StatsContextImpl extends StatsContext {
   }
 
   /**
-   * Serializes a {@link StatsContextImpl} into {@code CensusContextProto} serialized format.
+   * Serializes a {@link StatsContextImpl} into on-the-wire serialized format.
    *
    * <p>The encoded tags are of the form: {@code <version_id><encoded_tags>}
+   *
+   * @return a byte array that represents the serialized StatsContext.
    */
   @Override
-  public void serialize(OutputStream output) throws IOException {
-    StatsSerializer.serialize(this, output);
+  public byte[] serialize() throws IOException {
+    return StatsSerializer.serialize(this);
   }
 
   @Override
@@ -63,6 +65,7 @@ final class StatsContextImpl extends StatsContext {
   }
 
   private static final class Builder extends StatsContext.Builder {
+
     private final HashMap<String, String> tags;
 
     private Builder(HashMap<String, String> tags) {

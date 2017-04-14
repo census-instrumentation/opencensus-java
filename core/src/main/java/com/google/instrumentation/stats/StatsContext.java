@@ -14,7 +14,6 @@
 package com.google.instrumentation.stats;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * An immutable context for stats operations.
@@ -52,12 +51,12 @@ public abstract class StatsContext {
   /**
    * Serializes the {@link StatsContext} into the on-the-wire representation.
    *
-   * <p>The inverse of {@link StatsContextFactory#deserialize(java.io.InputStream)} and should be
-   * based on the {@link StatsContext} protobuf representation.
+   * <p>The inverse of {@link StatsContextFactory#deserialize(byte[])} and should be
+   * based on the {@link StatsContext} binary representation.
    *
-   * @param output the {@link OutputStream} to add the serialized form of this {@link StatsContext}.
+   * @return a byte array that represents the serialized form of this {@link StatsContext}.
    */
-  public abstract void serialize(OutputStream output) throws IOException;
+  public abstract byte[] serialize() throws IOException;
 
   /**
    * Builder for {@link StatsContext}.
