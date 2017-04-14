@@ -29,18 +29,18 @@ your OSSRH (OSS Repository Hosting) account and signing keys.
     key](http://central.sonatype.org/pages/working-with-pgp-signatures.html#distributing-your-public-key)
     to make it visible to the Sonatype servers.
 -   Put your GnuPG key password and OSSRH account information in
-    `<your-home-directory>/.gradle/gradle.properties`.
+    `<your-home-directory>/.gradle/gradle.properties`:
 
-```
-# You need the signing properties only if you are making release deployment
-signing.keyId=<8-character-public-key-id>
-signing.password=<key-password>
-signing.secretKeyRingFile=<your-home-directory>/.gnupg/secring.gpg
+    ```
+    # You need the signing properties only if you are making release deployment
+    signing.keyId=<8-character-public-key-id>
+    signing.password=<key-password>
+    signing.secretKeyRingFile=<your-home-directory>/.gnupg/secring.gpg
 
-ossrhUsername=<ossrh-username>
-ossrhPassword=<ossrh-password>
-checkstyle.ignoreFailures=false
-```
+    ossrhUsername=<ossrh-username>
+    ossrhPassword=<ossrh-password>
+    checkstyle.ignoreFailures=false
+    ```
 
 ## Tagging the Release
 
@@ -49,6 +49,9 @@ versions, and create a tag for the release. Our release branches follow the
 naming convention of `v<major>.<minor>.x`, while the tags include the patch
 version `v<major>.<minor>.<patch>`. For example, the same branch `v0.4.x` would
 be used to create all `v0.4` tags (e.g. `v0.4.0`, `v0.4.1`).
+
+In this section upstream repository refers to the main instrumentation-java
+github repository.
 
 1.  Create the release branch and push it to GitHub:
 
