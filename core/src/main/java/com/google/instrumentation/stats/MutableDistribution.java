@@ -68,7 +68,7 @@ public final class MutableDistribution {
   }
 
   /**
-   * The number of values in the population. Must be non-negative.
+   * Returns the number of values in the population. Must be non-negative.
    *
    * @return The number of values in the population.
    */
