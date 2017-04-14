@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.stats;
+package com.google.instrumentation.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.internal.StringUtil;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -11,17 +11,25 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.stats;
+package com.google.instrumentation.internal;
 
 /**
- * Utility methods for working with tag keys, tag values, and metric names.
+ * Internal utility methods for working with tag keys, tag values, and metric names.
  */
-final class StringUtil {
+public final class StringUtil {
 
-  static final int MAX_LENGTH = 255;
-  static final char UNPRINTABLE_CHAR_SUBSTITUTE = '_';
+  public static final int MAX_LENGTH = 255;
+  public static final char UNPRINTABLE_CHAR_SUBSTITUTE = '_';
 
-  static String sanitize(String str) {
+  /**
+   * Replaces non-printable characters with underscores and truncates to {@link
+   * StringUtil#MAX_LENGTH}.
+   *
+   * @param str the {@code String} to be sanitized.
+   * @return the {@code String} with all non-printable characters replaced by underscores, truncated
+   *     to {@code MAX_LENGTH}.
+   */
+  public static String sanitize(String str) {
     if (str.length() > MAX_LENGTH) {
       str = str.substring(0, MAX_LENGTH);
     }
