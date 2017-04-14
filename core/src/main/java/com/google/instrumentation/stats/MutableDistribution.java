@@ -53,6 +53,7 @@ public final class MutableDistribution {
   }
 
   // Returns true if the distribution has histogram buckets.
+  // TODO(sebright): Decide whether to make this method public.
   private boolean hasBuckets() {
     return (bucketBoundaries != null);
   }
