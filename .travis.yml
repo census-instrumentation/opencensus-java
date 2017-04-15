@@ -23,16 +23,12 @@ before_install:
       cat gradle/errorprone/experimental_warnings  >> $HOME/.gradle/gradle.properties ;
     fi
 
-install:
-  - if \[ "$TASK" == "BUILD" \]; then
-      ./gradlew clean assemble --stacktrace ;
-    fi
-
 script:
   - case "$TASK" in
       "CHECK_GIT_HISTORY")
         python check-git-history.py ;;
       "BUILD")
+        ./gradlew clean assemble --stacktrace ;
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
             ./gradlew check :instrumentation-java-all:jacocoTestReport ;;
