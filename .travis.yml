@@ -23,6 +23,9 @@ before_install:
       cat gradle/errorprone/experimental_warnings  >> $HOME/.gradle/gradle.properties ;
     fi
 
+# Skip Travis' default Gradle install step. See http://stackoverflow.com/a/26575080.
+install: true
+
 script:
   - case "$TASK" in
       "CHECK_GIT_HISTORY")
