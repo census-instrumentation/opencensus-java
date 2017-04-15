@@ -21,6 +21,7 @@ before_install:
       cat gradle/errorprone/warnings > $HOME/.gradle/gradle.properties ;
       cat gradle/errorprone/experimental_errors >> $HOME/.gradle/gradle.properties ;
       cat gradle/errorprone/experimental_warnings  >> $HOME/.gradle/gradle.properties ;
+      cat gradle/errorprone/experimental_suggestions  >> $HOME/.gradle/gradle.properties ;
     fi
 
 # Skip Travis' default Gradle install step. See http://stackoverflow.com/a/26575080.

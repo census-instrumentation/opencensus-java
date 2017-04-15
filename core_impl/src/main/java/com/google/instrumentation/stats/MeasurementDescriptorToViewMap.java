@@ -65,6 +65,7 @@ final class MeasurementDescriptorToViewMap {
     }
   }
 
+  @SuppressWarnings("MethodCanBeStatic")
   private void recordSupportedMeasurement(Map<String, String> tags, double value) {
     //  // TODO(sebright): Record the value in the view.
     //

@@ -62,6 +62,11 @@ subprojects {
                     it as String
                 }
             }
+            if (rootProject.hasProperty("errorProneExperimentalSuggestions")) {
+                it.options.compilerArgs += rootProject.properties["errorProneExperimentalSuggestions"].split(',').collect {
+                    it as String
+                }
+            }
         }
         it.options.encoding = "UTF-8"
         // TODO(bdrutu): Enable when fix the issue with configuring bootstrap class.
