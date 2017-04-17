@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
 import com.google.io.base.VarInt;
 import java.io.ByteArrayOutputStream;
@@ -27,9 +28,9 @@ import java.util.Set;
 
 /**
  * Native implementation {@link StatsContext} serialization.
- * 
+ *
  * <p>Encoding of stats context information (tags) for passing across RPC's:</p>
- * 
+ *
  * <ul>
  *   <li>Tags are encoded in single byte sequence. The version 0 format is:
  *   <li>{@code <version_id><encoded_tags>}
@@ -63,13 +64,13 @@ import java.util.Set;
  * </ul>
  */
 final class StatsSerializer {
-  
-  //    TODO(songya): Currently we only support encoding on string type.
-  private static final int VERSION_ID = 0;
-  private static final int VALUE_TYPE_STRING = 0;
-  private static final int VALUE_TYPE_INTEGER = 1;
-  private static final int VALUE_TYPE_TRUE = 2;
-  private static final int VALUE_TYPE_FALSE = 3;
+
+  // TODO(songya): Currently we only support encoding on string type.
+  @VisibleForTesting static final int VERSION_ID = 0;
+  @VisibleForTesting static final int VALUE_TYPE_STRING = 0;
+  @VisibleForTesting static final int VALUE_TYPE_INTEGER = 1;
+  @VisibleForTesting static final int VALUE_TYPE_TRUE = 2;
+  @VisibleForTesting static final int VALUE_TYPE_FALSE = 3;
 
 
   // Serializes a StatsContext to the on-the-wire format.
@@ -98,8 +99,10 @@ final class StatsSerializer {
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
-      if (buffer.get() != VERSION_ID) {
-        throw new IOException("Wrong Version ID.");
+      int versionId = buffer.get();
+      if (versionId != VERSION_ID) {
+        throw new IOException(
+            "Wrong Version ID: " + versionId + ". Currently supported version is: " + VERSION_ID);
       }
 
       int limit = buffer.limit();

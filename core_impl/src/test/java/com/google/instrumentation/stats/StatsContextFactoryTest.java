@@ -31,26 +31,31 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class StatsContextFactoryTest {
 
-  private static final int VERSION_ID = 0;
-  private static final int VALUE_TYPE_STRING = 0;
-  private static final int VALUE_TYPE_INTEGER = 1;
-  private static final int VALUE_TYPE_TRUE = 2;
-  private static final int VALUE_TYPE_FALSE = 3;
-
   private static final String KEY = "Key";
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
   private final HashMap<String, String> sampleTags = new HashMap<String, String>();
 
   public StatsContextFactoryTest() {
-    sampleTags.put(KEY + VALUE_TYPE_STRING, VALUE_STRING);
+    sampleTags.put(KEY + StatsSerializer.VALUE_TYPE_STRING, VALUE_STRING);
+  }
+
+  @Test
+  public void testVersionAndValueTypeConstants() {
+    // Refer to the JavaDoc on StatsSerializer for the definitions on these constants.
+    assertThat(StatsSerializer.VERSION_ID).isEqualTo(0);
+    assertThat(StatsSerializer.VALUE_TYPE_STRING).isEqualTo(0);
+    assertThat(StatsSerializer.VALUE_TYPE_INTEGER).isEqualTo(1);
+    assertThat(StatsSerializer.VALUE_TYPE_TRUE).isEqualTo(2);
+    assertThat(StatsSerializer.VALUE_TYPE_FALSE).isEqualTo(3);
   }
 
   @Test
   public void testDeserializeNoTags() throws Exception {
     StatsContext expected = Stats.getStatsContextFactory().getDefault();
     StatsContext actual = testDeserialize(
-        new ByteArrayInputStream(new byte[]{VERSION_ID}));  // One byte that represents Version ID.
+        new ByteArrayInputStream(
+            new byte[]{StatsSerializer.VERSION_ID}));  // One byte that represents Version ID.
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -62,7 +67,8 @@ public class StatsContextFactoryTest {
   @Test
   public void testDeserializeValueTypeString() throws Exception {
     StatsContext expected = new StatsContextImpl(sampleTags);
-    StatsContext actual = testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_STRING));
+    StatsContext actual = testDeserialize(
+        constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_STRING));
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -72,9 +78,9 @@ public class StatsContextFactoryTest {
     StatsContext expected = new StatsContextImpl(sampleTags);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    byteArrayOutputStream.write(VERSION_ID);
-    encodeSingleTypeTagToOutputStream(VALUE_TYPE_STRING, byteArrayOutputStream);
-    byteArrayOutputStream.write(VALUE_TYPE_STRING);
+    byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
+    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_STRING, byteArrayOutputStream);
+    byteArrayOutputStream.write(StatsSerializer.VALUE_TYPE_STRING);
     encodeString("Key2", byteArrayOutputStream);
     encodeString("String2", byteArrayOutputStream);
     StatsContext actual = testDeserialize(
@@ -86,19 +92,19 @@ public class StatsContextFactoryTest {
   @Test(expected = IOException.class)
   public void testDeserializeValueTypeInteger() throws Exception {
     // TODO(songya): test should pass after we add support for type integer
-    testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_INTEGER));
+    testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_INTEGER));
   }
 
   @Test(expected = IOException.class)
   public void testDeserializeValueTypeTrue() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_TRUE));
+    testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_TRUE));
   }
 
   @Test(expected = IOException.class)
   public void testDeserializeValueTypeFalse() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(VALUE_TYPE_FALSE));
+    testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_FALSE));
   }
 
   @Test(expected = IOException.class)
@@ -115,7 +121,7 @@ public class StatsContextFactoryTest {
 
   @Test(expected = IOException.class)
   public void testDeserializeWrongVersionId() throws Exception {
-    testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (VERSION_ID + 1)}));
+    testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (StatsSerializer.VERSION_ID + 1)}));
   }
 
   private static StatsContext testDeserialize(InputStream inputStream)
@@ -133,7 +139,7 @@ public class StatsContextFactoryTest {
    */
   private static InputStream constructSingleTypeTagInputStream(int valueType) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    byteArrayOutputStream.write(VERSION_ID);
+    byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
     encodeSingleTypeTagToOutputStream(valueType, byteArrayOutputStream);
     return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
   }
@@ -141,11 +147,11 @@ public class StatsContextFactoryTest {
   // Construct an InputStream with all 4 types of tags.
   private static InputStream constructMultiTypeTagInputStream() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    byteArrayOutputStream.write(VERSION_ID);
-    encodeSingleTypeTagToOutputStream(VALUE_TYPE_STRING, byteArrayOutputStream);
-    encodeSingleTypeTagToOutputStream(VALUE_TYPE_INTEGER, byteArrayOutputStream);
-    encodeSingleTypeTagToOutputStream(VALUE_TYPE_TRUE, byteArrayOutputStream);
-    encodeSingleTypeTagToOutputStream(VALUE_TYPE_FALSE, byteArrayOutputStream);
+    byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
+    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_STRING, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_INTEGER, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_TRUE, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_FALSE, byteArrayOutputStream);
     return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
   }
 
@@ -156,16 +162,16 @@ public class StatsContextFactoryTest {
     // encode <tag_key_len><tag_key>, tag key is a string "KEY" appended by the field id here.
     encodeString(KEY + valueType, byteArrayOutputStream);
     switch (valueType) {
-      case VALUE_TYPE_STRING:
+      case StatsSerializer.VALUE_TYPE_STRING:
         // String encoded format: <tag_key_len><tag_key><tag_val_len><tag_val>.
         encodeString(VALUE_STRING, byteArrayOutputStream);
         break;
-      case VALUE_TYPE_INTEGER:
+      case StatsSerializer.VALUE_TYPE_INTEGER:
         // Integer encoded format: <tag_key_len><tag_key><int_tag_val>.
         encodeInteger(VALUE_INT, byteArrayOutputStream);
         break;
-      case VALUE_TYPE_TRUE:
-      case VALUE_TYPE_FALSE:
+      case StatsSerializer.VALUE_TYPE_TRUE:
+      case StatsSerializer.VALUE_TYPE_FALSE:
         // Boolean encoded format: <tag_key_len><tag_key>. No tag_value is needed
         break;
       default:
