@@ -58,6 +58,9 @@ public class StatsContextTest {
   private static final TagValue V30 = TagValue.create("v30");
   private static final TagValue V100 = TagValue.create("v100");
 
+  private static final Tag T1 = Tag.create(K1, V1);
+  private static final Tag T2 = Tag.create(K2, V2);
+
   @Test
   public void testWith() {
     assertThat(DEFAULT.builder().set(K1, V1).build()).isEqualTo(DEFAULT.with(K1, V1));
@@ -118,12 +121,12 @@ public class StatsContextTest {
 
   @Test
   public void testSerializeWithOneStringTag() throws Exception {
-    testSerialize(Tag.create(K1, V1));
+    testSerialize(T1);
   }
 
   @Test
   public void testSerializeWithMultiStringTags() throws Exception {
-    testSerialize(Tag.create(K1, V1), Tag.create(K2, V2));
+    testSerialize(T1, T2);
   }
 
   @Test
