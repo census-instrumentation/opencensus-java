@@ -89,6 +89,7 @@ public class BinaryPropagationHandlerImplTest {
     binaryPropagationHandler.fromBinaryValue(null);
   }
 
+  @Test
   public void fromBinaryValue_EmptyInput() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Unsupported version.");
