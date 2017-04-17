@@ -1,8 +1,7 @@
 description = 'Instrumentation: API'
 
 dependencies {
-    compile project(':shared'),
-            libraries.auto_value,
+    compile libraries.auto_value,
             libraries.grpc_context,
             libraries.guava
 
