@@ -140,6 +140,7 @@ subprojects {
         effort = 'max'
         reportLevel = 'low'      // low = sensitive to even minor mistakes
         omitVisitors = []        // bugs that we want to ignore
+        excludeFilter = file("$rootDir/findbugs-exclude.xml")
     }
     // Generate html report for findbugs.
     findbugsMain {

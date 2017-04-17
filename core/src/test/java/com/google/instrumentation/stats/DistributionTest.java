@@ -15,133 +15,72 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import java.util.Arrays;
-import java.util.List;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Unit tests for {@link com.google.instrumentation.stats.Distribution}.
- */
+/** Unit tests for {@link com.google.instrumentation.stats.Distribution}. */
 @RunWith(JUnit4.class)
 public class DistributionTest {
-
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  private static final double TOLERANCE = 1e-6;
 
   @Test
-  public void testEmptyDistribution() {
-    Distribution empty = Distribution.create();
-    assertThat(empty.getCount()).isEqualTo(0);
-    assertThat(empty.getSum()).isWithin(1e-5).of(0.0);
-    assertThat(empty.getMean()).isNaN();
-    assertThat(empty.getBucketCounts()).isNull();
-  }
-
-  @Test
-  public void testEmptyDistributionWithBuckets() {
-    List<Double> buckets = Arrays.asList(0.0, 1.0, 2.0);
-    Distribution empty = Distribution.create(BucketBoundaries.create(buckets));
-    assertThat(empty.getCount()).isEqualTo(0);
-    assertThat(empty.getSum()).isWithin(1e-5).of(0.0);
-    assertThat(empty.getMean()).isNaN();
-    assertThat(empty.getBucketCounts()).hasSize(4);
-    for (Long element : empty.getBucketCounts()) {
-      assertThat(element).isEqualTo(0);
-    }
-  }
-
-  @Test
-  public void testNullBoundaries() throws Exception {
-    thrown.expect(NullPointerException.class);
-    Distribution.create(null);
-  }
-
-  @Test
-  public void testUnsortedBoundaries() throws Exception {
-    List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
-    thrown.expect(IllegalArgumentException.class);
-    Distribution.create(BucketBoundaries.create(buckets));
-  }
-
-  @Test
-  public void testNoBoundaries() throws Exception {
-    List<Double> buckets = Arrays.asList();
-    thrown.expect(IllegalArgumentException.class);
-    Distribution.create(BucketBoundaries.create(buckets));
-  }
-
-  @Test
-  public void testDistribution() {
-    Distribution distribution = Distribution.create();
-    distribution.add(1.0);
-    assertThat(distribution.getCount()).isEqualTo(1);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(1.0);
-    distribution.add(1.0);
-    assertThat(distribution.getCount()).isEqualTo(2);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(2.0);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(1.0);
-    distribution.add(7.0);
-    assertThat(distribution.getCount()).isEqualTo(3);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(9.0);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(3.0);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(1.0);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(7.0);
-    distribution.add(-4.6);
-    assertThat(distribution.getCount()).isEqualTo(4);
-    assertThat(distribution.getSum()).isWithin(1e-5).of(4.4);
-    assertThat(distribution.getMean()).isWithin(1e-5).of(1.1);
-    assertThat(distribution.getRange().getMin()).isWithin(1e-5).of(-4.6);
-    assertThat(distribution.getRange().getMax()).isWithin(1e-5).of(7.0);
+  public void testDistributionWithoutBoundaries() {
+    MutableDistribution mDistribution = MutableDistribution.create();
+    mDistribution.add(1.0);
+    mDistribution.add(2.0);
+    Distribution distribution = Distribution.create(mDistribution);
+    assertThat(distribution.getBucketBoundaries()).isNull();
     assertThat(distribution.getBucketCounts()).isNull();
-  }
-
-  @Test
-  public void testDistributionWithOneBoundary() {
-    List<Double> buckets = Arrays.asList(5.0);
-    Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
-    assertThat(distribution.getBucketCounts()).hasSize(2);
-    for (Long element : distribution.getBucketCounts()) {
-      assertThat(element).isEqualTo(0);
-    }
-    distribution.add(1.4);
-    distribution.add(5.0);
-    distribution.add(-17.0);
-    distribution.add(123.45);
-    assertThat(distribution.getCount()).isEqualTo(4);
-    assertThat(distribution.getBucketCounts().get(0)).isEqualTo(2);
-    assertThat(distribution.getBucketCounts().get(1)).isEqualTo(2);
+    assertThat(distribution.getCount()).isEqualTo(2L);
+    assertThat(distribution.getMean()).isWithin(TOLERANCE).of(1.5);
+    assertThat(distribution.getSum()).isWithin(TOLERANCE).of(3.0);
+    assertThat(distribution.getRange().getMin()).isWithin(TOLERANCE).of(1.0);
+    assertThat(distribution.getRange().getMax()).isWithin(TOLERANCE).of(2.0);
   }
 
   @Test
   public void testDistributionWithBoundaries() {
-    List<Double> buckets = Arrays.asList(-1.0, 2.0, 5.0, 20.0);
-    Distribution distribution = Distribution.create(BucketBoundaries.create(buckets));
-    assertThat(distribution.getBucketCounts()).hasSize(5);
-    for (Long element : distribution.getBucketCounts()) {
-      assertThat(element).isEqualTo(0);
-    }
-    distribution.add(-50.0);
-    distribution.add(-20.0);
-    distribution.add(4.0);
-    distribution.add(4.0);
-    distribution.add(4.999999);
-    distribution.add(5.0);
-    distribution.add(5.000001);
-    distribution.add(123.45);
-    assertThat(distribution.getCount()).isEqualTo(8);
-    assertThat(distribution.getBucketCounts().get(0)).isEqualTo(2);
-    assertThat(distribution.getBucketCounts().get(1)).isEqualTo(0);
-    assertThat(distribution.getBucketCounts().get(2)).isEqualTo(3);
-    assertThat(distribution.getBucketCounts().get(3)).isEqualTo(2);
-    assertThat(distribution.getBucketCounts().get(4)).isEqualTo(1);
+    BucketBoundaries boundaries = BucketBoundaries.create(Arrays.asList(-10.0, 10.0));
+    MutableDistribution mDistribution = MutableDistribution.create(boundaries);
+    mDistribution.add(2.0);
+    mDistribution.add(100.0);
+    mDistribution.add(-6);
+    Distribution distribution = Distribution.create(mDistribution);
+    assertThat(distribution.getBucketBoundaries()).isEqualTo(boundaries);
+    assertThat(distribution.getBucketCounts()).containsExactly(0L, 2L, 1L).inOrder();
+    assertThat(distribution.getCount()).isEqualTo(3L);
+    assertThat(distribution.getMean()).isWithin(TOLERANCE).of(32.0);
+    assertThat(distribution.getSum()).isWithin(TOLERANCE).of(96.0);
+    assertThat(distribution.getRange().getMin()).isWithin(TOLERANCE).of(-6.0);
+    assertThat(distribution.getRange().getMax()).isWithin(TOLERANCE).of(100.0);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void disallowCreatingDistributionFromNull() {
+    Distribution.create(null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void disallowCreatingRangeFromNull() {
+    Distribution.Range.create(null);
+  }
+
+  @Test
+  public void testDistributionEquals() {
+    BucketBoundaries boundaries = BucketBoundaries.create(Arrays.asList(-10.0, 10.0));
+    MutableDistribution mDistribution = MutableDistribution.create(boundaries);
+    mDistribution.add(1);
+    mDistribution.add(-1);
+    Distribution distribution1 = Distribution.create(mDistribution);
+    Distribution distribution2 = Distribution.create(mDistribution);
+    mDistribution.add(0);
+    Distribution distribution3 = Distribution.create(mDistribution);
+    new EqualsTester()
+        .addEqualityGroup(distribution1, distribution2)
+        .addEqualityGroup(distribution3)
+        .testEquals();
   }
 }
