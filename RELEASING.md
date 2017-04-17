@@ -135,7 +135,7 @@ Before building/deploying, be sure to switch to the appropriate branch or tag.
 For the current release use:
 
 ```bash
-$ git checkout -b v$MAJOR.$MINOR.$PATCH
+$ git checkout -b v$MAJOR.$MINOR.$PATCH tags/v$MAJOR.$MINOR.$PATCH
 ```
 
 ### Initial Deployment
