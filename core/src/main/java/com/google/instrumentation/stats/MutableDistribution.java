@@ -21,7 +21,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /** Mutable version of {@link Distribution}. */
-public final class MutableDistribution {
+final class MutableDistribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
   private Range range = Range.create(); // Range of values in the population.
@@ -36,7 +36,7 @@ public final class MutableDistribution {
    *
    * @return a new, empty {@code MutableDistribution}.
    */
-  public static final MutableDistribution create() {
+  static final MutableDistribution create() {
     return new MutableDistribution(null);
   }
 
@@ -47,13 +47,13 @@ public final class MutableDistribution {
    *     MutableDistribution}.
    * @return a new, empty {@code MutableDistribution} with the specified boundaries.
    */
-  public static final MutableDistribution create(BucketBoundaries bucketBoundaries) {
+  static final MutableDistribution create(BucketBoundaries bucketBoundaries) {
     checkNotNull(bucketBoundaries, "bucketBoundaries Object should not be null.");
     return new MutableDistribution(bucketBoundaries);
   }
 
   // Returns true if the distribution has histogram buckets.
-  // TODO(sebright): Decide whether to make this method public.
+  // TODO(sebright): Decide whether to expose this method.
   private boolean hasBuckets() {
     return (bucketBoundaries != null);
   }
@@ -70,7 +70,7 @@ public final class MutableDistribution {
    *
    * @return The number of values in the population.
    */
-  public long getCount() {
+  long getCount() {
     return count;
   }
 
@@ -80,7 +80,7 @@ public final class MutableDistribution {
    *
    * @return The arithmetic mean of all values in the population.
    */
-  public double getMean() {
+  double getMean() {
     return sum / count;
   }
 
@@ -90,7 +90,7 @@ public final class MutableDistribution {
    *
    * @return The sum of values in the population.
    */
-  public double getSum() {
+  double getSum() {
     return sum;
   }
 
@@ -100,7 +100,7 @@ public final class MutableDistribution {
    *
    * @return The {code Range} representing the range of population values.
    */
-  public Range getRange() {
+  Range getRange() {
     return range;
   }
 
@@ -110,7 +110,7 @@ public final class MutableDistribution {
    * @return The bucket boundaries, or {@code null} if there is no histogram.
    */
   @Nullable
-  public BucketBoundaries getBucketBoundaries() {
+  BucketBoundaries getBucketBoundaries() {
     return bucketBoundaries;
   }
 
@@ -122,7 +122,7 @@ public final class MutableDistribution {
    *     histogram.
    */
   @Nullable
-  public List<Long> getBucketCounts() {
+  List<Long> getBucketCounts() {
     if (hasBuckets()) {
       List<Long> boxedBucketCounts = new ArrayList<Long>(bucketCounts.length);
       for (long bucketCount : bucketCounts) {
@@ -134,7 +134,7 @@ public final class MutableDistribution {
   }
 
   @Nullable
-  long[] getBucketCountsArray() {
+  long[] getInternalBucketCountsArray() {
     return hasBuckets() ? Arrays.copyOf(bucketCounts, bucketCounts.length) : null;
   }
 
@@ -154,7 +154,7 @@ public final class MutableDistribution {
    *
    * @param value new value to be added to population
    */
-  public void add(double value) {
+  void add(double value) {
     count++;
     sum += value;
     range.add(value);
@@ -164,14 +164,14 @@ public final class MutableDistribution {
   }
 
   /** Mutable version of {@code Distribution.Range}. */
-  public static final class Range {
+  static final class Range {
     // Maintain the invariant that max should always be greater than or equal to min.
     // TODO(songya): needs to determine how we would want to initialize min and max.
     private Double min = null;
     private Double max = null;
 
     /** Construct a new, empty {@code Range}. */
-    public static final Range create() {
+    static final Range create() {
       return new Range();
     }
 
@@ -180,7 +180,7 @@ public final class MutableDistribution {
      *
      * @return The minimum of the population values.
      */
-    public double getMin() {
+    double getMin() {
       return min;
     }
 
@@ -189,7 +189,7 @@ public final class MutableDistribution {
      *
      * @return The maximum of the population values.
      */
-    public double getMax() {
+    double getMax() {
       return max;
     }
 
@@ -198,7 +198,7 @@ public final class MutableDistribution {
      *
      * @param value the new value
      */
-    public void add(double value) {
+    void add(double value) {
       if (min == null || value < min) {
         min = value;
       }
