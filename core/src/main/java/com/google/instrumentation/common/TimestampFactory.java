@@ -14,7 +14,7 @@
 package com.google.instrumentation.common;
 
 import com.google.common.annotations.VisibleForTesting;
-
+import com.google.instrumentation.internal.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
