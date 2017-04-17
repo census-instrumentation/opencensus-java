@@ -53,6 +53,9 @@ be used to create all `v0.4` tags (e.g. `v0.4.0`, `v0.4.1`).
 In this section upstream repository refers to the main instrumentation-java
 github repository.
 
+Before any push to the upstream repository you need to create a [personal access
+token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/).
+
 1.  Create the release branch and push it to GitHub:
 
     ```bash
@@ -120,3 +123,45 @@ github repository.
     $ git push upstream v$MAJOR.$MINOR.$PATCH
     $ git push upstream v$MAJOR.$MINOR.x
     ```
+
+## Deployment
+
+Deployment to Maven Central (or the snapshot repo) is for all of the artifacts
+from the project.
+
+### Branch
+
+Before building/deploying, be sure to switch to the appropriate branch or tag.
+For the current release use:
+
+```bash
+$ git checkout -b v$MAJOR.$MINOR.$PATCH tags/v$MAJOR.$MINOR.$PATCH
+```
+
+### Initial Deployment
+
+The following command will build the whole project and upload it to Maven
+Central. Parallel building [is not safe during
+uploadArchives](https://issues.gradle.org/browse/GRADLE-3420).
+
+```bash
+$ ./gradlew clean build && ./gradlew -Dorg.gradle.parallel=false uploadArchives
+```
+
+If the version has the `-SNAPSHOT` suffix, the artifacts will automatically go
+to the snapshot repository. Otherwise it's a release deployment and the
+artifacts will go to a staging repository.
+
+When deploying a Release, the deployment will create [a new staging
+repository](https://oss.sonatype.org/#stagingRepositories). You'll need to look
+up the ID in the OSSRH UI (usually in the form of `instrumentation-*`).
+
+## Releasing on Maven Central
+
+Once all of the artifacts have been pushed to the staging repository, the
+repository must first be `closed`, which will trigger several sanity checks on
+the repository. If this completes successfully, the repository can then be
+`released`, which will begin the process of pushing the new artifacts to Maven
+Central (the staging repository will be destroyed in the process). You can see
+the complete process for releasing to Maven Central on the [OSSRH
+site](http://central.sonatype.org/pages/releasing-the-deployment.html).
