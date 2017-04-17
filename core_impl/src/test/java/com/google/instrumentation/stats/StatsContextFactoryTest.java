@@ -41,6 +41,16 @@ public class StatsContextFactoryTest {
   }
 
   @Test
+  public void testVersionAndValueTypeConstants() {
+    // Refer to the JavaDoc on StatsSerializer for the definitions on these constants.
+    assertThat(StatsSerializer.VERSION_ID).isEqualTo(0);
+    assertThat(StatsSerializer.VALUE_TYPE_STRING).isEqualTo(0);
+    assertThat(StatsSerializer.VALUE_TYPE_INTEGER).isEqualTo(1);
+    assertThat(StatsSerializer.VALUE_TYPE_TRUE).isEqualTo(2);
+    assertThat(StatsSerializer.VALUE_TYPE_FALSE).isEqualTo(3);
+  }
+
+  @Test
   public void testDeserializeNoTags() throws Exception {
     StatsContext expected = Stats.getStatsContextFactory().getDefault();
     StatsContext actual = testDeserialize(
