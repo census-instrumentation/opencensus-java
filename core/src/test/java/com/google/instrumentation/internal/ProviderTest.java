@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.common;
+package com.google.instrumentation.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -47,7 +47,7 @@ public class ProviderTest {
   public void testGoodClass() {
     assertThat(
             Provider.<GoodClass>newInstance(
-                "com.google.instrumentation.common.ProviderTest$GoodClass", null))
+                "com.google.instrumentation.internal.ProviderTest$GoodClass", null))
         .isNotNull();
   }
 
@@ -55,7 +55,7 @@ public class ProviderTest {
   public void testBadClass() {
     assertThat(
             Provider.<GoodClass>newInstance(
-                "com.google.instrumentation.common.ProviderTest$BadClass", null))
+                "com.google.instrumentation.internal.ProviderTest$BadClass", null))
         .isNull();
   }
 
@@ -63,7 +63,7 @@ public class ProviderTest {
   public void createInstance_ThrowsErrorWhenClassIsPrivate() throws ClassNotFoundException {
     Provider.createInstance(
         Class.forName(
-            "com.google.instrumentation.common.ProviderTest$PrivateClass",
+            "com.google.instrumentation.internal.ProviderTest$PrivateClass",
             true,
             Provider.getCorrectClassLoader(ProviderTest.class)),
         PrivateClass.class);
@@ -74,7 +74,7 @@ public class ProviderTest {
       throws ClassNotFoundException {
     Provider.createInstance(
         Class.forName(
-            "com.google.instrumentation.common.ProviderTest$PrivateConstructorClass",
+            "com.google.instrumentation.internal.ProviderTest$PrivateConstructorClass",
             true,
             Provider.getCorrectClassLoader(ProviderTest.class)),
         PrivateConstructorClass.class);
@@ -85,7 +85,7 @@ public class ProviderTest {
       throws ClassNotFoundException {
     Provider.createInstance(
         Class.forName(
-            "com.google.instrumentation.common.ProviderTest$NoDefaultConstructorClass",
+            "com.google.instrumentation.internal.ProviderTest$NoDefaultConstructorClass",
             true,
             Provider.getCorrectClassLoader(ProviderTest.class)),
         NoDefaultConstructorClass.class);
@@ -95,7 +95,7 @@ public class ProviderTest {
   public void createInstance_ThrowsErrorWhenClassIsNotASubclass() throws ClassNotFoundException {
     Provider.createInstance(
         Class.forName(
-            "com.google.instrumentation.common.ProviderTest$GoodClass",
+            "com.google.instrumentation.internal.ProviderTest$GoodClass",
             true,
             Provider.getCorrectClassLoader(ProviderTest.class)),
         MyInterface.class);
@@ -106,7 +106,7 @@ public class ProviderTest {
     assertThat(
             Provider.createInstance(
                 Class.forName(
-                    "com.google.instrumentation.common.ProviderTest$GoodClass",
+                    "com.google.instrumentation.internal.ProviderTest$GoodClass",
                     true,
                     Provider.getCorrectClassLoader(ProviderTest.class)),
                 GoodClass.class))
@@ -118,7 +118,7 @@ public class ProviderTest {
     assertThat(
             Provider.createInstance(
                 Class.forName(
-                    "com.google.instrumentation.common.ProviderTest$MyInterfaceImpl",
+                    "com.google.instrumentation.internal.ProviderTest$MyInterfaceImpl",
                     true,
                     Provider.getCorrectClassLoader(ProviderTest.class)),
                 MyInterface.class))

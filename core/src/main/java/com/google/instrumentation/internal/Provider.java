@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.common;
+package com.google.instrumentation.internal;
 
 import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
