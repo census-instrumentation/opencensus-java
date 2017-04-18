@@ -32,7 +32,7 @@ public final class DistributionAggregationTest {
 
     assertThat(aggr.getCount()).isEqualTo(COUNT);
     assertThat(aggr.getMean()).isWithin(TOLERANCE).of(MEAN);
-    assertThat(aggr.getSum()).isEqualTo(SUM);
+    assertThat(aggr.getSum()).isWithin(TOLERANCE).of(SUM);
     assertThat(aggr.getRange().getMin()).isWithin(TOLERANCE).of(MIN);
     assertThat(aggr.getRange().getMax()).isWithin(TOLERANCE).of(MAX);
     assertThat(aggr.getTags()).hasSize(TAGS.size());
@@ -49,7 +49,7 @@ public final class DistributionAggregationTest {
 
     assertThat(aggr.getCount()).isEqualTo(COUNT);
     assertThat(aggr.getMean()).isWithin(TOLERANCE).of(MEAN);
-    assertThat(aggr.getSum()).isEqualTo(SUM);
+    assertThat(aggr.getSum()).isWithin(TOLERANCE).of(SUM);
     assertThat(aggr.getRange().getMin()).isWithin(TOLERANCE).of(MIN);
     assertThat(aggr.getRange().getMax()).isWithin(TOLERANCE).of(MAX);
     assertThat(aggr.getBucketCounts()).isNotNull();
