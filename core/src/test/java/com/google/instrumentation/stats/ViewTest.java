@@ -56,8 +56,10 @@ public final class ViewTest {
     distribution2.add(50.0);
 
     final List<DistributionAggregation> aggregations = Arrays.asList(
-        DistributionAggregation.create(distribution1, tags1, Arrays.asList(1L, 1L, 1L, 1L, 1L)),
-        DistributionAggregation.create(distribution2, tags2, Arrays.asList(2L, 2L, 2L, 2L, 2L)));
+        DistributionAggregation.create(
+            Distribution.create(distribution1), tags1, Arrays.asList(1L, 1L, 1L, 1L, 1L)),
+        DistributionAggregation.create(
+            Distribution.create(distribution2), tags2, Arrays.asList(2L, 2L, 2L, 2L, 2L)));
     final Timestamp start = Timestamp.fromMillis(1000);
     final Timestamp end = Timestamp.fromMillis(2000);
     final View view = DistributionView.create(viewDescriptor, aggregations, start, end);

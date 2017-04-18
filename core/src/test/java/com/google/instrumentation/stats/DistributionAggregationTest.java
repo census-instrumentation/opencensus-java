@@ -30,11 +30,11 @@ public final class DistributionAggregationTest {
   public void testDistributionAggregationWithOutBuckets() {
     DistributionAggregation aggr = DistributionAggregation.create(distribution, TAGS);
 
-    assertThat(aggr.getCount()).isEqualTo(COUNT);
-    assertThat(aggr.getMean()).isWithin(TOLERANCE).of(MEAN);
-    assertThat(aggr.getSum()).isWithin(TOLERANCE).of(SUM);
-    assertThat(aggr.getRange().getMin()).isWithin(TOLERANCE).of(MIN);
-    assertThat(aggr.getRange().getMax()).isWithin(TOLERANCE).of(MAX);
+    assertThat(aggr.getCountFromDistribution()).isEqualTo(COUNT);
+    assertThat(aggr.getMeanFromDistribution()).isWithin(TOLERANCE).of(MEAN);
+    assertThat(aggr.getSumFromDistribution()).isWithin(TOLERANCE).of(SUM);
+    assertThat(aggr.getRangeFromDistribution().getMin()).isWithin(TOLERANCE).of(MIN);
+    assertThat(aggr.getRangeFromDistribution().getMax()).isWithin(TOLERANCE).of(MAX);
     assertThat(aggr.getTags()).hasSize(TAGS.size());
     for (int i = 0; i < aggr.getTags().size(); i++) {
       assertThat(aggr.getTags().get(i)).isEqualTo(TAGS.get(i));
@@ -47,11 +47,11 @@ public final class DistributionAggregationTest {
     List<Long> buckets = Arrays.asList(2L, 2L, 2L, 2L, 2L);
     DistributionAggregation aggr = DistributionAggregation.create(distribution, TAGS, buckets);
 
-    assertThat(aggr.getCount()).isEqualTo(COUNT);
-    assertThat(aggr.getMean()).isWithin(TOLERANCE).of(MEAN);
-    assertThat(aggr.getSum()).isWithin(TOLERANCE).of(SUM);
-    assertThat(aggr.getRange().getMin()).isWithin(TOLERANCE).of(MIN);
-    assertThat(aggr.getRange().getMax()).isWithin(TOLERANCE).of(MAX);
+    assertThat(aggr.getCountFromDistribution()).isEqualTo(COUNT);
+    assertThat(aggr.getMeanFromDistribution()).isWithin(TOLERANCE).of(MEAN);
+    assertThat(aggr.getSumFromDistribution()).isWithin(TOLERANCE).of(SUM);
+    assertThat(aggr.getRangeFromDistribution().getMin()).isWithin(TOLERANCE).of(MIN);
+    assertThat(aggr.getRangeFromDistribution().getMax()).isWithin(TOLERANCE).of(MAX);
     assertThat(aggr.getBucketCounts()).isNotNull();
     assertThat(aggr.getBucketCounts()).hasSize(buckets.size());
     assertThat(aggr.getTags()).hasSize(TAGS.size());
@@ -65,12 +65,13 @@ public final class DistributionAggregationTest {
 
   private static final double TOLERANCE = 1e-5;
 
-  private static final MutableDistribution distribution = MutableDistribution.create();
+  private static final MutableDistribution mutableDistribution = MutableDistribution.create();
   static {
-    distribution.add(1.0);
-    distribution.add(2.0);
-    distribution.add(6.0);
+    mutableDistribution.add(1.0);
+    mutableDistribution.add(2.0);
+    mutableDistribution.add(6.0);
   }
+  private static final Distribution distribution = Distribution.create(mutableDistribution);
   private static final int COUNT = 3;
   private static final double MEAN = 3.0;
   private static final double SUM = 9.0;
