@@ -13,12 +13,12 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.stats.MutableDistribution.Range;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
-// TODO(aveitch) The below class should be changed to use a Distribution as a private member.
 /**
  * An aggregation of data based on distributions.
  *
@@ -34,17 +34,17 @@ public final class DistributionAggregation {
    * Constructs a new {@link DistributionAggregation}.
    */
   public static final DistributionAggregation create(
-      long count, double mean, double sum, Range range, List<Tag> tags) {
-    return new DistributionAggregation(count, mean, sum, range, tags, null);
+      MutableDistribution distribution, List<Tag> tags) {
+    return new DistributionAggregation(distribution, tags, null);
   }
 
   /**
    * Constructs a new {@link DistributionAggregation} with the optional {@code bucketCount}s.
    */
   public static final DistributionAggregation create(
-      long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
-    return new DistributionAggregation(count, mean, sum, range, tags,
-        Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
+      MutableDistribution distribution, List<Tag> tags, List<Long> bucketCounts) {
+    return new DistributionAggregation(
+        distribution, tags, Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
   }
 
   /**
@@ -61,7 +61,7 @@ public final class DistributionAggregation {
    * The number of values in the population. Must be non-negative.
    */
   public long getCount() {
-    return count;
+    return distribution.getCount();
   }
 
   /**
@@ -69,7 +69,7 @@ public final class DistributionAggregation {
    * value must also be zero.
    */
   public double getMean() {
-    return mean;
+    return distribution.getMean();
   }
 
   /**
@@ -77,7 +77,7 @@ public final class DistributionAggregation {
    * also be zero.
    */
   public double getSum() {
-    return sum;
+    return distribution.getSum();
   }
 
   /**
@@ -85,7 +85,7 @@ public final class DistributionAggregation {
    * implementation-dependent.
    */
   public Range getRange() {
-    return range;
+    return distribution.getRange();
   }
 
   /**
@@ -113,55 +113,14 @@ public final class DistributionAggregation {
     return bucketCounts;
   }
 
-  private final long count;
-  private final double mean;
-  private final double sum;
-  private final Range range;
+  private final MutableDistribution distribution;
   private final List<Tag> tags;
   private final List<Long> bucketCounts;
 
   private DistributionAggregation(
-      long count, double mean, double sum, Range range, List<Tag> tags,
-      @Nullable List<Long> bucketCounts) {
-    this.count = count;
-    this.mean = mean;
-    this.sum = sum;
-    this.range = range;
+      MutableDistribution distribution, List<Tag> tags, @Nullable List<Long> bucketCounts) {
+    this.distribution = distribution;
     this.tags = tags;
     this.bucketCounts = bucketCounts;
-  }
-
-  /**
-   * Describes a range of population values.
-   */
-  public static final class Range {
-    /**
-     * Constructs a new {@link Range}.
-     */
-    public static final Range create(double min, double max) {
-      return new Range(min, max);
-    }
-
-    /**
-     * The minimum of the population values.
-     */
-    public double getMin() {
-      return min;
-    }
-
-    /**
-     * The maximum of the population values.
-     */
-    public double getMax() {
-      return max;
-    }
-
-    private double min;
-    private double max;
-
-    private Range(double min, double max) {
-      this.min = min;
-      this.max = max;
-    }
   }
 }

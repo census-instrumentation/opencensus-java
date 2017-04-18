@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
-import com.google.instrumentation.stats.DistributionAggregation.Range;
 import com.google.instrumentation.stats.IntervalAggregation.Interval;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
@@ -47,11 +46,18 @@ public final class ViewTest {
     final DistributionViewDescriptor viewDescriptor =
         DistributionViewDescriptor.create(
             name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
+    final MutableDistribution distribution1 = MutableDistribution.create();
+    final MutableDistribution distribution2 = MutableDistribution.create();
+    distribution1.add(1.0);
+    distribution1.add(2.0);
+    distribution1.add(5.0);
+    distribution2.add(10.0);
+    distribution2.add(20.0);
+    distribution2.add(50.0);
+
     final List<DistributionAggregation> aggregations = Arrays.asList(
-        DistributionAggregation.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
-            Arrays.asList(1L, 1L, 1L, 1L, 1L)),
-        DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), tags2,
-            Arrays.asList(2L, 2L, 2L, 2L, 2L)));
+        DistributionAggregation.create(distribution1, tags1, Arrays.asList(1L, 1L, 1L, 1L, 1L)),
+        DistributionAggregation.create(distribution2, tags2, Arrays.asList(2L, 2L, 2L, 2L, 2L)));
     final Timestamp start = Timestamp.fromMillis(1000);
     final Timestamp end = Timestamp.fromMillis(2000);
     final View view = DistributionView.create(viewDescriptor, aggregations, start, end);
