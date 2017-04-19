@@ -13,8 +13,6 @@
 
 package com.google.instrumentation.stats;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
