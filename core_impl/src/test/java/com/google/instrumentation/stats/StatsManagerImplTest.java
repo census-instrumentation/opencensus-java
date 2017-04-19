@@ -159,10 +159,12 @@ public class StatsManagerImplTest {
   @Test
   public void testRecordWithEmptyStatsContext() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    thrown.expect(IllegalArgumentException.class);
     // DEFAULT doesn't have tags. Should have TagKey "method" as defined in RpcConstants.
     statsManager.record(StatsContextFactoryImpl.DEFAULT,
         MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    DistributionView view =
+        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(view.getDistributionAggregations()).hasSize(0);
   }
 
   @Test
@@ -178,8 +180,11 @@ public class StatsManagerImplTest {
   @Test
   public void testRecordNonExistentTag() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    thrown.expect(IllegalArgumentException.class);
     statsManager.record(new StatsContextImpl(wrongTag),
         MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    DistributionView view =
+        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    // Won't record stats if there are non existent tags.
+    assertThat(view.getDistributionAggregations()).hasSize(0);
   }
 }

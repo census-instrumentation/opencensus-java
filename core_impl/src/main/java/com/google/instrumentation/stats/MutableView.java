@@ -83,13 +83,15 @@ abstract class MutableView {
     void record(Map<String, String> tags, double value) {
       final List<TagKey> tagKeys = this.distributionViewDescriptor.getTagKeys();
       if (tags.size() != tagKeys.size()) {
-        throw new IllegalArgumentException(
-            "TagKeys don't match with the keys in this view descriptor.");
+        // TODO(songya): need to determine how to handle incorrect or unregistered tags.
+        return;
       }
       final List<TagValue> tagValues = new ArrayList<TagValue>(tagKeys.size());
-      for (TagKey tagKey : tagKeys) {
+      for (int i = 0; i < tagKeys.size(); ++i) {
+        TagKey tagKey = tagKeys.get(i);
         if (!tags.containsKey(tagKey.asString())) {
-          throw new IllegalArgumentException("TagKey: " + tagKey.asString() + " is not present.");
+          // TODO(songya): need to determine how to handle incorrect or unregistered tags.
+          return;
         }
         tagValues.add(TagValue.create(tags.get(tagKey.asString())));
       }
