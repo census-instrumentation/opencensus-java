@@ -21,8 +21,6 @@ import com.google.instrumentation.stats.MutableView.MutableDistributionView;
 import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -118,15 +116,8 @@ public final class StatsManagerImpl extends StatsManager {
       implements Function<DistributionViewDescriptor, MutableView> {
     @Override
     public MutableView apply(DistributionViewDescriptor viewDescriptor) {
-      List<MutableDistribution> distributions = new ArrayList<MutableDistribution>();
-      List<Double> bucketBoundaries =
-          viewDescriptor.getDistributionAggregationDescriptor().getBucketBoundaries();
-      // TODO(songya): only add the MutableDistributions when we receive new combinations of tags.
-      distributions.add(
-          MutableDistribution.create(
-              bucketBoundaries == null ? null : BucketBoundaries.create(bucketBoundaries)));
-      return MutableDistributionView.create(viewDescriptor, distributions,
-          Timestamp.fromMillis(System.currentTimeMillis()));
+      return MutableDistributionView.create(
+          viewDescriptor, Timestamp.fromMillis(System.currentTimeMillis()));
     }
   }
 

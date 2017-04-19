@@ -17,7 +17,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
-import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -34,7 +33,6 @@ public class MeasurementDescriptorToViewMapTest {
   public void testPutAndGetView() {
     MutableView expected = MutableDistributionView.create(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
-        new ArrayList<MutableDistribution>(),
         Timestamp.fromMillis(System.currentTimeMillis()));
     measurementDescriptorToViewMap.putMutableView(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY.getMeasurementDescriptorName(), expected);

@@ -19,8 +19,10 @@ import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * A mutable version of {@link View}, used for recording stats and start/end time.
@@ -61,10 +63,9 @@ abstract class MutableView {
     /**
      * Constructs a new {@link MutableDistributionView}.
      */
-    static MutableDistributionView create(DistributionViewDescriptor distributionViewDescriptor,
-        List<MutableDistribution> distributions, Timestamp start) {
-      return new MutableDistributionView(
-          distributionViewDescriptor, distributions, start);
+    static MutableDistributionView create(
+        DistributionViewDescriptor distributionViewDescriptor, Timestamp start) {
+      return new MutableDistributionView(distributionViewDescriptor, start);
     }
 
     @Override
@@ -80,22 +81,41 @@ abstract class MutableView {
 
     @Override
     void record(Map<String, String> tags, double value) {
-      // TODO(songya): compare tags with tagKeys in ViewDescriptor
-      for (MutableDistribution distribution : mutableDistributions) {
-        distribution.add(value);
+      final List<TagKey> tagKeys = this.distributionViewDescriptor.getTagKeys();
+      if (tags.size() != tagKeys.size()) {
+        throw new IllegalArgumentException(
+            "TagKeys don't match with the keys in this view descriptor.");
       }
+      final List<TagValue> tagValues = new ArrayList<TagValue>(tagKeys.size());
+      for (TagKey tagKey : tagKeys) {
+        if (!tags.containsKey(tagKey.asString())) {
+          throw new IllegalArgumentException("TagKey: " + tagKey.asString() + " is not present.");
+        }
+        tagValues.add(TagValue.create(tags.get(tagKey.asString())));
+      }
+
+      if (!tagValueDistributionMap.containsKey(tagValues)) {
+        final List<Double> bucketBoundaries =
+            this.distributionViewDescriptor.getDistributionAggregationDescriptor()
+                .getBucketBoundaries();
+        final MutableDistribution distribution =
+            bucketBoundaries == null ? MutableDistribution.create()
+                : MutableDistribution.create(BucketBoundaries.create(bucketBoundaries));
+        tagValueDistributionMap.put(tagValues, distribution);
+      }
+      tagValueDistributionMap.get(tagValues).add(value);
     }
 
     @Override
     final View toView() {
       final List<DistributionAggregation> distributionAggregations =
           new ArrayList<DistributionAggregation>();
-      for (MutableDistribution distribution : mutableDistributions) {
+      for (Entry<List<TagValue>, MutableDistribution> entry : tagValueDistributionMap.entrySet()) {
+        MutableDistribution distribution = entry.getValue();
         distributionAggregations.add(
             DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
-                distribution.getSum(),
-                null, null,  // TODO(songya): convert Range and generate List<Tag>
-                distribution.getBucketCounts()));
+                distribution.getSum(), convertRange(distribution.getRange()),
+                generateTags(entry.getKey()), distribution.getBucketCounts()));
       }
       return DistributionView.create(distributionViewDescriptor, distributionAggregations, start,
           Timestamp.fromMillis(System.currentTimeMillis()));
@@ -109,15 +129,30 @@ abstract class MutableView {
     }
 
     private final DistributionViewDescriptor distributionViewDescriptor;
-    // TODO(songya): change to Map<List<TagValue>, Distribution> to record Tag Values.
-    private final List<MutableDistribution> mutableDistributions;
+    private final Map<List<TagValue>, MutableDistribution> tagValueDistributionMap;
     private final Timestamp start;
 
-    private MutableDistributionView(DistributionViewDescriptor distributionViewDescriptor,
-        List<MutableDistribution> mutableDistributions, Timestamp start) {
+    private MutableDistributionView(
+        DistributionViewDescriptor distributionViewDescriptor, Timestamp start) {
       this.distributionViewDescriptor = distributionViewDescriptor;
-      this.mutableDistributions = mutableDistributions;
+      this.tagValueDistributionMap = new HashMap<List<TagValue>, MutableDistribution>();
       this.start = start;
+    }
+
+    private final List<Tag> generateTags(List<TagValue> tagValues) {
+      final List<Tag> tags = new ArrayList<Tag>(tagValues.size());
+      int i = 0;
+      for (TagKey tagKey : this.distributionViewDescriptor.getTagKeys()) {
+        tags.add(Tag.create(tagKey, tagValues.get(i)));
+        ++i;
+      }
+      return tags;
+    }
+
+    // TODO(songya): remove DistributionAggregation.Range, then remove this method
+    private static final DistributionAggregation.Range convertRange(
+        MutableDistribution.Range range) {
+      return DistributionAggregation.Range.create(range.getMin(), range.getMax());
     }
   }
 
