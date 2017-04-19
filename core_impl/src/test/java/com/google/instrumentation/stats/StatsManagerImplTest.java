@@ -136,9 +136,9 @@ public class StatsManagerImplTest {
     assertThat(distributionAggregation2.getTags().get(0).getValue()).isEqualTo(tagValue2);
   }
 
-  private void verifyDistributionAggregation(DistributionAggregation distributionAggregation,
-      int bucketCountsSize, int count, double sum, double mean, double min, double max,
-      int tagsSize) {
+  private static void verifyDistributionAggregation(
+      DistributionAggregation distributionAggregation, int bucketCountsSize, int count, double sum,
+      double mean, double min, double max, int tagsSize) {
     assertThat(distributionAggregation.getBucketCounts().size()).isEqualTo(bucketCountsSize);
     assertThat(distributionAggregation.getCount()).isEqualTo(count);
     assertThat(distributionAggregation.getSum()).isWithin(TOLERANCE).of(sum);
