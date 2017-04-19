@@ -42,6 +42,7 @@ public class StatsManagerImplTest {
   private static final Map<String, String> oneTag = new HashMap<String, String>();
   private static final Map<String, String> anotherTag = new HashMap<String, String>();
   private static final Map<String, String> wrongTag = new HashMap<String, String>();
+
   static {
     oneTag.put(tagKey.asString(), tagValue1.asString());
     anotherTag.put(tagKey.asString(), tagValue2.asString());
@@ -65,7 +66,7 @@ public class StatsManagerImplTest {
   }
 
   @Test
-  public void testRegisterViewDescriptorTwice(){
+  public void testRegisterViewDescriptorTwice() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
@@ -96,7 +97,7 @@ public class StatsManagerImplTest {
     assertThat(distributionAggregations).hasSize(1);
     DistributionAggregation distributionAggregation = distributionAggregations.get(0);
     verifyDistributionAggregation(distributionAggregation,
-        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 4,100.0,25.0,10.0,40.0,1);
+        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 4, 100.0, 25.0, 10.0, 40.0, 1);
     List<Tag> tags = distributionAggregation.getTags();
     assertThat(tags.get(0).getKey()).isEqualTo(tagKey);
     assertThat(tags.get(0).getValue()).isEqualTo(tagValue1);
@@ -119,9 +120,9 @@ public class StatsManagerImplTest {
     DistributionAggregation distributionAggregation1 = distributionAggregations.get(0);
     DistributionAggregation distributionAggregation2 = distributionAggregations.get(1);
     verifyDistributionAggregation(distributionAggregation1,
-        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 1,10.0,10.0,10.0,10.0,1);
+        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 1, 10.0, 10.0, 10.0, 10.0, 1);
     verifyDistributionAggregation(distributionAggregation2,
-        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 2,80.0,40.0,30.0,50.0,1);
+        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 2, 80.0, 40.0, 30.0, 50.0, 1);
     assertThat(distributionAggregation1.getTags().get(0).getKey()).isEqualTo(tagKey);
     assertThat(distributionAggregation1.getTags().get(0).getValue()).isEqualTo(tagValue1);
     assertThat(distributionAggregation2.getTags().get(0).getKey()).isEqualTo(tagKey);
