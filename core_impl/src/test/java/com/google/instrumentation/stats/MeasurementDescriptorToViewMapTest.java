@@ -17,7 +17,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
-import com.google.instrumentation.stats.View.DistributionView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
