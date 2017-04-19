@@ -34,9 +34,22 @@ final class MeasurementDescriptorToViewMap {
           HashMultimap.<MeasurementDescriptor.Name, MutableView>create());
 
   /**
-   * Returns a {@link MutableView} corresponding to the given {@link ViewDescriptor}.
+   * Returns a {@link View} corresponding to the given {@link ViewDescriptor}.
    */
-  final MutableView getMutableView(ViewDescriptor viewDescriptor) {
+  final View getView(ViewDescriptor viewDescriptor) {
+    Collection<MutableView> views = mutableMap.get(
+        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
+    synchronized (mutableMap) {
+      for (MutableView view : views) {
+        if (view.getViewDescriptor().equals(viewDescriptor)) {
+          return view.toView();
+        }
+      }
+    }
+    return null;
+  }
+
+  private final MutableView getMutableView(ViewDescriptor viewDescriptor) {
     Collection<MutableView> views = mutableMap.get(
         viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
     synchronized (mutableMap) {

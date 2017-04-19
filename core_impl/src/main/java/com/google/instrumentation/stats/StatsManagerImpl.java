@@ -55,7 +55,7 @@ public final class StatsManagerImpl extends StatsManager {
               + SupportedViews.SUPPORTED_VIEW.getName());
     }
 
-    if (measurementDescriptorToViewMap.getMutableView(viewDescriptor) != null) {
+    if (measurementDescriptorToViewMap.getView(viewDescriptor) != null) {
       // Ignore views that are already registered.
       return;
     }
@@ -69,12 +69,12 @@ public final class StatsManagerImpl extends StatsManager {
 
   @Override
   public View getView(ViewDescriptor viewDescriptor) {
-    MutableView mutableView = measurementDescriptorToViewMap.getMutableView(viewDescriptor);
-    if (mutableView == null) {
+    View view = measurementDescriptorToViewMap.getView(viewDescriptor);
+    if (view == null) {
       throw new IllegalArgumentException(
           "View for view descriptor " + viewDescriptor.getName() + " not found.");
     } else {
-      return mutableView.toView();
+      return view;
     }
   }
 
@@ -121,6 +121,7 @@ public final class StatsManagerImpl extends StatsManager {
       List<MutableDistribution> distributions = new ArrayList<MutableDistribution>();
       List<Double> bucketBoundaries =
           viewDescriptor.getDistributionAggregationDescriptor().getBucketBoundaries();
+      // TODO(songya): only add the MutableDistributions when we receive new combinations of tags.
       distributions.add(
           MutableDistribution.create(
               bucketBoundaries == null ? null : BucketBoundaries.create(bucketBoundaries)));

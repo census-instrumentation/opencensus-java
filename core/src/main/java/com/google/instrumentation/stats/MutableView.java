@@ -13,6 +13,8 @@
 
 package com.google.instrumentation.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
@@ -25,6 +27,7 @@ import java.util.Map;
 /**
  * A mutable version of {@link View}, used for recording stats and start/end time.
  */
+// TODO(songya): remove or modify the methods of this class, since it's not part of the API.
 abstract class MutableView {
 
   /**
@@ -108,6 +111,7 @@ abstract class MutableView {
     }
 
     private final DistributionViewDescriptor distributionViewDescriptor;
+    // TODO(songya): change to Map<List<TagValue>, Distribution> to record Tag Values.
     private final List<MutableDistribution> mutableDistributions;
     private final Timestamp start;
 

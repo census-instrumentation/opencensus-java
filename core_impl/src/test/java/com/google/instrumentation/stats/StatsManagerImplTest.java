@@ -46,13 +46,13 @@ public class StatsManagerImplTest {
   }
 
   @Test
-  public void testRegisterUnsupportedViewDesciptor() throws Exception {
+  public void testRegisterUnsupportedViewDescriptor() throws Exception {
     thrown.expect(UnsupportedOperationException.class);
     statsManager.registerView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
   }
 
   @Test
-  public void testRegisterViewDesciptorTwice(){
+  public void testRegisterViewDescriptorTwice(){
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
