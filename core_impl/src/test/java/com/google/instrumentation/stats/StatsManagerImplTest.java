@@ -16,6 +16,7 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.common.SimpleEventQueue;
+import com.google.instrumentation.stats.View.DistributionView;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +31,8 @@ public class StatsManagerImplTest {
 
   @Rule
   public final ExpectedException thrown = ExpectedException.none();
+
+  private static final double TOLERANCE = 1e-5;
 
   private final StatsManagerImpl statsManager = new StatsManagerImpl(new SimpleEventQueue());
 
@@ -69,6 +72,13 @@ public class StatsManagerImplTest {
     statsManager.record(
         StatsContextFactoryImpl.DEFAULT,
         MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
+    DistributionView view =
+        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(view.getViewDescriptor()).isEqualTo(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(view.getDistributionAggregations()).hasSize(1);
+    assertThat(view.getDistributionAggregations().get(0).getCount()).isEqualTo(1);
+    assertThat(view.getDistributionAggregations().get(0).getSum()).isWithin(TOLERANCE).of(10.0);
+    assertThat(view.getDistributionAggregations().get(0).getMean()).isWithin(TOLERANCE).of(10.0);
   }
 
   @Test
