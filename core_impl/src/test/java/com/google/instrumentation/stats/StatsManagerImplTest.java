@@ -63,10 +63,17 @@ public class StatsManagerImplTest {
     statsManager.getView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
   }
 
-  // TODO(sebright): Turn this into a real test once StatsManagerImpl.record(...) is implemented.
-  // It currently only shows that record(...) can be called with a SimpleEventQueue.
   @Test
   public void testRecord() {
+    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.record(
+        StatsContextFactoryImpl.DEFAULT,
+        MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
+  }
+
+  @Test
+  public void testRecordWithoutRegisteringView() {
+    thrown.expect(IllegalArgumentException.class);
     statsManager.record(
         StatsContextFactoryImpl.DEFAULT,
         MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
