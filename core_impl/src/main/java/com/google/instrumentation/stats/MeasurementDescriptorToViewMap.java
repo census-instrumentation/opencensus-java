@@ -20,25 +20,40 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * A class that stores a singleton map from {@link MeasurementDescriptor.Name} to {@link View}.
+ * A class that stores a singleton map from {@link MeasurementDescriptor.Name}s to
+ * {@link MutableView}s.
  */
 final class MeasurementDescriptorToViewMap {
 
   /*
    * A synchronized singleton map that stores the one-to-many mapping from MeasurementDescriptors
-   * to Views.
+   * to MutableViews.
    */
-  private final Multimap<MeasurementDescriptor.Name, View> mutableMap =
-      Multimaps.synchronizedMultimap(HashMultimap.<MeasurementDescriptor.Name, View>create());
+  private final Multimap<MeasurementDescriptor.Name, MutableView> mutableMap =
+      Multimaps.synchronizedMultimap(
+          HashMultimap.<MeasurementDescriptor.Name, MutableView>create());
 
   /**
    * Returns a {@link View} corresponding to the given {@link ViewDescriptor}.
    */
   final View getView(ViewDescriptor viewDescriptor) {
-    Collection<View> views = mutableMap.get(
+    Collection<MutableView> views = mutableMap.get(
         viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
     synchronized (mutableMap) {
-      for (View view : views) {
+      for (MutableView view : views) {
+        if (view.getViewDescriptor().equals(viewDescriptor)) {
+          return view.toView();
+        }
+      }
+    }
+    return null;
+  }
+
+  private final MutableView getMutableView(ViewDescriptor viewDescriptor) {
+    Collection<MutableView> views = mutableMap.get(
+        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
+    synchronized (mutableMap) {
+      for (MutableView view : views) {
         if (view.getViewDescriptor().equals(viewDescriptor)) {
           return view;
         }
@@ -50,7 +65,7 @@ final class MeasurementDescriptorToViewMap {
   /**
    * Map a new {@link View} to a {@link MeasurementDescriptor.Name}.
    */
-  void putView(MeasurementDescriptor.Name name, View view) {
+  void putMutableView(MeasurementDescriptor.Name name, MutableView view) {
     mutableMap.put(name, view);
   }
 
@@ -65,12 +80,13 @@ final class MeasurementDescriptorToViewMap {
     }
   }
 
-  @SuppressWarnings("MethodCanBeStatic")
   private void recordSupportedMeasurement(Map<String, String> tags, double value) {
-    //  // TODO(sebright): Record the value in the view.
-    //
-    //  synchronized (mutableMap) {
-    //    View view = getView(SupportedViews.SUPPORTED_VIEW);
-    //  }
+    MutableView view = getMutableView(SupportedViews.SUPPORTED_VIEW);
+    if (view == null) {
+      throw new IllegalArgumentException("View not registered yet.");
+    }
+    synchronized (mutableMap) {
+      view.record(tags, value);
+    }
   }
 }

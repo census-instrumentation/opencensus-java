@@ -17,10 +17,12 @@ import com.google.instrumentation.common.DisruptorEventQueue;
 import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
-import com.google.instrumentation.stats.View.DistributionView;
-import com.google.instrumentation.stats.View.IntervalView;
+import com.google.instrumentation.stats.MutableView.MutableDistributionView;
+import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,12 +60,11 @@ public final class StatsManagerImpl extends StatsManager {
       return;
     }
 
-    // TODO(songya): Extend View class and construct View with internal Distributions.
-    View newView = viewDescriptor.match(
-        new CreateDistributionViewFunction(), new CreateIntervalViewFunction());
+    MutableView mutableView = viewDescriptor.match(
+        new CreateMutableDistributionViewFunction(), new CreateMutableIntervalViewFunction());
 
-    measurementDescriptorToViewMap.putView(
-        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), newView);
+    measurementDescriptorToViewMap.putMutableView(
+        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
   }
 
   @Override
@@ -113,26 +114,28 @@ public final class StatsManagerImpl extends StatsManager {
     }
   }
 
-  private static final class CreateDistributionViewFunction
-      implements Function<DistributionViewDescriptor, View> {
+  private static final class CreateMutableDistributionViewFunction
+      implements Function<DistributionViewDescriptor, MutableView> {
     @Override
-    public View apply(DistributionViewDescriptor viewDescriptor) {
-      // TODO(songya): Create Distribution Aggregations from internal Distributions,
-      // update the start and end time.
-      return DistributionView.create(
-          viewDescriptor,
-          null,
-          Timestamp.fromMillis(System.currentTimeMillis()),
+    public MutableView apply(DistributionViewDescriptor viewDescriptor) {
+      List<MutableDistribution> distributions = new ArrayList<MutableDistribution>();
+      List<Double> bucketBoundaries =
+          viewDescriptor.getDistributionAggregationDescriptor().getBucketBoundaries();
+      // TODO(songya): only add the MutableDistributions when we receive new combinations of tags.
+      distributions.add(
+          MutableDistribution.create(
+              bucketBoundaries == null ? null : BucketBoundaries.create(bucketBoundaries)));
+      return MutableDistributionView.create(viewDescriptor, distributions,
           Timestamp.fromMillis(System.currentTimeMillis()));
     }
   }
 
-  private static final class CreateIntervalViewFunction
-      implements Function<IntervalViewDescriptor, View> {
+  private static final class CreateMutableIntervalViewFunction
+      implements Function<IntervalViewDescriptor, MutableView> {
     @Override
-    public View apply(IntervalViewDescriptor viewDescriptor) {
+    public MutableView apply(IntervalViewDescriptor viewDescriptor) {
       // TODO(songya): Create Interval Aggregations from internal Distributions.
-      return IntervalView.create(viewDescriptor, null);
+      return MutableIntervalView.create(viewDescriptor);
     }
   }
 }
