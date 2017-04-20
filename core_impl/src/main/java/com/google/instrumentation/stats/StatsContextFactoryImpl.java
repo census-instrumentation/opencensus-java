@@ -21,7 +21,7 @@ import java.util.HashMap;
  * Native Implementation of {@link StatsContextFactory}.
  */
 final class StatsContextFactoryImpl extends StatsContextFactory {
-  static final StatsContextImpl DEFAULT = new StatsContextImpl(new HashMap<String, String>(0));
+  static final StatsContextImpl DEFAULT = new StatsContextImpl(new HashMap<TagKey, TagValue>(0));
 
   /**
    * Deserializes a {@link StatsContextImpl} from a serialized {@code CensusContextProto}.

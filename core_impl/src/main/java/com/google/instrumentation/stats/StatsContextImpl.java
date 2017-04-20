@@ -23,9 +23,9 @@ import java.util.Map;
  * Native Implementation of {@link StatsContext}.
  */
 final class StatsContextImpl extends StatsContext {
-  final Map<String, String> tags;
+  final Map<TagKey, TagValue> tags;
 
-  StatsContextImpl(Map<String, String> tags) {
+  StatsContextImpl(Map<TagKey, TagValue> tags) {
     this.tags = tags;
   }
 
@@ -65,21 +65,21 @@ final class StatsContextImpl extends StatsContext {
   }
 
   private static final class Builder extends StatsContext.Builder {
-    private final HashMap<String, String> tags;
+    private final HashMap<TagKey, TagValue> tags;
 
-    private Builder(Map<String, String> tags) {
-      this.tags = new HashMap<String, String>(tags);
+    private Builder(Map<TagKey, TagValue> tags) {
+      this.tags = new HashMap<TagKey, TagValue>(tags);
     }
 
     @Override
     public Builder set(TagKey key, TagValue value) {
-      tags.put(key.toString(), value.toString());
+      tags.put(key, value);
       return this;
     }
 
     @Override
     public StatsContext build() {
-      return new StatsContextImpl(Collections.unmodifiableMap(new HashMap<String, String>(tags)));
+      return new StatsContextImpl(Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags)));
     }
   }
 }
