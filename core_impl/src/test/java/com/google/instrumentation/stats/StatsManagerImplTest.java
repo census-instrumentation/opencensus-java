@@ -19,7 +19,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.stats.View.DistributionView;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
