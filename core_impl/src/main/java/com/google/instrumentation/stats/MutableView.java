@@ -45,7 +45,7 @@ abstract class MutableView {
   /**
    * Record stats with the given tags.
    */
-  abstract void record(Map<String, String> tags, double value);
+  abstract void record(StatsContextImpl tags, double value);
 
   /**
    * Convert this {@link MutableView} to {@link View}.
@@ -80,7 +80,8 @@ abstract class MutableView {
     }
 
     @Override
-    void record(Map<String, String> tags, double value) {
+    void record(StatsContextImpl context, double value) {
+      Map<String, String> tags = context.tags;
       // TagKeys need to be unique within one view descriptor.
       final List<TagKey> tagKeys = this.distributionViewDescriptor.getTagKeys();
       if (tags.size() != tagKeys.size()) {
@@ -183,7 +184,7 @@ abstract class MutableView {
     }
 
     @Override
-    void record(Map<String, String> tags, double value) {
+    void record(StatsContextImpl tags, double value) {
       throw new UnsupportedOperationException("Not implemented.");
     }
 
