@@ -12,9 +12,6 @@ matrix:
 
   - env: TASK=CHECK_GIT_HISTORY
 
-  allow_failures:
-  - env: TASK=CHECK_GIT_HISTORY
-
 before_install:
   - if \[ "$TASK" == "BUILD" \]; then
       mkdir -p $HOME/.gradle ;
