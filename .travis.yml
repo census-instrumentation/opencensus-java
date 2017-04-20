@@ -16,6 +16,7 @@ matrix:
   - env: TASK=CHECK_GIT_HISTORY
 
 before_install:
+  - git log --oneline --decorate --graph -30
   - if \[ "$TASK" == "BUILD" \]; then
       mkdir -p $HOME/.gradle ;
       cat gradle/errorprone/warnings > $HOME/.gradle/gradle.properties ;
