@@ -95,16 +95,10 @@ public class StatsManagerImplTest {
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(1);
     DistributionAggregation distributionAggregation = distributionAggregations.get(0);
-    verifyDistributionAggregation(distributionAggregation,
-        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 4,100.0,25.0,10.0,40.0,1);
+    verifyDistributionAggregation(distributionAggregation, 4, 100.0, 25.0, 10.0, 40.0, 1);
     // Refer to RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES for bucket boundaries.
-    for (int i = 0; i < distributionAggregation.getBucketCounts().size(); ++i) {
-      if (i == 9 || i == 12 || i == 14 || i == 15) {
-        assertThat(distributionAggregation.getBucketCounts().get(i)).isEqualTo(1);
-      } else {
-        assertThat(distributionAggregation.getBucketCounts().get(i)).isEqualTo(0);
-      }
-    }
+    verifyBucketCounts(distributionAggregation.getBucketCounts(), 9, 12, 14, 15);
+
     List<Tag> tags = distributionAggregation.getTags();
     assertThat(tags.get(0).getKey()).isEqualTo(tagKey);
     assertThat(tags.get(0).getValue()).isEqualTo(tagValue1);
@@ -132,10 +126,10 @@ public class StatsManagerImplTest {
     DistributionAggregation distributionAggregation1 = distributionAggregations.get(0);
     DistributionAggregation distributionAggregation2 = distributionAggregations.get(1);
 
-    verifyDistributionAggregation(distributionAggregation1,
-        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 1,10.0,10.0,10.0,10.0,1);
-    verifyDistributionAggregation(distributionAggregation2,
-        RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES.size() + 1, 2,80.0,40.0,30.0,50.0,1);
+    verifyDistributionAggregation(distributionAggregation1, 1, 10.0, 10.0, 10.0, 10.0, 1);
+    verifyDistributionAggregation(distributionAggregation2, 2, 80.0, 40.0, 30.0, 50.0, 1);
+    verifyBucketCounts(distributionAggregation1.getBucketCounts(), 9);
+    verifyBucketCounts(distributionAggregation2.getBucketCounts(), 14, 16);
     assertThat(distributionAggregation1.getTags().get(0).getKey()).isEqualTo(tagKey);
     assertThat(distributionAggregation1.getTags().get(0).getValue()).isEqualTo(tagValue1);
     assertThat(distributionAggregation2.getTags().get(0).getKey()).isEqualTo(tagKey);
@@ -143,15 +137,28 @@ public class StatsManagerImplTest {
   }
 
   private static void verifyDistributionAggregation(
-      DistributionAggregation distributionAggregation, int bucketCountsSize, int count, double sum,
-      double mean, double min, double max, int tagsSize) {
-    assertThat(distributionAggregation.getBucketCounts().size()).isEqualTo(bucketCountsSize);
+      DistributionAggregation distributionAggregation,
+      int count, double sum, double mean, double min, double max, int tagsSize) {
     assertThat(distributionAggregation.getCount()).isEqualTo(count);
     assertThat(distributionAggregation.getSum()).isWithin(TOLERANCE).of(sum);
     assertThat(distributionAggregation.getMean()).isWithin(TOLERANCE).of(mean);
     assertThat(distributionAggregation.getRange().getMin()).isWithin(TOLERANCE).of(min);
     assertThat(distributionAggregation.getRange().getMax()).isWithin(TOLERANCE).of(max);
     assertThat(distributionAggregation.getTags().size()).isEqualTo(tagsSize);
+  }
+
+  private static final void verifyBucketCounts(List<Long> bucketCounts, int... nonZeroBuckets) {
+    // nonZeroBuckets must be ordered.
+    Arrays.sort(nonZeroBuckets);
+    int j = 0;
+    for (int i = 0; i < bucketCounts.size(); ++i) {
+      if (j < nonZeroBuckets.length && i == nonZeroBuckets[j]) {
+        assertThat(bucketCounts.get(i)).isNotEqualTo(0);
+        ++j;
+      } else {
+        assertThat(bucketCounts.get(i)).isEqualTo(0);
+      }
+    }
   }
 
   @Test
