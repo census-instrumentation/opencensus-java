@@ -24,29 +24,33 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link Samplers}. */
 @RunWith(JUnit4.class)
 public class SamplersTest {
+  private final Random random = new Random(1234);
+  private final TraceId traceId = TraceId.generateRandomId(random);
+  private final SpanId parentSpanId = SpanId.generateRandomId(random);
+  private final SpanId spanId = SpanId.generateRandomId(random);
+  private final SpanContext sampledSpanContext =
+      SpanContext.create(traceId, parentSpanId, TraceOptions.builder().setIsSampled().build());
+  private final SpanContext notSampledSpanContext =
+      SpanContext.create(traceId, parentSpanId, TraceOptions.DEFAULT);
+
   @Test
   public void alwaysSampleSampler_AlwaysReturnTrue() {
-    Random random = new Random(1234);
-    TraceId traceId = TraceId.generateRandomId(random);
-    SpanId parentSpanId = SpanId.generateRandomId(random);
-    SpanId spanId = SpanId.generateRandomId(random);
-    // Traced parent.
+    // Sampled parent.
     assertThat(
             Samplers.alwaysSample()
                 .shouldSample(
-                    new SpanContext(
-                        traceId, parentSpanId, TraceOptions.builder().setIsSampled().build()),
+                    sampledSpanContext,
                     false,
                     traceId,
                     spanId,
                     "Another name",
                     Collections.<Span>emptyList()))
         .isTrue();
-    // Untraced parent.
+    // Not sampled parent.
     assertThat(
             Samplers.alwaysSample()
                 .shouldSample(
-                    new SpanContext(traceId, parentSpanId, TraceOptions.DEFAULT),
+                    notSampledSpanContext,
                     false,
                     traceId,
                     spanId,
@@ -62,27 +66,22 @@ public class SamplersTest {
 
   @Test
   public void neverSampleSampler_AlwaysReturnFalse() {
-    Random random = new Random(1234);
-    TraceId traceId = TraceId.generateRandomId(random);
-    SpanId parentSpanId = SpanId.generateRandomId(random);
-    SpanId spanId = SpanId.generateRandomId(random);
-    // Traced parent.
+    // Sampled parent.
     assertThat(
             Samplers.neverSample()
                 .shouldSample(
-                    new SpanContext(
-                        traceId, parentSpanId, TraceOptions.builder().setIsSampled().build()),
+                    sampledSpanContext,
                     false,
                     traceId,
                     spanId,
                     "bar",
                     Collections.<Span>emptyList()))
         .isFalse();
-    // Untraced parent.
+    // Not sampled parent.
     assertThat(
             Samplers.neverSample()
                 .shouldSample(
-                    new SpanContext(traceId, parentSpanId, TraceOptions.DEFAULT),
+                    notSampledSpanContext,
                     false,
                     traceId,
                     spanId,
