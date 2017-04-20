@@ -65,7 +65,7 @@ final class MeasurementDescriptorToViewMap {
   /**
    * Map a new {@link View} to a {@link MeasurementDescriptor.Name}.
    */
-  void putMutableView(MeasurementDescriptor.Name name, MutableView view) {
+  void putView(MeasurementDescriptor.Name name, MutableView view) {
     mutableMap.put(name, view);
   }
 

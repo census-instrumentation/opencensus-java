@@ -61,8 +61,8 @@ public final class StatsManagerImpl extends StatsManager {
     MutableView mutableView = viewDescriptor.match(
         new CreateMutableDistributionViewFunction(), new CreateMutableIntervalViewFunction());
 
-    measurementDescriptorToViewMap.putMutableView(
-        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
+    measurementDescriptorToViewMap.putView(
+            viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
   }
 
   @Override

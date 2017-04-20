@@ -19,7 +19,7 @@ import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -81,6 +81,7 @@ abstract class MutableView {
 
     @Override
     void record(Map<String, String> tags, double value) {
+      // TagKeys need to be unique within one view descriptor.
       final List<TagKey> tagKeys = this.distributionViewDescriptor.getTagKeys();
       if (tags.size() != tagKeys.size()) {
         // TODO(songya): need to determine how to handle incorrect or unregistered tags.
@@ -131,13 +132,13 @@ abstract class MutableView {
     }
 
     private final DistributionViewDescriptor distributionViewDescriptor;
-    private final Map<List<TagValue>, MutableDistribution> tagValueDistributionMap;
+    private final Map<List<TagValue>, MutableDistribution> tagValueDistributionMap =
+            new LinkedHashMap<List<TagValue>, MutableDistribution>();
     private final Timestamp start;
 
     private MutableDistributionView(
         DistributionViewDescriptor distributionViewDescriptor, Timestamp start) {
       this.distributionViewDescriptor = distributionViewDescriptor;
-      this.tagValueDistributionMap = new HashMap<List<TagValue>, MutableDistribution>();
       this.start = start;
     }
 

@@ -34,8 +34,8 @@ public class MeasurementDescriptorToViewMapTest {
     MutableView expected = MutableDistributionView.create(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
         Timestamp.fromMillis(System.currentTimeMillis()));
-    measurementDescriptorToViewMap.putMutableView(
-        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY.getMeasurementDescriptorName(), expected);
+    measurementDescriptorToViewMap.putView(
+            RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY.getMeasurementDescriptorName(), expected);
     View actual = measurementDescriptorToViewMap.getView(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(actual.getViewDescriptor()).isEqualTo(expected.getViewDescriptor());
