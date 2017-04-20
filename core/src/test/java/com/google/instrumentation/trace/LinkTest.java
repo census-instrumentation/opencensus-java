@@ -18,7 +18,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.trace.Link.Type;
 import java.util.Random;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,18 +25,10 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link Link}. */
 @RunWith(JUnit4.class)
 public class LinkTest {
-  private Random random;
-  private SpanContext spanContext;
-
-  @Before
-  public void setUp() {
-    random = new Random(1234);
-    spanContext =
-        new SpanContext(
-            TraceId.generateRandomId(random),
-            SpanId.generateRandomId(random),
-            TraceOptions.DEFAULT);
-  }
+  private final Random random = new Random(1234);
+  private final SpanContext spanContext =
+      SpanContext.create(
+          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
 
   @Test
   public void fromSpanContext_ChildLink() {

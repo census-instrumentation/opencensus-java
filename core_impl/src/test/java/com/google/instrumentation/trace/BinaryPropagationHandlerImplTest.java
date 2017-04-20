@@ -39,13 +39,14 @@ public class BinaryPropagationHandlerImplTest {
         101, 102, 103, 104, 2, 1
       };
   private static final SpanContext EXAMPLE_SPAN_CONTEXT =
-      new SpanContext(TRACE_ID, SPAN_ID, TRACE_OPTIONS);
+      SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS);
   @Rule public ExpectedException expectedException = ExpectedException.none();
   private static final BinaryPropagationHandler binaryPropagationHandler =
       BinaryPropagationHandlerImpl.INSTANCE;
 
   private static void testSpanContextConversion(SpanContext spanContext) throws ParseException {
-    SpanContext propagatedBinarySpanContext = binaryPropagationHandler.fromBinaryValue(
+    SpanContext propagatedBinarySpanContext =
+        binaryPropagationHandler.fromBinaryValue(
             binaryPropagationHandler.toBinaryValue(spanContext));
 
     assertWithMessage("Binary propagated context is not equal with the initial context.")
@@ -56,12 +57,12 @@ public class BinaryPropagationHandlerImplTest {
   @Test
   public void propagate_SpanContextTracingEnabled() throws ParseException {
     testSpanContextConversion(
-        new SpanContext(TRACE_ID, SPAN_ID, TraceOptions.builder().setIsSampled().build()));
+        SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.builder().setIsSampled().build()));
   }
 
   @Test
   public void propagate_SpanContextNoTracing() throws ParseException {
-    testSpanContextConversion(new SpanContext(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT));
+    testSpanContextConversion(SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT));
   }
 
   @Test(expected = NullPointerException.class)
@@ -115,7 +116,7 @@ public class BinaryPropagationHandlerImplTest {
                   0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
                 }))
-        .isEqualTo(new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT));
+        .isEqualTo(SpanContext.create(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT));
   }
 
   @Test
@@ -127,7 +128,7 @@ public class BinaryPropagationHandlerImplTest {
                   99, 100, 101, 102, 103, 104, 2, 1
                 }))
         .isEqualTo(
-            new SpanContext(
+            SpanContext.create(
                 TraceId.fromBytes(
                     new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}),
                 SpanId.INVALID,

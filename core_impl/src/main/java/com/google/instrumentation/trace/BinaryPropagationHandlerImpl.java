@@ -107,7 +107,7 @@ final class BinaryPropagationHandlerImpl extends BinaryPropagationHandler {
       if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
         traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
       }
-      return new SpanContext(traceId, spanId, traceOptions);
+      return SpanContext.create(traceId, spanId, traceOptions);
     } catch (IndexOutOfBoundsException e) {
       throw new ParseException("Invalid input: " + e.toString(), pos);
     }

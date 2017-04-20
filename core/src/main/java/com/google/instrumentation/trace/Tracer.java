@@ -210,12 +210,12 @@ public abstract class Tracer {
     // No-op implementation of the SpanFactory
     private static final class NoopSpanFactory extends SpanFactory {
       @Override
-      Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
+      protected Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
         return BlankSpan.INSTANCE;
       }
 
       @Override
-      Span startSpanWithRemoteParent(
+      protected Span startSpanWithRemoteParent(
           @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
         return BlankSpan.INSTANCE;
       }
