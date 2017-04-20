@@ -38,12 +38,12 @@ public class SpanTest {
   public void setUp() {
     random = new Random(1234);
     spanContext =
-        new SpanContext(
+        SpanContext.create(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
             TraceOptions.builder().setIsSampled().build());
     notSampledSpanContext =
-        new SpanContext(
+        SpanContext.create(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT);

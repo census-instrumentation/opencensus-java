@@ -40,10 +40,8 @@ public final class SpanContext {
    * @param spanId the span identifier of the span context.
    * @param traceOptions the trace options for the span context.
    */
-  SpanContext(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
-    this.traceId = traceId;
-    this.spanId = spanId;
-    this.traceOptions = traceOptions;
+  public static SpanContext create(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
+    return new SpanContext(traceId, spanId, traceOptions);
   }
 
   /**
@@ -110,5 +108,11 @@ public final class SpanContext {
         .add("spanId", spanId)
         .add("traceOptions", traceOptions)
         .toString();
+  }
+
+  private SpanContext(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
+    this.traceId = traceId;
+    this.spanId = spanId;
+    this.traceOptions = traceOptions;
   }
 }

@@ -188,7 +188,7 @@ public class TracerTest {
     Random random = new Random(1234);
     Tracer mockTracer = new MockTracer(spanFactory);
     SpanContext spanContext =
-        new SpanContext(
+        SpanContext.create(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT);

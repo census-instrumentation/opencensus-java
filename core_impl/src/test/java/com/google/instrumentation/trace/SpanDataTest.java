@@ -38,9 +38,11 @@ public class SpanDataTest {
   private static final String DISPLAY_NAME = "MySpanDisplayName";
   private static final String ANNOTATION_TEXT = "MyAnnotationText";
   private static final Status status = Status.DEADLINE_EXCEEDED.withDescription("TooSlow");
-  private Random random;
-  private SpanContext spanContext;
-  private SpanId parentSpanId;
+  private final Random random = new Random(1234);
+  private final SpanContext spanContext =
+      SpanContext.create(
+          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+  private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
   private final List<TimedEvent<Annotation>> annotations = new LinkedList<TimedEvent<Annotation>>();
   private final List<TimedEvent<NetworkEvent>> networkEvents =
@@ -49,13 +51,6 @@ public class SpanDataTest {
 
   @Before
   public void setUp() {
-    random = new Random(1234);
-    spanContext =
-        new SpanContext(
-            TraceId.generateRandomId(random),
-            SpanId.generateRandomId(random),
-            TraceOptions.DEFAULT);
-    parentSpanId = SpanId.generateRandomId(random);
     annotations.add(
         new TimedEvent<Annotation>(eventTimestamp1, Annotation.fromDescription(ANNOTATION_TEXT)));
     annotations.add(

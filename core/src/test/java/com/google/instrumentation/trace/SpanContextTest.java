@@ -29,14 +29,13 @@ public class SpanContextTest {
       new byte[] {0, 0, 0, 0, 0, 0, 0, '0', 0, 0, 0, 0, 0, 0, 0, 0};
   private static final byte[] firstSpanIdBytes = new byte[] {0, 0, 0, 0, 0, 0, 0, 'a'};
   private static final byte[] secondSpanIdBytes = new byte[] {'0', 0, 0, 0, 0, 0, 0, 0};
-
   private static final SpanContext first =
-      new SpanContext(
+      SpanContext.create(
           TraceId.fromBytes(firstTraceIdBytes),
           SpanId.fromBytes(firstSpanIdBytes),
           TraceOptions.DEFAULT);
   private static final SpanContext second =
-      new SpanContext(
+      SpanContext.create(
           TraceId.fromBytes(secondTraceIdBytes),
           SpanId.fromBytes(secondSpanIdBytes),
           TraceOptions.builder().setIsSampled().build());
@@ -52,12 +51,12 @@ public class SpanContextTest {
   public void isValid() {
     assertThat(SpanContext.INVALID.isValid()).isFalse();
     assertThat(
-            new SpanContext(
+            SpanContext.create(
                     TraceId.fromBytes(firstTraceIdBytes), SpanId.INVALID, TraceOptions.DEFAULT)
                 .isValid())
         .isFalse();
     assertThat(
-            new SpanContext(
+            SpanContext.create(
                     TraceId.INVALID, SpanId.fromBytes(firstSpanIdBytes), TraceOptions.DEFAULT)
                 .isValid())
         .isFalse();
@@ -88,13 +87,13 @@ public class SpanContextTest {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(
         first,
-        new SpanContext(
+        SpanContext.create(
             TraceId.fromBytes(firstTraceIdBytes),
             SpanId.fromBytes(firstSpanIdBytes),
             TraceOptions.DEFAULT));
     tester.addEqualityGroup(
         second,
-        new SpanContext(
+        SpanContext.create(
             TraceId.fromBytes(secondTraceIdBytes),
             SpanId.fromBytes(secondSpanIdBytes),
             TraceOptions.builder().setIsSampled().build()));
