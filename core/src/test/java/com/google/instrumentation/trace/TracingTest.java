@@ -43,7 +43,7 @@ public class TracingTest {
   @Test
   public void loadSpanFactory_IgnoresMissingClasses() {
     assertThat(
-        Tracing.loadTraceComponent(
+            Tracing.loadTraceComponent(
                     new ClassLoader() {
                       @Override
                       public Class<?> loadClass(String name) throws ClassNotFoundException {

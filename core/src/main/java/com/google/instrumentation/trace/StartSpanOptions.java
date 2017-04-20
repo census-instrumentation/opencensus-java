@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
  * overriding the {@link Sampler sampler}, the parent links, and option to record all the events
  * even if the {@code Span} is not sampled.
  */
-final class StartSpanOptions {
+public final class StartSpanOptions {
   private Sampler sampler;
   private List<Span> parentLinks;
   private Boolean recordEvents;

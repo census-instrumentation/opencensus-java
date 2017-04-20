@@ -36,21 +36,17 @@ import org.mockito.MockitoAnnotations;
 public class SpanBuilderTest {
   private static final String SPAN_NAME = "MySpanName";
   private static final Tracer tracer = Tracing.getTracer();
+  private static final Random random = new Random(1234);
+  private static final SpanContext spanContext =
+      SpanContext.create(
+          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   @Mock private Span span;
   @Mock private SpanFactory spanFactory;
-  private Random random;
-  private SpanContext spanContext;
   private SpanBuilder spanBuilder;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    random = new Random(1234);
-    spanContext =
-        new SpanContext(
-            TraceId.generateRandomId(random),
-            SpanId.generateRandomId(random),
-            TraceOptions.DEFAULT);
     spanBuilder = SpanBuilder.builder(spanFactory, BlankSpan.INSTANCE, SPAN_NAME);
   }
 
