@@ -80,8 +80,8 @@ final class StatsSerializer {
     byteArrayOutputStream.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
-    Set<Entry<String, String>> tags = context.tags.entrySet();
-    for (Entry<String, String> tag : tags) {
+    Set<Entry<TagKey, TagValue>> tags = context.tags.entrySet();
+    for (Entry<TagKey, TagValue> tag : tags) {
       encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
     }
     byteArrayOutputStream.writeTo(output);
@@ -92,7 +92,7 @@ final class StatsSerializer {
   static StatsContextImpl deserialize(InputStream input) throws IOException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
-      HashMap<String, String> tags = new HashMap<String, String>();
+      HashMap<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
         throw new IOException("Input byte stream can not be empty.");
@@ -110,8 +110,8 @@ final class StatsSerializer {
         int type = buffer.get();
         switch (type) {
           case VALUE_TYPE_STRING:
-            String key = decodeString(buffer);
-            String val = decodeString(buffer);
+            TagKey key = TagKey.create(decodeString(buffer));
+            TagValue val = TagValue.create(decodeString(buffer));
             tags.put(key, val);
             break;
           case VALUE_TYPE_INTEGER:
@@ -130,11 +130,11 @@ final class StatsSerializer {
 
   //  TODO(songya): Currently we only support encoding on string type.
   private static final void encodeStringTag(
-      String key, String value, ByteArrayOutputStream byteArrayOutputStream)
+      TagKey key, TagValue value, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
     byteArrayOutputStream.write(VALUE_TYPE_STRING);
-    encodeString(key, byteArrayOutputStream);
-    encodeString(value, byteArrayOutputStream);
+    encodeString(key.asString(), byteArrayOutputStream);
+    encodeString(value.asString(), byteArrayOutputStream);
   }
 
   private static final void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)

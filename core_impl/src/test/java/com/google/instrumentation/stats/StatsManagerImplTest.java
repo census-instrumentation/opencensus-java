@@ -42,11 +42,11 @@ public class StatsManagerImplTest {
   private static final TagValue tagValue1 = TagValue.create("some client method");
   private static final TagValue tagValue2 = TagValue.create("some other client method");
   private static final StatsContextImpl oneTag =
-          new StatsContextImpl(ImmutableMap.of(tagKey.asString(), tagValue1.asString()));
+          new StatsContextImpl(ImmutableMap.of(tagKey, tagValue1));
   private static final StatsContextImpl anotherTag =
-          new StatsContextImpl(ImmutableMap.of(tagKey.asString(), tagValue2.asString()));
+          new StatsContextImpl(ImmutableMap.of(tagKey, tagValue2));
   private static final StatsContextImpl wrongTag =
-          new StatsContextImpl(ImmutableMap.of("Wrong Tag Key", tagValue1.asString()));
+          new StatsContextImpl(ImmutableMap.of(TagKey.create("Wrong Tag Key"), tagValue1));
 
 
   private final StatsManagerImpl statsManager = new StatsManagerImpl(new SimpleEventQueue());

@@ -34,10 +34,11 @@ public class StatsContextFactoryTest {
   private static final String KEY = "Key";
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
-  private final HashMap<String, String> sampleTags = new HashMap<String, String>();
+  private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
 
   public StatsContextFactoryTest() {
-    sampleTags.put(KEY + StatsSerializer.VALUE_TYPE_STRING, VALUE_STRING);
+    sampleTags.put(
+        TagKey.create(KEY + StatsSerializer.VALUE_TYPE_STRING), TagValue.create(VALUE_STRING));
   }
 
   @Test
@@ -74,7 +75,7 @@ public class StatsContextFactoryTest {
 
   @Test
   public void testDeserializeMultipleString() throws Exception {
-    sampleTags.put("Key2", "String2");
+    sampleTags.put(TagKey.create("Key2"), TagValue.create("String2"));
     StatsContext expected = new StatsContextImpl(sampleTags);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

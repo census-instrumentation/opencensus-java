@@ -21,7 +21,6 @@ import com.google.instrumentation.stats.MutableView.MutableDistributionView;
 import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
-import java.util.Map;
 
 /**
  * Native Implementation of {@link StatsManager}.
@@ -88,17 +87,17 @@ public final class StatsManagerImpl extends StatsManager {
    * @param measurementValues the measurements to record
    */
   void record(StatsContextImpl tags, MeasurementMap measurementValues) {
-    queue.enqueue(new StatsEvent(this, tags.tags, measurementValues));
+    queue.enqueue(new StatsEvent(this, tags, measurementValues));
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
   private static final class StatsEvent implements EventQueue.Entry {
-    private final Map<String, String> tags;
+    private final StatsContextImpl tags;
     private final MeasurementMap stats;
     private final StatsManagerImpl statsManager;
 
     StatsEvent(
-        StatsManagerImpl statsManager, Map<String, String> tags, MeasurementMap stats) {
+        StatsManagerImpl statsManager, StatsContextImpl tags, MeasurementMap stats) {
       this.statsManager = statsManager;
       this.tags = tags;
       this.stats = stats;

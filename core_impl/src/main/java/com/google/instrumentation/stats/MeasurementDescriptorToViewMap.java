@@ -17,7 +17,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * A class that stores a singleton map from {@link MeasurementDescriptor.Name}s to
@@ -70,7 +69,7 @@ final class MeasurementDescriptorToViewMap {
   }
 
   // Records stats with a set of tags.
-  void record(Map<String, String> tags, MeasurementMap stats) {
+  void record(StatsContextImpl tags, MeasurementMap stats) {
     for (MeasurementValue mv : stats) {
       if (mv.getMeasurement()
           .getMeasurementDescriptorName()
@@ -80,7 +79,7 @@ final class MeasurementDescriptorToViewMap {
     }
   }
 
-  private void recordSupportedMeasurement(Map<String, String> tags, double value) {
+  private void recordSupportedMeasurement(StatsContextImpl tags, double value) {
     MutableView view = getMutableView(SupportedViews.SUPPORTED_VIEW);
     if (view == null) {
       throw new IllegalArgumentException("View not registered yet.");
