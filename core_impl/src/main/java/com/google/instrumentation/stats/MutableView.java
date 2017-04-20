@@ -19,7 +19,7 @@ import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -133,7 +133,7 @@ abstract class MutableView {
 
     private final DistributionViewDescriptor distributionViewDescriptor;
     private final Map<List<TagValue>, MutableDistribution> tagValueDistributionMap =
-            new LinkedHashMap<List<TagValue>, MutableDistribution>();
+            new HashMap<List<TagValue>, MutableDistribution>();
     private final Timestamp start;
 
     private MutableDistributionView(

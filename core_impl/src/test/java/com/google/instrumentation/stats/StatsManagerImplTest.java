@@ -18,10 +18,10 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.stats.View.DistributionView;
-
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -121,6 +121,14 @@ public class StatsManagerImplTest {
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(2);
+    // Sort distributionAggregations by count.
+    Collections.sort(distributionAggregations, new Comparator<DistributionAggregation>() {
+      @Override
+      public int compare(DistributionAggregation o1, DistributionAggregation o2) {
+        return Long.valueOf(o1.getCount()).compareTo(o2.getCount());
+      }
+    });
+
     DistributionAggregation distributionAggregation1 = distributionAggregations.get(0);
     DistributionAggregation distributionAggregation2 = distributionAggregations.get(1);
 
