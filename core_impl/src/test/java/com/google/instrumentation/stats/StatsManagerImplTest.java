@@ -15,8 +15,13 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.stats.View.DistributionView;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,6 +38,16 @@ public class StatsManagerImplTest {
   public final ExpectedException thrown = ExpectedException.none();
 
   private static final double TOLERANCE = 1e-5;
+  private static final TagKey tagKey = RpcConstants.RPC_CLIENT_METHOD;
+  private static final TagValue tagValue1 = TagValue.create("some client method");
+  private static final TagValue tagValue2 = TagValue.create("some other client method");
+  private static final StatsContextImpl oneTag =
+          new StatsContextImpl(ImmutableMap.of(tagKey.asString(), tagValue1.asString()));
+  private static final StatsContextImpl anotherTag =
+          new StatsContextImpl(ImmutableMap.of(tagKey.asString(), tagValue2.asString()));
+  private static final StatsContextImpl wrongTag =
+          new StatsContextImpl(ImmutableMap.of("Wrong Tag Key", tagValue1.asString()));
+
 
   private final StatsManagerImpl statsManager = new StatsManagerImpl(new SimpleEventQueue());
 
@@ -42,7 +57,6 @@ public class StatsManagerImplTest {
     View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(actual.getViewDescriptor()).isEqualTo(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    // TODO(songya): verify if the distributions of actual and expected view are equal.
   }
 
   @Test
@@ -69,23 +83,119 @@ public class StatsManagerImplTest {
   @Test
   public void testRecord() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    statsManager.record(
-        StatsContextFactoryImpl.DEFAULT,
-        MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
+    for (double val : Arrays.<Double>asList(10.0, 20.0, 30.0, 40.0)) {
+      statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
+    }
+
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(view.getViewDescriptor()).isEqualTo(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    assertThat(view.getDistributionAggregations()).hasSize(1);
-    assertThat(view.getDistributionAggregations().get(0).getCount()).isEqualTo(1);
-    assertThat(view.getDistributionAggregations().get(0).getSum()).isWithin(TOLERANCE).of(10.0);
-    assertThat(view.getDistributionAggregations().get(0).getMean()).isWithin(TOLERANCE).of(10.0);
+    // TODO(songya): update to make assertions on the exact time..
+    assertThat(view.getEnd().getSeconds()).isAtLeast(view.getStart().getSeconds());
+    List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
+    assertThat(distributionAggregations).hasSize(1);
+    DistributionAggregation distributionAggregation = distributionAggregations.get(0);
+    verifyDistributionAggregation(distributionAggregation, 4, 100.0, 25.0, 10.0, 40.0, 1);
+    // Refer to RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES for bucket boundaries.
+    verifyBucketCounts(distributionAggregation.getBucketCounts(), 9, 12, 14, 15);
+
+    List<Tag> tags = distributionAggregation.getTags();
+    assertThat(tags.get(0).getKey()).isEqualTo(tagKey);
+    assertThat(tags.get(0).getValue()).isEqualTo(tagValue1);
+  }
+
+  @Test
+  public void testRecordMultipleTagValues() {
+    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    statsManager.record(anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 30.0));
+    statsManager.record(anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
+
+    DistributionView view =
+        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
+    assertThat(distributionAggregations).hasSize(2);
+    // Sort distributionAggregations by count.
+    Collections.sort(distributionAggregations, new Comparator<DistributionAggregation>() {
+      @Override
+      public int compare(DistributionAggregation o1, DistributionAggregation o2) {
+        return Long.valueOf(o1.getCount()).compareTo(o2.getCount());
+      }
+    });
+
+    DistributionAggregation distributionAggregation1 = distributionAggregations.get(0);
+    DistributionAggregation distributionAggregation2 = distributionAggregations.get(1);
+
+    verifyDistributionAggregation(distributionAggregation1, 1, 10.0, 10.0, 10.0, 10.0, 1);
+    verifyDistributionAggregation(distributionAggregation2, 2, 80.0, 40.0, 30.0, 50.0, 1);
+    verifyBucketCounts(distributionAggregation1.getBucketCounts(), 9);
+    verifyBucketCounts(distributionAggregation2.getBucketCounts(), 14, 16);
+    assertThat(distributionAggregation1.getTags().get(0).getKey()).isEqualTo(tagKey);
+    assertThat(distributionAggregation1.getTags().get(0).getValue()).isEqualTo(tagValue1);
+    assertThat(distributionAggregation2.getTags().get(0).getKey()).isEqualTo(tagKey);
+    assertThat(distributionAggregation2.getTags().get(0).getValue()).isEqualTo(tagValue2);
+  }
+
+  private static void verifyDistributionAggregation(
+      DistributionAggregation distributionAggregation,
+      int count, double sum, double mean, double min, double max, int tagsSize) {
+    assertThat(distributionAggregation.getCount()).isEqualTo(count);
+    assertThat(distributionAggregation.getSum()).isWithin(TOLERANCE).of(sum);
+    assertThat(distributionAggregation.getMean()).isWithin(TOLERANCE).of(mean);
+    assertThat(distributionAggregation.getRange().getMin()).isWithin(TOLERANCE).of(min);
+    assertThat(distributionAggregation.getRange().getMax()).isWithin(TOLERANCE).of(max);
+    assertThat(distributionAggregation.getTags().size()).isEqualTo(tagsSize);
+  }
+
+  private static final void verifyBucketCounts(List<Long> bucketCounts, int... nonZeroBuckets) {
+    // nonZeroBuckets must be ordered.
+    Arrays.sort(nonZeroBuckets);
+    int j = 0;
+    for (int i = 0; i < bucketCounts.size(); ++i) {
+      if (j < nonZeroBuckets.length && i == nonZeroBuckets[j]) {
+        assertThat(bucketCounts.get(i)).isNotEqualTo(0);
+        ++j;
+      } else {
+        assertThat(bucketCounts.get(i)).isEqualTo(0);
+      }
+    }
   }
 
   @Test
   public void testRecordWithoutRegisteringView() {
     thrown.expect(IllegalArgumentException.class);
-    statsManager.record(
-        StatsContextFactoryImpl.DEFAULT,
-        MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
+    statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
+  }
+
+  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match for the view.
+  @Test
+  public void testRecordWithEmptyStatsContext() {
+    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    // DEFAULT doesn't have tags. Should have TagKey "method" as defined in RpcConstants.
+    statsManager.record(StatsContextFactoryImpl.DEFAULT,
+        MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    DistributionView view =
+        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(view.getDistributionAggregations()).hasSize(0);
+  }
+
+  @Test
+  public void testRecordNonExistentMeasurementDescriptor() {
+    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_SERVER_ERROR_COUNT, 10.0));
+    DistributionView view =
+        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(view.getDistributionAggregations()).hasSize(0);
+  }
+
+  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match for the view.
+  @Test
+  public void testRecordNonExistentTag() {
+    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.record(wrongTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    DistributionView view =
+        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    // Won't record stats if there are non existent tags.
+    assertThat(view.getDistributionAggregations()).hasSize(0);
   }
 }
