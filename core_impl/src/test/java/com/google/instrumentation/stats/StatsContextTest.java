@@ -21,6 +21,7 @@ import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -125,6 +126,8 @@ public class StatsContextTest {
   }
 
   @Test
+  @Ignore
+  // TODO(#224): Prevent this test from failing due to changes in map order and re-enable it.
   public void testSerializeWithMultiStringTags() throws Exception {
     testSerialize(T1, T2);
   }
