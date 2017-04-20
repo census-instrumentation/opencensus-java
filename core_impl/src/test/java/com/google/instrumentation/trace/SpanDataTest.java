@@ -38,11 +38,11 @@ public class SpanDataTest {
   private static final String DISPLAY_NAME = "MySpanDisplayName";
   private static final String ANNOTATION_TEXT = "MyAnnotationText";
   private static final Status status = Status.DEADLINE_EXCEEDED.withDescription("TooSlow");
-  private static final Random random = new Random(1234);
-  private static final SpanContext spanContext =
+  private final Random random = new Random(1234);
+  private final SpanContext spanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private static final SpanId parentSpanId = SpanId.generateRandomId(random);
+  private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
   private final List<TimedEvent<Annotation>> annotations = new LinkedList<TimedEvent<Annotation>>();
   private final List<TimedEvent<NetworkEvent>> networkEvents =

@@ -26,7 +26,7 @@ public abstract class SpanFactory {
    * @param options The options for the start of the {@code Span}.
    * @return A child {@code Span} that will have the name provided.
    */
-  abstract Span startSpan(@Nullable Span parent, String name, StartSpanOptions options);
+  protected abstract Span startSpan(@Nullable Span parent, String name, StartSpanOptions options);
 
   /**
    * Creates and starts a new child {@link Span} (or root if parent is {@code null}), with parent
@@ -39,6 +39,6 @@ public abstract class SpanFactory {
    * @param options The options for the start of the {@code Span}.
    * @return A child {@code Span} that will have the name provided.
    */
-  abstract Span startSpanWithRemoteParent(
+  protected abstract Span startSpanWithRemoteParent(
       @Nullable SpanContext remoteParent, String name, StartSpanOptions options);
 }

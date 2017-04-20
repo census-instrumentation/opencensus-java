@@ -25,8 +25,8 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link Link}. */
 @RunWith(JUnit4.class)
 public class LinkTest {
-  private static final Random random = new Random(1234);
-  private static final SpanContext spanContext =
+  private final Random random = new Random(1234);
+  private final SpanContext spanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
 

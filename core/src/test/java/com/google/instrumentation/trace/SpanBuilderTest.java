@@ -36,8 +36,8 @@ import org.mockito.MockitoAnnotations;
 public class SpanBuilderTest {
   private static final String SPAN_NAME = "MySpanName";
   private static final Tracer tracer = Tracing.getTracer();
-  private static final Random random = new Random(1234);
-  private static final SpanContext spanContext =
+  private final Random random = new Random(1234);
+  private final SpanContext spanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   @Mock private Span span;

@@ -24,13 +24,13 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link Samplers}. */
 @RunWith(JUnit4.class)
 public class SamplersTest {
-  private static final Random random = new Random(1234);
-  private static final TraceId traceId = TraceId.generateRandomId(random);
-  private static final SpanId parentSpanId = SpanId.generateRandomId(random);
-  private static final SpanId spanId = SpanId.generateRandomId(random);
-  private static final SpanContext sampledSpanContext =
+  private final Random random = new Random(1234);
+  private final TraceId traceId = TraceId.generateRandomId(random);
+  private final SpanId parentSpanId = SpanId.generateRandomId(random);
+  private final SpanId spanId = SpanId.generateRandomId(random);
+  private final SpanContext sampledSpanContext =
       SpanContext.create(traceId, parentSpanId, TraceOptions.builder().setIsSampled().build());
-  private static final SpanContext notSampledSpanContext =
+  private final SpanContext notSampledSpanContext =
       SpanContext.create(traceId, parentSpanId, TraceOptions.DEFAULT);
 
   @Test
