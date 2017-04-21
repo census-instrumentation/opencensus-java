@@ -66,7 +66,7 @@ public class StatsManagerImplTest {
   }
 
   @Test
-  public void testRegisterViewDescriptorTwice(){
+  public void testRegisterViewDescriptorTwice() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
@@ -84,7 +84,8 @@ public class StatsManagerImplTest {
   public void testRecord() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     for (double val : Arrays.<Double>asList(10.0, 20.0, 30.0, 40.0)) {
-      statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
+      statsManager.record(
+          oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
     }
 
     DistributionView view =
@@ -108,8 +109,10 @@ public class StatsManagerImplTest {
   public void testRecordMultipleTagValues() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
-    statsManager.record(anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 30.0));
-    statsManager.record(anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
+    statsManager.record(
+        anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 30.0));
+    statsManager.record(
+        anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
 
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
@@ -167,7 +170,8 @@ public class StatsManagerImplTest {
     statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
   }
 
-  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match for the view.
+  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match
+  // for the view.
   @Test
   public void testRecordWithEmptyStatsContext() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
@@ -188,11 +192,13 @@ public class StatsManagerImplTest {
     assertThat(view.getDistributionAggregations()).hasSize(0);
   }
 
-  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match for the view.
+  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match
+  // for the view.
   @Test
   public void testRecordNonExistentTag() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    statsManager.record(wrongTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    statsManager.record(
+        wrongTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     // Won't record stats if there are non existent tags.
