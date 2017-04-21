@@ -26,7 +26,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * A low-latency event queue for background updating of (possibly contended) objects. This is
  * intended for use by instrumentation methods to ensure that they do not block foreground
  * activities. To customize the action taken on reading the queue, derive a new class from {@link
- * EventQueue.Entry} and pass it to the {@link #enqueue} method. The {@link Entry#process}
+ * EventQueue.Entry} and pass it to the {@link #enqueue(Entry)} method. The {@link Entry#process()}
  * method of your class will be called and executed in a background thread. This class is a
  * Singleton.
  *
