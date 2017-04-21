@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.common.SimpleEventQueue;
+import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,16 +85,24 @@ public class StatsManagerImplTest {
   @Test
   public void testRecord() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    Timestamp start = Timestamp.fromMillis(System.currentTimeMillis());
     for (double val : Arrays.<Double>asList(10.0, 20.0, 30.0, 40.0)) {
       statsManager.record(
           oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
+      // Simulate transmission delay.
+      try {
+        Thread.sleep(500);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
 
+    Timestamp end = Timestamp.fromMillis(System.currentTimeMillis());
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(view.getViewDescriptor()).isEqualTo(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    // TODO(songya): update to make assertions on the exact time..
-    assertThat(view.getEnd().getSeconds()).isAtLeast(view.getStart().getSeconds());
+    assertThat(view.getStart()).isEqualTo(start);
+    assertThat(view.getEnd()).isEqualTo(end);
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(1);
     DistributionAggregation distributionAggregation = distributionAggregations.get(0);
