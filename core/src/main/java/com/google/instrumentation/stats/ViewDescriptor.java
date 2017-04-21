@@ -59,9 +59,7 @@ public abstract class ViewDescriptor {
   /**
    * Applies the given match function to the underlying data type.
    */
-  public abstract <T> T match(
-      Function<DistributionViewDescriptor, T> p0,
-      Function<IntervalViewDescriptor, T> p1);
+  public abstract <T> T match(Visitor<T> visitor);
 
 
   private final String name;
@@ -78,6 +76,44 @@ public abstract class ViewDescriptor {
     this.description = description;
     this.measurementDescriptor = measurementDescriptor;
     this.tagKeys = Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys));
+  }
+
+  /**
+   * Visitor for the ViewDescriptor type.
+   */
+  public interface Visitor<T> {
+    T apply(DistributionViewDescriptor descriptor);
+
+    T apply(IntervalViewDescriptor descriptor);
+  }
+
+  /**
+   * Creates a Visitor with two {@link Function} objects. This method may be more convenient than
+   * extending Visitor when lambdas are available.
+   *
+   * <p>For example, the following visitor determines whether a ViewDescriptor contains a histogram:
+   *
+   * <pre>{@code
+   * boolean hasHistogram =
+   *     myViewDescriptor.match(ViewDescriptor.createVisitor(
+   *         d -> d.getDistributionAggregationDescriptor().getBucketBoundaries() != null,
+   *         i -> false));
+   * }</pre>
+   */
+  public static <T> Visitor<T> createVisitor(
+      final Function<DistributionViewDescriptor, T> f1,
+      final Function<IntervalViewDescriptor, T> f2) {
+    return new Visitor<T>() {
+      @Override
+      public T apply(DistributionViewDescriptor descriptor) {
+        return f1.apply(descriptor);
+      }
+
+      @Override
+      public T apply(IntervalViewDescriptor descriptor) {
+        return f2.apply(descriptor);
+      }
+    };
   }
 
   /**
@@ -106,10 +142,8 @@ public abstract class ViewDescriptor {
     }
 
     @Override
-    public <T> T match(
-        Function<DistributionViewDescriptor, T> p0,
-        Function<IntervalViewDescriptor, T> p1) {
-      return p0.apply(this);
+    public <T> T match(Visitor<T> visitor) {
+      return visitor.apply(this);
     }
 
     private final DistributionAggregationDescriptor distributionAggregationDescriptor;
@@ -151,10 +185,8 @@ public abstract class ViewDescriptor {
     }
 
     @Override
-    public <T> T match(
-        Function<DistributionViewDescriptor, T> p0,
-        Function<IntervalViewDescriptor, T> p1) {
-      return p1.apply(this);
+    public <T> T match(Visitor<T> visitor) {
+      return visitor.apply(this);
     }
 
     private final IntervalAggregationDescriptor intervalAggregationDescriptor;

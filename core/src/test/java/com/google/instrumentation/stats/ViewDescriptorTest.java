@@ -14,16 +14,13 @@
 package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-
 import static org.junit.Assert.assertTrue;
 
 import com.google.instrumentation.common.Duration;
-import com.google.instrumentation.common.Function;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
-
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -49,12 +46,10 @@ public final class ViewDescriptorTest {
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
     assertTrue(viewDescriptor.match(
-        new Function<DistributionViewDescriptor, Boolean> () {
+        new ViewDescriptor.Visitor<Boolean>(){
           @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
             return dViewDescriptor == viewDescriptor;
           }
-        },
-        new Function<IntervalViewDescriptor, Boolean> () {
           @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
             return false;
           }
@@ -76,12 +71,10 @@ public final class ViewDescriptorTest {
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
     assertTrue(viewDescriptor.match(
-        new Function<DistributionViewDescriptor, Boolean> () {
+        new ViewDescriptor.Visitor<Boolean>() {
           @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
             return false;
           }
-        },
-        new Function<IntervalViewDescriptor, Boolean> () {
           @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
             return iViewDescriptor == viewDescriptor;
           }
