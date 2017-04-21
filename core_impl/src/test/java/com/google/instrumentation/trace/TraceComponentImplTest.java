@@ -5,6 +5,7 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Test;
 
 /** Unit tests for {@link TraceComponentImpl}. */
+@RunWith(JUnit4.class)
 public class TraceComponentImplTest {
   @Test
   public void implementationOfTracer() {
