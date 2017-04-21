@@ -183,7 +183,7 @@ public final class TraceOptions {
      *
      * @return this.
      */
-    Builder setIsSampled() {
+    public Builder setIsSampled() {
       options |= IS_SAMPLED;
       return this;
     }
@@ -193,7 +193,7 @@ public final class TraceOptions {
      *
      * @return a {@code TraceOptions} with the desired options.
      */
-    TraceOptions build() {
+    public TraceOptions build() {
       return new TraceOptions(options);
     }
   }
