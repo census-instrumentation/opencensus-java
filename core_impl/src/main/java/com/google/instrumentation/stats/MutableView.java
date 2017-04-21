@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
@@ -29,6 +30,7 @@ import java.util.Map.Entry;
  */
 // TODO(songya): remove or modify the methods of this class, since it's not part of the API.
 abstract class MutableView {
+  @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
 
   /**
    * The {@link ViewDescriptor} associated with this {@link View}.
@@ -84,18 +86,18 @@ abstract class MutableView {
       Map<TagKey, TagValue> tags = context.tags;
       // TagKeys need to be unique within one view descriptor.
       final List<TagKey> tagKeys = this.distributionViewDescriptor.getTagKeys();
-      if (tags.size() != tagKeys.size()) {
-        // TODO(songya): need to determine how to handle incorrect or unregistered tags.
-        return;
-      }
       final List<TagValue> tagValues = new ArrayList<TagValue>(tagKeys.size());
+
+      // Record all the measures in a "Greedy" way.
+      // Every view aggregates every measure. This is similar to doing a GROUPBY view’s keys.
       for (int i = 0; i < tagKeys.size(); ++i) {
         TagKey tagKey = tagKeys.get(i);
         if (!tags.containsKey(tagKey)) {
-          // TODO(songya): need to determine how to handle incorrect or unregistered tags.
-          return;
+          // replace not found key values by “unknown/not set”.
+          tagValues.add(UNKNOWN_TAG_VALUE);
+        } else {
+          tagValues.add(tags.get(tagKey));
         }
-        tagValues.add(tags.get(tagKey));
       }
 
       if (!tagValueDistributionMap.containsKey(tagValues)) {
