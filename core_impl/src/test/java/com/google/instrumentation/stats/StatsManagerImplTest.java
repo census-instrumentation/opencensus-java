@@ -17,7 +17,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.common.SimpleEventQueue;
-import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +40,7 @@ public class StatsManagerImplTest {
   private static final double TOLERANCE = 1e-5;
   private static final TagKey tagKey = RpcConstants.RPC_CLIENT_METHOD;
   private static final TagKey wrongTagKey = TagKey.create("Wrong Tag Key");
+  private static final TagKey wrongTagKey2 = TagKey.create("Another wrong Tag Key");
   private static final TagValue tagValue1 = TagValue.create("some client method");
   private static final TagValue tagValue2 = TagValue.create("some other client method");
   private static final StatsContextImpl oneTag =
@@ -49,6 +49,8 @@ public class StatsManagerImplTest {
           new StatsContextImpl(ImmutableMap.of(tagKey, tagValue2));
   private static final StatsContextImpl wrongTag =
           new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1));
+  private static final StatsContextImpl wrongTag2 =
+      new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1, wrongTagKey2, tagValue2));
 
 
   private final StatsManagerImpl statsManager = new StatsManagerImpl(new SimpleEventQueue());
@@ -85,24 +87,16 @@ public class StatsManagerImplTest {
   @Test
   public void testRecord() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    Timestamp start = Timestamp.fromMillis(System.currentTimeMillis());
     for (double val : Arrays.<Double>asList(10.0, 20.0, 30.0, 40.0)) {
       statsManager.record(
           oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
-      // Simulate transmission delay.
-      try {
-        Thread.sleep(500);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
     }
 
-    Timestamp end = Timestamp.fromMillis(System.currentTimeMillis());
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(view.getViewDescriptor()).isEqualTo(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    assertThat(view.getStart()).isEqualTo(start);
-    assertThat(view.getEnd()).isEqualTo(end);
+    // TODO(songya): update to make assertions on the exact time based on fake clock.
+    assertThat(view.getEnd().getSeconds()).isAtLeast(view.getStart().getSeconds());
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(1);
     DistributionAggregation distributionAggregation = distributionAggregations.get(0);
@@ -210,21 +204,20 @@ public class StatsManagerImplTest {
 
 
   @Test
-  public void testRecordNonExistentTag() {
+  public void testRecordTagDoesNotMatchView() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     statsManager.record(wrongTag, MeasurementMap.of(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
-    statsManager.record(wrongTag, MeasurementMap.of(
+    statsManager.record(wrongTag2, MeasurementMap.of(
         RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
 
-    DistributionAggregation distributionAggregation = view.getDistributionAggregations().get(0);
     assertThat(view.getDistributionAggregations()).hasSize(1);
+    DistributionAggregation distributionAggregation = view.getDistributionAggregations().get(0);
     List<Tag> tags = distributionAggregation.getTags();
     // Won't record the unregistered tag key, will use default tag instead:
     // "method" : "unknown/not set".
-    assertThat(tags.get(0).getKey()).isNotEqualTo(wrongTagKey);
     assertThat(tags.get(0).getKey()).isEqualTo(tagKey);
     assertThat(tags.get(0).getValue()).isEqualTo(MutableView.UNKNOWN_TAG_VALUE);
     // Should record stats with default Tag: "method" : "unknown/not set"
