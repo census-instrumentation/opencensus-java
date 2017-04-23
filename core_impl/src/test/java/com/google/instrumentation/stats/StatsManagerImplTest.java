@@ -39,6 +39,8 @@ public class StatsManagerImplTest {
 
   private static final double TOLERANCE = 1e-5;
   private static final TagKey tagKey = RpcConstants.RPC_CLIENT_METHOD;
+  private static final TagKey wrongTagKey = TagKey.create("Wrong Tag Key");
+  private static final TagKey wrongTagKey2 = TagKey.create("Another wrong Tag Key");
   private static final TagValue tagValue1 = TagValue.create("some client method");
   private static final TagValue tagValue2 = TagValue.create("some other client method");
   private static final StatsContextImpl oneTag =
@@ -46,7 +48,9 @@ public class StatsManagerImplTest {
   private static final StatsContextImpl anotherTag =
           new StatsContextImpl(ImmutableMap.of(tagKey, tagValue2));
   private static final StatsContextImpl wrongTag =
-          new StatsContextImpl(ImmutableMap.of(TagKey.create("Wrong Tag Key"), tagValue1));
+          new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1));
+  private static final StatsContextImpl wrongTag2 =
+      new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1, wrongTagKey2, tagValue2));
 
 
   private final StatsManagerImpl statsManager = new StatsManagerImpl(new SimpleEventQueue());
@@ -91,7 +95,7 @@ public class StatsManagerImplTest {
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(view.getViewDescriptor()).isEqualTo(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    // TODO(songya): update to make assertions on the exact time..
+    // TODO(songya): update to make assertions on the exact time based on fake clock.
     assertThat(view.getEnd().getSeconds()).isAtLeast(view.getStart().getSeconds());
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(1);
@@ -170,8 +174,6 @@ public class StatsManagerImplTest {
     statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
   }
 
-  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match
-  // for the view.
   @Test
   public void testRecordWithEmptyStatsContext() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
@@ -180,7 +182,15 @@ public class StatsManagerImplTest {
         MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    assertThat(view.getDistributionAggregations()).hasSize(0);
+    assertThat(view.getDistributionAggregations()).hasSize(1);
+    DistributionAggregation distributionAggregation = view.getDistributionAggregations().get(0);
+    List<Tag> tags = distributionAggregation.getTags();
+    assertThat(tags.get(0).getKey()).isEqualTo(tagKey);
+    // Tag is missing for associated measurementValues, should use default tag value
+    // "unknown/not set".
+    assertThat(tags.get(0).getValue()).isEqualTo(MutableView.UNKNOWN_TAG_VALUE);
+    // Should record stats with default Tag: "method" : "unknown/not set".
+    verifyDistributionAggregation(distributionAggregation, 1, 10.0, 10.0, 10.0, 10.0, 1);
   }
 
   @Test
@@ -192,16 +202,25 @@ public class StatsManagerImplTest {
     assertThat(view.getDistributionAggregations()).hasSize(0);
   }
 
-  // TODO(songya): update this test once we determine how to handle tags that aren't an exact match
-  // for the view.
+
   @Test
-  public void testRecordNonExistentTag() {
+  public void testRecordTagDoesNotMatchView() {
     statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    statsManager.record(
-        wrongTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    statsManager.record(wrongTag, MeasurementMap.of(
+        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    statsManager.record(wrongTag2, MeasurementMap.of(
+        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
     DistributionView view =
         (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    // Won't record stats if there are non existent tags.
-    assertThat(view.getDistributionAggregations()).hasSize(0);
+
+    assertThat(view.getDistributionAggregations()).hasSize(1);
+    DistributionAggregation distributionAggregation = view.getDistributionAggregations().get(0);
+    List<Tag> tags = distributionAggregation.getTags();
+    // Won't record the unregistered tag key, will use default tag instead:
+    // "method" : "unknown/not set".
+    assertThat(tags.get(0).getKey()).isEqualTo(tagKey);
+    assertThat(tags.get(0).getValue()).isEqualTo(MutableView.UNKNOWN_TAG_VALUE);
+    // Should record stats with default Tag: "method" : "unknown/not set"
+    verifyDistributionAggregation(distributionAggregation, 2, 60.0, 30.0, 10.0, 50.0, 1);
   }
 }
