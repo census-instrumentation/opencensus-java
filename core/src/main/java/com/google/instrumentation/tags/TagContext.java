@@ -18,12 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
-
 /** A set of tags. */
 @Immutable
 @AutoValue
 public abstract class TagContext {
-  /** The empty {@code TagContext}. */
   private static final TagContext EMPTY = createInternal(new HashMap<TagKey<?>, Object>());
 
   TagContext() {}
@@ -34,14 +32,22 @@ public abstract class TagContext {
 
   abstract Map<TagKey<?>, Object> getTags();
 
+  /**
+   * Returns an empty {@code TagContext}.
+   *
+   * @return an empty {@code TagContext}.
+   */
   public static TagContext empty() {
     return EMPTY;
   }
 
   /**
    * Creates a new {@code TagContext} by applying the given {@code TagChange}s.
+   *
+   * @param changes {@code TagChange}s used to create the new {@code TagContext}.
+   * @return the updated {@code TagContext}.
    */
-  public TagContext newContext(TagChange ... changes) {
+  public TagContext newContext(TagChange... changes) {
     Map<TagKey<?>, Object> tags = new HashMap<TagKey<?>, Object>(getTags());
     for (TagChange tc : changes) {
       applyChange(tags, tc);

@@ -28,10 +28,10 @@ public final class TagChangeTest {
 
   @Test
   public void testGetters() {
-    TagChange tc = TagChange.create(TagKey.createString("K"), TagOp.UPDATE, "x");
+    TagChange tc = TagChange.create(TagKey.createString("K"), TagOp.UPDATE, "V");
     assertThat(tc.getKey()).isEqualTo(TagKey.createString("K"));
     assertThat(tc.getOp()).isEqualTo(TagOp.UPDATE);
-    assertThat(tc.getValue()).isEqualTo("x");
+    assertThat(tc.getValue()).isEqualTo("V");
   }
 
   @Test

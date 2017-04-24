@@ -21,7 +21,6 @@ import com.google.auto.value.AutoValue;
 import com.google.instrumentation.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
-
 /**
  * Tag key.
  *
@@ -30,6 +29,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class TagKey<TagValueT> {
+  /** The maximum length for a tag key name. */
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
   enum TagType {
@@ -41,11 +41,11 @@ public abstract class TagKey<TagValueT> {
   TagKey() {}
 
   /**
-   * Constructs a {@link TagKey} from the given string. The string will be sanitized such that:
+   * Constructs a {@code TagKey<String>} from the given string. The string will be sanitized such
+   * that:
    *
    * <ol>
-   *   <li>length is restricted to {@link StringUtil#MAX_LENGTH}, strings longer than that will be
-   *       truncated.
+   *   <li>length is restricted to {@link #MAX_LENGTH}, strings longer than that will be truncated.
    *   <li>characters are restricted to printable ascii characters, non-printable characters will be
    *       replaced by an underscore '_'.
    * </ol>
@@ -54,10 +54,30 @@ public abstract class TagKey<TagValueT> {
     return new AutoValue_TagKey<String>(StringUtil.sanitize(key), TAG_STRING);
   }
 
+  /**
+   * Constructs a {@code TagKey<Long>} from the given string. The string will be sanitized such
+   * that:
+   *
+   * <ol>
+   *   <li>length is restricted to {@link #MAX_LENGTH}, strings longer than that will be truncated.
+   *   <li>characters are restricted to printable ascii characters, non-printable characters will be
+   *       replaced by an underscore '_'.
+   * </ol>
+   */
   public static TagKey<Long> createInt(String key) {
     return new AutoValue_TagKey<Long>(StringUtil.sanitize(key), TAG_INT);
   }
 
+  /**
+   * Constructs a {@code TagKey<Boolean>} from the given string. The string will be sanitized such
+   * that:
+   *
+   * <ol>
+   *   <li>length is restricted to {@link #MAX_LENGTH}, strings longer than that will be truncated.
+   *   <li>characters are restricted to printable ascii characters, non-printable characters will be
+   *       replaced by an underscore '_'.
+   * </ol>
+   */
   public static TagKey<Boolean> createBoolean(String key) {
     return new AutoValue_TagKey<Boolean>(StringUtil.sanitize(key), TAG_BOOL);
   }

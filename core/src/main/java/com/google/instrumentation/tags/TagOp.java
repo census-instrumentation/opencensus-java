@@ -15,9 +15,19 @@ package com.google.instrumentation.tags;
 
 /** An operation performed on a {@link TagKey} in a {@link TagContext}. */
 public enum TagOp {
+
+  /** Adds the key/value pair if the key is not present. */
   INSERT,
+
+  /** Adds the key/value pair regardless of whether the key is present. */
   SET,
+
+  /** Adds the key/value pair only if the key is already present. */
   UPDATE,
+
+  /** Removes the key if it exists. */
   CLEAR,
+
+  /** Does nothing. */
   NOOP
 }
