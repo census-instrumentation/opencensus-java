@@ -1,16 +1,23 @@
-sudo: required
-dist: trusty
+sudo: false
+
 language: java
 
 matrix:
   include:
   - jdk: oraclejdk7
     env: TASK=BUILD
+    os: linux
 
   - jdk: oraclejdk8
     env: TASK=BUILD
+    os: linux
+
+  # Work around https://github.com/travis-ci/travis-ci/issues/2317
+  - env: TASK=BUILD
+    os: osx
 
   - env: TASK=CHECK_GIT_HISTORY
+    os: linux
 
 before_install:
   - git log --oneline --decorate --graph -30
@@ -43,7 +50,7 @@ script:
     esac
 
 after_success:
-  - if \[ "$TASK" == "BUILD" \] && \[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" \]; then
+  - if \[ "$TASK" == "BUILD" \] && \[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" \] && \[ "$TRAVIS_OS_NAME" = linux \]; then
       ./gradlew :instrumentation-java-all:coveralls --stacktrace ;
       bash <(curl -s https://codecov.io/bash) ;
     fi
