@@ -21,6 +21,9 @@ import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +64,8 @@ public class StatsContextTest {
 
   private static final Tag T1 = Tag.create(K1, V1);
   private static final Tag T2 = Tag.create(K2, V2);
+  private static final Tag T3 = Tag.create(K3, V3);
+  private static final Tag T4 = Tag.create(K4, V4);
 
   @Test
   public void testWith() {
@@ -126,10 +131,8 @@ public class StatsContextTest {
   }
 
   @Test
-  @Ignore
-  // TODO(#224): Prevent this test from failing due to changes in map order and re-enable it.
   public void testSerializeWithMultiStringTags() throws Exception {
-    testSerialize(T1, T2);
+    testSerialize(T1, T2, T3, T4);
   }
 
   @Test
@@ -167,17 +170,21 @@ public class StatsContextTest {
   }
 
   private static void testSerialize(Tag... tags) throws IOException {
+    final Map<TagKey, TagValue> tagMap = new HashMap<TagKey, TagValue>();
+    for (Tag tag : tags) {
+      tagMap.put(tag.getKey(), tag.getValue());
+    }
+
     ByteArrayOutputStream actual = new ByteArrayOutputStream();
+    new StatsContextImpl(tagMap).serialize(actual);
+
     ByteArrayOutputStream expected = new ByteArrayOutputStream();
     expected.write(VERSION_ID);
-    StatsContext.Builder builder = DEFAULT.builder();
-    for (Tag tag : tags) {
-      builder.set(tag.getKey(), tag.getValue());
+    for (Entry<TagKey, TagValue> entry : tagMap.entrySet()) {
       expected.write(VALUE_TYPE_STRING);
-      encodeString(tag.getKey().toString(), expected);
-      encodeString(tag.getValue().toString(), expected);
+      encodeString(entry.getKey().asString(), expected);
+      encodeString(entry.getValue().asString(), expected);
     }
-    builder.build().serialize(actual);
 
     assertThat(actual.toByteArray()).isEqualTo(expected.toByteArray());
   }
