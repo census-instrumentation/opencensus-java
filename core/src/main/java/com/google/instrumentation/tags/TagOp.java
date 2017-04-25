@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.tags;
 
-/** An operation performed on a {@link TagKey} in a {@link TagContext}. */
+/** An operation performed on a {@link TagKey} in a {@link TagSet}. */
 public enum TagOp {
 
   /** Adds the key/value pair if the key is not present. */

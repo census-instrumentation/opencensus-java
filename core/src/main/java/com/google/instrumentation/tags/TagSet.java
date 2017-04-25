@@ -21,33 +21,33 @@ import javax.annotation.concurrent.Immutable;
 /** A set of tags. */
 @Immutable
 @AutoValue
-public abstract class TagContext {
-  private static final TagContext EMPTY = createInternal(new HashMap<TagKey<?>, Object>());
+public abstract class TagSet {
+  private static final TagSet EMPTY = createInternal(new HashMap<TagKey<?>, Object>());
 
-  TagContext() {}
+  TagSet() {}
 
-  static TagContext createInternal(Map<TagKey<?>, Object> tags) {
-    return new AutoValue_TagContext(new HashMap<TagKey<?>, Object>(tags));
+  static TagSet createInternal(Map<TagKey<?>, Object> tags) {
+    return new AutoValue_TagSet(new HashMap<TagKey<?>, Object>(tags));
   }
 
   abstract Map<TagKey<?>, Object> getTags();
 
   /**
-   * Returns an empty {@code TagContext}.
+   * Returns an empty {@code TagSet}.
    *
-   * @return an empty {@code TagContext}.
+   * @return an empty {@code TagSet}.
    */
-  public static TagContext empty() {
+  public static TagSet empty() {
     return EMPTY;
   }
 
   /**
-   * Creates a new {@code TagContext} by applying the given {@code TagChange}s.
+   * Creates a new {@code TagSet} by applying the given {@code TagChange}s.
    *
-   * @param changes {@code TagChange}s used to create the new {@code TagContext}.
-   * @return the updated {@code TagContext}.
+   * @param changes {@code TagChange}s used to create the new {@code TagSet}.
+   * @return the updated {@code TagSet}.
    */
-  public TagContext newContext(TagChange... changes) {
+  public TagSet newContext(TagChange... changes) {
     Map<TagKey<?>, Object> tags = new HashMap<TagKey<?>, Object>(getTags());
     for (TagChange tc : changes) {
       applyChange(tags, tc);

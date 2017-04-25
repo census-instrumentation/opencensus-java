@@ -21,9 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagContext}. */
+/** Tests for {@link TagSet}. */
 @RunWith(JUnit4.class)
-public class TagContextTest {
+public class TagSetTest {
 
   private static final TagKey<String> KS1 = TagKey.createString("k1");
   private static final TagKey<String> KS2 = TagKey.createString("k2");
@@ -32,13 +32,13 @@ public class TagContextTest {
 
   @Test
   public void testEmpty() {
-    assertThat(TagContext.empty().getTags()).isEmpty();
+    assertThat(TagSet.empty().getTags()).isEmpty();
   }
 
   @Test
   public void applyTagChangesInOrder() {
     assertThat(
-            TagContext.empty()
+            TagSet.empty()
                 .newContext(
                     TagChange.create(KS1, TagOp.SET, "v1"), TagChange.create(KS1, TagOp.SET, "v2"))
                 .getTags())
@@ -47,7 +47,7 @@ public class TagContextTest {
 
   @Test
   public void testInsert() {
-    TagContext ctx = singletonTagContext(KS1, "v1");
+    TagSet ctx = singletonTagSet(KS1, "v1");
     assertThat(ctx.newContext(TagChange.create(KS1, TagOp.INSERT, "v2")).getTags())
         .containsExactly(KS1, "v1");
     assertThat(ctx.newContext(TagChange.create(KS2, TagOp.INSERT, "v2")).getTags())
@@ -56,7 +56,7 @@ public class TagContextTest {
 
   @Test
   public void testSet() {
-    TagContext ctx = singletonTagContext(KS1, "v1");
+    TagSet ctx = singletonTagSet(KS1, "v1");
     assertThat(ctx.newContext(TagChange.create(KS1, TagOp.SET, "v2")).getTags())
         .containsExactly(KS1, "v2");
     assertThat(ctx.newContext(TagChange.create(KS2, TagOp.SET, "v2")).getTags())
@@ -65,7 +65,7 @@ public class TagContextTest {
 
   @Test
   public void testUpdate() {
-    TagContext ctx = singletonTagContext(KS1, "v1");
+    TagSet ctx = singletonTagSet(KS1, "v1");
     assertThat(ctx.newContext(TagChange.create(KS1, TagOp.UPDATE, "v2")).getTags())
         .containsExactly(KS1, "v2");
     assertThat(ctx.newContext(TagChange.create(KS2, TagOp.UPDATE, "v2")).getTags())
@@ -74,7 +74,7 @@ public class TagContextTest {
 
   @Test
   public void testClear() {
-    TagContext ctx = singletonTagContext(KS1, "v1");
+    TagSet ctx = singletonTagSet(KS1, "v1");
     assertThat(ctx.newContext(TagChange.create(KS1, TagOp.CLEAR, "v2")).getTags()).isEmpty();
     assertThat(ctx.newContext(TagChange.create(KS2, TagOp.CLEAR, "v2")).getTags())
         .containsExactly(KS1, "v1");
@@ -82,7 +82,7 @@ public class TagContextTest {
 
   @Test
   public void testNoop() {
-    TagContext ctx = singletonTagContext(KS1, "v1");
+    TagSet ctx = singletonTagSet(KS1, "v1");
     assertThat(ctx.newContext(TagChange.create(KS1, TagOp.NOOP, "v2")).getTags())
         .containsExactly(KS1, "v1");
     assertThat(ctx.newContext(TagChange.create(KS2, TagOp.NOOP, "v2")).getTags())
@@ -92,24 +92,24 @@ public class TagContextTest {
   @Test
   public void testEquals() {
     new EqualsTester()
-        .addEqualityGroup(TagContext.empty(), TagContext.empty())
+        .addEqualityGroup(TagSet.empty(), TagSet.empty())
         .addEqualityGroup(
-            TagContext.empty().newContext(TagChange.create(KS1, TagOp.INSERT, "v1")),
-            TagContext.empty().newContext(TagChange.create(KS1, TagOp.SET, "v1")),
-            TagContext.empty().newContext(
+            TagSet.empty().newContext(TagChange.create(KS1, TagOp.INSERT, "v1")),
+            TagSet.empty().newContext(TagChange.create(KS1, TagOp.SET, "v1")),
+            TagSet.empty().newContext(
                 TagChange.create(KS1, TagOp.SET, "v1"), TagChange.create(KS1, TagOp.SET, "v1")))
         .addEqualityGroup(
-            TagContext.empty().newContext(
+            TagSet.empty().newContext(
                 TagChange.create(KB, TagOp.SET, true), TagChange.create(KI, TagOp.SET, 2L)),
-            TagContext.empty().newContext(
+            TagSet.empty().newContext(
                 TagChange.create(KI, TagOp.SET, 2L), TagChange.create(KB, TagOp.SET, true)))
-        .addEqualityGroup(TagContext.empty().newContext(TagChange.create(KS1, TagOp.SET, "v2")))
-        .addEqualityGroup(TagContext.empty().newContext(TagChange.create(KS2, TagOp.SET, "v1")))
+        .addEqualityGroup(TagSet.empty().newContext(TagChange.create(KS1, TagOp.SET, "v2")))
+        .addEqualityGroup(TagSet.empty().newContext(TagChange.create(KS2, TagOp.SET, "v1")))
         .testEquals();
   }
 
-  private static <TagValueT> TagContext singletonTagContext(
+  private static <TagValueT> TagSet singletonTagSet(
       TagKey<TagValueT> key, TagValueT value) {
-    return TagContext.createInternal(ImmutableMap.<TagKey<?>, Object>of(key, value));
+    return TagSet.createInternal(ImmutableMap.<TagKey<?>, Object>of(key, value));
   }
 }

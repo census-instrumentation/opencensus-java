@@ -17,7 +17,7 @@ import com.google.auto.value.AutoValue;
 import com.google.instrumentation.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
-/** An object representing a change to be applied to a tag in a {@link TagContext}. */
+/** An object representing a change to be applied to a tag in a {@link TagSet}. */
 @Immutable
 @AutoValue
 public abstract class TagChange {
@@ -32,7 +32,7 @@ public abstract class TagChange {
    * @param key the key to update.
    * @param op the operation to apply to the key.
    * @param value the new tag value.
-   * @return a {@code TagChange} representing a change to a {@link TagContext}.
+   * @return a {@code TagChange} representing a change to a {@link TagSet}.
    */
   public static TagChange create(TagKey<String> key, TagOp op, String value) {
     return new AutoValue_TagChange(key, op, StringUtil.sanitize(value));
@@ -44,7 +44,7 @@ public abstract class TagChange {
    * @param key the key to update.
    * @param op the operation to apply to the key.
    * @param value the new tag value.
-   * @return a {@code TagChange} representing a change to a {@link TagContext}.
+   * @return a {@code TagChange} representing a change to a {@link TagSet}.
    */
   public static TagChange create(TagKey<Long> key, TagOp op, long value) {
     return new AutoValue_TagChange(key, op, value);
@@ -56,7 +56,7 @@ public abstract class TagChange {
    * @param key the key to update.
    * @param op the operation to apply to the key.
    * @param value the new tag value.
-   * @return a {@code TagChange} representing a change to a {@link TagContext}.
+   * @return a {@code TagChange} representing a change to a {@link TagSet}.
    */
   public static TagChange create(TagKey<Boolean> key, TagOp op, boolean value) {
     return new AutoValue_TagChange(key, op, value);
