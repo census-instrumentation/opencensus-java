@@ -17,6 +17,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
+import com.google.instrumentation.internal.StringUtil;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -69,6 +71,50 @@ public class TagSetTest {
     TagSet ctx = singletonTagSet(KS1, "v1");
     assertThat(ctx.toBuilder().clear(KS1).build().getTags()).isEmpty();
     assertThat(ctx.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
+  }
+
+  @Test
+  public void testValueMaxLength() {
+    char[] chars = new char[TagSet.MAX_STRING_LENGTH];
+    char[] truncChars = new char[TagSet.MAX_STRING_LENGTH + 10];
+    Arrays.fill(chars, 'v');
+    Arrays.fill(truncChars, 'v');
+    String value = new String(chars);
+    String truncValue = new String(chars);
+    TagKey<String> key1 = TagKey.createString("K1");
+    TagKey<String> key2 = TagKey.createString("K2");
+    TagKey<String> key3 = TagKey.createString("K3");
+    assertThat(
+            TagSet.builder()
+                .insert(key1, value)
+                .set(key2, value)
+                .set(key3, "")  // allow next line to update existing value
+                .update(key3, value)
+                .build()
+                .getTags())
+        .containsExactly(key1, truncValue, key2, truncValue, key3, truncValue);
+  }
+
+  @Test
+  public void testValueBadChar() {
+    String value = "\2ab\3cd";
+    TagKey<String> key1 = TagKey.createString("K1");
+    TagKey<String> key2 = TagKey.createString("K2");
+    TagKey<String> key3 = TagKey.createString("K3");
+    String expected =
+        StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
+            + "ab"
+            + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
+            + "cd";
+    assertThat(
+            TagSet.builder()
+                .insert(key1, value)
+                .set(key2, value)
+                .set(key3, "")  // allow next line to update existing value
+                .update(key3, value)
+                .build()
+                .getTags())
+        .containsExactly(key1, expected, key2, expected, key3, expected);
   }
 
   @Test

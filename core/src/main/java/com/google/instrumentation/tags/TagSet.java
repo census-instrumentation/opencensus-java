@@ -14,6 +14,7 @@
 package com.google.instrumentation.tags;
 
 import com.google.auto.value.AutoValue;
+import com.google.instrumentation.internal.StringUtil;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
@@ -22,6 +23,9 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class TagSet {
+  /** The maximum length for a string tag value. */
+  public static final int MAX_STRING_LENGTH = StringUtil.MAX_LENGTH;
+
   private static final TagSet EMPTY = createInternal(new HashMap<TagKey<?>, Object>());
 
   TagSet() {}
@@ -81,7 +85,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder insert(TagKey<String> key, String value) {
-      return insertInternal(key, value);
+      return insertInternal(key, StringUtil.sanitize(value));
     }
 
     /**
@@ -121,7 +125,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder set(TagKey<String> key, String value) {
-      return setInternal(key, value);
+      return setInternal(key, StringUtil.sanitize(value));
     }
 
     /**
@@ -159,7 +163,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder update(TagKey<String> key, String value) {
-      return updateInternal(key, value);
+      return updateInternal(key, StringUtil.sanitize(value));
     }
 
     /**
