@@ -1,10 +1,9 @@
 description = 'Instrumentation: API'
 
 dependencies {
-    compile libraries.auto_value,
-            libraries.grpc_context,
+    compile libraries.grpc_context,
             libraries.guava
-
+    compileOnly libraries.auto_value
     testCompile libraries.grpc_context
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
