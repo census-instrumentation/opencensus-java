@@ -15,15 +15,17 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.Collections2;
 import com.google.common.testing.EqualsTester;
-
 import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -169,23 +171,28 @@ public class StatsContextTest {
   }
 
   private static void testSerialize(Tag... tags) throws IOException {
-    final Map<TagKey, TagValue> tagMap = new HashMap<TagKey, TagValue>();
+    StatsContext.Builder builder = DEFAULT.builder();
     for (Tag tag : tags) {
-      tagMap.put(tag.getKey(), tag.getValue());
+      builder.set(tag.getKey(), tag.getValue());
     }
 
     ByteArrayOutputStream actual = new ByteArrayOutputStream();
-    new StatsContextImpl(tagMap).serialize(actual);
+    builder.build().serialize(actual);
 
-    ByteArrayOutputStream expected = new ByteArrayOutputStream();
-    expected.write(VERSION_ID);
-    for (Entry<TagKey, TagValue> entry : tagMap.entrySet()) {
-      expected.write(VALUE_TYPE_STRING);
-      encodeString(entry.getKey().asString(), expected);
-      encodeString(entry.getValue().asString(), expected);
+    Collection<List<Tag>> tagPermutation = Collections2.permutations(Arrays.asList(tags));
+    Set<String> possibleOutputs = new HashSet<String>();
+    for (List<Tag> list : tagPermutation) {
+      ByteArrayOutputStream expected = new ByteArrayOutputStream();
+      expected.write(VERSION_ID);
+      for (Tag tag : list) {
+        expected.write(VALUE_TYPE_STRING);
+        encodeString(tag.getKey().asString(), expected);
+        encodeString(tag.getValue().asString(), expected);
+      }
+      possibleOutputs.add(expected.toString());
     }
 
-    assertThat(actual.toByteArray()).isEqualTo(expected.toByteArray());
+    assertThat(possibleOutputs).contains(actual.toString());
   }
 
   private static void testRoundtripSerialization(StatsContext expected) throws Exception {
