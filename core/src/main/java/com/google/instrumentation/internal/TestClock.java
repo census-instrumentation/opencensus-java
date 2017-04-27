@@ -13,9 +13,9 @@
 
 package com.google.instrumentation.internal;
 
+import com.google.common.math.LongMath;
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Timestamp;
-import java.math.BigInteger;
 
 /**
  * A {@link Clock} that allows the time to be set for testing.
@@ -64,22 +64,17 @@ public final class TestClock extends Clock {
 
   @Override
   public long nowNanos() {
-    return getNanos(currentTime).longValue();
+    return getNanos(currentTime);
   }
 
   private static Timestamp validateNanos(Timestamp time) {
-    BigInteger nanos = getNanos(time);
-    if (nanos.compareTo(BigInteger.valueOf(Long.MIN_VALUE)) < 0
-        || nanos.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
-      throw new ArithmeticException("Nanoseconds overflow: " + time);
-    }
+    getNanos(time);
     return time;
   }
 
-  // Converts Timestamp into nanoseconds since time 0.
-  private static BigInteger getNanos(Timestamp time) {
-    return BigInteger.valueOf(time.getSeconds())
-        .multiply(BigInteger.valueOf(NUM_NANOS_PER_SECOND))
-        .add(BigInteger.valueOf(time.getNanos()));
+  // Converts Timestamp into nanoseconds since time 0 and throws an exception if it overflows.
+  private static long getNanos(Timestamp time) {
+    return LongMath.checkedAdd(
+        LongMath.checkedMultiply(time.getSeconds(), NUM_NANOS_PER_SECOND), time.getNanos());
   }
 }
