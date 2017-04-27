@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, Google Inc.
+ * Copyright 2017, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,148 +13,43 @@
 
 package com.google.instrumentation.stats;
 
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_ERROR_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_FINISHED_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_METHOD;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_REQUEST_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_REQUEST_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_RESPONSE_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_RESPONSE_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_SERVER_ELAPSED_TIME;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_STARTED_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_ERROR_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_FINISHED_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_METHOD;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_REQUEST_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_REQUEST_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_RESPONSE_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_RESPONSE_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_SERVER_ELAPSED_TIME;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_SERVER_LATENCY;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_STARTED_COUNT;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES;
+import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_STATUS;
+
 import com.google.instrumentation.common.Duration;
-import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
-import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Deprecated, please use RpcMeasurementConstants for MeasurementDescriptor constants, and
- * RpcViewConstants for ViewDescriptor constants.
- *
- * Constants for collecting rpc stats.
+ * Constants for exporting views on rpc stats.
  */
-@Deprecated
-public final class RpcConstants {
-  // Rpc tag keys.
-  public static final TagKey RPC_STATUS = TagKey.create("OpStatus");
-  public static final TagKey RPC_CLIENT_METHOD = TagKey.create("method");
-  public static final TagKey RPC_SERVER_METHOD = TagKey.create("method");
-
-  // Constants used to define the following MeasurementDescriptors.
-  private static final List<BasicUnit> bytes = Arrays.asList(BasicUnit.BYTES);
-  private static final List<BasicUnit> scalar = Arrays.asList(BasicUnit.SCALAR);
-  private static final List<BasicUnit> seconds = Arrays.asList(BasicUnit.SECONDS);
-
-  // RPC client {@link MeasurementDescriptor}s.
-  public static final MeasurementDescriptor RPC_CLIENT_ERROR_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/client/error_count",
-          "RPC Errors",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_REQUEST_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/client/request_bytes",
-          "Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/client/response_bytes",
-          "Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
-      MeasurementDescriptor.create(
-          "grpc.io/client/roundtrip_latency",
-          "RPC roundtrip latency msec",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME =
-      MeasurementDescriptor.create(
-          "grpc.io/client/server_elapsed_time",
-          "Server elapsed time in msecs",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/client/uncompressed_request_bytes",
-          "Uncompressed Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/client/uncompressed_response_bytes",
-          "Uncompressed Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_STARTED_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/client/started_count",
-          "Number of client RPCs (streams) started",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_FINISHED_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/client/finished_count",
-          "Number of client RPCs (streams) finished",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_REQUEST_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/client/request_count",
-          "Number of client RPC request messages",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/client/response_count",
-          "Number of client RPC response messages",
-          MeasurementUnit.create(0, scalar));
-
-
-  // RPC server {@link MeasurementDescriptor}s.
-  public static final MeasurementDescriptor RPC_SERVER_ERROR_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/server/error_count",
-          "RPC Errors",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_REQUEST_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/server/request_bytes",
-          "Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/server/response_bytes",
-          "Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_SERVER_ELAPSED_TIME =
-      MeasurementDescriptor.create(
-          "grpc.io/server/server_elapsed_time",
-          "Server elapsed time in msecs",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_SERVER_SERVER_LATENCY =
-      MeasurementDescriptor.create(
-          "grpc.io/server/server_latency",
-          "Latency in msecs",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/server/uncompressed_request_bytes",
-          "Uncompressed Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
-          "grpc.io/server/uncompressed_response_bytes",
-          "Uncompressed Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_STARTED_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/server/started_count",
-          "Number of server RPCs (streams) started",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_FINISHED_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/server/finished_count",
-          "Number of server RPCs (streams) finished",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_REQUEST_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/server/request_count",
-          "Number of server RPC request messages",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_RESPONSE_COUNT =
-      MeasurementDescriptor.create(
-          "grpc.io/server/response_count",
-          "Number of server RPC response messages",
-          MeasurementUnit.create(0, scalar));
+public final class RpcViewConstants {
 
   // Common histogram bucket boundaries for bytes received/sets DistributionViewDescriptors.
   static final List<Double> RPC_BYTES_BUCKET_BOUNDARIES = Collections.unmodifiableList(
@@ -480,8 +375,8 @@ public final class RpcConstants {
           IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
-  // Visible for testing
-  RpcConstants() {
+  // Visible for testing.
+  RpcViewConstants() {
     throw new AssertionError();
   }
 }
