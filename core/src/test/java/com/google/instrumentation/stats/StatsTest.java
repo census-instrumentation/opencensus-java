@@ -13,22 +13,15 @@
 
 package com.google.instrumentation.stats;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link Stats}
+ * Tests for {@link Stats}.
  */
 @RunWith(JUnit4.class)
 public final class StatsTest {
-  @Test
-  public void getStatsContextFactory() {
-    assertThat(Stats.getStatsContextFactory()).isNotNull();
-  }
-
   @Test(expected = AssertionError.class)
   public void testConstructor() {
     new Stats();

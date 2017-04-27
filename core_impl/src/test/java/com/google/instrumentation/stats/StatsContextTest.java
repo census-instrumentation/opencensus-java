@@ -35,7 +35,8 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class StatsContextTest {
-  private static final StatsContext DEFAULT = Stats.getStatsContextFactory().getDefault();
+  private static final StatsContextFactory FACTORY = new StatsContextFactoryImpl();
+  private static final StatsContext DEFAULT = StatsContextFactoryImpl.DEFAULT;
 
   private static final MeasurementDescriptor[] StatsMeasurementDescriptors = {
     RpcMeasurementConstants.RPC_CLIENT_REQUEST_BYTES,
@@ -202,7 +203,7 @@ public class StatsContextTest {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     expected.serialize(output);
     ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-    StatsContext actual = Stats.getStatsContextFactory().deserialize(input);
+    StatsContext actual = FACTORY.deserialize(input);
     assertThat(actual).isEqualTo(expected);
   }
 

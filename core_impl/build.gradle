@@ -4,7 +4,6 @@ dependencies {
     compile project(':instrumentation-java-core'),
             project(':shared'),
             libraries.auto_value,
-            libraries.disruptor,
             libraries.guava
 
     testCompile project(':instrumentation-java-core')

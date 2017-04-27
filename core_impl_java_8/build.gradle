@@ -1,0 +1,7 @@
+description = 'Instrumentation Core Impl Java 8'
+
+dependencies {
+    compile project(':instrumentation-java-core'),
+            project(':instrumentation-java-core-impl'),
+            project(':instrumentation-java-core-impl-java')
+}

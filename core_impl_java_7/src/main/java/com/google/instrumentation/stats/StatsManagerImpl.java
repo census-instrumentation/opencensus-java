@@ -11,23 +11,13 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.common;
+package com.google.instrumentation.stats;
 
 /**
- * A queue that processes events. See {@code DisruptorEventQueue} for an example.
+ * Java 7 implementation of {@link StatsManager}.
  */
-public interface EventQueue {
-  void enqueue(Entry entry);
+public final class StatsManagerImpl extends StatsManagerImplJava {
 
-  /**
-   * Base interface to be used for all entries in {@link EventQueue}. For example usage,
-   * see {@code DisruptorEventQueue}.
-   */
-  public interface Entry {
-    /**
-     * Process the event associated with this entry. This will be called for every event in the
-     * associated {@link EventQueue}.
-     */
-    void process();
+  public StatsManagerImpl() {
   }
 }

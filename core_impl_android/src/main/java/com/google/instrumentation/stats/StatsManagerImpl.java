@@ -11,23 +11,17 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.common;
+package com.google.instrumentation.stats;
+
+import com.google.instrumentation.common.SimpleEventQueue;
 
 /**
- * A queue that processes events. See {@code DisruptorEventQueue} for an example.
+ * Android-compatible implementation of {@link StatsManager}.
  */
-public interface EventQueue {
-  void enqueue(Entry entry);
+public final class StatsManagerImpl extends StatsManagerImplBase {
 
-  /**
-   * Base interface to be used for all entries in {@link EventQueue}. For example usage,
-   * see {@code DisruptorEventQueue}.
-   */
-  public interface Entry {
-    /**
-     * Process the event associated with this entry. This will be called for every event in the
-     * associated {@link EventQueue}.
-     */
-    void process();
+  public StatsManagerImpl() {
+    // TODO(sebright): Use a more efficient queue implementation.
+    super(new SimpleEventQueue());
   }
 }

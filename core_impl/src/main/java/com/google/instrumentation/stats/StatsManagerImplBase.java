@@ -13,7 +13,6 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.DisruptorEventQueue;
 import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
@@ -25,14 +24,10 @@ import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 /**
  * Native Implementation of {@link StatsManager}.
  */
-public final class StatsManagerImpl extends StatsManager {
+public class StatsManagerImplBase extends StatsManager {
   private final EventQueue queue;
 
-  public StatsManagerImpl() {
-    queue = DisruptorEventQueue.getInstance();
-  }
-
-  StatsManagerImpl(EventQueue queue) {
+  StatsManagerImplBase(EventQueue queue) {
     this.queue = queue;
   }
 
@@ -94,10 +89,10 @@ public final class StatsManagerImpl extends StatsManager {
   private static final class StatsEvent implements EventQueue.Entry {
     private final StatsContextImpl tags;
     private final MeasurementMap stats;
-    private final StatsManagerImpl statsManager;
+    private final StatsManagerImplBase statsManager;
 
     StatsEvent(
-        StatsManagerImpl statsManager, StatsContextImpl tags, MeasurementMap stats) {
+        StatsManagerImplBase statsManager, StatsContextImpl tags, MeasurementMap stats) {
       this.statsManager = statsManager;
       this.tags = tags;
       this.stats = stats;
