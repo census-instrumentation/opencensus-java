@@ -15,6 +15,7 @@ package com.google.instrumentation.internal;
 
 import com.google.common.math.LongMath;
 import com.google.instrumentation.common.Clock;
+import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Timestamp;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -59,6 +60,21 @@ public final class TestClock extends Clock {
    */
   public synchronized void setTime(Timestamp time) {
     currentTime = validateNanos(time);
+  }
+
+  /**
+   * Advances the time by a duration.
+   *
+   * @param duration the increase in time.
+   */
+  // TODO(sebright): Consider adding an 'addDuration' method to Timestamp.
+  public synchronized void advanceTime(Duration duration) {
+    currentTime =
+        validateNanos(
+            Timestamp.create(
+                    LongMath.checkedAdd(currentTime.getSeconds(), duration.getSeconds()),
+                    currentTime.getNanos())
+                .addNanos(duration.getNanos()));
   }
 
   @Override

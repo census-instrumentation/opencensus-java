@@ -15,6 +15,7 @@ package com.google.instrumentation.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Timestamp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,13 @@ public final class TestClockTest {
     assertThat(clock.now()).isEqualTo(Timestamp.create(1, 2));
     clock.setTime(Timestamp.create(3, 4));
     assertThat(clock.now()).isEqualTo(Timestamp.create(3, 4));
+  }
+
+  @Test
+  public void advanceTime() {
+    TestClock clock = TestClock.create(Timestamp.create(1, 500 * 1000 * 1000));
+    clock.advanceTime(Duration.create(2, 600 * 1000 * 1000));
+    assertThat(clock.now()).isEqualTo(Timestamp.create(4, 100 * 1000 * 1000));
   }
 
   @Test
