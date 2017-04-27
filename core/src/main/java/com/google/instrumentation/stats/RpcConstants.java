@@ -24,11 +24,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Deprecated, please use RpcMeasurementConstants for MeasurementDescriptor constants, and
- * RpcViewConstants for ViewDescriptor constants.
- *
  * Constants for collecting rpc stats.
  */
+// Deprecated, please use RpcMeasurementConstants for MeasurementDescriptor constants, and
+// RpcViewConstants for ViewDescriptor constants.
 @Deprecated
 public final class RpcConstants {
   // Rpc tag keys.

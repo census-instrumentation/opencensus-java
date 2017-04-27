@@ -38,9 +38,12 @@ public class StatsContextTest {
   private static final StatsContext DEFAULT = Stats.getStatsContextFactory().getDefault();
 
   private static final MeasurementDescriptor[] StatsMeasurementDescriptors = {
-    RpcConstants.RPC_CLIENT_REQUEST_BYTES, RpcConstants.RPC_CLIENT_RESPONSE_BYTES,
-    RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, RpcConstants.RPC_SERVER_REQUEST_BYTES,
-    RpcConstants.RPC_SERVER_RESPONSE_BYTES, RpcConstants.RPC_SERVER_SERVER_LATENCY
+    RpcMeasurementConstants.RPC_CLIENT_REQUEST_BYTES,
+    RpcMeasurementConstants.RPC_CLIENT_RESPONSE_BYTES,
+    RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY,
+    RpcMeasurementConstants.RPC_SERVER_REQUEST_BYTES,
+    RpcMeasurementConstants.RPC_SERVER_RESPONSE_BYTES,
+    RpcMeasurementConstants.RPC_SERVER_SERVER_LATENCY
   };
 
   private static final int VERSION_ID = 0;
