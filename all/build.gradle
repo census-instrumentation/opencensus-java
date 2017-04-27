@@ -11,13 +11,15 @@ buildscript {
     }
 }
 
+// TODO(sebright): Look into handling instrumentation-java-core-impl-java-7,
+// instrumentation-java-core-impl-java-8, and
+// instrumentation-java-core-impl-android. 'subprojects' currently doesn't
+// include all directories, because Javadoc cannot handle multiple classes with
+// the same name, such as StatsManagerImpl.
 def subprojects = [
   project(':instrumentation-java-core'),
   project(':instrumentation-java-core-impl'),
-  project(':instrumentation-java-core-impl-android'),
   project(':instrumentation-java-core-impl-java'),
-  project(':instrumentation-java-core-impl-java-7'),
-  project(':instrumentation-java-core-impl-java-8'),
 ]
 
 for (subproject in rootProject.subprojects) {
