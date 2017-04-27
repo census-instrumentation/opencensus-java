@@ -15,10 +15,12 @@ package com.google.instrumentation.internal;
 
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Timestamp;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A {@link Clock} that uses {@link System#currentTimeMillis()} and {@link System#nanoTime()}.
  */
+@ThreadSafe
 public final class MillisClock extends Clock {
   private static final MillisClock INSTANCE = new MillisClock();
 

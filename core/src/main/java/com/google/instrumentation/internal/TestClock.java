@@ -16,13 +16,17 @@ package com.google.instrumentation.internal;
 import com.google.common.math.LongMath;
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Timestamp;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A {@link Clock} that allows the time to be set for testing.
  */
+@ThreadSafe
 public final class TestClock extends Clock {
   private static final int NUM_NANOS_PER_SECOND = 1000 * 1000 * 1000;
 
+  @GuardedBy("this")
   private Timestamp currentTime = Timestamp.create(0, 0);
 
   private TestClock() {}
@@ -53,17 +57,17 @@ public final class TestClock extends Clock {
    *
    * @param time the new time.
    */
-  public void setTime(Timestamp time) {
+  public synchronized void setTime(Timestamp time) {
     currentTime = validateNanos(time);
   }
 
   @Override
-  public Timestamp now() {
+  public synchronized Timestamp now() {
     return currentTime;
   }
 
   @Override
-  public long nowNanos() {
+  public synchronized long nowNanos() {
     return getNanos(currentTime);
   }
 
