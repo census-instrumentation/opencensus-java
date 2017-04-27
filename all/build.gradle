@@ -14,6 +14,10 @@ buildscript {
 def subprojects = [
   project(':instrumentation-java-core'),
   project(':instrumentation-java-core-impl'),
+  project(':instrumentation-java-core-impl-android'),
+  project(':instrumentation-java-core-impl-java'),
+  project(':instrumentation-java-core-impl-java-7'),
+  project(':instrumentation-java-core-impl-java-8'),
 ]
 
 for (subproject in rootProject.subprojects) {
