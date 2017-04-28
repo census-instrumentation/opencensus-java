@@ -13,9 +13,8 @@
 
 package com.google.instrumentation.trace;
 
-import com.google.common.base.MoreObjects;
+import com.google.auto.value.AutoValue;
 import com.google.instrumentation.common.Timestamp;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -23,21 +22,9 @@ import javax.annotation.concurrent.Immutable;
 
 /** Immutable representation of all data collected by the {@link Span} class. */
 @Immutable
-public final class SpanData {
-  private final SpanContext context;
-  private final SpanId parentSpanId;
-  private final String displayName;
-  private final Timestamp startTimestamp;
-  private final Map<String, AttributeValue> attributes;
-  private final List<TimedEvent<Annotation>> annotations;
-  private final List<TimedEvent<NetworkEvent>> networkEvents;
-  private final List<Link> links;
-  private final Status status;
-  private final Timestamp endTimestamp;
-
-  // This constructor must be called only by the implementation of the Span.
-  SpanData(
-      SpanContext context,
+@AutoValue
+public abstract class SpanData {
+  public static SpanData create(SpanContext context,
       @Nullable SpanId parentSpanId,
       String displayName,
       Timestamp startTimestamp,
@@ -47,16 +34,8 @@ public final class SpanData {
       List<Link> links,
       @Nullable Status status,
       @Nullable Timestamp endTimestamp) {
-    this.context = context;
-    this.parentSpanId = parentSpanId;
-    this.displayName = displayName;
-    this.startTimestamp = startTimestamp;
-    this.attributes = Collections.unmodifiableMap(attributes);
-    this.annotations = Collections.unmodifiableList(annotations);
-    this.networkEvents = Collections.unmodifiableList(networkEvents);
-    this.links = Collections.unmodifiableList(links);
-    this.status = status;
-    this.endTimestamp = endTimestamp;
+    return new AutoValue_SpanData(context, parentSpanId, displayName, startTimestamp, attributes,
+        annotations, networkEvents, links, status, endTimestamp);
   }
 
   /**
@@ -64,9 +43,7 @@ public final class SpanData {
    *
    * @return the {@code SpanContext} associated with this {@code Span}.
    */
-  public SpanContext getContext() {
-    return context;
-  }
+  public abstract SpanContext getContext();
 
   /**
    * Returns the parent {@code SpanId} or {@code null} if the {@code Span} is a root {@code Span}.
@@ -74,72 +51,57 @@ public final class SpanData {
    * @return the parent {@code SpanId} or {@code null} if the {@code Span} is a root {@code Span}.
    */
   @Nullable
-  public SpanId getParentSpanId() {
-    return parentSpanId;
-  }
+  public abstract SpanId getParentSpanId();
 
   /**
    * Returns the display name of this {@code Span}.
    *
    * @return the display name of this {@code Span}.
    */
-  public String getDisplayName() {
-    return displayName;
-  }
+  public abstract String getDisplayName();
 
   /**
    * Returns the start {@code Timestamp} of this {@code Span}.
    *
    * @return the start {@code Timestamp} of this {@code Span}.
    */
-  public Timestamp getStartTimestamp() {
-    return startTimestamp;
-  }
+  public abstract Timestamp getStartTimestamp();
 
   /**
    * Returns the set of attributes recorded for this {@code Span}.
    *
    * @return the set of attributes recorded for this {@code Span}.
    */
-  public Map<String, AttributeValue> getAttributes() {
-    return attributes;
-  }
+  public abstract Map<String, AttributeValue> getAttributes();
 
   /**
    * Returns the list of {@code Annotation}s recorded for this {@code Span}.
    *
    * @return the list of {@code Annotation}s recorded for this {@code Span}.
    */
-  public List<TimedEvent<Annotation>> getAnnotations() {
-    return annotations;
-  }
+  public abstract List<TimedEvent<Annotation>> getAnnotations();
 
   /**
    * Returns the list of {@code NetworkEvent}s recorded for this {@code Span}.
    *
    * @return the list of {@code NetworkEvent}s recorded for this {@code Span}.
    */
-  public List<TimedEvent<NetworkEvent>> getNetworkEvents() {
-    return networkEvents;
-  }
+  public abstract List<TimedEvent<NetworkEvent>> getNetworkEvents();
 
   /**
    * Returns the list of {@code Link}s recorded for this {@code Span}.
    *
    * @return the list of {@code Link}s recorded for this {@code Span}.
    */
-  public List<Link> getLinks() {
-    return links;
-  }
+  public abstract List<Link> getLinks();
 
   /**
    * Returns the {@code Status} or {@code null} if {@code Span} is still active.
    *
    * @return the {@code Status} or {@code null} if {@code Span} is still active.
    */
-  public Status getStatus() {
-    return status;
-  }
+  @Nullable
+  public abstract Status getStatus();
 
   /**
    * Returns the end {@code Timestamp} or {@code null} if the {@code Span} is still active.
@@ -147,23 +109,7 @@ public final class SpanData {
    * @return the end {@code Timestamp} or {@code null} if the {@code Span} is still active.
    */
   @Nullable
-  public Timestamp getEndTimestamp() {
-    return endTimestamp;
-  }
+  public abstract Timestamp getEndTimestamp();
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("context", context)
-        .add("parentSpanId", parentSpanId)
-        .add("displayName", displayName)
-        .add("startTimestamp", startTimestamp)
-        .add("attributes", attributes)
-        .add("annotations", annotations)
-        .add("networkEvents", networkEvents)
-        .add("links", links)
-        .add("status", status)
-        .add("endTimestamp", endTimestamp)
-        .toString();
-  }
+  SpanData() {}
 }
