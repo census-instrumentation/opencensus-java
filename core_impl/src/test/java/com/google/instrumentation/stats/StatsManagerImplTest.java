@@ -53,10 +53,9 @@ public class StatsManagerImplTest {
           new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1));
   private static final StatsContextImpl wrongTag2 =
       new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1, wrongTagKey2, tagValue2));
-
-
+  private final TestClock clock = TestClock.create();
   private final StatsManagerImplBase statsManager =
-      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create(Timestamp.create(1, 2)));
+      new StatsManagerImplBase(new SimpleEventQueue(), clock);
 
   @Test
   public void testRegisterAndGetView() throws Exception {
@@ -89,17 +88,20 @@ public class StatsManagerImplTest {
 
   @Test
   public void testRecord() {
+    clock.setTime(Timestamp.create(1, 2));
     statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     for (double val : Arrays.<Double>asList(10.0, 20.0, 30.0, 40.0)) {
       statsManager.record(
           oneTag, MeasurementMap.of(RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
     }
 
+    clock.setTime(Timestamp.create(3, 4));
     DistributionView view =
         (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    assertThat(view.getViewDescriptor()).isEqualTo(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    // TODO(songya): update to make assertions on the exact time based on fake clock.
-    assertThat(view.getEnd().getSeconds()).isAtLeast(view.getStart().getSeconds());
+    assertThat(view.getViewDescriptor())
+        .isEqualTo(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(view.getStart()).isEqualTo(Timestamp.create(1, 2));
+    assertThat(view.getEnd()).isEqualTo(Timestamp.create(3, 4));
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(1);
     DistributionAggregation distributionAggregation = distributionAggregations.get(0);
