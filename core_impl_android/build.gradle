@@ -1,0 +1,8 @@
+description = 'Instrumentation Core Impl Android'
+
+dependencies {
+    compile project(':instrumentation-java-core'),
+            project(':instrumentation-java-core-impl')
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}

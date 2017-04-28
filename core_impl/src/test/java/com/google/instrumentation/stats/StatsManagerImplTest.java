@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link StatsManagerImpl}.
+ * Tests for {@link StatsManagerImplBase}.
  */
 @RunWith(JUnit4.class)
 public class StatsManagerImplTest {
@@ -53,7 +53,8 @@ public class StatsManagerImplTest {
       new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1, wrongTagKey2, tagValue2));
 
 
-  private final StatsManagerImpl statsManager = new StatsManagerImpl(new SimpleEventQueue());
+  private final StatsManagerImplBase statsManager =
+      new StatsManagerImplBase(new SimpleEventQueue());
 
   @Test
   public void testRegisterAndGetView() throws Exception {

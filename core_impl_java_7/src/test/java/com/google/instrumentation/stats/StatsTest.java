@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, Google Inc.
+ * Copyright 2016, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,23 +11,21 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.common;
+package com.google.instrumentation.stats;
+
+import static com.google.common.truth.Truth.assertThat;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
- * A queue that processes events. See {@code DisruptorEventQueue} for an example.
+ * Test for accessing the {@link StatsManager} through the {@link Stats} class.
  */
-public interface EventQueue {
-  void enqueue(Entry entry);
-
-  /**
-   * Base interface to be used for all entries in {@link EventQueue}. For example usage,
-   * see {@code DisruptorEventQueue}.
-   */
-  public interface Entry {
-    /**
-     * Process the event associated with this entry. This will be called for every event in the
-     * associated {@link EventQueue}.
-     */
-    void process();
+@RunWith(JUnit4.class)
+public final class StatsTest {
+  @Test
+  public void getStatsContextFactory() {
+    assertThat(Stats.getStatsContextFactory()).isNotNull();
   }
 }

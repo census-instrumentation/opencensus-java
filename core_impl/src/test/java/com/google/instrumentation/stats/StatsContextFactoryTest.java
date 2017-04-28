@@ -34,6 +34,8 @@ public class StatsContextFactoryTest {
   private static final String KEY = "Key";
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
+
+  private static final StatsContextFactory FACTORY = new StatsContextFactoryImpl();
   private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
 
   public StatsContextFactoryTest() {
@@ -53,7 +55,7 @@ public class StatsContextFactoryTest {
 
   @Test
   public void testDeserializeNoTags() throws Exception {
-    StatsContext expected = Stats.getStatsContextFactory().getDefault();
+    StatsContext expected = FACTORY.getDefault();
     StatsContext actual = testDeserialize(
         new ByteArrayInputStream(
             new byte[]{StatsSerializer.VERSION_ID}));  // One byte that represents Version ID.
@@ -127,7 +129,7 @@ public class StatsContextFactoryTest {
 
   private static StatsContext testDeserialize(InputStream inputStream)
       throws IOException, IOException {
-    return Stats.getStatsContextFactory().deserialize(inputStream);
+    return FACTORY.deserialize(inputStream);
   }
 
   /*
