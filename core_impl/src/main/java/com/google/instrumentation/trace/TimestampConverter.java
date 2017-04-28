@@ -13,9 +13,8 @@
 
 package com.google.instrumentation.trace;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Timestamp;
-import com.google.instrumentation.common.TimestampFactory;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -28,8 +27,8 @@ final class TimestampConverter {
   private final long nanoTime;
 
   // Returns a WallTimeConverter initialized to now.
-  static TimestampConverter now() {
-    return new TimestampConverter(TimestampFactory.now(), System.nanoTime());
+  static TimestampConverter now(Clock clock) {
+    return new TimestampConverter(clock.now(), clock.nowNanos());
   }
 
   /**
@@ -42,8 +41,7 @@ final class TimestampConverter {
     return timestamp.addNanos(nanoTime - this.nanoTime);
   }
 
-  @VisibleForTesting
-  TimestampConverter(Timestamp timestamp, long nanoTime) {
+  private TimestampConverter(Timestamp timestamp, long nanoTime) {
     this.timestamp = timestamp;
     this.nanoTime = nanoTime;
   }

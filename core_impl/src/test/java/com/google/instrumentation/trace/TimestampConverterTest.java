@@ -16,6 +16,7 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.common.Timestamp;
+import com.google.instrumentation.internal.TestClock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -23,11 +24,15 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TimestampConverter}. */
 @RunWith(JUnit4.class)
 public class TimestampConverterTest {
+  private final Timestamp timestamp = Timestamp.create(1234, 5678);
+  private final TestClock testClock = TestClock.create(timestamp);
+
   @Test
   public void convertNanoTime() {
-    Timestamp timestamp = Timestamp.create(1234, 5678);
-    TimestampConverter timeConverter = new TimestampConverter(timestamp, 2345);
-    assertThat(timeConverter.convertNanoTime(1234)).isEqualTo(timestamp.addNanos(-1111));
-    assertThat(timeConverter.convertNanoTime(3456)).isEqualTo(timestamp.addNanos(1111));
+    TimestampConverter timeConverter = TimestampConverter.now(testClock);
+    assertThat(timeConverter.convertNanoTime(testClock.nowNanos() - 1234))
+        .isEqualTo(timestamp.addNanos(-1234));
+    assertThat(timeConverter.convertNanoTime(testClock.nowNanos() + 1234))
+        .isEqualTo(timestamp.addNanos(1234));
   }
 }
