@@ -15,8 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import com.google.auto.value.AutoValue;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,11 +23,10 @@ import javax.annotation.concurrent.Immutable;
 
 /** A text annotation with a set of attributes. */
 @Immutable
-public final class Annotation {
-  private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES = Collections.emptyMap();
-
-  private final String description;
-  private final Map<String, AttributeValue> attributes;
+@AutoValue
+public abstract class Annotation {
+  private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES =
+      Collections.unmodifiableMap(Collections.<String, AttributeValue>emptyMap());
 
   /**
    * Returns a new {@code Annotation} with the given description.
@@ -38,7 +36,7 @@ public final class Annotation {
    * @throws NullPointerException if {@code description} is {@code null}.
    */
   public static Annotation fromDescription(String description) {
-    return new Annotation(description, EMPTY_ATTRIBUTES);
+    return new AutoValue_Annotation(description, EMPTY_ATTRIBUTES);
   }
 
   /**
@@ -51,7 +49,10 @@ public final class Annotation {
    */
   public static Annotation fromDescriptionAndAttributes(
       String description, Map<String, AttributeValue> attributes) {
-    return new Annotation(description, attributes);
+    return new AutoValue_Annotation(
+        description,
+        Collections.unmodifiableMap(
+            new HashMap<String, AttributeValue>(checkNotNull(attributes, "attributes"))));
   }
 
   /**
@@ -59,51 +60,14 @@ public final class Annotation {
    *
    * @return the description of the {@code Annotation}.
    */
-  public String getDescription() {
-    return description;
-  }
+  public abstract String getDescription();
 
   /**
    * Return the attributes of the {@code Annotation}.
    *
    * @return the attributes of the {@code Annotation}.
    */
-  public Map<String, AttributeValue> getAttributes() {
-    return attributes;
-  }
+  public abstract Map<String, AttributeValue> getAttributes();
 
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-
-    if (!(obj instanceof Annotation)) {
-      return false;
-    }
-
-    Annotation that = (Annotation) obj;
-    return Objects.equal(description, that.description)
-        && Objects.equal(attributes, that.attributes);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(description, attributes);
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("description", description)
-        .add("attributes", attributes)
-        .toString();
-  }
-
-  private Annotation(String description, Map<String, AttributeValue> attributes) {
-    this.description = checkNotNull(description, "description");
-    this.attributes =
-        Collections.unmodifiableMap(
-            new HashMap<String, AttributeValue>(checkNotNull(attributes, "attributes")));
-  }
+  Annotation() {}
 }
