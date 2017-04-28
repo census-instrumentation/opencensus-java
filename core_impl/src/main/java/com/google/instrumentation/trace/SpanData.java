@@ -15,6 +15,9 @@ package com.google.instrumentation.trace;
 
 import com.google.auto.value.AutoValue;
 import com.google.instrumentation.common.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -24,7 +27,27 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class SpanData {
-  public static SpanData create(SpanContext context,
+
+  /**
+   * Returns a new immutable {@code SpanData}.
+   *
+   * @param context the {@code SpanContext} of the {@code Span}.
+   * @param parentSpanId the parent {@code SpanId} of the {@code Span}. {@code null} if the {@code
+   *     Span} is a root.
+   * @param displayName the name of the {@code Span}.
+   * @param startTimestamp the start {@code Timestamp} of the {@code Span}.
+   * @param attributes the attributes associated with the {@code Span}.
+   * @param annotations the annotations associated with the {@code Span}.
+   * @param networkEvents the network events associated with the {@code Span}.
+   * @param links the links associated with the {@code Span}.
+   * @param status the {@code Status} of the {@code Span}. {@code null} if the {@code Span} is still
+   *     active.
+   * @param endTimestamp the end {@code Timestamp} of the {@code Span}. {@code null} if the {@code
+   *     Span} is still active.
+   * @return a new immutable {@code SpanData}.
+   */
+  public static SpanData create(
+      SpanContext context,
       @Nullable SpanId parentSpanId,
       String displayName,
       Timestamp startTimestamp,
@@ -34,8 +57,17 @@ public abstract class SpanData {
       List<Link> links,
       @Nullable Status status,
       @Nullable Timestamp endTimestamp) {
-    return new AutoValue_SpanData(context, parentSpanId, displayName, startTimestamp, attributes,
-        annotations, networkEvents, links, status, endTimestamp);
+    return new AutoValue_SpanData(
+        context,
+        parentSpanId,
+        displayName,
+        startTimestamp,
+        Collections.unmodifiableMap(new HashMap<String, AttributeValue>(attributes)),
+        Collections.unmodifiableList(new ArrayList<TimedEvent<Annotation>>(annotations)),
+        Collections.unmodifiableList(new ArrayList<TimedEvent<NetworkEvent>>(networkEvents)),
+        Collections.unmodifiableList(new ArrayList<Link>(links)),
+        status,
+        endTimestamp);
   }
 
   /**
