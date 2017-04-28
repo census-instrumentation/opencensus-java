@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /** Implementation for the {@link Span} class. */
@@ -29,17 +30,34 @@ import javax.annotation.concurrent.ThreadSafe;
 final class SpanImpl extends Span {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
 
+  // The parent SpanId of this span. Null if this is a root.
   private final SpanId parentSpanId;
+  // Handler called when the span starts and ends.
   private final StartEndHandler startEndHandler;
+  // The displayed name of the span.
   private final String name;
-  // All the following variables are initialized iff the Span has RECORD_EVENTS option.
+  // The clocked used to get the time.
   private final Clock clock;
-  private TimestampConverter timestampConverter;
-  private long startNanoTime;
+  // The time converter used to convert nano time to Timestamp. This is needed because java has
+  // milliseconds granularity for Timestamp and tracing events are recorded more often.
+  private final TimestampConverter timestampConverter;
+  // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
+  // set, otherwise 0.
+  private final long startNanoTime;
+  // The status of the span. Set when the span is ended iff the RECORD_EVENTS options is set.
+  @GuardedBy("this")
   private Status status;
+  // The end time of the span. Set when the span is ended iff the RECORD_EVENTS options is set,
+  // otherwise 0.
+  @GuardedBy("this")
   private long endNanoTime;
+  // True if the span is ended.
+  @GuardedBy("this")
   private boolean hasBeenEnded;
 
+  // Creates and starts a span with the given configuration. TimestampConverter is null if the
+  // Span is a root span or the parent is not sampled. If the parent is sampled we should use the
+  // same converter to ensure ordering between tracing events.
   static SpanImpl startSpan(SpanContext context,
       @Nullable EnumSet<Options> options,
       String name,
@@ -47,8 +65,13 @@ final class SpanImpl extends Span {
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
-    SpanImpl span = new SpanImpl(context, options, name, parentSpanId, startEndHandler, clock);
-    span.start(timestampConverter);
+    SpanImpl span = new SpanImpl(context, options, name, parentSpanId, startEndHandler,
+        timestampConverter, clock);
+    // Call onStart here instead of calling in the constructor to make sure the span is completely
+    // initialized.
+    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
+      startEndHandler.onStart(span);
+    }
     return span;
   }
 
@@ -70,9 +93,11 @@ final class SpanImpl extends Span {
   SpanData toSpanData() {
     checkState(
         getOptions().contains(Options.RECORD_EVENTS),
-        "Getting SpanData for a Span without RECORD_EVENTS options.");
+        "Getting SpanData for a Span without RECORD_EVENTS option.");
     synchronized (this) {
-      return new SpanData(
+      // TODO(bdrutu): Set the attributes, annotations, network events and links in the SpanData
+      // when add the support for them.
+      return SpanData.create(
           getContext(),
           parentSpanId,
           name,
@@ -134,23 +159,14 @@ final class SpanImpl extends Span {
    *
    * <p>Implementation must avoid high overhead work in any of the methods because the code is
    * executed on the critical path.
+   *
+   * <p>One instance can be called by multiple threads in the same time, so the implementation
+   * must be thread-safe.
    */
-  @ThreadSafe
   abstract static class StartEndHandler {
     abstract void onStart(SpanImpl span);
 
     abstract void onEnd(SpanImpl span);
-  }
-
-  private void start(@Nullable TimestampConverter timestampConverter) {
-    if (getOptions().contains(Options.RECORD_EVENTS)) {
-      synchronized (this) {
-        this.timestampConverter =
-            timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
-        startNanoTime = clock.nowNanos();
-        startEndHandler.onStart(this);
-      }
-    }
   }
 
   private SpanImpl(
@@ -159,6 +175,7 @@ final class SpanImpl extends Span {
       String name,
       @Nullable SpanId parentSpanId,
       StartEndHandler startEndHandler,
+      @Nullable TimestampConverter timestampConverter,
       Clock clock) {
     super(context, options);
     this.parentSpanId = parentSpanId;
@@ -166,5 +183,13 @@ final class SpanImpl extends Span {
     this.startEndHandler = startEndHandler;
     this.clock = clock;
     this.hasBeenEnded = false;
+    if (getOptions().contains(Options.RECORD_EVENTS)) {
+      this.timestampConverter =
+          timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
+      startNanoTime = clock.nowNanos();
+    } else {
+      this.startNanoTime = 0;
+      this.timestampConverter = null;
+    }
   }
 }
