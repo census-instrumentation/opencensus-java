@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 public class EndSpanOptionsTest {
   @Test(expected = NullPointerException.class)
   public void setNullStatus() {
-    EndSpanOptions.builder().setStatus(null);
+    EndSpanOptions.builder().setStatus(null).build();
   }
 
   @Test

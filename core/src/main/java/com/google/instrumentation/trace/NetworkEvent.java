@@ -15,7 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.MoreObjects;
+import com.google.auto.value.AutoValue;
 import com.google.instrumentation.common.Timestamp;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -26,7 +26,8 @@ import javax.annotation.concurrent.Immutable;
  * the kernel time and message size.
  */
 @Immutable
-public final class NetworkEvent {
+@AutoValue
+public abstract class NetworkEvent {
   /** Available types for a {@code NetworkEvent}. */
   public enum Type {
     /** When the message was sent. */
@@ -35,30 +36,22 @@ public final class NetworkEvent {
     RECV,
   }
 
-  // Can be null if not available.
-  private final Timestamp kernelTimestamp;
-  private final Type type;
-  private final long messageId;
-  private final long messageSize;
-
-  private NetworkEvent(
-      @Nullable Timestamp kernelTimestamp, Type type, long messageId, long messageSize) {
-    this.kernelTimestamp = kernelTimestamp;
-    this.type = type;
-    this.messageId = messageId;
-    this.messageSize = messageSize;
-  }
-
   /**
    * Returns a new {@link Builder} with default values.
    *
    * @param type designates whether this is a network send or receive message.
    * @param messageId serves to uniquely identify each network message.
    * @return a new {@code Builder} with default values.
-   * @throws NullPointerException if type is null.
+   * @throws NullPointerException if {@code type} is {@code null}.
    */
   public static Builder builder(Type type, long messageId) {
-    return new Builder(type, messageId);
+    return new AutoValue_NetworkEvent.Builder()
+        .setType(checkNotNull(type, "type"))
+        .setMessageId(messageId)
+        // We need to set a value for the message size because the autovalue requires all
+        // primitives to be initialized.
+        // TODO(bdrutu): Consider to change the API to require message size.
+        .setMessageSize(0);
   }
 
   /**
@@ -69,61 +62,37 @@ public final class NetworkEvent {
    *     set.
    */
   @Nullable
-  public Timestamp getKernelTimestamp() {
-    return kernelTimestamp;
-  }
+  public abstract Timestamp getKernelTimestamp();
 
   /**
    * Returns the type of the {@code NetworkEvent}.
    *
    * @return the type of the {@code NetworkEvent}.
    */
-  public Type getType() {
-    return type;
-  }
+  public abstract Type getType();
 
   /**
    * Returns the message id argument that serves to uniquely identify each network message.
    *
    * @return The message id of the {@code NetworkEvent}.
    */
-  public long getMessageId() {
-    return messageId;
-  }
+  public abstract long getMessageId();
 
   /**
    * Returns The message size in bytes of the {@code NetworkEvent}.
    *
    * @return The message size in bytes of the {@code NetworkEvent}.
    */
-  public long getMessageSize() {
-    return messageSize;
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("kernelTimestamp", kernelTimestamp)
-        .add("type", type)
-        .add("messageId", messageId)
-        .add("messageSize", messageSize)
-        .toString();
-  }
+  public abstract long getMessageSize();
 
   /** Builder class for {@link NetworkEvent}. */
-  public static final class Builder {
-    // Required fields.
-    private final Type type;
-    private final long messageId;
-    // Optional fields.
-    private Timestamp kernelTimestamp;
-    private long messageSize;
+  @AutoValue.Builder
+  public abstract static class Builder {
+    // Package protected methods because these values are mandatory and set only in the
+    // NetworkEvent#builder() function.
+    abstract Builder setType(Type type);
 
-    // Constructs a new {@link Builder} with default values.
-    private Builder(Type type, long messageId) {
-      this.type = checkNotNull(type, "type");
-      this.messageId = messageId;
-    }
+    abstract Builder setMessageId(long messageId);
 
     /**
      * Sets the kernel timestamp.
@@ -131,10 +100,7 @@ public final class NetworkEvent {
      * @param kernelTimestamp The kernel timestamp of the event.
      * @return this.
      */
-    public Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp) {
-      this.kernelTimestamp = kernelTimestamp;
-      return this;
-    }
+    public abstract Builder setKernelTimestamp(Timestamp kernelTimestamp);
 
     /**
      * Sets the message size.
@@ -142,18 +108,17 @@ public final class NetworkEvent {
      * @param messageSize represents the size in bytes of this network message.
      * @return this.
      */
-    public Builder setMessageSize(long messageSize) {
-      this.messageSize = messageSize;
-      return this;
-    }
+    public abstract Builder setMessageSize(long messageSize);
 
     /**
      * Builds and returns a {@code NetworkEvent} with the desired values.
      *
      * @return a {@code NetworkEvent} with the desired values.
      */
-    public NetworkEvent build() {
-      return new NetworkEvent(kernelTimestamp, type, messageId, messageSize);
-    }
+    public abstract NetworkEvent build();
+
+    Builder() {}
   }
+
+  NetworkEvent() {}
 }

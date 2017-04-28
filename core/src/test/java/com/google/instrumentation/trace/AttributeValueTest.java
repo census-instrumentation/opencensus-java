@@ -66,13 +66,10 @@ public class AttributeValueTest {
   @Test
   public void attributeValue_ToString() {
     AttributeValue attribute = AttributeValue.stringAttributeValue("MyStringAttributeValue");
-    assertThat(attribute.toString()).contains("string");
     assertThat(attribute.toString()).contains("MyStringAttributeValue");
     attribute = AttributeValue.booleanAttributeValue(true);
-    assertThat(attribute.toString()).contains("boolean");
     assertThat(attribute.toString()).contains("true");
     attribute = AttributeValue.longAttributeValue(123456L);
-    assertThat(attribute.toString()).contains("long");
     assertThat(attribute.toString()).contains("123456");
   }
 }

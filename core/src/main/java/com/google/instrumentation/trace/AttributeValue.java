@@ -15,8 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import com.google.auto.value.AutoValue;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -25,11 +24,8 @@ import javax.annotation.concurrent.Immutable;
  * of values: {@code String}, {@code Boolean} or {@code Long}.
  */
 @Immutable
-public final class AttributeValue {
-  private final String stringValue;
-  private final Boolean booleanValue;
-  private final Long longValue;
-
+@AutoValue
+public abstract class AttributeValue {
   /**
    * Returns an {@code AttributeValue} with a string value.
    *
@@ -38,7 +34,7 @@ public final class AttributeValue {
    * @throws NullPointerException if {@code stringValue} is {@code null}.
    */
   public static AttributeValue stringAttributeValue(String stringValue) {
-    return new AttributeValue(checkNotNull(stringValue, "stringValue"), null, null);
+    return new AutoValue_AttributeValue(checkNotNull(stringValue, "stringValue"), null, null);
   }
 
   /**
@@ -48,7 +44,7 @@ public final class AttributeValue {
    * @return an {@code AttributeValue} with a boolean value.
    */
   public static AttributeValue booleanAttributeValue(boolean booleanValue) {
-    return new AttributeValue(null, booleanValue, null);
+    return new AutoValue_AttributeValue(null, booleanValue, null);
   }
 
   /**
@@ -58,15 +54,10 @@ public final class AttributeValue {
    * @return an {@code AttributeValue} with a long value.
    */
   public static AttributeValue longAttributeValue(long longValue) {
-    return new AttributeValue(null, null, longValue);
+    return new AutoValue_AttributeValue(null, null, longValue);
   }
 
-  private AttributeValue(
-      @Nullable String stringValue, @Nullable Boolean booleanValue, @Nullable Long longValue) {
-    this.stringValue = stringValue;
-    this.booleanValue = booleanValue;
-    this.longValue = longValue;
-  }
+  AttributeValue() {}
 
   /**
    * Returns the {@code String} value if this is a string {@code AttributeValue}, otherwise {@code
@@ -76,9 +67,7 @@ public final class AttributeValue {
    *     null}.
    */
   @Nullable
-  public String getStringValue() {
-    return stringValue;
-  }
+  public abstract String getStringValue();
 
   /**
    * Returns the {@code Boolean} value if this is a boolean {@code AttributeValue}, otherwise {@code
@@ -88,9 +77,7 @@ public final class AttributeValue {
    *     null}.
    */
   @Nullable
-  public Boolean getBooleanValue() {
-    return booleanValue;
-  }
+  public abstract Boolean getBooleanValue();
 
   /**
    * Returns the {@code Long} value if this is a long {@code AttributeValue}, otherwise {@code
@@ -100,50 +87,5 @@ public final class AttributeValue {
    *     null}.
    */
   @Nullable
-  public Long getLongValue() {
-    return longValue;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-
-    if (!(obj instanceof AttributeValue)) {
-      return false;
-    }
-
-    AttributeValue that = (AttributeValue) obj;
-    return Objects.equal(stringValue, that.stringValue)
-        && Objects.equal(booleanValue, that.booleanValue)
-        && Objects.equal(longValue, that.longValue);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(stringValue, booleanValue, longValue);
-  }
-
-  @Override
-  public String toString() {
-    if (getStringValue() != null) {
-      return MoreObjects.toStringHelper(this)
-          .add("type", "string")
-          .add("value", getStringValue())
-          .toString();
-    } else if (getBooleanValue() != null) {
-      return MoreObjects.toStringHelper(this)
-          .add("type", "boolean")
-          .add("value", getBooleanValue())
-          .toString();
-    } else if (getLongValue() != null) {
-      return MoreObjects.toStringHelper(this)
-          .add("type", "long")
-          .add("value", getLongValue())
-          .toString();
-    }
-    // This should never happen
-    throw new RuntimeException("Not a supported attribute value");
-  }
+  public abstract Long getLongValue();
 }

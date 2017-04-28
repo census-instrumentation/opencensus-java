@@ -15,8 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import com.google.auto.value.AutoValue;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -24,15 +23,10 @@ import javax.annotation.concurrent.Immutable;
  * overriding the {@link Status status}.
  */
 @Immutable
-public final class EndSpanOptions {
-  private final Status status;
-
+@AutoValue
+public abstract class EndSpanOptions {
   /** The default {@code EndSpanOptions}. */
   public static final EndSpanOptions DEFAULT = builder().build();
-
-  private EndSpanOptions(Status status) {
-    this.status = status;
-  }
 
   /**
    * Returns a new {@link Builder} with default options.
@@ -40,7 +34,7 @@ public final class EndSpanOptions {
    * @return a new {@code Builder} with default options.
    */
   public static Builder builder() {
-    return new Builder();
+    return new AutoValue_EndSpanOptions.Builder().setStatus(Status.OK);
   }
 
   /**
@@ -48,40 +42,11 @@ public final class EndSpanOptions {
    *
    * @return the status.
    */
-  public Status getStatus() {
-    return status;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-
-    if (!(obj instanceof EndSpanOptions)) {
-      return false;
-    }
-
-    EndSpanOptions that = (EndSpanOptions) obj;
-    return Objects.equal(status, that.status);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(status);
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("status", status).toString();
-  }
+  public abstract Status getStatus();
 
   /** Builder class for {@link EndSpanOptions}. */
-  public static final class Builder {
-    private Status status = Status.OK;
-
-    private Builder() {}
-
+  @AutoValue.Builder
+  public abstract static class Builder {
     /**
      * Sets the status for the {@link Span}.
      *
@@ -89,20 +54,25 @@ public final class EndSpanOptions {
      *
      * @param status the status.
      * @return this.
-     * @throws NullPointerException if {@code status} is {@code null}.
      */
-    public Builder setStatus(Status status) {
-      this.status = checkNotNull(status, "status");
-      return this;
-    }
+    public abstract Builder setStatus(Status status);
+
+    abstract EndSpanOptions autoBuild(); // not public
 
     /**
      * Builds and returns a {@code EndSpanOptions} with the desired settings.
      *
      * @return a {@code EndSpanOptions} with the desired settings.
+     * @throws NullPointerException if {@code status} is {@code null}.
      */
     public EndSpanOptions build() {
-      return new EndSpanOptions(status);
+      EndSpanOptions endSpanOptions = autoBuild();
+      checkNotNull(endSpanOptions.getStatus(), "status");
+      return endSpanOptions;
     }
+
+    Builder() {}
   }
+
+  EndSpanOptions() {}
 }
