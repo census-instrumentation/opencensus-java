@@ -13,11 +13,14 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.internal.MillisClock;
+
 /**
  * Java 7 implementation of {@link StatsManager}.
  */
 public final class StatsManagerImpl extends StatsManagerImplJava {
 
   public StatsManagerImpl() {
+    super(MillisClock.getInstance());
   }
 }

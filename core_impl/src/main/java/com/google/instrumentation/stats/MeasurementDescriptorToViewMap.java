@@ -16,6 +16,7 @@ package com.google.instrumentation.stats;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.instrumentation.common.Clock;
 import java.util.Collection;
 
 /**
@@ -35,13 +36,13 @@ final class MeasurementDescriptorToViewMap {
   /**
    * Returns a {@link View} corresponding to the given {@link ViewDescriptor}.
    */
-  final View getView(ViewDescriptor viewDescriptor) {
+  final View getView(ViewDescriptor viewDescriptor, Clock clock) {
     Collection<MutableView> views = mutableMap.get(
         viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
     synchronized (mutableMap) {
       for (MutableView view : views) {
         if (view.getViewDescriptor().equals(viewDescriptor)) {
-          return view.toView();
+          return view.toView(clock);
         }
       }
     }

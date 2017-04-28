@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.DisruptorEventQueue;
 
 /**
@@ -20,7 +21,7 @@ import com.google.instrumentation.common.DisruptorEventQueue;
  */
 public abstract class StatsManagerImplJava extends StatsManagerImplBase {
 
-  public StatsManagerImplJava() {
-    super(DisruptorEventQueue.getInstance());
+  public StatsManagerImplJava(Clock clock) {
+    super(DisruptorEventQueue.getInstance(), clock);
   }
 }

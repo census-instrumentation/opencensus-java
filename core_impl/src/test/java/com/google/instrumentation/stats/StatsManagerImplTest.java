@@ -17,6 +17,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.common.SimpleEventQueue;
+import com.google.instrumentation.common.Timestamp;
+import com.google.instrumentation.internal.TestClock;
 import com.google.instrumentation.stats.View.DistributionView;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +56,7 @@ public class StatsManagerImplTest {
 
 
   private final StatsManagerImplBase statsManager =
-      new StatsManagerImplBase(new SimpleEventQueue());
+      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create(Timestamp.create(1, 2)));
 
   @Test
   public void testRegisterAndGetView() throws Exception {

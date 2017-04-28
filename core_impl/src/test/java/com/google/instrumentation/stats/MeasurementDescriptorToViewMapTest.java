@@ -15,15 +15,14 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.common.Timestamp;
+import com.google.instrumentation.common.Clock;
+import com.google.instrumentation.internal.TestClock;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link MeasurementDescriptorToViewMap}.
- */
+/** Tests for {@link MeasurementDescriptorToViewMap}. */
 @RunWith(JUnit4.class)
 public class MeasurementDescriptorToViewMapTest {
   private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
@@ -31,14 +30,16 @@ public class MeasurementDescriptorToViewMapTest {
 
   @Test
   public void testPutAndGetView() {
-    MutableView expected = MutableDistributionView.create(
-        RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
-        Timestamp.fromMillis(System.currentTimeMillis()));
+    Clock clock = TestClock.create();
+    MutableView expected =
+        MutableDistributionView.create(
+            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock.now());
     measurementDescriptorToViewMap.putView(
-            RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY.getMeasurementDescriptorName(),
-            expected);
-    View actual = measurementDescriptorToViewMap.getView(
-        RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY.getMeasurementDescriptorName(),
+        expected);
+    View actual =
+        measurementDescriptorToViewMap.getView(
+            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
     assertThat(actual.getViewDescriptor()).isEqualTo(expected.getViewDescriptor());
   }
 }

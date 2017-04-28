@@ -13,9 +13,9 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.common.Function;
-import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
 import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
@@ -27,8 +27,12 @@ import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 public class StatsManagerImplBase extends StatsManager {
   private final EventQueue queue;
 
-  StatsManagerImplBase(EventQueue queue) {
+  // clock used throughout the stats implementation
+  private final Clock clock;
+
+  StatsManagerImplBase(EventQueue queue, Clock clock) {
     this.queue = queue;
+    this.clock = clock;
   }
 
   private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
@@ -47,13 +51,13 @@ public class StatsManagerImplBase extends StatsManager {
               + SupportedViews.SUPPORTED_VIEW.getName());
     }
 
-    if (measurementDescriptorToViewMap.getView(viewDescriptor) != null) {
+    if (measurementDescriptorToViewMap.getView(viewDescriptor, clock) != null) {
       // Ignore views that are already registered.
       return;
     }
 
     MutableView mutableView = viewDescriptor.match(
-        new CreateMutableDistributionViewFunction(), new CreateMutableIntervalViewFunction());
+        new CreateMutableDistributionViewFunction(clock), new CreateMutableIntervalViewFunction());
 
     measurementDescriptorToViewMap.putView(
             viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
@@ -61,7 +65,7 @@ public class StatsManagerImplBase extends StatsManager {
 
   @Override
   public View getView(ViewDescriptor viewDescriptor) {
-    View view = measurementDescriptorToViewMap.getView(viewDescriptor);
+    View view = measurementDescriptorToViewMap.getView(viewDescriptor, clock);
     if (view == null) {
       throw new IllegalArgumentException(
           "View for view descriptor " + viewDescriptor.getName() + " not found.");
@@ -108,10 +112,16 @@ public class StatsManagerImplBase extends StatsManager {
 
   private static final class CreateMutableDistributionViewFunction
       implements Function<DistributionViewDescriptor, MutableView> {
+    private final Clock clock;
+
+    public CreateMutableDistributionViewFunction(Clock clock) {
+      this.clock = clock;
+    }
+
     @Override
     public MutableView apply(DistributionViewDescriptor viewDescriptor) {
       return MutableDistributionView.create(
-          viewDescriptor, Timestamp.fromMillis(System.currentTimeMillis()));
+          viewDescriptor, clock.now());
     }
   }
 
