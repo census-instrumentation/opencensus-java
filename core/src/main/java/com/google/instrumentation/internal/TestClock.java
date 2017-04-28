@@ -28,14 +28,15 @@ public final class TestClock extends Clock {
   private static final int NUM_NANOS_PER_SECOND = 1000 * 1000 * 1000;
 
   @GuardedBy("this")
-  private Timestamp currentTime = Timestamp.create(0, 0);
+  private Timestamp currentTime = Timestamp.create(123, 456);
 
   private TestClock() {}
 
   /**
-   * Creates a clock initialized to time 0.
+   * Creates a clock initialized to a constant non-zero time. {@code Timestamp.create(0, 0)} is not
+   * a good default, because it represents an invalid time.
    *
-   * @return a clock initialized to time 0.
+   * @return a clock initialized to a constant non-zero time.
    */
   public static TestClock create() {
     return new TestClock();
