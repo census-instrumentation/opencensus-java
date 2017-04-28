@@ -14,10 +14,15 @@
 package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.instrumentation.stats.RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW;
+import static org.junit.Assert.fail;
 
-import com.google.instrumentation.common.Clock;
+import com.google.instrumentation.common.Function;
+import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.internal.TestClock;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
+import com.google.instrumentation.stats.View.DistributionView;
+import com.google.instrumentation.stats.View.IntervalView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,16 +35,29 @@ public class MeasurementDescriptorToViewMapTest {
 
   @Test
   public void testPutAndGetView() {
-    Clock clock = TestClock.create();
-    MutableView expected =
-        MutableDistributionView.create(
-            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock.now());
+    TestClock clock = TestClock.create(Timestamp.create(10, 20));
     measurementDescriptorToViewMap.putView(
         RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY.getMeasurementDescriptorName(),
-        expected);
-    View actual =
-        measurementDescriptorToViewMap.getView(
-            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
-    assertThat(actual.getViewDescriptor()).isEqualTo(expected.getViewDescriptor());
+        MutableDistributionView.create(RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock.now()));
+    clock.setTime(Timestamp.create(30, 40));
+    View actual = measurementDescriptorToViewMap.getView(RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
+    actual.match(
+        new Function<View.DistributionView, Void>() {
+          @Override
+          public Void apply(DistributionView view) {
+            assertThat(view.getViewDescriptor()).isEqualTo(RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+            assertThat(view.getStart()).isEqualTo(Timestamp.create(10, 20));
+            assertThat(view.getEnd()).isEqualTo(Timestamp.create(30, 40));
+            assertThat(view.getDistributionAggregations()).isEmpty();
+            return null;
+          }
+        },
+        new Function<View.IntervalView, Void>() {
+          @Override
+          public Void apply(IntervalView view) {
+            fail("Wrong view type.");
+            return null;
+          }
+        });
   }
 }
