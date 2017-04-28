@@ -15,11 +15,10 @@ package com.google.instrumentation.internal;
 
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Timestamp;
-import java.time.Instant;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A {@link Clock} that uses {@link Instant#now()}.
+ * A {@link Clock} that uses {@code Instant#now()}.
  */
 @ThreadSafe
 public final class InstantClock extends Clock {
@@ -38,8 +37,11 @@ public final class InstantClock extends Clock {
 
   @Override
   public Timestamp now() {
-    Instant instant = Instant.now();
-    return Timestamp.create(instant.getEpochSecond(), instant.getNano());
+    //    // TODO(sebright): Use Instant once we skip building this class with Java 7.
+    //    Instant instant = Instant.now();
+    //    return Timestamp.create(instant.getEpochSecond(), instant.getNano());
+
+    return Timestamp.fromMillis(System.currentTimeMillis());
   }
 
   @Override
