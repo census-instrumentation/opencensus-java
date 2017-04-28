@@ -28,7 +28,7 @@ public final class TestClock extends Clock {
   private static final int NUM_NANOS_PER_SECOND = 1000 * 1000 * 1000;
 
   @GuardedBy("this")
-  private Timestamp currentTime = Timestamp.create(123, 456);
+  private Timestamp currentTime = validateNanos(Timestamp.create(1493419949, 223123456));
 
   private TestClock() {}
 
