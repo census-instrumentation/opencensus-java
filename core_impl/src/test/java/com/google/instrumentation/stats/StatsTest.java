@@ -20,7 +20,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link RpcConstants}
+ * Tests for {@link Stats}
  */
 @RunWith(JUnit4.class)
 public final class StatsTest {

@@ -17,9 +17,9 @@ package com.google.instrumentation.stats;
  * Constants specifying the view that is supported in the initial stats implementation.
  */
 class SupportedViews {
-  static final ViewDescriptor SUPPORTED_VIEW = RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW;
+  static final ViewDescriptor SUPPORTED_VIEW = RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW;
   static final MeasurementDescriptor SUPPORTED_MEASUREMENT_DESCRIPTOR =
-      RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY;
+      RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY;
 
   private SupportedViews() {}
 }

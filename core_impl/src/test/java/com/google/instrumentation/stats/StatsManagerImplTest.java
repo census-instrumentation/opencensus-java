@@ -38,7 +38,7 @@ public class StatsManagerImplTest {
   public final ExpectedException thrown = ExpectedException.none();
 
   private static final double TOLERANCE = 1e-5;
-  private static final TagKey tagKey = RpcConstants.RPC_CLIENT_METHOD;
+  private static final TagKey tagKey = RpcMeasurementConstants.RPC_CLIENT_METHOD;
   private static final TagKey wrongTagKey = TagKey.create("Wrong Tag Key");
   private static final TagKey wrongTagKey2 = TagKey.create("Another wrong Tag Key");
   private static final TagValue tagValue1 = TagValue.create("some client method");
@@ -57,51 +57,51 @@ public class StatsManagerImplTest {
 
   @Test
   public void testRegisterAndGetView() throws Exception {
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    View actual = statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(actual.getViewDescriptor()).isEqualTo(
-        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
   }
 
   @Test
   public void testRegisterUnsupportedViewDescriptor() throws Exception {
     thrown.expect(UnsupportedOperationException.class);
-    statsManager.registerView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
   }
 
   @Test
   public void testRegisterViewDescriptorTwice() {
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    View actual = statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    View actual = statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(actual.getViewDescriptor()).isEqualTo(
-        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
   }
 
   @Test
   public void testGetNonexistentView() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    statsManager.getView(RpcConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
+    statsManager.getView(RpcViewConstants.RPC_CLIENT_REQUEST_COUNT_VIEW);
   }
 
   @Test
   public void testRecord() {
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     for (double val : Arrays.<Double>asList(10.0, 20.0, 30.0, 40.0)) {
       statsManager.record(
-          oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
+          oneTag, MeasurementMap.of(RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, val));
     }
 
     DistributionView view =
-        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    assertThat(view.getViewDescriptor()).isEqualTo(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    assertThat(view.getViewDescriptor()).isEqualTo(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     // TODO(songya): update to make assertions on the exact time based on fake clock.
     assertThat(view.getEnd().getSeconds()).isAtLeast(view.getStart().getSeconds());
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(1);
     DistributionAggregation distributionAggregation = distributionAggregations.get(0);
     verifyDistributionAggregation(distributionAggregation, 4, 100.0, 25.0, 10.0, 40.0, 1);
-    // Refer to RpcConstants.RPC_MILLIS_BUCKET_BOUNDARIES for bucket boundaries.
+    // Refer to RpcViewConstants.RPC_MILLIS_BUCKET_BOUNDARIES for bucket boundaries.
     verifyBucketCounts(distributionAggregation.getBucketCounts(), 9, 12, 14, 15);
 
     List<Tag> tags = distributionAggregation.getTags();
@@ -111,15 +111,16 @@ public class StatsManagerImplTest {
 
   @Test
   public void testRecordMultipleTagValues() {
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
-    statsManager.record(
-        anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 30.0));
-    statsManager.record(
-        anotherTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.record(oneTag, MeasurementMap.of(
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    statsManager.record(anotherTag, MeasurementMap.of(
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 30.0));
+    statsManager.record(anotherTag, MeasurementMap.of(
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
 
     DistributionView view =
-        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
     assertThat(distributionAggregations).hasSize(2);
     // Sort distributionAggregations by count.
@@ -171,17 +172,18 @@ public class StatsManagerImplTest {
   @Test
   public void testRecordWithoutRegisteringView() {
     thrown.expect(IllegalArgumentException.class);
-    statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
+    statsManager.record(oneTag, MeasurementMap.of(
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10));
   }
 
   @Test
   public void testRecordWithEmptyStatsContext() {
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    // DEFAULT doesn't have tags. Should have TagKey "method" as defined in RpcConstants.
-    statsManager.record(StatsContextFactoryImpl.DEFAULT,
-        MeasurementMap.of(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    // DEFAULT doesn't have tags. Should have TagKey "method" as defined in RpcViewConstants.
+    statsManager.record(StatsContextFactoryImpl.DEFAULT, MeasurementMap.of(
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
     DistributionView view =
-        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(view.getDistributionAggregations()).hasSize(1);
     DistributionAggregation distributionAggregation = view.getDistributionAggregations().get(0);
     List<Tag> tags = distributionAggregation.getTags();
@@ -195,23 +197,24 @@ public class StatsManagerImplTest {
 
   @Test
   public void testRecordNonExistentMeasurementDescriptor() {
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    statsManager.record(oneTag, MeasurementMap.of(RpcConstants.RPC_SERVER_ERROR_COUNT, 10.0));
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.record(oneTag, MeasurementMap.of(
+        RpcMeasurementConstants.RPC_SERVER_ERROR_COUNT, 10.0));
     DistributionView view =
-        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(view.getDistributionAggregations()).hasSize(0);
   }
 
 
   @Test
   public void testRecordTagDoesNotMatchView() {
-    statsManager.registerView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     statsManager.record(wrongTag, MeasurementMap.of(
-        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
     statsManager.record(wrongTag2, MeasurementMap.of(
-        RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
+        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 50.0));
     DistributionView view =
-        (DistributionView) statsManager.getView(RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
 
     assertThat(view.getDistributionAggregations()).hasSize(1);
     DistributionAggregation distributionAggregation = view.getDistributionAggregations().get(0);
