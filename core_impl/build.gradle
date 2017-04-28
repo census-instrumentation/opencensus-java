@@ -6,6 +6,8 @@ dependencies {
             libraries.auto_value,
             libraries.guava
 
+    compileOnly libraries.auto_value
+
     testCompile project(':instrumentation-java-core')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"

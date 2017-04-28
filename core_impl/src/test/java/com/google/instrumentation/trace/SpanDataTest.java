@@ -68,7 +68,7 @@ public class SpanDataTest {
   @Test
   public void spanData_AllValues() {
     SpanData spanData =
-        new SpanData(
+        SpanData.create(
             spanContext,
             parentSpanId,
             DISPLAY_NAME,
@@ -94,7 +94,7 @@ public class SpanDataTest {
   @Test
   public void spanData_RootActiveSpan() {
     SpanData spanData =
-        new SpanData(
+        SpanData.create(
             spanContext,
             null,
             DISPLAY_NAME,
@@ -120,7 +120,7 @@ public class SpanDataTest {
   @Test
   public void spanData_AllDataEmpty() {
     SpanData spanData =
-        new SpanData(
+        SpanData.create(
             spanContext,
             parentSpanId,
             DISPLAY_NAME,
@@ -146,7 +146,7 @@ public class SpanDataTest {
   @Test
   public void spanData_ToString() {
     String spanDataString =
-        new SpanData(
+        SpanData.create(
                 spanContext,
                 parentSpanId,
                 DISPLAY_NAME,
