@@ -14,6 +14,7 @@
 package com.google.instrumentation.trace;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.internal.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +41,15 @@ public final class Tracing {
    */
   public static BinaryPropagationHandler getBinaryPropagationHandler() {
     return traceComponent.getBinaryPropagationHandler();
+  }
+
+  /**
+   * Returns the global {@link Clock}.
+   *
+   * @return the global {@code Clock}.
+   */
+  public static Clock getClock() {
+    return traceComponent.getClock();
   }
 
   // Any provider that may be used for TraceComponent can be added here.

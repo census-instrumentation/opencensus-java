@@ -13,9 +13,12 @@
 
 package com.google.instrumentation.trace;
 
+import com.google.instrumentation.common.Clock;
+
 /** Java 7 and 8 implementation of the {@link TraceComponent}. */
 public abstract class TraceComponentImplJava extends TraceComponentImplBase {
 
-  public TraceComponentImplJava() {
+  public TraceComponentImplJava(Clock clock) {
+    super(clock);
   }
 }

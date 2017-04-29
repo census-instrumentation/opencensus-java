@@ -13,13 +13,17 @@
 
 package com.google.instrumentation.trace;
 
+import com.google.instrumentation.common.Clock;
+
 /** Implementation of the {@link TraceComponent}. */
 public class TraceComponentImplBase extends TraceComponent {
   private static final Tracer tracer = Tracer.getNoopTracer();
   private static final BinaryPropagationHandler binaryPropagationHandler =
       BinaryPropagationHandlerImpl.INSTANCE;
+  private final Clock clock;
 
-  TraceComponentImplBase() {
+  TraceComponentImplBase(Clock clock) {
+    this.clock = clock;
   }
 
   @Override
@@ -30,5 +34,10 @@ public class TraceComponentImplBase extends TraceComponent {
   @Override
   public BinaryPropagationHandler getBinaryPropagationHandler() {
     return binaryPropagationHandler;
+  }
+
+  @Override
+  public final Clock getClock() {
+    return clock;
   }
 }

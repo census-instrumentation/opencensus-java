@@ -13,9 +13,12 @@
 
 package com.google.instrumentation.trace;
 
+import com.google.instrumentation.internal.MillisClock;
+
 /** Java 7 implementation of the {@link TraceComponent}. */
 public final class TraceComponentImpl extends TraceComponentImplJava {
 
   public TraceComponentImpl() {
+    super(MillisClock.getInstance());
   }
 }

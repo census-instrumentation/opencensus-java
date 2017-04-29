@@ -13,9 +13,12 @@
 
 package com.google.instrumentation.trace;
 
+import com.google.instrumentation.internal.InstantClock;
+
 /** Java 8 implementation of the {@link TraceComponent}. */
 public final class TraceComponentImpl extends TraceComponentImplJava {
 
   public TraceComponentImpl() {
+    super(InstantClock.getInstance());
   }
 }
