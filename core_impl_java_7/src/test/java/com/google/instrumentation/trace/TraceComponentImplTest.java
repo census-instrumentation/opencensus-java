@@ -13,21 +13,24 @@
 
 package com.google.instrumentation.trace;
 
-/** Implementation of the {@link TraceComponent}. */
-public final class TraceComponentImpl extends TraceComponent {
-  private static final Tracer tracer = Tracer.getNoopTracer();
-  private static final BinaryPropagationHandler binaryPropagationHandler =
-      BinaryPropagationHandlerImpl.INSTANCE;
+import static com.google.common.truth.Truth.assertThat;
 
-  @Override
-  public Tracer getTracer() {
-    return tracer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+/** Unit tests for {@link TraceComponentImpl}. */
+@RunWith(JUnit4.class)
+public class TraceComponentImplTest {
+  @Test
+  public void implementationOfTracer() {
+    // TODO(bdrutu): Change this when TracerImpl is available.
+    assertThat(Tracing.getTracer()).isSameAs(Tracer.getNoopTracer());
   }
 
-  @Override
-  public BinaryPropagationHandler getBinaryPropagationHandler() {
-    return binaryPropagationHandler;
+  @Test
+  public void implementationOfBinaryPropagationHandler() {
+    assertThat(Tracing.getBinaryPropagationHandler())
+        .isSameAs(BinaryPropagationHandlerImpl.INSTANCE);
   }
-
-  public TraceComponentImpl() {}
 }
