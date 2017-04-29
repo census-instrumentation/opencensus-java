@@ -13,19 +13,16 @@
 
 package com.google.instrumentation.common;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.instrumentation.internal.Provider;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.concurrent.Immutable;
+import com.google.instrumentation.internal.MillisClock;
 
 /**
  * Factory for {@link Timestamp}. See {@link #now} for how to use this class.
+ *
+ * @deprecated Use {@link Clock} instead.
  */
+@Deprecated
 public final class TimestampFactory {
-  private static final Logger logger = Logger.getLogger(TimestampFactory.class.getName());
-  private static final Handler HANDLER =
-      loadTimestampFactoryHandler(Provider.getCorrectClassLoader(Handler.class));
+  private static final Clock CLOCK = MillisClock.getInstance();
 
   private TimestampFactory() {}
 
@@ -35,34 +32,6 @@ public final class TimestampFactory {
    * @return the current instant using the system clock, not null.
    */
   public static Timestamp now() {
-    return HANDLER.timeNow();
-  }
-
-  /**
-   * Interface to get the current {@link Timestamp}.
-   */
-  interface Handler {
-    Timestamp timeNow();
-  }
-
-  @Immutable
-  static final class DefaultHandler implements Handler {
-    @Override
-    public Timestamp timeNow() {
-      return Timestamp.fromMillis(System.currentTimeMillis());
-    }
-  }
-
-  @VisibleForTesting
-  static Handler loadTimestampFactoryHandler(ClassLoader classLoader) {
-    try {
-      return Provider.createInstance(
-          Class.forName(
-              "com.google.instrumentation.common.TimestampFactoryHandlerImpl", true, classLoader),
-          Handler.class);
-    } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Using default implementation for TimestampFactory$Handler.", e);
-    }
-    return new DefaultHandler();
+    return CLOCK.now();
   }
 }
