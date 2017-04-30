@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.SimpleEventQueue;
+import com.google.instrumentation.internal.MillisClock;
 
 /**
  * Android-compatible implementation of {@link StatsManager}.
@@ -22,6 +23,6 @@ public final class StatsManagerImpl extends StatsManagerImplBase {
 
   public StatsManagerImpl() {
     // TODO(sebright): Use a more efficient queue implementation.
-    super(new SimpleEventQueue());
+    super(new SimpleEventQueue(), MillisClock.getInstance());
   }
 }

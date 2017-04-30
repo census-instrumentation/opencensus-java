@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
@@ -53,7 +54,7 @@ abstract class MutableView {
   /**
    * Convert this {@link MutableView} to {@link View}.
    */
-  abstract View toView();
+  abstract View toView(Clock clock);
 
   private MutableView() {
   }
@@ -114,7 +115,7 @@ abstract class MutableView {
     }
 
     @Override
-    final View toView() {
+    final View toView(Clock clock) {
       final List<DistributionAggregation> distributionAggregations =
           new ArrayList<DistributionAggregation>();
       for (Entry<List<TagValue>, MutableDistribution> entry : tagValueDistributionMap.entrySet()) {
@@ -125,7 +126,7 @@ abstract class MutableView {
                 generateTags(entry.getKey()), distribution.getBucketCounts()));
       }
       return DistributionView.create(distributionViewDescriptor, distributionAggregations, start,
-          Timestamp.fromMillis(System.currentTimeMillis()));
+          clock.now());
     }
 
     /**
@@ -192,7 +193,7 @@ abstract class MutableView {
     }
 
     @Override
-    final View toView() {
+    final View toView(Clock clock) {
       throw new UnsupportedOperationException("Not implemented.");
     }
   }
