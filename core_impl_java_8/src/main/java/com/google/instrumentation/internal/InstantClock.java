@@ -46,7 +46,6 @@ public final class InstantClock extends Clock {
 
   @Override
   public long nowNanos() {
-    // TODO(sebright): Is this correct?
     return System.nanoTime();
   }
 }
