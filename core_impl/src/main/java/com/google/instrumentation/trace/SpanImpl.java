@@ -36,7 +36,7 @@ final class SpanImpl extends Span {
   private final StartEndHandler startEndHandler;
   // The displayed name of the span.
   private final String name;
-  // The clocked used to get the time.
+  // The clock used to get the time.
   private final Clock clock;
   // The time converter used to convert nano time to Timestamp. This is needed because java has
   // milliseconds granularity for Timestamp and tracing events are recorded more often.
