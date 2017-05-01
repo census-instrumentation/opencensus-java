@@ -65,4 +65,9 @@ public class TracingTest {
     assertThat(Tracing.getBinaryPropagationHandler())
         .isSameAs(BinaryPropagationHandler.getNoopBinaryPropagationHandler());
   }
+
+  @Test
+  public void defaultTraceExporter() {
+    assertThat(Tracing.getTraceExporter()).isSameAs(TraceExporter.getNoopTraceExporter());
+  }
 }

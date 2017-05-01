@@ -21,6 +21,7 @@ public class TraceComponentImplBase extends TraceComponent {
   private static final BinaryPropagationHandler binaryPropagationHandler =
       BinaryPropagationHandlerImpl.INSTANCE;
   private final Clock clock;
+  private final TraceExporter traceExporter = TraceExporter.getNoopTraceExporter();
 
   TraceComponentImplBase(Clock clock) {
     this.clock = clock;
@@ -39,5 +40,10 @@ public class TraceComponentImplBase extends TraceComponent {
   @Override
   public final Clock getClock() {
     return clock;
+  }
+
+  @Override
+  public TraceExporter getTraceExporter() {
+    return traceExporter;
   }
 }

@@ -32,11 +32,17 @@ public class TraceComponentImplTest {
   @Test
   public void implementationOfBinaryPropagationHandler() {
     assertThat(Tracing.getBinaryPropagationHandler())
-        .isSameAs(BinaryPropagationHandlerImpl.INSTANCE);
+        .isInstanceOf(BinaryPropagationHandlerImpl.class);
   }
 
   @Test
   public void implementationOfClock() {
     assertThat(Tracing.getClock()).isInstanceOf(InstantClock.class);
+  }
+
+  @Test
+  public void implementationOfTraceExporter() {
+    // TODO(bdrutu): Change this when TraceExporterImpl is available.
+    assertThat(Tracing.getTraceExporter()).isSameAs(TraceExporter.getNoopTraceExporter());
   }
 }
