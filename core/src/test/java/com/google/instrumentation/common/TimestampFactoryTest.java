@@ -8,7 +8,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@code TimestampFactory}. */
+/** Unit tests for {@link TimestampFactory}. */
+@SuppressWarnings("javadoc")
 @RunWith(JUnit4.class)
 public class TimestampFactoryTest {
   private static final int NUM_NANOS_PER_MILLI = 1000 * 1000;
