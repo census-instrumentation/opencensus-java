@@ -14,20 +14,38 @@
 package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.when;
 
+import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Timestamp;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 /** Unit tests for {@link TimestampConverter}. */
 @RunWith(JUnit4.class)
 public class TimestampConverterTest {
+  private final Timestamp timestamp = Timestamp.create(1234, 5678);
+  @Mock private Clock mockClock;
+
+  @Before
+  public void setUp() {
+    MockitoAnnotations.initMocks(this);
+  }
+
   @Test
   public void convertNanoTime() {
-    Timestamp timestamp = Timestamp.create(1234, 5678);
-    TimestampConverter timeConverter = new TimestampConverter(timestamp, 2345);
-    assertThat(timeConverter.convertNanoTime(1234)).isEqualTo(timestamp.addNanos(-1111));
-    assertThat(timeConverter.convertNanoTime(3456)).isEqualTo(timestamp.addNanos(1111));
+    when(mockClock.now()).thenReturn(timestamp);
+    when(mockClock.nowNanos()).thenReturn(1234L);
+    TimestampConverter timeConverter = TimestampConverter.now(mockClock);
+    assertThat(timeConverter.convertNanoTime(6234))
+        .isEqualTo(Timestamp.create(1234, 10678));
+    assertThat(timeConverter.convertNanoTime(1000))
+        .isEqualTo(Timestamp.create(1234, 5444));
+    assertThat(timeConverter.convertNanoTime(999995556))
+        .isEqualTo(Timestamp.create(1235, 0));
   }
 }
