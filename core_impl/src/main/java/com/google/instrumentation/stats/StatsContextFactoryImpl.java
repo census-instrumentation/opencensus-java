@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -25,7 +26,7 @@ final class StatsContextFactoryImpl extends StatsContextFactory {
   private final StatsContextImpl defaultStatsContext;
 
   StatsContextFactoryImpl(StatsManagerImplBase statsManager) {
-    this.statsManager = statsManager;
+    this.statsManager = Preconditions.checkNotNull(statsManager);
     this.defaultStatsContext =
         new StatsContextImpl(statsManager, Collections.<TagKey, TagValue>emptyMap());
   }

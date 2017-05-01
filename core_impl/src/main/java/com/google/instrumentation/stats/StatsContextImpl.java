@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -27,8 +28,8 @@ final class StatsContextImpl extends StatsContext {
   final Map<TagKey, TagValue> tags;
 
   StatsContextImpl(StatsManagerImplBase statsManager, Map<TagKey, TagValue> tags) {
-    this.statsManager = statsManager;
-    this.tags = tags;
+    this.statsManager = Preconditions.checkNotNull(statsManager);
+    this.tags = Preconditions.checkNotNull(tags);
   }
 
   @Override
