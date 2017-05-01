@@ -15,6 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.internal.InstantClock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,5 +33,10 @@ public class TraceComponentImplTest {
   public void implementationOfBinaryPropagationHandler() {
     assertThat(Tracing.getBinaryPropagationHandler())
         .isSameAs(BinaryPropagationHandlerImpl.INSTANCE);
+  }
+
+  @Test
+  public void implementationOfClock() {
+    assertThat(Tracing.getClock()).isInstanceOf(InstantClock.class);
   }
 }
