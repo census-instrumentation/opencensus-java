@@ -16,6 +16,11 @@ package com.google.instrumentation.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.common.Timestamp;
+import com.google.instrumentation.trace.Link.Type;
+import com.google.instrumentation.trace.SpanData.Attributes;
+import com.google.instrumentation.trace.SpanData.Links;
+import com.google.instrumentation.trace.SpanData.TimedEvent;
+import com.google.instrumentation.trace.SpanData.TimedEvents;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,32 +42,41 @@ public class SpanDataTest {
   private static final Timestamp endTimestamp = Timestamp.create(123, 460);
   private static final String DISPLAY_NAME = "MySpanDisplayName";
   private static final String ANNOTATION_TEXT = "MyAnnotationText";
+  private static final Annotation annotation = Annotation.fromDescription(ANNOTATION_TEXT);
+  private static final NetworkEvent recvNetworkEvent =
+      NetworkEvent.builder(NetworkEvent.Type.RECV, 1).build();
+  private static final NetworkEvent sentNetworkEvent =
+      NetworkEvent.builder(NetworkEvent.Type.SENT, 1).build();
   private static final Status status = Status.DEADLINE_EXCEEDED.withDescription("TooSlow");
   private final Random random = new Random(1234);
   private final SpanContext spanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
-  private final Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-  private final List<TimedEvent<Annotation>> annotations = new LinkedList<TimedEvent<Annotation>>();
-  private final List<TimedEvent<NetworkEvent>> networkEvents =
-      new LinkedList<TimedEvent<NetworkEvent>>();
-  private final List<Link> links = new LinkedList<Link>();
+  private final Map<String, AttributeValue> attributesMap = new HashMap<String, AttributeValue>();
+  private final List<TimedEvent<Annotation>> annotationsList =
+      new LinkedList<TimedEvent<Annotation>>();
+  private final List<TimedEvent<NetworkEvent>> networkEventsList =
+      new LinkedList<SpanData.TimedEvent<NetworkEvent>>();
+  private final List<Link> linksList = new LinkedList<Link>();
+  private Attributes attributes;
+  private TimedEvents<Annotation> annotations;
+  private TimedEvents<NetworkEvent> networkEvents;
+  private Links links;
 
   @Before
   public void setUp() {
-    annotations.add(
-        new TimedEvent<Annotation>(eventTimestamp1, Annotation.fromDescription(ANNOTATION_TEXT)));
-    annotations.add(
-        new TimedEvent<Annotation>(eventTimestamp3, Annotation.fromDescription(ANNOTATION_TEXT)));
-    networkEvents.add(
-        new TimedEvent<NetworkEvent>(
-            eventTimestamp1, NetworkEvent.builder(NetworkEvent.Type.RECV, 1).build()));
-    networkEvents.add(
-        new TimedEvent<NetworkEvent>(
-            eventTimestamp2, NetworkEvent.builder(NetworkEvent.Type.SENT, 1).build()));
-    attributes.put("MyAttributeKey1", AttributeValue.longAttributeValue(10));
-    attributes.put("MyAttributeKey2", AttributeValue.booleanAttributeValue(true));
+    attributesMap.put("MyAttributeKey1", AttributeValue.longAttributeValue(10));
+    attributesMap.put("MyAttributeKey2", AttributeValue.booleanAttributeValue(true));
+    attributes = Attributes.create(attributesMap, 1);
+    annotationsList.add(SpanData.TimedEvent.create(eventTimestamp1, annotation));
+    annotationsList.add(SpanData.TimedEvent.create(eventTimestamp3, annotation));
+    annotations = TimedEvents.create(annotationsList, 2);
+    networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp1, recvNetworkEvent));
+    networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp2, sentNetworkEvent));
+    networkEvents = TimedEvents.create(networkEventsList, 3);
+    linksList.add(Link.fromSpanContext(spanContext, Type.CHILD));
+    links = Links.create(linksList, 0);
   }
 
   @Test
@@ -125,20 +139,20 @@ public class SpanDataTest {
             parentSpanId,
             DISPLAY_NAME,
             startTimestamp,
-            Collections.<String, AttributeValue>emptyMap(),
-            Collections.<TimedEvent<Annotation>>emptyList(),
-            Collections.<TimedEvent<NetworkEvent>>emptyList(),
-            Collections.<Link>emptyList(),
+            Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
+            TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
+            TimedEvents.create(Collections.<SpanData.TimedEvent<NetworkEvent>>emptyList(), 0),
+            Links.create(Collections.<Link>emptyList(), 0),
             status,
             endTimestamp);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
-    assertThat(spanData.getAttributes().isEmpty()).isTrue();
-    assertThat(spanData.getAnnotations().isEmpty()).isTrue();
-    assertThat(spanData.getNetworkEvents().isEmpty()).isTrue();
-    assertThat(spanData.getLinks().isEmpty()).isTrue();
+    assertThat(spanData.getAttributes().getAttributeMap().isEmpty()).isTrue();
+    assertThat(spanData.getAnnotations().getEvents().isEmpty()).isTrue();
+    assertThat(spanData.getNetworkEvents().getEvents().isEmpty()).isTrue();
+    assertThat(spanData.getLinks().getLinks().isEmpty()).isTrue();
     assertThat(spanData.getStatus()).isEqualTo(status);
     assertThat(spanData.getEndTimestamp()).isEqualTo(endTimestamp);
   }
