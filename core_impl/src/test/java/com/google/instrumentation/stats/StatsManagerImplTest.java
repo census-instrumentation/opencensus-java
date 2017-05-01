@@ -45,17 +45,18 @@ public class StatsManagerImplTest {
   private static final TagKey wrongTagKey2 = TagKey.create("Another wrong Tag Key");
   private static final TagValue tagValue1 = TagValue.create("some client method");
   private static final TagValue tagValue2 = TagValue.create("some other client method");
-  private static final StatsContextImpl oneTag =
-          new StatsContextImpl(ImmutableMap.of(tagKey, tagValue1));
-  private static final StatsContextImpl anotherTag =
-          new StatsContextImpl(ImmutableMap.of(tagKey, tagValue2));
-  private static final StatsContextImpl wrongTag =
-          new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1));
-  private static final StatsContextImpl wrongTag2 =
-      new StatsContextImpl(ImmutableMap.of(wrongTagKey, tagValue1, wrongTagKey2, tagValue2));
   private final TestClock clock = TestClock.create();
   private final StatsManagerImplBase statsManager =
       new StatsManagerImplBase(new SimpleEventQueue(), clock);
+  private final StatsContextImpl oneTag =
+      new StatsContextImpl(statsManager, ImmutableMap.of(tagKey, tagValue1));
+  private final StatsContextImpl anotherTag =
+      new StatsContextImpl(statsManager, ImmutableMap.of(tagKey, tagValue2));
+  private final StatsContextImpl wrongTag =
+      new StatsContextImpl(statsManager, ImmutableMap.of(wrongTagKey, tagValue1));
+  private final StatsContextImpl wrongTag2 =
+      new StatsContextImpl(
+          statsManager, ImmutableMap.of(wrongTagKey, tagValue1, wrongTagKey2, tagValue2));
 
   @Test
   public void testRegisterAndGetView() throws Exception {
@@ -185,7 +186,7 @@ public class StatsManagerImplTest {
   public void testRecordWithEmptyStatsContext() {
     statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     // DEFAULT doesn't have tags. Should have TagKey "method" as defined in RpcViewConstants.
-    statsManager.record(StatsContextFactoryImpl.DEFAULT, MeasurementMap.of(
+    statsManager.record(statsManager.getStatsContextFactory().getDefault(), MeasurementMap.of(
         RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 10.0));
     DistributionView view =
         (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);

@@ -15,13 +15,20 @@ package com.google.instrumentation.stats;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Collections;
 
 /**
  * Native Implementation of {@link StatsContextFactory}.
  */
 final class StatsContextFactoryImpl extends StatsContextFactory {
-  static final StatsContextImpl DEFAULT = new StatsContextImpl(new HashMap<TagKey, TagValue>(0));
+  private final StatsManagerImplBase statsManager;
+  private final StatsContextImpl defaultStatsContext;
+
+  StatsContextFactoryImpl(StatsManagerImplBase statsManager) {
+    this.statsManager = statsManager;
+    this.defaultStatsContext =
+        new StatsContextImpl(statsManager, Collections.<TagKey, TagValue>emptyMap());
+  }
 
   /**
    * Deserializes a {@link StatsContextImpl} from a serialized {@code CensusContextProto}.
@@ -30,11 +37,11 @@ final class StatsContextFactoryImpl extends StatsContextFactory {
    */
   @Override
   public StatsContextImpl deserialize(InputStream input) throws IOException {
-    return StatsSerializer.deserialize(input);
+    return StatsSerializer.deserialize(statsManager, input);
   }
 
   @Override
-  public StatsContext getDefault() {
-    return DEFAULT;
+  public StatsContextImpl getDefault() {
+    return defaultStatsContext;
   }
 }
