@@ -100,7 +100,7 @@ public abstract class NetworkEvent {
      * @param kernelTimestamp The kernel timestamp of the event.
      * @return this.
      */
-    public abstract Builder setKernelTimestamp(Timestamp kernelTimestamp);
+    public abstract Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp);
 
     /**
      * Sets the message size.
