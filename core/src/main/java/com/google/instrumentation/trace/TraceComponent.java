@@ -14,7 +14,7 @@
 package com.google.instrumentation.trace;
 
 import com.google.instrumentation.common.Clock;
-import com.google.instrumentation.internal.MillisClock;
+import com.google.instrumentation.internal.ZeroTimeClock;
 
 /**
  * Class that holds the implementation instances for {@link Tracer} and {@link
@@ -73,8 +73,7 @@ public abstract class TraceComponent {
 
     @Override
     public Clock getClock() {
-      // TODO(sebright): Is this the right implementation, or should it return a constant?
-      return MillisClock.getInstance();
+      return ZeroTimeClock.getInstance();
     }
 
     private NoopTraceComponent() {}
