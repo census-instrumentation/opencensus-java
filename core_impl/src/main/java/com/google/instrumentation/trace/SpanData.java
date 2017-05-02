@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import javax.print.attribute.Attribute;
 
 /** Immutable representation of all data collected by the {@link Span} class. */
 @Immutable
@@ -61,14 +60,14 @@ public abstract class SpanData {
       @Nullable Status status,
       @Nullable Timestamp endTimestamp) {
     return new AutoValue_SpanData(
-        checkNotNull(context, "context"),
+        context,
         parentSpanId,
-        checkNotNull(displayName, "displayName"),
-        checkNotNull(startTimestamp, "startTimestamp"),
-        checkNotNull(attributes, "attributes"),
-        checkNotNull(annotations, "annotations"),
-        checkNotNull(networkEvents, "networkEvents"),
-        checkNotNull(links, "links"),
+        displayName,
+        startTimestamp,
+        attributes,
+        annotations,
+        networkEvents,
+        links,
         status,
         endTimestamp);
   }
@@ -157,12 +156,11 @@ public abstract class SpanData {
      *
      * @param timestamp the {@code Timestamp} of this event.
      * @param event the event.
-     * @param <T> can be one of {@code Annotation} or {@code NetworkEvent}.
+     * @param <T> the type of value that is timed.
      * @return a new immutable {@code TimedEvent<T>}
      */
     public static <T> TimedEvent<T> create(Timestamp timestamp, T event) {
-      return new AutoValue_SpanData_TimedEvent<T>(
-          checkNotNull(timestamp, "timestamp"), checkNotNull(event, "event"));
+      return new AutoValue_SpanData_TimedEvent<T>(timestamp, event);
     }
 
     /**
@@ -190,7 +188,7 @@ public abstract class SpanData {
      *
      * @param events the list of events.
      * @param droppedEventsCount the number of dropped events.
-     * @param <T> can be one of {@code Annotation} or {@code NetworkEvent}.
+     * @param <T> the type of value that is timed.
      * @return a new immutable {@code TimedEvents<T>}
      */
     public static <T> TimedEvents<T> create(List<TimedEvent<T>> events, int droppedEventsCount) {
@@ -229,6 +227,8 @@ public abstract class SpanData {
      */
     public static Attributes create(
         Map<String, AttributeValue> attributeMap, int droppedAttributesCount) {
+      // TODO(bdrutu): Consider to use LinkedHashMap here and everywhere else, less test flakes
+      // for others on account of determinism.
       return new AutoValue_SpanData_Attributes(
           Collections.unmodifiableMap(
               new HashMap<String, AttributeValue>(checkNotNull(attributeMap, "attributeMap"))),

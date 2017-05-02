@@ -15,6 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.trace.Link.Type;
 import com.google.instrumentation.trace.SpanData.Attributes;
@@ -155,6 +156,52 @@ public class SpanDataTest {
     assertThat(spanData.getLinks().getLinks().isEmpty()).isTrue();
     assertThat(spanData.getStatus()).isEqualTo(status);
     assertThat(spanData.getEndTimestamp()).isEqualTo(endTimestamp);
+  }
+
+  @Test
+  public void spanDataEquals() {
+    String allSpanData1 =
+        SpanData.create(
+                spanContext,
+                parentSpanId,
+                DISPLAY_NAME,
+                startTimestamp,
+                attributes,
+                annotations,
+                networkEvents,
+                links,
+                status,
+                endTimestamp)
+            .toString();
+    String allSpanData2 =
+        SpanData.create(
+                spanContext,
+                parentSpanId,
+                DISPLAY_NAME,
+                startTimestamp,
+                attributes,
+                annotations,
+                networkEvents,
+                links,
+                status,
+                endTimestamp)
+            .toString();
+    SpanData emptySpanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            DISPLAY_NAME,
+            startTimestamp,
+            Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
+            TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
+            TimedEvents.create(Collections.<SpanData.TimedEvent<NetworkEvent>>emptyList(), 0),
+            Links.create(Collections.<Link>emptyList(), 0),
+            status,
+            endTimestamp);
+    new EqualsTester()
+        .addEqualityGroup(allSpanData1, allSpanData2)
+        .addEqualityGroup(emptySpanData)
+        .testEquals();
   }
 
   @Test
