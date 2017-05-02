@@ -26,7 +26,7 @@ public abstract class TraceExporter {
   private static final NoopTraceExporter noopTraceExporter = new NoopTraceExporter();
 
   /**
-   * Register a new service handler that allows the library to
+   * Registers a new service handler that is used by the library to export trace data.
    *
    * <p>Example of usage:
    *
@@ -38,11 +38,17 @@ public abstract class TraceExporter {
    * }
    * }</pre>
    *
-   * @param name the name of the exporter. Must be unique for each service.
-   * @param serviceHandler the service handler that is called for each ended sampled span. If {@code
-   *     null} the previous exporter with the same name will be removed.
+   * @param name the name of the service handler. Must be unique for each service.
+   * @param serviceHandler the service handler that is called for each ended sampled span.
    */
-  public abstract void registerServiceHandler(String name, @Nullable ServiceHandler serviceHandler);
+  public abstract void registerServiceHandler(String name, ServiceHandler serviceHandler);
+
+  /**
+   * Unregisters the service handler with the provided name.
+   *
+   * @param name the name of the service handler that will be unregistered.
+   */
+  public abstract void unregisterServiceHandler(String name);
 
   /**
    * An abstract class that allows different tracing services to export recorded data for sampled
@@ -59,8 +65,8 @@ public abstract class TraceExporter {
      *
      * <p>This may be called from a different thread than the one that called {@link Span#end()}.
      *
-     * <p>Implementation SHOULD not block the calling thread and execute the export on a different
-     * thread if possible.
+     * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
+     * different thread if possible.
      *
      * @param spanData the immutable representation of all data collected by the {@code Span}.
      */
@@ -77,8 +83,10 @@ public abstract class TraceExporter {
   }
 
   private static final class NoopTraceExporter extends TraceExporter {
-
     @Override
     public void registerServiceHandler(String name, @Nullable ServiceHandler serviceHandler) {}
+
+    @Override
+    public void unregisterServiceHandler(String name) {}
   }
 }
