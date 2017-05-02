@@ -15,27 +15,28 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.internal.ZeroTimeClock;
+import com.google.instrumentation.internal.MillisClock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TraceComponent}. */
+/** Unit tests for {@link TraceComponentImpl}. */
 @RunWith(JUnit4.class)
-public class TraceComponentTest {
+public class TraceComponentImplTest {
   @Test
-  public void defaultTracer() {
-    assertThat(TraceComponent.getNoopTraceComponent().getTracer()).isSameAs(Tracer.getNoopTracer());
+  public void implementationOfTracer() {
+    // TODO(bdrutu): Change this when TracerImpl is available.
+    assertThat(Tracing.getTracer()).isSameAs(Tracer.getNoopTracer());
   }
 
   @Test
-  public void defaultBinaryPropagationHandler() {
-    assertThat(TraceComponent.getNoopTraceComponent().getBinaryPropagationHandler())
-        .isSameAs(BinaryPropagationHandler.getNoopBinaryPropagationHandler());
+  public void implementationOfBinaryPropagationHandler() {
+    assertThat(Tracing.getBinaryPropagationHandler())
+        .isSameAs(BinaryPropagationHandlerImpl.INSTANCE);
   }
 
   @Test
-  public void defaultClock() {
-    assertThat(TraceComponent.getNoopTraceComponent().getClock()).isInstanceOf(ZeroTimeClock.class);
+  public void implementationOfClock() {
+    assertThat(Tracing.getClock()).isInstanceOf(MillisClock.class);
   }
 }

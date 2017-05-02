@@ -11,27 +11,14 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.common;
+package com.google.instrumentation.trace;
 
-import com.google.instrumentation.internal.MillisClock;
+import com.google.instrumentation.common.Clock;
 
-/**
- * Factory for {@link Timestamp}. See {@link #now} for how to use this class.
- *
- * @deprecated Use {@link Clock} instead.
- */
-@Deprecated
-public final class TimestampFactory {
-  private static final Clock CLOCK = MillisClock.getInstance();
+/** Java 7 and 8 implementation of the {@link TraceComponent}. */
+public abstract class TraceComponentImplJava extends TraceComponentImplBase {
 
-  private TimestampFactory() {}
-
-  /**
-   * Obtains the current instant from the system clock.
-   *
-   * @return the current instant using the system clock, not null.
-   */
-  public static Timestamp now() {
-    return CLOCK.now();
+  public TraceComponentImplJava(Clock clock) {
+    super(clock);
   }
 }

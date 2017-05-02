@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
  * A representation of an instant in time. The instant is the number of nanoseconds after the number
  * of seconds since the Unix Epoch.
  *
- * <p>Use {@link TimestampFactory#now} to get the current timestamp since epoch
+ * <p>Use {@code Tracing.getClock().now()} to get the current timestamp since epoch
  * (1970-01-01T00:00:00Z).
  */
 @Immutable
