@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import javax.print.attribute.Attribute;
 
 /** Immutable representation of all data collected by the {@link Span} class. */
 @Immutable
@@ -177,6 +178,8 @@ public abstract class SpanData {
      * @return the event.
      */
     public abstract T getEvent();
+
+    TimedEvent() {}
   }
 
   @Immutable
@@ -210,6 +213,8 @@ public abstract class SpanData {
      * @return the number of dropped events.
      */
     public abstract int getDroppedEventsCount();
+
+    TimedEvents() {}
   }
 
   @Immutable
@@ -243,6 +248,8 @@ public abstract class SpanData {
      * @return the number of dropped attributes.
      */
     public abstract int getDroppedAttributesCount();
+
+    Attributes() {}
   }
 
   @Immutable
@@ -274,5 +281,7 @@ public abstract class SpanData {
      * @return the number of dropped links.
      */
     public abstract int getDroppedLinksCount();
+
+    Links() {}
   }
 }
