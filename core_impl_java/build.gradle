@@ -1,5 +1,12 @@
 description = 'Instrumentation Core Impl Java'
 
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.7
+    it.targetCompatibility = 1.7
+}
+
 dependencies {
     compile project(':instrumentation-java-core'),
             project(':instrumentation-java-core-impl'),
