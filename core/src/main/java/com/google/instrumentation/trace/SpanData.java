@@ -147,7 +147,11 @@ public abstract class SpanData {
 
   SpanData() {}
 
-  /** A timed event representation. It can be a timed {@link Annotation} or {@link NetworkEvent}. */
+  /**
+   * A timed event representation.
+   *
+   * @param <T> the type of value that is timed.
+   */
   @Immutable
   @AutoValue
   public abstract static class TimedEvent<T> {
@@ -180,6 +184,11 @@ public abstract class SpanData {
     TimedEvent() {}
   }
 
+  /**
+   * A list of timed events and the number of dropped events representation.
+   *
+   * @param <T> the type of value that is timed.
+   */
   @Immutable
   @AutoValue
   public abstract static class TimedEvents<T> {
@@ -215,6 +224,9 @@ public abstract class SpanData {
     TimedEvents() {}
   }
 
+  /**
+   * A set of attributes and the number of dropped attributes representation.
+   */
   @Immutable
   @AutoValue
   public abstract static class Attributes {
@@ -252,6 +264,9 @@ public abstract class SpanData {
     Attributes() {}
   }
 
+  /**
+   * A list of links and the number of dropped links representation.
+   */
   @Immutable
   @AutoValue
   public abstract static class Links {

@@ -48,6 +48,14 @@ public abstract class TraceComponent {
    */
   public abstract Clock getClock();
 
+  /**
+   * Returns the {@link TraceExporter} with the provided implementation. If no implementation is
+   * provided then no-op implementations will be used.
+   *
+   * @return the {@link TraceExporter} implementation.
+   */
+  public abstract TraceExporter getTraceExporter();
+
   // Disallow external overrides until we define the final API.
   TraceComponent() {}
 
@@ -74,6 +82,11 @@ public abstract class TraceComponent {
     @Override
     public Clock getClock() {
       return ZeroTimeClock.getInstance();
+    }
+
+    @Override
+    public TraceExporter getTraceExporter() {
+      return TraceExporter.getNoopTraceExporter();
     }
 
     private NoopTraceComponent() {}

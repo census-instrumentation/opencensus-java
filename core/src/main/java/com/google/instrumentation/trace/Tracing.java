@@ -52,6 +52,15 @@ public final class Tracing {
     return traceComponent.getClock();
   }
 
+  /**
+   * Returns the global {@link TraceExporter}.
+   *
+   * @return the global {@code TraceExporter}.
+   */
+  public static TraceExporter getTraceExporter() {
+    return traceComponent.getTraceExporter();
+  }
+
   // Any provider that may be used for TraceComponent can be added here.
   @VisibleForTesting
   static TraceComponent loadTraceComponent(ClassLoader classLoader) {

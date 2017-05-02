@@ -38,4 +38,10 @@ public class TraceComponentTest {
   public void defaultClock() {
     assertThat(TraceComponent.getNoopTraceComponent().getClock()).isInstanceOf(ZeroTimeClock.class);
   }
+
+  @Test
+  public void defaultTraceExporter() {
+    assertThat(TraceComponent.getNoopTraceComponent().getTraceExporter())
+        .isSameAs(TraceExporter.getNoopTraceExporter());
+  }
 }
