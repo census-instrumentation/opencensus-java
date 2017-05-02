@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -23,19 +24,22 @@ import java.util.Map;
  * Native Implementation of {@link StatsContext}.
  */
 final class StatsContextImpl extends StatsContext {
+  private final StatsManagerImplBase statsManager;
   final Map<TagKey, TagValue> tags;
 
-  StatsContextImpl(Map<TagKey, TagValue> tags) {
-    this.tags = tags;
+  StatsContextImpl(StatsManagerImplBase statsManager, Map<TagKey, TagValue> tags) {
+    this.statsManager = Preconditions.checkNotNull(statsManager);
+    this.tags = Preconditions.checkNotNull(tags);
   }
 
   @Override
   public Builder builder() {
-    return new Builder(tags);
+    return new Builder(statsManager, tags);
   }
 
   @Override
   public StatsContextImpl record(MeasurementMap stats) {
+    statsManager.record(this, stats);
     return this;
   }
 
@@ -65,9 +69,11 @@ final class StatsContextImpl extends StatsContext {
   }
 
   private static final class Builder extends StatsContext.Builder {
+    private final StatsManagerImplBase statsManager;
     private final HashMap<TagKey, TagValue> tags;
 
-    private Builder(Map<TagKey, TagValue> tags) {
+    private Builder(StatsManagerImplBase statsManager, Map<TagKey, TagValue> tags) {
+      this.statsManager = statsManager;
       this.tags = new HashMap<TagKey, TagValue>(tags);
     }
 
@@ -79,7 +85,8 @@ final class StatsContextImpl extends StatsContext {
 
     @Override
     public StatsContext build() {
-      return new StatsContextImpl(Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags)));
+      return new StatsContextImpl(
+          statsManager, Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags)));
     }
   }
 }

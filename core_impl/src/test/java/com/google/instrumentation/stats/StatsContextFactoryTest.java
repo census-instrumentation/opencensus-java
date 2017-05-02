@@ -15,6 +15,8 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.SimpleEventQueue;
+import com.google.instrumentation.internal.TestClock;
 import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +37,9 @@ public class StatsContextFactoryTest {
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
 
-  private static final StatsContextFactory FACTORY = new StatsContextFactoryImpl();
+  private final StatsManagerImplBase statsManager =
+      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create());
+  private final StatsContextFactory factory = new StatsContextFactoryImpl(statsManager);
   private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
 
   public StatsContextFactoryTest() {
@@ -55,7 +59,7 @@ public class StatsContextFactoryTest {
 
   @Test
   public void testDeserializeNoTags() throws Exception {
-    StatsContext expected = FACTORY.getDefault();
+    StatsContext expected = factory.getDefault();
     StatsContext actual = testDeserialize(
         new ByteArrayInputStream(
             new byte[]{StatsSerializer.VERSION_ID}));  // One byte that represents Version ID.
@@ -69,7 +73,7 @@ public class StatsContextFactoryTest {
 
   @Test
   public void testDeserializeValueTypeString() throws Exception {
-    StatsContext expected = new StatsContextImpl(sampleTags);
+    StatsContext expected = new StatsContextImpl(statsManager, sampleTags);
     StatsContext actual = testDeserialize(
         constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_STRING));
     assertThat(actual).isEqualTo(expected);
@@ -78,7 +82,7 @@ public class StatsContextFactoryTest {
   @Test
   public void testDeserializeMultipleString() throws Exception {
     sampleTags.put(TagKey.create("Key2"), TagValue.create("String2"));
-    StatsContext expected = new StatsContextImpl(sampleTags);
+    StatsContext expected = new StatsContextImpl(statsManager, sampleTags);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
@@ -127,9 +131,9 @@ public class StatsContextFactoryTest {
     testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (StatsSerializer.VERSION_ID + 1)}));
   }
 
-  private static StatsContext testDeserialize(InputStream inputStream)
+  private StatsContext testDeserialize(InputStream inputStream)
       throws IOException, IOException {
-    return FACTORY.deserialize(inputStream);
+    return factory.deserialize(inputStream);
   }
 
   /*

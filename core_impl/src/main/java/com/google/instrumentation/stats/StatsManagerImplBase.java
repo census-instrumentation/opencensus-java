@@ -24,20 +24,23 @@ import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 /**
  * Native Implementation of {@link StatsManager}.
  */
-public class StatsManagerImplBase extends StatsManager {
+class StatsManagerImplBase extends StatsManager {
   private final EventQueue queue;
 
   // clock used throughout the stats implementation
   private final Clock clock;
 
+  private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
+      new MeasurementDescriptorToViewMap();
+
+  // The StatsContextFactoryImpl is lazily initialized because it references "this" and cannot be
+  // created in the constructor.  Multiple initializations are okay.
+  private volatile StatsContextFactoryImpl statsContextFactory;
+
   StatsManagerImplBase(EventQueue queue, Clock clock) {
     this.queue = queue;
     this.clock = clock;
   }
-
-  private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
-      new MeasurementDescriptorToViewMap();
-  private final StatsContextFactoryImpl statsContextFactory = new StatsContextFactoryImpl();
 
   @Override
   public void registerView(ViewDescriptor viewDescriptor) {
@@ -76,7 +79,11 @@ public class StatsManagerImplBase extends StatsManager {
 
   @Override
   StatsContextFactoryImpl getStatsContextFactory() {
-    return statsContextFactory;
+    StatsContextFactoryImpl factory = statsContextFactory;
+    if (factory == null) {
+      statsContextFactory = factory = new StatsContextFactoryImpl(this);
+    }
+    return factory;
   }
 
   /**

@@ -14,9 +14,15 @@
 package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.common.collect.Collections2;
 import com.google.common.testing.EqualsTester;
+import com.google.instrumentation.common.Function;
+import com.google.instrumentation.common.SimpleEventQueue;
+import com.google.instrumentation.internal.TestClock;
+import com.google.instrumentation.stats.View.DistributionView;
+import com.google.instrumentation.stats.View.IntervalView;
 import com.google.io.base.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,22 +36,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link StatsContext}.
- */
+/** Tests for {@link StatsContext}. */
 @RunWith(JUnit4.class)
 public class StatsContextTest {
-  private static final StatsContextFactory FACTORY = new StatsContextFactoryImpl();
-  private static final StatsContext DEFAULT = StatsContextFactoryImpl.DEFAULT;
+  private static final double TOLERANCE = 1e-6;
 
-  private static final MeasurementDescriptor[] StatsMeasurementDescriptors = {
-    RpcMeasurementConstants.RPC_CLIENT_REQUEST_BYTES,
-    RpcMeasurementConstants.RPC_CLIENT_RESPONSE_BYTES,
-    RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY,
-    RpcMeasurementConstants.RPC_SERVER_REQUEST_BYTES,
-    RpcMeasurementConstants.RPC_SERVER_RESPONSE_BYTES,
-    RpcMeasurementConstants.RPC_SERVER_SERVER_LATENCY
-  };
+  private final StatsManagerImplBase statsManager =
+      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create());
+  private final StatsContextFactory factory = statsManager.getStatsContextFactory();
+  private final StatsContext defaultStatsContext = factory.getDefault();
 
   private static final int VERSION_ID = 0;
   private static final int VALUE_TYPE_STRING = 0;
@@ -74,55 +73,88 @@ public class StatsContextTest {
 
   @Test
   public void testWith() {
-    assertThat(DEFAULT.builder().set(K1, V1).build()).isEqualTo(DEFAULT.with(K1, V1));
+    assertThat(defaultStatsContext.builder().set(K1, V1).build())
+        .isEqualTo(defaultStatsContext.with(K1, V1));
 
-    assertThat(DEFAULT.builder().set(K1, V1).set(K2, V2).build())
-        .isEqualTo(DEFAULT.with(K1, V1, K2, V2));
+    assertThat(defaultStatsContext.builder().set(K1, V1).set(K2, V2).build())
+        .isEqualTo(defaultStatsContext.with(K1, V1, K2, V2));
 
-    assertThat(DEFAULT.builder().set(K1, V1).set(K2, V2).set(K3, V3).build())
-        .isEqualTo(DEFAULT.with(K1, V1, K2, V2, K3, V3));
+    assertThat(defaultStatsContext.builder().set(K1, V1).set(K2, V2).set(K3, V3).build())
+        .isEqualTo(defaultStatsContext.with(K1, V1, K2, V2, K3, V3));
   }
 
   @Test
   public void testWithComposed() {
-    StatsContext context1 = DEFAULT.with(K1, V1);
-    assertThat(DEFAULT.builder().set(K1, V1).build()).isEqualTo(context1);
+    StatsContext context1 = defaultStatsContext.with(K1, V1);
+    assertThat(defaultStatsContext.builder().set(K1, V1).build()).isEqualTo(context1);
 
     StatsContext context2 = context1.with(K1, V10, K2, V2);
-    assertThat(DEFAULT.with(K1, V10, K2, V2)).isEqualTo(context2);
+    assertThat(defaultStatsContext.with(K1, V10, K2, V2)).isEqualTo(context2);
 
     StatsContext context3 = context2.with(K1, V100, K2, V20, K3, V3);
-    assertThat(DEFAULT.with(K1, V100, K2, V20, K3, V3)).isEqualTo(context3);
+    assertThat(defaultStatsContext.with(K1, V100, K2, V20, K3, V3)).isEqualTo(context3);
 
     StatsContext context4 = context3.with(K3, V30, K4, V4);
-    assertThat(DEFAULT.builder().set(K1, V100).set(K2, V20).set(K3, V30).set(K4, V4).build())
+    assertThat(
+            defaultStatsContext
+                .builder()
+                .set(K1, V100)
+                .set(K2, V20)
+                .set(K3, V30)
+                .set(K4, V4)
+                .build())
         .isEqualTo(context4);
   }
 
-
+  // The main tests for stats recording are in StatsManagerImplTest.
   @Test
-  public void testRecordEachMeasurement() {
-    StatsContext context = DEFAULT.with(K1, V1);
-    double value = 44.0;
-    for (MeasurementDescriptor descriptor : StatsMeasurementDescriptors) {
-      MeasurementMap measurements = MeasurementMap.of(descriptor, value);
-      context.record(measurements);
-      //verify(context.context).record(measurements);
-      value++;
-    }
-  }
-
-  @Test
-  public void testRecordAllMeasurements() {
-    StatsContext context = DEFAULT.with(K1, V1);
-    double value = 44.0;
-    MeasurementMap.Builder builder = MeasurementMap.builder();
-    for (MeasurementDescriptor descriptor : StatsMeasurementDescriptors) {
-      MeasurementMap measurements = builder.put(descriptor, value).build();
-      context.record(measurements);
-      //verify(context.context).record(measurements);
-      value++;
-    }
+  public void testRecord() {
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    View beforeView = statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    beforeView.match(
+        new Function<DistributionView, Void>() {
+          @Override
+          public Void apply(DistributionView view) {
+            assertThat(view.getDistributionAggregations()).isEmpty();
+            return null;
+          }
+        },
+        new Function<IntervalView, Void>() {
+          @Override
+          public Void apply(IntervalView view) {
+            fail("Expected a DistributionView");
+            return null;
+          }
+        });
+    StatsContext context =
+        defaultStatsContext.with(
+            RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
+    MeasurementMap measurements =
+        MeasurementMap.of(RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1);
+    context.record(measurements);
+    View afterView = statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    afterView.match(
+        new Function<DistributionView, Void>() {
+          @Override
+          public Void apply(DistributionView view) {
+            assertThat(view.getDistributionAggregations()).hasSize(1);
+            DistributionAggregation agg = view.getDistributionAggregations().get(0);
+            assertThat(agg.getTags())
+                .containsExactly(
+                    Tag.create(
+                        RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod")));
+            assertThat(agg.getCount()).isEqualTo(1);
+            assertThat(agg.getMean()).isWithin(TOLERANCE).of(5.1);
+            return null;
+          }
+        },
+        new Function<IntervalView, Void>() {
+          @Override
+          public Void apply(IntervalView view) {
+            fail("Expected a DistributionView");
+            return null;
+          }
+        });
   }
 
   @Test
@@ -142,12 +174,12 @@ public class StatsContextTest {
 
   @Test
   public void testRoundtripSerialization() throws Exception {
-    testRoundtripSerialization(DEFAULT.builder().build());
-    testRoundtripSerialization(DEFAULT.with(K1, V1));
-    testRoundtripSerialization(DEFAULT.with(K1, V1, K2, V2, K3, V3));
-    testRoundtripSerialization(DEFAULT.with(K1, V_EMPTY));
-    testRoundtripSerialization(DEFAULT.with(K_EMPTY, V1));
-    testRoundtripSerialization(DEFAULT.with(K_EMPTY, V_EMPTY));
+    testRoundtripSerialization(defaultStatsContext.builder().build());
+    testRoundtripSerialization(defaultStatsContext.with(K1, V1));
+    testRoundtripSerialization(defaultStatsContext.with(K1, V1, K2, V2, K3, V3));
+    testRoundtripSerialization(defaultStatsContext.with(K1, V_EMPTY));
+    testRoundtripSerialization(defaultStatsContext.with(K_EMPTY, V1));
+    testRoundtripSerialization(defaultStatsContext.with(K_EMPTY, V_EMPTY));
   }
 
   // Tests for Object overrides.
@@ -155,27 +187,30 @@ public class StatsContextTest {
   @Test
   public void testEquals() {
     new EqualsTester()
-        .addEqualityGroup(DEFAULT, DEFAULT)
-        .addEqualityGroup(DEFAULT.with(K1, V1), DEFAULT.with(K1, V1))
+        .addEqualityGroup(defaultStatsContext, defaultStatsContext)
+        .addEqualityGroup(defaultStatsContext.with(K1, V1), defaultStatsContext.with(K1, V1))
         .addEqualityGroup(
-            DEFAULT.with(K1, V1, K2, V2),
-            DEFAULT.with(K1, V1, K2, V2),
-            DEFAULT.with(K2, V2, K1, V1))
-        .addEqualityGroup(DEFAULT.with(K10, V1))
-        .addEqualityGroup(DEFAULT.with(K1, V10))
+            defaultStatsContext.with(K1, V1, K2, V2),
+            defaultStatsContext.with(K1, V1, K2, V2),
+            defaultStatsContext.with(K2, V2, K1, V1))
+        .addEqualityGroup(defaultStatsContext.with(K10, V1))
+        .addEqualityGroup(defaultStatsContext.with(K1, V10))
         .addEqualityGroup("foo")
         .testEquals();
   }
 
   @Test
   public void testToString() {
-    assertThat(DEFAULT.with(K1, V1).toString()).isEqualTo(DEFAULT.with(K1, V1).toString());
-    assertThat(DEFAULT.with(K10, V1).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
-    assertThat(DEFAULT.with(K1, V10).toString()).isNotEqualTo(DEFAULT.with(K1, V1).toString());
+    assertThat(defaultStatsContext.with(K1, V1).toString())
+        .isEqualTo(defaultStatsContext.with(K1, V1).toString());
+    assertThat(defaultStatsContext.with(K10, V1).toString())
+        .isNotEqualTo(defaultStatsContext.with(K1, V1).toString());
+    assertThat(defaultStatsContext.with(K1, V10).toString())
+        .isNotEqualTo(defaultStatsContext.with(K1, V1).toString());
   }
 
-  private static void testSerialize(Tag... tags) throws IOException {
-    StatsContext.Builder builder = DEFAULT.builder();
+  private void testSerialize(Tag... tags) throws IOException {
+    StatsContext.Builder builder = defaultStatsContext.builder();
     for (Tag tag : tags) {
       builder.set(tag.getKey(), tag.getValue());
     }
@@ -199,11 +234,11 @@ public class StatsContextTest {
     assertThat(possibleOutputs).contains(actual.toString());
   }
 
-  private static void testRoundtripSerialization(StatsContext expected) throws Exception {
+  private void testRoundtripSerialization(StatsContext expected) throws Exception {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     expected.serialize(output);
     ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-    StatsContext actual = FACTORY.deserialize(input);
+    StatsContext actual = factory.deserialize(input);
     assertThat(actual).isEqualTo(expected);
   }
 
