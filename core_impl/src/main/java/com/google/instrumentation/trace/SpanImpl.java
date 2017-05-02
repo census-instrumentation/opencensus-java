@@ -58,15 +58,17 @@ final class SpanImpl extends Span {
   // Creates and starts a span with the given configuration. TimestampConverter is null if the
   // Span is a root span or the parent is not sampled. If the parent is sampled we should use the
   // same converter to ensure ordering between tracing events.
-  static SpanImpl startSpan(SpanContext context,
+  static SpanImpl startSpan(
+      SpanContext context,
       @Nullable EnumSet<Options> options,
       String name,
       @Nullable SpanId parentSpanId,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
-    SpanImpl span = new SpanImpl(context, options, name, parentSpanId, startEndHandler,
-        timestampConverter, clock);
+    SpanImpl span =
+        new SpanImpl(
+            context, options, name, parentSpanId, startEndHandler, timestampConverter, clock);
     // Call onStart here instead of calling in the constructor to make sure the span is completely
     // initialized.
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
@@ -102,10 +104,11 @@ final class SpanImpl extends Span {
           parentSpanId,
           name,
           timestampConverter.convertNanoTime(startNanoTime),
-          Collections.<String, AttributeValue>emptyMap(),
-          Collections.<TimedEvent<Annotation>>emptyList(),
-          Collections.<TimedEvent<NetworkEvent>>emptyList(),
-          Collections.<Link>emptyList(),
+          SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
+          SpanData.TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
+          SpanData.TimedEvents.create(
+              Collections.<SpanData.TimedEvent<NetworkEvent>>emptyList(), 0),
+          SpanData.Links.create(Collections.<Link>emptyList(), 0),
           hasBeenEnded ? status : null,
           hasBeenEnded ? timestampConverter.convertNanoTime(endNanoTime) : null);
     }
@@ -160,8 +163,8 @@ final class SpanImpl extends Span {
    * <p>Implementation must avoid high overhead work in any of the methods because the code is
    * executed on the critical path.
    *
-   * <p>One instance can be called by multiple threads in the same time, so the implementation
-   * must be thread-safe.
+   * <p>One instance can be called by multiple threads in the same time, so the implementation must
+   * be thread-safe.
    */
   abstract static class StartEndHandler {
     abstract void onStart(SpanImpl span);
