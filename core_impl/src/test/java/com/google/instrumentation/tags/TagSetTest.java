@@ -18,8 +18,8 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.internal.StringUtil;
 import com.google.instrumentation.internal.logging.TestLogger;
-import com.google.instrumentation.internal.logging.TestLoggerFactory;
 import com.google.instrumentation.internal.logging.TestLogger.LogRecord;
+import com.google.instrumentation.internal.logging.TestLoggerFactory;
 import java.util.Arrays;
 import java.util.logging.Level;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class TagSetTest {
   private static final TagKey<Boolean> KB = TagKey.createBoolean("k3");
 
   private final TestLoggerFactory loggerFactory = new TestLoggerFactory();
-  private final TagSetFactory factory = TagSetFactory.create(loggerFactory);
+  private final TagSetFactoryImpl factory = TagSetFactoryImpl.create(loggerFactory);
   private final TestLogger tagSetLogger =
       loggerFactory.getLogger("com.google.instrumentation.tags.TagSet");
 
@@ -54,7 +54,7 @@ public class TagSetTest {
 
   @Test
   public void testInsert() {
-    TagSet tags = singletonTagSet(KS1, "v1");
+    TagSetImpl tags = singletonTagSet(KS1, "v1");
     assertThat(tags.toBuilder().insert(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
     assertThat(tagSetLogger.getMessages()).isEmpty();
@@ -62,7 +62,7 @@ public class TagSetTest {
 
   @Test
   public void testInsertExistingTag() {
-    TagSet tags = singletonTagSet(KS1, "v1");
+    TagSetImpl tags = singletonTagSet(KS1, "v1");
     assertThat(tagSetLogger.getMessages()).isEmpty();
     assertThat(tags.toBuilder().insert(KS1, "v2").build().getTags()).containsExactly(KS1, "v1");
     assertThat(tagSetLogger.getMessages())
@@ -71,7 +71,7 @@ public class TagSetTest {
 
   @Test
   public void testSet() {
-    TagSet tags = singletonTagSet(KS1, "v1");
+    TagSetImpl tags = singletonTagSet(KS1, "v1");
     assertThat(tags.toBuilder().set(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().set(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
@@ -80,7 +80,7 @@ public class TagSetTest {
 
   @Test
   public void testUpdate() {
-    TagSet tags = singletonTagSet(KS1, "v1");
+    TagSetImpl tags = singletonTagSet(KS1, "v1");
     assertThat(tags.toBuilder().update(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().update(KS2, "v2").build().getTags()).containsExactly(KS1, "v1");
     assertThat(tagSetLogger.getMessages()).isEmpty();
@@ -88,7 +88,7 @@ public class TagSetTest {
 
   @Test
   public void testClear() {
-    TagSet tags = singletonTagSet(KS1, "v1");
+    TagSetImpl tags = singletonTagSet(KS1, "v1");
     assertThat(tags.toBuilder().clear(KS1).build().getTags()).isEmpty();
     assertThat(tags.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
     assertThat(tagSetLogger.getMessages()).isEmpty();
@@ -96,7 +96,7 @@ public class TagSetTest {
 
   @Test
   public void testGenericGetTag() {
-    TagSet tags = factory.builder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
+    TagSetImpl tags = factory.builder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
     assertThat(tags.getTagValue(KS1)).isEqualTo("my string");
     assertThat(tags.getTagValue(KB)).isEqualTo(true);
     assertThat(tags.getTagValue(KI)).isEqualTo(100);
@@ -105,7 +105,7 @@ public class TagSetTest {
 
   @Test
   public void testSpecializedGetTag() {
-    TagSet tags = factory.builder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
+    TagSetImpl tags = factory.builder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
     assertThat(tags.getStringTagValue(KS1)).isEqualTo("my string");
     assertThat(tags.getTagValue(TagKey.createString("unknown"))).isNull();
     assertThat(tags.getBooleanTagValue(KB, false)).isEqualTo(true);
@@ -184,8 +184,8 @@ public class TagSetTest {
     assertThat(value).isEqualTo("string");
   }
 
-  private <TagValueT> TagSet singletonTagSet(TagKey<TagValueT> key, TagValueT value) {
-    return new TagSet(
+  private <TagValueT> TagSetImpl singletonTagSet(TagKey<TagValueT> key, TagValueT value) {
+    return new TagSetImpl(
         loggerFactory.getLogger(TagSet.class.getName()),
         ImmutableMap.<TagKey<?>, Object>of(key, value));
   }
