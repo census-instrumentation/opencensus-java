@@ -70,4 +70,9 @@ public class TracingTest {
   public void defaultTraceExporter() {
     assertThat(Tracing.getTraceExporter()).isSameAs(TraceExporter.getNoopTraceExporter());
   }
+
+  @Test
+  public void defaultTraceConfig() {
+    assertThat(Tracing.getTraceConfig()).isSameAs(TraceConfig.getNoopTraceConfig());
+  }
 }

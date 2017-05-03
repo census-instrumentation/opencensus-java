@@ -56,6 +56,14 @@ public abstract class TraceComponent {
    */
   public abstract TraceExporter getTraceExporter();
 
+  /**
+   * Returns the {@link TraceConfig} with the provided implementation. If no implementation is
+   * provided then no-op implementations will be used.
+   *
+   * @return the {@link TraceConfig} implementation.
+   */
+  public abstract TraceConfig getTraceConfig();
+
   // Disallow external overrides until we define the final API.
   TraceComponent() {}
 
@@ -87,6 +95,11 @@ public abstract class TraceComponent {
     @Override
     public TraceExporter getTraceExporter() {
       return TraceExporter.getNoopTraceExporter();
+    }
+
+    @Override
+    public TraceConfig getTraceConfig() {
+      return TraceConfig.getNoopTraceConfig();
     }
 
     private NoopTraceComponent() {}

@@ -44,4 +44,10 @@ public class TraceComponentTest {
     assertThat(TraceComponent.getNoopTraceComponent().getTraceExporter())
         .isSameAs(TraceExporter.getNoopTraceExporter());
   }
+
+  @Test
+  public void defaultTraceConfig() {
+    assertThat(TraceComponent.getNoopTraceComponent().getTraceConfig())
+        .isSameAs(TraceConfig.getNoopTraceConfig());
+  }
 }
