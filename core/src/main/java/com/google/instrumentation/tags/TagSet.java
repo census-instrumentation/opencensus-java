@@ -13,106 +13,159 @@
 
 package com.google.instrumentation.tags;
 
-import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import com.google.instrumentation.internal.StringUtil;
+import com.google.instrumentation.internal.logging.Logger;
+import com.google.instrumentation.tags.TagKey.TagType;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.concurrent.Immutable;
+import java.util.logging.Level;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 /** A set of tags. */
-@Immutable
-@AutoValue
-public abstract class TagSet {
+// The class is immutable, except for the logger.
+public final class TagSet {
   /** The maximum length for a string tag value. */
   public static final int MAX_STRING_LENGTH = StringUtil.MAX_LENGTH;
 
-  private static final TagSet EMPTY = createInternal(new HashMap<TagKey<?>, Object>());
+  private final Logger logger;
 
-  TagSet() {}
+  // The types of the TagKey and value must match for each entry.
+  private final Map<TagKey<?>, Object> tags;
 
-  static TagSet createInternal(Map<TagKey<?>, Object> tags) {
-    return new AutoValue_TagSet(tags);
+  TagSet(Logger logger, Map<TagKey<?>, Object> tags) {
+    this.logger = logger;
+    this.tags = tags;
   }
 
-  abstract Map<TagKey<?>, Object> getTags();
-
-  /**
-   * Returns an empty {@code TagSet}.
-   *
-   * @return an empty {@code TagSet}.
-   */
-  public static TagSet empty() {
-    return EMPTY;
+  Map<TagKey<?>, Object> getTags() {
+    return tags;
   }
 
   /**
-   * Returns an empty builder.
+   * Determines whether a key is present.
    *
-   * @return an empty builder.
+   * @param key the key to look up.
+   * @return {@code true} if the key is present.
    */
-  public static Builder builder() {
-    return new Builder();
+  public boolean tagKeyExists(TagKey<?> key) {
+    return tags.containsKey(key);
+  }
+
+  // TODO(sebright): Which is better, the generic "get" method or three specialized "get" methods?
+  // Should these methods take defaults or throw exceptions to handle missing keys?
+
+  /**
+   * Gets a value of type {@code String}.
+   *
+   * @param key the key to look up.
+   * @return the tag value, or {@code null} if the key isn't present.
+   */
+  @Nullable
+  public String getStringTagValue(TagKey<String> key) {
+    return (String) tags.get(key);
   }
 
   /**
-   * Returns a builder based on this {@code TagSet}.
+   * Gets a value of type {@code long}.
    *
-   * @return a builder based on this {@code TagSet}.
+   * @param key the key to look up.
+   * @param defaultValue the value to return if the key is not preset.
+   * @return the tag value, or the default value if the key is not present.
    */
+  public long getIntTagValue(TagKey<Long> key, long defaultValue) {
+    Long value = (Long) tags.get(key);
+    return value == null ? defaultValue : value;
+  }
+
+  /**
+   * Gets a value of type {@code boolean}.
+   *
+   * @param key the key to look up.
+   * @param defaultValue the value to return if the key is not preset.
+   * @return the tag value, or the default value if the key is not present.
+   */
+  public boolean getBooleanTagValue(TagKey<Boolean> key, boolean defaultValue) {
+    Boolean value = (Boolean) tags.get(key);
+    return value == null ? defaultValue : value;
+  }
+
+  /**
+   * Gets a value of any type.
+   *
+   * @param key the key to look up.
+   * @return the tag value, or {@code null} if the key isn't present.
+   */
+  @Nullable
+  public <T> T getTagValue(TagKey<T> key) {
+    // An unchecked cast is okay, because we validate the values when they are inserted.
+    @SuppressWarnings("unchecked")
+    T value = (T) tags.get(key);
+    return value;
+  }
+
   public Builder toBuilder() {
-    return new Builder(getTags());
+    return new Builder(logger, getTags());
   }
 
-  /**
-   * Builder for the {@link TagSet} class.
-   */
+  /** Builder for the {@link TagSet} class. */
+  @NotThreadSafe
   public static final class Builder {
+    private final Logger logger;
     private final Map<TagKey<?>, Object> tags;
 
-    private Builder(Map<TagKey<?>, Object> tags) {
+    private Builder(Logger logger, Map<TagKey<?>, Object> tags) {
+      this.logger = logger;
       this.tags = new HashMap<TagKey<?>, Object>(tags);
     }
 
-    private Builder() {
-      tags = new HashMap<TagKey<?>, Object>();
+    Builder(Logger logger) {
+      this.logger = logger;
+      this.tags = new HashMap<TagKey<?>, Object>();
     }
 
     /**
-     * Adds the key/value pair if the key is not present.
+     * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
      *
      * @param key the key to look up.
      * @param value the value to insert for the given key.
      * @return this
      */
     public Builder insert(TagKey<String> key, String value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
       return insertInternal(key, StringUtil.sanitize(value));
     }
 
     /**
-     * Adds the key/value pair if the key is not present.
+     * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
      *
      * @param key the key to look up.
      * @param value the value to insert for the given key.
      * @return this
      */
     public Builder insert(TagKey<Long> key, long value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
       return insertInternal(key, value);
     }
 
     /**
-     * Adds the key/value pair if the key is not present.
+     * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
      *
      * @param key the key to look up.
      * @param value the value to insert for the given key.
      * @return this
      */
     public Builder insert(TagKey<Boolean> key, boolean value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
       return insertInternal(key, value);
     }
 
     private <TagValueT> Builder insertInternal(TagKey<TagValueT> key, TagValueT value) {
       if (!tags.containsKey(key)) {
         tags.put(key, value);
+      } else {
+        logger.log(Level.WARNING, "Tag key already exists: " + key);
       }
       return this;
     }
@@ -125,6 +178,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder set(TagKey<String> key, String value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
       return setInternal(key, StringUtil.sanitize(value));
     }
 
@@ -136,6 +190,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder set(TagKey<Long> key, long value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
       return setInternal(key, value);
     }
 
@@ -147,6 +202,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder set(TagKey<Boolean> key, boolean value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
       return setInternal(key, value);
     }
 
@@ -163,6 +219,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder update(TagKey<String> key, String value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
       return updateInternal(key, StringUtil.sanitize(value));
     }
 
@@ -174,6 +231,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder update(TagKey<Long> key, long value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
       return updateInternal(key, value);
     }
 
@@ -185,6 +243,7 @@ public abstract class TagSet {
      * @return this
      */
     public Builder update(TagKey<Boolean> key, boolean value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
       return updateInternal(key, value);
     }
 
@@ -207,7 +266,7 @@ public abstract class TagSet {
     }
 
     public TagSet build() {
-      return createInternal(new HashMap<TagKey<?>, Object>(tags));
+      return new TagSet(logger, new HashMap<TagKey<?>, Object>(tags));
     }
   }
 }

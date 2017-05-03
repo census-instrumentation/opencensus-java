@@ -13,6 +13,8 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.instrumentation.tags.TagSetFactory;
+
 /**
  * Provides facillities to register {@link ViewDescriptor}s for collecting stats and retrieving
  * stats data as a {@link View}.
@@ -33,4 +35,11 @@ public abstract class StatsManager {
    * Returns the default {@link StatsContextFactory}.
    */
   abstract StatsContextFactory getStatsContextFactory();
+
+  /**
+   * Returns the default {@link TagSetFactory}.
+   *
+   * @return the default {@code TagSetFactory}.
+   */
+  abstract TagSetFactory getTagSetFactory();
 }

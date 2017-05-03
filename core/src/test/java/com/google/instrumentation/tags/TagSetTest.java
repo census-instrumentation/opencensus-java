@@ -16,14 +16,18 @@ package com.google.instrumentation.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.internal.StringUtil;
+import com.google.instrumentation.internal.logging.TestLogger;
+import com.google.instrumentation.internal.logging.TestLoggerFactory;
+import com.google.instrumentation.internal.logging.TestLogger.LogRecord;
 import java.util.Arrays;
+import java.util.logging.Level;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Tests for {@link TagSet}. */
+// TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
 public class TagSetTest {
 
@@ -32,45 +36,82 @@ public class TagSetTest {
   private static final TagKey<Long> KI = TagKey.createInt("k2");
   private static final TagKey<Boolean> KB = TagKey.createBoolean("k3");
 
+  private final TestLoggerFactory loggerFactory = new TestLoggerFactory();
+  private final TagSetFactory factory = TagSetFactory.create(loggerFactory);
+  private final TestLogger tagSetLogger =
+      loggerFactory.getLogger("com.google.instrumentation.tags.TagSet");
+
   @Test
   public void testEmpty() {
-    assertThat(TagSet.empty().getTags()).isEmpty();
+    assertThat(factory.empty().getTags()).isEmpty();
   }
 
   @Test
   public void applyTagChangesInOrder() {
-    assertThat(TagSet.builder().set(KS1, "v1").set(KS1, "v2").build().getTags())
+    assertThat(factory.builder().set(KS1, "v1").set(KS1, "v2").build().getTags())
         .containsExactly(KS1, "v2");
   }
 
   @Test
   public void testInsert() {
-    TagSet ctx = singletonTagSet(KS1, "v1");
-    assertThat(ctx.toBuilder().insert(KS1, "v2").build().getTags()).containsExactly(KS1, "v1");
-    assertThat(ctx.toBuilder().insert(KS2, "v2").build().getTags())
+    TagSet tags = singletonTagSet(KS1, "v1");
+    assertThat(tags.toBuilder().insert(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
+    assertThat(tagSetLogger.getMessages()).isEmpty();
+  }
+
+  @Test
+  public void testInsertExistingTag() {
+    TagSet tags = singletonTagSet(KS1, "v1");
+    assertThat(tagSetLogger.getMessages()).isEmpty();
+    assertThat(tags.toBuilder().insert(KS1, "v2").build().getTags()).containsExactly(KS1, "v1");
+    assertThat(tagSetLogger.getMessages())
+        .containsExactly(LogRecord.create(Level.WARNING, "Tag key already exists: " + KS1));
   }
 
   @Test
   public void testSet() {
-    TagSet ctx = singletonTagSet(KS1, "v1");
-    assertThat(ctx.toBuilder().set(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
-    assertThat(ctx.toBuilder().set(KS2, "v2").build().getTags())
+    TagSet tags = singletonTagSet(KS1, "v1");
+    assertThat(tags.toBuilder().set(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
+    assertThat(tags.toBuilder().set(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
+    assertThat(tagSetLogger.getMessages()).isEmpty();
   }
 
   @Test
   public void testUpdate() {
-    TagSet ctx = singletonTagSet(KS1, "v1");
-    assertThat(ctx.toBuilder().update(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
-    assertThat(ctx.toBuilder().update(KS2, "v2").build().getTags()).containsExactly(KS1, "v1");
+    TagSet tags = singletonTagSet(KS1, "v1");
+    assertThat(tags.toBuilder().update(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
+    assertThat(tags.toBuilder().update(KS2, "v2").build().getTags()).containsExactly(KS1, "v1");
+    assertThat(tagSetLogger.getMessages()).isEmpty();
   }
 
   @Test
   public void testClear() {
-    TagSet ctx = singletonTagSet(KS1, "v1");
-    assertThat(ctx.toBuilder().clear(KS1).build().getTags()).isEmpty();
-    assertThat(ctx.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
+    TagSet tags = singletonTagSet(KS1, "v1");
+    assertThat(tags.toBuilder().clear(KS1).build().getTags()).isEmpty();
+    assertThat(tags.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
+    assertThat(tagSetLogger.getMessages()).isEmpty();
+  }
+
+  @Test
+  public void testGenericGetTag() {
+    TagSet tags = factory.builder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
+    assertThat(tags.getTagValue(KS1)).isEqualTo("my string");
+    assertThat(tags.getTagValue(KB)).isEqualTo(true);
+    assertThat(tags.getTagValue(KI)).isEqualTo(100);
+    assertThat(tags.getTagValue(TagKey.createString("unknown"))).isNull();
+  }
+
+  @Test
+  public void testSpecializedGetTag() {
+    TagSet tags = factory.builder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
+    assertThat(tags.getStringTagValue(KS1)).isEqualTo("my string");
+    assertThat(tags.getTagValue(TagKey.createString("unknown"))).isNull();
+    assertThat(tags.getBooleanTagValue(KB, false)).isEqualTo(true);
+    assertThat(tags.getBooleanTagValue(TagKey.createBoolean("unknown"), false)).isFalse();
+    assertThat(tags.getIntTagValue(KI, 0)).isEqualTo(100);
+    assertThat(tags.getIntTagValue(TagKey.createInt("unknown"), -1)).isEqualTo(-1);
   }
 
   @Test
@@ -85,7 +126,7 @@ public class TagSetTest {
     TagKey<String> key2 = TagKey.createString("K2");
     TagKey<String> key3 = TagKey.createString("K3");
     assertThat(
-            TagSet.builder()
+            factory.builder()
                 .insert(key1, value)
                 .set(key2, value)
                 .set(key3, "")  // allow next line to update existing value
@@ -107,7 +148,7 @@ public class TagSetTest {
             + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
             + "cd";
     assertThat(
-            TagSet.builder()
+            factory.builder()
                 .insert(key1, value)
                 .set(key2, value)
                 .set(key3, "")  // allow next line to update existing value
@@ -117,23 +158,35 @@ public class TagSetTest {
         .containsExactly(key1, expected, key2, expected, key3, expected);
   }
 
-  @Test
-  public void testEquals() {
-    new EqualsTester()
-        .addEqualityGroup(TagSet.empty(), TagSet.empty())
-        .addEqualityGroup(
-            TagSet.builder().insert(KS1, "v1").build(),
-            TagSet.builder().set(KS1, "v1").build(),
-            TagSet.builder().set(KS1, "v1").set(KS1, "v1").build())
-        .addEqualityGroup(
-            TagSet.builder().set(KB, true).set(KI, 2L).build(),
-            TagSet.builder().set(KI, 2L).set(KB, true).build())
-        .addEqualityGroup(TagSet.builder().set(KS1, "v2"))
-        .addEqualityGroup(TagSet.builder().set(KS2, "v1"))
-        .testEquals();
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private final TagKey<Long> badIntKey = (TagKey) TagKey.createString("Key");
+
+  @Test(expected = IllegalArgumentException.class)
+  public void disallowInsertingWrongTypeOfKey() {
+    factory.builder().insert(badIntKey, 123);
   }
 
-  private static <TagValueT> TagSet singletonTagSet(TagKey<TagValueT> key, TagValueT value) {
-    return TagSet.createInternal(ImmutableMap.<TagKey<?>, Object>of(key, value));
+  @Test(expected = IllegalArgumentException.class)
+  public void disallowSettingWrongTypeOfKey() {
+    factory.builder().set(badIntKey, 123);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void disallowUpdatingWrongTypeOfKey() {
+    factory.builder().update(badIntKey, 123);
+  }
+
+  // This is only allowed because we cannot prevent it.
+  @Test
+  public void allowCallingGetWithWrongTypeOfKey() {
+    TagSet tags = factory.builder().set(TagKey.createString("Key"), "string").build();
+    Object value = tags.getTagValue(badIntKey);
+    assertThat(value).isEqualTo("string");
+  }
+
+  private <TagValueT> TagSet singletonTagSet(TagKey<TagValueT> key, TagValueT value) {
+    return new TagSet(
+        loggerFactory.getLogger(TagSet.class.getName()),
+        ImmutableMap.<TagKey<?>, Object>of(key, value));
   }
 }

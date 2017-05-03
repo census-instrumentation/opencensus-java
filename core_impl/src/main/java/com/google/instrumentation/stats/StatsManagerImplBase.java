@@ -16,10 +16,14 @@ package com.google.instrumentation.stats;
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.common.Function;
+import com.google.instrumentation.internal.logging.JavaLoggerFactory;
+import com.google.instrumentation.internal.logging.LoggerFactory;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
 import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import com.google.instrumentation.tags.TagSetFactory;
+import com.google.instrumentation.tags.TagSetFactoryAccessor;
 
 /**
  * Native Implementation of {@link StatsManager}.
@@ -37,9 +41,16 @@ class StatsManagerImplBase extends StatsManager {
   // created in the constructor.  Multiple initializations are okay.
   private volatile StatsContextFactoryImpl statsContextFactory;
 
+  private final TagSetFactory tagSetFactory;
+
   StatsManagerImplBase(EventQueue queue, Clock clock) {
+    this(queue, clock, new JavaLoggerFactory());
+  }
+
+  StatsManagerImplBase(EventQueue queue, Clock clock, LoggerFactory loggerFactory) {
     this.queue = queue;
     this.clock = clock;
+    this.tagSetFactory = TagSetFactoryAccessor.createTagSetFactory(loggerFactory);
   }
 
   @Override
@@ -84,6 +95,11 @@ class StatsManagerImplBase extends StatsManager {
       statsContextFactory = factory = new StatsContextFactoryImpl(this);
     }
     return factory;
+  }
+
+  @Override
+  TagSetFactory getTagSetFactory() {
+    return tagSetFactory;
   }
 
   /**
