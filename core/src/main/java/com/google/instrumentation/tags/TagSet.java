@@ -30,7 +30,9 @@ public abstract class TagSet {
   public abstract boolean tagKeyExists(TagKey<?> key);
 
   // TODO(sebright): Which is better, the generic "get" method or three specialized "get" methods?
-  // Should these methods take defaults or throw exceptions to handle missing keys?
+  // The specialized "get" methods can return primitives, which could be less expensive.
+
+  // TODO(sebright): Should these methods take defaults or throw exceptions to handle missing keys?
 
   /**
    * Gets a value of type {@code String}.
@@ -77,6 +79,9 @@ public abstract class TagSet {
 
   /** Builder for the {@link TagSet} class. */
   public abstract static class Builder {
+
+  // TODO(sebright): Which is better, generic "insert", "set", and "update" methods, or these
+  // specialized methods that can take primitives?
 
     /**
      * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
