@@ -16,7 +16,13 @@ package com.google.instrumentation.tags;
 import com.google.instrumentation.internal.StringUtil;
 import javax.annotation.Nullable;
 
-/** A set of tags. */
+/**
+ * A set of key-value pairs that can be used to label anything that is associated with a specific
+ * operation.
+ *
+ * <p>For example, {@code TagSet}s can be used to label stats, log messages, or debugging
+ * information.
+ */
 public abstract class TagSet {
   /** The maximum length for a string tag value. */
   public static final int MAX_STRING_LENGTH = StringUtil.MAX_LENGTH;
