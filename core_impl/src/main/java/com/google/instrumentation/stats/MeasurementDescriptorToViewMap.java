@@ -15,7 +15,6 @@ package com.google.instrumentation.stats;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
@@ -23,6 +22,7 @@ import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.Collection;
+import javax.annotation.concurrent.GuardedBy;
 
 /**
  * A class that stores a singleton map from {@link MeasurementDescriptor.Name}s to {@link
@@ -34,55 +34,49 @@ final class MeasurementDescriptorToViewMap {
    * A synchronized singleton map that stores the one-to-many mapping from MeasurementDescriptors
    * to MutableViews.
    */
+  @GuardedBy("this")
   private final Multimap<MeasurementDescriptor.Name, MutableView> mutableMap =
-      Multimaps.synchronizedMultimap(
-          HashMultimap.<MeasurementDescriptor.Name, MutableView>create());
+      HashMultimap.<MeasurementDescriptor.Name, MutableView>create();
 
   /** Returns a {@link View} corresponding to the given {@link ViewDescriptor}. */
-  View getView(ViewDescriptor viewDescriptor, Clock clock) {
+  synchronized View getView(ViewDescriptor viewDescriptor, Clock clock) {
     Collection<MutableView> views =
         mutableMap.get(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
-    synchronized (mutableMap) {
-      for (MutableView view : views) {
-        if (view.getViewDescriptor().equals(viewDescriptor)) {
-          return view.toView(clock);
-        }
+    for (MutableView view : views) {
+      if (view.getViewDescriptor().equals(viewDescriptor)) {
+        return view.toView(clock);
       }
     }
     return null;
   }
 
-  private MutableView getMutableView(ViewDescriptor viewDescriptor) {
+  private synchronized MutableView getMutableView(ViewDescriptor viewDescriptor) {
     Collection<MutableView> views =
         mutableMap.get(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
-    synchronized (mutableMap) {
-      for (MutableView view : views) {
-        if (view.getViewDescriptor().equals(viewDescriptor)) {
-          return view;
-        }
+    for (MutableView view : views) {
+      if (view.getViewDescriptor().equals(viewDescriptor)) {
+        return view;
       }
     }
     return null;
   }
 
   /** Enable stats collection for the given {@link ViewDescriptor}. */
-  void registerView(ViewDescriptor viewDescriptor, Clock clock) {
-    synchronized (mutableMap) {
-      if (getView(viewDescriptor, clock) != null) {
-        // Ignore views that are already registered.
-        return;
-      }
-      MutableView mutableView =
-          viewDescriptor.match(
-              new CreateMutableDistributionViewFunction(clock),
-              new CreateMutableIntervalViewFunction());
-      mutableMap.put(
-          viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
+  synchronized void registerView(ViewDescriptor viewDescriptor, Clock clock) {
+    if (getView(viewDescriptor, clock) != null) {
+      // Ignore views that are already registered.
+      return;
     }
+    MutableView mutableView =
+        viewDescriptor.match(
+            new CreateMutableDistributionViewFunction(clock),
+            new CreateMutableIntervalViewFunction());
+    mutableMap.put(
+        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
   }
 
   // Records stats with a set of tags.
-  void record(StatsContextImpl tags, MeasurementMap stats) {
+  synchronized void record(StatsContextImpl tags, MeasurementMap stats) {
     for (MeasurementValue mv : stats) {
       if (mv.getMeasurement()
           .getMeasurementDescriptorName()
@@ -97,9 +91,7 @@ final class MeasurementDescriptorToViewMap {
     if (view == null) {
       throw new IllegalArgumentException("View not registered yet.");
     }
-    synchronized (mutableMap) {
-      view.record(tags, value);
-    }
+    view.record(tags, value);
   }
 
   private static final class CreateMutableDistributionViewFunction
