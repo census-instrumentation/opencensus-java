@@ -61,6 +61,15 @@ public final class Tracing {
     return traceComponent.getTraceExporter();
   }
 
+  /**
+   * Returns the global {@link TraceConfig}.
+   *
+   * @return the global {@code TraceConfig}.
+   */
+  public static TraceConfig getTraceConfig() {
+    return traceComponent.getTraceConfig();
+  }
+
   // Any provider that may be used for TraceComponent can be added here.
   @VisibleForTesting
   static TraceComponent loadTraceComponent(ClassLoader classLoader) {

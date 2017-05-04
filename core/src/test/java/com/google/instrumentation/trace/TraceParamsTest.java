@@ -15,6 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.trace.TraceConfig.TraceParams;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,22 +37,22 @@ public class TraceParamsTest {
     TraceParams.DEFAULT.toBuilder().setSampler(null).build();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void updateTraceParams_NonPositiveMaxNumberOfAttributes() {
     TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(0).build();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void updateTraceParams_NonPositiveMaxNumberOfAnnotations() {
     TraceParams.DEFAULT.toBuilder().setMaxNumberOfAnnotations(0).build();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void updateTraceParams_NonPositiveMaxNumberOfNetworkEvents() {
     TraceParams.DEFAULT.toBuilder().setMaxNumberOfNetworkEvents(0).build();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void updateTraceParams_NonPositiveMaxNumberOfLinks() {
     TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(0).build();
   }

@@ -17,8 +17,8 @@ import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.internal.ZeroTimeClock;
 
 /**
- * Class that holds the implementation instances for {@link Tracer} and {@link
- * BinaryPropagationHandler}.
+ * Class that holds the implementation instances for {@link Tracer}, {@link
+ * BinaryPropagationHandler}, {@link Clock}, {@link TraceExporter} and {@link TraceConfig}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -56,6 +56,14 @@ public abstract class TraceComponent {
    */
   public abstract TraceExporter getTraceExporter();
 
+  /**
+   * Returns the {@link TraceConfig} with the provided implementation. If no implementation is
+   * provided then no-op implementations will be used.
+   *
+   * @return the {@link TraceConfig} implementation.
+   */
+  public abstract TraceConfig getTraceConfig();
+
   // Disallow external overrides until we define the final API.
   TraceComponent() {}
 
@@ -87,6 +95,11 @@ public abstract class TraceComponent {
     @Override
     public TraceExporter getTraceExporter() {
       return TraceExporter.getNoopTraceExporter();
+    }
+
+    @Override
+    public TraceConfig getTraceConfig() {
+      return TraceConfig.getNoopTraceConfig();
     }
 
     private NoopTraceComponent() {}
