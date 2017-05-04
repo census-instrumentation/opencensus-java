@@ -17,8 +17,8 @@ import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.internal.ZeroTimeClock;
 
 /**
- * Class that holds the implementation instances for {@link Tracer} and {@link
- * BinaryPropagationHandler}.
+ * Class that holds the implementation instances for {@link Tracer}, {@link
+ * BinaryPropagationHandler}, {@link Clock}, {@link TraceExporter} and {@link TraceConfig}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */

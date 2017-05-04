@@ -41,9 +41,9 @@ public class TraceConfigImplTest {
             .setMaxNumberOfNetworkEvents(10)
             .setMaxNumberOfLinks(11)
             .build();
-    traceConfig.permanentlyUpdateActiveTraceParams(traceParams);
+    traceConfig.updateActiveTraceParams(traceParams);
     assertThat(traceConfig.getActiveTraceParams()).isEqualTo(traceParams);
-    traceConfig.permanentlyUpdateActiveTraceParams(TraceParams.DEFAULT);
+    traceConfig.updateActiveTraceParams(TraceParams.DEFAULT);
     assertThat(traceConfig.getActiveTraceParams()).isEqualTo(TraceParams.DEFAULT);
   }
 }

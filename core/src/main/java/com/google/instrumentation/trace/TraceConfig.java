@@ -13,15 +13,15 @@
 
 package com.google.instrumentation.trace;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 import com.google.auto.value.AutoValue;
 import javax.annotation.concurrent.Immutable;
 
 /**
  * Global configuration of the trace service. This allows users to change configs for the default
- * sampler, maximum events to be kept, etc (see {@link TraceParams} for details).
+ * sampler, maximum events to be kept, etc. (see {@link TraceParams} for details).
  */
 public abstract class TraceConfig {
   private static final NoopTraceConfig noopTraceConfig = new NoopTraceConfig();
@@ -34,14 +34,14 @@ public abstract class TraceConfig {
   public abstract TraceParams getActiveTraceParams();
 
   /**
-   * Updates the active {@link TraceParams} permanently.
+   * Updates the active {@link TraceParams}.
    *
    * @param traceParams the new active {@code TraceParams}.
    */
-  public abstract void permanentlyUpdateActiveTraceParams(TraceParams traceParams);
+  public abstract void updateActiveTraceParams(TraceParams traceParams);
 
   /**
-   * Updates the active {@link TraceParams} temporary for {@code durationNs} nanoseconds.
+   * Temporary updates the active {@link TraceParams} for {@code durationNs} nanoseconds.
    *
    * @param traceParams the new active {@code TraceParams}.
    * @param durationNs the duration for how long the new params will be active.
@@ -62,7 +62,7 @@ public abstract class TraceConfig {
   @Immutable
   public abstract static class TraceParams {
     // These values are the default values for all the global parameters.
-    // TODO(aveitch): Change this when a rate/probability sampler will be available.
+    // TODO(aveitch): Change this when a rate/probability sampler is available.
     private static final Sampler DEFAULT_SAMPLER = Samplers.neverSample();
     private static final int DEFAULT_SPAN_MAX_NUM_ATTRIBUTES = 32;
     private static final int DEFAULT_SPAN_MAX_NUM_ANNOTATIONS = 32;
@@ -79,7 +79,7 @@ public abstract class TraceConfig {
             .build();
 
     /**
-     * Returns the global default {@code Sampler}. Used if no {@code Sampler} provided in {@link
+     * Returns the global default {@code Sampler}. Used if no {@code Sampler} is provided in {@link
      * StartSpanOptions}.
      *
      * @return the global default {@code Sampler}.
@@ -175,22 +175,23 @@ public abstract class TraceConfig {
        */
       public abstract Builder setMaxNumberOfLinks(int maxNumberOfLinks);
 
-      public abstract TraceParams autoBuild();
+      abstract TraceParams autoBuild();
 
       /**
        * Builds and returns a {@code TraceParams} with the desired values.
        *
        * @return a {@code TraceParams} with the desired values.
        * @throws NullPointerException if the sampler is null.
-       * @throws IllegalStateException if any of the max numbers are not positive.
+       * @throws IllegalArgumentException if sampler is {@code null} or any of the max numbers are
+       *     not positive.
        */
       public TraceParams build() {
         TraceParams traceParams = autoBuild();
         checkNotNull(traceParams.getSampler(), "sampler");
-        checkState(traceParams.getMaxNumberOfAttributes() > 0, "maxNumberOfAttributes");
-        checkState(traceParams.getMaxNumberOfAnnotations() > 0, "maxNumberOfAnnotations");
-        checkState(traceParams.getMaxNumberOfNetworkEvents() > 0, "maxNumberOfNetworkEvents");
-        checkState(traceParams.getMaxNumberOfLinks() > 0, "maxNumberOfLinks");
+        checkArgument(traceParams.getMaxNumberOfAttributes() > 0, "maxNumberOfAttributes");
+        checkArgument(traceParams.getMaxNumberOfAnnotations() > 0, "maxNumberOfAnnotations");
+        checkArgument(traceParams.getMaxNumberOfNetworkEvents() > 0, "maxNumberOfNetworkEvents");
+        checkArgument(traceParams.getMaxNumberOfLinks() > 0, "maxNumberOfLinks");
         return traceParams;
       }
     }
@@ -204,7 +205,7 @@ public abstract class TraceConfig {
     }
 
     @Override
-    public void permanentlyUpdateActiveTraceParams(TraceParams traceParams) {}
+    public void updateActiveTraceParams(TraceParams traceParams) {}
 
     @Override
     public void temporaryUpdateActiveTraceParams(TraceParams traceParams, long durationNs) {}

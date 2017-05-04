@@ -26,7 +26,7 @@ final class TraceConfigImpl extends TraceConfig {
   }
 
   @Override
-  public void permanentlyUpdateActiveTraceParams(TraceParams traceParams) {
+  public void updateActiveTraceParams(TraceParams traceParams) {
     activeTraceParams = traceParams;
   }
 
