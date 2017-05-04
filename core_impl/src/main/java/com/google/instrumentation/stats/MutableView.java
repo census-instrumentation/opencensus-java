@@ -15,7 +15,6 @@ package com.google.instrumentation.stats;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.instrumentation.common.Clock;
-import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
@@ -29,7 +28,6 @@ import java.util.Map.Entry;
 /**
  * A mutable version of {@link View}, used for recording stats and start/end time.
  */
-// TODO(songya): remove or modify the methods of this class, since it's not part of the API.
 abstract class MutableView {
   // TODO(songya): might want to update the default tag value later.
   @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
@@ -38,13 +36,6 @@ abstract class MutableView {
    * The {@link ViewDescriptor} associated with this {@link View}.
    */
   abstract ViewDescriptor getViewDescriptor();
-
-  /**
-   * Applies the given match function to the underlying data type.
-   */
-  abstract <T> T match(
-      Function<MutableDistributionView, T> p0,
-      Function<MutableIntervalView, T> p1);
 
   /**
    * Record stats with the given tags.
@@ -75,12 +66,6 @@ abstract class MutableView {
     @Override
     ViewDescriptor getViewDescriptor() {
       return distributionViewDescriptor;
-    }
-
-    @Override
-    <T> T match(
-        Function<MutableDistributionView, T> p0, Function<MutableIntervalView, T> p1) {
-      return p0.apply(this);
     }
 
     @Override
@@ -178,12 +163,6 @@ abstract class MutableView {
 
     @Override
     ViewDescriptor getViewDescriptor() {
-      throw new UnsupportedOperationException("Not implemented.");
-    }
-
-    @Override
-    <T> T match(
-        Function<MutableDistributionView, T> p0, Function<MutableIntervalView, T> p1) {
       throw new UnsupportedOperationException("Not implemented.");
     }
 
