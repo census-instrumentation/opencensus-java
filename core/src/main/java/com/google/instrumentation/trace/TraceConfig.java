@@ -181,9 +181,8 @@ public abstract class TraceConfig {
        * Builds and returns a {@code TraceParams} with the desired values.
        *
        * @return a {@code TraceParams} with the desired values.
-       * @throws NullPointerException if the sampler is null.
-       * @throws IllegalArgumentException if sampler is {@code null} or any of the max numbers are
-       *     not positive.
+       * @throws NullPointerException if the sampler is {@code null}.
+       * @throws IllegalArgumentException if any of the max numbers are not positive.
        */
       public TraceParams build() {
         TraceParams traceParams = autoBuild();
