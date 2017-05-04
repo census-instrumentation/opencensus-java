@@ -15,66 +15,32 @@ package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.EventQueue;
-import com.google.instrumentation.common.Function;
-import com.google.instrumentation.stats.MutableView.MutableDistributionView;
-import com.google.instrumentation.stats.MutableView.MutableIntervalView;
-import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
-import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 
 /**
- * Native Implementation of {@link StatsManager}.
+ * Base implementation of {@link StatsManager}.
  */
 class StatsManagerImplBase extends StatsManager {
-  private final EventQueue queue;
 
-  // clock used throughout the stats implementation
-  private final Clock clock;
-
-  private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
-      new MeasurementDescriptorToViewMap();
+  // StatsManagerImplBase delegates all operations related to stats to ViewManager in order to keep
+  // StatsManagerImplBase simple.
+  private final ViewManager statsCollector;
 
   // The StatsContextFactoryImpl is lazily initialized because it references "this" and cannot be
   // created in the constructor.  Multiple initializations are okay.
   private volatile StatsContextFactoryImpl statsContextFactory;
 
   StatsManagerImplBase(EventQueue queue, Clock clock) {
-    this.queue = queue;
-    this.clock = clock;
+    this.statsCollector = new ViewManager(queue, clock);
   }
 
   @Override
   public void registerView(ViewDescriptor viewDescriptor) {
-    // We are using a preset measurement RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY
-    // and view RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW for this prototype.
-    // The prototype does not allow setting measurement descriptor entries dynamically for now.
-    // TODO(songya): remove the logic for checking the preset descriptor.
-    if (!viewDescriptor.equals(SupportedViews.SUPPORTED_VIEW)) {
-      throw new UnsupportedOperationException(
-          "The prototype will only support Distribution View "
-              + SupportedViews.SUPPORTED_VIEW.getName());
-    }
-
-    if (measurementDescriptorToViewMap.getView(viewDescriptor, clock) != null) {
-      // Ignore views that are already registered.
-      return;
-    }
-
-    MutableView mutableView = viewDescriptor.match(
-        new CreateMutableDistributionViewFunction(clock), new CreateMutableIntervalViewFunction());
-
-    measurementDescriptorToViewMap.putView(
-            viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
+    statsCollector.registerView(viewDescriptor);
   }
 
   @Override
   public View getView(ViewDescriptor viewDescriptor) {
-    View view = measurementDescriptorToViewMap.getView(viewDescriptor, clock);
-    if (view == null) {
-      throw new IllegalArgumentException(
-          "View for view descriptor " + viewDescriptor.getName() + " not found.");
-    } else {
-      return view;
-    }
+    return statsCollector.getView(viewDescriptor);
   }
 
   @Override
@@ -92,52 +58,8 @@ class StatsManagerImplBase extends StatsManager {
    * @param tags the tags associated with the measurements
    * @param measurementValues the measurements to record
    */
+  // TODO(sebright): Add this method to StatsManager.
   void record(StatsContextImpl tags, MeasurementMap measurementValues) {
-    queue.enqueue(new StatsEvent(this, tags, measurementValues));
-  }
-
-  // An EventQueue entry that records the stats from one call to StatsManager.record(...).
-  private static final class StatsEvent implements EventQueue.Entry {
-    private final StatsContextImpl tags;
-    private final MeasurementMap stats;
-    private final StatsManagerImplBase statsManager;
-
-    StatsEvent(
-        StatsManagerImplBase statsManager, StatsContextImpl tags, MeasurementMap stats) {
-      this.statsManager = statsManager;
-      this.tags = tags;
-      this.stats = stats;
-    }
-
-    @Override
-    public void process() {
-      statsManager
-          .measurementDescriptorToViewMap
-          .record(tags, stats);
-    }
-  }
-
-  private static final class CreateMutableDistributionViewFunction
-      implements Function<DistributionViewDescriptor, MutableView> {
-    private final Clock clock;
-
-    public CreateMutableDistributionViewFunction(Clock clock) {
-      this.clock = clock;
-    }
-
-    @Override
-    public MutableView apply(DistributionViewDescriptor viewDescriptor) {
-      return MutableDistributionView.create(
-          viewDescriptor, clock.now());
-    }
-  }
-
-  private static final class CreateMutableIntervalViewFunction
-      implements Function<IntervalViewDescriptor, MutableView> {
-    @Override
-    public MutableView apply(IntervalViewDescriptor viewDescriptor) {
-      // TODO(songya): Create Interval Aggregations from internal Distributions.
-      return MutableIntervalView.create(viewDescriptor);
-    }
+    statsCollector.record(tags, measurementValues);
   }
 }
