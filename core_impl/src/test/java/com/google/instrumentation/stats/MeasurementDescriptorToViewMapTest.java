@@ -20,7 +20,6 @@ import static org.junit.Assert.fail;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.internal.TestClock;
-import com.google.instrumentation.stats.MutableView.MutableDistributionView;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;
 import org.junit.Test;
@@ -34,11 +33,10 @@ public class MeasurementDescriptorToViewMapTest {
       new MeasurementDescriptorToViewMap();
 
   @Test
-  public void testPutAndGetView() {
+  public void testRegisterAndGetView() {
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
-    measurementDescriptorToViewMap.putView(
-        RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY.getMeasurementDescriptorName(),
-        MutableDistributionView.create(RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock.now()));
+    measurementDescriptorToViewMap.registerView(
+        RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
     clock.setTime(Timestamp.create(30, 40));
     View actual = measurementDescriptorToViewMap.getView(RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
     actual.match(

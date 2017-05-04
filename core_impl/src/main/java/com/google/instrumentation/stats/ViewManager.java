@@ -15,15 +15,8 @@ package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.EventQueue;
-import com.google.instrumentation.common.Function;
-import com.google.instrumentation.stats.MutableView.MutableDistributionView;
-import com.google.instrumentation.stats.MutableView.MutableIntervalView;
-import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
-import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 
-/**
- * Object that stores all views and stats.
- */
+/** Object that stores all views and stats. */
 final class ViewManager {
 
   private final EventQueue queue;
@@ -49,17 +42,7 @@ final class ViewManager {
           "The prototype will only support Distribution View "
               + SupportedViews.SUPPORTED_VIEW.getName());
     }
-
-    if (measurementDescriptorToViewMap.getView(viewDescriptor, clock) != null) {
-      // Ignore views that are already registered.
-      return;
-    }
-
-    MutableView mutableView = viewDescriptor.match(
-        new CreateMutableDistributionViewFunction(clock), new CreateMutableIntervalViewFunction());
-
-    measurementDescriptorToViewMap.putView(
-            viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
+    measurementDescriptorToViewMap.registerView(viewDescriptor, clock);
   }
 
   View getView(ViewDescriptor viewDescriptor) {
@@ -82,8 +65,7 @@ final class ViewManager {
     private final MeasurementMap stats;
     private final ViewManager statsCollector;
 
-    StatsEvent(
-        ViewManager statsCollector, StatsContextImpl tags, MeasurementMap stats) {
+    StatsEvent(ViewManager statsCollector, StatsContextImpl tags, MeasurementMap stats) {
       this.statsCollector = statsCollector;
       this.tags = tags;
       this.stats = stats;
@@ -91,33 +73,7 @@ final class ViewManager {
 
     @Override
     public void process() {
-      statsCollector
-          .measurementDescriptorToViewMap
-          .record(tags, stats);
-    }
-  }
-
-  private static final class CreateMutableDistributionViewFunction
-      implements Function<DistributionViewDescriptor, MutableView> {
-    private final Clock clock;
-
-    CreateMutableDistributionViewFunction(Clock clock) {
-      this.clock = clock;
-    }
-
-    @Override
-    public MutableView apply(DistributionViewDescriptor viewDescriptor) {
-      return MutableDistributionView.create(
-          viewDescriptor, clock.now());
-    }
-  }
-
-  private static final class CreateMutableIntervalViewFunction
-      implements Function<IntervalViewDescriptor, MutableView> {
-    @Override
-    public MutableView apply(IntervalViewDescriptor viewDescriptor) {
-      // TODO(songya): Create Interval Aggregations from internal Distributions.
-      return MutableIntervalView.create(viewDescriptor);
+      statsCollector.measurementDescriptorToViewMap.record(tags, stats);
     }
   }
 }
