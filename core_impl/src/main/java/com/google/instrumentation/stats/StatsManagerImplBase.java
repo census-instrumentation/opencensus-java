@@ -23,24 +23,24 @@ class StatsManagerImplBase extends StatsManager {
 
   // StatsManagerImplBase delegates all operations related to stats to ViewManager in order to keep
   // StatsManagerImplBase simple.
-  private final ViewManager statsCollector;
+  private final ViewManager viewManager;
 
   // The StatsContextFactoryImpl is lazily initialized because it references "this" and cannot be
   // created in the constructor.  Multiple initializations are okay.
   private volatile StatsContextFactoryImpl statsContextFactory;
 
   StatsManagerImplBase(EventQueue queue, Clock clock) {
-    this.statsCollector = new ViewManager(queue, clock);
+    this.viewManager = new ViewManager(queue, clock);
   }
 
   @Override
   public void registerView(ViewDescriptor viewDescriptor) {
-    statsCollector.registerView(viewDescriptor);
+    viewManager.registerView(viewDescriptor);
   }
 
   @Override
   public View getView(ViewDescriptor viewDescriptor) {
-    return statsCollector.getView(viewDescriptor);
+    return viewManager.getView(viewDescriptor);
   }
 
   @Override
@@ -60,6 +60,6 @@ class StatsManagerImplBase extends StatsManager {
    */
   // TODO(sebright): Add this method to StatsManager.
   void record(StatsContextImpl tags, MeasurementMap measurementValues) {
-    statsCollector.record(tags, measurementValues);
+    viewManager.record(tags, measurementValues);
   }
 }
