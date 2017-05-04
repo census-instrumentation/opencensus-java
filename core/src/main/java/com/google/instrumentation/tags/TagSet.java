@@ -33,7 +33,7 @@ public abstract class TagSet {
   // Should these methods take defaults or throw exceptions to handle missing keys?
 
   /**
-   * Gets a value of type {@code String}.
+   * Looks up a value of type {@code String}.
    *
    * @param key the key to look up.
    * @return the tag value, or {@code null} if the key isn't present.
@@ -42,7 +42,7 @@ public abstract class TagSet {
   public abstract String getStringTagValue(TagKey<String> key);
 
   /**
-   * Gets a value of type {@code long}.
+   * Looks up a value of type {@code long}.
    *
    * @param key the key to look up.
    * @param defaultValue the value to return if the key is not preset.
@@ -51,7 +51,7 @@ public abstract class TagSet {
   public abstract long getIntTagValue(TagKey<Long> key, long defaultValue);
 
   /**
-   * Gets a value of type {@code boolean}.
+   * Looks up a value of type {@code boolean}.
    *
    * @param key the key to look up.
    * @param defaultValue the value to return if the key is not preset.
@@ -60,7 +60,7 @@ public abstract class TagSet {
   public abstract boolean getBooleanTagValue(TagKey<Boolean> key, boolean defaultValue);
 
   /**
-   * Gets a value of any type.
+   * Looks up a value of any type.
    *
    * @param key the key to look up.
    * @return the tag value, or {@code null} if the key isn't present.
