@@ -42,7 +42,8 @@ public final class ViewDescriptorTest {
     final ViewDescriptor viewDescriptor = DistributionViewDescriptor.create(
         name, description, measurementDescriptor, dAggrDescriptor, keys);
 
-    assertThat(viewDescriptor.getName()).isEqualTo(name);
+    assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
+    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
     assertThat(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName())
         .isEqualTo(measurementDescriptor.getMeasurementDescriptorName());
@@ -69,7 +70,8 @@ public final class ViewDescriptorTest {
     final ViewDescriptor viewDescriptor = IntervalViewDescriptor.create(
         name, description, measurementDescriptor, iAggrDescriptor, keys);
 
-    assertThat(viewDescriptor.getName()).isEqualTo(name);
+    assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
+    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
     assertThat(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName())
         .isEqualTo(measurementDescriptor.getMeasurementDescriptorName());
@@ -103,7 +105,7 @@ public final class ViewDescriptorTest {
         .testEquals();
   }
 
-  private final String name = "test-view-name";
+  private final ViewDescriptor.Name name = ViewDescriptor.Name.create("test-view-name");
   private final String description = "test-view-name description";
   private final MeasurementDescriptor measurementDescriptor = MeasurementDescriptor.create(
       "measurement",
