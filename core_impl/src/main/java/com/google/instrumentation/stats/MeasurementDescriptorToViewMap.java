@@ -57,7 +57,7 @@ final class MeasurementDescriptorToViewMap {
 
   /** Enable stats collection for the given {@link ViewDescriptor}. */
   synchronized void registerView(ViewDescriptor viewDescriptor, Clock clock) {
-    if (getView(viewDescriptor, clock) != null) {
+    if (getMutableView(viewDescriptor) != null) {
       // Ignore views that are already registered.
       return;
     }
