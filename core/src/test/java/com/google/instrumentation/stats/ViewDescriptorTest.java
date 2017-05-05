@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
@@ -86,6 +87,20 @@ public final class ViewDescriptorTest {
             return iViewDescriptor == viewDescriptor;
           }
         }));
+  }
+
+  @Test
+  public void testViewDescriptorName() {
+    assertThat(ViewDescriptor.Name.create("my name").asString()).isEqualTo("my name");
+  }
+
+  @Test
+  public void testViewDescriptorNameEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            ViewDescriptor.Name.create("view-1"), ViewDescriptor.Name.create("view-1"))
+        .addEqualityGroup(ViewDescriptor.Name.create("view-2"))
+        .testEquals();
   }
 
   private final String name = "test-view-name";

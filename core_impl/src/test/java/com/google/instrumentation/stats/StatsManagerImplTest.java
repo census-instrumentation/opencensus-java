@@ -20,11 +20,13 @@ import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.internal.TestClock;
 import com.google.instrumentation.stats.View.DistributionView;
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -80,6 +82,23 @@ public class StatsManagerImplTest {
     View actual = statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(actual.getViewDescriptor()).isEqualTo(
         RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+  }
+
+  // TODO(sebright) Enable this test once we support more than one view.
+  @Ignore
+  @Test
+  public void preventRegisteringDifferentViewDescriptorWithSameName() {
+    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    ViewDescriptor view2 =
+      DistributionViewDescriptor.create(
+          "grpc.io/client/roundtrip_latency/distribution_cumulative",
+          "This is a different description.",
+          RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY,
+          DistributionAggregationDescriptor.create(RpcViewConstants.RPC_MILLIS_BUCKET_BOUNDARIES),
+          Arrays.asList(RpcMeasurementConstants.RPC_CLIENT_METHOD));
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("A different view with the same name is already registered");
+    statsManager.registerView(view2);
   }
 
   @Test

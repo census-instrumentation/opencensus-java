@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.auto.value.AutoValue;
 import com.google.instrumentation.common.Function;
 
 import java.util.ArrayList;
@@ -27,8 +28,15 @@ public abstract class ViewDescriptor {
   /**
    * Name of view. Must be unique.
    */
-  public final String getName() {
+  public final Name getViewDescriptorName() {
     return name;
+  }
+
+  /**
+   * Name of view, as a {@code String}.
+   */
+  public final String getName() {
+    return name.asString();
   }
 
   /**
@@ -64,13 +72,13 @@ public abstract class ViewDescriptor {
       Function<IntervalViewDescriptor, T> p1);
 
 
-  private final String name;
+  private final Name name;
   private final String description;
   private final MeasurementDescriptor measurementDescriptor;
   private final List<TagKey> tagKeys;
 
   private ViewDescriptor(
-      String name,
+      Name name,
       String description,
       MeasurementDescriptor measurementDescriptor,
       List<TagKey> tagKeys) {
@@ -78,6 +86,33 @@ public abstract class ViewDescriptor {
     this.description = description;
     this.measurementDescriptor = measurementDescriptor;
     this.tagKeys = Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys));
+  }
+
+  /**
+   * The name of a {@code ViewDescriptor}.
+   */
+  // This type should be used as the key when associating data with ViewDescriptors.
+  @AutoValue
+  public abstract static class Name {
+
+    Name() {}
+
+    /**
+     * Returns the name as a {@code String}.
+     *
+     * @return the name as a {@code String}.
+     */
+    public abstract String asString();
+
+    /**
+     * Creates a {@code ViewDescriptor.Name} from a {@code String}.
+     *
+     * @param name the name {@code String}.
+     * @return a {@code ViewDescriptor.Name} with the given name {@code String}.
+     */
+    public static Name create(String name) {
+      return new AutoValue_ViewDescriptor_Name(name);
+    }
   }
 
   /**
@@ -89,6 +124,23 @@ public abstract class ViewDescriptor {
      */
     public static DistributionViewDescriptor create(
         String name,
+        String description,
+        MeasurementDescriptor measurementDescriptor,
+        DistributionAggregationDescriptor distributionAggregationDescriptor,
+        List<TagKey> tagKeys) {
+      return new DistributionViewDescriptor(
+          Name.create(name),
+          description,
+          measurementDescriptor,
+          distributionAggregationDescriptor,
+          tagKeys);
+    }
+
+    /**
+     * Constructs a new {@link DistributionViewDescriptor}.
+     */
+    public static DistributionViewDescriptor create(
+        Name name,
         String description,
         MeasurementDescriptor measurementDescriptor,
         DistributionAggregationDescriptor distributionAggregationDescriptor,
@@ -115,7 +167,7 @@ public abstract class ViewDescriptor {
     private final DistributionAggregationDescriptor distributionAggregationDescriptor;
 
     private DistributionViewDescriptor(
-        String name,
+        Name name,
         String description,
         MeasurementDescriptor measurementDescriptor,
         DistributionAggregationDescriptor distributionAggregationDescriptor,
@@ -134,6 +186,23 @@ public abstract class ViewDescriptor {
      */
     public static IntervalViewDescriptor create(
         String name,
+        String description,
+        MeasurementDescriptor measurementDescriptor,
+        IntervalAggregationDescriptor intervalAggregationDescriptor,
+        List<TagKey> tagKeys) {
+      return new IntervalViewDescriptor(
+          Name.create(name),
+          description,
+          measurementDescriptor,
+          intervalAggregationDescriptor,
+          tagKeys);
+    }
+
+    /**
+     * Constructs a new {@link IntervalViewDescriptor}.
+     */
+    public static IntervalViewDescriptor create(
+        Name name,
         String description,
         MeasurementDescriptor measurementDescriptor,
         IntervalAggregationDescriptor intervalAggregationDescriptor,
@@ -160,7 +229,7 @@ public abstract class ViewDescriptor {
     private final IntervalAggregationDescriptor intervalAggregationDescriptor;
 
     private IntervalViewDescriptor(
-        String name,
+        Name name,
         String description,
         MeasurementDescriptor measurementDescriptor,
         IntervalAggregationDescriptor intervalAggregationDescriptor,

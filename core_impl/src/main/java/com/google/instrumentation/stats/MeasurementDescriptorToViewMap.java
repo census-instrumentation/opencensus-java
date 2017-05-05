@@ -22,6 +22,9 @@ import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
@@ -38,29 +41,47 @@ final class MeasurementDescriptorToViewMap {
   private final Multimap<MeasurementDescriptor.Name, MutableView> mutableMap =
       HashMultimap.<MeasurementDescriptor.Name, MutableView>create();
 
-  /** Returns a {@link View} corresponding to the given {@link ViewDescriptor}. */
-  synchronized View getView(ViewDescriptor viewDescriptor, Clock clock) {
-    MutableView view = getMutableView(viewDescriptor);
+  @GuardedBy("this")
+  private final Map<ViewDescriptor.Name, ViewDescriptor> registeredViews =
+      new HashMap<ViewDescriptor.Name, ViewDescriptor>();
+
+  /** Returns a {@link View} corresponding to the given {@link ViewDescriptor.Name}. */
+  synchronized View getView(ViewDescriptor.Name viewName, Clock clock) {
+    MutableView view = getMutableView(viewName);
     return view == null ? null : view.toView(clock);
   }
 
-  private synchronized MutableView getMutableView(ViewDescriptor viewDescriptor) {
+  @Nullable
+  private synchronized MutableView getMutableView(ViewDescriptor.Name viewName) {
+    ViewDescriptor viewDescriptor = registeredViews.get(viewName);
+    if (viewDescriptor == null) {
+      return null;
+    }
     Collection<MutableView> views =
         mutableMap.get(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
     for (MutableView view : views) {
-      if (view.getViewDescriptor().equals(viewDescriptor)) {
+      if (view.getViewDescriptor().getViewDescriptorName().equals(viewName)) {
         return view;
       }
     }
-    return null;
+    throw new AssertionError("registeredViews and mutableMap contain different views: "
+        + "registeredViews=" + registeredViews + ", mutableMap=" + mutableMap);
   }
 
   /** Enable stats collection for the given {@link ViewDescriptor}. */
   synchronized void registerView(ViewDescriptor viewDescriptor, Clock clock) {
-    if (getMutableView(viewDescriptor) != null) {
-      // Ignore views that are already registered.
-      return;
+    ViewDescriptor existing = registeredViews.get(viewDescriptor.getViewDescriptorName());
+    if (existing != null) {
+      // TODO(sebright): Override equals(...) in ViewDescriptor.
+      if (existing.equals(viewDescriptor)) {
+        // Ignore views that are already registered.
+        return;
+      } else {
+        throw new IllegalArgumentException(
+            "A different view with the same name is already registered: " + existing);
+      }
     }
+    registeredViews.put(viewDescriptor.getViewDescriptorName(), viewDescriptor);
     MutableView mutableView =
         viewDescriptor.match(
             new CreateMutableDistributionViewFunction(clock),
@@ -81,7 +102,7 @@ final class MeasurementDescriptorToViewMap {
   }
 
   private void recordSupportedMeasurement(StatsContextImpl tags, double value) {
-    MutableView view = getMutableView(SupportedViews.SUPPORTED_VIEW);
+    MutableView view = getMutableView(SupportedViews.SUPPORTED_VIEW.getViewDescriptorName());
     if (view == null) {
       throw new IllegalArgumentException("View not registered yet.");
     }
