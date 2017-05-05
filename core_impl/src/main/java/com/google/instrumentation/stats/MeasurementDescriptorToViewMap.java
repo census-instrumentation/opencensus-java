@@ -72,7 +72,6 @@ final class MeasurementDescriptorToViewMap {
   synchronized void registerView(ViewDescriptor viewDescriptor, Clock clock) {
     ViewDescriptor existing = registeredViews.get(viewDescriptor.getViewDescriptorName());
     if (existing != null) {
-      // TODO(sebright): Override equals(...) in ViewDescriptor.
       if (existing.equals(viewDescriptor)) {
         // Ignore views that are already registered.
         return;

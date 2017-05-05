@@ -92,6 +92,31 @@ public final class ViewDescriptorTest {
   }
 
   @Test
+  public void testViewDescriptorEquals() {
+    DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
+    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
+        Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
+    new EqualsTester()
+        .addEqualityGroup(
+            DistributionViewDescriptor.create(
+                name, description, measurementDescriptor, dAggrDescriptor, keys),
+            DistributionViewDescriptor.create(
+                name, description, measurementDescriptor, dAggrDescriptor, keys))
+        .addEqualityGroup(
+            DistributionViewDescriptor.create(
+                name, description + 2, measurementDescriptor, dAggrDescriptor, keys))
+        .addEqualityGroup(
+            IntervalViewDescriptor.create(
+                name, description, measurementDescriptor, iAggrDescriptor, keys),
+            IntervalViewDescriptor.create(
+                name, description, measurementDescriptor, iAggrDescriptor, keys))
+        .addEqualityGroup(
+            IntervalViewDescriptor.create(
+                name, description + 2, measurementDescriptor, iAggrDescriptor, keys))
+        .testEquals();
+  }
+
+  @Test
   public void testViewDescriptorName() {
     assertThat(ViewDescriptor.Name.create("my name").asString()).isEqualTo("my name");
   }
