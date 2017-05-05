@@ -53,8 +53,6 @@ import java.text.ParseException;
  * </ul>
  */
 final class BinaryPropagationHandlerImpl extends BinaryPropagationHandler {
-  static final BinaryPropagationHandlerImpl INSTANCE = new BinaryPropagationHandlerImpl();
-
   private static final byte VERSION_ID = 0;
   private static final int VERSION_ID_OFFSET = 0;
   // The version_id/field_id size in bytes.
@@ -70,6 +68,8 @@ final class BinaryPropagationHandlerImpl extends BinaryPropagationHandler {
   private static final int TRACE_OPTIONS_OFFSET = TRACE_OPTION_FIELD_ID_OFFSET + ID_SIZE;
   private static final int FORMAT_LENGTH =
       4 * ID_SIZE + TraceId.SIZE + SpanId.SIZE + TraceOptions.SIZE;
+
+  BinaryPropagationHandlerImpl() {}
 
   @Override
   public byte[] toBinaryValue(SpanContext spanContext) {
@@ -112,6 +112,4 @@ final class BinaryPropagationHandlerImpl extends BinaryPropagationHandler {
       throw new ParseException("Invalid input: " + e.toString(), pos);
     }
   }
-
-  private BinaryPropagationHandlerImpl() {}
 }
