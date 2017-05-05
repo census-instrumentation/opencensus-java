@@ -63,17 +63,17 @@ final class ViewManager {
   private static final class StatsEvent implements EventQueue.Entry {
     private final StatsContextImpl tags;
     private final MeasurementMap stats;
-    private final ViewManager statsCollector;
+    private final ViewManager viewManager;
 
-    StatsEvent(ViewManager statsCollector, StatsContextImpl tags, MeasurementMap stats) {
-      this.statsCollector = statsCollector;
+    StatsEvent(ViewManager viewManager, StatsContextImpl tags, MeasurementMap stats) {
+      this.viewManager = viewManager;
       this.tags = tags;
       this.stats = stats;
     }
 
     @Override
     public void process() {
-      statsCollector.measurementDescriptorToViewMap.record(tags, stats);
+      viewManager.measurementDescriptorToViewMap.record(tags, stats);
     }
   }
 }
