@@ -40,14 +40,8 @@ final class MeasurementDescriptorToViewMap {
 
   /** Returns a {@link View} corresponding to the given {@link ViewDescriptor}. */
   synchronized View getView(ViewDescriptor viewDescriptor, Clock clock) {
-    Collection<MutableView> views =
-        mutableMap.get(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
-    for (MutableView view : views) {
-      if (view.getViewDescriptor().equals(viewDescriptor)) {
-        return view.toView(clock);
-      }
-    }
-    return null;
+    MutableView view = getMutableView(viewDescriptor);
+    return view == null ? null : view.toView(clock);
   }
 
   private synchronized MutableView getMutableView(ViewDescriptor viewDescriptor) {
