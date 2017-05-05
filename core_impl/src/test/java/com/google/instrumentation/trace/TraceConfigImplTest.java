@@ -31,7 +31,7 @@ public class TraceConfigImplTest {
   }
 
   @Test
-  public void updatePermanentelyTraceParams() {
+  public void updateTraceParams() {
     TraceParams traceParams =
         TraceParams.DEFAULT
             .toBuilder()
@@ -47,4 +47,3 @@ public class TraceConfigImplTest {
     assertThat(traceConfig.getActiveTraceParams()).isEqualTo(TraceParams.DEFAULT);
   }
 }
-

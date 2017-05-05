@@ -17,12 +17,15 @@ import com.google.instrumentation.common.Clock;
 
 /** Base implementation of the {@link TraceComponent}. */
 public class TraceComponentImplBase extends TraceComponent {
-  private static final Tracer tracer = Tracer.getNoopTracer();
-  private final BinaryPropagationHandlerImpl binaryPropagationHandler =
+  private static final int TRACE_EXPORTER_BUFFER_SIZE = 16;
+  private static final long TRACE_EXPORTER_SCHEDULE_DELAY_MS = 1000;
+  private final BinaryPropagationHandler binaryPropagationHandler =
       new BinaryPropagationHandlerImpl();
   private final Clock clock;
-  private final TraceExporter traceExporter = TraceExporter.getNoopTraceExporter();
+  private final TraceExporterImpl traceExporter =
+      new TraceExporterImpl(TRACE_EXPORTER_BUFFER_SIZE, TRACE_EXPORTER_SCHEDULE_DELAY_MS);
   private final TraceConfig traceConfig = new TraceConfigImpl();
+  private final Tracer tracer = Tracer.getNoopTracer();
 
   TraceComponentImplBase(Clock clock) {
     this.clock = clock;
