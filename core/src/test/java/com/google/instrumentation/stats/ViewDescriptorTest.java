@@ -161,6 +161,11 @@ public final class ViewDescriptorTest {
     assertThat(ViewDescriptor.Name.create("my name").asString()).isEqualTo("my name");
   }
 
+  @Test(expected = NullPointerException.class)
+  public void preventNullNameString() {
+    ViewDescriptor.Name.create(null);
+  }
+
   @Test
   public void testViewDescriptorNameEquals() {
     new EqualsTester()
