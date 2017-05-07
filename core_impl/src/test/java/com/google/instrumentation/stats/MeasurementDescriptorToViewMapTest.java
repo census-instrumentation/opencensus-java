@@ -38,7 +38,9 @@ public class MeasurementDescriptorToViewMapTest {
     measurementDescriptorToViewMap.registerView(
         RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
     clock.setTime(Timestamp.create(30, 40));
-    View actual = measurementDescriptorToViewMap.getView(RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
+    View actual =
+        measurementDescriptorToViewMap.getView(
+            RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW.getViewDescriptorName(), clock);
     actual.match(
         new Function<View.DistributionView, Void>() {
           @Override

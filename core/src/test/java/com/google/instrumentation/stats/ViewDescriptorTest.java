@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
@@ -41,7 +42,8 @@ public final class ViewDescriptorTest {
     final ViewDescriptor viewDescriptor = DistributionViewDescriptor.create(
         name, description, measurementDescriptor, dAggrDescriptor, keys);
 
-    assertThat(viewDescriptor.getName()).isEqualTo(name);
+    assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
+    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
     assertThat(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName())
         .isEqualTo(measurementDescriptor.getMeasurementDescriptorName());
@@ -68,7 +70,8 @@ public final class ViewDescriptorTest {
     final ViewDescriptor viewDescriptor = IntervalViewDescriptor.create(
         name, description, measurementDescriptor, iAggrDescriptor, keys);
 
-    assertThat(viewDescriptor.getName()).isEqualTo(name);
+    assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
+    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
     assertThat(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName())
         .isEqualTo(measurementDescriptor.getMeasurementDescriptorName());
@@ -88,7 +91,91 @@ public final class ViewDescriptorTest {
         }));
   }
 
-  private final String name = "test-view-name";
+  @Test
+  public void testViewDescriptorEquals() {
+    DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
+    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
+        Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
+    new EqualsTester()
+        .addEqualityGroup(
+            DistributionViewDescriptor.create(
+                name, description, measurementDescriptor, dAggrDescriptor, keys),
+            DistributionViewDescriptor.create(
+                name, description, measurementDescriptor, dAggrDescriptor, keys))
+        .addEqualityGroup(
+            DistributionViewDescriptor.create(
+                name, description + 2, measurementDescriptor, dAggrDescriptor, keys))
+        .addEqualityGroup(
+            IntervalViewDescriptor.create(
+                name, description, measurementDescriptor, iAggrDescriptor, keys),
+            IntervalViewDescriptor.create(
+                name, description, measurementDescriptor, iAggrDescriptor, keys))
+        .addEqualityGroup(
+            IntervalViewDescriptor.create(
+                name, description + 2, measurementDescriptor, iAggrDescriptor, keys))
+        .testEquals();
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullDistributionViewDescriptorName() {
+    DistributionViewDescriptor.create(
+        (ViewDescriptor.Name) null,
+        description,
+        measurementDescriptor,
+        DistributionAggregationDescriptor.create(),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullDistributionViewDescriptorStringName() {
+    DistributionViewDescriptor.create(
+        (String) null,
+        description,
+        measurementDescriptor,
+        DistributionAggregationDescriptor.create(),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullIntervalViewDescriptorName() {
+    IntervalViewDescriptor.create(
+        (ViewDescriptor.Name) null,
+        description,
+        measurementDescriptor,
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullIntervalViewDescriptorStringName() {
+    IntervalViewDescriptor.create(
+        (String) null,
+        description,
+        measurementDescriptor,
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        keys);
+  }
+
+  @Test
+  public void testViewDescriptorName() {
+    assertThat(ViewDescriptor.Name.create("my name").asString()).isEqualTo("my name");
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullNameString() {
+    ViewDescriptor.Name.create(null);
+  }
+
+  @Test
+  public void testViewDescriptorNameEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            ViewDescriptor.Name.create("view-1"), ViewDescriptor.Name.create("view-1"))
+        .addEqualityGroup(ViewDescriptor.Name.create("view-2"))
+        .testEquals();
+  }
+
+  private final ViewDescriptor.Name name = ViewDescriptor.Name.create("test-view-name");
   private final String description = "test-view-name description";
   private final MeasurementDescriptor measurementDescriptor = MeasurementDescriptor.create(
       "measurement",

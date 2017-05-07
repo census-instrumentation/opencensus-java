@@ -45,11 +45,11 @@ final class ViewManager {
     measurementDescriptorToViewMap.registerView(viewDescriptor, clock);
   }
 
-  View getView(ViewDescriptor viewDescriptor) {
-    View view = measurementDescriptorToViewMap.getView(viewDescriptor, clock);
+  View getView(ViewDescriptor.Name viewName) {
+    View view = measurementDescriptorToViewMap.getView(viewName, clock);
     if (view == null) {
       throw new IllegalArgumentException(
-          "View for view descriptor " + viewDescriptor.getName() + " not found.");
+          "View for view descriptor " + viewName + " not found.");
     } else {
       return view;
     }
