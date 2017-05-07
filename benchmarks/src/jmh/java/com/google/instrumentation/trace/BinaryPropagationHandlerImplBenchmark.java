@@ -34,7 +34,7 @@ public class BinaryPropagationHandlerImplBenchmark {
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
   private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
   private static final BinaryPropagationHandler binaryPropagationHandler =
-      BinaryPropagationHandlerImpl.INSTANCE;
+      new BinaryPropagationHandlerImpl();
   private static final byte[] spanContextBinary =
       binaryPropagationHandler.toBinaryValue(spanContext);
 
