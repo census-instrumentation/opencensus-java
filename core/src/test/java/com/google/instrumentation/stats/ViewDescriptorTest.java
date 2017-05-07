@@ -116,6 +116,46 @@ public final class ViewDescriptorTest {
         .testEquals();
   }
 
+  @Test(expected = NullPointerException.class)
+  public void preventNullDistributionViewDescriptorName() {
+    DistributionViewDescriptor.create(
+        (ViewDescriptor.Name) null,
+        description,
+        measurementDescriptor,
+        DistributionAggregationDescriptor.create(),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullDistributionViewDescriptorStringName() {
+    DistributionViewDescriptor.create(
+        (String) null,
+        description,
+        measurementDescriptor,
+        DistributionAggregationDescriptor.create(),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullIntervalViewDescriptorName() {
+    IntervalViewDescriptor.create(
+        (ViewDescriptor.Name) null,
+        description,
+        measurementDescriptor,
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullIntervalViewDescriptorStringName() {
+    IntervalViewDescriptor.create(
+        (String) null,
+        description,
+        measurementDescriptor,
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        keys);
+  }
+
   @Test
   public void testViewDescriptorName() {
     assertThat(ViewDescriptor.Name.create("my name").asString()).isEqualTo("my name");
