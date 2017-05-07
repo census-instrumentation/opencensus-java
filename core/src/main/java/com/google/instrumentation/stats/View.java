@@ -18,6 +18,8 @@ import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -96,7 +98,9 @@ public abstract class View {
     private DistributionView(DistributionViewDescriptor distributionViewDescriptor,
         List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
       this.distributionViewDescriptor = distributionViewDescriptor;
-      this.distributionAggregations = distributionAggregations;
+      this.distributionAggregations =
+          Collections.unmodifiableList(
+              new ArrayList<DistributionAggregation>(distributionAggregations));
       this.start = start;
       this.end = end;
     }
@@ -142,7 +146,8 @@ public abstract class View {
     private IntervalView(IntervalViewDescriptor intervalViewDescriptor,
         List<IntervalAggregation> intervalAggregations) {
       this.intervalViewDescriptor = intervalViewDescriptor;
-      this.intervalAggregations = intervalAggregations;
+      this.intervalAggregations =
+          Collections.unmodifiableList(new ArrayList<IntervalAggregation>(intervalAggregations));
     }
   }
 }

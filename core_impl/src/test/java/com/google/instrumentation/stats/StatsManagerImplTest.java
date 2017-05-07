@@ -20,6 +20,7 @@ import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.internal.TestClock;
 import com.google.instrumentation.stats.View.DistributionView;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -127,7 +128,8 @@ public class StatsManagerImplTest {
 
     DistributionView view =
         (DistributionView) statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    List<DistributionAggregation> distributionAggregations = view.getDistributionAggregations();
+    List<DistributionAggregation> distributionAggregations =
+        new ArrayList<DistributionAggregation>(view.getDistributionAggregations());
     assertThat(distributionAggregations).hasSize(2);
     // Sort distributionAggregations by count.
     Collections.sort(distributionAggregations, new Comparator<DistributionAggregation>() {
