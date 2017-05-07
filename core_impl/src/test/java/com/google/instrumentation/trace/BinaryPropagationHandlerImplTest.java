@@ -41,10 +41,10 @@ public class BinaryPropagationHandlerImplTest {
   private static final SpanContext EXAMPLE_SPAN_CONTEXT =
       SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS);
   @Rule public ExpectedException expectedException = ExpectedException.none();
-  private static final BinaryPropagationHandler binaryPropagationHandler =
+  private final BinaryPropagationHandler binaryPropagationHandler =
       new BinaryPropagationHandlerImpl();
 
-  private static void testSpanContextConversion(SpanContext spanContext) throws ParseException {
+  private void testSpanContextConversion(SpanContext spanContext) throws ParseException {
     SpanContext propagatedBinarySpanContext =
         binaryPropagationHandler.fromBinaryValue(
             binaryPropagationHandler.toBinaryValue(spanContext));

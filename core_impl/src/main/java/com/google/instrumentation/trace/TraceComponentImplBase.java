@@ -18,7 +18,7 @@ import com.google.instrumentation.common.Clock;
 /** Base implementation of the {@link TraceComponent}. */
 public class TraceComponentImplBase extends TraceComponent {
   private static final Tracer tracer = Tracer.getNoopTracer();
-  private static final BinaryPropagationHandler binaryPropagationHandler =
+  private final BinaryPropagationHandlerImpl binaryPropagationHandler =
       new BinaryPropagationHandlerImpl();
   private final Clock clock;
   private final TraceExporter traceExporter = TraceExporter.getNoopTraceExporter();
