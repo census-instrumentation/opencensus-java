@@ -64,8 +64,8 @@ final class MeasurementDescriptorToViewMap {
         return view;
       }
     }
-    throw new AssertionError("registeredViews and mutableMap contain different views: "
-        + "registeredViews=" + registeredViews + ", mutableMap=" + mutableMap);
+    throw new AssertionError("Internal error: Not recording stats for view: \"" + viewName
+        + "\" registeredViews=" + registeredViews + ", mutableMap=" + mutableMap);
   }
 
   /** Enable stats collection for the given {@link ViewDescriptor}. */
