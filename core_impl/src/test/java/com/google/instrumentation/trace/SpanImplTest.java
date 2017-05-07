@@ -62,6 +62,7 @@ public class SpanImplTest {
             noRecordSpanOptions,
             SPAN_NAME,
             parentSpanId,
+            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -78,11 +79,16 @@ public class SpanImplTest {
             recordSpanOptions,
             SPAN_NAME,
             parentSpanId,
+            true,
             startEndHandler,
             timestampConverter,
             testClock);
     Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
     SpanData spanData = span.toSpanData();
+    assertThat(spanData.getContext()).isEqualTo(spanContext);
+    assertThat(spanData.getDisplayName()).isEqualTo(SPAN_NAME);
+    assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
+    assertThat(spanData.getHasRemoteParent()).isTrue();
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
     assertThat(spanData.getStatus()).isNull();
     assertThat(spanData.getEndTimestamp()).isNull();
@@ -96,6 +102,7 @@ public class SpanImplTest {
             recordSpanOptions,
             SPAN_NAME,
             parentSpanId,
+            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -104,6 +111,10 @@ public class SpanImplTest {
     span.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
     SpanData spanData = span.toSpanData();
+    assertThat(spanData.getContext()).isEqualTo(spanContext);
+    assertThat(spanData.getDisplayName()).isEqualTo(SPAN_NAME);
+    assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
+    assertThat(spanData.getHasRemoteParent()).isFalse();
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
     assertThat(spanData.getStatus()).isEqualTo(Status.CANCELLED);
     assertThat(spanData.getEndTimestamp()).isEqualTo(timestamp.addNanos(7777));
