@@ -32,6 +32,8 @@ final class SpanImpl extends Span {
 
   // The parent SpanId of this span. Null if this is a root.
   private final SpanId parentSpanId;
+  // True if the parent is on a different process.
+  private final boolean hasRemoteParent;
   // Handler called when the span starts and ends.
   private final StartEndHandler startEndHandler;
   // The displayed name of the span.
@@ -63,12 +65,14 @@ final class SpanImpl extends Span {
       @Nullable EnumSet<Options> options,
       String name,
       @Nullable SpanId parentSpanId,
+      boolean hasRemoteParent,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
     SpanImpl span =
         new SpanImpl(
-            context, options, name, parentSpanId, startEndHandler, timestampConverter, clock);
+            context, options, name, parentSpanId, hasRemoteParent, startEndHandler,
+            timestampConverter, clock);
     // Call onStart here instead of calling in the constructor to make sure the span is completely
     // initialized.
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
@@ -102,6 +106,7 @@ final class SpanImpl extends Span {
       return SpanData.create(
           getContext(),
           parentSpanId,
+          hasRemoteParent,
           name,
           timestampConverter.convertNanoTime(startNanoTime),
           SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
@@ -177,11 +182,13 @@ final class SpanImpl extends Span {
       @Nullable EnumSet<Options> options,
       String name,
       @Nullable SpanId parentSpanId,
+      boolean hasRemoteParent,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
     super(context, options);
     this.parentSpanId = parentSpanId;
+    this.hasRemoteParent = hasRemoteParent;
     this.name = name;
     this.startEndHandler = startEndHandler;
     this.clock = clock;

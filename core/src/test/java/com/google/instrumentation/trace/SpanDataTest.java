@@ -86,6 +86,7 @@ public class SpanDataTest {
         SpanData.create(
             spanContext,
             parentSpanId,
+            true,
             DISPLAY_NAME,
             startTimestamp,
             attributes,
@@ -96,6 +97,7 @@ public class SpanDataTest {
             endTimestamp);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
+    assertThat(spanData.getHasRemoteParent()).isTrue();
     assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes()).isEqualTo(attributes);
@@ -112,6 +114,7 @@ public class SpanDataTest {
         SpanData.create(
             spanContext,
             null,
+            false,
             DISPLAY_NAME,
             startTimestamp,
             attributes,
@@ -122,6 +125,7 @@ public class SpanDataTest {
             null);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isNull();
+    assertThat(spanData.getHasRemoteParent()).isFalse();
     assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes()).isEqualTo(attributes);
@@ -138,6 +142,7 @@ public class SpanDataTest {
         SpanData.create(
             spanContext,
             parentSpanId,
+            false,
             DISPLAY_NAME,
             startTimestamp,
             Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
@@ -148,6 +153,7 @@ public class SpanDataTest {
             endTimestamp);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
+    assertThat(spanData.getHasRemoteParent()).isFalse();
     assertThat(spanData.getDisplayName()).isEqualTo(DISPLAY_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes().getAttributeMap().isEmpty()).isTrue();
@@ -160,36 +166,37 @@ public class SpanDataTest {
 
   @Test
   public void spanDataEquals() {
-    String allSpanData1 =
+    SpanData allSpanData1 =
         SpanData.create(
-                spanContext,
-                parentSpanId,
-                DISPLAY_NAME,
-                startTimestamp,
-                attributes,
-                annotations,
-                networkEvents,
-                links,
-                status,
-                endTimestamp)
-            .toString();
-    String allSpanData2 =
+            spanContext,
+            parentSpanId,
+            false,
+            DISPLAY_NAME,
+            startTimestamp,
+            attributes,
+            annotations,
+            networkEvents,
+            links,
+            status,
+            endTimestamp);
+    SpanData allSpanData2 =
         SpanData.create(
-                spanContext,
-                parentSpanId,
-                DISPLAY_NAME,
-                startTimestamp,
-                attributes,
-                annotations,
-                networkEvents,
-                links,
-                status,
-                endTimestamp)
-            .toString();
+            spanContext,
+            parentSpanId,
+            false,
+            DISPLAY_NAME,
+            startTimestamp,
+            attributes,
+            annotations,
+            networkEvents,
+            links,
+            status,
+            endTimestamp);
     SpanData emptySpanData =
         SpanData.create(
             spanContext,
             parentSpanId,
+            false,
             DISPLAY_NAME,
             startTimestamp,
             Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
@@ -210,6 +217,7 @@ public class SpanDataTest {
         SpanData.create(
                 spanContext,
                 parentSpanId,
+                false,
                 DISPLAY_NAME,
                 startTimestamp,
                 attributes,
