@@ -42,7 +42,6 @@ public class TraceComponentImplTest {
 
   @Test
   public void implementationOfTraceExporter() {
-    // TODO(bdrutu): Change this when TraceExporterImpl is available.
-    assertThat(Tracing.getTraceExporter()).isSameAs(TraceExporter.getNoopTraceExporter());
+    assertThat(Tracing.getTraceExporter()).isInstanceOf(TraceExporterImpl.class);
   }
 }

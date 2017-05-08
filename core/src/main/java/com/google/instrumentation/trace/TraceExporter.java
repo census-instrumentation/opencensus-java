@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.trace;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -60,17 +61,17 @@ public abstract class TraceExporter {
   public abstract static class ServiceHandler {
 
     /**
-     * It is called every time after a sampled (see {@link TraceOptions#isSampled()}) {@link Span}
-     * is ended.
+     * Exports a list of sampled (see {@link TraceOptions#isSampled()}) {@link Span}s using the
+     * immutable representation {@link SpanData}.
      *
      * <p>This may be called from a different thread than the one that called {@link Span#end()}.
      *
      * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
      * different thread if possible.
      *
-     * @param spanData the immutable representation of all data collected by the {@code Span}.
+     * @param spanDataList a list of {@code SpanData} objects to be exported.
      */
-    public abstract void export(SpanData spanData);
+    public abstract void export(List<SpanData> spanDataList);
   }
 
   /**

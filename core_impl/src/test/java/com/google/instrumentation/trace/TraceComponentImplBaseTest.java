@@ -20,28 +20,31 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TraceComponentImpl}. */
+/** Unit tests for {@link TraceComponentImplBase}. */
 @RunWith(JUnit4.class)
-public class TraceComponentImplTest {
+public class TraceComponentImplBaseTest {
+  private final TraceComponent traceComponent =
+      new TraceComponentImplBase(MillisClock.getInstance());
+
   @Test
   public void implementationOfTracer() {
     // TODO(bdrutu): Change this when TracerImpl is available.
-    assertThat(Tracing.getTracer()).isSameAs(Tracer.getNoopTracer());
+    assertThat(traceComponent.getTracer()).isSameAs(Tracer.getNoopTracer());
   }
 
   @Test
   public void implementationOfBinaryPropagationHandler() {
-    assertThat(Tracing.getBinaryPropagationHandler())
+    assertThat(traceComponent.getBinaryPropagationHandler())
         .isInstanceOf(BinaryPropagationHandlerImpl.class);
   }
 
   @Test
   public void implementationOfClock() {
-    assertThat(Tracing.getClock()).isInstanceOf(MillisClock.class);
+    assertThat(traceComponent.getClock()).isInstanceOf(MillisClock.class);
   }
 
   @Test
   public void implementationOfTraceExporter() {
-    assertThat(Tracing.getTraceExporter()).isInstanceOf(TraceExporterImpl.class);
+    assertThat(traceComponent.getTraceExporter()).isInstanceOf(TraceExporterImpl.class);
   }
 }

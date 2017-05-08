@@ -41,11 +41,8 @@ public class TimestampConverterTest {
     when(mockClock.now()).thenReturn(timestamp);
     when(mockClock.nowNanos()).thenReturn(1234L);
     TimestampConverter timeConverter = TimestampConverter.now(mockClock);
-    assertThat(timeConverter.convertNanoTime(6234))
-        .isEqualTo(Timestamp.create(1234, 10678));
-    assertThat(timeConverter.convertNanoTime(1000))
-        .isEqualTo(Timestamp.create(1234, 5444));
-    assertThat(timeConverter.convertNanoTime(999995556))
-        .isEqualTo(Timestamp.create(1235, 0));
+    assertThat(timeConverter.convertNanoTime(6234)).isEqualTo(Timestamp.create(1234, 10678));
+    assertThat(timeConverter.convertNanoTime(1000)).isEqualTo(Timestamp.create(1234, 5444));
+    assertThat(timeConverter.convertNanoTime(999995556)).isEqualTo(Timestamp.create(1235, 0));
   }
 }
