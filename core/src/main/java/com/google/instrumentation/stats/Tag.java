@@ -14,10 +14,12 @@
 package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A pair of consisting of an associated {@link TagKey} and {@link TagValue}.
  */
+@Immutable
 @AutoValue
 public abstract class Tag {
   Tag() {}

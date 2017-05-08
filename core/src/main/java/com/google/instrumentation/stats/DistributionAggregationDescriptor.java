@@ -13,8 +13,10 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.auto.value.AutoValue;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Describes data aggregations based on distributions.
@@ -34,13 +36,15 @@ import javax.annotation.Nullable;
  * <p>Note: If N = 1, there are no finite buckets and the single bucket is both the overflow
  * and underflow bucket.
  */
-public final class DistributionAggregationDescriptor {
+@Immutable
+@AutoValue
+public abstract class DistributionAggregationDescriptor {
   /**
    * Constructs a new {@link DistributionAggregationDescriptor} with the optional
    * histogram bucket boundaries.
    */
   public static DistributionAggregationDescriptor create(List<Double> bucketBoundaries) {
-    return new DistributionAggregationDescriptor(BucketBoundaries.create(bucketBoundaries));
+    return createInternal(BucketBoundaries.create(bucketBoundaries));
   }
 
   /**
@@ -48,7 +52,12 @@ public final class DistributionAggregationDescriptor {
    * histogram bucket boundaries.
    */
   public static DistributionAggregationDescriptor create() {
-    return new DistributionAggregationDescriptor(null);
+    return createInternal(null);
+  }
+
+  private static DistributionAggregationDescriptor createInternal(
+      @Nullable BucketBoundaries bucketBoundaries) {
+    return new AutoValue_DistributionAggregationDescriptor(bucketBoundaries);
   }
 
   /**
@@ -59,13 +68,10 @@ public final class DistributionAggregationDescriptor {
    */
   @Nullable
   public List<Double> getBucketBoundaries() {
+    BucketBoundaries bucketBoundaries = getBucketBoundariesObject();
     return bucketBoundaries == null ? null : bucketBoundaries.getBoundaries();
   }
 
   @Nullable
-  private final BucketBoundaries bucketBoundaries;
-
-  private DistributionAggregationDescriptor(@Nullable BucketBoundaries bucketBoundaries) {
-    this.bucketBoundaries = bucketBoundaries;
-  }
+  abstract BucketBoundaries getBucketBoundariesObject();
 }
