@@ -43,6 +43,7 @@ final class TraceExporterImpl extends TraceExporter {
   static TraceExporterImpl create(int bufferSize, long scheduleDelayMillis) {
     WorkerThread workerThread = new WorkerThread(bufferSize, scheduleDelayMillis);
     workerThread.setDaemon(true);
+    workerThread.setName("TraceExporter.WorkerThread");
     workerThread.start();
     return new TraceExporterImpl(workerThread);
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
@@ -86,12 +87,9 @@ final class TraceExporterImpl extends TraceExporter {
   // The list of batched data is protected by an explicit monitor object which ensures full
   // concurrency.
   private static final class WorkerThread extends Thread {
-    // Protects all variables.
     private final Object monitor = new Object();
-
     @GuardedBy("monitor")
     private final List<SpanImpl> spans;
-
     private final Map<String, ServiceHandler> serviceHandlers =
         new ConcurrentHashMap<String, ServiceHandler>();
     private final int bufferSize;
@@ -119,7 +117,7 @@ final class TraceExporterImpl extends TraceExporter {
 
     // Exports the list of SpanData to all the ServiceHandlers.
     private void onBatchExport(List<SpanData> spanDataList) {
-      // From the java documentation of the ConcurrentHashMap#values():
+      // From the java documentation of the ConcurrentHashMap#entrySet():
       // The view's iterator is a "weakly consistent" iterator that will never throw
       // ConcurrentModificationException, and guarantees to traverse elements as they existed
       // upon construction of the iterator, and may (but is not guaranteed to) reflect any
@@ -128,7 +126,7 @@ final class TraceExporterImpl extends TraceExporter {
         // In case of any exception thrown by the service handlers continue to run.
         try {
           it.getValue().export(spanDataList);
-        } catch (Exception e) {
+        } catch (Throwable e) {
           logger.log(Level.WARNING, "Exception thrown by the service exporter " + it.getKey(), e);
         }
       }

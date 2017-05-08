@@ -65,16 +65,18 @@ public class TraceExporterImplTest {
       }
     }
 
-    // Waits until we received numberOfSpans spans to export;
+    // Waits until we received numberOfSpans spans to export; Returns null if the current thread is
+    // interrupted.
     private List<SpanData> waitForExport(int numberOfSpans) {
       List<SpanData> ret;
       synchronized (monitor) {
-        while (spanDataList.size() != numberOfSpans) {
+        while (spanDataList.size() < numberOfSpans) {
           try {
             monitor.wait();
           } catch (InterruptedException e) {
             // Preserve the interruption status as per guidance.
             Thread.currentThread().interrupt();
+            return null;
           }
         }
         ret = new ArrayList<SpanData>(spanDataList);
@@ -109,6 +111,7 @@ public class TraceExporterImplTest {
     traceExporter.addSpan(generateSpan(SPAN_NAME_1));
     traceExporter.addSpan(generateSpan(SPAN_NAME_2));
     List<SpanData> exported = serviceHandler.waitForExport(2);
+    assertThat(exported.size()).isEqualTo(2);
     assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
     assertThat(exported.get(1).getDisplayName()).isEqualTo(SPAN_NAME_2);
   }
@@ -122,6 +125,7 @@ public class TraceExporterImplTest {
     traceExporter.addSpan(generateSpan(SPAN_NAME_1));
     traceExporter.addSpan(generateSpan(SPAN_NAME_1));
     List<SpanData> exported = serviceHandler.waitForExport(6);
+    assertThat(exported.size()).isEqualTo(6);
     assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
     assertThat(exported.get(1).getDisplayName()).isEqualTo(SPAN_NAME_1);
     assertThat(exported.get(2).getDisplayName()).isEqualTo(SPAN_NAME_1);
@@ -146,10 +150,28 @@ public class TraceExporterImplTest {
     traceExporter.registerServiceHandler("mock.service", mockServiceHandler);
     traceExporter.addSpan(generateSpan(SPAN_NAME_1));
     List<SpanData> exported = serviceHandler.waitForExport(1);
+    assertThat(exported.size()).isEqualTo(1);
     assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
     // Continue to export after the exception was received.
     traceExporter.addSpan(generateSpan(SPAN_NAME_1));
     exported = serviceHandler.waitForExport(1);
+    assertThat(exported.size()).isEqualTo(1);
     assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
+  }
+
+  @Test
+  public void exportSpansToMultipleServices() {
+    FakeServiceHandler serviceHandler2 = new FakeServiceHandler();
+    traceExporter.registerServiceHandler("test.service2", serviceHandler2);
+    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
+    traceExporter.addSpan(generateSpan(SPAN_NAME_2));
+    List<SpanData> exported1 = serviceHandler.waitForExport(2);
+    List<SpanData> exported2 = serviceHandler2.waitForExport(2);
+    assertThat(exported1.size()).isEqualTo(2);
+    assertThat(exported2.size()).isEqualTo(2);
+    assertThat(exported1.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
+    assertThat(exported2.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
+    assertThat(exported1.get(1).getDisplayName()).isEqualTo(SPAN_NAME_2);
+    assertThat(exported2.get(1).getDisplayName()).isEqualTo(SPAN_NAME_2);
   }
 }
