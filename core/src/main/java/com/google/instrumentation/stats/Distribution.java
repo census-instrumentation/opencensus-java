@@ -142,6 +142,7 @@ abstract class Distribution {
 
   /** Describes a range of population values. */
   // TODO(sebright): Decide what to do when the distribution contains no values.
+  @Immutable
   @AutoValue
   abstract static class Range {
 

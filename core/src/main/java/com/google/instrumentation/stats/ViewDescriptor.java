@@ -15,15 +15,16 @@ package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
 import com.google.instrumentation.common.Function;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A ViewDescriptor specifies an aggregation and a set of tag keys. The aggregation will be broken
  * down by the unique set of matching tag values for each measurement.
  */
+@Immutable
 public abstract class ViewDescriptor {
   /**
    * Name of view. Must be unique.
@@ -67,6 +68,7 @@ public abstract class ViewDescriptor {
    * The name of a {@code ViewDescriptor}.
    */
   // This type should be used as the key when associating data with ViewDescriptors.
+  @Immutable
   @AutoValue
   public abstract static class Name {
 
@@ -93,6 +95,7 @@ public abstract class ViewDescriptor {
   /**
    * A {@link ViewDescriptor} for distribution-base aggregations.
    */
+  @Immutable
   @AutoValue
   public abstract static class DistributionViewDescriptor extends ViewDescriptor {
     /**
@@ -146,6 +149,7 @@ public abstract class ViewDescriptor {
   /**
    * A {@link ViewDescriptor} for interval-based aggregations.
    */
+  @Immutable
   @AutoValue
   public abstract static class IntervalViewDescriptor extends ViewDescriptor {
     /**

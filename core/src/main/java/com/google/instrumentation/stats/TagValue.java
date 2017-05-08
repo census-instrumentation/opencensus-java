@@ -15,12 +15,14 @@ package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
 import com.google.instrumentation.internal.StringUtil;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Tag values.
  *
  * <p>TagValue's are {@link String}s with enforced restrictions.
  */
+@Immutable
 @AutoValue
 public abstract class TagValue {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;

@@ -16,6 +16,7 @@ package com.google.instrumentation.stats;
 import com.google.auto.value.AutoValue;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Describes data aggregations based on distributions.
@@ -35,6 +36,7 @@ import javax.annotation.Nullable;
  * <p>Note: If N = 1, there are no finite buckets and the single bucket is both the overflow
  * and underflow bucket.
  */
+@Immutable
 @AutoValue
 public abstract class DistributionAggregationDescriptor {
   /**

@@ -20,10 +20,12 @@ import com.google.auto.value.AutoValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * The optional histogram bucket boundaries for a {@link Distribution}.
  */
+@Immutable
 @AutoValue
 public abstract class BucketBoundaries {
 

@@ -18,12 +18,14 @@ import com.google.instrumentation.internal.StringUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * MeasurementDescriptor.
  *
  * <p>Note: MeasurementDescriptor names are {@link String}s with enforced restrictions.
  */
+@Immutable
 @AutoValue
 public abstract class MeasurementDescriptor {
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
@@ -83,6 +85,7 @@ public abstract class MeasurementDescriptor {
    * The name of a {@code MeasurementDescriptor}.
    */
   // This type should be used as the key when associating data with MeasurementDescriptors.
+  @Immutable
   @AutoValue
   public abstract static class Name {
 
@@ -136,6 +139,7 @@ public abstract class MeasurementDescriptor {
    *     power10: -9
    *     numerator: SECS
    */
+  @Immutable
   @AutoValue
   public abstract static class MeasurementUnit {
 
