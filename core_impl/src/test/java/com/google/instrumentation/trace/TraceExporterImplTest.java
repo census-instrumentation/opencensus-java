@@ -99,6 +99,7 @@ public class TraceExporterImplTest {
             recordSpanOptions,
             spanName,
             null,
+            false,
             startEndHandler,
             null,
             MillisClock.getInstance());

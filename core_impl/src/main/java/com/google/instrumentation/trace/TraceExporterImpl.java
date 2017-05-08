@@ -34,8 +34,8 @@ final class TraceExporterImpl extends TraceExporter {
    * Constructs a {@code TraceExporterImpl} that exports the {@link SpanData} asynchronously.
    *
    * <p>Starts a separate thread that wakes up every {@code scheduleDelay} and exports any available
-   * spans data. If the number of buffered span data is greater than {@code bufferSize} then the
-   * thread wakes up sooner.
+   * spans data. If the number of buffered SpanData objects is greater than {@code bufferSize} then
+   * the thread wakes up sooner.
    *
    * @param bufferSize the size of the buffered span data.
    * @param scheduleDelayMillis the maximum delay in milliseconds.
@@ -77,12 +77,12 @@ final class TraceExporterImpl extends TraceExporter {
     this.workerThread = workerThread;
   }
 
-  // Worker thread that batches multiple span data and call the registered services to export
-  // these data.
+  // Worker thread that batches multiple span data and calls the registered services to export
+  // that data.
   //
   // The map of registered handlers is implemented using ConcurrentHashMap ensuring full
-  // concurrency of retrievals and adjustable expected concurrency for updates, but retrievals
-  // reflect the results of the most recently completed update operations holding upon their onset.
+  // concurrency of retrievals and adjustable expected concurrency for updates. Retrievals
+  // reflect the results of the most recently completed update operations held upon their onset.
   //
   // The list of batched data is protected by an explicit monitor object which ensures full
   // concurrency.
