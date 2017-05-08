@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,5 +73,15 @@ public class BucketBoundariesTest {
     List<Double> buckets = Arrays.asList();
     thrown.expect(IllegalArgumentException.class);
     BucketBoundaries.create(buckets);
+  }
+
+  @Test
+  public void testBucketBoundariesEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            BucketBoundaries.create(Arrays.asList(-1.0, 2.0)),
+            BucketBoundaries.create(Arrays.asList(-1.0, 2.0)))
+        .addEqualityGroup(BucketBoundaries.create(Arrays.asList(-1.0)))
+        .testEquals();
   }
 }

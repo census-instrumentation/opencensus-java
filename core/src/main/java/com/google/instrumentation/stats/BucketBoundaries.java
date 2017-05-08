@@ -16,6 +16,7 @@ package com.google.instrumentation.stats;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.auto.value.AutoValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,8 +24,8 @@ import java.util.List;
 /**
  * The optional histogram bucket boundaries for a {@link Distribution}.
  */
-public final class BucketBoundaries {
-  private final List<Double> bucketBoundaries;
+@AutoValue
+public abstract class BucketBoundaries {
 
   /**
    * @param bucketBoundaries the boundaries for the buckets in the underlying {@link Distribution}.
@@ -42,18 +43,11 @@ public final class BucketBoundaries {
       checkArgument(lower < next, "Bucket boundaries not sorted.");
       lower = next;
     }
-
-    return new BucketBoundaries(Collections.unmodifiableList(bucketBoundariesCopy));
+    return new AutoValue_BucketBoundaries(Collections.unmodifiableList(bucketBoundariesCopy));
   }
 
   /**
    * @return a list of histogram bucket boundaries.
    */
-  public final List<Double> getBoundaries() {
-    return bucketBoundaries;
-  }
-
-  private BucketBoundaries(List<Double> bucketBoundaries) {
-    this.bucketBoundaries = bucketBoundaries;
-  }
+  public abstract List<Double> getBoundaries();
 }
