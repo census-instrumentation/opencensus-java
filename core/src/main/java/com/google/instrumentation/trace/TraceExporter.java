@@ -14,6 +14,8 @@
 package com.google.instrumentation.trace;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -72,6 +74,31 @@ public abstract class TraceExporter {
      * @param spanDataList a list of {@code SpanData} objects to be exported.
      */
     public abstract void export(List<SpanData> spanDataList);
+  }
+
+  /**
+   * Implementation of the {@link ServiceHandler} which logs all the exported {@link SpanData}.
+   *
+   * <p>Example of usage:
+   *
+   * <pre>{@code
+   * public static void main(String[] args) {
+   *   Tracing.getTraceExporter().registerServiceHandler(
+   *       "com.google.instrumentation.LoggingServiceHandler", new LoggingServiceHandler());
+   *   // ...
+   * }
+   * }</pre>
+   *
+   */
+  public static final class LoggingServiceHandler extends ServiceHandler {
+    private static final Logger logger = Logger.getLogger(LoggingServiceHandler.class.getName());
+
+    @Override
+    public void export(List<SpanData> spanDataList) {
+      for (SpanData spanData : spanDataList) {
+        logger.log(Level.INFO, spanData.toString());
+      }
+    }
   }
 
   /**
