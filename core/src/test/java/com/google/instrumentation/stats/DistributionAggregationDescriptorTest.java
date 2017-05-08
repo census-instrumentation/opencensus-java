@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.testing.EqualsTester;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,5 +43,17 @@ public final class DistributionAggregationDescriptorTest {
       assertThat(dDescriptor.getBucketBoundaries().get(i))
           .isWithin(0.00000001).of(buckets[i]);
     }
+  }
+
+  @Test
+  public void testDistributionAggregationDescriptorEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            DistributionAggregationDescriptor.create(Arrays.asList(1.0, 2.0, 5.0)),
+            DistributionAggregationDescriptor.create(Arrays.asList(1.0, 2.0, 5.0)))
+        .addEqualityGroup(
+            DistributionAggregationDescriptor.create(),
+            DistributionAggregationDescriptor.create())
+        .testEquals();
   }
 }
