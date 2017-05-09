@@ -26,10 +26,6 @@ import javax.annotation.Nullable;
 
 /** Implementation of the {@link SpanFactory}. */
 final class SpanFactoryImpl extends SpanFactory {
-  private static final EnumSet<Span.Options> noRecordEventOptions =
-      EnumSet.noneOf(Span.Options.class);
-  private static final EnumSet<Span.Options> recordEventOptions = EnumSet.of(Options.RECORD_EVENTS);
-
   private final RandomHandler randomHandler;
   private final SpanImpl.StartEndHandler startEndHandler;
   private final Clock clock;
@@ -89,10 +85,10 @@ final class SpanFactoryImpl extends SpanFactory {
       traceOptionsBuilder.setIsSampled();
     }
     TraceOptions traceOptions = traceOptionsBuilder.build();
-    EnumSet<Span.Options> spanOptions = noRecordEventOptions;
+    EnumSet<Span.Options> spanOptions = EnumSet.noneOf(Options.class);
     if (traceOptions.isSampled()
         || (startSpanOptions.getRecordEvents() != null && startSpanOptions.getRecordEvents())) {
-      spanOptions = recordEventOptions;
+      spanOptions.add(Options.RECORD_EVENTS);
     }
     Span span =
         SpanImpl.startSpan(
