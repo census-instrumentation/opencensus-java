@@ -21,12 +21,10 @@ import com.google.instrumentation.internal.MillisClock;
 import com.google.instrumentation.trace.Span.Options;
 import com.google.instrumentation.trace.SpanImpl.StartEndHandler;
 import com.google.instrumentation.trace.TraceExporter.ServiceHandler;
-import java.util.ArrayList;
+import com.google.instrumentation.trace.testing.FakeServiceHandler;
 import java.util.EnumSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import javax.annotation.concurrent.GuardedBy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,41 +48,6 @@ public class TraceExporterImplTest {
   private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
   @Mock private StartEndHandler startEndHandler;
   @Mock private ServiceHandler mockServiceHandler;
-
-  private static final class FakeServiceHandler extends ServiceHandler {
-    private final Object monitor = new Object();
-
-    @GuardedBy("monitor")
-    List<SpanData> spanDataList = new LinkedList<SpanData>();
-
-    @Override
-    public void export(List<SpanData> spanDataList) {
-      synchronized (monitor) {
-        this.spanDataList.addAll(spanDataList);
-        monitor.notifyAll();
-      }
-    }
-
-    // Waits until we received numberOfSpans spans to export; Returns null if the current thread is
-    // interrupted.
-    private List<SpanData> waitForExport(int numberOfSpans) {
-      List<SpanData> ret;
-      synchronized (monitor) {
-        while (spanDataList.size() < numberOfSpans) {
-          try {
-            monitor.wait();
-          } catch (InterruptedException e) {
-            // Preserve the interruption status as per guidance.
-            Thread.currentThread().interrupt();
-            return null;
-          }
-        }
-        ret = new ArrayList<SpanData>(spanDataList);
-        spanDataList.clear();
-      }
-      return ret;
-    }
-  }
 
   @Before
   public void setUp() {
