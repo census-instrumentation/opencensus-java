@@ -86,8 +86,7 @@ final class SpanFactoryImpl extends SpanFactory {
     }
     TraceOptions traceOptions = traceOptionsBuilder.build();
     EnumSet<Span.Options> spanOptions = EnumSet.noneOf(Options.class);
-    if (traceOptions.isSampled()
-        || (startSpanOptions.getRecordEvents() != null && startSpanOptions.getRecordEvents())) {
+    if (traceOptions.isSampled() || Boolean.TRUE.equals(startSpanOptions.getRecordEvents())) {
       spanOptions.add(Options.RECORD_EVENTS);
     }
     Span span =
