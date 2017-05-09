@@ -40,13 +40,16 @@ public class TraceExporterImplTest {
   private static final String SPAN_NAME_1 = "MySpanName/1";
   private static final String SPAN_NAME_2 = "MySpanName/2";
   private final Random random = new Random(1234);
-  private final SpanContext spanContext =
+  private final SpanContext sampledSpanContext =
       SpanContext.create(
           TraceId.generateRandomId(random),
           SpanId.generateRandomId(random),
           TraceOptions.builder().setIsSampled().build());
-  private final TraceExporterImpl traceExporter = TraceExporterImpl.create(4, 1000,
-      new SimpleEventQueue());
+  private final SpanContext notSampledSpanContext =
+      SpanContext.create(
+          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+  private final TraceExporterImpl traceExporter =
+      TraceExporterImpl.create(4, 1000, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
   @Mock private ServiceHandler mockServiceHandler;
@@ -57,10 +60,25 @@ public class TraceExporterImplTest {
     traceExporter.registerServiceHandler("test.service", serviceHandler);
   }
 
-  private final SpanImpl createEndedSpan(String spanName) {
+  private final SpanImpl createSampledEndedSpan(String spanName) {
     SpanImpl span =
         SpanImpl.startSpan(
-            spanContext,
+            sampledSpanContext,
+            recordSpanOptions,
+            spanName,
+            null,
+            false,
+            traceExporter,
+            null,
+            MillisClock.getInstance());
+    span.end();
+    return span;
+  }
+
+  private final SpanImpl createNotSampledEndedSpan(String spanName) {
+    SpanImpl span =
+        SpanImpl.startSpan(
+            notSampledSpanContext,
             recordSpanOptions,
             spanName,
             null,
@@ -74,8 +92,8 @@ public class TraceExporterImplTest {
 
   @Test
   public void exportDifferentSampledSpans() {
-    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
-    SpanImpl span2 = createEndedSpan(SPAN_NAME_2);
+    SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
     List<SpanData> exported = serviceHandler.waitForExport(2);
     assertThat(exported.size()).isEqualTo(2);
     assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
@@ -84,12 +102,12 @@ public class TraceExporterImplTest {
 
   @Test
   public void exportMoreSpansThanTheBufferSize() {
-    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
-    SpanImpl span2 = createEndedSpan(SPAN_NAME_1);
-    SpanImpl span3 = createEndedSpan(SPAN_NAME_1);
-    SpanImpl span4 = createEndedSpan(SPAN_NAME_1);
-    SpanImpl span5 = createEndedSpan(SPAN_NAME_1);
-    SpanImpl span6 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span3 = createSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span4 = createSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span5 = createSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span6 = createSampledEndedSpan(SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(6);
     assertThat(exported.size()).isEqualTo(6);
     assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
@@ -114,12 +132,12 @@ public class TraceExporterImplTest {
         .when(mockServiceHandler)
         .export(anyListOf(SpanData.class));
     traceExporter.registerServiceHandler("mock.service", mockServiceHandler);
-    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(1);
     assertThat(exported.size()).isEqualTo(1);
     assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
     // Continue to export after the exception was received.
-    SpanImpl span2 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_1);
     exported = serviceHandler.waitForExport(1);
     assertThat(exported.size()).isEqualTo(1);
     assertThat(exported.get(0)).isEqualTo(span2.toSpanData());
@@ -129,8 +147,8 @@ public class TraceExporterImplTest {
   public void exportSpansToMultipleServices() {
     FakeServiceHandler serviceHandler2 = new FakeServiceHandler();
     traceExporter.registerServiceHandler("test.service2", serviceHandler2);
-    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
-    SpanImpl span2 = createEndedSpan(SPAN_NAME_2);
+    SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
     List<SpanData> exported1 = serviceHandler.waitForExport(2);
     List<SpanData> exported2 = serviceHandler2.waitForExport(2);
     assertThat(exported1.size()).isEqualTo(2);
@@ -139,6 +157,20 @@ public class TraceExporterImplTest {
     assertThat(exported2.get(0)).isEqualTo(span1.toSpanData());
     assertThat(exported1.get(1)).isEqualTo(span2.toSpanData());
     assertThat(exported2.get(1)).isEqualTo(span2.toSpanData());
+  }
+
+  @Test
+  public void exportNotSampledSpans() {
+    SpanImpl span1 = createNotSampledEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
+    // Spans are recorded and exported in the same order as they are ended, we test that a non
+    // sampled span is not exported by creating and ending a sampled span after a non sampled span
+    // and checking that the first exported span is the sampled span (the non sampled did not get
+    // exported).
+    List<SpanData> exported = serviceHandler.waitForExport(1);
+    assertThat(exported.size()).isEqualTo(1);
+    assertThat(exported.get(0)).isNotEqualTo(span1.toSpanData());
+    assertThat(exported.get(0)).isEqualTo(span2.toSpanData());
   }
 
   /** Fake {@link ServiceHandler} for testing only. */

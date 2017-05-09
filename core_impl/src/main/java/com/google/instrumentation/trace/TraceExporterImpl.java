@@ -29,8 +29,8 @@ import javax.annotation.concurrent.GuardedBy;
 /**
  * Implementation of the {@link TraceExporter}, implements also {@link StartEndHandler}.
  *
- * <p>Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData}
- * to avoid impacting the critical path.
+ * <p>Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData} to
+ * avoid impacting the critical path.
  */
 final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
   private static final Logger logger = Logger.getLogger(TraceExporter.class.getName());
@@ -64,7 +64,6 @@ final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
   public void unregisterServiceHandler(String name) {
     serviceExporterThread.unregisterServiceHandler(name);
   }
-
 
   @Override
   public void onStart(SpanImpl span) {
@@ -101,8 +100,10 @@ final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
   // concurrency.
   private static final class ServiceExporterThread extends Thread {
     private final Object monitor = new Object();
+
     @GuardedBy("monitor")
     private final List<SpanImpl> spans;
+
     private final Map<String, ServiceHandler> serviceHandlers =
         new ConcurrentHashMap<String, ServiceHandler>();
     private final int bufferSize;
@@ -146,7 +147,6 @@ final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
     }
 
     private ServiceExporterThread(int bufferSize, long scheduleDelayMillis) {
-      super();
       spans = new LinkedList<SpanImpl>();
       this.bufferSize = bufferSize;
       this.scheduleDelayMillis = scheduleDelayMillis;
