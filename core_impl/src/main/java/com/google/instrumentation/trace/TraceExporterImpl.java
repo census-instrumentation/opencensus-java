@@ -14,6 +14,8 @@
 package com.google.instrumentation.trace;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.instrumentation.common.EventQueue;
+import com.google.instrumentation.trace.SpanImpl.StartEndHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -24,11 +26,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 
-/** Implementation of the {@link TraceExporter}. */
-final class TraceExporterImpl extends TraceExporter {
+/**
+ * Implementation of the {@link TraceExporter}, implements also {@link StartEndHandler}.
+ *
+ * <p>Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData}
+ * to avoid impact on the critical path.
+ */
+final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
   private static final Logger logger = Logger.getLogger(TraceExporter.class.getName());
 
-  private final WorkerThread workerThread;
+  private final ServiceExporterThread serviceExporterThread;
+  private final EventQueue eventQueue;
 
   /**
    * Constructs a {@code TraceExporterImpl} that exports the {@link SpanData} asynchronously.
@@ -40,41 +48,45 @@ final class TraceExporterImpl extends TraceExporter {
    * @param bufferSize the size of the buffered span data.
    * @param scheduleDelayMillis the maximum delay in milliseconds.
    */
-  static TraceExporterImpl create(int bufferSize, long scheduleDelayMillis) {
-    WorkerThread workerThread = new WorkerThread(bufferSize, scheduleDelayMillis);
-    workerThread.setDaemon(true);
-    workerThread.setName("TraceExporter.WorkerThread");
+  static TraceExporterImpl create(int bufferSize, long scheduleDelayMillis, EventQueue eventQueue) {
+    ServiceExporterThread workerThread = new ServiceExporterThread(bufferSize, scheduleDelayMillis);
     workerThread.start();
-    return new TraceExporterImpl(workerThread);
+    return new TraceExporterImpl(workerThread, eventQueue);
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
   }
 
   @Override
   public void registerServiceHandler(String name, ServiceHandler serviceHandler) {
-    workerThread.registerServiceHandler(name, serviceHandler);
+    serviceExporterThread.registerServiceHandler(name, serviceHandler);
   }
 
   @Override
   public void unregisterServiceHandler(String name) {
-    workerThread.unregisterServiceHandler(name);
+    serviceExporterThread.unregisterServiceHandler(name);
   }
 
-  /**
-   * Adds a {@link SpanImpl} to be exported.
-   *
-   * @param span the {@code SpanImpl} that will be exported.
-   */
-  void addSpan(SpanImpl span) {
-    workerThread.addSpan(span);
+
+  @Override
+  public void onStart(SpanImpl span) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onEnd(SpanImpl span) {
+    // TODO(bdrutu): Change to RECORD_EVENTS option when active/samples is supported.
+    if (span.getContext().getTraceOptions().isSampled()) {
+      eventQueue.enqueue(new SpanEndEvent(span, serviceExporterThread));
+    }
   }
 
   @VisibleForTesting
-  Thread getWorkerThread() {
-    return workerThread;
+  Thread getServiceExporterThread() {
+    return serviceExporterThread;
   }
 
-  private TraceExporterImpl(WorkerThread workerThread) {
-    this.workerThread = workerThread;
+  private TraceExporterImpl(ServiceExporterThread serviceExporterThread, EventQueue eventQueue) {
+    this.serviceExporterThread = serviceExporterThread;
+    this.eventQueue = eventQueue;
   }
 
   // Worker thread that batches multiple span data and calls the registered services to export
@@ -86,7 +98,7 @@ final class TraceExporterImpl extends TraceExporter {
   //
   // The list of batched data is protected by an explicit monitor object which ensures full
   // concurrency.
-  private static final class WorkerThread extends Thread {
+  private static final class ServiceExporterThread extends Thread {
     private final Object monitor = new Object();
     @GuardedBy("monitor")
     private final List<SpanImpl> spans;
@@ -132,10 +144,13 @@ final class TraceExporterImpl extends TraceExporter {
       }
     }
 
-    private WorkerThread(int bufferSize, long scheduleDelayMillis) {
+    private ServiceExporterThread(int bufferSize, long scheduleDelayMillis) {
+      super();
       spans = new LinkedList<SpanImpl>();
       this.bufferSize = bufferSize;
       this.scheduleDelayMillis = scheduleDelayMillis;
+      setDaemon(true);
+      setName("TraceExporter.ServiceExporterThread");
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered
@@ -177,6 +192,22 @@ final class TraceExporterImpl extends TraceExporter {
           onBatchExport(spanDataList);
         }
       }
+    }
+  }
+
+  // An EventQueue entry that records the end of the span event.
+  private static final class SpanEndEvent implements EventQueue.Entry {
+    private final SpanImpl span;
+    private final ServiceExporterThread serviceExporterThread;
+
+    SpanEndEvent(SpanImpl span, ServiceExporterThread serviceExporterThread) {
+      this.span = span;
+      this.serviceExporterThread = serviceExporterThread;
+    }
+
+    @Override
+    public void process() {
+      serviceExporterThread.addSpan(span);
     }
   }
 }

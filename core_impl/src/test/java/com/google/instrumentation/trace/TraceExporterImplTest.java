@@ -17,9 +17,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doThrow;
 
+import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.internal.MillisClock;
 import com.google.instrumentation.trace.Span.Options;
-import com.google.instrumentation.trace.SpanImpl.StartEndHandler;
 import com.google.instrumentation.trace.TraceExporter.ServiceHandler;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -45,17 +45,108 @@ public class TraceExporterImplTest {
           TraceId.generateRandomId(random),
           SpanId.generateRandomId(random),
           TraceOptions.builder().setIsSampled().build());
-  private final TraceExporterImpl traceExporter = TraceExporterImpl.create(4, 1000);
+  private final TraceExporterImpl traceExporter = TraceExporterImpl.create(4, 1000,
+      new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
-  @Mock private StartEndHandler startEndHandler;
   @Mock private ServiceHandler mockServiceHandler;
 
+  @Before
+  public void setUp() {
+    MockitoAnnotations.initMocks(this);
+    traceExporter.registerServiceHandler("test.service", serviceHandler);
+  }
+
+  private final SpanImpl createEndedSpan(String spanName) {
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            spanName,
+            null,
+            false,
+            traceExporter,
+            null,
+            MillisClock.getInstance());
+    span.end();
+    return span;
+  }
+
+  @Test
+  public void exportDifferentSampledSpans() {
+    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createEndedSpan(SPAN_NAME_2);
+    List<SpanData> exported = serviceHandler.waitForExport(2);
+    assertThat(exported.size()).isEqualTo(2);
+    assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
+    assertThat(exported.get(1)).isEqualTo(span2.toSpanData());
+  }
+
+  @Test
+  public void exportMoreSpansThanTheBufferSize() {
+    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span3 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span4 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span5 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span6 = createEndedSpan(SPAN_NAME_1);
+    List<SpanData> exported = serviceHandler.waitForExport(6);
+    assertThat(exported.size()).isEqualTo(6);
+    assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
+    assertThat(exported.get(1)).isEqualTo(span2.toSpanData());
+    assertThat(exported.get(2)).isEqualTo(span3.toSpanData());
+    assertThat(exported.get(3)).isEqualTo(span4.toSpanData());
+    assertThat(exported.get(4)).isEqualTo(span5.toSpanData());
+    assertThat(exported.get(5)).isEqualTo(span6.toSpanData());
+  }
+
+  @Test
+  public void interruptWorkerThreadStops() throws InterruptedException {
+    Thread serviceExporterThread = traceExporter.getServiceExporterThread();
+    serviceExporterThread.interrupt();
+    // Test that the worker thread will stop.
+    serviceExporterThread.join();
+  }
+
+  @Test
+  public void serviceHandlerThrowsException() {
+    doThrow(new IllegalArgumentException("No export for you."))
+        .when(mockServiceHandler)
+        .export(anyListOf(SpanData.class));
+    traceExporter.registerServiceHandler("mock.service", mockServiceHandler);
+    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
+    List<SpanData> exported = serviceHandler.waitForExport(1);
+    assertThat(exported.size()).isEqualTo(1);
+    assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
+    // Continue to export after the exception was received.
+    SpanImpl span2 = createEndedSpan(SPAN_NAME_1);
+    exported = serviceHandler.waitForExport(1);
+    assertThat(exported.size()).isEqualTo(1);
+    assertThat(exported.get(0)).isEqualTo(span2.toSpanData());
+  }
+
+  @Test
+  public void exportSpansToMultipleServices() {
+    FakeServiceHandler serviceHandler2 = new FakeServiceHandler();
+    traceExporter.registerServiceHandler("test.service2", serviceHandler2);
+    SpanImpl span1 = createEndedSpan(SPAN_NAME_1);
+    SpanImpl span2 = createEndedSpan(SPAN_NAME_2);
+    List<SpanData> exported1 = serviceHandler.waitForExport(2);
+    List<SpanData> exported2 = serviceHandler2.waitForExport(2);
+    assertThat(exported1.size()).isEqualTo(2);
+    assertThat(exported2.size()).isEqualTo(2);
+    assertThat(exported1.get(0)).isEqualTo(span1.toSpanData());
+    assertThat(exported2.get(0)).isEqualTo(span1.toSpanData());
+    assertThat(exported1.get(1)).isEqualTo(span2.toSpanData());
+    assertThat(exported2.get(1)).isEqualTo(span2.toSpanData());
+  }
+
+  /** Fake {@link ServiceHandler} for testing only. */
   private static final class FakeServiceHandler extends ServiceHandler {
     private final Object monitor = new Object();
 
     @GuardedBy("monitor")
-    List<SpanData> spanDataList = new LinkedList<SpanData>();
+    private final List<SpanData> spanDataList = new LinkedList<SpanData>();
 
     @Override
     public void export(List<SpanData> spanDataList) {
@@ -65,8 +156,14 @@ public class TraceExporterImplTest {
       }
     }
 
-    // Waits until we received numberOfSpans spans to export; Returns null if the current thread is
-    // interrupted.
+    /**
+     * Waits until we received numberOfSpans spans to export. Returns the list of exported {@link
+     * SpanData} objects, otherwise {@code null} if the current thread is interrupted.
+     *
+     * @param numberOfSpans the number of minimum spans to be collected.
+     * @return the list of exported {@link SpanData} objects, otherwise {@code null} if the current
+     *     thread is interrupted.
+     */
     private List<SpanData> waitForExport(int numberOfSpans) {
       List<SpanData> ret;
       synchronized (monitor) {
@@ -84,95 +181,5 @@ public class TraceExporterImplTest {
       }
       return ret;
     }
-  }
-
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-    traceExporter.registerServiceHandler("test.service", serviceHandler);
-  }
-
-  private final SpanImpl generateSpan(String spanName) {
-    SpanImpl span =
-        SpanImpl.startSpan(
-            spanContext,
-            recordSpanOptions,
-            spanName,
-            null,
-            false,
-            startEndHandler,
-            null,
-            MillisClock.getInstance());
-    span.end();
-    return span;
-  }
-
-  @Test
-  public void exportDifferentSampledSpans() {
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    traceExporter.addSpan(generateSpan(SPAN_NAME_2));
-    List<SpanData> exported = serviceHandler.waitForExport(2);
-    assertThat(exported.size()).isEqualTo(2);
-    assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported.get(1).getDisplayName()).isEqualTo(SPAN_NAME_2);
-  }
-
-  @Test
-  public void exportMoreSpansThanTheBufferSize() {
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    List<SpanData> exported = serviceHandler.waitForExport(6);
-    assertThat(exported.size()).isEqualTo(6);
-    assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported.get(1).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported.get(2).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported.get(3).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported.get(4).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported.get(5).getDisplayName()).isEqualTo(SPAN_NAME_1);
-  }
-
-  @Test
-  public void interruptWorkerThreadStops() throws InterruptedException {
-    Thread workerThread = traceExporter.getWorkerThread();
-    workerThread.interrupt();
-    // Test that the worker thread will stop.
-    workerThread.join();
-  }
-
-  @Test
-  public void serviceHandlerThrowsException() {
-    doThrow(new IllegalArgumentException("No export for you."))
-        .when(mockServiceHandler)
-        .export(anyListOf(SpanData.class));
-    traceExporter.registerServiceHandler("mock.service", mockServiceHandler);
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    List<SpanData> exported = serviceHandler.waitForExport(1);
-    assertThat(exported.size()).isEqualTo(1);
-    assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    // Continue to export after the exception was received.
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    exported = serviceHandler.waitForExport(1);
-    assertThat(exported.size()).isEqualTo(1);
-    assertThat(exported.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
-  }
-
-  @Test
-  public void exportSpansToMultipleServices() {
-    FakeServiceHandler serviceHandler2 = new FakeServiceHandler();
-    traceExporter.registerServiceHandler("test.service2", serviceHandler2);
-    traceExporter.addSpan(generateSpan(SPAN_NAME_1));
-    traceExporter.addSpan(generateSpan(SPAN_NAME_2));
-    List<SpanData> exported1 = serviceHandler.waitForExport(2);
-    List<SpanData> exported2 = serviceHandler2.waitForExport(2);
-    assertThat(exported1.size()).isEqualTo(2);
-    assertThat(exported2.size()).isEqualTo(2);
-    assertThat(exported1.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported2.get(0).getDisplayName()).isEqualTo(SPAN_NAME_1);
-    assertThat(exported1.get(1).getDisplayName()).isEqualTo(SPAN_NAME_2);
-    assertThat(exported2.get(1).getDisplayName()).isEqualTo(SPAN_NAME_2);
   }
 }
