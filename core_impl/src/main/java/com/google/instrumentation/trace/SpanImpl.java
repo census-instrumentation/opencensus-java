@@ -95,6 +95,7 @@ final class SpanImpl extends Span {
    *
    * @return the {@code TimestampConverter} used by this {@code Span}.
    */
+  @Nullable
   TimestampConverter getTimestampConverter() {
     return timestampConverter;
   }

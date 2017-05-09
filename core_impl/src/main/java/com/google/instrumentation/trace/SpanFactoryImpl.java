@@ -57,7 +57,7 @@ final class SpanFactoryImpl extends SpanFactory {
       boolean hasRemoteParent,
       String name,
       StartSpanOptions startSpanOptions,
-      TimestampConverter timestampConverter) {
+      @Nullable TimestampConverter timestampConverter) {
     TraceParams activeTraceParams = traceConfig.getActiveTraceParams();
     Random random = randomHandler.current();
     TraceId traceId;
