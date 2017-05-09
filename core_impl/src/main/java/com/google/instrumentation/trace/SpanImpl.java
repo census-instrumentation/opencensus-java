@@ -91,6 +91,16 @@ final class SpanImpl extends Span {
   }
 
   /**
+   * Returns the {@code TimestampConverter} used by this {@code Span}.
+   *
+   * @return the {@code TimestampConverter} used by this {@code Span}.
+   */
+  @Nullable
+  TimestampConverter getTimestampConverter() {
+    return timestampConverter;
+  }
+
+  /**
    * Returns an immutable representation of all the data from this {@code Span}.
    *
    * @return an immutable representation of all the data from this {@code Span}.
@@ -199,7 +209,7 @@ final class SpanImpl extends Span {
       startNanoTime = clock.nowNanos();
     } else {
       this.startNanoTime = 0;
-      this.timestampConverter = null;
+      this.timestampConverter = timestampConverter;
     }
   }
 }
