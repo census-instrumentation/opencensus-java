@@ -25,8 +25,7 @@ import org.junit.runners.JUnit4;
 public class TraceComponentImplTest {
   @Test
   public void implementationOfTracer() {
-    // TODO(bdrutu): Change this when TracerImpl is available.
-    assertThat(Tracing.getTracer()).isSameAs(Tracer.getNoopTracer());
+    assertThat(Tracing.getTracer()).isInstanceOf(TracerImpl.class);
   }
 
   @Test

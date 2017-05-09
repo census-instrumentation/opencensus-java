@@ -17,12 +17,10 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.concurrent.ThreadSafe;
 
-/**
- * Implementation of the {@link RandomHandler} using {@link ThreadLocalRandom}.
- */
+/** Implementation of the {@link RandomHandler} using {@link ThreadLocalRandom}. */
 @ThreadSafe
-final class RandomHandlerJava extends RandomHandler {
-  RandomHandlerJava() {}
+final class ThreadLocalRandomHandler extends RandomHandler {
+  ThreadLocalRandomHandler() {}
 
   @Override
   Random current() {

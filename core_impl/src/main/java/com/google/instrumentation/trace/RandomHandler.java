@@ -13,6 +13,7 @@
 
 package com.google.instrumentation.trace;
 
+import java.security.SecureRandom;
 import java.util.Random;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -29,4 +30,16 @@ abstract class RandomHandler {
    * @return the current {@code Random}.
    */
   abstract Random current();
+
+  @ThreadSafe
+  static final class SecureRandomHandler extends RandomHandler {
+    private final Random random = new SecureRandom();
+
+    SecureRandomHandler() {}
+
+    @Override
+    Random current() {
+      return random;
+    }
+  }
 }
