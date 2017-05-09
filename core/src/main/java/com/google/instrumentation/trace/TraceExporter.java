@@ -84,14 +84,25 @@ public abstract class TraceExporter {
    * <pre>{@code
    * public static void main(String[] args) {
    *   Tracing.getTraceExporter().registerServiceHandler(
-   *       "com.google.instrumentation.LoggingServiceHandler", new LoggingServiceHandler());
+   *       "com.google.instrumentation.LoggingServiceHandler", LoggingServiceHandler.getInstance());
    *   // ...
    * }
    * }</pre>
    *
    */
+  @ThreadSafe
   public static final class LoggingServiceHandler extends ServiceHandler {
     private static final Logger logger = Logger.getLogger(LoggingServiceHandler.class.getName());
+    private static final LoggingServiceHandler INSTANCE = new LoggingServiceHandler();
+
+    /**
+     * Returns the instance of the {@code LoggingServiceHandler}.
+     *
+     * @return the instance of the {@code LoggingServiceHandler}.
+     */
+    public static LoggingServiceHandler getInstance() {
+      return INSTANCE;
+    }
 
     @Override
     public void export(List<SpanData> spanDataList) {
@@ -99,6 +110,8 @@ public abstract class TraceExporter {
         logger.log(Level.INFO, spanData.toString());
       }
     }
+
+    private LoggingServiceHandler() {}
   }
 
   /**
