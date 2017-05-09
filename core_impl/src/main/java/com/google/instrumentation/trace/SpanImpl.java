@@ -71,8 +71,14 @@ final class SpanImpl extends Span {
       Clock clock) {
     SpanImpl span =
         new SpanImpl(
-            context, options, name, parentSpanId, hasRemoteParent, startEndHandler,
-            timestampConverter, clock);
+            context,
+            options,
+            name,
+            parentSpanId,
+            hasRemoteParent,
+            startEndHandler,
+            timestampConverter,
+            clock);
     // Call onStart here instead of calling in the constructor to make sure the span is completely
     // initialized.
     if (span.getOptions().contains(Options.RECORD_EVENTS)) {
@@ -172,8 +178,8 @@ final class SpanImpl extends Span {
   }
 
   /**
-   * Abstract class to handle the start and end operations for a {@link Span} only when the {@code
-   * Span} has {@link Span.Options#RECORD_EVENTS} option.
+   * Interface to handle the start and end operations for a {@link Span} only when the {@code Span}
+   * has {@link Span.Options#RECORD_EVENTS} option.
    *
    * <p>Implementation must avoid high overhead work in any of the methods because the code is
    * executed on the critical path.
@@ -181,10 +187,10 @@ final class SpanImpl extends Span {
    * <p>One instance can be called by multiple threads in the same time, so the implementation must
    * be thread-safe.
    */
-  abstract static class StartEndHandler {
-    abstract void onStart(SpanImpl span);
+  interface StartEndHandler {
+    void onStart(SpanImpl span);
 
-    abstract void onEnd(SpanImpl span);
+    void onEnd(SpanImpl span);
   }
 
   private SpanImpl(

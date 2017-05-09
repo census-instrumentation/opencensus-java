@@ -15,6 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.internal.MillisClock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +25,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TraceComponentImplBaseTest {
   private final TraceComponent traceComponent =
-      new TraceComponentImplBase(MillisClock.getInstance());
+      new TraceComponentImplBase(MillisClock.getInstance(), new SimpleEventQueue());
 
   @Test
   public void implementationOfTracer() {

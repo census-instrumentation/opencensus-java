@@ -13,12 +13,13 @@
 
 package com.google.instrumentation.trace;
 
+import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.internal.MillisClock;
 
 /** Android-compatible implementation of the {@link TraceComponent}. */
 public final class TraceComponentImpl extends TraceComponentImplBase {
 
   public TraceComponentImpl() {
-    super(MillisClock.getInstance());
+    super(MillisClock.getInstance(), new SimpleEventQueue());
   }
 }

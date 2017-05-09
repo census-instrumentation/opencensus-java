@@ -14,6 +14,7 @@
 package com.google.instrumentation.trace;
 
 import com.google.instrumentation.common.Clock;
+import com.google.instrumentation.common.EventQueue;
 
 /** Base implementation of the {@link TraceComponent}. */
 public class TraceComponentImplBase extends TraceComponent {
@@ -23,13 +24,14 @@ public class TraceComponentImplBase extends TraceComponent {
   private final BinaryPropagationHandler binaryPropagationHandler =
       new BinaryPropagationHandlerImpl();
   private final Clock clock;
-  private final TraceExporterImpl traceExporter =
-      TraceExporterImpl.create(TRACE_EXPORTER_BUFFER_SIZE, TRACE_EXPORTER_SCHEDULE_DELAY_MS);
+  private final TraceExporterImpl traceExporter;
   private final TraceConfig traceConfig = new TraceConfigImpl();
   private final Tracer tracer = Tracer.getNoopTracer();
 
-  TraceComponentImplBase(Clock clock) {
+  TraceComponentImplBase(Clock clock, EventQueue eventQueue) {
     this.clock = clock;
+    traceExporter = TraceExporterImpl.create(TRACE_EXPORTER_BUFFER_SIZE,
+        TRACE_EXPORTER_SCHEDULE_DELAY_MS, eventQueue);
   }
 
   @Override
