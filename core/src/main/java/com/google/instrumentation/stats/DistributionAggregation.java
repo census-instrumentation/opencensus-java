@@ -34,27 +34,17 @@ public final class DistributionAggregation {
    * Constructs a new {@link DistributionAggregation}.
    */
   public static final DistributionAggregation create(
-      long count, double mean, double sum, Range range, List<Tag> tags) {
-    return new DistributionAggregation(count, mean, sum, range, tags, null);
+      long count, double mean, double sum, Range range) {
+    return new DistributionAggregation(count, mean, sum, range, null);
   }
 
   /**
    * Constructs a new {@link DistributionAggregation} with the optional {@code bucketCount}s.
    */
   public static final DistributionAggregation create(
-      long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
-    return new DistributionAggregation(count, mean, sum, range, tags,
+      long count, double mean, double sum, Range range, List<Long> bucketCounts) {
+    return new DistributionAggregation(count, mean, sum, range,
         Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
-  }
-
-  /**
-   * {@link Tag}s associated with this {@link DistributionAggregation}.
-   *
-   * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-   * UnsupportedOperationException.
-   */
-  public final List<Tag> getTags() {
-    return tags;
   }
 
   /**
@@ -117,17 +107,14 @@ public final class DistributionAggregation {
   private final double mean;
   private final double sum;
   private final Range range;
-  private final List<Tag> tags;
   private final List<Long> bucketCounts;
 
   private DistributionAggregation(
-      long count, double mean, double sum, Range range, List<Tag> tags,
-      @Nullable List<Long> bucketCounts) {
+      long count, double mean, double sum, Range range, @Nullable List<Long> bucketCounts) {
     this.count = count;
     this.mean = mean;
     this.sum = sum;
     this.range = range;
-    this.tags = tags;
     this.bucketCounts = bucketCounts;
   }
 
