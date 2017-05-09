@@ -30,7 +30,7 @@ import javax.annotation.concurrent.GuardedBy;
  * Implementation of the {@link TraceExporter}, implements also {@link StartEndHandler}.
  *
  * <p>Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData}
- * to avoid impact on the critical path.
+ * to avoid impacting the critical path.
  */
 final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
   private static final Logger logger = Logger.getLogger(TraceExporter.class.getName());
@@ -68,7 +68,8 @@ final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
 
   @Override
   public void onStart(SpanImpl span) {
-    // Do nothing.
+    // Do nothing. When ActiveSpans functionality is implemented this will change to record the
+    // Span into the ActiveSpans list.
   }
 
   @Override
