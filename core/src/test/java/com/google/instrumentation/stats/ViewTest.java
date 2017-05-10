@@ -14,9 +14,9 @@
 package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
@@ -28,8 +28,8 @@ import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,6 +102,57 @@ public final class ViewTest {
                 && shallowListEquals(iView.getIntervalAggregations(), aggregations);
           }
         }));
+  }
+
+  @Test
+  public void testViewEquals() {
+    DistributionViewDescriptor dViewDescriptor =
+        DistributionViewDescriptor.create(
+            name,
+            description,
+            measurementDescriptor,
+            DistributionAggregationDescriptor.create(Arrays.asList(10.0)),
+            tagKeys);
+    List<DistributionAggregation> dAggregations =
+        Arrays.asList(
+            DistributionAggregation.create(
+                5, 5.0, 15.0, Range.create(1.0, 5.0), tags1, Arrays.asList(1L)));
+    IntervalViewDescriptor iViewDescriptor =
+        IntervalViewDescriptor.create(
+            name,
+            description,
+            measurementDescriptor,
+            IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111))),
+            tagKeys);
+    List<IntervalAggregation> iAggregations =
+        Arrays.asList(
+            IntervalAggregation.create(
+                tags1, Arrays.asList(Interval.create(Duration.fromMillis(111), 10, 100))));
+
+    new EqualsTester()
+        .addEqualityGroup(
+            DistributionView.create(
+                dViewDescriptor,
+                dAggregations,
+                Timestamp.fromMillis(1000),
+                Timestamp.fromMillis(2000)),
+            DistributionView.create(
+                dViewDescriptor,
+                dAggregations,
+                Timestamp.fromMillis(1000),
+                Timestamp.fromMillis(2000)))
+        .addEqualityGroup(
+            DistributionView.create(
+                dViewDescriptor,
+                dAggregations,
+                Timestamp.fromMillis(1000),
+                Timestamp.fromMillis(3000)))
+        .addEqualityGroup(
+            IntervalView.create(iViewDescriptor, iAggregations),
+            IntervalView.create(iViewDescriptor, iAggregations))
+        .addEqualityGroup(
+            IntervalView.create(iViewDescriptor, Collections.<IntervalAggregation>emptyList()))
+        .testEquals();
   }
 
   // tag keys
