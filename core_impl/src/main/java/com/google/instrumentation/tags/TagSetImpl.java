@@ -20,7 +20,6 @@ import com.google.instrumentation.tags.TagKey.TagType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import javax.annotation.Nullable;
 
 /** A set of tags. */
 // The class is immutable, except for the logger.
@@ -45,29 +44,30 @@ public final class TagSetImpl extends TagSet {
     return tags.containsKey(key);
   }
 
-  @Nullable
   @Override
   public String getStringTagValue(TagKey<String> key) {
-    return (String) tags.get(key);
+    String value = (String) tags.get(key);
+    if (value == null) {
+      throw new IllegalArgumentException("key " + key + " does not exist.");
+    }
+    return value;
   }
 
   @Override
-  public long getIntTagValue(TagKey<Long> key, long defaultValue) {
+  public long getIntTagValue(TagKey<Long> key) {
     Long value = (Long) tags.get(key);
-    return value == null ? defaultValue : value;
+    if (value == null) {
+      throw new IllegalArgumentException("key " + key + " does not exist.");
+    }
+    return value;
   }
 
   @Override
-  public boolean getBooleanTagValue(TagKey<Boolean> key, boolean defaultValue) {
+  public boolean getBooleanTagValue(TagKey<Boolean> key) {
     Boolean value = (Boolean) tags.get(key);
-    return value == null ? defaultValue : value;
-  }
-
-  @Override
-  public <T> T getTagValue(TagKey<T> key) {
-    // An unchecked cast is okay, because we validate the values when they are inserted.
-    @SuppressWarnings("unchecked")
-    T value = (T) tags.get(key);
+    if (value == null) {
+      throw new IllegalArgumentException("key " + key + " does not exist.");
+    }
     return value;
   }
 

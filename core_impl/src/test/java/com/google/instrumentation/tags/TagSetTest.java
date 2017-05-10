@@ -86,23 +86,26 @@ public class TagSetTest {
   }
 
   @Test
-  public void testGenericGetTag() {
-    TagSetImpl tags = newBuilder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
-    assertThat(tags.getTagValue(KS1)).isEqualTo("my string");
-    assertThat(tags.getTagValue(KB)).isEqualTo(true);
-    assertThat(tags.getTagValue(KI)).isEqualTo(100);
-    assertThat(tags.getTagValue(TagKey.createString("unknown"))).isNull();
-  }
-
-  @Test
-  public void testSpecializedGetTag() {
+  public void testGetTag() {
     TagSetImpl tags = newBuilder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
     assertThat(tags.getStringTagValue(KS1)).isEqualTo("my string");
-    assertThat(tags.getTagValue(TagKey.createString("unknown"))).isNull();
-    assertThat(tags.getBooleanTagValue(KB, false)).isEqualTo(true);
-    assertThat(tags.getBooleanTagValue(TagKey.createBoolean("unknown"), false)).isFalse();
-    assertThat(tags.getIntTagValue(KI, 0)).isEqualTo(100);
-    assertThat(tags.getIntTagValue(TagKey.createInt("unknown"), -1)).isEqualTo(-1);
+    assertThat(tags.getBooleanTagValue(KB)).isEqualTo(true);
+    assertThat(tags.getIntTagValue(KI)).isEqualTo(100);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetTagWithNonexistentString() {
+    newBuilder().build().getStringTagValue(TagKey.createString("unknown"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetTagWithNonexistentInt() {
+    newBuilder().build().getIntTagValue(TagKey.createInt("unknown"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetTagWithNonexistentBoolean() {
+    newBuilder().build().getBooleanTagValue(TagKey.createBoolean("unknown"));
   }
 
   @Test
@@ -165,14 +168,6 @@ public class TagSetTest {
   @Test(expected = IllegalArgumentException.class)
   public void disallowUpdatingWrongTypeOfKey() {
     newBuilder().update(badIntKey, 123);
-  }
-
-  // This is only allowed because we cannot prevent it.
-  @Test
-  public void allowCallingGetWithWrongTypeOfKey() {
-    TagSet tags = newBuilder().set(TagKey.createString("Key"), "string").build();
-    Object value = tags.getTagValue(badIntKey);
-    assertThat(value).isEqualTo("string");
   }
 
   private TagSetImpl.Builder newBuilder() {

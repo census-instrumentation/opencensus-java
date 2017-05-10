@@ -14,7 +14,6 @@
 package com.google.instrumentation.tags;
 
 import com.google.instrumentation.internal.StringUtil;
-import javax.annotation.Nullable;
 
 /**
  * A set of key-value pairs that can be used to label anything that is associated with a specific
@@ -35,46 +34,32 @@ public abstract class TagSet {
    */
   public abstract boolean tagKeyExists(TagKey<?> key);
 
-  // TODO(sebright): Which is better, the generic "get" method or three specialized "get" methods?
-  // The specialized "get" methods can return primitives, which could be less expensive.
-
-  // TODO(sebright): Should these methods take defaults or throw exceptions to handle missing keys?
-
   /**
    * Looks up a value of type {@code String}.
    *
    * @param key the key to look up.
-   * @return the tag value, or {@code null} if the key isn't present.
+   * @return the tag value associated with the given key.
+   * @throws IllegalArgumentException if the key doesn't exist.
    */
-  @Nullable
   public abstract String getStringTagValue(TagKey<String> key);
 
   /**
    * Looks up a value of type {@code long}.
    *
    * @param key the key to look up.
-   * @param defaultValue the value to return if the key is not preset.
-   * @return the tag value, or the default value if the key is not present.
+   * @return the tag value associated with the given key.
+   * @throws IllegalArgumentException if the key doesn't exist.
    */
-  public abstract long getIntTagValue(TagKey<Long> key, long defaultValue);
+  public abstract long getIntTagValue(TagKey<Long> key);
 
   /**
    * Looks up a value of type {@code boolean}.
    *
    * @param key the key to look up.
-   * @param defaultValue the value to return if the key is not preset.
-   * @return the tag value, or the default value if the key is not present.
+   * @return the tag value associated with the given key.
+   * @throws IllegalArgumentException if the key doesn't exist.
    */
-  public abstract boolean getBooleanTagValue(TagKey<Boolean> key, boolean defaultValue);
-
-  /**
-   * Looks up a value of any type.
-   *
-   * @param key the key to look up.
-   * @return the tag value, or {@code null} if the key isn't present.
-   */
-  @Nullable
-  public abstract <T> T getTagValue(TagKey<T> key);
+  public abstract boolean getBooleanTagValue(TagKey<Boolean> key);
 
   /**
    * Returns a builder based on this {@code TagSet}.
@@ -85,9 +70,6 @@ public abstract class TagSet {
 
   /** Builder for the {@link TagSet} class. */
   public abstract static class Builder {
-
-    // TODO(sebright): Which is better, generic "insert", "set", and "update" methods, or these
-    // specialized methods that can take primitives?
 
     /**
      * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
