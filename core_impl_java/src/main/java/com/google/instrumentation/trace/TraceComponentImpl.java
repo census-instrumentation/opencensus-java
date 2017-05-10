@@ -19,7 +19,11 @@ import com.google.instrumentation.internal.MillisClock;
 /** Java 7 and 8 implementation of the {@link TraceComponent}. */
 public final class TraceComponentImpl extends TraceComponentImplBase {
 
+  /** Public constructor to be used with reflection loading. */
   public TraceComponentImpl() {
-    super(MillisClock.getInstance(), DisruptorEventQueue.getInstance());
+    super(
+        MillisClock.getInstance(),
+        new ThreadLocalRandomHandler(),
+        DisruptorEventQueue.getInstance());
   }
 }

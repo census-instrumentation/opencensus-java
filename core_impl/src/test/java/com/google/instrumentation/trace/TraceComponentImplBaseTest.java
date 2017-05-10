@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.internal.MillisClock;
+import com.google.instrumentation.trace.RandomHandler.SecureRandomHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -25,12 +26,12 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TraceComponentImplBaseTest {
   private final TraceComponent traceComponent =
-      new TraceComponentImplBase(MillisClock.getInstance(), new SimpleEventQueue());
+      new TraceComponentImplBase(
+          MillisClock.getInstance(), new SecureRandomHandler(), new SimpleEventQueue());
 
   @Test
   public void implementationOfTracer() {
-    // TODO(bdrutu): Change this when TracerImpl is available.
-    assertThat(traceComponent.getTracer()).isSameAs(Tracer.getNoopTracer());
+    assertThat(traceComponent.getTracer()).isInstanceOf(TracerImpl.class);
   }
 
   @Test

@@ -17,21 +17,23 @@ import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.EventQueue;
 
 /** Base implementation of the {@link TraceComponent}. */
-public class TraceComponentImplBase extends TraceComponent {
+class TraceComponentImplBase extends TraceComponent {
   private static final int TRACE_EXPORTER_BUFFER_SIZE = 32;
   // Enforces that trace exporter exports data at least once every 2 seconds.
   private static final long TRACE_EXPORTER_SCHEDULE_DELAY_MS = 2000;
   private final BinaryPropagationHandler binaryPropagationHandler =
       new BinaryPropagationHandlerImpl();
   private final Clock clock;
-  private final TraceExporterImpl traceExporter;
+  private final TraceExporter traceExporter;
   private final TraceConfig traceConfig = new TraceConfigImpl();
-  private final Tracer tracer = Tracer.getNoopTracer();
+  private final Tracer tracer;
 
-  TraceComponentImplBase(Clock clock, EventQueue eventQueue) {
+  TraceComponentImplBase(Clock clock, RandomHandler randomHandler, EventQueue eventQueue) {
     this.clock = clock;
-    traceExporter = TraceExporterImpl.create(TRACE_EXPORTER_BUFFER_SIZE,
+    TraceExporterImpl traceExporterImpl = TraceExporterImpl.create(TRACE_EXPORTER_BUFFER_SIZE,
         TRACE_EXPORTER_SCHEDULE_DELAY_MS, eventQueue);
+    traceExporter = traceExporterImpl;
+    tracer = new TracerImpl(randomHandler, traceExporterImpl, clock, traceConfig);
   }
 
   @Override

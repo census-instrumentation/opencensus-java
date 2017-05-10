@@ -13,21 +13,15 @@
 
 package com.google.instrumentation.trace;
 
-import java.security.SecureRandom;
-import java.util.Random;
-import javax.annotation.concurrent.ThreadSafe;
+import com.google.instrumentation.common.Clock;
 
-/**
- * Implementation of the {@link RandomHandler} using {@link SecureRandom}.
- */
-@ThreadSafe
-final class RandomHandlerAndroid extends RandomHandler {
-  private final Random random = new SecureRandom();
-
-  RandomHandlerAndroid() {}
-
-  @Override
-  Random current() {
-    return random;
+/** Implementation of the {@link Tracer}. */
+final class TracerImpl extends Tracer {
+  TracerImpl(
+      RandomHandler randomHandler,
+      SpanImpl.StartEndHandler startEndHandler,
+      Clock clock,
+      TraceConfig traceConfig) {
+    super(new SpanFactoryImpl(randomHandler, startEndHandler, clock, traceConfig));
   }
 }
