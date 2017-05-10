@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.instrumentation.stats.DistributionAggregation.Range;
 
+import com.google.common.testing.EqualsTester;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -65,6 +66,19 @@ public final class DistributionAggregationTest {
     for (int i = 0; i < aggr.getBucketCounts().size(); i++) {
       assertThat(aggr.getBucketCounts().get(i)).isEqualTo(buckets.get(i));
     }
+  }
+
+  @Test
+  public void testDistributionAggregationEquals() {
+    List<Long> buckets = Arrays.asList(1L, 2L, 3L);
+    new EqualsTester()
+        .addEqualityGroup(
+            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS),
+            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS))
+        .addEqualityGroup(
+            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS, buckets),
+            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS, buckets))
+        .testEquals();
   }
 
   private static final TagKey K1 = TagKey.create("k1");

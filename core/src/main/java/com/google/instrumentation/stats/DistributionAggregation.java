@@ -13,10 +13,12 @@
 
 package com.google.instrumentation.stats;
 
+import com.google.auto.value.AutoValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 // TODO(aveitch) The below class should be changed to use a Distribution as a private member.
 /**
@@ -29,23 +31,53 @@ import javax.annotation.Nullable;
  * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities
  * or NaNs) in the population of values, as this will render the {@code mean} meaningless.
  */
-public final class DistributionAggregation {
+@Immutable
+@AutoValue
+public abstract class DistributionAggregation {
   /**
    * Constructs a new {@link DistributionAggregation}.
    */
-  public static final DistributionAggregation create(
+  public static DistributionAggregation create(
       long count, double mean, double sum, Range range, List<Tag> tags) {
-    return new DistributionAggregation(count, mean, sum, range, tags, null);
+    return createInternal(count, mean, sum, range, tags, null);
   }
 
   /**
    * Constructs a new {@link DistributionAggregation} with the optional {@code bucketCount}s.
    */
-  public static final DistributionAggregation create(
+  public static DistributionAggregation create(
       long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
-    return new DistributionAggregation(count, mean, sum, range, tags,
+    return createInternal(count, mean, sum, range, tags,
         Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
   }
+
+  private static DistributionAggregation createInternal(
+      long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
+    return new AutoValue_DistributionAggregation(count, mean, sum, range, tags, bucketCounts);
+  }
+
+  /**
+   * The number of values in the population. Must be non-negative.
+   */
+  public abstract long getCount();
+
+  /**
+   * The arithmetic mean of the values in the population. If {@link #getCount()} is zero then this
+   * value must also be zero.
+   */
+  public abstract double getMean();
+
+  /**
+   * The sum of the values in the population.  If {@link #getCount()} is zero then this values must
+   * also be zero.
+   */
+  public abstract double getSum();
+
+  /**
+   * The range of the population values. If {@link #getCount()} is zero then this returned range is
+   * implementation-dependent.
+   */
+  public abstract Range getRange();
 
   /**
    * {@link Tag}s associated with this {@link DistributionAggregation}.
@@ -53,40 +85,7 @@ public final class DistributionAggregation {
    * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
    * UnsupportedOperationException.
    */
-  public final List<Tag> getTags() {
-    return tags;
-  }
-
-  /**
-   * The number of values in the population. Must be non-negative.
-   */
-  public long getCount() {
-    return count;
-  }
-
-  /**
-   * The arithmetic mean of the values in the population. If {@link #getCount()} is zero then this
-   * value must also be zero.
-   */
-  public double getMean() {
-    return mean;
-  }
-
-  /**
-   * The sum of the values in the population.  If {@link #getCount()} is zero then this values must
-   * also be zero.
-   */
-  public double getSum() {
-    return sum;
-  }
-
-  /**
-   * The range of the population values. If {@link #getCount()} is zero then this returned range is
-   * implementation-dependent.
-   */
-  public Range getRange() {
-    return range;
-  }
+  public abstract List<Tag> getTags();
 
   /**
    * A Distribution may optionally contain a histogram of the values in the population. The
@@ -109,59 +108,29 @@ public final class DistributionAggregation {
    * {@link DistributionAggregationDescriptor#getBucketBoundaries()} returns null.
    */
   @Nullable
-  public List<Long> getBucketCounts() {
-    return bucketCounts;
-  }
-
-  private final long count;
-  private final double mean;
-  private final double sum;
-  private final Range range;
-  private final List<Tag> tags;
-  private final List<Long> bucketCounts;
-
-  private DistributionAggregation(
-      long count, double mean, double sum, Range range, List<Tag> tags,
-      @Nullable List<Long> bucketCounts) {
-    this.count = count;
-    this.mean = mean;
-    this.sum = sum;
-    this.range = range;
-    this.tags = tags;
-    this.bucketCounts = bucketCounts;
-  }
+  public abstract List<Long> getBucketCounts();
 
   /**
    * Describes a range of population values.
    */
-  public static final class Range {
+  @Immutable
+  @AutoValue
+  public abstract static class Range {
     /**
      * Constructs a new {@link Range}.
      */
-    public static final Range create(double min, double max) {
-      return new Range(min, max);
+    public static Range create(double min, double max) {
+      return new AutoValue_DistributionAggregation_Range(min, max);
     }
 
     /**
      * The minimum of the population values.
      */
-    public double getMin() {
-      return min;
-    }
+    public abstract double getMin();
 
     /**
      * The maximum of the population values.
      */
-    public double getMax() {
-      return max;
-    }
-
-    private double min;
-    private double max;
-
-    private Range(double min, double max) {
-      this.min = min;
-      this.max = max;
-    }
+    public abstract double getMax();
   }
 }
