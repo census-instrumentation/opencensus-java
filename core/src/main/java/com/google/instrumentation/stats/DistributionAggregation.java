@@ -14,6 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,14 +29,22 @@ import javax.annotation.concurrent.Immutable;
  * histogram representing the distribution of those values across a specified set of histogram
  * buckets, as defined in {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
  *
- * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities
- * or NaNs) in the population of values, as this will render the {@code mean} meaningless.
+ * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities or
+ * NaNs) in the population of values, as this will render the {@code mean} meaningless.
  */
 @Immutable
 @AutoValue
 public abstract class DistributionAggregation {
   /**
-   * Constructs a new {@link DistributionAggregation}.
+   * Constructs a {@code DistributionAggregation} without bucket counts.
+   *
+   * @param count the number of values in the population. It must be non-negative.
+   * @param mean the arithmetic mean of the values. If {@code count} is zero then this value must
+   *     also be zero.
+   * @param sum the sum of the values. If {@code count} is zero then this value must also be zero.
+   * @param range the range of the values.
+   * @param tags the {@code Tag}s associated with the {@code DistributionAggregation}.
+   * @return a {@code DistributionAggregation} without bucket counts.
    */
   public static DistributionAggregation create(
       long count, double mean, double sum, Range range, List<Tag> tags) {
@@ -43,93 +52,127 @@ public abstract class DistributionAggregation {
   }
 
   /**
-   * Constructs a new {@link DistributionAggregation} with the optional {@code bucketCount}s.
+   * Constructs a {@code DistributionAggregation} with bucket counts.
+   *
+   * @param count the number of values in the population. It must be non-negative.
+   * @param mean the arithmetic mean of the values. If {@code count} is zero then this value must
+   *     also be zero.
+   * @param sum the sum of the values. If {@code count} is zero then this value must also be zero.
+   * @param range the range of the values.
+   * @param tags the {@code Tag}s associated with the {@code DistributionAggregation}.
+   * @param bucketCounts the bucket counts for the histogram associated with the {@code
+   *     DistributionAggregation}.
+   * @return a {@code DistributionAggregation} with bucket counts.
    */
   public static DistributionAggregation create(
       long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
-    return createInternal(count, mean, sum, range, tags,
+    return createInternal(
+        count,
+        mean,
+        sum,
+        range,
+        tags,
         Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
   }
 
   private static DistributionAggregation createInternal(
       long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
+    Preconditions.checkArgument(count >= 0);
+    Preconditions.checkArgument(count != 0 || mean == 0);
+    Preconditions.checkArgument(count != 0 || sum == 0);
     return new AutoValue_DistributionAggregation(count, mean, sum, range, tags, bucketCounts);
   }
 
   /**
-   * The number of values in the population. Must be non-negative.
+   * Returns the number of values in the population.
+   *
+   * @return the number of values in the population.
    */
   public abstract long getCount();
 
   /**
-   * The arithmetic mean of the values in the population. If {@link #getCount()} is zero then this
-   * value must also be zero.
+   * Returns the arithmetic mean of the values in the population.
+   *
+   * @return the arithmetic mean of the values in the population.
    */
   public abstract double getMean();
 
   /**
-   * The sum of the values in the population.  If {@link #getCount()} is zero then this values must
-   * also be zero.
+   * Returns the sum of the values in the population.
+   *
+   * @return the sum of the values in the population.
    */
   public abstract double getSum();
 
   /**
-   * The range of the population values. If {@link #getCount()} is zero then this returned range is
-   * implementation-dependent.
+   * Returns the range of the population values. If {@link #getCount()} is zero then the returned
+   * range is implementation-dependent.
+   *
+   * @return the range of the population values.
    */
   public abstract Range getRange();
 
   /**
-   * {@link Tag}s associated with this {@link DistributionAggregation}.
+   * Returns the {@code Tag}s associated with this {@code DistributionAggregation}.
    *
-   * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-   * UnsupportedOperationException.
+   * @return the {@code Tag}s associated with this {@code DistributionAggregation}.
    */
   public abstract List<Tag> getTags();
 
   /**
-   * A Distribution may optionally contain a histogram of the values in the population. The
-   * histogram is given in {@link #getBucketCounts()} as counts of values that fall into one of a
-   * sequence of non-overlapping buckets, described by
-   * {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
-   * The sum of the values in {@link #getBucketCounts()} must equal the value in
-   * {@link #getCount()}.
+   * Returns the bucket counts, or {@code null} if this {@code DistributionAggregation}'s associated
+   * {@link DistributionAggregationDescriptor} has no buckets.
    *
-   * <p>Bucket counts are given in order under the numbering scheme described
-   * above (the underflow bucket has number 0; the finite buckets, if any,
-   * have numbers 1 through N-2; the overflow bucket has number N-1).
+   * <p>A Distribution may contain a histogram of the values in the population. The histogram is
+   * given in {@link #getBucketCounts()} as counts of values that fall into one of a sequence of
+   * non-overlapping buckets, described by {@link
+   * DistributionAggregationDescriptor#getBucketBoundaries()}. The sum of the values in {@link
+   * #getBucketCounts()} must equal the value in {@link #getCount()}.
    *
-   * <p>The size of {@link #getBucketCounts()} must be no greater than N as defined in
-   * {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
+   * <p>Bucket counts are given in order under the numbering scheme described in the link above (the
+   * underflow bucket has number 0; the finite buckets, if any, have numbers 1 through N-2; the
+   * overflow bucket has number N-1).
+   *
+   * <p>The size of {@link #getBucketCounts()} must be no greater than N as defined in {@link
+   * DistributionAggregationDescriptor#getBucketBoundaries()}.
    *
    * <p>Any suffix of trailing buckets containing only zero may be omitted.
    *
-   * <p>{@link #getBucketCounts()} will return null iff the associated
-   * {@link DistributionAggregationDescriptor#getBucketBoundaries()} returns null.
+   * <p>{@link #getBucketCounts()} will return null iff the associated {@link
+   * DistributionAggregationDescriptor#getBucketBoundaries()} returns null.
+   *
+   * @return the bucket counts, or {@code null} if this {@code DistributionAggregation}'s associated
+   *     {@link DistributionAggregationDescriptor} has no buckets.
    */
   @Nullable
   public abstract List<Long> getBucketCounts();
 
-  /**
-   * Describes a range of population values.
-   */
+  /** The range of a population's values. */
   @Immutable
   @AutoValue
   public abstract static class Range {
     /**
-     * Constructs a new {@link Range}.
+     * Returns a {@code Range} with the given bounds.
+     *
+     * @param min the minimum of the population values.
+     * @param max the maximum of the population values.
+     * @return a {@code Range} with the given bounds.
      */
     public static Range create(double min, double max) {
       return new AutoValue_DistributionAggregation_Range(min, max);
     }
 
     /**
-     * The minimum of the population values.
+     * Returns the minimum of the population values.
+     *
+     * @return the minimum of the population values.
      */
     public abstract double getMin();
 
     /**
-     * The maximum of the population values.
+     * Returns the maximum of the population values.
+     *
+     * @return the maximum of the population values.
      */
     public abstract double getMax();
   }
