@@ -20,9 +20,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TraceComponentImpl}. */
+/** Test for accessing the {@link TraceComponent} through the {@link Tracing} class. */
 @RunWith(JUnit4.class)
-public class TraceComponentImplTest {
+public class TracingTest {
   @Test
   public void implementationOfTracer() {
     // TODO(bdrutu): Change this when TracerImpl is available.

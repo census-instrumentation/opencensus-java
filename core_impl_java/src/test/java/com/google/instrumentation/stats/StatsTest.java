@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, Google Inc.
+ * Copyright 2016, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,14 +13,17 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.internal.MillisClock;
+import static com.google.common.truth.Truth.assertThat;
 
-/**
- * Java 7 implementation of {@link StatsManager}.
- */
-public final class StatsManagerImpl extends StatsManagerImplJava {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-  public StatsManagerImpl() {
-    super(MillisClock.getInstance());
+/** Test for accessing the {@link StatsManager} through the {@link Stats} class. */
+@RunWith(JUnit4.class)
+public final class StatsTest {
+  @Test
+  public void getStatsContextFactory() {
+    assertThat(Stats.getStatsContextFactory()).isNotNull();
   }
 }
