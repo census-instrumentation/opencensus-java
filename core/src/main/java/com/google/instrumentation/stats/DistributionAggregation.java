@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
-// TODO(aveitch) The below class should be changed to use a Distribution as a private member.
+// TODO(songya) remove all the Deprecated variables and methods.
 /**
  * An aggregation of data based on distributions.
  *
@@ -34,6 +34,24 @@ public final class DistributionAggregation {
    * Constructs a new {@link DistributionAggregation}.
    */
   public static final DistributionAggregation create(
+      Distribution distribution, List<Tag> tags) {
+    return new DistributionAggregation(distribution, tags, null);
+  }
+
+  /**
+   * Constructs a new {@link DistributionAggregation} with the optional {@code bucketCount}s.
+   */
+  public static final DistributionAggregation create(
+      Distribution distribution, List<Tag> tags, List<Long> bucketCounts) {
+    return new DistributionAggregation(
+        distribution, tags, Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
+  }
+
+  /**
+   * Constructs a new {@link DistributionAggregation}.
+   */
+  @Deprecated
+  public static final DistributionAggregation create(
       long count, double mean, double sum, Range range, List<Tag> tags) {
     return new DistributionAggregation(count, mean, sum, range, tags, null);
   }
@@ -41,6 +59,7 @@ public final class DistributionAggregation {
   /**
    * Constructs a new {@link DistributionAggregation} with the optional {@code bucketCount}s.
    */
+  @Deprecated
   public static final DistributionAggregation create(
       long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
     return new DistributionAggregation(count, mean, sum, range, tags,
@@ -60,6 +79,38 @@ public final class DistributionAggregation {
   /**
    * The number of values in the population. Must be non-negative.
    */
+  public long getCountFromDistribution() {
+    return distribution.getCount();
+  }
+
+  /**
+   * The arithmetic mean of the values in the population. If {@link #getCount()} is zero then this
+   * value must also be zero.
+   */
+  public double getMeanFromDistribution() {
+    return distribution.getMean();
+  }
+
+  /**
+   * The sum of the values in the population.  If {@link #getCount()} is zero then this values must
+   * also be zero.
+   */
+  public double getSumFromDistribution() {
+    return distribution.getSum();
+  }
+
+  /**
+   * The range of the population values. If {@link #getCount()} is zero then this returned range is
+   * implementation-dependent.
+   */
+  public Distribution.Range getRangeFromDistribution() {
+    return distribution.getRange();
+  }
+
+  /**
+   * The number of values in the population. Must be non-negative.
+   */
+  @Deprecated
   public long getCount() {
     return count;
   }
@@ -68,6 +119,7 @@ public final class DistributionAggregation {
    * The arithmetic mean of the values in the population. If {@link #getCount()} is zero then this
    * value must also be zero.
    */
+  @Deprecated
   public double getMean() {
     return mean;
   }
@@ -76,6 +128,7 @@ public final class DistributionAggregation {
    * The sum of the values in the population.  If {@link #getCount()} is zero then this values must
    * also be zero.
    */
+  @Deprecated
   public double getSum() {
     return sum;
   }
@@ -84,6 +137,7 @@ public final class DistributionAggregation {
    * The range of the population values. If {@link #getCount()} is zero then this returned range is
    * implementation-dependent.
    */
+  @Deprecated
   public Range getRange() {
     return range;
   }
@@ -113,13 +167,28 @@ public final class DistributionAggregation {
     return bucketCounts;
   }
 
-  private final long count;
-  private final double mean;
-  private final double sum;
-  private final Range range;
+  @Deprecated private final long count;
+  @Deprecated private final double mean;
+  @Deprecated private final double sum;
+  @Deprecated private final Range range;
+
+  private final Distribution distribution;
   private final List<Tag> tags;
   private final List<Long> bucketCounts;
 
+  private DistributionAggregation(
+      Distribution distribution, List<Tag> tags,
+      @Nullable List<Long> bucketCounts) {
+    this.count = 0;
+    this.mean = 0;
+    this.sum = 0;
+    this.range = Range.create(0, 0);
+    this.distribution = distribution;
+    this.tags = tags;
+    this.bucketCounts = bucketCounts;
+  }
+
+  @Deprecated
   private DistributionAggregation(
       long count, double mean, double sum, Range range, List<Tag> tags,
       @Nullable List<Long> bucketCounts) {
@@ -127,6 +196,7 @@ public final class DistributionAggregation {
     this.mean = mean;
     this.sum = sum;
     this.range = range;
+    this.distribution = Distribution.create(MutableDistribution.create());
     this.tags = tags;
     this.bucketCounts = bucketCounts;
   }
@@ -134,10 +204,12 @@ public final class DistributionAggregation {
   /**
    * Describes a range of population values.
    */
+  @Deprecated
   public static final class Range {
     /**
      * Constructs a new {@link Range}.
      */
+    @Deprecated
     public static final Range create(double min, double max) {
       return new Range(min, max);
     }
@@ -145,6 +217,7 @@ public final class DistributionAggregation {
     /**
      * The minimum of the population values.
      */
+    @Deprecated
     public double getMin() {
       return min;
     }
@@ -152,6 +225,7 @@ public final class DistributionAggregation {
     /**
      * The maximum of the population values.
      */
+    @Deprecated
     public double getMax() {
       return max;
     }
