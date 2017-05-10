@@ -3,7 +3,6 @@ include ":instrumentation-java-all"
 include ":instrumentation-java-core"
 include ":instrumentation-java-core-impl"
 include ":instrumentation-java-core-impl-java"
-include ":instrumentation-java-core-impl-java-7"
 include ":instrumentation-java-core-impl-android"
 include ":shared"
 
@@ -11,7 +10,6 @@ project(':instrumentation-java-all').projectDir = "$rootDir/all" as File
 project(':instrumentation-java-core').projectDir = "$rootDir/core" as File
 project(':instrumentation-java-core-impl').projectDir = "$rootDir/core_impl" as File
 project(':instrumentation-java-core-impl-java').projectDir = "$rootDir/core_impl_java" as File
-project(':instrumentation-java-core-impl-java-7').projectDir = "$rootDir/core_impl_java_7" as File
 project(':instrumentation-java-core-impl-android').projectDir = "$rootDir/core_impl_android" as File
 project(':shared').projectDir = "$rootDir/shared" as File
 
@@ -19,9 +17,7 @@ project(':shared').projectDir = "$rootDir/shared" as File
 if (JavaVersion.current().isJava8Compatible()) {
     include ":instrumentation-examples"
     include ":instrumentation-java-benchmarks"
-    include ":instrumentation-java-core-impl-java-8"
 
     project(':instrumentation-examples').projectDir = "$rootDir/examples" as File
     project(':instrumentation-java-benchmarks').projectDir = "$rootDir/benchmarks" as File
-    project(':instrumentation-java-core-impl-java-8').projectDir = "$rootDir/core_impl_java_8" as File
 }
