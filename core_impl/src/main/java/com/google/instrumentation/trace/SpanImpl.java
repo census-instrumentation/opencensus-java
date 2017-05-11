@@ -13,11 +13,17 @@
 
 package com.google.instrumentation.trace;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.collect.EvictingQueue;
 import com.google.instrumentation.common.Clock;
+import com.google.instrumentation.trace.SpanData.TimedEvent;
+import com.google.instrumentation.trace.TraceConfig.TraceParams;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +40,8 @@ final class SpanImpl extends Span {
   private final SpanId parentSpanId;
   // True if the parent is on a different process.
   private final boolean hasRemoteParent;
+  // Active trace params when the Span is created.
+  private final TraceParams traceParams;
   // Handler called when the span starts and ends.
   private final StartEndHandler startEndHandler;
   // The displayed name of the span.
@@ -46,6 +54,15 @@ final class SpanImpl extends Span {
   // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
   // set, otherwise 0.
   private final long startNanoTime;
+  // List of the recorded annotations.
+  @GuardedBy("this")
+  private TraceEvents<EventWithNanoTime<Annotation>> annotations;
+  // List of the recorded network events.
+  @GuardedBy("this")
+  private TraceEvents<EventWithNanoTime<NetworkEvent>> networkEvents;
+  // List of the recorded links.
+  @GuardedBy("this")
+  private TraceEvents<Link> links;
   // The status of the span. Set when the span is ended iff the RECORD_EVENTS options is set.
   @GuardedBy("this")
   private Status status;
@@ -66,6 +83,7 @@ final class SpanImpl extends Span {
       String name,
       @Nullable SpanId parentSpanId,
       boolean hasRemoteParent,
+      TraceParams traceParams,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
@@ -76,6 +94,7 @@ final class SpanImpl extends Span {
             name,
             parentSpanId,
             hasRemoteParent,
+            traceParams,
             startEndHandler,
             timestampConverter,
             clock);
@@ -117,8 +136,34 @@ final class SpanImpl extends Span {
         getOptions().contains(Options.RECORD_EVENTS),
         "Getting SpanData for a Span without RECORD_EVENTS option.");
     synchronized (this) {
-      // TODO(bdrutu): Set the attributes, annotations, network events and links in the SpanData
-      // when add the support for them.
+      // TODO(bdrutu): Set the attributes in the SpanData when add the support for them.
+      SpanData.TimedEvents<Annotation> annotationsSpanData =
+          SpanData.TimedEvents.create(Collections.<TimedEvent<Annotation>>emptyList(), 0);
+      if (annotations != null) {
+        List<TimedEvent<Annotation>> annotationsList =
+            new ArrayList<TimedEvent<Annotation>>(annotations.events.size());
+        for (EventWithNanoTime<Annotation> anno : annotations.events) {
+          annotationsList.add(anno.toSpanDataTimedEvent(timestampConverter));
+        }
+        annotationsSpanData =
+            SpanData.TimedEvents.create(annotationsList, annotations.getDroppedEvents());
+      }
+      SpanData.TimedEvents<NetworkEvent> networkEventsSpanData =
+          SpanData.TimedEvents.create(Collections.<TimedEvent<NetworkEvent>>emptyList(), 0);
+      if (networkEvents != null) {
+        List<TimedEvent<NetworkEvent>> networkEventsList =
+            new ArrayList<TimedEvent<NetworkEvent>>(networkEvents.events.size());
+        for (EventWithNanoTime<NetworkEvent> networkEvent : networkEvents.events) {
+          networkEventsList.add(networkEvent.toSpanDataTimedEvent(timestampConverter));
+        }
+        networkEventsSpanData =
+            SpanData.TimedEvents.create(networkEventsList, networkEvents.getDroppedEvents());
+      }
+      SpanData.Links linksSpanData = SpanData.Links.create(Collections.<Link>emptyList(), 0);
+      if (links != null) {
+        linksSpanData =
+            SpanData.Links.create(new ArrayList<Link>(links.events), links.getDroppedEvents());
+      }
       return SpanData.create(
           getContext(),
           parentSpanId,
@@ -126,10 +171,9 @@ final class SpanImpl extends Span {
           name,
           timestampConverter.convertNanoTime(startNanoTime),
           SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
-          SpanData.TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
-          SpanData.TimedEvents.create(
-              Collections.<SpanData.TimedEvent<NetworkEvent>>emptyList(), 0),
-          SpanData.Links.create(Collections.<Link>emptyList(), 0),
+          annotationsSpanData,
+          networkEventsSpanData,
+          linksSpanData,
           hasBeenEnded ? status : null,
           hasBeenEnded ? timestampConverter.convertNanoTime(endNanoTime) : null);
     }
@@ -142,22 +186,80 @@ final class SpanImpl extends Span {
 
   @Override
   public void addAnnotation(String description, Map<String, AttributeValue> attributes) {
-    // TODO(bdrutu): Implement this.
+    if (!getOptions().contains(Options.RECORD_EVENTS)) {
+      return;
+    }
+    synchronized (this) {
+      if (hasBeenEnded) {
+        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        return;
+      }
+      if (annotations == null) {
+        annotations =
+            new TraceEvents<EventWithNanoTime<Annotation>>(traceParams.getMaxNumberOfAnnotations());
+      }
+      annotations.addEvent(
+          new EventWithNanoTime<Annotation>(
+              clock.nowNanos(), Annotation.fromDescriptionAndAttributes(description, attributes)));
+    }
   }
 
   @Override
   public void addAnnotation(Annotation annotation) {
-    // TODO(bdrutu): Implement this.
+    if (!getOptions().contains(Options.RECORD_EVENTS)) {
+      return;
+    }
+    synchronized (this) {
+      if (hasBeenEnded) {
+        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        return;
+      }
+      if (annotations == null) {
+        annotations =
+            new TraceEvents<EventWithNanoTime<Annotation>>(traceParams.getMaxNumberOfAnnotations());
+      }
+      annotations.addEvent(
+          new EventWithNanoTime<Annotation>(
+              clock.nowNanos(), checkNotNull(annotation, "annotation")));
+    }
   }
 
   @Override
   public void addNetworkEvent(NetworkEvent networkEvent) {
-    // TODO(bdrutu): Implement this.
+    if (!getOptions().contains(Options.RECORD_EVENTS)) {
+      return;
+    }
+    synchronized (this) {
+      if (hasBeenEnded) {
+        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        return;
+      }
+      if (networkEvents == null) {
+        networkEvents =
+            new TraceEvents<EventWithNanoTime<NetworkEvent>>(
+                traceParams.getMaxNumberOfNetworkEvents());
+      }
+      networkEvents.addEvent(
+          new EventWithNanoTime<NetworkEvent>(
+              clock.nowNanos(), checkNotNull(networkEvent, "networkEvent")));
+    }
   }
 
   @Override
   public void addLink(Link link) {
-    // TODO(bdrutu): Implement this.
+    if (!getOptions().contains(Options.RECORD_EVENTS)) {
+      return;
+    }
+    synchronized (this) {
+      if (hasBeenEnded) {
+        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        return;
+      }
+      if (links == null) {
+        links = new TraceEvents<Link>(traceParams.getMaxNumberOfLinks());
+      }
+      links.addEvent(checkNotNull(link, "link"));
+    }
   }
 
   @Override
@@ -193,12 +295,46 @@ final class SpanImpl extends Span {
     void onEnd(SpanImpl span);
   }
 
+  private static final class TraceEvents<T> {
+    private int totalRecordedevents = 0;
+    private final EvictingQueue<T> events;
+
+    private int getDroppedEvents() {
+      return totalRecordedevents - events.size();
+    }
+
+    TraceEvents(int maxNumEvents) {
+      events = EvictingQueue.create(maxNumEvents);
+    }
+
+    void addEvent(T event) {
+      totalRecordedevents++;
+      events.add(event);
+    }
+  }
+
+  // Timed event that uses nanoTime to represent the Timestamp.
+  private static final class EventWithNanoTime<T> {
+    private final long nanoTime;
+    private final T event;
+
+    private EventWithNanoTime(long nanoTime, T event) {
+      this.nanoTime = nanoTime;
+      this.event = event;
+    }
+
+    private SpanData.TimedEvent<T> toSpanDataTimedEvent(TimestampConverter timestampConverter) {
+      return SpanData.TimedEvent.create(timestampConverter.convertNanoTime(nanoTime), event);
+    }
+  }
+
   private SpanImpl(
       SpanContext context,
       @Nullable EnumSet<Options> options,
       String name,
       @Nullable SpanId parentSpanId,
       boolean hasRemoteParent,
+      TraceParams traceParams,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
@@ -206,6 +342,7 @@ final class SpanImpl extends Span {
     this.parentSpanId = parentSpanId;
     this.hasRemoteParent = hasRemoteParent;
     this.name = name;
+    this.traceParams = traceParams;
     this.startEndHandler = startEndHandler;
     this.clock = clock;
     this.hasBeenEnded = false;

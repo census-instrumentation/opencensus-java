@@ -96,6 +96,7 @@ final class SpanFactoryImpl extends SpanFactory {
             name,
             parentSpanId,
             hasRemoteParent,
+            activeTraceParams,
             startEndHandler,
             timestampConverter,
             clock);
