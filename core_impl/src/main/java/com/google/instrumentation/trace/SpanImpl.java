@@ -40,7 +40,7 @@ final class SpanImpl extends Span {
   private final SpanId parentSpanId;
   // True if the parent is on a different process.
   private final boolean hasRemoteParent;
-  // Active trace params when the Span is created.
+  // Active trace params when the Span was created.
   private final TraceParams traceParams;
   // Handler called when the span starts and ends.
   private final StartEndHandler startEndHandler;
