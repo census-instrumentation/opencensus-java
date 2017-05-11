@@ -44,6 +44,21 @@ public class TagSetTest {
   }
 
   @Test
+  public void allowMutlipleKeysWithSameNameButDifferentTypes() {
+    TagKey<String> stringKey = TagKey.createString("key");
+    TagKey<Long> intKey = TagKey.createInt("key");
+    TagKey<Boolean> booleanKey = TagKey.createBoolean("key");
+    assertThat(
+            newBuilder()
+                .set(stringKey, "value")
+                .set(intKey, 123)
+                .set(booleanKey, true)
+                .build()
+                .getTags())
+        .containsExactly(stringKey, "value", intKey, 123L, booleanKey, true);
+  }
+
+  @Test
   public void testInsert() {
     TagSetImpl tags = singletonTagSet(KS1, "v1");
     assertThat(tags.toBuilder().insert(KS2, "v2").build().getTags())
