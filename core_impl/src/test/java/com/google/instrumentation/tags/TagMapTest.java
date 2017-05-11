@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagSet}. */
+/** Tests for {@link TagMap}. */
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
-public class TagSetTest {
+public class TagMapTest {
 
   private static final TagKey<String> KS1 = TagKey.createString("k1");
   private static final TagKey<String> KS2 = TagKey.createString("k2");
@@ -38,7 +38,7 @@ public class TagSetTest {
   private final TestLogger tagSetLogger = new TestLogger();
 
   @Test
-  public void applyTagChangesInOrder() {
+  public void applyBuilderOperationsInOrder() {
     assertThat(newBuilder().set(KS1, "v1").set(KS1, "v2").build().getTags())
         .containsExactly(KS1, "v2");
   }
@@ -60,7 +60,7 @@ public class TagSetTest {
 
   @Test
   public void testInsert() {
-    TagSetImpl tags = singletonTagSet(KS1, "v1");
+    TagMapImpl tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().insert(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
     assertThat(tagSetLogger.getMessages()).isEmpty();
@@ -68,7 +68,7 @@ public class TagSetTest {
 
   @Test
   public void testInsertExistingTag() {
-    TagSetImpl tags = singletonTagSet(KS1, "v1");
+    TagMapImpl tags = singletonTagMap(KS1, "v1");
     assertThat(tagSetLogger.getMessages()).isEmpty();
     assertThat(tags.toBuilder().insert(KS1, "v2").build().getTags()).containsExactly(KS1, "v1");
     assertThat(tagSetLogger.getMessages())
@@ -77,7 +77,7 @@ public class TagSetTest {
 
   @Test
   public void testSet() {
-    TagSetImpl tags = singletonTagSet(KS1, "v1");
+    TagMapImpl tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().set(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().set(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
@@ -86,7 +86,7 @@ public class TagSetTest {
 
   @Test
   public void testUpdate() {
-    TagSetImpl tags = singletonTagSet(KS1, "v1");
+    TagMapImpl tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().update(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().update(KS2, "v2").build().getTags()).containsExactly(KS1, "v1");
     assertThat(tagSetLogger.getMessages()).isEmpty();
@@ -94,7 +94,7 @@ public class TagSetTest {
 
   @Test
   public void testClear() {
-    TagSetImpl tags = singletonTagSet(KS1, "v1");
+    TagMapImpl tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().clear(KS1).build().getTags()).isEmpty();
     assertThat(tags.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
     assertThat(tagSetLogger.getMessages()).isEmpty();
@@ -102,7 +102,7 @@ public class TagSetTest {
 
   @Test
   public void testGetTag() {
-    TagSetImpl tags = newBuilder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
+    TagMapImpl tags = newBuilder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
     assertThat(tags.getStringTagValue(KS1)).isEqualTo("my string");
     assertThat(tags.getBooleanTagValue(KB)).isEqualTo(true);
     assertThat(tags.getIntTagValue(KI)).isEqualTo(100);
@@ -125,8 +125,8 @@ public class TagSetTest {
 
   @Test
   public void testValueMaxLength() {
-    char[] chars = new char[TagSet.MAX_STRING_LENGTH];
-    char[] truncChars = new char[TagSet.MAX_STRING_LENGTH + 10];
+    char[] chars = new char[TagMap.MAX_STRING_LENGTH];
+    char[] truncChars = new char[TagMap.MAX_STRING_LENGTH + 10];
     Arrays.fill(chars, 'v');
     Arrays.fill(truncChars, 'v');
     String value = new String(chars);
@@ -185,11 +185,11 @@ public class TagSetTest {
     newBuilder().update(badIntKey, 123);
   }
 
-  private TagSetImpl.Builder newBuilder() {
-    return new TagSetImpl.Builder(tagSetLogger);
+  private TagMapImpl.Builder newBuilder() {
+    return new TagMapImpl.Builder(tagSetLogger);
   }
 
-  private <TagValueT> TagSetImpl singletonTagSet(TagKey<TagValueT> key, TagValueT value) {
-    return new TagSetImpl(tagSetLogger, ImmutableMap.<TagKey<?>, Object>of(key, value));
+  private <TagValueT> TagMapImpl singletonTagMap(TagKey<TagValueT> key, TagValueT value) {
+    return new TagMapImpl(tagSetLogger, ImmutableMap.<TagKey<?>, Object>of(key, value));
   }
 }

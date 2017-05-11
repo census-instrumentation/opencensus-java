@@ -16,13 +16,13 @@ package com.google.instrumentation.tags;
 import com.google.instrumentation.internal.StringUtil;
 
 /**
- * A set of key-value pairs that can be used to label anything that is associated with a specific
+ * A map from keys to values that can be used to label anything that is associated with a specific
  * operation.
  *
- * <p>For example, {@code TagSet}s can be used to label stats, log messages, or debugging
+ * <p>For example, {@code TagMap}s can be used to label stats, log messages, or debugging
  * information.
  */
-public abstract class TagSet {
+public abstract class TagMap {
   /** The maximum length for a string tag value. */
   public static final int MAX_STRING_LENGTH = StringUtil.MAX_LENGTH;
 
@@ -62,13 +62,13 @@ public abstract class TagSet {
   public abstract boolean getBooleanTagValue(TagKey<Boolean> key);
 
   /**
-   * Returns a builder based on this {@code TagSet}.
+   * Returns a builder based on this {@code TagMap}.
    *
-   * @return a builder based on this {@code TagSet}.
+   * @return a builder based on this {@code TagMap}.
    */
   public abstract Builder toBuilder();
 
-  /** Builder for the {@link TagSet} class. */
+  /** Builder for the {@link TagMap} class. */
   public abstract static class Builder {
 
     /**
@@ -161,10 +161,10 @@ public abstract class TagSet {
     public abstract Builder clear(TagKey<?> key);
 
     /**
-     * Creates a {@code TagSet} from this builder.
+     * Creates a {@code TagMap} from this builder.
      *
-     * @return a {@code TagSet} with the same tags as this builder.
+     * @return a {@code TagMap} with the same tags as this builder.
      */
-    public abstract TagSet build();
+    public abstract TagMap build();
   }
 }

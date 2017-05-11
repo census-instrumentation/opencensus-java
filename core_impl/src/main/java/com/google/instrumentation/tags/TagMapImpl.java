@@ -23,14 +23,14 @@ import java.util.logging.Level;
 
 /** A set of tags. */
 // The class is immutable, except for the logger.
-public final class TagSetImpl extends TagSet {
+public final class TagMapImpl extends TagMap {
 
   private final Logger logger;
 
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey<?>, Object> tags;
 
-  TagSetImpl(Logger logger, Map<TagKey<?>, Object> tags) {
+  TagMapImpl(Logger logger, Map<TagKey<?>, Object> tags) {
     this.logger = logger;
     this.tags = tags;
   }
@@ -76,7 +76,7 @@ public final class TagSetImpl extends TagSet {
     return new Builder(logger, getTags());
   }
 
-  public static final class Builder extends TagSet.Builder {
+  public static final class Builder extends TagMap.Builder {
     private final Logger logger;
     private final Map<TagKey<?>, Object> tags;
 
@@ -172,8 +172,8 @@ public final class TagSetImpl extends TagSet {
     }
 
     @Override
-    public TagSetImpl build() {
-      return new TagSetImpl(logger, new HashMap<TagKey<?>, Object>(tags));
+    public TagMapImpl build() {
+      return new TagMapImpl(logger, new HashMap<TagKey<?>, Object>(tags));
     }
   }
 }
