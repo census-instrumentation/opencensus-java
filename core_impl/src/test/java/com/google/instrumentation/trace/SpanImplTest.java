@@ -74,6 +74,7 @@ public class SpanImplTest {
             startEndHandler,
             timestampConverter,
             testClock);
+    // Check that adding trace events after Span#end() does not throw any exception.
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
@@ -97,15 +98,16 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     span.end();
+    // Check that adding trace events after Span#end() does not throw any exception.
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
     span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD));
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
-    assertThat(spanData.getAnnotations().getEvents().size()).isEqualTo(0);
-    assertThat(spanData.getNetworkEvents().getEvents().size()).isEqualTo(0);
-    assertThat(spanData.getLinks().getLinks().size()).isEqualTo(0);
+    assertThat(spanData.getAnnotations().getEvents()).isEmpty();
+    assertThat(spanData.getNetworkEvents().getEvents()).isEmpty();
+    assertThat(spanData.getLinks().getLinks()).isEmpty();
     assertThat(spanData.getStatus()).isEqualTo(Status.OK);
     assertThat(spanData.getEndTimestamp()).isEqualTo(timestamp);
   }
@@ -124,11 +126,15 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
+    testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
+    testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
+    testClock.advanceTime(Duration.create(0, 100));
     NetworkEvent networkEvent =
         NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
     span.addNetworkEvent(networkEvent);
+    testClock.advanceTime(Duration.create(0, 100));
     Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD);
     span.addLink(link);
     SpanData spanData = span.toSpanData();
@@ -138,15 +144,18 @@ public class SpanImplTest {
     assertThat(spanData.getHasRemoteParent()).isTrue();
     assertThat(spanData.getAnnotations().getDroppedEventsCount()).isEqualTo(0);
     assertThat(spanData.getAnnotations().getEvents().size()).isEqualTo(2);
-    assertThat(spanData.getAnnotations().getEvents().get(0).getTimestamp()).isEqualTo(timestamp);
+    assertThat(spanData.getAnnotations().getEvents().get(0).getTimestamp())
+        .isEqualTo(timestamp.addNanos(100));
     assertThat(spanData.getAnnotations().getEvents().get(0).getEvent())
         .isEqualTo(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
-    assertThat(spanData.getAnnotations().getEvents().get(1).getTimestamp()).isEqualTo(timestamp);
+    assertThat(spanData.getAnnotations().getEvents().get(1).getTimestamp())
+        .isEqualTo(timestamp.addNanos(200));
     assertThat(spanData.getAnnotations().getEvents().get(1).getEvent())
         .isEqualTo(Annotation.fromDescriptionAndAttributes(ANNOTATION_DESCRIPTION, attributes));
     assertThat(spanData.getNetworkEvents().getDroppedEventsCount()).isEqualTo(0);
     assertThat(spanData.getNetworkEvents().getEvents().size()).isEqualTo(1);
-    assertThat(spanData.getNetworkEvents().getEvents().get(0).getTimestamp()).isEqualTo(timestamp);
+    assertThat(spanData.getNetworkEvents().getEvents().get(0).getTimestamp())
+        .isEqualTo(timestamp.addNanos(300));
     assertThat(spanData.getNetworkEvents().getEvents().get(0).getEvent()).isEqualTo(networkEvent);
     assertThat(spanData.getLinks().getDroppedLinksCount()).isEqualTo(0);
     assertThat(spanData.getLinks().getLinks().size()).isEqualTo(1);
@@ -170,14 +179,17 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
-    testClock.advanceTime(Duration.create(0, 7777));
+    testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
+    testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
+    testClock.advanceTime(Duration.create(0, 100));
     NetworkEvent networkEvent =
         NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
     span.addNetworkEvent(networkEvent);
     Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD);
     span.addLink(link);
+    testClock.advanceTime(Duration.create(0, 100));
     span.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
     SpanData spanData = span.toSpanData();
@@ -188,28 +200,31 @@ public class SpanImplTest {
     assertThat(spanData.getAnnotations().getDroppedEventsCount()).isEqualTo(0);
     assertThat(spanData.getAnnotations().getEvents().size()).isEqualTo(2);
     assertThat(spanData.getAnnotations().getEvents().get(0).getTimestamp())
-        .isEqualTo(timestamp.addNanos(7777));
+        .isEqualTo(timestamp.addNanos(100));
     assertThat(spanData.getAnnotations().getEvents().get(0).getEvent())
         .isEqualTo(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     assertThat(spanData.getAnnotations().getEvents().get(1).getTimestamp())
-        .isEqualTo(timestamp.addNanos(7777));
+        .isEqualTo(timestamp.addNanos(200));
     assertThat(spanData.getAnnotations().getEvents().get(1).getEvent())
         .isEqualTo(Annotation.fromDescriptionAndAttributes(ANNOTATION_DESCRIPTION, attributes));
     assertThat(spanData.getNetworkEvents().getDroppedEventsCount()).isEqualTo(0);
     assertThat(spanData.getNetworkEvents().getEvents().size()).isEqualTo(1);
     assertThat(spanData.getNetworkEvents().getEvents().get(0).getTimestamp())
-        .isEqualTo(timestamp.addNanos(7777));
+        .isEqualTo(timestamp.addNanos(300));
     assertThat(spanData.getNetworkEvents().getEvents().get(0).getEvent()).isEqualTo(networkEvent);
     assertThat(spanData.getLinks().getDroppedLinksCount()).isEqualTo(0);
     assertThat(spanData.getLinks().getLinks().size()).isEqualTo(1);
     assertThat(spanData.getLinks().getLinks().get(0)).isEqualTo(link);
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
     assertThat(spanData.getStatus()).isEqualTo(Status.CANCELLED);
-    assertThat(spanData.getEndTimestamp()).isEqualTo(timestamp.addNanos(7777));
+    assertThat(spanData.getEndTimestamp()).isEqualTo(timestamp.addNanos(400));
   }
 
   @Test
   public void droppingAnnotations() {
+    final int maxNumberOfAnnotations = 8;
+    TraceParams traceParams =
+        TraceParams.DEFAULT.toBuilder().setMaxNumberOfAnnotations(maxNumberOfAnnotations).build();
     SpanImpl span =
         SpanImpl.startSpan(
             spanContext,
@@ -217,12 +232,11 @@ public class SpanImplTest {
             SPAN_NAME,
             parentSpanId,
             false,
-            TraceParams.DEFAULT,
+            traceParams,
             startEndHandler,
             timestampConverter,
             testClock);
     Annotation annotation = Annotation.fromDescription(ANNOTATION_DESCRIPTION);
-    final int maxNumberOfAnnotations = TraceParams.DEFAULT.getMaxNumberOfAnnotations();
     for (int i = 0; i < 2 * maxNumberOfAnnotations; i++) {
       span.addAnnotation(annotation);
       testClock.advanceTime(Duration.create(0, 100));
@@ -248,6 +262,12 @@ public class SpanImplTest {
 
   @Test
   public void droppingNetworkEvents() {
+    final int maxNumberOfNetworkEvents = 8;
+    TraceParams traceParams =
+        TraceParams.DEFAULT
+            .toBuilder()
+            .setMaxNumberOfNetworkEvents(maxNumberOfNetworkEvents)
+            .build();
     SpanImpl span =
         SpanImpl.startSpan(
             spanContext,
@@ -255,13 +275,12 @@ public class SpanImplTest {
             SPAN_NAME,
             parentSpanId,
             false,
-            TraceParams.DEFAULT,
+            traceParams,
             startEndHandler,
             timestampConverter,
             testClock);
     NetworkEvent networkEvent =
         NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
-    final int maxNumberOfNetworkEvents = TraceParams.DEFAULT.getMaxNumberOfNetworkEvents();
     for (int i = 0; i < 2 * maxNumberOfNetworkEvents; i++) {
       span.addNetworkEvent(networkEvent);
       testClock.advanceTime(Duration.create(0, 100));
@@ -289,6 +308,9 @@ public class SpanImplTest {
 
   @Test
   public void droppingLinks() {
+    final int maxNumberOfLinks = 8;
+    TraceParams traceParams =
+        TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(maxNumberOfLinks).build();
     SpanImpl span =
         SpanImpl.startSpan(
             spanContext,
@@ -296,15 +318,13 @@ public class SpanImplTest {
             SPAN_NAME,
             parentSpanId,
             false,
-            TraceParams.DEFAULT,
+            traceParams,
             startEndHandler,
             timestampConverter,
             testClock);
     Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD);
-    final int maxNumberOfLinks = TraceParams.DEFAULT.getMaxNumberOfLinks();
     for (int i = 0; i < 2 * maxNumberOfLinks; i++) {
       span.addLink(link);
-      testClock.advanceTime(Duration.create(0, 100));
     }
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getLinks().getDroppedLinksCount()).isEqualTo(maxNumberOfLinks);

@@ -138,32 +138,13 @@ final class SpanImpl extends Span {
     synchronized (this) {
       // TODO(bdrutu): Set the attributes in the SpanData when add the support for them.
       SpanData.TimedEvents<Annotation> annotationsSpanData =
-          SpanData.TimedEvents.create(Collections.<TimedEvent<Annotation>>emptyList(), 0);
-      if (annotations != null) {
-        List<TimedEvent<Annotation>> annotationsList =
-            new ArrayList<TimedEvent<Annotation>>(annotations.events.size());
-        for (EventWithNanoTime<Annotation> anno : annotations.events) {
-          annotationsList.add(anno.toSpanDataTimedEvent(timestampConverter));
-        }
-        annotationsSpanData =
-            SpanData.TimedEvents.create(annotationsList, annotations.getDroppedEvents());
-      }
+          createTimedEvents(annotations, timestampConverter);
       SpanData.TimedEvents<NetworkEvent> networkEventsSpanData =
-          SpanData.TimedEvents.create(Collections.<TimedEvent<NetworkEvent>>emptyList(), 0);
-      if (networkEvents != null) {
-        List<TimedEvent<NetworkEvent>> networkEventsList =
-            new ArrayList<TimedEvent<NetworkEvent>>(networkEvents.events.size());
-        for (EventWithNanoTime<NetworkEvent> networkEvent : networkEvents.events) {
-          networkEventsList.add(networkEvent.toSpanDataTimedEvent(timestampConverter));
-        }
-        networkEventsSpanData =
-            SpanData.TimedEvents.create(networkEventsList, networkEvents.getDroppedEvents());
-      }
-      SpanData.Links linksSpanData = SpanData.Links.create(Collections.<Link>emptyList(), 0);
-      if (links != null) {
-        linksSpanData =
-            SpanData.Links.create(new ArrayList<Link>(links.events), links.getDroppedEvents());
-      }
+          createTimedEvents(networkEvents, timestampConverter);
+      SpanData.Links linksSpanData =
+          links == null
+              ? SpanData.Links.create(Collections.<Link>emptyList(), 0)
+              : SpanData.Links.create(new ArrayList<Link>(links.events), links.getDroppedEvents());
       return SpanData.create(
           getContext(),
           parentSpanId,
@@ -194,13 +175,11 @@ final class SpanImpl extends Span {
         logger.log(Level.FINE, "Calling end() on an ended Span.");
         return;
       }
-      if (annotations == null) {
-        annotations =
-            new TraceEvents<EventWithNanoTime<Annotation>>(traceParams.getMaxNumberOfAnnotations());
-      }
-      annotations.addEvent(
-          new EventWithNanoTime<Annotation>(
-              clock.nowNanos(), Annotation.fromDescriptionAndAttributes(description, attributes)));
+      getInitializedAnnotations()
+          .addEvent(
+              new EventWithNanoTime<Annotation>(
+                  clock.nowNanos(),
+                  Annotation.fromDescriptionAndAttributes(description, attributes)));
     }
   }
 
@@ -214,13 +193,10 @@ final class SpanImpl extends Span {
         logger.log(Level.FINE, "Calling end() on an ended Span.");
         return;
       }
-      if (annotations == null) {
-        annotations =
-            new TraceEvents<EventWithNanoTime<Annotation>>(traceParams.getMaxNumberOfAnnotations());
-      }
-      annotations.addEvent(
-          new EventWithNanoTime<Annotation>(
-              clock.nowNanos(), checkNotNull(annotation, "annotation")));
+      getInitializedAnnotations()
+          .addEvent(
+              new EventWithNanoTime<Annotation>(
+                  clock.nowNanos(), checkNotNull(annotation, "annotation")));
     }
   }
 
@@ -234,14 +210,10 @@ final class SpanImpl extends Span {
         logger.log(Level.FINE, "Calling end() on an ended Span.");
         return;
       }
-      if (networkEvents == null) {
-        networkEvents =
-            new TraceEvents<EventWithNanoTime<NetworkEvent>>(
-                traceParams.getMaxNumberOfNetworkEvents());
-      }
-      networkEvents.addEvent(
-          new EventWithNanoTime<NetworkEvent>(
-              clock.nowNanos(), checkNotNull(networkEvent, "networkEvent")));
+      getInitializedNetworkEvents()
+          .addEvent(
+              new EventWithNanoTime<NetworkEvent>(
+                  clock.nowNanos(), checkNotNull(networkEvent, "networkEvent")));
     }
   }
 
@@ -255,10 +227,7 @@ final class SpanImpl extends Span {
         logger.log(Level.FINE, "Calling end() on an ended Span.");
         return;
       }
-      if (links == null) {
-        links = new TraceEvents<Link>(traceParams.getMaxNumberOfLinks());
-      }
-      links.addEvent(checkNotNull(link, "link"));
+      getInitializedLinks().addEvent(checkNotNull(link, "link"));
     }
   }
 
@@ -277,6 +246,45 @@ final class SpanImpl extends Span {
       startEndHandler.onEnd(this);
       hasBeenEnded = true;
     }
+  }
+
+  @GuardedBy("this")
+  private TraceEvents<EventWithNanoTime<Annotation>> getInitializedAnnotations() {
+    if (annotations == null) {
+      annotations =
+          new TraceEvents<EventWithNanoTime<Annotation>>(traceParams.getMaxNumberOfAnnotations());
+    }
+    return annotations;
+  }
+
+  @GuardedBy("this")
+  private TraceEvents<EventWithNanoTime<NetworkEvent>> getInitializedNetworkEvents() {
+    if (networkEvents == null) {
+      networkEvents =
+          new TraceEvents<EventWithNanoTime<NetworkEvent>>(
+              traceParams.getMaxNumberOfNetworkEvents());
+    }
+    return networkEvents;
+  }
+
+  @GuardedBy("this")
+  private TraceEvents<Link> getInitializedLinks() {
+    if (links == null) {
+      links = new TraceEvents<Link>(traceParams.getMaxNumberOfLinks());
+    }
+    return links;
+  }
+
+  private static <T> SpanData.TimedEvents<T> createTimedEvents(
+      TraceEvents<EventWithNanoTime<T>> events, TimestampConverter timestampConverter) {
+    if (events == null) {
+      return SpanData.TimedEvents.create(Collections.<TimedEvent<T>>emptyList(), 0);
+    }
+    List<TimedEvent<T>> eventsList = new ArrayList<TimedEvent<T>>(events.events.size());
+    for (EventWithNanoTime<T> networkEvent : events.events) {
+      eventsList.add(networkEvent.toSpanDataTimedEvent(timestampConverter));
+    }
+    return SpanData.TimedEvents.create(eventsList, events.getDroppedEvents());
   }
 
   /**
