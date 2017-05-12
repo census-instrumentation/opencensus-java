@@ -15,10 +15,12 @@ package com.google.instrumentation.stats;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * An immutable context for stats operations.
  */
+@Immutable
 public abstract class StatsContext {
   /**
    * Returns a builder based on this {@link StatsContext}.
