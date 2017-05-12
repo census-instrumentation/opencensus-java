@@ -88,20 +88,32 @@ public abstract class TraceExporter {
    *   // ...
    * }
    * }</pre>
-   *
    */
   @ThreadSafe
   public static final class LoggingServiceHandler extends ServiceHandler {
     private static final Logger logger = Logger.getLogger(LoggingServiceHandler.class.getName());
+    private static final String SERVICE_NAME =
+        "com.google.instrumentation.trace.LoggingServiceHandler";
     private static final LoggingServiceHandler INSTANCE = new LoggingServiceHandler();
 
     /**
-     * Returns the instance of the {@code LoggingServiceHandler}.
+     * Registers the {@code LoggingServiceHandler} to the {@code TraceExporter}.
      *
-     * @return the instance of the {@code LoggingServiceHandler}.
+     * @param traceExporter the instance of the {@code TraceExporter} where this service is
+     *     registered.
      */
-    public static LoggingServiceHandler getInstance() {
-      return INSTANCE;
+    public static void registerService(TraceExporter traceExporter) {
+      traceExporter.registerServiceHandler(SERVICE_NAME, INSTANCE);
+    }
+
+    /**
+     * Unregisters the {@code LoggingServiceHandler} from the {@code TraceExporter}.
+     *
+     * @param traceExporter the instance of the {@code TraceExporter} from where this service is
+     *     unregistered.
+     */
+    public static void unregisterService(TraceExporter traceExporter) {
+      traceExporter.unregisterServiceHandler(SERVICE_NAME);
     }
 
     @Override
