@@ -20,6 +20,7 @@ import static org.mockito.Mockito.doThrow;
 import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.internal.MillisClock;
 import com.google.instrumentation.trace.Span.Options;
+import com.google.instrumentation.trace.TraceConfig.TraceParams;
 import com.google.instrumentation.trace.TraceExporter.ServiceHandler;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -68,6 +69,7 @@ public class TraceExporterImplTest {
             spanName,
             null,
             false,
+            TraceParams.DEFAULT,
             traceExporter,
             null,
             MillisClock.getInstance());
@@ -83,6 +85,7 @@ public class TraceExporterImplTest {
             spanName,
             null,
             false,
+            TraceParams.DEFAULT,
             traceExporter,
             null,
             MillisClock.getInstance());
