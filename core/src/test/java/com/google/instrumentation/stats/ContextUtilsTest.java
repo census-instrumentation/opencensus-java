@@ -44,51 +44,9 @@ public class ContextUtilsTest {
   }
 
   @Test
-  public void testWithAndGetStatsContext() {
+  public void testWithStatsContext() {
     assertThat(ContextUtils.getCurrentStatsContext()).isNull();
-    Context origContext = ContextUtils.withStatsContext(statsContext).attach();
-    // Make sure context is detached even if test fails.
-    try {
-      assertThat(ContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
-    } finally {
-      Context.current().detach(origContext);
-    }
-    assertThat(ContextUtils.getCurrentStatsContext()).isNull();
-  }
-
-  @Test
-  public void testWithStatsContextUsingRun() {
-    Context context = ContextUtils.withStatsContext(statsContext);
-    // Run the Runnable immediately.
-    context.run(new Runnable() {
-      @Override
-      public void run() {
-        assertThat(ContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
-      }
-    });
-    assertThat(ContextUtils.getCurrentStatsContext()).isNull();
-  }
-
-  @Test
-  public void testWithStatsContextUsingWrap() {
-    Context context = ContextUtils.withStatsContext(statsContext);
-    // Wrap a Runnable and run it later.
-    Runnable runnable = context.wrap(
-        new Runnable() {
-          @Override
-          public void run() {
-            assertThat(ContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
-          }
-        });
-    assertThat(ContextUtils.getCurrentStatsContext()).isNull();
-    // When we run the runnable we will have the statsContext in the current Context.
-    runnable.run();
-  }
-
-  @Test
-  public void testWithScopedStatsContext() {
-    assertThat(ContextUtils.getCurrentStatsContext()).isNull();
-    NonThrowingCloseable scopedStatsCtx = ContextUtils.withScopedStatsContext(statsContext);
+    NonThrowingCloseable scopedStatsCtx = ContextUtils.withStatsContext(statsContext);
     try {
       assertThat(ContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
     } finally {
@@ -98,9 +56,9 @@ public class ContextUtilsTest {
   }
 
   @Test
-  public void testWithScopedStatsContextUsingWrap() {
+  public void testWithStatsContextUsingWrap() {
     Runnable runnable;
-    NonThrowingCloseable scopedStatsCtx = ContextUtils.withScopedStatsContext(statsContext);
+    NonThrowingCloseable scopedStatsCtx = ContextUtils.withStatsContext(statsContext);
     try {
       assertThat(ContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
       runnable = Context.current().wrap(

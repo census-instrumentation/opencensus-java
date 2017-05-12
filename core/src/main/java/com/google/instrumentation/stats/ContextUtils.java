@@ -44,17 +44,6 @@ public final class ContextUtils {
   }
 
   /**
-   * Construct a new {@link Context} where the given {@link StatsContext} is set, with current
-   * context as its parent.
-   *
-   * @param statsContext The {@code StatsContext} to be set to the current context.
-   * @return a new context where the given {@code StatsContext}, and its parent is current context.
-   */
-  static Context withStatsContext(StatsContext statsContext) {
-    return Context.current().withValue(STATS_CONTEXT_KEY, statsContext);
-  }
-
-  /**
    * Enters the scope of code where the given {@link StatsContext} is in the current context, and
    * returns an object that represents that scope. The scope is exited when the returned object
    * is closed.
@@ -65,7 +54,7 @@ public final class ContextUtils {
    * @return An object that defines a scope where the given {@code StatsContext} is set to the
    *     current context.
    */
-  static NonThrowingCloseable withScopedStatsContext(StatsContext statsContext) {
+  static NonThrowingCloseable withStatsContext(StatsContext statsContext) {
     return new WithStatsContext(statsContext, STATS_CONTEXT_KEY);
   }
 
