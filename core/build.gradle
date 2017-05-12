@@ -1,5 +1,9 @@
 description = 'Instrumentation: API'
 
+jar {
+    baseName = 'instrumentation-api'
+}
+
 dependencies {
     compile libraries.grpc_context,
             libraries.guava

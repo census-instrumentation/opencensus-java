@@ -1,14 +1,14 @@
 description = 'Instrumentation Core Impl'
 
 dependencies {
-    compile project(':instrumentation-java-core'),
+    compile project(':core'),
             project(':shared'),
             libraries.auto_value,
             libraries.guava
 
     compileOnly libraries.auto_value
 
-    testCompile project(':instrumentation-java-core')
+    testCompile project(':core')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }

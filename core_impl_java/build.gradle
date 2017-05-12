@@ -8,8 +8,8 @@ apply plugin: 'java'
 }
 
 dependencies {
-    compile project(':instrumentation-java-core'),
-            project(':instrumentation-java-core-impl'),
+    compile project(':core'),
+            project(':core_impl'),
             libraries.disruptor
 
     signature "org.codehaus.mojo.signature:java17:+@signature"
