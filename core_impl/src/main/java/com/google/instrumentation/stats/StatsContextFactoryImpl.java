@@ -32,7 +32,7 @@ final class StatsContextFactoryImpl extends StatsContextFactory {
   }
 
   /**
-   * Deserializes a {@link StatsContextImpl} from a serialized {@code CensusContextProto}.
+   * Deserializes a {@link StatsContextImpl} using the format defined in {@code StatsSerializer}..
    *
    * <p>The encoded tags are of the form: {@code <version_id><encoded_tags>}
    */
