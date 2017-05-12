@@ -27,6 +27,7 @@ public final class ContextUtils {
   /**
    * The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}.
    */
+  // TODO(songya): Discourage the usage of STATS_CONTEXT_KEY for normal users if needed.
   public static final Context.Key<StatsContext> STATS_CONTEXT_KEY = Context.key(
       "instrumentation-stats-key");
 
