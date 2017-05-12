@@ -1,8 +1,8 @@
 description = 'Instrumentation Core Impl Android'
 
 dependencies {
-    compile project(':instrumentation-java-core'),
-            project(':instrumentation-java-core-impl')
+    compile project(':core'),
+            project(':core_impl')
 
     signature "net.sf.androidscents.signature:android-api-level-14:+@signature"
 }

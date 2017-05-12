@@ -215,7 +215,7 @@ subprojects {
                     packaging 'jar'
                     // Add a map with all the project.name -> artifactId when we
                     // are going to upload more artifacts.
-                    artifactId 'instrumentation-api'
+                    artifactId jar.baseName
                     description project.description
                     url 'https://github.com/google/instrumentation-java'
 
@@ -247,7 +247,7 @@ subprojects {
         }
     }
     // For the moment we upload only the artifact for the API
-    uploadArchives.onlyIf { name == 'instrumentation-java-core'}
+    uploadArchives.onlyIf { name == 'core'}
 
     // At a test failure, log the stack trace to the console so that we don't
     // have to open the HTML in a browser.
