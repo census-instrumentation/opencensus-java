@@ -68,7 +68,7 @@ final class StatsContextImpl extends StatsContext {
     return tags.toString();
   }
 
-  private static final class Builder extends StatsContext.Builder {
+  public static final class Builder extends StatsContext.Builder {
     private final StatsManagerImplBase statsManager;
     private final HashMap<TagKey, TagValue> tags;
 
@@ -84,7 +84,7 @@ final class StatsContextImpl extends StatsContext {
     }
 
     @Override
-    public StatsContext build() {
+    public StatsContextImpl build() {
       return new StatsContextImpl(
           statsManager, Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags)));
     }
