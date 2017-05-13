@@ -55,8 +55,7 @@ final class SpanImpl extends Span {
   // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
   // set, otherwise 0.
   private final long startNanoTime;
-  // Set of recorded attributes. Eviction is based on the insertion order (note that insertion
-  // order is not affected if a key is re-inserted into the map.)
+  // Set of recorded attributes.
   @GuardedBy("this")
   private AttributesWithCapacity attributes;
   // List of recorded annotations.
@@ -141,7 +140,6 @@ final class SpanImpl extends Span {
         getOptions().contains(Options.RECORD_EVENTS),
         "Getting SpanData for a Span without RECORD_EVENTS option.");
     synchronized (this) {
-      // TODO(bdrutu): Set the attributes in the SpanData when add the support for them.
       SpanData.Attributes attributesSpanData =
           attributes == null
               ? SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0)
@@ -330,8 +328,11 @@ final class SpanImpl extends Span {
     void onEnd(SpanImpl span);
   }
 
+  // A map implementation with a fixed capacity that drops events when the map gets full. Eviction
+  // is based on the insertion order (note that insertion order is not affected if a key is
+  // re-inserted into the map.)
   private static final class AttributesWithCapacity extends LinkedHashMap<String, AttributeValue> {
-    private int capacity;
+    private final int capacity;
     private int totalRecordedAttributes = 0;
     private static final long serialVersionUID = 42L;
 
@@ -340,6 +341,8 @@ final class SpanImpl extends Span {
       this.capacity = capacity;
     }
 
+    // Users must call this method instead of put or putAll to keep count of the total number of
+    // entries inserted.
     private void addAttributes(Map<String, AttributeValue> attributes) {
       totalRecordedAttributes += attributes.size();
       putAll(attributes);
@@ -349,6 +352,8 @@ final class SpanImpl extends Span {
       return totalRecordedAttributes - size();
     }
 
+    // It is called after each put or putAll call in order to determine if the eldest inserted
+    // entry should be removed or not.
     @Override
     protected boolean removeEldestEntry(Map.Entry<String, AttributeValue> eldest) {
       return size() > this.capacity;

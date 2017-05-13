@@ -110,6 +110,7 @@ public class SpanImplTest {
     span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD));
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
+    assertThat(spanData.getAttributes().getAttributeMap()).isEmpty();
     assertThat(spanData.getAnnotations().getEvents()).isEmpty();
     assertThat(spanData.getNetworkEvents().getEvents()).isEmpty();
     assertThat(spanData.getLinks().getLinks()).isEmpty();
@@ -247,10 +248,9 @@ public class SpanImplTest {
             startEndHandler,
             timestampConverter,
             testClock);
-    AttributeValue attributeValue = AttributeValue.stringAttributeValue("MyStringAttributeValue");
     for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-      attributes.put("MyStringAttributeKey" + i, attributeValue);
+      attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
       span.addAttributes(attributes);
     }
     SpanData spanData = span.toSpanData();
@@ -263,7 +263,7 @@ public class SpanImplTest {
                   .getAttributes()
                   .getAttributeMap()
                   .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
-          .isEqualTo(attributeValue);
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes));
     }
     span.end();
     spanData = span.toSpanData();
@@ -276,7 +276,7 @@ public class SpanImplTest {
                   .getAttributes()
                   .getAttributeMap()
                   .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
-          .isEqualTo(attributeValue);
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes));
     }
   }
 
