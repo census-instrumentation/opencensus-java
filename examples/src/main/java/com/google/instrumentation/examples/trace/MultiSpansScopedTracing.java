@@ -15,6 +15,7 @@ package com.google.instrumentation.examples.trace;
 
 import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.trace.Span;
+import com.google.instrumentation.trace.TraceExporter;
 import com.google.instrumentation.trace.Tracer;
 import com.google.instrumentation.trace.Tracing;
 
@@ -45,6 +46,7 @@ public final class MultiSpansScopedTracing {
 
   /** Main method. */
   public static void main(String[] args) {
+    TraceExporter.LoggingServiceHandler.registerService(Tracing.getTraceExporter());
     try (NonThrowingCloseable ss =
         tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {
       doWork();
