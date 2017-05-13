@@ -38,10 +38,15 @@ class StatsManagerImplBase extends StatsManager {
     viewManager.registerView(viewDescriptor);
   }
 
-  // TODO(sebright): This method should take a ViewDescriptor.Name.
+  // TODO(sebright): Replace this method with the ViewDescriptor.Name version.
   @Override
   public View getView(ViewDescriptor viewDescriptor) {
-    return viewManager.getView(viewDescriptor.getViewDescriptorName());
+    return getView(viewDescriptor.getViewDescriptorName());
+  }
+
+  // TODO(sebright): Expose this method.
+  View getView(ViewDescriptor.Name viewName) {
+    return viewManager.getView(viewName);
   }
 
   @Override

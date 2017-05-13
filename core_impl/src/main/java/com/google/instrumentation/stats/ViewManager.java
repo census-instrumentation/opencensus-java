@@ -15,6 +15,7 @@ package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.Clock;
 import com.google.instrumentation.common.EventQueue;
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 
 /** Object that stores all views and stats. */
 final class ViewManager {
@@ -33,14 +34,11 @@ final class ViewManager {
   }
 
   void registerView(ViewDescriptor viewDescriptor) {
-    // We are using a preset measurement RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY
-    // and view RpcConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW for this prototype.
-    // The prototype does not allow setting measurement descriptor entries dynamically for now.
-    // TODO(songya): remove the logic for checking the preset descriptor.
-    if (!viewDescriptor.equals(SupportedViews.SUPPORTED_VIEW)) {
+    // Only DistributionViews are supported currently.
+    // TODO(sebright): Remove this once all views are supported.
+    if (!(viewDescriptor instanceof DistributionViewDescriptor)) {
       throw new UnsupportedOperationException(
-          "The prototype will only support Distribution View "
-              + SupportedViews.SUPPORTED_VIEW.getName());
+          "The prototype will only support distribution views.");
     }
     measurementDescriptorToViewMap.registerView(viewDescriptor, clock);
   }

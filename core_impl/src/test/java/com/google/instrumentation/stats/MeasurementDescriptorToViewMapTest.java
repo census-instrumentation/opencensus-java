@@ -14,14 +14,17 @@
 package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.instrumentation.stats.RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW;
 import static org.junit.Assert.fail;
 
 import com.google.instrumentation.common.Function;
 import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.internal.TestClock;
+import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
+import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;
+import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -29,23 +32,36 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link MeasurementDescriptorToViewMap}. */
 @RunWith(JUnit4.class)
 public class MeasurementDescriptorToViewMapTest {
-  private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
-      new MeasurementDescriptorToViewMap();
+
+  private static final MeasurementDescriptor MEASUREMENT_DESCRIPTOR =
+      MeasurementDescriptor.create(
+          "my measurement",
+          "measurement description",
+          MeasurementUnit.create(0, Arrays.asList(BasicUnit.BYTES)));
+
+  private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
+
+  private static final ViewDescriptor VIEW_DESCRIPTOR =
+      DistributionViewDescriptor.create(
+          VIEW_NAME,
+          "view description",
+          MEASUREMENT_DESCRIPTOR,
+          DistributionAggregationDescriptor.create(),
+          Arrays.asList(TagKey.create("my key")));
 
   @Test
-  public void testRegisterAndGetView() {
+  public void testRegisterAndGetDistributionView() {
+    MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
+        new MeasurementDescriptorToViewMap();
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
-    measurementDescriptorToViewMap.registerView(
-        RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW, clock);
+    measurementDescriptorToViewMap.registerView(VIEW_DESCRIPTOR, clock);
     clock.setTime(Timestamp.create(30, 40));
-    View actual =
-        measurementDescriptorToViewMap.getView(
-            RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW.getViewDescriptorName(), clock);
+    View actual = measurementDescriptorToViewMap.getView(VIEW_NAME, clock);
     actual.match(
         new Function<View.DistributionView, Void>() {
           @Override
           public Void apply(DistributionView view) {
-            assertThat(view.getViewDescriptor()).isEqualTo(RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+            assertThat(view.getViewDescriptor()).isEqualTo(VIEW_DESCRIPTOR);
             assertThat(view.getStart()).isEqualTo(Timestamp.create(10, 20));
             assertThat(view.getEnd()).isEqualTo(Timestamp.create(30, 40));
             assertThat(view.getDistributionAggregations()).isEmpty();

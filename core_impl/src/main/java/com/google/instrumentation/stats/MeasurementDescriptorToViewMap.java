@@ -92,20 +92,12 @@ final class MeasurementDescriptorToViewMap {
   // Records stats with a set of tags.
   synchronized void record(StatsContextImpl tags, MeasurementMap stats) {
     for (MeasurementValue mv : stats) {
-      if (mv.getMeasurement()
-          .getMeasurementDescriptorName()
-          .equals(SupportedViews.SUPPORTED_MEASUREMENT_DESCRIPTOR.getMeasurementDescriptorName())) {
-        recordSupportedMeasurement(tags, mv.getValue());
+      Collection<MutableView> views =
+          mutableMap.get(mv.getMeasurement().getMeasurementDescriptorName());
+      for (MutableView view : views) {
+        view.record(tags, mv.getValue());
       }
     }
-  }
-
-  private void recordSupportedMeasurement(StatsContextImpl tags, double value) {
-    MutableView view = getMutableView(SupportedViews.SUPPORTED_VIEW.getViewDescriptorName());
-    if (view == null) {
-      throw new IllegalArgumentException("View not registered yet.");
-    }
-    view.record(tags, value);
   }
 
   private static final class CreateMutableDistributionViewFunction
