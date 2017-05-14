@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /** Stats test utilities. */
-public final class StatsTestUtil {
+final class StatsTestUtil {
 
   private StatsTestUtil() {}
 
@@ -37,7 +37,7 @@ public final class StatsTestUtil {
    *     have an even length.
    * @return a {@code StatsContextImpl} with the given keys and values.
    */
-  public static StatsContextImpl createContext(
+  static StatsContextImpl createContext(
       StatsContextFactoryImpl factory, Object... tagKeysAndValues) {
     StatsContextImpl.Builder builder = factory.getDefault().builder();
     for (Iterator<Object> i = Arrays.asList(tagKeysAndValues).iterator(); i.hasNext(); ) {
@@ -57,7 +57,7 @@ public final class StatsTestUtil {
    * @param values the values to add to the distribution.
    * @return the new {@code DistributionAggregation}
    */
-  public static DistributionAggregation createDistributionAggregation(
+  static DistributionAggregation createDistributionAggregation(
       List<Tag> tags, BucketBoundaries bucketBoundaries, List<Double> values) {
     MutableDistribution mdist = MutableDistribution.create(bucketBoundaries);
     for (double value : values) {
@@ -84,7 +84,7 @@ public final class StatsTestUtil {
    * @param expected the expected value.
    * @throws AssertionError if the {@code DistributionAggregation}s don't match.
    */
-  public static void assertDistributionAggregationsEquivalent(
+  static void assertDistributionAggregationsEquivalent(
       double tolerance,
       Collection<DistributionAggregation> actual,
       Collection<DistributionAggregation> expected) {
