@@ -18,9 +18,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.truth.Truth;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /** Stats test utilities. */
@@ -28,22 +26,28 @@ final class StatsTestUtil {
 
   private StatsTestUtil() {}
 
+  static StatsContextImpl createContext(
+      StatsContextFactoryImpl factory, TagKey key, TagValue value) {
+    return createContext(factory, Tag.create(key, value));
+  }
+
+  static StatsContextImpl createContext(
+      StatsContextFactoryImpl factory, TagKey key1, TagValue value1, TagKey key2, TagValue value2) {
+    return createContext(factory, Tag.create(key1, value1), Tag.create(key2, value2));
+  }
+
   /**
-   * Creates a {@code StatsContextImpl} from a factory and a list of alternating tag keys and
-   * values.
+   * Creates a {@code StatsContextImpl} from a factory and a list tags.
    *
    * @param factory the factory used to produce the {@code StatsContextImpl}.
-   * @param tagKeysAndValues a list of alternating {@link TagKey}s and {@link TagValue}s. It must
-   *     have an even length.
-   * @return a {@code StatsContextImpl} with the given keys and values.
+   * @param tags a list of tags to add to the {@code StatsContextImpl}.
+   * @return a {@code StatsContextImpl} with the given tags.
    */
-  static StatsContextImpl createContext(
-      StatsContextFactoryImpl factory, Object... tagKeysAndValues) {
+  private static StatsContextImpl createContext(
+      StatsContextFactoryImpl factory, Tag... tags) {
     StatsContextImpl.Builder builder = factory.getDefault().builder();
-    for (Iterator<Object> i = Arrays.asList(tagKeysAndValues).iterator(); i.hasNext(); ) {
-      TagKey key = (TagKey) i.next();
-      TagValue value = (TagValue) i.next();
-      builder.set(key, value);
+    for (Tag tag : tags) {
+      builder.set(tag.getKey(), tag.getValue());
     }
     return builder.build();
   }
