@@ -164,9 +164,9 @@ public class StatsManagerImplTest {
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 2));
     statsManager.registerView(viewDescr);
+    StatsContextImpl tags = createContext(factory, KEY, VALUE);
     for (double val : Arrays.asList(10.0, 20.0, 30.0, 40.0)) {
-      statsManager.record(
-          createContext(factory, KEY, VALUE), MeasurementMap.of(MEASUREMENT_DESCRIPTOR, val));
+      statsManager.record(tags, MeasurementMap.of(MEASUREMENT_DESCRIPTOR, val));
     }
     clock.setTime(Timestamp.create(3, 4));
     DistributionView view = (DistributionView) statsManager.getView(VIEW_NAME);
@@ -194,8 +194,9 @@ public class StatsManagerImplTest {
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(10, 0));
     statsManager.registerView(viewDescr);
+    StatsContextImpl tags = createContext(factory, KEY, VALUE);
     statsManager.record(
-        createContext(factory, KEY, VALUE), MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.1));
+        tags, MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.1));
     clock.setTime(Timestamp.create(11, 0));
     DistributionView view1 = (DistributionView) statsManager.getView(VIEW_NAME);
     assertThat(view1.getStart()).isEqualTo(Timestamp.create(10, 0));
@@ -207,7 +208,7 @@ public class StatsManagerImplTest {
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(0.1))));
     statsManager.record(
-        createContext(factory, KEY, VALUE), MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.2));
+        tags, MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.2));
     clock.setTime(Timestamp.create(12, 0));
     DistributionView view2 = (DistributionView) statsManager.getView(VIEW_NAME);
 
