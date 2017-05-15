@@ -44,8 +44,8 @@ public abstract class StatsContextFactory {
   /**
    * Get current StatsContext from current gRPC Context.
    *
-   * @return the current {@code StatsContext} from {@code io.grpc.Context}, or {@code null}
-   *     if there's no {@code StatsContext} associated with current {@code io.grpc.Context}.
+   * @return the current {@code StatsContext} from {@code io.grpc.Context}, or {@code null} if
+   *     there's no {@code StatsContext} associated with current {@code io.grpc.Context}.
    */
   @Nullable
   public final StatsContext getCurrentStatsContext() {
@@ -61,12 +61,48 @@ public abstract class StatsContextFactory {
    *
    * <p>Supports try-with-resource idiom.
    *
+   * <p>Example of usage:
+   *
+   * <pre>{@code
+   * // initialized by constructor or by calling Stats.getStatsContextFactory()
+   * private final StatsContextFactory statsCtxFactory;
+   * void doWork {
+   *   checkNotNull(statsCtxFactory, "statsCtxFactory");
+   *   // Construct a new StatsContext with required tags to be set into current context.
+   *   StatsContext statsCtx = statsCtxFactory.getDefault().with(tagKey, tagValue);
+   *   try (NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx)) {
+   *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
+   *   }
+   * }
+   * }</pre>
+   *
+   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed
+   * regardless of whether the try statement completes normally or abruptly.
+   *
+   * <p>Example of usage prior to Java SE7:
+   *
+   * <pre>{@code
+   * // initialized by constructor or by calling Stats.getStatsContextFactory()
+   * private final StatsContextFactory statsCtxFactory;
+   * void doWork {
+   *   checkNotNull(statsCtxFactory, "statsCtxFactory");
+   *   // Construct a new StatsContext with required tags to be set into current context.
+   *   StatsContext statsCtx = statsCtxFactory.getDefault().with(tagKey, tagValue);
+   *   NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx);
+   *   try {
+   *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
+   *   } finally {
+   *     scopedStatsCtx.close();
+   *   }
+   * }
+   * }</pre>
+   *
    * @param statsContext The {@link StatsContext} to be set to the current Context.
    * @return an object that defines a scope where the given {@link StatsContext} will be set to the
    *     current Context.
    * @throws NullPointerException if statsContext is null.
    */
   public final NonThrowingCloseable withStatsContext(StatsContext statsContext) {
-    return ContextUtils.withStatsContext(checkNotNull(statsContext, "StatsContext"));
+    return ContextUtils.withStatsContext(checkNotNull(statsContext, "statsContext"));
   }
 }
