@@ -76,7 +76,7 @@ public class RecordTraceEventsSampledSpanBenchmark {
   }
 
   /**
-   * This benchmark attempts to measure performance of {@link Span#addNetworkEvent(NetworkEvent)}.
+   * This benchmark attempts to measure performance of {@link Span#addLink(Link)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)

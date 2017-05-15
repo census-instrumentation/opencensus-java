@@ -33,9 +33,9 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   private static final String ATTRIBUTE_KEY = "MyAttributeKey";
   private static final String ATTRIBUTE_VALUE = "MyAttributeValue";
   private Span linkedSpan =
-      tracer.spanBuilder(SPAN_NAME).becomeRoot().setSampler(Samplers.alwaysSample()).startSpan();
+      tracer.spanBuilder(SPAN_NAME).becomeRoot().setSampler(Samplers.neverSample()).startSpan();
   private Span span =
-      tracer.spanBuilder(SPAN_NAME).becomeRoot().setSampler(Samplers.alwaysSample()).startSpan();
+      tracer.spanBuilder(SPAN_NAME).becomeRoot().setSampler(Samplers.neverSample()).startSpan();
 
   /** TearDown method. */
   @TearDown
@@ -76,7 +76,7 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   }
 
   /**
-   * This benchmark attempts to measure performance of {@link Span#addNetworkEvent(NetworkEvent)}.
+   * This benchmark attempts to measure performance of {@link Span#addLink(Link)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
