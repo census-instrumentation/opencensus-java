@@ -329,15 +329,20 @@ final class SpanImpl extends Span {
   }
 
   // A map implementation with a fixed capacity that drops events when the map gets full. Eviction
-  // is based on the insertion order (note that insertion order is not affected if a key is
-  // re-inserted into the map.)
+  // is based on the access order.
   private static final class AttributesWithCapacity extends LinkedHashMap<String, AttributeValue> {
     private final int capacity;
     private int totalRecordedAttributes = 0;
+    // Here because -Werror complains about this: [serial] serializable class AttributesWithCapacity
+    // has no definition of serialVersionUID. This class shouldn't be serialized.
     private static final long serialVersionUID = 42L;
 
     private AttributesWithCapacity(int capacity) {
-      super(capacity);
+      // Capacity of the map is capacity + 1 to avoid resizing because removeEldestEntry is invoked
+      // by put and putAll after inserting a new entry into the map.
+      // loadFactor = 1 to avoid resizing because.
+      // accessOrder = true.
+      super(capacity + 1, 1, true);
       this.capacity = capacity;
     }
 

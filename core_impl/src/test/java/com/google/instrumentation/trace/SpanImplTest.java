@@ -281,6 +281,68 @@ public class SpanImplTest {
   }
 
   @Test
+  public void droppingAndAddingAttributes() {
+    final int maxNumberOfAttributes = 8;
+    TraceParams traceParams =
+        TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(maxNumberOfAttributes).build();
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            parentSpanId,
+            false,
+            traceParams,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
+      Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+      attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
+      span.addAttributes(attributes);
+    }
+    SpanData spanData = span.toSpanData();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount())
+        .isEqualTo(maxNumberOfAttributes);
+    assertThat(spanData.getAttributes().getAttributeMap().size()).isEqualTo(maxNumberOfAttributes);
+    for (int i = 0; i < maxNumberOfAttributes; i++) {
+      assertThat(
+          spanData
+              .getAttributes()
+              .getAttributeMap()
+              .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes));
+    }
+    for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
+      Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+      attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
+      span.addAttributes(attributes);
+    }
+    spanData = span.toSpanData();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount())
+        .isEqualTo(maxNumberOfAttributes * 3 / 2);
+    assertThat(spanData.getAttributes().getAttributeMap().size()).isEqualTo(maxNumberOfAttributes);
+    // Test that we still have in the attributes map the latest maxNumberOfAttributes / 2 entries.
+    for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
+      assertThat(
+          spanData
+              .getAttributes()
+              .getAttributeMap()
+              .get("MyStringAttributeKey" + (i + maxNumberOfAttributes * 3 / 2)))
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes * 3 / 2));
+    }
+    // Test that we have the newest re-added initial entries.
+    for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
+      assertThat(
+          spanData
+              .getAttributes()
+              .getAttributeMap()
+              .get("MyStringAttributeKey" + i))
+          .isEqualTo(AttributeValue.longAttributeValue(i));
+    }
+  }
+
+  @Test
   public void droppingAnnotations() {
     final int maxNumberOfAnnotations = 8;
     TraceParams traceParams =
