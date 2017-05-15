@@ -32,5 +32,14 @@ compileJmhJava {
     options.compilerArgs = compileJava.options.compilerArgs
 }
 
+
+// Generate html report for findbugsJmh.
+findbugsJmh {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
 // Disable checkstyle if not java8.
 checkstyleJmh.enabled = JavaVersion.current().isJava8Compatible()
