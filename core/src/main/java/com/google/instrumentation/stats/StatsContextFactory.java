@@ -13,13 +13,18 @@
 
 package com.google.instrumentation.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.instrumentation.common.NonThrowingCloseable;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.annotation.Nullable;
 
 /**
  * Factory class for {@link StatsContext}.
  */
 public abstract class StatsContextFactory {
+
   /**
    * Creates a {@link StatsContext} from the given on-the-wire encoded representation.
    *
@@ -35,4 +40,33 @@ public abstract class StatsContextFactory {
    * Returns the default {@link StatsContext}.
    */
   public abstract StatsContext getDefault();
+
+  /**
+   * Get current StatsContext from current gRPC Context.
+   *
+   * @return the current {@code StatsContext} from {@code io.grpc.Context}, or {@code null}
+   *     if there's no {@code StatsContext} associated with current {@code io.grpc.Context}.
+   */
+  @Nullable
+  public final StatsContext getCurrentStatsContext() {
+    // TODO(songya): return a no-op StatsContext (or default) when getCurrentStatsContext() returns
+    // null?
+    return ContextUtils.getCurrentStatsContext();
+  }
+
+  /**
+   * Enters the scope of code where the given {@link StatsContext} is in the current Context, and
+   * returns an object that represents that scope. The scope is exited when the returned object is
+   * closed.
+   *
+   * <p>Supports try-with-resource idiom.
+   *
+   * @param statsContext The {@link StatsContext} to be set to the current Context.
+   * @return an object that defines a scope where the given {@link StatsContext} will be set to the
+   *     current Context.
+   * @throws NullPointerException if statsContext is null.
+   */
+  public final NonThrowingCloseable withStatsContext(StatsContext statsContext) {
+    return ContextUtils.withStatsContext(checkNotNull(statsContext, "StatsContext"));
+  }
 }
