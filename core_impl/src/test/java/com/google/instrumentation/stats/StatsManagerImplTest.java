@@ -14,7 +14,6 @@
 package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.instrumentation.stats.StatsTestUtil.assertDistributionAggregationsEquivalent;
 import static com.google.instrumentation.stats.StatsTestUtil.createContext;
 
 import com.google.instrumentation.common.Duration;
@@ -27,6 +26,7 @@ import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,8 +39,6 @@ import org.junit.runners.JUnit4;
 public class StatsManagerImplTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
-
-  private static final double TOLERANCE = 1e-6;
 
   private static final TagKey KEY = TagKey.create("KEY");
 
@@ -174,7 +172,6 @@ public class StatsManagerImplTest {
     assertThat(view.getStart()).isEqualTo(Timestamp.create(1, 2));
     assertThat(view.getEnd()).isEqualTo(Timestamp.create(3, 4));
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -200,7 +197,6 @@ public class StatsManagerImplTest {
     assertThat(view1.getStart()).isEqualTo(Timestamp.create(10, 0));
     assertThat(view1.getEnd()).isEqualTo(Timestamp.create(11, 0));
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view1.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -214,7 +210,6 @@ public class StatsManagerImplTest {
     assertThat(view2.getStart()).isEqualTo(Timestamp.create(10, 0));
     assertThat(view2.getEnd()).isEqualTo(Timestamp.create(12, 0));
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view2.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -239,7 +234,6 @@ public class StatsManagerImplTest {
         createContext(factory, KEY, VALUE_2), MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 50.0));
     DistributionView view = (DistributionView) statsManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -272,7 +266,6 @@ public class StatsManagerImplTest {
         MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 10.0));
     DistributionView view = (DistributionView) statsManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -315,7 +308,6 @@ public class StatsManagerImplTest {
         MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 50.0));
     DistributionView view = (DistributionView) statsManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -351,7 +343,6 @@ public class StatsManagerImplTest {
         MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 4.4));
     DistributionView view = (DistributionView) statsManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -404,12 +395,10 @@ public class StatsManagerImplTest {
     DistributionView view2 = (DistributionView) statsManager.getView(VIEW_NAME_2);
     assertThat(view1.getStart()).isEqualTo(Timestamp.create(1, 1));
     assertThat(view1.getEnd()).isEqualTo(Timestamp.create(3, 3));
-    assertDistributionAggregationsEquivalent(
-        TOLERANCE, view1.getDistributionAggregations(), expectedAggs);
+    assertDistributionAggregationsEquivalent(view1.getDistributionAggregations(), expectedAggs);
     assertThat(view2.getStart()).isEqualTo(Timestamp.create(2, 2));
     assertThat(view2.getEnd()).isEqualTo(Timestamp.create(4, 4));
-    assertDistributionAggregationsEquivalent(
-        TOLERANCE, view2.getDistributionAggregations(), expectedAggs);
+    assertDistributionAggregationsEquivalent(view2.getDistributionAggregations(), expectedAggs);
   }
 
   @Test
@@ -438,7 +427,6 @@ public class StatsManagerImplTest {
     assertThat(view1.getStart()).isEqualTo(Timestamp.create(1, 0));
     assertThat(view1.getEnd()).isEqualTo(Timestamp.create(3, 0));
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view1.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
@@ -446,10 +434,16 @@ public class StatsManagerImplTest {
     assertThat(view2.getStart()).isEqualTo(Timestamp.create(2, 0));
     assertThat(view2.getEnd()).isEqualTo(Timestamp.create(4, 0));
     assertDistributionAggregationsEquivalent(
-        TOLERANCE,
         view2.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(2.2))));
+  }
+
+  // TODO(sebright) Consider making this helper method work with larger ranges of double values and
+  // moving it to StatsTestUtil.
+  private static void assertDistributionAggregationsEquivalent(
+      Collection<DistributionAggregation> actual, Collection<DistributionAggregation> expected) {
+    StatsTestUtil.assertDistributionAggregationsEquivalent(1e-6, actual, expected);
   }
 }
