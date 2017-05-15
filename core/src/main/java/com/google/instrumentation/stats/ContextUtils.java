@@ -71,7 +71,7 @@ public final class ContextUtils {
      * @param contextKey is the {@code Context.Key} used to set/get {@code StatsContext} from the
      * {@code Context}.
      */
-    WithStatsContext(StatsContext statsContext, Context.Key<StatsContext> contextKey) {
+    private WithStatsContext(StatsContext statsContext, Context.Key<StatsContext> contextKey) {
       origContext = Context.current().withValue(contextKey, statsContext).attach();
     }
 
