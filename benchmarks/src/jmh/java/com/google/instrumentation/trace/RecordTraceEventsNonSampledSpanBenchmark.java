@@ -14,7 +14,6 @@
 package com.google.instrumentation.trace;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -44,7 +43,7 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
     linkedSpan.end();
   }
 
-  /** This benchmark attempts to measure performance of {@link Span#addAttributes(Map)}. */
+  /** This benchmark attempts to measure performance of adding an attribute to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -55,7 +54,7 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
     return span;
   }
 
-  /** This benchmark attempts to measure performance of {@link Span#addAnnotation(String)}. */
+  /** This benchmark attempts to measure performance of adding an annotation to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -64,9 +63,7 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
     return span;
   }
 
-  /**
-   * This benchmark attempts to measure performance of {@link Span#addNetworkEvent(NetworkEvent)}.
-   */
+  /** This benchmark attempts to measure performance of adding a network event to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -75,9 +72,7 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
     return span;
   }
 
-  /**
-   * This benchmark attempts to measure performance of {@link Span#addLink(Link)}.
-   */
+  /** This benchmark attempts to measure performance of adding a link to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
