@@ -133,6 +133,20 @@ public final class TraceId implements Comparable<TraceId> {
     return !Arrays.equals(bytes, INVALID.bytes);
   }
 
+  // Return the lower 8 bytes of the trace-id as a long value, assuming little-endian order. This
+  // is used in ProbabilitySampler.
+  long getLowerLong() {
+    long result = 0;
+    for (int i = 0; i < Long.SIZE / Byte.SIZE; i++) {
+      result <<= Byte.SIZE;
+      result |= (bytes[i] & 0xff);
+    }
+    if (result < 0) {
+      return -result;
+    }
+    return result;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {

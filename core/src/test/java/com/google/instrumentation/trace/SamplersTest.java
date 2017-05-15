@@ -94,4 +94,75 @@ public class SamplersTest {
   public void neverSampleSampler_ToString() {
     assertThat(Samplers.neverSample().toString()).isEqualTo("NeverSampleSampler");
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void probabilitySampler_outOfRangeHighProbability() {
+    Samplers.probabilitySampler(1.01);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void probabilitySampler_outOfRangeLowProbability() {
+    Samplers.probabilitySampler(-0.00001);
+  }
+
+  private final void probabilitySampler_AlwaysReturnTrueForSampled(Sampler sampler) {
+    final int numSamples = 100; // Number of traces for which to generate sampling decisions.
+    for (int i = 0; i < numSamples; i++) {
+      assertThat(
+              sampler.shouldSample(
+                  sampledSpanContext,
+                  false,
+                  TraceId.generateRandomId(random),
+                  spanId,
+                  "bar",
+                  Collections.<Span>emptyList()))
+          .isTrue();
+    }
+  }
+
+  private final void probabilitySampler_SamplesWithProbabilityForUnsampled(
+      Sampler sampler, double probability) {
+    final int numSamples = 1000; // Number of traces for which to generate sampling decisions.
+    int count = 0; // Count of spans with sampling enabled
+    for (int i = 0; i < numSamples; i++) {
+      if (sampler.shouldSample(
+          notSampledSpanContext,
+          false,
+          TraceId.generateRandomId(random),
+          spanId,
+          "bar",
+          Collections.<Span>emptyList())) {
+        count++;
+      }
+    }
+    double proportionSampled = (double) count / numSamples;
+    // Allow for a large amount of slop (+/- 10%) in number of sampled traces, to avoid flakiness.
+    assertThat(proportionSampled < probability + 0.1 && proportionSampled > probability - 0.1)
+        .isTrue();
+  }
+
+  @Test
+  public void probabilitySamper_SamplesWithProbability() {
+    final Sampler neverSample = Samplers.probabilitySampler(0.0);
+    probabilitySampler_AlwaysReturnTrueForSampled(neverSample);
+    probabilitySampler_SamplesWithProbabilityForUnsampled(neverSample, 0.0);
+    final Sampler alwaysSample = Samplers.probabilitySampler(1.0);
+    probabilitySampler_AlwaysReturnTrueForSampled(alwaysSample);
+    probabilitySampler_SamplesWithProbabilityForUnsampled(alwaysSample, 1.0);
+    final Sampler fiftyPercentSample = Samplers.probabilitySampler(0.5);
+    probabilitySampler_AlwaysReturnTrueForSampled(fiftyPercentSample);
+    probabilitySampler_SamplesWithProbabilityForUnsampled(fiftyPercentSample, 0.5);
+    final Sampler twentyPercentSample = Samplers.probabilitySampler(0.2);
+    probabilitySampler_AlwaysReturnTrueForSampled(twentyPercentSample);
+    probabilitySampler_SamplesWithProbabilityForUnsampled(twentyPercentSample, 0.2);
+    final Sampler twoThirdsSample = Samplers.probabilitySampler(2.0 / 3.0);
+    probabilitySampler_AlwaysReturnTrueForSampled(twoThirdsSample);
+    probabilitySampler_SamplesWithProbabilityForUnsampled(twoThirdsSample, 2.0 / 3.0);
+  }
+
+  @Test
+  public void probabilitySampler_ToString() {
+    assertThat((Samplers.probabilitySampler(0.5)).toString())
+        .isEqualTo("ProbabilitySampler(0.500000)");
+  }
 }
