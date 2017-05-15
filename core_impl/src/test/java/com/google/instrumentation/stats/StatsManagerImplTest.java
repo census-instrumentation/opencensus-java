@@ -81,15 +81,22 @@ public class StatsManagerImplTest {
 
   private final StatsContextFactoryImpl factory = new StatsContextFactoryImpl(statsManager);
 
+  private static DistributionViewDescriptor createDistributionViewDescriptor() {
+    return createDistributionViewDescriptor(
+        VIEW_NAME, MEASUREMENT_DESCRIPTOR, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
+  }
+
+  private static DistributionViewDescriptor createDistributionViewDescriptor(
+      ViewDescriptor.Name name,
+      MeasurementDescriptor measureDescr,
+      DistributionAggregationDescriptor aggDescr,
+      List<TagKey> keys) {
+    return DistributionViewDescriptor.create(name, VIEW_DESCRIPTION, measureDescr, aggDescr, keys);
+  }
+
   @Test
   public void testRegisterAndGetView() {
-    DistributionViewDescriptor viewDescr =
-        DistributionViewDescriptor.create(
-            VIEW_NAME,
-            VIEW_DESCRIPTION,
-            MEASUREMENT_DESCRIPTOR,
-            DISTRIBUTION_AGGREGATION_DESCRIPTOR,
-            Arrays.asList(KEY));
+    DistributionViewDescriptor viewDescr = createDistributionViewDescriptor();
     statsManager.registerView(viewDescr);
     assertThat(statsManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(viewDescr);
   }
@@ -109,13 +116,7 @@ public class StatsManagerImplTest {
 
   @Test
   public void allowRegisteringSameViewDescriptorTwice() {
-    DistributionViewDescriptor viewDescr =
-        DistributionViewDescriptor.create(
-            VIEW_NAME,
-            VIEW_DESCRIPTION,
-            MEASUREMENT_DESCRIPTOR,
-            DISTRIBUTION_AGGREGATION_DESCRIPTOR,
-            Arrays.asList(KEY));
+    DistributionViewDescriptor viewDescr = createDistributionViewDescriptor();
     statsManager.registerView(viewDescr);
     statsManager.registerView(viewDescr);
     assertThat(statsManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(viewDescr);
@@ -156,9 +157,8 @@ public class StatsManagerImplTest {
   @Test
   public void testRecord() {
     DistributionViewDescriptor viewDescr =
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
@@ -186,17 +186,15 @@ public class StatsManagerImplTest {
   @Test
   public void getViewDoesNotClearStats() {
     DistributionViewDescriptor viewDescr =
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(10, 0));
     statsManager.registerView(viewDescr);
     StatsContextImpl tags = createContext(factory, KEY, VALUE);
-    statsManager.record(
-        tags, MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.1));
+    statsManager.record(tags, MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.1));
     clock.setTime(Timestamp.create(11, 0));
     DistributionView view1 = (DistributionView) statsManager.getView(VIEW_NAME);
     assertThat(view1.getStart()).isEqualTo(Timestamp.create(10, 0));
@@ -207,8 +205,7 @@ public class StatsManagerImplTest {
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(0.1))));
-    statsManager.record(
-        tags, MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.2));
+    statsManager.record(tags, MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 0.2));
     clock.setTime(Timestamp.create(12, 0));
     DistributionView view2 = (DistributionView) statsManager.getView(VIEW_NAME);
 
@@ -229,9 +226,8 @@ public class StatsManagerImplTest {
   @Test
   public void testRecordMultipleTagValues() {
     statsManager.registerView(
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
@@ -265,9 +261,8 @@ public class StatsManagerImplTest {
   @Test
   public void testRecordWithEmptyStatsContext() {
     statsManager.registerView(
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
@@ -292,9 +287,8 @@ public class StatsManagerImplTest {
   @Test
   public void testRecordWithNonExistentMeasurementDescriptor() {
     statsManager.registerView(
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MeasurementDescriptor.create(MEASUREMENT_NAME, "measurement", MEASUREMENT_UNIT),
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
@@ -308,9 +302,8 @@ public class StatsManagerImplTest {
   @Test
   public void testRecordWithTagsThatDoNotMatchView() {
     statsManager.registerView(
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
@@ -339,9 +332,8 @@ public class StatsManagerImplTest {
     TagKey key1 = TagKey.create("Key-1");
     TagKey key2 = TagKey.create("Key-2");
     statsManager.registerView(
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(key1, key2)));
@@ -385,16 +377,14 @@ public class StatsManagerImplTest {
   @Test
   public void testMultipleViewsSameMeasure() {
     ViewDescriptor viewDescr1 =
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     ViewDescriptor viewDescr2 =
-        DistributionViewDescriptor.create(
+        createDistributionViewDescriptor(
             VIEW_NAME2,
-            VIEW_DESCRIPTION,
             MEASUREMENT_DESCRIPTOR,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
@@ -429,19 +419,11 @@ public class StatsManagerImplTest {
     MeasurementDescriptor measureDescr2 =
         MeasurementDescriptor.create(MEASUREMENT_NAME2, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
     ViewDescriptor viewDescr1 =
-        DistributionViewDescriptor.create(
-            VIEW_NAME,
-            VIEW_DESCRIPTION,
-            measureDescr1,
-            DISTRIBUTION_AGGREGATION_DESCRIPTOR,
-            Arrays.asList(KEY));
+        createDistributionViewDescriptor(
+            VIEW_NAME, measureDescr1, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
     ViewDescriptor viewDescr2 =
-        DistributionViewDescriptor.create(
-            VIEW_NAME2,
-            VIEW_DESCRIPTION,
-            measureDescr2,
-            DISTRIBUTION_AGGREGATION_DESCRIPTOR,
-            Arrays.asList(KEY));
+        createDistributionViewDescriptor(
+            VIEW_NAME2, measureDescr2, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
     statsManager.registerView(viewDescr1);
     clock.setTime(Timestamp.create(2, 0));
