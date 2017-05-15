@@ -254,6 +254,8 @@ public class StatsManagerImplTest {
                 Arrays.asList(30.0, 50.0))));
   }
 
+  // This test checks that StatsManager.record(...) does not throw an exception when no views are
+  // registered.
   @Test
   public void allowRecordingWithoutRegisteringMatchingView() {
     statsManager.record(
