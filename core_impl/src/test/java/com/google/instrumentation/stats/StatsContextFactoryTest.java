@@ -43,6 +43,7 @@ public class StatsContextFactoryTest {
       new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create());
   private final StatsContextFactory factory = new StatsContextFactoryImpl(statsManager);
   private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
+  private final StatsContext defaultCtx = factory.getDefault();
   private final StatsContext statsContext = factory.getDefault()
       .with(TagKey.create(KEY), TagValue.create(VALUE_STRING));
 
@@ -136,13 +137,13 @@ public class StatsContextFactoryTest {
   }
 
   @Test
-  public void testGetNullForCurrentStatsContextWhenNotSet() {
-    assertThat(factory.getCurrentStatsContext()).isNull();
+  public void testGetDefaultForCurrentStatsContextWhenNotSet() {
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
   }
 
   @Test
   public void testGetCurrentStatsContext() {
-    assertThat(factory.getCurrentStatsContext()).isNull();
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
     Context origContext = Context.current().withValue(
         ContextUtils.STATS_CONTEXT_KEY, statsContext)
         .attach();
@@ -152,7 +153,7 @@ public class StatsContextFactoryTest {
     } finally {
       Context.current().detach(origContext);
     }
-    assertThat(factory.getCurrentStatsContext()).isNull();
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
   }
 
   @Test(expected = NullPointerException.class)
@@ -162,14 +163,14 @@ public class StatsContextFactoryTest {
 
   @Test
   public void testWithStatsContext() {
-    assertThat(factory.getCurrentStatsContext()).isNull();
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
     NonThrowingCloseable scopedStatsCtx = factory.withStatsContext(statsContext);
     try {
       assertThat(factory.getCurrentStatsContext()).isEqualTo(statsContext);
     } finally {
       scopedStatsCtx.close();
     }
-    assertThat(factory.getCurrentStatsContext()).isNull();
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
   }
 
   @Test
@@ -188,7 +189,7 @@ public class StatsContextFactoryTest {
     } finally {
       scopedStatsCtx.close();
     }
-    assertThat(factory.getCurrentStatsContext()).isNull();
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
     // When we run the runnable we will have the statsContext in the current Context.
     runnable.run();
   }

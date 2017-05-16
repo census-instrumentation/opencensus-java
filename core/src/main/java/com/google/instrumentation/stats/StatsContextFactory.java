@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.instrumentation.common.NonThrowingCloseable;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.annotation.Nullable;
 
 /**
  * Factory class for {@link StatsContext}.
@@ -44,14 +43,13 @@ public abstract class StatsContextFactory {
   /**
    * Get current StatsContext from current gRPC Context.
    *
-   * @return the current {@code StatsContext} from {@code io.grpc.Context}, or {@code null} if
-   *     there's no {@code StatsContext} associated with current {@code io.grpc.Context}.
+   * @return the current {@code StatsContext} from {@code io.grpc.Context}, or the default
+   * {@code StatsContext} if there's no {@code StatsContext} associated with current
+   * {@code io.grpc.Context}.
    */
-  @Nullable
   public final StatsContext getCurrentStatsContext() {
-    // TODO(songya): return a no-op StatsContext (or default) when getCurrentStatsContext() returns
-    // null?
-    return ContextUtils.getCurrentStatsContext();
+    StatsContext statsContext = ContextUtils.getCurrentStatsContext();
+    return statsContext != null ? statsContext : getDefault();
   }
 
   /**
@@ -64,12 +62,11 @@ public abstract class StatsContextFactory {
    * <p>Example of usage:
    *
    * <pre>{@code
-   * // initialized by constructor or by calling Stats.getStatsContextFactory()
-   * private final StatsContextFactory statsCtxFactory;
-   * void doWork {
+   * private final StatsContextFactory statsCtxFactory = Stats.getStatsContextFactory();
+   * void doWork() {
    *   checkNotNull(statsCtxFactory, "statsCtxFactory");
    *   // Construct a new StatsContext with required tags to be set into current context.
-   *   StatsContext statsCtx = statsCtxFactory.getDefault().with(tagKey, tagValue);
+   *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
    *   try (NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx)) {
    *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
    *   }
@@ -82,12 +79,11 @@ public abstract class StatsContextFactory {
    * <p>Example of usage prior to Java SE7:
    *
    * <pre>{@code
-   * // initialized by constructor or by calling Stats.getStatsContextFactory()
-   * private final StatsContextFactory statsCtxFactory;
-   * void doWork {
+   * private final StatsContextFactory statsCtxFactory = Stats.getStatsContextFactory();
+   * void doWork() {
    *   checkNotNull(statsCtxFactory, "statsCtxFactory");
    *   // Construct a new StatsContext with required tags to be set into current context.
-   *   StatsContext statsCtx = statsCtxFactory.getDefault().with(tagKey, tagValue);
+   *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
    *   NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx);
    *   try {
    *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
