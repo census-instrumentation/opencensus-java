@@ -105,9 +105,9 @@ public abstract class Tracer {
    *
    * <pre>{@code
    * private static Tracer tracer = Tracing.getTracer();
-   * void doWork {
+   * void doWork() {
    *   // Create a Span as a child of the current Span.
-   *   Span span = tracer.startSpan("my span");
+   *   Span span = tracer.spanBuilder("my span").startSpan();
    *   try (NonThrowingCloseable ws = tracer.withSpan(span)) {
    *     tracer.getCurrentSpan().addAnnotation("my annotation");
    *     doSomeOtherWork();  // Here "span" is the current Span.
@@ -123,9 +123,9 @@ public abstract class Tracer {
    *
    * <pre>{@code
    * private static Tracer tracer = Tracing.getTracer();
-   * void doWork {
+   * void doWork() {
    *   // Create a Span as a child of the current Span.
-   *   Span span = tracer.startSpan("my span");
+   *   Span span = tracer.spanBuilder("my span").startSpan();
    *   NonThrowingCloseable ws = tracer.withSpan(span);
    *   try {
    *     tracer.getCurrentSpan().addAnnotation("my annotation");
