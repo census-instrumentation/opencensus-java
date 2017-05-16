@@ -28,16 +28,19 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public final class DistributionAggregationTest {
+
+  private static final double TOLERANCE = 1e-6;
+
   @Test
   public void testDistributionAggregationWithOutBuckets() {
     DistributionAggregation aggr = DistributionAggregation.create(10, 5.0, 30.0,
         Range.create(1.0, 5.0), TAGS);
 
     assertThat(aggr.getCount()).isEqualTo(10);
-    assertThat(aggr.getMean()).isEqualTo(5.0);
-    assertThat(aggr.getSum()).isEqualTo(30.0);
-    assertThat(aggr.getRange().getMin()).isEqualTo(1.0);
-    assertThat(aggr.getRange().getMax()).isEqualTo(5.0);
+    assertThat(aggr.getMean()).isWithin(TOLERANCE).of(5.0);
+    assertThat(aggr.getSum()).isWithin(TOLERANCE).of(30.0);
+    assertThat(aggr.getRange().getMin()).isWithin(TOLERANCE).of(1.0);
+    assertThat(aggr.getRange().getMax()).isWithin(TOLERANCE).of(5.0);
     assertThat(aggr.getTags()).hasSize(TAGS.size());
     for (int i = 0; i < aggr.getTags().size(); i++) {
       assertThat(aggr.getTags().get(i)).isEqualTo(TAGS.get(i));
@@ -52,10 +55,10 @@ public final class DistributionAggregationTest {
         Range.create(1.0, 5.0), TAGS, buckets);
 
     assertThat(aggr.getCount()).isEqualTo(10);
-    assertThat(aggr.getMean()).isEqualTo(5.0);
-    assertThat(aggr.getSum()).isEqualTo(30.0);
-    assertThat(aggr.getRange().getMin()).isEqualTo(1.0);
-    assertThat(aggr.getRange().getMax()).isEqualTo(5.0);
+    assertThat(aggr.getMean()).isWithin(TOLERANCE).of(5.0);
+    assertThat(aggr.getSum()).isWithin(TOLERANCE).of(30.0);
+    assertThat(aggr.getRange().getMin()).isWithin(TOLERANCE).of(1.0);
+    assertThat(aggr.getRange().getMax()).isWithin(TOLERANCE).of(5.0);
     assertThat(aggr.getBucketCounts()).isNotNull();
     assertThat(aggr.getBucketCounts()).hasSize(buckets.size());
     assertThat(aggr.getTags()).hasSize(TAGS.size());
