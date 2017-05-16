@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.io.base;
+package com.google.instrumentation.common;
 
 import java.io.IOException;
 import java.io.InputStream;

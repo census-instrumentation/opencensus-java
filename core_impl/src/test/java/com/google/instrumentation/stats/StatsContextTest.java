@@ -23,7 +23,7 @@ import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.internal.TestClock;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;
-import com.google.io.base.VarInt;
+import com.google.instrumentation.common.VarInt;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
