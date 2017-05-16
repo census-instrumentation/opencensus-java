@@ -23,6 +23,7 @@ import com.google.instrumentation.trace.TraceConfig.TraceParams;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -54,13 +55,16 @@ final class SpanImpl extends Span {
   // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
   // set, otherwise 0.
   private final long startNanoTime;
-  // List of the recorded annotations.
+  // Set of recorded attributes. DO NOT CALL any other method that change the ordering of events.
+  @GuardedBy("this")
+  private AttributesWithCapacity attributes;
+  // List of recorded annotations.
   @GuardedBy("this")
   private TraceEvents<EventWithNanoTime<Annotation>> annotations;
-  // List of the recorded network events.
+  // List of recorded network events.
   @GuardedBy("this")
   private TraceEvents<EventWithNanoTime<NetworkEvent>> networkEvents;
-  // List of the recorded links.
+  // List of recorded links.
   @GuardedBy("this")
   private TraceEvents<Link> links;
   // The status of the span. Set when the span is ended iff the RECORD_EVENTS options is set.
@@ -136,7 +140,10 @@ final class SpanImpl extends Span {
         getOptions().contains(Options.RECORD_EVENTS),
         "Getting SpanData for a Span without RECORD_EVENTS option.");
     synchronized (this) {
-      // TODO(bdrutu): Set the attributes in the SpanData when add the support for them.
+      SpanData.Attributes attributesSpanData =
+          attributes == null
+              ? SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0)
+              : SpanData.Attributes.create(attributes, attributes.getNumberOfDroppedAttributes());
       SpanData.TimedEvents<Annotation> annotationsSpanData =
           createTimedEvents(annotations, timestampConverter);
       SpanData.TimedEvents<NetworkEvent> networkEventsSpanData =
@@ -144,14 +151,15 @@ final class SpanImpl extends Span {
       SpanData.Links linksSpanData =
           links == null
               ? SpanData.Links.create(Collections.<Link>emptyList(), 0)
-              : SpanData.Links.create(new ArrayList<Link>(links.events), links.getDroppedEvents());
+              : SpanData.Links.create(
+                  new ArrayList<Link>(links.events), links.getNumberOfDroppedEvents());
       return SpanData.create(
           getContext(),
           parentSpanId,
           hasRemoteParent,
           name,
           timestampConverter.convertNanoTime(startNanoTime),
-          SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
+          attributesSpanData,
           annotationsSpanData,
           networkEventsSpanData,
           linksSpanData,
@@ -162,7 +170,16 @@ final class SpanImpl extends Span {
 
   @Override
   public void addAttributes(Map<String, AttributeValue> attributes) {
-    // TODO(bdrutu): Implement this.
+    if (!getOptions().contains(Options.RECORD_EVENTS)) {
+      return;
+    }
+    synchronized (this) {
+      if (hasBeenEnded) {
+        logger.log(Level.FINE, "Calling addAttributes() on an ended Span.");
+        return;
+      }
+      getInitializedAttributes().addAttributes(attributes);
+    }
   }
 
   @Override
@@ -172,7 +189,7 @@ final class SpanImpl extends Span {
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        logger.log(Level.FINE, "Calling addAnnotation() on an ended Span.");
         return;
       }
       getInitializedAnnotations()
@@ -190,7 +207,7 @@ final class SpanImpl extends Span {
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        logger.log(Level.FINE, "Calling addAnnotation() on an ended Span.");
         return;
       }
       getInitializedAnnotations()
@@ -207,7 +224,7 @@ final class SpanImpl extends Span {
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        logger.log(Level.FINE, "Calling addNetworkEvent() on an ended Span.");
         return;
       }
       getInitializedNetworkEvents()
@@ -224,7 +241,7 @@ final class SpanImpl extends Span {
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling end() on an ended Span.");
+        logger.log(Level.FINE, "Calling addLink() on an ended Span.");
         return;
       }
       getInitializedLinks().addEvent(checkNotNull(link, "link"));
@@ -246,6 +263,14 @@ final class SpanImpl extends Span {
       startEndHandler.onEnd(this);
       hasBeenEnded = true;
     }
+  }
+
+  @GuardedBy("this")
+  private AttributesWithCapacity getInitializedAttributes() {
+    if (attributes == null) {
+      attributes = new AttributesWithCapacity(traceParams.getMaxNumberOfAttributes());
+    }
+    return attributes;
   }
 
   @GuardedBy("this")
@@ -284,7 +309,7 @@ final class SpanImpl extends Span {
     for (EventWithNanoTime<T> networkEvent : events.events) {
       eventsList.add(networkEvent.toSpanDataTimedEvent(timestampConverter));
     }
-    return SpanData.TimedEvents.create(eventsList, events.getDroppedEvents());
+    return SpanData.TimedEvents.create(eventsList, events.getNumberOfDroppedEvents());
   }
 
   /**
@@ -303,12 +328,48 @@ final class SpanImpl extends Span {
     void onEnd(SpanImpl span);
   }
 
+  // A map implementation with a fixed capacity that drops events when the map gets full. Eviction
+  // is based on the access order.
+  private static final class AttributesWithCapacity extends LinkedHashMap<String, AttributeValue> {
+    private final int capacity;
+    private int totalRecordedAttributes = 0;
+    // Here because -Werror complains about this: [serial] serializable class AttributesWithCapacity
+    // has no definition of serialVersionUID. This class shouldn't be serialized.
+    private static final long serialVersionUID = 42L;
+
+    private AttributesWithCapacity(int capacity) {
+      // Capacity of the map is capacity + 1 to avoid resizing because removeEldestEntry is invoked
+      // by put and putAll after inserting a new entry into the map. The loadFactor is set to 1
+      // to avoid resizing because. The accessOrder is set to true.
+      super(capacity + 1, 1, true);
+      this.capacity = capacity;
+    }
+
+    // Users must call this method instead of put or putAll to keep count of the total number of
+    // entries inserted.
+    private void addAttributes(Map<String, AttributeValue> attributes) {
+      totalRecordedAttributes += attributes.size();
+      putAll(attributes);
+    }
+
+    private int getNumberOfDroppedAttributes() {
+      return totalRecordedAttributes - size();
+    }
+
+    // It is called after each put or putAll call in order to determine if the eldest inserted
+    // entry should be removed or not.
+    @Override
+    protected boolean removeEldestEntry(Map.Entry<String, AttributeValue> eldest) {
+      return size() > this.capacity;
+    }
+  }
+
   private static final class TraceEvents<T> {
-    private int totalRecordedevents = 0;
+    private int totalRecordedEvents = 0;
     private final EvictingQueue<T> events;
 
-    private int getDroppedEvents() {
-      return totalRecordedevents - events.size();
+    private int getNumberOfDroppedEvents() {
+      return totalRecordedEvents - events.size();
     }
 
     TraceEvents(int maxNumEvents) {
@@ -316,7 +377,7 @@ final class SpanImpl extends Span {
     }
 
     void addEvent(T event) {
-      totalRecordedevents++;
+      totalRecordedEvents++;
       events.add(event);
     }
   }

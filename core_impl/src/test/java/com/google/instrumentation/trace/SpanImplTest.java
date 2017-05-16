@@ -59,6 +59,8 @@ public class SpanImplTest {
     MockitoAnnotations.initMocks(this);
     attributes.put(
         "MyStringAttributeKey", AttributeValue.stringAttributeValue("MyStringAttributeValue"));
+    attributes.put("MyLongAttributeKey", AttributeValue.longAttributeValue(123L));
+    attributes.put("MyBooleanAttributeKey", AttributeValue.booleanAttributeValue(false));
   }
 
   @Test
@@ -75,6 +77,7 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     // Check that adding trace events after Span#end() does not throw any exception.
+    span.addAttributes(attributes);
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
@@ -98,13 +101,16 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     span.end();
-    // Check that adding trace events after Span#end() does not throw any exception.
+    // Check that adding trace events after Span#end() does not throw any exception and are not
+    // recorded.
+    span.addAttributes(attributes);
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
     span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD));
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
+    assertThat(spanData.getAttributes().getAttributeMap()).isEmpty();
     assertThat(spanData.getAnnotations().getEvents()).isEmpty();
     assertThat(spanData.getNetworkEvents().getEvents()).isEmpty();
     assertThat(spanData.getLinks().getLinks()).isEmpty();
@@ -126,6 +132,7 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
+    span.addAttributes(attributes);
     testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     testClock.advanceTime(Duration.create(0, 100));
@@ -142,6 +149,8 @@ public class SpanImplTest {
     assertThat(spanData.getDisplayName()).isEqualTo(SPAN_NAME);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getHasRemoteParent()).isTrue();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount()).isEqualTo(0);
+    assertThat(spanData.getAttributes().getAttributeMap()).isEqualTo(attributes);
     assertThat(spanData.getAnnotations().getDroppedEventsCount()).isEqualTo(0);
     assertThat(spanData.getAnnotations().getEvents().size()).isEqualTo(2);
     assertThat(spanData.getAnnotations().getEvents().get(0).getTimestamp())
@@ -179,6 +188,7 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
+    span.addAttributes(attributes);
     testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     testClock.advanceTime(Duration.create(0, 100));
@@ -197,6 +207,8 @@ public class SpanImplTest {
     assertThat(spanData.getDisplayName()).isEqualTo(SPAN_NAME);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getHasRemoteParent()).isFalse();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount()).isEqualTo(0);
+    assertThat(spanData.getAttributes().getAttributeMap()).isEqualTo(attributes);
     assertThat(spanData.getAnnotations().getDroppedEventsCount()).isEqualTo(0);
     assertThat(spanData.getAnnotations().getEvents().size()).isEqualTo(2);
     assertThat(spanData.getAnnotations().getEvents().get(0).getTimestamp())
@@ -218,6 +230,116 @@ public class SpanImplTest {
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
     assertThat(spanData.getStatus()).isEqualTo(Status.CANCELLED);
     assertThat(spanData.getEndTimestamp()).isEqualTo(timestamp.addNanos(400));
+  }
+
+  @Test
+  public void droppingAttributes() {
+    final int maxNumberOfAttributes = 8;
+    TraceParams traceParams =
+        TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(maxNumberOfAttributes).build();
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            parentSpanId,
+            false,
+            traceParams,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
+      Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+      attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
+      span.addAttributes(attributes);
+    }
+    SpanData spanData = span.toSpanData();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount())
+        .isEqualTo(maxNumberOfAttributes);
+    assertThat(spanData.getAttributes().getAttributeMap().size()).isEqualTo(maxNumberOfAttributes);
+    for (int i = 0; i < maxNumberOfAttributes; i++) {
+      assertThat(
+              spanData
+                  .getAttributes()
+                  .getAttributeMap()
+                  .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes));
+    }
+    span.end();
+    spanData = span.toSpanData();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount())
+        .isEqualTo(maxNumberOfAttributes);
+    assertThat(spanData.getAttributes().getAttributeMap().size()).isEqualTo(maxNumberOfAttributes);
+    for (int i = 0; i < maxNumberOfAttributes; i++) {
+      assertThat(
+              spanData
+                  .getAttributes()
+                  .getAttributeMap()
+                  .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes));
+    }
+  }
+
+  @Test
+  public void droppingAndAddingAttributes() {
+    final int maxNumberOfAttributes = 8;
+    TraceParams traceParams =
+        TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(maxNumberOfAttributes).build();
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            parentSpanId,
+            false,
+            traceParams,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
+      Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+      attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
+      span.addAttributes(attributes);
+    }
+    SpanData spanData = span.toSpanData();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount())
+        .isEqualTo(maxNumberOfAttributes);
+    assertThat(spanData.getAttributes().getAttributeMap().size()).isEqualTo(maxNumberOfAttributes);
+    for (int i = 0; i < maxNumberOfAttributes; i++) {
+      assertThat(
+          spanData
+              .getAttributes()
+              .getAttributeMap()
+              .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes));
+    }
+    for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
+      Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+      attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
+      span.addAttributes(attributes);
+    }
+    spanData = span.toSpanData();
+    assertThat(spanData.getAttributes().getDroppedAttributesCount())
+        .isEqualTo(maxNumberOfAttributes * 3 / 2);
+    assertThat(spanData.getAttributes().getAttributeMap().size()).isEqualTo(maxNumberOfAttributes);
+    // Test that we still have in the attributes map the latest maxNumberOfAttributes / 2 entries.
+    for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
+      assertThat(
+          spanData
+              .getAttributes()
+              .getAttributeMap()
+              .get("MyStringAttributeKey" + (i + maxNumberOfAttributes * 3 / 2)))
+          .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes * 3 / 2));
+    }
+    // Test that we have the newest re-added initial entries.
+    for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
+      assertThat(
+          spanData
+              .getAttributes()
+              .getAttributeMap()
+              .get("MyStringAttributeKey" + i))
+          .isEqualTo(AttributeValue.longAttributeValue(i));
+    }
   }
 
   @Test
