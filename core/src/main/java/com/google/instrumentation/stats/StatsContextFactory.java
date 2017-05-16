@@ -62,9 +62,9 @@ public abstract class StatsContextFactory {
    * <p>Example of usage:
    *
    * <pre>{@code
-   * private final StatsContextFactory statsCtxFactory = Stats.getStatsContextFactory();
+   * private final StatsContextFactory statsCtxFactory =
+   *     checkNotNull(Stats.getStatsContextFactory(), "statsCtxFactory");
    * void doWork() {
-   *   checkNotNull(statsCtxFactory, "statsCtxFactory");
    *   // Construct a new StatsContext with required tags to be set into current context.
    *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
    *   try (NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx)) {
@@ -79,9 +79,9 @@ public abstract class StatsContextFactory {
    * <p>Example of usage prior to Java SE7:
    *
    * <pre>{@code
-   * private final StatsContextFactory statsCtxFactory = Stats.getStatsContextFactory();
+   * private final StatsContextFactory statsCtxFactory =
+   *     checkNotNull(Stats.getStatsContextFactory(), "statsCtxFactory");
    * void doWork() {
-   *   checkNotNull(statsCtxFactory, "statsCtxFactory");
    *   // Construct a new StatsContext with required tags to be set into current context.
    *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
    *   NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx);
