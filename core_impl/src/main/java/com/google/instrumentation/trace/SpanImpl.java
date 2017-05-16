@@ -55,7 +55,7 @@ final class SpanImpl extends Span {
   // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
   // set, otherwise 0.
   private final long startNanoTime;
-  // Set of recorded attributes.
+  // Set of recorded attributes. DO NOT CALL any other method that change the ordering of events.
   @GuardedBy("this")
   private AttributesWithCapacity attributes;
   // List of recorded annotations.
@@ -339,9 +339,8 @@ final class SpanImpl extends Span {
 
     private AttributesWithCapacity(int capacity) {
       // Capacity of the map is capacity + 1 to avoid resizing because removeEldestEntry is invoked
-      // by put and putAll after inserting a new entry into the map.
-      // loadFactor = 1 to avoid resizing because.
-      // accessOrder = true.
+      // by put and putAll after inserting a new entry into the map. The loadFactor is set to 1
+      // to avoid resizing because. The accessOrder is set to true.
       super(capacity + 1, 1, true);
       this.capacity = capacity;
     }
