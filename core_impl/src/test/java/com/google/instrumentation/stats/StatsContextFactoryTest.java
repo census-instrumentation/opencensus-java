@@ -195,7 +195,7 @@ public class StatsContextFactoryTest {
   }
 
   private StatsContext testDeserialize(InputStream inputStream)
-      throws IOException, IOException {
+      throws IOException {
     return factory.deserialize(inputStream);
   }
 
