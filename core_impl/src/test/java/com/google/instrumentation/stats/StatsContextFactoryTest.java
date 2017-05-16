@@ -15,7 +15,9 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.io.base.VarInt;
+import io.grpc.Context;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,6 +43,11 @@ public class StatsContextFactoryTest {
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
   private final HashMap<String, String> sampleTags = new HashMap<String, String>();
+
+  private final StatsContextFactory factory = Stats.getStatsContextFactory();
+  private final StatsContext defaultCtx = factory.getDefault();
+  private final StatsContext statsContext = factory.getDefault()
+      .with(TagKey.create(KEY), TagValue.create(VALUE_STRING));
 
   public StatsContextFactoryTest() {
     sampleTags.put(KEY + VALUE_TYPE_STRING, VALUE_STRING);
@@ -117,10 +124,68 @@ public class StatsContextFactoryTest {
   public void testDeserializeWrongVersionId() throws Exception {
     testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (VERSION_ID + 1)}));
   }
+  
+  @Test
+  public void testGetDefaultForCurrentStatsContextWhenNotSet() {
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
+  }
 
-  private static StatsContext testDeserialize(InputStream inputStream)
-      throws IOException, IOException {
-    return Stats.getStatsContextFactory().deserialize(inputStream);
+  @Test
+  public void testGetCurrentStatsContext() {
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
+    Context origContext = Context.current().withValue(
+        ContextUtils.STATS_CONTEXT_KEY, statsContext)
+        .attach();
+    // Make sure context is detached even if test fails.
+    try {
+      assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
+    } finally {
+      Context.current().detach(origContext);
+    }
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testWithNullStatsContext() {
+    factory.withStatsContext(null);
+  }
+
+  @Test
+  public void testWithStatsContext() {
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
+    NonThrowingCloseable scopedStatsCtx = factory.withStatsContext(statsContext);
+    try {
+      assertThat(factory.getCurrentStatsContext()).isEqualTo(statsContext);
+    } finally {
+      scopedStatsCtx.close();
+    }
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
+  }
+
+  @Test
+  public void testWithStatsContextUsingWrap() {
+    Runnable runnable;
+    NonThrowingCloseable scopedStatsCtx = factory.withStatsContext(statsContext);
+    try {
+      assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
+      runnable = Context.current().wrap(
+          new Runnable() {
+            @Override
+            public void run() {
+              assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
+            }
+          });
+    } finally {
+      scopedStatsCtx.close();
+    }
+    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
+    // When we run the runnable we will have the statsContext in the current Context.
+    runnable.run();
+  }
+
+  private StatsContext testDeserialize(InputStream inputStream)
+      throws IOException {
+    return factory.deserialize(inputStream);
   }
 
   /*

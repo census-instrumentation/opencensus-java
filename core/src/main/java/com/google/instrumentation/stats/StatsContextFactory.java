@@ -13,6 +13,9 @@
 
 package com.google.instrumentation.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.instrumentation.common.NonThrowingCloseable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -20,6 +23,7 @@ import java.io.InputStream;
  * Factory class for {@link StatsContext}.
  */
 public abstract class StatsContextFactory {
+
   /**
    * Creates a {@link StatsContext} from the given on-the-wire encoded representation.
    *
@@ -35,4 +39,66 @@ public abstract class StatsContextFactory {
    * Returns the default {@link StatsContext}.
    */
   public abstract StatsContext getDefault();
+
+  /**
+   * Get current StatsContext from current gRPC Context.
+   *
+   * @return the current {@code StatsContext} from {@code io.grpc.Context}, or the default
+   * {@code StatsContext} if there's no {@code StatsContext} associated with current
+   * {@code io.grpc.Context}.
+   */
+  public final StatsContext getCurrentStatsContext() {
+    StatsContext statsContext = ContextUtils.getCurrentStatsContext();
+    return statsContext != null ? statsContext : getDefault();
+  }
+
+  /**
+   * Enters the scope of code where the given {@link StatsContext} is in the current Context, and
+   * returns an object that represents that scope. The scope is exited when the returned object is
+   * closed.
+   *
+   * <p>Supports try-with-resource idiom.
+   *
+   * <p>Example of usage:
+   *
+   * <pre>{@code
+   * private final StatsContextFactory statsCtxFactory =
+   *     checkNotNull(Stats.getStatsContextFactory(), "statsCtxFactory");
+   * void doWork() {
+   *   // Construct a new StatsContext with required tags to be set into current context.
+   *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
+   *   try (NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx)) {
+   *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
+   *   }
+   * }
+   * }</pre>
+   *
+   * <p>Prior to Java SE 7, you can use a finally block to ensure that a resource is closed
+   * regardless of whether the try statement completes normally or abruptly.
+   *
+   * <p>Example of usage prior to Java SE7:
+   *
+   * <pre>{@code
+   * private final StatsContextFactory statsCtxFactory =
+   *     checkNotNull(Stats.getStatsContextFactory(), "statsCtxFactory");
+   * void doWork() {
+   *   // Construct a new StatsContext with required tags to be set into current context.
+   *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
+   *   NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx);
+   *   try {
+   *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
+   *   } finally {
+   *     scopedStatsCtx.close();
+   *   }
+   * }
+   * }</pre>
+   *
+   * @param statsContext The {@link StatsContext} to be set to the current Context.
+   * @return an object that defines a scope where the given {@link StatsContext} will be set to the
+   *     current Context.
+   * @throws NullPointerException if statsContext is null.
+   */
+  public final NonThrowingCloseable withStatsContext(StatsContext statsContext) {
+    return ContextUtils.withStatsContext(checkNotNull(statsContext, "statsContext"));
+  }
 }
