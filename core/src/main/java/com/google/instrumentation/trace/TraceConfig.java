@@ -125,6 +125,9 @@ public abstract class TraceConfig {
      */
     public abstract Builder toBuilder();
 
+    /**
+     * A {@code Builder} class for {@link TraceParams}.
+     */
     @AutoValue.Builder
     public abstract static class Builder {
 

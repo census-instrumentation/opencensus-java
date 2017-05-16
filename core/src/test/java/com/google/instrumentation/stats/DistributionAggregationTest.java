@@ -15,9 +15,8 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.stats.DistributionAggregation.Range;
-
 import com.google.common.testing.EqualsTester;
+import com.google.instrumentation.stats.DistributionAggregation.Range;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
