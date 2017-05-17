@@ -20,6 +20,14 @@
 
     <property name="severity" value="error"/>
 
+
+    <module name="Header">
+        <property name="headerFile" value="${rootDir}/checkstyle.license"/>
+        <!-- Ignores the first line and the second line with the year -->
+        <property name="ignoreLines" value="2"/>
+        <property name="fileExtensions" value="java"/>
+    </module>
+
     <property name="fileExtensions" value="java, properties, xml"/>
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.sf.net/config_whitespace.html -->
