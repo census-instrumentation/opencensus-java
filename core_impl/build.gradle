@@ -2,7 +2,6 @@ description = 'Instrumentation Core Impl'
 
 dependencies {
     compile project(':core'),
-            project(':shared'),
             libraries.guava
 
     compileOnly libraries.auto_value

@@ -4,14 +4,12 @@ include ":core"
 include ":core_impl"
 include ":core_impl_java"
 include ":core_impl_android"
-include ":shared"
 
 project(':all').projectDir = "$rootDir/all" as File
 project(':core').projectDir = "$rootDir/core" as File
 project(':core_impl').projectDir = "$rootDir/core_impl" as File
 project(':core_impl_java').projectDir = "$rootDir/core_impl_java" as File
 project(':core_impl_android').projectDir = "$rootDir/core_impl_android" as File
-project(':shared').projectDir = "$rootDir/shared" as File
 
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {

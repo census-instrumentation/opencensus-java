@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.io.base;
+package com.google.instrumentation.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
  * Common methods to encode and decode varints and varlongs into ByteBuffers and
  * arrays.
  */
+// CHECKSTYLE:OFF
 public class VarInt {
 
   /**

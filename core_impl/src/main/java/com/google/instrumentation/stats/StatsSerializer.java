@@ -15,7 +15,7 @@ package com.google.instrumentation.stats;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
-import com.google.io.base.VarInt;
+import com.google.instrumentation.internal.VarInt;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
