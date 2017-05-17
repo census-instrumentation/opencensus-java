@@ -18,7 +18,9 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import com.google.instrumentation.internal.StringUtil;
 import java.util.Arrays;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -26,24 +28,48 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class TagKeyTest {
 
+  @Rule public final ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void testGetName() {
     assertThat(TagKey.createString("foo").getName()).isEqualTo("foo");
   }
 
   @Test
-  public void testKeyMaxLength() {
+  public void createString_AllowTagKeyNameWithMaxLength() {
     char[] key = new char[TagKey.MAX_LENGTH];
-    char[] truncKey = new char[TagKey.MAX_LENGTH + 10];
     Arrays.fill(key, 'k');
-    Arrays.fill(truncKey, 'k');
-    assertThat(TagKey.createString(new String(truncKey)).getName()).isEqualTo(new String(key));
+    TagKey.createString(new String(key));
   }
 
   @Test
-  public void testKeyBadChar() {
+  public void createString_DisallowTagKeyNameOverMaxLength() {
+    char[] key = new char[TagKey.MAX_LENGTH + 1];
+    Arrays.fill(key, 'k');
+    thrown.expect(IllegalArgumentException.class);
+    TagKey.createString(new String(key));
+  }
+
+  @Test
+  public void createStringSanitized_TruncateLongKey() {
+    char[] key = new char[TagKey.MAX_LENGTH];
+    char[] truncKey = new char[TagKey.MAX_LENGTH + 1];
+    Arrays.fill(key, 'k');
+    Arrays.fill(truncKey, 'k');
+    assertThat(TagKey.createStringSanitized(new String(truncKey)).getName())
+        .isEqualTo(new String(key));
+  }
+
+  @Test
+  public void createString_DisallowUnprintableChars() {
+    thrown.expect(IllegalArgumentException.class);
+    TagKey.createString("\2ab\3cd");
+  }
+
+  @Test
+  public void createStringSanitized_SubstituteUnprintableChars() {
     String key = "\2ab\3cd";
-    assertThat(TagKey.createString(key).getName())
+    assertThat(TagKey.createStringSanitized(key).getName())
         .isEqualTo(
             StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
                 + "ab"
@@ -52,11 +78,11 @@ public final class TagKeyTest {
   }
 
   @Test
-  public void testEquals() {
+  public void testTagKeyEquals() {
     new EqualsTester()
         .addEqualityGroup(TagKey.createString("foo"), TagKey.createString("foo"))
         .addEqualityGroup(TagKey.createInt("foo"))
-        .addEqualityGroup(TagKey.createBoolean("foo"))
+        .addEqualityGroup(TagKey.createBool("foo"))
         .addEqualityGroup(TagKey.createString("bar"))
         .testEquals();
   }

@@ -18,6 +18,7 @@ import static com.google.instrumentation.tags.TagKey.TagType.TAG_INT;
 import static com.google.instrumentation.tags.TagKey.TagType.TAG_STRING;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
 import com.google.instrumentation.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
@@ -42,45 +43,81 @@ public abstract class TagKey<TagValueT> {
   TagKey() {}
 
   /**
-   * Constructs a {@code TagKey<String>} from the given string. The string will be sanitized such
-   * that:
+   * Constructs a {@code TagKey<String>} from the given string. The string must meet the following
+   * requirements:
    *
    * <ol>
-   *   <li>length is restricted to {@link #MAX_LENGTH}, strings longer than that will be truncated.
-   *   <li>characters are restricted to printable ascii characters, non-printable characters will be
-   *       replaced by an underscore '_'.
+   *   <li>It cannot be longer than {@link #MAX_LENGTH}.
+   *   <li>It can only contain printable ascii characters.
    * </ol>
+   *
+   * @param name the name of the key.
+   * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<String> createString(String key) {
-    return new AutoValue_TagKey<String>(StringUtil.sanitize(key), TAG_STRING);
+  public static TagKey<String> createString(String name) {
+    Preconditions.checkArgument(StringUtil.isValid(name));
+    return createStringInternal(name);
+  }
+
+  // Creates a TagKey<String> by sanitizing the given String.
+  static TagKey<String> createStringSanitized(String name) {
+    return createStringInternal(StringUtil.sanitize(name));
+  }
+
+  private static TagKey<String> createStringInternal(String name) {
+    return new AutoValue_TagKey<String>(name, TAG_STRING);
   }
 
   /**
-   * Constructs a {@code TagKey<Long>} from the given string. The string will be sanitized such
-   * that:
+   * Constructs a {@code TagKey<Long>} from the given string. The string must meet the following
+   * requirements:
    *
    * <ol>
-   *   <li>length is restricted to {@link #MAX_LENGTH}, strings longer than that will be truncated.
-   *   <li>characters are restricted to printable ascii characters, non-printable characters will be
-   *       replaced by an underscore '_'.
+   *   <li>It cannot be longer than {@link #MAX_LENGTH}.
+   *   <li>It can only contain printable ascii characters.
    * </ol>
+   *
+   * @param name the name of the key.
+   * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<Long> createInt(String key) {
-    return new AutoValue_TagKey<Long>(StringUtil.sanitize(key), TAG_INT);
+  public static TagKey<Long> createInt(String name) {
+    Preconditions.checkArgument(StringUtil.isValid(name));
+    return createIntInternal(name);
+  }
+
+  // Creates a TagKey<Long> by sanitizing the given String.
+  static TagKey<Long> createIntSanitized(String name) {
+    return createIntInternal(StringUtil.sanitize(name));
+  }
+
+  private static TagKey<Long> createIntInternal(String name) {
+    return new AutoValue_TagKey<Long>(name, TAG_INT);
   }
 
   /**
-   * Constructs a {@code TagKey<Boolean>} from the given string. The string will be sanitized such
-   * that:
+   * Constructs a {@code TagKey<Boolean>} from the given string. The string must meet the following
+   * requirements:
    *
    * <ol>
-   *   <li>length is restricted to {@link #MAX_LENGTH}, strings longer than that will be truncated.
-   *   <li>characters are restricted to printable ascii characters, non-printable characters will be
-   *       replaced by an underscore '_'.
+   *   <li>It cannot be longer than {@link #MAX_LENGTH}.
+   *   <li>It can only contain printable ascii characters.
    * </ol>
+   *
+   * @param name the name of the key.
+   * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<Boolean> createBoolean(String key) {
-    return new AutoValue_TagKey<Boolean>(StringUtil.sanitize(key), TAG_BOOL);
+  public static TagKey<Boolean> createBool(String name) {
+    Preconditions.checkArgument(StringUtil.isValid(name));
+    return createBoolInternal(name);
+  }
+
+  // Creates a TagKey<Boolean> by sanitizing the given String.
+  static TagKey<Boolean> createBoolSanitized(String name) {
+    return createBoolInternal(StringUtil.sanitize(name));
+  }
+
+  private static TagKey<Boolean> createBoolInternal(String name) {
+    return new AutoValue_TagKey<Boolean>(name, TAG_BOOL);
   }
 
   abstract String getName();

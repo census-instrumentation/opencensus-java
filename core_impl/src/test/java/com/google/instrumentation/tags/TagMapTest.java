@@ -33,7 +33,7 @@ public class TagMapTest {
   private static final TagKey<String> KS1 = TagKey.createString("k1");
   private static final TagKey<String> KS2 = TagKey.createString("k2");
   private static final TagKey<Long> KI = TagKey.createInt("k2");
-  private static final TagKey<Boolean> KB = TagKey.createBoolean("k3");
+  private static final TagKey<Boolean> KB = TagKey.createBool("k3");
 
   private final TestLogger tagSetLogger = new TestLogger();
 
@@ -47,15 +47,15 @@ public class TagMapTest {
   public void allowMutlipleKeysWithSameNameButDifferentTypes() {
     TagKey<String> stringKey = TagKey.createString("key");
     TagKey<Long> intKey = TagKey.createInt("key");
-    TagKey<Boolean> booleanKey = TagKey.createBoolean("key");
+    TagKey<Boolean> boolKey = TagKey.createBool("key");
     assertThat(
             newBuilder()
                 .set(stringKey, "value")
                 .set(intKey, 123)
-                .set(booleanKey, true)
+                .set(boolKey, true)
                 .build()
                 .getTags())
-        .containsExactly(stringKey, "value", intKey, 123L, booleanKey, true);
+        .containsExactly(stringKey, "value", intKey, 123L, boolKey, true);
   }
 
   @Test
@@ -120,7 +120,7 @@ public class TagMapTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetTagWithNonexistentBoolean() {
-    newBuilder().build().getBooleanTagValue(TagKey.createBoolean("unknown"));
+    newBuilder().build().getBooleanTagValue(TagKey.createBool("unknown"));
   }
 
   @Test
