@@ -17,10 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.instrumentation.internal.StringUtil;
-import com.google.instrumentation.internal.logging.TestLogger;
-import com.google.instrumentation.internal.logging.TestLogger.LogRecord;
 import java.util.Arrays;
-import java.util.logging.Level;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -34,8 +31,6 @@ public class TagMapTest {
   private static final TagKey<String> KS2 = TagKey.createString("k2");
   private static final TagKey<Long> KI = TagKey.createInt("k2");
   private static final TagKey<Boolean> KB = TagKey.createBool("k3");
-
-  private final TestLogger tagSetLogger = new TestLogger();
 
   @Test
   public void applyBuilderOperationsInOrder() {
@@ -60,49 +55,37 @@ public class TagMapTest {
 
   @Test
   public void testInsert() {
-    TagMapImpl tags = singletonTagMap(KS1, "v1");
+    TagMap tags = singletonTagMap(KS1, "v1");
+    assertThat(tags.toBuilder().insert(KS1, "v2").build().getTags()).containsExactly(KS1, "v1");
     assertThat(tags.toBuilder().insert(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
-    assertThat(tagSetLogger.getMessages()).isEmpty();
-  }
-
-  @Test
-  public void testInsertExistingTag() {
-    TagMapImpl tags = singletonTagMap(KS1, "v1");
-    assertThat(tagSetLogger.getMessages()).isEmpty();
-    assertThat(tags.toBuilder().insert(KS1, "v2").build().getTags()).containsExactly(KS1, "v1");
-    assertThat(tagSetLogger.getMessages())
-        .containsExactly(LogRecord.create(Level.WARNING, "Tag key already exists: " + KS1));
   }
 
   @Test
   public void testSet() {
-    TagMapImpl tags = singletonTagMap(KS1, "v1");
+    TagMap tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().set(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().set(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
-    assertThat(tagSetLogger.getMessages()).isEmpty();
   }
 
   @Test
   public void testUpdate() {
-    TagMapImpl tags = singletonTagMap(KS1, "v1");
+    TagMap tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().update(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().update(KS2, "v2").build().getTags()).containsExactly(KS1, "v1");
-    assertThat(tagSetLogger.getMessages()).isEmpty();
   }
 
   @Test
   public void testClear() {
-    TagMapImpl tags = singletonTagMap(KS1, "v1");
+    TagMap tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().clear(KS1).build().getTags()).isEmpty();
     assertThat(tags.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
-    assertThat(tagSetLogger.getMessages()).isEmpty();
   }
 
   @Test
   public void testGetTag() {
-    TagMapImpl tags = newBuilder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
+    TagMap tags = newBuilder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
     assertThat(tags.getStringTagValue(KS1)).isEqualTo("my string");
     assertThat(tags.getBooleanTagValue(KB)).isEqualTo(true);
     assertThat(tags.getIntTagValue(KI)).isEqualTo(100);
@@ -185,11 +168,11 @@ public class TagMapTest {
     newBuilder().update(badIntKey, 123);
   }
 
-  private TagMapImpl.Builder newBuilder() {
-    return new TagMapImpl.Builder(tagSetLogger);
+  private static TagMap.Builder newBuilder() {
+    return new TagMap.Builder();
   }
 
-  private <TagValueT> TagMapImpl singletonTagMap(TagKey<TagValueT> key, TagValueT value) {
-    return new TagMapImpl(tagSetLogger, ImmutableMap.<TagKey<?>, Object>of(key, value));
+  private static <TagValueT> TagMap singletonTagMap(TagKey<TagValueT> key, TagValueT value) {
+    return new TagMap(ImmutableMap.<TagKey<?>, Object>of(key, value));
   }
 }

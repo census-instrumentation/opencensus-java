@@ -13,7 +13,12 @@
 
 package com.google.instrumentation.tags;
 
+import com.google.common.base.Preconditions;
 import com.google.instrumentation.internal.StringUtil;
+import com.google.instrumentation.tags.TagKey.TagType;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A map from keys to values that can be used to label anything that is associated with a specific
@@ -22,9 +27,21 @@ import com.google.instrumentation.internal.StringUtil;
  * <p>For example, {@code TagMap}s can be used to label stats, log messages, or debugging
  * information.
  */
-public abstract class TagMap {
+@Immutable
+public final class TagMap {
   /** The maximum length for a string tag value. */
   public static final int MAX_STRING_LENGTH = StringUtil.MAX_LENGTH;
+
+  // The types of the TagKey and value must match for each entry.
+  private final Map<TagKey<?>, Object> tags;
+
+  TagMap(Map<TagKey<?>, Object> tags) {
+    this.tags = tags;
+  }
+
+  Map<TagKey<?>, Object> getTags() {
+    return tags;
+  }
 
   /**
    * Determines whether a key is present.
@@ -32,7 +49,9 @@ public abstract class TagMap {
    * @param key the key to look up.
    * @return {@code true} if the key is present.
    */
-  public abstract boolean tagKeyExists(TagKey<?> key);
+  public boolean tagKeyExists(TagKey<?> key) {
+    return tags.containsKey(key);
+  }
 
   /**
    * Looks up a value of type {@code String}.
@@ -41,7 +60,13 @@ public abstract class TagMap {
    * @return the tag value associated with the given key.
    * @throws IllegalArgumentException if the key doesn't exist.
    */
-  public abstract String getStringTagValue(TagKey<String> key);
+  public String getStringTagValue(TagKey<String> key) {
+    String value = (String) tags.get(key);
+    if (value == null) {
+      throw new IllegalArgumentException("key " + key + " does not exist.");
+    }
+    return value;
+  }
 
   /**
    * Looks up a value of type {@code long}.
@@ -50,7 +75,13 @@ public abstract class TagMap {
    * @return the tag value associated with the given key.
    * @throws IllegalArgumentException if the key doesn't exist.
    */
-  public abstract long getIntTagValue(TagKey<Long> key);
+  public long getIntTagValue(TagKey<Long> key) {
+    Long value = (Long) tags.get(key);
+    if (value == null) {
+      throw new IllegalArgumentException("key " + key + " does not exist.");
+    }
+    return value;
+  }
 
   /**
    * Looks up a value of type {@code boolean}.
@@ -59,17 +90,34 @@ public abstract class TagMap {
    * @return the tag value associated with the given key.
    * @throws IllegalArgumentException if the key doesn't exist.
    */
-  public abstract boolean getBooleanTagValue(TagKey<Boolean> key);
+  public boolean getBooleanTagValue(TagKey<Boolean> key) {
+    Boolean value = (Boolean) tags.get(key);
+    if (value == null) {
+      throw new IllegalArgumentException("key " + key + " does not exist.");
+    }
+    return value;
+  }
 
   /**
    * Returns a builder based on this {@code TagMap}.
    *
    * @return a builder based on this {@code TagMap}.
    */
-  public abstract Builder toBuilder();
+  public Builder toBuilder() {
+    return new Builder(getTags());
+  }
 
   /** Builder for the {@link TagMap} class. */
-  public abstract static class Builder {
+  public static final class Builder {
+    private final Map<TagKey<?>, Object> tags;
+
+    private Builder(Map<TagKey<?>, Object> tags) {
+      this.tags = new HashMap<TagKey<?>, Object>(tags);
+    }
+
+    Builder() {
+      this.tags = new HashMap<TagKey<?>, Object>();
+    }
 
     /**
      * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
@@ -78,7 +126,10 @@ public abstract class TagMap {
      * @param value the value to insert for the given key.
      * @return this
      */
-    public abstract Builder insert(TagKey<String> key, String value);
+    public Builder insert(TagKey<String> key, String value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
+      return insertInternal(key, StringUtil.sanitize(value));
+    }
 
     /**
      * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
@@ -87,7 +138,10 @@ public abstract class TagMap {
      * @param value the value to insert for the given key.
      * @return this
      */
-    public abstract Builder insert(TagKey<Long> key, long value);
+    public Builder insert(TagKey<Long> key, long value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
+      return insertInternal(key, value);
+    }
 
     /**
      * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
@@ -96,7 +150,17 @@ public abstract class TagMap {
      * @param value the value to insert for the given key.
      * @return this
      */
-    public abstract Builder insert(TagKey<Boolean> key, boolean value);
+    public Builder insert(TagKey<Boolean> key, boolean value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
+      return insertInternal(key, value);
+    }
+
+    private <TagValueT> Builder insertInternal(TagKey<TagValueT> key, TagValueT value) {
+      if (!tags.containsKey(key)) {
+        tags.put(key, value);
+      }
+      return this;
+    }
 
     /**
      * Adds the key/value pair regardless of whether the key is present.
@@ -105,7 +169,10 @@ public abstract class TagMap {
      * @param value the value to set for the given key.
      * @return this
      */
-    public abstract Builder set(TagKey<String> key, String value);
+    public Builder set(TagKey<String> key, String value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
+      return setInternal(key, StringUtil.sanitize(value));
+    }
 
     /**
      * Adds the key/value pair regardless of whether the key is present.
@@ -114,7 +181,10 @@ public abstract class TagMap {
      * @param value the value to set for the given key.
      * @return this
      */
-    public abstract Builder set(TagKey<Long> key, long value);
+    public Builder set(TagKey<Long> key, long value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
+      return setInternal(key, value);
+    }
 
     /**
      * Adds the key/value pair regardless of whether the key is present.
@@ -123,7 +193,15 @@ public abstract class TagMap {
      * @param value the value to set for the given key.
      * @return this
      */
-    public abstract Builder set(TagKey<Boolean> key, boolean value);
+    public Builder set(TagKey<Boolean> key, boolean value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
+      return setInternal(key, value);
+    }
+
+    private <TagValueT> Builder setInternal(TagKey<TagValueT> key, TagValueT value) {
+      tags.put(key, value);
+      return this;
+    }
 
     /**
      * Adds the key/value pair only if the key is already present.
@@ -132,7 +210,10 @@ public abstract class TagMap {
      * @param value the value to update for the given key.
      * @return this
      */
-    public abstract Builder update(TagKey<String> key, String value);
+    public Builder update(TagKey<String> key, String value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
+      return updateInternal(key, StringUtil.sanitize(value));
+    }
 
     /**
      * Adds the key/value pair only if the key is already present.
@@ -141,7 +222,10 @@ public abstract class TagMap {
      * @param value the value to update for the given key.
      * @return this
      */
-    public abstract Builder update(TagKey<Long> key, long value);
+    public Builder update(TagKey<Long> key, long value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
+      return updateInternal(key, value);
+    }
 
     /**
      * Adds the key/value pair only if the key is already present.
@@ -150,7 +234,17 @@ public abstract class TagMap {
      * @param value the value to update for the given key.
      * @return this
      */
-    public abstract Builder update(TagKey<Boolean> key, boolean value);
+    public Builder update(TagKey<Boolean> key, boolean value) {
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
+      return updateInternal(key, value);
+    }
+
+    private <TagValueT> Builder updateInternal(TagKey<TagValueT> key, TagValueT value) {
+      if (tags.containsKey(key)) {
+        tags.put(key, value);
+      }
+      return this;
+    }
 
     /**
      * Removes the key if it exists.
@@ -158,13 +252,18 @@ public abstract class TagMap {
      * @param key the key to look up.
      * @return this
      */
-    public abstract Builder clear(TagKey<?> key);
+    public Builder clear(TagKey<?> key) {
+      tags.remove(key);
+      return this;
+    }
 
     /**
      * Creates a {@code TagMap} from this builder.
      *
      * @return a {@code TagMap} with the same tags as this builder.
      */
-    public abstract TagMap build();
+    public TagMap build() {
+      return new TagMap(new HashMap<TagKey<?>, Object>(tags));
+    }
   }
 }
