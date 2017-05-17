@@ -18,7 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.common.SimpleEventQueue;
 import com.google.instrumentation.internal.TestClock;
-import com.google.instrumentation.common.VarInt;
+import com.google.instrumentation.internal.VarInt;
 import io.grpc.Context;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
