@@ -16,10 +16,13 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  * Test for {@link RpcViewConstants}.
  */
+@RunWith(JUnit4.class)
 public final class RpcViewConstantsTest {
 
   @Test
