@@ -29,8 +29,6 @@ public class TagMapTest {
 
   private static final TagKey<String> KS1 = TagKey.createString("k1");
   private static final TagKey<String> KS2 = TagKey.createString("k2");
-  private static final TagKey<Long> KI = TagKey.createInt("k2");
-  private static final TagKey<Boolean> KB = TagKey.createBool("k3");
 
   @Test
   public void applyBuilderOperationsInOrder() {
@@ -81,29 +79,6 @@ public class TagMapTest {
     TagMap tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().clear(KS1).build().getTags()).isEmpty();
     assertThat(tags.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
-  }
-
-  @Test
-  public void testGetTag() {
-    TagMap tags = newBuilder().set(KS1, "my string").set(KB, true).set(KI, 100).build();
-    assertThat(tags.getStringTagValue(KS1)).isEqualTo("my string");
-    assertThat(tags.getBooleanTagValue(KB)).isEqualTo(true);
-    assertThat(tags.getIntTagValue(KI)).isEqualTo(100);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetTagWithNonexistentString() {
-    newBuilder().build().getStringTagValue(TagKey.createString("unknown"));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetTagWithNonexistentInt() {
-    newBuilder().build().getIntTagValue(TagKey.createInt("unknown"));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetTagWithNonexistentBoolean() {
-    newBuilder().build().getBooleanTagValue(TagKey.createBool("unknown"));
   }
 
   @Test

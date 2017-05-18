@@ -44,61 +44,6 @@ public final class TagMap {
   }
 
   /**
-   * Determines whether a key is present.
-   *
-   * @param key the key to look up.
-   * @return {@code true} if the key is present.
-   */
-  public boolean tagKeyExists(TagKey<?> key) {
-    return tags.containsKey(key);
-  }
-
-  /**
-   * Looks up a value of type {@code String}.
-   *
-   * @param key the key to look up.
-   * @return the tag value associated with the given key.
-   * @throws IllegalArgumentException if the key doesn't exist.
-   */
-  public String getStringTagValue(TagKey<String> key) {
-    String value = (String) tags.get(key);
-    if (value == null) {
-      throw new IllegalArgumentException("key " + key + " does not exist.");
-    }
-    return value;
-  }
-
-  /**
-   * Looks up a value of type {@code long}.
-   *
-   * @param key the key to look up.
-   * @return the tag value associated with the given key.
-   * @throws IllegalArgumentException if the key doesn't exist.
-   */
-  public long getIntTagValue(TagKey<Long> key) {
-    Long value = (Long) tags.get(key);
-    if (value == null) {
-      throw new IllegalArgumentException("key " + key + " does not exist.");
-    }
-    return value;
-  }
-
-  /**
-   * Looks up a value of type {@code boolean}.
-   *
-   * @param key the key to look up.
-   * @return the tag value associated with the given key.
-   * @throws IllegalArgumentException if the key doesn't exist.
-   */
-  public boolean getBooleanTagValue(TagKey<Boolean> key) {
-    Boolean value = (Boolean) tags.get(key);
-    if (value == null) {
-      throw new IllegalArgumentException("key " + key + " does not exist.");
-    }
-    return value;
-  }
-
-  /**
    * Returns a builder based on this {@code TagMap}.
    *
    * @return a builder based on this {@code TagMap}.
