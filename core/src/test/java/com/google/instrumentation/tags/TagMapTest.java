@@ -52,26 +52,11 @@ public class TagMapTest {
   }
 
   @Test
-  public void testInsert() {
-    TagMap tags = singletonTagMap(KS1, "v1");
-    assertThat(tags.toBuilder().insert(KS1, "v2").build().getTags()).containsExactly(KS1, "v1");
-    assertThat(tags.toBuilder().insert(KS2, "v2").build().getTags())
-        .containsExactly(KS1, "v1", KS2, "v2");
-  }
-
-  @Test
   public void testSet() {
     TagMap tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().set(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().set(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
-  }
-
-  @Test
-  public void testUpdate() {
-    TagMap tags = singletonTagMap(KS1, "v1");
-    assertThat(tags.toBuilder().update(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
-    assertThat(tags.toBuilder().update(KS2, "v2").build().getTags()).containsExactly(KS1, "v1");
   }
 
   @Test
@@ -89,58 +74,28 @@ public class TagMapTest {
     Arrays.fill(truncChars, 'v');
     String value = new String(chars);
     String truncValue = new String(chars);
-    TagKey<String> key1 = TagKey.createString("K1");
-    TagKey<String> key2 = TagKey.createString("K2");
-    TagKey<String> key3 = TagKey.createString("K3");
-    assertThat(
-            newBuilder()
-                .insert(key1, value)
-                .set(key2, value)
-                .set(key3, "") // allow next line to update existing value
-                .update(key3, value)
-                .build()
-                .getTags())
-        .containsExactly(key1, truncValue, key2, truncValue, key3, truncValue);
+    TagKey<String> key = TagKey.createString("K");
+    assertThat(newBuilder().set(key, value).build().getTags()).containsExactly(key, truncValue);
   }
 
   @Test
   public void testValueBadChar() {
     String value = "\2ab\3cd";
-    TagKey<String> key1 = TagKey.createString("K1");
-    TagKey<String> key2 = TagKey.createString("K2");
-    TagKey<String> key3 = TagKey.createString("K3");
+    TagKey<String> key = TagKey.createString("K");
     String expected =
         StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
             + "ab"
             + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
             + "cd";
-    assertThat(
-            newBuilder()
-                .insert(key1, value)
-                .set(key2, value)
-                .set(key3, "") // allow next line to update existing value
-                .update(key3, value)
-                .build()
-                .getTags())
-        .containsExactly(key1, expected, key2, expected, key3, expected);
+    assertThat(newBuilder().set(key, value).build().getTags()).containsExactly(key, expected);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private final TagKey<Long> badIntKey = (TagKey) TagKey.createString("Key");
 
   @Test(expected = IllegalArgumentException.class)
-  public void disallowInsertingWrongTypeOfKey() {
-    newBuilder().insert(badIntKey, 123);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void disallowSettingWrongTypeOfKey() {
     newBuilder().set(badIntKey, 123);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void disallowUpdatingWrongTypeOfKey() {
-    newBuilder().update(badIntKey, 123);
   }
 
   private static TagMap.Builder newBuilder() {

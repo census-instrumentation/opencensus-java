@@ -65,49 +65,6 @@ public final class TagMap {
     }
 
     /**
-     * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
-     *
-     * @param key the key to look up.
-     * @param value the value to insert for the given key.
-     * @return this
-     */
-    public Builder insert(TagKey<String> key, String value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
-      return insertInternal(key, StringUtil.sanitize(value));
-    }
-
-    /**
-     * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
-     *
-     * @param key the key to look up.
-     * @param value the value to insert for the given key.
-     * @return this
-     */
-    public Builder insert(TagKey<Long> key, long value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
-      return insertInternal(key, value);
-    }
-
-    /**
-     * Adds the key/value pair if the key is not present. If the key is present, it logs an error.
-     *
-     * @param key the key to look up.
-     * @param value the value to insert for the given key.
-     * @return this
-     */
-    public Builder insert(TagKey<Boolean> key, boolean value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
-      return insertInternal(key, value);
-    }
-
-    private <TagValueT> Builder insertInternal(TagKey<TagValueT> key, TagValueT value) {
-      if (!tags.containsKey(key)) {
-        tags.put(key, value);
-      }
-      return this;
-    }
-
-    /**
      * Adds the key/value pair regardless of whether the key is present.
      *
      * @param key the key to look up.
@@ -145,49 +102,6 @@ public final class TagMap {
 
     private <TagValueT> Builder setInternal(TagKey<TagValueT> key, TagValueT value) {
       tags.put(key, value);
-      return this;
-    }
-
-    /**
-     * Adds the key/value pair only if the key is already present.
-     *
-     * @param key the key to look up.
-     * @param value the value to update for the given key.
-     * @return this
-     */
-    public Builder update(TagKey<String> key, String value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
-      return updateInternal(key, StringUtil.sanitize(value));
-    }
-
-    /**
-     * Adds the key/value pair only if the key is already present.
-     *
-     * @param key the key to look up.
-     * @param value the value to update for the given key.
-     * @return this
-     */
-    public Builder update(TagKey<Long> key, long value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
-      return updateInternal(key, value);
-    }
-
-    /**
-     * Adds the key/value pair only if the key is already present.
-     *
-     * @param key the key to look up.
-     * @param value the value to update for the given key.
-     * @return this
-     */
-    public Builder update(TagKey<Boolean> key, boolean value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
-      return updateInternal(key, value);
-    }
-
-    private <TagValueT> Builder updateInternal(TagKey<TagValueT> key, TagValueT value) {
-      if (tags.containsKey(key)) {
-        tags.put(key, value);
-      }
       return this;
     }
 
