@@ -73,7 +73,8 @@ public final class TagMap {
      */
     public Builder set(TagKey<String> key, String value) {
       Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
-      return setInternal(key, StringUtil.sanitize(value));
+      Preconditions.checkArgument(StringUtil.isValid(value));
+      return setInternal(key, value);
     }
 
     /**

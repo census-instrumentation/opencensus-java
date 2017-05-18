@@ -16,9 +16,10 @@ package com.google.instrumentation.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.instrumentation.internal.StringUtil;
 import java.util.Arrays;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -26,6 +27,8 @@ import org.junit.runners.JUnit4;
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
 public class TagMapTest {
+
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final TagKey<String> KS1 = TagKey.createString("k1");
   private static final TagKey<String> KS2 = TagKey.createString("k2");
@@ -67,27 +70,30 @@ public class TagMapTest {
   }
 
   @Test
-  public void testValueMaxLength() {
+  public void allowStringTagValueWithMaxLength() {
     char[] chars = new char[TagMap.MAX_STRING_LENGTH];
-    char[] truncChars = new char[TagMap.MAX_STRING_LENGTH + 10];
     Arrays.fill(chars, 'v');
-    Arrays.fill(truncChars, 'v');
     String value = new String(chars);
-    String truncValue = new String(chars);
     TagKey<String> key = TagKey.createString("K");
-    assertThat(newBuilder().set(key, value).build().getTags()).containsExactly(key, truncValue);
+    newBuilder().set(key, value);
   }
 
   @Test
-  public void testValueBadChar() {
+  public void disallowStringTagValueOverMaxLength() {
+    char[] chars = new char[TagMap.MAX_STRING_LENGTH + 1];
+    Arrays.fill(chars, 'v');
+    String value = new String(chars);
+    TagKey<String> key = TagKey.createString("K");
+    thrown.expect(IllegalArgumentException.class);
+    newBuilder().set(key, value);
+  }
+
+  @Test
+  public void disallowStringTagValueWithUnprintableChars() {
     String value = "\2ab\3cd";
     TagKey<String> key = TagKey.createString("K");
-    String expected =
-        StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
-            + "ab"
-            + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE
-            + "cd";
-    assertThat(newBuilder().set(key, value).build().getTags()).containsExactly(key, expected);
+    thrown.expect(IllegalArgumentException.class);
+    newBuilder().set(key, value);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
