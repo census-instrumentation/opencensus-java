@@ -77,9 +77,11 @@ public abstract class DistributionAggregation {
 
   private static DistributionAggregation createInternal(
       long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
-    Preconditions.checkArgument(count >= 0);
-    Preconditions.checkArgument(count != 0 || mean == 0);
-    Preconditions.checkArgument(count != 0 || sum == 0);
+    Preconditions.checkArgument(count >= 0, "Count must be non-negative.");
+    if (count == 0) {
+      Preconditions.checkArgument(mean == 0, "Mean must be 0 when the count is 0.");
+      Preconditions.checkArgument(sum == 0, "Sum must be 0 when the count is 0.");
+    }
     return new AutoValue_DistributionAggregation(count, mean, sum, range, tags, bucketCounts);
   }
 
