@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
@@ -63,6 +64,13 @@ final class TraceExporterImpl extends TraceExporter implements StartEndHandler {
   @Override
   public void unregisterServiceHandler(String name) {
     serviceExporterThread.unregisterServiceHandler(name);
+  }
+
+  @Nullable
+  @Override
+  public InProcessDebuggingHandler getInProcessDebuggingHandler() {
+    // TODO(bdrutu): Implement this.
+    return null;
   }
 
   @Override
