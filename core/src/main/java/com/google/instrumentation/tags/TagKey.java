@@ -59,11 +59,6 @@ public abstract class TagKey<TagValueT> {
     return createStringInternal(name);
   }
 
-  // Creates a TagKey<String> by sanitizing the given String.
-  static TagKey<String> createStringSanitized(String name) {
-    return createStringInternal(StringUtil.sanitize(name));
-  }
-
   private static TagKey<String> createStringInternal(String name) {
     return new AutoValue_TagKey<String>(name, TAG_STRING);
   }
@@ -85,11 +80,6 @@ public abstract class TagKey<TagValueT> {
     return createIntInternal(name);
   }
 
-  // Creates a TagKey<Long> by sanitizing the given String.
-  static TagKey<Long> createIntSanitized(String name) {
-    return createIntInternal(StringUtil.sanitize(name));
-  }
-
   private static TagKey<Long> createIntInternal(String name) {
     return new AutoValue_TagKey<Long>(name, TAG_INT);
   }
@@ -109,11 +99,6 @@ public abstract class TagKey<TagValueT> {
   public static TagKey<Boolean> createBool(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
     return createBoolInternal(name);
-  }
-
-  // Creates a TagKey<Boolean> by sanitizing the given String.
-  static TagKey<Boolean> createBoolSanitized(String name) {
-    return createBoolInternal(StringUtil.sanitize(name));
   }
 
   private static TagKey<Boolean> createBoolInternal(String name) {
