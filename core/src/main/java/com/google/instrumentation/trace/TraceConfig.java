@@ -62,8 +62,8 @@ public abstract class TraceConfig {
   @Immutable
   public abstract static class TraceParams {
     // These values are the default values for all the global parameters.
-    // TODO(aveitch): Change this when a rate/probability sampler is available.
-    private static final Sampler DEFAULT_SAMPLER = Samplers.neverSample();
+    private static final double DEFAULT_PROBABILITY = 1e-4;
+    private static final Sampler DEFAULT_SAMPLER = Samplers.probabilitySampler(DEFAULT_PROBABILITY);
     private static final int DEFAULT_SPAN_MAX_NUM_ATTRIBUTES = 32;
     private static final int DEFAULT_SPAN_MAX_NUM_ANNOTATIONS = 32;
     private static final int DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS = 128;
@@ -125,9 +125,7 @@ public abstract class TraceConfig {
      */
     public abstract Builder toBuilder();
 
-    /**
-     * A {@code Builder} class for {@link TraceParams}.
-     */
+    /** A {@code Builder} class for {@link TraceParams}. */
     @AutoValue.Builder
     public abstract static class Builder {
 

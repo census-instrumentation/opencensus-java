@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 public class TraceParamsTest {
   @Test
   public void defaultTraceParams() {
-    assertThat(TraceParams.DEFAULT.getSampler()).isEqualTo(Samplers.neverSample());
+    assertThat(TraceParams.DEFAULT.getSampler()).isEqualTo(Samplers.probabilitySampler(1e-4));
     assertThat(TraceParams.DEFAULT.getMaxNumberOfAttributes()).isEqualTo(32);
     assertThat(TraceParams.DEFAULT.getMaxNumberOfAnnotations()).isEqualTo(32);
     assertThat(TraceParams.DEFAULT.getMaxNumberOfNetworkEvents()).isEqualTo(128);

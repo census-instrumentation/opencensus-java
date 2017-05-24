@@ -163,6 +163,6 @@ public class SamplersTest {
   @Test
   public void probabilitySampler_ToString() {
     assertThat((Samplers.probabilitySampler(0.5)).toString())
-        .isEqualTo("ProbabilitySampler(0.500000)");
+        .contains("0.5");
   }
 }

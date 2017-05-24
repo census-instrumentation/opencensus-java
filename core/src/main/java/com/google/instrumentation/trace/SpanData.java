@@ -234,9 +234,7 @@ public abstract class SpanData {
     TimedEvents() {}
   }
 
-  /**
-   * A set of attributes and the number of dropped attributes representation.
-   */
+  /** A set of attributes and the number of dropped attributes representation. */
   @Immutable
   @AutoValue
   public abstract static class Attributes {
@@ -274,9 +272,7 @@ public abstract class SpanData {
     Attributes() {}
   }
 
-  /**
-   * A list of links and the number of dropped links representation.
-   */
+  /** A list of links and the number of dropped links representation. */
   @Immutable
   @AutoValue
   public abstract static class Links {
