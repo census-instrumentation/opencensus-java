@@ -67,7 +67,7 @@ public final class TagMap {
     /**
      * Adds the key/value pair regardless of whether the key is present.
      *
-     * @param key the key to look up.
+     * @param key the {@code TagKey} which will be set.
      * @param value the value to set for the given key.
      * @return this
      */
@@ -80,7 +80,7 @@ public final class TagMap {
     /**
      * Adds the key/value pair regardless of whether the key is present.
      *
-     * @param key the key to look up.
+     * @param key the {@code TagKey} which will be set.
      * @param value the value to set for the given key.
      * @return this
      */
@@ -92,7 +92,7 @@ public final class TagMap {
     /**
      * Adds the key/value pair regardless of whether the key is present.
      *
-     * @param key the key to look up.
+     * @param key the {@code TagKey} which will be set.
      * @param value the value to set for the given key.
      * @return this
      */
@@ -109,7 +109,7 @@ public final class TagMap {
     /**
      * Removes the key if it exists.
      *
-     * @param key the key to look up.
+     * @param key the {@code TagKey} which will be cleared.
      * @return this
      */
     public Builder clear(TagKey<?> key) {
