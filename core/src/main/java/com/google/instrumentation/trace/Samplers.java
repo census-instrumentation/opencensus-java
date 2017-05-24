@@ -14,9 +14,8 @@
 package com.google.instrumentation.trace;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Objects;
+import com.google.auto.value.AutoValue;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -55,7 +54,7 @@ public final class Samplers {
    * @throws IllegalArgumentException if {@code probability} is out of range
    */
   public static Sampler probabilitySampler(double probability) {
-    return new ProbabilitySampler(probability);
+    return ProbabilitySampler.create(probability);
   }
 
   @Immutable
@@ -102,27 +101,32 @@ public final class Samplers {
     }
   }
 
+  // We assume the lower 64 bits of the traceId's are randomly distributed around the whole (long)
+  // range. We convert an incoming probability into an upper bound on that value, such that we can
+  // just compare the absolute value of the id and the bound to see if we are within the desired
+  // probability range.  Using the low bits of the traceId also ensures that systems that only use
+  // 64 bit ID's will also work with this sampler.
+  @AutoValue
   @Immutable
-  private static final class ProbabilitySampler extends Sampler {
-    // We assume the lower 64 bits of the traceId's are randomly distributed around the whole (long)
-    // range. We convert an incoming probability into an upper bound on that value, such that we can
-    // just compare the absolute value of the id and the bound to see if we are within the desired
-    // probability range.  Using the low bits of the traceId also ensures that systems that only use
-    // 64 bit ID's will also work with this sampler.
-    private final long idUpperBound;
-    private final double probability;
+  abstract static class ProbabilitySampler extends Sampler {
+    ProbabilitySampler() {}
+
+    abstract double getProbability();
+
+    abstract long getIdUpperBound();
 
     /**
-     * Create a new {@link ProbabilitySampler}. The probability of sampling a trace is equal to that
-     * of the specified probability.
+     * Returns a new {@link ProbabilitySampler}. The probability of sampling a trace is equal to
+     * that of the specified probability.
      *
      * @param probability The desired probability of sampling. Must be within [0.0, 1.0].
+     * @return a new {@link ProbabilitySampler}.
      * @throws IllegalArgumentException if {@code probability} is out of range
      */
-    private ProbabilitySampler(double probability) {
+    private static ProbabilitySampler create(double probability) {
       checkArgument(
           probability >= 0.0 && probability <= 1.0, "probability must be in range [0.0, 1.0]");
-      this.probability = probability;
+      long idUpperBound = 0;
       // Special case the limits, to avoid any possible issues with lack of precision across
       // double/long boundaries. For probability == 0.0, we use Long.MIN_VALUE as this guarantees
       // that we will never sample a trace, even in the case where the id == Long.MIN_VALUE, since
@@ -134,37 +138,17 @@ public final class Samplers {
       } else {
         idUpperBound = (long) (probability * Long.MAX_VALUE);
       }
+      return new AutoValue_Samplers_ProbabilitySampler(probability, idUpperBound);
     }
 
     @Override
-    public boolean equals(Object obj) {
-      if (obj == this) {
-        return true;
-      }
-
-      if (!(obj instanceof ProbabilitySampler)) {
-        return false;
-      }
-
-      ProbabilitySampler that = (ProbabilitySampler) obj;
-      return probability == that.probability && idUpperBound == that.idUpperBound;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(probability, idUpperBound);
-    }
-
-    @Override
-    protected boolean shouldSample(
+    protected final boolean shouldSample(
         @Nullable SpanContext parentContext,
         boolean remoteParent,
         TraceId traceId,
         SpanId spanId,
         String name,
         @Nullable List<Span> parentLinks) {
-      checkNotNull(traceId, "traceId");
-      checkNotNull(name, "name");
       // Always enable sampling if parent was sampled.
       if (parentContext != null && parentContext.getTraceOptions().isSampled()) {
         return true;
@@ -176,12 +160,7 @@ public final class Samplers {
       // while allowing for a (very) small chance of *not* sampling if the id == Long.MAX_VALUE.
       // This is considered a reasonable tradeoff for the simplicity/performance requirements (this
       // code is executed in-line for every Span creation).
-      return Math.abs(traceId.getLowerLong()) < idUpperBound;
-    }
-
-    @Override
-    public String toString() {
-      return String.format("ProbabilitySampler(%f)", probability);
+      return Math.abs(traceId.getLowerLong()) < getIdUpperBound();
     }
   }
 }
