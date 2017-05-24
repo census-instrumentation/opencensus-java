@@ -73,6 +73,9 @@ public final class TagMap {
      */
     public Builder set(TagKey<String> key, String value) {
       Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
+
+      // TODO(sebright): Consider adding a TagValue class to avoid validating the String every time
+      // it is set.
       Preconditions.checkArgument(StringUtil.isValid(value));
       return setInternal(key, value);
     }
