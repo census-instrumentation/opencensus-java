@@ -42,9 +42,10 @@ import javax.annotation.concurrent.Immutable;
  * underflow bucket.
  *
  * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities or
- * NaNs) in the population of values, as this will render the {@code mean} meaningless.
+ * NaNs) in the population of values, as this will render derived values (e.g. {@code mean})
+ * meaningless.
  */
-//  TODO(songya): needs to determine whether N = 1 is valid. (Currently we don't allow N = 1.)
+
 @Immutable
 @AutoValue
 abstract class Distribution {
@@ -63,6 +64,7 @@ abstract class Distribution {
     return new AutoValue_Distribution(
         distribution.getCount(),
         distribution.getSum(),
+        distribution.getSumSquares(),
         Range.create(distribution.getRange()),
         distribution.getBucketBoundaries(),
         bucketCounts);
@@ -94,7 +96,7 @@ abstract class Distribution {
   }
 
   /**
-   * The sum of the values in the population. If {@link #getCount()} is zero then this value must
+   * The sum of the values in the population. If {@link #getCount()} is zero then this value will
    * also be zero.
    *
    * @return The sum of values in the population.
@@ -102,8 +104,16 @@ abstract class Distribution {
   abstract double getSum();
 
   /**
-   * The range of the population values. If {@link #getCount()} is zero then this returned range is
-   * implementation-dependent.
+   * The sum of the squares of values in the population. If {@link #getCount()} is zero then this
+   * value will also be zero.
+   *
+   * @return The sum of values in the population.
+   */
+  abstract double getSumSquares();
+
+  /**
+   * The range of the population values. If {@link #getCount()} is zero then the returned range
+   * will contain [-Inf, +Inf]
    *
    * @return The {code Range} representing the range of population values.
    */
@@ -141,7 +151,6 @@ abstract class Distribution {
   abstract List<Long> getBucketCounts();
 
   /** Describes a range of population values. */
-  // TODO(sebright): Decide what to do when the distribution contains no values.
   @Immutable
   @AutoValue
   abstract static class Range {

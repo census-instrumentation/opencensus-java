@@ -66,10 +66,11 @@ public class MutableDistributionTest {
   }
 
   @Test
-  public void testNoBoundaries() throws Exception {
+  public void testNoBoundaries() {
     List<Double> buckets = Arrays.asList();
-    thrown.expect(IllegalArgumentException.class);
-    MutableDistribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution noBoundaries = MutableDistribution.create(BucketBoundaries.create(buckets));
+    assertThat(noBoundaries.getBucketCounts()).hasSize(1);
+    assertThat(noBoundaries.getBucketCounts().get(0)).isEqualTo(0);
   }
 
   @Test

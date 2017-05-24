@@ -33,17 +33,19 @@ public abstract class BucketBoundaries {
    * @param bucketBoundaries the boundaries for the buckets in the underlying {@link Distribution}.
    * @return a new {@code BucketBoundaries} with the specified boundaries.
    * @throws NullPointerException if {@code bucketBoundaries} is null.
-   * @throws IllegalArgumentException if {@code bucketBoundaries} is not sorted, or has zero length.
+   * @throws IllegalArgumentException if {@code bucketBoundaries} is not sorted.
    */
   public static final BucketBoundaries create(List<Double> bucketBoundaries) {
     checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
     List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries);  // Deep copy.
-    checkArgument(!bucketBoundariesCopy.isEmpty(), "Zero length bucket boundaries");
-    double lower = bucketBoundariesCopy.get(0);
-    for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
-      double next = bucketBoundariesCopy.get(i);
-      checkArgument(lower < next, "Bucket boundaries not sorted.");
-      lower = next;
+    // Check if sorted.
+    if (bucketBoundariesCopy.size() > 1) {
+      double lower = bucketBoundariesCopy.get(0);
+      for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
+        double next = bucketBoundariesCopy.get(i);
+        checkArgument(lower < next, "Bucket boundaries not sorted.");
+        lower = next;
+      }
     }
     return new AutoValue_BucketBoundaries(Collections.unmodifiableList(bucketBoundariesCopy));
   }
