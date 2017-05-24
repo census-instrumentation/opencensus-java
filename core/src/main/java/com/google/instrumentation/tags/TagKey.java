@@ -48,7 +48,7 @@ public abstract class TagKey<TagValueT> {
    *
    * <ol>
    *   <li>It cannot be longer than {@link #MAX_LENGTH}.
-   *   <li>It can only contain printable ascii characters.
+   *   <li>It can only contain printable ASCII characters.
    * </ol>
    *
    * @param name the name of the key.
@@ -74,7 +74,7 @@ public abstract class TagKey<TagValueT> {
    *
    * <ol>
    *   <li>It cannot be longer than {@link #MAX_LENGTH}.
-   *   <li>It can only contain printable ascii characters.
+   *   <li>It can only contain printable ASCII characters.
    * </ol>
    *
    * @param name the name of the key.
@@ -100,7 +100,7 @@ public abstract class TagKey<TagValueT> {
    *
    * <ol>
    *   <li>It cannot be longer than {@link #MAX_LENGTH}.
-   *   <li>It can only contain printable ascii characters.
+   *   <li>It can only contain printable ASCII characters.
    * </ol>
    *
    * @param name the name of the key.
