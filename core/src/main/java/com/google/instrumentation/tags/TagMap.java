@@ -70,6 +70,9 @@ public final class TagMap {
      * @param key the {@code TagKey} which will be set.
      * @param value the value to set for the given key.
      * @return this
+     * @throws IllegalArgumentException if either argument is null, the key is the wrong type, or
+     *     the value contains unprintable characters or is longer than {@link
+     *     TagMap#MAX_STRING_LENGTH}.
      */
     public Builder set(TagKey<String> key, String value) {
       Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
@@ -86,6 +89,7 @@ public final class TagMap {
      * @param key the {@code TagKey} which will be set.
      * @param value the value to set for the given key.
      * @return this
+     * @throws IllegalArgumentException if the key is null or the key is the wrong type.
      */
     public Builder set(TagKey<Long> key, long value) {
       Preconditions.checkArgument(key.getTagType() == TagType.TAG_LONG);
@@ -98,6 +102,7 @@ public final class TagMap {
      * @param key the {@code TagKey} which will be set.
      * @param value the value to set for the given key.
      * @return this
+     * @throws IllegalArgumentException if the key is null or the key is the wrong type.
      */
     public Builder set(TagKey<Boolean> key, boolean value) {
       Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
