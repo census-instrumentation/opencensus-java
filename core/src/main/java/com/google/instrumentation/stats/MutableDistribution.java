@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 final class MutableDistribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
+  private double sumOfSquares = 0.0; // The sum of the sqaures of the values in the population
   private Range range = Range.create(); // Range of values in the population.
 
   @Nullable
@@ -85,13 +86,23 @@ final class MutableDistribution {
   }
 
   /**
-   * The sum of the values in the population. If {@link #getCount()} is zero then this value must
+   * The sum of the values in the population. If {@link #getCount()} is zero then this value will
    * also be zero.
    *
    * @return The sum of values in the population.
    */
   double getSum() {
     return sum;
+  }
+
+  /**
+   * The sum of the squares of values in the population. If {@link #getCount()} is zero then this
+   * value will also be zero.
+   *
+   * @return The sum of squares of values in the population.
+   */
+  double getSumSquares() {
+    return sumOfSquares;
   }
 
   /**
@@ -157,6 +168,7 @@ final class MutableDistribution {
   void add(double value) {
     count++;
     sum += value;
+    sumOfSquares += value * value;
     range.add(value);
     if (hasBuckets()) {
       putIntoBucket(value);
@@ -165,10 +177,9 @@ final class MutableDistribution {
 
   /** Mutable version of {@code Distribution.Range}. */
   static final class Range {
-    // Maintain the invariant that max should always be greater than or equal to min.
-    // TODO(songya): needs to determine how we would want to initialize min and max.
-    private Double min = null;
-    private Double max = null;
+    // Initial "impossible" values, that will get reset as soon as first value is added.
+    private double min = Double.POSITIVE_INFINITY;
+    private double max = Double.NEGATIVE_INFINITY;
 
     /** Construct a new, empty {@code Range}. */
     static final Range create() {
@@ -176,7 +187,7 @@ final class MutableDistribution {
     }
 
     /**
-     * The minimum of the population values. Will throw an exception if min has not been set.
+     * The minimum of the population values.
      *
      * @return The minimum of the population values.
      */
@@ -185,7 +196,7 @@ final class MutableDistribution {
     }
 
     /**
-     * The maximum of the population values. Will throw an exception if max has not been set.
+     * The maximum of the population values.
      *
      * @return The maximum of the population values.
      */
@@ -199,10 +210,10 @@ final class MutableDistribution {
      * @param value the new value
      */
     void add(double value) {
-      if (min == null || value < min) {
+      if (value < min) {
         min = value;
       }
-      if (max == null || value > max) {
+      if (value > max) {
         max = value;
       }
     }
