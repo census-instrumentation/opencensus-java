@@ -69,10 +69,10 @@ public class BucketBoundariesTest {
   }
 
   @Test
-  public void testNoBoundaries() throws Exception {
+  public void testNoBoundaries() {
     List<Double> buckets = Arrays.asList();
-    thrown.expect(IllegalArgumentException.class);
-    BucketBoundaries.create(buckets);
+    BucketBoundaries bucketBoundaries = BucketBoundaries.create(buckets);
+    assertThat(bucketBoundaries.getBoundaries()).isEqualTo(buckets);
   }
 
   @Test
