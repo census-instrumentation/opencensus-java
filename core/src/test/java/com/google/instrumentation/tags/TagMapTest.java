@@ -42,16 +42,16 @@ public class TagMapTest {
   @Test
   public void allowMutlipleKeysWithSameNameButDifferentTypes() {
     TagKey<String> stringKey = TagKey.createString("key");
-    TagKey<Long> intKey = TagKey.createInt("key");
+    TagKey<Long> longKey = TagKey.createLong("key");
     TagKey<Boolean> boolKey = TagKey.createBool("key");
     assertThat(
             newBuilder()
                 .set(stringKey, "value")
-                .set(intKey, 123)
+                .set(longKey, 123)
                 .set(boolKey, true)
                 .build()
                 .getTags())
-        .containsExactly(stringKey, "value", intKey, 123L, boolKey, true);
+        .containsExactly(stringKey, "value", longKey, 123L, boolKey, true);
   }
 
   @Test
@@ -97,11 +97,11 @@ public class TagMapTest {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private final TagKey<Long> badIntKey = (TagKey) TagKey.createString("Key");
+  private final TagKey<Long> badLongKey = (TagKey) TagKey.createString("Key");
 
   @Test(expected = IllegalArgumentException.class)
   public void disallowSettingWrongTypeOfKey() {
-    newBuilder().set(badIntKey, 123);
+    newBuilder().set(badLongKey, 123);
   }
 
   private static TagMap.Builder newBuilder() {

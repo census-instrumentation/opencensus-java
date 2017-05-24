@@ -14,7 +14,7 @@
 package com.google.instrumentation.tags;
 
 import static com.google.instrumentation.tags.TagKey.TagType.TAG_BOOL;
-import static com.google.instrumentation.tags.TagKey.TagType.TAG_INT;
+import static com.google.instrumentation.tags.TagKey.TagType.TAG_LONG;
 import static com.google.instrumentation.tags.TagKey.TagType.TAG_STRING;
 
 import com.google.auto.value.AutoValue;
@@ -36,7 +36,7 @@ public abstract class TagKey<TagValueT> {
 
   enum TagType {
     TAG_STRING,
-    TAG_INT,
+    TAG_LONG,
     TAG_BOOL
   }
 
@@ -75,13 +75,13 @@ public abstract class TagKey<TagValueT> {
    * @param name the name of the key.
    * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<Long> createInt(String name) {
+  public static TagKey<Long> createLong(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
-    return createIntInternal(name);
+    return createLongInternal(name);
   }
 
-  private static TagKey<Long> createIntInternal(String name) {
-    return new AutoValue_TagKey<Long>(name, TAG_INT);
+  private static TagKey<Long> createLongInternal(String name) {
+    return new AutoValue_TagKey<Long>(name, TAG_LONG);
   }
 
   /**

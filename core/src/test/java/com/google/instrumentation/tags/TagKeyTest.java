@@ -59,7 +59,7 @@ public final class TagKeyTest {
   public void testTagKeyEquals() {
     new EqualsTester()
         .addEqualityGroup(TagKey.createString("foo"), TagKey.createString("foo"))
-        .addEqualityGroup(TagKey.createInt("foo"))
+        .addEqualityGroup(TagKey.createLong("foo"))
         .addEqualityGroup(TagKey.createBool("foo"))
         .addEqualityGroup(TagKey.createString("bar"))
         .testEquals();

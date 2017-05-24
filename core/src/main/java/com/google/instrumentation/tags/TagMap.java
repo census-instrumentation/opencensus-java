@@ -85,7 +85,7 @@ public final class TagMap {
      * @return this
      */
     public Builder set(TagKey<Long> key, long value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_INT);
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_LONG);
       return setInternal(key, value);
     }
 
