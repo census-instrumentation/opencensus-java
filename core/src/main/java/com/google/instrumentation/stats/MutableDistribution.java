@@ -96,16 +96,6 @@ final class MutableDistribution {
   }
 
   /**
-   * The sum of the squares of values in the population. If {@link #getCount()} is zero then this
-   * value will also be zero.
-   *
-   * @return The sum of squares of values in the population.
-   */
-  double getSumSquares() {
-    return sumOfSquares;
-  }
-
-  /**
    * The range of the population values. If {@link #getCount()} is zero then this returned range is
    * implementation-dependent.
    *
