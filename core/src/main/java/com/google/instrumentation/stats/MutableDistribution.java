@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 final class MutableDistribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
-  private double sumOfSquares = 0.0; // The sum of the sqaures of the values in the population
   private Range range = Range.create(); // Range of values in the population.
 
   @Nullable
@@ -158,7 +157,6 @@ final class MutableDistribution {
   void add(double value) {
     count++;
     sum += value;
-    sumOfSquares += value * value;
     range.add(value);
     if (hasBuckets()) {
       putIntoBucket(value);
