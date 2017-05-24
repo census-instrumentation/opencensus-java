@@ -16,8 +16,10 @@ package com.google.instrumentation.trace;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Objects;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /** Static class to access a set of pre-defined {@link Sampler Samplers}. */
 public final class Samplers {
@@ -56,6 +58,7 @@ public final class Samplers {
     return new ProbabilitySampler(probability);
   }
 
+  @Immutable
   private static final class AlwaysSampleSampler extends Sampler {
     private AlwaysSampleSampler() {}
 
@@ -77,6 +80,7 @@ public final class Samplers {
     }
   }
 
+  @Immutable
   private static final class NeverSampleSampler extends Sampler {
     private NeverSampleSampler() {}
 
@@ -98,6 +102,7 @@ public final class Samplers {
     }
   }
 
+  @Immutable
   private static final class ProbabilitySampler extends Sampler {
     // We assume the lower 64 bits of the traceId's are randomly distributed around the whole (long)
     // range. We convert an incoming probability into an upper bound on that value, such that we can
@@ -129,6 +134,25 @@ public final class Samplers {
       } else {
         idUpperBound = (long) (probability * Long.MAX_VALUE);
       }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+
+      if (!(obj instanceof ProbabilitySampler)) {
+        return false;
+      }
+
+      ProbabilitySampler that = (ProbabilitySampler) obj;
+      return probability == that.probability && idUpperBound == that.idUpperBound;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(probability, idUpperBound);
     }
 
     @Override
