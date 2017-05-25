@@ -36,6 +36,8 @@ public class MutableDistributionTest {
     assertThat(empty.getCount()).isEqualTo(0);
     assertThat(empty.getSum()).isWithin(TOLERANCE).of(0.0);
     assertThat(empty.getMean()).isNaN();
+    assertThat(empty.getRange().getMin()).isEqualTo(Double.POSITIVE_INFINITY);
+    assertThat(empty.getRange().getMax()).isEqualTo(Double.NEGATIVE_INFINITY);
     assertThat(empty.getBucketCounts()).isNull();
   }
 
@@ -66,10 +68,11 @@ public class MutableDistributionTest {
   }
 
   @Test
-  public void testNoBoundaries() throws Exception {
+  public void testNoBoundaries() {
     List<Double> buckets = Arrays.asList();
-    thrown.expect(IllegalArgumentException.class);
-    MutableDistribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution noBoundaries = MutableDistribution.create(BucketBoundaries.create(buckets));
+    assertThat(noBoundaries.getBucketCounts()).hasSize(1);
+    assertThat(noBoundaries.getBucketCounts().get(0)).isEqualTo(0);
   }
 
   @Test
