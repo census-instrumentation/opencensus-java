@@ -11,11 +11,11 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.tags;
+package io.opencensus.tags;
 
 import com.google.common.base.Preconditions;
 import com.google.instrumentation.internal.StringUtil;
-import com.google.instrumentation.tags.TagKey.TagType;
+import io.opencensus.tags.TagKey.TagType;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;

@@ -11,11 +11,11 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.tags;
+package io.opencensus.tags;
 
-import static com.google.instrumentation.tags.TagKey.TagType.TAG_BOOL;
-import static com.google.instrumentation.tags.TagKey.TagType.TAG_LONG;
-import static com.google.instrumentation.tags.TagKey.TagType.TAG_STRING;
+import static io.opencensus.tags.TagKey.TagType.TAG_BOOL;
+import static io.opencensus.tags.TagKey.TagType.TAG_LONG;
+import static io.opencensus.tags.TagKey.TagType.TAG_STRING;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;

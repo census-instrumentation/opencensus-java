@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.tags;
+package io.opencensus.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
