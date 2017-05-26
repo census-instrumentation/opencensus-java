@@ -43,8 +43,9 @@ public abstract class TagKey<TagValueT> {
   TagKey() {}
 
   /**
-   * Constructs a {@code TagKey<String>} from the given string. The string must meet the following
-   * requirements:
+   * Constructs a {@code TagKey<String>} with the given name.
+   *
+   * <p>The string must meet the following requirements:
    *
    * <ol>
    *   <li>It cannot be longer than {@link #MAX_LENGTH}.
@@ -64,8 +65,9 @@ public abstract class TagKey<TagValueT> {
   }
 
   /**
-   * Constructs a {@code TagKey<Long>} from the given string. The string must meet the following
-   * requirements:
+   * Constructs a {@code TagKey<Long>} with the given name.
+   *
+   * <p>The string must meet the following requirements:
    *
    * <ol>
    *   <li>It cannot be longer than {@link #MAX_LENGTH}.
@@ -86,8 +88,9 @@ public abstract class TagKey<TagValueT> {
   }
 
   /**
-   * Constructs a {@code TagKey<Boolean>} from the given string. The string must meet the following
-   * requirements:
+   * Constructs a {@code TagKey<Boolean>} with the given name.
+   *
+   * <p>The string must meet the following requirements:
    *
    * <ol>
    *   <li>It cannot be longer than {@link #MAX_LENGTH}.
