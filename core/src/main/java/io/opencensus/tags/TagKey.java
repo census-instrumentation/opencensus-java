@@ -14,36 +14,21 @@
 package io.opencensus.tags;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static io.opencensus.tags.TagKey.TagType.TAG_BOOLEAN;
-import static io.opencensus.tags.TagKey.TagType.TAG_LONG;
-import static io.opencensus.tags.TagKey.TagType.TAG_STRING;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * A key to a value stored in a {@link TagContext}.
- *
- * @param <TagValueT> The type of value that can be paired with this {@code TagKey}. {@code TagKey}s
- *     can only be instantiated with types {@code String}, {@code Long}, and {@code Boolean}.
- */
+/** A key to a value stored in a {@link TagContext}. */
 @Immutable
-@AutoValue
-public abstract class TagKey<TagValueT> {
+public abstract class TagKey {
   /** The maximum length for a tag key name. */
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
-
-  enum TagType {
-    TAG_STRING,
-    TAG_LONG,
-    TAG_BOOLEAN
-  }
 
   TagKey() {}
 
   /**
-   * Constructs a {@code TagKey<String>} with the given name.
+   * Constructs a {@code TagKeyString} with the given name.
    *
    * <p>The name must meet the following requirements:
    *
@@ -56,13 +41,13 @@ public abstract class TagKey<TagValueT> {
    * @return a {@code TagKey<String>} with the given name.
    * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<String> createStringKey(String name) {
+  public static TagKeyString createStringKey(String name) {
     checkArgument(StringUtil.isValid(name));
-    return new AutoValue_TagKey<String>(name, TAG_STRING);
+    return TagKeyString.create(name);
   }
 
   /**
-   * Constructs a {@code TagKey<Long>} with the given name.
+   * Constructs a {@code TagKeyLong} with the given name.
    *
    * <p>The name must meet the following requirements:
    *
@@ -75,13 +60,13 @@ public abstract class TagKey<TagValueT> {
    * @throws IllegalArgumentException if the name is not valid.
    */
   // TODO(sebright): Make this public once we support types other than String.
-  static TagKey<Long> createLongKey(String name) {
+  static TagKeyLong createLongKey(String name) {
     checkArgument(StringUtil.isValid(name));
-    return new AutoValue_TagKey<Long>(name, TAG_LONG);
+    return TagKeyLong.create(name);
   }
 
   /**
-   * Constructs a {@code TagKey<Boolean>} with the given name.
+   * Constructs a {@code TagKeyBoolean} with the given name.
    *
    * <p>The name must meet the following requirements:
    *
@@ -94,12 +79,43 @@ public abstract class TagKey<TagValueT> {
    * @throws IllegalArgumentException if the name is not valid.
    */
   // TODO(sebright): Make this public once we support types other than String.
-  static TagKey<Boolean> createBooleanKey(String name) {
+  static TagKeyBoolean createBooleanKey(String name) {
     checkArgument(StringUtil.isValid(name));
-    return new AutoValue_TagKey<Boolean>(name, TAG_BOOLEAN);
+    return TagKeyBoolean.create(name);
   }
 
-  abstract String getName();
+  public abstract String getName();
 
-  abstract TagType getTagType();
+  /**
+   * A {@code TagKey} for values of type {@code String}.
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class TagKeyString extends TagKey {
+    static TagKeyString create(String name) {
+      return new AutoValue_TagKey_TagKeyString(name);
+    }
+  }
+
+  /**
+   * A {@code TagKey} for values of type {@code long}.
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class TagKeyLong extends TagKey {
+    static TagKeyLong create(String name) {
+      return new AutoValue_TagKey_TagKeyLong(name);
+    }
+  }
+
+  /**
+   * A {@code TagKey} for values of type {@code boolean}.
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class TagKeyBoolean extends TagKey {
+    static TagKeyBoolean create(String name) {
+      return new AutoValue_TagKey_TagKeyBoolean(name);
+    }
+  }
 }
