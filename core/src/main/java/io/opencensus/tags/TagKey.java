@@ -75,7 +75,8 @@ public abstract class TagKey<TagValueT> {
    * @param name the name of the key.
    * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<Long> createLong(String name) {
+  // TODO(sebright): Make this public once we support types other than String.
+  static TagKey<Long> createLong(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
     return createLongInternal(name);
   }
@@ -96,7 +97,8 @@ public abstract class TagKey<TagValueT> {
    * @param name the name of the key.
    * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<Boolean> createBoolean(String name) {
+  // TODO(sebright): Make this public once we support types other than String.
+  static TagKey<Boolean> createBoolean(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
     return createBooleanInternal(name);
   }
