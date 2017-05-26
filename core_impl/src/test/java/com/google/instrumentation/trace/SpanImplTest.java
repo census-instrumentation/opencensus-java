@@ -307,10 +307,10 @@ public class SpanImplTest {
     assertThat(spanData.getAttributes().getAttributeMap().size()).isEqualTo(maxNumberOfAttributes);
     for (int i = 0; i < maxNumberOfAttributes; i++) {
       assertThat(
-          spanData
-              .getAttributes()
-              .getAttributeMap()
-              .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
+              spanData
+                  .getAttributes()
+                  .getAttributeMap()
+                  .get("MyStringAttributeKey" + (i + maxNumberOfAttributes)))
           .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes));
     }
     for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
@@ -325,19 +325,15 @@ public class SpanImplTest {
     // Test that we still have in the attributes map the latest maxNumberOfAttributes / 2 entries.
     for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
       assertThat(
-          spanData
-              .getAttributes()
-              .getAttributeMap()
-              .get("MyStringAttributeKey" + (i + maxNumberOfAttributes * 3 / 2)))
+              spanData
+                  .getAttributes()
+                  .getAttributeMap()
+                  .get("MyStringAttributeKey" + (i + maxNumberOfAttributes * 3 / 2)))
           .isEqualTo(AttributeValue.longAttributeValue(i + maxNumberOfAttributes * 3 / 2));
     }
     // Test that we have the newest re-added initial entries.
     for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
-      assertThat(
-          spanData
-              .getAttributes()
-              .getAttributeMap()
-              .get("MyStringAttributeKey" + i))
+      assertThat(spanData.getAttributes().getAttributeMap().get("MyStringAttributeKey" + i))
           .isEqualTo(AttributeValue.longAttributeValue(i));
     }
   }

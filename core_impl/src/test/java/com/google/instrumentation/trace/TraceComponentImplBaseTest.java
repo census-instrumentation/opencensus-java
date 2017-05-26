@@ -15,8 +15,8 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.instrumentation.common.MillisClock;
 import com.google.instrumentation.common.SimpleEventQueue;
-import com.google.instrumentation.internal.MillisClock;
 import com.google.instrumentation.trace.RandomHandler.SecureRandomHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;

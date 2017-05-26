@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.instrumentation.common.DisruptorEventQueue;
-import com.google.instrumentation.internal.MillisClock;
+import com.google.instrumentation.common.MillisClock;
 
 /** Java 7 and 8 implementation of {@link StatsManager}. */
 public final class StatsManagerImpl extends StatsManagerImplBase {
