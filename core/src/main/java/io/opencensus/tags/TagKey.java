@@ -13,7 +13,7 @@
 
 package io.opencensus.tags;
 
-import static io.opencensus.tags.TagKey.TagType.TAG_BOOL;
+import static io.opencensus.tags.TagKey.TagType.TAG_BOOLEAN;
 import static io.opencensus.tags.TagKey.TagType.TAG_LONG;
 import static io.opencensus.tags.TagKey.TagType.TAG_STRING;
 
@@ -37,7 +37,7 @@ public abstract class TagKey<TagValueT> {
   enum TagType {
     TAG_STRING,
     TAG_LONG,
-    TAG_BOOL
+    TAG_BOOLEAN
   }
 
   TagKey() {}
@@ -96,13 +96,13 @@ public abstract class TagKey<TagValueT> {
    * @param name the name of the key.
    * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<Boolean> createBool(String name) {
+  public static TagKey<Boolean> createBoolean(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
-    return createBoolInternal(name);
+    return createBooleanInternal(name);
   }
 
-  private static TagKey<Boolean> createBoolInternal(String name) {
-    return new AutoValue_TagKey<Boolean>(name, TAG_BOOL);
+  private static TagKey<Boolean> createBooleanInternal(String name) {
+    return new AutoValue_TagKey<Boolean>(name, TAG_BOOLEAN);
   }
 
   abstract String getName();

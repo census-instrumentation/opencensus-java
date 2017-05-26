@@ -105,7 +105,7 @@ public final class TagMap {
      * @throws IllegalArgumentException if the key is null or the key is the wrong type.
      */
     public Builder set(TagKey<Boolean> key, boolean value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOL);
+      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOLEAN);
       return setInternal(key, value);
     }
 

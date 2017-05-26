@@ -43,15 +43,15 @@ public class TagMapTest {
   public void allowMutlipleKeysWithSameNameButDifferentTypes() {
     TagKey<String> stringKey = TagKey.createString("key");
     TagKey<Long> longKey = TagKey.createLong("key");
-    TagKey<Boolean> boolKey = TagKey.createBool("key");
+    TagKey<Boolean> booleanKey = TagKey.createBoolean("key");
     assertThat(
             newBuilder()
                 .set(stringKey, "value")
                 .set(longKey, 123)
-                .set(boolKey, true)
+                .set(booleanKey, true)
                 .build()
                 .getTags())
-        .containsExactly(stringKey, "value", longKey, 123L, boolKey, true);
+        .containsExactly(stringKey, "value", longKey, 123L, booleanKey, true);
   }
 
   @Test
