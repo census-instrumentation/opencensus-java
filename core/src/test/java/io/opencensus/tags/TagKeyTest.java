@@ -16,6 +16,7 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.tags.TagKey.TagType;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +33,13 @@ public final class TagKeyTest {
   @Test
   public void testGetName() {
     assertThat(TagKey.createStringKey("foo").getName()).isEqualTo("foo");
+  }
+
+  @Test
+  public void testGetTagType() {
+    assertThat(TagKey.createStringKey("key").getTagType()).isEqualTo(TagType.TAG_STRING);
+    assertThat(TagKey.createLongKey("key").getTagType()).isEqualTo(TagType.TAG_LONG);
+    assertThat(TagKey.createBooleanKey("key").getTagType()).isEqualTo(TagType.TAG_BOOLEAN);
   }
 
   @Test
