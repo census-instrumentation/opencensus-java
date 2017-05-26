@@ -11,10 +11,8 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.internal;
+package com.google.instrumentation.common;
 
-import com.google.instrumentation.common.Clock;
-import com.google.instrumentation.common.Timestamp;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**

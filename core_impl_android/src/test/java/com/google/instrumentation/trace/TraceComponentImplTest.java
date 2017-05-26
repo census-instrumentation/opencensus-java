@@ -15,7 +15,7 @@ package com.google.instrumentation.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.internal.MillisClock;
+import com.google.instrumentation.common.MillisClock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

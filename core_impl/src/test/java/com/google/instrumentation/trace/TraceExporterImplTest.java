@@ -17,8 +17,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doThrow;
 
+import com.google.instrumentation.common.MillisClock;
 import com.google.instrumentation.common.SimpleEventQueue;
-import com.google.instrumentation.internal.MillisClock;
 import com.google.instrumentation.trace.Span.Options;
 import com.google.instrumentation.trace.TraceConfig.TraceParams;
 import com.google.instrumentation.trace.TraceExporter.ServiceHandler;

@@ -14,7 +14,7 @@
 package com.google.instrumentation.trace;
 
 import com.google.instrumentation.common.DisruptorEventQueue;
-import com.google.instrumentation.internal.MillisClock;
+import com.google.instrumentation.common.MillisClock;
 
 /** Java 7 and 8 implementation of the {@link TraceComponent}. */
 public final class TraceComponentImpl extends TraceComponentImplBase {
