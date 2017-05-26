@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.internal;
+package com.google.instrumentation.common;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
