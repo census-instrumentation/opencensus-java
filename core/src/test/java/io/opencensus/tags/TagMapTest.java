@@ -30,8 +30,8 @@ public class TagMapTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final TagKey<String> KS1 = TagKey.createString("k1");
-  private static final TagKey<String> KS2 = TagKey.createString("k2");
+  private static final TagKey<String> KS1 = TagKey.createStringKey("k1");
+  private static final TagKey<String> KS2 = TagKey.createStringKey("k2");
 
   @Test
   public void applyBuilderOperationsInOrder() {
@@ -41,9 +41,9 @@ public class TagMapTest {
 
   @Test
   public void allowMutlipleKeysWithSameNameButDifferentTypes() {
-    TagKey<String> stringKey = TagKey.createString("key");
-    TagKey<Long> longKey = TagKey.createLong("key");
-    TagKey<Boolean> booleanKey = TagKey.createBoolean("key");
+    TagKey<String> stringKey = TagKey.createStringKey("key");
+    TagKey<Long> longKey = TagKey.createLongKey("key");
+    TagKey<Boolean> booleanKey = TagKey.createBooleanKey("key");
     assertThat(
             newBuilder()
                 .set(stringKey, "value")
@@ -74,7 +74,7 @@ public class TagMapTest {
     char[] chars = new char[TagMap.MAX_STRING_LENGTH];
     Arrays.fill(chars, 'v');
     String value = new String(chars);
-    TagKey<String> key = TagKey.createString("K");
+    TagKey<String> key = TagKey.createStringKey("K");
     newBuilder().set(key, value);
   }
 
@@ -83,7 +83,7 @@ public class TagMapTest {
     char[] chars = new char[TagMap.MAX_STRING_LENGTH + 1];
     Arrays.fill(chars, 'v');
     String value = new String(chars);
-    TagKey<String> key = TagKey.createString("K");
+    TagKey<String> key = TagKey.createStringKey("K");
     thrown.expect(IllegalArgumentException.class);
     newBuilder().set(key, value);
   }
@@ -91,13 +91,13 @@ public class TagMapTest {
   @Test
   public void disallowStringTagValueWithUnprintableChars() {
     String value = "\2ab\3cd";
-    TagKey<String> key = TagKey.createString("K");
+    TagKey<String> key = TagKey.createStringKey("K");
     thrown.expect(IllegalArgumentException.class);
     newBuilder().set(key, value);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private final TagKey<Long> badLongKey = (TagKey) TagKey.createString("Key");
+  private final TagKey<Long> badLongKey = (TagKey) TagKey.createStringKey("Key");
 
   @Test(expected = IllegalArgumentException.class)
   public void disallowSettingWrongTypeOfKey() {

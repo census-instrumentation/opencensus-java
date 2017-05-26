@@ -55,12 +55,12 @@ public abstract class TagKey<TagValueT> {
    * @param name the name of the key.
    * @throws IllegalArgumentException if the name is not valid.
    */
-  public static TagKey<String> createString(String name) {
+  public static TagKey<String> createStringKey(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
-    return createStringInternal(name);
+    return createStringKeyInternal(name);
   }
 
-  private static TagKey<String> createStringInternal(String name) {
+  private static TagKey<String> createStringKeyInternal(String name) {
     return new AutoValue_TagKey<String>(name, TAG_STRING);
   }
 
@@ -78,12 +78,12 @@ public abstract class TagKey<TagValueT> {
    * @throws IllegalArgumentException if the name is not valid.
    */
   // TODO(sebright): Make this public once we support types other than String.
-  static TagKey<Long> createLong(String name) {
+  static TagKey<Long> createLongKey(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
-    return createLongInternal(name);
+    return createLongKeyInternal(name);
   }
 
-  private static TagKey<Long> createLongInternal(String name) {
+  private static TagKey<Long> createLongKeyInternal(String name) {
     return new AutoValue_TagKey<Long>(name, TAG_LONG);
   }
 
@@ -101,12 +101,12 @@ public abstract class TagKey<TagValueT> {
    * @throws IllegalArgumentException if the name is not valid.
    */
   // TODO(sebright): Make this public once we support types other than String.
-  static TagKey<Boolean> createBoolean(String name) {
+  static TagKey<Boolean> createBooleanKey(String name) {
     Preconditions.checkArgument(StringUtil.isValid(name));
-    return createBooleanInternal(name);
+    return createBooleanKeyInternal(name);
   }
 
-  private static TagKey<Boolean> createBooleanInternal(String name) {
+  private static TagKey<Boolean> createBooleanKeyInternal(String name) {
     return new AutoValue_TagKey<Boolean>(name, TAG_BOOLEAN);
   }
 

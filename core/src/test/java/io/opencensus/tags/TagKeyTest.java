@@ -31,14 +31,14 @@ public final class TagKeyTest {
 
   @Test
   public void testGetName() {
-    assertThat(TagKey.createString("foo").getName()).isEqualTo("foo");
+    assertThat(TagKey.createStringKey("foo").getName()).isEqualTo("foo");
   }
 
   @Test
   public void createString_AllowTagKeyNameWithMaxLength() {
     char[] key = new char[TagKey.MAX_LENGTH];
     Arrays.fill(key, 'k');
-    TagKey.createString(new String(key));
+    TagKey.createStringKey(new String(key));
   }
 
   @Test
@@ -46,22 +46,22 @@ public final class TagKeyTest {
     char[] key = new char[TagKey.MAX_LENGTH + 1];
     Arrays.fill(key, 'k');
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createString(new String(key));
+    TagKey.createStringKey(new String(key));
   }
 
   @Test
   public void createString_DisallowUnprintableChars() {
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createString("\2ab\3cd");
+    TagKey.createStringKey("\2ab\3cd");
   }
 
   @Test
   public void testTagKeyEquals() {
     new EqualsTester()
-        .addEqualityGroup(TagKey.createString("foo"), TagKey.createString("foo"))
-        .addEqualityGroup(TagKey.createLong("foo"))
-        .addEqualityGroup(TagKey.createBoolean("foo"))
-        .addEqualityGroup(TagKey.createString("bar"))
+        .addEqualityGroup(TagKey.createStringKey("foo"), TagKey.createStringKey("foo"))
+        .addEqualityGroup(TagKey.createLongKey("foo"))
+        .addEqualityGroup(TagKey.createBooleanKey("foo"))
+        .addEqualityGroup(TagKey.createStringKey("bar"))
         .testEquals();
   }
 }
