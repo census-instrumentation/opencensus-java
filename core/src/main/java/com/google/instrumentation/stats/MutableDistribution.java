@@ -25,7 +25,7 @@ final class MutableDistribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
   private double mean = 0.0; // The mean of the values in the population
-  private double sumSquaredDeviations = 0.0; // The sum of squares of deviation from mean
+  private double sumOfSquaredDeviations = 0.0; // The sum of squares of deviation from mean
   private Range range = Range.create(); // Range of values in the population.
 
   @Nullable
@@ -104,12 +104,12 @@ final class MutableDistribution {
    *
    * <p>Computed using Welfords method (see
    * https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance, or Knuth, "The Art of
-   * Computer Programming", Vol. 2, page 323, 3rd edition
+   * Computer Programming", Vol. 2, page 323, 3rd edition)
    *
    * @return The sum of squared deviations from the mean for values in the population.
    */
-  double getSumSquaredDeviations() {
-    return sumSquaredDeviations;
+  double getSumOfSquaredDeviations() {
+    return sumOfSquaredDeviations;
   }
 
   /**
@@ -178,7 +178,7 @@ final class MutableDistribution {
     double deltaFromMean = value - mean;
     mean += deltaFromMean / count;
     double deltaFromMean2 = value - mean;
-    sumSquaredDeviations += deltaFromMean * deltaFromMean2;
+    sumOfSquaredDeviations += deltaFromMean * deltaFromMean2;
     range.add(value);
     if (hasBuckets()) {
       putIntoBucket(value);

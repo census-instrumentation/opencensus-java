@@ -64,7 +64,7 @@ abstract class Distribution {
     return new AutoValue_Distribution(
         distribution.getCount(),
         distribution.getSum(),
-        distribution.getSumSquaredDeviations(),
+        distribution.getSumOfSquaredDeviations(),
         Range.create(distribution.getRange()),
         distribution.getBucketBoundaries(),
         bucketCounts);
@@ -111,7 +111,7 @@ abstract class Distribution {
    *
    * @return The sum of squared deviations from the mean for values in the population.
    */
-  abstract double getSumSquaredDeviations();
+  abstract double getSumOfSquaredDeviations();
 
   /**
    * The range of the population values. If {@link #getCount()} is zero then the returned range
