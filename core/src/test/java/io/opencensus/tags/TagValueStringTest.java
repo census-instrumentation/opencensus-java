@@ -15,7 +15,7 @@ package io.opencensus.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.testing.EqualsTester;
+import io.opencensus.tags.TagValueString;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,45 +23,33 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagKey}. */
+/** Tests for {@link TagValueString}. */
 @RunWith(JUnit4.class)
-public final class TagKeyTest {
+public class TagValueStringTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testGetName() {
-    assertThat(TagKey.createStringKey("foo").getName()).isEqualTo("foo");
+  public void allowStringTagValueWithMaxLength() {
+    char[] chars = new char[TagValueString.MAX_LENGTH];
+    Arrays.fill(chars, 'v');
+    String value = new String(chars);
+    assertThat(TagValueString.create(value).asString()).isEqualTo(value);
   }
 
   @Test
-  public void createString_AllowTagKeyNameWithMaxLength() {
-    char[] key = new char[TagKey.MAX_LENGTH];
-    Arrays.fill(key, 'k');
-    TagKey.createStringKey(new String(key));
-  }
-
-  @Test
-  public void createString_DisallowTagKeyNameOverMaxLength() {
-    char[] key = new char[TagKey.MAX_LENGTH + 1];
-    Arrays.fill(key, 'k');
+  public void disallowStringTagValueOverMaxLength() {
+    char[] chars = new char[TagValueString.MAX_LENGTH + 1];
+    Arrays.fill(chars, 'v');
+    String value = new String(chars);
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createStringKey(new String(key));
+    TagValueString.create(value);
   }
 
   @Test
-  public void createString_DisallowUnprintableChars() {
+  public void disallowStringTagValueWithUnprintableChars() {
+    String value = "\2ab\3cd";
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createStringKey("\2ab\3cd");
-  }
-
-  @Test
-  public void testTagKeyEquals() {
-    new EqualsTester()
-        .addEqualityGroup(TagKey.createStringKey("foo"), TagKey.createStringKey("foo"))
-        .addEqualityGroup(TagKey.createLongKey("foo"))
-        .addEqualityGroup(TagKey.createBooleanKey("foo"))
-        .addEqualityGroup(TagKey.createStringKey("bar"))
-        .testEquals();
+    TagValueString.create(value);
   }
 }
