@@ -11,3 +11,5 @@ dependencies {
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
+
+javadoc.exclude 'com/google/instrumentation/internal/**'
