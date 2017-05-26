@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 final class MutableDistribution {
   private long count = 0; // The number of values in the population.
   private double sum = 0.0; // The sum of the values in the population.
+  private double mean = 0.0; // The mean of the values in the population
+  private double sumOfSquaredDeviations = 0.0; // The sum of squares of deviation from mean
   private Range range = Range.create(); // Range of values in the population.
 
   @Nullable
@@ -81,7 +83,7 @@ final class MutableDistribution {
    * @return The arithmetic mean of all values in the population.
    */
   double getMean() {
-    return sum / count;
+    return (count == 0) ? Double.NaN : mean;
   }
 
   /**
@@ -92,6 +94,22 @@ final class MutableDistribution {
    */
   double getSum() {
     return sum;
+  }
+
+  /**
+   * The sum of squared deviations from the mean for values in the population. For values x_i this
+   * is Sum[i=1..n]((x_i - mean)^2)
+   *
+   * <p>If {@link #getCount()} is zero then this value will also be zero.
+   *
+   * <p>Computed using Welfords method (see
+   * https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance, or Knuth, "The Art of
+   * Computer Programming", Vol. 2, page 323, 3rd edition)
+   *
+   * @return The sum of squared deviations from the mean for values in the population.
+   */
+  double getSumOfSquaredDeviations() {
+    return sumOfSquaredDeviations;
   }
 
   /**
@@ -157,6 +175,10 @@ final class MutableDistribution {
   void add(double value) {
     count++;
     sum += value;
+    double deltaFromMean = value - mean;
+    mean += deltaFromMean / count;
+    double deltaFromMean2 = value - mean;
+    sumOfSquaredDeviations += deltaFromMean * deltaFromMean2;
     range.add(value);
     if (hasBuckets()) {
       putIntoBucket(value);
