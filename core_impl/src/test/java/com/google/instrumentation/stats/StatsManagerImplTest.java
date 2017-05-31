@@ -440,6 +440,27 @@ public class StatsManagerImplTest {
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(2.2))));
   }
 
+  @Test
+  public void testGetDistributionViewWithoutBucketBoundaries() {
+    ViewDescriptor viewDescr =
+        createDistributionViewDescriptor(
+            VIEW_NAME, MEASUREMENT_DESCRIPTOR, DistributionAggregationDescriptor.create(),
+            Arrays.asList(KEY));
+    clock.setTime(Timestamp.create(1, 0));
+    statsManager.registerView(viewDescr);
+    statsManager.record(
+        createContext(factory, KEY, VALUE), MeasurementMap.of(MEASUREMENT_DESCRIPTOR, 1.1));
+    clock.setTime(Timestamp.create(3, 0));
+    DistributionView view = (DistributionView) statsManager.getView(VIEW_NAME);
+    assertThat(view.getStart()).isEqualTo(Timestamp.create(1, 0));
+    assertThat(view.getEnd()).isEqualTo(Timestamp.create(3, 0));
+    assertDistributionAggregationsEquivalent(
+        view.getDistributionAggregations(),
+        Arrays.asList(
+            StatsTestUtil.createDistributionAggregation(
+                Arrays.asList(Tag.create(KEY, VALUE)), Arrays.asList(1.1))));
+  }
+
   // TODO(sebright) Consider making this helper method work with larger ranges of double values and
   // moving it to StatsTestUtil.
   private static void assertDistributionAggregationsEquivalent(
