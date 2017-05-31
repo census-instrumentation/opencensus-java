@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.auto.value.AutoValue;
 import com.google.instrumentation.trace.Status.CanonicalCode;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +77,7 @@ public abstract class TraceExporter {
 
   /**
    * Returns the {@code InProcessDebuggingHandler} that can be used to get useful debugging
-   * information like (active spans, latency based sampled spans, error based sampled spans).
+   * information such as (active spans, latency based sampled spans, error based sampled spans).
    *
    * @return the {@code InProcessDebuggingHandler} or {@code null} if in-process debugging is not
    *     supported.
@@ -85,8 +86,8 @@ public abstract class TraceExporter {
   public abstract InProcessDebuggingHandler getInProcessDebuggingHandler();
 
   /**
-   * This class allows users to access in-process debugging information like (getting access to all
-   * active spans, support latency based sampled spans and error based sampled spans).
+   * This class allows users to access in-process debugging information such as (getting access to
+   * all active spans, support latency based sampled spans and error based sampled spans).
    *
    * <p>The active spans tracking is available for all the spans with the option {@link
    * Span.Options#RECORD_EVENTS}. This functionality allows users to debug stuck operations or long
@@ -102,49 +103,53 @@ public abstract class TraceExporter {
     InProcessDebuggingHandler() {}
 
     /**
-     * Returns the summary of all available in-process debugging data like number of active spans,
-     * number of sampled spans in the latency based samples or error based samples.
+     * Returns the summary of all available in-process debugging data such as number of active
+     * spans, number of sampled spans in the latency based samples or error based samples.
      *
      * @return the summary of all available in-process debugging data.
      */
     public abstract Summary getSummary();
 
     /**
-     * Returns a list of active spans that are matching the {@code filter}.
+     * Returns a list of active spans that match the {@code filter}.
      *
      * @param filter used to filter the returned spans.
-     * @return a list of active spans that are matching the {@code filter}.
+     * @return a list of active spans that match the {@code filter}.
      */
-    public abstract List<SpanData> getActiveSpans(ActiveSpansFilter filter);
+    public abstract Collection<SpanData> getActiveSpans(ActiveSpansFilter filter);
 
     /**
      * Returns a list of succeeded spans (spans with {@link Status} equal to {@link Status#OK}) that
-     * are matching the {@code filter}.
+     * match the {@code filter}.
      *
      * <p>Latency based sampled spans are available only for span names registered using {@link
      * #collectSamplesForSpanNames(List)}.
      *
      * @param filter used to filter the returned sampled spans.
-     * @return a list of succeeded spans that are matching the {@code filter}.
+     * @return a list of succeeded spans that match the {@code filter}.
      */
-    public abstract List<SpanData> getLatencyBasedSampledSpans(
+    public abstract Collection<SpanData> getLatencyBasedSampledSpans(
         LatencyBasedSampledSpansFilter filter);
 
     /**
-     * Returns a list of failed spans (spans with {@link Status} different than {@link Status#OK})
-     * that are matching the {@code filter}.
+     * Returns a list of failed spans (spans with {@link Status} other than {@link Status#OK}) that
+     * match the {@code filter}.
      *
      * <p>Error based sampled spans are available only for span names registered using {@link
      * #collectSamplesForSpanNames(List)}.
      *
      * @param filter used to filter the returned sampled spans.
-     * @return a list of failed spans that are matching the {@code filter}.
+     * @return a list of failed spans that match the {@code filter}.
      */
-    public abstract List<SpanData> getErrorBasedSampledSpans(ErrorBasedSampledSpansFilter filter);
+    public abstract Collection<SpanData> getErrorBasedSampledSpans(
+        ErrorBasedSampledSpansFilter filter);
 
     /**
-     * Registers a list of span names for which the library will collect latency based sampled spans
+     * Appends a list of span names for which the library will collect latency based sampled spans
      * and error based sampled spans.
+     *
+     * <p>If called multiple times the library keeps the list of unique span names from all the
+     * calls.
      *
      * @param spanNames list of span names for which the library will collect samples.
      */
@@ -221,6 +226,10 @@ public abstract class TraceExporter {
         /**
          * Returns the list of all latency based sampled buckets summary.
          *
+         * <p>The list is sorted based on the lower latency boundary, and the upper bound of one
+         * match the lower bound of the next. Every bucket contains samples with latency within the
+         * interval [lowerBoundary, upperBoundary).
+         *
          * @return the list of all latency based sampled buckets summary.
          */
         public abstract List<LatencyBucketSummary> getLatencyBucketSummaries();
@@ -228,12 +237,15 @@ public abstract class TraceExporter {
         /**
          * Returns the list of all error based sampled buckets summary.
          *
+         * <p>The list is sorted based on the {@link CanonicalCode#value()} and contains an entry
+         * for each of the values other than {@link CanonicalCode#OK}.
+         *
          * @return the list of all error based sampled buckets summary.
          */
         public abstract List<ErrorBucketSummary> getErrorBucketSummaries();
 
         /**
-         * Summary of a latency based sampled spans bucket. Contains {code Span} samples with
+         * Summary of a latency based sampled spans bucket. Contains {@code Span} samples with
          * latency between [latencyLowerNs, latencyUpperNs).
          */
         @AutoValue
@@ -243,7 +255,8 @@ public abstract class TraceExporter {
           LatencyBucketSummary() {}
 
           /**
-           * Returns a new instance of {@code LatencyBucketSummary}.
+           * Returns a new instance of {@code LatencyBucketSummary}. The latency of the samples is
+           * in the interval [latencyLowerNs, latencyUpperNs).
            *
            * @param numSamples the number of sampled spans.
            * @param latencyLowerNs the latency lower bound.
@@ -268,21 +281,21 @@ public abstract class TraceExporter {
           public abstract int getNumSamples();
 
           /**
-           * Returns the latency lower bound of this bucket.
+           * Returns the latency lower bound of this bucket (inclusive).
            *
            * @return the latency lower bound of this bucket.
            */
           public abstract long getLatencyLowerNs();
 
           /**
-           * Returns the latency upper bound of this bucket.
+           * Returns the latency upper bound of this bucket (exclusive).
            *
            * @return the latency upper bound of this bucket.
            */
           public abstract long getLatencyUpperNs();
         }
 
-        /** Summary of a error based sampled spans bucket. */
+        /** Summary of an error based sampled spans bucket. */
         @AutoValue
         @Immutable
         public abstract static class ErrorBucketSummary {
@@ -314,7 +327,7 @@ public abstract class TraceExporter {
           public abstract int getNumSamples();
 
           /**
-           * Returns the {@code CanonicalCode} for this bucket. Always different than {@link
+           * Returns the {@code CanonicalCode} for this bucket. Always other than {@link
            * CanonicalCode#OK}.
            *
            * @return the {@code CanonicalCode} for this bucket.
@@ -337,6 +350,9 @@ public abstract class TraceExporter {
       /**
        * Returns a new instance of {@code ActiveSpansFilter}.
        *
+       * <p>Filters all the spans based on {@code spanName} and returns maximum {@code
+       * maxSpansToReturn}.
+       *
        * @param spanName the name of the span.
        * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
        * @return a new instance of {@code ActiveSpansFilter}.
@@ -357,7 +373,7 @@ public abstract class TraceExporter {
       public abstract String getSpanName();
 
       /**
-       * Returns the maximum number of spans to be returned.
+       * Returns the maximum number of spans to be returned. {@code 0} means all.
        *
        * @return the maximum number of spans to be returned.
        */
@@ -377,17 +393,23 @@ public abstract class TraceExporter {
       /**
        * Returns a new instance of {@code LatencyBasedSampledSpansFilter}.
        *
+       * <p>Filters all the spans based on {@code spanName} and latency in the interval
+       * [latencyLowerNs, latencyUpperNs) and returns maximum {@code maxSpansToReturn}.
+       *
        * @param spanName the name of the span.
        * @param latencyLowerNs the latency lower bound.
        * @param latencyUpperNs the latency upper bound.
        * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
        * @return a new instance of {@code LatencyBasedSampledSpansFilter}.
        * @throws NullPointerException if {@code spanName} is {@code null}.
-       * @throws IllegalArgumentException if {@code maxSpansToReturn} is negative.
+       * @throws IllegalArgumentException if {@code maxSpansToReturn} or {@code latencyLowerNs} or
+       *     {@code latencyUpperNs} are negative.
        */
       public static LatencyBasedSampledSpansFilter create(
           String spanName, long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn) {
         checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
+        checkArgument(latencyLowerNs >= 0, "Negative latencyLowerNs");
+        checkArgument(latencyUpperNs >= 0, "Negative latencyUpperNs");
         return new AutoValue_TraceExporter_InProcessDebuggingHandler_LatencyBasedSampledSpansFilter(
             spanName, latencyLowerNs, latencyUpperNs, maxSpansToReturn);
       }
@@ -399,12 +421,22 @@ public abstract class TraceExporter {
        */
       public abstract String getSpanName();
 
+      /**
+       * Returns the latency lower bound of this bucket (inclusive).
+       *
+       * @return the latency lower bound of this bucket.
+       */
       public abstract long getLatencyLowerNs();
 
+      /**
+       * Returns the latency upper bound of this bucket (exclusive).
+       *
+       * @return the latency upper bound of this bucket.
+       */
       public abstract long getLatencyUpperNs();
 
       /**
-       * Returns the maximum number of spans to be returned.
+       * Returns the maximum number of spans to be returned. {@code 0} means all.
        *
        * @return the maximum number of spans to be returned.
        */
@@ -420,6 +452,9 @@ public abstract class TraceExporter {
 
       /**
        * Returns a new instance of {@code ErrorBasedSampledSpansFilter}.
+       *
+       * <p>Filters all the spans based on {@code spanName} and {@code canonicalCode} and returns
+       * maximum {@code maxSpansToReturn}.
        *
        * @param spanName the name of the span.
        * @param canonicalCode the error code of the span.
@@ -453,7 +488,7 @@ public abstract class TraceExporter {
 
       /**
        * Returns the maximum number of spans to be returned. Used to enforce the number of returned
-       * {@code SpanData}.
+       * {@code SpanData}. {@code 0} means all.
        *
        * @return the maximum number of spans to be returned.
        */
@@ -481,7 +516,7 @@ public abstract class TraceExporter {
      *
      * @param spanDataList a list of {@code SpanData} objects to be exported.
      */
-    public abstract void export(List<SpanData> spanDataList);
+    public abstract void export(Collection<SpanData> spanDataList);
   }
 
   /**
@@ -528,7 +563,7 @@ public abstract class TraceExporter {
     }
 
     @Override
-    public void export(List<SpanData> spanDataList) {
+    public void export(Collection<SpanData> spanDataList) {
       for (SpanData spanData : spanDataList) {
         logger.log(Level.INFO, spanData.toString());
       }

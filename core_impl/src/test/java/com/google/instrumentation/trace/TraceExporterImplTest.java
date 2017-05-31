@@ -23,6 +23,7 @@ import com.google.instrumentation.trace.Span.Options;
 import com.google.instrumentation.trace.TraceConfig.TraceParams;
 import com.google.instrumentation.trace.TraceExporter.ServiceHandler;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -184,7 +185,7 @@ public class TraceExporterImplTest {
     private final List<SpanData> spanDataList = new LinkedList<SpanData>();
 
     @Override
-    public void export(List<SpanData> spanDataList) {
+    public void export(Collection<SpanData> spanDataList) {
       synchronized (monitor) {
         this.spanDataList.addAll(spanDataList);
         monitor.notifyAll();
