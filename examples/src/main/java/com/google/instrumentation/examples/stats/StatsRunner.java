@@ -13,15 +13,16 @@
 
 package com.google.instrumentation.examples.stats;
 
+import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.stats.MeasurementDescriptor;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.MeasurementMap;
 import com.google.instrumentation.stats.Stats;
 import com.google.instrumentation.stats.StatsContext;
+import com.google.instrumentation.stats.StatsContextFactory;
 import com.google.instrumentation.stats.TagKey;
 import com.google.instrumentation.stats.TagValue;
-import io.grpc.Context;
 import java.util.Arrays;
 
 /** Simple program that uses Stats contexts. */
@@ -43,49 +44,29 @@ public class StatsRunner {
   private static final MeasurementDescriptor M2 =
       MeasurementDescriptor.create("m2", "2nd test metric", simpleMeasurementUnit);
 
+  private static final StatsContextFactory factory = Stats.getStatsContextFactory();
+  private static final StatsContext DEFAULT = factory.getDefault();
+
   /** Main method. */
   public static void main(String[] args) {
     System.out.println("Hello Stats World");
     System.out.println("Default Tags: " + DEFAULT);
-    System.out.println("Current Tags: " + getCurrentStatsContext());
-    Context context1 = withCurrent(DEFAULT.with(K1, V1, K2, V2));
-    Context original = context1.attach();
-    try {
-      System.out.println("  Current Tags: " + getCurrentStatsContext());
+    System.out.println("Current Tags: " + factory.getCurrentStatsContext());
+    StatsContext tags1 = DEFAULT.with(K1, V1, K2, V2);
+    try (NonThrowingCloseable scopedStatsCtx1 = factory.withStatsContext(tags1)) {
+      System.out.println("  Current Tags: " + factory.getCurrentStatsContext());
       System.out.println(
           "  Current == Default + tags1: "
-              + getCurrentStatsContext().equals(getStatsContext(context1)));
-      Context context2 = withCurrent(getCurrentStatsContext().with(K3, V3, K4, V4));
-      context2.attach();
-      try {
-        System.out.println("    Current Tags: " + getCurrentStatsContext());
+              + factory.getCurrentStatsContext().equals(tags1));
+      StatsContext tags2 = tags1.with(K3, V3, K4, V4);
+      try (NonThrowingCloseable scopedStatsCtx2 = factory.withStatsContext(tags2)) {
+        System.out.println("    Current Tags: " + factory.getCurrentStatsContext());
         System.out.println(
             "    Current == Default + tags1 + tags2: "
-                + getCurrentStatsContext().equals(getStatsContext(context2)));
-        getCurrentStatsContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
-      } finally {
-        context2.detach(context1);
+                + factory.getCurrentStatsContext().equals(tags2));
+        factory.getCurrentStatsContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
       }
-    } finally {
-      context1.detach(original);
     }
-    System.out.println("Current == Default: " + getCurrentStatsContext().equals(DEFAULT));
-  }
-
-  private static final StatsContext DEFAULT = Stats.getStatsContextFactory().getDefault();
-
-  private static final Context.Key<StatsContext> STATS_CONTEXT_KEY =
-      Context.keyWithDefault("StatsContextKey", DEFAULT);
-
-  private static final StatsContext getCurrentStatsContext() {
-    return getStatsContext(Context.current());
-  }
-
-  private static final StatsContext getStatsContext(Context context) {
-    return STATS_CONTEXT_KEY.get(context);
-  }
-
-  private static final Context withCurrent(StatsContext context) {
-    return Context.current().withValue(STATS_CONTEXT_KEY, context);
+    System.out.println("Current == Default: " + factory.getCurrentStatsContext().equals(DEFAULT));
   }
 }
