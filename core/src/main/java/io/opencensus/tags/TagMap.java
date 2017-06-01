@@ -13,7 +13,8 @@
 
 package io.opencensus.tags;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.instrumentation.internal.StringUtil;
 import io.opencensus.tags.TagKey.TagType;
 import java.util.HashMap;
@@ -75,11 +76,11 @@ public final class TagMap {
      *     TagMap#MAX_STRING_LENGTH}.
      */
     public Builder set(TagKey<String> key, String value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_STRING);
+      checkArgument(key.getTagType() == TagType.TAG_STRING);
 
       // TODO(sebright): Consider adding a TagValue class to avoid validating the String every time
       // it is set.
-      Preconditions.checkArgument(StringUtil.isValid(value));
+      checkArgument(StringUtil.isValid(value));
       return setInternal(key, value);
     }
 
@@ -92,7 +93,7 @@ public final class TagMap {
      * @throws IllegalArgumentException if the key is null or the key is the wrong type.
      */
     public Builder set(TagKey<Long> key, long value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_LONG);
+      checkArgument(key.getTagType() == TagType.TAG_LONG);
       return setInternal(key, value);
     }
 
@@ -105,7 +106,7 @@ public final class TagMap {
      * @throws IllegalArgumentException if the key is null or the key is the wrong type.
      */
     public Builder set(TagKey<Boolean> key, boolean value) {
-      Preconditions.checkArgument(key.getTagType() == TagType.TAG_BOOLEAN);
+      checkArgument(key.getTagType() == TagType.TAG_BOOLEAN);
       return setInternal(key, value);
     }
 

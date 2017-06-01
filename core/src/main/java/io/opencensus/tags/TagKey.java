@@ -13,12 +13,12 @@
 
 package io.opencensus.tags;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.opencensus.tags.TagKey.TagType.TAG_BOOLEAN;
 import static io.opencensus.tags.TagKey.TagType.TAG_LONG;
 import static io.opencensus.tags.TagKey.TagType.TAG_STRING;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Preconditions;
 import com.google.instrumentation.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
@@ -56,7 +56,7 @@ public abstract class TagKey<TagValueT> {
    * @throws IllegalArgumentException if the name is not valid.
    */
   public static TagKey<String> createStringKey(String name) {
-    Preconditions.checkArgument(StringUtil.isValid(name));
+    checkArgument(StringUtil.isValid(name));
     return new AutoValue_TagKey<String>(name, TAG_STRING);
   }
 
@@ -75,7 +75,7 @@ public abstract class TagKey<TagValueT> {
    */
   // TODO(sebright): Make this public once we support types other than String.
   static TagKey<Long> createLongKey(String name) {
-    Preconditions.checkArgument(StringUtil.isValid(name));
+    checkArgument(StringUtil.isValid(name));
     return new AutoValue_TagKey<Long>(name, TAG_LONG);
   }
 
@@ -94,7 +94,7 @@ public abstract class TagKey<TagValueT> {
    */
   // TODO(sebright): Make this public once we support types other than String.
   static TagKey<Boolean> createBooleanKey(String name) {
-    Preconditions.checkArgument(StringUtil.isValid(name));
+    checkArgument(StringUtil.isValid(name));
     return new AutoValue_TagKey<Boolean>(name, TAG_BOOLEAN);
   }
 
