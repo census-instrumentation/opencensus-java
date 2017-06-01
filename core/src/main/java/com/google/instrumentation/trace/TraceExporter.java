@@ -96,7 +96,7 @@ public abstract class TraceExporter {
    * <p>For all completed spans with the option {@link Span.Options#RECORD_EVENTS} the library can
    * store samples based on latency for succeeded operations or based on error code for failed
    * operations. To activate this, users MUST manually configure all the span names for which
-   * samples will be collected (see {@link #collectSamplesForSpanNames(List)}).
+   * samples will be collected (see {@link #collectSamplesForSpanNames(Collection)}).
    */
   public abstract static class InProcessDebuggingHandler {
 
@@ -106,12 +106,18 @@ public abstract class TraceExporter {
      * Returns the summary of all available in-process debugging data such as number of active
      * spans, number of sampled spans in the latency based samples or error based samples.
      *
+     * <p>Latency based sampled summary buckets and error based sampled summary buckets are
+     * available only for span names registered using {@link
+     * #collectSamplesForSpanNames(Collection)}.
+     *
      * @return the summary of all available in-process debugging data.
      */
     public abstract Summary getSummary();
 
     /**
      * Returns a list of active spans that match the {@code filter}.
+     *
+     * <p>Active spans are available for all the span names.
      *
      * @param filter used to filter the returned spans.
      * @return a list of active spans that match the {@code filter}.
@@ -123,7 +129,7 @@ public abstract class TraceExporter {
      * match the {@code filter}.
      *
      * <p>Latency based sampled spans are available only for span names registered using {@link
-     * #collectSamplesForSpanNames(List)}.
+     * #collectSamplesForSpanNames(Collection)}.
      *
      * @param filter used to filter the returned sampled spans.
      * @return a list of succeeded spans that match the {@code filter}.
@@ -136,7 +142,7 @@ public abstract class TraceExporter {
      * match the {@code filter}.
      *
      * <p>Error based sampled spans are available only for span names registered using {@link
-     * #collectSamplesForSpanNames(List)}.
+     * #collectSamplesForSpanNames(Collection)}.
      *
      * @param filter used to filter the returned sampled spans.
      * @return a list of failed spans that match the {@code filter}.
@@ -153,7 +159,7 @@ public abstract class TraceExporter {
      *
      * @param spanNames list of span names for which the library will collect samples.
      */
-    public abstract void collectSamplesForSpanNames(List<String> spanNames);
+    public abstract void collectSamplesForSpanNames(Collection<String> spanNames);
 
     /** The summary of all in-process debugging information. */
     @AutoValue
@@ -177,7 +183,7 @@ public abstract class TraceExporter {
       }
 
       /**
-       * Returns a map with summary of available data for each different span name.
+       * Returns a map with summary of available data for each differeaaant span name.
        *
        * @return a map with all the span names and the summary.
        */
@@ -195,7 +201,7 @@ public abstract class TraceExporter {
          *
          * @param numActiveSpans the number of sampled spans.
          * @param latencyBucketSummaries the summary for the latency buckets.
-         * @param errorBucketSummaries the summary for the error buckets.
+         * @param errorBucketSummaries the summary for the error buckets.a
          * @return a new instance of {@code PerSpanNameSummary}.
          * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
          *     errorBucketSummaries} are {@code null}.
@@ -262,11 +268,14 @@ public abstract class TraceExporter {
            * @param latencyLowerNs the latency lower bound.
            * @param latencyUpperNs the latency upper bound.
            * @return a new instance of {@code LatencyBucketSummary}.
-           * @throws IllegalArgumentException if {@code numSamples} is negative.
+           * @throws IllegalArgumentException if {@code maxSpansToReturn} or {@code latencyLowerNs}
+           *     or {@code latencyUpperNs} are negative.
            */
           public static LatencyBucketSummary create(
               int numSamples, long latencyLowerNs, long latencyUpperNs) {
             checkArgument(numSamples >= 0, "Negative numSamples.");
+            checkArgument(latencyLowerNs >= 0, "Negative latencyLowerNs");
+            checkArgument(latencyUpperNs >= 0, "Negative latencyUpperNs");
             //CHECKSTYLE:OFF: Long class name.
             return new AutoValue_TraceExporter_InProcessDebuggingHandler_Summary_PerSpanNameSummary_LatencyBucketSummary(
                 numSamples, latencyLowerNs, latencyUpperNs);
@@ -309,10 +318,12 @@ public abstract class TraceExporter {
            * @param canonicalCode the error code of the bucket.
            * @return a new instance of {@code ErrorBucketSummary}.
            * @throws NullPointerException if {@code canonicalCode} is {@code null}.
-           * @throws IllegalArgumentException if {@code numSamples} is negative.
+           * @throws IllegalArgumentException if {@code canonicalCode} is {@link CanonicalCode#OK}
+           *     or {@code maxSpansToReturn} is negative.
            */
           public static ErrorBucketSummary create(int numSamples, CanonicalCode canonicalCode) {
             checkArgument(numSamples >= 0, "Negative numSamples.");
+            checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
             //CHECKSTYLE:OFF: Long class name.
             return new AutoValue_TraceExporter_InProcessDebuggingHandler_Summary_PerSpanNameSummary_ErrorBucketSummary(
                 numSamples, canonicalCode);
@@ -327,7 +338,7 @@ public abstract class TraceExporter {
           public abstract int getNumSamples();
 
           /**
-           * Returns the {@code CanonicalCode} for this bucket. Always other than {@link
+           * Returns the {@code CanonicalCode} for this bucket. Always different than {@link
            * CanonicalCode#OK}.
            *
            * @return the {@code CanonicalCode} for this bucket.
@@ -350,7 +361,7 @@ public abstract class TraceExporter {
       /**
        * Returns a new instance of {@code ActiveSpansFilter}.
        *
-       * <p>Filters all the spans based on {@code spanName} and returns maximum {@code
+       * <p>Filters all the spans based on {@code spanName} and returns a maximum of {@code
        * maxSpansToReturn}.
        *
        * @param spanName the name of the span.
@@ -394,7 +405,7 @@ public abstract class TraceExporter {
        * Returns a new instance of {@code LatencyBasedSampledSpansFilter}.
        *
        * <p>Filters all the spans based on {@code spanName} and latency in the interval
-       * [latencyLowerNs, latencyUpperNs) and returns maximum {@code maxSpansToReturn}.
+       * [latencyLowerNs, latencyUpperNs) and returns a maximum of {@code maxSpansToReturn}.
        *
        * @param spanName the name of the span.
        * @param latencyLowerNs the latency lower bound.
@@ -453,8 +464,8 @@ public abstract class TraceExporter {
       /**
        * Returns a new instance of {@code ErrorBasedSampledSpansFilter}.
        *
-       * <p>Filters all the spans based on {@code spanName} and {@code canonicalCode} and returns
-       * maximum {@code maxSpansToReturn}.
+       * <p>Filters all the spans based on {@code spanName} and {@code canonicalCode} and returns a
+       * maximum of {@code maxSpansToReturn}.
        *
        * @param spanName the name of the span.
        * @param canonicalCode the error code of the span.
@@ -480,7 +491,8 @@ public abstract class TraceExporter {
       public abstract String getSpanName();
 
       /**
-       * Returns the canonical code used by this filter.
+       * Returns the canonical code used by this filter. Always different than {@link
+       * CanonicalCode#OK}.
        *
        * @return the canonical code used by this filter.
        */
