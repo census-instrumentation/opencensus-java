@@ -37,8 +37,8 @@ public class MutableDistributionTest {
     assertThat(empty.getSum()).isWithin(TOLERANCE).of(0.0);
     assertThat(empty.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(0.0);
     assertThat(empty.getMean()).isNaN();
-    assertThat(empty.getRange().getMin()).isEqualTo(Double.POSITIVE_INFINITY);
-    assertThat(empty.getRange().getMax()).isEqualTo(Double.NEGATIVE_INFINITY);
+    assertThat(empty.getRange().getMin()).isPositiveInfinity();
+    assertThat(empty.getRange().getMax()).isNegativeInfinity();
     assertThat(empty.getBucketCounts()).isNull();
   }
 
