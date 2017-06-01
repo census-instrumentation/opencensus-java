@@ -54,7 +54,7 @@ final class StatsTestUtil {
 
   /**
    * Creates a {@code DistributionAggregation} by adding the given values to a new {@link
-   * MutableDistribution}.
+   * MutableDistribution} that has {@code BucketBoundaries}.
    *
    * @param tags the {@code DistributionAggregation}'s tags.
    * @param bucketBoundaries the bucket boundaries.
@@ -75,6 +75,29 @@ final class StatsTestUtil {
         DistributionAggregation.Range.create(range.getMin(), range.getMax()),
         tags,
         mdist.getBucketCounts());
+  }
+
+  /**
+   * Creates a {@code DistributionAggregation} by adding the given values to a new {@link
+   * MutableDistribution} that does not have {@code BucketBoundaries}.
+   *
+   * @param tags the {@code DistributionAggregation}'s tags.
+   * @param values the values to add to the distribution.
+   * @return the new {@code DistributionAggregation}
+   */
+  static DistributionAggregation createDistributionAggregation(
+      List<Tag> tags, List<Double> values) {
+    MutableDistribution mdist = MutableDistribution.create();
+    for (double value : values) {
+      mdist.add(value);
+    }
+    MutableDistribution.Range range = mdist.getRange();
+    return DistributionAggregation.create(
+        mdist.getCount(),
+        mdist.getMean(),
+        mdist.getSum(),
+        DistributionAggregation.Range.create(range.getMin(), range.getMax()),
+        tags);
   }
 
   /**
@@ -124,12 +147,20 @@ final class StatsTestUtil {
         .of(agg2.getMean());
     Truth.assertWithMessage(msg + " sum").that(agg1.getSum()).isWithin(tolerance).of(agg2.getSum());
     Truth.assertWithMessage(msg + " range").that(agg1.getRange()).isEqualTo(agg2.getRange());
-    Truth.assertWithMessage(msg + " bucket counts")
-        .that(removeTrailingZeros(agg1.getBucketCounts()))
-        .isEqualTo(removeTrailingZeros(agg2.getBucketCounts()));
+
+    if (agg1.getBucketCounts() == null && agg2.getBucketCounts() == null) {
+      return;
+    } else {
+      Truth.assertWithMessage(msg + " bucket counts")
+          .that(removeTrailingZeros(agg1.getBucketCounts()))
+          .isEqualTo(removeTrailingZeros(agg2.getBucketCounts()));
+    }
   }
 
   private static List<Long> removeTrailingZeros(List<Long> longs) {
+    if (longs == null) {
+      return null;
+    }
     List<Long> truncated = new ArrayList<Long>(longs);
     while (!truncated.isEmpty() && Iterables.getLast(truncated) == 0) {
       truncated.remove(truncated.size() - 1);

@@ -29,6 +29,7 @@ import java.util.Map.Entry;
  * A mutable version of {@link View}, used for recording stats and start/end time.
  */
 abstract class MutableView {
+
   // TODO(songya): might want to update the default tag value later.
   @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
 
@@ -105,10 +106,14 @@ abstract class MutableView {
           new ArrayList<DistributionAggregation>();
       for (Entry<List<TagValue>, MutableDistribution> entry : tagValueDistributionMap.entrySet()) {
         MutableDistribution distribution = entry.getValue();
-        distributionAggregations.add(
+        DistributionAggregation distributionAggregation = distribution.getBucketCounts() == null
+            ? DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
+            distribution.getSum(), convertRange(distribution.getRange()),
+            generateTags(entry.getKey())) :
             DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
                 distribution.getSum(), convertRange(distribution.getRange()),
-                generateTags(entry.getKey()), distribution.getBucketCounts()));
+                generateTags(entry.getKey()), distribution.getBucketCounts());
+        distributionAggregations.add(distributionAggregation);
       }
       return DistributionView.create(distributionViewDescriptor, distributionAggregations, start,
           clock.now());
@@ -123,7 +128,7 @@ abstract class MutableView {
 
     private final DistributionViewDescriptor distributionViewDescriptor;
     private final Map<List<TagValue>, MutableDistribution> tagValueDistributionMap =
-            new HashMap<List<TagValue>, MutableDistribution>();
+        new HashMap<List<TagValue>, MutableDistribution>();
     private final Timestamp start;
 
     private MutableDistributionView(
