@@ -150,8 +150,6 @@ final class StatsTestUtil {
 
     if (agg1.getBucketCounts() == null && agg2.getBucketCounts() == null) {
       return;
-    } else if (agg1.getBucketCounts() == null || agg2.getBucketCounts() == null) {
-      throw new AssertionError(msg + " bucket counts");
     } else {
       Truth.assertWithMessage(msg + " bucket counts")
           .that(removeTrailingZeros(agg1.getBucketCounts()))
@@ -160,6 +158,9 @@ final class StatsTestUtil {
   }
 
   private static List<Long> removeTrailingZeros(List<Long> longs) {
+    if (longs == null) {
+      return null;
+    }
     List<Long> truncated = new ArrayList<Long>(longs);
     while (!truncated.isEmpty() && Iterables.getLast(truncated) == 0) {
       truncated.remove(truncated.size() - 1);
