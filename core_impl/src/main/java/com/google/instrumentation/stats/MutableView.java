@@ -31,7 +31,8 @@ import java.util.Map.Entry;
 abstract class MutableView {
 
   // TODO(songya): might want to update the default tag value later.
-  @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
+  @VisibleForTesting
+  static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
 
   /**
    * The {@link ViewDescriptor} associated with this {@link View}.
@@ -109,8 +110,8 @@ abstract class MutableView {
         DistributionAggregation distributionAggregation = distribution.getBucketCounts() == null
             ? DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
             distribution.getSum(), convertRange(distribution.getRange()),
-            generateTags(entry.getKey())) :
-            DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
+            generateTags(entry.getKey()))
+            : DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
                 distribution.getSum(), convertRange(distribution.getRange()),
                 generateTags(entry.getKey()), distribution.getBucketCounts());
         distributionAggregations.add(distributionAggregation);
