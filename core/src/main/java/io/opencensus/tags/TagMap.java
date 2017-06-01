@@ -92,7 +92,8 @@ public final class TagMap {
      * @return this
      * @throws IllegalArgumentException if the key is null or the key is the wrong type.
      */
-    public Builder set(TagKey<Long> key, long value) {
+    // TODO(sebright): Make this public once we support types other than String.
+    Builder set(TagKey<Long> key, long value) {
       checkArgument(key.getTagType() == TagType.TAG_LONG);
       return setInternal(key, value);
     }
@@ -105,7 +106,8 @@ public final class TagMap {
      * @return this
      * @throws IllegalArgumentException if the key is null or the key is the wrong type.
      */
-    public Builder set(TagKey<Boolean> key, boolean value) {
+    // TODO(sebright): Make this public once we support types other than String.
+    Builder set(TagKey<Boolean> key, boolean value) {
       checkArgument(key.getTagType() == TagType.TAG_BOOLEAN);
       return setInternal(key, value);
     }
