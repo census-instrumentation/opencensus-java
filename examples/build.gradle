@@ -8,8 +8,7 @@ tasks.withType(JavaCompile) {
 dependencies {
     compile project(':core'),
             project(':core_impl'),
-            project(':core_impl_java'),
-            libraries.grpc_context
+            project(':core_impl_java')
 }
 
 // Provide convenience executables for trying out the examples.
