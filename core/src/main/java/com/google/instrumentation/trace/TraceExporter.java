@@ -183,7 +183,7 @@ public abstract class TraceExporter {
       }
 
       /**
-       * Returns a map with summary of available data for each differeaaant span name.
+       * Returns a map with summary of available data for each different span name.
        *
        * @return a map with all the span names and the summary.
        */
@@ -201,7 +201,7 @@ public abstract class TraceExporter {
          *
          * @param numActiveSpans the number of sampled spans.
          * @param latencyBucketSummaries the summary for the latency buckets.
-         * @param errorBucketSummaries the summary for the error buckets.a
+         * @param errorBucketSummaries the summary for the error buckets.
          * @return a new instance of {@code PerSpanNameSummary}.
          * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
          *     errorBucketSummaries} are {@code null}.
@@ -268,8 +268,8 @@ public abstract class TraceExporter {
            * @param latencyLowerNs the latency lower bound.
            * @param latencyUpperNs the latency upper bound.
            * @return a new instance of {@code LatencyBucketSummary}.
-           * @throws IllegalArgumentException if {@code maxSpansToReturn} or {@code latencyLowerNs}
-           *     or {@code latencyUpperNs} are negative.
+           * @throws IllegalArgumentException if {@code numSamples} or {@code latencyLowerNs} or
+           *     {@code latencyUpperNs} are negative.
            */
           public static LatencyBucketSummary create(
               int numSamples, long latencyLowerNs, long latencyUpperNs) {
@@ -319,7 +319,7 @@ public abstract class TraceExporter {
            * @return a new instance of {@code ErrorBucketSummary}.
            * @throws NullPointerException if {@code canonicalCode} is {@code null}.
            * @throws IllegalArgumentException if {@code canonicalCode} is {@link CanonicalCode#OK}
-           *     or {@code maxSpansToReturn} is negative.
+           *     or {@code numSamples} is negative.
            */
           public static ErrorBucketSummary create(int numSamples, CanonicalCode canonicalCode) {
             checkArgument(numSamples >= 0, "Negative numSamples.");
