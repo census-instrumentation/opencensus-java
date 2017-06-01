@@ -17,6 +17,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.instrumentation.internal.StringUtil;
 import io.opencensus.tags.TagKey.TagType;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
@@ -37,7 +38,7 @@ public final class TagMap {
   private final Map<TagKey<?>, Object> tags;
 
   TagMap(Map<TagKey<?>, Object> tags) {
-    this.tags = tags;
+    this.tags = Collections.unmodifiableMap(new HashMap<TagKey<?>, Object>(tags));
   }
 
   Map<TagKey<?>, Object> getTags() {
