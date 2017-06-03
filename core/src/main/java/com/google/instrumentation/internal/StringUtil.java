@@ -22,7 +22,8 @@ public final class StringUtil {
   public static final char UNPRINTABLE_CHAR_SUBSTITUTE = '_';
 
   /**
-   * Replaces non-printable characters with underscores and truncates to {@link
+   * Transforms the given {@code String} into a valid tag key, tag value, or metric name. This
+   * method replaces non-printable characters with underscores and truncates to {@link
    * StringUtil#MAX_LENGTH}.
    *
    * @param str the {@code String} to be sanitized.
@@ -42,6 +43,17 @@ public final class StringUtil {
       builder.append(isPrintableChar(ch) ? ch : UNPRINTABLE_CHAR_SUBSTITUTE);
     }
     return builder.toString();
+  }
+
+  /**
+   * Determines whether the {@code String} is a valid tag key, tag value, or metric name.
+   *
+   * @param string the {@code String} to be validated.
+   * @return whether the {@code String} is valid.
+   * @see #sanitize(String)
+   */
+  public static boolean isValid(String string) {
+    return string.length() <= MAX_LENGTH && isPrintableString(string);
   }
 
   private static boolean isPrintableString(String str) {
