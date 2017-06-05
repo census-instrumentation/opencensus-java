@@ -18,6 +18,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Status.CanonicalCode;
+import io.opencensus.trace.TraceExporter.SampledSpansServiceExporter.Handler;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,34 +50,66 @@ public abstract class TraceExporter {
     return noopTraceExporter;
   }
 
-  /**
-   * Registers a new service handler that is used by the library to export {@code SpanData} for
-   * sampled spans (see {@link TraceOptions#isSampled()}).
-   *
-   * <p>Example of usage:
-   *
-   * <pre>{@code
-   * public static void main(String[] args) {
-   *   Tracing.getTraceExporter().registerServiceHandler(
-   *       "com.google.stackdriver.tracing", new StackdriverTracingServiceHandler());
-   *   // ...
-   * }
-   * }</pre>
-   *
-   * @param name the name of the service handler. Must be unique for each service.
-   * @param serviceHandler the service handler that is called for each ended sampled span.
-   */
-  public abstract void registerServiceHandler(String name, ServiceHandler serviceHandler);
+  public abstract SampledSpansServiceExporter getSampledSpansServiceExporter();
 
   /**
-   * Unregisters the service handler with the provided name.
-   *
-   * @param name the name of the service handler that will be unregistered.
+   * A service that is used by the library to export {@code SpanData} for sampled spans (see
+   * {@link TraceOptions#isSampled()}).
    */
-  public abstract void unregisterServiceHandler(String name);
+  public abstract static class SampledSpansServiceExporter {
+    /**
+     * Registers a new service handler that is used by the library to export {@code SpanData} for
+     * sampled spans (see {@link TraceOptions#isSampled()}).
+     *
+     * <p>Example of usage:
+     *
+     * <pre>{@code
+     * public static void main(String[] args) {
+     *   Tracing.getTraceExporter().registerServiceHandler(
+     *       "com.google.stackdriver.tracing", new StackdriverTracingServiceHandler());
+     *   // ...
+     * }
+     * }</pre>
+     *
+     * @param name the name of the service handler. Must be unique for each service.
+     * @param handler the service handler that is called for each ended sampled span.
+     */
+    public abstract void registerHandler(String name, Handler handler);
+
+    /**
+     * Unregisters the service handler with the provided name.
+     *
+     * @param name the name of the service handler that will be unregistered.
+     */
+    public abstract void unregisterHandler(String name);
+
+    /**
+     * An abstract class that allows different tracing services to export recorded data for sampled
+     * spans in their own format.
+     *
+     * <p>To export data this MUST be register to to the TraceExporter using {@link
+     * #registerHandler(String, Handler)}.
+     */
+    public abstract static class Handler {
+
+      /**
+       * Exports a list of sampled (see {@link TraceOptions#isSampled()}) {@link Span}s using the
+       * immutable representation {@link SpanData}.
+       *
+       * <p>This may be called from a different thread than the one that called {@link Span#end()}.
+       *
+       * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
+       * different thread if possible.
+       *
+       * @param spanDataList a list of {@code SpanData} objects to be exported.
+       */
+      public abstract void export(Collection<SpanData> spanDataList);
+    }
+
+  }
 
   /**
-   * Returns the {@code InProcessDebuggingHandler} that can be used to get useful debugging
+   * Returns the {@link InProcessDebuggingHandler} that can be used to get useful debugging
    * information such as (active spans, latency based sampled spans, error based sampled spans).
    *
    * @return the {@code InProcessDebuggingHandler} or {@code null} if in-process debugging is not
@@ -483,30 +517,7 @@ public abstract class TraceExporter {
   }
 
   /**
-   * An abstract class that allows different tracing services to export recorded data for sampled
-   * spans in their own format.
-   *
-   * <p>To export data this MUST be register to to the TraceExporter using {@link
-   * #registerServiceHandler(String, ServiceHandler)}.
-   */
-  public abstract static class ServiceHandler {
-
-    /**
-     * Exports a list of sampled (see {@link TraceOptions#isSampled()}) {@link Span}s using the
-     * immutable representation {@link SpanData}.
-     *
-     * <p>This may be called from a different thread than the one that called {@link Span#end()}.
-     *
-     * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
-     * different thread if possible.
-     *
-     * @param spanDataList a list of {@code SpanData} objects to be exported.
-     */
-    public abstract void export(Collection<SpanData> spanDataList);
-  }
-
-  /**
-   * Implementation of the {@link ServiceHandler} which logs all the exported {@link SpanData}.
+   * Implementation of the {@link Handler} which logs all the exported {@link SpanData}.
    *
    * <p>Example of usage:
    *
@@ -519,7 +530,7 @@ public abstract class TraceExporter {
    * }</pre>
    */
   @ThreadSafe
-  public static final class LoggingServiceHandler extends ServiceHandler {
+  public static final class LoggingServiceHandler extends Handler {
 
     private static final Logger logger = Logger.getLogger(LoggingServiceHandler.class.getName());
     private static final String SERVICE_NAME = "io.opencensus.trace.LoggingServiceHandler";
@@ -534,7 +545,7 @@ public abstract class TraceExporter {
      *     registered.
      */
     public static void registerService(TraceExporter traceExporter) {
-      traceExporter.registerServiceHandler(SERVICE_NAME, INSTANCE);
+      traceExporter.getSampledSpansServiceExporter().registerHandler(SERVICE_NAME, INSTANCE);
     }
 
     /**
@@ -544,7 +555,7 @@ public abstract class TraceExporter {
      *     unregistered.
      */
     public static void unregisterService(TraceExporter traceExporter) {
-      traceExporter.unregisterServiceHandler(SERVICE_NAME);
+      traceExporter.getSampledSpansServiceExporter().unregisterHandler(SERVICE_NAME);
     }
 
     @Override
@@ -555,13 +566,27 @@ public abstract class TraceExporter {
     }
   }
 
+  private static final class NoopSampledSpansServiceExporter extends  SampledSpansServiceExporter {
+
+    @Override
+    public void registerHandler(String name, Handler handler) {
+
+    }
+
+    @Override
+    public void unregisterHandler(String name) {
+
+    }
+  }
+
   private static final class NoopTraceExporter extends TraceExporter {
+    private static final SampledSpansServiceExporter SAMPLED_SPANS_SERVICE_EXPORTER = new
+        NoopSampledSpansServiceExporter();
 
     @Override
-    public void registerServiceHandler(String name, @Nullable ServiceHandler serviceHandler) {}
-
-    @Override
-    public void unregisterServiceHandler(String name) {}
+    public SampledSpansServiceExporter getSampledSpansServiceExporter() {
+      return SAMPLED_SPANS_SERVICE_EXPORTER;
+    }
 
     @Nullable
     @Override

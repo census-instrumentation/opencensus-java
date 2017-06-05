@@ -16,6 +16,7 @@ package io.opencensus.trace;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.opencensus.trace.TraceExporter.LoggingServiceHandler;
 import org.junit.Before;
@@ -29,6 +30,7 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnit4.class)
 public class TraceExporterTest {
   @Mock private TraceExporter traceExporter;
+  @Mock private TraceExporter.SampledSpansServiceExporter sampledSpansServiceExporter;
 
   @Before
   public void setUp() {
@@ -37,11 +39,13 @@ public class TraceExporterTest {
 
   @Test
   public void registerUnregisterLoggingService() {
+    when(traceExporter.getSampledSpansServiceExporter()).thenReturn(sampledSpansServiceExporter);
     LoggingServiceHandler.registerService(traceExporter);
-    verify(traceExporter)
-        .registerServiceHandler(
+    verify(sampledSpansServiceExporter)
+        .registerHandler(
             eq("io.opencensus.trace.LoggingServiceHandler"), any(LoggingServiceHandler.class));
     LoggingServiceHandler.unregisterService(traceExporter);
-    verify(traceExporter).unregisterServiceHandler(eq("io.opencensus.trace.LoggingServiceHandler"));
+    verify(sampledSpansServiceExporter)
+        .unregisterHandler(eq("io.opencensus.trace.LoggingServiceHandler"));
   }
 }
