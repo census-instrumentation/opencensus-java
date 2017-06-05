@@ -15,50 +15,51 @@ package io.opencensus.stats.internal;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.internal.Provider;
-import io.opencensus.stats.StatsManager;
+import io.opencensus.stats.StatsManagerFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-/** Class for instantiating the {@link StatsManager}. */
+/** Class for instantiating the {@link StatsManagerFactory}. */
 public final class StatsInternal {
   private static final Logger logger = Logger.getLogger(StatsInternal.class.getName());
 
-  private static final StatsManager statsManager =
-      loadStatsManager(Provider.getCorrectClassLoader(StatsManager.class));
+  private static final StatsManagerFactory statsManagerFactory =
+      loadStatsManagerFactory(Provider.getCorrectClassLoader(StatsManagerFactory.class));
 
-  /** Returns the default {@link StatsManager}. */
+  /** Returns the {@link StatsManagerFactory} singleton. */
   @Nullable
-  public static StatsManager getStatsManager() {
-    return statsManager;
+  public static StatsManagerFactory getStatsManagerFactory() {
+    return statsManagerFactory;
   }
 
-  // Any provider that may be used for StatsManager can be added here.
+  // Any provider that may be used for StatsManagerFactory can be added here.
   @VisibleForTesting
   @Nullable
-  static StatsManager loadStatsManager(ClassLoader classLoader) {
+  static StatsManagerFactory loadStatsManagerFactory(ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsManagerImpl", true, classLoader),
-          StatsManager.class);
+          Class.forName("io.opencensus.stats.StatsManagerFactoryImpl", true, classLoader),
+          StatsManagerFactory.class);
     } catch (ClassNotFoundException e) {
       logger.log(
           Level.FINE,
-          "Couldn't load full implementation for StatsManager, now trying to load lite "
+          "Couldn't load full implementation for StatsManagerFactory, now trying to load lite "
               + "implementation.",
           e);
     }
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsManagerImplLite", true, classLoader),
-          StatsManager.class);
+          Class.forName(
+              "io.opencensus.stats.StatsManagerFactoryImplLite", true, classLoader),
+          StatsManagerFactory.class);
     } catch (ClassNotFoundException e) {
       logger.log(
           Level.FINE,
-          "Couldn't load lite implementation for StatsManager, now using "
-              + "default implementation for StatsManager.",
+          "Couldn't load lite implementation for StatsManagerFactory, now using "
+              + "default implementation for StatsManagerFactory.",
           e);
     }
     // TODO: Add a no-op implementation.

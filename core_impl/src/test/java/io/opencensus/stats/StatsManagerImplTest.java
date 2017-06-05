@@ -34,7 +34,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link StatsManagerImplBase}. */
+/** Tests for {@link StatsManagerImpl}. */
 @RunWith(JUnit4.class)
 public class StatsManagerImplTest {
 
@@ -74,8 +74,8 @@ public class StatsManagerImplTest {
 
   private final TestClock clock = TestClock.create();
 
-  private final StatsManagerImplBase statsManager =
-      new StatsManagerImplBase(new SimpleEventQueue(), clock);
+  private final StatsManagerImpl statsManager =
+      new StatsManagerImpl(new SimpleEventQueue(), clock);
 
   private final StatsContextFactoryImpl factory = new StatsContextFactoryImpl(statsManager);
 

@@ -16,11 +16,25 @@ package io.opencensus.stats;
 import io.opencensus.common.MillisClock;
 import io.opencensus.internal.DisruptorEventQueue;
 
-/** Java 7 and 8 implementation of {@link StatsManager}. */
-public final class StatsManagerImpl extends StatsManagerImplBase {
+/** Java 7 and 8 implementation of {@link StatsManagerFactory}. */
+public final class StatsManagerFactoryImpl extends StatsManagerFactoryImplBase {
 
   /** Public constructor to be used with reflection loading. */
-  public StatsManagerImpl() {
-    super(DisruptorEventQueue.getInstance(), MillisClock.getInstance());
+  public StatsManagerFactoryImpl() {}
+
+  private final StatsManager defaultStatsManager = createStatsManager();
+
+  @Override
+  public final StatsManager createTestStatsManager() {
+    return createStatsManager();
+  }
+
+  @Override
+  public StatsManager getDefaultStatsManager() {
+    return defaultStatsManager;
+  }
+
+  private static StatsManager createStatsManager() {
+    return new StatsManagerImpl(DisruptorEventQueue.getInstance(), MillisClock.getInstance());
   }
 }

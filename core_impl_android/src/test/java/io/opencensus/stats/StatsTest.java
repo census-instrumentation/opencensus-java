@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 public final class StatsTest {
   @Test
   public void getStatsManager() {
-    assertThat(Stats.getStatsManager()).isInstanceOf(StatsManagerImplLite.class);
+    assertThat(Stats.getStatsManager()).isInstanceOf(StatsManagerImpl.class);
   }
 
   @Test

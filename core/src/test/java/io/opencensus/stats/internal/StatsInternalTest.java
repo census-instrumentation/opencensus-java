@@ -31,7 +31,7 @@ public final class StatsInternalTest {
     final RuntimeException toThrow = new RuntimeException("UseClassLoader");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("UseClassLoader");
-    StatsInternal.loadStatsManager(
+    StatsInternal.loadStatsManagerFactory(
         new ClassLoader() {
           @Override
           public Class<?> loadClass(String name) {
@@ -43,7 +43,7 @@ public final class StatsInternalTest {
   @Test
   public void loadStatsManager_IgnoresMissingClasses() {
     assertThat(
-            StatsInternal.loadStatsManager(
+            StatsInternal.loadStatsManagerFactory(
                     new ClassLoader() {
                       @Override
                       public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -55,6 +55,6 @@ public final class StatsInternalTest {
 
   @Test
   public void defaultValues() {
-    assertThat(StatsInternal.getStatsManager()).isNull();
+    assertThat(StatsInternal.getStatsManagerFactory()).isNull();
   }
 }

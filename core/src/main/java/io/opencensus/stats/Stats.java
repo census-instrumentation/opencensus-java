@@ -18,7 +18,13 @@ import javax.annotation.Nullable;
 
 /** {@link Stats}. */
 public final class Stats {
-  private static final StatsManager statsManager = StatsInternal.getStatsManager();
+  @Nullable
+  private static final StatsManagerFactory statsManagerFactory =
+      StatsInternal.getStatsManagerFactory();
+
+  @Nullable
+  private static final StatsManager statsManager =
+      statsManagerFactory == null ? null : statsManagerFactory.getDefaultStatsManager();
 
   /** Returns the default {@link StatsContextFactory}. */
   @Nullable
