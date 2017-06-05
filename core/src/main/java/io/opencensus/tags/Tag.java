@@ -20,6 +20,9 @@ import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
 import javax.annotation.concurrent.Immutable;
 
+/**
+ * Paired {@link TagKey} and value.
+ */
 @Immutable
 @AutoValue
 public abstract class Tag {
@@ -143,7 +146,8 @@ public abstract class Tag {
    * @param value the tag value.
    * @return a {@code Tag} with the given key and value.
    */
-  public static Tag createLongTag(TagKeyLong key, long value) {
+  // TODO(sebright): Make this public once we support types other than String.
+  static Tag createLongTag(TagKeyLong key, long value) {
     return createInternal(TagLong.create(key, value));
   }
 
@@ -154,7 +158,8 @@ public abstract class Tag {
    * @param value the tag value.
    * @return a {@code Tag} with the given key and value.
    */
-  public static Tag createBooleanTag(TagKeyBoolean key, boolean value) {
+  // TODO(sebright): Make this public once we support types other than String.
+  static Tag createBooleanTag(TagKeyBoolean key, boolean value) {
     return createInternal(TagBoolean.create(key, value));
   }
 

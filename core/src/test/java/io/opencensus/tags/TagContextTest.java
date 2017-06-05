@@ -35,8 +35,8 @@ public class TagContextTest {
   private static final TagKeyString KS1 = TagKey.createStringKey("k1");
   private static final TagKeyString KS2 = TagKey.createStringKey("k2");
 
-  private static final TagValueString V1 = TagValueString.create("k1");
-  private static final TagValueString V2 = TagValueString.create("k2");
+  private static final TagValueString V1 = TagValueString.create("v1");
+  private static final TagValueString V2 = TagValueString.create("v2");
 
   @Test
   public void applyBuilderOperationsInOrder() {
@@ -47,16 +47,16 @@ public class TagContextTest {
   @Test
   public void allowMutlipleKeysWithSameNameButDifferentTypes() {
     TagKeyString stringKey = TagKey.createStringKey("key");
-    TagKeyLong intKey = TagKey.createLongKey("key");
+    TagKeyLong longKey = TagKey.createLongKey("key");
     TagKeyBoolean boolKey = TagKey.createBooleanKey("key");
     assertThat(
             newBuilder()
                 .set(stringKey, TagValueString.create("value"))
-                .set(intKey, 123)
+                .set(longKey, 123)
                 .set(boolKey, true)
                 .build()
                 .getTags())
-        .containsExactly(stringKey, TagValueString.create("value"), intKey, 123L, boolKey, true);
+        .containsExactly(stringKey, TagValueString.create("value"), longKey, 123L, boolKey, true);
   }
 
   @Test
