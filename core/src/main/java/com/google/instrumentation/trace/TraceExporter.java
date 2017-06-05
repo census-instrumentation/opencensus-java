@@ -96,7 +96,7 @@ public abstract class TraceExporter {
    * <p>For all completed spans with the option {@link Span.Options#RECORD_EVENTS} the library can
    * store samples based on latency for succeeded operations or based on error code for failed
    * operations. To activate this, users MUST manually configure all the span names for which
-   * samples will be collected (see {@link #collectSamplesForSpanNames(Collection)}).
+   * samples will be collected (see {@link #registerSpanNamesForCollection(Collection)}).
    */
   public abstract static class InProcessDebuggingHandler {
 
@@ -108,7 +108,7 @@ public abstract class TraceExporter {
      *
      * <p>Latency based sampled summary buckets and error based sampled summary buckets are
      * available only for span names registered using {@link
-     * #collectSamplesForSpanNames(Collection)}.
+     * #registerSpanNamesForCollection(Collection)}.
      *
      * @return the summary of all available in-process debugging data.
      */
@@ -129,7 +129,7 @@ public abstract class TraceExporter {
      * match the {@code filter}.
      *
      * <p>Latency based sampled spans are available only for span names registered using {@link
-     * #collectSamplesForSpanNames(Collection)}.
+     * #registerSpanNamesForCollection(Collection)}.
      *
      * @param filter used to filter the returned sampled spans.
      * @return a list of succeeded spans that match the {@code filter}.
@@ -142,7 +142,7 @@ public abstract class TraceExporter {
      * match the {@code filter}.
      *
      * <p>Error based sampled spans are available only for span names registered using {@link
-     * #collectSamplesForSpanNames(Collection)}.
+     * #registerSpanNamesForCollection(Collection)}.
      *
      * @param filter used to filter the returned sampled spans.
      * @return a list of failed spans that match the {@code filter}.
@@ -159,7 +159,18 @@ public abstract class TraceExporter {
      *
      * @param spanNames list of span names for which the library will collect samples.
      */
-    public abstract void collectSamplesForSpanNames(Collection<String> spanNames);
+    public abstract void registerSpanNamesForCollection(Collection<String> spanNames);
+
+    /**
+     * Removes a list of span names for which the library will collect latency based sampled spans
+     * and error based sampled spans.
+     *
+     * <p>The library keeps the list of unique registered span names for which samples will be
+     * called. This method allows users to remove span names from that list.
+     *
+     * @param spanNames list of span names for which the library will no longer collect samples.
+     */
+    public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
 
     /** The summary of all in-process debugging information. */
     @AutoValue
