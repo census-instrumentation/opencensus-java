@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -172,6 +172,99 @@ public abstract class TraceExporter {
      */
     public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
 
+    /**
+     * The latency buckets boundaries. Samples based on latency for successful spans (the status of
+     * the span has a canonical code different than {@link CanonicalCode#OK}) are collected in one
+     * of these latency buckets.
+     */
+    public enum LatencyBucketsBoundaries {
+      // Stores finished successful requests of duration within the interval [0, 10us)
+      ZERO_MICROSx10(0, TimeUnit.MICROSECONDS.toNanos(10), "0", "10us)"),
+      // Stores finished successful requests of duration within the interval [10us, 100us)
+      MICROSx10_MICROSx100(
+          TimeUnit.MICROSECONDS.toNanos(10), TimeUnit.MICROSECONDS.toNanos(100), "10us", "100us"),
+      // Stores finished successful requests of duration within the interval [100us, 1ms)
+      MICROSx100_MILLIx1(
+          TimeUnit.MICROSECONDS.toNanos(100), TimeUnit.MILLISECONDS.toNanos(1), "100us", "1ms"),
+      // Stores finished successful requests of duration within the interval [1ms, 10ms)
+      MILLIx1_MILLIx10(
+          TimeUnit.MILLISECONDS.toNanos(1), TimeUnit.MILLISECONDS.toNanos(10), "1ms", "10ms"),
+      // Stores finished successful requests of duration within the interval [10ms, 100ms)
+      MILLIx10_MILLIx100(
+          TimeUnit.MILLISECONDS.toNanos(10), TimeUnit.MILLISECONDS.toNanos(100), "10ms", "100ms"),
+      // Stores finished successful requests of duration within the interval [100ms, 1sec)
+      MILLIx100_SECONDx1(
+          TimeUnit.MILLISECONDS.toNanos(100), TimeUnit.SECONDS.toNanos(1), "100ms", "1sec"),
+      // Stores finished successful requests of duration within the interval [1sec, 10sec)
+      SECONDx1_SECONDx10(
+          TimeUnit.SECONDS.toNanos(1), TimeUnit.SECONDS.toNanos(10), "1sec", "10sec"),
+      // Stores finished successful requests of duration within the interval [10sec, 100sec)
+      SECONDx10_SECONDx100(
+          TimeUnit.SECONDS.toNanos(10), TimeUnit.SECONDS.toNanos(100), "10sec", "100sec"),
+      // Stores finished successful requests of duration >= 100sec
+      SECONDx100_MAX(TimeUnit.SECONDS.toNanos(100), Long.MAX_VALUE, "100sec", "INF");
+
+      /**
+       * Constructs a {@code LatencyBucketsBoundaries} with the given boundaries and label.
+       *
+       * @param latencyLowerNs the latency lower bound of the bucket.
+       * @param latencyUpperNs the latency upper bound of the bucket.
+       * @param latencyLowerString the human readable string of the {@code latencyLowerNs} value.
+       * @param latencyUpperString the human readable string of the {@code latencyUpperNs} value.
+       */
+      LatencyBucketsBoundaries(
+          long latencyLowerNs,
+          long latencyUpperNs,
+          String latencyLowerString,
+          String latencyUpperString) {
+        this.latencyLowerNs = latencyLowerNs;
+        this.latencyUpperNs = latencyUpperNs;
+        this.latencyLowerString = latencyLowerString;
+        this.latencyUpperString = latencyUpperString;
+      }
+
+      /**
+       * Returns the latency lower bound of the bucket.
+       *
+       * @return the latency lower bound of the bucket.
+       */
+      public long getLatencyLowerNs() {
+        return latencyLowerNs;
+      }
+
+      /**
+       * Returns the latency upper bound of the bucket.
+       *
+       * @return the latency upper bound of the bucket.
+       */
+      public long getLatencyUpperNs() {
+        return latencyUpperNs;
+      }
+
+      /**
+       * Returns the human readable string of the {@code getLatencyLowerNs()} value.
+       *
+       * @return the human readable string of the {@code getLatencyLowerNs()} value.
+       */
+      public String getLatencyLowerString() {
+        return latencyLowerString;
+      }
+
+      /**
+       * Returns the human readable string of the {@code getLatencyUpperNs()} value.
+       *
+       * @return the human readable string of the {@code getLatencyUpperNs()} value.
+       */
+      public String getLatencyUpperString() {
+        return latencyUpperString;
+      }
+
+      private final long latencyLowerNs;
+      private final long latencyUpperNs;
+      private final String latencyLowerString;
+      private final String latencyUpperString;
+    }
+
     /** The summary of all in-process debugging information. */
     @AutoValue
     @Immutable
@@ -211,8 +304,8 @@ public abstract class TraceExporter {
          * Returns a new instance of {@code PerSpanNameSummary}.
          *
          * @param numActiveSpans the number of sampled spans.
-         * @param latencyBucketSummaries the summary for the latency buckets.
-         * @param errorBucketSummaries the summary for the error buckets.
+         * @param latencyBucketsSummaries the summary for the latency buckets.
+         * @param errorBucketsSummaries the summary for the error buckets.
          * @return a new instance of {@code PerSpanNameSummary}.
          * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
          *     errorBucketSummaries} are {@code null}.
@@ -220,17 +313,17 @@ public abstract class TraceExporter {
          */
         public static PerSpanNameSummary create(
             int numActiveSpans,
-            List<LatencyBucketSummary> latencyBucketSummaries,
-            List<ErrorBucketSummary> errorBucketSummaries) {
+            Map<LatencyBucketsBoundaries, Integer> latencyBucketsSummaries,
+            Map<CanonicalCode, Integer> errorBucketsSummaries) {
           checkArgument(numActiveSpans >= 0, "Negative numActiveSpans.");
           return new AutoValue_TraceExporter_InProcessDebuggingHandler_Summary_PerSpanNameSummary(
               numActiveSpans,
-              Collections.unmodifiableList(
-                  new ArrayList<LatencyBucketSummary>(
-                      checkNotNull(latencyBucketSummaries, "latencyBucketSummaries"))),
-              Collections.unmodifiableList(
-                  new ArrayList<ErrorBucketSummary>(
-                      checkNotNull(errorBucketSummaries, "errorBucketSummaries"))));
+              Collections.unmodifiableMap(
+                  new HashMap<LatencyBucketsBoundaries, Integer>(
+                      checkNotNull(latencyBucketsSummaries, "latencyBucketsSummaries"))),
+              Collections.unmodifiableMap(
+                  new HashMap<CanonicalCode, Integer>(
+                      checkNotNull(errorBucketsSummaries, "errorBucketsSummaries"))));
         }
 
         /**
@@ -241,121 +334,18 @@ public abstract class TraceExporter {
         public abstract int getNumActiveSpans();
 
         /**
-         * Returns the list of all latency based sampled buckets summary.
+         * Returns the number of samples for each latency based sampled bucket.
          *
-         * <p>The list is sorted based on the lower latency boundary, and the upper bound of one
-         * match the lower bound of the next. Every bucket contains samples with latency within the
-         * interval [lowerBoundary, upperBoundary).
-         *
-         * @return the list of all latency based sampled buckets summary.
+         * @return the number of samples for each latency based sampled bucket.
          */
-        public abstract List<LatencyBucketSummary> getLatencyBucketSummaries();
+        public abstract Map<LatencyBucketsBoundaries, Integer> getLatencyBucketsSummaries();
 
         /**
-         * Returns the list of all error based sampled buckets summary.
+         * Returns the number of samples for each error based sampled bucket.
          *
-         * <p>The list is sorted based on the {@link CanonicalCode#value()} and contains an entry
-         * for each of the values other than {@link CanonicalCode#OK}.
-         *
-         * @return the list of all error based sampled buckets summary.
+         * @return the number of samples for each error based sampled bucket.
          */
-        public abstract List<ErrorBucketSummary> getErrorBucketSummaries();
-
-        /**
-         * Summary of a latency based sampled spans bucket. Contains {@code Span} samples with
-         * latency between [latencyLowerNs, latencyUpperNs).
-         */
-        @AutoValue
-        @Immutable
-        public abstract static class LatencyBucketSummary {
-
-          LatencyBucketSummary() {}
-
-          /**
-           * Returns a new instance of {@code LatencyBucketSummary}. The latency of the samples is
-           * in the interval [latencyLowerNs, latencyUpperNs).
-           *
-           * @param numSamples the number of sampled spans.
-           * @param latencyLowerNs the latency lower bound.
-           * @param latencyUpperNs the latency upper bound.
-           * @return a new instance of {@code LatencyBucketSummary}.
-           * @throws IllegalArgumentException if {@code numSamples} or {@code latencyLowerNs} or
-           *     {@code latencyUpperNs} are negative.
-           */
-          public static LatencyBucketSummary create(
-              int numSamples, long latencyLowerNs, long latencyUpperNs) {
-            checkArgument(numSamples >= 0, "Negative numSamples.");
-            checkArgument(latencyLowerNs >= 0, "Negative latencyLowerNs");
-            checkArgument(latencyUpperNs >= 0, "Negative latencyUpperNs");
-            //CHECKSTYLE:OFF: Long class name.
-            return new AutoValue_TraceExporter_InProcessDebuggingHandler_Summary_PerSpanNameSummary_LatencyBucketSummary(
-                numSamples, latencyLowerNs, latencyUpperNs);
-            //CHECKSTYLE:ON: Long class name.
-          }
-
-          /**
-           * Returns the number of sampled spans in this bucket.
-           *
-           * @return the number of sampled spans in this bucket.
-           */
-          public abstract int getNumSamples();
-
-          /**
-           * Returns the latency lower bound of this bucket (inclusive).
-           *
-           * @return the latency lower bound of this bucket.
-           */
-          public abstract long getLatencyLowerNs();
-
-          /**
-           * Returns the latency upper bound of this bucket (exclusive).
-           *
-           * @return the latency upper bound of this bucket.
-           */
-          public abstract long getLatencyUpperNs();
-        }
-
-        /** Summary of an error based sampled spans bucket. */
-        @AutoValue
-        @Immutable
-        public abstract static class ErrorBucketSummary {
-
-          ErrorBucketSummary() {}
-
-          /**
-           * Returns a new instance of {@code ErrorBucketSummary}.
-           *
-           * @param numSamples the number of sampled spans.
-           * @param canonicalCode the error code of the bucket.
-           * @return a new instance of {@code ErrorBucketSummary}.
-           * @throws NullPointerException if {@code canonicalCode} is {@code null}.
-           * @throws IllegalArgumentException if {@code canonicalCode} is {@link CanonicalCode#OK}
-           *     or {@code numSamples} is negative.
-           */
-          public static ErrorBucketSummary create(int numSamples, CanonicalCode canonicalCode) {
-            checkArgument(numSamples >= 0, "Negative numSamples.");
-            checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
-            //CHECKSTYLE:OFF: Long class name.
-            return new AutoValue_TraceExporter_InProcessDebuggingHandler_Summary_PerSpanNameSummary_ErrorBucketSummary(
-                numSamples, canonicalCode);
-            //CHECKSTYLE:ON: Long class name.
-          }
-
-          /**
-           * Returns the number of sampled spans in this bucket.
-           *
-           * @return the number of sampled spans in this bucket.
-           */
-          public abstract int getNumSamples();
-
-          /**
-           * Returns the {@code CanonicalCode} for this bucket. Always different than {@link
-           * CanonicalCode#OK}.
-           *
-           * @return the {@code CanonicalCode} for this bucket.
-           */
-          public abstract CanonicalCode getCanonicalCode();
-        }
+        public abstract Map<CanonicalCode, Integer> getErrorBucketsSummaries();
       }
     }
 
