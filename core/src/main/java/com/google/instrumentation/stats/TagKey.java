@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
-import com.google.instrumentation.internal.StringUtil;
+import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
 /**

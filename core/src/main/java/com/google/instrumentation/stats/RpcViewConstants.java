@@ -39,9 +39,10 @@ import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVE
 import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES;
 import static com.google.instrumentation.stats.RpcMeasurementConstants.RPC_STATUS;
 
-import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.common.Duration;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

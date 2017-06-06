@@ -13,8 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.Clock;
-import com.google.instrumentation.common.EventQueue;
+import io.opencensus.common.Clock;
+import io.opencensus.common.EventQueue;
 
 /**
  * Base implementation of {@link StatsManager}.

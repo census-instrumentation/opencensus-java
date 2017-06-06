@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.Duration;
+import io.opencensus.common.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;

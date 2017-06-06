@@ -17,9 +17,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.testing.EqualsTester;
-import com.google.instrumentation.common.Duration;
-import com.google.instrumentation.common.Function;
-import com.google.instrumentation.common.Timestamp;
+import io.opencensus.common.Duration;
+import io.opencensus.common.Function;
+import io.opencensus.common.Timestamp;
 import com.google.instrumentation.stats.DistributionAggregation.Range;
 import com.google.instrumentation.stats.IntervalAggregation.Interval;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;

@@ -24,21 +24,21 @@ task statsRunner(type: CreateStartScripts) {
 }
 
 task multiSpansTracing(type: CreateStartScripts) {
-    mainClassName = 'com.google.instrumentation.examples.trace.MultiSpansTracing'
+    mainClassName = 'io.opencensus.examples.trace.MultiSpansTracing'
     applicationName = 'MultiSpansTracing'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
 task multiSpansScopedTracing(type: CreateStartScripts) {
-    mainClassName = 'com.google.instrumentation.examples.trace.MultiSpansScopedTracing'
+    mainClassName = 'io.opencensus.examples.trace.MultiSpansScopedTracing'
     applicationName = 'MultiSpansScopedTracing'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
 task multiSpansContextTracing(type: CreateStartScripts) {
-    mainClassName = 'com.google.instrumentation.examples.trace.MultiSpansContextTracing'
+    mainClassName = 'io.opencensus.examples.trace.MultiSpansContextTracing'
     applicationName = 'MultiSpansContextTracing'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime

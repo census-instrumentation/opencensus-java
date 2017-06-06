@@ -18,8 +18,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.testing.EqualsTester;
-import com.google.instrumentation.common.Duration;
-import com.google.instrumentation.common.Function;
+import io.opencensus.common.Duration;
+import io.opencensus.common.Function;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;

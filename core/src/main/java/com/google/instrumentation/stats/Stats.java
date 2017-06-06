@@ -13,7 +13,7 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.internal.Provider;
+import io.opencensus.internal.Provider;
 import javax.annotation.Nullable;
 
 /**

@@ -15,7 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.common.NonThrowingCloseable;
+import io.opencensus.common.NonThrowingCloseable;
 import io.grpc.Context;
 import org.junit.Before;
 import org.junit.Test;

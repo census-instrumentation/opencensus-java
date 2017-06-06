@@ -15,12 +15,13 @@ package com.google.instrumentation.stats;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.instrumentation.common.Clock;
-import com.google.instrumentation.common.Function;
 import com.google.instrumentation.stats.MutableView.MutableDistributionView;
 import com.google.instrumentation.stats.MutableView.MutableIntervalView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.common.Clock;
+import io.opencensus.common.Function;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
