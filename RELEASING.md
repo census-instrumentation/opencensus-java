@@ -19,8 +19,8 @@ your OSSRH (OSS Repository Hosting) account and signing keys.
     page](http://central.sonatype.org/pages/ossrh-guide.html) to set up an
     account with OSSRH.
     -   You only need to create the account, not set up a new project
-    -   Contact a Instrumentation Java maintainer to add your account after you
-        have created it.
+    -   [Contact a Instrumentation Java maintainer on JIRA to add your account](https://issues.sonatype.org/browse/OSSRH-27038?page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel&focusedCommentId=412928#comment-412928)
+        after you have created it.
 -   (For release deployment only) [Install
     GnuPG](http://central.sonatype.org/pages/working-with-pgp-signatures.html#installing-gnupg)
     and [generate your key
