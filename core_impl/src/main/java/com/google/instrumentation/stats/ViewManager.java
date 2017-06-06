@@ -13,9 +13,9 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.Clock;
-import com.google.instrumentation.common.EventQueue;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
+import io.opencensus.common.Clock;
+import io.opencensus.common.EventQueue;
 
 /** Object that stores all views and stats. */
 final class ViewManager {

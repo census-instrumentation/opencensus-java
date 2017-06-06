@@ -13,7 +13,6 @@
 
 package com.google.instrumentation.examples.stats;
 
-import com.google.instrumentation.common.NonThrowingCloseable;
 import com.google.instrumentation.stats.MeasurementDescriptor;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
@@ -23,6 +22,8 @@ import com.google.instrumentation.stats.StatsContext;
 import com.google.instrumentation.stats.StatsContextFactory;
 import com.google.instrumentation.stats.TagKey;
 import com.google.instrumentation.stats.TagValue;
+import io.opencensus.common.NonThrowingCloseable;
+
 import java.util.Arrays;
 
 /** Simple program that uses Stats contexts. */

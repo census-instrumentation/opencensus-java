@@ -16,10 +16,10 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.instrumentation.stats.StatsTestUtil.createContext;
 
-import com.google.instrumentation.common.Duration;
-import com.google.instrumentation.common.SimpleEventQueue;
-import com.google.instrumentation.common.Timestamp;
-import com.google.instrumentation.internal.TestClock;
+import io.opencensus.common.Duration;
+import io.opencensus.common.SimpleEventQueue;
+import io.opencensus.common.Timestamp;
+import io.opencensus.internal.TestClock;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.View.DistributionView;

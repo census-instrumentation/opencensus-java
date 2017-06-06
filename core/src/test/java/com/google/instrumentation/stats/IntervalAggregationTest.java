@@ -15,7 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.instrumentation.common.Duration;
+import io.opencensus.common.Duration;
 import com.google.instrumentation.stats.IntervalAggregation.Interval;
 import java.util.Arrays;
 import java.util.List;

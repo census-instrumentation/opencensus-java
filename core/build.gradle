@@ -5,7 +5,8 @@ jar {
 }
 
 dependencies {
-    compile libraries.grpc_context,
+    compile project(':opencensus-api'),
+            libraries.grpc_context,
             libraries.guava
     compileOnly libraries.auto_value
 

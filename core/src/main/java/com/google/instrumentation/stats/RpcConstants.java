@@ -13,11 +13,11 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.Duration;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.common.Duration;
 
 import java.util.Arrays;
 import java.util.Collections;

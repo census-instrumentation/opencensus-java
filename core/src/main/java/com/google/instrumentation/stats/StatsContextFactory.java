@@ -15,7 +15,7 @@ package com.google.instrumentation.stats;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.instrumentation.common.NonThrowingCloseable;
+import io.opencensus.common.NonThrowingCloseable;
 import java.io.IOException;
 import java.io.InputStream;
 

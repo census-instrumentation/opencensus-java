@@ -13,8 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.NonThrowingCloseable;
 import io.grpc.Context;
+import io.opencensus.common.NonThrowingCloseable;
 
 /**
  * Util methods/functionality to interact with the {@link io.grpc.Context}.

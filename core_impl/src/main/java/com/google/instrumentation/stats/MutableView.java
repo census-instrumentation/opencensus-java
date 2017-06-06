@@ -14,11 +14,12 @@
 package com.google.instrumentation.stats;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.instrumentation.common.Clock;
-import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.common.Clock;
+import io.opencensus.common.Timestamp;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

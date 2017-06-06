@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
-import com.google.instrumentation.common.Function;
+import io.opencensus.common.Function;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

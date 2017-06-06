@@ -14,9 +14,10 @@ buildscript {
 // TODO(bdrutu): core_impl_android subproject currently isn't included because Javadoc cannot
 // handle multiple classes with the same name, such as StatsManagerImpl.
 def subprojects = [
-  project(':core'),
-  project(':core_impl'),
-  project(':core_impl_java'),
+        project(':opencensus-api'),
+        project(':core'),
+        project(':core_impl'),
+        project(':core_impl_java'),
 ]
 
 for (subproject in rootProject.subprojects) {
@@ -49,7 +50,7 @@ task jacocoMerge(type: JacocoMerge) {
     mustRunAfter(subprojects.jacocoTestReport.mustRunAfter)
     destinationFile = file("${buildDir}/jacoco/test.exec")
     executionData = files(subprojects.jacocoTestReport.executionData)
-        .filter { f -> f.exists() }
+            .filter { f -> f.exists() }
 }
 
 jacocoTestReport {

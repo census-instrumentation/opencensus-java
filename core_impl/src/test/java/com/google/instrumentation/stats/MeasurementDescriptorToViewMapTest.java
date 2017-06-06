@@ -16,9 +16,9 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import com.google.instrumentation.common.Function;
-import com.google.instrumentation.common.Timestamp;
-import com.google.instrumentation.internal.TestClock;
+import io.opencensus.common.Function;
+import io.opencensus.common.Timestamp;
+import io.opencensus.internal.TestClock;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.View.DistributionView;

@@ -18,10 +18,10 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.Collections2;
 import com.google.common.testing.EqualsTester;
-import com.google.instrumentation.common.Function;
-import com.google.instrumentation.common.SimpleEventQueue;
-import com.google.instrumentation.internal.TestClock;
-import com.google.instrumentation.internal.VarInt;
+import io.opencensus.common.Function;
+import io.opencensus.common.SimpleEventQueue;
+import io.opencensus.internal.TestClock;
+import io.opencensus.internal.VarInt;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;
 import java.io.ByteArrayInputStream;

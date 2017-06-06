@@ -14,10 +14,11 @@
 package com.google.instrumentation.stats;
 
 import com.google.auto.value.AutoValue;
-import com.google.instrumentation.common.Function;
-import com.google.instrumentation.common.Timestamp;
 import com.google.instrumentation.stats.ViewDescriptor.DistributionViewDescriptor;
 import com.google.instrumentation.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.common.Function;
+import io.opencensus.common.Timestamp;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

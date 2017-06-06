@@ -13,8 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import com.google.instrumentation.common.MillisClock;
-import com.google.instrumentation.common.SimpleEventQueue;
+import io.opencensus.common.MillisClock;
+import io.opencensus.common.SimpleEventQueue;
 
 /**
  * Android-compatible implementation of {@link StatsManager}.
