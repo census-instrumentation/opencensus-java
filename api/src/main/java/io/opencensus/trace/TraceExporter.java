@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Status.CanonicalCode;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -174,53 +173,47 @@ public abstract class TraceExporter {
 
     /**
      * The latency buckets boundaries. Samples based on latency for successful spans (the status of
-     * the span has a canonical code different than {@link CanonicalCode#OK}) are collected in one
-     * of these latency buckets.
+     * the span has a canonical code equal to {@link CanonicalCode#OK}) are collected in one of
+     * these latency buckets.
      */
-    public enum LatencyBucketsBoundaries {
+    public enum LatencyBucketBoundaries {
       // Stores finished successful requests of duration within the interval [0, 10us)
-      ZERO_MICROSx10(0, TimeUnit.MICROSECONDS.toNanos(10), "0", "10us)"),
+      ZERO_MICROSx10(0, TimeUnit.MICROSECONDS.toNanos(10)),
       // Stores finished successful requests of duration within the interval [10us, 100us)
       MICROSx10_MICROSx100(
-          TimeUnit.MICROSECONDS.toNanos(10), TimeUnit.MICROSECONDS.toNanos(100), "10us", "100us"),
+          TimeUnit.MICROSECONDS.toNanos(10), TimeUnit.MICROSECONDS.toNanos(100)),
       // Stores finished successful requests of duration within the interval [100us, 1ms)
       MICROSx100_MILLIx1(
-          TimeUnit.MICROSECONDS.toNanos(100), TimeUnit.MILLISECONDS.toNanos(1), "100us", "1ms"),
+          TimeUnit.MICROSECONDS.toNanos(100), TimeUnit.MILLISECONDS.toNanos(1)),
       // Stores finished successful requests of duration within the interval [1ms, 10ms)
       MILLIx1_MILLIx10(
-          TimeUnit.MILLISECONDS.toNanos(1), TimeUnit.MILLISECONDS.toNanos(10), "1ms", "10ms"),
+          TimeUnit.MILLISECONDS.toNanos(1), TimeUnit.MILLISECONDS.toNanos(10)),
       // Stores finished successful requests of duration within the interval [10ms, 100ms)
       MILLIx10_MILLIx100(
-          TimeUnit.MILLISECONDS.toNanos(10), TimeUnit.MILLISECONDS.toNanos(100), "10ms", "100ms"),
+          TimeUnit.MILLISECONDS.toNanos(10), TimeUnit.MILLISECONDS.toNanos(100)),
       // Stores finished successful requests of duration within the interval [100ms, 1sec)
       MILLIx100_SECONDx1(
-          TimeUnit.MILLISECONDS.toNanos(100), TimeUnit.SECONDS.toNanos(1), "100ms", "1sec"),
+          TimeUnit.MILLISECONDS.toNanos(100), TimeUnit.SECONDS.toNanos(1)),
       // Stores finished successful requests of duration within the interval [1sec, 10sec)
       SECONDx1_SECONDx10(
-          TimeUnit.SECONDS.toNanos(1), TimeUnit.SECONDS.toNanos(10), "1sec", "10sec"),
+          TimeUnit.SECONDS.toNanos(1), TimeUnit.SECONDS.toNanos(10)),
       // Stores finished successful requests of duration within the interval [10sec, 100sec)
       SECONDx10_SECONDx100(
-          TimeUnit.SECONDS.toNanos(10), TimeUnit.SECONDS.toNanos(100), "10sec", "100sec"),
+          TimeUnit.SECONDS.toNanos(10), TimeUnit.SECONDS.toNanos(100)),
       // Stores finished successful requests of duration >= 100sec
-      SECONDx100_MAX(TimeUnit.SECONDS.toNanos(100), Long.MAX_VALUE, "100sec", "INF");
+      SECONDx100_MAX(TimeUnit.SECONDS.toNanos(100), Long.MAX_VALUE);
 
       /**
-       * Constructs a {@code LatencyBucketsBoundaries} with the given boundaries and label.
+       * Constructs a {@code LatencyBucketBoundaries} with the given boundaries and label.
        *
        * @param latencyLowerNs the latency lower bound of the bucket.
        * @param latencyUpperNs the latency upper bound of the bucket.
-       * @param latencyLowerString the human readable string of the {@code latencyLowerNs} value.
-       * @param latencyUpperString the human readable string of the {@code latencyUpperNs} value.
        */
-      LatencyBucketsBoundaries(
+      LatencyBucketBoundaries(
           long latencyLowerNs,
-          long latencyUpperNs,
-          String latencyLowerString,
-          String latencyUpperString) {
+          long latencyUpperNs) {
         this.latencyLowerNs = latencyLowerNs;
         this.latencyUpperNs = latencyUpperNs;
-        this.latencyLowerString = latencyLowerString;
-        this.latencyUpperString = latencyUpperString;
       }
 
       /**
@@ -241,28 +234,8 @@ public abstract class TraceExporter {
         return latencyUpperNs;
       }
 
-      /**
-       * Returns the human readable string of the {@code getLatencyLowerNs()} value.
-       *
-       * @return the human readable string of the {@code getLatencyLowerNs()} value.
-       */
-      public String getLatencyLowerString() {
-        return latencyLowerString;
-      }
-
-      /**
-       * Returns the human readable string of the {@code getLatencyUpperNs()} value.
-       *
-       * @return the human readable string of the {@code getLatencyUpperNs()} value.
-       */
-      public String getLatencyUpperString() {
-        return latencyUpperString;
-      }
-
       private final long latencyLowerNs;
       private final long latencyUpperNs;
-      private final String latencyLowerString;
-      private final String latencyUpperString;
     }
 
     /** The summary of all in-process debugging information. */
@@ -313,13 +286,13 @@ public abstract class TraceExporter {
          */
         public static PerSpanNameSummary create(
             int numActiveSpans,
-            Map<LatencyBucketsBoundaries, Integer> latencyBucketsSummaries,
+            Map<LatencyBucketBoundaries, Integer> latencyBucketsSummaries,
             Map<CanonicalCode, Integer> errorBucketsSummaries) {
           checkArgument(numActiveSpans >= 0, "Negative numActiveSpans.");
           return new AutoValue_TraceExporter_InProcessDebuggingHandler_Summary_PerSpanNameSummary(
               numActiveSpans,
               Collections.unmodifiableMap(
-                  new HashMap<LatencyBucketsBoundaries, Integer>(
+                  new HashMap<LatencyBucketBoundaries, Integer>(
                       checkNotNull(latencyBucketsSummaries, "latencyBucketsSummaries"))),
               Collections.unmodifiableMap(
                   new HashMap<CanonicalCode, Integer>(
@@ -338,7 +311,7 @@ public abstract class TraceExporter {
          *
          * @return the number of samples for each latency based sampled bucket.
          */
-        public abstract Map<LatencyBucketsBoundaries, Integer> getLatencyBucketsSummaries();
+        public abstract Map<LatencyBucketBoundaries, Integer> getLatencyBucketsSummaries();
 
         /**
          * Returns the number of samples for each error based sampled bucket.
