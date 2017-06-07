@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.common.Clock;
 import io.opencensus.trace.SpanData.TimedEvent;
-import io.opencensus.trace.TraceConfig.TraceParams;
+import io.opencensus.trace.config.TraceParams;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;

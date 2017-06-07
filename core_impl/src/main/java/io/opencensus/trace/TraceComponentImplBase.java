@@ -15,6 +15,7 @@ package io.opencensus.trace;
 
 import io.opencensus.common.Clock;
 import io.opencensus.common.EventQueue;
+import io.opencensus.trace.config.TraceConfig;
 
 /** Base implementation of the {@link TraceComponent}. */
 class TraceComponentImplBase extends TraceComponent {

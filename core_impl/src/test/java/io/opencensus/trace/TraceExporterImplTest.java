@@ -20,7 +20,7 @@ import static org.mockito.Mockito.doThrow;
 import io.opencensus.common.MillisClock;
 import io.opencensus.common.SimpleEventQueue;
 import io.opencensus.trace.Span.Options;
-import io.opencensus.trace.TraceConfig.TraceParams;
+import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.TraceExporter.ServiceHandler;
 import java.util.ArrayList;
 import java.util.Collection;

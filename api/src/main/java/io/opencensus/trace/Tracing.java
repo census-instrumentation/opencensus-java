@@ -16,6 +16,7 @@ package io.opencensus.trace;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
 import io.opencensus.internal.Provider;
+import io.opencensus.trace.config.TraceConfig;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
