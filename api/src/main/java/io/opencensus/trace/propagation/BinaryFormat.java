@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.propagation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.trace.SpanContext;
 import java.text.ParseException;
 
 /**
@@ -24,11 +25,11 @@ import java.text.ParseException;
  *
  * <pre>{@code
  * private static final Tracer tracer = Tracing.getTracer();
- * private static final BinaryPropagationHandler binaryPropagationHandler =
- *     Tracing.getBinaryPropagationHandler();
+ * private static final BinaryFormat binaryPropagation =
+ *     Tracing.getPropagationComponent().getBinaryFormat;
  * void onSendRequest() {
  *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
- *     byte[] binaryValue = binaryPropagationHandler.toBinaryValue(
+ *     byte[] binaryValue = binaryPropagation.toBinaryValue(
  *         tracer.getCurrentContext().context());
  *     // Send the request including the binaryValue and wait for the response.
  *   }
@@ -39,14 +40,14 @@ import java.text.ParseException;
  *
  * <pre>{@code
  * private static final Tracer tracer = Tracing.getTracer();
- * private static final BinaryPropagationHandler binaryPropagationHandler =
- *     Tracing.getBinaryPropagationHandler();
+ * private static final BinaryFormat binaryPropagation =
+ *     Tracing.getPropagationComponent().getBinaryFormat;
  * void onRequestReceived() {
  *   // Get the binaryValue from the request.
  *   SpanContext spanContext = SpanContext.INVALID;
  *   try {
  *     if (binaryValue != null) {
- *       spanContext = binaryPropagationHandler.fromBinaryValue(binaryValue);
+ *       spanContext = binaryPropagation.fromBinaryValue(binaryValue);
  *     }
  *   } catch (ParseException e) {
  *     // Maybe log the exception.
@@ -58,9 +59,8 @@ import java.text.ParseException;
  * }
  * }</pre>
  */
-public abstract class BinaryPropagationHandler {
-  static final NoopBinaryPropagationHandler noopBinaryPropagationHandler =
-      new NoopBinaryPropagationHandler();
+public abstract class BinaryFormat {
+  static final NoopBinaryFormat NOOP_BINARY_FORMAT = new NoopBinaryFormat();
 
   /**
    * Serializes a {@link SpanContext} using the binary format.
@@ -82,15 +82,15 @@ public abstract class BinaryPropagationHandler {
   public abstract SpanContext fromBinaryValue(byte[] bytes) throws ParseException;
 
   /**
-   * Returns the no-op implementation of the {@code BinaryPropagationHandler}.
+   * Returns the no-op implementation of the {@code BinaryFormat}.
    *
-   * @return the no-op implementation of the {@code BinaryPropagationHandler}.
+   * @return the no-op implementation of the {@code BinaryFormat}.
    */
-  static BinaryPropagationHandler getNoopBinaryPropagationHandler() {
-    return noopBinaryPropagationHandler;
+  static BinaryFormat getNoopBinaryFormat() {
+    return NOOP_BINARY_FORMAT;
   }
 
-  private static final class NoopBinaryPropagationHandler extends BinaryPropagationHandler {
+  private static final class NoopBinaryFormat extends BinaryFormat {
     @Override
     public byte[] toBinaryValue(SpanContext spanContext) {
       checkNotNull(spanContext, "spanContext");
@@ -103,6 +103,6 @@ public abstract class BinaryPropagationHandler {
       return SpanContext.INVALID;
     }
 
-    private NoopBinaryPropagationHandler() {}
+    private NoopBinaryFormat() {}
   }
 }

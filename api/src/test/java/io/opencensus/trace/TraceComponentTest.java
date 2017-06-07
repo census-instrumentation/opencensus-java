@@ -18,6 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.internal.ZeroTimeClock;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.propagation.PropagationComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,8 +33,8 @@ public class TraceComponentTest {
 
   @Test
   public void defaultBinaryPropagationHandler() {
-    assertThat(TraceComponent.getNoopTraceComponent().getBinaryPropagationHandler())
-        .isSameAs(BinaryPropagationHandler.getNoopBinaryPropagationHandler());
+    assertThat(TraceComponent.getNoopTraceComponent().getPropagationComponent())
+        .isSameAs(PropagationComponent.getNoopPropagationComponent());
   }
 
   @Test
@@ -43,7 +44,7 @@ public class TraceComponentTest {
 
   @Test
   public void defaultTraceExporter() {
-    assertThat(TraceComponent.getNoopTraceComponent().getTraceExporter())
+    assertThat(TraceComponent.getNoopTraceComponent().getExportComponent())
         .isSameAs(ExportComponent.getNoopExportComponent());
   }
 

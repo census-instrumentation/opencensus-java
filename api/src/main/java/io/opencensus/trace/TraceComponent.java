@@ -17,10 +17,11 @@ import io.opencensus.common.Clock;
 import io.opencensus.internal.ZeroTimeClock;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.propagation.PropagationComponent;
 
 /**
  * Class that holds the implementation instances for {@link Tracer}, {@link
- * BinaryPropagationHandler}, {@link Clock}, {@link ExportComponent} and {@link TraceConfig}.
+ * PropagationComponent}, {@link Clock}, {@link ExportComponent} and {@link TraceConfig}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -36,12 +37,12 @@ public abstract class TraceComponent {
   public abstract Tracer getTracer();
 
   /**
-   * Returns the {@link BinaryPropagationHandler} with the provided implementations. If no
+   * Returns the {@link PropagationComponent} with the provided implementation. If no
    * implementation is provided then no-op implementation will be used.
    *
-   * @return the {@code BinaryPropagationHandler} implementation.
+   * @return the {@code PropagationComponent} implementation.
    */
-  public abstract BinaryPropagationHandler getBinaryPropagationHandler();
+  public abstract PropagationComponent getPropagationComponent();
 
   /**
    * Returns the {@link Clock} with the provided implementation.
@@ -56,7 +57,7 @@ public abstract class TraceComponent {
    *
    * @return the {@link ExportComponent} implementation.
    */
-  public abstract ExportComponent getTraceExporter();
+  public abstract ExportComponent getExportComponent();
 
   /**
    * Returns the {@link TraceConfig} with the provided implementation. If no implementation is
@@ -85,8 +86,8 @@ public abstract class TraceComponent {
     }
 
     @Override
-    public BinaryPropagationHandler getBinaryPropagationHandler() {
-      return BinaryPropagationHandler.getNoopBinaryPropagationHandler();
+    public PropagationComponent getPropagationComponent() {
+      return PropagationComponent.getNoopPropagationComponent();
     }
 
     @Override
@@ -95,7 +96,7 @@ public abstract class TraceComponent {
     }
 
     @Override
-    public ExportComponent getTraceExporter() {
+    public ExportComponent getExportComponent() {
       return ExportComponent.getNoopExportComponent();
     }
 

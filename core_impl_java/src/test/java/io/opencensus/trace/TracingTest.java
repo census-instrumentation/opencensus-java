@@ -16,6 +16,7 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.MillisClock;
+import io.opencensus.trace.propagation.PropagationComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,8 +31,8 @@ public class TracingTest {
 
   @Test
   public void implementationOfBinaryPropagationHandler() {
-    assertThat(Tracing.getBinaryPropagationHandler())
-        .isInstanceOf(BinaryPropagationHandlerImpl.class);
+    assertThat(Tracing.getPropagationComponent())
+        .isInstanceOf(PropagationComponent.class);
   }
 
   @Test

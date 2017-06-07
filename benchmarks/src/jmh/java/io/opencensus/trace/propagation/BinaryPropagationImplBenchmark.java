@@ -11,8 +11,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.propagation;
 
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
@@ -25,9 +26,9 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 
-/** Benchmarks for {@link BinaryPropagationHandlerImpl}. */
+/** Benchmarks for {@link BinaryFormatImpl}. */
 @State(Scope.Benchmark)
-public class BinaryPropagationHandlerImplBenchmark {
+public class BinaryPropagationImplBenchmark {
   private static final byte[] traceIdBytes =
       new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'a'};
   private static final TraceId traceId = TraceId.fromBytes(traceIdBytes);
@@ -36,43 +37,42 @@ public class BinaryPropagationHandlerImplBenchmark {
   private static final byte[] traceOptionsBytes = new byte[] {1};
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
   private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
-  private static final BinaryPropagationHandler binaryPropagationHandler =
-      new BinaryPropagationHandlerImpl();
+  private static final BinaryFormat BINARY_PROPAGATION = new BinaryFormatImpl();
   private static final byte[] spanContextBinary =
-      binaryPropagationHandler.toBinaryValue(spanContext);
+      BINARY_PROPAGATION.toBinaryValue(spanContext);
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * BinaryPropagationHandlerImpl#toBinaryValue(SpanContext)}.
+   * BinaryFormatImpl#toBinaryValue(SpanContext)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public byte[] toBinaryValueSpanContext() {
-    return binaryPropagationHandler.toBinaryValue(spanContext);
+    return BINARY_PROPAGATION.toBinaryValue(spanContext);
   }
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * BinaryPropagationHandlerImpl#fromBinaryValue(byte[])}.
+   * BinaryFormatImpl#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public SpanContext fromBinaryValueSpanContext() throws ParseException {
-    return binaryPropagationHandler.fromBinaryValue(spanContextBinary);
+    return BINARY_PROPAGATION.fromBinaryValue(spanContextBinary);
   }
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * BinaryPropagationHandlerImpl#toBinaryValue(SpanContext)} then {@link
-   * BinaryPropagationHandlerImpl#fromBinaryValue(byte[])}.
+   * BinaryFormatImpl#toBinaryValue(SpanContext)} then {@link
+   * BinaryFormatImpl#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public SpanContext toFromBinarySpanContext() throws ParseException {
-    return binaryPropagationHandler.fromBinaryValue(
-        binaryPropagationHandler.toBinaryValue(spanContext));
+    return BINARY_PROPAGATION.fromBinaryValue(
+        BINARY_PROPAGATION.toBinaryValue(spanContext));
   }
 }

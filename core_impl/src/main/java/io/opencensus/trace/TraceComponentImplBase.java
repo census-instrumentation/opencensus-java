@@ -18,12 +18,13 @@ import io.opencensus.common.EventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.propagation.PropagationComponent;
+import io.opencensus.trace.propagation.PropagationComponentImpl;
 
 /** Base implementation of the {@link TraceComponent}. */
 class TraceComponentImplBase extends TraceComponent {
-  private final BinaryPropagationHandler binaryPropagationHandler =
-      new BinaryPropagationHandlerImpl();
-  private final ExportComponentImpl traceExporter = new ExportComponentImpl();
+  private final ExportComponentImpl exportComponent = new ExportComponentImpl();
+  private final PropagationComponent propagationComponent = new PropagationComponentImpl();
   private final Clock clock;
   private final StartEndHandler startEndHandler;
   private final TraceConfig traceConfig = new TraceConfigImpl();
@@ -31,7 +32,7 @@ class TraceComponentImplBase extends TraceComponent {
 
   TraceComponentImplBase(Clock clock, RandomHandler randomHandler, EventQueue eventQueue) {
     this.clock = clock;
-    startEndHandler = new StartEndHandlerImpl(traceExporter.getSpanExporter(), eventQueue);
+    startEndHandler = new StartEndHandlerImpl(exportComponent.getSpanExporter(), eventQueue);
     tracer = new TracerImpl(randomHandler, startEndHandler, clock, traceConfig);
   }
 
@@ -41,8 +42,8 @@ class TraceComponentImplBase extends TraceComponent {
   }
 
   @Override
-  public BinaryPropagationHandler getBinaryPropagationHandler() {
-    return binaryPropagationHandler;
+  public PropagationComponent getPropagationComponent() {
+    return propagationComponent;
   }
 
   @Override
@@ -51,8 +52,8 @@ class TraceComponentImplBase extends TraceComponent {
   }
 
   @Override
-  public ExportComponent getTraceExporter() {
-    return traceExporter;
+  public ExportComponent getExportComponent() {
+    return exportComponent;
   }
 
   @Override
