@@ -11,11 +11,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.trace.Span;
 import javax.annotation.concurrent.Immutable;
 
 /**

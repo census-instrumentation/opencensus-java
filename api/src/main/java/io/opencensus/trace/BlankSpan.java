@@ -13,6 +13,11 @@
 
 package io.opencensus.trace;
 
+import io.opencensus.trace.base.Annotation;
+import io.opencensus.trace.base.AttributeValue;
+import io.opencensus.trace.base.EndSpanOptions;
+import io.opencensus.trace.base.Link;
+import io.opencensus.trace.base.NetworkEvent;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 

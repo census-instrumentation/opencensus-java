@@ -21,6 +21,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.base.EndSpanOptions;
+import io.opencensus.trace.base.SpanId;
+import io.opencensus.trace.base.TraceId;
+import io.opencensus.trace.base.TraceOptions;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;

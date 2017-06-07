@@ -11,13 +11,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.base;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
+import io.opencensus.common.Internal;
 import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.concurrent.Immutable;
@@ -133,9 +134,16 @@ public final class TraceId implements Comparable<TraceId> {
     return !Arrays.equals(bytes, INVALID.bytes);
   }
 
-  // Return the lower 8 bytes of the trace-id as a long value, assuming little-endian order. This
-  // is used in ProbabilitySampler.
-  long getLowerLong() {
+  /**
+   * Returns the lower 8 bytes of the trace-id as a long value, assuming little-endian order. This
+   * is used in ProbabilitySampler.
+   *
+   * <p>This method is marked as internal and subject to change.
+   *
+   * @return the lower 8 bytes of the trace-id as a long value, assuming little-endian order.
+   */
+  @Internal
+  public long getLowerLong() {
     long result = 0;
     for (int i = 0; i < Long.SIZE / Byte.SIZE; i++) {
       result <<= Byte.SIZE;

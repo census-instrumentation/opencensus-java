@@ -16,6 +16,8 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.trace.base.SpanId;
+import io.opencensus.trace.base.TraceId;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
