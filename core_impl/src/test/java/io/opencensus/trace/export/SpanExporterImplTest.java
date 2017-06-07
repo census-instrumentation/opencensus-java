@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.export;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.anyListOf;
@@ -20,7 +20,10 @@ import static org.mockito.Mockito.doThrow;
 import io.opencensus.common.MillisClock;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.trace.Span.Options;
+import io.opencensus.trace.SpanContext;
+import io.opencensus.trace.SpanImpl;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
+import io.opencensus.trace.StartEndHandlerImpl;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;

@@ -11,25 +11,26 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
-import io.opencensus.trace.base.Link;
-import io.opencensus.trace.base.Link.Type;
-import io.opencensus.trace.SpanData.Attributes;
-import io.opencensus.trace.SpanData.Links;
-import io.opencensus.trace.SpanData.TimedEvent;
-import io.opencensus.trace.SpanData.TimedEvents;
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.AttributeValue;
+import io.opencensus.trace.base.Link;
+import io.opencensus.trace.base.Link.Type;
 import io.opencensus.trace.base.NetworkEvent;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.Status;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
+import io.opencensus.trace.export.SpanData.Attributes;
+import io.opencensus.trace.export.SpanData.Links;
+import io.opencensus.trace.export.SpanData.TimedEvent;
+import io.opencensus.trace.export.SpanData.TimedEvents;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;

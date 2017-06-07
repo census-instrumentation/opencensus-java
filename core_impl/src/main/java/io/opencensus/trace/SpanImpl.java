@@ -16,10 +16,10 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.common.Clock;
 import io.opencensus.internal.TimestampConverter;
-import io.opencensus.trace.SpanData.TimedEvent;
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.AttributeValue;
 import io.opencensus.trace.base.EndSpanOptions;
@@ -28,6 +28,8 @@ import io.opencensus.trace.base.NetworkEvent;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.Status;
 import io.opencensus.trace.config.TraceParams;
+import io.opencensus.trace.export.SpanData;
+import io.opencensus.trace.export.SpanData.TimedEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -42,7 +44,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /** Implementation for the {@link Span} class. */
 @ThreadSafe
-final class SpanImpl extends Span {
+public final class SpanImpl extends Span {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
 
   // The parent SpanId of this span. Null if this is a root.
@@ -86,10 +88,13 @@ final class SpanImpl extends Span {
   @GuardedBy("this")
   private boolean hasBeenEnded;
 
-  // Creates and starts a span with the given configuration. TimestampConverter is null if the
-  // Span is a root span or the parent is not sampled. If the parent is sampled we should use the
-  // same converter to ensure ordering between tracing events.
-  static SpanImpl startSpan(
+  /**
+   * Creates and starts a span with the given configuration. TimestampConverter is null if the
+   * {@code Span} is a root span or the parent is not sampled. If the parent is sampled we should
+   * use the same converter to ensure ordering between tracing events.
+   */
+  @VisibleForTesting
+  public static SpanImpl startSpan(
       SpanContext context,
       @Nullable EnumSet<Options> options,
       String name,
@@ -143,7 +148,7 @@ final class SpanImpl extends Span {
    * @return an immutable representation of all the data from this {@code Span}.
    * @throws IllegalStateException if the Span doesn't have RECORD_EVENTS option.
    */
-  SpanData toSpanData() {
+  public SpanData toSpanData() {
     checkState(
         getOptions().contains(Options.RECORD_EVENTS),
         "Getting SpanData for a Span without RECORD_EVENTS option.");
@@ -330,7 +335,7 @@ final class SpanImpl extends Span {
    * <p>One instance can be called by multiple threads in the same time, so the implementation must
    * be thread-safe.
    */
-  interface StartEndHandler {
+  public interface StartEndHandler {
     void onStart(SpanImpl span);
 
     void onEnd(SpanImpl span);

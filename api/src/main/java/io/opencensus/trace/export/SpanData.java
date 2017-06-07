@@ -11,12 +11,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Timestamp;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.AttributeValue;
 import io.opencensus.trace.base.Link;

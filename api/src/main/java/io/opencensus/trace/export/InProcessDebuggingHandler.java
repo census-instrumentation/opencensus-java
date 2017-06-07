@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanData;
 import io.opencensus.trace.base.Status;
 import io.opencensus.trace.base.Status.CanonicalCode;
 import java.util.Collection;

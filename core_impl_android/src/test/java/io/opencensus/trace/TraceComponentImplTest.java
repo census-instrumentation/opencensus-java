@@ -16,6 +16,7 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.MillisClock;
+import io.opencensus.trace.export.ExportComponentImpl;
 import io.opencensus.trace.propagation.PropagationComponentImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;

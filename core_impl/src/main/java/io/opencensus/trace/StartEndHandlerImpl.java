@@ -15,16 +15,18 @@ package io.opencensus.trace;
 
 import io.opencensus.internal.EventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
+import io.opencensus.trace.export.SpanData;
+import io.opencensus.trace.export.SpanExporterImpl;
 
 /**
  * Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData} to
  * avoid impacting the critical path.
  */
-final class StartEndHandlerImpl implements StartEndHandler {
+public final class StartEndHandlerImpl implements StartEndHandler {
   private final EventQueue eventQueue;
   private final SpanExporterImpl sampledSpansServiceExporter;
 
-  StartEndHandlerImpl(
+  public StartEndHandlerImpl(
       SpanExporterImpl sampledSpansServiceExporter, EventQueue eventQueue) {
     this.sampledSpansServiceExporter = sampledSpansServiceExporter;
     this.eventQueue = eventQueue;

@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.MillisClock;
 import io.opencensus.internal.SimpleEventQueue;
+import io.opencensus.trace.export.ExportComponentImpl;
 import io.opencensus.trace.internal.RandomHandler.SecureRandomHandler;
 import io.opencensus.trace.propagation.PropagationComponentImpl;
 import org.junit.Test;

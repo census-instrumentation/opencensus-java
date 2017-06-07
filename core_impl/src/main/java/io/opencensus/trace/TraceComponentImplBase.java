@@ -19,6 +19,7 @@ import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceConfigImpl;
 import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.export.ExportComponentImpl;
 import io.opencensus.trace.internal.RandomHandler;
 import io.opencensus.trace.propagation.PropagationComponent;
 import io.opencensus.trace.propagation.PropagationComponentImpl;
