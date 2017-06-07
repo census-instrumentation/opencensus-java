@@ -22,7 +22,7 @@ import io.opencensus.common.SimpleEventQueue;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceParams;
-import io.opencensus.trace.TraceExporter.SampledSpansServiceExporter.Handler;
+import io.opencensus.trace.TraceExporter.SpanExporter.Handler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -39,7 +39,7 @@ import org.mockito.MockitoAnnotations;
 
 /** Unit tests for {@link TraceExporterImpl}. */
 @RunWith(JUnit4.class)
-public class SampledSpansServiceExporterImplTest {
+public class SpanExporterImplTest {
   private static final String SPAN_NAME_1 = "MySpanName/1";
   private static final String SPAN_NAME_2 = "MySpanName/2";
   private final Random random = new Random(1234);
@@ -51,8 +51,8 @@ public class SampledSpansServiceExporterImplTest {
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private final SampledSpansServiceExporterImpl sampledSpansServiceExporter =
-      SampledSpansServiceExporterImpl.create(4, 1000);
+  private final SpanExporterImpl sampledSpansServiceExporter =
+      SpanExporterImpl.create(4, 1000);
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(sampledSpansServiceExporter, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);

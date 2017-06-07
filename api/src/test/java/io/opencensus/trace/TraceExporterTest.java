@@ -18,7 +18,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.opencensus.trace.TraceExporter.LoggingServiceHandler;
+import io.opencensus.trace.TraceExporter.LoggingSpanExporterHandler;
+import io.opencensus.trace.TraceExporter.SpanExporter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +31,7 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnit4.class)
 public class TraceExporterTest {
   @Mock private TraceExporter traceExporter;
-  @Mock private TraceExporter.SampledSpansServiceExporter sampledSpansServiceExporter;
+  @Mock private SpanExporter spanExporter;
 
   @Before
   public void setUp() {
@@ -39,13 +40,13 @@ public class TraceExporterTest {
 
   @Test
   public void registerUnregisterLoggingService() {
-    when(traceExporter.getSampledSpansServiceExporter()).thenReturn(sampledSpansServiceExporter);
-    LoggingServiceHandler.registerService(traceExporter);
-    verify(sampledSpansServiceExporter)
+    when(traceExporter.getSpanExporter()).thenReturn(spanExporter);
+    LoggingSpanExporterHandler.register(traceExporter);
+    verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.trace.LoggingServiceHandler"), any(LoggingServiceHandler.class));
-    LoggingServiceHandler.unregisterService(traceExporter);
-    verify(sampledSpansServiceExporter)
-        .unregisterHandler(eq("io.opencensus.trace.LoggingServiceHandler"));
+            eq("io.opencensus.trace.LoggingSpanExporterHandler"),
+            any(LoggingSpanExporterHandler.class));
+    LoggingSpanExporterHandler.unregister(traceExporter);
+    verify(spanExporter).unregisterHandler(eq("io.opencensus.trace.LoggingSpanExporterHandler"));
   }
 }

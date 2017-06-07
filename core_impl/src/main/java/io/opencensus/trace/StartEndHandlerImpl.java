@@ -22,10 +22,10 @@ import io.opencensus.trace.SpanImpl.StartEndHandler;
  */
 final class StartEndHandlerImpl implements StartEndHandler {
   private final EventQueue eventQueue;
-  private final SampledSpansServiceExporterImpl sampledSpansServiceExporter;
+  private final SpanExporterImpl sampledSpansServiceExporter;
 
   StartEndHandlerImpl(
-      SampledSpansServiceExporterImpl sampledSpansServiceExporter, EventQueue eventQueue) {
+      SpanExporterImpl sampledSpansServiceExporter, EventQueue eventQueue) {
     this.sampledSpansServiceExporter = sampledSpansServiceExporter;
     this.eventQueue = eventQueue;
   }
@@ -47,9 +47,9 @@ final class StartEndHandlerImpl implements StartEndHandler {
   // An EventQueue entry that records the end of the span event.
   private static final class SpanEndEvent implements EventQueue.Entry {
     private final SpanImpl span;
-    private final SampledSpansServiceExporterImpl sampledSpansServiceExporter;
+    private final SpanExporterImpl sampledSpansServiceExporter;
 
-    SpanEndEvent(SpanImpl span, SampledSpansServiceExporterImpl sampledSpansServiceExporter) {
+    SpanEndEvent(SpanImpl span, SpanExporterImpl sampledSpansServiceExporter) {
       this.span = span;
       this.sampledSpansServiceExporter = sampledSpansServiceExporter;
     }

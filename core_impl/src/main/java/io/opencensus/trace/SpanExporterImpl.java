@@ -14,7 +14,7 @@
 package io.opencensus.trace;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.trace.TraceExporter.SampledSpansServiceExporter;
+import io.opencensus.trace.TraceExporter.SpanExporter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -25,14 +25,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 
-/** Implementation of the {@link SampledSpansServiceExporter}. */
-public final class SampledSpansServiceExporterImpl extends SampledSpansServiceExporter {
+/** Implementation of the {@link SpanExporter}. */
+public final class SpanExporterImpl extends SpanExporter {
   private static final Logger logger = Logger.getLogger(TraceExporter.class.getName());
 
   private final WorkerThread workerThread;
 
   /**
-   * Constructs a {@code SampledSpansServiceExporterImpl} that exports the {@link SpanData}
+   * Constructs a {@code SpanExporterImpl} that exports the {@link SpanData}
    * asynchronously.
    *
    * <p>Starts a separate thread that wakes up every {@code scheduleDelay} and exports any available
@@ -42,11 +42,11 @@ public final class SampledSpansServiceExporterImpl extends SampledSpansServiceEx
    * @param bufferSize the size of the buffered span data.
    * @param scheduleDelayMillis the maximum delay in milliseconds.
    */
-  static SampledSpansServiceExporterImpl create(int bufferSize, long scheduleDelayMillis) {
+  static SpanExporterImpl create(int bufferSize, long scheduleDelayMillis) {
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
     WorkerThread workerThread = new WorkerThread(bufferSize, scheduleDelayMillis);
     workerThread.start();
-    return new SampledSpansServiceExporterImpl(workerThread);
+    return new SpanExporterImpl(workerThread);
   }
 
   // Adds a Span to the exporting service.
@@ -64,7 +64,7 @@ public final class SampledSpansServiceExporterImpl extends SampledSpansServiceEx
     workerThread.unregisterHandler(name);
   }
 
-  private SampledSpansServiceExporterImpl(WorkerThread workerThread) {
+  private SpanExporterImpl(WorkerThread workerThread) {
     this.workerThread = workerThread;
   }
 
@@ -92,7 +92,7 @@ public final class SampledSpansServiceExporterImpl extends SampledSpansServiceEx
     private final int bufferSize;
     private final long scheduleDelayMillis;
 
-    // See SampledSpansServiceExporterImpl#addSpan.
+    // See SpanExporterImpl#addSpan.
     private void addSpan(SpanImpl span) {
       synchronized (monitor) {
         this.spans.add(span);
@@ -102,12 +102,12 @@ public final class SampledSpansServiceExporterImpl extends SampledSpansServiceEx
       }
     }
 
-    // See SampledSpansServiceExporter#registerHandler.
+    // See SpanExporter#registerHandler.
     private void registerHandler(String name, Handler serviceHandler) {
       serviceHandlers.put(name, serviceHandler);
     }
 
-    // See SampledSpansServiceExporter#unregisterHandler.
+    // See SpanExporter#unregisterHandler.
     private void unregisterHandler(String name) {
       serviceHandlers.remove(name);
     }

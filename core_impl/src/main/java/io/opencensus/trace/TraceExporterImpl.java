@@ -13,6 +13,8 @@
 
 package io.opencensus.trace;
 
+import io.opencensus.common.EventQueue;
+import io.opencensus.trace.SpanImpl.StartEndHandler;
 import javax.annotation.Nullable;
 
 /**
@@ -26,11 +28,11 @@ final class TraceExporterImpl extends TraceExporter {
   // Enforces that trace exporter exports data at least once every 2 seconds.
   private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
 
-  private final SampledSpansServiceExporterImpl sampledSpansServiceExporter;
+  private final SpanExporterImpl spanExporter;
 
   @Override
-  public SampledSpansServiceExporterImpl getSampledSpansServiceExporter() {
-    return sampledSpansServiceExporter;
+  public SpanExporterImpl getSpanExporter() {
+    return spanExporter;
   }
 
   @Nullable
@@ -41,7 +43,6 @@ final class TraceExporterImpl extends TraceExporter {
   }
 
   TraceExporterImpl() {
-    this.sampledSpansServiceExporter =
-        SampledSpansServiceExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
+    this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
   }
 }

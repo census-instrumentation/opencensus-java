@@ -15,7 +15,7 @@ package io.opencensus.examples.trace;
 
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.TraceExporter;
+import io.opencensus.trace.TraceExporter.LoggingSpanExporterHandler;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 
@@ -46,7 +46,7 @@ public final class MultiSpansScopedTracing {
 
   /** Main method. */
   public static void main(String[] args) {
-    TraceExporter.LoggingServiceHandler.registerService(Tracing.getTraceExporter());
+    LoggingSpanExporterHandler.register(Tracing.getTraceExporter());
     try (NonThrowingCloseable ss =
         tracer.spanBuilder("MyRootSpan").becomeRoot().startScopedSpan()) {
       doWork();
