@@ -20,7 +20,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.internal.TestClock;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
-import io.opencensus.trace.TraceConfig.TraceParams;
+import io.opencensus.trace.config.TraceParams;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;

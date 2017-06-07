@@ -15,6 +15,7 @@ package io.opencensus.trace;
 
 import io.opencensus.common.Clock;
 import io.opencensus.internal.ZeroTimeClock;
+import io.opencensus.trace.config.TraceConfig;
 
 /**
  * Class that holds the implementation instances for {@link Tracer}, {@link

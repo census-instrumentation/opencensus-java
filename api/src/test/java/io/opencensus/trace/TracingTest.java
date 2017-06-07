@@ -15,6 +15,7 @@ package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.config.TraceConfig;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
