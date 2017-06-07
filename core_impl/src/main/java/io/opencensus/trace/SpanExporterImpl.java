@@ -14,7 +14,8 @@
 package io.opencensus.trace;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.trace.TraceExporter.SpanExporter;
+import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.export.SpanExporter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -27,13 +28,12 @@ import javax.annotation.concurrent.GuardedBy;
 
 /** Implementation of the {@link SpanExporter}. */
 public final class SpanExporterImpl extends SpanExporter {
-  private static final Logger logger = Logger.getLogger(TraceExporter.class.getName());
+  private static final Logger logger = Logger.getLogger(ExportComponent.class.getName());
 
   private final WorkerThread workerThread;
 
   /**
-   * Constructs a {@code SpanExporterImpl} that exports the {@link SpanData}
-   * asynchronously.
+   * Constructs a {@code SpanExporterImpl} that exports the {@link SpanData} asynchronously.
    *
    * <p>Starts a separate thread that wakes up every {@code scheduleDelay} and exports any available
    * spans data. If the number of buffered SpanData objects is greater than {@code bufferSize} then
@@ -124,7 +124,7 @@ public final class SpanExporterImpl extends SpanExporter {
         try {
           it.getValue().export(spanDataList);
         } catch (Throwable e) {
-          logger.log(Level.WARNING, "Exception thrown by the service exporter " + it.getKey(), e);
+          logger.log(Level.WARNING, "Exception thrown by the service export " + it.getKey(), e);
         }
       }
     }
@@ -134,7 +134,7 @@ public final class SpanExporterImpl extends SpanExporter {
       this.bufferSize = bufferSize;
       this.scheduleDelayMillis = scheduleDelayMillis;
       setDaemon(true);
-      setName("TraceExporter.ServiceExporterThread");
+      setName("ExportComponent.ServiceExporterThread");
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered

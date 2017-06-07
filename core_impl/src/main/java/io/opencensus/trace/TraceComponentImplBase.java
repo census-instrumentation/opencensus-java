@@ -15,14 +15,15 @@ package io.opencensus.trace;
 
 import io.opencensus.common.Clock;
 import io.opencensus.common.EventQueue;
-import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
+import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.export.ExportComponent;
 
 /** Base implementation of the {@link TraceComponent}. */
 class TraceComponentImplBase extends TraceComponent {
   private final BinaryPropagationHandler binaryPropagationHandler =
       new BinaryPropagationHandlerImpl();
-  private final TraceExporterImpl traceExporter = new TraceExporterImpl();
+  private final ExportComponentImpl traceExporter = new ExportComponentImpl();
   private final Clock clock;
   private final StartEndHandler startEndHandler;
   private final TraceConfig traceConfig = new TraceConfigImpl();
@@ -50,7 +51,7 @@ class TraceComponentImplBase extends TraceComponent {
   }
 
   @Override
-  public TraceExporter getTraceExporter() {
+  public ExportComponent getTraceExporter() {
     return traceExporter;
   }
 

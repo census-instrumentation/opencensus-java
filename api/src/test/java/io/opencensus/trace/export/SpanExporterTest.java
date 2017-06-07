@@ -11,15 +11,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.export;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import io.opencensus.trace.TraceExporter.LoggingSpanExporterHandler;
-import io.opencensus.trace.TraceExporter.SpanExporter;
+import io.opencensus.trace.export.SpanExporter.LoggingHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,10 +25,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link TraceExporter}. */
+/** Unit tests for {@link ExportComponent}. */
 @RunWith(JUnit4.class)
-public class TraceExporterTest {
-  @Mock private TraceExporter traceExporter;
+public class SpanExporterTest {
   @Mock private SpanExporter spanExporter;
 
   @Before
@@ -40,13 +37,13 @@ public class TraceExporterTest {
 
   @Test
   public void registerUnregisterLoggingService() {
-    when(traceExporter.getSpanExporter()).thenReturn(spanExporter);
-    LoggingSpanExporterHandler.register(traceExporter);
+    LoggingHandler.register(spanExporter);
     verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.trace.LoggingSpanExporterHandler"),
-            any(LoggingSpanExporterHandler.class));
-    LoggingSpanExporterHandler.unregister(traceExporter);
-    verify(spanExporter).unregisterHandler(eq("io.opencensus.trace.LoggingSpanExporterHandler"));
+            eq("io.opencensus.trace.export.SpanExporter$LoggingHandler"),
+            any(LoggingHandler.class));
+    LoggingHandler.unregister(spanExporter);
+    verify(spanExporter)
+        .unregisterHandler(eq("io.opencensus.trace.export.SpanExporter$LoggingHandler"));
   }
 }

@@ -15,17 +15,19 @@ package io.opencensus.trace;
 
 import io.opencensus.common.EventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
+import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.export.InProcessDebuggingHandler;
 import javax.annotation.Nullable;
 
 /**
- * Implementation of the {@link TraceExporter}, implements also {@link StartEndHandler}.
+ * Implementation of the {@link ExportComponent}, implements also {@link StartEndHandler}.
  *
  * <p>Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData} to
  * avoid impacting the critical path.
  */
-final class TraceExporterImpl extends TraceExporter {
+final class ExportComponentImpl extends ExportComponent {
   private static final int EXPORTER_BUFFER_SIZE = 32;
-  // Enforces that trace exporter exports data at least once every 2 seconds.
+  // Enforces that trace export exports data at least once every 2 seconds.
   private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
 
   private final SpanExporterImpl spanExporter;
@@ -42,7 +44,7 @@ final class TraceExporterImpl extends TraceExporter {
     return null;
   }
 
-  TraceExporterImpl() {
+  ExportComponentImpl() {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
   }
 }

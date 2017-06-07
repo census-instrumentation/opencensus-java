@@ -15,9 +15,9 @@ package io.opencensus.examples.trace;
 
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.TraceExporter.LoggingSpanExporterHandler;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.export.SpanExporter.LoggingHandler;
 
 /**
  * Example showing how to create a child {@link Span}, install it to the current context and add
@@ -48,7 +48,7 @@ public final class MultiSpansContextTracing {
 
   /** Main method. */
   public static void main(String[] args) {
-    LoggingSpanExporterHandler.register(Tracing.getTraceExporter());
+    LoggingHandler.register(Tracing.getTraceExporter().getSpanExporter());
     Span span = tracer.spanBuilder("MyRootSpan").becomeRoot().startSpan();
     try (NonThrowingCloseable ws = tracer.withSpan(span)) {
       doWork();
