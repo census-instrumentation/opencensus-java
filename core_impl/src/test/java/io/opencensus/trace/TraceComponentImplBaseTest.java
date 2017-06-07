@@ -47,6 +47,6 @@ public class TraceComponentImplBaseTest {
 
   @Test
   public void implementationOfTraceExporter() {
-    assertThat(traceComponent.getTraceExporter()).isInstanceOf(TraceExporterImpl.class);
+    assertThat(traceComponent.getTraceExporter()).isInstanceOf(ExportComponentImpl.class);
   }
 }

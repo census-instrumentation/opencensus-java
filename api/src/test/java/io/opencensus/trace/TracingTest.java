@@ -16,6 +16,7 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.export.ExportComponent;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -69,7 +70,7 @@ public class TracingTest {
 
   @Test
   public void defaultTraceExporter() {
-    assertThat(Tracing.getTraceExporter()).isSameAs(TraceExporter.getNoopTraceExporter());
+    assertThat(Tracing.getTraceExporter()).isSameAs(ExportComponent.getNoopExportComponent());
   }
 
   @Test

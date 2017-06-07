@@ -20,8 +20,9 @@ import static org.mockito.Mockito.doThrow;
 import io.opencensus.common.MillisClock;
 import io.opencensus.common.SimpleEventQueue;
 import io.opencensus.trace.Span.Options;
+import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceParams;
-import io.opencensus.trace.TraceExporter.ServiceHandler;
+import io.opencensus.trace.export.SpanExporter.Handler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -36,9 +37,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link TraceExporterImpl}. */
+/** Unit tests for {@link ExportComponentImpl}. */
 @RunWith(JUnit4.class)
-public class TraceExporterImplTest {
+public class SpanExporterImplTest {
   private static final String SPAN_NAME_1 = "MySpanName/1";
   private static final String SPAN_NAME_2 = "MySpanName/2";
   private final Random random = new Random(1234);
@@ -50,16 +51,17 @@ public class TraceExporterImplTest {
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private final TraceExporterImpl traceExporter =
-      TraceExporterImpl.create(4, 1000, new SimpleEventQueue());
+  private final SpanExporterImpl sampledSpansServiceExporter = SpanExporterImpl.create(4, 1000);
+  private final StartEndHandler startEndHandler =
+      new StartEndHandlerImpl(sampledSpansServiceExporter, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
-  @Mock private ServiceHandler mockServiceHandler;
+  @Mock private Handler mockServiceHandler;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    traceExporter.registerServiceHandler("test.service", serviceHandler);
+    sampledSpansServiceExporter.registerHandler("test.service", serviceHandler);
   }
 
   private final SpanImpl createSampledEndedSpan(String spanName) {
@@ -71,7 +73,7 @@ public class TraceExporterImplTest {
             null,
             false,
             TraceParams.DEFAULT,
-            traceExporter,
+            startEndHandler,
             null,
             MillisClock.getInstance());
     span.end();
@@ -87,7 +89,7 @@ public class TraceExporterImplTest {
             null,
             false,
             TraceParams.DEFAULT,
-            traceExporter,
+            startEndHandler,
             null,
             MillisClock.getInstance());
     span.end();
@@ -124,7 +126,7 @@ public class TraceExporterImplTest {
 
   @Test
   public void interruptWorkerThreadStops() throws InterruptedException {
-    Thread serviceExporterThread = traceExporter.getServiceExporterThread();
+    Thread serviceExporterThread = sampledSpansServiceExporter.getServiceExporterThread();
     serviceExporterThread.interrupt();
     // Test that the worker thread will stop.
     serviceExporterThread.join();
@@ -135,7 +137,7 @@ public class TraceExporterImplTest {
     doThrow(new IllegalArgumentException("No export for you."))
         .when(mockServiceHandler)
         .export(anyListOf(SpanData.class));
-    traceExporter.registerServiceHandler("mock.service", mockServiceHandler);
+    sampledSpansServiceExporter.registerHandler("mock.service", mockServiceHandler);
     SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(1);
     assertThat(exported.size()).isEqualTo(1);
@@ -150,7 +152,7 @@ public class TraceExporterImplTest {
   @Test
   public void exportSpansToMultipleServices() {
     FakeServiceHandler serviceHandler2 = new FakeServiceHandler();
-    traceExporter.registerServiceHandler("test.service2", serviceHandler2);
+    sampledSpansServiceExporter.registerHandler("test.service2", serviceHandler2);
     SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
     List<SpanData> exported1 = serviceHandler.waitForExport(2);
@@ -177,8 +179,8 @@ public class TraceExporterImplTest {
     assertThat(exported.get(0)).isEqualTo(span2.toSpanData());
   }
 
-  /** Fake {@link ServiceHandler} for testing only. */
-  private static final class FakeServiceHandler extends ServiceHandler {
+  /** Fake {@link Handler} for testing only. */
+  private static final class FakeServiceHandler extends Handler {
     private final Object monitor = new Object();
 
     @GuardedBy("monitor")

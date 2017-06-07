@@ -15,27 +15,24 @@ package io.opencensus.trace;
 
 import io.opencensus.common.Clock;
 import io.opencensus.common.EventQueue;
+import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.export.ExportComponent;
 
 /** Base implementation of the {@link TraceComponent}. */
 class TraceComponentImplBase extends TraceComponent {
-  private static final int TRACE_EXPORTER_BUFFER_SIZE = 32;
-  // Enforces that trace exporter exports data at least once every 2 seconds.
-  private static final long TRACE_EXPORTER_SCHEDULE_DELAY_MS = 2000;
   private final BinaryPropagationHandler binaryPropagationHandler =
       new BinaryPropagationHandlerImpl();
+  private final ExportComponentImpl traceExporter = new ExportComponentImpl();
   private final Clock clock;
-  private final TraceExporter traceExporter;
+  private final StartEndHandler startEndHandler;
   private final TraceConfig traceConfig = new TraceConfigImpl();
   private final Tracer tracer;
 
   TraceComponentImplBase(Clock clock, RandomHandler randomHandler, EventQueue eventQueue) {
     this.clock = clock;
-    TraceExporterImpl traceExporterImpl =
-        TraceExporterImpl.create(
-            TRACE_EXPORTER_BUFFER_SIZE, TRACE_EXPORTER_SCHEDULE_DELAY_MS, eventQueue);
-    traceExporter = traceExporterImpl;
-    tracer = new TracerImpl(randomHandler, traceExporterImpl, clock, traceConfig);
+    startEndHandler = new StartEndHandlerImpl(traceExporter.getSpanExporter(), eventQueue);
+    tracer = new TracerImpl(randomHandler, startEndHandler, clock, traceConfig);
   }
 
   @Override
@@ -54,7 +51,7 @@ class TraceComponentImplBase extends TraceComponent {
   }
 
   @Override
-  public TraceExporter getTraceExporter() {
+  public ExportComponent getTraceExporter() {
     return traceExporter;
   }
 

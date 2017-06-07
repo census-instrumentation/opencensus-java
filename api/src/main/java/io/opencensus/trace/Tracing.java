@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
 import io.opencensus.internal.Provider;
 import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.export.ExportComponent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,11 +55,11 @@ public final class Tracing {
   }
 
   /**
-   * Returns the global {@link TraceExporter}.
+   * Returns the global {@link ExportComponent}.
    *
-   * @return the global {@code TraceExporter}.
+   * @return the global {@code ExportComponent}.
    */
-  public static TraceExporter getTraceExporter() {
+  public static ExportComponent getTraceExporter() {
     return traceComponent.getTraceExporter();
   }
 

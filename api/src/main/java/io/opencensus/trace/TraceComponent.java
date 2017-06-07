@@ -16,10 +16,11 @@ package io.opencensus.trace;
 import io.opencensus.common.Clock;
 import io.opencensus.internal.ZeroTimeClock;
 import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.export.ExportComponent;
 
 /**
  * Class that holds the implementation instances for {@link Tracer}, {@link
- * BinaryPropagationHandler}, {@link Clock}, {@link TraceExporter} and {@link TraceConfig}.
+ * BinaryPropagationHandler}, {@link Clock}, {@link ExportComponent} and {@link TraceConfig}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -50,12 +51,12 @@ public abstract class TraceComponent {
   public abstract Clock getClock();
 
   /**
-   * Returns the {@link TraceExporter} with the provided implementation. If no implementation is
+   * Returns the {@link ExportComponent} with the provided implementation. If no implementation is
    * provided then no-op implementations will be used.
    *
-   * @return the {@link TraceExporter} implementation.
+   * @return the {@link ExportComponent} implementation.
    */
-  public abstract TraceExporter getTraceExporter();
+  public abstract ExportComponent getTraceExporter();
 
   /**
    * Returns the {@link TraceConfig} with the provided implementation. If no implementation is
@@ -94,8 +95,8 @@ public abstract class TraceComponent {
     }
 
     @Override
-    public TraceExporter getTraceExporter() {
-      return TraceExporter.getNoopTraceExporter();
+    public ExportComponent getTraceExporter() {
+      return ExportComponent.getNoopExportComponent();
     }
 
     @Override
