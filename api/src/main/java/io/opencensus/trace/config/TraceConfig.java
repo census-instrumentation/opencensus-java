@@ -13,9 +13,6 @@
 
 package io.opencensus.trace.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Global configuration of the trace service. This allows users to change configs for the default
  * sampler, maximum events to be kept, etc. (see {@link TraceParams} for details).
