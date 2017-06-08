@@ -127,7 +127,7 @@ public class TracerTest {
   @Test
   public void startScopedSpanRoot() {
     Tracer mockTracer = new MockTracer(spanFactory);
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(new StartSpanOptions())))
+    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     NonThrowingCloseable ss = mockTracer.spanBuilder(SPAN_NAME).becomeRoot().startScopedSpan();
     try {
@@ -145,7 +145,7 @@ public class TracerTest {
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
       when(spanFactory.startSpan(
-              same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(new StartSpanOptions())))
+              same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
           .thenReturn(span);
       NonThrowingCloseable ss = mockTracer.spanBuilder(SPAN_NAME).startScopedSpan();
       try {
@@ -163,7 +163,7 @@ public class TracerTest {
   @Test
   public void startRootSpan() {
     Tracer mockTracer = new MockTracer(spanFactory);
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(new StartSpanOptions())))
+    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span rootSpan = mockTracer.spanBuilder(BlankSpan.INSTANCE, SPAN_NAME).becomeRoot().startSpan();
     assertThat(rootSpan).isEqualTo(span);
@@ -175,7 +175,7 @@ public class TracerTest {
   public void startChildSpan() {
     Tracer mockTracer = new MockTracer(spanFactory);
     when(spanFactory.startSpan(
-            same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(new StartSpanOptions())))
+            same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span childSpan = mockTracer.spanBuilder(BlankSpan.INSTANCE, SPAN_NAME).startSpan();
     assertThat(childSpan).isEqualTo(span);
@@ -193,7 +193,7 @@ public class TracerTest {
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT);
     when(spanFactory.startSpanWithRemoteParent(
-            same(spanContext), same(SPAN_NAME), eq(new StartSpanOptions())))
+            same(spanContext), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span remoteChildSpan =
         mockTracer.spanBuilderWithRemoteParent(spanContext, SPAN_NAME).startSpan();

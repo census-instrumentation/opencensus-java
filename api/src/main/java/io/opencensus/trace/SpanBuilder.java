@@ -101,7 +101,7 @@ import javax.annotation.Nullable;
 public final class SpanBuilder {
   private final SpanFactory spanFactory;
   private final String name;
-  private final StartSpanOptions startSpanOption = new StartSpanOptions();
+  private final StartSpanOptions.Builder startSpanOptionsBuilder = StartSpanOptions.builder();
   private Span parentSpan;
   private SpanContext parentSpanContext;
   private boolean remoteParent;
@@ -123,7 +123,7 @@ public final class SpanBuilder {
    * @return this.
    */
   public SpanBuilder setSampler(@Nullable Sampler sampler) {
-    startSpanOption.setSampler(sampler);
+    startSpanOptionsBuilder.setSampler(sampler);
     return this;
   }
 
@@ -136,7 +136,7 @@ public final class SpanBuilder {
    * @return this.
    */
   public SpanBuilder setParentLinks(@Nullable List<Span> parentLinks) {
-    startSpanOption.setParentLinks(parentLinks);
+    startSpanOptionsBuilder.setParentLinks(parentLinks);
     return this;
   }
 
@@ -148,7 +148,7 @@ public final class SpanBuilder {
    * @return this.
    */
   public SpanBuilder setRecordEvents(boolean recordEvents) {
-    startSpanOption.setRecordEvents(recordEvents);
+    startSpanOptionsBuilder.setRecordEvents(recordEvents);
     return this;
   }
 
@@ -276,7 +276,8 @@ public final class SpanBuilder {
   // Utility method to start a Span.
   private Span start() {
     return remoteParent
-        ? spanFactory.startSpanWithRemoteParent(parentSpanContext, name, startSpanOption)
-        : spanFactory.startSpan(parentSpan, name, startSpanOption);
+        ? spanFactory.startSpanWithRemoteParent(
+            parentSpanContext, name, startSpanOptionsBuilder.build())
+        : spanFactory.startSpan(parentSpan, name, startSpanOptionsBuilder.build());
   }
 }
