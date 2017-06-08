@@ -45,19 +45,32 @@ public class Duration {
     return new Duration(seconds, nanos);
   }
 
-  /** Creates a new {@link Duration} from given milliseconds. */
+  /**
+   * Creates a new {@link Duration} from given milliseconds.
+   *
+   * @param millis the duration in milliseconds.
+   * @return a new {@link Duration} from given milliseconds.
+   */
   public static Duration fromMillis(long millis) {
     long seconds = millis / NUM_MILLIS_PER_SECOND;
     int nanos = (int) (millis % NUM_MILLIS_PER_SECOND) * NUM_NANOS_PER_MILLI;
     return new Duration(seconds, nanos);
   }
 
-  /** Returns the number of seconds in the {@link Duration}. */
+  /**
+   * Returns the number of seconds in the {@link Duration}.
+   *
+   * @return the number of seconds in the {@link Duration}.
+   */
   public long getSeconds() {
     return seconds;
   }
 
-  /** Returns the number of nanoseconds in the {@link Duration}. */
+  /**
+   * Returns the number of nanoseconds in the {@link Duration}.
+   *
+   * @return the number of nanoseconds in the {@link Duration}.
+   */
   public int getNanos() {
     return nanos;
   }

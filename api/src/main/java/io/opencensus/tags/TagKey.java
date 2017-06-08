@@ -54,6 +54,7 @@ public abstract class TagKey<TagValueT> {
    *
    * @param name the name of the key.
    * @throws IllegalArgumentException if the name is not valid.
+   * @return a {@code TagKey<String>} with the given name.
    */
   public static TagKey<String> createStringKey(String name) {
     checkArgument(StringUtil.isValid(name));

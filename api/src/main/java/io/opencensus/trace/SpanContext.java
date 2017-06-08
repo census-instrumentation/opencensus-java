@@ -39,6 +39,7 @@ public final class SpanContext {
    * @param traceId the trace identifier of the span context.
    * @param spanId the span identifier of the span context.
    * @param traceOptions the trace options for the span context.
+   * @return a new {@code SpanContext} with the given identifiers and options.
    */
   public static SpanContext create(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
     return new SpanContext(traceId, spanId, traceOptions);
