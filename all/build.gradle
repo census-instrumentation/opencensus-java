@@ -42,7 +42,7 @@ javadoc {
         source subproject.javadoc.source
         options.links subproject.javadoc.options.links.toArray(new String[0])
     }
-    exclude 'com/google/instrumentation/internal/**'
+    exclude 'io/opencensus/internal/**'
 }
 
 task jacocoMerge(type: JacocoMerge) {
