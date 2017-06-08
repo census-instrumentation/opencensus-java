@@ -15,6 +15,8 @@ package io.opencensus.trace;
 
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.base.EndSpanOptions;
+import io.opencensus.trace.base.Sampler;
+import io.opencensus.trace.base.StartSpanOptions;
 import io.opencensus.trace.internal.SpanFactory;
 import java.util.List;
 import javax.annotation.Nullable;

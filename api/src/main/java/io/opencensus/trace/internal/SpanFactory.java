@@ -15,7 +15,7 @@ package io.opencensus.trace.internal;
 
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.StartSpanOptions;
+import io.opencensus.trace.base.StartSpanOptions;
 import javax.annotation.Nullable;
 
 /** Factory class to create and start a {@link Span}. */

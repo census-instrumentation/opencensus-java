@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.base;
 
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.TraceId;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.SpanContext;
+
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -33,7 +34,7 @@ public abstract class Sampler {
    * @param parentLinks The parentLinks associated with the new {@code Span}.
    * @return {@code true} if the {@code Span} is sampled.
    */
-  protected abstract boolean shouldSample(
+  public abstract boolean shouldSample(
       @Nullable SpanContext parentContext,
       boolean remoteParent,
       TraceId traceId,

@@ -21,6 +21,7 @@ import io.opencensus.trace.base.AttributeValue;
 import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
+import io.opencensus.trace.base.StartSpanOptions;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
