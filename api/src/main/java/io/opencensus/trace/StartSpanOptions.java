@@ -13,26 +13,26 @@
 
 package io.opencensus.trace;
 
-import com.google.common.base.Objects;
+import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A class that enables overriding the default values used when starting a {@link Span}. Allows
  * overriding the {@link Sampler sampler}, the parent links, and option to record all the events
  * even if the {@code Span} is not sampled.
  */
-public final class StartSpanOptions {
-  private Sampler sampler;
-  private List<Span> parentLinks;
-  private Boolean recordEvents;
+@AutoValue
+@Immutable
+public abstract class StartSpanOptions {
+  private static final List<Span> EMPTY_PARENT_LINKS_LIST = Collections.emptyList();
 
-  StartSpanOptions() {
-    this.sampler = null;
-    this.parentLinks = null;
-    this.recordEvents = null;
-  }
+  /** The default {@code EndSpanOptions}. */
+  @VisibleForTesting public static final StartSpanOptions DEFAULT = builder().build();
 
   /**
    * Returns the {@link Sampler} to be used, or {@code null} if default.
@@ -40,21 +40,14 @@ public final class StartSpanOptions {
    * @return the {@code Sampler} to be used, or {@code null} if default.
    */
   @Nullable
-  public Sampler getSampler() {
-    return sampler;
-  }
+  public abstract Sampler getSampler();
 
   /**
    * Returns the parent links to be set for the {@link Span}.
    *
    * @return the parent links to be set for the {@code Span}.
    */
-  public List<Span> getParentLinks() {
-    // Return an unmodifiable list.
-    return parentLinks == null
-        ? Collections.<Span>emptyList()
-        : Collections.unmodifiableList(parentLinks);
-  }
+  public abstract List<Span> getParentLinks();
 
   /**
    * Returns the record events option setting.
@@ -62,40 +55,60 @@ public final class StartSpanOptions {
    * @return the record events option setting.
    */
   @Nullable
-  public Boolean getRecordEvents() {
-    return recordEvents;
+  public abstract Boolean getRecordEvents();
+
+  /**
+   * Returns a new {@link Builder} with default options.
+   *
+   * @return a new {@code Builder} with default options.
+   */
+  public static Builder builder() {
+    return new AutoValue_StartSpanOptions.Builder().setParentLinks(EMPTY_PARENT_LINKS_LIST);
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
+  /** Builder class for {@link StartSpanOptions}. */
+  @AutoValue.Builder
+  public abstract static class Builder {
+
+    /**
+     * Sets the {@link Sampler} to be used.
+     *
+     * @param sampler the {@link Sampler} to be used.
+     * @return this.
+     */
+    public abstract Builder setSampler(@Nullable Sampler sampler);
+
+    /**
+     * Sets the parent links to be set for the {@link Span}.
+     *
+     * @param parentLinks the parent links to be set for the {@link Span}.
+     * @return this.
+     */
+    public abstract Builder setParentLinks(List<Span> parentLinks);
+
+    /**
+     * Sets the record events option setting.
+     *
+     * @param recordEvents the record events option setting.
+     * @return this.
+     */
+    public abstract Builder setRecordEvents(@Nullable Boolean recordEvents);
+
+    abstract List<Span> getParentLinks(); // not public
+
+    abstract StartSpanOptions autoBuild(); // not public
+
+    /**
+     * Builds and returns a {@code StartSpanOptions} with the desired settings.
+     *
+     * @return a {@code StartSpanOptions} with the desired settings.
+     * @throws NullPointerException if {@code parentLinks} is {@code null}.
+     */
+    public StartSpanOptions build() {
+      setParentLinks(Collections.unmodifiableList(new ArrayList<Span>(getParentLinks())));
+      return autoBuild();
     }
-
-    if (!(obj instanceof StartSpanOptions)) {
-      return false;
-    }
-
-    StartSpanOptions that = (StartSpanOptions) obj;
-    return Objects.equal(sampler, that.sampler)
-        && Objects.equal(parentLinks, that.parentLinks)
-        && Objects.equal(recordEvents, that.recordEvents);
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(sampler, parentLinks, recordEvents);
-  }
-
-  void setSampler(@Nullable Sampler sampler) {
-    this.sampler = sampler;
-  }
-
-  void setParentLinks(@Nullable List<Span> parentLinks) {
-    this.parentLinks = parentLinks;
-  }
-
-  void setRecordEvents(@Nullable Boolean recordEvents) {
-    this.recordEvents = recordEvents;
-  }
+  StartSpanOptions() {}
 }

@@ -49,7 +49,7 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startSpanNullParent() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
+    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span span = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
     assertThat(span.getContext().isValid()).isTrue();
@@ -65,9 +65,8 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startSpanNullParentWithRecordEvents() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
-    startSpanOptions.setSampler(Samplers.neverSample());
-    startSpanOptions.setRecordEvents(true);
+    StartSpanOptions startSpanOptions =
+        StartSpanOptions.builder().setSampler(Samplers.neverSample()).setRecordEvents(true).build();
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span span = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
     assertThat(span.getContext().isValid()).isTrue();
@@ -81,8 +80,8 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startSpanNullParentNoRecordOptions() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
-    startSpanOptions.setSampler(Samplers.neverSample());
+    StartSpanOptions startSpanOptions =
+        StartSpanOptions.builder().setSampler(Samplers.neverSample()).build();
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span span = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
     assertThat(span.getContext().isValid()).isTrue();
@@ -92,7 +91,7 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startRemoteSpanNullParent() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
+    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span span = spanFactory.startSpanWithRemoteParent(null, SPAN_NAME, startSpanOptions);
     assertThat(span.getContext().isValid()).isTrue();
@@ -106,7 +105,7 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startChildSpan() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
+    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span rootSpan = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
     assertThat(rootSpan.getContext().isValid()).isTrue();
@@ -123,7 +122,7 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startRemoteSpanInvalidParent() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
+    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span span =
         spanFactory.startSpanWithRemoteParent(SpanContext.INVALID, SPAN_NAME, startSpanOptions);
@@ -143,7 +142,7 @@ public class SpanFactoryImplTest {
             TraceId.generateRandomId(randomHandler.current()),
             SpanId.generateRandomId(randomHandler.current()),
             TraceOptions.DEFAULT);
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
+    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span span = spanFactory.startSpanWithRemoteParent(spanContext, SPAN_NAME, startSpanOptions);
     assertThat(span.getContext().isValid()).isTrue();

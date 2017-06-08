@@ -52,7 +52,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startScopedSpanRoot() {
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(new StartSpanOptions())))
+    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     NonThrowingCloseable ss = spanBuilder.becomeRoot().startScopedSpan();
     try {
@@ -65,8 +65,8 @@ public class SpanBuilderTest {
 
   @Test
   public void startScopedSpanRootWithOptions() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
-    startSpanOptions.setSampler(Samplers.neverSample());
+    StartSpanOptions startSpanOptions =
+        StartSpanOptions.builder().setSampler(Samplers.neverSample()).build();
     when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(startSpanOptions)))
         .thenReturn(span);
     NonThrowingCloseable ss =
@@ -81,7 +81,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startRootSpan() {
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(new StartSpanOptions())))
+    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span rootSpan = spanBuilder.becomeRoot().startSpan();
     assertThat(rootSpan).isEqualTo(span);
@@ -92,7 +92,7 @@ public class SpanBuilderTest {
   @Test
   public void startSpan_WithNullParent() {
     spanBuilder = SpanBuilder.builder(spanFactory, null, SPAN_NAME);
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(new StartSpanOptions())))
+    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span rootSpan = spanBuilder.startSpan();
     assertThat(rootSpan).isEqualTo(span);
@@ -103,9 +103,11 @@ public class SpanBuilderTest {
   @Test
   public void startRootSpanWithOptions() {
     List<Span> parentList = Arrays.<Span>asList(BlankSpan.INSTANCE);
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
-    startSpanOptions.setParentLinks(parentList);
-    startSpanOptions.setSampler(Samplers.neverSample());
+    StartSpanOptions startSpanOptions =
+        StartSpanOptions.builder()
+            .setSampler(Samplers.neverSample())
+            .setParentLinks(parentList)
+            .build();
     when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(startSpanOptions)))
         .thenReturn(span);
     Span rootSpan =
@@ -122,7 +124,7 @@ public class SpanBuilderTest {
   @Test
   public void startChildSpan() {
     when(spanFactory.startSpan(
-            same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(new StartSpanOptions())))
+            same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span childSpan = spanBuilder.startSpan();
     assertThat(childSpan).isEqualTo(span);
@@ -132,9 +134,9 @@ public class SpanBuilderTest {
 
   @Test
   public void startChildSpanWithOptions() {
-    StartSpanOptions startSpanOptions = new StartSpanOptions();
-    startSpanOptions.setSampler(Samplers.neverSample());
-    startSpanOptions.setRecordEvents(true);
+    StartSpanOptions startSpanOptions =
+        StartSpanOptions.builder().setSampler(Samplers.neverSample()).setRecordEvents(true).build();
+    ;
     when(spanFactory.startSpan(same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(startSpanOptions)))
         .thenReturn(span);
     Span childSpan =
@@ -148,7 +150,7 @@ public class SpanBuilderTest {
   public void startSpanWitRemoteParent() {
     spanBuilder = SpanBuilder.builderWithRemoteParent(spanFactory, spanContext, SPAN_NAME);
     when(spanFactory.startSpanWithRemoteParent(
-            same(spanContext), same(SPAN_NAME), eq(new StartSpanOptions())))
+            same(spanContext), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span remoteChildSpan = spanBuilder.startSpan();
     assertThat(remoteChildSpan).isEqualTo(span);
@@ -160,7 +162,7 @@ public class SpanBuilderTest {
   public void startSpanWitRemoteParent_WithNullParent() {
     spanBuilder = SpanBuilder.builderWithRemoteParent(spanFactory, null, SPAN_NAME);
     when(spanFactory.startSpanWithRemoteParent(
-            isNull(SpanContext.class), same(SPAN_NAME), eq(new StartSpanOptions())))
+            isNull(SpanContext.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
         .thenReturn(span);
     Span remoteChildSpan = spanBuilder.startSpan();
     assertThat(remoteChildSpan).isEqualTo(span);

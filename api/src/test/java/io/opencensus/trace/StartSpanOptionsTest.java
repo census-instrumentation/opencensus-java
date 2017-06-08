@@ -30,16 +30,15 @@ public class StartSpanOptionsTest {
 
   @Test
   public void defaultOptions() {
-    StartSpanOptions defaultOptions = new StartSpanOptions();
-    assertThat(defaultOptions.getSampler()).isNull();
-    assertThat(defaultOptions.getParentLinks().isEmpty()).isTrue();
-    assertThat(defaultOptions.getRecordEvents()).isNull();
+    assertThat(StartSpanOptions.DEFAULT.getSampler()).isNull();
+    assertThat(StartSpanOptions.DEFAULT.getParentLinks().isEmpty()).isTrue();
+    assertThat(StartSpanOptions.DEFAULT.getRecordEvents()).isNull();
   }
 
   @Test
   public void setSampler() {
-    StartSpanOptions options = new StartSpanOptions();
-    options.setSampler(Samplers.neverSample());
+    StartSpanOptions options =
+        StartSpanOptions.builder().setSampler(Samplers.neverSample()).build();
     assertThat(options.getSampler()).isEqualTo(Samplers.neverSample());
     assertThat(options.getParentLinks().isEmpty()).isTrue();
     assertThat(options.getRecordEvents()).isNull();
@@ -47,8 +46,7 @@ public class StartSpanOptionsTest {
 
   @Test
   public void setParentLinks() {
-    StartSpanOptions options = new StartSpanOptions();
-    options.setParentLinks(singleParentList);
+    StartSpanOptions options = StartSpanOptions.builder().setParentLinks(singleParentList).build();
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks()).isEqualTo(singleParentList);
     assertThat(options.getRecordEvents()).isNull();
@@ -56,8 +54,8 @@ public class StartSpanOptionsTest {
 
   @Test
   public void setParentLinks_EmptyList() {
-    StartSpanOptions options = new StartSpanOptions();
-    options.setParentLinks(new LinkedList<Span>());
+    StartSpanOptions options =
+        StartSpanOptions.builder().setParentLinks(new LinkedList<Span>()).build();
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks().size()).isEqualTo(0);
     assertThat(options.getRecordEvents()).isNull();
@@ -65,8 +63,10 @@ public class StartSpanOptionsTest {
 
   @Test
   public void setParentLinks_MultipleParents() {
-    StartSpanOptions options = new StartSpanOptions();
-    options.setParentLinks(Arrays.<Span>asList(BlankSpan.INSTANCE, BlankSpan.INSTANCE));
+    StartSpanOptions options =
+        StartSpanOptions.builder()
+            .setParentLinks(Arrays.<Span>asList(BlankSpan.INSTANCE, BlankSpan.INSTANCE))
+            .build();
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks().size()).isEqualTo(2);
     assertThat(options.getRecordEvents()).isNull();
@@ -74,8 +74,7 @@ public class StartSpanOptionsTest {
 
   @Test
   public void setRecordEvents() {
-    StartSpanOptions options = new StartSpanOptions();
-    options.setRecordEvents(true);
+    StartSpanOptions options = StartSpanOptions.builder().setRecordEvents(true).build();
     assertThat(options.getSampler()).isNull();
     assertThat(options.getParentLinks().isEmpty()).isTrue();
     assertThat(options.getRecordEvents()).isTrue();
@@ -83,11 +82,12 @@ public class StartSpanOptionsTest {
 
   @Test
   public void setAllProperties() {
-    StartSpanOptions options = new StartSpanOptions();
-    options.setSampler(Samplers.neverSample());
-    options.setSampler(Samplers.alwaysSample()); // second SetSampler should apply
-    options.setRecordEvents(true);
-    options.setParentLinks(singleParentList);
+    StartSpanOptions options =
+        StartSpanOptions.builder()
+            .setSampler(Samplers.alwaysSample())
+            .setRecordEvents(true)
+            .setParentLinks(singleParentList)
+            .build();
     assertThat(options.getSampler()).isEqualTo(Samplers.alwaysSample());
     assertThat(options.getParentLinks()).isEqualTo(singleParentList);
     assertThat(options.getRecordEvents()).isTrue();
@@ -96,15 +96,15 @@ public class StartSpanOptionsTest {
   @Test
   public void startSpanOptions_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
-    StartSpanOptions optionsWithAlwaysSampler1 = new StartSpanOptions();
-    optionsWithAlwaysSampler1.setSampler(Samplers.alwaysSample());
-    StartSpanOptions optionsWithAlwaysSampler2 = new StartSpanOptions();
-    optionsWithAlwaysSampler2.setSampler(Samplers.alwaysSample());
+    StartSpanOptions optionsWithAlwaysSampler1 =
+        StartSpanOptions.builder().setSampler(Samplers.alwaysSample()).build();
+    StartSpanOptions optionsWithAlwaysSampler2 =
+        StartSpanOptions.builder().setSampler(Samplers.alwaysSample()).build();
     tester.addEqualityGroup(optionsWithAlwaysSampler1, optionsWithAlwaysSampler2);
-    StartSpanOptions optionsWithNeverSampler = new StartSpanOptions();
-    optionsWithNeverSampler.setSampler(Samplers.neverSample());
+    StartSpanOptions optionsWithNeverSampler =
+        StartSpanOptions.builder().setSampler(Samplers.neverSample()).build();
     tester.addEqualityGroup(optionsWithNeverSampler);
-    tester.addEqualityGroup(new StartSpanOptions());
+    tester.addEqualityGroup(StartSpanOptions.DEFAULT);
     tester.testEquals();
   }
 }
