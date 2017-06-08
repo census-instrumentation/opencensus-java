@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 import io.opencensus.common.Clock;
-import io.opencensus.common.EventQueue;
+import io.opencensus.internal.EventQueue;
 
 /**
  * Base implementation of {@link StatsManager}.

@@ -16,7 +16,7 @@ package com.google.instrumentation.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.NonThrowingCloseable;
-import io.opencensus.common.SimpleEventQueue;
+import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.TestClock;
 import io.opencensus.internal.VarInt;
 import io.grpc.Context;

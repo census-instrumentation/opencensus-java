@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.internal;
 
 import java.security.SecureRandom;
 import java.util.Random;
@@ -23,22 +23,22 @@ import javax.annotation.concurrent.ThreadSafe;
  * <p>Implementation can have a per thread instance or a single global instance.
  */
 @ThreadSafe
-abstract class RandomHandler {
+public abstract class RandomHandler {
   /**
    * Returns the current {@link Random}.
    *
    * @return the current {@code Random}.
    */
-  abstract Random current();
+  public abstract Random current();
 
   @ThreadSafe
-  static final class SecureRandomHandler extends RandomHandler {
+  public static final class SecureRandomHandler extends RandomHandler {
     private final Random random = new SecureRandom();
 
-    SecureRandomHandler() {}
+    public SecureRandomHandler() {}
 
     @Override
-    Random current() {
+    public Random current() {
       return random;
     }
   }

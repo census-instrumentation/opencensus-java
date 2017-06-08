@@ -13,8 +13,8 @@
 
 package com.google.instrumentation.stats;
 
-import io.opencensus.common.DisruptorEventQueue;
 import io.opencensus.common.MillisClock;
+import io.opencensus.internal.DisruptorEventQueue;
 
 /** Java 7 and 8 implementation of {@link StatsManager}. */
 public final class StatsManagerImpl extends StatsManagerImplBase {

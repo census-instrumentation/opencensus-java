@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;

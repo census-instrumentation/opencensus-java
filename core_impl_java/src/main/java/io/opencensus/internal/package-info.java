@@ -11,16 +11,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
-
 /**
- * An {@link EventQueue} that processes events in the current thread. This class can be used for
- * testing.
+ * Interfaces and implementations that are internal to OpenCensus.
+ *
+ * <p>All the content under this package and its subpackages are considered annotated with {@link
+ * io.opencensus.common.Internal}.
  */
-public class SimpleEventQueue implements EventQueue {
-
-  @Override
-  public void enqueue(Entry entry) {
-    entry.process();
-  }
-}
+@io.opencensus.common.Internal
+package io.opencensus.internal;

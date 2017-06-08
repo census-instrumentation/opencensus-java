@@ -24,6 +24,7 @@ import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
+import io.opencensus.trace.internal.RandomHandler;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -165,7 +166,7 @@ public class SpanFactoryImplTest {
     }
 
     @Override
-    Random current() {
+    public Random current() {
       return random;
     }
   }

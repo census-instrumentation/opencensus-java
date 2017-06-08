@@ -14,8 +14,8 @@
 package io.opencensus.trace;
 
 import io.opencensus.common.MillisClock;
-import io.opencensus.common.SimpleEventQueue;
-import io.opencensus.trace.RandomHandler.SecureRandomHandler;
+import io.opencensus.internal.SimpleEventQueue;
+import io.opencensus.trace.internal.RandomHandler.SecureRandomHandler;
 
 /** Android-compatible implementation of the {@link TraceComponent}. */
 public final class TraceComponentImpl extends TraceComponentImplBase {

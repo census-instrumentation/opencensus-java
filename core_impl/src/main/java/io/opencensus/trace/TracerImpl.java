@@ -15,6 +15,7 @@ package io.opencensus.trace;
 
 import io.opencensus.common.Clock;
 import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.internal.RandomHandler;
 
 /** Implementation of the {@link Tracer}. */
 final class TracerImpl extends Tracer {

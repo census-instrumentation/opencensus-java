@@ -14,11 +14,12 @@
 package io.opencensus.trace;
 
 import io.opencensus.common.Clock;
-import io.opencensus.common.EventQueue;
+import io.opencensus.internal.EventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceConfigImpl;
 import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.internal.RandomHandler;
 import io.opencensus.trace.propagation.PropagationComponent;
 import io.opencensus.trace.propagation.PropagationComponentImpl;
 

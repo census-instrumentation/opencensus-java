@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.common.Clock;
+import io.opencensus.internal.TimestampConverter;
 import io.opencensus.trace.SpanData.TimedEvent;
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.AttributeValue;

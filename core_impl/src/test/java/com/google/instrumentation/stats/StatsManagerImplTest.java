@@ -17,7 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.instrumentation.stats.StatsTestUtil.createContext;
 
 import io.opencensus.common.Duration;
-import io.opencensus.common.SimpleEventQueue;
+import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.TestClock;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;

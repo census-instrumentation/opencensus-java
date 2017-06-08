@@ -11,20 +11,21 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.internal;
 
-import io.opencensus.common.MillisClock;
-import io.opencensus.internal.DisruptorEventQueue;
-import io.opencensus.trace.internal.ThreadLocalRandomHandler;
+/** A queue that processes events. See {@code DisruptorEventQueue} for an example. */
+public interface EventQueue {
+  void enqueue(Entry entry);
 
-/** Java 7 and 8 implementation of the {@link TraceComponent}. */
-public final class TraceComponentImpl extends TraceComponentImplBase {
-
-  /** Public constructor to be used with reflection loading. */
-  public TraceComponentImpl() {
-    super(
-        MillisClock.getInstance(),
-        new ThreadLocalRandomHandler(),
-        DisruptorEventQueue.getInstance());
+  /**
+   * Base interface to be used for all entries in {@link EventQueue}. For example usage, see {@code
+   * DisruptorEventQueue}.
+   */
+  public interface Entry {
+    /**
+     * Process the event associated with this entry. This will be called for every event in the
+     * associated {@link EventQueue}.
+     */
+    void process();
   }
 }
