@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.base;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import io.opencensus.trace.Span;
 import javax.annotation.concurrent.Immutable;
 
 /**

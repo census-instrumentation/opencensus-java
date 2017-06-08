@@ -15,7 +15,7 @@ package io.opencensus.trace.export;
 
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanData;
-import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.base.TraceOptions;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;

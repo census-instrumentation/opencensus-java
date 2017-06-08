@@ -16,13 +16,13 @@ package io.opencensus.trace.config;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.trace.Annotation;
-import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Samplers;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.StartSpanOptions;
+import io.opencensus.trace.base.Annotation;
+import io.opencensus.trace.base.Link;
+import io.opencensus.trace.base.NetworkEvent;
 import javax.annotation.concurrent.Immutable;
 
 /** Class that holds global trace parameters. */

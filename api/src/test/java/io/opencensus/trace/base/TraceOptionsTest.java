@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.base;
 
 import static com.google.common.truth.Truth.assertThat;
 

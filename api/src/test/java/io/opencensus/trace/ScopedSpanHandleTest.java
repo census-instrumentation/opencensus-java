@@ -18,6 +18,7 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.base.EndSpanOptions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

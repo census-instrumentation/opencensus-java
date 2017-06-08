@@ -16,6 +16,9 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.trace.base.SpanId;
+import io.opencensus.trace.base.TraceId;
+import io.opencensus.trace.base.TraceOptions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

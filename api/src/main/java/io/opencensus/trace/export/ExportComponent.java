@@ -13,7 +13,7 @@
 
 package io.opencensus.trace.export;
 
-import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.base.TraceOptions;
 import javax.annotation.Nullable;
 
 /**

@@ -17,6 +17,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Timestamp;
+import io.opencensus.trace.base.Annotation;
+import io.opencensus.trace.base.AttributeValue;
+import io.opencensus.trace.base.Link;
+import io.opencensus.trace.base.NetworkEvent;
+import io.opencensus.trace.base.SpanId;
+import io.opencensus.trace.base.Status;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

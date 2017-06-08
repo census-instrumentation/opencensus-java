@@ -16,6 +16,9 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import io.opencensus.trace.base.SpanId;
+import io.opencensus.trace.base.TraceId;
+import io.opencensus.trace.base.TraceOptions;
 import java.text.ParseException;
 import org.junit.Rule;
 import org.junit.Test;
