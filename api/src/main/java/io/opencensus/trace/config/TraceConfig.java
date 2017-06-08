@@ -35,14 +35,6 @@ public abstract class TraceConfig {
   public abstract void updateActiveTraceParams(TraceParams traceParams);
 
   /**
-   * Temporary updates the active {@link TraceParams} for {@code durationNs} nanoseconds.
-   *
-   * @param traceParams the new active {@code TraceParams}.
-   * @param durationNs the duration for how long the new params will be active.
-   */
-  public abstract void temporaryUpdateActiveTraceParams(TraceParams traceParams, long durationNs);
-
-  /**
    * Returns the no-op implementation of the {@code TraceConfig}.
    *
    * @return the no-op implementation of the {@code TraceConfig}.
@@ -60,8 +52,5 @@ public abstract class TraceConfig {
 
     @Override
     public void updateActiveTraceParams(TraceParams traceParams) {}
-
-    @Override
-    public void temporaryUpdateActiveTraceParams(TraceParams traceParams, long durationNs) {}
   }
 }

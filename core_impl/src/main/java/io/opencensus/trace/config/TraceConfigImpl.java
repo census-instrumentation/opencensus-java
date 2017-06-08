@@ -11,17 +11,21 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
-
-import io.opencensus.trace.config.TraceConfig;
-import io.opencensus.trace.config.TraceParams;
+package io.opencensus.trace.config;
 
 /**
  * Global configuration of the trace service. This allows users to change configs for the default
  * sampler, maximum events to be kept, etc.
  */
-final class TraceConfigImpl extends TraceConfig {
+public final class TraceConfigImpl extends TraceConfig {
+  // Reads and writes are atomic for reference variables. Use volatile to ensure that these
+  // operations are visible on other CPUs as well.
   private volatile TraceParams activeTraceParams = TraceParams.DEFAULT;
+
+  /**
+   * Constructs a new {@code TraceConfigImpl}.
+   */
+  public TraceConfigImpl() {}
 
   @Override
   public TraceParams getActiveTraceParams() {
@@ -31,10 +35,5 @@ final class TraceConfigImpl extends TraceConfig {
   @Override
   public void updateActiveTraceParams(TraceParams traceParams) {
     activeTraceParams = traceParams;
-  }
-
-  @Override
-  public void temporaryUpdateActiveTraceParams(TraceParams traceParams, long durationNs) {
-    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

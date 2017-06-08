@@ -17,6 +17,7 @@ import io.opencensus.common.Clock;
 import io.opencensus.common.EventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.config.TraceConfigImpl;
 import io.opencensus.trace.export.ExportComponent;
 
 /** Base implementation of the {@link TraceComponent}. */
