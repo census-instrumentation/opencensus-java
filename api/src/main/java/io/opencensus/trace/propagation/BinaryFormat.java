@@ -25,8 +25,8 @@ import java.text.ParseException;
  *
  * <pre>{@code
  * private static final Tracer tracer = Tracing.getTracer();
- * private static final BinaryFormat binaryPropagation =
- *     Tracing.getPropagationComponent().getBinaryFormat;
+ * private static final BinaryFormat binaryFormat =
+ *     Tracing.getPropagationComponent().getBinaryFormat();
  * void onSendRequest() {
  *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
  *     byte[] binaryValue = binaryPropagation.toBinaryValue(
@@ -40,8 +40,8 @@ import java.text.ParseException;
  *
  * <pre>{@code
  * private static final Tracer tracer = Tracing.getTracer();
- * private static final BinaryFormat binaryPropagation =
- *     Tracing.getPropagationComponent().getBinaryFormat;
+ * private static final BinaryFormat binaryFormat =
+ *     Tracing.getPropagationComponent().getBinaryFormat();
  * void onRequestReceived() {
  *   // Get the binaryValue from the request.
  *   SpanContext spanContext = SpanContext.INVALID;
