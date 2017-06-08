@@ -37,8 +37,6 @@ public final class Timestamp {
     this.nanos = nanos;
   }
 
-  // TODO(bdrutu): Make create and fromMillis package-protected.
-
   /**
    * Creates a new timestamp from given seconds and nanoseconds.
    *
@@ -63,6 +61,7 @@ public final class Timestamp {
   /**
    * Creates a new timestamp from the given milliseconds.
    *
+   * @param millis the timestamp represented in milliseconds since epoch.
    * @return a new timestamp from the given milliseconds.
    */
   public static Timestamp fromMillis(long millis) {

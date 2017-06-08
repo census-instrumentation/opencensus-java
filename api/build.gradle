@@ -8,4 +8,4 @@ dependencies {
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
 
-javadoc.exclude 'io/opencensus/**'
+javadoc.exclude 'io/opencensus/internal/**'
