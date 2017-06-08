@@ -15,6 +15,7 @@ package io.opencensus.trace;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.trace.config.TraceConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +32,8 @@ import javax.annotation.concurrent.Immutable;
 public abstract class StartSpanOptions {
   private static final List<Span> EMPTY_PARENT_LINKS_LIST = Collections.emptyList();
 
-  /** The default {@code EndSpanOptions}. */
-  @VisibleForTesting public static final StartSpanOptions DEFAULT = builder().build();
+  /** The default {@code StartSpanOptions}. */
+  @VisibleForTesting static final StartSpanOptions DEFAULT = builder().build();
 
   /**
    * Returns the {@link Sampler} to be used, or {@code null} if default.
@@ -50,9 +51,11 @@ public abstract class StartSpanOptions {
   public abstract List<Span> getParentLinks();
 
   /**
-   * Returns the record events option setting.
+   * Returns the record events option, or {@code null} if default.
    *
-   * @return the record events option setting.
+   * <p>See {@link Span.Options#RECORD_EVENTS} for more details.
+   *
+   * @return the record events option, or {@code null} if default.
    */
   @Nullable
   public abstract Boolean getRecordEvents();
@@ -71,7 +74,8 @@ public abstract class StartSpanOptions {
   public abstract static class Builder {
 
     /**
-     * Sets the {@link Sampler} to be used.
+     * Sets the {@link Sampler} to be used. If {@code null} the default {@code Sampler} from the
+     * {@link TraceConfig#getActiveTraceParams()} will be used.
      *
      * @param sampler the {@link Sampler} to be used.
      * @return this.
@@ -83,13 +87,17 @@ public abstract class StartSpanOptions {
      *
      * @param parentLinks the parent links to be set for the {@link Span}.
      * @return this.
+     * @throws NullPointerException if {@code parentLinks} is {@code null}.
      */
     public abstract Builder setParentLinks(List<Span> parentLinks);
 
     /**
-     * Sets the record events option setting.
+     * Sets the record events option. If {@code null} the default value from the {@link
+     * TraceConfig#getActiveTraceParams()} will be used.
      *
-     * @param recordEvents the record events option setting.
+     * <p>See {@link Span.Options#RECORD_EVENTS} for more details.
+     *
+     * @param recordEvents the record events option.
      * @return this.
      */
     public abstract Builder setRecordEvents(@Nullable Boolean recordEvents);
@@ -102,7 +110,6 @@ public abstract class StartSpanOptions {
      * Builds and returns a {@code StartSpanOptions} with the desired settings.
      *
      * @return a {@code StartSpanOptions} with the desired settings.
-     * @throws NullPointerException if {@code parentLinks} is {@code null}.
      */
     public StartSpanOptions build() {
       setParentLinks(Collections.unmodifiableList(new ArrayList<Span>(getParentLinks())));

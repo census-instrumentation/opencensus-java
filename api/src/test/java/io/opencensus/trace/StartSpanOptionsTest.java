@@ -30,9 +30,10 @@ public class StartSpanOptionsTest {
 
   @Test
   public void defaultOptions() {
-    assertThat(StartSpanOptions.DEFAULT.getSampler()).isNull();
-    assertThat(StartSpanOptions.DEFAULT.getParentLinks().isEmpty()).isTrue();
-    assertThat(StartSpanOptions.DEFAULT.getRecordEvents()).isNull();
+    StartSpanOptions defaultOptions = StartSpanOptions.builder().build();
+    assertThat(defaultOptions.getSampler()).isNull();
+    assertThat(defaultOptions.getParentLinks().isEmpty()).isTrue();
+    assertThat(defaultOptions.getRecordEvents()).isNull();
   }
 
   @Test
