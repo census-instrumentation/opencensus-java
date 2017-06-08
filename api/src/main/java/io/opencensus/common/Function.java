@@ -19,7 +19,7 @@ package io.opencensus.common;
  * <p>Note: This class is based on the java.util.Function class added in Java 1.8. We cannot use the
  * Function from Java 1.8 because this library is Java 1.6 compatible.
  */
-// TODO(bdrutu): Add back "See {@link io.opencensus.stats.ViewDescriptor} for an example of it's
+// TODO(bdrutu): Add back "See {@link io.opencensus.stats.ViewDescriptor} for an example of its
 // use."
 public interface Function<A, B> {
   B apply(A arg);
