@@ -20,18 +20,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TraceParams}. */
+/** Unit tests for {@link TraceConfig}. */
 @RunWith(JUnit4.class)
 public class TraceConfigTest {
   TraceConfig traceConfig = TraceConfig.getNoopTraceConfig();
 
   @Test
-  public void defaultActiveTraceParams() {
+  public void activeTraceParams_NoOpImplementation() {
     assertThat(traceConfig.getActiveTraceParams()).isEqualTo(TraceParams.DEFAULT);
   }
 
   @Test
-  public void updateActiveTraceParams() {
+  public void updateActiveTraceParams_NoOpImplementation() {
     TraceParams traceParams =
         TraceParams.DEFAULT
             .toBuilder()
