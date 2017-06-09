@@ -29,8 +29,7 @@ import java.text.ParseException;
  *     Tracing.getPropagationComponent().getBinaryFormat();
  * void onSendRequest() {
  *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
- *     byte[] binaryValue = binaryPropagation.toBinaryValue(
- *         tracer.getCurrentContext().context());
+ *     byte[] binaryValue = binaryFormat.toBinaryValue(tracer.getCurrentContext().context());
  *     // Send the request including the binaryValue and wait for the response.
  *   }
  * }
@@ -47,7 +46,7 @@ import java.text.ParseException;
  *   SpanContext spanContext = SpanContext.INVALID;
  *   try {
  *     if (binaryValue != null) {
- *       spanContext = binaryPropagation.fromBinaryValue(binaryValue);
+ *       spanContext = binaryFormat.fromBinaryValue(binaryValue);
  *     }
  *   } catch (ParseException e) {
  *     // Maybe log the exception.

@@ -21,7 +21,7 @@ import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link PropagationComponent}. */
 @RunWith(JUnit4.class)
-public class PropagationComponentImplTest {
+public class PropagationComponentTest {
   private final PropagationComponent propagationComponent =
       PropagationComponent.getNoopPropagationComponent();
 

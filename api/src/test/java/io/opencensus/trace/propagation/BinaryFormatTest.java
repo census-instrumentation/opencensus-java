@@ -24,26 +24,26 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link BinaryFormat}. */
 @RunWith(JUnit4.class)
 public class BinaryFormatTest {
-  private static final BinaryFormat BINARY_PROPAGATION =
+  private static final BinaryFormat binaryFormat =
       BinaryFormat.getNoopBinaryFormat();
 
   @Test(expected = NullPointerException.class)
   public void toBinaryValue_NullSpanContext() {
-    BINARY_PROPAGATION.toBinaryValue(null);
+    binaryFormat.toBinaryValue(null);
   }
 
   @Test
   public void toBinaryValue_NotNullSpanContext() {
-    assertThat(BINARY_PROPAGATION.toBinaryValue(SpanContext.INVALID)).isEqualTo(new byte[0]);
+    assertThat(binaryFormat.toBinaryValue(SpanContext.INVALID)).isEqualTo(new byte[0]);
   }
 
   @Test(expected = NullPointerException.class)
   public void fromBinaryValue_NullInput() throws ParseException {
-    BINARY_PROPAGATION.fromBinaryValue(null);
+    binaryFormat.fromBinaryValue(null);
   }
 
   @Test
   public void fromBinaryValue_NotNullInput() throws ParseException {
-    assertThat(BINARY_PROPAGATION.fromBinaryValue(new byte[0])).isEqualTo(SpanContext.INVALID);
+    assertThat(binaryFormat.fromBinaryValue(new byte[0])).isEqualTo(SpanContext.INVALID);
   }
 }
