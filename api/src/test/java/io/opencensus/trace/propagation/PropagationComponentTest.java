@@ -11,37 +11,23 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.common.MillisClock;
-import io.opencensus.trace.propagation.PropagationComponentImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TraceComponentImpl}. */
+/** Unit tests for {@link PropagationComponent}. */
 @RunWith(JUnit4.class)
-public class TraceComponentImplTest {
-  @Test
-  public void implementationOfTracer() {
-    assertThat(Tracing.getTracer()).isInstanceOf(TracerImpl.class);
-  }
+public class PropagationComponentTest {
+  private final PropagationComponent propagationComponent =
+      PropagationComponent.getNoopPropagationComponent();
 
   @Test
-  public void implementationOfBinaryPropagationHandler() {
-    assertThat(Tracing.getPropagationComponent())
-        .isInstanceOf(PropagationComponentImpl.class);
-  }
-
-  @Test
-  public void implementationOfClock() {
-    assertThat(Tracing.getClock()).isInstanceOf(MillisClock.class);
-  }
-
-  @Test
-  public void implementationOfTraceExporter() {
-    assertThat(Tracing.getTraceExporter()).isInstanceOf(ExportComponentImpl.class);
+  public void implementationOfBinary() {
+    assertThat(propagationComponent.getBinaryFormat())
+        .isEqualTo(BinaryFormat.getNoopBinaryFormat());
   }
 }

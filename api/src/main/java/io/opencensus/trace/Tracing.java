@@ -18,6 +18,7 @@ import io.opencensus.common.Clock;
 import io.opencensus.internal.Provider;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.propagation.PropagationComponent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,12 +38,12 @@ public final class Tracing {
   }
 
   /**
-   * Returns the global {@link BinaryPropagationHandler}.
+   * Returns the global {@link PropagationComponent}.
    *
-   * @return the global {@code BinaryPropagationHandler}.
+   * @return the global {@code PropagationComponent}.
    */
-  public static BinaryPropagationHandler getBinaryPropagationHandler() {
-    return traceComponent.getBinaryPropagationHandler();
+  public static PropagationComponent getPropagationComponent() {
+    return traceComponent.getPropagationComponent();
   }
 
   /**
@@ -60,7 +61,7 @@ public final class Tracing {
    * @return the global {@code ExportComponent}.
    */
   public static ExportComponent getTraceExporter() {
-    return traceComponent.getTraceExporter();
+    return traceComponent.getExportComponent();
   }
 
   /**

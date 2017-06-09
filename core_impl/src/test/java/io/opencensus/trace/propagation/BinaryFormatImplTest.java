@@ -11,11 +11,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
@@ -26,9 +27,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link BinaryPropagationHandlerImpl}. */
+/** Unit tests for {@link BinaryFormatImpl}. */
 @RunWith(JUnit4.class)
-public class BinaryPropagationHandlerImplTest {
+public class BinaryFormatImplTest {
   private static final byte[] TRACE_ID_BYTES =
       new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79};
   private static final TraceId TRACE_ID = TraceId.fromBytes(TRACE_ID_BYTES);
@@ -44,15 +45,13 @@ public class BinaryPropagationHandlerImplTest {
   private static final SpanContext EXAMPLE_SPAN_CONTEXT =
       SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS);
   @Rule public ExpectedException expectedException = ExpectedException.none();
-  private final BinaryPropagationHandler binaryPropagationHandler =
-      new BinaryPropagationHandlerImpl();
+  private final BinaryFormat binaryFormat = new BinaryFormatImpl();
 
   private void testSpanContextConversion(SpanContext spanContext) throws ParseException {
     SpanContext propagatedBinarySpanContext =
-        binaryPropagationHandler.fromBinaryValue(
-            binaryPropagationHandler.toBinaryValue(spanContext));
+        binaryFormat.fromBinaryValue(binaryFormat.toBinaryValue(spanContext));
 
-    assertWithMessage("Binary propagated context is not equal with the initial context.")
+    assertWithMessage("BinaryFormat propagated context is not equal with the initial context.")
         .that(propagatedBinarySpanContext)
         .isEqualTo(spanContext);
   }
@@ -70,12 +69,12 @@ public class BinaryPropagationHandlerImplTest {
 
   @Test(expected = NullPointerException.class)
   public void toBinaryValue_NullSpanContext() {
-    binaryPropagationHandler.toBinaryValue(null);
+    binaryFormat.toBinaryValue(null);
   }
 
   @Test
   public void toBinaryValue_InvalidSpanContext() {
-    assertThat(binaryPropagationHandler.toBinaryValue(SpanContext.INVALID))
+    assertThat(binaryFormat.toBinaryValue(SpanContext.INVALID))
         .isEqualTo(
             new byte[] {
               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0
@@ -84,27 +83,26 @@ public class BinaryPropagationHandlerImplTest {
 
   @Test
   public void fromBinaryValue_BinaryExampleValue() throws ParseException {
-    assertThat(binaryPropagationHandler.fromBinaryValue(EXAMPLE_BYTES))
-        .isEqualTo(EXAMPLE_SPAN_CONTEXT);
+    assertThat(binaryFormat.fromBinaryValue(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
   }
 
   @Test(expected = NullPointerException.class)
   public void fromBinaryValue_NullInput() throws ParseException {
-    binaryPropagationHandler.fromBinaryValue(null);
+    binaryFormat.fromBinaryValue(null);
   }
 
   @Test
   public void fromBinaryValue_EmptyInput() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Unsupported version.");
-    binaryPropagationHandler.fromBinaryValue(new byte[0]);
+    binaryFormat.fromBinaryValue(new byte[0]);
   }
 
   @Test
   public void fromBinaryValue_UnsupportedVersionId() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Unsupported version.");
-    binaryPropagationHandler.fromBinaryValue(
+    binaryFormat.fromBinaryValue(
         new byte[] {
           66, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 97, 98, 99, 100, 101,
           102, 103, 104, 1
@@ -114,7 +112,7 @@ public class BinaryPropagationHandlerImplTest {
   @Test
   public void fromBinaryValue_UnsupportedFieldIdFirst() throws ParseException {
     assertThat(
-            binaryPropagationHandler.fromBinaryValue(
+            binaryFormat.fromBinaryValue(
                 new byte[] {
                   0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -125,7 +123,7 @@ public class BinaryPropagationHandlerImplTest {
   @Test
   public void fromBinaryValue_UnsupportedFieldIdSecond() throws ParseException {
     assertThat(
-            binaryPropagationHandler.fromBinaryValue(
+            binaryFormat.fromBinaryValue(
                 new byte[] {
                   0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 3, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -142,7 +140,7 @@ public class BinaryPropagationHandlerImplTest {
   public void fromBinaryValue_ShorterTraceId() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
-    binaryPropagationHandler.fromBinaryValue(
+    binaryFormat.fromBinaryValue(
         new byte[] {0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76});
   }
 
@@ -150,14 +148,14 @@ public class BinaryPropagationHandlerImplTest {
   public void fromBinaryValue_ShorterSpanId() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
-    binaryPropagationHandler.fromBinaryValue(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
+    binaryFormat.fromBinaryValue(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
   }
 
   @Test
   public void fromBinaryValue_ShorterTraceOptions() throws ParseException {
     expectedException.expect(ParseException.class);
     expectedException.expectMessage("Invalid input: java.lang.IndexOutOfBoundsException");
-    binaryPropagationHandler.fromBinaryValue(
+    binaryFormat.fromBinaryValue(
         new byte[] {
           0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
           101, 102, 103, 104, 2

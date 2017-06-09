@@ -11,39 +11,39 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.SpanContext;
 import java.text.ParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link BinaryPropagationHandler}. */
+/** Unit tests for {@link BinaryFormat}. */
 @RunWith(JUnit4.class)
-public class BinaryPropagationHandlerTest {
-  private static final BinaryPropagationHandler binaryPropagationHandler =
-      BinaryPropagationHandler.getNoopBinaryPropagationHandler();
+public class BinaryFormatTest {
+  private static final BinaryFormat binaryFormat =
+      BinaryFormat.getNoopBinaryFormat();
 
   @Test(expected = NullPointerException.class)
   public void toBinaryValue_NullSpanContext() {
-    binaryPropagationHandler.toBinaryValue(null);
+    binaryFormat.toBinaryValue(null);
   }
 
   @Test
   public void toBinaryValue_NotNullSpanContext() {
-    assertThat(binaryPropagationHandler.toBinaryValue(SpanContext.INVALID)).isEqualTo(new byte[0]);
+    assertThat(binaryFormat.toBinaryValue(SpanContext.INVALID)).isEqualTo(new byte[0]);
   }
 
   @Test(expected = NullPointerException.class)
   public void fromBinaryValue_NullInput() throws ParseException {
-    binaryPropagationHandler.fromBinaryValue(null);
+    binaryFormat.fromBinaryValue(null);
   }
 
   @Test
   public void fromBinaryValue_NotNullInput() throws ParseException {
-    assertThat(binaryPropagationHandler.fromBinaryValue(new byte[0]))
-        .isEqualTo(SpanContext.INVALID);
+    assertThat(binaryFormat.fromBinaryValue(new byte[0])).isEqualTo(SpanContext.INVALID);
   }
 }

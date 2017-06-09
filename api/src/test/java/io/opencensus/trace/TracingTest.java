@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
+import io.opencensus.trace.propagation.PropagationComponent;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -64,8 +65,8 @@ public class TracingTest {
 
   @Test
   public void defaultBinaryPropagationHandler() {
-    assertThat(Tracing.getBinaryPropagationHandler())
-        .isSameAs(BinaryPropagationHandler.getNoopBinaryPropagationHandler());
+    assertThat(Tracing.getPropagationComponent())
+        .isSameAs(PropagationComponent.getNoopPropagationComponent());
   }
 
   @Test

@@ -18,6 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.common.MillisClock;
 import io.opencensus.common.SimpleEventQueue;
 import io.opencensus.trace.RandomHandler.SecureRandomHandler;
+import io.opencensus.trace.propagation.PropagationComponentImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,8 +37,8 @@ public class TraceComponentImplBaseTest {
 
   @Test
   public void implementationOfBinaryPropagationHandler() {
-    assertThat(traceComponent.getBinaryPropagationHandler())
-        .isInstanceOf(BinaryPropagationHandlerImpl.class);
+    assertThat(traceComponent.getPropagationComponent())
+        .isInstanceOf(PropagationComponentImpl.class);
   }
 
   @Test
@@ -47,6 +48,6 @@ public class TraceComponentImplBaseTest {
 
   @Test
   public void implementationOfTraceExporter() {
-    assertThat(traceComponent.getTraceExporter()).isInstanceOf(ExportComponentImpl.class);
+    assertThat(traceComponent.getExportComponent()).isInstanceOf(ExportComponentImpl.class);
   }
 }

@@ -11,19 +11,20 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.propagation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
 import java.text.ParseException;
 
 /**
- * Implementation of the {@link BinaryPropagationHandler}.
+ * Implementation of the {@link BinaryFormat}.
  *
- * <p>Binary format:
+ * <p>BinaryFormat format:
  *
  * <ul>
  *   <li>Binary value: &lt;version_id&gt;&lt;version_format&gt;
@@ -54,7 +55,7 @@ import java.text.ParseException;
  *       </ul>
  * </ul>
  */
-final class BinaryPropagationHandlerImpl extends BinaryPropagationHandler {
+final class BinaryFormatImpl extends BinaryFormat {
   private static final byte VERSION_ID = 0;
   private static final int VERSION_ID_OFFSET = 0;
   // The version_id/field_id size in bytes.
@@ -71,7 +72,7 @@ final class BinaryPropagationHandlerImpl extends BinaryPropagationHandler {
   private static final int FORMAT_LENGTH =
       4 * ID_SIZE + TraceId.SIZE + SpanId.SIZE + TraceOptions.SIZE;
 
-  BinaryPropagationHandlerImpl() {}
+  BinaryFormatImpl() {}
 
   @Override
   public byte[] toBinaryValue(SpanContext spanContext) {
