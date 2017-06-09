@@ -11,19 +11,16 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.internal;
 
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-import javax.annotation.concurrent.ThreadSafe;
-
-/** Implementation of the {@link RandomHandler} using {@link ThreadLocalRandom}. */
-@ThreadSafe
-final class ThreadLocalRandomHandler extends RandomHandler {
-  ThreadLocalRandomHandler() {}
+/**
+ * An {@link EventQueue} that processes events in the current thread. This class can be used for
+ * testing.
+ */
+public class SimpleEventQueue implements EventQueue {
 
   @Override
-  Random current() {
-    return ThreadLocalRandom.current();
+  public void enqueue(Entry entry) {
+    entry.process();
   }
 }

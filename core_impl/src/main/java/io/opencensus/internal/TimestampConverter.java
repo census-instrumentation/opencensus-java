@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.internal;
 
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
@@ -22,12 +22,12 @@ import javax.annotation.concurrent.Immutable;
  * {@link Timestamp}.
  */
 @Immutable
-final class TimestampConverter {
+public final class TimestampConverter {
   private final Timestamp timestamp;
   private final long nanoTime;
 
   // Returns a WallTimeConverter initialized to now.
-  static TimestampConverter now(Clock clock) {
+  public static TimestampConverter now(Clock clock) {
     return new TimestampConverter(clock.now(), clock.nowNanos());
   }
 
@@ -37,7 +37,7 @@ final class TimestampConverter {
    * @param nanoTime value to convert.
    * @return the {@code Timestamp} representation of the {@code time}.
    */
-  Timestamp convertNanoTime(long nanoTime) {
+  public Timestamp convertNanoTime(long nanoTime) {
     return timestamp.addNanos(nanoTime - this.nanoTime);
   }
 

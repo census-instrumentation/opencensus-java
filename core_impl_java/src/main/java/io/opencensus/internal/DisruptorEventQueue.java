@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
+package io.opencensus.internal;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;

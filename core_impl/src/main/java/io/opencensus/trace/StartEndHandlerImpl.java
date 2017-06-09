@@ -13,7 +13,7 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.common.EventQueue;
+import io.opencensus.internal.EventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 
 /**

@@ -18,7 +18,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doThrow;
 
 import io.opencensus.common.MillisClock;
-import io.opencensus.common.SimpleEventQueue;
+import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.base.SpanId;

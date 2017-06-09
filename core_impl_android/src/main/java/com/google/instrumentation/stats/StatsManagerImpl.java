@@ -14,7 +14,7 @@
 package com.google.instrumentation.stats;
 
 import io.opencensus.common.MillisClock;
-import io.opencensus.common.SimpleEventQueue;
+import io.opencensus.internal.SimpleEventQueue;
 
 /**
  * Android-compatible implementation of {@link StatsManager}.

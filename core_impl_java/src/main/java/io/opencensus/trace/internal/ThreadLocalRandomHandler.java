@@ -11,21 +11,24 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
+package io.opencensus.trace.internal;
 
-/** A queue that processes events. See {@code DisruptorEventQueue} for an example. */
-public interface EventQueue {
-  void enqueue(Entry entry);
+import io.opencensus.trace.internal.RandomHandler;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.concurrent.ThreadSafe;
+
+/** Implementation of the {@link RandomHandler} using {@link ThreadLocalRandom}. */
+@ThreadSafe
+public final class ThreadLocalRandomHandler extends RandomHandler {
 
   /**
-   * Base interface to be used for all entries in {@link EventQueue}. For example usage, see {@code
-   * DisruptorEventQueue}.
+   * Constructs a new {@code ThreadLocalRandomHandler}.
    */
-  public interface Entry {
-    /**
-     * Process the event associated with this entry. This will be called for every event in the
-     * associated {@link EventQueue}.
-     */
-    void process();
+  public ThreadLocalRandomHandler() {}
+
+  @Override
+  public Random current() {
+    return ThreadLocalRandom.current();
   }
 }
