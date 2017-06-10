@@ -25,6 +25,7 @@ import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
+import io.opencensus.trace.internal.SpanFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;

@@ -26,6 +26,7 @@ import io.opencensus.trace.base.TraceOptions;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.internal.RandomHandler;
+import io.opencensus.trace.internal.SpanFactory;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
@@ -39,7 +40,7 @@ final class SpanFactoryImpl extends SpanFactory {
   private final TraceConfig traceConfig;
 
   @Override
-  protected Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
+  public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
     SpanContext parentContext = null;
     TimestampConverter timestampConverter = null;
     if (parent != null) {
@@ -54,7 +55,7 @@ final class SpanFactoryImpl extends SpanFactory {
   }
 
   @Override
-  protected Span startSpanWithRemoteParent(
+  public Span startSpanWithRemoteParent(
       @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
     return startSpanInternal(remoteParent, true, name, options, null);
   }

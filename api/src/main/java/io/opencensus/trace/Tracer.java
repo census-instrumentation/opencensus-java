@@ -16,6 +16,7 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.internal.SpanFactory;
 import javax.annotation.Nullable;
 
 /**
@@ -210,12 +211,12 @@ public abstract class Tracer {
     // No-op implementation of the SpanFactory
     private static final class NoopSpanFactory extends SpanFactory {
       @Override
-      protected Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
+      public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
         return BlankSpan.INSTANCE;
       }
 
       @Override
-      protected Span startSpanWithRemoteParent(
+      public Span startSpanWithRemoteParent(
           @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
         return BlankSpan.INSTANCE;
       }
