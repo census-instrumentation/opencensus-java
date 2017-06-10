@@ -29,12 +29,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * This class allows users to access in-process debugging information such as (getting access to all
- * active spans, support latency based sampled spans and error based sampled spans).
- *
- * <p>The active spans tracking is available for all the spans with the option {@link
- * Span.Options#RECORD_EVENTS}. This functionality allows users to debug stuck operations or long
- * living operations.
+ * This class allows users to access in-process information such as latency based sampled spans
+ * and error based sampled spans.
  *
  * <p>For all completed spans with the option {@link Span.Options#RECORD_EVENTS} the library can
  * store samples based on latency for succeeded operations or based on error code for failed
@@ -42,30 +38,20 @@ import javax.annotation.concurrent.ThreadSafe;
  * will be collected (see {@link #registerSpanNamesForCollection(Collection)}).
  */
 @ThreadSafe
-public abstract class InProcessDebuggingHandler {
+public abstract class SampleStore {
 
-  InProcessDebuggingHandler() {}
+  SampleStore() {}
 
   /**
-   * Returns the summary of all available in-process debugging data such as number of active spans,
-   * number of sampled spans in the latency based samples or error based samples.
+   * Returns the number of sampled spans in all the latency buckets and error buckets for every
+   * different span name.
    *
-   * <p>Latency based sampled summary buckets and error based sampled summary buckets are available
-   * only for span names registered using {@link #registerSpanNamesForCollection(Collection)}.
+   * <p>Summaries are available only for span names registered using {@link
+   * #registerSpanNamesForCollection(Collection)}.
    *
    * @return the summary of all available in-process debugging data.
    */
-  public abstract Summary getSummary();
-
-  /**
-   * Returns a list of active spans that match the {@code filter}.
-   *
-   * <p>Active spans are available for all the span names.
-   *
-   * @param filter used to filter the returned spans.
-   * @return a list of active spans that match the {@code filter}.
-   */
-  public abstract Collection<SpanData> getActiveSpans(ActiveSpansFilter filter);
+  public abstract Map<String, PerSpanNameSummary> getPerSpanNameSummary();
 
   /**
    * Returns a list of succeeded spans (spans with {@link Status} equal to {@link Status#OK}) that
@@ -77,8 +63,7 @@ public abstract class InProcessDebuggingHandler {
    * @param filter used to filter the returned sampled spans.
    * @return a list of succeeded spans that match the {@code filter}.
    */
-  public abstract Collection<SpanData> getLatencyBasedSampledSpans(
-      LatencyBasedSampledSpansFilter filter);
+  public abstract Collection<SpanData> getLatencyBasedSampledSpans(LatencyFilter filter);
 
   /**
    * Returns a list of failed spans (spans with {@link Status} other than {@link Status#OK}) that
@@ -90,8 +75,7 @@ public abstract class InProcessDebuggingHandler {
    * @param filter used to filter the returned sampled spans.
    * @return a list of failed spans that match the {@code filter}.
    */
-  public abstract Collection<SpanData> getErrorBasedSampledSpans(
-      ErrorBasedSampledSpansFilter filter);
+  public abstract Collection<SpanData> getErrorBasedSampledSpans(ErrorFilter filter);
 
   /**
    * Appends a list of span names for which the library will collect latency based sampled spans and
@@ -172,144 +156,61 @@ public abstract class InProcessDebuggingHandler {
     private final long latencyUpperNs;
   }
 
-  /** The summary of all in-process debugging information. */
+  /** Summary of all available data for a span name. */
   @AutoValue
   @Immutable
-  public abstract static class Summary {
+  public abstract static class PerSpanNameSummary {
 
-    Summary() {}
+    PerSpanNameSummary() {}
 
     /**
-     * Returns a new instance of {@code Summary}.
+     * Returns a new instance of {@code PerSpanNameSummary}.
      *
-     * @param perSpanNameSummary a map with summary for each different span name.
-     * @return a new instance of {@code Summary}.
-     * @throws NullPointerException if {@code perSpanNameSummary} is {@code null}.
+     * @param latencyBucketsSummaries the summary for the latency buckets.
+     * @param errorBucketsSummaries the summary for the error buckets.
+     * @return a new instance of {@code PerSpanNameSummary}.
+     * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
+     *     errorBucketSummaries} are {@code null}.
      */
-    public static Summary create(Map<String, Summary.PerSpanNameSummary> perSpanNameSummary) {
-      return new AutoValue_InProcessDebuggingHandler_Summary(
+    public static PerSpanNameSummary create(
+        Map<LatencyBucketBoundaries, Integer> latencyBucketsSummaries,
+        Map<CanonicalCode, Integer> errorBucketsSummaries) {
+      return new AutoValue_SampleStore_PerSpanNameSummary(
           Collections.unmodifiableMap(
-              new HashMap<String, Summary.PerSpanNameSummary>(
-                  checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
+              new HashMap<LatencyBucketBoundaries, Integer>(
+                  checkNotNull(latencyBucketsSummaries, "latencyBucketsSummaries"))),
+          Collections.unmodifiableMap(
+              new HashMap<CanonicalCode, Integer>(
+                  checkNotNull(errorBucketsSummaries, "errorBucketsSummaries"))));
     }
 
     /**
-     * Returns a map with summary of available data for each different span name.
+     * Returns the number of samples for each latency based sampled bucket.
      *
-     * @return a map with all the span names and the summary.
+     * @return the number of samples for each latency based sampled bucket.
      */
-    public abstract Map<String, Summary.PerSpanNameSummary> getPerSpanNameSummary();
-
-    /** Summary of all available data for a span name. */
-    @AutoValue
-    @Immutable
-    public abstract static class PerSpanNameSummary {
-
-      PerSpanNameSummary() {}
-
-      /**
-       * Returns a new instance of {@code PerSpanNameSummary}.
-       *
-       * @param numActiveSpans the number of sampled spans.
-       * @param latencyBucketsSummaries the summary for the latency buckets.
-       * @param errorBucketsSummaries the summary for the error buckets.
-       * @return a new instance of {@code PerSpanNameSummary}.
-       * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
-       *     errorBucketSummaries} are {@code null}.
-       * @throws IllegalArgumentException if {@code numActiveSpans} is negative.
-       */
-      public static Summary.PerSpanNameSummary create(
-          int numActiveSpans,
-          Map<LatencyBucketBoundaries, Integer> latencyBucketsSummaries,
-          Map<CanonicalCode, Integer> errorBucketsSummaries) {
-        checkArgument(numActiveSpans >= 0, "Negative numActiveSpans.");
-        return new AutoValue_InProcessDebuggingHandler_Summary_PerSpanNameSummary(
-            numActiveSpans,
-            Collections.unmodifiableMap(
-                new HashMap<LatencyBucketBoundaries, Integer>(
-                    checkNotNull(latencyBucketsSummaries, "latencyBucketsSummaries"))),
-            Collections.unmodifiableMap(
-                new HashMap<CanonicalCode, Integer>(
-                    checkNotNull(errorBucketsSummaries, "errorBucketsSummaries"))));
-      }
-
-      /**
-       * Returns the number of active spans.
-       *
-       * @return the number of active spans.
-       */
-      public abstract int getNumActiveSpans();
-
-      /**
-       * Returns the number of samples for each latency based sampled bucket.
-       *
-       * @return the number of samples for each latency based sampled bucket.
-       */
-      public abstract Map<LatencyBucketBoundaries, Integer> getLatencyBucketsSummaries();
-
-      /**
-       * Returns the number of samples for each error based sampled bucket.
-       *
-       * @return the number of samples for each error based sampled bucket.
-       */
-      public abstract Map<CanonicalCode, Integer> getErrorBucketsSummaries();
-    }
-  }
-
-  /**
-   * Filter for active spans. Used to filter results returned by the {@link
-   * #getActiveSpans(ActiveSpansFilter)} request.
-   */
-  @AutoValue
-  @Immutable
-  public abstract static class ActiveSpansFilter {
-
-    ActiveSpansFilter() {}
+    public abstract Map<LatencyBucketBoundaries, Integer> getLatencyBucketsSummaries();
 
     /**
-     * Returns a new instance of {@code ActiveSpansFilter}.
+     * Returns the number of samples for each error based sampled bucket.
      *
-     * <p>Filters all the spans based on {@code spanName} and returns a maximum of {@code
-     * maxSpansToReturn}.
-     *
-     * @param spanName the name of the span.
-     * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
-     * @return a new instance of {@code ActiveSpansFilter}.
-     * @throws NullPointerException if {@code spanName} is {@code null}.
-     * @throws IllegalArgumentException if {@code maxSpansToReturn} is negative.
+     * @return the number of samples for each error based sampled bucket.
      */
-    public static ActiveSpansFilter create(String spanName, int maxSpansToReturn) {
-      checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
-      return new AutoValue_InProcessDebuggingHandler_ActiveSpansFilter(spanName, maxSpansToReturn);
-    }
-
-    /**
-     * Returns the span name.
-     *
-     * @return the span name.
-     */
-    public abstract String getSpanName();
-
-    /**
-     * Returns the maximum number of spans to be returned. {@code 0} means all.
-     *
-     * @return the maximum number of spans to be returned.
-     */
-    public abstract int getMaxSpansToReturn();
+    public abstract Map<CanonicalCode, Integer> getErrorBucketsSummaries();
   }
 
   /**
    * Filter for latency based sampled spans. Used to filter results returned by the {@link
-   * #getLatencyBasedSampledSpans(LatencyBasedSampledSpansFilter)} request.
+   * #getLatencyBasedSampledSpans(LatencyFilter)} request.
    */
   @AutoValue
   @Immutable
-  public abstract static class LatencyBasedSampledSpansFilter {
+  public abstract static class LatencyFilter {
 
-    LatencyBasedSampledSpansFilter() {}
+    LatencyFilter() {}
 
     /**
-     * Returns a new instance of {@code LatencyBasedSampledSpansFilter}.
+     * Returns a new instance of {@code LatencyFilter}.
      *
      * <p>Filters all the spans based on {@code spanName} and latency in the interval
      * [latencyLowerNs, latencyUpperNs) and returns a maximum of {@code maxSpansToReturn}.
@@ -318,17 +219,17 @@ public abstract class InProcessDebuggingHandler {
      * @param latencyLowerNs the latency lower bound.
      * @param latencyUpperNs the latency upper bound.
      * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
-     * @return a new instance of {@code LatencyBasedSampledSpansFilter}.
+     * @return a new instance of {@code LatencyFilter}.
      * @throws NullPointerException if {@code spanName} is {@code null}.
      * @throws IllegalArgumentException if {@code maxSpansToReturn} or {@code latencyLowerNs} or
      *     {@code latencyUpperNs} are negative.
      */
-    public static LatencyBasedSampledSpansFilter create(
+    public static LatencyFilter create(
         String spanName, long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn) {
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
       checkArgument(latencyLowerNs >= 0, "Negative latencyLowerNs");
       checkArgument(latencyUpperNs >= 0, "Negative latencyUpperNs");
-      return new AutoValue_InProcessDebuggingHandler_LatencyBasedSampledSpansFilter(
+      return new AutoValue_SampleStore_LatencyFilter(
           spanName, latencyLowerNs, latencyUpperNs, maxSpansToReturn);
     }
 
@@ -364,12 +265,12 @@ public abstract class InProcessDebuggingHandler {
   /** Filter for error based sampled spans. */
   @AutoValue
   @Immutable
-  public abstract static class ErrorBasedSampledSpansFilter {
+  public abstract static class ErrorFilter {
 
-    ErrorBasedSampledSpansFilter() {}
+    ErrorFilter() {}
 
     /**
-     * Returns a new instance of {@code ErrorBasedSampledSpansFilter}.
+     * Returns a new instance of {@code ErrorFilter}.
      *
      * <p>Filters all the spans based on {@code spanName} and {@code canonicalCode} and returns a
      * maximum of {@code maxSpansToReturn}.
@@ -377,17 +278,16 @@ public abstract class InProcessDebuggingHandler {
      * @param spanName the name of the span.
      * @param canonicalCode the error code of the span.
      * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
-     * @return a new instance of {@code ErrorBasedSampledSpansFilter}.
+     * @return a new instance of {@code ErrorFilter}.
      * @throws NullPointerException if {@code spanName} or {@code canonicalCode} are {@code null}.
      * @throws IllegalArgumentException if {@code canonicalCode} is {@link CanonicalCode#OK} or
      *     {@code maxSpansToReturn} is negative.
      */
-    public static ErrorBasedSampledSpansFilter create(
+    public static ErrorFilter create(
         String spanName, CanonicalCode canonicalCode, int maxSpansToReturn) {
       checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
-      return new AutoValue_InProcessDebuggingHandler_ErrorBasedSampledSpansFilter(
-          spanName, canonicalCode, maxSpansToReturn);
+      return new AutoValue_SampleStore_ErrorFilter(spanName, canonicalCode, maxSpansToReturn);
     }
 
     /**

@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 
 /**
  * Class that holds the implementation instances for {@link SpanExporter} and {@link
- * InProcessDebuggingHandler}.
+ * SampleStore}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -45,14 +45,24 @@ public abstract class ExportComponent {
   public abstract SpanExporter getSpanExporter();
 
   /**
-   * Returns the {@link InProcessDebuggingHandler} that can be used to get useful debugging
+   * Returns the {@link ActiveSpans} that can be used to get useful debugging
    * information such as (active spans, latency based sampled spans, error based sampled spans).
    *
-   * @return the {@code InProcessDebuggingHandler} or {@code null} if in-process debugging is not
+   * @return the {@code SampleStore} or {@code null} if in-process debugging is not
    *     supported.
    */
   @Nullable
-  public abstract InProcessDebuggingHandler getInProcessDebuggingHandler();
+  public abstract ActiveSpans getActiveSpans();
+
+  /**
+   * Returns the {@link SampleStore} that can be used to get useful debugging
+   * information such as (active spans, latency based sampled spans, error based sampled spans).
+   *
+   * @return the {@code SampleStore} or {@code null} if in-process debugging is not
+   *     supported.
+   */
+  @Nullable
+  public abstract SampleStore getSampleStore();
 
   private static final class NoopExportComponent extends ExportComponent {
     @Override
@@ -62,7 +72,13 @@ public abstract class ExportComponent {
 
     @Nullable
     @Override
-    public InProcessDebuggingHandler getInProcessDebuggingHandler() {
+    public ActiveSpans getActiveSpans() {
+      return null;
+    }
+
+    @Nullable
+    @Override
+    public SampleStore getSampleStore() {
       return null;
     }
   }
