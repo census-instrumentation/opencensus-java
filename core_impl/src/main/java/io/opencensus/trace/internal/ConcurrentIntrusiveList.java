@@ -114,15 +114,6 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
   }
 
   /**
-   * Returns {@code true} if the list is empty.
-   *
-   * @return {@code true} if the list is empty.
-   */
-  public synchronized boolean isEmpty() {
-    return head == null;
-  }
-
-  /**
    * Returns the number of elements in this list.
    *
    * @return the number of elements in this list.

@@ -31,7 +31,6 @@ public class ConcurrentIntrusiveListTest {
 
   @Test
   public void emptyList() {
-    assertThat(intrusiveList.isEmpty()).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(0);
     assertThat(intrusiveList.getAll().isEmpty()).isTrue();
   }
@@ -40,13 +39,10 @@ public class ConcurrentIntrusiveListTest {
   public void addRemoveAdd_SameElement() {
     FakeElement element = new FakeElement();
     intrusiveList.addElement(element);
-    assertThat(intrusiveList.isEmpty()).isFalse();
     assertThat(intrusiveList.size()).isEqualTo(1);
     intrusiveList.removeElement(element);
-    assertThat(intrusiveList.isEmpty()).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(0);
     intrusiveList.addElement(element);
-    assertThat(intrusiveList.isEmpty()).isFalse();
     assertThat(intrusiveList.size()).isEqualTo(1);
   }
 
@@ -81,7 +77,6 @@ public class ConcurrentIntrusiveListTest {
     assertThat(intrusiveList.getAll().contains(element1)).isTrue();
     // Remove element from the head of the list when no more other elements in the list.
     intrusiveList.removeElement(element1);
-    assertThat(intrusiveList.isEmpty()).isTrue();
     assertThat(intrusiveList.size()).isEqualTo(0);
     assertThat(intrusiveList.getAll().isEmpty()).isTrue();
   }
