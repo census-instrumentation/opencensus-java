@@ -31,6 +31,7 @@ import io.opencensus.trace.base.Status;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
+import io.opencensus.trace.export.SpanData;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;

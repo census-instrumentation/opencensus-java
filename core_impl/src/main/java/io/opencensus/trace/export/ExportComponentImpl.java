@@ -11,12 +11,10 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.export;
 
 import io.opencensus.internal.EventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
-import io.opencensus.trace.export.ExportComponent;
-import io.opencensus.trace.export.InProcessDebuggingHandler;
 import javax.annotation.Nullable;
 
 /**
@@ -25,7 +23,7 @@ import javax.annotation.Nullable;
  * <p>Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData} to
  * avoid impacting the critical path.
  */
-final class ExportComponentImpl extends ExportComponent {
+public final class ExportComponentImpl extends ExportComponent {
   private static final int EXPORTER_BUFFER_SIZE = 32;
   // Enforces that trace export exports data at least once every 2 seconds.
   private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
@@ -44,7 +42,8 @@ final class ExportComponentImpl extends ExportComponent {
     return null;
   }
 
-  ExportComponentImpl() {
+  /** Constructs a new {@code ExportComponentImpl}. */
+  public ExportComponentImpl() {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
   }
 }

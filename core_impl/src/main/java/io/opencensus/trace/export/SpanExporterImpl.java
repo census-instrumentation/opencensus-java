@@ -11,11 +11,10 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.export;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.trace.export.ExportComponent;
-import io.opencensus.trace.export.SpanExporter;
+import io.opencensus.trace.SpanImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -49,8 +48,12 @@ public final class SpanExporterImpl extends SpanExporter {
     return new SpanExporterImpl(workerThread);
   }
 
-  // Adds a Span to the exporting service.
-  void addSpan(SpanImpl span) {
+  /**
+   * Adds a Span to the exporting service.
+   *
+   * @param span the {@code Span} to be added.
+   */
+  public void addSpan(SpanImpl span) {
     workerThread.addSpan(span);
   }
 

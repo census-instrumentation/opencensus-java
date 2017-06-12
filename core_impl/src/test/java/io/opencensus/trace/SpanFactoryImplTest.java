@@ -25,6 +25,7 @@ import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
+import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.internal.RandomHandler;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.Random;

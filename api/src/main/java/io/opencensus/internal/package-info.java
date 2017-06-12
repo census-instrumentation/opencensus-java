@@ -12,7 +12,7 @@
  */
 
 /**
- * Interfaces and implementations that are internal to opencensus.
+ * Interfaces and implementations that are internal to OpenCensus.
  *
  * <p>All the content under this package and its subpackages are considered annotated with {@link
  * io.opencensus.common.Internal}.
