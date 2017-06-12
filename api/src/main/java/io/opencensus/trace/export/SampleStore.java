@@ -14,23 +14,20 @@
 package io.opencensus.trace.export;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.base.Status;
 import io.opencensus.trace.base.Status.CanonicalCode;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * This class allows users to access in-process information such as latency based sampled spans
- * and error based sampled spans.
+ * This class allows users to access in-process information such as latency based sampled spans and
+ * error based sampled spans.
  *
  * <p>For all completed spans with the option {@link Span.Options#RECORD_EVENTS} the library can
  * store samples based on latency for succeeded operations or based on error code for failed
@@ -40,18 +37,28 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class SampleStore {
 
-  SampleStore() {}
+  protected SampleStore() {}
 
   /**
-   * Returns the number of sampled spans in all the latency buckets and error buckets for every
-   * different span name.
+   * Returns the number of sampled spans in all the latency buckets for every different span name.
    *
-   * <p>Summaries are available only for span names registered using {@link
+   * <p>Data available only for span names registered using {@link
    * #registerSpanNamesForCollection(Collection)}.
    *
-   * @return the summary of all available in-process debugging data.
+   * @return the number of sampled spans in all the latency buckets for every different span name.
    */
-  public abstract Map<String, PerSpanNameSummary> getPerSpanNameSummary();
+  public abstract Map<String, Map<LatencyBucketBoundaries, Integer>>
+      getNumberOfLatencySampledSpans();
+
+  /**
+   * Returns the number of sampled spans in all the error buckets for every different span name.
+   *
+   * <p>Data available only for span names registered using {@link
+   * #registerSpanNamesForCollection(Collection)}.
+   *
+   * @return the number of sampled spans in all the error buckets for every different span name.
+   */
+  public abstract Map<String, Map<CanonicalCode, Integer>> getNumberOfErrorSampledSpans();
 
   /**
    * Returns a list of succeeded spans (spans with {@link Status} equal to {@link Status#OK}) that
@@ -63,7 +70,7 @@ public abstract class SampleStore {
    * @param filter used to filter the returned sampled spans.
    * @return a list of succeeded spans that match the {@code filter}.
    */
-  public abstract Collection<SpanData> getLatencyBasedSampledSpans(LatencyFilter filter);
+  public abstract Collection<SpanData> getLatencySampledSpans(LatencyFilter filter);
 
   /**
    * Returns a list of failed spans (spans with {@link Status} other than {@link Status#OK}) that
@@ -75,7 +82,7 @@ public abstract class SampleStore {
    * @param filter used to filter the returned sampled spans.
    * @return a list of failed spans that match the {@code filter}.
    */
-  public abstract Collection<SpanData> getErrorBasedSampledSpans(ErrorFilter filter);
+  public abstract Collection<SpanData> getErrorSampledSpans(ErrorFilter filter);
 
   /**
    * Appends a list of span names for which the library will collect latency based sampled spans and
@@ -156,52 +163,9 @@ public abstract class SampleStore {
     private final long latencyUpperNs;
   }
 
-  /** Summary of all available data for a span name. */
-  @AutoValue
-  @Immutable
-  public abstract static class PerSpanNameSummary {
-
-    PerSpanNameSummary() {}
-
-    /**
-     * Returns a new instance of {@code PerSpanNameSummary}.
-     *
-     * @param latencyBucketsSummaries the summary for the latency buckets.
-     * @param errorBucketsSummaries the summary for the error buckets.
-     * @return a new instance of {@code PerSpanNameSummary}.
-     * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
-     *     errorBucketSummaries} are {@code null}.
-     */
-    public static PerSpanNameSummary create(
-        Map<LatencyBucketBoundaries, Integer> latencyBucketsSummaries,
-        Map<CanonicalCode, Integer> errorBucketsSummaries) {
-      return new AutoValue_SampleStore_PerSpanNameSummary(
-          Collections.unmodifiableMap(
-              new HashMap<LatencyBucketBoundaries, Integer>(
-                  checkNotNull(latencyBucketsSummaries, "latencyBucketsSummaries"))),
-          Collections.unmodifiableMap(
-              new HashMap<CanonicalCode, Integer>(
-                  checkNotNull(errorBucketsSummaries, "errorBucketsSummaries"))));
-    }
-
-    /**
-     * Returns the number of samples for each latency based sampled bucket.
-     *
-     * @return the number of samples for each latency based sampled bucket.
-     */
-    public abstract Map<LatencyBucketBoundaries, Integer> getLatencyBucketsSummaries();
-
-    /**
-     * Returns the number of samples for each error based sampled bucket.
-     *
-     * @return the number of samples for each error based sampled bucket.
-     */
-    public abstract Map<CanonicalCode, Integer> getErrorBucketsSummaries();
-  }
-
   /**
    * Filter for latency based sampled spans. Used to filter results returned by the {@link
-   * #getLatencyBasedSampledSpans(LatencyFilter)} request.
+   * #getLatencySampledSpans(LatencyFilter)} request.
    */
   @AutoValue
   @Immutable
@@ -262,7 +226,10 @@ public abstract class SampleStore {
     public abstract int getMaxSpansToReturn();
   }
 
-  /** Filter for error based sampled spans. */
+  /**
+   * Filter for error based sampled spans. Used to filter results returned by the {@link
+   * #getErrorSampledSpans(ErrorFilter)} request.
+   */
   @AutoValue
   @Immutable
   public abstract static class ErrorFilter {

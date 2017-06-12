@@ -13,9 +13,6 @@
 
 package io.opencensus.trace.export;
 
-import io.opencensus.trace.export.ActiveSpans;
-import io.opencensus.trace.export.ExportComponent;
-import io.opencensus.trace.export.SampleStore;
 import javax.annotation.Nullable;
 
 /** Implementation of the {@link ExportComponent}. */

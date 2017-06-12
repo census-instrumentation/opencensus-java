@@ -32,14 +32,14 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class ActiveSpans {
 
-  ActiveSpans() {}
+  protected ActiveSpans() {}
 
   /**
    * Returns the number of active spans for every different span name.
    *
    * @return the number of active spans for every different span name.
    */
-  public abstract Map<String, PerSpanNameSummary> getPerSpanNameSummary();
+  public abstract Map<String, Integer> getNumberOfActiveSpans();
 
   /**
    * Returns a list of active spans that match the {@code Filter}.
@@ -48,33 +48,6 @@ public abstract class ActiveSpans {
    * @return a list of active spans that match the {@code Filter}.
    */
   public abstract Collection<SpanData> getActiveSpans(Filter filter);
-
-  /** Summary of all available data for a span name. */
-  @AutoValue
-  @Immutable
-  public abstract static class PerSpanNameSummary {
-
-    PerSpanNameSummary() {}
-
-    /**
-     * Returns a new instance of {@code PerSpanNameSummary}.
-     *
-     * @param numActiveSpans the number of sampled spans.
-     * @return a new instance of {@code PerSpanNameSummary}.
-     * @throws IllegalArgumentException if {@code numActiveSpans} is negative.
-     */
-    public static PerSpanNameSummary create(int numActiveSpans) {
-      checkArgument(numActiveSpans >= 0, "Negative numActiveSpans.");
-      return new AutoValue_ActiveSpans_PerSpanNameSummary(numActiveSpans);
-    }
-
-    /**
-     * Returns the number of active spans.
-     *
-     * @return the number of active spans.
-     */
-    public abstract int getNumActiveSpans();
-  }
 
   /**
    * Filter for active spans. Used to filter results returned by the {@link #getActiveSpans(Filter)}
