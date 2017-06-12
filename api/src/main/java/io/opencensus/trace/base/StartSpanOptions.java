@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.base;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.trace.Span;
 import io.opencensus.trace.config.TraceConfig;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +34,7 @@ public abstract class StartSpanOptions {
   private static final List<Span> EMPTY_PARENT_LINKS_LIST = Collections.emptyList();
 
   /** The default {@code StartSpanOptions}. */
-  @VisibleForTesting static final StartSpanOptions DEFAULT = builder().build();
+  @VisibleForTesting public static final StartSpanOptions DEFAULT = builder().build();
 
   /**
    * Returns the {@link Sampler} to be used, or {@code null} if default.

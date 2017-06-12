@@ -16,13 +16,13 @@ package io.opencensus.trace.config;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.trace.Sampler;
-import io.opencensus.trace.Samplers;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.StartSpanOptions;
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
+import io.opencensus.trace.base.Sampler;
+import io.opencensus.trace.base.StartSpanOptions;
+import io.opencensus.trace.samplers.Samplers;
 import javax.annotation.concurrent.Immutable;
 
 /** Class that holds global trace parameters. */
@@ -109,8 +109,8 @@ public abstract class TraceParams {
     /**
      * Sets the global default max number of attributes per {@link Span}.
      *
-     * @param maxNumberOfAttributes the global default max number of attributes per {@link Span}.
-     *     It must be positive otherwise {@link #build()} will throw an exception.
+     * @param maxNumberOfAttributes the global default max number of attributes per {@link Span}. It
+     *     must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     public abstract Builder setMaxNumberOfAttributes(int maxNumberOfAttributes);
@@ -118,9 +118,8 @@ public abstract class TraceParams {
     /**
      * Sets the global default max number of {@link Annotation} events per {@link Span}.
      *
-     * @param maxNumberOfAnnotations the global default max number of {@link Annotation} events
-     *     per {@link Span}. It must be positive otherwise {@link #build()} will throw an
-     *     exception.
+     * @param maxNumberOfAnnotations the global default max number of {@link Annotation} events per
+     *     {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     public abstract Builder setMaxNumberOfAnnotations(int maxNumberOfAnnotations);
@@ -128,9 +127,8 @@ public abstract class TraceParams {
     /**
      * Sets the global default max number of {@link NetworkEvent} events per {@link Span}.
      *
-     * @param maxNumberOfNetworkEvents the global default max number of {@link NetworkEvent}
-     *     events per {@link Span}. It must be positive otherwise {@link #build()} will throw an
-     *     exception.
+     * @param maxNumberOfNetworkEvents the global default max number of {@link NetworkEvent} events
+     *     per {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
      */
     public abstract Builder setMaxNumberOfNetworkEvents(int maxNumberOfNetworkEvents);
