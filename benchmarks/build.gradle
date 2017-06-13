@@ -1,4 +1,4 @@
-description = 'Instrumentation: Benchmarks'
+description = 'OpenCensus Benchmarks'
 
 buildscript {
     repositories {

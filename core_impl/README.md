@@ -1,4 +1,4 @@
-Instrumentation implementation
+OpenCensus implementation
 ======================================================
 
 * The main implementation shared between Java and Android.

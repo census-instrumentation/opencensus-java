@@ -1,7 +1,7 @@
-# Instrumentation Benchmarks
+# OpenCensus Benchmarks
 
-## To run the benchmark type
+## To run the benchmark use
 
 ```
-$ ./gradlew :instrumentation-java-benchmarks:jmh
+$ ./gradlew :benchmarks:jmh
 ```

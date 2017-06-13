@@ -1,4 +1,4 @@
-Instrumentation Android implementation
+OpenCensus Android implementation
 ======================================================
 
 * Android compatible.

@@ -1,4 +1,4 @@
-Instrumentation Java implementation
+OpenCensus Java implementation
 ======================================================
 
 * Java 7 compatible.

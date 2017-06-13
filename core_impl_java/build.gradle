@@ -1,4 +1,4 @@
-description = 'Instrumentation Core Impl Java'
+description = 'OpenCensus Core Impl Java'
 
 apply plugin: 'java'
 
