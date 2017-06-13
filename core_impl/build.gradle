@@ -1,4 +1,4 @@
-description = 'Instrumentation Core Impl'
+description = 'OpenCensus Core Impl'
 
 dependencies {
     compile project(':core'),

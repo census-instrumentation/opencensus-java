@@ -1,4 +1,4 @@
-description = 'Instrumentation: Examples'
+description = 'OpenCensus Examples'
 
 tasks.withType(JavaCompile) {
     sourceCompatibility = '1.8'

@@ -1,4 +1,4 @@
-description = 'Instrumentation Core Impl Android'
+description = 'OpenCensus Core Impl Android'
 
 dependencies {
     compile project(':core'),
