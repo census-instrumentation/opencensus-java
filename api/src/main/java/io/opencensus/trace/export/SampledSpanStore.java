@@ -35,28 +35,28 @@ import javax.annotation.concurrent.ThreadSafe;
  * will be collected (see {@link #registerSpanNamesForCollection(Collection)}).
  */
 @ThreadSafe
-public abstract class SampleStore {
+public abstract class SampledSpanStore {
 
-  protected SampleStore() {}
+  protected SampledSpanStore() {}
 
   /**
-   * Returns the number of sampled spans in all the latency buckets for every different span name.
+   * Returns the number of sampled spans in all the latency buckets for every span name.
    *
    * <p>Data available only for span names registered using {@link
    * #registerSpanNamesForCollection(Collection)}.
    *
-   * @return the number of sampled spans in all the latency buckets for every different span name.
+   * @return the number of sampled spans in all the latency buckets for every span name.
    */
   public abstract Map<String, Map<LatencyBucketBoundaries, Integer>>
       getNumberOfLatencySampledSpans();
 
   /**
-   * Returns the number of sampled spans in all the error buckets for every different span name.
+   * Returns the number of sampled spans in all the error buckets for every span name.
    *
    * <p>Data available only for span names registered using {@link
    * #registerSpanNamesForCollection(Collection)}.
    *
-   * @return the number of sampled spans in all the error buckets for every different span name.
+   * @return the number of sampled spans in all the error buckets for every span name.
    */
   public abstract Map<String, Map<CanonicalCode, Integer>> getNumberOfErrorSampledSpans();
 
@@ -193,7 +193,7 @@ public abstract class SampleStore {
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
       checkArgument(latencyLowerNs >= 0, "Negative latencyLowerNs");
       checkArgument(latencyUpperNs >= 0, "Negative latencyUpperNs");
-      return new AutoValue_SampleStore_LatencyFilter(
+      return new AutoValue_SampledSpanStore_LatencyFilter(
           spanName, latencyLowerNs, latencyUpperNs, maxSpansToReturn);
     }
 
@@ -254,7 +254,7 @@ public abstract class SampleStore {
         String spanName, CanonicalCode canonicalCode, int maxSpansToReturn) {
       checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
-      return new AutoValue_SampleStore_ErrorFilter(spanName, canonicalCode, maxSpansToReturn);
+      return new AutoValue_SampledSpanStore_ErrorFilter(spanName, canonicalCode, maxSpansToReturn);
     }
 
     /**

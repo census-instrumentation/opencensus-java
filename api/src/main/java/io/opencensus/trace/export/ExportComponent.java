@@ -17,7 +17,8 @@ import io.opencensus.trace.base.TraceOptions;
 import javax.annotation.Nullable;
 
 /**
- * Class that holds the implementation instances for {@link SpanExporter} and {@link SampleStore}.
+ * Class that holds the implementation instances for {@link SpanExporter}, {@link ActiveSpans} and
+ * {@link SampledSpanStore}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -44,22 +45,22 @@ public abstract class ExportComponent {
   public abstract SpanExporter getSpanExporter();
 
   /**
-   * Returns the {@link ActiveSpans} that can be used to get useful debugging information such as
-   * (active spans, latency based sampled spans, error based sampled spans).
+   * Returns the {@link ActiveSpans} that can be used to get useful debugging information about all
+   * the current active spans.
    *
-   * @return the {@code SampleStore} or {@code null} if in-process debugging is not supported.
+   * @return the {@code ActiveSpans} or {@code null} if not supported.
    */
   @Nullable
   public abstract ActiveSpans getActiveSpans();
 
   /**
-   * Returns the {@link SampleStore} that can be used to get useful debugging information such as
-   * (active spans, latency based sampled spans, error based sampled spans).
+   * Returns the {@link SampledSpanStore} that can be used to get useful debugging information, such
+   * as latency based sampled spans, error based sampled spans.
    *
-   * @return the {@code SampleStore} or {@code null} if in-process debugging is not supported.
+   * @return the {@code SampleStore} or {@code null} if not supported.
    */
   @Nullable
-  public abstract SampleStore getSampleStore();
+  public abstract SampledSpanStore getSampledSpanStore();
 
   private static final class NoopExportComponent extends ExportComponent {
     @Override
@@ -75,7 +76,7 @@ public abstract class ExportComponent {
 
     @Nullable
     @Override
-    public SampleStore getSampleStore() {
+    public SampledSpanStore getSampledSpanStore() {
       return null;
     }
   }

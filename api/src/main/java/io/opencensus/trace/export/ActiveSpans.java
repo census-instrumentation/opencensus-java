@@ -35,9 +35,9 @@ public abstract class ActiveSpans {
   protected ActiveSpans() {}
 
   /**
-   * Returns the number of active spans for every different span name.
+   * Returns the number of active spans for every span name.
    *
-   * @return the number of active spans for every different span name.
+   * @return the number of active spans for every span name.
    */
   public abstract Map<String, Integer> getNumberOfActiveSpans();
 

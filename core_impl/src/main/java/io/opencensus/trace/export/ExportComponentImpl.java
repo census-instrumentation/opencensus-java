@@ -37,7 +37,7 @@ public final class ExportComponentImpl extends ExportComponent {
 
   @Nullable
   @Override
-  public SampleStore getSampleStore() {
+  public SampledSpanStore getSampledSpanStore() {
     // TODO(bdrutu): Implement this.
     return null;
   }

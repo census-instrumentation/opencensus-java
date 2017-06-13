@@ -36,8 +36,8 @@ public class ExportComponentImplTest {
   }
 
   @Test
-  public void implementationOfSampleStore() {
+  public void implementationOfSampledSpanStore() {
     // TODO(bdrutu): Change this when implementation is available.
-    assertThat(exportComponent.getSampleStore()).isNull();
+    assertThat(exportComponent.getSampledSpanStore()).isNull();
   }
 }

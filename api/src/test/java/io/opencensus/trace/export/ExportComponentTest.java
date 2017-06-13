@@ -34,7 +34,7 @@ public class ExportComponentTest {
   }
 
   @Test
-  public void implementationOfSampleStore() {
-    assertThat(exportComponent.getSampleStore()).isNull();
+  public void implementationOfSampledSpanStore() {
+    assertThat(exportComponent.getSampledSpanStore()).isNull();
   }
 }
