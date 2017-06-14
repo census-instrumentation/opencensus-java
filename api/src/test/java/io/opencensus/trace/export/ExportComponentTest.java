@@ -29,8 +29,12 @@ public class ExportComponentTest {
     assertThat(exportComponent.getSpanExporter()).isEqualTo(SpanExporter.getNoopSpanExporter());
   }
 
+  public void implementationOfActiveSpans() {
+    assertThat(exportComponent.getActiveSpansExporter()).isNull();
+  }
+
   @Test
-  public void implementationOfInProcessDebuggingHandler() {
-    assertThat(exportComponent.getInProcessDebuggingHandler()).isNull();
+  public void implementationOfSampledSpanStore() {
+    assertThat(exportComponent.getSampledSpanStore()).isNull();
   }
 }

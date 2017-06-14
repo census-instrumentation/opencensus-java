@@ -30,7 +30,14 @@ public class ExportComponentImplTest {
   }
 
   @Test
-  public void implementationOfInProcessDebuggingHandler() {
-    assertThat(exportComponent.getInProcessDebuggingHandler()).isNull();
+  public void implementationOfActiveSpans() {
+    // TODO(bdrutu): Change this when implementation is available.
+    assertThat(exportComponent.getActiveSpansExporter()).isNull();
+  }
+
+  @Test
+  public void implementationOfSampledSpanStore() {
+    // TODO(bdrutu): Change this when implementation is available.
+    assertThat(exportComponent.getSampledSpanStore()).isNull();
   }
 }

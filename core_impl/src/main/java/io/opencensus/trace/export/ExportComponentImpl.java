@@ -13,16 +13,9 @@
 
 package io.opencensus.trace.export;
 
-import io.opencensus.internal.EventQueue;
-import io.opencensus.trace.SpanImpl.StartEndHandler;
 import javax.annotation.Nullable;
 
-/**
- * Implementation of the {@link ExportComponent}, implements also {@link StartEndHandler}.
- *
- * <p>Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData} to
- * avoid impacting the critical path.
- */
+/** Implementation of the {@link ExportComponent}. */
 public final class ExportComponentImpl extends ExportComponent {
   private static final int EXPORTER_BUFFER_SIZE = 32;
   // Enforces that trace export exports data at least once every 2 seconds.
@@ -37,7 +30,14 @@ public final class ExportComponentImpl extends ExportComponent {
 
   @Nullable
   @Override
-  public InProcessDebuggingHandler getInProcessDebuggingHandler() {
+  public ActiveSpansExporter getActiveSpansExporter() {
+    // TODO(bdrutu): Implement this.
+    return null;
+  }
+
+  @Nullable
+  @Override
+  public SampledSpanStore getSampledSpanStore() {
     // TODO(bdrutu): Implement this.
     return null;
   }
