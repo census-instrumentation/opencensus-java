@@ -25,7 +25,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * An {@code ConcurrentIntrusiveList<T>} is a doubly-linked list where the link pointers are
  * embedded in the elements. This makes insertion and removal into a known position constant time.
  *
- * <p>Elements must derive from the {@code Element<T extends Element<T>>} base class:
+ * <p>Elements must derive from the {@code Element<T extends Element<T>>} interface:
  *
  * <pre>{@code
  * class MyClass implements Element<MyClass> {
@@ -129,10 +129,8 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
    */
   public synchronized Collection<T> getAll() {
     List<T> all = new ArrayList<T>(size);
-    T it = head;
-    while (it != null) {
-      all.add(it);
-      it = it.getNext();
+    for (T e = head; e != null; e = e.getNext()) {
+      all.add(e);
     }
     return all;
   }

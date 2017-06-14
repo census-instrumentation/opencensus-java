@@ -55,28 +55,24 @@ public class ConcurrentIntrusiveListTest {
     intrusiveList.addElement(element2);
     intrusiveList.addElement(element3);
     assertThat(intrusiveList.size()).isEqualTo(3);
-    assertThat(intrusiveList.getAll().contains(element1)).isTrue();
-    assertThat(intrusiveList.getAll().contains(element2)).isTrue();
-    assertThat(intrusiveList.getAll().contains(element3)).isTrue();
+    assertThat(intrusiveList.getAll()).containsExactly(element3, element2, element1).inOrder();
     // Remove element from the middle of the list.
     intrusiveList.removeElement(element2);
     assertThat(intrusiveList.size()).isEqualTo(2);
-    assertThat(intrusiveList.getAll().contains(element1)).isTrue();
-    assertThat(intrusiveList.getAll().contains(element3)).isTrue();
+    assertThat(intrusiveList.getAll()).containsExactly(element3, element1).inOrder();
     // Remove element from the tail of the list.
-    intrusiveList.removeElement(element3);
-    assertThat(intrusiveList.size()).isEqualTo(1);
-    assertThat(intrusiveList.getAll().contains(element1)).isTrue();
-    intrusiveList.addElement(element3);
-    assertThat(intrusiveList.size()).isEqualTo(2);
-    assertThat(intrusiveList.getAll().contains(element1)).isTrue();
-    assertThat(intrusiveList.getAll().contains(element3)).isTrue();
-    // Remove element from the head of the list when there are other elements after.
-    intrusiveList.removeElement(element3);
-    assertThat(intrusiveList.size()).isEqualTo(1);
-    assertThat(intrusiveList.getAll().contains(element1)).isTrue();
-    // Remove element from the head of the list when no more other elements in the list.
     intrusiveList.removeElement(element1);
+    assertThat(intrusiveList.size()).isEqualTo(1);
+    assertThat(intrusiveList.getAll().contains(element3)).isTrue();
+    intrusiveList.addElement(element1);
+    assertThat(intrusiveList.size()).isEqualTo(2);
+    assertThat(intrusiveList.getAll()).containsExactly(element1, element3).inOrder();
+    // Remove element from the head of the list when there are other elements after.
+    intrusiveList.removeElement(element1);
+    assertThat(intrusiveList.size()).isEqualTo(1);
+    assertThat(intrusiveList.getAll().contains(element3)).isTrue();
+    // Remove element from the head of the list when no more other elements in the list.
+    intrusiveList.removeElement(element3);
     assertThat(intrusiveList.size()).isEqualTo(0);
     assertThat(intrusiveList.getAll().isEmpty()).isTrue();
   }
