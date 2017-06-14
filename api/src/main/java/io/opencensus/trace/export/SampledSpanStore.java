@@ -140,8 +140,8 @@ public abstract class SampledSpanStore {
      * @param numberOfLatencySampledSpans the summary for the latency buckets.
      * @param numberOfErrorSampledSpans the summary for the error buckets.
      * @return a new instance of {@code PerSpanNameSummary}.
-     * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
-     *     errorBucketSummaries} are {@code null}.
+     * @throws NullPointerException if {@code numberOfLatencySampledSpans} or {@code
+     *     numberOfErrorSampledSpans} are {@code null}.
      */
     public static PerSpanNameSummary create(
         Map<LatencyBucketBoundaries, Integer> numberOfLatencySampledSpans,
