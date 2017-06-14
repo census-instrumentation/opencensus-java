@@ -30,7 +30,7 @@ public final class ExportComponentImpl extends ExportComponent {
 
   @Nullable
   @Override
-  public ActiveSpans getActiveSpans() {
+  public ActiveSpansExporter getActiveSpansExporter() {
     // TODO(bdrutu): Implement this.
     return null;
   }

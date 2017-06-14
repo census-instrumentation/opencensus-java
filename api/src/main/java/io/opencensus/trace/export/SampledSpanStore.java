@@ -14,12 +14,15 @@
 package io.opencensus.trace.export;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.base.Status;
 import io.opencensus.trace.base.Status.CanonicalCode;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.Immutable;
@@ -40,25 +43,15 @@ public abstract class SampledSpanStore {
   protected SampledSpanStore() {}
 
   /**
-   * Returns the number of sampled spans in all the latency buckets for every span name.
+   * Returns the summary of all available data, such as number of sampled spans in the latency based
+   * samples or error based samples.
    *
    * <p>Data available only for span names registered using {@link
    * #registerSpanNamesForCollection(Collection)}.
    *
-   * @return the number of sampled spans in all the latency buckets for every span name.
+   * @return the summary of all available data.
    */
-  public abstract Map<String, Map<LatencyBucketBoundaries, Integer>>
-      getNumberOfLatencySampledSpans();
-
-  /**
-   * Returns the number of sampled spans in all the error buckets for every span name.
-   *
-   * <p>Data available only for span names registered using {@link
-   * #registerSpanNamesForCollection(Collection)}.
-   *
-   * @return the number of sampled spans in all the error buckets for every span name.
-   */
-  public abstract Map<String, Map<CanonicalCode, Integer>> getNumberOfErrorSampledSpans();
+  public abstract Summary getSummary();
 
   /**
    * Returns a list of succeeded spans (spans with {@link Status} equal to {@link Status#OK}) that
@@ -104,6 +97,84 @@ public abstract class SampledSpanStore {
    * @param spanNames list of span names for which the library will no longer collect samples.
    */
   public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
+
+  /** The summary of all available data. */
+  @AutoValue
+  @Immutable
+  public abstract static class Summary {
+
+    Summary() {}
+
+    /**
+     * Returns a new instance of {@code Summary}.
+     *
+     * @param perSpanNameSummary a map with summary for each span name.
+     * @return a new instance of {@code Summary}.
+     * @throws NullPointerException if {@code perSpanNameSummary} is {@code null}.
+     */
+    public static Summary create(Map<String, PerSpanNameSummary> perSpanNameSummary) {
+      return new AutoValue_SampledSpanStore_Summary(
+          Collections.unmodifiableMap(
+              new HashMap<String, PerSpanNameSummary>(
+                  checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
+    }
+
+    /**
+     * Returns a map with summary of available data for each span name.
+     *
+     * @return a map with all the span names and the summary.
+     */
+    public abstract Map<String, PerSpanNameSummary> getPerSpanNameSummary();
+  }
+
+  /** Summary of all available data for a span name. */
+  @AutoValue
+  @Immutable
+  public abstract static class PerSpanNameSummary {
+
+    PerSpanNameSummary() {}
+
+    /**
+     * Returns a new instance of {@code PerSpanNameSummary}.
+     *
+     * @param numberOfLatencySampledSpans the summary for the latency buckets.
+     * @param numberOfErrorSampledSpans the summary for the error buckets.
+     * @return a new instance of {@code PerSpanNameSummary}.
+     * @throws NullPointerException if {@code latencyBucketSummaries} or {@code
+     *     errorBucketSummaries} are {@code null}.
+     */
+    public static PerSpanNameSummary create(
+        Map<LatencyBucketBoundaries, Integer> numberOfLatencySampledSpans,
+        Map<CanonicalCode, Integer> numberOfErrorSampledSpans) {
+      return new AutoValue_SampledSpanStore_PerSpanNameSummary(
+          Collections.unmodifiableMap(
+              new HashMap<LatencyBucketBoundaries, Integer>(
+                  checkNotNull(numberOfLatencySampledSpans, "numberOfLatencySampledSpans"))),
+          Collections.unmodifiableMap(
+              new HashMap<CanonicalCode, Integer>(
+                  checkNotNull(numberOfErrorSampledSpans, "numberOfErrorSampledSpans"))));
+    }
+
+    /**
+     * Returns the number of sampled spans in all the latency buckets.
+     *
+     * <p>Data available only for span names registered using {@link
+     * #registerSpanNamesForCollection(Collection)}.
+     *
+     * @return the number of sampled spans in all the latency buckets.
+     */
+    public abstract Map<LatencyBucketBoundaries, Integer> getNumberOfLatencySampledSpans();
+
+    /**
+     * Returns the number of sampled spans in all the error buckets.
+     *
+     * <p>Data available only for span names registered using {@link
+     * #registerSpanNamesForCollection(Collection)}.
+     *
+     * @return the number of sampled spans in all the error buckets.
+     */
+    public abstract Map<CanonicalCode, Integer> getNumberOfErrorSampledSpans();
+  }
 
   /**
    * The latency buckets boundaries. Samples based on latency for successful spans (the status of

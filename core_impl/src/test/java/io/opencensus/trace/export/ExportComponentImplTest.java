@@ -32,7 +32,7 @@ public class ExportComponentImplTest {
   @Test
   public void implementationOfActiveSpans() {
     // TODO(bdrutu): Change this when implementation is available.
-    assertThat(exportComponent.getActiveSpans()).isNull();
+    assertThat(exportComponent.getActiveSpansExporter()).isNull();
   }
 
   @Test

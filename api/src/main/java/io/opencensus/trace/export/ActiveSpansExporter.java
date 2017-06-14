@@ -14,10 +14,13 @@
 package io.opencensus.trace.export;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Span;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -30,9 +33,16 @@ import javax.annotation.concurrent.ThreadSafe;
  * living operations.
  */
 @ThreadSafe
-public abstract class ActiveSpans {
+public abstract class ActiveSpansExporter {
 
-  protected ActiveSpans() {}
+  protected ActiveSpansExporter() {}
+
+  /**
+   * Returns the summary of all available data such, as number of active spans.
+   *
+   * @return the summary of all available data.
+   */
+  public abstract Summary getSummary();
 
   /**
    * Returns the number of active spans for every span name.
@@ -48,6 +58,62 @@ public abstract class ActiveSpans {
    * @return a list of active spans that match the {@code Filter}.
    */
   public abstract Collection<SpanData> getActiveSpans(Filter filter);
+
+  /** The summary of all available data. */
+  @AutoValue
+  @Immutable
+  public abstract static class Summary {
+
+    Summary() {}
+
+    /**
+     * Returns a new instance of {@code Summary}.
+     *
+     * @param perSpanNameSummary a map with summary for each span name.
+     * @return a new instance of {@code Summary}.
+     * @throws NullPointerException if {@code perSpanNameSummary} is {@code null}.
+     */
+    public static Summary create(Map<String, PerSpanNameSummary> perSpanNameSummary) {
+      return new AutoValue_ActiveSpansExporter_Summary(
+          Collections.unmodifiableMap(
+              new HashMap<String, PerSpanNameSummary>(
+                  checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
+    }
+
+    /**
+     * Returns a map with summary of available data for each span name.
+     *
+     * @return a map with all the span names and the summary.
+     */
+    public abstract Map<String, PerSpanNameSummary> getPerSpanNameSummary();
+  }
+
+  /** Summary of all available data for a span name. */
+  @AutoValue
+  @Immutable
+  public abstract static class PerSpanNameSummary {
+
+    PerSpanNameSummary() {}
+
+    /**
+     * Returns a new instance of {@code PerSpanNameSummary}.
+     *
+     * @param numActiveSpans the number of sampled spans.
+     * @return a new instance of {@code PerSpanNameSummary}.
+     * @throws IllegalArgumentException if {@code numActiveSpans} is negative.
+     */
+    public static PerSpanNameSummary create(int numActiveSpans) {
+      checkArgument(numActiveSpans >= 0, "Negative numActiveSpans.");
+      return new AutoValue_ActiveSpansExporter_PerSpanNameSummary(numActiveSpans);
+    }
+
+    /**
+     * Returns the number of active spans.
+     *
+     * @return the number of active spans.
+     */
+    public abstract int getNumActiveSpans();
+  }
 
   /**
    * Filter for active spans. Used to filter results returned by the {@link #getActiveSpans(Filter)}
@@ -73,7 +139,7 @@ public abstract class ActiveSpans {
      */
     public static Filter create(String spanName, int maxSpansToReturn) {
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
-      return new AutoValue_ActiveSpans_Filter(spanName, maxSpansToReturn);
+      return new AutoValue_ActiveSpansExporter_Filter(spanName, maxSpansToReturn);
     }
 
     /**
