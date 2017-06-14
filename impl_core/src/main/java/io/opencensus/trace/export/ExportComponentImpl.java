@@ -22,6 +22,7 @@ public final class ExportComponentImpl extends ExportComponent {
   private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
 
   private final SpanExporterImpl spanExporter;
+  private final ActiveSpansExporterImpl activeSpansExporter;
 
   @Override
   public SpanExporterImpl getSpanExporter() {
@@ -30,9 +31,8 @@ public final class ExportComponentImpl extends ExportComponent {
 
   @Nullable
   @Override
-  public ActiveSpansExporter getActiveSpansExporter() {
-    // TODO(bdrutu): Implement this.
-    return null;
+  public ActiveSpansExporterImpl getActiveSpansExporter() {
+    return activeSpansExporter;
   }
 
   @Nullable
@@ -45,5 +45,6 @@ public final class ExportComponentImpl extends ExportComponent {
   /** Constructs a new {@code ExportComponentImpl}. */
   public ExportComponentImpl() {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
+    this.activeSpansExporter = new ActiveSpansExporterImpl();
   }
 }

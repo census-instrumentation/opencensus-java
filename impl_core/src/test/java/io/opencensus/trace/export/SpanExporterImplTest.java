@@ -43,7 +43,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link ExportComponentImpl}. */
+/** Unit tests for {@link SpanExporterImpl}. */
 @RunWith(JUnit4.class)
 public class SpanExporterImplTest {
   private static final String SPAN_NAME_1 = "MySpanName/1";
@@ -59,7 +59,7 @@ public class SpanExporterImplTest {
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final SpanExporterImpl sampledSpansServiceExporter = SpanExporterImpl.create(4, 1000);
   private final StartEndHandler startEndHandler =
-      new StartEndHandlerImpl(sampledSpansServiceExporter, new SimpleEventQueue());
+      new StartEndHandlerImpl(sampledSpansServiceExporter, null, null, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
   @Mock private Handler mockServiceHandler;

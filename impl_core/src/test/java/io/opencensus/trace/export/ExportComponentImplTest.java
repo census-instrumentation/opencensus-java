@@ -32,7 +32,8 @@ public class ExportComponentImplTest {
   @Test
   public void implementationOfActiveSpans() {
     // TODO(bdrutu): Change this when implementation is available.
-    assertThat(exportComponent.getActiveSpansExporter()).isNull();
+    assertThat(exportComponent.getActiveSpansExporter())
+        .isInstanceOf(ActiveSpansExporterImpl.class);
   }
 
   @Test

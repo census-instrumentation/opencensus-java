@@ -35,7 +35,12 @@ class TraceComponentImplBase extends TraceComponent {
 
   TraceComponentImplBase(Clock clock, RandomHandler randomHandler, EventQueue eventQueue) {
     this.clock = clock;
-    startEndHandler = new StartEndHandlerImpl(exportComponent.getSpanExporter(), eventQueue);
+    startEndHandler =
+        new StartEndHandlerImpl(
+            exportComponent.getSpanExporter(),
+            exportComponent.getActiveSpansExporter(),
+            exportComponent.getSampledSpanStore(),
+            eventQueue);
     tracer = new TracerImpl(randomHandler, startEndHandler, clock, traceConfig);
   }
 
