@@ -45,13 +45,6 @@ public abstract class ActiveSpansExporter {
   public abstract Summary getSummary();
 
   /**
-   * Returns the number of active spans for every span name.
-   *
-   * @return the number of active spans for every span name.
-   */
-  public abstract Map<String, Integer> getNumberOfActiveSpans();
-
-  /**
    * Returns a list of active spans that match the {@code Filter}.
    *
    * @param filter used to filter the returned spans.
