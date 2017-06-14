@@ -30,6 +30,7 @@ import io.opencensus.trace.base.Status;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
+import io.opencensus.trace.internal.ConcurrentIntrusiveList.Element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -44,7 +45,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /** Implementation for the {@link Span} class. */
 @ThreadSafe
-public final class SpanImpl extends Span {
+public final class SpanImpl extends Span implements Element<SpanImpl> {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
 
   // The parent SpanId of this span. Null if this is a root.
@@ -87,6 +88,10 @@ public final class SpanImpl extends Span {
   // True if the span is ended.
   @GuardedBy("this")
   private boolean hasBeenEnded;
+
+  // Pointers for the ConcurrentIntrusiveList$Element. Guarded by the ConcurrentIntrusiveList.
+  private SpanImpl next = null;
+  private SpanImpl prev = null;
 
   /**
    * Creates and starts a span with the given configuration. TimestampConverter is null if the
@@ -323,6 +328,26 @@ public final class SpanImpl extends Span {
       eventsList.add(networkEvent.toSpanDataTimedEvent(timestampConverter));
     }
     return SpanData.TimedEvents.create(eventsList, events.getNumberOfDroppedEvents());
+  }
+
+  @Override
+  public SpanImpl getNext() {
+    return next;
+  }
+
+  @Override
+  public void setNext(SpanImpl element) {
+    next = element;
+  }
+
+  @Override
+  public SpanImpl getPrev() {
+    return prev;
+  }
+
+  @Override
+  public void setPrev(SpanImpl element) {
+    prev = element;
   }
 
   /**
