@@ -1,4 +1,4 @@
-Instrumentation API
+Will be ported to io.opencensus soon in api/.
 ======================================================
 
 * Java 6 and Android compatible.

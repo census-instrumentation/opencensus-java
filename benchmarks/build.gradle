@@ -23,9 +23,9 @@ jmh {
 }
 
 dependencies {
-    compile project(':core'),
-            project(':core_impl')
-            project(':core_impl_java')
+    compile project(':opencensus-api'),
+            project(':opencensus-impl-core')
+            project(':opencensus-impl')
 }
 
 compileJmhJava {

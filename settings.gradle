@@ -1,6 +1,9 @@
-rootProject.name = "instrumentation-java"
+rootProject.name = "opencensus-java"
 
 include ":opencensus-api"
+include ":opencensus-impl-core"
+include ":opencensus-impl-lite"
+include ":opencensus-impl"
 include ":all"
 include ":core"
 include ":core_impl"
@@ -8,6 +11,9 @@ include ":core_impl_java"
 include ":core_impl_android"
 
 project(':opencensus-api').projectDir = "$rootDir/api" as File
+project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
+project(':opencensus-impl-lite').projectDir = "$rootDir/impl_lite" as File
+project(':opencensus-impl').projectDir = "$rootDir/impl" as File
 
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {

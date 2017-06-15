@@ -2,13 +2,17 @@ description = 'OpenCensus Core Impl'
 
 dependencies {
     compile project(':core'),
+            project(':opencensus-api'),
+            project(':opencensus-impl-core'),
             libraries.guava
-
-    compileOnly libraries.auto_value
 
     testCompile project(':core')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
 
-javadoc.exclude 'io/opencensus/internal/**'
+// Disable javadoc because fails with the error:
+// javadoc: error - No public or protected classes found to document.
+javadoc {
+    enabled = false
+}
