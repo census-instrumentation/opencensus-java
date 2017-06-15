@@ -1,6 +1,6 @@
 apply plugin: 'com.github.kt3k.coveralls'
 
-description = "Instrumentation: All"
+description = "OpenCensus All"
 
 buildscript {
     repositories {
@@ -16,8 +16,10 @@ buildscript {
 def subprojects = [
         project(':opencensus-api'),
         project(':core'),
+        project(':opencensus-impl-core'),
         project(':core_impl'),
         project(':core_impl_java'),
+        project(':opencensus-impl'),
 ]
 
 for (subproject in rootProject.subprojects) {
@@ -43,6 +45,7 @@ javadoc {
         options.links subproject.javadoc.options.links.toArray(new String[0])
     }
     exclude 'io/opencensus/internal/**'
+    exclude 'io/opencensus/trace/internal/**'
 }
 
 task jacocoMerge(type: JacocoMerge) {

@@ -1,0 +1,13 @@
+description = 'OpenCensus Core Implementation'
+
+dependencies {
+    compile project(':opencensus-api'),
+            libraries.guava
+
+    compileOnly libraries.auto_value
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}
+
+javadoc.exclude 'io/opencensus/internal/**'
+javadoc.exclude 'io/opencensus/trace/internal/**'

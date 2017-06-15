@@ -352,7 +352,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   /**
    * Interface to handle the start and end operations for a {@link Span} only when the {@code Span}
-   * has {@link Span.Options#RECORD_EVENTS} option.
+   * has {@link Options#RECORD_EVENTS} option.
    *
    * <p>Implementation must avoid high overhead work in any of the methods because the code is
    * executed on the critical path.
@@ -430,8 +430,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       this.event = event;
     }
 
-    private SpanData.TimedEvent<T> toSpanDataTimedEvent(TimestampConverter timestampConverter) {
-      return SpanData.TimedEvent.create(timestampConverter.convertNanoTime(nanoTime), event);
+    private TimedEvent<T> toSpanDataTimedEvent(TimestampConverter timestampConverter) {
+      return TimedEvent.create(timestampConverter.convertNanoTime(nanoTime), event);
     }
   }
 

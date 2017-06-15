@@ -1,4 +1,4 @@
-Will be ported to io.opencensus soon in impl/.
+OpenCensus Java implementation
 ======================================================
 
 * Java 7 compatible.

@@ -1,4 +1,4 @@
-Will be ported to io.opencensus soon in impl_lite/.
+OpenCensus Android implementation
 ======================================================
 
 * Android compatible.
