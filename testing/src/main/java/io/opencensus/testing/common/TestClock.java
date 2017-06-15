@@ -66,14 +66,8 @@ public final class TestClock extends Clock {
    *
    * @param duration the increase in time.
    */
-  // TODO(sebright): Consider adding an 'addDuration' method to Timestamp.
   public synchronized void advanceTime(Duration duration) {
-    currentTime =
-        validateNanos(
-            Timestamp.create(
-                    LongMath.checkedAdd(currentTime.getSeconds(), duration.getSeconds()),
-                    currentTime.getNanos())
-                .addNanos(duration.getNanos()));
+    currentTime = validateNanos(currentTime.addDuration(duration));
   }
 
   @Override

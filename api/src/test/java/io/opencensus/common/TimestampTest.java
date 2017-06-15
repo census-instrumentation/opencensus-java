@@ -80,6 +80,59 @@ public class TimestampTest {
     assertThat(timestamp.addNanos(Long.MIN_VALUE))
         .isEqualTo(Timestamp.create(1234L - 9223372036L - 1, 223 + 145224192));
   }
+  
+  @Test
+  public void timestampAddDuration() {
+    Timestamp timestamp = Timestamp.create(1234, 223);
+    assertThat(timestamp.addDuration(Duration.create(1, 0))).isEqualTo(Timestamp.create(1235, 223));
+    assertThat(timestamp.addDuration(Duration.create(0, 1))).isEqualTo(Timestamp.create(1234, 224));
+    assertThat(timestamp.addDuration(Duration.create(1, 1))).isEqualTo(Timestamp.create(1235, 224));
+    assertThat(timestamp.addDuration(Duration.create(1, 999999900)))
+        .isEqualTo(Timestamp.create(1236, 123));
+  }
+
+  @Test
+  public void timestampAddDuration_Negative() {
+    Timestamp timestamp = Timestamp.create(1234, 223);
+    assertThat(timestamp.addDuration(Duration.create(-1234, -223)))
+        .isEqualTo(Timestamp.create(0, 0));
+    assertThat(timestamp.addDuration(Duration.create(-1, 0)))
+        .isEqualTo(Timestamp.create(1233, 223));
+    assertThat(timestamp.addDuration(Duration.create(-1, -1)))
+        .isEqualTo(Timestamp.create(1233, 222));
+    assertThat(timestamp.addDuration(Duration.create(-1, -323)))
+        .isEqualTo(Timestamp.create(1232, 999999900));
+    assertThat(timestamp.addDuration(Duration.create(-33, -999999999)))
+        .isEqualTo(Timestamp.create(1200, 224));
+  }
+
+  @Test
+  public void timestampMinusTimestamp() {
+    Timestamp timestamp = Timestamp.create(1234, 223);
+    assertThat(timestamp.minusTimestamp(Timestamp.create(0, 0)))
+        .isEqualTo(Duration.create(1234, 223));
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1233, 223)))
+        .isEqualTo(Duration.create(1, 0));
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1233, 222)))
+        .isEqualTo(Duration.create(1, 1));
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1232, 999999900)))
+        .isEqualTo(Duration.create(1, 323));
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1200, 224)))
+        .isEqualTo(Duration.create(33, 999999999));
+  }
+
+  @Test
+  public void timestampMinusTimestamp_NegativeResult() {
+    Timestamp timestamp = Timestamp.create(1234, 223);
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1235, 223)))
+        .isEqualTo(Duration.create(-1, 0));
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1234, 224)))
+        .isEqualTo(Duration.create(0, -1));
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1235, 224)))
+        .isEqualTo(Duration.create(-1, -1));
+    assertThat(timestamp.minusTimestamp(Timestamp.create(1236, 123)))
+        .isEqualTo(Duration.create(-1, -999999900));
+  }
 
   @Test
   public void testTimestampEqual() {
