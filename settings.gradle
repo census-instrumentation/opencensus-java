@@ -1,6 +1,5 @@
 rootProject.name = "opencensus-java"
 
-include ":opencensus-agent"
 include ":opencensus-api"
 include ":opencensus-impl-core"
 include ":opencensus-impl-lite"
@@ -12,20 +11,20 @@ include ":core"
 include ":core_impl"
 include ":core_impl_java"
 include ":core_impl_android"
+include ":opencensus-agent"
+include ":opencensus-zpages"
 
-project(':opencensus-agent').projectDir = "$rootDir/contrib/agent" as File
 project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
 project(':opencensus-impl-lite').projectDir = "$rootDir/impl_lite" as File
 project(':opencensus-impl').projectDir = "$rootDir/impl" as File
 project(':opencensus-testing').projectDir = "$rootDir/testing" as File
 project(':opencensus-trace-logging-exporter').projectDir = "$rootDir/exporters/trace_logging" as File
+project(':opencensus-agent').projectDir = "$rootDir/contrib/agent" as File
+project(':opencensus-zpages').projectDir = "$rootDir/contrib/zpages" as File
 
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {
     include ":examples"
     include ":benchmarks"
-
-    project(':examples').projectDir = "$rootDir/examples" as File
-    project(':benchmarks').projectDir = "$rootDir/benchmarks" as File
 }
