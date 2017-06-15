@@ -47,7 +47,9 @@ public class ActiveSpansExporterTest {
   private final SpanImpl createSpan(String spanName) {
     final SpanContext spanContext =
         SpanContext.create(
-            TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+            TraceId.generateRandomId(random),
+            SpanId.generateRandomId(random),
+            TraceOptions.DEFAULT);
     SpanImpl span =
         SpanImpl.startSpan(
             spanContext,
@@ -151,8 +153,10 @@ public class ActiveSpansExporterTest {
     SpanImpl span3 = createSpan(SPAN_NAME_1);
     assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 0)))
         .containsExactly(span1.toSpanData(), span2.toSpanData(), span3.toSpanData());
+    assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 2)).size())
+        .isEqualTo(2);
     assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 2)))
-        .containsExactly(span2.toSpanData(), span3.toSpanData());
+        .containsAnyOf(span1.toSpanData(), span2.toSpanData(), span3.toSpanData());
     span1.end();
     span2.end();
     span3.end();

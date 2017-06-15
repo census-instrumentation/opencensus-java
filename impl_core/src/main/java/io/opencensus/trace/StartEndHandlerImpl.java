@@ -21,11 +21,13 @@ import io.opencensus.trace.export.SampledSpanStore;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporterImpl;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData} to
  * avoid impacting the critical path.
  */
+@ThreadSafe
 public final class StartEndHandlerImpl implements StartEndHandler {
   private final SpanExporterImpl spanExporter;
   private final ActiveSpansExporterImpl activeSpansExporter;
@@ -33,7 +35,7 @@ public final class StartEndHandlerImpl implements StartEndHandler {
   private final EventQueue eventQueue;
   // true if any of (activeSpansExporter OR sampledSpanStore) are different than null, which
   // means the spans with RECORD_EVENTS should be enqueued in the queue.
-  private final boolean enqueEventForNonSampledSpans;
+  private final boolean enqueueEventForNonSampledSpans;
 
   /**
    * Constructs a new {@code StartEndHandlerImpl}.
@@ -51,20 +53,20 @@ public final class StartEndHandlerImpl implements StartEndHandler {
     this.spanExporter = spanExporter;
     this.activeSpansExporter = activeSpansExporter;
     this.sampledSpanStore = sampledSpanStore;
-    this.enqueEventForNonSampledSpans = activeSpansExporter != null || sampledSpanStore != null;
+    this.enqueueEventForNonSampledSpans = activeSpansExporter != null || sampledSpanStore != null;
     this.eventQueue = eventQueue;
   }
 
   @Override
   public void onStart(SpanImpl span) {
-    if (span.getOptions().contains(Options.RECORD_EVENTS) && enqueEventForNonSampledSpans) {
+    if (span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans) {
       eventQueue.enqueue(new SpanStartEvent(span, activeSpansExporter));
     }
   }
 
   @Override
   public void onEnd(SpanImpl span) {
-    if ((span.getOptions().contains(Options.RECORD_EVENTS) && enqueEventForNonSampledSpans)
+    if ((span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans)
         || span.getContext().getTraceOptions().isSampled()) {
       eventQueue.enqueue(
           new SpanEndEvent(span, spanExporter, activeSpansExporter, sampledSpanStore));

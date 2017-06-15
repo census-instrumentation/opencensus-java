@@ -42,9 +42,14 @@ public final class ExportComponentImpl extends ExportComponent {
     return null;
   }
 
-  /** Constructs a new {@code ExportComponentImpl}. */
-  public ExportComponentImpl() {
+  /**
+   * Constructs a new {@code ExportComponentImpl}.
+   *
+   * @param supportInProcessStores {@code true} to instantiate {@link ActiveSpansExporter} and
+   *     {@link SampledSpanStore}.
+   */
+  public ExportComponentImpl(boolean supportInProcessStores) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
-    this.activeSpansExporter = new ActiveSpansExporterImpl();
+    this.activeSpansExporter = supportInProcessStores ? new ActiveSpansExporterImpl() : null;
   }
 }
