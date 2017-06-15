@@ -22,9 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TraceComponentImpl}. */
+/** Unit tests for {@link TraceComponentImplLite}. */
 @RunWith(JUnit4.class)
-public class TraceComponentImplTest {
+public class TraceComponentImplLiteTest {
   @Test
   public void implementationOfTracer() {
     assertThat(Tracing.getTracer()).isInstanceOf(TracerImpl.class);

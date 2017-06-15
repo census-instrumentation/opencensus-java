@@ -13,17 +13,49 @@
 
 package com.google.instrumentation.stats;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link Stats}.
- */
+/** Tests for {@link Stats}. */
 @RunWith(JUnit4.class)
 public final class StatsTest {
-  @Test(expected = AssertionError.class)
-  public void testConstructor() {
-    new Stats();
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void loadTraceService_UsesProvidedClassLoader() {
+    final RuntimeException toThrow = new RuntimeException("UseClassLoader");
+    thrown.expect(RuntimeException.class);
+    thrown.expectMessage("UseClassLoader");
+    Stats.loadStatsManager(
+        new ClassLoader() {
+          @Override
+          public Class<?> loadClass(String name) {
+            throw toThrow;
+          }
+        });
+  }
+
+  @Test
+  public void loadSpanFactory_IgnoresMissingClasses() {
+    assertThat(
+            Stats.loadStatsManager(
+                    new ClassLoader() {
+                      @Override
+                      public Class<?> loadClass(String name) throws ClassNotFoundException {
+                        throw new ClassNotFoundException();
+                      }
+                    }))
+        .isNull();
+  }
+
+  @Test
+  public void defaultValues() {
+    assertThat(Stats.getStatsContextFactory()).isNull();
+    assertThat(Stats.getStatsManager()).isNull();
   }
 }

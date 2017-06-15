@@ -23,6 +23,12 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class StatsTest {
   @Test
+  public void getStatsManager() {
+    assertThat(Stats.getStatsManager()).isInstanceOf(StatsManagerImpl.class);
+  }
+
+
+  @Test
   public void getStatsContextFactory() {
     assertThat(Stats.getStatsContextFactory()).isNotNull();
   }
