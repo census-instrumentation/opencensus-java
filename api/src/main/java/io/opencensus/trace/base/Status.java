@@ -15,6 +15,7 @@ package io.opencensus.trace.base;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import io.opencensus.trace.Span;
@@ -164,7 +165,13 @@ public final class Status {
       return value;
     }
 
-    Status toStatus() {
+    /**
+     * Returns the status with that has the current {@code CanonicalCode}.
+     *
+     * @return the status with that has the current {@code CanonicalCode}.
+     */
+    @VisibleForTesting
+    public Status toStatus() {
       return STATUS_LIST.get(value);
     }
   }
