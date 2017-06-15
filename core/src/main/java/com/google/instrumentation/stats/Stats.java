@@ -48,7 +48,11 @@ public final class Stats {
           Class.forName("com.google.instrumentation.stats.StatsManagerImpl", true, classLoader),
           StatsManager.class);
     } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Try to load lite implementation.", e);
+      logger.log(
+          Level.FINE,
+          "Couldn't load full implementation for StatsManager, now trying to load lite "
+              + "implementation.",
+          e);
     }
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
@@ -56,7 +60,11 @@ public final class Stats {
           Class.forName("com.google.instrumentation.stats.StatsManagerImplLite", true, classLoader),
           StatsManager.class);
     } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Using default implementation for StatsManager.", e);
+      logger.log(
+          Level.FINE,
+          "Couldn't load lite implementation for StatsManager, now using "
+              + "default implementation for StatsManager.",
+          e);
     }
     // TODO: Add a no-op implementation.
     return null;

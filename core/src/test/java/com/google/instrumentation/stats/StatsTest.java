@@ -27,7 +27,7 @@ public final class StatsTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void loadTraceService_UsesProvidedClassLoader() {
+  public void loadStatsManager_UsesProvidedClassLoader() {
     final RuntimeException toThrow = new RuntimeException("UseClassLoader");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("UseClassLoader");
@@ -41,7 +41,7 @@ public final class StatsTest {
   }
 
   @Test
-  public void loadSpanFactory_IgnoresMissingClasses() {
+  public void loadStatsManager_IgnoresMissingClasses() {
     assertThat(
             Stats.loadStatsManager(
                     new ClassLoader() {
