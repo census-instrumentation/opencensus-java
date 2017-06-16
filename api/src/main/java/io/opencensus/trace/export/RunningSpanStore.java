@@ -26,31 +26,31 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * This class allows users to access in-process information about all active spans.
+ * This class allows users to access in-process information about all running spans.
  *
- * <p>The active spans tracking is available for all the spans with the option {@link
+ * <p>The running spans tracking is available for all the spans with the option {@link
  * Span.Options#RECORD_EVENTS}. This functionality allows users to debug stuck operations or long
  * living operations.
  */
 @ThreadSafe
-public abstract class ActiveSpansExporter {
+public abstract class RunningSpanStore {
 
-  protected ActiveSpansExporter() {}
+  protected RunningSpanStore() {}
 
   /**
-   * Returns the summary of all available data such, as number of active spans.
+   * Returns the summary of all available data such, as number of running spans.
    *
    * @return the summary of all available data.
    */
   public abstract Summary getSummary();
 
   /**
-   * Returns a list of active spans that match the {@code Filter}.
+   * Returns a list of running spans that match the {@code Filter}.
    *
    * @param filter used to filter the returned spans.
-   * @return a list of active spans that match the {@code Filter}.
+   * @return a list of running spans that match the {@code Filter}.
    */
-  public abstract Collection<SpanData> getActiveSpans(Filter filter);
+  public abstract Collection<SpanData> getRunningSpans(Filter filter);
 
   /** The summary of all available data. */
   @AutoValue
@@ -67,7 +67,7 @@ public abstract class ActiveSpansExporter {
      * @throws NullPointerException if {@code perSpanNameSummary} is {@code null}.
      */
     public static Summary create(Map<String, PerSpanNameSummary> perSpanNameSummary) {
-      return new AutoValue_ActiveSpansExporter_Summary(
+      return new AutoValue_RunningSpanStore_Summary(
           Collections.unmodifiableMap(
               new HashMap<String, PerSpanNameSummary>(
                   checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
@@ -91,26 +91,26 @@ public abstract class ActiveSpansExporter {
     /**
      * Returns a new instance of {@code PerSpanNameSummary}.
      *
-     * @param numActiveSpans the number of sampled spans.
+     * @param numRunningSpans the number of running spans.
      * @return a new instance of {@code PerSpanNameSummary}.
-     * @throws IllegalArgumentException if {@code numActiveSpans} is negative.
+     * @throws IllegalArgumentException if {@code numRunningSpans} is negative.
      */
-    public static PerSpanNameSummary create(int numActiveSpans) {
-      checkArgument(numActiveSpans >= 0, "Negative numActiveSpans.");
-      return new AutoValue_ActiveSpansExporter_PerSpanNameSummary(numActiveSpans);
+    public static PerSpanNameSummary create(int numRunningSpans) {
+      checkArgument(numRunningSpans >= 0, "Negative numRunningSpans.");
+      return new AutoValue_RunningSpanStore_PerSpanNameSummary(numRunningSpans);
     }
 
     /**
-     * Returns the number of active spans.
+     * Returns the number of running spans.
      *
-     * @return the number of active spans.
+     * @return the number of running spans.
      */
-    public abstract int getNumActiveSpans();
+    public abstract int getNumRunningSpans();
   }
 
   /**
-   * Filter for active spans. Used to filter results returned by the {@link #getActiveSpans(Filter)}
-   * request.
+   * Filter for running spans. Used to filter results returned by the
+   * {@link #getRunningSpans(Filter)} request.
    */
   @AutoValue
   @Immutable
@@ -132,7 +132,7 @@ public abstract class ActiveSpansExporter {
      */
     public static Filter create(String spanName, int maxSpansToReturn) {
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
-      return new AutoValue_ActiveSpansExporter_Filter(spanName, maxSpansToReturn);
+      return new AutoValue_RunningSpanStore_Filter(spanName, maxSpansToReturn);
     }
 
     /**

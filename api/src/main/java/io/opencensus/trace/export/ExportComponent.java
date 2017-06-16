@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 
 /**
  * Class that holds the implementation instances for {@link SpanExporter}, {@link
- * ActiveSpansExporter} and {@link SampledSpanStore}.
+ * RunningSpanStore} and {@link SampledSpanStore}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -45,13 +45,13 @@ public abstract class ExportComponent {
   public abstract SpanExporter getSpanExporter();
 
   /**
-   * Returns the {@link ActiveSpansExporter} that can be used to get useful debugging information
+   * Returns the {@link RunningSpanStore} that can be used to get useful debugging information
    * about all the current active spans.
    *
-   * @return the {@code ActiveSpansExporter} or {@code null} if not supported.
+   * @return the {@code RunningSpanStore} or {@code null} if not supported.
    */
   @Nullable
-  public abstract ActiveSpansExporter getActiveSpansExporter();
+  public abstract RunningSpanStore getRunningSpanStore();
 
   /**
    * Returns the {@link SampledSpanStore} that can be used to get useful debugging information, such
@@ -70,7 +70,7 @@ public abstract class ExportComponent {
 
     @Nullable
     @Override
-    public ActiveSpansExporter getActiveSpansExporter() {
+    public RunningSpanStore getRunningSpanStore() {
       return null;
     }
 

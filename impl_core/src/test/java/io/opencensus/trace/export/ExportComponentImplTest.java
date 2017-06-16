@@ -34,9 +34,9 @@ public class ExportComponentImplTest {
 
   @Test
   public void implementationOfActiveSpans() {
-    assertThat(exportComponentWithInProcess.getActiveSpansExporter())
-        .isInstanceOf(ActiveSpansExporterImpl.class);
-    assertThat(exportComponentWithoutInProcess.getActiveSpansExporter()).isNull();
+    assertThat(exportComponentWithInProcess.getRunningSpanStore())
+        .isInstanceOf(RunningSpanStoreImpl.class);
+    assertThat(exportComponentWithoutInProcess.getRunningSpanStore()).isNull();
   }
 
   @Test
