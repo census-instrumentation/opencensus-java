@@ -22,38 +22,38 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
 
-/** Implementation of the {@link ActiveSpansExporter}. */
+/** Implementation of the {@link RunningSpanStore}. */
 @ThreadSafe
-public final class ActiveSpansExporterImpl extends ActiveSpansExporter {
-  private final ConcurrentIntrusiveList<SpanImpl> activeSpans;
+public final class RunningSpanStoreImpl extends RunningSpanStore {
+  private final ConcurrentIntrusiveList<SpanImpl> runningSpans;
 
-  public ActiveSpansExporterImpl() {
-    activeSpans = new ConcurrentIntrusiveList<SpanImpl>();
+  public RunningSpanStoreImpl() {
+    runningSpans = new ConcurrentIntrusiveList<SpanImpl>();
   }
 
   /**
-   * Adds the {@code Span} into the active spans list when the {@code Span} starts.
+   * Adds the {@code Span} into the running spans list when the {@code Span} starts.
    *
    * @param span the {@code Span} that started.
    */
   public void onStart(SpanImpl span) {
-    activeSpans.addElement(span);
+    runningSpans.addElement(span);
   }
 
   /**
-   * Removes the {@code Span} from the active spans list when the {@code Span} ends.
+   * Removes the {@code Span} from the running spans list when the {@code Span} ends.
    *
    * @param span the {@code Span} that ended.
    */
   public void onEnd(SpanImpl span) {
-    activeSpans.removeElement(span);
+    runningSpans.removeElement(span);
   }
 
   @Override
   public Summary getSummary() {
-    Collection<SpanImpl> allActiveSpans = activeSpans.getAll();
+    Collection<SpanImpl> allRunningSpans = runningSpans.getAll();
     Map<String, Integer> numSpansPerName = new HashMap<String, Integer>();
-    for (SpanImpl span : allActiveSpans) {
+    for (SpanImpl span : allRunningSpans) {
       Integer prevValue = numSpansPerName.get(span.getName());
       numSpansPerName.put(span.getName(), prevValue != null ? prevValue + 1 : 1);
     }
@@ -66,12 +66,12 @@ public final class ActiveSpansExporterImpl extends ActiveSpansExporter {
   }
 
   @Override
-  public Collection<SpanData> getActiveSpans(Filter filter) {
-    Collection<SpanImpl> allActiveSpans = activeSpans.getAll();
+  public Collection<SpanData> getRunningSpans(Filter filter) {
+    Collection<SpanImpl> allRunningSpans = runningSpans.getAll();
     int maxSpansToReturn =
-        filter.getMaxSpansToReturn() == 0 ? allActiveSpans.size() : filter.getMaxSpansToReturn();
+        filter.getMaxSpansToReturn() == 0 ? allRunningSpans.size() : filter.getMaxSpansToReturn();
     List<SpanData> ret = new ArrayList<SpanData>(maxSpansToReturn);
-    for (SpanImpl span : allActiveSpans) {
+    for (SpanImpl span : allRunningSpans) {
       if (ret.size() == maxSpansToReturn) {
         break;
       }

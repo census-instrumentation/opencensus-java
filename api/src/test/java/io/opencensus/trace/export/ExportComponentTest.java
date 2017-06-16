@@ -30,7 +30,7 @@ public class ExportComponentTest {
   }
 
   public void implementationOfActiveSpans() {
-    assertThat(exportComponent.getActiveSpansExporter()).isNull();
+    assertThat(exportComponent.getRunningSpanStore()).isNull();
   }
 
   @Test

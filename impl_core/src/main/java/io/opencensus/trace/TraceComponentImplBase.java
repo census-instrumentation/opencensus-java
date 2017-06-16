@@ -45,7 +45,7 @@ class TraceComponentImplBase extends TraceComponent {
     startEndHandler =
         new StartEndHandlerImpl(
             exportComponent.getSpanExporter(),
-            exportComponent.getActiveSpansExporter(),
+            exportComponent.getRunningSpanStore(),
             exportComponent.getSampledSpanStore(),
             eventQueue);
     tracer = new TracerImpl(randomHandler, startEndHandler, clock, traceConfig);

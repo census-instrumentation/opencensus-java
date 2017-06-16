@@ -22,7 +22,7 @@ public final class ExportComponentImpl extends ExportComponent {
   private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
 
   private final SpanExporterImpl spanExporter;
-  private final ActiveSpansExporterImpl activeSpansExporter;
+  private final RunningSpanStoreImpl activeSpansExporter;
 
   @Override
   public SpanExporterImpl getSpanExporter() {
@@ -31,7 +31,7 @@ public final class ExportComponentImpl extends ExportComponent {
 
   @Nullable
   @Override
-  public ActiveSpansExporterImpl getActiveSpansExporter() {
+  public RunningSpanStoreImpl getRunningSpanStore() {
     return activeSpansExporter;
   }
 
@@ -44,7 +44,7 @@ public final class ExportComponentImpl extends ExportComponent {
 
   /**
    * Returns a new {@code ExportComponentImpl} that has valid instances for {@link
-   * ActiveSpansExporter} and {@link SampledSpanStore}.
+   * RunningSpanStore} and {@link SampledSpanStore}.
    *
    * @return a new {@code ExportComponentImpl}.
    */
@@ -54,7 +54,7 @@ public final class ExportComponentImpl extends ExportComponent {
 
   /**
    * Returns a new {@code ExportComponentImpl} that has {@code null} instances for {@link
-   * ActiveSpansExporter} and {@link SampledSpanStore}.
+   * RunningSpanStore} and {@link SampledSpanStore}.
    *
    * @return a new {@code ExportComponentImpl}.
    */
@@ -65,11 +65,11 @@ public final class ExportComponentImpl extends ExportComponent {
   /**
    * Constructs a new {@code ExportComponentImpl}.
    *
-   * @param supportInProcessStores {@code true} to instantiate {@link ActiveSpansExporter} and
+   * @param supportInProcessStores {@code true} to instantiate {@link RunningSpanStore} and
    *     {@link SampledSpanStore}.
    */
   private ExportComponentImpl(boolean supportInProcessStores) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
-    this.activeSpansExporter = supportInProcessStores ? new ActiveSpansExporterImpl() : null;
+    this.activeSpansExporter = supportInProcessStores ? new RunningSpanStoreImpl() : null;
   }
 }

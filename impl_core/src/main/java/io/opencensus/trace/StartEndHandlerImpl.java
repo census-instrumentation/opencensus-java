@@ -16,7 +16,7 @@ package io.opencensus.trace;
 import io.opencensus.internal.EventQueue;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
-import io.opencensus.trace.export.ActiveSpansExporterImpl;
+import io.opencensus.trace.export.RunningSpanStoreImpl;
 import io.opencensus.trace.export.SampledSpanStore;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporterImpl;
@@ -30,10 +30,10 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class StartEndHandlerImpl implements StartEndHandler {
   private final SpanExporterImpl spanExporter;
-  private final ActiveSpansExporterImpl activeSpansExporter;
+  private final RunningSpanStoreImpl runningSpanStore;
   private final SampledSpanStore sampledSpanStore;
   private final EventQueue eventQueue;
-  // true if any of (activeSpansExporter OR sampledSpanStore) are different than null, which
+  // true if any of (runningSpanStore OR sampledSpanStore) are different than null, which
   // means the spans with RECORD_EVENTS should be enqueued in the queue.
   private final boolean enqueueEventForNonSampledSpans;
 
@@ -41,26 +41,26 @@ public final class StartEndHandlerImpl implements StartEndHandler {
    * Constructs a new {@code StartEndHandlerImpl}.
    *
    * @param spanExporter the {@code SpanExporter} implementation.
-   * @param activeSpansExporter the {@code ActiveSpansExporter} implementation.
+   * @param runningSpanStore the {@code RunningSpanStore} implementation.
    * @param sampledSpanStore the {@code SampledSpanStore} implementation.
    * @param eventQueue the event queue where all the events are enqueued.
    */
   public StartEndHandlerImpl(
       SpanExporterImpl spanExporter,
-      @Nullable ActiveSpansExporterImpl activeSpansExporter,
+      @Nullable RunningSpanStoreImpl runningSpanStore,
       @Nullable SampledSpanStore sampledSpanStore,
       EventQueue eventQueue) {
     this.spanExporter = spanExporter;
-    this.activeSpansExporter = activeSpansExporter;
+    this.runningSpanStore = runningSpanStore;
     this.sampledSpanStore = sampledSpanStore;
-    this.enqueueEventForNonSampledSpans = activeSpansExporter != null || sampledSpanStore != null;
+    this.enqueueEventForNonSampledSpans = runningSpanStore != null || sampledSpanStore != null;
     this.eventQueue = eventQueue;
   }
 
   @Override
   public void onStart(SpanImpl span) {
     if (span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans) {
-      eventQueue.enqueue(new SpanStartEvent(span, activeSpansExporter));
+      eventQueue.enqueue(new SpanStartEvent(span, runningSpanStore));
     }
   }
 
@@ -69,16 +69,16 @@ public final class StartEndHandlerImpl implements StartEndHandler {
     if ((span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans)
         || span.getContext().getTraceOptions().isSampled()) {
       eventQueue.enqueue(
-          new SpanEndEvent(span, spanExporter, activeSpansExporter, sampledSpanStore));
+          new SpanEndEvent(span, spanExporter, runningSpanStore, sampledSpanStore));
     }
   }
 
   // An EventQueue entry that records the start of the span event.
   private static final class SpanStartEvent implements EventQueue.Entry {
     private final SpanImpl span;
-    private final ActiveSpansExporterImpl activeSpansExporter;
+    private final RunningSpanStoreImpl activeSpansExporter;
 
-    SpanStartEvent(SpanImpl span, @Nullable ActiveSpansExporterImpl activeSpansExporter) {
+    SpanStartEvent(SpanImpl span, @Nullable RunningSpanStoreImpl activeSpansExporter) {
       this.span = span;
       this.activeSpansExporter = activeSpansExporter;
     }
@@ -94,24 +94,24 @@ public final class StartEndHandlerImpl implements StartEndHandler {
   // An EventQueue entry that records the end of the span event.
   private static final class SpanEndEvent implements EventQueue.Entry {
     private final SpanImpl span;
-    private final ActiveSpansExporterImpl activeSpansExporter;
+    private final RunningSpanStoreImpl runningSpanStore;
     private final SpanExporterImpl spanExporter;
 
     SpanEndEvent(
         SpanImpl span,
         SpanExporterImpl spanExporter,
-        @Nullable ActiveSpansExporterImpl activeSpansExporter,
+        @Nullable RunningSpanStoreImpl runningSpanStore,
         @Nullable SampledSpanStore sampledSpanStore) {
       this.span = span;
-      this.activeSpansExporter = activeSpansExporter;
+      this.runningSpanStore = runningSpanStore;
       this.spanExporter = spanExporter;
     }
 
     @Override
     public void process() {
       spanExporter.addSpan(span);
-      if (activeSpansExporter != null) {
-        activeSpansExporter.onEnd(span);
+      if (runningSpanStore != null) {
+        runningSpanStore.onEnd(span);
       }
     }
   }

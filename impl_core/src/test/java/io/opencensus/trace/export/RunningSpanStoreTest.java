@@ -26,19 +26,19 @@ import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
-import io.opencensus.trace.export.ActiveSpansExporter.Filter;
+import io.opencensus.trace.export.RunningSpanStore.Filter;
 import java.util.EnumSet;
 import java.util.Random;
 import org.junit.Test;
 
-/** Unit tests for {@link ActiveSpansExporter}. */
-public class ActiveSpansExporterTest {
+/** Unit tests for {@link RunningSpanStore}. */
+public class RunningSpanStoreTest {
 
   private static final String SPAN_NAME_1 = "MySpanName/1";
   private static final String SPAN_NAME_2 = "MySpanName/2";
   private final Random random = new Random(1234);
   private final SpanExporterImpl sampledSpansServiceExporter = SpanExporterImpl.create(4, 1000);
-  private final ActiveSpansExporterImpl activeSpansExporter = new ActiveSpansExporterImpl();
+  private final RunningSpanStoreImpl activeSpansExporter = new RunningSpanStoreImpl();
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(
           sampledSpansServiceExporter, activeSpansExporter, null, new SimpleEventQueue());
@@ -72,14 +72,14 @@ public class ActiveSpansExporterTest {
                 .getSummary()
                 .getPerSpanNameSummary()
                 .get(SPAN_NAME_1)
-                .getNumActiveSpans())
+                .getNumRunningSpans())
         .isEqualTo(1);
     assertThat(
             activeSpansExporter
                 .getSummary()
                 .getPerSpanNameSummary()
                 .get(SPAN_NAME_2)
-                .getNumActiveSpans())
+                .getNumRunningSpans())
         .isEqualTo(1);
     span1.end();
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(1);
@@ -89,7 +89,7 @@ public class ActiveSpansExporterTest {
                 .getSummary()
                 .getPerSpanNameSummary()
                 .get(SPAN_NAME_2)
-                .getNumActiveSpans())
+                .getNumRunningSpans())
         .isEqualTo(1);
     span2.end();
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(0);
@@ -106,7 +106,7 @@ public class ActiveSpansExporterTest {
                 .getSummary()
                 .getPerSpanNameSummary()
                 .get(SPAN_NAME_1)
-                .getNumActiveSpans())
+                .getNumRunningSpans())
         .isEqualTo(3);
     span1.end();
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(1);
@@ -115,7 +115,7 @@ public class ActiveSpansExporterTest {
                 .getSummary()
                 .getPerSpanNameSummary()
                 .get(SPAN_NAME_1)
-                .getNumActiveSpans())
+                .getNumRunningSpans())
         .isEqualTo(2);
     span2.end();
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(1);
@@ -124,7 +124,7 @@ public class ActiveSpansExporterTest {
                 .getSummary()
                 .getPerSpanNameSummary()
                 .get(SPAN_NAME_1)
-                .getNumActiveSpans())
+                .getNumRunningSpans())
         .isEqualTo(1);
     span3.end();
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(0);
@@ -134,11 +134,11 @@ public class ActiveSpansExporterTest {
   public void getActiveSpans_SpansWithDifferentNames() {
     SpanImpl span1 = createSpan(SPAN_NAME_1);
     SpanImpl span2 = createSpan(SPAN_NAME_2);
-    assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 0)))
+    assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 0)))
         .containsExactly(span1.toSpanData());
-    assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 2)))
+    assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 2)))
         .containsExactly(span1.toSpanData());
-    assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_2, 0)))
+    assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_2, 0)))
         .containsExactly(span2.toSpanData());
     span1.end();
     span2.end();
@@ -149,11 +149,11 @@ public class ActiveSpansExporterTest {
     SpanImpl span1 = createSpan(SPAN_NAME_1);
     SpanImpl span2 = createSpan(SPAN_NAME_1);
     SpanImpl span3 = createSpan(SPAN_NAME_1);
-    assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 0)))
+    assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 0)))
         .containsExactly(span1.toSpanData(), span2.toSpanData(), span3.toSpanData());
-    assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 2)).size())
+    assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 2)).size())
         .isEqualTo(2);
-    assertThat(activeSpansExporter.getActiveSpans(Filter.create(SPAN_NAME_1, 2)))
+    assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 2)))
         .containsAnyOf(span1.toSpanData(), span2.toSpanData(), span3.toSpanData());
     span1.end();
     span2.end();
