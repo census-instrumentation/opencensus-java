@@ -22,6 +22,7 @@ public final class ExportComponentImpl extends ExportComponent {
   private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
 
   private final SpanExporterImpl spanExporter;
+  private final ActiveSpansExporterImpl activeSpansExporter;
 
   @Override
   public SpanExporterImpl getSpanExporter() {
@@ -30,9 +31,8 @@ public final class ExportComponentImpl extends ExportComponent {
 
   @Nullable
   @Override
-  public ActiveSpansExporter getActiveSpansExporter() {
-    // TODO(bdrutu): Implement this.
-    return null;
+  public ActiveSpansExporterImpl getActiveSpansExporter() {
+    return activeSpansExporter;
   }
 
   @Nullable
@@ -42,8 +42,34 @@ public final class ExportComponentImpl extends ExportComponent {
     return null;
   }
 
-  /** Constructs a new {@code ExportComponentImpl}. */
-  public ExportComponentImpl() {
+  /**
+   * Returns a new {@code ExportComponentImpl} that has valid instances for {@link
+   * ActiveSpansExporter} and {@link SampledSpanStore}.
+   *
+   * @return a new {@code ExportComponentImpl}.
+   */
+  public static ExportComponentImpl createWithInProcessStores() {
+    return new ExportComponentImpl(true);
+  }
+
+  /**
+   * Returns a new {@code ExportComponentImpl} that has {@code null} instances for {@link
+   * ActiveSpansExporter} and {@link SampledSpanStore}.
+   *
+   * @return a new {@code ExportComponentImpl}.
+   */
+  public static ExportComponentImpl createWithoutInProcessStores() {
+    return new ExportComponentImpl(false);
+  }
+
+  /**
+   * Constructs a new {@code ExportComponentImpl}.
+   *
+   * @param supportInProcessStores {@code true} to instantiate {@link ActiveSpansExporter} and
+   *     {@link SampledSpanStore}.
+   */
+  private ExportComponentImpl(boolean supportInProcessStores) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
+    this.activeSpansExporter = supportInProcessStores ? new ActiveSpansExporterImpl() : null;
   }
 }

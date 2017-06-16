@@ -14,51 +14,105 @@
 package io.opencensus.trace;
 
 import io.opencensus.internal.EventQueue;
+import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
+import io.opencensus.trace.export.ActiveSpansExporterImpl;
+import io.opencensus.trace.export.SampledSpanStore;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporterImpl;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Uses the provided {@link EventQueue} to defer processing/exporting of the {@link SpanData} to
  * avoid impacting the critical path.
  */
+@ThreadSafe
 public final class StartEndHandlerImpl implements StartEndHandler {
+  private final SpanExporterImpl spanExporter;
+  private final ActiveSpansExporterImpl activeSpansExporter;
+  private final SampledSpanStore sampledSpanStore;
   private final EventQueue eventQueue;
-  private final SpanExporterImpl sampledSpansServiceExporter;
+  // true if any of (activeSpansExporter OR sampledSpanStore) are different than null, which
+  // means the spans with RECORD_EVENTS should be enqueued in the queue.
+  private final boolean enqueueEventForNonSampledSpans;
 
+  /**
+   * Constructs a new {@code StartEndHandlerImpl}.
+   *
+   * @param spanExporter the {@code SpanExporter} implementation.
+   * @param activeSpansExporter the {@code ActiveSpansExporter} implementation.
+   * @param sampledSpanStore the {@code SampledSpanStore} implementation.
+   * @param eventQueue the event queue where all the events are enqueued.
+   */
   public StartEndHandlerImpl(
-      SpanExporterImpl sampledSpansServiceExporter, EventQueue eventQueue) {
-    this.sampledSpansServiceExporter = sampledSpansServiceExporter;
+      SpanExporterImpl spanExporter,
+      @Nullable ActiveSpansExporterImpl activeSpansExporter,
+      @Nullable SampledSpanStore sampledSpanStore,
+      EventQueue eventQueue) {
+    this.spanExporter = spanExporter;
+    this.activeSpansExporter = activeSpansExporter;
+    this.sampledSpanStore = sampledSpanStore;
+    this.enqueueEventForNonSampledSpans = activeSpansExporter != null || sampledSpanStore != null;
     this.eventQueue = eventQueue;
   }
 
   @Override
   public void onStart(SpanImpl span) {
-    // Do nothing. When ActiveSpans functionality is implemented this will change to record the
-    // Span into the ActiveSpans list.
+    if (span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans) {
+      eventQueue.enqueue(new SpanStartEvent(span, activeSpansExporter));
+    }
   }
 
   @Override
   public void onEnd(SpanImpl span) {
-    // TODO(bdrutu): Change to RECORD_EVENTS option when active/samples is supported.
-    if (span.getContext().getTraceOptions().isSampled()) {
-      eventQueue.enqueue(new SpanEndEvent(span, sampledSpansServiceExporter));
+    if ((span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans)
+        || span.getContext().getTraceOptions().isSampled()) {
+      eventQueue.enqueue(
+          new SpanEndEvent(span, spanExporter, activeSpansExporter, sampledSpanStore));
+    }
+  }
+
+  // An EventQueue entry that records the start of the span event.
+  private static final class SpanStartEvent implements EventQueue.Entry {
+    private final SpanImpl span;
+    private final ActiveSpansExporterImpl activeSpansExporter;
+
+    SpanStartEvent(SpanImpl span, @Nullable ActiveSpansExporterImpl activeSpansExporter) {
+      this.span = span;
+      this.activeSpansExporter = activeSpansExporter;
+    }
+
+    @Override
+    public void process() {
+      if (activeSpansExporter != null) {
+        activeSpansExporter.onStart(span);
+      }
     }
   }
 
   // An EventQueue entry that records the end of the span event.
   private static final class SpanEndEvent implements EventQueue.Entry {
     private final SpanImpl span;
-    private final SpanExporterImpl sampledSpansServiceExporter;
+    private final ActiveSpansExporterImpl activeSpansExporter;
+    private final SpanExporterImpl spanExporter;
 
-    SpanEndEvent(SpanImpl span, SpanExporterImpl sampledSpansServiceExporter) {
+    SpanEndEvent(
+        SpanImpl span,
+        SpanExporterImpl spanExporter,
+        @Nullable ActiveSpansExporterImpl activeSpansExporter,
+        @Nullable SampledSpanStore sampledSpanStore) {
       this.span = span;
-      this.sampledSpansServiceExporter = sampledSpansServiceExporter;
+      this.activeSpansExporter = activeSpansExporter;
+      this.spanExporter = spanExporter;
     }
 
     @Override
     public void process() {
-      sampledSpansServiceExporter.addSpan(span);
+      spanExporter.addSpan(span);
+      if (activeSpansExporter != null) {
+        activeSpansExporter.onEnd(span);
+      }
     }
   }
 }

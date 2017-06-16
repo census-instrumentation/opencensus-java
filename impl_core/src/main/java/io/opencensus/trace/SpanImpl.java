@@ -133,7 +133,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    *
    * @return the name of the {@code Span}.
    */
-  String getName() {
+  public String getName() {
     return name;
   }
 
@@ -278,9 +278,9 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       }
       status = options.getStatus();
       endNanoTime = clock.nowNanos();
-      startEndHandler.onEnd(this);
       hasBeenEnded = true;
     }
+    startEndHandler.onEnd(this);
   }
 
   @GuardedBy("this")

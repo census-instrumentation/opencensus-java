@@ -15,6 +15,7 @@ package io.opencensus.trace;
 
 import io.opencensus.common.Clock;
 import io.opencensus.internal.EventQueue;
+import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceConfigImpl;
@@ -26,7 +27,7 @@ import io.opencensus.trace.propagation.PropagationComponentImpl;
 
 /** Base implementation of the {@link TraceComponent}. */
 class TraceComponentImplBase extends TraceComponent {
-  private final ExportComponentImpl exportComponent = new ExportComponentImpl();
+  private final ExportComponentImpl exportComponent;
   private final PropagationComponent propagationComponent = new PropagationComponentImpl();
   private final Clock clock;
   private final StartEndHandler startEndHandler;
@@ -35,7 +36,18 @@ class TraceComponentImplBase extends TraceComponent {
 
   TraceComponentImplBase(Clock clock, RandomHandler randomHandler, EventQueue eventQueue) {
     this.clock = clock;
-    startEndHandler = new StartEndHandlerImpl(exportComponent.getSpanExporter(), eventQueue);
+    // TODO(bdrutu): Add a config/argument for supportInProcessStores.
+    if (eventQueue instanceof SimpleEventQueue) {
+      exportComponent = ExportComponentImpl.createWithoutInProcessStores();
+    } else {
+      exportComponent = ExportComponentImpl.createWithInProcessStores();
+    }
+    startEndHandler =
+        new StartEndHandlerImpl(
+            exportComponent.getSpanExporter(),
+            exportComponent.getActiveSpansExporter(),
+            exportComponent.getSampledSpanStore(),
+            eventQueue);
     tracer = new TracerImpl(randomHandler, startEndHandler, clock, traceConfig);
   }
 
