@@ -18,7 +18,7 @@ import static org.junit.Assert.fail;
 
 import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
-import io.opencensus.internal.TestClock;
+import io.opencensus.testing.common.TestClock;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.View.DistributionView;

@@ -20,7 +20,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
-import io.opencensus.internal.TestClock;
+import io.opencensus.testing.common.TestClock;
 import io.opencensus.internal.VarInt;
 import com.google.instrumentation.stats.View.DistributionView;
 import com.google.instrumentation.stats.View.IntervalView;

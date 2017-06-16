@@ -12,6 +12,9 @@ dependencies {
             project(':opencensus-impl-core'),
             libraries.disruptor
 
+    testCompile project(':opencensus-api'),
+            project(':opencensus-impl-core')
+
     signature "org.codehaus.mojo.signature:java17:+@signature"
 }
 

@@ -4,6 +4,7 @@ include ":opencensus-api"
 include ":opencensus-impl-core"
 include ":opencensus-impl-lite"
 include ":opencensus-impl"
+include ":opencensus-testing"
 include ":all"
 include ":core"
 include ":core_impl"
@@ -14,6 +15,7 @@ project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
 project(':opencensus-impl-lite').projectDir = "$rootDir/impl_lite" as File
 project(':opencensus-impl').projectDir = "$rootDir/impl" as File
+project(':opencensus-testing').projectDir = "$rootDir/testing" as File
 
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {

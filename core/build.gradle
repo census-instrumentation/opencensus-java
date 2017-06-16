@@ -8,7 +8,11 @@ dependencies {
     compile project(':opencensus-api'),
             libraries.grpc_context,
             libraries.guava
+
     compileOnly libraries.auto_value
+
+    testCompile project(':opencensus-api'),
+            project(':opencensus-testing')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }

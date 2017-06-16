@@ -19,7 +19,7 @@ import static com.google.instrumentation.stats.StatsTestUtil.createContext;
 import io.opencensus.common.Duration;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.common.Timestamp;
-import io.opencensus.internal.TestClock;
+import io.opencensus.testing.common.TestClock;
 import com.google.instrumentation.stats.MeasurementDescriptor.BasicUnit;
 import com.google.instrumentation.stats.MeasurementDescriptor.MeasurementUnit;
 import com.google.instrumentation.stats.View.DistributionView;
