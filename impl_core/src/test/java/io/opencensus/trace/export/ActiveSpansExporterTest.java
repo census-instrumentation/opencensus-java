@@ -50,24 +50,22 @@ public class ActiveSpansExporterTest {
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT);
-    SpanImpl span =
-        SpanImpl.startSpan(
-            spanContext,
-            recordSpanOptions,
-            spanName,
-            SpanId.generateRandomId(random),
-            false,
-            TraceParams.DEFAULT,
-            startEndHandler,
-            null,
-            MillisClock.getInstance());
-    return span;
+    return SpanImpl.startSpan(
+        spanContext,
+        recordSpanOptions,
+        spanName,
+        SpanId.generateRandomId(random),
+        false,
+        TraceParams.DEFAULT,
+        startEndHandler,
+        null,
+        MillisClock.getInstance());
   }
 
   @Test
   public void getSummary_SpansWithDifferentNames() {
-    SpanImpl span1 = createSpan(SPAN_NAME_1);
-    SpanImpl span2 = createSpan(SPAN_NAME_2);
+    final SpanImpl span1 = createSpan(SPAN_NAME_1);
+    final SpanImpl span2 = createSpan(SPAN_NAME_2);
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(2);
     assertThat(
             activeSpansExporter
@@ -99,9 +97,9 @@ public class ActiveSpansExporterTest {
 
   @Test
   public void getSummary_SpansWithSameName() {
-    SpanImpl span1 = createSpan(SPAN_NAME_1);
-    SpanImpl span2 = createSpan(SPAN_NAME_1);
-    SpanImpl span3 = createSpan(SPAN_NAME_1);
+    final SpanImpl span1 = createSpan(SPAN_NAME_1);
+    final SpanImpl span2 = createSpan(SPAN_NAME_1);
+    final SpanImpl span3 = createSpan(SPAN_NAME_1);
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(1);
     assertThat(
             activeSpansExporter

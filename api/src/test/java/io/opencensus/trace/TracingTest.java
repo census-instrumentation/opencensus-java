@@ -45,16 +45,14 @@ public class TracingTest {
 
   @Test
   public void loadTraceComponent_IgnoresMissingClasses() {
-    assertThat(
-            Tracing.loadTraceComponent(
-                    new ClassLoader() {
-                      @Override
-                      public Class<?> loadClass(String name) throws ClassNotFoundException {
-                        throw new ClassNotFoundException();
-                      }
-                    })
-                .getClass()
-                .getName())
+    ClassLoader classLoader =
+        new ClassLoader() {
+          @Override
+          public Class<?> loadClass(String name) throws ClassNotFoundException {
+            throw new ClassNotFoundException();
+          }
+        };
+    assertThat(Tracing.loadTraceComponent(classLoader).getClass().getName())
         .isEqualTo("io.opencensus.trace.TraceComponent$NoopTraceComponent");
   }
 

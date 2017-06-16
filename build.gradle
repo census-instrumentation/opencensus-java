@@ -163,14 +163,8 @@ subprojects {
     }
 
     checkstyleTest {
-        // TODO(bdrutu): Enable this when we have tests checkstyle clean.
-        // source = fileTree(dir: "src/test", include: "**/*.java")
-        excludes = ["**"]
+        excludes = ["com/google/instrumentation/**"]
     }
-
-    // Disable checkstyle for shared.
-    checkstyleMain.onlyIf { !name.contains("shared") }
-    checkstyleTest.onlyIf { !name.contains("shared") }
 
     // Disable checkstyle if no java8.
     checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
