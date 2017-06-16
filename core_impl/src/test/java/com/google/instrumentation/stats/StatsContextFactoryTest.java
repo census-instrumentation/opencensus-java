@@ -17,7 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.internal.SimpleEventQueue;
-import io.opencensus.internal.TestClock;
+import io.opencensus.testing.common.TestClock;
 import io.opencensus.internal.VarInt;
 import io.grpc.Context;
 import java.io.ByteArrayInputStream;

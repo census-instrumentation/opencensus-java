@@ -22,9 +22,7 @@ public final class TraceConfigImpl extends TraceConfig {
   // operations are visible on other CPUs as well.
   private volatile TraceParams activeTraceParams = TraceParams.DEFAULT;
 
-  /**
-   * Constructs a new {@code TraceConfigImpl}.
-   */
+  /** Constructs a new {@code TraceConfigImpl}. */
   public TraceConfigImpl() {}
 
   @Override

@@ -1,8 +1,9 @@
-description = 'OpenCensus: API'
+description = 'OpenCensus API'
 
 dependencies {
     compile libraries.grpc_context,
             libraries.guava
+
     compileOnly libraries.auto_value
 
     signature "org.codehaus.mojo.signature:java16:+@signature"

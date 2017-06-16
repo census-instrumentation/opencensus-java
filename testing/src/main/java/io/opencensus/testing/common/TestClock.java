@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.internal;
+package io.opencensus.testing.common;
 
 import com.google.common.math.LongMath;
 import io.opencensus.common.Clock;

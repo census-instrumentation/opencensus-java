@@ -4,5 +4,11 @@ dependencies {
     compile project(':core'),
             project(':core_impl')
 
+    testCompile project(':core'),
+            project(':core_impl'),
+            project(':opencensus-api'),
+            project(':opencensus-impl-core'),
+            project(':opencensus-impl-lite')
+
     signature "net.sf.androidscents.signature:android-api-level-14:+@signature"
 }

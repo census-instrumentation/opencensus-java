@@ -17,8 +17,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
-import io.opencensus.internal.TestClock;
 import io.opencensus.internal.TimestampConverter;
+import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.base.Annotation;

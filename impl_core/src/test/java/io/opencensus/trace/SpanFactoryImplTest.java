@@ -16,7 +16,7 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
 
-import io.opencensus.internal.TestClock;
+import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.base.SpanId;

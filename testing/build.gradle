@@ -1,0 +1,9 @@
+description = 'OpenCensus Testing'
+
+dependencies {
+    compile project(':opencensus-api')
+
+    testCompile project(':opencensus-api')
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}

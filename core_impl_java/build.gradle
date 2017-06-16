@@ -12,5 +12,11 @@ dependencies {
             project(':core_impl'),
             project(':opencensus-impl')
 
+    testCompile project(':core'),
+            project(':core_impl'),
+            project(':opencensus-api'),
+            project(':opencensus-impl-core'),
+            project(':opencensus-impl')
+
     signature "org.codehaus.mojo.signature:java17:+@signature"
 }

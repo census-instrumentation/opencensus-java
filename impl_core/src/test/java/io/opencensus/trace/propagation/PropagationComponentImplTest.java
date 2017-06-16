@@ -26,7 +26,6 @@ public class PropagationComponentImplTest {
 
   @Test
   public void implementationOfBinary() {
-    assertThat(propagationComponent.getBinaryFormat())
-        .isInstanceOf(BinaryFormatImpl.class);
+    assertThat(propagationComponent.getBinaryFormat()).isInstanceOf(BinaryFormatImpl.class);
   }
 }
