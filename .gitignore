@@ -20,6 +20,10 @@ target
 .settings
 bin
 
+# NetBeans
+/.nb-gradle
+/.nb-gradle-properties
+
 # OS X
 .DS_Store
 
