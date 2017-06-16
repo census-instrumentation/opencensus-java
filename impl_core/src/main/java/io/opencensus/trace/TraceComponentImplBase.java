@@ -37,7 +37,11 @@ class TraceComponentImplBase extends TraceComponent {
   TraceComponentImplBase(Clock clock, RandomHandler randomHandler, EventQueue eventQueue) {
     this.clock = clock;
     // TODO(bdrutu): Add a config/argument for supportInProcessStores.
-    exportComponent =  new ExportComponentImpl(!(eventQueue instanceof SimpleEventQueue));
+    if (eventQueue instanceof SimpleEventQueue) {
+      exportComponent = ExportComponentImpl.createWithoutInProcessStores();
+    } else {
+      exportComponent = ExportComponentImpl.createWithInProcessStores();
+    }
     startEndHandler =
         new StartEndHandlerImpl(
             exportComponent.getSpanExporter(),

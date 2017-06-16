@@ -22,8 +22,10 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link ExportComponentImpl}. */
 @RunWith(JUnit4.class)
 public class ExportComponentImplTest {
-  private final ExportComponent exportComponentWithInProcess = new ExportComponentImpl(true);
-  private final ExportComponent exportComponentWitoutInProcess = new ExportComponentImpl(false);
+  private final ExportComponent exportComponentWithInProcess =
+      ExportComponentImpl.createWithInProcessStores();
+  private final ExportComponent exportComponentWithoutInProcess =
+      ExportComponentImpl.createWithoutInProcessStores();
 
   @Test
   public void implementationOfSpanExporter() {
@@ -34,13 +36,13 @@ public class ExportComponentImplTest {
   public void implementationOfActiveSpans() {
     assertThat(exportComponentWithInProcess.getActiveSpansExporter())
         .isInstanceOf(ActiveSpansExporterImpl.class);
-    assertThat(exportComponentWitoutInProcess.getActiveSpansExporter()).isNull();
+    assertThat(exportComponentWithoutInProcess.getActiveSpansExporter()).isNull();
   }
 
   @Test
   public void implementationOfSampledSpanStore() {
     // TODO(bdrutu): Change this when implementation is available.
     assertThat(exportComponentWithInProcess.getSampledSpanStore()).isNull();
-    assertThat(exportComponentWitoutInProcess.getSampledSpanStore()).isNull();
+    assertThat(exportComponentWithoutInProcess.getSampledSpanStore()).isNull();
   }
 }
