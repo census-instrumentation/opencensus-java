@@ -11,18 +11,16 @@
  * limitations under the License.
  */
 
-package com.google.instrumentation.stats;
+package io.opencensus.trace;
 
 import io.opencensus.common.MillisClock;
 import io.opencensus.internal.SimpleEventQueue;
+import io.opencensus.trace.internal.RandomHandler.SecureRandomHandler;
 
-/**
- * Android-compatible implementation of {@link StatsManager}.
- */
-public final class StatsManagerImpl extends StatsManagerImplBase {
+/** Android-compatible implementation of the {@link TraceComponent}. */
+public final class TraceComponentImplLite extends TraceComponentImplBase {
 
-  public StatsManagerImpl() {
-    // TODO(sebright): Use a more efficient queue implementation.
-    super(new SimpleEventQueue(), MillisClock.getInstance());
+  public TraceComponentImplLite() {
+    super(MillisClock.getInstance(), new SecureRandomHandler(), new SimpleEventQueue());
   }
 }

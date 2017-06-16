@@ -30,7 +30,7 @@ public class TracingTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void loadTraceService_UsesProvidedClassLoader() {
+  public void loadTraceComponent_UsesProvidedClassLoader() {
     final RuntimeException toThrow = new RuntimeException("UseClassLoader");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("UseClassLoader");
@@ -44,7 +44,7 @@ public class TracingTest {
   }
 
   @Test
-  public void loadSpanFactory_IgnoresMissingClasses() {
+  public void loadTraceComponent_IgnoresMissingClasses() {
     assertThat(
             Tracing.loadTraceComponent(
                     new ClassLoader() {

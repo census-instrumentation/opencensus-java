@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 /** Class that manages a global instance of the {@link TraceComponent}. */
 public final class Tracing {
-  private static final Logger logger = Logger.getLogger(Tracer.class.getName());
+  private static final Logger logger = Logger.getLogger(Tracing.class.getName());
   private static final TraceComponent traceComponent =
       loadTraceComponent(Provider.getCorrectClassLoader(TraceComponent.class));
 
@@ -82,7 +82,23 @@ public final class Tracing {
           Class.forName("io.opencensus.trace.TraceComponentImpl", true, classLoader),
           TraceComponent.class);
     } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Using default implementation for TraceComponent.", e);
+      logger.log(
+          Level.FINE,
+          "Couldn't load full implementation for TraceComponent, now trying to load lite "
+              + "implementation.",
+          e);
+    }
+    try {
+      // Call Class.forName with literal string name of the class to help shading tools.
+      return Provider.createInstance(
+          Class.forName("io.opencensus.trace.TraceComponentImplLite", true, classLoader),
+          TraceComponent.class);
+    } catch (ClassNotFoundException e) {
+      logger.log(
+          Level.FINE,
+          "Couldn't load lite implementation for TraceComponent, now using "
+              + "default implementation for TraceComponent.",
+          e);
     }
     return TraceComponent.getNoopTraceComponent();
   }
