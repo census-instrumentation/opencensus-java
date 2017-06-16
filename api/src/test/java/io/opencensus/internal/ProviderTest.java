@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link Provider} */
+/** Tests for {@link Provider}. */
 @RunWith(JUnit4.class)
 public class ProviderTest {
   static class GoodClass {

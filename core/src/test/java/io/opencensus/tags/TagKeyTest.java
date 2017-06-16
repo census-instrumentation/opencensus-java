@@ -24,7 +24,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagKey} */
+/** Tests for {@link TagKey}. */
 @RunWith(JUnit4.class)
 public final class TagKeyTest {
 
