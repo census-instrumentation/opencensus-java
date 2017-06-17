@@ -163,7 +163,8 @@ subprojects {
     }
 
     checkstyleTest {
-        excludes = ["com/google/instrumentation/**"]
+        // TODO(sebright): Fix style errors in stats tests.
+        excludes = ["io/opencensus/stats/**"]
     }
 
     // Disable checkstyle if no java8.
