@@ -11,15 +11,15 @@ buildscript {
     }
 }
 
-// TODO(bdrutu): core_impl_android subproject currently isn't included because Javadoc cannot
-// handle multiple classes with the same name, such as StatsManagerImpl.
 def subprojects = [
         project(':opencensus-api'),
         project(':core'),
         project(':opencensus-impl-core'),
         project(':core_impl'),
+        project(':core_impl_android'),
         project(':core_impl_java'),
         project(':opencensus-impl'),
+        project(':opencensus-impl-lite'),
 ]
 
 for (subproject in rootProject.subprojects) {
