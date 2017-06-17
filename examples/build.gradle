@@ -19,7 +19,7 @@ apply plugin: 'application'
 startScripts.enabled = false
 
 task statsRunner(type: CreateStartScripts) {
-    mainClassName = 'com.google.instrumentation.examples.stats.StatsRunner'
+    mainClassName = 'io.opencensus.examples.stats.StatsRunner'
     applicationName = 'StatsRunner'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime
