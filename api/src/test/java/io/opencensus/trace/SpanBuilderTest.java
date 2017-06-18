@@ -14,8 +14,6 @@
 package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,20 +21,22 @@ import static org.mockito.Mockito.when;
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.StartSpanOptions;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
-import io.opencensus.trace.internal.SpanFactory;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /** Unit tests for {@link Tracer}. */
 @RunWith(JUnit4.class)
@@ -48,19 +48,31 @@ public class SpanBuilderTest {
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   @Mock private Span span;
-  @Mock private SpanFactory spanFactory;
-  private SpanBuilder spanBuilder;
+  private FakeSpanBuilder spanBuilder;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    spanBuilder = SpanBuilder.builder(spanFactory, BlankSpan.INSTANCE, SPAN_NAME);
+    spanBuilder = Mockito.spy(FakeSpanBuilder.builder(BlankSpan.INSTANCE, SPAN_NAME));
   }
 
   @Test
   public void startScopedSpanRoot() {
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
-        .thenReturn(span);
+    when(spanBuilder.startSpan())
+        .thenAnswer(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isNull();
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     NonThrowingCloseable ss = spanBuilder.becomeRoot().startScopedSpan();
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
@@ -71,11 +83,22 @@ public class SpanBuilderTest {
   }
 
   @Test
-  public void startScopedSpanRootWithOptions() {
-    StartSpanOptions startSpanOptions =
-        StartSpanOptions.builder().setSampler(Samplers.neverSample()).build();
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(startSpanOptions)))
-        .thenReturn(span);
+  public void startScopedSpanRootWithSampler() {
+    when(spanBuilder.startSpan())
+        .thenAnswer(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isEqualTo(Samplers.neverSample());
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     NonThrowingCloseable ss =
         spanBuilder.becomeRoot().setSampler(Samplers.neverSample()).startScopedSpan();
     try {
@@ -88,8 +111,21 @@ public class SpanBuilderTest {
 
   @Test
   public void startRootSpan() {
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
-        .thenReturn(span);
+    when(spanBuilder.startSpan())
+        .thenAnswer(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isNull();
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     Span rootSpan = spanBuilder.becomeRoot().startSpan();
     assertThat(rootSpan).isEqualTo(span);
     rootSpan.end();
@@ -98,9 +134,22 @@ public class SpanBuilderTest {
 
   @Test
   public void startSpan_WithNullParent() {
-    spanBuilder = SpanBuilder.builder(spanFactory, null, SPAN_NAME);
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
-        .thenReturn(span);
+    spanBuilder = Mockito.spy(FakeSpanBuilder.builder(null, SPAN_NAME));
+    when(spanBuilder.startSpan())
+        .then(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isNull();
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     Span rootSpan = spanBuilder.startSpan();
     assertThat(rootSpan).isEqualTo(span);
     rootSpan.end();
@@ -109,14 +158,22 @@ public class SpanBuilderTest {
 
   @Test
   public void startRootSpanWithOptions() {
-    List<Span> parentList = Arrays.<Span>asList(BlankSpan.INSTANCE);
-    StartSpanOptions startSpanOptions =
-        StartSpanOptions.builder()
-            .setSampler(Samplers.neverSample())
-            .setParentLinks(parentList)
-            .build();
-    when(spanFactory.startSpan(isNull(Span.class), same(SPAN_NAME), eq(startSpanOptions)))
-        .thenReturn(span);
+    final List<Span> parentList = Arrays.<Span>asList(BlankSpan.INSTANCE);
+    when(spanBuilder.startSpan())
+        .then(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isEqualTo(Samplers.neverSample());
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEqualTo(parentList);
+                return span;
+              }
+            });
     Span rootSpan =
         spanBuilder
             .becomeRoot()
@@ -130,9 +187,21 @@ public class SpanBuilderTest {
 
   @Test
   public void startChildSpan() {
-    when(spanFactory.startSpan(
-            same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
-        .thenReturn(span);
+    when(spanBuilder.startSpan())
+        .thenAnswer(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isSameAs(BlankSpan.INSTANCE);
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isNull();
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     Span childSpan = spanBuilder.startSpan();
     assertThat(childSpan).isEqualTo(span);
     childSpan.end();
@@ -141,11 +210,21 @@ public class SpanBuilderTest {
 
   @Test
   public void startChildSpanWithOptions() {
-    StartSpanOptions startSpanOptions =
-        StartSpanOptions.builder().setSampler(Samplers.neverSample()).setRecordEvents(true).build();
-    ;
-    when(spanFactory.startSpan(same(BlankSpan.INSTANCE), same(SPAN_NAME), eq(startSpanOptions)))
-        .thenReturn(span);
+    when(spanBuilder.startSpan())
+        .thenAnswer(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isSameAs(BlankSpan.INSTANCE);
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isEqualTo(Samplers.neverSample());
+                assertThat(spanBuilder.getRecordEvents()).isTrue();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     Span childSpan =
         spanBuilder.setSampler(Samplers.neverSample()).setRecordEvents(true).startSpan();
     assertThat(childSpan).isEqualTo(span);
@@ -155,10 +234,22 @@ public class SpanBuilderTest {
 
   @Test
   public void startSpanWitRemoteParent() {
-    spanBuilder = SpanBuilder.builderWithRemoteParent(spanFactory, spanContext, SPAN_NAME);
-    when(spanFactory.startSpanWithRemoteParent(
-            same(spanContext), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
-        .thenReturn(span);
+    spanBuilder = Mockito.spy(FakeSpanBuilder.builderWithRemoteParent(spanContext, SPAN_NAME));
+    when(spanBuilder.startSpan())
+        .thenAnswer(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isSameAs(spanContext);
+                assertThat(spanBuilder.getSampler()).isNull();
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     Span remoteChildSpan = spanBuilder.startSpan();
     assertThat(remoteChildSpan).isEqualTo(span);
     remoteChildSpan.end();
@@ -167,13 +258,46 @@ public class SpanBuilderTest {
 
   @Test
   public void startSpanWitRemoteParent_WithNullParent() {
-    spanBuilder = SpanBuilder.builderWithRemoteParent(spanFactory, null, SPAN_NAME);
-    when(spanFactory.startSpanWithRemoteParent(
-            isNull(SpanContext.class), same(SPAN_NAME), eq(StartSpanOptions.DEFAULT)))
-        .thenReturn(span);
+    spanBuilder = Mockito.spy(FakeSpanBuilder.builderWithRemoteParent(null, SPAN_NAME));
+    when(spanBuilder.startSpan())
+        .thenAnswer(
+            new Answer<Span>() {
+              @Override
+              public Span answer(InvocationOnMock invocation) throws Throwable {
+                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
+                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
+                assertThat(spanBuilder.getParentSpan()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getSampler()).isNull();
+                assertThat(spanBuilder.getRecordEvents()).isNull();
+                assertThat(spanBuilder.getParentLinks()).isEmpty();
+                return span;
+              }
+            });
     Span remoteChildSpan = spanBuilder.startSpan();
     assertThat(remoteChildSpan).isEqualTo(span);
     remoteChildSpan.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
+  }
+
+  private static class FakeSpanBuilder extends SpanBuilder {
+
+    protected FakeSpanBuilder(
+        @Nullable Span parentSpan, @Nullable SpanContext parentSpanContext, String name) {
+      super(parentSpan, parentSpanContext, name);
+    }
+
+    static FakeSpanBuilder builder(Span parentSpan, String name) {
+      return new FakeSpanBuilder(parentSpan, null, name);
+    }
+
+    static FakeSpanBuilder builderWithRemoteParent(SpanContext parentSpanContext, String name) {
+      return new FakeSpanBuilder(null, parentSpanContext, name);
+    }
+
+    @Override
+    public Span startSpan() {
+      return null;
+    }
   }
 }

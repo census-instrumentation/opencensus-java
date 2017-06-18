@@ -16,8 +16,6 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.NonThrowingCloseable;
-import io.opencensus.trace.base.StartSpanOptions;
-import io.opencensus.trace.internal.SpanFactory;
 import javax.annotation.Nullable;
 
 /**
@@ -67,7 +65,6 @@ import javax.annotation.Nullable;
  */
 public abstract class Tracer {
   private static final NoopTracer noopTracer = new NoopTracer();
-  private final SpanFactory spanFactory;
 
   /**
    * Returns the no-op implementation of the {@code Tracer}.
@@ -179,9 +176,7 @@ public abstract class Tracer {
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if name is null.
    */
-  public final SpanBuilder spanBuilder(@Nullable Span parent, String name) {
-    return SpanBuilder.builder(spanFactory, parent, checkNotNull(name, "name"));
-  }
+  public abstract SpanBuilder spanBuilder(@Nullable Span parent, String name);
 
   /**
    * Returns a {@link SpanBuilder} to create and start a new child {@link Span} (or root if parent
@@ -192,39 +187,31 @@ public abstract class Tracer {
    * <p>This <b>must</b> be used to create a {@code Span} when the parent is in a different process.
    * This is only intended for use by RPC systems or similar.
    *
-   * @param remoteParent The remote parent of the returned Span.
+   * @param remoteParentSpanContext The remote parent of the returned Span.
    * @param name The name of the returned Span.
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if name is null.
    */
-  public final SpanBuilder spanBuilderWithRemoteParent(
-      @Nullable SpanContext remoteParent, String name) {
-    return SpanBuilder.builderWithRemoteParent(
-        spanFactory, remoteParent, checkNotNull(name, "name"));
-  }
+  public abstract SpanBuilder spanBuilderWithRemoteParent(
+      @Nullable SpanContext remoteParentSpanContext, String name);
 
   // No-Op implementation of the Tracer.
   private static final class NoopTracer extends Tracer {
-    private NoopTracer() {
-      super(new NoopSpanFactory());
+
+    @Override
+    public SpanBuilder spanBuilder(@Nullable Span parent, String name) {
+      return SpanBuilder.createNoopBuilder(parent, name);
     }
 
-    // No-op implementation of the SpanFactory
-    private static final class NoopSpanFactory extends SpanFactory {
-      @Override
-      public Span startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
-        return BlankSpan.INSTANCE;
-      }
-
-      @Override
-      public Span startSpanWithRemoteParent(
-          @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
-        return BlankSpan.INSTANCE;
-      }
+    @Override
+    public SpanBuilder spanBuilderWithRemoteParent(@Nullable SpanContext remoteParent, String
+        name) {
+      return SpanBuilder.createNoopBuilderWithRemoteParent(remoteParent, name);
     }
+
+    private NoopTracer() {}
+
   }
 
-  protected Tracer(SpanFactory spanFactory) {
-    this.spanFactory = checkNotNull(spanFactory, "spanFactory");
-  }
+  protected Tracer() {}
 }

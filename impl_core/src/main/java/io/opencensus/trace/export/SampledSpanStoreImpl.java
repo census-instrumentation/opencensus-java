@@ -40,6 +40,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   private static final int MAX_PER_SPAN_NAME_SAMPLES =
       NUM_SAMPLES_PER_LATENCY_BUCKET * NUM_LATENCY_BUCKETS
           + NUM_SAMPLES_PER_ERROR_BUCKET * NUM_ERROR_BUCKETS;
+
   @GuardedBy("samples")
   private final Map<String, PerSpanNameSamples> samples;
 
@@ -91,8 +92,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   /**
-   * Keeps samples for a given span name. Samples for all the latency buckets and for all
-   * canonical codes other than OK.
+   * Keeps samples for a given span name. Samples for all the latency buckets and for all canonical
+   * codes other than OK.
    */
   private static final class PerSpanNameSamples {
 
@@ -210,8 +211,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   /**
-   * Considers to save the given spans to the stored samples. This must be called at the end of
-   * each Span with the option RECORD_EVENTS.
+   * Considers to save the given spans to the stored samples. This must be called at the end of each
+   * Span with the option RECORD_EVENTS.
    *
    * @param span the span to be consider for storing into the store buckets.
    */
