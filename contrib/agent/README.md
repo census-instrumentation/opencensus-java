@@ -3,7 +3,7 @@
 [![Build Status][travis-image]][travis-url] [![Maven Central][maven-image]][maven-url]
 
 The *OpenCensus Agent for Java* collects and sends latency data about your Java process to
-OpenCensus backends such as Stackdriver Trace for analysis and visualization.
+OpenCensus backends such as Zipkin, Stackdriver Trace, etc. for analysis and visualization.
 
 
 ## Design Ideas
@@ -31,7 +31,7 @@ The *OpenCensus Agent for Java* is in an early development stage. The following 
 implemented in the initial version:
 
 
-### Propagation of the trace context between threads
+### Propagation of the context between threads
 
 The *OpenCensus Agent for Java* instruments
 [java.lang.Thread#start](http://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#start--)
@@ -68,7 +68,7 @@ The following features are work in progress.
 The *OpenCensus Agent for Java* reads its configuration from
 a file, which is searched for in the following locations (in order):
 
-1. The pathname given in the `io.opencensus.agent.config` system property.
+1. The pathname given in the `io.opencensus.contrib.agent.config` system property.
 2. `opencensus-agent.conf` in the current working directory.
 3. `opencensus-agent.conf` in the same directory as the agent's JAR file.
 4. `/io/opencensus/agent/opencensus-agent.conf` bundled with the agent's
@@ -95,10 +95,10 @@ verbose)
 The user-supplied configuration may request the instrumentation of additional, application-specific
 methods, e.g.:
 
-- io.opencensus.agent.example.*#main
-- io.opencensus.agent.example.*#doStuff
+- io.opencensus.contrib.agent.example.*#main
+- io.opencensus.contrib.agent.example.*#doStuff
 
 
-### Propagation of the trace context between processes
+### Propagation of the context between processes
 
 Inter-process propagation of the trace context, e.g. HTTP client to server.
