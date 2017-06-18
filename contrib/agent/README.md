@@ -1,6 +1,6 @@
 # OpenCensus Agent for Java
 
-[![Build Status][travis-image]][travis-url] [![Maven Central][maven-image]][maven-url]
+[![Build Status](https://travis-ci.org/census-instrumentation/instrumentation-java.svg?branch=master)](https://travis-ci.org/census-instrumentation/instrumentation-java) [![Build status](https://ci.appveyor.com/api/projects/status/v5dbthkucuewsu33/branch/master?svg=true)](https://ci.appveyor.com/project/instrumentationjavateam/instrumentation-java/branch/master)
 
 The *OpenCensus Agent for Java* collects and sends latency data about your Java process to
 OpenCensus backends such as Zipkin, Stackdriver Trace, etc. for analysis and visualization.
