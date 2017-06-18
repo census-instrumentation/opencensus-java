@@ -11,7 +11,7 @@ include ":core_impl"
 include ":core_impl_java"
 include ":core_impl_android"
 
-project(':opencensus-agent').projectDir = "$rootDir/agent" as File
+project(':opencensus-agent').projectDir = "$rootDir/contrib/agent" as File
 project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
 project(':opencensus-impl-lite').projectDir = "$rootDir/impl_lite" as File
