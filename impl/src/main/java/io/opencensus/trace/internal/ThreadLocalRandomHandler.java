@@ -13,7 +13,6 @@
 
 package io.opencensus.trace.internal;
 
-import io.opencensus.trace.internal.RandomHandler;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.concurrent.ThreadSafe;

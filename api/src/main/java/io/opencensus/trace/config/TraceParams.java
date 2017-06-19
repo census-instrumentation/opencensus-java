@@ -21,7 +21,6 @@ import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
 import io.opencensus.trace.base.Sampler;
-import io.opencensus.trace.base.StartSpanOptions;
 import io.opencensus.trace.samplers.Samplers;
 import javax.annotation.concurrent.Immutable;
 
@@ -48,7 +47,7 @@ public abstract class TraceParams {
 
   /**
    * Returns the global default {@code Sampler}. Used if no {@code Sampler} is provided in {@link
-   * StartSpanOptions}.
+   * io.opencensus.trace.SpanBuilder#setSampler(Sampler)}.
    *
    * @return the global default {@code Sampler}.
    */

@@ -20,13 +20,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import io.opencensus.trace.Span;
 import javax.annotation.concurrent.Immutable;
 
 /**
  * A class that represents global trace options. These options are propagated to all child {@link
- * Span spans}. These determine features such as whether a {@code Span} should be traced. It is
- * implemented as a bitmask.
+ * io.opencensus.trace.Span spans}. These determine features such as whether a {@code Span} should
+ * be traced. It is implemented as a bitmask.
  */
 @Immutable
 public final class TraceOptions {

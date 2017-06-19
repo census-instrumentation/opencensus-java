@@ -21,7 +21,6 @@ import io.opencensus.trace.base.AttributeValue;
 import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
-import io.opencensus.trace.base.StartSpanOptions;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
@@ -52,7 +51,7 @@ public abstract class Span {
   public enum Options {
     /**
      * This option is set if the Span is part of a sampled distributed trace OR the {@link
-     * StartSpanOptions#getRecordEvents()} is true.
+     * SpanBuilder#setRecordEvents(boolean)} is true.
      */
     RECORD_EVENTS;
   }
