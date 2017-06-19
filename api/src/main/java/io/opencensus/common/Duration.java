@@ -41,8 +41,8 @@ public abstract class Duration {
    *     negative `nanos` field. For durations of one second or more, a non-zero value for the
    *     `nanos` field must be of the same sign as the `seconds` field. Must be from -999,999,999 to
    *     +999,999,999 inclusive.
-   * @return new {@code Duration} with specified fields. For invalid inputs, {@link #ZERO} is
-   *     returned.
+   * @return new {@code Duration} with specified fields. For invalid inputs, a {@code Duration} of
+   *     zero is returned.
    */
   public static Duration create(long seconds, int nanos) {
     if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
@@ -61,8 +61,8 @@ public abstract class Duration {
    * Creates a new {@code Duration} from given milliseconds.
    *
    * @param millis the duration in milliseconds.
-   * @return a new {@code Duration} from given milliseconds. For invalid inputs, {@link #ZERO} is
-   *     returned.
+   * @return a new {@code Duration} from given milliseconds. For invalid inputs, a {@code Duration}
+   *     of zero is returned.
    */
   public static Duration fromMillis(long millis) {
     long seconds = millis / MILLIS_PER_SECOND;

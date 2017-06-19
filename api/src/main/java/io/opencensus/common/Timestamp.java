@@ -46,7 +46,7 @@ public abstract class Timestamp {
    * @param nanos Non-negative fractions of a second at nanosecond resolution. Negative second
    *     values with fractions must still have non-negative nanos values that count forward in time.
    *     Must be from 0 to 999,999,999 inclusive.
-   * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@link Timestamp} of
+   * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@code Timestamp} of
    *     zero is returned.
    */
   public static Timestamp create(long seconds, int nanos) {
@@ -63,7 +63,7 @@ public abstract class Timestamp {
    * Creates a new timestamp from the given milliseconds.
    *
    * @param epochMilli the timestamp represented in milliseconds since epoch.
-   * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@link Timestamp} of
+   * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@code Timestamp} of
    *     zero is returned.
    */
   public static Timestamp fromMillis(long epochMilli) {
@@ -114,9 +114,10 @@ public abstract class Timestamp {
    * Returns a {@link Duration} calculated as: {@code this - timestamp}.
    *
    * @param timestamp the {@code Timestamp} to subtract.
-   * @return the calculated {@code Duration}. For invalid inputs, {@link Duration#ZERO} is returned.
+   * @return the calculated {@code Duration}. For invalid inputs, a {@code Duration} of zero is
+   *     returned.
    */
-  public Duration minusTimestamp(Timestamp timestamp) {
+  public Duration subtractTimestamp(Timestamp timestamp) {
     long durationSeconds = getSeconds() - timestamp.getSeconds();
     int durationNanos = getNanos() - timestamp.getNanos();
     if (durationSeconds < 0 && durationNanos > 0) {
