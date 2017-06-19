@@ -30,8 +30,8 @@ subprojects {
         apply plugin: "net.ltgt.errorprone"
     }
 
-    group = "com.google.instrumentation"
-    version = "0.5.0-SNAPSHOT" // CURRENT_INSTRUMENTATION_VERSION
+    group = "io.opencensus"
+    version = "0.5.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
@@ -206,18 +206,15 @@ subprojects {
                 snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/", configureAuth)
 
                 pom.project {
-                    name "Instrumentation"
+                    name "OpenCensus"
                     packaging 'jar'
-                    // Add a map with all the project.name -> artifactId when we
-                    // are going to upload more artifacts.
-                    artifactId jar.baseName
                     description project.description
-                    url 'https://github.com/google/instrumentation-java'
+                    url 'https://github.com/census-instrumentation/instrumentation-java'
 
                     scm {
-                        connection 'scm:svn:https://github.com/google/instrumentation-java'
-                        developerConnection 'scm:git:git@github.com/google/instrumentation-java'
-                        url 'https://github.com/google/instrumentation-java'
+                        connection 'scm:svn:https://github.com/census-instrumentation/instrumentation-java'
+                        developerConnection 'scm:git:git@github.com/census-instrumentation/instrumentation-java'
+                        url 'https://github.com/census-instrumentation/instrumentation-java'
                     }
 
                     licenses {
@@ -229,9 +226,10 @@ subprojects {
 
                     developers {
                         developer {
-                            id 'com.google.instrumentation'
-                            name 'Instrumentation Developers'
-                            email 'instrumentation-developers@googlegroups.com'
+                            id 'io.opencensus'
+                            name 'OpenCensus Contributors'
+                            email 'opencensus-io@googlegroups.com'
+                            url 'opencensus.io'
                             // https://issues.gradle.org/browse/GRADLE-2719
                             organization = 'Google, Inc.'
                             organizationUrl 'https://www.google.com'
@@ -242,7 +240,7 @@ subprojects {
         }
     }
     // For the moment we upload only the artifact for the API
-    uploadArchives.onlyIf { name == 'core'}
+    uploadArchives.onlyIf { name == 'opencensus-api' || name == 'opencensus-impl-core' || name == 'opencensus-impl-lite' || name == 'opencensus-impl' || name == 'opencensus-testing'}
 
     // At a test failure, log the stack trace to the console so that we don't
     // have to open the HTML in a browser.
