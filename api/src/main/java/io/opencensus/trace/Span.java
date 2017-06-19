@@ -50,8 +50,8 @@ public abstract class Span {
    */
   public enum Options {
     /**
-     * This option is set if the Span is part of a sampled distributed trace OR the {@link
-     * SpanBuilder#setRecordEvents(boolean)} is true.
+     * This option is set if the Span is part of a sampled distributed trace OR {@link
+     * SpanBuilder#setRecordEvents(boolean)} was called with true.
      */
     RECORD_EVENTS;
   }
