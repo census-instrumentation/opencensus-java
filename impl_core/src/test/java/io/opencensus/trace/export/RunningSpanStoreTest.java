@@ -30,8 +30,11 @@ import io.opencensus.trace.export.RunningSpanStore.Filter;
 import java.util.EnumSet;
 import java.util.Random;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link RunningSpanStore}. */
+@RunWith(JUnit4.class)
 public class RunningSpanStoreTest {
 
   private static final String SPAN_NAME_1 = "MySpanName/1";

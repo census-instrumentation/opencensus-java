@@ -17,7 +17,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.trace.Span;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,8 +28,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * This class allows users to access in-process information about all running spans.
  *
  * <p>The running spans tracking is available for all the spans with the option {@link
- * Span.Options#RECORD_EVENTS}. This functionality allows users to debug stuck operations or long
- * living operations.
+ * io.opencensus.trace.Span.Options#RECORD_EVENTS}. This functionality allows users to debug stuck
+ * operations or long living operations.
  */
 @ThreadSafe
 public abstract class RunningSpanStore {
@@ -109,8 +108,8 @@ public abstract class RunningSpanStore {
   }
 
   /**
-   * Filter for running spans. Used to filter results returned by the
-   * {@link #getRunningSpans(Filter)} request.
+   * Filter for running spans. Used to filter results returned by the {@link
+   * #getRunningSpans(Filter)} request.
    */
   @AutoValue
   @Immutable

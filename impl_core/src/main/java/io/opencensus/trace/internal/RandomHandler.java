@@ -31,10 +31,16 @@ public abstract class RandomHandler {
    */
   public abstract Random current();
 
+  /**
+   * Implementation of the {@link RandomHandler} using {@link SecureRandom}.
+   */
   @ThreadSafe
   public static final class SecureRandomHandler extends RandomHandler {
     private final Random random = new SecureRandom();
 
+    /**
+     * Constructs a new {@link SecureRandomHandler}.
+     */
     public SecureRandomHandler() {}
 
     @Override
