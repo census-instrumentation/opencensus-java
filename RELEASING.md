@@ -78,7 +78,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     ```bash
     $ git checkout -b bump-version master
     # Change version to next minor (and keep -SNAPSHOT)
-    $ sed -i 's/[0-9]\+\.[0-9]\+\.[0-9]\+\(.*CURRENT_INSTRUMENTATION_VERSION\)/'$MAJOR.$((MINOR+1)).0'\1/' \
+    $ sed -i 's/[0-9]\+\.[0-9]\+\.[0-9]\+\(.*CURRENT_OPENCENSUS_VERSION\)/'$MAJOR.$((MINOR+1)).0'\1/' \
       "${VERSION_FILES[@]}"
     $ ./gradlew build
     $ git commit -a -m "Start $MAJOR.$((MINOR+1)).0 development cycle"
@@ -100,7 +100,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     ```bash
     $ git checkout -b release v$MAJOR.$MINOR.x
     # Change version to remove -SNAPSHOT
-    $ sed -i 's/-SNAPSHOT\(.*CURRENT_INSTRUMENTATION_VERSION\)/\1/' "${VERSION_FILES[@]}"
+    $ sed -i 's/-SNAPSHOT\(.*CURRENT_OPENCENSUS_VERSION\)/\1/' "${VERSION_FILES[@]}"
     $ ./gradlew build
     $ git commit -a -m "Bump version to $MAJOR.$MINOR.$PATCH"
     $ git tag -a v$MAJOR.$MINOR.$PATCH -m "Version $MAJOR.$MINOR.$PATCH"
@@ -111,7 +111,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
 
     ```bash
     # Change version to next patch and add -SNAPSHOT
-    $ sed -i 's/[0-9]\+\.[0-9]\+\.[0-9]\+\(.*CURRENT_INSTRUMENTATION_VERSION\)/'$MAJOR.$MINOR.$((PATCH+1))-SNAPSHOT'\1/' \
+    $ sed -i 's/[0-9]\+\.[0-9]\+\.[0-9]\+\(.*CURRENT_OPENCENSUS_VERSION\)/'$MAJOR.$MINOR.$((PATCH+1))-SNAPSHOT'\1/' \
      "${VERSION_FILES[@]}"
     $ ./gradlew build
     $ git commit -a -m "Bump version to $MAJOR.$MINOR.$((PATCH+1))-SNAPSHOT"
