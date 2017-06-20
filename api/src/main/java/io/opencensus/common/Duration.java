@@ -13,12 +13,24 @@
 
 package io.opencensus.common;
 
+import static io.opencensus.common.TimeUtil.MAX_NANOS;
+import static io.opencensus.common.TimeUtil.MAX_SECONDS;
+import static io.opencensus.common.TimeUtil.MILLIS_PER_SECOND;
+import static io.opencensus.common.TimeUtil.NANOS_PER_MILLI;
+
+import com.google.auto.value.AutoValue;
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Represents a signed, fixed-length span of time represented as a count of seconds and fractions of
  * seconds at nanosecond resolution. It is independent of any calendar and concepts like "day" or
  * "month". Range is approximately +-10,000 years.
  */
-public class Duration {
+@Immutable
+@AutoValue
+public abstract class Duration {
+  private static final Duration ZERO = create(0, 0);
+
   /**
    * Creates a new time duration from given seconds and nanoseconds.
    *
@@ -29,88 +41,48 @@ public class Duration {
    *     negative `nanos` field. For durations of one second or more, a non-zero value for the
    *     `nanos` field must be of the same sign as the `seconds` field. Must be from -999,999,999 to
    *     +999,999,999 inclusive.
-   * @return new {@link Duration} with specified fields. For invalid inputs, a {@link Duration} of
+   * @return new {@code Duration} with specified fields. For invalid inputs, a {@code Duration} of
    *     zero is returned.
    */
   public static Duration create(long seconds, int nanos) {
     if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
-      return new Duration(0, 0);
+      return ZERO;
     }
     if (nanos < -MAX_NANOS || nanos > MAX_NANOS) {
-      return new Duration(0, 0);
+      return ZERO;
     }
     if ((seconds < 0 && nanos > 0) || (seconds > 0 && nanos < 0)) {
-      return new Duration(0, 0);
+      return ZERO;
     }
-    return new Duration(seconds, nanos);
+    return new AutoValue_Duration(seconds, nanos);
   }
 
   /**
-   * Creates a new {@link Duration} from given milliseconds.
+   * Creates a new {@code Duration} from given milliseconds.
    *
    * @param millis the duration in milliseconds.
-   * @return a new {@link Duration} from given milliseconds.
+   * @return a new {@code Duration} from given milliseconds. For invalid inputs, a {@code Duration}
+   *     of zero is returned.
    */
   public static Duration fromMillis(long millis) {
-    long seconds = millis / NUM_MILLIS_PER_SECOND;
-    int nanos = (int) (millis % NUM_MILLIS_PER_SECOND) * NUM_NANOS_PER_MILLI;
-    return new Duration(seconds, nanos);
+    long seconds = millis / MILLIS_PER_SECOND;
+    int nanos = (int) (millis % MILLIS_PER_SECOND * NANOS_PER_MILLI);
+    return Duration.create(seconds, nanos);
   }
 
   /**
-   * Returns the number of seconds in the {@link Duration}.
+   * Returns the number of seconds in the {@code Duration}.
    *
-   * @return the number of seconds in the {@link Duration}.
+   * @return the number of seconds in the {@code Duration}.
    */
-  public long getSeconds() {
-    return seconds;
-  }
+  public abstract long getSeconds();
 
   /**
-   * Returns the number of nanoseconds in the {@link Duration}.
+   * Returns the number of nanoseconds in the {@code Duration}.
    *
-   * @return the number of nanoseconds in the {@link Duration}.
+   * @return the number of nanoseconds in the {@code Duration}.
    */
-  public int getNanos() {
-    return nanos;
-  }
+  public abstract int getNanos();
 
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-
-    if (!(obj instanceof Duration)) {
-      return false;
-    }
-
-    Duration that = (Duration) obj;
-    return seconds == that.seconds && nanos == that.nanos;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = 17;
-    result = 31 * result + (int) (seconds ^ (seconds >>> 32));
-    result = 31 * result + nanos;
-    return result;
-  }
-
-  @Override
-  public String toString() {
-    return "Duration<" + seconds + "," + nanos + ">";
-  }
-
-  private static final long MAX_SECONDS = 315576000000L;
-  private static final int MAX_NANOS = 999999999;
-  private static final long NUM_MILLIS_PER_SECOND = 1000L;
-  private static final int NUM_NANOS_PER_MILLI = 1000000;
-  private final long seconds;
-  private final int nanos;
-
-  private Duration(long seconds, int nanos) {
-    this.seconds = seconds;
-    this.nanos = nanos;
-  }
+  Duration() {}
 }
