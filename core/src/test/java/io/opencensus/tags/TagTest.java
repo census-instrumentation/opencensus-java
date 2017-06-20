@@ -133,7 +133,7 @@ public final class TagTest {
             Tag.createStringTag(TagKey.createStringKey("Key1"), TagValueString.create("foo")))
         .addEqualityGroup(
             Tag.createLongTag(TagKey.createLongKey("Key1"), 100L),
-            Tag.createLongTag(TagKey.createLongKey("Key1"), 100))
+            Tag.createLongTag(TagKey.createLongKey("Key1"), 100L))
         .addEqualityGroup(
             Tag.createBooleanTag(TagKey.createBooleanKey("Key1"), true),
             Tag.createBooleanTag(TagKey.createBooleanKey("Key1"), true))
