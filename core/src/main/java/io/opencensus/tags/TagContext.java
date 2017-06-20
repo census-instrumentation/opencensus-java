@@ -26,18 +26,18 @@ import javax.annotation.concurrent.Immutable;
  * A map from keys to values that can be used to label anything that is associated with a specific
  * operation.
  *
- * <p>For example, {@code TagMap}s can be used to label stats, log messages, or debugging
+ * <p>For example, {@code TagContext}s can be used to label stats, log messages, or debugging
  * information.
  */
 @Immutable
-public final class TagMap {
+public final class TagContext {
   /** The maximum length for a string tag value. */
   public static final int MAX_STRING_LENGTH = StringUtil.MAX_LENGTH;
 
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey<?>, Object> tags;
 
-  TagMap(Map<TagKey<?>, Object> tags) {
+  TagContext(Map<TagKey<?>, Object> tags) {
     this.tags = Collections.unmodifiableMap(new HashMap<TagKey<?>, Object>(tags));
   }
 
@@ -46,15 +46,15 @@ public final class TagMap {
   }
 
   /**
-   * Returns a builder based on this {@code TagMap}.
+   * Returns a builder based on this {@code TagContext}.
    *
-   * @return a builder based on this {@code TagMap}.
+   * @return a builder based on this {@code TagContext}.
    */
   public Builder toBuilder() {
     return new Builder(getTags());
   }
 
-  /** Builder for the {@link TagMap} class. */
+  /** Builder for the {@link TagContext} class. */
   public static final class Builder {
     private final Map<TagKey<?>, Object> tags;
 
@@ -74,7 +74,7 @@ public final class TagMap {
      * @return this
      * @throws IllegalArgumentException if either argument is null, the key is the wrong type, or
      *     the value contains unprintable characters or is longer than {@link
-     *     TagMap#MAX_STRING_LENGTH}.
+     *     TagContext#MAX_STRING_LENGTH}.
      */
     public Builder set(TagKey<String> key, String value) {
       checkArgument(key.getTagType() == TagType.TAG_STRING);
@@ -130,12 +130,12 @@ public final class TagMap {
     }
 
     /**
-     * Creates a {@code TagMap} from this builder.
+     * Creates a {@code TagContext} from this builder.
      *
-     * @return a {@code TagMap} with the same tags as this builder.
+     * @return a {@code TagContext} with the same tags as this builder.
      */
-    public TagMap build() {
-      return new TagMap(new HashMap<TagKey<?>, Object>(tags));
+    public TagContext build() {
+      return new TagContext(new HashMap<TagKey<?>, Object>(tags));
     }
   }
 }
