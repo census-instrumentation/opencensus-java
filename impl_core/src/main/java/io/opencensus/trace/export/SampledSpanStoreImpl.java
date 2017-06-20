@@ -20,12 +20,16 @@ import io.opencensus.trace.base.Status.CanonicalCode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /** Implementation of the {@link SampledSpanStore}. */
+@ThreadSafe
 public final class SampledSpanStoreImpl extends SampledSpanStore {
   private static final int NUM_SAMPLES_PER_LATENCY_BUCKET = 10;
   private static final int NUM_SAMPLES_PER_ERROR_BUCKET = 5;
@@ -36,22 +40,26 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   private static final int MAX_PER_SPAN_NAME_SAMPLES =
       NUM_SAMPLES_PER_LATENCY_BUCKET * NUM_LATENCY_BUCKETS
           + NUM_SAMPLES_PER_ERROR_BUCKET * NUM_ERROR_BUCKETS;
+  @GuardedBy("samples")
   private final Map<String, PerSpanNameSamples> samples;
 
   private static final class Bucket {
 
     private final EvictingQueue<SpanImpl> queue;
-    private long nextSampleTime;
+    private long lastSampleNanoTime;
 
     private Bucket(int numSamples) {
       queue = EvictingQueue.create(numSamples);
     }
 
     private void considerForSampling(SpanImpl span) {
-      long spanEndTime = span.getEndNanoTime();
-      if (spanEndTime > nextSampleTime) {
+      long spanEndNanoTime = span.getEndNanoTime();
+      // Need to compare by doing the subtraction all the time because in case of an overflow,
+      // this may never sample again (at least for the next ~200 years). No real chance to
+      // overflow two times because that means the process runs for ~200 years.
+      if (spanEndNanoTime - lastSampleNanoTime > TIME_BETWEEN_SAMPLES) {
         queue.add(span);
-        nextSampleTime = spanEndTime + TIME_BETWEEN_SAMPLES;
+        lastSampleNanoTime = spanEndNanoTime;
       }
     }
 
@@ -64,7 +72,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
       }
     }
 
-    private void getSampledFilteredByLatency(
+    private void getSamplesFilteredByLatency(
         long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn, List<SpanImpl> output) {
       for (SpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
@@ -83,8 +91,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   /**
-   * Keeps samples for a given span name. Samples for all the latency bucketes and one special
-   * bucket for errors.
+   * Keeps samples for a given span name. Samples for all the latency buckets and for all
+   * canonical codes other than OK.
    */
   private static final class PerSpanNameSamples {
 
@@ -110,7 +118,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
           return latencyBuckets[i];
         }
       }
-      return latencyBuckets[NUM_LATENCY_BUCKETS];
+      // latencyNs is negative or Long.MAX_VALUE, so this Span can be ignored.
+      return null;
     }
 
     private Bucket getErrorBucket(CanonicalCode code) {
@@ -119,16 +128,22 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
 
     private void considerForSampling(SpanImpl span) {
       Status status = span.getStatus();
-      Bucket bucket =
-          status.isOk()
-              ? getLatencyBucket(span.getLatencyNs())
-              : getErrorBucket(status.getCanonicalCode());
-      bucket.considerForSampling(span);
+      // Null status means running Span. Ignore this Span.
+      if (status != null) {
+        Bucket bucket =
+            status.isOk()
+                ? getLatencyBucket(span.getLatencyNs())
+                : getErrorBucket(status.getCanonicalCode());
+        // If unable to find the bucket, ignore this Span.
+        if (bucket != null) {
+          bucket.considerForSampling(span);
+        }
+      }
     }
 
-    private Map<LatencyBucketBoundaries, Integer> getNumberOfLatencySampledSpans() {
+    private Map<LatencyBucketBoundaries, Integer> getNumbersOfLatencySampledSpans() {
       Map<LatencyBucketBoundaries, Integer> latencyBucketSummaries =
-          new HashMap<LatencyBucketBoundaries, Integer>(NUM_LATENCY_BUCKETS);
+          new EnumMap<LatencyBucketBoundaries, Integer>(LatencyBucketBoundaries.class);
       for (int i = 0; i < NUM_LATENCY_BUCKETS; i++) {
         latencyBucketSummaries.put(
             LatencyBucketBoundaries.values()[i], latencyBuckets[i].getNumSamples());
@@ -136,9 +151,9 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
       return latencyBucketSummaries;
     }
 
-    private Map<CanonicalCode, Integer> getNumberOfErrorSampledSpans() {
+    private Map<CanonicalCode, Integer> getNumbersOfErrorSampledSpans() {
       Map<CanonicalCode, Integer> errorBucketSummaries =
-          new HashMap<CanonicalCode, Integer>(NUM_ERROR_BUCKETS);
+          new EnumMap<CanonicalCode, Integer>(CanonicalCode.class);
       for (int i = 0; i < NUM_ERROR_BUCKETS; i++) {
         errorBucketSummaries.put(CanonicalCode.values()[i + 1], errorBuckets[i].getNumSamples());
       }
@@ -164,7 +179,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
         LatencyBucketBoundaries boundaries = LatencyBucketBoundaries.values()[i];
         if (latencyUpperNs >= boundaries.getLatencyLowerNs()
             && latencyLowerNs < boundaries.getLatencyUpperNs()) {
-          latencyBuckets[i].getSampledFilteredByLatency(
+          latencyBuckets[i].getSamplesFilteredByLatency(
               latencyLowerNs, latencyUpperNs, maxSpansToReturn, output);
         }
       }
@@ -185,15 +200,15 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
         ret.put(
             it.getKey(),
             PerSpanNameSummary.create(
-                it.getValue().getNumberOfLatencySampledSpans(),
-                it.getValue().getNumberOfErrorSampledSpans()));
+                it.getValue().getNumbersOfLatencySampledSpans(),
+                it.getValue().getNumbersOfErrorSampledSpans()));
       }
     }
     return Summary.create(ret);
   }
 
   /**
-   * Considers to save the given spans to the stored samples. This must be called at the end of the
+   * Considers to save the given spans to the stored samples. This must be called at the end of
    * each Span with the option RECORD_EVENTS.
    *
    * @param span the span to be consider for storing into the store buckets.
@@ -221,9 +236,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   @Override
   public void unregisterSpanNamesForCollection(Collection<String> spanNames) {
     synchronized (samples) {
-      for (String spanName : spanNames) {
-        samples.remove(spanName);
-      }
+      samples.keySet().removeAll(spanNames);
     }
   }
 

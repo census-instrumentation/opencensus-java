@@ -94,10 +94,9 @@ public class SampledSpanStoreImplTest {
     return span;
   }
 
-  @Test
-  public void addSpansWithRegisteredNamesInAllLatencyBuckets() {
+  private void addSpanNameToAllLatencyBuckets(String spanName) {
     for (LatencyBucketBoundaries boundaries : LatencyBucketBoundaries.values()) {
-      Span span = createSpan(REGISTERED_SPAN_NAME);
+      Span span = createSpan(spanName);
       if (boundaries.getLatencyLowerNs() < NUM_NANOS_PER_SECOND) {
         testClock.advanceTime(Duration.create(0, (int) boundaries.getLatencyLowerNs()));
       } else {
@@ -108,6 +107,21 @@ public class SampledSpanStoreImplTest {
       }
       span.end();
     }
+  }
+
+  private void addSpanNameToAllErrorBuckets(String spanName) {
+    for (CanonicalCode code : CanonicalCode.values()) {
+      if (code != CanonicalCode.OK) {
+        Span span = createSpan(spanName);
+        testClock.advanceTime(Duration.create(0, 1000));
+        span.end(EndSpanOptions.builder().setStatus(code.toStatus()).build());
+      }
+    }
+  }
+
+  @Test
+  public void addSpansWithRegisteredNamesInAllLatencyBuckets() {
+    addSpanNameToAllLatencyBuckets(REGISTERED_SPAN_NAME);
     Map<String, PerSpanNameSummary> perSpanNameSummary =
         sampleStore.getSummary().getPerSpanNameSummary();
     assertThat(perSpanNameSummary.size()).isEqualTo(1);
@@ -121,18 +135,7 @@ public class SampledSpanStoreImplTest {
 
   @Test
   public void addSpansWithoutRegisteredNamesInAllLatencyBuckets() {
-    for (LatencyBucketBoundaries boundaries : LatencyBucketBoundaries.values()) {
-      Span span = createSpan(NOT_REGISTERED_SPAN_NAME);
-      if (boundaries.getLatencyLowerNs() < NUM_NANOS_PER_SECOND) {
-        testClock.advanceTime(Duration.create(0, (int) boundaries.getLatencyLowerNs()));
-      } else {
-        testClock.advanceTime(
-            Duration.create(
-                boundaries.getLatencyLowerNs() / NUM_NANOS_PER_SECOND,
-                (int) (boundaries.getLatencyLowerNs() % NUM_NANOS_PER_SECOND)));
-      }
-      span.end();
-    }
+    addSpanNameToAllLatencyBuckets(NOT_REGISTERED_SPAN_NAME);
     Map<String, PerSpanNameSummary> perSpanNameSummary =
         sampleStore.getSummary().getPerSpanNameSummary();
     assertThat(perSpanNameSummary.size()).isEqualTo(1);
@@ -140,14 +143,25 @@ public class SampledSpanStoreImplTest {
   }
 
   @Test
+  public void registerAndUnregisterSpanNames() {
+    addSpanNameToAllLatencyBuckets(NOT_REGISTERED_SPAN_NAME);
+    assertThat(
+            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
+        .isFalse();
+    sampleStore.registerSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
+    addSpanNameToAllLatencyBuckets(NOT_REGISTERED_SPAN_NAME);
+    assertThat(
+            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
+        .isTrue();
+    sampleStore.unregisterSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
+    assertThat(
+            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
+        .isFalse();
+  }
+
+  @Test
   public void addSpansWithRegisteredNamesInAllErrorBuckets() {
-    for (CanonicalCode code : CanonicalCode.values()) {
-      if (code != CanonicalCode.OK) {
-        Span span = createSpan(REGISTERED_SPAN_NAME);
-        testClock.advanceTime(Duration.create(0, 1000));
-        span.end(EndSpanOptions.builder().setStatus(code.toStatus()).build());
-      }
-    }
+    addSpanNameToAllErrorBuckets(REGISTERED_SPAN_NAME);
     Map<String, PerSpanNameSummary> perSpanNameSummary =
         sampleStore.getSummary().getPerSpanNameSummary();
     assertThat(perSpanNameSummary.size()).isEqualTo(1);
@@ -161,13 +175,7 @@ public class SampledSpanStoreImplTest {
 
   @Test
   public void addSpansWithoutRegisteredNamesInAllErrorBuckets() {
-    for (CanonicalCode code : CanonicalCode.values()) {
-      if (code != CanonicalCode.OK) {
-        Span span = createSpan(NOT_REGISTERED_SPAN_NAME);
-        testClock.advanceTime(Duration.create(0, 1000));
-        span.end(EndSpanOptions.builder().setStatus(code.toStatus()).build());
-      }
-    }
+    addSpanNameToAllErrorBuckets(NOT_REGISTERED_SPAN_NAME);
     Map<String, PerSpanNameSummary> perSpanNameSummary =
         sampleStore.getSummary().getPerSpanNameSummary();
     assertThat(perSpanNameSummary.size()).isEqualTo(1);
@@ -201,8 +209,7 @@ public class SampledSpanStoreImplTest {
             ErrorFilter.create(REGISTERED_SPAN_NAME, CanonicalCode.CANCELLED, 1));
     assertThat(samples.size()).isEqualTo(1);
     // No order guaranteed so one of the spans should be in the list.
-    assertThat(samples.contains(span1.toSpanData()) || samples.contains(span2.toSpanData()))
-        .isTrue();
+    assertThat(samples).containsAnyOf(span1.toSpanData(), span2.toSpanData());
   }
 
   @Test
@@ -297,9 +304,7 @@ public class SampledSpanStoreImplTest {
                 TimeUnit.MICROSECONDS.toNanos(15),
                 TimeUnit.MICROSECONDS.toNanos(250),
                 0));
-    assertThat(samples.size()).isEqualTo(2);
-    assertThat(samples.contains(span1.toSpanData())).isTrue();
-    assertThat(samples.contains(span2.toSpanData())).isTrue();
+    assertThat(samples).containsExactly(span1.toSpanData(), span2.toSpanData());
   }
 
   @Test

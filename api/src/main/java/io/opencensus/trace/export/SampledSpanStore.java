@@ -315,7 +315,8 @@ public abstract class SampledSpanStore {
      * maximum of {@code maxSpansToReturn}.
      *
      * @param spanName the name of the span.
-     * @param canonicalCode the error code of the span.
+     * @param canonicalCode the error code of the span. {@code null} can be used to query all
+     *     error codes.
      * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
      * @return a new instance of {@code ErrorFilter}.
      * @throws NullPointerException if {@code spanName} is {@code null}.

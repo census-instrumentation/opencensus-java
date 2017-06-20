@@ -166,9 +166,9 @@ public final class Status {
     }
 
     /**
-     * Returns the status with that has the current {@code CanonicalCode}.
+     * Returns the status that has the current {@code CanonicalCode}..
      *
-     * @return the status with that has the current {@code CanonicalCode}.
+     * @return the status that has the current {@code CanonicalCode}.
      */
     @VisibleForTesting
     public Status toStatus() {
