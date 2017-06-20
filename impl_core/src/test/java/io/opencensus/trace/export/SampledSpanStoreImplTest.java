@@ -126,7 +126,7 @@ public class SampledSpanStoreImplTest {
         sampleStore.getSummary().getPerSpanNameSummary();
     assertThat(perSpanNameSummary.size()).isEqualTo(1);
     Map<LatencyBucketBoundaries, Integer> latencyBucketsSummaries =
-        perSpanNameSummary.get(REGISTERED_SPAN_NAME).getNumberOfLatencySampledSpans();
+        perSpanNameSummary.get(REGISTERED_SPAN_NAME).getNumbersOfLatencySampledSpans();
     assertThat(latencyBucketsSummaries.size()).isEqualTo(LatencyBucketBoundaries.values().length);
     for (Map.Entry<LatencyBucketBoundaries, Integer> it : latencyBucketsSummaries.entrySet()) {
       assertThat(it.getValue()).isEqualTo(1);
@@ -166,7 +166,7 @@ public class SampledSpanStoreImplTest {
         sampleStore.getSummary().getPerSpanNameSummary();
     assertThat(perSpanNameSummary.size()).isEqualTo(1);
     Map<CanonicalCode, Integer> errorBucketsSummaries =
-        perSpanNameSummary.get(REGISTERED_SPAN_NAME).getNumberOfErrorSampledSpans();
+        perSpanNameSummary.get(REGISTERED_SPAN_NAME).getNumbersOfErrorSampledSpans();
     assertThat(errorBucketsSummaries.size()).isEqualTo(CanonicalCode.values().length - 1);
     for (Map.Entry<CanonicalCode, Integer> it : errorBucketsSummaries.entrySet()) {
       assertThat(it.getValue()).isEqualTo(1);

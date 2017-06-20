@@ -138,22 +138,22 @@ public abstract class SampledSpanStore {
     /**
      * Returns a new instance of {@code PerSpanNameSummary}.
      *
-     * @param numberOfLatencySampledSpans the summary for the latency buckets.
-     * @param numberOfErrorSampledSpans the summary for the error buckets.
+     * @param numbersOfLatencySampledSpans the summary for the latency buckets.
+     * @param numbersOfErrorSampledSpans the summary for the error buckets.
      * @return a new instance of {@code PerSpanNameSummary}.
-     * @throws NullPointerException if {@code numberOfLatencySampledSpans} or {@code
-     *     numberOfErrorSampledSpans} are {@code null}.
+     * @throws NullPointerException if {@code numbersOfLatencySampledSpans} or {@code
+     *     numbersOfErrorSampledSpans} are {@code null}.
      */
     public static PerSpanNameSummary create(
-        Map<LatencyBucketBoundaries, Integer> numberOfLatencySampledSpans,
-        Map<CanonicalCode, Integer> numberOfErrorSampledSpans) {
+        Map<LatencyBucketBoundaries, Integer> numbersOfLatencySampledSpans,
+        Map<CanonicalCode, Integer> numbersOfErrorSampledSpans) {
       return new AutoValue_SampledSpanStore_PerSpanNameSummary(
           Collections.unmodifiableMap(
               new HashMap<LatencyBucketBoundaries, Integer>(
-                  checkNotNull(numberOfLatencySampledSpans, "numberOfLatencySampledSpans"))),
+                  checkNotNull(numbersOfLatencySampledSpans, "numbersOfLatencySampledSpans"))),
           Collections.unmodifiableMap(
               new HashMap<CanonicalCode, Integer>(
-                  checkNotNull(numberOfErrorSampledSpans, "numberOfErrorSampledSpans"))));
+                  checkNotNull(numbersOfErrorSampledSpans, "numbersOfErrorSampledSpans"))));
     }
 
     /**
@@ -164,7 +164,7 @@ public abstract class SampledSpanStore {
      *
      * @return the number of sampled spans in all the latency buckets.
      */
-    public abstract Map<LatencyBucketBoundaries, Integer> getNumberOfLatencySampledSpans();
+    public abstract Map<LatencyBucketBoundaries, Integer> getNumbersOfLatencySampledSpans();
 
     /**
      * Returns the number of sampled spans in all the error buckets.
@@ -174,7 +174,7 @@ public abstract class SampledSpanStore {
      *
      * @return the number of sampled spans in all the error buckets.
      */
-    public abstract Map<CanonicalCode, Integer> getNumberOfErrorSampledSpans();
+    public abstract Map<CanonicalCode, Integer> getNumbersOfErrorSampledSpans();
   }
 
   /**
@@ -315,8 +315,8 @@ public abstract class SampledSpanStore {
      * maximum of {@code maxSpansToReturn}.
      *
      * @param spanName the name of the span.
-     * @param canonicalCode the error code of the span. {@code null} can be used to query all
-     *     error codes.
+     * @param canonicalCode the error code of the span. {@code null} can be used to query all error
+     *     codes.
      * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
      * @return a new instance of {@code ErrorFilter}.
      * @throws NullPointerException if {@code spanName} is {@code null}.
