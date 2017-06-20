@@ -118,7 +118,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
           return latencyBuckets[i];
         }
       }
-      // latencyNs is negative or Long.MAX_VALUE, so this Span can be ignored.
+      // latencyNs is negative or Long.MAX_VALUE, so this Span can be ignored. This cannot happen
+      // in real production because System#nanoTime is monotonic.
       return null;
     }
 
@@ -128,7 +129,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
 
     private void considerForSampling(SpanImpl span) {
       Status status = span.getStatus();
-      // Null status means running Span. Ignore this Span.
+      // Null status means running Span, this should not happen in production, but the library
+      // should not crash because of this.
       if (status != null) {
         Bucket bucket =
             status.isOk()
