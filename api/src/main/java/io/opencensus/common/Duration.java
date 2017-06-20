@@ -29,7 +29,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class Duration {
-  public static final Duration ZERO = new AutoValue_Duration(0, 0);
+  private static final Duration ZERO = create(0, 0);
 
   /**
    * Creates a new time duration from given seconds and nanoseconds.

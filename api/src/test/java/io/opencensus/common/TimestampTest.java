@@ -107,7 +107,7 @@ public class TimestampTest {
   }
 
   @Test
-  public void timestampMinusTimestamp() {
+  public void timestampSubtractTimestamp() {
     Timestamp timestamp = Timestamp.create(1234, 223);
     assertThat(timestamp.subtractTimestamp(Timestamp.create(0, 0)))
         .isEqualTo(Duration.create(1234, 223));
@@ -122,7 +122,7 @@ public class TimestampTest {
   }
 
   @Test
-  public void timestampMinusTimestamp_NegativeResult() {
+  public void timestampSubtractTimestamp_NegativeResult() {
     Timestamp timestamp = Timestamp.create(1234, 223);
     assertThat(timestamp.subtractTimestamp(Timestamp.create(1235, 223)))
         .isEqualTo(Duration.create(-1, 0));
