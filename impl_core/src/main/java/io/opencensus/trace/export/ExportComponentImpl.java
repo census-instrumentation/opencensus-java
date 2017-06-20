@@ -22,7 +22,8 @@ public final class ExportComponentImpl extends ExportComponent {
   private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
 
   private final SpanExporterImpl spanExporter;
-  private final RunningSpanStoreImpl activeSpansExporter;
+  private final RunningSpanStoreImpl runningSpanStore;
+  private final SampledSpanStoreImpl sampledSpanStore;
 
   @Override
   public SpanExporterImpl getSpanExporter() {
@@ -32,14 +33,13 @@ public final class ExportComponentImpl extends ExportComponent {
   @Nullable
   @Override
   public RunningSpanStoreImpl getRunningSpanStore() {
-    return activeSpansExporter;
+    return runningSpanStore;
   }
 
   @Nullable
   @Override
-  public SampledSpanStore getSampledSpanStore() {
-    // TODO(bdrutu): Implement this.
-    return null;
+  public SampledSpanStoreImpl getSampledSpanStore() {
+    return sampledSpanStore;
   }
 
   /**
@@ -70,6 +70,7 @@ public final class ExportComponentImpl extends ExportComponent {
    */
   private ExportComponentImpl(boolean supportInProcessStores) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
-    this.activeSpansExporter = supportInProcessStores ? new RunningSpanStoreImpl() : null;
+    this.runningSpanStore = supportInProcessStores ? new RunningSpanStoreImpl() : null;
+    this.sampledSpanStore = supportInProcessStores ? new SampledSpanStoreImpl() : null;
   }
 }

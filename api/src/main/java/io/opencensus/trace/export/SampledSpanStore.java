@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -314,16 +315,19 @@ public abstract class SampledSpanStore {
      * maximum of {@code maxSpansToReturn}.
      *
      * @param spanName the name of the span.
-     * @param canonicalCode the error code of the span.
+     * @param canonicalCode the error code of the span. {@code null} can be used to query all
+     *     error codes.
      * @param maxSpansToReturn the maximum number of results to be returned. {@code 0} means all.
      * @return a new instance of {@code ErrorFilter}.
-     * @throws NullPointerException if {@code spanName} or {@code canonicalCode} are {@code null}.
+     * @throws NullPointerException if {@code spanName} is {@code null}.
      * @throws IllegalArgumentException if {@code canonicalCode} is {@link CanonicalCode#OK} or
      *     {@code maxSpansToReturn} is negative.
      */
     public static ErrorFilter create(
-        String spanName, CanonicalCode canonicalCode, int maxSpansToReturn) {
-      checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
+        String spanName, @Nullable CanonicalCode canonicalCode, int maxSpansToReturn) {
+      if (canonicalCode != null) {
+        checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
+      }
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
       return new AutoValue_SampledSpanStore_ErrorFilter(spanName, canonicalCode, maxSpansToReturn);
     }
@@ -337,10 +341,11 @@ public abstract class SampledSpanStore {
 
     /**
      * Returns the canonical code used by this filter. Always different than {@link
-     * CanonicalCode#OK}.
+     * CanonicalCode#OK}. If {@code null} then all errors match.
      *
      * @return the canonical code used by this filter.
      */
+    @Nullable
     public abstract CanonicalCode getCanonicalCode();
 
     /**

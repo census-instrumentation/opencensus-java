@@ -41,8 +41,8 @@ public class ExportComponentImplTest {
 
   @Test
   public void implementationOfSampledSpanStore() {
-    // TODO(bdrutu): Change this when implementation is available.
-    assertThat(exportComponentWithInProcess.getSampledSpanStore()).isNull();
+    assertThat(exportComponentWithInProcess.getSampledSpanStore())
+        .isInstanceOf(SampledSpanStoreImpl.class);
     assertThat(exportComponentWithoutInProcess.getSampledSpanStore()).isNull();
   }
 }

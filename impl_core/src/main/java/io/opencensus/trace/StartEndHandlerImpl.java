@@ -17,7 +17,7 @@ import io.opencensus.internal.EventQueue;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.export.RunningSpanStoreImpl;
-import io.opencensus.trace.export.SampledSpanStore;
+import io.opencensus.trace.export.SampledSpanStoreImpl;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporterImpl;
 import javax.annotation.Nullable;
@@ -31,7 +31,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class StartEndHandlerImpl implements StartEndHandler {
   private final SpanExporterImpl spanExporter;
   private final RunningSpanStoreImpl runningSpanStore;
-  private final SampledSpanStore sampledSpanStore;
+  private final SampledSpanStoreImpl sampledSpanStore;
   private final EventQueue eventQueue;
   // true if any of (runningSpanStore OR sampledSpanStore) are different than null, which
   // means the spans with RECORD_EVENTS should be enqueued in the queue.
@@ -48,7 +48,7 @@ public final class StartEndHandlerImpl implements StartEndHandler {
   public StartEndHandlerImpl(
       SpanExporterImpl spanExporter,
       @Nullable RunningSpanStoreImpl runningSpanStore,
-      @Nullable SampledSpanStore sampledSpanStore,
+      @Nullable SampledSpanStoreImpl sampledSpanStore,
       EventQueue eventQueue) {
     this.spanExporter = spanExporter;
     this.runningSpanStore = runningSpanStore;
@@ -96,15 +96,17 @@ public final class StartEndHandlerImpl implements StartEndHandler {
     private final SpanImpl span;
     private final RunningSpanStoreImpl runningSpanStore;
     private final SpanExporterImpl spanExporter;
+    private final SampledSpanStoreImpl sampledSpanStore;
 
     SpanEndEvent(
         SpanImpl span,
         SpanExporterImpl spanExporter,
         @Nullable RunningSpanStoreImpl runningSpanStore,
-        @Nullable SampledSpanStore sampledSpanStore) {
+        @Nullable SampledSpanStoreImpl sampledSpanStore) {
       this.span = span;
       this.runningSpanStore = runningSpanStore;
       this.spanExporter = spanExporter;
+      this.sampledSpanStore = sampledSpanStore;
     }
 
     @Override
@@ -112,6 +114,9 @@ public final class StartEndHandlerImpl implements StartEndHandler {
       spanExporter.addSpan(span);
       if (runningSpanStore != null) {
         runningSpanStore.onEnd(span);
+      }
+      if (sampledSpanStore != null) {
+        sampledSpanStore.considerForSampling(span);
       }
     }
   }

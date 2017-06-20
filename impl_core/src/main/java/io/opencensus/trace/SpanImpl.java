@@ -138,6 +138,41 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   /**
+   * Returns the status of the {@code Span}. If not set defaults to {@link Status#OK}.
+   *
+   * @return the status of the {@code Span}.
+   */
+  public Status getStatus() {
+    synchronized (this) {
+      return status;
+    }
+  }
+
+  /**
+   * Returns the end nano time (see {@link System#nanoTime()}). If the current {@code Span} is
+   * not ended then returns {@link Clock#nowNanos()}.
+   *
+   * @return the end nano time.
+   */
+  public long getEndNanoTime() {
+    synchronized (this) {
+      return hasBeenEnded ? endNanoTime : clock.nowNanos();
+    }
+  }
+
+  /**
+   * Returns the latency of the {@code Span} in nanos. If still active then returns now() - start
+   * time.
+   *
+   * @return the latency of the {@code Span} in nanos.
+   */
+  public long getLatencyNs() {
+    synchronized (this) {
+      return hasBeenEnded ? endNanoTime - startNanoTime : clock.nowNanos() - startNanoTime;
+    }
+  }
+
+  /**
    * Returns the {@code TimestampConverter} used by this {@code Span}.
    *
    * @return the {@code TimestampConverter} used by this {@code Span}.
