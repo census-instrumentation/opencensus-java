@@ -1,0 +1,40 @@
+plugins {
+  id 'com.github.johnrengelman.shadow' version '2.0.0'
+}
+
+description = 'OpenCensus Agent'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+def agentPackage = 'io.opencensus.contrib.agent'
+def agentMainClass = "${agentPackage}.AgentMain"
+
+dependencies {
+  compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
+
+  signature 'org.codehaus.mojo.signature:java17:+@signature'
+}
+
+jar {
+  // Set required manifest attributes, cf.
+  // https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/package-summary.html.
+  manifest {
+    attributes 'Premain-Class': agentMainClass
+    attributes 'Can-Retransform-Classes': true
+  }
+}
+
+// Bundle the agent's classes and dependencies into a single, self-contained JAR file.
+shadowJar {
+  // Output to opencensus-agent-VERSION.jar.
+  baseName = 'opencensus-agent'
+  classifier = null
+
+  // TODO(stschmidt): Relocate third party packages to avoid any conflicts of the agent's classes
+  // with the app's classes, which are loaded by the same classloader (the system classloader).
+
+  // TODO(stschmidt): Assert that there's nothing unexpected left outside of ${agentPackage}.
+}
+
+jar.finalizedBy shadowJar
