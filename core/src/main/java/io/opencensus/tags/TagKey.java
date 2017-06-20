@@ -23,7 +23,7 @@ import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A key to a value stored in a {@link TagMap}.
+ * A key to a value stored in a {@link TagContext}.
  *
  * @param <TagValueT> The type of value that can be paired with this {@code TagKey}. {@code TagKey}s
  *     can only be instantiated with types {@code String}, {@code Long}, and {@code Boolean}.

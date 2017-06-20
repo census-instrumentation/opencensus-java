@@ -23,10 +23,10 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagMap}. */
+/** Tests for {@link TagContext}. */
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
-public class TagMapTest {
+public class TagContextTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -56,7 +56,7 @@ public class TagMapTest {
 
   @Test
   public void testSet() {
-    TagMap tags = singletonTagMap(KS1, "v1");
+    TagContext tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().set(KS1, "v2").build().getTags()).containsExactly(KS1, "v2");
     assertThat(tags.toBuilder().set(KS2, "v2").build().getTags())
         .containsExactly(KS1, "v1", KS2, "v2");
@@ -64,14 +64,14 @@ public class TagMapTest {
 
   @Test
   public void testClear() {
-    TagMap tags = singletonTagMap(KS1, "v1");
+    TagContext tags = singletonTagMap(KS1, "v1");
     assertThat(tags.toBuilder().clear(KS1).build().getTags()).isEmpty();
     assertThat(tags.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, "v1");
   }
 
   @Test
   public void allowStringTagValueWithMaxLength() {
-    char[] chars = new char[TagMap.MAX_STRING_LENGTH];
+    char[] chars = new char[TagContext.MAX_STRING_LENGTH];
     Arrays.fill(chars, 'v');
     String value = new String(chars);
     TagKey<String> key = TagKey.createStringKey("K");
@@ -80,7 +80,7 @@ public class TagMapTest {
 
   @Test
   public void disallowStringTagValueOverMaxLength() {
-    char[] chars = new char[TagMap.MAX_STRING_LENGTH + 1];
+    char[] chars = new char[TagContext.MAX_STRING_LENGTH + 1];
     Arrays.fill(chars, 'v');
     String value = new String(chars);
     TagKey<String> key = TagKey.createStringKey("K");
@@ -104,11 +104,11 @@ public class TagMapTest {
     newBuilder().set(badLongKey, 123);
   }
 
-  private static TagMap.Builder newBuilder() {
-    return new TagMap.Builder();
+  private static TagContext.Builder newBuilder() {
+    return new TagContext.Builder();
   }
 
-  private static <TagValueT> TagMap singletonTagMap(TagKey<TagValueT> key, TagValueT value) {
-    return new TagMap(ImmutableMap.<TagKey<?>, Object>of(key, value));
+  private static <TagValueT> TagContext singletonTagMap(TagKey<TagValueT> key, TagValueT value) {
+    return new TagContext(ImmutableMap.<TagKey<?>, Object>of(key, value));
   }
 }
