@@ -18,10 +18,11 @@ import io.opencensus.common.Function;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Paired {@link TagKey} and value.
+ * {@link TagKey} paired with an optional value.
  */
 @Immutable
 @AutoValue
@@ -68,8 +69,8 @@ public abstract class Tag {
    * of the tag. This is similar to the visitor pattern.
    *
    * @param stringFunction the function to call when the tag has a {@code String} value.
-   * @param longFunction the function to call when the tag has a {@code long} value.
-   * @param booleanFunction the function to call when the tag has a {@code boolean} value.
+   * @param longFunction the function to call when the tag has a {@code Long} value.
+   * @param booleanFunction the function to call when the tag has a {@code Boolean} value.
    * @param <T> The result type of the function.
    * @return The result of calling the function that matches the tag's type.
    */
@@ -87,10 +88,10 @@ public abstract class Tag {
    * types are added.
    *
    * @param stringFunction the function to call when the tag has a {@code String} value.
-   * @param longFunction the function to call when the tag has a {@code long} value.
-   * @param booleanFunction the function to call when the tag has a {@code boolean} value.
+   * @param longFunction the function to call when the tag has a {@code Long} value.
+   * @param booleanFunction the function to call when the tag has a {@code Boolean} value.
    * @param defaultFunction the function to call when the tag has a value other than {@code String},
-   *     {@code long}, or {@code boolean}.
+   *     {@code Long}, or {@code Boolean}.
    * @param <T> The result type of the function.
    * @return The result of calling the function that matches the tag's type.
    */
@@ -132,34 +133,34 @@ public abstract class Tag {
    * Creates a {@code Tag} from the given {@code String} key and value.
    *
    * @param key the tag key.
-   * @param value the tag value.
+   * @param value the tag value, or {@code null} if the key is not paired with a value.
    * @return a {@code Tag} with the given key and value.
    */
-  public static Tag createStringTag(TagKeyString key, TagValueString value) {
+  public static Tag createStringTag(TagKeyString key, @Nullable TagValueString value) {
     return createInternal(TagString.create(key, value));
   }
 
   /**
-   * Creates a {@code Tag} from the given {@code long} key and value.
+   * Creates a {@code Tag} from the given {@code Long} key and value.
    *
    * @param key the tag key.
-   * @param value the tag value.
+   * @param value the tag value, or {@code null} if the key is not paired with a value.
    * @return a {@code Tag} with the given key and value.
    */
   // TODO(sebright): Make this public once we support types other than String.
-  static Tag createLongTag(TagKeyLong key, long value) {
+  static Tag createLongTag(TagKeyLong key, @Nullable Long value) {
     return createInternal(TagLong.create(key, value));
   }
 
   /**
-   * Creates a {@code Tag} from the given {@code boolean} key and value.
+   * Creates a {@code Tag} from the given {@code Boolean} key and value.
    *
    * @param key the tag key.
-   * @param value the tag value.
+   * @param value the tag value, or {@code null} if the key is not paired with a value.
    * @return a {@code Tag} with the given key and value.
    */
   // TODO(sebright): Make this public once we support types other than String.
-  static Tag createBooleanTag(TagKeyBoolean key, boolean value) {
+  static Tag createBooleanTag(TagKeyBoolean key, @Nullable Boolean value) {
     return createInternal(TagBoolean.create(key, value));
   }
 
@@ -173,7 +174,7 @@ public abstract class Tag {
   @Immutable
   @AutoValue
   public abstract static class TagString {
-    static TagString create(TagKeyString key, TagValueString value) {
+    static TagString create(TagKeyString key, @Nullable TagValueString value) {
       return new AutoValue_Tag_TagString(key, value);
     }
 
@@ -185,20 +186,21 @@ public abstract class Tag {
     public abstract TagKeyString getKey();
 
     /**
-     * Returns the associated tag value.
+     * Returns the associated tag value, or {@code null} if the key is not paired with a value.
      *
-     * @return the associated tag value.
+     * @return the associated tag value, or {@code null} if the key is not paired with a value.
      */
+    @Nullable
     public abstract TagValueString getValue();
   }
 
   /**
-   * A tag with a {@code long} key and value.
+   * A tag with a {@code Long} key and value.
    */
   @Immutable
   @AutoValue
   public abstract static class TagLong {
-    static TagLong create(TagKeyLong key, long value) {
+    static TagLong create(TagKeyLong key, @Nullable Long value) {
       return new AutoValue_Tag_TagLong(key, value);
     }
 
@@ -210,20 +212,21 @@ public abstract class Tag {
     public abstract TagKeyLong getKey();
 
     /**
-     * Returns the associated tag value.
+     * Returns the associated tag value, or {@code null} if the key is not paired with a value.
      *
-     * @return the associated tag value.
+     * @return the associated tag value, or {@code null} if the key is not paired with a value.
      */
-    public abstract long getValue();
+    @Nullable
+    public abstract Long getValue();
   }
 
   /**
-   * A tag with a {@code boolean} key and value.
+   * A tag with a {@code Boolean} key and value.
    */
   @Immutable
   @AutoValue
   public abstract static class TagBoolean {
-    static TagBoolean create(TagKeyBoolean key, boolean value) {
+    static TagBoolean create(TagKeyBoolean key, @Nullable Boolean value) {
       return new AutoValue_Tag_TagBoolean(key, value);
     }
 
@@ -235,10 +238,11 @@ public abstract class Tag {
     public abstract TagKeyBoolean getKey();
 
     /**
-     * Returns the associated tag value.
+     * Returns the associated tag value, or {@code null} if the key is not paired with a value.
      *
-     * @return the associated tag value.
+     * @return the associated tag value, or {@code null} if the key is not paired with a value.
      */
-    public abstract boolean getValue();
+    @Nullable
+    public abstract Boolean getValue();
   }
 }
