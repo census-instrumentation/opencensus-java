@@ -113,9 +113,15 @@ public class TracerTest {
         .isSameAs(BlankSpan.INSTANCE);
   }
 
+  @Test(expected = NullPointerException.class)
+  public void defaultSpanBuilderWitRemoteParent_NullParent() {
+    assertThat(noopTracer.spanBuilderWithRemoteParent(null, SPAN_NAME).startSpan())
+        .isSameAs(BlankSpan.INSTANCE);
+  }
+
   @Test
   public void defaultSpanBuilderWitRemoteParent() {
-    assertThat(noopTracer.spanBuilderWithRemoteParent(null, SPAN_NAME).startSpan())
+    assertThat(noopTracer.spanBuilderWithRemoteParent(SpanContext.INVALID, SPAN_NAME).startSpan())
         .isSameAs(BlankSpan.INSTANCE);
   }
 

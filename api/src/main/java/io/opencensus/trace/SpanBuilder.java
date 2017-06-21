@@ -118,7 +118,7 @@ public abstract class SpanBuilder {
    * @param sampler The {@code Sampler} to use when determining sampling for a {@code Span}.
    * @return this.
    */
-  public SpanBuilder setSampler(@Nullable Sampler sampler) {
+  public final SpanBuilder setSampler(@Nullable Sampler sampler) {
     this.sampler = sampler;
     return this;
   }
@@ -132,7 +132,7 @@ public abstract class SpanBuilder {
    * @return this.
    * @throws NullPointerException if {@code parentLinks} is {@code null}.
    */
-  public SpanBuilder setParentLinks(List<Span> parentLinks) {
+  public final SpanBuilder setParentLinks(List<Span> parentLinks) {
     this.parentLinks = checkNotNull(parentLinks, parentLinks);
     return this;
   }
@@ -144,7 +144,7 @@ public abstract class SpanBuilder {
    * @param recordEvents New value determining if this {@code Span} should have events recorded.
    * @return this.
    */
-  public SpanBuilder setRecordEvents(boolean recordEvents) {
+  public final SpanBuilder setRecordEvents(boolean recordEvents) {
     this.recordEvents = recordEvents;
     return this;
   }
@@ -161,7 +161,7 @@ public abstract class SpanBuilder {
    *
    * @return this.
    */
-  public SpanBuilder becomeRoot() {
+  public final SpanBuilder becomeRoot() {
     parentSpan = null;
     remoteParentSpanContext = null;
     return this;
@@ -252,7 +252,7 @@ public abstract class SpanBuilder {
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context.
    */
-  public NonThrowingCloseable startScopedSpan() {
+  public final NonThrowingCloseable startScopedSpan() {
     return new ScopedSpanHandle(startSpan());
   }
 
@@ -261,7 +261,7 @@ public abstract class SpanBuilder {
    *
    * @return the name of the {@code Span}.
    */
-  protected String getName() {
+  protected final String getName() {
     return name;
   }
 
@@ -269,11 +269,13 @@ public abstract class SpanBuilder {
    * Returns the parent {@code Span}, or {@code null} if this is a root {@code Span} OR {@code
    * getRemoteParentSpanContext()} returns not {@code null}.
    *
+   * <p>Used by the implementation of the {@link #startSpan()}.
+   *
    * @return the parent {@code Span}, or {@code null} if this is a root {@code Span} OR {@code
    *     getHasRemoteParent()} returns {@code true}.
    */
   @Nullable
-  protected Span getParentSpan() {
+  protected final Span getParentSpan() {
     return parentSpan;
   }
 
@@ -284,16 +286,20 @@ public abstract class SpanBuilder {
    * <p>If not {@code null} the newly created {@code Span} will have a remote parent (in a different
    * process).
    *
+   * <p>Used by the implementation of the {@link #startSpan()}.
+   *
    * @return the remote parent {@code SpanContext}, or {@code null} if this is a root {@code Span}
    *     OR {@code getHasRemoteParent()} returns {@code false}.
    */
   @Nullable
-  protected SpanContext getRemoteParentSpanContext() {
+  protected final SpanContext getRemoteParentSpanContext() {
     return remoteParentSpanContext;
   }
 
   /**
    * Returns the {@link Sampler} to be used, or {@code null} if default.
+   *
+   * <p>Used by the implementation of the {@link #startSpan()}.
    *
    * @return the {@code Sampler} to be used, or {@code null} if default.
    */
@@ -305,9 +311,11 @@ public abstract class SpanBuilder {
   /**
    * Returns the parent links to be set for the {@link Span}.
    *
+   * <p>Used by the implementation of the {@link #startSpan()}.
+   *
    * @return the parent links to be set for the {@code Span}.
    */
-  protected List<Span> getParentLinks() {
+  protected final List<Span> getParentLinks() {
     return parentLinks != null ? parentLinks : Collections.<Span>emptyList();
   }
 
@@ -316,10 +324,12 @@ public abstract class SpanBuilder {
    *
    * <p>See {@link Span.Options#RECORD_EVENTS} for more details.
    *
+   * <p>Used by the implementation of the {@link #startSpan()}.
+   *
    * @return the record events option, or {@code null} if default.
    */
   @Nullable
-  protected Boolean getRecordEvents() {
+  protected final Boolean getRecordEvents() {
     return recordEvents;
   }
 
@@ -338,12 +348,14 @@ public abstract class SpanBuilder {
     this.name = checkNotNull(name, "name");
   }
 
-  static SpanBuilder createNoopBuilder(Span parentSpan, String name) {
+  static SpanBuilder createNoopBuilder(@Nullable Span parentSpan, String name) {
     return new NoopSpanBuilder(parentSpan, null, name);
   }
 
-  static SpanBuilder createNoopBuilderWithRemoteParent(SpanContext parentSpanContext, String name) {
-    return new NoopSpanBuilder(null, parentSpanContext, name);
+  static SpanBuilder createNoopBuilderWithRemoteParent(
+      SpanContext remoteParentSpanContext, String name) {
+    return new NoopSpanBuilder(
+        null, checkNotNull(remoteParentSpanContext, "remoteParentSpanContext"), name);
   }
 
   static final class NoopSpanBuilder extends SpanBuilder {

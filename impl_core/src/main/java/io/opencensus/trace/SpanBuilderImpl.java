@@ -97,13 +97,14 @@ final class SpanBuilderImpl extends SpanBuilder {
     }
   }
 
-  static SpanBuilder createBuilder(Span parentSpan, String name, Options options) {
+  static SpanBuilder createBuilder(@Nullable Span parentSpan, String name, Options options) {
     return new SpanBuilderImpl(parentSpan, null, name, options);
   }
 
   static SpanBuilder createBuilderWithRemoteParent(
-      SpanContext parentSpanContext, String name, Options options) {
-    return new SpanBuilderImpl(null, parentSpanContext, name, options);
+      SpanContext remoteParentSpanContext, String name, Options options) {
+    return new SpanBuilderImpl(null, checkNotNull(remoteParentSpanContext,
+        "remoteParentSpanContext"), name, options);
   }
 
   private SpanBuilderImpl(

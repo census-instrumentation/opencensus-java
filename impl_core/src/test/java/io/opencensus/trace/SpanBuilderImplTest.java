@@ -97,20 +97,6 @@ public class SpanBuilderImplTest {
   }
 
   @Test
-  public void startRemoteSpanNullParent() {
-    Span span =
-        SpanBuilderImpl.createBuilderWithRemoteParent(null, SPAN_NAME, spanBuilderOptions)
-            .startSpan();
-    assertThat(span.getContext().isValid()).isTrue();
-    assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
-    assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
-    assertThat(span instanceof SpanImpl).isTrue();
-    SpanData spanData = ((SpanImpl) span).toSpanData();
-    assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getHasRemoteParent()).isFalse();
-  }
-
-  @Test
   public void startChildSpan() {
     Span rootSpan = SpanBuilderImpl.createBuilder(null, SPAN_NAME, spanBuilderOptions).startSpan();
     assertThat(rootSpan.getContext().isValid()).isTrue();
@@ -124,6 +110,14 @@ public class SpanBuilderImplTest {
         .isEqualTo(rootSpan.getContext().getSpanId());
     assertThat(((SpanImpl) childSpan).getTimestampConverter())
         .isEqualTo(((SpanImpl) rootSpan).getTimestampConverter());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void startRemoteSpan_NullParent() {
+    Span span =
+        SpanBuilderImpl.createBuilderWithRemoteParent(
+            null, SPAN_NAME, spanBuilderOptions)
+            .startSpan();
   }
 
   @Test
