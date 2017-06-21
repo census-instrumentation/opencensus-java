@@ -13,18 +13,12 @@
 
 package io.opencensus.stats;
 
-import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.internal.Provider;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import io.opencensus.stats.internal.StatsInternal;
 import javax.annotation.Nullable;
 
 /** {@link Stats}. */
 public final class Stats {
-  private static final Logger logger = Logger.getLogger(Stats.class.getName());
-
-  private static final StatsManager statsManager =
-      loadStatsManager(Provider.getCorrectClassLoader(StatsManager.class));
+  private static final StatsManager statsManager = StatsInternal.getStatsManager();
 
   /** Returns the default {@link StatsContextFactory}. */
   @Nullable
@@ -36,38 +30,6 @@ public final class Stats {
   @Nullable
   public static StatsManager getStatsManager() {
     return statsManager;
-  }
-
-  // Any provider that may be used for StatsManager can be added here.
-  @VisibleForTesting
-  @Nullable
-  static StatsManager loadStatsManager(ClassLoader classLoader) {
-    try {
-      // Call Class.forName with literal string name of the class to help shading tools.
-      return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsManagerImpl", true, classLoader),
-          StatsManager.class);
-    } catch (ClassNotFoundException e) {
-      logger.log(
-          Level.FINE,
-          "Couldn't load full implementation for StatsManager, now trying to load lite "
-              + "implementation.",
-          e);
-    }
-    try {
-      // Call Class.forName with literal string name of the class to help shading tools.
-      return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsManagerImplLite", true, classLoader),
-          StatsManager.class);
-    } catch (ClassNotFoundException e) {
-      logger.log(
-          Level.FINE,
-          "Couldn't load lite implementation for StatsManager, now using "
-              + "default implementation for StatsManager.",
-          e);
-    }
-    // TODO: Add a no-op implementation.
-    return null;
   }
 
   private Stats() {}
