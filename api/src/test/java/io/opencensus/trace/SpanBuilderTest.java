@@ -58,6 +58,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startScopedSpanRoot() {
+    spanBuilder = Mockito.spy(FakeSpanBuilder.builder(null, SPAN_NAME));
     when(spanBuilder.startSpan())
         .thenAnswer(
             new Answer<Span>() {
@@ -73,7 +74,7 @@ public class SpanBuilderTest {
                 return span;
               }
             });
-    NonThrowingCloseable ss = spanBuilder.becomeRoot().startScopedSpan();
+    NonThrowingCloseable ss = spanBuilder.startScopedSpan();
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
     } finally {
@@ -84,6 +85,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startScopedSpanRootWithSampler() {
+    spanBuilder = Mockito.spy(FakeSpanBuilder.builder(null, SPAN_NAME));
     when(spanBuilder.startSpan())
         .thenAnswer(
             new Answer<Span>() {
@@ -99,8 +101,7 @@ public class SpanBuilderTest {
                 return span;
               }
             });
-    NonThrowingCloseable ss =
-        spanBuilder.becomeRoot().setSampler(Samplers.neverSample()).startScopedSpan();
+    NonThrowingCloseable ss = spanBuilder.setSampler(Samplers.neverSample()).startScopedSpan();
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
     } finally {
@@ -111,32 +112,9 @@ public class SpanBuilderTest {
 
   @Test
   public void startRootSpan() {
-    when(spanBuilder.startSpan())
-        .thenAnswer(
-            new Answer<Span>() {
-              @Override
-              public Span answer(InvocationOnMock invocation) throws Throwable {
-                SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
-                assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
-                assertThat(spanBuilder.getParentSpan()).isNull();
-                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
-                assertThat(spanBuilder.getSampler()).isNull();
-                assertThat(spanBuilder.getRecordEvents()).isNull();
-                assertThat(spanBuilder.getParentLinks()).isEmpty();
-                return span;
-              }
-            });
-    Span rootSpan = spanBuilder.becomeRoot().startSpan();
-    assertThat(rootSpan).isEqualTo(span);
-    rootSpan.end();
-    verify(span).end(same(EndSpanOptions.DEFAULT));
-  }
-
-  @Test
-  public void startSpan_WithNullParent() {
     spanBuilder = Mockito.spy(FakeSpanBuilder.builder(null, SPAN_NAME));
     when(spanBuilder.startSpan())
-        .then(
+        .thenAnswer(
             new Answer<Span>() {
               @Override
               public Span answer(InvocationOnMock invocation) throws Throwable {
@@ -158,6 +136,7 @@ public class SpanBuilderTest {
 
   @Test
   public void startRootSpanWithOptions() {
+    spanBuilder = Mockito.spy(FakeSpanBuilder.builder(null, SPAN_NAME));
     final List<Span> parentList = Arrays.<Span>asList(BlankSpan.INSTANCE);
     when(spanBuilder.startSpan())
         .then(
@@ -175,11 +154,7 @@ public class SpanBuilderTest {
               }
             });
     Span rootSpan =
-        spanBuilder
-            .becomeRoot()
-            .setSampler(Samplers.neverSample())
-            .setParentLinks(parentList)
-            .startSpan();
+        spanBuilder.setSampler(Samplers.neverSample()).setParentLinks(parentList).startSpan();
     assertThat(rootSpan).isEqualTo(span);
     rootSpan.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
@@ -257,8 +232,9 @@ public class SpanBuilderTest {
   }
 
   @Test
-  public void startSpanWitRemoteParent_WithNullParent() {
-    spanBuilder = Mockito.spy(FakeSpanBuilder.builderWithRemoteParent(null, SPAN_NAME));
+  public void startSpanWitRemoteParent_WithInvalidParent() {
+    spanBuilder =
+        Mockito.spy(FakeSpanBuilder.builderWithRemoteParent(SpanContext.INVALID, SPAN_NAME));
     when(spanBuilder.startSpan())
         .thenAnswer(
             new Answer<Span>() {
@@ -267,7 +243,7 @@ public class SpanBuilderTest {
                 SpanBuilder spanBuilder = (SpanBuilder) invocation.getMock();
                 assertThat(spanBuilder.getName()).isEqualTo(SPAN_NAME);
                 assertThat(spanBuilder.getParentSpan()).isNull();
-                assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
+                assertThat(spanBuilder.getRemoteParentSpanContext()).isSameAs(SpanContext.INVALID);
                 assertThat(spanBuilder.getSampler()).isNull();
                 assertThat(spanBuilder.getRecordEvents()).isNull();
                 assertThat(spanBuilder.getParentLinks()).isEmpty();

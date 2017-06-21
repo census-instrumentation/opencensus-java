@@ -169,7 +169,8 @@ public abstract class Tracer {
    *
    * <p>See {@link SpanBuilder} for usage examples.
    *
-   * <p>This <b>must</b> be used to create a {@code Span} when manual Context propagation is used.
+   * <p>This <b>must</b> be used to create a {@code Span} when manual Context propagation is used
+   * OR when creating a root {@code Span} with a {@code null} parent.
    *
    * @param parent The parent of the returned Span. If null the {@code SpanBuilder} will build a
    *     root {@code Span}.

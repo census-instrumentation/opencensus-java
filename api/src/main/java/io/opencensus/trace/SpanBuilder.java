@@ -150,24 +150,6 @@ public abstract class SpanBuilder {
   }
 
   /**
-   * If called this will force the newly created {@code Span} to be a root span. As a consequence,
-   * any parent specified (or inherited from the Context) will be ignored (N.B. does not apply to
-   * linked parents set through {@link #setParentLinks}).
-   *
-   * <p>This is useful when {@link Tracer#spanBuilder(String)} is used and the newly created {@code
-   * Span} needs to be decoupled from the parent {@code Span}.
-   *
-   * <p>This is equivalent with {@code Tracer.spanBuilder(null, "MySpanName");}.
-   *
-   * @return this.
-   */
-  public final SpanBuilder becomeRoot() {
-    parentSpan = null;
-    remoteParentSpanContext = null;
-    return this;
-  }
-
-  /**
    * Starts a new {@link Span}.
    *
    * <p>Users <b>must</b> manually call {@link Span#end()} or {@link Span#end(EndSpanOptions)} to
