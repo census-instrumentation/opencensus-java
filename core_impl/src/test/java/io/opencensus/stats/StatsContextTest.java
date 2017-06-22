@@ -41,8 +41,8 @@ import org.junit.runners.JUnit4;
 public class StatsContextTest {
   private static final double TOLERANCE = 1e-6;
 
-  private final StatsManagerImplBase statsManager =
-      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create());
+  private final StatsManagerImpl statsManager =
+      new StatsManagerImpl(new SimpleEventQueue(), TestClock.create());
   private final StatsContextFactory factory = statsManager.getStatsContextFactory();
   private final StatsContext defaultStatsContext = factory.getDefault();
 

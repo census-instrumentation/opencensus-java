@@ -10,7 +10,8 @@ dependencies {
             project(':core_impl'),
             project(':core_impl_java'),
             project(':opencensus-api'),
-            project(':opencensus-impl')
+            project(':opencensus-impl'),
+            project(':opencensus-testing')
 }
 
 // Provide convenience executables for trying out the examples.
@@ -21,6 +22,13 @@ startScripts.enabled = false
 task statsRunner(type: CreateStartScripts) {
     mainClassName = 'io.opencensus.examples.stats.StatsRunner'
     applicationName = 'StatsRunner'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task statsTesting(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.stats.StatsTesting'
+    applicationName = 'StatsTesting'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime
 }
@@ -51,5 +59,6 @@ applicationDistribution.into('bin') {
     from(multiSpansScopedTracing)
     from(multiSpansContextTracing)
     from(statsRunner)
+    from(statsTesting)
     fileMode = 0755
 }

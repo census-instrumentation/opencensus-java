@@ -39,8 +39,8 @@ public class StatsContextFactoryTest {
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
 
-  private final StatsManagerImplBase statsManager =
-      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create());
+  private final StatsManagerImpl statsManager =
+      new StatsManagerImpl(new SimpleEventQueue(), TestClock.create());
   private final StatsContextFactory factory = new StatsContextFactoryImpl(statsManager);
   private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
   private final StatsContext defaultCtx = factory.getDefault();

@@ -15,43 +15,13 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Tests for {@link Stats}. */
 @RunWith(JUnit4.class)
 public final class StatsTest {
-  @Rule public ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void loadStatsManager_UsesProvidedClassLoader() {
-    final RuntimeException toThrow = new RuntimeException("UseClassLoader");
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("UseClassLoader");
-    Stats.loadStatsManager(
-        new ClassLoader() {
-          @Override
-          public Class<?> loadClass(String name) {
-            throw toThrow;
-          }
-        });
-  }
-
-  @Test
-  public void loadStatsManager_IgnoresMissingClasses() {
-    assertThat(
-            Stats.loadStatsManager(
-                    new ClassLoader() {
-                      @Override
-                      public Class<?> loadClass(String name) throws ClassNotFoundException {
-                        throw new ClassNotFoundException();
-                      }
-                    }))
-        .isNull();
-  }
 
   @Test
   public void defaultValues() {

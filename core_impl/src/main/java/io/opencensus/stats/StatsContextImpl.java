@@ -24,10 +24,10 @@ import java.util.Map;
  * Native Implementation of {@link StatsContext}.
  */
 final class StatsContextImpl extends StatsContext {
-  private final StatsManagerImplBase statsManager;
+  private final StatsManagerImpl statsManager;
   final Map<TagKey, TagValue> tags;
 
-  StatsContextImpl(StatsManagerImplBase statsManager, Map<TagKey, TagValue> tags) {
+  StatsContextImpl(StatsManagerImpl statsManager, Map<TagKey, TagValue> tags) {
     this.statsManager = Preconditions.checkNotNull(statsManager);
     this.tags = Preconditions.checkNotNull(tags);
   }
@@ -69,10 +69,10 @@ final class StatsContextImpl extends StatsContext {
   }
 
   static final class Builder extends StatsContext.Builder {
-    private final StatsManagerImplBase statsManager;
+    private final StatsManagerImpl statsManager;
     private final HashMap<TagKey, TagValue> tags;
 
-    private Builder(StatsManagerImplBase statsManager, Map<TagKey, TagValue> tags) {
+    private Builder(StatsManagerImpl statsManager, Map<TagKey, TagValue> tags) {
       this.statsManager = statsManager;
       this.tags = new HashMap<TagKey, TagValue>(tags);
     }

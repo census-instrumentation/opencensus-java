@@ -19,7 +19,7 @@ import io.opencensus.internal.EventQueue;
 /**
  * Base implementation of {@link StatsManager}.
  */
-class StatsManagerImplBase extends StatsManager {
+public final class StatsManagerImpl extends StatsManager {
 
   // StatsManagerImplBase delegates all operations related to stats to ViewManager in order to keep
   // StatsManagerImplBase simple.
@@ -29,7 +29,7 @@ class StatsManagerImplBase extends StatsManager {
   // created in the constructor.  Multiple initializations are okay.
   private volatile StatsContextFactoryImpl statsContextFactory;
 
-  StatsManagerImplBase(EventQueue queue, Clock clock) {
+  public StatsManagerImpl(EventQueue queue, Clock clock) {
     this.viewManager = new ViewManager(queue, clock);
   }
 
@@ -50,7 +50,7 @@ class StatsManagerImplBase extends StatsManager {
   }
 
   @Override
-  StatsContextFactoryImpl getStatsContextFactory() {
+  public StatsContextFactoryImpl getStatsContextFactory() {
     StatsContextFactoryImpl factory = statsContextFactory;
     if (factory == null) {
       statsContextFactory = factory = new StatsContextFactoryImpl(this);

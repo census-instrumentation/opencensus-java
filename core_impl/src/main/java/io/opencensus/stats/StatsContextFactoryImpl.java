@@ -22,10 +22,10 @@ import java.util.Collections;
  * Native Implementation of {@link StatsContextFactory}.
  */
 final class StatsContextFactoryImpl extends StatsContextFactory {
-  private final StatsManagerImplBase statsManager;
+  private final StatsManagerImpl statsManager;
   private final StatsContextImpl defaultStatsContext;
 
-  StatsContextFactoryImpl(StatsManagerImplBase statsManager) {
+  StatsContextFactoryImpl(StatsManagerImpl statsManager) {
     this.statsManager = Preconditions.checkNotNull(statsManager);
     this.defaultStatsContext =
         new StatsContextImpl(statsManager, Collections.<TagKey, TagValue>emptyMap());

@@ -89,7 +89,7 @@ final class StatsSerializer {
 
   // Deserializes input to StatsContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static StatsContextImpl deserialize(StatsManagerImplBase statsManager, InputStream input)
+  static StatsContextImpl deserialize(StatsManagerImpl statsManager, InputStream input)
       throws IOException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
