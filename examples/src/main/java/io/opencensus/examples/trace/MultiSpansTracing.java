@@ -35,7 +35,7 @@ public final class MultiSpansTracing {
 
   /** Main method. */
   public static void main(String[] args) {
-    LoggingHandler.register(Tracing.getTraceExporter().getSpanExporter());
+    LoggingHandler.register(Tracing.getExportComponent().getSpanExporter());
     doWork();
   }
 }

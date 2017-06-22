@@ -48,7 +48,7 @@ public final class MultiSpansContextTracing {
 
   /** Main method. */
   public static void main(String[] args) {
-    LoggingHandler.register(Tracing.getTraceExporter().getSpanExporter());
+    LoggingHandler.register(Tracing.getExportComponent().getSpanExporter());
     Span span = tracer.spanBuilder("MyRootSpan").becomeRoot().startSpan();
     try (NonThrowingCloseable ws = tracer.withSpan(span)) {
       doWork();

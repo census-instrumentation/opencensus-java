@@ -60,7 +60,7 @@ public final class Tracing {
    *
    * @return the global {@code ExportComponent}.
    */
-  public static ExportComponent getTraceExporter() {
+  public static ExportComponent getExportComponent() {
     return traceComponent.getExportComponent();
   }
 
