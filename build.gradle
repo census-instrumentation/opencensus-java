@@ -209,12 +209,12 @@ subprojects {
                     name "OpenCensus"
                     packaging 'jar'
                     description project.description
-                    url 'https://github.com/census-instrumentation/instrumentation-java'
+                    url 'https://github.com/census-instrumentation/opencensus-java'
 
                     scm {
-                        connection 'scm:svn:https://github.com/census-instrumentation/instrumentation-java'
-                        developerConnection 'scm:git:git@github.com/census-instrumentation/instrumentation-java'
-                        url 'https://github.com/census-instrumentation/instrumentation-java'
+                        connection 'scm:svn:https://github.com/census-instrumentation/opencensus-java'
+                        developerConnection 'scm:git:git@github.com/census-instrumentation/opencensus-java'
+                        url 'https://github.com/census-instrumentation/opencensus-java'
                     }
 
                     licenses {
