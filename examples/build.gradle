@@ -7,9 +7,9 @@ tasks.withType(JavaCompile) {
 
 dependencies {
     compile project(':core'),
-            project(':core_impl'),
-            project(':core_impl_java'),
-            project(':opencensus-api'),
+            project(':opencensus-api')
+
+    runtime project(':core_impl_java'),
             project(':opencensus-impl')
 }
 
