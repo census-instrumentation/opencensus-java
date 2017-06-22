@@ -21,48 +21,16 @@ import io.opencensus.tags.TagKey.TagKeyString;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * {@link TagKey} paired with an optional value.
- */
+/** {@link TagKey} paired with an optional value. */
 @Immutable
-@AutoValue
 public abstract class Tag {
-
-  // The tag is either a TagString, TagLong, or TagBoolean.
-  abstract Object getTag();
 
   /**
    * Returns the tag's key.
    *
    * @return the tag's key.
    */
-  public TagKey getKey() {
-    return match(GET_TAG_KEY_STRING, GET_TAG_KEY_LONG, GET_TAG_KEY_BOOLEAN);
-  }
-
-  private static final Function<TagString, TagKey> GET_TAG_KEY_STRING =
-      new Function<TagString, TagKey>() {
-        @Override
-        public TagKey apply(TagString tag) {
-          return tag.getKey();
-        }
-      };
-
-  private static final Function<TagLong, TagKey> GET_TAG_KEY_LONG =
-      new Function<TagLong, TagKey>() {
-        @Override
-        public TagKey apply(TagLong tag) {
-          return tag.getKey();
-        }
-      };
-
-  private static final Function<TagBoolean, TagKey> GET_TAG_KEY_BOOLEAN =
-      new Function<TagBoolean, TagKey>() {
-        @Override
-        public TagKey apply(TagBoolean tag) {
-          return tag.getKey();
-        }
-      };
+  public abstract TagKey getKey();
 
   /**
    * Applies a function to the tag's key and value. The function that is called depends on the type
@@ -79,7 +47,7 @@ public abstract class Tag {
       Function<? super TagLong, T> longFunction,
       Function<? super TagBoolean, T> booleanFunction) {
     return matchWithDefault(
-        stringFunction, longFunction, booleanFunction, Tag.<T>throwAssertionError());
+        stringFunction, longFunction, booleanFunction, TagUtils.<T>throwAssertionError());
   }
 
   /**
@@ -98,36 +66,11 @@ public abstract class Tag {
   // TODO(sebright): How should we deal with the possibility of adding more tag types in the future?
   //                 Will this method work? What type of parameter should we use for the default
   //                 case? Should we remove the non-backwards compatible "match" method?
-  public <T> T matchWithDefault(
+  public abstract <T> T matchWithDefault(
       Function<? super TagString, T> stringFunction,
       Function<? super TagLong, T> longFunction,
       Function<? super TagBoolean, T> booleanFunction,
-      Function<Object, T> defaultFunction) {
-    Object tag = getTag();
-    if (tag instanceof TagString) {
-      return stringFunction.apply((TagString) tag);
-    } else if (tag instanceof TagLong) {
-      return longFunction.apply((TagLong) tag);
-    } else if (tag instanceof TagBoolean) {
-      return booleanFunction.apply((TagBoolean) tag);
-    } else {
-      return defaultFunction.apply(tag);
-    }
-  }
-
-  private static <T> Function<Object, T> throwAssertionError() {
-    @SuppressWarnings("unchecked")
-    Function<Object, T> function = (Function<Object, T>) THROW_ASSERTION_ERROR;
-    return function;
-  }
-
-  private static final Function<Object, Void> THROW_ASSERTION_ERROR =
-      new Function<Object, Void>() {
-        @Override
-        public Void apply(Object tag) {
-          throw new AssertionError();
-        }
-      };
+      Function<Object, T> defaultFunction);
 
   /**
    * Creates a {@code Tag} from the given {@code String} key and value.
@@ -137,7 +80,7 @@ public abstract class Tag {
    * @return a {@code Tag} with the given key and value.
    */
   public static Tag createStringTag(TagKeyString key, @Nullable TagValueString value) {
-    return createInternal(TagString.create(key, value));
+    return TagString.create(key, value);
   }
 
   /**
@@ -149,7 +92,7 @@ public abstract class Tag {
    */
   // TODO(sebright): Make this public once we support types other than String.
   static Tag createLongTag(TagKeyLong key, @Nullable Long value) {
-    return createInternal(TagLong.create(key, value));
+    return TagLong.create(key, value);
   }
 
   /**
@@ -161,28 +104,20 @@ public abstract class Tag {
    */
   // TODO(sebright): Make this public once we support types other than String.
   static Tag createBooleanTag(TagKeyBoolean key, @Nullable Boolean value) {
-    return createInternal(TagBoolean.create(key, value));
+    return TagBoolean.create(key, value);
   }
 
-  private static Tag createInternal(Object tag) {
-    return new AutoValue_Tag(tag);
-  }
-
-  /**
-   * A tag with a {@code String} key and value.
-   */
+  /** A tag with a {@code String} key and value. */
   @Immutable
   @AutoValue
-  public abstract static class TagString {
+  public abstract static class TagString extends Tag {
+    TagString() {}
+
     static TagString create(TagKeyString key, @Nullable TagValueString value) {
       return new AutoValue_Tag_TagString(key, value);
     }
 
-    /**
-     * Returns the associated tag key.
-     *
-     * @return the associated tag key.
-     */
+    @Override
     public abstract TagKeyString getKey();
 
     /**
@@ -192,23 +127,28 @@ public abstract class Tag {
      */
     @Nullable
     public abstract TagValueString getValue();
+
+    @Override
+    public <T> T matchWithDefault(
+        Function<? super TagString, T> stringFunction,
+        Function<? super TagLong, T> longFunction,
+        Function<? super TagBoolean, T> booleanFunction,
+        Function<Object, T> defaultFunction) {
+      return stringFunction.apply(this);
+    }
   }
 
-  /**
-   * A tag with a {@code Long} key and value.
-   */
+  /** A tag with a {@code Long} key and value. */
   @Immutable
   @AutoValue
-  public abstract static class TagLong {
+  public abstract static class TagLong extends Tag {
+    TagLong() {}
+
     static TagLong create(TagKeyLong key, @Nullable Long value) {
       return new AutoValue_Tag_TagLong(key, value);
     }
 
-    /**
-     * Returns the associated tag key.
-     *
-     * @return the associated tag key.
-     */
+    @Override
     public abstract TagKeyLong getKey();
 
     /**
@@ -218,23 +158,28 @@ public abstract class Tag {
      */
     @Nullable
     public abstract Long getValue();
+
+    @Override
+    public <T> T matchWithDefault(
+        Function<? super TagString, T> stringFunction,
+        Function<? super TagLong, T> longFunction,
+        Function<? super TagBoolean, T> booleanFunction,
+        Function<Object, T> defaultFunction) {
+      return longFunction.apply(this);
+    }
   }
 
-  /**
-   * A tag with a {@code Boolean} key and value.
-   */
+  /** A tag with a {@code Boolean} key and value. */
   @Immutable
   @AutoValue
-  public abstract static class TagBoolean {
+  public abstract static class TagBoolean extends Tag {
+    TagBoolean() {}
+
     static TagBoolean create(TagKeyBoolean key, @Nullable Boolean value) {
       return new AutoValue_Tag_TagBoolean(key, value);
     }
 
-    /**
-     * Returns the associated tag key.
-     *
-     * @return the associated tag key.
-     */
+    @Override
     public abstract TagKeyBoolean getKey();
 
     /**
@@ -244,5 +189,14 @@ public abstract class Tag {
      */
     @Nullable
     public abstract Boolean getValue();
+
+    @Override
+    public <T> T matchWithDefault(
+        Function<? super TagString, T> stringFunction,
+        Function<? super TagLong, T> longFunction,
+        Function<? super TagBoolean, T> booleanFunction,
+        Function<Object, T> defaultFunction) {
+      return booleanFunction.apply(this);
+    }
   }
 }
