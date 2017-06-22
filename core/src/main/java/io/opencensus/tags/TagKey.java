@@ -16,6 +16,7 @@ package io.opencensus.tags;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.common.Function;
 import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
@@ -87,6 +88,48 @@ public abstract class TagKey {
   public abstract String getName();
 
   /**
+   * Applies a function to the {@code TagKey} subclass. The function that is called depends on the
+   * type of the tag key. This is similar to the visitor pattern.
+   *
+   * @param stringFunction the function to call when the {@code TagKey} is a {@code TagKeyString}.
+   * @param longFunction the function to call when the {@code TagKey} is a {@code TagKeyLong}.
+   * @param booleanFunction the function to call when the {@code TagKey} is a {@code TagKeyBoolean}.
+   * @param <T> The result type of the function.
+   * @return The result of calling the function that matches the tag key's type.
+   */
+  // TODO(sebright): Should we make this public in the first release?
+  public <T> T match(
+      Function<? super TagKeyString, T> stringFunction,
+      Function<? super TagKeyLong, T> longFunction,
+      Function<? super TagKeyBoolean, T> booleanFunction) {
+    return matchWithDefault(
+        stringFunction, longFunction, booleanFunction, TagUtils.<T>throwAssertionError());
+  }
+
+  /**
+   * Applies a function to the {@code TagKey} subclass. This method is like {@link #match(Function,
+   * Function, Function)}, except that it has a default case, for backwards compatibility when tag
+   * types are added.
+   *
+   * @param stringFunction the function to call when the {@code TagKey} is a {@code TagKeyString}.
+   * @param longFunction the function to call when the {@code TagKey} is a {@code TagKeyLong}.
+   * @param booleanFunction the function to call when the {@code TagKey} is a {@code TagKeyBoolean}.
+   * @param defaultFunction the function to call when the tag key has a type other than
+   *     {@code String}, {@code long}, or {@code boolean}.
+   * @param <T> The result type of the function.
+   * @return The result of calling the function that matches the tag key's type.
+   */
+  // TODO(sebright): Should we make this public in the first release?
+  // TODO(sebright): How should we deal with the possibility of adding more tag types in the future?
+  //                 Will this method work? What type of parameter should we use for the default
+  //                 case? Should we remove the non-backwards compatible "match" method?
+  public abstract <T> T matchWithDefault(
+      Function<? super TagKeyString, T> stringFunction,
+      Function<? super TagKeyLong, T> longFunction,
+      Function<? super TagKeyBoolean, T> booleanFunction,
+      Function<Object, T> defaultFunction);
+
+  /**
    * A {@code TagKey} for values of type {@code String}.
    */
   @Immutable
@@ -94,6 +137,15 @@ public abstract class TagKey {
   public abstract static class TagKeyString extends TagKey {
     static TagKeyString create(String name) {
       return new AutoValue_TagKey_TagKeyString(name);
+    }
+
+    @Override
+    public <T> T matchWithDefault(
+        Function<? super TagKeyString, T> stringFunction,
+        Function<? super TagKeyLong, T> longFunction,
+        Function<? super TagKeyBoolean, T> booleanFunction,
+        Function<Object, T> defaultFunction) {
+      return stringFunction.apply(this);
     }
   }
 
@@ -106,6 +158,15 @@ public abstract class TagKey {
     static TagKeyLong create(String name) {
       return new AutoValue_TagKey_TagKeyLong(name);
     }
+
+    @Override
+    public <T> T matchWithDefault(
+        Function<? super TagKeyString, T> stringFunction,
+        Function<? super TagKeyLong, T> longFunction,
+        Function<? super TagKeyBoolean, T> booleanFunction,
+        Function<Object, T> defaultFunction) {
+      return longFunction.apply(this);
+    }
   }
 
   /**
@@ -116,6 +177,15 @@ public abstract class TagKey {
   public abstract static class TagKeyBoolean extends TagKey {
     static TagKeyBoolean create(String name) {
       return new AutoValue_TagKey_TagKeyBoolean(name);
+    }
+
+    @Override
+    public <T> T matchWithDefault(
+        Function<? super TagKeyString, T> stringFunction,
+        Function<? super TagKeyLong, T> longFunction,
+        Function<? super TagKeyBoolean, T> booleanFunction,
+        Function<Object, T> defaultFunction) {
+      return booleanFunction.apply(this);
     }
   }
 }
