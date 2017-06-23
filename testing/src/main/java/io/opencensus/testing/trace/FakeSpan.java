@@ -20,8 +20,14 @@ import io.opencensus.trace.base.AttributeValue;
 import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
-import io.opencensus.trace.base.StartSpanOptions;
+import io.opencensus.trace.base.Sampler;
+import io.opencensus.trace.base.SpanId;
+import io.opencensus.trace.base.TraceId;
+import io.opencensus.trace.base.TraceOptions;
+import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -30,30 +36,75 @@ import javax.annotation.Nullable;
  * Span}.
  */
 public class FakeSpan extends Span {
-  @Nullable private final SpanContext parentSpanContext;
+  private static final SecureRandom random = new SecureRandom();
   private final String name;
-  private final StartSpanOptions startSpanOptions;
+  @Nullable private final Span parentSpan;
+  @Nullable private final SpanContext remoteParentSpanContext;
+  @Nullable private final Sampler sampler;
+  private final List<Span> parentLinks;
 
   FakeSpan(
-      SpanContext parentSpanContext,
       SpanContext context,
       EnumSet<Span.Options> options,
       String name,
-      StartSpanOptions startSpanOptions) {
+      @Nullable Span parentSpan,
+      @Nullable SpanContext remoteParentSpanContext,
+      @Nullable Sampler sampler,
+      List<Span> parentLinks) {
     super(context, options);
-    this.parentSpanContext = parentSpanContext;
+    this.parentSpan = parentSpan;
+    this.remoteParentSpanContext = remoteParentSpanContext;
     this.name = name;
-    this.startSpanOptions = startSpanOptions;
+    this.sampler = sampler;
+    this.parentLinks = parentLinks;
   }
 
   /**
-   * Returns the parent {@code SpanContext} or {@code null} if this is a root {@code Span}.
+   * Returns a new {@code Span} that can be used in tests as a parent {@code Span} for other spans.
    *
-   * @return the parent {@code SpanContext} or {@code null} if this is a root {@code Span}.
+   * @return a new {@code Span} that can be used in tests as a parent {@code Span} for other spans.
    */
-  @Nullable
-  public SpanContext getParentSpanContext() {
-    return parentSpanContext;
+  public static FakeSpan generateParentSpan() {
+    return new FakeSpan(
+        SpanContext.create(
+            TraceId.generateRandomId(random),
+            SpanId.generateRandomId(random),
+            TraceOptions.DEFAULT),
+        EnumSet.noneOf(Span.Options.class),
+        "FakeParentSpan",
+        null,
+        null,
+        null,
+        Collections.<Span>emptyList());
+  }
+
+  /**
+   * Returns {@code true} if this {@code Span} is a remote child of the given {@code SpanContext}.
+   *
+   * @param spanContext the remote parent {@code SpanContext}.
+   * @return {@code true} if this {@code Span} is a remote child of the given {@code SpanContext}.
+   */
+  public final boolean isRemoteChildOf(SpanContext spanContext) {
+    return spanContext != null && remoteParentSpanContext == spanContext;
+  }
+
+  /**
+   * Returns {@code true} if this {@code Span} is a child of the given {@code Span}.
+   *
+   * @param span the parent {@code Span}.
+   * @return {@code true} if this {@code Span} is a child of the given {@code Span}.
+   */
+  public final boolean isChildOf(Span span) {
+    return span != null && parentSpan == span;
+  }
+
+  /**
+   * Returns {@code true} if this is a root {@code Span}.
+   *
+   * @return {@code true} if this is a root {@code Span}.
+   */
+  public final boolean isRoot() {
+    return parentSpan == null && remoteParentSpanContext == null;
   }
 
   /**
@@ -61,17 +112,26 @@ public class FakeSpan extends Span {
    *
    * @return the configured name for this {@code Span}.
    */
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
   /**
-   * Returns the configured {@code StartSpanOptions} for this {@code Span}.
+   * Returns the {@code Sampler} used to make the sampling decision for this {@code Span}.
    *
-   * @return the configured {@code StartSpanOptions} for this {@code Span}.
+   * @return the {@code Sampler} used to make the sampling decision for this {@code Span}.
    */
-  public StartSpanOptions getStartSpanOptions() {
-    return startSpanOptions;
+  public final Sampler getSampler() {
+    return sampler;
+  }
+
+  /**
+   * Returns the list of parent links configured when started this {@code Span}.
+   *
+   * @return the list of parent links configured when started this {@code Span}.
+   */
+  public final List<Span> getParentLinks() {
+    return parentLinks;
   }
 
   @Override
