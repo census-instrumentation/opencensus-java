@@ -31,7 +31,7 @@ public final class StatsTest {
     final RuntimeException toThrow = new RuntimeException("UseClassLoader");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("UseClassLoader");
-    Stats.loadStatsManager(
+    Stats.loadStatsComponent(
         new ClassLoader() {
           @Override
           public Class<?> loadClass(String name) {
@@ -43,7 +43,7 @@ public final class StatsTest {
   @Test
   public void loadStatsManager_IgnoresMissingClasses() {
     assertThat(
-            Stats.loadStatsManager(
+            Stats.loadStatsComponent(
                     new ClassLoader() {
                       @Override
                       public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -56,6 +56,7 @@ public final class StatsTest {
   @Test
   public void defaultValues() {
     assertThat(Stats.getStatsContextFactory()).isNull();
-    assertThat(Stats.getStatsManager()).isNull();
+    assertThat(Stats.getStatsRecorder()).isNull();
+    assertThat(Stats.getViewManager()).isNull();
   }
 }

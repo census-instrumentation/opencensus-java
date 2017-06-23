@@ -22,13 +22,13 @@ import java.util.Collections;
  * Native Implementation of {@link StatsContextFactory}.
  */
 final class StatsContextFactoryImpl extends StatsContextFactory {
-  private final StatsManagerImplBase statsManager;
+  private final StatsRecorderImpl statsRecorder;
   private final StatsContextImpl defaultStatsContext;
 
-  StatsContextFactoryImpl(StatsManagerImplBase statsManager) {
-    this.statsManager = Preconditions.checkNotNull(statsManager);
+  StatsContextFactoryImpl(StatsRecorderImpl statsRecorder) {
+    this.statsRecorder = Preconditions.checkNotNull(statsRecorder);
     this.defaultStatsContext =
-        new StatsContextImpl(statsManager, Collections.<TagKey, TagValue>emptyMap());
+        new StatsContextImpl(statsRecorder, Collections.<TagKey, TagValue>emptyMap());
   }
 
   /**
@@ -38,7 +38,7 @@ final class StatsContextFactoryImpl extends StatsContextFactory {
    */
   @Override
   public StatsContextImpl deserialize(InputStream input) throws IOException {
-    return StatsSerializer.deserialize(statsManager, input);
+    return StatsSerializer.deserialize(statsRecorder, input);
   }
 
   @Override

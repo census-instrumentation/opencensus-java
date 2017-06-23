@@ -14,13 +14,15 @@
 package io.opencensus.stats;
 
 import io.opencensus.common.MillisClock;
-import io.opencensus.internal.DisruptorEventQueue;
+import io.opencensus.internal.SimpleEventQueue;
 
-/** Java 7 and 8 implementation of {@link StatsManager}. */
-public final class StatsManagerImpl extends StatsManagerImplBase {
+/**
+ * Android-compatible implementation of {@link StatsComponent}.
+ */
+public final class StatsComponentImplLite extends StatsComponentImplBase {
 
-  /** Public constructor to be used with reflection loading. */
-  public StatsManagerImpl() {
-    super(DisruptorEventQueue.getInstance(), MillisClock.getInstance());
+  public StatsComponentImplLite() {
+    // TODO(sebright): Use a more efficient queue implementation.
+    super(new SimpleEventQueue(), MillisClock.getInstance());
   }
 }

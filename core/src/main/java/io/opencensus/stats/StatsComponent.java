@@ -13,16 +13,19 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.common.MillisClock;
-import io.opencensus.internal.SimpleEventQueue;
-
 /**
- * Android-compatible implementation of {@link StatsManager}.
+ * Class that holds the implementations for {@link ViewManager}, {@link StatsRecorder}, and {@link
+ * StatsContextFactory}.
+ *
+ * <p>All objects returned by methods on {@code StatsComponent} are cacheable.
  */
-public final class StatsManagerImplLite extends StatsManagerImplBase {
+public abstract class StatsComponent {
+  /** Returns the default {@link ViewManager}. */
+  public abstract ViewManager getViewManager();
 
-  public StatsManagerImplLite() {
-    // TODO(sebright): Use a more efficient queue implementation.
-    super(new SimpleEventQueue(), MillisClock.getInstance());
-  }
+  /** Returns the default {@link StatsRecorder}. */
+  public abstract StatsRecorder getStatsRecorder();
+
+  /** Returns the default {@link StatsContextFactory}. */
+  abstract StatsContextFactory getStatsContextFactory();
 }

@@ -89,7 +89,7 @@ final class StatsSerializer {
 
   // Deserializes input to StatsContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static StatsContextImpl deserialize(StatsManagerImplBase statsManager, InputStream input)
+  static StatsContextImpl deserialize(StatsRecorderImpl statsRecorder, InputStream input)
       throws IOException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
@@ -123,7 +123,7 @@ final class StatsSerializer {
             throw new IOException("Unsupported tag value type.");
         }
       }
-      return new StatsContextImpl(statsManager, tags);
+      return new StatsContextImpl(statsRecorder, tags);
     } catch (BufferUnderflowException exn) {
       throw new IOException(exn.toString());  // byte array format error.
     }

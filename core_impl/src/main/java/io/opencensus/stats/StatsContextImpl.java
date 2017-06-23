@@ -24,22 +24,22 @@ import java.util.Map;
  * Native Implementation of {@link StatsContext}.
  */
 final class StatsContextImpl extends StatsContext {
-  private final StatsManagerImplBase statsManager;
+  private final StatsRecorderImpl statsRecorder;
   final Map<TagKey, TagValue> tags;
 
-  StatsContextImpl(StatsManagerImplBase statsManager, Map<TagKey, TagValue> tags) {
-    this.statsManager = Preconditions.checkNotNull(statsManager);
+  StatsContextImpl(StatsRecorderImpl statsRecorder, Map<TagKey, TagValue> tags) {
+    this.statsRecorder = Preconditions.checkNotNull(statsRecorder);
     this.tags = Preconditions.checkNotNull(tags);
   }
 
   @Override
   public Builder builder() {
-    return new Builder(statsManager, tags);
+    return new Builder(statsRecorder, tags);
   }
 
   @Override
   public StatsContextImpl record(MeasurementMap stats) {
-    statsManager.record(this, stats);
+    statsRecorder.record(this, stats);
     return this;
   }
 
@@ -69,11 +69,11 @@ final class StatsContextImpl extends StatsContext {
   }
 
   static final class Builder extends StatsContext.Builder {
-    private final StatsManagerImplBase statsManager;
+    private final StatsRecorderImpl statsRecorder;
     private final HashMap<TagKey, TagValue> tags;
 
-    private Builder(StatsManagerImplBase statsManager, Map<TagKey, TagValue> tags) {
-      this.statsManager = statsManager;
+    private Builder(StatsRecorderImpl statsRecorder, Map<TagKey, TagValue> tags) {
+      this.statsRecorder = statsRecorder;
       this.tags = new HashMap<TagKey, TagValue>(tags);
     }
 
@@ -86,7 +86,7 @@ final class StatsContextImpl extends StatsContext {
     @Override
     public StatsContextImpl build() {
       return new StatsContextImpl(
-          statsManager, Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags)));
+          statsRecorder, Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags)));
     }
   }
 }
