@@ -9,6 +9,7 @@ targetCompatibility = 1.7
 
 def agentPackage = 'io.opencensus.contrib.agent'
 def agentMainClass = "${agentPackage}.AgentMain"
+def agentRepackaged = "${agentPackage}.deps"
 
 dependencies {
   compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
@@ -31,10 +32,31 @@ shadowJar {
   baseName = 'opencensus-agent'
   classifier = null
 
-  // TODO(stschmidt): Relocate third party packages to avoid any conflicts of the agent's classes
-  // with the app's classes, which are loaded by the same classloader (the system classloader).
+  // Include only the following dependencies (excluding transitive dependencies).
+  dependencies {
+    include(dependency('net.bytebuddy:byte-buddy'))
+  }
 
-  // TODO(stschmidt): Assert that there's nothing unexpected left outside of ${agentPackage}.
+  // Exclude cruft which still snuck in.
+  exclude 'META-INF/maven/**'
+
+  // Relocate third party packages to avoid any conflicts of the agent's classes with the app's
+  // classes, which are loaded by the same classloader (the system classloader).
+  relocate 'net.bytebuddy', agentRepackaged + '.bytebuddy'
+
+  doLast {
+    // Assert that there's nothing unexpected left outside of ${agentPackage}.
+    def agentPackageDir = agentPackage.replace('.', '/') + '/'
+
+    new java.util.zip.ZipFile(shadowJar.archivePath).withCloseable {
+      it.entries().each {
+        assert it.name.startsWith(agentPackageDir) ||
+               (it.isDirectory() && agentPackageDir.startsWith(it.name)) ||
+               it.name == 'META-INF/' ||
+               it.name == 'META-INF/MANIFEST.MF'
+      }
+    }
+  }
 }
 
 jar.finalizedBy shadowJar
