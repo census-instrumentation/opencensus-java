@@ -15,6 +15,12 @@ package io.opencensus.stats;
 
 /** Provides methods to record stats against tags. */
 public abstract class StatsRecorder {
+  //  // TODO(sebright): Add a "record" method for implicit propagation:
+  //
+  //  public void record(MeasurementMap measurementValues) {
+  //    record(getCurrentTagContext(), measurementValues);
+  //  }
+
   /**
    * Records a set of measurements with a set of tags.
    *

@@ -19,6 +19,7 @@ package io.opencensus.stats;
  *
  * <p>All objects returned by methods on {@code StatsComponent} are cacheable.
  */
+// TODO(sebright): Add a no-op StatsComponent.
 public abstract class StatsComponent {
   /** Returns the default {@link ViewManager}. */
   public abstract ViewManager getViewManager();
@@ -27,5 +28,6 @@ public abstract class StatsComponent {
   public abstract StatsRecorder getStatsRecorder();
 
   /** Returns the default {@link StatsContextFactory}. */
+  // TODO(sebright): Remove this method once StatsContext is replaced by TagContext.
   abstract StatsContextFactory getStatsContextFactory();
 }
