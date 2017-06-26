@@ -46,10 +46,10 @@ public abstract class ViewDescriptor {
   /**
    * Measurement type of this view.
    */
-  public abstract MeasurementDescriptor getMeasurementDescriptor();
+  public abstract Measure getMeasure();
 
   /**
-   * Tag keys to match with the associated {@link MeasurementDescriptor}. If no keys are specified,
+   * Tag keys to match with the associated {@link Measure}. If no keys are specified,
    * then all stats are recorded. Keys must be unique.
    *
    * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
@@ -104,13 +104,13 @@ public abstract class ViewDescriptor {
     public static DistributionViewDescriptor create(
         String name,
         String description,
-        MeasurementDescriptor measurementDescriptor,
+        Measure measure,
         DistributionAggregationDescriptor distributionAggregationDescriptor,
         List<TagKey> tagKeys) {
       return create(
           Name.create(name),
           description,
-          measurementDescriptor,
+          measure,
           distributionAggregationDescriptor,
           tagKeys);
     }
@@ -121,13 +121,13 @@ public abstract class ViewDescriptor {
     public static DistributionViewDescriptor create(
         Name name,
         String description,
-        MeasurementDescriptor measurementDescriptor,
+        Measure measure,
         DistributionAggregationDescriptor distributionAggregationDescriptor,
         List<TagKey> tagKeys) {
       return new AutoValue_ViewDescriptor_DistributionViewDescriptor(
           name,
           description,
-          measurementDescriptor,
+          measure,
           Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys)),
           distributionAggregationDescriptor);
     }
@@ -158,13 +158,13 @@ public abstract class ViewDescriptor {
     public static IntervalViewDescriptor create(
         String name,
         String description,
-        MeasurementDescriptor measurementDescriptor,
+        Measure measure,
         IntervalAggregationDescriptor intervalAggregationDescriptor,
         List<TagKey> tagKeys) {
       return create(
           Name.create(name),
           description,
-          measurementDescriptor,
+          measure,
           intervalAggregationDescriptor,
           tagKeys);
     }
@@ -175,13 +175,13 @@ public abstract class ViewDescriptor {
     public static IntervalViewDescriptor create(
         Name name,
         String description,
-        MeasurementDescriptor measurementDescriptor,
+        Measure measure,
         IntervalAggregationDescriptor intervalAggregationDescriptor,
         List<TagKey> tagKeys) {
       return new AutoValue_ViewDescriptor_IntervalViewDescriptor(
           name,
           description,
-          measurementDescriptor,
+          measure,
           Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys)),
           intervalAggregationDescriptor);
     }

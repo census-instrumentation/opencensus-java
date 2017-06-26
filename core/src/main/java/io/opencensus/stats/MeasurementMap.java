@@ -18,33 +18,33 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A map from {@link MeasurementDescriptor}'s to measured values.
+ * A map from {@link Measure}'s to measured values.
  */
 public final class MeasurementMap implements Iterable<MeasurementValue> {
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link MeasurementDescriptor}
+   * Constructs a {@link MeasurementMap} from the given {@link Measure}
    * and associated value.
    */
-  public static MeasurementMap of(MeasurementDescriptor measurement, double value) {
+  public static MeasurementMap of(Measure measurement, double value) {
     return builder().put(measurement, value).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link MeasurementDescriptor}'s
+   * Constructs a {@link MeasurementMap} from the given {@link Measure}'s
    * and associated values.
    */
-  public static MeasurementMap of(MeasurementDescriptor measurement1, double value1,
-      MeasurementDescriptor measurement2, double value2) {
+  public static MeasurementMap of(Measure measurement1, double value1,
+      Measure measurement2, double value2) {
     return builder().put(measurement1, value1).put(measurement2, value2).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link MeasurementDescriptor}'s
+   * Constructs a {@link MeasurementMap} from the given {@link Measure}'s
    * and associated values.
    */
-  public static MeasurementMap of(MeasurementDescriptor measurement1, double value1,
-      MeasurementDescriptor measurement2, double value2,
-      MeasurementDescriptor measurement3, double value3) {
+  public static MeasurementMap of(Measure measurement1, double value1,
+      Measure measurement2, double value2,
+      Measure measurement3, double value3) {
     return builder().put(measurement1, value1).put(measurement2, value2).put(measurement3, value3)
         .build();
   }
@@ -83,14 +83,14 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
    */
   public static class Builder {
     /**
-     * Associates the {@link MeasurementDescriptor} with the given value. Subsequent updates to the
-     * same {@link MeasurementDescriptor} are ignored.
+     * Associates the {@link Measure} with the given value. Subsequent updates to the
+     * same {@link Measure} are ignored.
      *
-     * @param measurement the {@link MeasurementDescriptor}
+     * @param measurement the {@link Measure}
      * @param value the value to be associated with {@code measurement}
      * @return this
      */
-    public Builder put(MeasurementDescriptor measurement, double value) {
+    public Builder put(Measure measurement, double value) {
       measurements.add(MeasurementValue.create(measurement, value));
       return this;
     }
@@ -103,10 +103,10 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
       // MeasurementMaps that we should see. We may want to go to a strategy of sort/eliminate
       // for larger MeasurementMaps.
       for (int i = 0; i < measurements.size(); i++) {
-        MeasurementDescriptor.Name current =
-            measurements.get(i).getMeasurement().getMeasurementDescriptorName();
+        Measure.Name current =
+            measurements.get(i).getMeasurement().getMeasureName();
         for (int j = i + 1; j < measurements.size(); j++) {
-          if (current.equals(measurements.get(j).getMeasurement().getMeasurementDescriptorName())) {
+          if (current.equals(measurements.get(j).getMeasurement().getMeasureName())) {
             measurements.remove(j);
             j--;
           }

@@ -22,8 +22,6 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.DistributionAggregation.Range;
 import io.opencensus.stats.IntervalAggregation.Interval;
-import io.opencensus.stats.MeasurementDescriptor.BasicUnit;
-import io.opencensus.stats.MeasurementDescriptor.MeasurementUnit;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
@@ -46,7 +44,7 @@ public final class ViewTest {
         DistributionAggregationDescriptor.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
     final DistributionViewDescriptor viewDescriptor =
         DistributionViewDescriptor.create(
-            name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
+            name, description, measure, aggregationDescriptor, tagKeys);
     final List<DistributionAggregation> aggregations = Arrays.asList(
         DistributionAggregation.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
             Arrays.asList(1L, 1L, 1L, 1L, 1L)),
@@ -80,7 +78,7 @@ public final class ViewTest {
         IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111)));
     final IntervalViewDescriptor viewDescriptor =
         IntervalViewDescriptor.create(
-            name, description, measurementDescriptor, aggregationDescriptor, tagKeys);
+            name, description, measure, aggregationDescriptor, tagKeys);
     final List<IntervalAggregation> aggregations = Arrays.asList(
         IntervalAggregation.create(tags1, Arrays.asList(
             Interval.create(Duration.fromMillis(111), 10, 100))),
@@ -110,7 +108,7 @@ public final class ViewTest {
         DistributionViewDescriptor.create(
             name,
             description,
-            measurementDescriptor,
+            measure,
             DistributionAggregationDescriptor.create(Arrays.asList(10.0)),
             tagKeys);
     List<DistributionAggregation> dAggregations =
@@ -121,7 +119,7 @@ public final class ViewTest {
         IntervalViewDescriptor.create(
             name,
             description,
-            measurementDescriptor,
+            measure,
             IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111))),
             tagKeys);
     List<IntervalAggregation> iAggregations =
@@ -175,10 +173,10 @@ public final class ViewTest {
   // description
   private final String description = "test-view-descriptor description";
   // measurement descriptor
-  private final MeasurementDescriptor measurementDescriptor = MeasurementDescriptor.create(
+  private final Measure measure = Measure.DoubleMeasure.create(
       "measurement-descriptor",
       "measurement-descriptor description",
-      MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR)));
+      "1");
 
   private static final <T> boolean shallowListEquals(List<T> l1, List <T> l2) {
     if (l1.size() != l2.size()) {
