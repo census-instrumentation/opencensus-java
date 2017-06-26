@@ -73,48 +73,20 @@ public abstract class Tag {
       Function<? super TagBoolean, T> booleanFunction,
       Function<? super Tag, T> defaultFunction);
 
-  /**
-   * Creates a {@code Tag} from the given {@code String} key and value.
-   *
-   * @param key the tag key.
-   * @param value the tag value, or {@code null} if the key is not paired with a value.
-   * @return a {@code Tag} with the given key and value.
-   */
-  public static Tag createStringTag(TagKeyString key, @Nullable TagValueString value) {
-    return TagString.create(key, value);
-  }
-
-  /**
-   * Creates a {@code Tag} from the given {@code Long} key and value.
-   *
-   * @param key the tag key.
-   * @param value the tag value, or {@code null} if the key is not paired with a value.
-   * @return a {@code Tag} with the given key and value.
-   */
-  // TODO(sebright): Make this public once we support types other than String.
-  static Tag createLongTag(TagKeyLong key, @Nullable Long value) {
-    return TagLong.create(key, value);
-  }
-
-  /**
-   * Creates a {@code Tag} from the given {@code Boolean} key and value.
-   *
-   * @param key the tag key.
-   * @param value the tag value, or {@code null} if the key is not paired with a value.
-   * @return a {@code Tag} with the given key and value.
-   */
-  // TODO(sebright): Make this public once we support types other than String.
-  static Tag createBooleanTag(TagKeyBoolean key, @Nullable Boolean value) {
-    return TagBoolean.create(key, value);
-  }
-
   /** A tag with a {@code String} key and value. */
   @Immutable
   @AutoValue
   public abstract static class TagString extends Tag {
     TagString() {}
 
-    static TagString create(TagKeyString key, @Nullable TagValueString value) {
+    /**
+     * Creates a {@code TagString} from the given {@code String} key and value.
+     *
+     * @param key the tag key.
+     * @param value the tag value, or {@code null} if the key is not paired with a value.
+     * @return a {@code TagString} with the given key and value.
+     */
+    public static Tag create(TagKeyString key, @Nullable TagValueString value) {
       return new AutoValue_Tag_TagString(key, value);
     }
 
@@ -145,7 +117,15 @@ public abstract class Tag {
   public abstract static class TagLong extends Tag {
     TagLong() {}
 
-    static TagLong create(TagKeyLong key, @Nullable Long value) {
+    /**
+     * Creates a {@code TagLong} from the given {@code Long} key and value.
+     *
+     * @param key the tag key.
+     * @param value the tag value, or {@code null} if the key is not paired with a value.
+     * @return a {@code TagLong} with the given key and value.
+     */
+    // TODO(sebright): Make this public once we support types other than String.
+    static Tag create(TagKeyLong key, @Nullable Long value) {
       return new AutoValue_Tag_TagLong(key, value);
     }
 
@@ -176,7 +156,15 @@ public abstract class Tag {
   public abstract static class TagBoolean extends Tag {
     TagBoolean() {}
 
-    static TagBoolean create(TagKeyBoolean key, @Nullable Boolean value) {
+    /**
+     * Creates a {@code TagBoolean} from the given {@code Boolean} key and value.
+     *
+     * @param key the tag key.
+     * @param value the tag value, or {@code null} if the key is not paired with a value.
+     * @return a {@code TagBoolean} with the given key and value.
+     */
+    // TODO(sebright): Make this public once we support types other than String.
+    static Tag create(TagKeyBoolean key, @Nullable Boolean value) {
       return new AutoValue_Tag_TagBoolean(key, value);
     }
 
