@@ -35,7 +35,16 @@ public abstract class Tag {
 
   /**
    * Applies a function to the tag's key and value. The function that is called depends on the type
-   * of the tag. This is similar to the visitor pattern.
+   * of the tag. This is similar to the visitor pattern. For example, this code serializes a {@code
+   * Tag}.
+   *
+   * <pre>{@code
+   * byte[] serializedValue =
+   *     tag.match(
+   *         stringTag -> serializeString(stringTag.getValue().asString()),
+   *         longTag -> serializeLong(longTag.getValue()),
+   *         booleanTag -> serializeBoolean(booleanTag.getValue()));
+   * }</pre>
    *
    * @param stringFunction the function to call when the tag has a {@code String} value.
    * @param longFunction the function to call when the tag has a {@code Long} value.
@@ -54,7 +63,17 @@ public abstract class Tag {
   /**
    * Applies a function to the tag's key and value. This method is like {@link #match(Function,
    * Function, Function)}, except that it has a default case, for backwards compatibility when tag
-   * types are added.
+   * types are added. For example, this code serializes a {@code Tag} and tries to handle new tag
+   * types by calling {@code toString()}.
+   *
+   * <pre>{@code
+   * byte[] serializedValue =
+   *     tag.matchWithDefault(
+   *         stringTag -> serializeString(stringTag.getValue().asString()),
+   *         longTag -> serializeLong(longTag.getValue()),
+   *         booleanTag -> serializeBoolean(booleanTag.getValue()),
+   *         unknownTag -> serializeString(unknownTag.toString()));
+   * }</pre>
    *
    * @param stringFunction the function to call when the tag has a {@code String} value.
    * @param longFunction the function to call when the tag has a {@code Long} value.

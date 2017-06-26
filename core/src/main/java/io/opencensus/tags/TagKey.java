@@ -32,7 +32,16 @@ public abstract class TagKey {
 
   /**
    * Applies a function to the {@code TagKey} subclass. The function that is called depends on the
-   * type of the tag key. This is similar to the visitor pattern.
+   * type of the tag key. This is similar to the visitor pattern. For example, this code creates a
+   * {@code Tag} from a {@code TagKey}.
+   *
+   * <pre>{@code
+   * Tag tag =
+   *     tagKey.match(
+   *         stringKey -> TagString.create(stringKey, TagValueString.create("string value")),
+   *         longKey -> TagLong.create(longKey, 100L),
+   *         booleanKey -> TagBoolean.create(booleanKey, true));
+   * }</pre>
    *
    * @param stringFunction the function to call when the {@code TagKey} is a {@code TagKeyString}.
    * @param longFunction the function to call when the {@code TagKey} is a {@code TagKeyLong}.
@@ -52,7 +61,22 @@ public abstract class TagKey {
   /**
    * Applies a function to the {@code TagKey} subclass. This method is like {@link #match(Function,
    * Function, Function)}, except that it has a default case, for backwards compatibility when tag
-   * types are added.
+   * types are added. For example, this code creates a {@code Tag} from a {@code TagKey}. It handles
+   * new tag types by logging an error and returning a {@code TagKeyString}.
+   *
+   * <pre>{@code
+   * Tag tag =
+   *     tagKey.matchWithDefault(
+   *         stringKey -> TagString.create(stringKey, TagValueString.create("string value")),
+   *         longKey -> TagLong.create(longKey, 100L),
+   *         booleanKey -> TagBoolean.create(booleanKey, true),
+   *         unknownKey -> {
+   *           logger.log(Level.WARNING, "Unknown tag key type: " + unknownKey.toString());
+   *           return TagString.create(
+   *               TagKeyString.create(unknownKey.getName()),
+   *               TagValueString.create("string value"));
+   *         });
+   * }</pre>
    *
    * @param stringFunction the function to call when the {@code TagKey} is a {@code TagKeyString}.
    * @param longFunction the function to call when the {@code TagKey} is a {@code TagKeyLong}.
