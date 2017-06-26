@@ -19,51 +19,57 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-/** {@link Stats}. */
+/** Class for accessing the default {@link StatsComponent}. */
 public final class Stats {
   private static final Logger logger = Logger.getLogger(Stats.class.getName());
 
-  private static final StatsManager statsManager =
-      loadStatsManager(Provider.getCorrectClassLoader(StatsManager.class));
+  private static final StatsComponent statsComponent =
+      loadStatsComponent(Provider.getCorrectClassLoader(StatsComponent.class));
 
   /** Returns the default {@link StatsContextFactory}. */
   @Nullable
   public static StatsContextFactory getStatsContextFactory() {
-    return statsManager == null ? null : statsManager.getStatsContextFactory();
+    return statsComponent == null ? null : statsComponent.getStatsContextFactory();
   }
 
-  /** Returns the default {@link StatsManager}. */
+  /** Returns the default {@link StatsRecorder}. */
   @Nullable
-  public static StatsManager getStatsManager() {
-    return statsManager;
+  public static StatsRecorder getStatsRecorder() {
+    return statsComponent == null ? null : statsComponent.getStatsRecorder();
   }
 
-  // Any provider that may be used for StatsManager can be added here.
+  /** Returns the default {@link ViewManager}. */
+  @Nullable
+  public static ViewManager getViewManager() {
+    return statsComponent == null ? null : statsComponent.getViewManager();
+  }
+
+  // Any provider that may be used for StatsComponent can be added here.
   @VisibleForTesting
   @Nullable
-  static StatsManager loadStatsManager(ClassLoader classLoader) {
+  static StatsComponent loadStatsComponent(ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsManagerImpl", true, classLoader),
-          StatsManager.class);
+          Class.forName("io.opencensus.stats.StatsComponentImpl", true, classLoader),
+          StatsComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(
           Level.FINE,
-          "Couldn't load full implementation for StatsManager, now trying to load lite "
+          "Couldn't load full implementation for StatsComponent, now trying to load lite "
               + "implementation.",
           e);
     }
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsManagerImplLite", true, classLoader),
-          StatsManager.class);
+          Class.forName("io.opencensus.stats.StatsComponentImplLite", true, classLoader),
+          StatsComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(
           Level.FINE,
-          "Couldn't load lite implementation for StatsManager, now using "
-              + "default implementation for StatsManager.",
+          "Couldn't load lite implementation for StatsComponent, now using "
+              + "default implementation for StatsComponent.",
           e);
     }
     // TODO: Add a no-op implementation.

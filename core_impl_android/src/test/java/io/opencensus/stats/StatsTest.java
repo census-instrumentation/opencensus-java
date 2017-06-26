@@ -20,17 +20,22 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Test for accessing the {@link StatsManager} through the {@link Stats} class.
+ * Test for accessing the {@link StatsComponent} through the {@link Stats} class.
  */
 @RunWith(JUnit4.class)
 public final class StatsTest {
   @Test
-  public void getStatsManager() {
-    assertThat(Stats.getStatsManager()).isInstanceOf(StatsManagerImplLite.class);
+  public void getStatsRecorder() {
+    assertThat(Stats.getStatsRecorder()).isInstanceOf(StatsRecorderImpl.class);
+  }
+
+  @Test
+  public void getViewManager() {
+    assertThat(Stats.getViewManager()).isInstanceOf(ViewManagerImpl.class);
   }
 
   @Test
   public void getStatsContextFactory() {
-    assertThat(Stats.getStatsContextFactory()).isNotNull();
+    assertThat(Stats.getStatsContextFactory()).isInstanceOf(StatsContextFactoryImpl.class);
   }
 }

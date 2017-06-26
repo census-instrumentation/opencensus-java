@@ -13,14 +13,17 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.common.MillisClock;
-import io.opencensus.internal.DisruptorEventQueue;
+/** Implementation of {@link StatsRecorder}. */
+final class StatsRecorderImpl extends StatsRecorder {
+  private final StatsManager statsManager;
 
-/** Java 7 and 8 implementation of {@link StatsManager}. */
-public final class StatsManagerImpl extends StatsManagerImplBase {
+  StatsRecorderImpl(StatsManager statsManager) {
+    this.statsManager = statsManager;
+  }
 
-  /** Public constructor to be used with reflection loading. */
-  public StatsManagerImpl() {
-    super(DisruptorEventQueue.getInstance(), MillisClock.getInstance());
+  @Override
+  void record(StatsContext tags, MeasurementMap measurementValues) {
+    // TODO(sebright): Replace StatsContext with TagContext, and then this cast won't be necessary.
+    statsManager.record((StatsContextImpl) tags, measurementValues);
   }
 }

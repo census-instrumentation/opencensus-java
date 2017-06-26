@@ -39,9 +39,10 @@ public class StatsContextFactoryTest {
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
 
-  private final StatsManagerImplBase statsManager =
-      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create());
-  private final StatsContextFactory factory = new StatsContextFactoryImpl(statsManager);
+  private final StatsComponentImplBase statsComponent =
+      new StatsComponentImplBase(new SimpleEventQueue(), TestClock.create());
+  private final StatsContextFactory factory = statsComponent.getStatsContextFactory();
+  private final StatsRecorderImpl statsRecorder = statsComponent.getStatsRecorder();
   private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
   private final StatsContext defaultCtx = factory.getDefault();
   private final StatsContext statsContext = factory.getDefault()
@@ -78,7 +79,7 @@ public class StatsContextFactoryTest {
 
   @Test
   public void testDeserializeValueTypeString() throws Exception {
-    StatsContext expected = new StatsContextImpl(statsManager, sampleTags);
+    StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
     StatsContext actual = testDeserialize(
         constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_STRING));
     assertThat(actual).isEqualTo(expected);
@@ -87,7 +88,7 @@ public class StatsContextFactoryTest {
   @Test
   public void testDeserializeMultipleString() throws Exception {
     sampleTags.put(TagKey.create("Key2"), TagValue.create("String2"));
-    StatsContext expected = new StatsContextImpl(statsManager, sampleTags);
+    StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(StatsSerializer.VERSION_ID);

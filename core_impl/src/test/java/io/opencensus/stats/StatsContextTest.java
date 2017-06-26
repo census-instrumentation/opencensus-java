@@ -20,10 +20,10 @@ import com.google.common.collect.Collections2;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
-import io.opencensus.testing.common.TestClock;
 import io.opencensus.internal.VarInt;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
+import io.opencensus.testing.common.TestClock;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,9 +41,10 @@ import org.junit.runners.JUnit4;
 public class StatsContextTest {
   private static final double TOLERANCE = 1e-6;
 
-  private final StatsManagerImplBase statsManager =
-      new StatsManagerImplBase(new SimpleEventQueue(), TestClock.create());
-  private final StatsContextFactory factory = statsManager.getStatsContextFactory();
+  private final StatsComponentImplBase statsComponent =
+      new StatsComponentImplBase(new SimpleEventQueue(), TestClock.create());
+  private final ViewManager viewManager = statsComponent.getViewManager();
+  private final StatsContextFactory factory = statsComponent.getStatsContextFactory();
   private final StatsContext defaultStatsContext = factory.getDefault();
 
   private static final int VERSION_ID = 0;
@@ -109,8 +110,10 @@ public class StatsContextTest {
   // The main tests for stats recording are in StatsManagerImplTest.
   @Test
   public void testRecord() {
-    statsManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    View beforeView = statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    viewManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    View beforeView =
+        viewManager.getView(
+            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     beforeView.match(
         new Function<DistributionView, Void>() {
           @Override
@@ -132,7 +135,9 @@ public class StatsContextTest {
     MeasurementMap measurements =
         MeasurementMap.of(RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1);
     context.record(measurements);
-    View afterView = statsManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    View afterView =
+        viewManager.getView(
+            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     afterView.match(
         new Function<DistributionView, Void>() {
           @Override

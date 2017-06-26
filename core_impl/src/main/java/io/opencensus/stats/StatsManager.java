@@ -18,7 +18,7 @@ import io.opencensus.internal.EventQueue;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
 
 /** Object that stores all views and stats. */
-final class ViewManager {
+final class StatsManager {
 
   private final EventQueue queue;
 
@@ -28,7 +28,7 @@ final class ViewManager {
   private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
       new MeasurementDescriptorToViewMap();
 
-  ViewManager(EventQueue queue, Clock clock) {
+  StatsManager(EventQueue queue, Clock clock) {
     this.queue = queue;
     this.clock = clock;
   }
@@ -61,9 +61,9 @@ final class ViewManager {
   private static final class StatsEvent implements EventQueue.Entry {
     private final StatsContextImpl tags;
     private final MeasurementMap stats;
-    private final ViewManager viewManager;
+    private final StatsManager viewManager;
 
-    StatsEvent(ViewManager viewManager, StatsContextImpl tags, MeasurementMap stats) {
+    StatsEvent(StatsManager viewManager, StatsContextImpl tags, MeasurementMap stats) {
       this.viewManager = viewManager;
       this.tags = tags;
       this.stats = stats;

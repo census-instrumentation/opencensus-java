@@ -17,11 +17,11 @@ import io.opencensus.common.MillisClock;
 import io.opencensus.internal.SimpleEventQueue;
 
 /**
- * Android-compatible implementation of {@link StatsManager}.
+ * Android-compatible implementation of {@link StatsComponent}.
  */
-public final class StatsManagerImplLite extends StatsManagerImplBase {
+public final class StatsComponentImplLite extends StatsComponentImplBase {
 
-  public StatsManagerImplLite() {
+  public StatsComponentImplLite() {
     // TODO(sebright): Use a more efficient queue implementation.
     super(new SimpleEventQueue(), MillisClock.getInstance());
   }
