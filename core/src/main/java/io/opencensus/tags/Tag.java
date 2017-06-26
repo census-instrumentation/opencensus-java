@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /** {@link TagKey} paired with an optional value. */
+// TODO(sebright): Do we also need to represent TagKeys paired with non-null values?
 @Immutable
 public abstract class Tag {
 
