@@ -16,7 +16,10 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.tags.TagKey.TagType;
+import io.opencensus.common.Function;
+import io.opencensus.tags.TagKey.TagKeyBoolean;
+import io.opencensus.tags.TagKey.TagKeyLong;
+import io.opencensus.tags.TagKey.TagKeyString;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,21 +35,14 @@ public final class TagKeyTest {
 
   @Test
   public void testGetName() {
-    assertThat(TagKey.createStringKey("foo").getName()).isEqualTo("foo");
-  }
-
-  @Test
-  public void testGetTagType() {
-    assertThat(TagKey.createStringKey("key").getTagType()).isEqualTo(TagType.TAG_STRING);
-    assertThat(TagKey.createLongKey("key").getTagType()).isEqualTo(TagType.TAG_LONG);
-    assertThat(TagKey.createBooleanKey("key").getTagType()).isEqualTo(TagType.TAG_BOOLEAN);
+    assertThat(TagKeyString.create("foo").getName()).isEqualTo("foo");
   }
 
   @Test
   public void createString_AllowTagKeyNameWithMaxLength() {
     char[] key = new char[TagKey.MAX_LENGTH];
     Arrays.fill(key, 'k');
-    TagKey.createStringKey(new String(key));
+    TagKeyString.create(new String(key));
   }
 
   @Test
@@ -54,22 +50,100 @@ public final class TagKeyTest {
     char[] key = new char[TagKey.MAX_LENGTH + 1];
     Arrays.fill(key, 'k');
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createStringKey(new String(key));
+    TagKeyString.create(new String(key));
   }
 
   @Test
   public void createString_DisallowUnprintableChars() {
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createStringKey("\2ab\3cd");
+    TagKeyString.create("\2ab\3cd");
+  }
+
+  @Test
+  public void testMatchStringKey() {
+    assertThat(
+            TagKeyString.create("key")
+                .match(
+                    new Function<TagKeyString, String>() {
+                      @Override
+                      public String apply(TagKeyString tag) {
+                        return tag.getName();
+                      }
+                    },
+                    new Function<TagKeyLong, String>() {
+                      @Override
+                      public String apply(TagKeyLong tag) {
+                        throw new AssertionError();
+                      }
+                    },
+                    new Function<TagKeyBoolean, String>() {
+                      @Override
+                      public String apply(TagKeyBoolean tag) {
+                        throw new AssertionError();
+                      }
+                    }))
+        .isEqualTo("key");
+  }
+
+  @Test
+  public void testMatchLongKey() {
+    assertThat(
+            TagKeyLong.create("key")
+                .match(
+                    new Function<TagKeyString, String>() {
+                      @Override
+                      public String apply(TagKeyString tag) {
+                        throw new AssertionError();
+                      }
+                    },
+                    new Function<TagKeyLong, String>() {
+                      @Override
+                      public String apply(TagKeyLong tag) {
+                        return tag.getName();
+                      }
+                    },
+                    new Function<TagKeyBoolean, String>() {
+                      @Override
+                      public String apply(TagKeyBoolean tag) {
+                        throw new AssertionError();
+                      }
+                    }))
+        .isEqualTo("key");
+  }
+
+  @Test
+  public void testMatchBooleanKey() {
+    assertThat(
+            TagKeyBoolean.create("key")
+                .match(
+                    new Function<TagKeyString, String>() {
+                      @Override
+                      public String apply(TagKeyString tag) {
+                        throw new AssertionError();
+                      }
+                    },
+                    new Function<TagKeyLong, String>() {
+                      @Override
+                      public String apply(TagKeyLong tag) {
+                        throw new AssertionError();
+                      }
+                    },
+                    new Function<TagKeyBoolean, String>() {
+                      @Override
+                      public String apply(TagKeyBoolean tag) {
+                        return tag.getName();
+                      }
+                    }))
+        .isEqualTo("key");
   }
 
   @Test
   public void testTagKeyEquals() {
     new EqualsTester()
-        .addEqualityGroup(TagKey.createStringKey("foo"), TagKey.createStringKey("foo"))
-        .addEqualityGroup(TagKey.createLongKey("foo"))
-        .addEqualityGroup(TagKey.createBooleanKey("foo"))
-        .addEqualityGroup(TagKey.createStringKey("bar"))
+        .addEqualityGroup(TagKeyString.create("foo"), TagKeyString.create("foo"))
+        .addEqualityGroup(TagKeyLong.create("foo"))
+        .addEqualityGroup(TagKeyBoolean.create("foo"))
+        .addEqualityGroup(TagKeyString.create("bar"))
         .testEquals();
   }
 }
