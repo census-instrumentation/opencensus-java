@@ -32,8 +32,8 @@ public class TagContextTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final TagKeyString KS1 = TagKey.createStringKey("k1");
-  private static final TagKeyString KS2 = TagKey.createStringKey("k2");
+  private static final TagKeyString KS1 = TagKeyString.create("k1");
+  private static final TagKeyString KS2 = TagKeyString.create("k2");
 
   private static final TagValueString V1 = TagValueString.create("v1");
   private static final TagValueString V2 = TagValueString.create("v2");
@@ -46,9 +46,9 @@ public class TagContextTest {
 
   @Test
   public void allowMutlipleKeysWithSameNameButDifferentTypes() {
-    TagKeyString stringKey = TagKey.createStringKey("key");
-    TagKeyLong longKey = TagKey.createLongKey("key");
-    TagKeyBoolean boolKey = TagKey.createBooleanKey("key");
+    TagKeyString stringKey = TagKeyString.create("key");
+    TagKeyLong longKey = TagKeyLong.create("key");
+    TagKeyBoolean boolKey = TagKeyBoolean.create("key");
     assertThat(
             newBuilder()
                 .set(stringKey, TagValueString.create("value"))

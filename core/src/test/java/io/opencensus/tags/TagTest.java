@@ -20,6 +20,9 @@ import io.opencensus.common.Function;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
+import io.opencensus.tags.TagKey.TagKeyBoolean;
+import io.opencensus.tags.TagKey.TagKeyLong;
+import io.opencensus.tags.TagKey.TagKeyString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -31,26 +34,26 @@ public final class TagTest {
   @Test
   public void testGetStringKey() {
     assertThat(
-            Tag.createStringTag(TagKey.createStringKey("k"), TagValueString.create("v")).getKey())
-        .isEqualTo(TagKey.createStringKey("k"));
+            Tag.createStringTag(TagKeyString.create("k"), TagValueString.create("v")).getKey())
+        .isEqualTo(TagKeyString.create("k"));
   }
 
   @Test
   public void testGetLongKey() {
-    assertThat(Tag.createLongTag(TagKey.createLongKey("k"), 2L).getKey())
-        .isEqualTo(TagKey.createLongKey("k"));
+    assertThat(Tag.createLongTag(TagKeyLong.create("k"), 2L).getKey())
+        .isEqualTo(TagKeyLong.create("k"));
   }
 
   @Test
   public void testGetBooleanKey() {
-    assertThat(Tag.createBooleanTag(TagKey.createBooleanKey("k"), false).getKey())
-        .isEqualTo(TagKey.createBooleanKey("k"));
+    assertThat(Tag.createBooleanTag(TagKeyBoolean.create("k"), false).getKey())
+        .isEqualTo(TagKeyBoolean.create("k"));
   }
 
   @Test
   public void testMatchStringTag() {
     assertThat(
-            Tag.createStringTag(TagKey.createStringKey("k1"), TagValueString.create("value"))
+            Tag.createStringTag(TagKeyString.create("k1"), TagValueString.create("value"))
                 .match(
                     new Function<TagString, String>() {
                       @Override
@@ -76,7 +79,7 @@ public final class TagTest {
   @Test
   public void testMatchLong() {
     assertThat(
-            Tag.createLongTag(TagKey.createLongKey("k2"), 3L)
+            Tag.createLongTag(TagKeyLong.create("k2"), 3L)
                 .match(
                     new Function<TagString, Long>() {
                       @Override
@@ -102,7 +105,7 @@ public final class TagTest {
   @Test
   public void testMatchBoolean() {
     assertThat(
-            Tag.createBooleanTag(TagKey.createBooleanKey("k3"), false)
+            Tag.createBooleanTag(TagKeyBoolean.create("k3"), false)
                 .match(
                     new Function<TagString, Boolean>() {
                       @Override
@@ -129,16 +132,16 @@ public final class TagTest {
   public void testTagEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            Tag.createStringTag(TagKey.createStringKey("Key1"), TagValueString.create("foo")),
-            Tag.createStringTag(TagKey.createStringKey("Key1"), TagValueString.create("foo")))
+            Tag.createStringTag(TagKeyString.create("Key1"), TagValueString.create("foo")),
+            Tag.createStringTag(TagKeyString.create("Key1"), TagValueString.create("foo")))
         .addEqualityGroup(
-            Tag.createLongTag(TagKey.createLongKey("Key1"), 100L),
-            Tag.createLongTag(TagKey.createLongKey("Key1"), 100L))
+            Tag.createLongTag(TagKeyLong.create("Key1"), 100L),
+            Tag.createLongTag(TagKeyLong.create("Key1"), 100L))
         .addEqualityGroup(
-            Tag.createBooleanTag(TagKey.createBooleanKey("Key1"), true),
-            Tag.createBooleanTag(TagKey.createBooleanKey("Key1"), true))
-        .addEqualityGroup(Tag.createBooleanTag(TagKey.createBooleanKey("Key2"), true))
-        .addEqualityGroup(Tag.createBooleanTag(TagKey.createBooleanKey("Key1"), false))
+            Tag.createBooleanTag(TagKeyBoolean.create("Key1"), true),
+            Tag.createBooleanTag(TagKeyBoolean.create("Key1"), true))
+        .addEqualityGroup(Tag.createBooleanTag(TagKeyBoolean.create("Key2"), true))
+        .addEqualityGroup(Tag.createBooleanTag(TagKeyBoolean.create("Key1"), false))
         .testEquals();
   }
 }

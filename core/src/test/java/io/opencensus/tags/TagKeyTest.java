@@ -35,14 +35,14 @@ public final class TagKeyTest {
 
   @Test
   public void testGetName() {
-    assertThat(TagKey.createStringKey("foo").getName()).isEqualTo("foo");
+    assertThat(TagKeyString.create("foo").getName()).isEqualTo("foo");
   }
 
   @Test
   public void createString_AllowTagKeyNameWithMaxLength() {
     char[] key = new char[TagKey.MAX_LENGTH];
     Arrays.fill(key, 'k');
-    TagKey.createStringKey(new String(key));
+    TagKeyString.create(new String(key));
   }
 
   @Test
@@ -50,19 +50,19 @@ public final class TagKeyTest {
     char[] key = new char[TagKey.MAX_LENGTH + 1];
     Arrays.fill(key, 'k');
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createStringKey(new String(key));
+    TagKeyString.create(new String(key));
   }
 
   @Test
   public void createString_DisallowUnprintableChars() {
     thrown.expect(IllegalArgumentException.class);
-    TagKey.createStringKey("\2ab\3cd");
+    TagKeyString.create("\2ab\3cd");
   }
 
   @Test
   public void testMatchStringKey() {
     assertThat(
-            TagKey.createStringKey("key")
+            TagKeyString.create("key")
                 .match(
                     new Function<TagKeyString, String>() {
                       @Override
@@ -88,7 +88,7 @@ public final class TagKeyTest {
   @Test
   public void testMatchLongKey() {
     assertThat(
-            TagKey.createLongKey("key")
+            TagKeyLong.create("key")
                 .match(
                     new Function<TagKeyString, String>() {
                       @Override
@@ -114,7 +114,7 @@ public final class TagKeyTest {
   @Test
   public void testMatchBooleanKey() {
     assertThat(
-            TagKey.createBooleanKey("key")
+            TagKeyBoolean.create("key")
                 .match(
                     new Function<TagKeyString, String>() {
                       @Override
@@ -140,10 +140,10 @@ public final class TagKeyTest {
   @Test
   public void testTagKeyEquals() {
     new EqualsTester()
-        .addEqualityGroup(TagKey.createStringKey("foo"), TagKey.createStringKey("foo"))
-        .addEqualityGroup(TagKey.createLongKey("foo"))
-        .addEqualityGroup(TagKey.createBooleanKey("foo"))
-        .addEqualityGroup(TagKey.createStringKey("bar"))
+        .addEqualityGroup(TagKeyString.create("foo"), TagKeyString.create("foo"))
+        .addEqualityGroup(TagKeyLong.create("foo"))
+        .addEqualityGroup(TagKeyBoolean.create("foo"))
+        .addEqualityGroup(TagKeyString.create("bar"))
         .testEquals();
   }
 }
