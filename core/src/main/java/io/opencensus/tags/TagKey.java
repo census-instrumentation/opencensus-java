@@ -28,63 +28,6 @@ public abstract class TagKey {
 
   TagKey() {}
 
-  /**
-   * Constructs a {@code TagKeyString} with the given name.
-   *
-   * <p>The name must meet the following requirements:
-   *
-   * <ol>
-   * <li>It cannot be longer than {@link #MAX_LENGTH}.
-   * <li>It can only contain printable ASCII characters.
-   * </ol>
-   *
-   * @param name the name of the key.
-   * @return a {@code TagKey<String>} with the given name.
-   * @throws IllegalArgumentException if the name is not valid.
-   */
-  public static TagKeyString createStringKey(String name) {
-    checkArgument(StringUtil.isValid(name));
-    return TagKeyString.create(name);
-  }
-
-  /**
-   * Constructs a {@code TagKeyLong} with the given name.
-   *
-   * <p>The name must meet the following requirements:
-   *
-   * <ol>
-   * <li>It cannot be longer than {@link #MAX_LENGTH}.
-   * <li>It can only contain printable ASCII characters.
-   * </ol>
-   *
-   * @param name the name of the key.
-   * @throws IllegalArgumentException if the name is not valid.
-   */
-  // TODO(sebright): Make this public once we support types other than String.
-  static TagKeyLong createLongKey(String name) {
-    checkArgument(StringUtil.isValid(name));
-    return TagKeyLong.create(name);
-  }
-
-  /**
-   * Constructs a {@code TagKeyBoolean} with the given name.
-   *
-   * <p>The name must meet the following requirements:
-   *
-   * <ol>
-   * <li>It cannot be longer than {@link #MAX_LENGTH}.
-   * <li>It can only contain printable ASCII characters.
-   * </ol>
-   *
-   * @param name the name of the key.
-   * @throws IllegalArgumentException if the name is not valid.
-   */
-  // TODO(sebright): Make this public once we support types other than String.
-  static TagKeyBoolean createBooleanKey(String name) {
-    checkArgument(StringUtil.isValid(name));
-    return TagKeyBoolean.create(name);
-  }
-
   public abstract String getName();
 
   /**
@@ -114,8 +57,8 @@ public abstract class TagKey {
    * @param stringFunction the function to call when the {@code TagKey} is a {@code TagKeyString}.
    * @param longFunction the function to call when the {@code TagKey} is a {@code TagKeyLong}.
    * @param booleanFunction the function to call when the {@code TagKey} is a {@code TagKeyBoolean}.
-   * @param defaultFunction the function to call when the tag key has a type other than
-   *     {@code String}, {@code long}, or {@code boolean}.
+   * @param defaultFunction the function to call when the tag key has a type other than {@code
+   *     String}, {@code long}, or {@code boolean}.
    * @param <T> The result type of the function.
    * @return The result of calling the function that matches the tag key's type.
    */
@@ -129,13 +72,27 @@ public abstract class TagKey {
       Function<? super TagKeyBoolean, T> booleanFunction,
       Function<Object, T> defaultFunction);
 
-  /**
-   * A {@code TagKey} for values of type {@code String}.
-   */
+  /** A {@code TagKey} for values of type {@code String}. */
   @Immutable
   @AutoValue
   public abstract static class TagKeyString extends TagKey {
-    static TagKeyString create(String name) {
+
+    /**
+     * Constructs a {@code TagKeyString} with the given name.
+     *
+     * <p>The name must meet the following requirements:
+     *
+     * <ol>
+     *   <li>It cannot be longer than {@link #MAX_LENGTH}.
+     *   <li>It can only contain printable ASCII characters.
+     * </ol>
+     *
+     * @param name the name of the key.
+     * @return a {@code TagKeyString} with the given name.
+     * @throws IllegalArgumentException if the name is not valid.
+     */
+    public static TagKeyString create(String name) {
+      checkArgument(StringUtil.isValid(name));
       return new AutoValue_TagKey_TagKeyString(name);
     }
 
@@ -149,13 +106,28 @@ public abstract class TagKey {
     }
   }
 
-  /**
-   * A {@code TagKey} for values of type {@code long}.
-   */
+  /** A {@code TagKey} for values of type {@code long}. */
   @Immutable
   @AutoValue
   public abstract static class TagKeyLong extends TagKey {
+
+    /**
+     * Constructs a {@code TagKeyLong} with the given name.
+     *
+     * <p>The name must meet the following requirements:
+     *
+     * <ol>
+     *   <li>It cannot be longer than {@link #MAX_LENGTH}.
+     *   <li>It can only contain printable ASCII characters.
+     * </ol>
+     *
+     * @param name the name of the key.
+     * @return a {@code TagKeyLong} with the given name.
+     * @throws IllegalArgumentException if the name is not valid.
+     */
+    // TODO(sebright): Make this public once we support types other than String.
     static TagKeyLong create(String name) {
+      checkArgument(StringUtil.isValid(name));
       return new AutoValue_TagKey_TagKeyLong(name);
     }
 
@@ -169,13 +141,28 @@ public abstract class TagKey {
     }
   }
 
-  /**
-   * A {@code TagKey} for values of type {@code boolean}.
-   */
+  /** A {@code TagKey} for values of type {@code boolean}. */
   @Immutable
   @AutoValue
   public abstract static class TagKeyBoolean extends TagKey {
+
+    /**
+     * Constructs a {@code TagKeyBoolean} with the given name.
+     *
+     * <p>The name must meet the following requirements:
+     *
+     * <ol>
+     *   <li>It cannot be longer than {@link #MAX_LENGTH}.
+     *   <li>It can only contain printable ASCII characters.
+     * </ol>
+     *
+     * @param name the name of the key.
+     * @return a {@code TagKeyBoolean} with the given name.
+     * @throws IllegalArgumentException if the name is not valid.
+     */
+    // TODO(sebright): Make this public once we support types other than String.
     static TagKeyBoolean create(String name) {
+      checkArgument(StringUtil.isValid(name));
       return new AutoValue_TagKey_TagKeyBoolean(name);
     }
 
