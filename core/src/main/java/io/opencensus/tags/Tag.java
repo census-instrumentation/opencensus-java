@@ -70,7 +70,7 @@ public abstract class Tag {
       Function<? super TagString, T> stringFunction,
       Function<? super TagLong, T> longFunction,
       Function<? super TagBoolean, T> booleanFunction,
-      Function<Object, T> defaultFunction);
+      Function<? super Tag, T> defaultFunction);
 
   /**
    * Creates a {@code Tag} from the given {@code String} key and value.
@@ -133,7 +133,7 @@ public abstract class Tag {
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
-        Function<Object, T> defaultFunction) {
+        Function<? super Tag, T> defaultFunction) {
       return stringFunction.apply(this);
     }
   }
@@ -164,7 +164,7 @@ public abstract class Tag {
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
-        Function<Object, T> defaultFunction) {
+        Function<? super Tag, T> defaultFunction) {
       return longFunction.apply(this);
     }
   }
@@ -195,7 +195,7 @@ public abstract class Tag {
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
-        Function<Object, T> defaultFunction) {
+        Function<? super Tag, T> defaultFunction) {
       return booleanFunction.apply(this);
     }
   }
