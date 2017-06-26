@@ -33,7 +33,7 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
-public abstract class Timestamp {
+public abstract class Timestamp implements Comparable<Timestamp> {
   private static final Timestamp EPOCH = new AutoValue_Timestamp(0, 0);
 
   Timestamp() {}
@@ -128,6 +128,26 @@ public abstract class Timestamp {
       durationNanos += NANOS_PER_SECOND;
     }
     return Duration.create(durationSeconds, durationNanos);
+  }
+
+  /**
+   * Compares this {@code Timestamp} to the specified {@code Timestamp}.
+   *
+   * @param otherTimestamp  the other {@code Timestamp} to compare to, not null
+   * @return the comparator value, negative if less, positive if greater
+   * @throws NullPointerException if otherInstant is null
+   */
+  @Override
+  public int compareTo(Timestamp otherTimestamp) {
+    int cmp = compareLong(getSeconds(), otherTimestamp.getSeconds());
+    if (cmp != 0) {
+      return cmp;
+    }
+    return getNanos() - otherTimestamp.getNanos();
+  }
+
+  private static int compareLong(long x, long y) {
+    return (x < y) ? -1 : ((x == y) ? 0 : 1);
   }
 
   // Returns a Timestamp with the specified duration added.
