@@ -48,7 +48,7 @@ import javax.annotation.concurrent.ThreadSafe;
 public final class SpanImpl extends Span implements Element<SpanImpl> {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
 
-  // The parent SpanId of this span. Null if this is a root.
+  // The parent SpanId of this span. Null if this is a root span.
   private final SpanId parentSpanId;
   // True if the parent is on a different process.
   private final boolean hasRemoteParent;
@@ -60,13 +60,13 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   private final String name;
   // The clock used to get the time.
   private final Clock clock;
-  // The time converter used to convert nano time to Timestamp. This is needed because java has
-  // milliseconds granularity for Timestamp and tracing events are recorded more often.
+  // The time converter used to convert nano time to Timestamp. This is needed because Java has
+  // millisecond granularity for Timestamp and tracing events are recorded more often.
   private final TimestampConverter timestampConverter;
   // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
   // set, otherwise 0.
   private final long startNanoTime;
-  // Set of recorded attributes. DO NOT CALL any other method that change the ordering of events.
+  // Set of recorded attributes. DO NOT CALL any other method that changes the ordering of events.
   @GuardedBy("this")
   private AttributesWithCapacity attributes;
   // List of recorded annotations.
@@ -75,7 +75,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   // List of recorded network events.
   @GuardedBy("this")
   private TraceEvents<EventWithNanoTime<NetworkEvent>> networkEvents;
-  // List of recorded links.
+  // List of recorded links to parent and child spans.
   @GuardedBy("this")
   private TraceEvents<Link> links;
   // The status of the span. Set when the span is ended iff the RECORD_EVENTS options is set.
@@ -94,9 +94,20 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   private SpanImpl prev = null;
 
   /**
-   * Creates and starts a span with the given configuration. TimestampConverter is null if the
-   * {@code Span} is a root span or the parent is not sampled. If the parent is sampled we should
-   * use the same converter to ensure ordering between tracing events.
+   * Creates and starts a span with the given configuration.
+   *
+   * @param context supplies the trace_id and span_id for the newly started span.
+   * @param options the options for the new span, importantly Options.RECORD_EVENTS.
+   * @param name the displayed name for the new span.
+   * @param parentSpanId the span_id of the parent span, or null if the new span is a root span.
+   * @param hasRemoteParent true if the parent span is in another process.
+   * @param traceParams trace parameters like sampler and probability.
+   * @param startEndHandler handler called when the span starts and ends.
+   * @param timestampConverter null if the span is a root span or the parent is not sampled. If the
+   *     parent is sampled, we should use the same converter to ensure ordering between tracing
+   *     events.
+   * @param clock the clock used to get the time.
+   * @return a new and started span.
    */
   @VisibleForTesting
   public static SpanImpl startSpan(
@@ -149,8 +160,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   /**
-   * Returns the end nano time (see {@link System#nanoTime()}). If the current {@code Span} is
-   * not ended then returns {@link Clock#nowNanos()}.
+   * Returns the end nano time (see {@link System#nanoTime()}). If the current {@code Span} is not
+   * ended then returns {@link Clock#nowNanos()}.
    *
    * @return the end nano time.
    */
