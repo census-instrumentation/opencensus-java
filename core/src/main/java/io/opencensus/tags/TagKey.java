@@ -70,7 +70,7 @@ public abstract class TagKey {
       Function<? super TagKeyString, T> stringFunction,
       Function<? super TagKeyLong, T> longFunction,
       Function<? super TagKeyBoolean, T> booleanFunction,
-      Function<Object, T> defaultFunction);
+      Function<? super TagKey, T> defaultFunction);
 
   /** A {@code TagKey} for values of type {@code String}. */
   @Immutable
@@ -101,7 +101,7 @@ public abstract class TagKey {
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
-        Function<Object, T> defaultFunction) {
+        Function<? super TagKey, T> defaultFunction) {
       return stringFunction.apply(this);
     }
   }
@@ -136,7 +136,7 @@ public abstract class TagKey {
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
-        Function<Object, T> defaultFunction) {
+        Function<? super TagKey, T> defaultFunction) {
       return longFunction.apply(this);
     }
   }
@@ -171,7 +171,7 @@ public abstract class TagKey {
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
-        Function<Object, T> defaultFunction) {
+        Function<? super TagKey, T> defaultFunction) {
       return booleanFunction.apply(this);
     }
   }
