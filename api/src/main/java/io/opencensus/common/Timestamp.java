@@ -133,10 +133,10 @@ public abstract class Timestamp implements Comparable<Timestamp> {
   /**
    * Compares this {@code Timestamp} to the specified {@code Timestamp}.
    *
-   * @param otherTimestamp the other {@code Timestamp} to compare to, not null.
+   * @param otherTimestamp the other {@code Timestamp} to compare to, not {@code null}.
    * @return the comparator value: zero if equal, negative if this timestamp happens
    *     before otherTimestamp, positive if after.
-   * @throws NullPointerException if otherTimestamp is null.
+   * @throws NullPointerException if otherTimestamp is {@code null}.
    */
   @Override
   public int compareTo(Timestamp otherTimestamp) {
@@ -144,7 +144,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
     if (cmp != 0) {
       return cmp;
     }
-    return getNanos() - otherTimestamp.getNanos();
+    return compareLong(getNanos(), otherTimestamp.getNanos());
   }
 
   private static int compareLong(long x, long y) {
