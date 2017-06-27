@@ -62,10 +62,6 @@ public abstract class Measure {
    */
   public abstract String getUnit();
 
-  // TODO(songya): determine whether we want to check the grammar of unit string.
-  private static void verifyUnit(@SuppressWarnings("unused") String unit) {
-  }
-
   /**
    * The name of a {@code Measure}.
    */
@@ -111,7 +107,6 @@ public abstract class Measure {
      * Constructs a new {@link DoubleMeasure}.
      */
     public static DoubleMeasure create(Name name, String description, String unit) {
-      Measure.verifyUnit(unit);
       // TODO(dpo): ensure that measure names are unique, and consider if there should be any
       // restricitons on name (e.g. size, characters).
       return new AutoValue_Measure_DoubleMeasure(name, description, unit);
@@ -147,8 +142,8 @@ public abstract class Measure {
     /**
      * Constructs a new {@link LongMeasure}.
      */
+    // TODO: determine whether we want to support LongMeasure in V0.1
     public static LongMeasure create(Name name, String description, String unit) {
-      Measure.verifyUnit(unit);
       // TODO(dpo): ensure that measure names are unique, and consider if there should be any
       // restricitons on name (e.g. size, characters).
       return new AutoValue_Measure_LongMeasure(name, description, unit);

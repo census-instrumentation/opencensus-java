@@ -46,16 +46,27 @@ public final class MeasureTest {
   }
 
   @Test
-  public void testComponents() {
+  public void testDoubleMeasureComponents() {
     Measure measurement = Measure.DoubleMeasure.create(
         "Foo",
         "The description of Foo",
         "Mbit/s");
     assertThat(measurement.getName()).isEqualTo("Foo");
-    assertThat(measurement.getMeasureName())
-        .isEqualTo(Measure.Name.create("Foo"));
+    assertThat(measurement.getMeasureName()).isEqualTo(Measure.Name.create("Foo"));
     assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
     assertThat(measurement.getUnit()).isEqualTo("Mbit/s");
+  }
+
+  @Test
+  public void testLongMeasureComponents() {
+    Measure measurement = Measure.LongMeasure.create(
+        "Bar",
+        "The description of Bar",
+        "1");
+    assertThat(measurement.getName()).isEqualTo("Bar");
+    assertThat(measurement.getMeasureName()).isEqualTo(Measure.Name.create("Bar"));
+    assertThat(measurement.getDescription()).isEqualTo("The description of Bar");
+    assertThat(measurement.getUnit()).isEqualTo("1");
   }
 
   @Test
@@ -74,7 +85,7 @@ public final class MeasureTest {
   }
 
   @Test
-  public void testMeasureEquals() {
+  public void testDoubleMeasureEquals() {
     new EqualsTester()
         .addEqualityGroup(
             Measure.DoubleMeasure.create(
@@ -87,6 +98,26 @@ public final class MeasureTest {
                 "bit/s"))
         .addEqualityGroup(
             Measure.DoubleMeasure.create(
+                "name",
+                "description 2",
+                "bit/s"))
+        .testEquals();
+  }
+
+  @Test
+  public void testLongMeasureEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            Measure.LongMeasure.create(
+                "name",
+                "description",
+                "bit/s"),
+            Measure.LongMeasure.create(
+                Measure.Name.create("name"),
+                "description",
+                "bit/s"))
+        .addEqualityGroup(
+            Measure.LongMeasure.create(
                 "name",
                 "description 2",
                 "bit/s"))
