@@ -20,14 +20,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link MutableView}.
+ * Tests for {@link MutableViewData}.
  */
 @RunWith(JUnit4.class)
-public class MutableViewTest {
+public class MutableViewDataTest {
 
   @Test
   public void testConstants() {
-    assertThat(MutableView.UNKNOWN_TAG_VALUE.asString()).isEqualTo("unknown/not set");
+    assertThat(MutableViewData.UNKNOWN_TAG_VALUE.asString()).isEqualTo("unknown/not set");
   }
 
 }
