@@ -34,13 +34,13 @@ public final class MeasureTest {
     char[] truncName = new char[Measure.MAX_LENGTH + 10];
     Arrays.fill(name, 'n');
     Arrays.fill(truncName, 'n');
-    assertThat(makeSimpleDescriptor(new String(name)).getName())
-        .isEqualTo(makeSimpleDescriptor(new String(truncName)).getName());
+    assertThat(makeSimpleMeasure(new String(name)).getName())
+        .isEqualTo(makeSimpleMeasure(new String(truncName)).getName());
   }
 
   @Test
   public void testNameBadChar() {
-    assertThat(makeSimpleDescriptor("\2ab\3cd").getName())
+    assertThat(makeSimpleMeasure("\2ab\3cd").getName())
         .isEqualTo(StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
             + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
   }
@@ -124,7 +124,7 @@ public final class MeasureTest {
         .testEquals();
   }
 
-  private static final Measure makeSimpleDescriptor(String name) {
+  private static final Measure makeSimpleMeasure(String name) {
     return Measure.DoubleMeasure.create(name, name + " description", "1");
   }
 }

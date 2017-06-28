@@ -65,8 +65,8 @@ public class MeasurementMapTest {
     ArrayList<MeasurementValue> expected = new ArrayList<MeasurementValue>(10);
     MeasurementMap.Builder builder = MeasurementMap.builder();
     for (int i = 1; i <= 10; i++) {
-      expected.add(MeasurementValue.create(makeSimpleMeasurement("m" + i), i * 11.1));
-      builder.put(makeSimpleMeasurement("m" + i), i * 11.1);
+      expected.add(MeasurementValue.create(makeSimpleMeasure("m" + i), i * 11.1));
+      builder.put(makeSimpleMeasure("m" + i), i * 11.1);
       assertEquals(expected, builder.build());
     }
   }
@@ -84,18 +84,18 @@ public class MeasurementMapTest {
   public void testSize() {
     MeasurementMap.Builder builder = MeasurementMap.builder();
     for (int i = 1; i <= 10; i++) {
-      builder.put(makeSimpleMeasurement("m" + i), i * 11.1);
+      builder.put(makeSimpleMeasure("m" + i), i * 11.1);
       assertThat(builder.build()).hasSize(i);
     }
   }
 
-  private static final Measure M1 = makeSimpleMeasurement("m1");
-  private static final Measure M2 = makeSimpleMeasurement("m2");
-  private static final Measure M3 = makeSimpleMeasurement("m3");
+  private static final Measure M1 = makeSimpleMeasure("m1");
+  private static final Measure M2 = makeSimpleMeasure("m2");
+  private static final Measure M3 = makeSimpleMeasure("m3");
 
-  private static final Measure makeSimpleMeasurement(String measurement) {
+  private static final Measure makeSimpleMeasure(String measure) {
     return Measure.DoubleMeasure.create(
-        measurement, measurement + " description", "1");
+        measure, measure + " description", "1");
   }
 
   private static void assertEquals(

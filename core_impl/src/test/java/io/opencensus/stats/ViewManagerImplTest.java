@@ -54,7 +54,7 @@ public class ViewManagerImplTest {
   private static final String MEASUREMENT_DESCRIPTION = "measurement description";
 
   private static final Measure MEASUREMENT_DESCRIPTOR =
-      Measure.DoubleMeasure.DoubleMeasure.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
+      Measure.DoubleMeasure.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
 
   private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
   private static final ViewDescriptor.Name VIEW_NAME_2 = ViewDescriptor.Name.create("my view 2");
@@ -279,11 +279,11 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createDistributionViewDescriptor(
             VIEW_NAME,
-            Measure.DoubleMeasure.DoubleMeasure.create(MEASUREMENT_NAME, "measurement", MEASUREMENT_UNIT),
+            Measure.DoubleMeasure.create(MEASUREMENT_NAME, "measurement", MEASUREMENT_UNIT),
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
     Measure measure2 =
-        Measure.DoubleMeasure.DoubleMeasure.create(MEASUREMENT_NAME_2, "measurement", MEASUREMENT_UNIT);
+        Measure.DoubleMeasure.create(MEASUREMENT_NAME_2, "measurement", MEASUREMENT_UNIT);
     statsRecorder.record(createContext(factory, KEY, VALUE), MeasurementMap.of(measure2, 10.0));
     DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
     assertThat(view.getDistributionAggregations()).isEmpty();
