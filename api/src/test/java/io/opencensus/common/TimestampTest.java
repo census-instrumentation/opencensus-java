@@ -135,7 +135,22 @@ public class TimestampTest {
   }
 
   @Test
-  public void testTimestampEqual() {
+  public void timestamp_CompareTo() {
+    assertThat(Timestamp.create(0, 0).compareTo(Timestamp.create(0, 0))).isEqualTo(0);
+    assertThat(Timestamp.create(24, 42).compareTo(Timestamp.create(24, 42))).isEqualTo(0);
+    assertThat(Timestamp.create(-24, 42).compareTo(Timestamp.create(-24, 42))).isEqualTo(0);
+    assertThat(Timestamp.create(25, 42).compareTo(Timestamp.create(24, 42))).isEqualTo(1);
+    assertThat(Timestamp.create(24, 45).compareTo(Timestamp.create(24, 42))).isEqualTo(1);
+    assertThat(Timestamp.create(24, 42).compareTo(Timestamp.create(25, 42))).isEqualTo(-1);
+    assertThat(Timestamp.create(24, 42).compareTo(Timestamp.create(24, 45))).isEqualTo(-1);
+    assertThat(Timestamp.create(-25, 42).compareTo(Timestamp.create(-24, 42))).isEqualTo(-1);
+    assertThat(Timestamp.create(-24, 45).compareTo(Timestamp.create(-24, 42))).isEqualTo(1);
+    assertThat(Timestamp.create(-24, 42).compareTo(Timestamp.create(-25, 42))).isEqualTo(1);
+    assertThat(Timestamp.create(-24, 42).compareTo(Timestamp.create(-24, 45))).isEqualTo(-1);
+  }
+
+  @Test
+  public void timestamp_Equal() {
     // Positive tests.
     assertThat(Timestamp.create(0, 0)).isEqualTo(Timestamp.create(0, 0));
     assertThat(Timestamp.create(24, 42)).isEqualTo(Timestamp.create(24, 42));

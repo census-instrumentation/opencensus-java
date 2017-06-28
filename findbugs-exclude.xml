@@ -5,4 +5,11 @@
     <Class name="io.opencensus.stats.MutableDistribution" />
     <Method name="getInternalBucketCountsArray" />
   </Match>
+  <Match>
+    <!-- Reason: Equal is implemented in the AutoValue generated class. -->
+    <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
+    <Class name="io.opencensus.common.Timestamp" />
+    <Method name="compareTo" />
+  </Match>
+
 </FindBugsFilter>
