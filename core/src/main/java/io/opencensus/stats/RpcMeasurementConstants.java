@@ -24,7 +24,7 @@ import java.util.List;
 public final class RpcMeasurementConstants {
 
   // Rpc tag keys.
-  public static final TagKey RPC_STATUS = TagKey.create("OpStatus");
+  public static final TagKey RPC_STATUS = TagKey.create("canonical_status");
   public static final TagKey RPC_CLIENT_METHOD = TagKey.create("method");
   public static final TagKey RPC_SERVER_METHOD = TagKey.create("method");
 
