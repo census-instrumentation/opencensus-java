@@ -20,7 +20,6 @@ import io.opencensus.tags.TagKey.TagKeyString;
 import javax.annotation.concurrent.Immutable;
 
 /** A validated tag value associated with a {@link TagKeyString}. */
-// TODO(sebright): Is there any reason to use a TagValue class for booleans and longs, too?
 @Immutable
 @AutoValue
 public abstract class TagValueString {
