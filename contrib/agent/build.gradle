@@ -9,6 +9,16 @@ targetCompatibility = 1.7
 
 def agentPackage = 'io.opencensus.contrib.agent'
 def agentMainClass = "${agentPackage}.AgentMain"
+
+// The package containing the classes that need to be loaded by the bootstrap classloader because
+// they are used from classes loaded by the bootstrap classloader.
+def agentBootstrapPackage = "${agentPackage}.bootstrap"
+def agentBootstrapPackageDir = agentBootstrapPackage.replace('.', '/') + '/'
+def agentBootstrapClasses = agentBootstrapPackageDir + '**'
+
+// The package to which which we relocate all third party packages. This avoids any conflicts of
+// the agent's classes with the app's classes, which are loaded by the same classloader (the system
+// classloader).
 def agentRepackaged = "${agentPackage}.deps"
 
 dependencies {
@@ -30,6 +40,19 @@ jar {
   }
 }
 
+// Create bootstrap.jar containing the classes that need to be loaded by the bootstrap
+// classloader.
+task bootstrapJar(type: Jar) {
+  // Output to 'bootstrap.jar'.
+  baseName = 'bootstrap'
+  version = null
+
+  from sourceSets.main.output
+  include agentBootstrapClasses
+}
+
+shadowJar.dependsOn bootstrapJar
+
 // Bundle the agent's classes and dependencies into a single, self-contained JAR file.
 shadowJar {
   // Output to opencensus-agent-VERSION.jar.
@@ -43,21 +66,37 @@ shadowJar {
 
   // Exclude cruft which still snuck in.
   exclude 'META-INF/maven/**'
+  exclude agentBootstrapClasses
 
   // Relocate third party packages to avoid any conflicts of the agent's classes with the app's
   // classes, which are loaded by the same classloader (the system classloader).
   relocate 'net.bytebuddy', agentRepackaged + '.bytebuddy'
 
   doLast {
-    // Assert that there's nothing unexpected left outside of ${agentPackage}.
     def agentPackageDir = agentPackage.replace('.', '/') + '/'
+    def agentBootstrapJar = agentPackageDir + 'bootstrap.jar'
 
+    // Bundle bootstrap.jar.
+    ant.jar(update: 'true', destfile: shadowJar.archivePath) {
+      mappedresources {
+        fileset(file: bootstrapJar.archivePath)
+        globmapper(from: '*', to: agentBootstrapJar)
+      }
+    }
+
+    // Assert that there's nothing obviously wrong with the JAR's contents.
     new java.util.zip.ZipFile(shadowJar.archivePath).withCloseable {
+      // Must have bundled the bootstrap.jar.
+      assert it.entries().any { it.name = agentBootstrapJar }
+
       it.entries().each {
+        // Must not contain anything outside of ${agentPackage}, except for the manifest.
         assert it.name.startsWith(agentPackageDir) ||
                (it.isDirectory() && agentPackageDir.startsWith(it.name)) ||
                it.name == 'META-INF/' ||
                it.name == 'META-INF/MANIFEST.MF'
+        // Also, should not have the bootstrap classes.
+        assert !it.name.startsWith(agentBootstrapPackageDir)
       }
     }
   }
