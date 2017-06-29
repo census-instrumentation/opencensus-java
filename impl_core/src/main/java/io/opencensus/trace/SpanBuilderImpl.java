@@ -43,8 +43,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   private List<Span> parentLinks = Collections.<Span>emptyList();
   private Boolean recordEvents;
 
-
-  Span startSpanInternal(
+  private Span startSpanInternal(
       @Nullable SpanContext parent,
       boolean hasRemoteParent,
       String name,
@@ -174,8 +173,8 @@ final class SpanBuilderImpl extends SpanBuilder {
   }
 
   @Override
-  public SpanBuilder setSampler(@Nullable Sampler sampler) {
-    this.sampler = sampler;
+  public SpanBuilder setSampler(Sampler sampler) {
+    this.sampler = checkNotNull(sampler, "sampler");
     return this;
   }
 

@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link SpanBuilderImpl}. */
+/** Unit tests for {@link TracerImpl}. */
 @RunWith(JUnit4.class)
 public class TracerImplTest {
   private static final String SPAN_NAME = "MySpanName";

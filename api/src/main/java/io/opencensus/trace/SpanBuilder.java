@@ -105,13 +105,12 @@ import javax.annotation.Nullable;
 public abstract class SpanBuilder {
 
   /**
-   * Sets the {@link Sampler} to use. If a {@code null} value is passed, the implementation will
-   * provide a default.
+   * Sets the {@link Sampler} to use. If not set, the implementation will provide a default.
    *
    * @param sampler The {@code Sampler} to use when determining sampling for a {@code Span}.
    * @return this.
    */
-  public abstract SpanBuilder setSampler(@Nullable Sampler sampler);
+  public abstract SpanBuilder setSampler(Sampler sampler);
 
   /**
    * Sets the {@code List} of parent links. Links are used to link {@link Span}s in different
@@ -222,19 +221,13 @@ public abstract class SpanBuilder {
     return new ScopedSpanHandle(startSpan());
   }
 
-  static SpanBuilder createNoopBuilder(@Nullable Span parentSpan, String name) {
-    return new NoopSpanBuilder(parentSpan, null, name);
-  }
-
-  static SpanBuilder createNoopBuilderWithRemoteParent(
-      SpanContext remoteParentSpanContext, String name) {
-    return new NoopSpanBuilder(
-        null, checkNotNull(remoteParentSpanContext, "remoteParentSpanContext"), name);
-  }
-
   static final class NoopSpanBuilder extends SpanBuilder {
-    private NoopSpanBuilder(
-        @Nullable Span parentSpan, @Nullable SpanContext parentSpanContext, String name) {
+    NoopSpanBuilder(@Nullable Span parentSpan, String name) {
+      checkNotNull(name, "name");
+    }
+
+    NoopSpanBuilder(SpanContext remoteParentSpanContext, String name) {
+      checkNotNull(remoteParentSpanContext, "remoteParentSpanContext");
       checkNotNull(name, "name");
     }
 

@@ -147,7 +147,7 @@ public abstract class Tracer {
 
   /**
    * Returns a {@link SpanBuilder} to create and start a new child {@link Span} as a child of to the
-   * current {@code Span} if any, otherwise create a root Span with the default options.
+   * current {@code Span} if any, otherwise creates a root {@code Span}.
    *
    * <p>See {@link SpanBuilder} for usage examples.
    *
@@ -207,13 +207,13 @@ public abstract class Tracer {
 
     @Override
     public SpanBuilder spanBuilder(@Nullable Span parent, String name) {
-      return SpanBuilder.createNoopBuilder(parent, name);
+      return new SpanBuilder.NoopSpanBuilder(parent, name);
     }
 
     @Override
     public SpanBuilder spanBuilderWithRemoteParent(
         SpanContext remoteParentSpanContext, String name) {
-      return SpanBuilder.createNoopBuilderWithRemoteParent(remoteParentSpanContext, name);
+      return new SpanBuilder.NoopSpanBuilder(remoteParentSpanContext, name);
     }
 
     private NoopTracer() {}
