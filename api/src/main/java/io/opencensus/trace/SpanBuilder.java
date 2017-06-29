@@ -18,7 +18,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Sampler;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -104,12 +103,6 @@ import javax.annotation.Nullable;
  * SpanBuilder#startScopedSpan} for usage examples.
  */
 public abstract class SpanBuilder {
-  private final String name;
-  private Span parentSpan;
-  private SpanContext remoteParentSpanContext;
-  private Sampler sampler;
-  private List<Span> parentLinks;
-  private Boolean recordEvents;
 
   /**
    * Sets the {@link Sampler} to use. If a {@code null} value is passed, the implementation will
@@ -118,10 +111,7 @@ public abstract class SpanBuilder {
    * @param sampler The {@code Sampler} to use when determining sampling for a {@code Span}.
    * @return this.
    */
-  public final SpanBuilder setSampler(@Nullable Sampler sampler) {
-    this.sampler = sampler;
-    return this;
-  }
+  public abstract SpanBuilder setSampler(@Nullable Sampler sampler);
 
   /**
    * Sets the {@code List} of parent links. Links are used to link {@link Span}s in different
@@ -132,10 +122,7 @@ public abstract class SpanBuilder {
    * @return this.
    * @throws NullPointerException if {@code parentLinks} is {@code null}.
    */
-  public final SpanBuilder setParentLinks(List<Span> parentLinks) {
-    this.parentLinks = checkNotNull(parentLinks, parentLinks);
-    return this;
-  }
+  public abstract SpanBuilder setParentLinks(List<Span> parentLinks);
 
   /**
    * Sets the option {@link Span.Options#RECORD_EVENTS} for the newly created {@code Span}. If not
@@ -144,10 +131,7 @@ public abstract class SpanBuilder {
    * @param recordEvents New value determining if this {@code Span} should have events recorded.
    * @return this.
    */
-  public final SpanBuilder setRecordEvents(boolean recordEvents) {
-    this.recordEvents = recordEvents;
-    return this;
-  }
+  public abstract SpanBuilder setRecordEvents(boolean recordEvents);
 
   /**
    * Starts a new {@link Span}.
@@ -238,98 +222,6 @@ public abstract class SpanBuilder {
     return new ScopedSpanHandle(startSpan());
   }
 
-  /**
-   * Returns the name of the {@code Span}.
-   *
-   * @return the name of the {@code Span}.
-   */
-  protected final String getName() {
-    return name;
-  }
-
-  /**
-   * Returns the parent {@code Span}, or {@code null} if this is a root {@code Span} OR {@code
-   * getRemoteParentSpanContext()} returns not {@code null}.
-   *
-   * <p>Used by the implementation of the {@link #startSpan()}.
-   *
-   * @return the parent {@code Span}, or {@code null} if this is a root {@code Span} OR {@code
-   *     getHasRemoteParent()} returns {@code true}.
-   */
-  @Nullable
-  protected final Span getParentSpan() {
-    return parentSpan;
-  }
-
-  /**
-   * Returns the remote parent {@code SpanContext}, or {@code null} if this is a root {@code Span}
-   * OR {@code getParentSpan()} returns not {@code null}.
-   *
-   * <p>If not {@code null} the newly created {@code Span} will have a remote parent (in a different
-   * process).
-   *
-   * <p>Used by the implementation of the {@link #startSpan()}.
-   *
-   * @return the remote parent {@code SpanContext}, or {@code null} if this is a root {@code Span}
-   *     OR {@code getHasRemoteParent()} returns {@code false}.
-   */
-  @Nullable
-  protected final SpanContext getRemoteParentSpanContext() {
-    return remoteParentSpanContext;
-  }
-
-  /**
-   * Returns the {@link Sampler} to be used, or {@code null} if default.
-   *
-   * <p>Used by the implementation of the {@link #startSpan()}.
-   *
-   * @return the {@code Sampler} to be used, or {@code null} if default.
-   */
-  @Nullable
-  protected Sampler getSampler() {
-    return sampler;
-  }
-
-  /**
-   * Returns the parent links to be set for the {@link Span}.
-   *
-   * <p>Used by the implementation of the {@link #startSpan()}.
-   *
-   * @return the parent links to be set for the {@code Span}.
-   */
-  protected final List<Span> getParentLinks() {
-    return parentLinks != null ? parentLinks : Collections.<Span>emptyList();
-  }
-
-  /**
-   * Returns the record events option, or {@code null} if default.
-   *
-   * <p>See {@link Span.Options#RECORD_EVENTS} for more details.
-   *
-   * <p>Used by the implementation of the {@link #startSpan()}.
-   *
-   * @return the record events option, or {@code null} if default.
-   */
-  @Nullable
-  protected final Boolean getRecordEvents() {
-    return recordEvents;
-  }
-
-  /**
-   * Constructs a new {@code SpanBuilder}.
-   *
-   * @param parentSpan the parent {@code Span}.
-   * @param remoteParentSpanContext the remote parent {@code SpanContext}, the parent is in a
-   *     different process.
-   * @param name the name of the {@code Span}.
-   */
-  protected SpanBuilder(
-      @Nullable Span parentSpan, @Nullable SpanContext remoteParentSpanContext, String name) {
-    this.parentSpan = parentSpan;
-    this.remoteParentSpanContext = remoteParentSpanContext;
-    this.name = checkNotNull(name, "name");
-  }
-
   static SpanBuilder createNoopBuilder(@Nullable Span parentSpan, String name) {
     return new NoopSpanBuilder(parentSpan, null, name);
   }
@@ -343,12 +235,27 @@ public abstract class SpanBuilder {
   static final class NoopSpanBuilder extends SpanBuilder {
     private NoopSpanBuilder(
         @Nullable Span parentSpan, @Nullable SpanContext parentSpanContext, String name) {
-      super(parentSpan, parentSpanContext, name);
+      checkNotNull(name, "name");
     }
 
     @Override
     public Span startSpan() {
       return BlankSpan.INSTANCE;
+    }
+
+    @Override
+    public SpanBuilder setSampler(@Nullable Sampler sampler) {
+      return this;
+    }
+
+    @Override
+    public SpanBuilder setParentLinks(List<Span> parentLinks) {
+      return this;
+    }
+
+    @Override
+    public SpanBuilder setRecordEvents(boolean recordEvents) {
+      return this;
     }
   }
 }

@@ -26,6 +26,7 @@ import io.opencensus.trace.base.TraceOptions;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.internal.RandomHandler;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
@@ -34,6 +35,14 @@ import javax.annotation.Nullable;
 /** Implementation of the {@link SpanBuilder}. */
 final class SpanBuilderImpl extends SpanBuilder {
   private final Options options;
+
+  private final String name;
+  private final Span parentSpan;
+  private final SpanContext remoteParentSpanContext;
+  private Sampler sampler;
+  private List<Span> parentLinks = Collections.<Span>emptyList();
+  private Boolean recordEvents;
+
 
   Span startSpanInternal(
       @Nullable SpanContext parent,
@@ -112,19 +121,21 @@ final class SpanBuilderImpl extends SpanBuilder {
       @Nullable SpanContext remoteParentSpanContext,
       String name,
       Options options) {
-    super(parentSpan, remoteParentSpanContext, name);
+    this.name = checkNotNull(name, "name");
+    this.parentSpan = parentSpan;
+    this.remoteParentSpanContext = remoteParentSpanContext;
     this.options = options;
   }
 
   @Override
   public Span startSpan() {
-    SpanContext parentContext = getRemoteParentSpanContext();
+    SpanContext parentContext = remoteParentSpanContext;
     boolean hasRemoteParent = parentContext != null;
     TimestampConverter timestampConverter = null;
     if (!hasRemoteParent) {
       // This is not a child of a remote Span. Get the parent SpanContext from the parent Span if
       // any.
-      Span parent = getParentSpan();
+      Span parent = parentSpan;
       if (parent != null) {
         parentContext = parent.getContext();
         // Pass the timestamp converter from the parent to ensure that the recorded events are in
@@ -137,10 +148,10 @@ final class SpanBuilderImpl extends SpanBuilder {
     return startSpanInternal(
         parentContext,
         hasRemoteParent,
-        getName(),
-        getSampler(),
-        getParentLinks(),
-        getRecordEvents(),
+        name,
+        sampler,
+        parentLinks,
+        recordEvents,
         timestampConverter);
   }
 
@@ -160,5 +171,23 @@ final class SpanBuilderImpl extends SpanBuilder {
       this.clock = checkNotNull(clock, "clock");
       this.traceConfig = checkNotNull(traceConfig, "traceConfig");
     }
+  }
+
+  @Override
+  public SpanBuilder setSampler(@Nullable Sampler sampler) {
+    this.sampler = sampler;
+    return this;
+  }
+
+  @Override
+  public SpanBuilder setParentLinks(List<Span> parentLinks) {
+    this.parentLinks = checkNotNull(parentLinks, "parentLinks");
+    return this;
+  }
+
+  @Override
+  public SpanBuilder setRecordEvents(boolean recordEvents) {
+    this.recordEvents = recordEvents;
+    return this;
   }
 }

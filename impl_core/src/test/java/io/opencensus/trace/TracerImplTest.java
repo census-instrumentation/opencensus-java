@@ -45,17 +45,11 @@ public class TracerImplTest {
   public void createSpanBuilder() {
     SpanBuilder spanBuilder = tracer.spanBuilder(BlankSpan.INSTANCE, SPAN_NAME);
     assertThat(spanBuilder).isInstanceOf(SpanBuilderImpl.class);
-    assertThat(spanBuilder.getName()).isSameAs(SPAN_NAME);
-    assertThat(spanBuilder.getParentSpan()).isSameAs(BlankSpan.INSTANCE);
-    assertThat(spanBuilder.getRemoteParentSpanContext()).isNull();
   }
 
   @Test
   public void createSpanBuilderWithRemoteParet() {
     SpanBuilder spanBuilder = tracer.spanBuilderWithRemoteParent(SpanContext.INVALID, SPAN_NAME);
     assertThat(spanBuilder).isInstanceOf(SpanBuilderImpl.class);
-    assertThat(spanBuilder.getName()).isSameAs(SPAN_NAME);
-    assertThat(spanBuilder.getParentSpan()).isNull();
-    assertThat(spanBuilder.getRemoteParentSpanContext()).isSameAs(SpanContext.INVALID);
   }
 }
