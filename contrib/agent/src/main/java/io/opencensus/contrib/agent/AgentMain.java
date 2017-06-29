@@ -25,15 +25,15 @@ import java.util.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
 /**
- * The <b>Google Instrumentation Agent for Java</b> collects and sends latency data about your Java
- * process to Stackdriver Trace for analysis and visualization in the Google Cloud Console.
+ * The <b>OpenCensus Agent for Java</b> collects and sends latency data about your Java
+ * process to OpenCensus backends such as Stackdriver Trace for analysis and visualization.
  *
- * <p>To enable the *Google Instrumentation Agent for Java* for your application, add the option
- * <code>-javaagent:path/to/google-instrumentation-agent.jar</code> to the invocation of the
+ * <p>To enable the *OpenCensus Agent for Java* for your application, add the option
+ * <code>-javaagent:path/to/opencensus-agent.jar</code> to the invocation of the
  * <code>java</code> executable as shown in the following example:
  *
  * <pre>
- * java -javaagent:path/to/google-instrumentation-agent.jar ...
+ * java -javaagent:path/to/opencensus-agent.jar ...
  * </pre>
  * 
  * @see <a href="https://github.com/census-instrumentation/instrumentation-java/tree/master/agent">https://github.com/census-instrumentation/instrumentation-java/tree/master/agent</a>
