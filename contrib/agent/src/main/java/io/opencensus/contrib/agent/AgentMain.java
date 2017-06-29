@@ -46,7 +46,7 @@ public final class AgentMain {
   }
 
   /**
-   * Initializes the Google Instrumentation Agent for Java.
+   * Initializes the OpenCensus Agent for Java.
    *
    * @param agentArgs agent options, passed as a single string by the JVM
    * @param inst      the {@link Instrumentation} object provided by the JVM for instrumenting Java
