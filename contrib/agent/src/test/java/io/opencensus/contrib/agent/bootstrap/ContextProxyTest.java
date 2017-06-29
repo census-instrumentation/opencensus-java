@@ -11,10 +11,20 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.agent.deps;
+package io.opencensus.contrib.agent.bootstrap;
 
-/**
- * Contains third party packages, which are relocated here by the build process to avoid any
- * conflicts of the agent's classes with the app's classes, which are loaded by the same classloader
- * (the system classloader).
- */
+import static com.google.common.truth.Truth.assertThat;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+/** Integration tests for {@link ContextProxy}. */
+@RunWith(JUnit4.class)
+public class ContextProxyTest {
+
+  @Test
+  public void assertLoadedByBootstrapClassloader() {
+    assertThat(ContextProxy.class.getClassLoader()).isNull();
+  }
+}

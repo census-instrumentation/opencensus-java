@@ -11,10 +11,25 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.agent.deps;
+package io.opencensus.contrib.agent;
 
-/**
- * Contains third party packages, which are relocated here by the build process to avoid any
- * conflicts of the agent's classes with the app's classes, which are loaded by the same classloader
- * (the system classloader).
- */
+import io.grpc.Context;
+import io.opencensus.contrib.agent.bootstrap.ContextProxy;
+
+public final class ContextProxyImpl extends ContextProxy {
+
+  @Override
+  protected Object attachInternal(Object context) {
+    return ((Context) context).attach();
+  }
+
+  @Override
+  protected Object currentInternal() {
+    return Context.current();
+  }
+
+  @Override
+  protected Runnable wrapInternal(Object context, Runnable r) {
+    return ((Context) context).wrap(r);
+  }
+}
