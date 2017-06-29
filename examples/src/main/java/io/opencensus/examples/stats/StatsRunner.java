@@ -14,7 +14,7 @@
 package io.opencensus.examples.stats;
 
 import io.opencensus.common.NonThrowingCloseable;
-import io.opencensus.stats.Measure;
+import io.opencensus.stats.Measure.DoubleMeasure;
 import io.opencensus.stats.MeasurementMap;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsContext;
@@ -22,8 +22,11 @@ import io.opencensus.stats.StatsContextFactory;
 import io.opencensus.stats.TagKey;
 import io.opencensus.stats.TagValue;
 
-/** Simple program that uses Stats contexts. */
+/**
+ * Simple program that uses Stats contexts.
+ */
 public class StatsRunner {
+
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
   private static final TagKey K3 = TagKey.create("k3");
@@ -35,8 +38,10 @@ public class StatsRunner {
   private static final TagValue V4 = TagValue.create("v4");
 
   private static final String UNIT = "1";
-  private static final Measure M1 = Measure.DoubleMeasure.create("m1", "1st test metric", UNIT);
-  private static final Measure M2 = Measure.DoubleMeasure.create("m2", "2nd test metric", UNIT);
+  private static final DoubleMeasure M1 =
+      DoubleMeasure.create("m1", "1st test metric", UNIT);
+  private static final DoubleMeasure M2 =
+      DoubleMeasure.create("m2", "2nd test metric", UNIT);
 
   private static final StatsContextFactory factory = Stats.getStatsContextFactory();
   private static final StatsContext DEFAULT = factory.getDefault();

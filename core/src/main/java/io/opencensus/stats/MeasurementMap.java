@@ -13,6 +13,8 @@
 
 package io.opencensus.stats;
 
+import io.opencensus.stats.Measure.DoubleMeasure;
+import io.opencensus.stats.Measure.LongMeasure;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -20,31 +22,59 @@ import java.util.NoSuchElementException;
 /**
  * A map from {@link Measure}'s to measured values.
  */
-public final class MeasurementMap implements Iterable<MeasurementValue> {
+public final class MeasurementMap implements Iterable<Measurement> {
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link Measure}
+   * Constructs a {@link MeasurementMap} from the given {@link DoubleMeasure}
    * and associated value.
    */
-  public static MeasurementMap of(Measure measure, double value) {
+  public static MeasurementMap of(DoubleMeasure measure, double value) {
     return builder().put(measure, value).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link Measure}'s
+   * Constructs a {@link MeasurementMap} from the given {@link DoubleMeasure}'s
    * and associated values.
    */
-  public static MeasurementMap of(Measure measure1, double value1,
-      Measure measure2, double value2) {
+  public static MeasurementMap of(DoubleMeasure measure1, double value1,
+      DoubleMeasure measure2, double value2) {
     return builder().put(measure1, value1).put(measure2, value2).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link Measure}'s
+   * Constructs a {@link MeasurementMap} from the given {@link DoubleMeasure}'s
    * and associated values.
    */
-  public static MeasurementMap of(Measure measure1, double value1,
-      Measure measure2, double value2,
-      Measure measure3, double value3) {
+  public static MeasurementMap of(DoubleMeasure measure1, double value1,
+      DoubleMeasure measure2, double value2,
+      DoubleMeasure measure3, double value3) {
+    return builder().put(measure1, value1).put(measure2, value2).put(measure3, value3)
+        .build();
+  }
+
+  /**
+   * Constructs a {@link MeasurementMap} from the given {@link LongMeasure}
+   * and associated value.
+   */
+  public static MeasurementMap of(LongMeasure measure, long value) {
+    return builder().put(measure, value).build();
+  }
+
+  /**
+   * Constructs a {@link MeasurementMap} from the given {@link LongMeasure}'s
+   * and associated values.
+   */
+  public static MeasurementMap of(LongMeasure measure1, long value1,
+      LongMeasure measure2, long value2) {
+    return builder().put(measure1, value1).put(measure2, value2).build();
+  }
+
+  /**
+   * Constructs a {@link MeasurementMap} from the given {@link LongMeasure}'s
+   * and associated values.
+   */
+  public static MeasurementMap of(LongMeasure measure1, long value1,
+      LongMeasure measure2, long value2,
+      LongMeasure measure3, long value3) {
     return builder().put(measure1, value1).put(measure2, value2).put(measure3, value3)
         .build();
   }
@@ -68,13 +98,13 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
    * The {@code Iterator} does not support {@link Iterator#remove()}.
    */
   @Override
-  public Iterator<MeasurementValue> iterator() {
+  public Iterator<Measurement> iterator() {
     return new MeasurementMapIterator();
   }
 
-  private final ArrayList<MeasurementValue> measures;
+  private final ArrayList<Measurement> measures;
 
-  private MeasurementMap(ArrayList<MeasurementValue> measures) {
+  private MeasurementMap(ArrayList<Measurement> measures) {
     this.measures = measures;
   }
 
@@ -83,15 +113,28 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
    */
   public static class Builder {
     /**
-     * Associates the {@link Measure} with the given value. Subsequent updates to the
-     * same {@link Measure} are ignored.
+     * Associates the {@link DoubleMeasure} with the given value. Subsequent updates to the
+     * same {@link DoubleMeasure} are ignored.
      *
-     * @param measure the {@link Measure}
+     * @param measure the {@link DoubleMeasure}
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder put(Measure measure, double value) {
-      measures.add(MeasurementValue.create(measure, value));
+    public Builder put(DoubleMeasure measure, double value) {
+      measures.add(Measurement.DoubleMeasurement.create(measure, value));
+      return this;
+    }
+
+    /**
+     * Associates the {@link LongMeasure} with the given value. Subsequent updates to the
+     * same {@link LongMeasure} are ignored.
+     *
+     * @param measure the {@link LongMeasure}
+     * @param value the value to be associated with {@code measure}
+     * @return this
+     */
+    public Builder put(LongMeasure measure, long value) {
+      measures.add(Measurement.LongMeasurement.create(measure, value));
       return this;
     }
 
@@ -104,9 +147,9 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
       // for larger MeasurementMaps.
       for (int i = 0; i < measures.size(); i++) {
         String current =
-            measures.get(i).getMeasurement().getName();
+            measures.get(i).getMeasure().getName();
         for (int j = i + 1; j < measures.size(); j++) {
-          if (current.equals(measures.get(j).getMeasurement().getName())) {
+          if (current.equals(measures.get(j).getMeasure().getName())) {
             measures.remove(j);
             j--;
           }
@@ -115,21 +158,21 @@ public final class MeasurementMap implements Iterable<MeasurementValue> {
       return new MeasurementMap(measures);
     }
 
-    private final ArrayList<MeasurementValue> measures = new ArrayList<MeasurementValue>();
+    private final ArrayList<Measurement> measures = new ArrayList<Measurement>();
 
     private Builder() {
     }
   }
 
   // Provides an unmodifiable Iterator over this instance's measures.
-  private final class MeasurementMapIterator implements Iterator<MeasurementValue> {
+  private final class MeasurementMapIterator implements Iterator<Measurement> {
     @Override
     public boolean hasNext() {
       return position < length;
     }
 
     @Override
-    public MeasurementValue next() {
+    public Measurement next() {
       if (position >= measures.size()) {
         throw new NoSuchElementException();
       }

@@ -19,6 +19,7 @@ import static io.opencensus.stats.StatsTestUtil.createContext;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.SimpleEventQueue;
+import io.opencensus.stats.Measure.DoubleMeasure;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
 import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
@@ -51,7 +52,7 @@ public class ViewManagerImplTest {
 
   private static final String MEASUREMENT_DESCRIPTION = "measurement description";
 
-  private static final Measure MEASUREMENT_DESCRIPTOR =
+  private static final DoubleMeasure MEASUREMENT_DESCRIPTOR =
       Measure.DoubleMeasure.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
 
   private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
@@ -280,7 +281,7 @@ public class ViewManagerImplTest {
             Measure.DoubleMeasure.create(MEASUREMENT_NAME, "measurement", MEASUREMENT_UNIT),
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
-    Measure measure2 =
+    DoubleMeasure measure2 =
         Measure.DoubleMeasure.create(MEASUREMENT_NAME_2, "measurement", MEASUREMENT_UNIT);
     statsRecorder.record(createContext(factory, KEY, VALUE), MeasurementMap.of(measure2, 10.0));
     DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
@@ -398,9 +399,9 @@ public class ViewManagerImplTest {
 
   @Test
   public void testMultipleViewsDifferentMeasures() {
-    Measure measureDescr1 =
+    DoubleMeasure measureDescr1 =
         Measure.DoubleMeasure.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
-    Measure measureDescr2 =
+    DoubleMeasure measureDescr2 =
         Measure.DoubleMeasure.create(MEASUREMENT_NAME_2, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
     ViewDescriptor viewDescr1 =
         createDistributionViewDescriptor(

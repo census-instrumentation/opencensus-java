@@ -91,11 +91,11 @@ final class MeasureToViewMap {
 
   // Records stats with a set of tags.
   synchronized void record(StatsContextImpl tags, MeasurementMap stats) {
-    for (MeasurementValue mv : stats) {
+    for (Measurement measurement : stats) {
       Collection<MutableView> views =
-          mutableMap.get(mv.getMeasurement().getName());
+          mutableMap.get(measurement.getMeasure().getName());
       for (MutableView view : views) {
-        view.record(tags, mv.getValue());
+        view.record(tags, (Double) measurement.getValue());
       }
     }
   }
