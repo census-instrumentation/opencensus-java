@@ -35,7 +35,7 @@ import net.bytebuddy.agent.builder.AgentBuilder;
  * <pre>
  * java -javaagent:path/to/opencensus-agent.jar ...
  * </pre>
- * 
+ *
  * @see <a href="https://github.com/census-instrumentation/instrumentation-java/tree/master/agent">https://github.com/census-instrumentation/instrumentation-java/tree/master/agent</a>
  */
 public final class AgentMain {
