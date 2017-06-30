@@ -1,3 +1,9 @@
+buildscript {
+  dependencies {
+    classpath 'net.sf.proguard:proguard-gradle:5.3.3'
+  }
+}
+
 plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.0'
 }
@@ -22,6 +28,10 @@ def agentBootstrapClasses = agentBootstrapPackageDir + '**'
 def agentRepackaged = "${agentPackage}.deps"
 
 dependencies {
+  compileOnly libraries.grpc_context
+  testCompile libraries.grpc_context
+  compile libraries.guava
+  compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.1u2'
   compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
 
   signature 'org.codehaus.mojo.signature:java17:+@signature'
@@ -62,6 +72,7 @@ shadowJar {
   // Include only the following dependencies (excluding transitive dependencies).
   dependencies {
     include(dependency('net.bytebuddy:byte-buddy'))
+    include(dependency(libraries.guava))
   }
 
   // Exclude cruft which still snuck in.
@@ -71,6 +82,8 @@ shadowJar {
   // Relocate third party packages to avoid any conflicts of the agent's classes with the app's
   // classes, which are loaded by the same classloader (the system classloader).
   relocate 'net.bytebuddy', agentRepackaged + '.bytebuddy'
+  relocate 'com.google.common', agentRepackaged + '.guava'
+  relocate 'com.google.thirdparty.publicsuffix', agentRepackaged + '.publicsuffix'
 
   doLast {
     def agentPackageDir = agentPackage.replace('.', '/') + '/'
@@ -103,3 +116,59 @@ shadowJar {
 }
 
 jar.finalizedBy shadowJar
+
+task proguard(type: proguard.gradle.ProGuardTask) {
+  def tmpJar = "${buildDir}/libs/tmp.jar"
+
+  injars shadowJar.archivePath
+  outjars tmpJar
+
+  // Classes which are not bundled in the agent's JAR, but used at runtime.
+  libraryjars System.getProperty('java.home') + '/lib/rt.jar'
+  libraryjars bootstrapJar.archivePath
+  configurations.compileOnly.each {
+    libraryjars it
+  }
+
+  // Don't warn about classes and annotations which are not needed at runtime and which I don't
+  // bother putting into libraryjars.
+  dontwarn 'io.opencensus.contrib.agent.deps.bytebuddy.jar.asm.**'
+  dontwarn 'com.google.j2objc.annotations.*'
+  dontwarn 'edu.umd.cs.findbugs.annotations.SuppressFBWarnings'
+  dontwarn 'javax.annotation.*'
+  dontwarn 'javax.annotation.concurrent.*'
+  dontwarn 'org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement'
+
+  // TODO(stschmidt): Keep less.
+  keep """public class io.opencensus.contrib.agent.AgentMain { 
+            public static void premain(java.lang.String, java.lang.instrument.Instrumentation);
+          }"""
+  keep """class io.opencensus.contrib.agent.* {
+            private *;
+          }"""
+  keep """class io.opencensus.contrib.agent.deps.bytebuddy.asm.** {
+            *;
+          }"""
+  keep """class io.opencensus.contrib.agent.deps.bytebuddy.implementation.bytecode.assign.** {
+            *;
+          }"""
+
+  // Workaround https://sourceforge.net/p/proguard/bugs/462/.
+  optimizations '!code/allocation/variable'
+
+  // Don't obfuscate or optimize yet. POLA.
+  dontobfuscate
+  // dontoptimize
+
+  doLast {
+    ant.move(file: tmpJar, tofile: shadowJar.archivePath)
+  }
+}
+
+shadowJar.finalizedBy proguard
+
+// TODO(stschmidt): Move the integration tests to a separate SourceSet once
+// https://github.com/johnrengelman/shadow/issues/297 is fixed.
+test {
+  jvmArgs "-javaagent:${shadowJar.archivePath}"
+}
