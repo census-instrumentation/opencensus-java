@@ -14,7 +14,6 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -29,8 +28,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Matchers;
-import org.mockito.stubbing.Stubber;
 
 /**
  * Unit tests for {@link Resources}.
