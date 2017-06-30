@@ -10,6 +10,7 @@ targetCompatibility = JavaVersion.VERSION_1_7
 
 // Experimental support for legacy Java 1.6 JVMs. Animalsniffer (applied by the root project) is
 // used to check for unexpected references to later APIs. Also see dependencies/signature.
+// Retrolambda itself requires JDK 8, which it finds at $JAVA8_HOME.
 retrolambda {
   javaVersion JavaVersion.VERSION_1_6
 }
