@@ -15,7 +15,7 @@ package io.opencensus.examples.stats;
 
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.stats.Measure.DoubleMeasure;
-import io.opencensus.stats.MeasurementMap;
+import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsContext;
 import io.opencensus.stats.StatsContextFactory;
@@ -66,7 +66,7 @@ public class StatsRunner {
         System.out.println(
             "    Current == Default + tags1 + tags2: "
                 + factory.getCurrentStatsContext().equals(tags2));
-        factory.getCurrentStatsContext().record(MeasurementMap.of(M1, 0.2, M2, 0.4));
+        factory.getCurrentStatsContext().record(MeasureMap.of(M1, 0.2, M2, 0.4));
       }
     }
     System.out.println("Current == Default: " + factory.getCurrentStatsContext().equals(DEFAULT));

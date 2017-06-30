@@ -21,6 +21,7 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
+import io.opencensus.stats.Measure.DoubleMeasure;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
 import io.opencensus.testing.common.TestClock;
@@ -36,9 +37,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link StatsContext}. */
+/**
+ * Tests for {@link StatsContext}.
+ */
 @RunWith(JUnit4.class)
 public class StatsContextTest {
+
   private static final double TOLERANCE = 1e-6;
 
   private final StatsComponentImplBase statsComponent =
@@ -97,13 +101,13 @@ public class StatsContextTest {
 
     StatsContext context4 = context3.with(K3, V30, K4, V4);
     assertThat(
-            defaultStatsContext
-                .builder()
-                .set(K1, V100)
-                .set(K2, V20)
-                .set(K3, V30)
-                .set(K4, V4)
-                .build())
+        defaultStatsContext
+            .builder()
+            .set(K1, V100)
+            .set(K2, V20)
+            .set(K3, V30)
+            .set(K4, V4)
+            .build())
         .isEqualTo(context4);
   }
 
@@ -132,8 +136,8 @@ public class StatsContextTest {
     StatsContext context =
         defaultStatsContext.with(
             RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
-    MeasurementMap measurements =
-        MeasurementMap.of(RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1);
+    MeasureMap measurements =
+        MeasureMap.of((DoubleMeasure) RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1);
     context.record(measurements);
     View afterView =
         viewManager.getView(

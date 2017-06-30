@@ -22,29 +22,29 @@ import java.util.NoSuchElementException;
 /**
  * A map from {@link Measure}'s to measured values.
  */
-public final class MeasurementMap implements Iterable<Measurement> {
+public final class MeasureMap implements Iterable<Measurement> {
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link DoubleMeasure}
+   * Constructs a {@link MeasureMap} from the given {@link DoubleMeasure}
    * and associated value.
    */
-  public static MeasurementMap of(DoubleMeasure measure, double value) {
+  public static MeasureMap of(DoubleMeasure measure, double value) {
     return builder().put(measure, value).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link DoubleMeasure}'s
+   * Constructs a {@link MeasureMap} from the given {@link DoubleMeasure}'s
    * and associated values.
    */
-  public static MeasurementMap of(DoubleMeasure measure1, double value1,
+  public static MeasureMap of(DoubleMeasure measure1, double value1,
       DoubleMeasure measure2, double value2) {
     return builder().put(measure1, value1).put(measure2, value2).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link DoubleMeasure}'s
+   * Constructs a {@link MeasureMap} from the given {@link DoubleMeasure}'s
    * and associated values.
    */
-  public static MeasurementMap of(DoubleMeasure measure1, double value1,
+  public static MeasureMap of(DoubleMeasure measure1, double value1,
       DoubleMeasure measure2, double value2,
       DoubleMeasure measure3, double value3) {
     return builder().put(measure1, value1).put(measure2, value2).put(measure3, value3)
@@ -52,27 +52,27 @@ public final class MeasurementMap implements Iterable<Measurement> {
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link LongMeasure}
+   * Constructs a {@link MeasureMap} from the given {@link LongMeasure}
    * and associated value.
    */
-  public static MeasurementMap of(LongMeasure measure, long value) {
+  public static MeasureMap of(LongMeasure measure, long value) {
     return builder().put(measure, value).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link LongMeasure}'s
+   * Constructs a {@link MeasureMap} from the given {@link LongMeasure}'s
    * and associated values.
    */
-  public static MeasurementMap of(LongMeasure measure1, long value1,
+  public static MeasureMap of(LongMeasure measure1, long value1,
       LongMeasure measure2, long value2) {
     return builder().put(measure1, value1).put(measure2, value2).build();
   }
 
   /**
-   * Constructs a {@link MeasurementMap} from the given {@link LongMeasure}'s
+   * Constructs a {@link MeasureMap} from the given {@link LongMeasure}'s
    * and associated values.
    */
-  public static MeasurementMap of(LongMeasure measure1, long value1,
+  public static MeasureMap of(LongMeasure measure1, long value1,
       LongMeasure measure2, long value2,
       LongMeasure measure3, long value3) {
     return builder().put(measure1, value1).put(measure2, value2).put(measure3, value3)
@@ -80,36 +80,36 @@ public final class MeasurementMap implements Iterable<Measurement> {
   }
 
   /**
-   * Returns a {@link Builder} for the {@link MeasurementMap} class.
+   * Returns a {@link Builder} for the {@link MeasureMap} class.
    */
   public static Builder builder() {
     return new Builder();
   }
 
   /**
-   * Returns the number of measures in this {@link MeasurementMap}.
+   * Returns the number of measurements in this {@link MeasureMap}.
    */
   public int size() {
-    return measures.size();
+    return measurements.size();
   }
 
   /**
-   * Returns an {@link Iterator} over the measure/value mappings in this {@link MeasurementMap}.
+   * Returns an {@link Iterator} over the measure/value mappings in this {@link MeasureMap}.
    * The {@code Iterator} does not support {@link Iterator#remove()}.
    */
   @Override
   public Iterator<Measurement> iterator() {
-    return new MeasurementMapIterator();
+    return new MeasureMapIterator();
   }
 
-  private final ArrayList<Measurement> measures;
+  private final ArrayList<Measurement> measurements;
 
-  private MeasurementMap(ArrayList<Measurement> measures) {
-    this.measures = measures;
+  private MeasureMap(ArrayList<Measurement> measurements) {
+    this.measurements = measurements;
   }
 
   /**
-   * Builder for the {@link MeasurementMap} class.
+   * Builder for the {@link MeasureMap} class.
    */
   public static class Builder {
     /**
@@ -121,7 +121,7 @@ public final class MeasurementMap implements Iterable<Measurement> {
      * @return this
      */
     public Builder put(DoubleMeasure measure, double value) {
-      measures.add(Measurement.DoubleMeasurement.create(measure, value));
+      measurements.add(Measurement.DoubleMeasurement.create(measure, value));
       return this;
     }
 
@@ -134,38 +134,38 @@ public final class MeasurementMap implements Iterable<Measurement> {
      * @return this
      */
     public Builder put(LongMeasure measure, long value) {
-      measures.add(Measurement.LongMeasurement.create(measure, value));
+      measurements.add(Measurement.LongMeasurement.create(measure, value));
       return this;
     }
 
     /**
-     * Constructs a {@link MeasurementMap} from the current measures.
+     * Constructs a {@link MeasureMap} from the current measurements.
      */
-    public MeasurementMap build() {
-      // Note: this makes adding measures quadratic but is fastest for the sizes of
-      // MeasurementMaps that we should see. We may want to go to a strategy of sort/eliminate
-      // for larger MeasurementMaps.
-      for (int i = 0; i < measures.size(); i++) {
+    public MeasureMap build() {
+      // Note: this makes adding measurements quadratic but is fastest for the sizes of
+      // MeasureMaps that we should see. We may want to go to a strategy of sort/eliminate
+      // for larger MeasureMaps.
+      for (int i = 0; i < measurements.size(); i++) {
         String current =
-            measures.get(i).getMeasure().getName();
-        for (int j = i + 1; j < measures.size(); j++) {
-          if (current.equals(measures.get(j).getMeasure().getName())) {
-            measures.remove(j);
+            measurements.get(i).getMeasure().getName();
+        for (int j = i + 1; j < measurements.size(); j++) {
+          if (current.equals(measurements.get(j).getMeasure().getName())) {
+            measurements.remove(j);
             j--;
           }
         }
       }
-      return new MeasurementMap(measures);
+      return new MeasureMap(measurements);
     }
 
-    private final ArrayList<Measurement> measures = new ArrayList<Measurement>();
+    private final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
 
     private Builder() {
     }
   }
 
-  // Provides an unmodifiable Iterator over this instance's measures.
-  private final class MeasurementMapIterator implements Iterator<Measurement> {
+  // Provides an unmodifiable Iterator over this instance's measurements.
+  private final class MeasureMapIterator implements Iterator<Measurement> {
     @Override
     public boolean hasNext() {
       return position < length;
@@ -173,10 +173,10 @@ public final class MeasurementMap implements Iterable<Measurement> {
 
     @Override
     public Measurement next() {
-      if (position >= measures.size()) {
+      if (position >= measurements.size()) {
         throw new NoSuchElementException();
       }
-      return measures.get(position++);
+      return measurements.get(position++);
     }
 
     @Override
@@ -184,7 +184,7 @@ public final class MeasurementMap implements Iterable<Measurement> {
       throw new UnsupportedOperationException();
     }
 
-    private final int length = measures.size();
+    private final int length = measurements.size();
     private int position = 0;
   }
 }

@@ -90,12 +90,19 @@ final class MeasureToViewMap {
   }
 
   // Records stats with a set of tags.
-  synchronized void record(StatsContextImpl tags, MeasurementMap stats) {
+  synchronized void record(StatsContextImpl tags, MeasureMap stats) {
     for (Measurement measurement : stats) {
       Collection<MutableView> views =
           mutableMap.get(measurement.getMeasure().getName());
       for (MutableView view : views) {
-        view.record(tags, (Double) measurement.getValue());
+        if (measurement.getValue() instanceof Double) {
+          view.record(tags, (Double) measurement.getValue());
+        } else if (measurement.getValue() instanceof Long) {
+          // TODO: determine if we want to support LongMeasure in v0.1
+          throw new UnsupportedOperationException("Long measurements not supported.");
+        } else {
+          throw new UnsupportedOperationException("Unknown measure value type.");
+        }
       }
     }
   }
