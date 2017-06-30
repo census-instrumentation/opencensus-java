@@ -30,7 +30,7 @@ public final class RpcMeasurementConstants {
 
   // RPC client Measures.
   public static final Measure RPC_CLIENT_ERROR_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/client/error_count",
           "RPC Errors",
           COUNT);
@@ -65,22 +65,22 @@ public final class RpcMeasurementConstants {
           "Uncompressed Response bytes",
           BYTE);
   public static final Measure RPC_CLIENT_STARTED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/client/started_count",
           "Number of client RPCs (streams) started",
           COUNT);
   public static final Measure RPC_CLIENT_FINISHED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/client/finished_count",
           "Number of client RPCs (streams) finished",
           COUNT);
   public static final Measure RPC_CLIENT_REQUEST_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/client/request_count",
           "Number of client RPC request messages",
           COUNT);
   public static final Measure RPC_CLIENT_RESPONSE_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/client/response_count",
           "Number of client RPC response messages",
           COUNT);
@@ -88,7 +88,7 @@ public final class RpcMeasurementConstants {
 
   // RPC server Measures.
   public static final Measure RPC_SERVER_ERROR_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/server/error_count",
           "RPC Errors",
           COUNT);
@@ -123,22 +123,22 @@ public final class RpcMeasurementConstants {
           "Uncompressed Response bytes",
           BYTE);
   public static final Measure RPC_SERVER_STARTED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/server/started_count",
           "Number of server RPCs (streams) started",
           COUNT);
   public static final Measure RPC_SERVER_FINISHED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/server/finished_count",
           "Number of server RPCs (streams) finished",
           COUNT);
   public static final Measure RPC_SERVER_REQUEST_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/server/request_count",
           "Number of server RPC request messages",
           COUNT);
   public static final Measure RPC_SERVER_RESPONSE_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.DoubleMeasure.create(  // TODO: change this to LongMeasure if it's supported in v0.1.
           "grpc.io/server/response_count",
           "Number of server RPC response messages",
           COUNT);

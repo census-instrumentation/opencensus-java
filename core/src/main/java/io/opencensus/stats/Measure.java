@@ -15,7 +15,6 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
-import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
 /**
