@@ -114,10 +114,7 @@ public class SpanBuilderImplTest {
 
   @Test(expected = NullPointerException.class)
   public void startRemoteSpan_NullParent() {
-    Span span =
-        SpanBuilderImpl.createBuilderWithRemoteParent(
-            null, SPAN_NAME, spanBuilderOptions)
-            .startSpan();
+    SpanBuilderImpl.createBuilderWithRemoteParent(null, SPAN_NAME, spanBuilderOptions);
   }
 
   @Test
