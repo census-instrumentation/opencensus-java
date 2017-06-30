@@ -14,6 +14,7 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -22,11 +23,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Matchers;
+import org.mockito.stubbing.Stubber;
 
 /**
  * Unit tests for {@link Resources}.
@@ -54,5 +58,23 @@ public class ResourcesTest {
 
     Resources.getResourceAsTempFile("missing_resource.txt",
             mock(File.class), new ByteArrayOutputStream());
+  }
+
+  @Test
+  public void getResourceAsTempFile_WriteFailure() throws IOException {
+    exception.expect(IOException.class);
+    exception.expectMessage("denied");
+
+    File mockFile = mock(File.class);
+    OutputStream outputStream = new OutputStream() {
+      @Override
+      public void write(int b) throws IOException {
+        throw new IOException("denied");
+      }
+    };
+
+    Resources.getResourceAsTempFile("some_resource.txt", mockFile, outputStream);
+
+    verify(mockFile).deleteOnExit();
   }
 }
