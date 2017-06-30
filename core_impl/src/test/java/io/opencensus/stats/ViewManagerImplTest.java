@@ -43,11 +43,9 @@ public class ViewManagerImplTest {
   private static final TagValue VALUE = TagValue.create("VALUE");
   private static final TagValue VALUE_2 = TagValue.create("VALUE_2");
 
-  private static final Measure.Name MEASUREMENT_NAME =
-      Measure.Name.create("my measurement");
+  private static final String MEASUREMENT_NAME = "my measurement";
 
-  private static final Measure.Name MEASUREMENT_NAME_2 =
-      Measure.Name.create("my measurement 2");
+  private static final String MEASUREMENT_NAME_2 = "my measurement 2";
 
   private static final String MEASUREMENT_UNIT = "us";
 

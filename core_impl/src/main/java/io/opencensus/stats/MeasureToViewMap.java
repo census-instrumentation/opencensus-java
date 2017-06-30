@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
- * A class that stores a singleton map from {@link Measure.Name}s to {@link
+ * A class that stores a singleton map from {@code MeasureName}s to {@link
  * MutableView}s.
  */
 final class MeasureToViewMap {
@@ -38,8 +38,8 @@ final class MeasureToViewMap {
    * to MutableViews.
    */
   @GuardedBy("this")
-  private final Multimap<Measure.Name, MutableView> mutableMap =
-      HashMultimap.<Measure.Name, MutableView>create();
+  private final Multimap<String, MutableView> mutableMap =
+      HashMultimap.<String, MutableView>create();
 
   @GuardedBy("this")
   private final Map<ViewDescriptor.Name, ViewDescriptor> registeredViews =
@@ -58,7 +58,7 @@ final class MeasureToViewMap {
       return null;
     }
     Collection<MutableView> views =
-        mutableMap.get(viewDescriptor.getMeasure().getMeasureName());
+        mutableMap.get(viewDescriptor.getMeasure().getName());
     for (MutableView view : views) {
       if (view.getViewDescriptor().getViewDescriptorName().equals(viewName)) {
         return view;
@@ -86,14 +86,14 @@ final class MeasureToViewMap {
             new CreateMutableDistributionViewFunction(clock),
             new CreateMutableIntervalViewFunction());
     mutableMap.put(
-        viewDescriptor.getMeasure().getMeasureName(), mutableView);
+        viewDescriptor.getMeasure().getName(), mutableView);
   }
 
   // Records stats with a set of tags.
   synchronized void record(StatsContextImpl tags, MeasurementMap stats) {
     for (MeasurementValue mv : stats) {
       Collection<MutableView> views =
-          mutableMap.get(mv.getMeasurement().getMeasureName());
+          mutableMap.get(mv.getMeasurement().getName());
       for (MutableView view : views) {
         view.record(tags, mv.getValue());
       }

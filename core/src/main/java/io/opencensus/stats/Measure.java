@@ -20,8 +20,6 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * Measure.
- *
- * <p>Note: Measure names are {@link String}s with enforced restrictions.
  */
 @Immutable
 public abstract class Measure {
@@ -34,16 +32,9 @@ public abstract class Measure {
   public abstract <T> T match(Function<DoubleMeasure, T> p0, Function<LongMeasure, T> p1);
 
   /**
-   * Name of measure, e.g. rpc_latency, cpu. Must be unique.
-   */
-  public abstract Measure.Name getMeasureName();
-
-  /**
    * Name of measure, as a {@code String}.
    */
-  public final String getName() {
-    return getMeasureName().asString();
-  }
+  public abstract String getName();
 
   /**
    * Detailed description of the measure, used in documentation.
@@ -62,35 +53,6 @@ public abstract class Measure {
    */
   public abstract String getUnit();
 
-  /**
-   * The name of a {@code Measure}.
-   */
-  // This type should be used as the key when associating data with Measures.
-  @Immutable
-  @AutoValue
-  public abstract static class Name {
-
-    Name() {
-    }
-
-    /**
-     * Returns the name as a {@code String}.
-     *
-     * @return the name as a {@code String}.
-     */
-    public abstract String asString();
-
-    /**
-     * Creates a {@code Measure.Name} from a {@code String}.
-     *
-     * @param name the name {@code String}.
-     * @return a {@code Measure.Name} with the given name {@code String}.
-     */
-    public static Name create(String name) {
-      return new AutoValue_Measure_Name(StringUtil.sanitize(name));
-    }
-  }
-
   @Immutable
   @AutoValue
   public abstract static class DoubleMeasure extends Measure {
@@ -100,13 +62,6 @@ public abstract class Measure {
      * Constructs a new {@link DoubleMeasure}.
      */
     public static DoubleMeasure create(String name, String description, String unit) {
-      return create(Name.create(name), description, unit);
-    }
-
-    /**
-     * Constructs a new {@link DoubleMeasure}.
-     */
-    public static DoubleMeasure create(Name name, String description, String unit) {
       // TODO(dpo): ensure that measure names are unique, and consider if there should be any
       // restricitons on name (e.g. size, characters).
       return new AutoValue_Measure_DoubleMeasure(name, description, unit);
@@ -118,7 +73,7 @@ public abstract class Measure {
     }
 
     @Override
-    public abstract Measure.Name getMeasureName();
+    public abstract String getName();
 
     @Override
     public abstract String getDescription();
@@ -129,6 +84,7 @@ public abstract class Measure {
 
   @Immutable
   @AutoValue
+  // TODO: determine whether we want to support LongMeasure in V0.1
   public abstract static class LongMeasure extends Measure {
     LongMeasure() {}
 
@@ -136,14 +92,6 @@ public abstract class Measure {
      * Constructs a new {@link LongMeasure}.
      */
     public static LongMeasure create(String name, String description, String unit) {
-      return create(Name.create(name), description, unit);
-    }
-
-    /**
-     * Constructs a new {@link LongMeasure}.
-     */
-    // TODO: determine whether we want to support LongMeasure in V0.1
-    public static LongMeasure create(Name name, String description, String unit) {
       // TODO(dpo): ensure that measure names are unique, and consider if there should be any
       // restricitons on name (e.g. size, characters).
       return new AutoValue_Measure_LongMeasure(name, description, unit);
@@ -155,7 +103,7 @@ public abstract class Measure {
     }
 
     @Override
-    public abstract Measure.Name getMeasureName();
+    public abstract String getName();
 
     @Override
     public abstract String getDescription();

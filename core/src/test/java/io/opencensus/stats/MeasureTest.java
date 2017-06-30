@@ -18,6 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.internal.StringUtil;
 import java.util.Arrays;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -28,6 +29,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class MeasureTest {
 
+  @Ignore  // TODO: determine whether there are any restrictions on measure names.
   @Test
   public void testNameMaxLength() {
     char[] name = new char[Measure.MAX_LENGTH];
@@ -38,6 +40,7 @@ public final class MeasureTest {
         .isEqualTo(makeSimpleMeasure(new String(truncName)).getName());
   }
 
+  @Ignore  // TODO: determine whether there are any restrictions on measure names.
   @Test
   public void testNameBadChar() {
     assertThat(makeSimpleMeasure("\2ab\3cd").getName())
@@ -52,7 +55,6 @@ public final class MeasureTest {
         "The description of Foo",
         "Mbit/s");
     assertThat(measurement.getName()).isEqualTo("Foo");
-    assertThat(measurement.getMeasureName()).isEqualTo(Measure.Name.create("Foo"));
     assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
     assertThat(measurement.getUnit()).isEqualTo("Mbit/s");
   }
@@ -64,24 +66,8 @@ public final class MeasureTest {
         "The description of Bar",
         "1");
     assertThat(measurement.getName()).isEqualTo("Bar");
-    assertThat(measurement.getMeasureName()).isEqualTo(Measure.Name.create("Bar"));
     assertThat(measurement.getDescription()).isEqualTo("The description of Bar");
     assertThat(measurement.getUnit()).isEqualTo("1");
-  }
-
-  @Test
-  public void testMeasureNameSanitization() {
-    assertThat(Measure.Name.create("md\1").asString())
-        .isEqualTo("md" + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE);
-  }
-
-  @Test
-  public void testMeasureNameEquals() {
-    new EqualsTester()
-        .addEqualityGroup(
-            Measure.Name.create("md1"), Measure.Name.create("md1"))
-        .addEqualityGroup(Measure.Name.create("md2"))
-        .testEquals();
   }
 
   @Test
@@ -93,7 +79,7 @@ public final class MeasureTest {
                 "description",
                 "bit/s"),
             Measure.DoubleMeasure.create(
-                Measure.Name.create("name"),
+                "name",
                 "description",
                 "bit/s"))
         .addEqualityGroup(
@@ -113,7 +99,7 @@ public final class MeasureTest {
                 "description",
                 "bit/s"),
             Measure.LongMeasure.create(
-                Measure.Name.create("name"),
+                "name",
                 "description",
                 "bit/s"))
         .addEqualityGroup(

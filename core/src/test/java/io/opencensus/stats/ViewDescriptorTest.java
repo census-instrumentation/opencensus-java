@@ -41,8 +41,8 @@ public final class ViewDescriptorTest {
     assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
     assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
-    assertThat(viewDescriptor.getMeasure().getMeasureName())
-        .isEqualTo(measure.getMeasureName());
+    assertThat(viewDescriptor.getMeasure().getName())
+        .isEqualTo(measure.getName());
     assertThat(viewDescriptor.getTagKeys()).hasSize(2);
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
@@ -69,8 +69,8 @@ public final class ViewDescriptorTest {
     assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
     assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
     assertThat(viewDescriptor.getDescription()).isEqualTo(description);
-    assertThat(viewDescriptor.getMeasure().getMeasureName())
-        .isEqualTo(measure.getMeasureName());
+    assertThat(viewDescriptor.getMeasure().getName())
+        .isEqualTo(measure.getName());
     assertThat(viewDescriptor.getTagKeys()).hasSize(2);
     assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
     assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
