@@ -39,6 +39,9 @@ public abstract class Measurement {
    */
   public abstract Object getValue();
 
+  // Prevents this class from being subclassed anywhere else.
+  private Measurement() {
+  }
 
   @Immutable
   @AutoValue
