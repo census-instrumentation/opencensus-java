@@ -19,8 +19,6 @@ import static io.opencensus.stats.StatsTestUtil.createContext;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.SimpleEventQueue;
-import io.opencensus.stats.MeasurementDescriptor.BasicUnit;
-import io.opencensus.stats.MeasurementDescriptor.MeasurementUnit;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
 import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
@@ -45,19 +43,16 @@ public class ViewManagerImplTest {
   private static final TagValue VALUE = TagValue.create("VALUE");
   private static final TagValue VALUE_2 = TagValue.create("VALUE_2");
 
-  private static final MeasurementDescriptor.Name MEASUREMENT_NAME =
-      MeasurementDescriptor.Name.create("my measurement");
+  private static final String MEASUREMENT_NAME = "my measurement";
 
-  private static final MeasurementDescriptor.Name MEASUREMENT_NAME_2 =
-      MeasurementDescriptor.Name.create("my measurement 2");
+  private static final String MEASUREMENT_NAME_2 = "my measurement 2";
 
-  private static final MeasurementUnit MEASUREMENT_UNIT =
-      MeasurementUnit.create(-6, Arrays.asList(BasicUnit.SECONDS));
+  private static final String MEASUREMENT_UNIT = "us";
 
   private static final String MEASUREMENT_DESCRIPTION = "measurement description";
 
-  private static final MeasurementDescriptor MEASUREMENT_DESCRIPTOR =
-      MeasurementDescriptor.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
+  private static final Measure MEASUREMENT_DESCRIPTOR =
+      Measure.DoubleMeasure.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
 
   private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
   private static final ViewDescriptor.Name VIEW_NAME_2 = ViewDescriptor.Name.create("my view 2");
@@ -88,7 +83,7 @@ public class ViewManagerImplTest {
 
   private static DistributionViewDescriptor createDistributionViewDescriptor(
       ViewDescriptor.Name name,
-      MeasurementDescriptor measureDescr,
+      Measure measureDescr,
       DistributionAggregationDescriptor aggDescr,
       List<TagKey> keys) {
     return DistributionViewDescriptor.create(name, VIEW_DESCRIPTION, measureDescr, aggDescr, keys);
@@ -282,11 +277,11 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MeasurementDescriptor.create(MEASUREMENT_NAME, "measurement", MEASUREMENT_UNIT),
+            Measure.DoubleMeasure.create(MEASUREMENT_NAME, "measurement", MEASUREMENT_UNIT),
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
-    MeasurementDescriptor measure2 =
-        MeasurementDescriptor.create(MEASUREMENT_NAME_2, "measurement", MEASUREMENT_UNIT);
+    Measure measure2 =
+        Measure.DoubleMeasure.create(MEASUREMENT_NAME_2, "measurement", MEASUREMENT_UNIT);
     statsRecorder.record(createContext(factory, KEY, VALUE), MeasurementMap.of(measure2, 10.0));
     DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
     assertThat(view.getDistributionAggregations()).isEmpty();
@@ -403,10 +398,10 @@ public class ViewManagerImplTest {
 
   @Test
   public void testMultipleViewsDifferentMeasures() {
-    MeasurementDescriptor measureDescr1 =
-        MeasurementDescriptor.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
-    MeasurementDescriptor measureDescr2 =
-        MeasurementDescriptor.create(MEASUREMENT_NAME_2, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
+    Measure measureDescr1 =
+        Measure.DoubleMeasure.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
+    Measure measureDescr2 =
+        Measure.DoubleMeasure.create(MEASUREMENT_NAME_2, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
     ViewDescriptor viewDescr1 =
         createDistributionViewDescriptor(
             VIEW_NAME, measureDescr1, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));

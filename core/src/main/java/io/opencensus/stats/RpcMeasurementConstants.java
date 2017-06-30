@@ -13,14 +13,10 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.stats.MeasurementDescriptor.BasicUnit;
-import io.opencensus.stats.MeasurementDescriptor.MeasurementUnit;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Constants for collecting rpc stats.
  */
+// TODO(songya): change *_COUNT constants to LongMeasure if it's supported in v0.1.
 public final class RpcMeasurementConstants {
 
   // Rpc tag keys.
@@ -28,125 +24,125 @@ public final class RpcMeasurementConstants {
   public static final TagKey RPC_CLIENT_METHOD = TagKey.create("method");
   public static final TagKey RPC_SERVER_METHOD = TagKey.create("method");
 
-  // Constants used to define the following MeasurementDescriptors.
-  private static final List<BasicUnit> bytes = Arrays.asList(BasicUnit.BYTES);
-  private static final List<BasicUnit> scalar = Arrays.asList(BasicUnit.SCALAR);
-  private static final List<BasicUnit> seconds = Arrays.asList(BasicUnit.SECONDS);
+  // Constants used to define the following Measures.
+  private static final String BYTE = "By";
+  private static final String COUNT = "1";
+  private static final String MILLISECOND = "ms";
 
-  // RPC client {@link MeasurementDescriptor}s.
-  public static final MeasurementDescriptor RPC_CLIENT_ERROR_COUNT =
-      MeasurementDescriptor.create(
+  // RPC client Measures.
+  public static final Measure RPC_CLIENT_ERROR_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/error_count",
           "RPC Errors",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_REQUEST_BYTES =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_CLIENT_REQUEST_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/request_bytes",
           "Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_CLIENT_RESPONSE_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/response_bytes",
           "Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_ROUNDTRIP_LATENCY =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_CLIENT_ROUNDTRIP_LATENCY =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/roundtrip_latency",
           "RPC roundtrip latency msec",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_CLIENT_SERVER_ELAPSED_TIME =
-      MeasurementDescriptor.create(
+          MILLISECOND);
+  public static final Measure RPC_CLIENT_SERVER_ELAPSED_TIME =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/server_elapsed_time",
           "Server elapsed time in msecs",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
-      MeasurementDescriptor.create(
+          MILLISECOND);
+  public static final Measure RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/uncompressed_request_bytes",
           "Uncompressed Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/uncompressed_response_bytes",
           "Uncompressed Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_CLIENT_STARTED_COUNT =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_CLIENT_STARTED_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/started_count",
           "Number of client RPCs (streams) started",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_FINISHED_COUNT =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_CLIENT_FINISHED_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/finished_count",
           "Number of client RPCs (streams) finished",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_REQUEST_COUNT =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_CLIENT_REQUEST_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/request_count",
           "Number of client RPC request messages",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_CLIENT_RESPONSE_COUNT =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_CLIENT_RESPONSE_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/client/response_count",
           "Number of client RPC response messages",
-          MeasurementUnit.create(0, scalar));
+          COUNT);
 
 
-  // RPC server {@link MeasurementDescriptor}s.
-  public static final MeasurementDescriptor RPC_SERVER_ERROR_COUNT =
-      MeasurementDescriptor.create(
+  // RPC server Measures.
+  public static final Measure RPC_SERVER_ERROR_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/error_count",
           "RPC Errors",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_REQUEST_BYTES =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_SERVER_REQUEST_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/request_bytes",
           "Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_SERVER_RESPONSE_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/response_bytes",
           "Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_SERVER_ELAPSED_TIME =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_SERVER_SERVER_ELAPSED_TIME =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/server_elapsed_time",
           "Server elapsed time in msecs",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_SERVER_SERVER_LATENCY =
-      MeasurementDescriptor.create(
+          MILLISECOND);
+  public static final Measure RPC_SERVER_SERVER_LATENCY =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/server_latency",
           "Latency in msecs",
-          MeasurementUnit.create(-3, seconds));
-  public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
-      MeasurementDescriptor.create(
+          MILLISECOND);
+  public static final Measure RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/uncompressed_request_bytes",
           "Uncompressed Request bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/uncompressed_response_bytes",
           "Uncompressed Response bytes",
-          MeasurementUnit.create(0, bytes));
-  public static final MeasurementDescriptor RPC_SERVER_STARTED_COUNT =
-      MeasurementDescriptor.create(
+          BYTE);
+  public static final Measure RPC_SERVER_STARTED_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/started_count",
           "Number of server RPCs (streams) started",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_FINISHED_COUNT =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_SERVER_FINISHED_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/finished_count",
           "Number of server RPCs (streams) finished",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_REQUEST_COUNT =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_SERVER_REQUEST_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/request_count",
           "Number of server RPC request messages",
-          MeasurementUnit.create(0, scalar));
-  public static final MeasurementDescriptor RPC_SERVER_RESPONSE_COUNT =
-      MeasurementDescriptor.create(
+          COUNT);
+  public static final Measure RPC_SERVER_RESPONSE_COUNT =
+      Measure.DoubleMeasure.create(
           "grpc.io/server/response_count",
           "Number of server RPC response messages",
-          MeasurementUnit.create(0, scalar));
+          COUNT);
 
   // Visible for testing.
   RpcMeasurementConstants() {

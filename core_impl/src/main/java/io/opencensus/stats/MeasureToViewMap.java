@@ -28,18 +28,18 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
- * A class that stores a singleton map from {@link MeasurementDescriptor.Name}s to {@link
+ * A class that stores a singleton map from {@code MeasureName}s to {@link
  * MutableView}s.
  */
-final class MeasurementDescriptorToViewMap {
+final class MeasureToViewMap {
 
   /*
-   * A synchronized singleton map that stores the one-to-many mapping from MeasurementDescriptors
+   * A synchronized singleton map that stores the one-to-many mapping from Measures
    * to MutableViews.
    */
   @GuardedBy("this")
-  private final Multimap<MeasurementDescriptor.Name, MutableView> mutableMap =
-      HashMultimap.<MeasurementDescriptor.Name, MutableView>create();
+  private final Multimap<String, MutableView> mutableMap =
+      HashMultimap.<String, MutableView>create();
 
   @GuardedBy("this")
   private final Map<ViewDescriptor.Name, ViewDescriptor> registeredViews =
@@ -58,7 +58,7 @@ final class MeasurementDescriptorToViewMap {
       return null;
     }
     Collection<MutableView> views =
-        mutableMap.get(viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName());
+        mutableMap.get(viewDescriptor.getMeasure().getName());
     for (MutableView view : views) {
       if (view.getViewDescriptor().getViewDescriptorName().equals(viewName)) {
         return view;
@@ -86,14 +86,14 @@ final class MeasurementDescriptorToViewMap {
             new CreateMutableDistributionViewFunction(clock),
             new CreateMutableIntervalViewFunction());
     mutableMap.put(
-        viewDescriptor.getMeasurementDescriptor().getMeasurementDescriptorName(), mutableView);
+        viewDescriptor.getMeasure().getName(), mutableView);
   }
 
   // Records stats with a set of tags.
   synchronized void record(StatsContextImpl tags, MeasurementMap stats) {
     for (MeasurementValue mv : stats) {
       Collection<MutableView> views =
-          mutableMap.get(mv.getMeasurement().getMeasurementDescriptorName());
+          mutableMap.get(mv.getMeasurement().getName());
       for (MutableView view : views) {
         view.record(tags, mv.getValue());
       }

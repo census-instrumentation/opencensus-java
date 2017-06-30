@@ -21,14 +21,14 @@ public class MeasurementValue {
   /**
    * Constructs a measured value.
    */
-  public static MeasurementValue create(MeasurementDescriptor name, double value) {
+  public static MeasurementValue create(Measure name, double value) {
     return new MeasurementValue(name, value);
   }
 
   /**
-   * Extracts the measured {@link MeasurementDescriptor}.
+   * Extracts the measured {@link Measure}.
    */
-  public MeasurementDescriptor getMeasurement() {
+  public Measure getMeasurement() {
     return name;
   }
 
@@ -39,10 +39,10 @@ public class MeasurementValue {
     return value;
   }
 
-  private final MeasurementDescriptor name;
+  private final Measure name;
   private final double value;
 
-  private MeasurementValue(MeasurementDescriptor name, double value) {
+  private MeasurementValue(Measure name, double value) {
     this.name = name;
     this.value = value;
   }

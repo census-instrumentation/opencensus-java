@@ -16,10 +16,7 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import io.opencensus.stats.MeasurementDescriptor.BasicUnit;
-import io.opencensus.stats.MeasurementDescriptor.MeasurementUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,14 +65,14 @@ public class MeasurementMapTest {
     ArrayList<MeasurementValue> expected = new ArrayList<MeasurementValue>(10);
     MeasurementMap.Builder builder = MeasurementMap.builder();
     for (int i = 1; i <= 10; i++) {
-      expected.add(MeasurementValue.create(makeSimpleMeasurement("m" + i), i * 11.1));
-      builder.put(makeSimpleMeasurement("m" + i), i * 11.1);
+      expected.add(MeasurementValue.create(makeSimpleMeasure("m" + i), i * 11.1));
+      builder.put(makeSimpleMeasure("m" + i), i * 11.1);
       assertEquals(expected, builder.build());
     }
   }
 
   @Test
-  public void testDuplicateMeasurementDescriptors() {
+  public void testDuplicateMeasures() {
     assertEquals(MeasurementMap.of(M1, 1.0, M1, 1.0), MeasurementMap.of(M1, 1.0));
     assertEquals(MeasurementMap.of(M1, 1.0, M1, 2.0), MeasurementMap.of(M1, 1.0));
     assertEquals(MeasurementMap.of(M1, 1.0, M1, 2.0, M1, 3.0), MeasurementMap.of(M1, 1.0));
@@ -87,20 +84,18 @@ public class MeasurementMapTest {
   public void testSize() {
     MeasurementMap.Builder builder = MeasurementMap.builder();
     for (int i = 1; i <= 10; i++) {
-      builder.put(makeSimpleMeasurement("m" + i), i * 11.1);
+      builder.put(makeSimpleMeasure("m" + i), i * 11.1);
       assertThat(builder.build()).hasSize(i);
     }
   }
 
-  private static final MeasurementUnit simpleMeasurementUnit =
-      MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR));
-  private static final MeasurementDescriptor M1 = makeSimpleMeasurement("m1");
-  private static final MeasurementDescriptor M2 = makeSimpleMeasurement("m2");
-  private static final MeasurementDescriptor M3 = makeSimpleMeasurement("m3");
+  private static final Measure M1 = makeSimpleMeasure("m1");
+  private static final Measure M2 = makeSimpleMeasure("m2");
+  private static final Measure M3 = makeSimpleMeasure("m3");
 
-  private static final MeasurementDescriptor makeSimpleMeasurement(String measurement) {
-    return MeasurementDescriptor.create(
-        measurement, measurement + " description", simpleMeasurementUnit);
+  private static final Measure makeSimpleMeasure(String measure) {
+    return Measure.DoubleMeasure.create(
+        measure, measure + " description", "1");
   }
 
   private static void assertEquals(
@@ -110,8 +105,8 @@ public class MeasurementMapTest {
     while (e.hasNext() && a.hasNext()) {
       MeasurementValue expectedMeasurement = e.next();
       MeasurementValue actualMeasurement = a.next();
-      assertThat(expectedMeasurement.getMeasurement().getMeasurementDescriptorName())
-          .isEqualTo(actualMeasurement.getMeasurement().getMeasurementDescriptorName());
+      assertThat(expectedMeasurement.getMeasurement().getName())
+          .isEqualTo(actualMeasurement.getMeasurement().getName());
       assertThat(expectedMeasurement.getValue())
           .isWithin(0.00000001).of(actualMeasurement.getValue());
     }

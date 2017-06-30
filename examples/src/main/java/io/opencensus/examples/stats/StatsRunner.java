@@ -14,16 +14,13 @@
 package io.opencensus.examples.stats;
 
 import io.opencensus.common.NonThrowingCloseable;
-import io.opencensus.stats.MeasurementDescriptor;
-import io.opencensus.stats.MeasurementDescriptor.BasicUnit;
-import io.opencensus.stats.MeasurementDescriptor.MeasurementUnit;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.MeasurementMap;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsContext;
 import io.opencensus.stats.StatsContextFactory;
 import io.opencensus.stats.TagKey;
 import io.opencensus.stats.TagValue;
-import java.util.Arrays;
 
 /** Simple program that uses Stats contexts. */
 public class StatsRunner {
@@ -37,12 +34,11 @@ public class StatsRunner {
   private static final TagValue V3 = TagValue.create("v3");
   private static final TagValue V4 = TagValue.create("v4");
 
-  private static final MeasurementUnit simpleMeasurementUnit =
-      MeasurementUnit.create(1, Arrays.asList(BasicUnit.SCALAR));
-  private static final MeasurementDescriptor M1 =
-      MeasurementDescriptor.create("m1", "1st test metric", simpleMeasurementUnit);
-  private static final MeasurementDescriptor M2 =
-      MeasurementDescriptor.create("m2", "2nd test metric", simpleMeasurementUnit);
+  private static final String UNIT = "1";
+  private static final Measure M1 =
+      Measure.DoubleMeasure.create("m1", "1st test metric", UNIT);
+  private static final Measure M2 =
+      Measure.DoubleMeasure.create("m2", "2nd test metric", UNIT);
 
   private static final StatsContextFactory factory = Stats.getStatsContextFactory();
   private static final StatsContext DEFAULT = factory.getDefault();

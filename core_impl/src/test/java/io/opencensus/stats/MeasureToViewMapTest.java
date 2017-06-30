@@ -18,8 +18,6 @@ import static org.junit.Assert.fail;
 
 import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.MeasurementDescriptor.BasicUnit;
-import io.opencensus.stats.MeasurementDescriptor.MeasurementUnit;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
@@ -29,15 +27,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link MeasurementDescriptorToViewMap}. */
+/** Tests for {@link MeasureToViewMap}. */
 @RunWith(JUnit4.class)
-public class MeasurementDescriptorToViewMapTest {
+public class MeasureToViewMapTest {
 
-  private static final MeasurementDescriptor MEASUREMENT_DESCRIPTOR =
-      MeasurementDescriptor.create(
+  private static final Measure MEASUREMENT_DESCRIPTOR =
+      Measure.DoubleMeasure.create(
           "my measurement",
           "measurement description",
-          MeasurementUnit.create(0, Arrays.asList(BasicUnit.BYTES)));
+          "By");
 
   private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
 
@@ -51,12 +49,12 @@ public class MeasurementDescriptorToViewMapTest {
 
   @Test
   public void testRegisterAndGetDistributionView() {
-    MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
-        new MeasurementDescriptorToViewMap();
+    MeasureToViewMap measureToViewMap =
+        new MeasureToViewMap();
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
-    measurementDescriptorToViewMap.registerView(VIEW_DESCRIPTOR, clock);
+    measureToViewMap.registerView(VIEW_DESCRIPTOR, clock);
     clock.setTime(Timestamp.create(30, 40));
-    View actual = measurementDescriptorToViewMap.getView(VIEW_NAME, clock);
+    View actual = measureToViewMap.getView(VIEW_NAME, clock);
     actual.match(
         new Function<View.DistributionView, Void>() {
           @Override
