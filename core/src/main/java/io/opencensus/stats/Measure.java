@@ -24,8 +24,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class Measure {
 
-  public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
-
   /**
    * Applies the given match function to the underlying data type.
    */
@@ -53,10 +51,16 @@ public abstract class Measure {
    */
   public abstract String getUnit();
 
+  // Prevents this class from being subclassed anywhere else.
+  private Measure() {
+  }
+
   @Immutable
   @AutoValue
   public abstract static class DoubleMeasure extends Measure {
-    DoubleMeasure() {}
+
+    DoubleMeasure() {
+    }
 
     /**
      * Constructs a new {@link DoubleMeasure}.
@@ -86,7 +90,9 @@ public abstract class Measure {
   @AutoValue
   // TODO: determine whether we want to support LongMeasure in V0.1
   public abstract static class LongMeasure extends Measure {
-    LongMeasure() {}
+
+    LongMeasure() {
+    }
 
     /**
      * Constructs a new {@link LongMeasure}.

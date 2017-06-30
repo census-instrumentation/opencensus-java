@@ -32,8 +32,8 @@ public final class MeasureTest {
   @Ignore  // TODO: determine whether there are any restrictions on measure names.
   @Test
   public void testNameMaxLength() {
-    char[] name = new char[Measure.MAX_LENGTH];
-    char[] truncName = new char[Measure.MAX_LENGTH + 10];
+    char[] name = new char[StringUtil.MAX_LENGTH];
+    char[] truncName = new char[StringUtil.MAX_LENGTH + 10];
     Arrays.fill(name, 'n');
     Arrays.fill(truncName, 'n');
     assertThat(makeSimpleMeasure(new String(name)).getName())
