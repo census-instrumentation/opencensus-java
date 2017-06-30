@@ -16,6 +16,7 @@ package io.opencensus.contrib.agent;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
 import java.lang.instrument.Instrumentation;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
@@ -52,6 +53,11 @@ public final class AgentMain {
    */
   public static void premain(String agentArgs, Instrumentation inst) throws Exception {
     logger.info("Initializing.");
+
+    // The classes in bootstrap.jar will be referenced from classes loaded by the bootstrap
+    // classloader. Thus, these classes have to be loaded by the bootstrap classloader, too.
+    inst.appendToBootstrapClassLoaderSearch(
+            new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
     AgentBuilder agentBuilder = new AgentBuilder.Default()
             .disableClassFormatChanges()
