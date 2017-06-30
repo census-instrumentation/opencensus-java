@@ -8,7 +8,8 @@ description = 'OpenCensus Agent'
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
-// Experimental support for legacy Java 1.6 JVMs.
+// Experimental support for legacy Java 1.6 JVMs. Animalsniffer (applied by the root project) is
+// used to check for unexpected references to later APIs. Also see dependencies/signature.
 retrolambda {
   javaVersion JavaVersion.VERSION_1_6
 }
