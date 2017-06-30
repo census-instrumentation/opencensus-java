@@ -16,6 +16,7 @@ package io.opencensus.stats;
 /**
  * Constants for collecting rpc stats.
  */
+// TODO(songya): change *_COUNT constants to LongMeasure if it's supported in v0.1.
 public final class RpcMeasurementConstants {
 
   // Rpc tag keys.
@@ -29,7 +30,6 @@ public final class RpcMeasurementConstants {
   private static final String MILLISECOND = "ms";
 
   // RPC client Measures.
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_CLIENT_ERROR_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/client/error_count",
@@ -65,25 +65,21 @@ public final class RpcMeasurementConstants {
           "grpc.io/client/uncompressed_response_bytes",
           "Uncompressed Response bytes",
           BYTE);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_CLIENT_STARTED_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/client/started_count",
           "Number of client RPCs (streams) started",
           COUNT);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_CLIENT_FINISHED_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/client/finished_count",
           "Number of client RPCs (streams) finished",
           COUNT);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_CLIENT_REQUEST_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/client/request_count",
           "Number of client RPC request messages",
           COUNT);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_CLIENT_RESPONSE_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/client/response_count",
@@ -92,7 +88,6 @@ public final class RpcMeasurementConstants {
 
 
   // RPC server Measures.
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_SERVER_ERROR_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/server/error_count",
@@ -128,25 +123,21 @@ public final class RpcMeasurementConstants {
           "grpc.io/server/uncompressed_response_bytes",
           "Uncompressed Response bytes",
           BYTE);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_SERVER_STARTED_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/server/started_count",
           "Number of server RPCs (streams) started",
           COUNT);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_SERVER_FINISHED_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/server/finished_count",
           "Number of server RPCs (streams) finished",
           COUNT);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_SERVER_REQUEST_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/server/request_count",
           "Number of server RPC request messages",
           COUNT);
-  // TODO(songya): change this to LongMeasure if it's supported in v0.1.
   public static final Measure RPC_SERVER_RESPONSE_COUNT =
       Measure.DoubleMeasure.create(
           "grpc.io/server/response_count",
