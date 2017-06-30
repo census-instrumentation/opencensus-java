@@ -13,6 +13,9 @@
 
 package io.opencensus.testing.trace;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.base.Objects;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.Annotation;
@@ -20,7 +23,6 @@ import io.opencensus.trace.base.AttributeValue;
 import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
-import io.opencensus.trace.base.Sampler;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
@@ -40,7 +42,6 @@ public class FakeSpan extends Span {
   private final String name;
   @Nullable private final Span parentSpan;
   @Nullable private final SpanContext remoteParentSpanContext;
-  @Nullable private final Sampler sampler;
   private final List<Span> parentLinks;
 
   FakeSpan(
@@ -49,13 +50,11 @@ public class FakeSpan extends Span {
       String name,
       @Nullable Span parentSpan,
       @Nullable SpanContext remoteParentSpanContext,
-      @Nullable Sampler sampler,
       List<Span> parentLinks) {
     super(context, options);
     this.parentSpan = parentSpan;
     this.remoteParentSpanContext = remoteParentSpanContext;
     this.name = name;
-    this.sampler = sampler;
     this.parentLinks = parentLinks;
   }
 
@@ -64,15 +63,14 @@ public class FakeSpan extends Span {
    *
    * @return a new {@code Span} that can be used in tests as a parent {@code Span} for other spans.
    */
-  public static FakeSpan generateParentSpan() {
+  public static FakeSpan generateParentSpan(String name) {
     return new FakeSpan(
         SpanContext.create(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT),
         EnumSet.noneOf(Span.Options.class),
-        "FakeParentSpan",
-        null,
+        checkNotNull(name, "name"),
         null,
         null,
         Collections.<Span>emptyList());
@@ -85,7 +83,7 @@ public class FakeSpan extends Span {
    * @return {@code true} if this {@code Span} is a remote child of the given {@code SpanContext}.
    */
   public final boolean isRemoteChildOf(SpanContext spanContext) {
-    return spanContext != null && remoteParentSpanContext == spanContext;
+    return spanContext != null && Objects.equal(remoteParentSpanContext, spanContext);
   }
 
   /**
@@ -95,7 +93,9 @@ public class FakeSpan extends Span {
    * @return {@code true} if this {@code Span} is a child of the given {@code Span}.
    */
   public final boolean isChildOf(Span span) {
-    return span != null && parentSpan == span;
+    return span != null
+        && parentSpan != null
+        && Objects.equal(parentSpan.getContext(), span.getContext());
   }
 
   /**
@@ -114,15 +114,6 @@ public class FakeSpan extends Span {
    */
   public final String getName() {
     return name;
-  }
-
-  /**
-   * Returns the {@code Sampler} used to make the sampling decision for this {@code Span}.
-   *
-   * @return the {@code Sampler} used to make the sampling decision for this {@code Span}.
-   */
-  public final Sampler getSampler() {
-    return sampler;
   }
 
   /**

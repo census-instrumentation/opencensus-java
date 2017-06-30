@@ -14,90 +14,24 @@
 package io.opencensus.testing.trace;
 
 import io.opencensus.trace.Span;
-import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Tracer;
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.StartSpanOptions;
-import io.opencensus.trace.base.TraceId;
-import io.opencensus.trace.base.TraceOptions;
-import io.opencensus.trace.internal.SpanFactory;
-import java.util.EnumSet;
-import java.util.Random;
 import javax.annotation.Nullable;
 
-/**
- * A {@link Tracer} that allows users to test instrumented code.
- */
-public final class FakeTracer extends Tracer {
-
-  /** Constructs a new {@code FakeTracer}. */
+/** A {@link Tracer} that allows users to test instrumented code. */
+public class FakeTracer extends Tracer {
   public FakeTracer() {
-    super(new FakeSpanFactory());
+    super();
   }
 
-  private static class FakeSpanFactory extends SpanFactory {
-    Random random = new Random();
+  @Override
+  public FakeSpanBuilder spanBuilder(@Nullable Span parent, String name) {
+    return FakeSpanBuilder.createWithParent(parent, name);
+  }
 
-    @Override
-    public FakeSpan startSpan(@Nullable Span parent, String name, StartSpanOptions options) {
-      SpanContext parentSpanContext =
-          parent != null && parent.getContext().isValid() ? parent.getContext() : null;
-      SpanContext spanContext = generateSpanContext(parentSpanContext, options, name, false);
-      return new FakeSpan(
-          parentSpanContext, spanContext, generateSpanOptions(spanContext, options), name, options);
-    }
-
-    @Override
-    public FakeSpan startSpanWithRemoteParent(
-        @Nullable SpanContext remoteParent, String name, StartSpanOptions options) {
-      SpanContext parentSpanContext =
-          remoteParent != null && remoteParent.isValid() ? remoteParent : null;
-      SpanContext spanContext = generateSpanContext(parentSpanContext, options, name, true);
-      return new FakeSpan(
-          parentSpanContext, spanContext, generateSpanOptions(spanContext, options), name, options);
-    }
-
-    private SpanContext generateSpanContext(
-        @Nullable SpanContext parentSpanContext,
-        StartSpanOptions startSpanOptions,
-        String name,
-        boolean hasRemoteParent) {
-      TraceId traceId;
-      SpanId spanId = SpanId.generateRandomId(random);
-      TraceOptions.Builder traceOptionsBuilder;
-      if (parentSpanContext == null || !parentSpanContext.isValid()) {
-        // New root span.
-        traceId = TraceId.generateRandomId(random);
-        traceOptionsBuilder = TraceOptions.builder();
-        // This is a root span so no remote or local parent.
-        hasRemoteParent = false;
-      } else {
-        // New child span.
-        traceId = parentSpanContext.getTraceId();
-        traceOptionsBuilder = TraceOptions.builder(parentSpanContext.getTraceOptions());
-      }
-      if (startSpanOptions.getSampler() != null
-          && startSpanOptions
-              .getSampler()
-              .shouldSample(
-                  parentSpanContext,
-                  hasRemoteParent,
-                  traceId,
-                  spanId,
-                  name,
-                  startSpanOptions.getParentLinks())) {
-        traceOptionsBuilder.setIsSampled();
-      }
-      return SpanContext.create(traceId, spanId, traceOptionsBuilder.build());
-    }
-
-    private static EnumSet<Options> generateSpanOptions(
-        SpanContext spanContext, StartSpanOptions startSpanOptions) {
-      return (spanContext.getTraceOptions().isSampled()
-              || Boolean.TRUE.equals(startSpanOptions.getRecordEvents()))
-          ? EnumSet.of(Options.RECORD_EVENTS)
-          : EnumSet.noneOf(Options.class);
-    }
+  @Override
+  public FakeSpanBuilder spanBuilderWithRemoteParent(
+      @Nullable SpanContext remoteParentSpanContext, String name) {
+    return FakeSpanBuilder.createWithRemoteParent(remoteParentSpanContext, name);
   }
 }

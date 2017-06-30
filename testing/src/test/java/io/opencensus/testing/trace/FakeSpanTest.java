@@ -15,13 +15,12 @@ package io.opencensus.testing.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.Span;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.StartSpanOptions;
-import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
-import io.opencensus.trace.samplers.Samplers;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Random;
 import org.junit.Test;
@@ -32,36 +31,74 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class FakeSpanTest {
   private static final String SPAN_NAME = "MySpanName";
-  private static final StartSpanOptions startSpanOptions =
-      StartSpanOptions.builder().setSampler(Samplers.neverSample()).setRecordEvents(true).build();
   private final Random random = new Random(1234);
-  private final SpanContext parentContext =
-      SpanContext.create(
-          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+  private final FakeSpan parentSpan = FakeSpan.generateParentSpan(SPAN_NAME);
   private final SpanContext spanContext =
       SpanContext.create(
-          parentContext.getTraceId(), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+          parentSpan.getContext().getTraceId(),
+          SpanId.generateRandomId(random),
+          TraceOptions.DEFAULT);
   private final EnumSet<Options> noRecordSpanOptions = EnumSet.noneOf(Options.class);
 
   @Test
   public void spanWithParent() {
     FakeSpan span =
-        new FakeSpan(parentContext, spanContext, noRecordSpanOptions, SPAN_NAME, startSpanOptions);
+        new FakeSpan(
+            spanContext,
+            noRecordSpanOptions,
+            SPAN_NAME,
+            parentSpan,
+            null,
+            Collections.<Span>emptyList());
     assertThat(span.getName()).isEqualTo(SPAN_NAME);
-    assertThat(span.getParentSpanContext()).isEqualTo(parentContext);
+    assertThat(span.isChildOf(parentSpan)).isTrue();
+    assertThat(span.isRemoteChildOf(parentSpan.getContext())).isFalse();
+    assertThat(span.isRoot()).isFalse();
     assertThat(span.getContext()).isEqualTo(spanContext);
     assertThat(span.getOptions()).isEqualTo(noRecordSpanOptions);
-    assertThat(span.getStartSpanOptions()).isEqualTo(startSpanOptions);
+    assertThat(span.getParentLinks()).isEmpty();
+  }
+
+  @Test
+  public void spanWithRemoteParent() {
+    FakeSpan span =
+        new FakeSpan(
+            spanContext,
+            noRecordSpanOptions,
+            SPAN_NAME,
+            null,
+            parentSpan.getContext(),
+            Collections.<Span>emptyList());
+    assertThat(span.getName()).isEqualTo(SPAN_NAME);
+    assertThat(span.isChildOf(parentSpan)).isFalse();
+    assertThat(span.isRemoteChildOf(parentSpan.getContext())).isTrue();
+    assertThat(span.isRoot()).isFalse();
+    assertThat(span.getContext()).isEqualTo(spanContext);
+    assertThat(span.getOptions()).isEqualTo(noRecordSpanOptions);
+    assertThat(span.getParentLinks()).isEmpty();
   }
 
   @Test
   public void spanWithoutParent() {
     FakeSpan span =
-        new FakeSpan(null, spanContext, noRecordSpanOptions, SPAN_NAME, startSpanOptions);
+        new FakeSpan(
+            spanContext, noRecordSpanOptions, SPAN_NAME, null, null, Collections.<Span>emptyList());
     assertThat(span.getName()).isEqualTo(SPAN_NAME);
-    assertThat(span.getParentSpanContext()).isNull();
+    assertThat(span.isChildOf(parentSpan)).isFalse();
+    assertThat(span.isRemoteChildOf(parentSpan.getContext())).isFalse();
+    assertThat(span.isRoot()).isTrue();
     assertThat(span.getContext()).isEqualTo(spanContext);
     assertThat(span.getOptions()).isEqualTo(noRecordSpanOptions);
-    assertThat(span.getStartSpanOptions()).isEqualTo(startSpanOptions);
+    assertThat(span.getParentLinks()).isEmpty();
+  }
+
+  @Test
+  public void generatedSpan() {
+    FakeSpan span = FakeSpan.generateParentSpan(SPAN_NAME);
+    assertThat(span.getName()).isEqualTo(SPAN_NAME);
+    assertThat(span.isChildOf(parentSpan)).isFalse();
+    assertThat(span.isRemoteChildOf(parentSpan.getContext())).isFalse();
+    assertThat(span.isRoot()).isTrue();
+    assertThat(span.getParentLinks()).isEmpty();
   }
 }
