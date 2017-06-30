@@ -12,6 +12,7 @@ targetCompatibility = JavaVersion.VERSION_1_7
 // used to check for unexpected references to later APIs. Also see dependencies/signature.
 retrolambda {
   javaVersion JavaVersion.VERSION_1_6
+  jdk '/usr/lib/jvm/java-8-oracle'
 }
 
 def agentPackage = 'io.opencensus.contrib.agent'
