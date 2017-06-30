@@ -59,8 +59,7 @@ public class ResourcesTest {
 
   @Test
   public void getResourceAsTempFile_WriteFailure() throws IOException {
-    File mockFile = mock(File.class);
-    OutputStream outputStream = new OutputStream() {
+    OutputStream badOutputStream = new OutputStream() {
       @Override
       public void write(int b) throws IOException {
         throw new IOException("denied");
@@ -70,6 +69,6 @@ public class ResourcesTest {
     exception.expect(IOException.class);
     exception.expectMessage("denied");
 
-    Resources.getResourceAsTempFile("some_resource.txt", mockFile, outputStream);
+    Resources.getResourceAsTempFile("some_resource.txt", mock(File.class), badOutputStream);
   }
 }
