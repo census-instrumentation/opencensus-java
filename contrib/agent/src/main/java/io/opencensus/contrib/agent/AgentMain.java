@@ -13,6 +13,7 @@
 
 package io.opencensus.contrib.agent;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
 import java.lang.instrument.Instrumentation;
@@ -52,6 +53,8 @@ public final class AgentMain {
    * @see java.lang.instrument
    */
   public static void premain(String agentArgs, Instrumentation inst) throws Exception {
+    checkNotNull(inst);
+
     logger.info("Initializing.");
 
     // The classes in bootstrap.jar will be referenced from classes loaded by the bootstrap
