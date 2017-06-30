@@ -37,6 +37,7 @@ final class Resources {
    * @param resourceName name of the resource
    * @return a temporary {@link File} containing a copy of the resource
    * @throws FileNotFoundException if no resource of the given name is found
+   * @throws IOException if an I/O error occurs
    */
   static File getResourceAsTempFile(String resourceName) throws IOException {
     checkArgument(!Strings.isNullOrEmpty(resourceName));
