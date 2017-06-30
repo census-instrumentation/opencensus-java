@@ -43,8 +43,8 @@ public final class ExportComponentImpl extends ExportComponent {
   }
 
   /**
-   * Returns a new {@code ExportComponentImpl} that has valid instances for {@link
-   * RunningSpanStore} and {@link SampledSpanStore}.
+   * Returns a new {@code ExportComponentImpl} that has valid instances for {@link RunningSpanStore}
+   * and {@link SampledSpanStore}.
    *
    * @return a new {@code ExportComponentImpl}.
    */
@@ -65,8 +65,8 @@ public final class ExportComponentImpl extends ExportComponent {
   /**
    * Constructs a new {@code ExportComponentImpl}.
    *
-   * @param supportInProcessStores {@code true} to instantiate {@link RunningSpanStore} and
-   *     {@link SampledSpanStore}.
+   * @param supportInProcessStores {@code true} to instantiate {@link RunningSpanStore} and {@link
+   *     SampledSpanStore}.
    */
   private ExportComponentImpl(boolean supportInProcessStores) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);

@@ -68,8 +68,7 @@ public final class StartEndHandlerImpl implements StartEndHandler {
   public void onEnd(SpanImpl span) {
     if ((span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans)
         || span.getContext().getTraceOptions().isSampled()) {
-      eventQueue.enqueue(
-          new SpanEndEvent(span, spanExporter, runningSpanStore, sampledSpanStore));
+      eventQueue.enqueue(new SpanEndEvent(span, spanExporter, runningSpanStore, sampledSpanStore));
     }
   }
 

@@ -16,14 +16,30 @@ package io.opencensus.trace;
 import io.opencensus.common.Clock;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.internal.RandomHandler;
+import javax.annotation.Nullable;
 
 /** Implementation of the {@link Tracer}. */
 final class TracerImpl extends Tracer {
+  private final SpanBuilderImpl.Options spanBuilderOptions;
+
   TracerImpl(
       RandomHandler randomHandler,
       SpanImpl.StartEndHandler startEndHandler,
       Clock clock,
       TraceConfig traceConfig) {
-    super(new SpanFactoryImpl(randomHandler, startEndHandler, clock, traceConfig));
+    spanBuilderOptions =
+        new SpanBuilderImpl.Options(randomHandler, startEndHandler, clock, traceConfig);
+  }
+
+  @Override
+  public SpanBuilder spanBuilder(@Nullable Span parent, String name) {
+    return SpanBuilderImpl.createBuilder(parent, name, spanBuilderOptions);
+  }
+
+  @Override
+  public SpanBuilder spanBuilderWithRemoteParent(
+      SpanContext remoteParentSpanContext, String name) {
+    return SpanBuilderImpl.createBuilderWithRemoteParent(
+        remoteParentSpanContext, name, spanBuilderOptions);
   }
 }

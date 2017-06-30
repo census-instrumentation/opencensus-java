@@ -13,11 +13,11 @@
 
 package io.opencensus.trace;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Sampler;
-import io.opencensus.trace.base.StartSpanOptions;
-import io.opencensus.trace.internal.SpanFactory;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -102,34 +102,15 @@ import javax.annotation.Nullable;
  * <p>If your Java version is less than Java SE 7, see {@link SpanBuilder#startSpan} and {@link
  * SpanBuilder#startScopedSpan} for usage examples.
  */
-public final class SpanBuilder {
-  private final SpanFactory spanFactory;
-  private final String name;
-  private final StartSpanOptions.Builder startSpanOptionsBuilder = StartSpanOptions.builder();
-  private Span parentSpan;
-  private SpanContext parentSpanContext;
-  private boolean remoteParent;
-
-  static SpanBuilder builder(SpanFactory spanFactory, Span parentSpan, String name) {
-    return new SpanBuilder(spanFactory, parentSpan, null, false, name);
-  }
-
-  static SpanBuilder builderWithRemoteParent(
-      SpanFactory spanFactory, SpanContext parentSpanContext, String name) {
-    return new SpanBuilder(spanFactory, null, parentSpanContext, true, name);
-  }
+public abstract class SpanBuilder {
 
   /**
-   * Sets the {@link Sampler} to use. If a {@code null} value is passed, the implementation will
-   * provide a default.
+   * Sets the {@link Sampler} to use. If not set, the implementation will provide a default.
    *
    * @param sampler The {@code Sampler} to use when determining sampling for a {@code Span}.
    * @return this.
    */
-  public SpanBuilder setSampler(@Nullable Sampler sampler) {
-    startSpanOptionsBuilder.setSampler(sampler);
-    return this;
-  }
+  public abstract SpanBuilder setSampler(Sampler sampler);
 
   /**
    * Sets the {@code List} of parent links. Links are used to link {@link Span}s in different
@@ -138,11 +119,9 @@ public final class SpanBuilder {
    *
    * @param parentLinks New links to be added.
    * @return this.
+   * @throws NullPointerException if {@code parentLinks} is {@code null}.
    */
-  public SpanBuilder setParentLinks(@Nullable List<Span> parentLinks) {
-    startSpanOptionsBuilder.setParentLinks(parentLinks);
-    return this;
-  }
+  public abstract SpanBuilder setParentLinks(List<Span> parentLinks);
 
   /**
    * Sets the option {@link Span.Options#RECORD_EVENTS} for the newly created {@code Span}. If not
@@ -151,27 +130,7 @@ public final class SpanBuilder {
    * @param recordEvents New value determining if this {@code Span} should have events recorded.
    * @return this.
    */
-  public SpanBuilder setRecordEvents(boolean recordEvents) {
-    startSpanOptionsBuilder.setRecordEvents(recordEvents);
-    return this;
-  }
-
-  /**
-   * If called this will force the newly created {@code Span} to be a root span. As a consequence,
-   * any parent specified (or inherited from the Context) will be ignored (N.B. does not apply to
-   * linked parents set through {@link #setParentLinks}).
-   *
-   * <p>This is useful when {@link Tracer#spanBuilder(String)} is used and the newly created {@code
-   * Span} needs to be decoupled from the parent {@code Span}.
-   *
-   * @return this.
-   */
-  public SpanBuilder becomeRoot() {
-    parentSpan = null;
-    parentSpanContext = null;
-    remoteParent = false;
-    return this;
-  }
+  public abstract SpanBuilder setRecordEvents(boolean recordEvents);
 
   /**
    * Starts a new {@link Span}.
@@ -201,9 +160,7 @@ public final class SpanBuilder {
    *
    * @return the newly created {@code Span}.
    */
-  public Span startSpan() {
-    return start();
-  }
+  public abstract Span startSpan();
 
   // TODO(bdrutu): Add error_prone annotation @MustBeClosed when the 2.0.16 jar is fixed.
   /**
@@ -260,28 +217,38 @@ public final class SpanBuilder {
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context.
    */
-  public NonThrowingCloseable startScopedSpan() {
-    return new ScopedSpanHandle(start());
+  public final NonThrowingCloseable startScopedSpan() {
+    return new ScopedSpanHandle(startSpan());
   }
 
-  private SpanBuilder(
-      SpanFactory spanFactory,
-      @Nullable Span parentSpan,
-      @Nullable SpanContext parentSpanContext,
-      boolean remoteParent,
-      String name) {
-    this.parentSpan = parentSpan;
-    this.parentSpanContext = parentSpanContext;
-    this.remoteParent = remoteParent;
-    this.name = name;
-    this.spanFactory = spanFactory;
-  }
+  static final class NoopSpanBuilder extends SpanBuilder {
+    NoopSpanBuilder(@Nullable Span parentSpan, String name) {
+      checkNotNull(name, "name");
+    }
 
-  // Utility method to start a Span.
-  private Span start() {
-    return remoteParent
-        ? spanFactory.startSpanWithRemoteParent(
-            parentSpanContext, name, startSpanOptionsBuilder.build())
-        : spanFactory.startSpan(parentSpan, name, startSpanOptionsBuilder.build());
+    NoopSpanBuilder(SpanContext remoteParentSpanContext, String name) {
+      checkNotNull(remoteParentSpanContext, "remoteParentSpanContext");
+      checkNotNull(name, "name");
+    }
+
+    @Override
+    public Span startSpan() {
+      return BlankSpan.INSTANCE;
+    }
+
+    @Override
+    public SpanBuilder setSampler(@Nullable Sampler sampler) {
+      return this;
+    }
+
+    @Override
+    public SpanBuilder setParentLinks(List<Span> parentLinks) {
+      return this;
+    }
+
+    @Override
+    public SpanBuilder setRecordEvents(boolean recordEvents) {
+      return this;
+    }
   }
 }

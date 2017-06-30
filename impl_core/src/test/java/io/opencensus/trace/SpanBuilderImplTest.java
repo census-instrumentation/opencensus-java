@@ -20,7 +20,6 @@ import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.StartSpanOptions;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
 import io.opencensus.trace.config.TraceConfig;
@@ -36,11 +35,11 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link SpanFactoryImpl}. */
+/** Unit tests for {@link SpanBuilderImpl}. */
 @RunWith(JUnit4.class)
-public class SpanFactoryImplTest {
+public class SpanBuilderImplTest {
   private static final String SPAN_NAME = "MySpanName";
-  private SpanFactoryImpl spanFactory;
+  private SpanBuilderImpl.Options spanBuilderOptions;
   private TraceParams alwaysSampleTraceParams =
       TraceParams.DEFAULT.toBuilder().setSampler(Samplers.alwaysSample()).build();
   private final TestClock testClock = TestClock.create();
@@ -51,14 +50,14 @@ public class SpanFactoryImplTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    spanFactory = new SpanFactoryImpl(randomHandler, startEndHandler, testClock, traceConfig);
+    spanBuilderOptions =
+        new SpanBuilderImpl.Options(randomHandler, startEndHandler, testClock, traceConfig);
+    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
   }
 
   @Test
   public void startSpanNullParent() {
-    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
-    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
-    Span span = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
+    Span span = SpanBuilderImpl.createBuilder(null, SPAN_NAME, spanBuilderOptions).startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
@@ -72,10 +71,11 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startSpanNullParentWithRecordEvents() {
-    StartSpanOptions startSpanOptions =
-        StartSpanOptions.builder().setSampler(Samplers.neverSample()).setRecordEvents(true).build();
-    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
-    Span span = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
+    Span span =
+        SpanBuilderImpl.createBuilder(null, SPAN_NAME, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .setRecordEvents(true)
+            .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isFalse();
@@ -87,38 +87,23 @@ public class SpanFactoryImplTest {
 
   @Test
   public void startSpanNullParentNoRecordOptions() {
-    StartSpanOptions startSpanOptions =
-        StartSpanOptions.builder().setSampler(Samplers.neverSample()).build();
-    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
-    Span span = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
+    Span span =
+        SpanBuilderImpl.createBuilder(null, SPAN_NAME, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isFalse();
     assertThat(span.getContext().getTraceOptions().isSampled()).isFalse();
   }
 
   @Test
-  public void startRemoteSpanNullParent() {
-    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
-    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
-    Span span = spanFactory.startSpanWithRemoteParent(null, SPAN_NAME, startSpanOptions);
-    assertThat(span.getContext().isValid()).isTrue();
-    assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
-    assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
-    assertThat(span instanceof SpanImpl).isTrue();
-    SpanData spanData = ((SpanImpl) span).toSpanData();
-    assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getHasRemoteParent()).isFalse();
-  }
-
-  @Test
   public void startChildSpan() {
-    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
-    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
-    Span rootSpan = spanFactory.startSpan(null, SPAN_NAME, startSpanOptions);
+    Span rootSpan = SpanBuilderImpl.createBuilder(null, SPAN_NAME, spanBuilderOptions).startSpan();
     assertThat(rootSpan.getContext().isValid()).isTrue();
     assertThat(rootSpan.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
-    Span childSpan = spanFactory.startSpan(rootSpan, SPAN_NAME, startSpanOptions);
+    Span childSpan =
+        SpanBuilderImpl.createBuilder(rootSpan, SPAN_NAME, spanBuilderOptions).startSpan();
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
     assertThat(((SpanImpl) childSpan).toSpanData().getParentSpanId())
@@ -127,12 +112,17 @@ public class SpanFactoryImplTest {
         .isEqualTo(((SpanImpl) rootSpan).getTimestampConverter());
   }
 
+  @Test(expected = NullPointerException.class)
+  public void startRemoteSpan_NullParent() {
+    SpanBuilderImpl.createBuilderWithRemoteParent(null, SPAN_NAME, spanBuilderOptions);
+  }
+
   @Test
   public void startRemoteSpanInvalidParent() {
-    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
-    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
     Span span =
-        spanFactory.startSpanWithRemoteParent(SpanContext.INVALID, SPAN_NAME, startSpanOptions);
+        SpanBuilderImpl.createBuilderWithRemoteParent(
+                SpanContext.INVALID, SPAN_NAME, spanBuilderOptions)
+            .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
@@ -149,9 +139,9 @@ public class SpanFactoryImplTest {
             TraceId.generateRandomId(randomHandler.current()),
             SpanId.generateRandomId(randomHandler.current()),
             TraceOptions.DEFAULT);
-    StartSpanOptions startSpanOptions = StartSpanOptions.DEFAULT;
-    when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
-    Span span = spanFactory.startSpanWithRemoteParent(spanContext, SPAN_NAME, startSpanOptions);
+    Span span =
+        SpanBuilderImpl.createBuilderWithRemoteParent(spanContext, SPAN_NAME, spanBuilderOptions)
+            .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getContext().getTraceId()).isEqualTo(spanContext.getTraceId());
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
