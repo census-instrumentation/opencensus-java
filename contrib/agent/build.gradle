@@ -1,11 +1,17 @@
 plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.0'
+  id 'me.tatarka.retrolambda' version '3.6.0'
 }
 
 description = 'OpenCensus Agent'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+// Experimental support for legacy Java 1.6 JVMs.
+retrolambda {
+  javaVersion JavaVersion.VERSION_1_6
+}
 
 def agentPackage = 'io.opencensus.contrib.agent'
 def agentMainClass = "${agentPackage}.AgentMain"
@@ -24,7 +30,7 @@ def agentRepackaged = "${agentPackage}.deps"
 dependencies {
   compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
 
-  signature 'org.codehaus.mojo.signature:java17:+@signature'
+  signature 'org.codehaus.mojo.signature:java16:+@signature'
 }
 
 jar {
@@ -35,8 +41,8 @@ jar {
     attributes 'Can-Retransform-Classes': true
 
     // Let the java plugin use the overridden values instead of the root project's values.
-    attributes 'Source-Compatibility': sourceCompatibility
-    attributes 'Target-Compatibility': targetCompatibility
+    attributes 'Source-Compatibility': JavaVersion.VERSION_1_6
+    attributes 'Target-Compatibility': JavaVersion.VERSION_1_6
   }
 }
 
