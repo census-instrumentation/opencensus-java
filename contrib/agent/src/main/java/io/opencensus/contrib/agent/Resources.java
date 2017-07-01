@@ -40,7 +40,7 @@ final class Resources {
    * @throws IOException if an I/O error occurs
    */
   static File getResourceAsTempFile(String resourceName) throws IOException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName));
+    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
 
     File file = File.createTempFile(resourceName, ".tmp");
     try (OutputStream os = new FileOutputStream(file)) {
@@ -50,20 +50,20 @@ final class Resources {
   }
 
   @VisibleForTesting
-  static void getResourceAsTempFile(String resourceName, File file, OutputStream os)
+  static void getResourceAsTempFile(String resourceName, File file, OutputStream outputStream)
           throws IOException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName));
-    checkNotNull(file);
-    checkNotNull(os);
+    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
+    checkNotNull(file, "file");
+    checkNotNull(outputStream, "outputStream");
 
     try (InputStream is = getResourceAsStream(resourceName)) {
       file.deleteOnExit();
-      ByteStreams.copy(is, os);
+      ByteStreams.copy(is, outputStream);
     }
   }
 
   private static InputStream getResourceAsStream(String resourceName) throws FileNotFoundException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName));
+    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
 
     InputStream is = Resources.class.getResourceAsStream(resourceName);
     if (is == null) {
