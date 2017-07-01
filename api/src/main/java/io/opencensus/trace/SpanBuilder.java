@@ -87,7 +87,7 @@ import javax.annotation.Nullable;
  * class MyClass {
  *   private static final Tracer tracer = Tracing.getTracer();
  *   void DoWork() {
- *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+ *     Span span = tracer.spanBuilderWithParent(null, "MyRootSpan").startSpan();
  *     span.addAnnotation("my annotation");
  *     try {
  *       doSomeWork(span); // Manually propagate the new span down the stack.
@@ -146,7 +146,7 @@ public abstract class SpanBuilder {
    * class MyClass {
    *   private static final Tracer tracer = Tracing.getTracer();
    *   void DoWork() {
-   *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+   *     Span span = tracer.spanBuilderWithParent(null, "MyRootSpan").startSpan();
    *     span.addAnnotation("my annotation");
    *     try {
    *       doSomeWork(span); // Manually propagate the new span down the stack.
@@ -222,13 +222,13 @@ public abstract class SpanBuilder {
   }
 
   static final class NoopSpanBuilder extends SpanBuilder {
-    NoopSpanBuilder(@Nullable Span parentSpan, String name) {
-      checkNotNull(name, "name");
+    static NoopSpanBuilder createWithParent(@Nullable Span parentSpan, String name) {
+      return new NoopSpanBuilder(name);
     }
 
-    NoopSpanBuilder(SpanContext remoteParentSpanContext, String name) {
-      checkNotNull(remoteParentSpanContext, "remoteParentSpanContext");
-      checkNotNull(name, "name");
+    static NoopSpanBuilder createWithRemoteParent(
+        @Nullable SpanContext remoteParentSpanContext, String name) {
+      return new NoopSpanBuilder(name);
     }
 
     @Override
@@ -249,6 +249,10 @@ public abstract class SpanBuilder {
     @Override
     public SpanBuilder setRecordEvents(boolean recordEvents) {
       return this;
+    }
+
+    private NoopSpanBuilder(String name) {
+      checkNotNull(name, "name");
     }
   }
 }

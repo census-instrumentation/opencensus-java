@@ -49,7 +49,7 @@ public final class MultiSpansContextTracing {
   /** Main method. */
   public static void main(String[] args) {
     LoggingHandler.register(Tracing.getExportComponent().getSpanExporter());
-    Span span = tracer.spanBuilder(null,"MyRootSpan").startSpan();
+    Span span = tracer.spanBuilderWithParent(null,"MyRootSpan").startSpan();
     try (NonThrowingCloseable ws = tracer.withSpan(span)) {
       doWork();
     }

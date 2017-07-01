@@ -43,7 +43,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   private List<Span> parentLinks = Collections.<Span>emptyList();
   private Boolean recordEvents;
 
-  private Span startSpanInternal(
+  private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
       boolean hasRemoteParent,
       String name,
@@ -80,7 +80,7 @@ final class SpanBuilderImpl extends SpanBuilder {
     if (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents)) {
       spanOptions.add(Span.Options.RECORD_EVENTS);
     }
-    Span span =
+    SpanImpl span =
         SpanImpl.startSpan(
             SpanContext.create(traceId, spanId, traceOptions),
             spanOptions,
@@ -105,14 +105,13 @@ final class SpanBuilderImpl extends SpanBuilder {
     }
   }
 
-  static SpanBuilder createBuilder(@Nullable Span parentSpan, String name, Options options) {
+  static SpanBuilderImpl createWithParent(@Nullable Span parentSpan, String name, Options options) {
     return new SpanBuilderImpl(parentSpan, null, name, options);
   }
 
-  static SpanBuilder createBuilderWithRemoteParent(
-      SpanContext remoteParentSpanContext, String name, Options options) {
-    return new SpanBuilderImpl(null, checkNotNull(remoteParentSpanContext,
-        "remoteParentSpanContext"), name, options);
+  static SpanBuilderImpl createWithRemoteParent(
+      @Nullable SpanContext remoteParentSpanContext, String name, Options options) {
+    return new SpanBuilderImpl(null, remoteParentSpanContext, name, options);
   }
 
   private SpanBuilderImpl(
@@ -127,7 +126,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   }
 
   @Override
-  public Span startSpan() {
+  public SpanImpl startSpan() {
     SpanContext parentContext = remoteParentSpanContext;
     boolean hasRemoteParent = parentContext != null;
     TimestampConverter timestampConverter = null;
@@ -173,19 +172,19 @@ final class SpanBuilderImpl extends SpanBuilder {
   }
 
   @Override
-  public SpanBuilder setSampler(Sampler sampler) {
+  public SpanBuilderImpl setSampler(Sampler sampler) {
     this.sampler = checkNotNull(sampler, "sampler");
     return this;
   }
 
   @Override
-  public SpanBuilder setParentLinks(List<Span> parentLinks) {
+  public SpanBuilderImpl setParentLinks(List<Span> parentLinks) {
     this.parentLinks = checkNotNull(parentLinks, "parentLinks");
     return this;
   }
 
   @Override
-  public SpanBuilder setRecordEvents(boolean recordEvents) {
+  public SpanBuilderImpl setRecordEvents(boolean recordEvents) {
     this.recordEvents = recordEvents;
     return this;
   }

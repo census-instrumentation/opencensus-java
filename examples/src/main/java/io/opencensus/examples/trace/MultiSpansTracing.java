@@ -24,9 +24,9 @@ public final class MultiSpansTracing {
   private static final Tracer tracer = Tracing.getTracer();
 
   private static void doWork() {
-    Span rootSpan = tracer.spanBuilder(null, "MyRootSpan").startSpan();
+    Span rootSpan = tracer.spanBuilderWithParent(null, "MyRootSpan").startSpan();
     rootSpan.addAnnotation("Annotation to the root Span before child is created.");
-    Span childSpan = tracer.spanBuilder(rootSpan, "MyChildSpan").startSpan();
+    Span childSpan = tracer.spanBuilderWithParent(rootSpan, "MyChildSpan").startSpan();
     childSpan.addAnnotation("Annotation to the child Span");
     childSpan.end();
     rootSpan.addAnnotation("Annotation to the root Span after child is ended.");
