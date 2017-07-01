@@ -50,24 +50,15 @@ jar {
   }
 }
 
-<<<<<<< HEAD
-=======
 // Create bootstrap.jar containing the classes that need to be loaded by the bootstrap
 // classloader.
->>>>>>> e046418879a68d75161b39ba2073a451b1898205
 task bootstrapJar(type: Jar) {
   // Output to 'bootstrap.jar'.
   baseName = 'bootstrap'
   version = null
 
-<<<<<<< HEAD
-  // Include only classes which 
-  from sourceSets.main.output
-  include 'io/opencensus/contrib/agent/bootstrap/**'
-=======
   from sourceSets.main.output
   include agentBootstrapClasses
->>>>>>> e046418879a68d75161b39ba2073a451b1898205
 }
 
 shadowJar.dependsOn bootstrapJar
