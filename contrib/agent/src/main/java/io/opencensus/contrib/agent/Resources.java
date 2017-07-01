@@ -56,8 +56,9 @@ final class Resources {
     checkNotNull(file, "file");
     checkNotNull(outputStream, "outputStream");
 
+    file.deleteOnExit();
+
     try (InputStream is = getResourceAsStream(resourceName)) {
-      file.deleteOnExit();
       ByteStreams.copy(is, outputStream);
     }
   }
