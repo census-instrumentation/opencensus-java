@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, Google Inc.
+ * Copyright 2017, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,9 @@ public abstract class Measure {
   /**
    * Applies the given match function to the underlying data type.
    */
-  public abstract <T> T match(Function<DoubleMeasure, T> p0, Function<LongMeasure, T> p1);
+  public abstract <T> T match(
+      Function<? super DoubleMeasure, T> p0,
+      Function<? super LongMeasure, T> p1);
 
   /**
    * Name of measure, as a {@code String}.
@@ -41,13 +43,14 @@ public abstract class Measure {
   /**
    * The units in which {@link Measure} values are measured.
    *
-   * <p>The grammar for a unit is as follows:
-   *     Expression = Component { "." Component } { "/" Component } ;
-   *     Component = [ PREFIX ] UNIT [ Annotation ] | Annotation | "1" ;
-   *     Annotation = "{" NAME "}" ;
+   * <p>The suggested grammar for a unit is as follows:
+   * Expression = Component { "." Component } { "/" Component } ;
+   * Component = [ PREFIX ] UNIT [ Annotation ] | Annotation | "1" ;
+   * Annotation = "{" NAME "}" ;
    * For example, string “MBy{transmitted}/ms” stands for megabytes per milliseconds, and the
    * annotation transmitted inside {} is just a comment of the unit.
    */
+  // TODO(songya): determine whether we want to check the grammar on string unit.
   public abstract String getUnit();
 
   // Prevents this class from being subclassed anywhere else.
@@ -71,7 +74,7 @@ public abstract class Measure {
     }
 
     @Override
-    public <T> T match(Function<DoubleMeasure, T> p0, Function<LongMeasure, T> p1) {
+    public <T> T match(Function<? super DoubleMeasure, T> p0, Function<? super LongMeasure, T> p1) {
       return p0.apply(this);
     }
 
@@ -103,7 +106,7 @@ public abstract class Measure {
     }
 
     @Override
-    public <T> T match(Function<DoubleMeasure, T> p0, Function<LongMeasure, T> p1) {
+    public <T> T match(Function<? super DoubleMeasure, T> p0, Function<? super LongMeasure, T> p1) {
       return p1.apply(this);
     }
 
