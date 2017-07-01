@@ -23,13 +23,13 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
-/** Benchmarks for {@link SpanFactoryImpl} and {@link SpanImpl}. */
+/** Benchmarks for {@link SpanBuilderImpl} and {@link SpanImpl}. */
 @State(Scope.Benchmark)
 public class StartEndSpanBenchmark {
   private static final Tracer tracer = Tracing.getTracer();
   private static final String SPAN_NAME = "MySpanName";
   private Span rootSpan =
-      tracer.spanBuilder(SPAN_NAME).becomeRoot().setSampler(Samplers.neverSample()).startSpan();
+      tracer.spanBuilder(null, SPAN_NAME).setSampler(Samplers.neverSample()).startSpan();
 
   @TearDown
   public void doTearDown() {
@@ -45,7 +45,7 @@ public class StartEndSpanBenchmark {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span startEndNonSampledRootSpan() {
     Span span =
-        tracer.spanBuilder(SPAN_NAME).becomeRoot().setSampler(Samplers.neverSample()).startSpan();
+        tracer.spanBuilder(null, SPAN_NAME).setSampler(Samplers.neverSample()).startSpan();
     span.end();
     return span;
   }
@@ -60,8 +60,7 @@ public class StartEndSpanBenchmark {
   public Span startEndRecordEventsRootSpan() {
     Span span =
         tracer
-            .spanBuilder(SPAN_NAME)
-            .becomeRoot()
+            .spanBuilder(null, SPAN_NAME)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
             .startSpan();

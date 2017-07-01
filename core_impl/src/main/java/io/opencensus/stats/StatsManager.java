@@ -25,8 +25,8 @@ final class StatsManager {
   // clock used throughout the stats implementation
   private final Clock clock;
 
-  private final MeasurementDescriptorToViewMap measurementDescriptorToViewMap =
-      new MeasurementDescriptorToViewMap();
+  private final MeasureToViewMap measureToViewMap =
+      new MeasureToViewMap();
 
   StatsManager(EventQueue queue, Clock clock) {
     this.queue = queue;
@@ -40,11 +40,11 @@ final class StatsManager {
       throw new UnsupportedOperationException(
           "The prototype will only support distribution views.");
     }
-    measurementDescriptorToViewMap.registerView(viewDescriptor, clock);
+    measureToViewMap.registerView(viewDescriptor, clock);
   }
 
   View getView(ViewDescriptor.Name viewName) {
-    View view = measurementDescriptorToViewMap.getView(viewName, clock);
+    View view = measureToViewMap.getView(viewName, clock);
     if (view == null) {
       throw new IllegalArgumentException(
           "View for view descriptor " + viewName + " not found.");
@@ -71,7 +71,7 @@ final class StatsManager {
 
     @Override
     public void process() {
-      viewManager.measurementDescriptorToViewMap.record(tags, stats);
+      viewManager.measureToViewMap.record(tags, stats);
     }
   }
 }
