@@ -37,7 +37,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   private final Options options;
 
   private final String name;
-  private final Span parentSpan;
+  private final Span parent;
   private final SpanContext remoteParentSpanContext;
   private Sampler sampler;
   private List<Span> parentLinks = Collections.<Span>emptyList();
@@ -105,22 +105,22 @@ final class SpanBuilderImpl extends SpanBuilder {
     }
   }
 
-  static SpanBuilderImpl createWithParent(@Nullable Span parentSpan, String name, Options options) {
-    return new SpanBuilderImpl(parentSpan, null, name, options);
+  static SpanBuilderImpl createWithParent(String spanName, @Nullable Span parent, Options options) {
+    return new SpanBuilderImpl(spanName, null, parent, options);
   }
 
   static SpanBuilderImpl createWithRemoteParent(
-      @Nullable SpanContext remoteParentSpanContext, String name, Options options) {
-    return new SpanBuilderImpl(null, remoteParentSpanContext, name, options);
+      String spanName, @Nullable SpanContext remoteParentSpanContext, Options options) {
+    return new SpanBuilderImpl(spanName, remoteParentSpanContext, null, options);
   }
 
   private SpanBuilderImpl(
-      @Nullable Span parentSpan,
-      @Nullable SpanContext remoteParentSpanContext,
       String name,
+      @Nullable SpanContext remoteParentSpanContext,
+      @Nullable Span parent,
       Options options) {
     this.name = checkNotNull(name, "name");
-    this.parentSpan = parentSpan;
+    this.parent = parent;
     this.remoteParentSpanContext = remoteParentSpanContext;
     this.options = options;
   }
@@ -133,7 +133,7 @@ final class SpanBuilderImpl extends SpanBuilder {
     if (!hasRemoteParent) {
       // This is not a child of a remote Span. Get the parent SpanContext from the parent Span if
       // any.
-      Span parent = parentSpan;
+      Span parent = this.parent;
       if (parent != null) {
         parentContext = parent.getContext();
         // Pass the timestamp converter from the parent to ensure that the recorded events are in

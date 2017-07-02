@@ -58,7 +58,7 @@ public class SpanBuilderImplTest {
   @Test
   public void startSpanNullParent() {
     SpanImpl span =
-        SpanBuilderImpl.createWithParent(null, SPAN_NAME, spanBuilderOptions).startSpan();
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
@@ -72,7 +72,7 @@ public class SpanBuilderImplTest {
   @Test
   public void startSpanNullParentWithRecordEvents() {
     SpanImpl span =
-        SpanBuilderImpl.createWithParent(null, SPAN_NAME, spanBuilderOptions)
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
             .startSpan();
@@ -87,7 +87,7 @@ public class SpanBuilderImplTest {
   @Test
   public void startSpanNullParentNoRecordOptions() {
     Span span =
-        SpanBuilderImpl.createWithParent(null, SPAN_NAME, spanBuilderOptions)
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
             .setSampler(Samplers.neverSample())
             .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
@@ -98,12 +98,12 @@ public class SpanBuilderImplTest {
   @Test
   public void startChildSpan() {
     Span rootSpan =
-        SpanBuilderImpl.createWithParent(null, SPAN_NAME, spanBuilderOptions).startSpan();
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
     assertThat(rootSpan.getContext().isValid()).isTrue();
     assertThat(rootSpan.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
     Span childSpan =
-        SpanBuilderImpl.createWithParent(rootSpan, SPAN_NAME, spanBuilderOptions).startSpan();
+        SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpan, spanBuilderOptions).startSpan();
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
     assertThat(((SpanImpl) childSpan).toSpanData().getParentSpanId())
@@ -115,7 +115,7 @@ public class SpanBuilderImplTest {
   @Test
   public void startRemoteSpan_NullParent() {
     SpanImpl span =
-        SpanBuilderImpl.createWithRemoteParent(null, SPAN_NAME, spanBuilderOptions).startSpan();
+        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
@@ -127,7 +127,7 @@ public class SpanBuilderImplTest {
   @Test
   public void startRemoteSpanInvalidParent() {
     SpanImpl span =
-        SpanBuilderImpl.createWithRemoteParent(SpanContext.INVALID, SPAN_NAME, spanBuilderOptions)
+        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, SpanContext.INVALID, spanBuilderOptions)
             .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
@@ -145,7 +145,7 @@ public class SpanBuilderImplTest {
             SpanId.generateRandomId(randomHandler.current()),
             TraceOptions.DEFAULT);
     SpanImpl span =
-        SpanBuilderImpl.createWithRemoteParent(spanContext, SPAN_NAME, spanBuilderOptions)
+        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, spanContext, spanBuilderOptions)
             .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getContext().getTraceId()).isEqualTo(spanContext.getTraceId());

@@ -29,7 +29,7 @@ public class StartEndSpanBenchmark {
   private static final Tracer tracer = Tracing.getTracer();
   private static final String SPAN_NAME = "MySpanName";
   private Span rootSpan =
-      tracer.spanBuilderWithParent(null, SPAN_NAME).setSampler(Samplers.neverSample()).startSpan();
+      tracer.spanBuilderWithParent(SPAN_NAME, null).setSampler(Samplers.neverSample()).startSpan();
 
   @TearDown
   public void doTearDown() {
@@ -46,7 +46,7 @@ public class StartEndSpanBenchmark {
   public Span startEndNonSampledRootSpan() {
     Span span =
         tracer
-            .spanBuilderWithParent(null, SPAN_NAME)
+            .spanBuilderWithParent(SPAN_NAME, null)
             .setSampler(Samplers.neverSample())
             .startSpan();
     span.end();
@@ -63,7 +63,7 @@ public class StartEndSpanBenchmark {
   public Span startEndRecordEventsRootSpan() {
     Span span =
         tracer
-            .spanBuilderWithParent(null, SPAN_NAME)
+            .spanBuilderWithParent(SPAN_NAME, null)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
             .startSpan();
@@ -93,7 +93,7 @@ public class StartEndSpanBenchmark {
   public Span startEndNonSampledChildSpan() {
     Span span =
         tracer
-            .spanBuilderWithParent(rootSpan, SPAN_NAME)
+            .spanBuilderWithParent(SPAN_NAME, rootSpan)
             .setSampler(Samplers.neverSample())
             .startSpan();
     span.end();
@@ -110,7 +110,7 @@ public class StartEndSpanBenchmark {
   public Span startEndRecordEventsChildSpan() {
     Span span =
         tracer
-            .spanBuilderWithParent(rootSpan, SPAN_NAME)
+            .spanBuilderWithParent(SPAN_NAME, rootSpan)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
             .startSpan();
@@ -127,7 +127,7 @@ public class StartEndSpanBenchmark {
   public Span startEndSampledChildSpan() {
     Span span =
         tracer
-            .spanBuilderWithParent(rootSpan, SPAN_NAME)
+            .spanBuilderWithParent(SPAN_NAME, rootSpan)
             .setSampler(Samplers.alwaysSample())
             .startSpan();
     span.end();
