@@ -33,7 +33,11 @@ public final class MultiSpansTracing {
     rootSpan.end();
   }
 
-  /** Main method. */
+  /**
+   * Main method.
+   *
+   * @param args the main arguments.
+   */
   public static void main(String[] args) {
     LoggingHandler.register(Tracing.getExportComponent().getSpanExporter());
     doWork();

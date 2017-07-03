@@ -43,7 +43,11 @@ public class StatsRunner {
   private static final StatsContextFactory factory = Stats.getStatsContextFactory();
   private static final StatsContext DEFAULT = factory.getDefault();
 
-  /** Main method. */
+  /**
+   * Main method.
+   *
+   * @param args the main arguments.
+   */
   public static void main(String[] args) {
     System.out.println("Hello Stats World");
     System.out.println("Default Tags: " + DEFAULT);

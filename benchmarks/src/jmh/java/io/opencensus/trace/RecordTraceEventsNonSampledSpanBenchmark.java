@@ -35,12 +35,12 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
   private static final String ATTRIBUTE_KEY = "MyAttributeKey";
   private static final String ATTRIBUTE_VALUE = "MyAttributeValue";
-  private Span linkedSpan =
+  private final Span linkedSpan =
       tracer
           .spanBuilderWithExplicitParent(SPAN_NAME, null)
           .setSampler(Samplers.neverSample())
           .startSpan();
-  private Span span =
+  private final Span span =
       tracer
           .spanBuilderWithExplicitParent(SPAN_NAME, null)
           .setSampler(Samplers.neverSample())

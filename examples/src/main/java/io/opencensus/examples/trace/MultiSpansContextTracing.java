@@ -46,7 +46,11 @@ public final class MultiSpansContextTracing {
     tracer.getCurrentSpan().addAnnotation("Annotation to the root Span after child is ended.");
   }
 
-  /** Main method. */
+  /**
+   * Main method.
+   *
+   * @param args the main arguments.
+   */
   public static void main(String[] args) {
     LoggingHandler.register(Tracing.getExportComponent().getSpanExporter());
     Span span = tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startSpan();

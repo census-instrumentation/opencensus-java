@@ -44,7 +44,11 @@ public final class MultiSpansScopedTracing {
     tracer.getCurrentSpan().addAnnotation("Annotation to the root Span after child is ended.");
   }
 
-  /** Main method. */
+  /**
+   * Main method.
+   *
+   * @param args the main arguments.
+   */
   public static void main(String[] args) {
     LoggingHandler.register(Tracing.getExportComponent().getSpanExporter());
     try (NonThrowingCloseable ss =

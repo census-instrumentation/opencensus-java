@@ -28,7 +28,7 @@ import org.openjdk.jmh.annotations.TearDown;
 public class StartEndSpanBenchmark {
   private static final Tracer tracer = Tracing.getTracer();
   private static final String SPAN_NAME = "MySpanName";
-  private Span rootSpan =
+  private final Span rootSpan =
       tracer
           .spanBuilderWithExplicitParent(SPAN_NAME, null)
           .setSampler(Samplers.neverSample())
