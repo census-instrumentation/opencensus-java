@@ -52,7 +52,7 @@ import java.text.ParseException;
  *     // Maybe log the exception.
  *   }
  *   try (NonThrowingCloseable ss =
- *            tracer.spanBuilderWithRemoteParent(spanContext, "Recv.MyRequest").startScopedSpan()) {
+ *            tracer.spanBuilderWithRemoteParent("Recv.MyRequest", spanContext).startScopedSpan()) {
  *     // Handle request and send response back.
  *   }
  * }

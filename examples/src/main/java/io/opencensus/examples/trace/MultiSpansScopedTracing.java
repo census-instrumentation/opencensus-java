@@ -48,7 +48,7 @@ public final class MultiSpansScopedTracing {
   public static void main(String[] args) {
     LoggingHandler.register(Tracing.getExportComponent().getSpanExporter());
     try (NonThrowingCloseable ss =
-        tracer.spanBuilder(null,"MyRootSpan").startScopedSpan()) {
+        tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startScopedSpan()) {
       doWork();
     }
   }

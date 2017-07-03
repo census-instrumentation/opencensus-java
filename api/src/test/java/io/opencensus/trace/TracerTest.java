@@ -101,12 +101,13 @@ public class TracerTest {
 
   @Test(expected = NullPointerException.class)
   public void spanBuilderWithParentAndName_NullName() {
-    noopTracer.spanBuilder(null, null);
+    noopTracer.spanBuilderWithExplicitParent(null, null);
   }
 
   @Test
   public void defaultSpanBuilderWithParentAndName() {
-    assertThat(noopTracer.spanBuilder(null, SPAN_NAME).startSpan()).isSameAs(BlankSpan.INSTANCE);
+    assertThat(noopTracer.spanBuilderWithExplicitParent(SPAN_NAME, null).startSpan())
+        .isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test(expected = NullPointerException.class)
@@ -114,14 +115,15 @@ public class TracerTest {
     noopTracer.spanBuilderWithRemoteParent(null, null);
   }
 
-  @Test(expected = NullPointerException.class)
-  public void defaultSpanBuilderWitRemoteParent_NullParent() {
-    noopTracer.spanBuilderWithRemoteParent(null, SPAN_NAME);
+  @Test
+  public void defaultSpanBuilderWithRemoteParent_NullParent() {
+    assertThat(noopTracer.spanBuilderWithRemoteParent(SPAN_NAME, null).startSpan())
+        .isSameAs(BlankSpan.INSTANCE);
   }
 
   @Test
   public void defaultSpanBuilderWithRemoteParent() {
-    assertThat(noopTracer.spanBuilderWithRemoteParent(SpanContext.INVALID, SPAN_NAME).startSpan())
+    assertThat(noopTracer.spanBuilderWithRemoteParent(SPAN_NAME, SpanContext.INVALID).startSpan())
         .isSameAs(BlankSpan.INSTANCE);
   }
 
@@ -130,7 +132,8 @@ public class TracerTest {
     NonThrowingCloseable ws = tracer.withSpan(span);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
-      when(tracer.spanBuilder(same(span), same(SPAN_NAME))).thenReturn(spanBuilder);
+      when(tracer.spanBuilderWithExplicitParent(same(SPAN_NAME), same(span)))
+          .thenReturn(spanBuilder);
       assertThat(tracer.spanBuilder(SPAN_NAME)).isSameAs(spanBuilder);
     } finally {
       ws.close();
@@ -142,7 +145,8 @@ public class TracerTest {
     NonThrowingCloseable ws = tracer.withSpan(BlankSpan.INSTANCE);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-      when(tracer.spanBuilder(same(BlankSpan.INSTANCE), same(SPAN_NAME))).thenReturn(spanBuilder);
+      when(tracer.spanBuilderWithExplicitParent(same(SPAN_NAME), same(BlankSpan.INSTANCE)))
+          .thenReturn(spanBuilder);
       assertThat(tracer.spanBuilder(SPAN_NAME)).isSameAs(spanBuilder);
     } finally {
       ws.close();

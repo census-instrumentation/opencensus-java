@@ -86,14 +86,14 @@ import javax.annotation.Nullable;
  * <pre>{@code
  * class MyClass {
  *   private static final Tracer tracer = Tracing.getTracer();
- *   void DoWork() {
- *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
- *     span.addAnnotation("my annotation");
+ *   void DoWork(Span parent) {
+ *     Span childSpan = tracer.spanBuilderWithExplicitParent("MyChildSpan", parent).startSpan();
+ *     childSpan.addAnnotation("my annotation");
  *     try {
- *       doSomeWork(span); // Manually propagate the new span down the stack.
+ *       doSomeWork(childSpan); // Manually propagate the new span down the stack.
  *     } finally {
  *       // To make sure we end the span even in case of an exception.
- *       span.end();  // Manually end the span.
+ *       childSpan.end();  // Manually end the span.
  *     }
  *   }
  * }
@@ -145,14 +145,14 @@ public abstract class SpanBuilder {
    * <pre>{@code
    * class MyClass {
    *   private static final Tracer tracer = Tracing.getTracer();
-   *   void DoWork() {
-   *     Span span = tracer.spanBuilder(null, "MyRootSpan").startSpan();
-   *     span.addAnnotation("my annotation");
+   *   void DoWork(Span parent) {
+   *     Span childSpan = tracer.spanBuilderWithExplicitParent("MyChildSpan", parent).startSpan();
+   *     childSpan.addAnnotation("my annotation");
    *     try {
-   *       doSomeWork(span); // Manually propagate the new span down the stack.
+   *       doSomeWork(childSpan); // Manually propagate the new span down the stack.
    *     } finally {
    *       // To make sure we end the span even in case of an exception.
-   *       span.end();  // Manually end the span.
+   *       childSpan.end();  // Manually end the span.
    *     }
    *   }
    * }
@@ -222,13 +222,13 @@ public abstract class SpanBuilder {
   }
 
   static final class NoopSpanBuilder extends SpanBuilder {
-    NoopSpanBuilder(@Nullable Span parentSpan, String name) {
-      checkNotNull(name, "name");
+    static NoopSpanBuilder createWithParent(String spanName, @Nullable Span parent) {
+      return new NoopSpanBuilder(spanName);
     }
 
-    NoopSpanBuilder(SpanContext remoteParentSpanContext, String name) {
-      checkNotNull(remoteParentSpanContext, "remoteParentSpanContext");
-      checkNotNull(name, "name");
+    static NoopSpanBuilder createWithRemoteParent(
+        String spanName, @Nullable SpanContext remoteParentSpanContext) {
+      return new NoopSpanBuilder(spanName);
     }
 
     @Override
@@ -249,6 +249,10 @@ public abstract class SpanBuilder {
     @Override
     public SpanBuilder setRecordEvents(boolean recordEvents) {
       return this;
+    }
+
+    private NoopSpanBuilder(String name) {
+      checkNotNull(name, "name");
     }
   }
 }

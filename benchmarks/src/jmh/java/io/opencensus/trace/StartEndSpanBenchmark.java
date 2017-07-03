@@ -29,7 +29,10 @@ public class StartEndSpanBenchmark {
   private static final Tracer tracer = Tracing.getTracer();
   private static final String SPAN_NAME = "MySpanName";
   private Span rootSpan =
-      tracer.spanBuilder(null, SPAN_NAME).setSampler(Samplers.neverSample()).startSpan();
+      tracer
+          .spanBuilderWithExplicitParent(SPAN_NAME, null)
+          .setSampler(Samplers.neverSample())
+          .startSpan();
 
   @TearDown
   public void doTearDown() {
@@ -45,7 +48,10 @@ public class StartEndSpanBenchmark {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span startEndNonSampledRootSpan() {
     Span span =
-        tracer.spanBuilder(null, SPAN_NAME).setSampler(Samplers.neverSample()).startSpan();
+        tracer
+            .spanBuilderWithExplicitParent(SPAN_NAME, null)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
     span.end();
     return span;
   }
@@ -60,7 +66,7 @@ public class StartEndSpanBenchmark {
   public Span startEndRecordEventsRootSpan() {
     Span span =
         tracer
-            .spanBuilder(null, SPAN_NAME)
+            .spanBuilderWithExplicitParent(SPAN_NAME, null)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
             .startSpan();
@@ -89,7 +95,10 @@ public class StartEndSpanBenchmark {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span startEndNonSampledChildSpan() {
     Span span =
-        tracer.spanBuilder(rootSpan, SPAN_NAME).setSampler(Samplers.neverSample()).startSpan();
+        tracer
+            .spanBuilderWithExplicitParent(SPAN_NAME, rootSpan)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
     span.end();
     return span;
   }
@@ -104,7 +113,7 @@ public class StartEndSpanBenchmark {
   public Span startEndRecordEventsChildSpan() {
     Span span =
         tracer
-            .spanBuilder(rootSpan, SPAN_NAME)
+            .spanBuilderWithExplicitParent(SPAN_NAME, rootSpan)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
             .startSpan();
@@ -120,7 +129,10 @@ public class StartEndSpanBenchmark {
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span startEndSampledChildSpan() {
     Span span =
-        tracer.spanBuilder(rootSpan, SPAN_NAME).setSampler(Samplers.alwaysSample()).startSpan();
+        tracer
+            .spanBuilderWithExplicitParent(SPAN_NAME, rootSpan)
+            .setSampler(Samplers.alwaysSample())
+            .startSpan();
     span.end();
     return span;
   }
