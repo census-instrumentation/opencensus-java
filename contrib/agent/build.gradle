@@ -30,6 +30,7 @@ def agentBootstrapClasses = agentBootstrapPackageDir + '**'
 def agentRepackaged = "${agentPackage}.deps"
 
 dependencies {
+  compile libraries.guava
   compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
 
   signature 'org.codehaus.mojo.signature:java16:+@signature'
@@ -70,6 +71,7 @@ shadowJar {
   // Include only the following dependencies (excluding transitive dependencies).
   dependencies {
     include(dependency('net.bytebuddy:byte-buddy'))
+    include(dependency(libraries.guava))
   }
 
   // Exclude cruft which still snuck in.
@@ -78,7 +80,11 @@ shadowJar {
 
   // Relocate third party packages to avoid any conflicts of the agent's classes with the app's
   // classes, which are loaded by the same classloader (the system classloader).
+  // Byte Buddy:
   relocate 'net.bytebuddy', agentRepackaged + '.bytebuddy'
+  // Guava:
+  relocate 'com.google.common', agentRepackaged + '.guava'
+  relocate 'com.google.thirdparty.publicsuffix', agentRepackaged + '.publicsuffix'
 
   doLast {
     def agentPackageDir = agentPackage.replace('.', '/') + '/'
@@ -111,3 +117,5 @@ shadowJar {
 }
 
 jar.finalizedBy shadowJar
+
+// TODO(stschmidt): Proguard-shrink the agent JAR.

@@ -13,9 +13,11 @@
 
 package io.opencensus.contrib.agent;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
 import java.lang.instrument.Instrumentation;
+import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
@@ -44,14 +46,21 @@ public final class AgentMain {
    * Initializes the OpenCensus Agent for Java.
    *
    * @param agentArgs agent options, passed as a single string by the JVM
-   * @param inst      the {@link Instrumentation} object provided by the JVM for instrumenting Java
-   *                  programming language code
+   * @param instrumentation the {@link Instrumentation} object provided by the JVM for
+   *                  instrumenting Java programming language code
    * @throws Exception if initialization of the agent fails
    *
    * @see java.lang.instrument
    */
-  public static void premain(String agentArgs, Instrumentation inst) throws Exception {
+  public static void premain(String agentArgs, Instrumentation instrumentation) throws Exception {
+    checkNotNull(instrumentation, "instrumentation");
+
     logger.info("Initializing.");
+
+    // The classes in bootstrap.jar will be referenced from classes loaded by the bootstrap
+    // classloader. Thus, these classes have to be loaded by the bootstrap classloader, too.
+    instrumentation.appendToBootstrapClassLoaderSearch(
+            new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
     AgentBuilder agentBuilder = new AgentBuilder.Default()
             .disableClassFormatChanges()
@@ -59,7 +68,7 @@ public final class AgentMain {
             .with(new AgentBuilderListener())
             .ignore(none());
     // TODO(stschmidt): Add instrumentation for context propagation.
-    agentBuilder.installOn(inst);
+    agentBuilder.installOn(instrumentation);
 
     logger.info("Initialized.");
   }
