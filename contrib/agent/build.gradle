@@ -89,7 +89,9 @@ shadowJar {
 
   // Relocate third party packages to avoid any conflicts of the agent's classes with the app's
   // classes, which are loaded by the same classloader (the system classloader).
+  // Byte Buddy:
   relocate 'net.bytebuddy', agentRepackaged + '.bytebuddy'
+  // Guava:
   relocate 'com.google.common', agentRepackaged + '.guava'
   relocate 'com.google.thirdparty.publicsuffix', agentRepackaged + '.publicsuffix'
 
@@ -175,7 +177,7 @@ task proguard(type: proguard.gradle.ProGuardTask) {
 
   // Don't obfuscate or optimize yet. POLA.
   dontobfuscate
-  // dontoptimize
+  dontoptimize
 
   doLast {
     ant.move(file: tmpJar, tofile: shadowJar.archivePath)

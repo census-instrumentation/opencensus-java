@@ -14,36 +14,63 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Helper methods for working with resources on the classpath.
+ * Helper methods for working with resources.
  */
 final class Resources {
 
-  static File toTempFile(String resourceName) throws IOException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName));
+  /**
+   * Returns a resource of the given name as a temporary file.
+   *
+   * @param resourceName name of the resource
+   * @return a temporary {@link File} containing a copy of the resource
+   * @throws FileNotFoundException if no resource of the given name is found
+   * @throws IOException if an I/O error occurs
+   */
+  static File getResourceAsTempFile(String resourceName) throws IOException {
+    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
 
-    try (InputStream is = Resources.class.getResourceAsStream(resourceName)) {
-      checkState(
-              is != null,
-              "Could not find resource '%s' on the class path. "
-              + " Should it be bundled with the agent's JAR? Check the build process!",
-              resourceName);
-      File file = File.createTempFile(resourceName, ".tmp");
-      file.deleteOnExit();
-      try (OutputStream os = new FileOutputStream(file)) {
-        ByteStreams.copy(is, os);
-      }
+    File file = File.createTempFile(resourceName, ".tmp");
+    try (OutputStream os = new FileOutputStream(file)) {
+      getResourceAsTempFile(resourceName, file, os);
       return file;
     }
+  }
+
+  @VisibleForTesting
+  static void getResourceAsTempFile(String resourceName, File file, OutputStream outputStream)
+          throws IOException {
+    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
+    checkNotNull(file, "file");
+    checkNotNull(outputStream, "outputStream");
+
+    file.deleteOnExit();
+
+    try (InputStream is = getResourceAsStream(resourceName)) {
+      ByteStreams.copy(is, outputStream);
+    }
+  }
+
+  private static InputStream getResourceAsStream(String resourceName) throws FileNotFoundException {
+    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
+
+    InputStream is = Resources.class.getResourceAsStream(resourceName);
+    if (is == null) {
+      throw new FileNotFoundException(
+              "Cannot find resource '" + resourceName + "' on the class path.");
+    }
+    return is;
   }
 }

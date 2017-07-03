@@ -13,6 +13,7 @@
 
 package io.opencensus.contrib.agent;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
@@ -49,22 +50,21 @@ public final class AgentMain {
    * Initializes the OpenCensus Agent for Java.
    *
    * @param agentArgs agent options, passed as a single string by the JVM
-   * @param inst      the {@link Instrumentation} object provided by the JVM for instrumenting Java
-   *                  programming language code
+   * @param instrumentation the {@link Instrumentation} object provided by the JVM for
+   *                  instrumenting Java programming language code
    * @throws Exception if initialization of the agent fails
    *
    * @see java.lang.instrument
    */
-  public static void premain(String agentArgs, Instrumentation inst) throws Exception {
-    logger.fine("Initializing.");
+  public static void premain(String agentArgs, Instrumentation instrumentation) throws Exception {
+    checkNotNull(instrumentation, "instrumentation");
+
+    logger.info("Initializing.");
 
     // The classes in bootstrap.jar will be referenced from classes loaded by the bootstrap
     // classloader. Thus, these classes have to be loaded by the bootstrap classloader, too.
-    // NB: The Boot-Class-Path MANIFEST.MF entry can only refer to files outside the agent's JAR.
-    // Also, the JAR file must be an actual file. See
-    // sun.instrument.InstrumentationImpl.appendToBootstrapClassLoaderSearch(
-    // InstrumentationImpl.java:195), where the JarFile's name is passed verbatim to native code.
-    inst.appendToBootstrapClassLoaderSearch(new JarFile(Resources.toTempFile("bootstrap.jar")));
+    instrumentation.appendToBootstrapClassLoaderSearch(
+            new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
     checkState(ContextProxy.class.getClassLoader() == null);
 
@@ -74,9 +74,9 @@ public final class AgentMain {
             .with(new AgentBuilderListener())
             .ignore(none());
     agentBuilder = LazyLoaded.addContextPropagation(agentBuilder);
-    agentBuilder.installOn(inst);
+    agentBuilder.installOn(instrumentation);
 
-    logger.fine("Initialized.");
+    logger.info("Initialized.");
   }
 
   private static class LazyLoaded {
