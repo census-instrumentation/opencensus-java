@@ -101,12 +101,12 @@ public class TracerTest {
 
   @Test(expected = NullPointerException.class)
   public void spanBuilderWithParentAndName_NullName() {
-    noopTracer.spanBuilderWithParent(null, null);
+    noopTracer.spanBuilderWithExplicitParent(null, null);
   }
 
   @Test
   public void defaultSpanBuilderWithParentAndName() {
-    assertThat(noopTracer.spanBuilderWithParent(SPAN_NAME, null).startSpan())
+    assertThat(noopTracer.spanBuilderWithExplicitParent(SPAN_NAME, null).startSpan())
         .isSameAs(BlankSpan.INSTANCE);
   }
 
@@ -132,7 +132,8 @@ public class TracerTest {
     NonThrowingCloseable ws = tracer.withSpan(span);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
-      when(tracer.spanBuilderWithParent(same(SPAN_NAME), same(span))).thenReturn(spanBuilder);
+      when(tracer.spanBuilderWithExplicitParent(same(SPAN_NAME), same(span)))
+          .thenReturn(spanBuilder);
       assertThat(tracer.spanBuilder(SPAN_NAME)).isSameAs(spanBuilder);
     } finally {
       ws.close();
@@ -144,7 +145,7 @@ public class TracerTest {
     NonThrowingCloseable ws = tracer.withSpan(BlankSpan.INSTANCE);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-      when(tracer.spanBuilderWithParent(same(SPAN_NAME), same(BlankSpan.INSTANCE)))
+      when(tracer.spanBuilderWithExplicitParent(same(SPAN_NAME), same(BlankSpan.INSTANCE)))
           .thenReturn(spanBuilder);
       assertThat(tracer.spanBuilder(SPAN_NAME)).isSameAs(spanBuilder);
     } finally {

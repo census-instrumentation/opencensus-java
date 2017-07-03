@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
  * class MyClass {
  *   private static final Tracer tracer = Tracing.getTracer();
  *   void doWork(Span parent) {
- *     Span childSpan = tracer.spanBuilderWithParent("MyRootSpan", parent).startSpan();
+ *     Span childSpan = tracer.spanBuilderWithExplicitParent("MyChildSpan", parent).startSpan();
  *     childSpan.addAnnotation("Starting the work.");
  *     try {
  *       doSomeWork(childSpan); // Manually propagate the new span down the stack.
@@ -157,15 +157,15 @@ public abstract class Tracer {
    * <p>This is equivalent with:
    *
    * <pre>{@code
-   * tracer.spanBuilderWithParent("MySpanName",tracer.getCurrentSpan());
+   * tracer.spanBuilderWithExplicitParent("MySpanName",tracer.getCurrentSpan());
    * }</pre>
    *
-   * @param name The name of the returned Span.
+   * @param spanName The name of the returned Span.
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
-   * @throws NullPointerException if {@code name} is {@code null}.
+   * @throws NullPointerException if {@code spanName} is {@code null}.
    */
-  public final SpanBuilder spanBuilder(String name) {
-    return spanBuilderWithParent(name, ContextUtils.getCurrentSpan());
+  public final SpanBuilder spanBuilder(String spanName) {
+    return spanBuilderWithExplicitParent(spanName, ContextUtils.getCurrentSpan());
   }
 
   /**
@@ -178,13 +178,13 @@ public abstract class Tracer {
    * <p>This <b>must</b> be used to create a {@code Span} when manual Context propagation is used OR
    * when creating a root {@code Span} with a {@code null} parent.
    *
-   * @param spanName The spanName of the returned Span.
+   * @param spanName The name of the returned Span.
    * @param parent The parent of the returned Span. If {@code null} the {@code SpanBuilder} will
    *     build a root {@code Span}.
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if {@code spanName} is {@code null}.
    */
-  public abstract SpanBuilder spanBuilderWithParent(String spanName, @Nullable Span parent);
+  public abstract SpanBuilder spanBuilderWithExplicitParent(String spanName, @Nullable Span parent);
 
   /**
    * Returns a {@link SpanBuilder} to create and start a new child {@link Span} (or root if parent
@@ -199,7 +199,7 @@ public abstract class Tracer {
    * <p>If no {@link SpanContext} OR fail to parse the {@link SpanContext} on the server side, users
    * must call this method with a {@code null} remote parent {@code SpanContext}.
    *
-   * @param spanName The spanName of the returned Span.
+   * @param spanName The name of the returned Span.
    * @param remoteParentSpanContext The remote parent of the returned Span.
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if {@code spanName} is {@code null}.
@@ -211,7 +211,7 @@ public abstract class Tracer {
   private static final class NoopTracer extends Tracer {
 
     @Override
-    public SpanBuilder spanBuilderWithParent(String spanName, @Nullable Span parent) {
+    public SpanBuilder spanBuilderWithExplicitParent(String spanName, @Nullable Span parent) {
       return NoopSpanBuilder.createWithParent(spanName, parent);
     }
 

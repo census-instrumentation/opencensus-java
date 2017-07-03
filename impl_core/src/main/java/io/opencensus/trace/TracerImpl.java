@@ -32,7 +32,7 @@ final class TracerImpl extends Tracer {
   }
 
   @Override
-  public SpanBuilder spanBuilderWithParent(String spanName, @Nullable Span parent) {
+  public SpanBuilder spanBuilderWithExplicitParent(String spanName, @Nullable Span parent) {
     return SpanBuilderImpl.createWithParent(spanName, parent, spanBuilderOptions);
   }
 

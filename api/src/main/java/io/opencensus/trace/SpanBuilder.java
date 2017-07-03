@@ -87,7 +87,7 @@ import javax.annotation.Nullable;
  * class MyClass {
  *   private static final Tracer tracer = Tracing.getTracer();
  *   void DoWork(Span parent) {
- *     Span childSpan = tracer.spanBuilderWithParent("MyRootSpan", parent).startSpan();
+ *     Span childSpan = tracer.spanBuilderWithExplicitParent("MyChildSpan", parent).startSpan();
  *     childSpan.addAnnotation("my annotation");
  *     try {
  *       doSomeWork(childSpan); // Manually propagate the new span down the stack.
@@ -146,7 +146,7 @@ public abstract class SpanBuilder {
    * class MyClass {
    *   private static final Tracer tracer = Tracing.getTracer();
    *   void DoWork(Span parent) {
-   *     Span childSpan = tracer.spanBuilderWithParent("MyRootSpan", parent).startSpan();
+   *     Span childSpan = tracer.spanBuilderWithExplicitParent("MyChildSpan", parent).startSpan();
    *     childSpan.addAnnotation("my annotation");
    *     try {
    *       doSomeWork(childSpan); // Manually propagate the new span down the stack.

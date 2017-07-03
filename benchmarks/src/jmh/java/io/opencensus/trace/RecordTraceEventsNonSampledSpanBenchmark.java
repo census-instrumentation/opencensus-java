@@ -36,9 +36,15 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   private static final String ATTRIBUTE_KEY = "MyAttributeKey";
   private static final String ATTRIBUTE_VALUE = "MyAttributeValue";
   private Span linkedSpan =
-      tracer.spanBuilderWithParent(SPAN_NAME, null).setSampler(Samplers.neverSample()).startSpan();
+      tracer
+          .spanBuilderWithExplicitParent(SPAN_NAME, null)
+          .setSampler(Samplers.neverSample())
+          .startSpan();
   private Span span =
-      tracer.spanBuilderWithParent(SPAN_NAME, null).setSampler(Samplers.neverSample()).startSpan();
+      tracer
+          .spanBuilderWithExplicitParent(SPAN_NAME, null)
+          .setSampler(Samplers.neverSample())
+          .startSpan();
 
   /** TearDown method. */
   @TearDown

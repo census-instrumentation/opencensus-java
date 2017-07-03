@@ -43,7 +43,7 @@ public class TracerImplTest {
 
   @Test
   public void createSpanBuilder() {
-    SpanBuilder spanBuilder = tracer.spanBuilderWithParent(SPAN_NAME, BlankSpan.INSTANCE);
+    SpanBuilder spanBuilder = tracer.spanBuilderWithExplicitParent(SPAN_NAME, BlankSpan.INSTANCE);
     assertThat(spanBuilder).isInstanceOf(SpanBuilderImpl.class);
   }
 
