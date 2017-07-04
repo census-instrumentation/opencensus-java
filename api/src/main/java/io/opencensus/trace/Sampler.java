@@ -13,9 +13,6 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanContext;
-
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import java.util.List;

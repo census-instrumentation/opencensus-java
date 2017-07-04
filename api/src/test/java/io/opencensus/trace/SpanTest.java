@@ -19,7 +19,6 @@ import static org.mockito.Mockito.verify;
 
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.AttributeValue;
-import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
 import io.opencensus.trace.base.SpanId;
