@@ -30,6 +30,9 @@ def agentBootstrapClasses = agentBootstrapPackageDir + '**'
 def agentRepackaged = "${agentPackage}.deps"
 
 dependencies {
+  compileOnly libraries.grpc_context
+  testCompile libraries.grpc_context
+  compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.1u2'
   compile libraries.guava
   compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
 
@@ -119,3 +122,9 @@ shadowJar {
 jar.finalizedBy shadowJar
 
 // TODO(stschmidt): Proguard-shrink the agent JAR.
+
+// TODO(stschmidt): Move the integration tests to a separate SourceSet once
+// https://github.com/johnrengelman/shadow/issues/297 is fixed.
+test {
+  jvmArgs "-javaagent:${shadowJar.archivePath}"
+}

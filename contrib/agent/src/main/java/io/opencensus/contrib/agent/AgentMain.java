@@ -14,8 +14,11 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
+import io.opencensus.contrib.agent.bootstrap.ContextManager;
+import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
 import java.lang.instrument.Instrumentation;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -62,14 +65,48 @@ public final class AgentMain {
     instrumentation.appendToBootstrapClassLoaderSearch(
             new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
+    assertIsLoadedByBootstrapClassloader(ContextManager.class);
+    assertIsLoadedByBootstrapClassloader(ContextStrategy.class);
+
     AgentBuilder agentBuilder = new AgentBuilder.Default()
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new AgentBuilderListener())
             .ignore(none());
-    // TODO(stschmidt): Add instrumentation for context propagation.
+    agentBuilder = LazyLoaded.addGrpcContextPropagation(agentBuilder);
+    // TODO: Add more instrumentation, potentially introducing a plugin mechanism.
     agentBuilder.installOn(instrumentation);
 
     logger.info("Initialized.");
+  }
+
+  private static void assertIsLoadedByBootstrapClassloader(Class<?> clazz) {
+    checkNotNull(clazz, "clazz");
+
+    checkState(clazz.getClassLoader() == null,
+            "%s must be loaded by the bootstrap classloader",
+            clazz);
+  }
+
+  private static class LazyLoaded {
+
+    /**
+     * Adds automatic context propagation.
+     */
+    static AgentBuilder addGrpcContextPropagation(AgentBuilder agentBuilder) {
+      checkNotNull(agentBuilder, "agentBuilder");
+
+      // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
+
+      ContextManager.setContextHandler(new GrpcContextStrategy());
+
+      agentBuilder = agentBuilder
+              .type(ExecutorInstrumentation.matcher())
+              .transform(ExecutorInstrumentation.transformer());
+
+      // TODO(stschmidt): Add instrumentation for {@link Thread}.
+
+      return agentBuilder;
+    }
   }
 }

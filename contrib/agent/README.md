@@ -14,6 +14,12 @@ currently implemented:
 TODO(stschmidt): Update README.md along with implementation.
 
 
+### Automatic context propagation for Executors
+
+The context of the caller of [Executor#execute](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Executor.html#execute-java.lang.Runnable-)
+is automatically propagated to the submitted Runnable.
+
+
 ## Design Ideas
 
 We see tracing as a cross-cutting concern which the *OpenCensus Agent for Java* weaves into

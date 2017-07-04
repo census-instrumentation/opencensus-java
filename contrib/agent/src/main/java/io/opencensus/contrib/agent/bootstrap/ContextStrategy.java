@@ -14,9 +14,16 @@
 package io.opencensus.contrib.agent.bootstrap;
 
 /**
- * Contains classes that need to be loaded by the bootstrap classloader because they are used from
- * classes loaded by the bootstrap classloader.
- *
- * <p>NB: Do not add direct dependencies on classes that are not loaded by the bootstrap
- * classloader. Keep this package small.
+ * Strategy interface for accessing and manipulating the context.
  */
+public interface ContextStrategy {
+
+  /**
+   * Wraps a {@link Runnable} so that it executes with the context that is associated with the
+   * current scope.
+   *
+   * @param runnable a {@link Runnable} object
+   * @return the wrapped {@link Runnable} object
+   */
+  Runnable wrapInCurrentContext(Runnable runnable);
+}
