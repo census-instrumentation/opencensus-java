@@ -25,19 +25,33 @@ package io.opencensus.contrib.agent.bootstrap;
  * classloader so that they can be used from classes loaded by the bootstrap classloader.
  * A concrete implementations of {@link ContextStrategy} will be loaded by the system classloader.
  * This allows for using the same context implementation as the instrumented application.
+ *
+ * <p>{@code ContextManager} is implemented as a static class to allow for easy and fast use from
+ * instrumented bytecode. We cannot use dependency injection for the instrumented bytecode.
  */
 public final class ContextManager {
 
+  // Not synchronized to avoid any synchronization costs after initialization.
+  // The agent is responsible to initialize this once (through #setContextStrategy) before any other
+  // method of this class is called.
   private static ContextStrategy contextStrategy;
+
+  private ContextManager() {
+  }
 
   /**
    * Sets the concrete strategy for accessing and manipulating the context.
    *
-   * <p>Must be called before any other method in this class.
+   * <p>NB: The agent is responsible to set the context strategy once before any other method of
+   * this class is called.
    *
    * @param contextStrategy the concrete strategy for accessing and manipulating the context
    */
-  public static void setContextHandler(ContextStrategy contextStrategy) {
+  public static void setContextStrategy(ContextStrategy contextStrategy) {
+    if (ContextManager.contextStrategy != null) {
+      throw new IllegalStateException("contextStrategy was already set");
+    }
+
     if (contextStrategy == null) {
       throw new NullPointerException("contextStrategy");
     }
@@ -46,7 +60,13 @@ public final class ContextManager {
   }
 
   /**
-   * @see ContextStrategy#wrapInCurrentContext(java.lang.Runnable)
+   * Wraps a {@link Runnable} so that it executes with the context that is associated with the
+   * current scope.
+   *
+   * @param runnable a {@link Runnable} object
+   * @return the wrapped {@link Runnable} object
+   *
+   * @see ContextStrategy#wrapInCurrentContext
    */
   public static Runnable wrapInCurrentContext(Runnable runnable) {
     return contextStrategy.wrapInCurrentContext(runnable);

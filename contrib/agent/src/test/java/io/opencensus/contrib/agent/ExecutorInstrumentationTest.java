@@ -29,6 +29,9 @@ import org.junit.runners.JUnit4;
 
 /**
  * Integration tests for {@link ExecutorInstrumentation}.
+ *
+ * <p>The integration tests are executed in a separate JVM that has the OpenCensus agent enabled
+ * via the {@code -javaagent} command line option.
  */
 @RunWith(JUnit4.class)
 public class ExecutorInstrumentationTest {

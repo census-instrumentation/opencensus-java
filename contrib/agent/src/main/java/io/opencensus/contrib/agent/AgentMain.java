@@ -65,8 +65,8 @@ public final class AgentMain {
     instrumentation.appendToBootstrapClassLoaderSearch(
             new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
-    assertIsLoadedByBootstrapClassloader(ContextManager.class);
-    assertIsLoadedByBootstrapClassloader(ContextStrategy.class);
+    checkLoadedByBootstrapClassloader(ContextManager.class);
+    checkLoadedByBootstrapClassloader(ContextStrategy.class);
 
     AgentBuilder agentBuilder = new AgentBuilder.Default()
             .disableClassFormatChanges()
@@ -80,9 +80,7 @@ public final class AgentMain {
     logger.info("Initialized.");
   }
 
-  private static void assertIsLoadedByBootstrapClassloader(Class<?> clazz) {
-    checkNotNull(clazz, "clazz");
-
+  private static void checkLoadedByBootstrapClassloader(Class<?> clazz) {
     checkState(clazz.getClassLoader() == null,
             "%s must be loaded by the bootstrap classloader",
             clazz);
@@ -94,17 +92,17 @@ public final class AgentMain {
      * Adds automatic context propagation.
      */
     static AgentBuilder addGrpcContextPropagation(AgentBuilder agentBuilder) {
-      checkNotNull(agentBuilder, "agentBuilder");
-
       // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
 
-      ContextManager.setContextHandler(new GrpcContextStrategy());
+      // Initialize the ContextManager singleton with the concrete GrpcContextStrategy.
+      ContextManager.setContextStrategy(new GrpcContextStrategy());
 
+      // Add automatic context propagation to Executor#execute.
       agentBuilder = agentBuilder
               .type(ExecutorInstrumentation.matcher())
               .transform(ExecutorInstrumentation.transformer());
 
-      // TODO(stschmidt): Add instrumentation for {@link Thread}.
+      // TODO(stschmidt): Add automatic context propagation to Thread#start.
 
       return agentBuilder;
     }

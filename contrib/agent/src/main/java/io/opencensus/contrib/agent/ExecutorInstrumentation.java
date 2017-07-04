@@ -56,6 +56,15 @@ final class ExecutorInstrumentation {
 
   private static class Execute {
 
+    /**
+     * Wraps a {@link Runnable} so that it executes with the context that is associated with the
+     * current scope.
+     *
+     * <p>NB: This method is never called as is. Instead, Byte Buddy copies the method's bytecode
+     * into Executor#execute.
+     *
+     * @see Advice
+     */
     @Advice.OnMethodEnter
     @SuppressWarnings(value = "UnusedAssignment")
     @SuppressFBWarnings(value = {"DLS_DEAD_LOCAL_STORE", "UPM_UNCALLED_PRIVATE_METHOD",})
