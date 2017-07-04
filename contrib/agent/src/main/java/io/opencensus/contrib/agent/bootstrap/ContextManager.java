@@ -32,8 +32,8 @@ package io.opencensus.contrib.agent.bootstrap;
 public final class ContextManager {
 
   // Not synchronized to avoid any synchronization costs after initialization.
-  // The agent is responsible to initialize this once (through #setContextStrategy) before any other
-  // method of this class is called.
+  // The agent is responsible for initializing this once (through #setContextStrategy) before any
+  // other method of this class is called.
   private static ContextStrategy contextStrategy;
 
   private ContextManager() {
@@ -42,8 +42,8 @@ public final class ContextManager {
   /**
    * Sets the concrete strategy for accessing and manipulating the context.
    *
-   * <p>NB: The agent is responsible to set the context strategy once before any other method of
-   * this class is called.
+   * <p>NB: The agent is responsible for setting the context strategy once before any other method
+   * of this class is called.
    *
    * @param contextStrategy the concrete strategy for accessing and manipulating the context
    */
