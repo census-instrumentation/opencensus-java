@@ -13,8 +13,8 @@
 
 package io.opencensus.trace.samplers;
 
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.base.Sampler;
 
 /** Static class to access a set of pre-defined {@link Sampler Samplers}. */
 public final class Samplers {

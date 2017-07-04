@@ -16,9 +16,9 @@ package io.opencensus.trace.samplers;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.base.Sampler;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import java.util.List;
@@ -29,23 +29,22 @@ import javax.annotation.concurrent.Immutable;
  * We assume the lower 64 bits of the traceId's are randomly distributed around the whole (long)
  * range. We convert an incoming probability into an upper bound on that value, such that we can
  * just compare the absolute value of the id and the bound to see if we are within the desired
- * probability range.  Using the low bits of the traceId also ensures that systems that only use
- * 64 bit ID's will also work with this sampler.
+ * probability range. Using the low bits of the traceId also ensures that systems that only use 64
+ * bit ID's will also work with this sampler.
  */
 @AutoValue
 @Immutable
 abstract class ProbabilitySampler extends Sampler {
 
-  ProbabilitySampler() {
-  }
+  ProbabilitySampler() {}
 
   abstract double getProbability();
 
   abstract long getIdUpperBound();
 
   /**
-   * Returns a new {@link ProbabilitySampler}. The probability of sampling a trace is equal to
-   * that of the specified probability.
+   * Returns a new {@link ProbabilitySampler}. The probability of sampling a trace is equal to that
+   * of the specified probability.
    *
    * @param probability The desired probability of sampling. Must be within [0.0, 1.0].
    * @return a new {@link ProbabilitySampler}.

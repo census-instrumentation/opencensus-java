@@ -19,7 +19,6 @@ import io.opencensus.common.Clock;
 import io.opencensus.internal.TimestampConverter;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.Link.Type;
-import io.opencensus.trace.base.Sampler;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
