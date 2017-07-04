@@ -14,15 +14,15 @@
 package io.opencensus.testing.trace;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.trace.EndSpanOptions;
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.AttributeValue;
-import io.opencensus.trace.base.EndSpanOptions;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
-import io.opencensus.trace.base.Sampler;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;
