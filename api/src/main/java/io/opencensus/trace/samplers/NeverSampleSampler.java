@@ -13,23 +13,20 @@
 
 package io.opencensus.trace.samplers;
 
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.base.Sampler;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * Sampler that always makes a "no" decision on {@link Span} sampling.
- */
+/** Sampler that always makes a "no" decision on {@link Span} sampling. */
 @Immutable
 final class NeverSampleSampler extends Sampler {
 
-  NeverSampleSampler() {
-  }
+  NeverSampleSampler() {}
 
   // Returns always makes a "no" decision on {@link Span} sampling.
   @Override

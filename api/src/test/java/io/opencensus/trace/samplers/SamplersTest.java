@@ -15,9 +15,9 @@ package io.opencensus.trace.samplers;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.base.Sampler;
 import io.opencensus.trace.base.SpanId;
 import io.opencensus.trace.base.TraceId;
 import io.opencensus.trace.base.TraceOptions;

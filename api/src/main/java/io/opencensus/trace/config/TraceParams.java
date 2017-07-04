@@ -16,11 +16,11 @@ package io.opencensus.trace.config;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.base.Annotation;
 import io.opencensus.trace.base.Link;
 import io.opencensus.trace.base.NetworkEvent;
-import io.opencensus.trace.base.Sampler;
 import io.opencensus.trace.samplers.Samplers;
 import javax.annotation.concurrent.Immutable;
 
