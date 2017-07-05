@@ -87,7 +87,7 @@ public class RecordTraceEventsSampledSpanBenchmark {
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span addLink() {
-    span.addLink(Link.fromSpanContext(linkedSpan.getContext(), Link.Type.PARENT));
+    span.addLink(Link.fromSpanContext(linkedSpan.getContext(), Link.Type.PARENT_LINKED_SPAN));
     return span;
   }
 }

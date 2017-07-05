@@ -96,10 +96,10 @@ final class SpanBuilderImpl extends SpanBuilder {
 
   private static void linkSpans(Span span, List<Span> parentLinks) {
     if (!parentLinks.isEmpty()) {
-      Link childLink = Link.fromSpanContext(span.getContext(), Type.CHILD);
+      Link childLink = Link.fromSpanContext(span.getContext(), Type.CHILD_LINKED_SPAN);
       for (Span linkedSpan : parentLinks) {
         linkedSpan.addLink(childLink);
-        span.addLink(Link.fromSpanContext(linkedSpan.getContext(), Type.PARENT));
+        span.addLink(Link.fromSpanContext(linkedSpan.getContext(), Type.PARENT_LINKED_SPAN));
       }
     }
   }
