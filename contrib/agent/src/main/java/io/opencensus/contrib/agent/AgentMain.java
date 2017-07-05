@@ -99,8 +99,8 @@ public final class AgentMain {
 
       // Add automatic context propagation to Executor#execute.
       agentBuilder = agentBuilder
-              .type(ExecutorInstrumentation.matcher())
-              .transform(ExecutorInstrumentation.transformer());
+              .type(ExecutorInstrumentation.createMatcher())
+              .transform(ExecutorInstrumentation.createTransformer());
 
       // TODO(stschmidt): Add automatic context propagation to Thread#start.
 

@@ -44,13 +44,13 @@ final class ExecutorInstrumentation {
     }
   }
 
-  static ElementMatcher.Junction<TypeDescription> matcher() {
+  static ElementMatcher.Junction<TypeDescription> createMatcher() {
     // TODO(stschmidt): Exclude known call sites that already propagate the context.
 
     return isSubTypeOf(Executor.class).and(not(isAbstract()));
   }
 
-  static AgentBuilder.Transformer transformer() {
+  static AgentBuilder.Transformer createTransformer() {
     return new Transformer();
   }
 
