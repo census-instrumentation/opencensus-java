@@ -18,8 +18,7 @@ package io.opencensus.contrib.agent.bootstrap;
  * instrumented bytecode.
  *
  * <p>{@code ContextManager} avoids tight coupling with the concrete implementation of the context
- * (such as {@link io.grpc.Context}) by accessing and manipulating the context through the
- * {@link ContextStrategy} interface.
+ * by accessing and manipulating the context through the {@link ContextStrategy} interface.
  *
  * <p>Both {@link ContextManager} and {@link ContextStrategy} are loaded by the bootstrap
  * classloader so that they can be used from classes loaded by the bootstrap classloader.

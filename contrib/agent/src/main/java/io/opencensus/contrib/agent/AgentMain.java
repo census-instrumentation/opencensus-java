@@ -94,8 +94,8 @@ public final class AgentMain {
     static AgentBuilder addContextPropagation(AgentBuilder agentBuilder) {
       // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
 
-      // Initialize the ContextManager with the concrete GrpcContextStrategy.
-      ContextManager.setContextStrategy(new GrpcContextStrategy());
+      // Initialize the ContextManager with the concrete ContextStrategy.
+      ContextManager.setContextStrategy(new ContextStrategyImpl());
 
       // Add automatic context propagation to Executor#execute.
       agentBuilder = agentBuilder

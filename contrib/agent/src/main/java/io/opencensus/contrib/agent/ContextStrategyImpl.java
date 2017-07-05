@@ -20,7 +20,7 @@ import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
  * Implementation of {@link ContextStrategy} for accessing and manipulating the
  * {@link io.grpc.Context}.
  */
-final class GrpcContextStrategy implements ContextStrategy {
+final class ContextStrategyImpl implements ContextStrategy {
 
   @Override
   public Runnable wrapInCurrentContext(Runnable runnable) {
