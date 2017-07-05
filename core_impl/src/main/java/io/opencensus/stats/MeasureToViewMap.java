@@ -17,12 +17,15 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
+import io.opencensus.stats.Measurement.DoubleMeasurement;
+import io.opencensus.stats.Measurement.LongMeasurement;
 import io.opencensus.stats.MutableView.MutableDistributionView;
 import io.opencensus.stats.MutableView.MutableIntervalView;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
 import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -91,13 +94,17 @@ final class MeasureToViewMap {
 
   // Records stats with a set of tags.
   synchronized void record(StatsContextImpl tags, MeasureMap stats) {
-    for (Measurement measurement : stats) {
+    Iterator<Measurement> iterator = stats.iterator();
+    while (iterator.hasNext()) {
+      Measurement measurement = iterator.next();
       Collection<MutableView> views =
           mutableMap.get(measurement.getMeasure().getName());
+      Object value = measurement.match(new GetDoubleValueFunc(), new GetLongValueFunc());
+
       for (MutableView view : views) {
-        if (measurement.getValue() instanceof Double) {
-          view.record(tags, (Double) measurement.getValue());
-        } else if (measurement.getValue() instanceof Long) {
+        if (value instanceof Double) {
+          view.record(tags, (Double) value);
+        } else if (value instanceof Long) {
           // TODO: determine if we want to support LongMeasure in v0.1
           throw new UnsupportedOperationException("Long measurements not supported.");
         } else {
@@ -109,6 +116,7 @@ final class MeasureToViewMap {
 
   private static final class CreateMutableDistributionViewFunction
       implements Function<DistributionViewDescriptor, MutableView> {
+
     private final Clock clock;
 
     CreateMutableDistributionViewFunction(Clock clock) {
@@ -123,10 +131,25 @@ final class MeasureToViewMap {
 
   private static final class CreateMutableIntervalViewFunction
       implements Function<IntervalViewDescriptor, MutableView> {
+
     @Override
     public MutableView apply(IntervalViewDescriptor viewDescriptor) {
       // TODO(songya): Create Interval Aggregations from internal Distributions.
       return MutableIntervalView.create(viewDescriptor);
+    }
+  }
+
+  private static final class GetDoubleValueFunc implements Function<DoubleMeasurement, Object> {
+    @Override
+    public Double apply(DoubleMeasurement arg) {
+      return arg.getValue();
+    }
+  }
+
+  private static final class GetLongValueFunc implements Function<LongMeasurement, Object> {
+    @Override
+    public Long apply(LongMeasurement arg) {
+      return arg.getValue();
     }
   }
 }

@@ -22,62 +22,7 @@ import java.util.NoSuchElementException;
 /**
  * A map from {@link Measure}'s to measured values.
  */
-public final class MeasureMap implements Iterable<Measurement> {
-  /**
-   * Constructs a {@link MeasureMap} from the given {@link DoubleMeasure}
-   * and associated value.
-   */
-  public static MeasureMap of(DoubleMeasure measure, double value) {
-    return builder().put(measure, value).build();
-  }
-
-  /**
-   * Constructs a {@link MeasureMap} from the given {@link DoubleMeasure}'s
-   * and associated values.
-   */
-  public static MeasureMap of(DoubleMeasure measure1, double value1,
-      DoubleMeasure measure2, double value2) {
-    return builder().put(measure1, value1).put(measure2, value2).build();
-  }
-
-  /**
-   * Constructs a {@link MeasureMap} from the given {@link DoubleMeasure}'s
-   * and associated values.
-   */
-  public static MeasureMap of(DoubleMeasure measure1, double value1,
-      DoubleMeasure measure2, double value2,
-      DoubleMeasure measure3, double value3) {
-    return builder().put(measure1, value1).put(measure2, value2).put(measure3, value3)
-        .build();
-  }
-
-  /**
-   * Constructs a {@link MeasureMap} from the given {@link LongMeasure}
-   * and associated value.
-   */
-  public static MeasureMap of(LongMeasure measure, long value) {
-    return builder().put(measure, value).build();
-  }
-
-  /**
-   * Constructs a {@link MeasureMap} from the given {@link LongMeasure}'s
-   * and associated values.
-   */
-  public static MeasureMap of(LongMeasure measure1, long value1,
-      LongMeasure measure2, long value2) {
-    return builder().put(measure1, value1).put(measure2, value2).build();
-  }
-
-  /**
-   * Constructs a {@link MeasureMap} from the given {@link LongMeasure}'s
-   * and associated values.
-   */
-  public static MeasureMap of(LongMeasure measure1, long value1,
-      LongMeasure measure2, long value2,
-      LongMeasure measure3, long value3) {
-    return builder().put(measure1, value1).put(measure2, value2).put(measure3, value3)
-        .build();
-  }
+public final class MeasureMap {
 
   /**
    * Returns a {@link Builder} for the {@link MeasureMap} class.
@@ -87,18 +32,10 @@ public final class MeasureMap implements Iterable<Measurement> {
   }
 
   /**
-   * Returns the number of measurements in this {@link MeasureMap}.
-   */
-  public int size() {
-    return measurements.size();
-  }
-
-  /**
    * Returns an {@link Iterator} over the measure/value mappings in this {@link MeasureMap}.
    * The {@code Iterator} does not support {@link Iterator#remove()}.
    */
-  @Override
-  public Iterator<Measurement> iterator() {
+  Iterator<Measurement> iterator() {
     return new MeasureMapIterator();
   }
 

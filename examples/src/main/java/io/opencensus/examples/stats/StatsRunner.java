@@ -66,7 +66,8 @@ public class StatsRunner {
         System.out.println(
             "    Current == Default + tags1 + tags2: "
                 + factory.getCurrentStatsContext().equals(tags2));
-        factory.getCurrentStatsContext().record(MeasureMap.of(M1, 0.2, M2, 0.4));
+        factory.getCurrentStatsContext().record(
+            MeasureMap.builder().put(M1, 0.2).put(M2, 0.4).build());
       }
     }
     System.out.println("Current == Default: " + factory.getCurrentStatsContext().equals(DEFAULT));

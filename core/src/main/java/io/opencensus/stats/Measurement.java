@@ -34,11 +34,6 @@ public abstract class Measurement {
    */
   public abstract Measure getMeasure();
 
-  /**
-   * Extracts the associated value.
-   */
-  public abstract Object getValue();
-
   // Prevents this class from being subclassed anywhere else.
   private Measurement() {
   }
@@ -58,7 +53,6 @@ public abstract class Measurement {
     @Override
     public abstract DoubleMeasure getMeasure();
 
-    @Override
     public abstract Double getValue();
 
     @Override
@@ -82,7 +76,6 @@ public abstract class Measurement {
     @Override
     public abstract LongMeasure getMeasure();
 
-    @Override
     public abstract Long getValue();
 
     @Override
