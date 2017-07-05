@@ -23,7 +23,6 @@ import io.opencensus.stats.Measurement.DoubleMeasurement;
 import io.opencensus.stats.Measurement.LongMeasurement;
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -60,18 +59,6 @@ public class MeasureMapTest {
         Measurement.LongMeasurement.create(M4, 8888L));
     MeasureMap metrics =
         MeasureMap.builder().put(M1, 44.4).put(M2, 66.6).put(M3, 9999L).put(M4, 8888L).build();
-    assertEquals(expected.iterator(), metrics.iterator());
-  }
-
-  @Test(expected = ComparisonFailure.class)
-  public void testOrder() {
-    ImmutableList<Measurement> expected = ImmutableList.of(
-        Measurement.DoubleMeasurement.create(M1, 44.4),
-        Measurement.DoubleMeasurement.create(M2, 66.6),
-        Measurement.LongMeasurement.create(M3, 9999L),
-        Measurement.LongMeasurement.create(M4, 8888L));
-    MeasureMap metrics =
-        MeasureMap.builder().put(M3, 9999L).put(M4, 8888L).put(M1, 44.4).put(M2, 66.6).build();
     assertEquals(expected.iterator(), metrics.iterator());
   }
 
