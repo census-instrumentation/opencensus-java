@@ -19,50 +19,37 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
-import io.opencensus.common.Timestamp;
-import io.opencensus.stats.DistributionAggregation.Range;
-import io.opencensus.stats.IntervalAggregation.Interval;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for class {@link View}.
+ * Tests for {@link View}
  */
 @RunWith(JUnit4.class)
 public final class ViewTest {
   @Test
   public void testDistributionView() {
-    DistributionAggregationDescriptor aggregationDescriptor =
-        DistributionAggregationDescriptor.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
-    final DistributionViewDescriptor viewDescriptor =
-        DistributionViewDescriptor.create(
-            name, description, measure, aggregationDescriptor, tagKeys);
-    final List<DistributionAggregation> aggregations = Arrays.asList(
-        DistributionAggregation.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
-            Arrays.asList(1L, 1L, 1L, 1L, 1L)),
-        DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), tags2,
-            Arrays.asList(2L, 2L, 2L, 2L, 2L)));
-    final Timestamp start = Timestamp.fromMillis(1000);
-    final Timestamp end = Timestamp.fromMillis(2000);
-    final View view = DistributionView.create(viewDescriptor, aggregations, start, end);
+    DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
+    final View viewDescriptor = DistributionView.create(
+        name, description, measure, dAggrDescriptor, keys);
 
-    assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
-    assertTrue(view.match(
+    assertThat(viewDescriptor.getViewName()).isEqualTo(name);
+    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
+    assertThat(viewDescriptor.getDescription()).isEqualTo(description);
+    assertThat(viewDescriptor.getMeasure().getName())
+        .isEqualTo(measure.getName());
+    assertThat(viewDescriptor.getDimensions()).hasSize(2);
+    assertThat(viewDescriptor.getDimensions().get(0).toString()).isEqualTo("foo");
+    assertThat(viewDescriptor.getDimensions().get(1).toString()).isEqualTo("bar");
+    assertTrue(viewDescriptor.match(
         new Function<DistributionView, Boolean> () {
           @Override public Boolean apply(DistributionView dView) {
-            return dView == view
-                && dView.getViewDescriptor().equals(viewDescriptor)
-                && shallowListEquals(dView.getDistributionAggregations(), aggregations)
-                && dView.getStart().equals(start)
-                && dView.getEnd().equals(end);
+            return dView == viewDescriptor;
           }
         },
         new Function<IntervalView, Boolean> () {
@@ -74,20 +61,20 @@ public final class ViewTest {
 
   @Test
   public void testIntervalView() {
-    IntervalAggregationDescriptor aggregationDescriptor =
-        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111)));
-    final IntervalViewDescriptor viewDescriptor =
-        IntervalViewDescriptor.create(
-            name, description, measure, aggregationDescriptor, tagKeys);
-    final List<IntervalAggregation> aggregations = Arrays.asList(
-        IntervalAggregation.create(tags1, Arrays.asList(
-            Interval.create(Duration.fromMillis(111), 10, 100))),
-        IntervalAggregation.create(tags2, Arrays.asList(
-            Interval.create(Duration.fromMillis(111), 10, 100))));
+    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
+        Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
+    final View viewDescriptor = IntervalView.create(
+        name, description, measure, iAggrDescriptor, keys);
 
-    final View view = IntervalView.create(viewDescriptor, aggregations);
-    assertThat(view.getViewDescriptor()).isEqualTo(viewDescriptor);
-    assertTrue(view.match(
+    assertThat(viewDescriptor.getViewName()).isEqualTo(name);
+    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
+    assertThat(viewDescriptor.getDescription()).isEqualTo(description);
+    assertThat(viewDescriptor.getMeasure().getName())
+        .isEqualTo(measure.getName());
+    assertThat(viewDescriptor.getDimensions()).hasSize(2);
+    assertThat(viewDescriptor.getDimensions().get(0).toString()).isEqualTo("foo");
+    assertThat(viewDescriptor.getDimensions().get(1).toString()).isEqualTo("bar");
+    assertTrue(viewDescriptor.match(
         new Function<DistributionView, Boolean> () {
           @Override public Boolean apply(DistributionView dView) {
             return false;
@@ -95,98 +82,100 @@ public final class ViewTest {
         },
         new Function<IntervalView, Boolean> () {
           @Override public Boolean apply(IntervalView iView) {
-            return iView == view
-                && iView.getViewDescriptor().equals(viewDescriptor)
-                && shallowListEquals(iView.getIntervalAggregations(), aggregations);
+            return iView == viewDescriptor;
           }
         }));
   }
 
   @Test
   public void testViewEquals() {
-    DistributionViewDescriptor dViewDescriptor =
-        DistributionViewDescriptor.create(
-            name,
-            description,
-            measure,
-            DistributionAggregationDescriptor.create(Arrays.asList(10.0)),
-            tagKeys);
-    List<DistributionAggregation> dAggregations =
-        Arrays.asList(
-            DistributionAggregation.create(
-                5, 5.0, 15.0, Range.create(1.0, 5.0), tags1, Arrays.asList(1L)));
-    IntervalViewDescriptor iViewDescriptor =
-        IntervalViewDescriptor.create(
-            name,
-            description,
-            measure,
-            IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111))),
-            tagKeys);
-    List<IntervalAggregation> iAggregations =
-        Arrays.asList(
-            IntervalAggregation.create(
-                tags1, Arrays.asList(Interval.create(Duration.fromMillis(111), 10, 100))));
-
+    DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
+    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
+        Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
     new EqualsTester()
         .addEqualityGroup(
             DistributionView.create(
-                dViewDescriptor,
-                dAggregations,
-                Timestamp.fromMillis(1000),
-                Timestamp.fromMillis(2000)),
+                name, description, measure, dAggrDescriptor, keys),
             DistributionView.create(
-                dViewDescriptor,
-                dAggregations,
-                Timestamp.fromMillis(1000),
-                Timestamp.fromMillis(2000)))
+                name, description, measure, dAggrDescriptor, keys))
         .addEqualityGroup(
             DistributionView.create(
-                dViewDescriptor,
-                dAggregations,
-                Timestamp.fromMillis(1000),
-                Timestamp.fromMillis(3000)))
+                name, description + 2, measure, dAggrDescriptor, keys))
         .addEqualityGroup(
-            IntervalView.create(iViewDescriptor, iAggregations),
-            IntervalView.create(iViewDescriptor, iAggregations))
+            IntervalView.create(
+                name, description, measure, iAggrDescriptor, keys),
+            IntervalView.create(
+                name, description, measure, iAggrDescriptor, keys))
         .addEqualityGroup(
-            IntervalView.create(iViewDescriptor, Collections.<IntervalAggregation>emptyList()))
+            IntervalView.create(
+                name, description + 2, measure, iAggrDescriptor, keys))
         .testEquals();
   }
 
-  // tag keys
-  private static final TagKey K1 = TagKey.create("k1");
-  private static final TagKey K2 = TagKey.create("k2");
-  private final List<TagKey> tagKeys = Arrays.asList(K1, K2);
-
-  // tag values
-  private static final TagValue V1 = TagValue.create("v1");
-  private static final TagValue V2 = TagValue.create("v2");
-  private static final TagValue V10 = TagValue.create("v10");
-  private static final TagValue V20 = TagValue.create("v20");
-
-  // tags
-  List<Tag> tags1 = Arrays.asList(Tag.create(K1, V1), Tag.create(K2, V2));
-  List<Tag> tags2 = Arrays.asList(Tag.create(K1, V10), Tag.create(K2, V20));
-
-  // name
-  private final String name = "test-view-descriptor";
-  // description
-  private final String description = "test-view-descriptor description";
-  // measurement descriptor
-  private final Measure measure = Measure.DoubleMeasure.create(
-      "measurement-descriptor",
-      "measurement-descriptor description",
-      "1");
-
-  private static final <T> boolean shallowListEquals(List<T> l1, List <T> l2) {
-    if (l1.size() != l2.size()) {
-      return false;
-    }
-    for (int i = 0; i < l1.size(); i++) {
-      if (l1.get(i) != l2.get(i)) {
-        return false;
-      }
-    }
-    return true;
+  @Test(expected = NullPointerException.class)
+  public void preventNullDistributionViewName() {
+    DistributionView.create(
+        (View.Name) null,
+        description,
+        measure,
+        DistributionAggregationDescriptor.create(),
+        keys);
   }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullDistributionViewStringName() {
+    DistributionView.create(
+        (String) null,
+        description,
+        measure,
+        DistributionAggregationDescriptor.create(),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullIntervalViewName() {
+    IntervalView.create(
+        (View.Name) null,
+        description,
+        measure,
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        keys);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullIntervalViewStringName() {
+    IntervalView.create(
+        (String) null,
+        description,
+        measure,
+        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        keys);
+  }
+
+  @Test
+  public void testViewName() {
+    assertThat(View.Name.create("my name").asString()).isEqualTo("my name");
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void preventNullNameString() {
+    View.Name.create(null);
+  }
+
+  @Test
+  public void testViewNameEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            View.Name.create("view-1"), View.Name.create("view-1"))
+        .addEqualityGroup(View.Name.create("view-2"))
+        .testEquals();
+  }
+
+  private final View.Name name = View.Name.create("test-view-name");
+  private final String description = "test-view-name description";
+  private final Measure measure = Measure.DoubleMeasure.create(
+      "measurement",
+      "measurement description",
+      "1");
+  private final List<TagKey> keys = Arrays.asList(TagKey.create("foo"), TagKey.create("bar"));
 }

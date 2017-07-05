@@ -17,8 +17,8 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.stats.View.IntervalView;
+import io.opencensus.stats.ViewData.DistributionViewData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,18 +26,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * A mutable version of {@link View}, used for recording stats and start/end time.
+ * A mutable version of {@link ViewData}, used for recording stats and start/end time.
  */
-abstract class MutableView {
+abstract class MutableViewData {
 
   // TODO(songya): might want to update the default tag value later.
   @VisibleForTesting
   static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
 
   /**
-   * The {@link ViewDescriptor} associated with this {@link View}.
+   * The {@link View} associated with this {@link ViewData}.
    */
-  abstract ViewDescriptor getViewDescriptor();
+  abstract View getView();
 
   /**
    * Record stats with the given tags.
@@ -45,36 +45,36 @@ abstract class MutableView {
   abstract void record(StatsContextImpl tags, double value);
 
   /**
-   * Convert this {@link MutableView} to {@link View}.
+   * Convert this {@link MutableViewData} to {@link ViewData}.
    */
-  abstract View toView(Clock clock);
+  abstract ViewData toViewData(Clock clock);
 
-  private MutableView() {
+  private MutableViewData() {
   }
 
   /**
-   * A {@link MutableView} for recording stats on distribution-based aggregations.
+   * A {@link MutableViewData} for recording stats on distribution-based aggregations.
    */
-  static final class MutableDistributionView extends MutableView {
+  static final class MutableDistributionViewData extends MutableViewData {
 
     /**
-     * Constructs a new {@link MutableDistributionView}.
+     * Constructs a new {@link MutableDistributionViewData}.
      */
-    static MutableDistributionView create(
-        DistributionViewDescriptor distributionViewDescriptor, Timestamp start) {
-      return new MutableDistributionView(distributionViewDescriptor, start);
+    static MutableDistributionViewData create(
+        DistributionView distributionView, Timestamp start) {
+      return new MutableDistributionViewData(distributionView, start);
     }
 
     @Override
-    ViewDescriptor getViewDescriptor() {
-      return distributionViewDescriptor;
+    View getView() {
+      return distributionView;
     }
 
     @Override
     void record(StatsContextImpl context, double value) {
       Map<TagKey, TagValue> tags = context.tags;
       // TagKeys need to be unique within one view descriptor.
-      final List<TagKey> tagKeys = this.distributionViewDescriptor.getTagKeys();
+      final List<TagKey> tagKeys = this.distributionView.getDimensions();
       final List<TagValue> tagValues = new ArrayList<TagValue>(tagKeys.size());
 
       // Record all the measures in a "Greedy" way.
@@ -91,7 +91,7 @@ abstract class MutableView {
 
       if (!tagValueDistributionMap.containsKey(tagValues)) {
         final List<Double> bucketBoundaries =
-            this.distributionViewDescriptor.getDistributionAggregationDescriptor()
+            this.distributionView.getDistributionAggregationDescriptor()
                 .getBucketBoundaries();
         final MutableDistribution distribution =
             bucketBoundaries == null ? MutableDistribution.create()
@@ -102,7 +102,7 @@ abstract class MutableView {
     }
 
     @Override
-    final View toView(Clock clock) {
+    final ViewData toViewData(Clock clock) {
       final List<DistributionAggregation> distributionAggregations =
           new ArrayList<DistributionAggregation>();
       for (Entry<List<TagValue>, MutableDistribution> entry : tagValueDistributionMap.entrySet()) {
@@ -116,7 +116,7 @@ abstract class MutableView {
                 generateTags(entry.getKey()), distribution.getBucketCounts());
         distributionAggregations.add(distributionAggregation);
       }
-      return DistributionView.create(distributionViewDescriptor, distributionAggregations, start,
+      return DistributionViewData.create(distributionView, distributionAggregations, start,
           clock.now());
     }
 
@@ -127,21 +127,21 @@ abstract class MutableView {
       return start;
     }
 
-    private final DistributionViewDescriptor distributionViewDescriptor;
+    private final DistributionView distributionView;
     private final Map<List<TagValue>, MutableDistribution> tagValueDistributionMap =
         new HashMap<List<TagValue>, MutableDistribution>();
     private final Timestamp start;
 
-    private MutableDistributionView(
-        DistributionViewDescriptor distributionViewDescriptor, Timestamp start) {
-      this.distributionViewDescriptor = distributionViewDescriptor;
+    private MutableDistributionViewData(
+        DistributionView distributionView, Timestamp start) {
+      this.distributionView = distributionView;
       this.start = start;
     }
 
     private final List<Tag> generateTags(List<TagValue> tagValues) {
       final List<Tag> tags = new ArrayList<Tag>(tagValues.size());
       int i = 0;
-      for (TagKey tagKey : this.distributionViewDescriptor.getTagKeys()) {
+      for (TagKey tagKey : this.distributionView.getDimensions()) {
         tags.add(Tag.create(tagKey, tagValues.get(i)));
         ++i;
       }
@@ -156,19 +156,19 @@ abstract class MutableView {
   }
 
   /**
-   * A {@link MutableView} for recording stats on interval-based aggregations.
+   * A {@link MutableViewData} for recording stats on interval-based aggregations.
    */
-  static final class MutableIntervalView extends MutableView {
+  static final class MutableIntervalViewData extends MutableViewData {
 
     /**
-     * Constructs a new {@link MutableIntervalView}.
+     * Constructs a new {@link MutableIntervalViewData}.
      */
-    static MutableIntervalView create(IntervalViewDescriptor viewDescriptor) {
+    static MutableIntervalViewData create(IntervalView view) {
       throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    ViewDescriptor getViewDescriptor() {
+    View getView() {
       throw new UnsupportedOperationException("Not implemented.");
     }
 
@@ -178,7 +178,7 @@ abstract class MutableView {
     }
 
     @Override
-    final View toView(Clock clock) {
+    final ViewData toViewData(Clock clock) {
       throw new UnsupportedOperationException("Not implemented.");
     }
   }

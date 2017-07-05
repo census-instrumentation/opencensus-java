@@ -19,8 +19,8 @@ import static org.junit.Assert.fail;
 import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.View.IntervalView;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
+import io.opencensus.stats.ViewData.DistributionViewData;
+import io.opencensus.stats.ViewData.IntervalViewData;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import org.junit.Test;
@@ -31,44 +31,44 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class MeasureToViewMapTest {
 
-  private static final Measure MEASUREMENT_DESCRIPTOR =
+  private static final Measure MEASURE =
       Measure.DoubleMeasure.create(
           "my measurement",
           "measurement description",
           "By");
 
-  private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
+  private static final View.Name VIEW_NAME = View.Name.create("my view");
 
-  private static final ViewDescriptor VIEW_DESCRIPTOR =
-      DistributionViewDescriptor.create(
+  private static final View VIEW =
+      DistributionView.create(
           VIEW_NAME,
           "view description",
-          MEASUREMENT_DESCRIPTOR,
+          MEASURE,
           DistributionAggregationDescriptor.create(),
           Arrays.asList(TagKey.create("my key")));
 
   @Test
-  public void testRegisterAndGetDistributionView() {
-    MeasureToViewMap measureToViewMap =
+  public void testRegisterAndGetDistributionViewData() {
+    MeasureToViewMap measureToViewDataMap =
         new MeasureToViewMap();
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
-    measureToViewMap.registerView(VIEW_DESCRIPTOR, clock);
+    measureToViewDataMap.registerView(VIEW, clock);
     clock.setTime(Timestamp.create(30, 40));
-    View actual = measureToViewMap.getView(VIEW_NAME, clock);
+    ViewData actual = measureToViewDataMap.getView(VIEW_NAME, clock);
     actual.match(
-        new Function<View.DistributionView, Void>() {
+        new Function<ViewData.DistributionViewData, Void>() {
           @Override
-          public Void apply(DistributionView view) {
-            assertThat(view.getViewDescriptor()).isEqualTo(VIEW_DESCRIPTOR);
+          public Void apply(DistributionViewData view) {
+            assertThat(view.getView()).isEqualTo(VIEW);
             assertThat(view.getStart()).isEqualTo(Timestamp.create(10, 20));
             assertThat(view.getEnd()).isEqualTo(Timestamp.create(30, 40));
             assertThat(view.getDistributionAggregations()).isEmpty();
             return null;
           }
         },
-        new Function<View.IntervalView, Void>() {
+        new Function<ViewData.IntervalViewData, Void>() {
           @Override
-          public Void apply(IntervalView view) {
+          public Void apply(IntervalViewData view) {
             fail("Wrong view type.");
             return null;
           }

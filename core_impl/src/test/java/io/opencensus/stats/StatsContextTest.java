@@ -21,8 +21,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
-import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.View.IntervalView;
+import io.opencensus.stats.ViewData.DistributionViewData;
+import io.opencensus.stats.ViewData.IntervalViewData;
 import io.opencensus.testing.common.TestClock;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -111,21 +111,20 @@ public class StatsContextTest {
   @Test
   public void testRecord() {
     viewManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    View beforeView =
-        viewManager.getView(
-            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    beforeView.match(
-        new Function<DistributionView, Void>() {
+    ViewData beforeViewData =
+        viewManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+    beforeViewData.match(
+        new Function<DistributionViewData, Void>() {
           @Override
-          public Void apply(DistributionView view) {
+          public Void apply(DistributionViewData view) {
             assertThat(view.getDistributionAggregations()).isEmpty();
             return null;
           }
         },
-        new Function<IntervalView, Void>() {
+        new Function<IntervalViewData, Void>() {
           @Override
-          public Void apply(IntervalView view) {
-            fail("Expected a DistributionView");
+          public Void apply(IntervalViewData view) {
+            fail("Expected a DistributionViewData");
             return null;
           }
         });
@@ -135,13 +134,13 @@ public class StatsContextTest {
     MeasurementMap measurements =
         MeasurementMap.of(RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1);
     context.record(measurements);
-    View afterView =
+    ViewData afterViewData =
         viewManager.getView(
             RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    afterView.match(
-        new Function<DistributionView, Void>() {
+    afterViewData.match(
+        new Function<DistributionViewData, Void>() {
           @Override
-          public Void apply(DistributionView view) {
+          public Void apply(DistributionViewData view) {
             assertThat(view.getDistributionAggregations()).hasSize(1);
             DistributionAggregation agg = view.getDistributionAggregations().get(0);
             assertThat(agg.getTags())
@@ -153,10 +152,10 @@ public class StatsContextTest {
             return null;
           }
         },
-        new Function<IntervalView, Void>() {
+        new Function<IntervalViewData, Void>() {
           @Override
-          public Void apply(IntervalView view) {
-            fail("Expected a DistributionView");
+          public Void apply(IntervalViewData view) {
+            fail("Expected a DistributionViewData");
             return null;
           }
         });
