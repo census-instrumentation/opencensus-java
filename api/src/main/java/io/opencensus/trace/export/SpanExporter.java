@@ -16,8 +16,6 @@ package io.opencensus.trace.export;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.base.TraceOptions;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -83,44 +81,5 @@ public abstract class SpanExporter {
 
     @Override
     public void unregisterHandler(String name) {}
-  }
-
-  /** Implementation of the {@link Handler} which logs all the exported {@link SpanData}. */
-  @ThreadSafe
-  public static final class LoggingHandler extends Handler {
-
-    private static final Logger logger = Logger.getLogger(LoggingHandler.class.getName());
-    private static final String REGISTER_NAME =
-        "io.opencensus.trace.export.SpanExporter$LoggingHandler";
-    private static final LoggingHandler INSTANCE = new LoggingHandler();
-
-    private LoggingHandler() {}
-
-    /**
-     * Registers the {@code LoggingHandler} to the {@code ExportComponent}.
-     *
-     * @param spanExporter the instance of the {@code SpanExporter} where this service is
-     *     registered.
-     */
-    public static void register(SpanExporter spanExporter) {
-      spanExporter.registerHandler(REGISTER_NAME, INSTANCE);
-    }
-
-    /**
-     * Unregisters the {@code LoggingHandler} from the {@code ExportComponent}.
-     *
-     * @param spanExporter the instance of the {@code SpanExporter} from where this service is
-     *     unregistered.
-     */
-    public static void unregister(SpanExporter spanExporter) {
-      spanExporter.unregisterHandler(REGISTER_NAME);
-    }
-
-    @Override
-    public void export(Collection<SpanData> spanDataList) {
-      for (SpanData spanData : spanDataList) {
-        logger.log(Level.INFO, spanData.toString());
-      }
-    }
   }
 }

@@ -17,7 +17,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import io.opencensus.trace.export.SpanExporter.LoggingHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,9 +24,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link ExportComponent}. */
+/** Unit tests for {@link LoggingExportHandler}. */
 @RunWith(JUnit4.class)
-public class SpanExporterTest {
+public class LoggingExportHandlerTest {
   @Mock private SpanExporter spanExporter;
 
   @Before
@@ -37,13 +36,11 @@ public class SpanExporterTest {
 
   @Test
   public void registerUnregisterLoggingService() {
-    LoggingHandler.register(spanExporter);
+    LoggingExportHandler.register(spanExporter);
     verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.trace.export.SpanExporter$LoggingHandler"),
-            any(LoggingHandler.class));
-    LoggingHandler.unregister(spanExporter);
-    verify(spanExporter)
-        .unregisterHandler(eq("io.opencensus.trace.export.SpanExporter$LoggingHandler"));
+            eq("io.opencensus.trace.export.LoggingExportHandler"), any(LoggingExportHandler.class));
+    LoggingExportHandler.unregister(spanExporter);
+    verify(spanExporter).unregisterHandler(eq("io.opencensus.trace.export.LoggingExportHandler"));
   }
 }
