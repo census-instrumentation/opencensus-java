@@ -17,8 +17,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
-import io.opencensus.stats.Measurement.DoubleMeasurement;
-import io.opencensus.stats.Measurement.LongMeasurement;
+import io.opencensus.stats.Measurement.MeasurementDouble;
+import io.opencensus.stats.Measurement.MeasurementLong;
 import io.opencensus.stats.MutableView.MutableDistributionView;
 import io.opencensus.stats.MutableView.MutableIntervalView;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
@@ -129,9 +129,9 @@ final class MeasureToViewMap {
     }
   }
 
-  private static final class RecordDoubleValueFunc implements Function<DoubleMeasurement, Void> {
+  private static final class RecordDoubleValueFunc implements Function<MeasurementDouble, Void> {
     @Override
-    public Void apply(DoubleMeasurement arg) {
+    public Void apply(MeasurementDouble arg) {
       view.record(tags, arg.getValue());
       return null;
     }
@@ -145,9 +145,9 @@ final class MeasureToViewMap {
     }
   }
 
-  private static final class RecordLongValueFunc implements Function<LongMeasurement, Void> {
+  private static final class RecordLongValueFunc implements Function<MeasurementLong, Void> {
     @Override
-    public Void apply(LongMeasurement arg) {
+    public Void apply(MeasurementLong arg) {
       // TODO: determine if we want to support LongMeasure in v0.1
       throw new UnsupportedOperationException("Long measurements not supported.");
     }

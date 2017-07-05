@@ -32,7 +32,7 @@ import org.junit.runners.JUnit4;
 public class MeasureToViewMapTest {
 
   private static final Measure MEASUREMENT_DESCRIPTOR =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "my measurement",
           "measurement description",
           "By");

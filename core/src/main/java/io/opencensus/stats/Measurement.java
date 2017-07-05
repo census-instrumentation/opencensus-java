@@ -15,8 +15,8 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
-import io.opencensus.stats.Measure.DoubleMeasure;
-import io.opencensus.stats.Measure.LongMeasure;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 import javax.annotation.concurrent.Immutable;
 
 /** Immutable representation of a Measurement. */
@@ -27,7 +27,7 @@ public abstract class Measurement {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<? super DoubleMeasurement, T> p0, Function<? super LongMeasurement, T> p1);
+      Function<? super MeasurementDouble, T> p0, Function<? super MeasurementLong, T> p1);
 
   /**
    * Extracts the measured {@link Measure}.
@@ -40,52 +40,48 @@ public abstract class Measurement {
 
   @Immutable
   @AutoValue
-  public abstract static class DoubleMeasurement extends Measurement {
-
-    DoubleMeasurement() {
-    }
+  public abstract static class MeasurementDouble extends Measurement {
+    MeasurementDouble() {}
 
     /**
-     * Constructs a new {@link DoubleMeasurement}.
+     * Constructs a new {@link MeasurementDouble}.
      */
-    public static DoubleMeasurement create(DoubleMeasure measure, double value) {
-      return new AutoValue_Measurement_DoubleMeasurement(measure, value);
+    public static MeasurementDouble create(MeasureDouble measure, double value) {
+      return new AutoValue_Measurement_MeasurementDouble(measure, value);
     }
 
     @Override
-    public abstract DoubleMeasure getMeasure();
+    public abstract MeasureDouble getMeasure();
 
     public abstract Double getValue();
 
     @Override
     public <T> T match(
-        Function<? super DoubleMeasurement, T> p0, Function<? super LongMeasurement, T> p1) {
+        Function<? super MeasurementDouble, T> p0, Function<? super MeasurementLong, T> p1) {
       return p0.apply(this);
     }
   }
 
   @Immutable
   @AutoValue
-  public abstract static class LongMeasurement extends Measurement {
-
-    LongMeasurement() {
-    }
+  public abstract static class MeasurementLong extends Measurement {
+    MeasurementLong() {}
 
     /**
-     * Constructs a new {@link LongMeasurement}.
+     * Constructs a new {@link MeasurementLong}.
      */
-    public static LongMeasurement create(LongMeasure measure, long value) {
-      return new AutoValue_Measurement_LongMeasurement(measure, value);
+    public static MeasurementLong create(MeasureLong measure, long value) {
+      return new AutoValue_Measurement_MeasurementLong(measure, value);
     }
 
     @Override
-    public abstract LongMeasure getMeasure();
+    public abstract MeasureLong getMeasure();
 
     public abstract Long getValue();
 
     @Override
     public <T> T match(
-        Function<? super DoubleMeasurement, T> p0, Function<? super LongMeasurement, T> p1) {
+        Function<? super MeasurementDouble, T> p0, Function<? super MeasurementLong, T> p1) {
       return p1.apply(this);
     }
   }

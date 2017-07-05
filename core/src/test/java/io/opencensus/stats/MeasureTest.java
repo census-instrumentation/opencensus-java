@@ -49,8 +49,8 @@ public final class MeasureTest {
   }
 
   @Test
-  public void testDoubleMeasureComponents() {
-    Measure measurement = Measure.DoubleMeasure.create(
+  public void testMeasureDoubleComponents() {
+    Measure measurement = Measure.MeasureDouble.create(
         "Foo",
         "The description of Foo",
         "Mbit/s");
@@ -60,8 +60,8 @@ public final class MeasureTest {
   }
 
   @Test
-  public void testLongMeasureComponents() {
-    Measure measurement = Measure.LongMeasure.create(
+  public void testMeasureLongComponents() {
+    Measure measurement = Measure.MeasureLong.create(
         "Bar",
         "The description of Bar",
         "1");
@@ -71,19 +71,19 @@ public final class MeasureTest {
   }
 
   @Test
-  public void testDoubleMeasureEquals() {
+  public void testMeasureDoubleEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            Measure.DoubleMeasure.create(
+            Measure.MeasureDouble.create(
                 "name",
                 "description",
                 "bit/s"),
-            Measure.DoubleMeasure.create(
+            Measure.MeasureDouble.create(
                 "name",
                 "description",
                 "bit/s"))
         .addEqualityGroup(
-            Measure.DoubleMeasure.create(
+            Measure.MeasureDouble.create(
                 "name",
                 "description 2",
                 "bit/s"))
@@ -91,19 +91,19 @@ public final class MeasureTest {
   }
 
   @Test
-  public void testLongMeasureEquals() {
+  public void testMeasureLongEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            Measure.LongMeasure.create(
+            Measure.MeasureLong.create(
                 "name",
                 "description",
                 "bit/s"),
-            Measure.LongMeasure.create(
+            Measure.MeasureLong.create(
                 "name",
                 "description",
                 "bit/s"))
         .addEqualityGroup(
-            Measure.LongMeasure.create(
+            Measure.MeasureLong.create(
                 "name",
                 "description 2",
                 "bit/s"))
@@ -111,12 +111,12 @@ public final class MeasureTest {
   }
 
   @Test
-  public void testDoubleMeasureIsNotEqualToLongMeasure() {
-    assertThat(Measure.DoubleMeasure.create("name", "description", "bit/s"))
-        .isNotEqualTo(Measure.LongMeasure.create("name", "description", "bit/s"));
+  public void testMeasureDoubleIsNotEqualToMeasureLong() {
+    assertThat(Measure.MeasureDouble.create("name", "description", "bit/s"))
+        .isNotEqualTo(Measure.MeasureLong.create("name", "description", "bit/s"));
   }
 
   private static final Measure makeSimpleMeasure(String name) {
-    return Measure.DoubleMeasure.create(name, name + " description", "1");
+    return Measure.MeasureDouble.create(name, name + " description", "1");
   }
 }

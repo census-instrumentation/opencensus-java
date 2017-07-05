@@ -173,7 +173,7 @@ public final class ViewTest {
   // description
   private final String description = "test-view-descriptor description";
   // measurement descriptor
-  private final Measure measure = Measure.DoubleMeasure.create(
+  private final Measure measure = Measure.MeasureDouble.create(
       "measurement-descriptor",
       "measurement-descriptor description",
       "1");

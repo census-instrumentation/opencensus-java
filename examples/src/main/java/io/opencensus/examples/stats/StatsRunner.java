@@ -14,7 +14,7 @@
 package io.opencensus.examples.stats;
 
 import io.opencensus.common.NonThrowingCloseable;
-import io.opencensus.stats.Measure.DoubleMeasure;
+import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsContext;
@@ -38,10 +38,10 @@ public class StatsRunner {
   private static final TagValue V4 = TagValue.create("v4");
 
   private static final String UNIT = "1";
-  private static final DoubleMeasure M1 =
-      DoubleMeasure.create("m1", "1st test metric", UNIT);
-  private static final DoubleMeasure M2 =
-      DoubleMeasure.create("m2", "2nd test metric", UNIT);
+  private static final MeasureDouble M1 =
+      MeasureDouble.create("m1", "1st test metric", UNIT);
+  private static final MeasureDouble M2 =
+      MeasureDouble.create("m2", "2nd test metric", UNIT);
 
   private static final StatsContextFactory factory = Stats.getStatsContextFactory();
   private static final StatsContext DEFAULT = factory.getDefault();

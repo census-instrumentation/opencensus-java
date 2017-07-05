@@ -173,7 +173,7 @@ public final class ViewDescriptorTest {
 
   private final ViewDescriptor.Name name = ViewDescriptor.Name.create("test-view-name");
   private final String description = "test-view-name description";
-  private final Measure measure = Measure.DoubleMeasure.create(
+  private final Measure measure = Measure.MeasureDouble.create(
       "measurement",
       "measurement description",
       "1");
