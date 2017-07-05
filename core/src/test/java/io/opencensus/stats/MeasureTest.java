@@ -113,7 +113,7 @@ public final class MeasureTest {
   @Test
   public void testDoubleMeasureIsNotEqualToLongMeasure() {
     assertThat(Measure.DoubleMeasure.create("name", "description", "bit/s"))
-        .isNotEqualTo(Measure.LongMeasure.create("name", "description 2", "bit/s"));
+        .isNotEqualTo(Measure.LongMeasure.create("name", "description", "bit/s"));
   }
 
   private static final Measure makeSimpleMeasure(String name) {
