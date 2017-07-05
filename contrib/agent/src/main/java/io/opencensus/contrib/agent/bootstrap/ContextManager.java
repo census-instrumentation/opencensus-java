@@ -22,7 +22,7 @@ package io.opencensus.contrib.agent.bootstrap;
  *
  * <p>Both {@link ContextManager} and {@link ContextStrategy} are loaded by the bootstrap
  * classloader so that they can be used from classes loaded by the bootstrap classloader.
- * A concrete implementations of {@link ContextStrategy} will be loaded by the system classloader.
+ * A concrete implementation of {@link ContextStrategy} will be loaded by the system classloader.
  * This allows for using the same context implementation as the instrumented application.
  *
  * <p>{@code ContextManager} is implemented as a static class to allow for easy and fast use from
