@@ -91,7 +91,7 @@ public class SpanImplTest {
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
-    span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD));
+    span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
     span.end();
     exception.expect(IllegalStateException.class);
     span.toSpanData();
@@ -117,7 +117,7 @@ public class SpanImplTest {
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
-    span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD));
+    span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
     assertThat(spanData.getAttributes().getAttributeMap()).isEmpty();
@@ -152,7 +152,7 @@ public class SpanImplTest {
         NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
     span.addNetworkEvent(networkEvent);
     testClock.advanceTime(Duration.create(0, 100));
-    Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD);
+    Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN);
     span.addLink(link);
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getContext()).isEqualTo(spanContext);
@@ -207,7 +207,7 @@ public class SpanImplTest {
     NetworkEvent networkEvent =
         NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
     span.addNetworkEvent(networkEvent);
-    Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD);
+    Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN);
     span.addLink(link);
     testClock.advanceTime(Duration.create(0, 100));
     span.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
@@ -450,7 +450,7 @@ public class SpanImplTest {
             startEndHandler,
             timestampConverter,
             testClock);
-    Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD);
+    Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN);
     for (int i = 0; i < 2 * maxNumberOfLinks; i++) {
       span.addLink(link);
     }

@@ -33,9 +33,9 @@ public abstract class Link {
   /** The relationship with the linked {@code Span} relative to the current {@code Span}. */
   public enum Type {
     /** When the linked {@code Span} is a child of the current {@code Span}. */
-    CHILD,
+    CHILD_LINKED_SPAN,
     /** When the linked {@code Span} is a parent of the current {@code Span}. */
-    PARENT
+    PARENT_LINKED_SPAN
   }
 
   /**

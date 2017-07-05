@@ -85,7 +85,7 @@ public class SpanDataTest {
     networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp1, recvNetworkEvent));
     networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp2, sentNetworkEvent));
     networkEvents = TimedEvents.create(networkEventsList, 3);
-    linksList.add(Link.fromSpanContext(spanContext, Type.CHILD));
+    linksList.add(Link.fromSpanContext(spanContext, Type.CHILD_LINKED_SPAN));
     links = Links.create(linksList, 0);
   }
 

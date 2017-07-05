@@ -33,18 +33,18 @@ public class LinkTest {
 
   @Test
   public void fromSpanContext_ChildLink() {
-    Link link = Link.fromSpanContext(spanContext, Type.CHILD);
+    Link link = Link.fromSpanContext(spanContext, Type.CHILD_LINKED_SPAN);
     assertThat(link.getTraceId()).isEqualTo(spanContext.getTraceId());
     assertThat(link.getSpanId()).isEqualTo(spanContext.getSpanId());
-    assertThat(link.getType()).isEqualTo(Type.CHILD);
+    assertThat(link.getType()).isEqualTo(Type.CHILD_LINKED_SPAN);
   }
 
   @Test
   public void fromSpanContext_ParentLink() {
-    Link link = Link.fromSpanContext(spanContext, Type.PARENT);
+    Link link = Link.fromSpanContext(spanContext, Type.PARENT_LINKED_SPAN);
     assertThat(link.getTraceId()).isEqualTo(spanContext.getTraceId());
     assertThat(link.getSpanId()).isEqualTo(spanContext.getSpanId());
-    assertThat(link.getType()).isEqualTo(Type.PARENT);
+    assertThat(link.getType()).isEqualTo(Type.PARENT_LINKED_SPAN);
   }
 
   @Test
@@ -52,25 +52,25 @@ public class LinkTest {
     EqualsTester tester = new EqualsTester();
     tester
         .addEqualityGroup(
-            Link.fromSpanContext(spanContext, Type.PARENT),
-            Link.fromSpanContext(spanContext, Type.PARENT))
+            Link.fromSpanContext(spanContext, Type.PARENT_LINKED_SPAN),
+            Link.fromSpanContext(spanContext, Type.PARENT_LINKED_SPAN))
         .addEqualityGroup(
-            Link.fromSpanContext(spanContext, Type.CHILD),
-            Link.fromSpanContext(spanContext, Type.CHILD))
-        .addEqualityGroup(Link.fromSpanContext(SpanContext.INVALID, Type.CHILD))
-        .addEqualityGroup(Link.fromSpanContext(SpanContext.INVALID, Type.PARENT));
+            Link.fromSpanContext(spanContext, Type.CHILD_LINKED_SPAN),
+            Link.fromSpanContext(spanContext, Type.CHILD_LINKED_SPAN))
+        .addEqualityGroup(Link.fromSpanContext(SpanContext.INVALID, Type.CHILD_LINKED_SPAN))
+        .addEqualityGroup(Link.fromSpanContext(SpanContext.INVALID, Type.PARENT_LINKED_SPAN));
     tester.testEquals();
   }
 
   @Test
   public void link_ToString() {
-    Link link = Link.fromSpanContext(spanContext, Type.CHILD);
+    Link link = Link.fromSpanContext(spanContext, Type.CHILD_LINKED_SPAN);
     assertThat(link.toString()).contains(spanContext.getTraceId().toString());
     assertThat(link.toString()).contains(spanContext.getSpanId().toString());
-    assertThat(link.toString()).contains("CHILD");
-    link = Link.fromSpanContext(spanContext, Type.PARENT);
+    assertThat(link.toString()).contains("CHILD_LINKED_SPAN");
+    link = Link.fromSpanContext(spanContext, Type.PARENT_LINKED_SPAN);
     assertThat(link.toString()).contains(spanContext.getTraceId().toString());
     assertThat(link.toString()).contains(spanContext.getSpanId().toString());
-    assertThat(link.toString()).contains("PARENT");
+    assertThat(link.toString()).contains("PARENT_LINKED_SPAN");
   }
 }
