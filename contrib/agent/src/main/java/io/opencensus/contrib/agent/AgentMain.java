@@ -73,7 +73,7 @@ public final class AgentMain {
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new AgentBuilderListener())
             .ignore(none());
-    agentBuilder = LazyLoaded.addGrpcContextPropagation(agentBuilder);
+    agentBuilder = LazyLoaded.addContextPropagation(agentBuilder);
     // TODO: Add more instrumentation, potentially introducing a plugin mechanism.
     agentBuilder.installOn(instrumentation);
 
@@ -91,7 +91,7 @@ public final class AgentMain {
     /**
      * Adds automatic context propagation.
      */
-    static AgentBuilder addGrpcContextPropagation(AgentBuilder agentBuilder) {
+    static AgentBuilder addContextPropagation(AgentBuilder agentBuilder) {
       // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
 
       // Initialize the ContextManager with the concrete GrpcContextStrategy.
