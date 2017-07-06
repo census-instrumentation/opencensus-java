@@ -15,9 +15,6 @@ package io.opencensus.trace;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.TraceId;
-import io.opencensus.trace.base.TraceOptions;
 import javax.annotation.concurrent.Immutable;
 
 /**

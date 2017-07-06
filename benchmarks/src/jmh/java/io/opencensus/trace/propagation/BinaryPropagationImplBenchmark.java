@@ -14,9 +14,9 @@
 package io.opencensus.trace.propagation;
 
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.TraceId;
-import io.opencensus.trace.base.TraceOptions;
+import io.opencensus.trace.SpanId;
+import io.opencensus.trace.TraceId;
+import io.opencensus.trace.TraceOptions;
 import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;

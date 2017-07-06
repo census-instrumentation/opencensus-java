@@ -11,11 +11,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.base;
+package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.trace.SpanId;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;

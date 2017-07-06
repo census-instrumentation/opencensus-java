@@ -11,11 +11,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.base;
+package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.trace.NetworkEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

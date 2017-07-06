@@ -15,10 +15,6 @@ package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.trace.base.Annotation;
-import io.opencensus.trace.base.AttributeValue;
-import io.opencensus.trace.base.Link;
-import io.opencensus.trace.base.NetworkEvent;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;

@@ -11,14 +11,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.base;
+package io.opencensus.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import io.opencensus.trace.Span;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

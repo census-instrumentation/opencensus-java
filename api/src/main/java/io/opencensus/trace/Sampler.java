@@ -13,8 +13,6 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.TraceId;
 import java.util.List;
 import javax.annotation.Nullable;
 

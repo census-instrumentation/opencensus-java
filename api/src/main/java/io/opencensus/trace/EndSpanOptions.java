@@ -16,7 +16,6 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.trace.base.Status;
 import javax.annotation.concurrent.Immutable;
 
 /**

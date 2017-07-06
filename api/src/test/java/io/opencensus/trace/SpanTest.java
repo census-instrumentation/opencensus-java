@@ -17,13 +17,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
-import io.opencensus.trace.base.Annotation;
-import io.opencensus.trace.base.AttributeValue;
-import io.opencensus.trace.base.Link;
-import io.opencensus.trace.base.NetworkEvent;
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.TraceId;
-import io.opencensus.trace.base.TraceOptions;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
