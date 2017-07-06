@@ -14,7 +14,6 @@
 package io.opencensus.trace.unsafe;
 
 import io.grpc.Context;
-import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 
@@ -25,53 +24,9 @@ import io.opencensus.trace.Tracer;
  * usages of the {@link #CONTEXT_SPAN_KEY} directly.
  */
 public final class ContextUtils {
-  /** The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}. */
-  public static final Context.Key<Span> CONTEXT_SPAN_KEY = Context.key("instrumentation-trace-key");
-
   // No instance of this class.
   private ContextUtils() {}
 
-  /**
-   * Returns The {@link Span} from the current context.
-   *
-   * @return The {@code Span} from the current context.
-   */
-  static Span getCurrentSpan() {
-    return CONTEXT_SPAN_KEY.get(Context.current());
-  }
-
-  /**
-   * Enters the scope of code where the given {@link Span} is in the current context, and returns an
-   * object that represents that scope. The scope is exited when the returned object is closed.
-   *
-   * <p>Supports try-with-resource idiom.
-   *
-   * @param span The {@code Span} to be set to the current context.
-   * @return An object that defines a scope where the given {@code Span} is set to the current
-   *     context.
-   */
-  static NonThrowingCloseable withSpan(Span span) {
-    return new WithSpan(span, CONTEXT_SPAN_KEY);
-  }
-
-  // Defines an arbitrary scope of code as a traceable operation. Supports try-with-resources idiom.
-  private static final class WithSpan implements NonThrowingCloseable {
-    private final Context origContext;
-
-    /**
-     * Constructs a new {@link WithSpan}.
-     *
-     * @param span is the {@code Span} to be added to the current {@code io.grpc.Context}.
-     * @param contextKey is the {@code Context.Key} used to set/get {@code Span} from the {@code
-     *     Context}.
-     */
-    WithSpan(Span span, Context.Key<Span> contextKey) {
-      origContext = Context.current().withValue(contextKey, span).attach();
-    }
-
-    @Override
-    public void close() {
-      Context.current().detach(origContext);
-    }
-  }
+  /** The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}. */
+  public static final Context.Key<Span> CONTEXT_SPAN_KEY = Context.key("instrumentation-trace-key");
 }

@@ -14,7 +14,6 @@
 package io.opencensus.trace;
 
 import io.opencensus.common.NonThrowingCloseable;
-import io.opencensus.trace.unsafe.ContextUtils;
 
 /**
  * Defines a scope of code where the given {@link Span} is in the current context. The scope is
@@ -34,7 +33,7 @@ final class ScopedSpanHandle implements NonThrowingCloseable {
    */
   ScopedSpanHandle(Span span) {
     this.span = span;
-    this.withSpan = ContextUtils.withSpan(span);
+    this.withSpan = CurrentSpanUtils.withSpan(span);
   }
 
   /**

@@ -17,7 +17,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.SpanBuilder.NoopSpanBuilder;
-import io.opencensus.trace.unsafe.ContextUtils;
 import javax.annotation.Nullable;
 
 /**
@@ -89,7 +88,7 @@ public abstract class Tracer {
    *     from the Context.
    */
   public final Span getCurrentSpan() {
-    Span currentSpan = ContextUtils.getCurrentSpan();
+    Span currentSpan = CurrentSpanUtils.getCurrentSpan();
     return currentSpan != null ? currentSpan : BlankSpan.INSTANCE;
   }
 
@@ -143,7 +142,7 @@ public abstract class Tracer {
    * @throws NullPointerException if {@code span} is {@code null}.
    */
   public final NonThrowingCloseable withSpan(Span span) {
-    return ContextUtils.withSpan(checkNotNull(span, "span"));
+    return CurrentSpanUtils.withSpan(checkNotNull(span, "span"));
   }
 
   /**
@@ -166,7 +165,7 @@ public abstract class Tracer {
    * @throws NullPointerException if {@code spanName} is {@code null}.
    */
   public final SpanBuilder spanBuilder(String spanName) {
-    return spanBuilderWithExplicitParent(spanName, ContextUtils.getCurrentSpan());
+    return spanBuilderWithExplicitParent(spanName, CurrentSpanUtils.getCurrentSpan());
   }
 
   /**
