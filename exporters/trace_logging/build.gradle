@@ -1,4 +1,4 @@
-description = 'OpenCensus Logging Exporter'
+description = 'OpenCensus Trace Logging Exporter'
 
 dependencies {
     compile project(':opencensus-api'),
