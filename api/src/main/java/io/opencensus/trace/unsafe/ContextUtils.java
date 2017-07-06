@@ -27,5 +27,5 @@ public final class ContextUtils {
   private ContextUtils() {}
 
   /** The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}. */
-  public static final Context.Key<Span> CONTEXT_SPAN_KEY = Context.key("instrumentation-trace-key");
+  public static final Context.Key<Span> CONTEXT_SPAN_KEY = Context.key("opencensus-trace-span-key");
 }
