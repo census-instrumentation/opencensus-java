@@ -83,10 +83,8 @@ public final class MeasureMap {
       // MeasureMaps that we should see. We may want to go to a strategy of sort/eliminate
       // for larger MeasureMaps.
       for (int i = 0; i < measurements.size(); i++) {
-        String current =
-            measurements.get(i).getMeasure().getName();
         for (int j = i + 1; j < measurements.size(); j++) {
-          if (current.equals(measurements.get(j).getMeasure().getName())) {
+          if (measurements.get(i).getMeasure() == measurements.get(j).getMeasure()) {
             measurements.remove(j);
             j--;
           }
