@@ -14,8 +14,11 @@
 package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,25 +29,82 @@ public class AttributeValueTest {
   @Test
   public void stringAttributeValue() {
     AttributeValue attribute = AttributeValue.stringAttributeValue("MyStringAttributeValue");
-    assertThat(attribute.getStringValue()).isEqualTo("MyStringAttributeValue");
-    assertThat(attribute.getBooleanValue()).isNull();
-    assertThat(attribute.getLongValue()).isNull();
+    attribute.match(
+        new Function<String, Object>() {
+          @Override
+          public Object apply(String stringValue) {
+            assertThat(stringValue).isEqualTo("MyStringAttributeValue");
+            return null;
+          }
+        },
+        new Function<Boolean, Object>() {
+          @Override
+          public Object apply(Boolean booleanValue) {
+            fail("Expected a String");
+            return null;
+          }
+        },
+        new Function<Long, Object>() {
+          @Override
+          public Object apply(Long longValue) {
+            fail("Expected a String");
+            return null;
+          }
+        }, Functions.throwIllegalArgumentException());
   }
 
   @Test
   public void booleanAttributeValue() {
     AttributeValue attribute = AttributeValue.booleanAttributeValue(true);
-    assertThat(attribute.getStringValue()).isNull();
-    assertThat(attribute.getBooleanValue()).isTrue();
-    assertThat(attribute.getLongValue()).isNull();
+    attribute.match(
+        new Function<String, Object>() {
+          @Override
+          public Object apply(String stringValue) {
+            fail("Expected a Boolean");
+            return null;
+          }
+        },
+        new Function<Boolean, Object>() {
+          @Override
+          public Object apply(Boolean booleanValue) {
+            assertThat(booleanValue).isTrue();
+            return null;
+          }
+        },
+        new Function<Long, Object>() {
+          @Override
+          public Object apply(Long longValue) {
+            fail("Expected a Boolean");
+            return null;
+          }
+        }, Functions.throwIllegalArgumentException());
   }
 
   @Test
   public void longAttributeValue() {
     AttributeValue attribute = AttributeValue.longAttributeValue(123456L);
-    assertThat(attribute.getStringValue()).isNull();
-    assertThat(attribute.getBooleanValue()).isNull();
-    assertThat(attribute.getLongValue()).isEqualTo(123456L);
+    attribute.match(
+        new Function<String, Object>() {
+          @Override
+          public Object apply(String stringValue) {
+            fail("Expected a Long");
+            return null;
+          }
+        },
+        new Function<Boolean, Object>() {
+          @Override
+          public Object apply(Boolean booleanValue) {
+            fail("Expected a Long");
+            return null;
+          }
+        },
+        new Function<Long, Object>() {
+          @Override
+          public Object apply(Long longValue) {
+            assertThat(longValue).isEqualTo(123456L);
+            return null;
+          }
+        }, Functions.throwIllegalArgumentException());
   }
 
   @Test
