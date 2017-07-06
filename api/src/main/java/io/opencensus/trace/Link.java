@@ -14,6 +14,9 @@
 package io.opencensus.trace;
 
 import com.google.auto.value.AutoValue;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -28,6 +31,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class Link {
+  private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES = Collections.emptyMap();
+
   /** The relationship with the linked {@code Span} relative to the current {@code Span}. */
   public enum Type {
     /** When the linked {@code Span} is a child of the current {@code Span}. */
@@ -44,7 +49,24 @@ public abstract class Link {
    * @return a new {@code Link}.
    */
   public static Link fromSpanContext(SpanContext context, Type type) {
-    return new AutoValue_Link(context.getTraceId(), context.getSpanId(), type);
+    return new AutoValue_Link(context.getTraceId(), context.getSpanId(), type, EMPTY_ATTRIBUTES);
+  }
+
+  /**
+   * Returns a new {@code Link}.
+   *
+   * @param context the context of the linked {@code Span}.
+   * @param type the type of the relationship with the linked {@code Span}.
+   * @param attributes the attributes of the {@code Link}.
+   * @return a new {@code Link}.
+   */
+  public static Link fromSpanContext(
+      SpanContext context, Type type, Map<String, AttributeValue> attributes) {
+    return new AutoValue_Link(
+        context.getTraceId(),
+        context.getSpanId(),
+        type,
+        Collections.unmodifiableMap(new HashMap<String, AttributeValue>(attributes)));
   }
 
   /**
@@ -67,6 +89,13 @@ public abstract class Link {
    * @return the {@code Type}.
    */
   public abstract Type getType();
+
+  /**
+   * Returns the set of attributes.
+   *
+   * @return the set of attributes.
+   */
+  public abstract Map<String, AttributeValue> getAttributes();
 
   Link() {}
 }
