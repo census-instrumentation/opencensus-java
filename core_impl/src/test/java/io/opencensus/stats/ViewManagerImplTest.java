@@ -20,7 +20,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.stats.Measure.MeasureDouble;
-import io.opencensus.stats.View.DistributionView;
+import io.opencensus.stats.ViewData.DistributionViewData;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
 import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
 import io.opencensus.testing.common.TestClock;
@@ -45,16 +45,17 @@ public class ViewManagerImplTest {
   private static final TagValue VALUE = TagValue.create("VALUE");
   private static final TagValue VALUE_2 = TagValue.create("VALUE_2");
 
-  private static final String MEASUREMENT_NAME = "my measurement";
+  private static final String MEASURE_NAME = "my measurement";
 
-  private static final String MEASUREMENT_NAME_2 = "my measurement 2";
+  private static final String MEASURE_NAME_2 = "my measurement 2";
 
-  private static final String MEASUREMENT_UNIT = "us";
+  private static final String MEASURE_UNIT = "us";
 
-  private static final String MEASUREMENT_DESCRIPTION = "measurement description";
+  private static final String MEASURE_DESCRIPTION = "measure description";
 
-  private static final MeasureDouble MEASUREMENT_DESCRIPTOR =
-      Measure.MeasureDouble.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
+
+  private static final MeasureDouble MEASURE =
+      Measure.MeasureDouble.create(MEASURE_NAME, MEASURE_DESCRIPTION, MEASURE_UNIT);
 
   private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
   private static final ViewDescriptor.Name VIEW_NAME_2 = ViewDescriptor.Name.create("my view 2");
@@ -80,22 +81,22 @@ public class ViewManagerImplTest {
 
   private static DistributionViewDescriptor createDistributionViewDescriptor() {
     return createDistributionViewDescriptor(
-        VIEW_NAME, MEASUREMENT_DESCRIPTOR, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
+        VIEW_NAME, MEASURE, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
   }
 
   private static DistributionViewDescriptor createDistributionViewDescriptor(
       ViewDescriptor.Name name,
-      Measure measureDescr,
+      Measure measure,
       DistributionAggregationDescriptor aggDescr,
       List<TagKey> keys) {
-    return DistributionViewDescriptor.create(name, VIEW_DESCRIPTION, measureDescr, aggDescr, keys);
+    return DistributionViewDescriptor.create(name, VIEW_DESCRIPTION, measure, aggDescr, keys);
   }
 
   @Test
   public void testRegisterAndGetView() {
-    DistributionViewDescriptor viewDescr = createDistributionViewDescriptor();
-    viewManager.registerView(viewDescr);
-    assertThat(viewManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(viewDescr);
+    DistributionViewDescriptor view = createDistributionViewDescriptor();
+    viewManager.registerView(view);
+    assertThat(viewManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(view);
   }
 
   @Test
@@ -104,7 +105,7 @@ public class ViewManagerImplTest {
         IntervalViewDescriptor.create(
             VIEW_NAME,
             VIEW_DESCRIPTION,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1000))),
             Arrays.asList(KEY));
     thrown.expect(UnsupportedOperationException.class);
@@ -112,20 +113,20 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void allowRegisteringSameViewDescriptorTwice() {
-    DistributionViewDescriptor viewDescr = createDistributionViewDescriptor();
-    viewManager.registerView(viewDescr);
-    viewManager.registerView(viewDescr);
-    assertThat(viewManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(viewDescr);
+  public void allowRegisteringSameViewTwice() {
+    DistributionViewDescriptor view = createDistributionViewDescriptor();
+    viewManager.registerView(view);
+    viewManager.registerView(view);
+    assertThat(viewManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(view);
   }
 
   @Test
-  public void preventRegisteringDifferentViewDescriptorWithSameName() {
+  public void preventRegisteringDifferentViewWithSameName() {
     ViewDescriptor view1 =
         DistributionViewDescriptor.create(
             VIEW_NAME,
             "View description.",
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     viewManager.registerView(view1);
@@ -133,7 +134,7 @@ public class ViewManagerImplTest {
         DistributionViewDescriptor.create(
             VIEW_NAME,
             "This is a different description.",
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     try {
@@ -146,32 +147,32 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void disallowGettingNonexistentView() {
+  public void disallowGettingNonexistentViewData() {
     thrown.expect(IllegalArgumentException.class);
     viewManager.getView(VIEW_NAME);
   }
 
   @Test
   public void testRecord() {
-    DistributionViewDescriptor viewDescr =
+    DistributionViewDescriptor view =
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 2));
-    viewManager.registerView(viewDescr);
+    viewManager.registerView(view);
     StatsContextImpl tags = createContext(factory, KEY, VALUE);
     for (double val : Arrays.asList(10.0, 20.0, 30.0, 40.0)) {
-      statsRecorder.record(tags, MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, val).build());
+      statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, val).build());
     }
     clock.setTime(Timestamp.create(3, 4));
-    DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
-    assertThat(view.getViewDescriptor()).isEqualTo(viewDescr);
-    assertThat(view.getStart()).isEqualTo(Timestamp.create(1, 2));
-    assertThat(view.getEnd()).isEqualTo(Timestamp.create(3, 4));
+    DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
+    assertThat(viewData.getViewDescriptor()).isEqualTo(view);
+    assertThat(viewData.getStart()).isEqualTo(Timestamp.create(1, 2));
+    assertThat(viewData.getEnd()).isEqualTo(Timestamp.create(3, 4));
     assertDistributionAggregationsEquivalent(
-        view.getDistributionAggregations(),
+        viewData.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)),
@@ -181,35 +182,35 @@ public class ViewManagerImplTest {
 
   @Test
   public void getViewDoesNotClearStats() {
-    DistributionViewDescriptor viewDescr =
+    DistributionViewDescriptor view =
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(10, 0));
-    viewManager.registerView(viewDescr);
+    viewManager.registerView(view);
     StatsContextImpl tags = createContext(factory, KEY, VALUE);
-    statsRecorder.record(tags, MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 0.1).build());
+    statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 0.1).build());
     clock.setTime(Timestamp.create(11, 0));
-    DistributionView view1 = (DistributionView) viewManager.getView(VIEW_NAME);
-    assertThat(view1.getStart()).isEqualTo(Timestamp.create(10, 0));
-    assertThat(view1.getEnd()).isEqualTo(Timestamp.create(11, 0));
+    DistributionViewData viewData1 = (DistributionViewData) viewManager.getView(VIEW_NAME);
+    assertThat(viewData1.getStart()).isEqualTo(Timestamp.create(10, 0));
+    assertThat(viewData1.getEnd()).isEqualTo(Timestamp.create(11, 0));
     assertDistributionAggregationsEquivalent(
-        view1.getDistributionAggregations(),
+        viewData1.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(0.1))));
-    statsRecorder.record(tags, MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 0.2).build());
+    statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 0.2).build());
     clock.setTime(Timestamp.create(12, 0));
-    DistributionView view2 = (DistributionView) viewManager.getView(VIEW_NAME);
+    DistributionViewData viewData2 = (DistributionViewData) viewManager.getView(VIEW_NAME);
 
     // The second view should have the same start time as the first view, and it should include both
     // recorded values:
-    assertThat(view2.getStart()).isEqualTo(Timestamp.create(10, 0));
-    assertThat(view2.getEnd()).isEqualTo(Timestamp.create(12, 0));
+    assertThat(viewData2.getStart()).isEqualTo(Timestamp.create(10, 0));
+    assertThat(viewData2.getEnd()).isEqualTo(Timestamp.create(12, 0));
     assertDistributionAggregationsEquivalent(
-        view2.getDistributionAggregations(),
+        viewData2.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)),
@@ -222,21 +223,21 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
     statsRecorder.record(
         createContext(factory, KEY, VALUE),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 10.0).build());
+        MeasureMap.builder().set(MEASURE, 10.0).build());
     statsRecorder.record(
         createContext(factory, KEY, VALUE_2),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 30.0).build());
+        MeasureMap.builder().set(MEASURE, 30.0).build());
     statsRecorder.record(
         createContext(factory, KEY, VALUE_2),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 50.0).build());
-    DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
+        MeasureMap.builder().set(MEASURE, 50.0).build());
+    DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
-        view.getDistributionAggregations(),
+        viewData.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(10.0)),
@@ -249,10 +250,10 @@ public class ViewManagerImplTest {
   // This test checks that StatsRecorder.record(...) does not throw an exception when no views are
   // registered.
   @Test
-  public void allowRecordingWithoutRegisteringMatchingView() {
+  public void allowRecordingWithoutRegisteringMatchingViewData() {
     statsRecorder.record(
         createContext(factory, KEY, VALUE),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 10).build());
+        MeasureMap.builder().set(MEASURE, 10).build());
   }
 
   @Test
@@ -260,20 +261,20 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
     // DEFAULT doesn't have tags, but the view has tag key "KEY".
     statsRecorder.record(factory.getDefault(),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 10.0).build());
-    DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
+        MeasureMap.builder().set(MEASURE, 10.0).build());
+    DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
-        view.getDistributionAggregations(),
+        viewData.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
-                // Tag is missing for associated measurementValues, should use default tag value
+                // Tag is missing for associated measureValues, should use default tag value
                 // "unknown/not set"
-                Arrays.asList(Tag.create(KEY, MutableView.UNKNOWN_TAG_VALUE)),
+                Arrays.asList(Tag.create(KEY, MutableViewData.UNKNOWN_TAG_VALUE)),
                 BUCKET_BOUNDARIES,
                 // Should record stats with default tag value: "KEY" : "unknown/not set".
                 Arrays.asList(10.0))));
@@ -284,67 +285,67 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createDistributionViewDescriptor(
             VIEW_NAME,
-            Measure.MeasureDouble.create(MEASUREMENT_NAME, "measurement", MEASUREMENT_UNIT),
+            Measure.MeasureDouble.create(MEASURE_NAME, "measure", MEASURE_UNIT),
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
     MeasureDouble measure2 =
-        Measure.MeasureDouble.create(MEASUREMENT_NAME_2, "measurement", MEASUREMENT_UNIT);
+        Measure.MeasureDouble.create(MEASURE_NAME_2, "measure", MEASURE_UNIT);
     statsRecorder.record(createContext(factory, KEY, VALUE),
         MeasureMap.builder().set(measure2, 10.0).build());
-    DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
+    DistributionViewData view = (DistributionViewData) viewManager.getView(VIEW_NAME);
     assertThat(view.getDistributionAggregations()).isEmpty();
   }
 
   @Test
-  public void testRecordWithTagsThatDoNotMatchView() {
+  public void testRecordWithTagsThatDoNotMatchViewData() {
     viewManager.registerView(
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY)));
     statsRecorder.record(
         createContext(factory, TagKey.create("wrong key"), VALUE),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 10.0).build());
+        MeasureMap.builder().set(MEASURE, 10.0).build());
     statsRecorder.record(
         createContext(factory, TagKey.create("another wrong key"), VALUE),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 50.0).build());
-    DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
+        MeasureMap.builder().set(MEASURE, 50.0).build());
+    DistributionViewData view = (DistributionViewData) viewManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
         view.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 // Won't record the unregistered tag key, will use default tag instead:
                 // "KEY" : "unknown/not set".
-                Arrays.asList(Tag.create(KEY, MutableView.UNKNOWN_TAG_VALUE)),
+                Arrays.asList(Tag.create(KEY, MutableViewData.UNKNOWN_TAG_VALUE)),
                 BUCKET_BOUNDARIES,
                 // Should record stats with default tag value: "KEY" : "unknown/not set".
                 Arrays.asList(10.0, 50.0))));
   }
 
   @Test
-  public void testViewWithMultipleTagKeys() {
+  public void testViewDataWithMultipleTagKeys() {
     TagKey key1 = TagKey.create("Key-1");
     TagKey key2 = TagKey.create("Key-2");
     viewManager.registerView(
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(key1, key2)));
     statsRecorder.record(
         createContext(factory, key1, TagValue.create("v1"), key2, TagValue.create("v10")),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 1.1).build());
+        MeasureMap.builder().set(MEASURE, 1.1).build());
     statsRecorder.record(
         createContext(factory, key1, TagValue.create("v1"), key2, TagValue.create("v20")),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 2.2).build());
+        MeasureMap.builder().set(MEASURE, 2.2).build());
     statsRecorder.record(
         createContext(factory, key1, TagValue.create("v2"), key2, TagValue.create("v10")),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 3.3).build());
+        MeasureMap.builder().set(MEASURE, 3.3).build());
     statsRecorder.record(
         createContext(factory, key1, TagValue.create("v1"), key2, TagValue.create("v10")),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 4.4).build());
-    DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
+        MeasureMap.builder().set(MEASURE, 4.4).build());
+    DistributionViewData view = (DistributionViewData) viewManager.getView(VIEW_NAME);
     assertDistributionAggregationsEquivalent(
         view.getDistributionAggregations(),
         Arrays.asList(
@@ -369,98 +370,98 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testMultipleViewsSameMeasure() {
-    ViewDescriptor viewDescr1 =
+  public void testMultipleViewDatasSameMeasure() {
+    ViewDescriptor view1 =
         createDistributionViewDescriptor(
             VIEW_NAME,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
-    ViewDescriptor viewDescr2 =
+    ViewDescriptor view2 =
         createDistributionViewDescriptor(
             VIEW_NAME_2,
-            MEASUREMENT_DESCRIPTOR,
+            MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 1));
-    viewManager.registerView(viewDescr1);
+    viewManager.registerView(view1);
     clock.setTime(Timestamp.create(2, 2));
-    viewManager.registerView(viewDescr2);
+    viewManager.registerView(view2);
     statsRecorder.record(
         createContext(factory, KEY, VALUE),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 5.0).build());
+        MeasureMap.builder().set(MEASURE, 5.0).build());
     List<DistributionAggregation> expectedAggs =
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(5.0)));
     clock.setTime(Timestamp.create(3, 3));
-    DistributionView view1 = (DistributionView) viewManager.getView(VIEW_NAME);
+    DistributionViewData viewData1 = (DistributionViewData) viewManager.getView(VIEW_NAME);
     clock.setTime(Timestamp.create(4, 4));
-    DistributionView view2 = (DistributionView) viewManager.getView(VIEW_NAME_2);
-    assertThat(view1.getStart()).isEqualTo(Timestamp.create(1, 1));
-    assertThat(view1.getEnd()).isEqualTo(Timestamp.create(3, 3));
-    assertDistributionAggregationsEquivalent(view1.getDistributionAggregations(), expectedAggs);
-    assertThat(view2.getStart()).isEqualTo(Timestamp.create(2, 2));
-    assertThat(view2.getEnd()).isEqualTo(Timestamp.create(4, 4));
-    assertDistributionAggregationsEquivalent(view2.getDistributionAggregations(), expectedAggs);
+    DistributionViewData viewData2 = (DistributionViewData) viewManager.getView(VIEW_NAME_2);
+    assertThat(viewData1.getStart()).isEqualTo(Timestamp.create(1, 1));
+    assertThat(viewData1.getEnd()).isEqualTo(Timestamp.create(3, 3));
+    assertDistributionAggregationsEquivalent(viewData1.getDistributionAggregations(), expectedAggs);
+    assertThat(viewData2.getStart()).isEqualTo(Timestamp.create(2, 2));
+    assertThat(viewData2.getEnd()).isEqualTo(Timestamp.create(4, 4));
+    assertDistributionAggregationsEquivalent(viewData2.getDistributionAggregations(), expectedAggs);
   }
 
   @Test
   public void testMultipleViewsDifferentMeasures() {
-    MeasureDouble measureDescr1 =
-        Measure.MeasureDouble.create(MEASUREMENT_NAME, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
-    MeasureDouble measureDescr2 =
-        Measure.MeasureDouble.create(MEASUREMENT_NAME_2, MEASUREMENT_DESCRIPTION, MEASUREMENT_UNIT);
-    ViewDescriptor viewDescr1 =
+    MeasureDouble measure1 =
+        Measure.MeasureDouble.create(MEASURE_NAME, MEASURE_DESCRIPTION, MEASURE_UNIT);
+    MeasureDouble measure2 =
+        Measure.MeasureDouble.create(MEASURE_NAME_2, MEASURE_DESCRIPTION, MEASURE_UNIT);
+    ViewDescriptor view1 =
         createDistributionViewDescriptor(
-            VIEW_NAME, measureDescr1, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
-    ViewDescriptor viewDescr2 =
+            VIEW_NAME, measure1, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
+    ViewDescriptor view2 =
         createDistributionViewDescriptor(
-            VIEW_NAME_2, measureDescr2, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
+            VIEW_NAME_2, measure2, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
-    viewManager.registerView(viewDescr1);
+    viewManager.registerView(view1);
     clock.setTime(Timestamp.create(2, 0));
-    viewManager.registerView(viewDescr2);
+    viewManager.registerView(view2);
     statsRecorder.record(
         createContext(factory, KEY, VALUE),
-        MeasureMap.builder().set(measureDescr1, 1.1).set(measureDescr2, 2.2).build());
+        MeasureMap.builder().set(measure1, 1.1).set(measure2, 2.2).build());
     clock.setTime(Timestamp.create(3, 0));
-    DistributionView view1 = (DistributionView) viewManager.getView(VIEW_NAME);
+    DistributionViewData viewData1 = (DistributionViewData) viewManager.getView(VIEW_NAME);
     clock.setTime(Timestamp.create(4, 0));
-    DistributionView view2 = (DistributionView) viewManager.getView(VIEW_NAME_2);
-    assertThat(view1.getStart()).isEqualTo(Timestamp.create(1, 0));
-    assertThat(view1.getEnd()).isEqualTo(Timestamp.create(3, 0));
+    DistributionViewData viewData2 = (DistributionViewData) viewManager.getView(VIEW_NAME_2);
+    assertThat(viewData1.getStart()).isEqualTo(Timestamp.create(1, 0));
+    assertThat(viewData1.getEnd()).isEqualTo(Timestamp.create(3, 0));
     assertDistributionAggregationsEquivalent(
-        view1.getDistributionAggregations(),
+        viewData1.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(1.1))));
-    assertThat(view2.getStart()).isEqualTo(Timestamp.create(2, 0));
-    assertThat(view2.getEnd()).isEqualTo(Timestamp.create(4, 0));
+    assertThat(viewData2.getStart()).isEqualTo(Timestamp.create(2, 0));
+    assertThat(viewData2.getEnd()).isEqualTo(Timestamp.create(4, 0));
     assertDistributionAggregationsEquivalent(
-        view2.getDistributionAggregations(),
+        viewData2.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(2.2))));
   }
 
   @Test
-  public void testGetDistributionViewWithoutBucketBoundaries() {
-    ViewDescriptor viewDescr =
+  public void testGetDistributionViewDataWithoutBucketBoundaries() {
+    ViewDescriptor view =
         createDistributionViewDescriptor(
-            VIEW_NAME, MEASUREMENT_DESCRIPTOR, DistributionAggregationDescriptor.create(),
+            VIEW_NAME, MEASURE, DistributionAggregationDescriptor.create(),
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
-    viewManager.registerView(viewDescr);
+    viewManager.registerView(view);
     statsRecorder.record(
         createContext(factory, KEY, VALUE),
-        MeasureMap.builder().set(MEASUREMENT_DESCRIPTOR, 1.1).build());
+        MeasureMap.builder().set(MEASURE, 1.1).build());
     clock.setTime(Timestamp.create(3, 0));
-    DistributionView view = (DistributionView) viewManager.getView(VIEW_NAME);
-    assertThat(view.getStart()).isEqualTo(Timestamp.create(1, 0));
-    assertThat(view.getEnd()).isEqualTo(Timestamp.create(3, 0));
+    DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
+    assertThat(viewData.getStart()).isEqualTo(Timestamp.create(1, 0));
+    assertThat(viewData.getEnd()).isEqualTo(Timestamp.create(3, 0));
     assertDistributionAggregationsEquivalent(
-        view.getDistributionAggregations(),
+        viewData.getDistributionAggregations(),
         Arrays.asList(
             StatsTestUtil.createDistributionAggregation(
                 Arrays.asList(Tag.create(KEY, VALUE)), Arrays.asList(1.1))));
