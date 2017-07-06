@@ -63,7 +63,7 @@ public class SpanBuilderImplTest {
     assertThat(spanData.getParentSpanId()).isNull();
     assertThat(spanData.getHasRemoteParent()).isFalse();
     assertThat(spanData.getStartTimestamp()).isEqualTo(testClock.now());
-    assertThat(spanData.getDisplayName()).isEqualTo(SPAN_NAME);
+    assertThat(spanData.getName()).isEqualTo(SPAN_NAME);
   }
 
   @Test

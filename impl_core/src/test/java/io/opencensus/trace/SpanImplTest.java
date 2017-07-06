@@ -148,7 +148,7 @@ public class SpanImplTest {
     span.addLink(link);
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getContext()).isEqualTo(spanContext);
-    assertThat(spanData.getDisplayName()).isEqualTo(SPAN_NAME);
+    assertThat(spanData.getName()).isEqualTo(SPAN_NAME);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getHasRemoteParent()).isTrue();
     assertThat(spanData.getAttributes().getDroppedAttributesCount()).isEqualTo(0);
@@ -206,7 +206,7 @@ public class SpanImplTest {
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getContext()).isEqualTo(spanContext);
-    assertThat(spanData.getDisplayName()).isEqualTo(SPAN_NAME);
+    assertThat(spanData.getName()).isEqualTo(SPAN_NAME);
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getHasRemoteParent()).isFalse();
     assertThat(spanData.getAttributes().getDroppedAttributesCount()).isEqualTo(0);

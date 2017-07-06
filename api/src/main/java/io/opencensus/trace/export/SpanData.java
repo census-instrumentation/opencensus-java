@@ -45,7 +45,7 @@ public abstract class SpanData {
    * @param parentSpanId the parent {@code SpanId} of the {@code Span}. {@code null} if the {@code
    *     Span} is a root.
    * @param hasRemoteParent {@code true} if the parent is on a different process.
-   * @param displayName the name of the {@code Span}.
+   * @param name the name of the {@code Span}.
    * @param startTimestamp the start {@code Timestamp} of the {@code Span}.
    * @param attributes the attributes associated with the {@code Span}.
    * @param annotations the annotations associated with the {@code Span}.
@@ -61,7 +61,7 @@ public abstract class SpanData {
       SpanContext context,
       @Nullable SpanId parentSpanId,
       boolean hasRemoteParent,
-      String displayName,
+      String name,
       Timestamp startTimestamp,
       Attributes attributes,
       TimedEvents<Annotation> annotations,
@@ -73,7 +73,7 @@ public abstract class SpanData {
         context,
         parentSpanId,
         hasRemoteParent,
-        displayName,
+        name,
         startTimestamp,
         attributes,
         annotations,
@@ -106,11 +106,11 @@ public abstract class SpanData {
   public abstract boolean getHasRemoteParent();
 
   /**
-   * Returns the display name of this {@code Span}.
+   * Returns the name of this {@code Span}.
    *
-   * @return the display name of this {@code Span}.
+   * @return the name of this {@code Span}.
    */
-  public abstract String getDisplayName();
+  public abstract String getName();
 
   /**
    * Returns the start {@code Timestamp} of this {@code Span}.
