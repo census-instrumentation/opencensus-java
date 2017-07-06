@@ -15,13 +15,12 @@ package io.opencensus.trace.unsafe;
 
 import io.grpc.Context;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.Tracer;
 
 /**
  * Util methods/functionality to interact with the {@link io.grpc.Context}.
  *
- * <p>Users must interact with the current Context via the public APIs in {@link Tracer} and avoid
- * usages of the {@link #CONTEXT_SPAN_KEY} directly.
+ * <p>Users must interact with the current Context via the public APIs in {@link
+ * io.opencensus.trace.Tracer} and avoid usages of the {@link #CONTEXT_SPAN_KEY} directly.
  */
 public final class ContextUtils {
   // No instance of this class.
