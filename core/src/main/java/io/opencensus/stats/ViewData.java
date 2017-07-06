@@ -16,22 +16,22 @@ package io.opencensus.stats;
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.stats.View.DistributionView;
+import io.opencensus.stats.View.IntervalView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * The aggregated data for a particular {@link ViewDescriptor}.
+ * The aggregated data for a particular {@link View}.
  */
 @Immutable
 public abstract class ViewData {
   /**
-   * The {@link ViewDescriptor} associated with this {@link ViewData}.
+   * The {@link View} associated with this {@link ViewData}.
    */
-  public abstract ViewDescriptor getViewDescriptor();
+  public abstract View getView();
 
   /**
    * Applies the given match function to the underlying data type.
@@ -53,7 +53,7 @@ public abstract class ViewData {
     /**
      * Constructs a new {@link DistributionViewData}.
      */
-    public static DistributionViewData create(DistributionViewDescriptor distributionView,
+    public static DistributionViewData create(DistributionView distributionView,
         List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
       return new AutoValue_ViewData_DistributionViewData(
           distributionView,
@@ -64,7 +64,7 @@ public abstract class ViewData {
     }
 
     @Override
-    public abstract DistributionViewDescriptor getViewDescriptor();
+    public abstract DistributionView getView();
 
     /**
      * The {@link DistributionAggregation}s associated with this {@link DistributionViewData}.
@@ -101,7 +101,7 @@ public abstract class ViewData {
     /**
      * Constructs a new {@link IntervalViewData}.
      */
-    public static IntervalViewData create(IntervalViewDescriptor intervalView,
+    public static IntervalViewData create(IntervalView intervalView,
         List<IntervalAggregation> intervalAggregations) {
       return new AutoValue_ViewData_IntervalViewData(
           intervalView,
@@ -109,7 +109,7 @@ public abstract class ViewData {
     }
 
     @Override
-    public abstract IntervalViewDescriptor getViewDescriptor();
+    public abstract IntervalView getView();
 
     /**
      * The {@link IntervalAggregation}s associated with this {@link IntervalViewData}.

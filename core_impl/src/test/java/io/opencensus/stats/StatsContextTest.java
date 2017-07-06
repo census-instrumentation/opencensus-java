@@ -174,7 +174,7 @@ public class StatsContextTest {
   @Test
   public void testRecordLong() {
     MeasureLong measure = MeasureLong.create("long measure", "description", "1");
-    viewManager.registerView(ViewDescriptor.DistributionViewDescriptor
+    viewManager.registerView(View.DistributionView
         .create("name", "description", measure, DistributionAggregationDescriptor.create(),
             Arrays.asList(K1)));
     thrown.expect(UnsupportedOperationException.class);

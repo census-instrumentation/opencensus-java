@@ -21,21 +21,21 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A ViewDescriptor specifies an aggregation and a set of tag keys. The aggregation will be broken
- * down by the unique set of matching tag values for each measurement.
+ * A View specifies an aggregation and a set of tag keys. The aggregation will be broken
+ * down by the unique set of matching tag values for each measure.
  */
 @Immutable
-public abstract class ViewDescriptor {
+public abstract class View {
   /**
    * Name of view. Must be unique.
    */
-  public abstract Name getViewDescriptorName();
+  public abstract Name getViewName();
 
   /**
    * Name of view, as a {@code String}.
    */
   public final String getName() {
-    return getViewDescriptorName().asString();
+    return getViewName().asString();
   }
 
   /**
@@ -44,30 +44,30 @@ public abstract class ViewDescriptor {
   public abstract String getDescription();
 
   /**
-   * Measurement type of this view.
+   * Measure type of this view.
    */
   public abstract Measure getMeasure();
 
   /**
-   * Tag keys to match with the associated {@link Measure}. If no keys are specified,
-   * then all stats are recorded. Keys must be unique.
+   * Dimensions (a.k.a Tag Keys) to match with the associated {@link Measure}.
+   * If no dimensions are specified, then all stats are recorded. Dimensions must be unique.
    *
    * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
    * UnsupportedOperationException.
    */
-  public abstract List<TagKey> getTagKeys();
+  public abstract List<TagKey> getDimensions();
 
   /**
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<DistributionViewDescriptor, T> p0,
-      Function<IntervalViewDescriptor, T> p1);
+      Function<? super DistributionView, T> p0,
+      Function<? super IntervalView, T> p1);
 
   /**
-   * The name of a {@code ViewDescriptor}.
+   * The name of a {@code View}.
    */
-  // This type should be used as the key when associating data with ViewDescriptors.
+  // This type should be used as the key when associating data with Views.
   @Immutable
   @AutoValue
   public abstract static class Name {
@@ -82,26 +82,26 @@ public abstract class ViewDescriptor {
     public abstract String asString();
 
     /**
-     * Creates a {@code ViewDescriptor.Name} from a {@code String}.
+     * Creates a {@code View.Name} from a {@code String}.
      *
      * @param name the name {@code String}.
-     * @return a {@code ViewDescriptor.Name} with the given name {@code String}.
+     * @return a {@code View.Name} with the given name {@code String}.
      */
     public static Name create(String name) {
-      return new AutoValue_ViewDescriptor_Name(name);
+      return new AutoValue_View_Name(name);
     }
   }
 
   /**
-   * A {@link ViewDescriptor} for distribution-base aggregations.
+   * A {@link View} for distribution-base aggregations.
    */
   @Immutable
   @AutoValue
-  public abstract static class DistributionViewDescriptor extends ViewDescriptor {
+  public abstract static class DistributionView extends View {
     /**
-     * Constructs a new {@link DistributionViewDescriptor}.
+     * Constructs a new {@link DistributionView}.
      */
-    public static DistributionViewDescriptor create(
+    public static DistributionView create(
         String name,
         String description,
         Measure measure,
@@ -116,15 +116,15 @@ public abstract class ViewDescriptor {
     }
 
     /**
-     * Constructs a new {@link DistributionViewDescriptor}.
+     * Constructs a new {@link DistributionView}.
      */
-    public static DistributionViewDescriptor create(
+    public static DistributionView create(
         Name name,
         String description,
         Measure measure,
         DistributionAggregationDescriptor distributionAggregationDescriptor,
         List<TagKey> tagKeys) {
-      return new AutoValue_ViewDescriptor_DistributionViewDescriptor(
+      return new AutoValue_View_DistributionView(
           name,
           description,
           measure,
@@ -134,28 +134,28 @@ public abstract class ViewDescriptor {
 
     /**
      * The {@link DistributionAggregationDescriptor} associated with this
-     * {@link DistributionViewDescriptor}.
+     * {@link DistributionView}.
      */
     public abstract DistributionAggregationDescriptor getDistributionAggregationDescriptor();
 
     @Override
     public <T> T match(
-        Function<DistributionViewDescriptor, T> p0,
-        Function<IntervalViewDescriptor, T> p1) {
+        Function<? super DistributionView, T> p0,
+        Function<? super IntervalView, T> p1) {
       return p0.apply(this);
     }
   }
 
   /**
-   * A {@link ViewDescriptor} for interval-based aggregations.
+   * A {@link View} for interval-based aggregations.
    */
   @Immutable
   @AutoValue
-  public abstract static class IntervalViewDescriptor extends ViewDescriptor {
+  public abstract static class IntervalView extends View {
     /**
-     * Constructs a new {@link IntervalViewDescriptor}.
+     * Constructs a new {@link IntervalView}.
      */
-    public static IntervalViewDescriptor create(
+    public static IntervalView create(
         String name,
         String description,
         Measure measure,
@@ -170,15 +170,15 @@ public abstract class ViewDescriptor {
     }
 
     /**
-     * Constructs a new {@link IntervalViewDescriptor}.
+     * Constructs a new {@link IntervalView}.
      */
-    public static IntervalViewDescriptor create(
+    public static IntervalView create(
         Name name,
         String description,
         Measure measure,
         IntervalAggregationDescriptor intervalAggregationDescriptor,
         List<TagKey> tagKeys) {
-      return new AutoValue_ViewDescriptor_IntervalViewDescriptor(
+      return new AutoValue_View_IntervalView(
           name,
           description,
           measure,
@@ -188,14 +188,14 @@ public abstract class ViewDescriptor {
 
     /**
      * The {@link IntervalAggregationDescriptor} associated with this
-     * {@link IntervalViewDescriptor}.
+     * {@link IntervalView}.
      */
     public abstract IntervalAggregationDescriptor getIntervalAggregationDescriptor();
 
     @Override
     public <T> T match(
-        Function<DistributionViewDescriptor, T> p0,
-        Function<IntervalViewDescriptor, T> p1) {
+        Function<? super DistributionView, T> p0,
+        Function<? super IntervalView, T> p1) {
       return p1.apply(this);
     }
   }

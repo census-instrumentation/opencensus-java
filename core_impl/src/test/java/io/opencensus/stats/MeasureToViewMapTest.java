@@ -18,9 +18,9 @@ import static org.junit.Assert.fail;
 
 import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.ViewData.DistributionViewData;
 import io.opencensus.stats.ViewData.IntervalViewData;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import org.junit.Test;
@@ -37,10 +37,10 @@ public class MeasureToViewMapTest {
           "measurement description",
           "By");
 
-  private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
+  private static final View.Name VIEW_NAME = View.Name.create("my view");
 
-  private static final ViewDescriptor VIEW =
-      DistributionViewDescriptor.create(
+  private static final View VIEW =
+      DistributionView.create(
           VIEW_NAME,
           "view description",
           MEASURE,
@@ -58,7 +58,7 @@ public class MeasureToViewMapTest {
         new Function<ViewData.DistributionViewData, Void>() {
           @Override
           public Void apply(DistributionViewData view) {
-            assertThat(view.getViewDescriptor()).isEqualTo(VIEW);
+            assertThat(view.getView()).isEqualTo(VIEW);
             assertThat(view.getStart()).isEqualTo(Timestamp.create(10, 20));
             assertThat(view.getEnd()).isEqualTo(Timestamp.create(30, 40));
             assertThat(view.getDistributionAggregations()).isEmpty();

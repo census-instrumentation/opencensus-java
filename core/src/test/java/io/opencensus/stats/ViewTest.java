@@ -19,103 +19,100 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.stats.View.DistributionView;
+import io.opencensus.stats.View.IntervalView;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link ViewDescriptor}
- */
+/** Tests for {@link View} */
 @RunWith(JUnit4.class)
-public final class ViewDescriptorTest {
+public final class ViewTest {
   @Test
-  public void testDistributionViewDescriptor() {
+  public void testDistributionView() {
     DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
-    final ViewDescriptor viewDescriptor = DistributionViewDescriptor.create(
+    final View view = DistributionView.create(
         name, description, measure, dAggrDescriptor, keys);
 
-    assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
-    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
-    assertThat(viewDescriptor.getDescription()).isEqualTo(description);
-    assertThat(viewDescriptor.getMeasure().getName())
-        .isEqualTo(measure.getName());
-    assertThat(viewDescriptor.getTagKeys()).hasSize(2);
-    assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
-    assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
-    assertTrue(viewDescriptor.match(
-        new Function<DistributionViewDescriptor, Boolean> () {
-          @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
-            return dViewDescriptor == viewDescriptor;
+    assertThat(view.getViewName()).isEqualTo(name);
+    assertThat(view.getName()).isEqualTo(name.asString());
+    assertThat(view.getDescription()).isEqualTo(description);
+    assertThat(view.getMeasure().getName()).isEqualTo(measure.getName());
+    assertThat(view.getDimensions()).hasSize(2);
+    assertThat(view.getDimensions().get(0).toString()).isEqualTo("foo");
+    assertThat(view.getDimensions().get(1).toString()).isEqualTo("bar");
+    assertTrue(view.match(
+        new Function<DistributionView, Boolean> () {
+          @Override public Boolean apply(DistributionView dView) {
+            return dView == view;
           }
         },
-        new Function<IntervalViewDescriptor, Boolean> () {
-          @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
+        new Function<IntervalView, Boolean> () {
+          @Override public Boolean apply(IntervalView iView) {
             return false;
           }
         }));
   }
 
   @Test
-  public void testIntervalViewDescriptor() {
+  public void testIntervalView() {
     IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
         Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
-    final ViewDescriptor viewDescriptor = IntervalViewDescriptor.create(
+    final View view = IntervalView.create(
         name, description, measure, iAggrDescriptor, keys);
 
-    assertThat(viewDescriptor.getViewDescriptorName()).isEqualTo(name);
-    assertThat(viewDescriptor.getName()).isEqualTo(name.asString());
-    assertThat(viewDescriptor.getDescription()).isEqualTo(description);
-    assertThat(viewDescriptor.getMeasure().getName())
+    assertThat(view.getViewName()).isEqualTo(name);
+    assertThat(view.getName()).isEqualTo(name.asString());
+    assertThat(view.getDescription()).isEqualTo(description);
+    assertThat(view.getMeasure().getName())
         .isEqualTo(measure.getName());
-    assertThat(viewDescriptor.getTagKeys()).hasSize(2);
-    assertThat(viewDescriptor.getTagKeys().get(0).toString()).isEqualTo("foo");
-    assertThat(viewDescriptor.getTagKeys().get(1).toString()).isEqualTo("bar");
-    assertTrue(viewDescriptor.match(
-        new Function<DistributionViewDescriptor, Boolean> () {
-          @Override public Boolean apply(DistributionViewDescriptor dViewDescriptor) {
+    assertThat(view.getDimensions()).hasSize(2);
+    assertThat(view.getDimensions().get(0).toString()).isEqualTo("foo");
+    assertThat(view.getDimensions().get(1).toString()).isEqualTo("bar");
+    assertTrue(view.match(
+        new Function<DistributionView, Boolean> () {
+          @Override public Boolean apply(DistributionView dView) {
             return false;
           }
         },
-        new Function<IntervalViewDescriptor, Boolean> () {
-          @Override public Boolean apply(IntervalViewDescriptor iViewDescriptor) {
-            return iViewDescriptor == viewDescriptor;
+        new Function<IntervalView, Boolean> () {
+          @Override public Boolean apply(IntervalView iView) {
+            return iView == view;
           }
         }));
   }
 
   @Test
-  public void testViewDescriptorEquals() {
+  public void testViewEquals() {
     DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
     IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
         Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
     new EqualsTester()
         .addEqualityGroup(
-            DistributionViewDescriptor.create(
+            DistributionView.create(
                 name, description, measure, dAggrDescriptor, keys),
-            DistributionViewDescriptor.create(
+            DistributionView.create(
                 name, description, measure, dAggrDescriptor, keys))
         .addEqualityGroup(
-            DistributionViewDescriptor.create(
+            DistributionView.create(
                 name, description + 2, measure, dAggrDescriptor, keys))
         .addEqualityGroup(
-            IntervalViewDescriptor.create(
+            IntervalView.create(
                 name, description, measure, iAggrDescriptor, keys),
-            IntervalViewDescriptor.create(
+            IntervalView.create(
                 name, description, measure, iAggrDescriptor, keys))
         .addEqualityGroup(
-            IntervalViewDescriptor.create(
+            IntervalView.create(
                 name, description + 2, measure, iAggrDescriptor, keys))
         .testEquals();
   }
 
   @Test(expected = NullPointerException.class)
-  public void preventNullDistributionViewDescriptorName() {
-    DistributionViewDescriptor.create(
-        (ViewDescriptor.Name) null,
+  public void preventNullDistributionViewName() {
+    DistributionView.create(
+        (View.Name) null,
         description,
         measure,
         DistributionAggregationDescriptor.create(),
@@ -123,8 +120,8 @@ public final class ViewDescriptorTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void preventNullDistributionViewDescriptorStringName() {
-    DistributionViewDescriptor.create(
+  public void preventNullDistributionViewStringName() {
+    DistributionView.create(
         (String) null,
         description,
         measure,
@@ -133,9 +130,9 @@ public final class ViewDescriptorTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void preventNullIntervalViewDescriptorName() {
-    IntervalViewDescriptor.create(
-        (ViewDescriptor.Name) null,
+  public void preventNullIntervalViewName() {
+    IntervalView.create(
+        (View.Name) null,
         description,
         measure,
         IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
@@ -143,8 +140,8 @@ public final class ViewDescriptorTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void preventNullIntervalViewDescriptorStringName() {
-    IntervalViewDescriptor.create(
+  public void preventNullIntervalViewStringName() {
+    IntervalView.create(
         (String) null,
         description,
         measure,
@@ -153,29 +150,27 @@ public final class ViewDescriptorTest {
   }
 
   @Test
-  public void testViewDescriptorName() {
-    assertThat(ViewDescriptor.Name.create("my name").asString()).isEqualTo("my name");
+  public void testViewName() {
+    assertThat(View.Name.create("my name").asString()).isEqualTo("my name");
   }
 
   @Test(expected = NullPointerException.class)
   public void preventNullNameString() {
-    ViewDescriptor.Name.create(null);
+    View.Name.create(null);
   }
 
   @Test
-  public void testViewDescriptorNameEquals() {
+  public void testViewNameEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            ViewDescriptor.Name.create("view-1"), ViewDescriptor.Name.create("view-1"))
-        .addEqualityGroup(ViewDescriptor.Name.create("view-2"))
+            View.Name.create("view-1"), View.Name.create("view-1"))
+        .addEqualityGroup(View.Name.create("view-2"))
         .testEquals();
   }
 
-  private final ViewDescriptor.Name name = ViewDescriptor.Name.create("test-view-name");
+  private final View.Name name = View.Name.create("test-view-name");
   private final String description = "test-view-name description";
   private final Measure measure = Measure.MeasureDouble.create(
-      "measurement",
-      "measurement description",
-      "1");
+      "measure", "measure description", "1");
   private final List<TagKey> keys = Arrays.asList(TagKey.create("foo"), TagKey.create("bar"));
 }

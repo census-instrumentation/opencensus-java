@@ -21,8 +21,8 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.ViewData.DistributionViewData;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.stats.View.DistributionView;
+import io.opencensus.stats.View.IntervalView;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,8 +57,8 @@ public class ViewManagerImplTest {
   private static final MeasureDouble MEASURE =
       Measure.MeasureDouble.create(MEASURE_NAME, MEASURE_DESCRIPTION, MEASURE_UNIT);
 
-  private static final ViewDescriptor.Name VIEW_NAME = ViewDescriptor.Name.create("my view");
-  private static final ViewDescriptor.Name VIEW_NAME_2 = ViewDescriptor.Name.create("my view 2");
+  private static final View.Name VIEW_NAME = View.Name.create("my view");
+  private static final View.Name VIEW_NAME_2 = View.Name.create("my view 2");
 
   private static final String VIEW_DESCRIPTION = "view description";
 
@@ -79,30 +79,30 @@ public class ViewManagerImplTest {
   private final ViewManagerImpl viewManager = statsComponent.getViewManager();
   private final StatsRecorder statsRecorder = statsComponent.getStatsRecorder();
 
-  private static DistributionViewDescriptor createDistributionViewDescriptor() {
-    return createDistributionViewDescriptor(
+  private static DistributionView createDistributionView() {
+    return createDistributionView(
         VIEW_NAME, MEASURE, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
   }
 
-  private static DistributionViewDescriptor createDistributionViewDescriptor(
-      ViewDescriptor.Name name,
+  private static DistributionView createDistributionView(
+      View.Name name,
       Measure measure,
       DistributionAggregationDescriptor aggDescr,
       List<TagKey> keys) {
-    return DistributionViewDescriptor.create(name, VIEW_DESCRIPTION, measure, aggDescr, keys);
+    return DistributionView.create(name, VIEW_DESCRIPTION, measure, aggDescr, keys);
   }
 
   @Test
   public void testRegisterAndGetView() {
-    DistributionViewDescriptor view = createDistributionViewDescriptor();
+    DistributionView view = createDistributionView();
     viewManager.registerView(view);
-    assertThat(viewManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(view);
+    assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view);
   }
 
   @Test
   public void preventRegisteringIntervalView() {
-    ViewDescriptor intervalView =
-        IntervalViewDescriptor.create(
+    View intervalView =
+        IntervalView.create(
             VIEW_NAME,
             VIEW_DESCRIPTION,
             MEASURE,
@@ -114,24 +114,24 @@ public class ViewManagerImplTest {
 
   @Test
   public void allowRegisteringSameViewTwice() {
-    DistributionViewDescriptor view = createDistributionViewDescriptor();
+    DistributionView view = createDistributionView();
     viewManager.registerView(view);
     viewManager.registerView(view);
-    assertThat(viewManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(view);
+    assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view);
   }
 
   @Test
   public void preventRegisteringDifferentViewWithSameName() {
-    ViewDescriptor view1 =
-        DistributionViewDescriptor.create(
+    View view1 =
+        DistributionView.create(
             VIEW_NAME,
             "View description.",
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
     viewManager.registerView(view1);
-    ViewDescriptor view2 =
-        DistributionViewDescriptor.create(
+    View view2 =
+        DistributionView.create(
             VIEW_NAME,
             "This is a different description.",
             MEASURE,
@@ -142,7 +142,7 @@ public class ViewManagerImplTest {
       thrown.expectMessage("A different view with the same name is already registered");
       viewManager.registerView(view2);
     } finally {
-      assertThat(viewManager.getView(VIEW_NAME).getViewDescriptor()).isEqualTo(view1);
+      assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view1);
     }
   }
 
@@ -154,8 +154,8 @@ public class ViewManagerImplTest {
 
   @Test
   public void testRecord() {
-    DistributionViewDescriptor view =
-        createDistributionViewDescriptor(
+    DistributionView view =
+        createDistributionView(
             VIEW_NAME,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -168,7 +168,7 @@ public class ViewManagerImplTest {
     }
     clock.setTime(Timestamp.create(3, 4));
     DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
-    assertThat(viewData.getViewDescriptor()).isEqualTo(view);
+    assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getStart()).isEqualTo(Timestamp.create(1, 2));
     assertThat(viewData.getEnd()).isEqualTo(Timestamp.create(3, 4));
     assertDistributionAggregationsEquivalent(
@@ -182,8 +182,8 @@ public class ViewManagerImplTest {
 
   @Test
   public void getViewDoesNotClearStats() {
-    DistributionViewDescriptor view =
-        createDistributionViewDescriptor(
+    DistributionView view =
+        createDistributionView(
             VIEW_NAME,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -221,7 +221,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordMultipleTagValues() {
     viewManager.registerView(
-        createDistributionViewDescriptor(
+        createDistributionView(
             VIEW_NAME,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -259,7 +259,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithEmptyStatsContext() {
     viewManager.registerView(
-        createDistributionViewDescriptor(
+        createDistributionView(
             VIEW_NAME,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -283,7 +283,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithNonExistentMeasurementDescriptor() {
     viewManager.registerView(
-        createDistributionViewDescriptor(
+        createDistributionView(
             VIEW_NAME,
             Measure.MeasureDouble.create(MEASURE_NAME, "measure", MEASURE_UNIT),
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -299,7 +299,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithTagsThatDoNotMatchViewData() {
     viewManager.registerView(
-        createDistributionViewDescriptor(
+        createDistributionView(
             VIEW_NAME,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -328,7 +328,7 @@ public class ViewManagerImplTest {
     TagKey key1 = TagKey.create("Key-1");
     TagKey key2 = TagKey.create("Key-2");
     viewManager.registerView(
-        createDistributionViewDescriptor(
+        createDistributionView(
             VIEW_NAME,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -371,14 +371,14 @@ public class ViewManagerImplTest {
 
   @Test
   public void testMultipleViewDatasSameMeasure() {
-    ViewDescriptor view1 =
-        createDistributionViewDescriptor(
+    View view1 =
+        createDistributionView(
             VIEW_NAME,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
             Arrays.asList(KEY));
-    ViewDescriptor view2 =
-        createDistributionViewDescriptor(
+    View view2 =
+        createDistributionView(
             VIEW_NAME_2,
             MEASURE,
             DISTRIBUTION_AGGREGATION_DESCRIPTOR,
@@ -412,11 +412,11 @@ public class ViewManagerImplTest {
         Measure.MeasureDouble.create(MEASURE_NAME, MEASURE_DESCRIPTION, MEASURE_UNIT);
     MeasureDouble measure2 =
         Measure.MeasureDouble.create(MEASURE_NAME_2, MEASURE_DESCRIPTION, MEASURE_UNIT);
-    ViewDescriptor view1 =
-        createDistributionViewDescriptor(
+    View view1 =
+        createDistributionView(
             VIEW_NAME, measure1, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
-    ViewDescriptor view2 =
-        createDistributionViewDescriptor(
+    View view2 =
+        createDistributionView(
             VIEW_NAME_2, measure2, DISTRIBUTION_AGGREGATION_DESCRIPTOR, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
     viewManager.registerView(view1);
@@ -447,8 +447,8 @@ public class ViewManagerImplTest {
 
   @Test
   public void testGetDistributionViewDataWithoutBucketBoundaries() {
-    ViewDescriptor view =
-        createDistributionViewDescriptor(
+    View view =
+        createDistributionView(
             VIEW_NAME, MEASURE, DistributionAggregationDescriptor.create(),
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
