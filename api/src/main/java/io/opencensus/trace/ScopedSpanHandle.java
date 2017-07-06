@@ -33,7 +33,7 @@ final class ScopedSpanHandle implements NonThrowingCloseable {
    */
   ScopedSpanHandle(Span span) {
     this.span = span;
-    this.withSpan = ContextUtils.withSpan(span);
+    this.withSpan = CurrentSpanUtils.withSpan(span);
   }
 
   /**

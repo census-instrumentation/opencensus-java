@@ -15,19 +15,14 @@ package io.opencensus.trace;
 
 import io.grpc.Context;
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.unsafe.ContextUtils;
 
 /**
- * Util methods/functionality to interact with the {@link io.grpc.Context}.
- *
- * <p>Users must interact with the current Context via the public APIs in {@link Tracer} and avoid
- * usages of the {@link #CONTEXT_SPAN_KEY} directly.
+ * Util methods/functionality to interact with the {@link Span} in the {@link io.grpc.Context}.
  */
-public final class ContextUtils {
-  /** The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}. */
-  public static final Context.Key<Span> CONTEXT_SPAN_KEY = Context.key("instrumentation-trace-key");
-
+final class CurrentSpanUtils {
   // No instance of this class.
-  private ContextUtils() {}
+  private CurrentSpanUtils() {}
 
   /**
    * Returns The {@link Span} from the current context.
@@ -35,7 +30,7 @@ public final class ContextUtils {
    * @return The {@code Span} from the current context.
    */
   static Span getCurrentSpan() {
-    return CONTEXT_SPAN_KEY.get(Context.current());
+    return ContextUtils.CONTEXT_SPAN_KEY.get(Context.current());
   }
 
   /**
@@ -49,7 +44,7 @@ public final class ContextUtils {
    *     context.
    */
   static NonThrowingCloseable withSpan(Span span) {
-    return new WithSpan(span, CONTEXT_SPAN_KEY);
+    return new WithSpan(span, ContextUtils.CONTEXT_SPAN_KEY);
   }
 
   // Defines an arbitrary scope of code as a traceable operation. Supports try-with-resources idiom.

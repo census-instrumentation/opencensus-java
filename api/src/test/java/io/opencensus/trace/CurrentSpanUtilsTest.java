@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.grpc.Context;
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.unsafe.ContextUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,9 +25,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link ContextUtils}. */
+/** Unit tests for {@link CurrentSpanUtils}. */
 @RunWith(JUnit4.class)
-public class ContextUtilsTest {
+public class CurrentSpanUtilsTest {
   @Mock private Span span;
 
   @Before
@@ -36,54 +37,53 @@ public class ContextUtilsTest {
 
   @Test
   public void getCurrentSpan_WhenNoContext() {
-    assertThat(ContextUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
   }
 
   @Test
   public void getCurrentSpan() {
-    assertThat(ContextUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Context origContext = Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, span).attach();
     // Make sure context is detached even if test fails.
     try {
-      assertThat(ContextUtils.getCurrentSpan()).isSameAs(span);
+      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
       Context.current().detach(origContext);
     }
-    assertThat(ContextUtils.getCurrentSpan()).isNull();
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
   }
 
   @Test
   public void withSpan() {
-    assertThat(ContextUtils.getCurrentSpan()).isNull();
-    NonThrowingCloseable ws = ContextUtils.withSpan(span);
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    NonThrowingCloseable ws = CurrentSpanUtils.withSpan(span);
     try {
-      assertThat(ContextUtils.getCurrentSpan()).isSameAs(span);
+      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
       ws.close();
     }
-    assertThat(ContextUtils.getCurrentSpan()).isNull();
-    ;
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
   }
 
   @Test
   public void propagationViaRunnable() {
     Runnable runnable = null;
-    NonThrowingCloseable ws = ContextUtils.withSpan(span);
+    NonThrowingCloseable ws = CurrentSpanUtils.withSpan(span);
     try {
-      assertThat(ContextUtils.getCurrentSpan()).isSameAs(span);
+      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
       runnable =
           Context.current()
               .wrap(
                   new Runnable() {
                     @Override
                     public void run() {
-                      assertThat(ContextUtils.getCurrentSpan()).isSameAs(span);
+                      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
                     }
                   });
     } finally {
       ws.close();
     }
-    assertThat(ContextUtils.getCurrentSpan()).isNotSameAs(span);
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNotSameAs(span);
     // When we run the runnable we will have the span in the current Context.
     runnable.run();
   }
