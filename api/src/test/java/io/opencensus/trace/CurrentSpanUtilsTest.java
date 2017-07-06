@@ -63,7 +63,6 @@ public class CurrentSpanUtilsTest {
       ws.close();
     }
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
-    ;
   }
 
   @Test
