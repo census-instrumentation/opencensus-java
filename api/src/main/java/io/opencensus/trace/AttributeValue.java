@@ -16,7 +16,7 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import javax.annotation.Nullable;
+import io.opencensus.common.Function;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -24,7 +24,6 @@ import javax.annotation.concurrent.Immutable;
  * of values: {@code String}, {@code Boolean} or {@code Long}.
  */
 @Immutable
-@AutoValue
 public abstract class AttributeValue {
   /**
    * Returns an {@code AttributeValue} with a string value.
@@ -34,7 +33,7 @@ public abstract class AttributeValue {
    * @throws NullPointerException if {@code stringValue} is {@code null}.
    */
   public static AttributeValue stringAttributeValue(String stringValue) {
-    return new AutoValue_AttributeValue(checkNotNull(stringValue, "stringValue"), null, null);
+    return AttributeValueString.create(stringValue);
   }
 
   /**
@@ -44,7 +43,7 @@ public abstract class AttributeValue {
    * @return an {@code AttributeValue} with a boolean value.
    */
   public static AttributeValue booleanAttributeValue(boolean booleanValue) {
-    return new AutoValue_AttributeValue(null, booleanValue, null);
+    return AttributeValueBoolean.create(booleanValue);
   }
 
   /**
@@ -54,38 +53,96 @@ public abstract class AttributeValue {
    * @return an {@code AttributeValue} with a long value.
    */
   public static AttributeValue longAttributeValue(long longValue) {
-    return new AutoValue_AttributeValue(null, null, longValue);
+    return AttributeValueLong.create(longValue);
   }
 
   AttributeValue() {}
 
   /**
-   * Returns the {@code String} value if this is a string {@code AttributeValue}, otherwise {@code
-   * null}.
+   * Applies a function to the underlying value. The function that is called depends on the value's
+   * type, which can be {@code String}, {@code Long}, or {@code Boolean}.
    *
-   * @return the {@code String} value if this is a string {@code AttributeValue}, otherwise {@code
-   *     null}.
+   * @param stringFunction the function that should be applied if the value has type {@code String}.
+   * @param longFunction the function that should be applied if the value has type {@code Long}.
+   * @param booleanFunction the function that should be applied if the value has type {@code
+   *     Boolean}.
+   * @param defaultFunction the function that should be applied if the value has a type that was
+   *     added after this {@code match} method was added to the API. See {@link
+   *     io.opencensus.common.Functions} for some common functions for handling unknown types.
+   * @return the result of the function applied to the underlying value.
    */
-  @Nullable
-  public abstract String getStringValue();
+  public abstract <T> T match(
+      Function<? super String, T> stringFunction,
+      Function<? super Boolean, T> booleanFunction,
+      Function<? super Long, T> longFunction,
+      Function<Object, T> defaultFunction);
 
-  /**
-   * Returns the {@code Boolean} value if this is a boolean {@code AttributeValue}, otherwise {@code
-   * null}.
-   *
-   * @return the {@code Boolean} value if this is a boolean {@code AttributeValue}, otherwise {@code
-   *     null}.
-   */
-  @Nullable
-  public abstract Boolean getBooleanValue();
+  @Immutable
+  @AutoValue
+  abstract static class AttributeValueString extends AttributeValue {
 
-  /**
-   * Returns the {@code Long} value if this is a long {@code AttributeValue}, otherwise {@code
-   * null}.
-   *
-   * @return the {@code Long} value if this is a long {@code AttributeValue}, otherwise {@code
-   *     null}.
-   */
-  @Nullable
-  public abstract Long getLongValue();
+    AttributeValueString() {}
+
+    static AttributeValue create(String stringValue) {
+      return new AutoValue_AttributeValue_AttributeValueString(
+          checkNotNull(stringValue, "stringValue"));
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super String, T> stringFunction,
+        Function<? super Boolean, T> booleanFunction,
+        Function<? super Long, T> longFunction,
+        Function<Object, T> defaultFunction) {
+      return stringFunction.apply(getStringValue());
+    }
+
+    abstract String getStringValue();
+  }
+
+  @Immutable
+  @AutoValue
+  abstract static class AttributeValueBoolean extends AttributeValue {
+
+    AttributeValueBoolean() {}
+
+    static AttributeValue create(Boolean stringValue) {
+      return new AutoValue_AttributeValue_AttributeValueBoolean(
+          checkNotNull(stringValue, "stringValue"));
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super String, T> stringFunction,
+        Function<? super Boolean, T> booleanFunction,
+        Function<? super Long, T> longFunction,
+        Function<Object, T> defaultFunction) {
+      return booleanFunction.apply(getBooleanValue());
+    }
+
+    abstract Boolean getBooleanValue();
+  }
+
+  @Immutable
+  @AutoValue
+  abstract static class AttributeValueLong extends AttributeValue {
+
+    AttributeValueLong() {}
+
+    static AttributeValue create(Long stringValue) {
+      return new AutoValue_AttributeValue_AttributeValueLong(
+          checkNotNull(stringValue, "stringValue"));
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super String, T> stringFunction,
+        Function<? super Boolean, T> booleanFunction,
+        Function<? super Long, T> longFunction,
+        Function<Object, T> defaultFunction) {
+      return longFunction.apply(getLongValue());
+    }
+
+    abstract Long getLongValue();
+  }
 }
