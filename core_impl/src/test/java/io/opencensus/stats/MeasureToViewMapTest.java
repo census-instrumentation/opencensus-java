@@ -49,8 +49,7 @@ public class MeasureToViewMapTest {
 
   @Test
   public void testRegisterAndGetDistributionView() {
-    MeasureToViewMap measureToViewMap =
-        new MeasureToViewMap();
+    MeasureToViewMap measureToViewMap = new MeasureToViewMap();
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
     measureToViewMap.registerView(VIEW_DESCRIPTOR, clock);
     clock.setTime(Timestamp.create(30, 40));

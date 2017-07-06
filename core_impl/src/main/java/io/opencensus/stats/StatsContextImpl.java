@@ -38,7 +38,7 @@ final class StatsContextImpl extends StatsContext {
   }
 
   @Override
-  public StatsContextImpl record(MeasurementMap stats) {
+  public StatsContextImpl record(MeasureMap stats) {
     statsRecorder.record(this, stats);
     return this;
   }

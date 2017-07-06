@@ -49,7 +49,7 @@ public abstract class StatsContext {
    * @param measurements the measurements to record against the saved {@link StatsContext}
    * @return this
    */
-  public abstract StatsContext record(MeasurementMap measurements);
+  public abstract StatsContext record(MeasureMap measurements);
 
   /**
    * Serializes the {@link StatsContext} into the on-the-wire representation.

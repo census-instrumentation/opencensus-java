@@ -21,6 +21,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
+import io.opencensus.stats.Measure.DoubleMeasure;
+import io.opencensus.stats.Measure.LongMeasure;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
 import io.opencensus.testing.common.TestClock;
@@ -32,13 +34,21 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link StatsContext}. */
+/**
+ * Tests for {@link StatsContext}.
+ */
 @RunWith(JUnit4.class)
 public class StatsContextTest {
+
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
+
   private static final double TOLERANCE = 1e-6;
 
   private final StatsComponentImplBase statsComponent =
@@ -97,19 +107,19 @@ public class StatsContextTest {
 
     StatsContext context4 = context3.with(K3, V30, K4, V4);
     assertThat(
-            defaultStatsContext
-                .builder()
-                .set(K1, V100)
-                .set(K2, V20)
-                .set(K3, V30)
-                .set(K4, V4)
-                .build())
+        defaultStatsContext
+            .builder()
+            .set(K1, V100)
+            .set(K2, V20)
+            .set(K3, V30)
+            .set(K4, V4)
+            .build())
         .isEqualTo(context4);
   }
 
-  // The main tests for stats recording are in StatsManagerImplTest.
+  // The main tests for stats recording are in ViewManagerImplTest.
   @Test
-  public void testRecord() {
+  public void testRecordDouble() {
     viewManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     View beforeView =
         viewManager.getView(
@@ -132,8 +142,9 @@ public class StatsContextTest {
     StatsContext context =
         defaultStatsContext.with(
             RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
-    MeasurementMap measurements =
-        MeasurementMap.of(RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1);
+    MeasureMap measurements =
+        MeasureMap.builder()
+            .set((DoubleMeasure) RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
     context.record(measurements);
     View afterView =
         viewManager.getView(
@@ -160,6 +171,16 @@ public class StatsContextTest {
             return null;
           }
         });
+  }
+
+  @Test
+  public void testRecordLong() {
+    LongMeasure measure = LongMeasure.create("long measure", "description", "1");
+    viewManager.registerView(ViewDescriptor.DistributionViewDescriptor
+        .create("name", "description", measure, DistributionAggregationDescriptor.create(),
+            Arrays.asList(K1)));
+    thrown.expect(UnsupportedOperationException.class);
+    defaultStatsContext.with(K1, V1).record(MeasureMap.builder().set(measure,1L).build());
   }
 
   @Test

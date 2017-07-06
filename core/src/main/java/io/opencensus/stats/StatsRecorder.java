@@ -27,5 +27,5 @@ public abstract class StatsRecorder {
    * @param tags the tags associated with the measurements.
    * @param measurementValues the measurements to record.
    */
-  abstract void record(StatsContext tags, MeasurementMap measurementValues);
+  abstract void record(StatsContext tags, MeasureMap measurementValues);
 }

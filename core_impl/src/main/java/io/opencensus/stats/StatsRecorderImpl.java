@@ -22,7 +22,7 @@ final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  void record(StatsContext tags, MeasurementMap measurementValues) {
+  void record(StatsContext tags, MeasureMap measurementValues) {
     // TODO(sebright): Replace StatsContext with TagContext, and then this cast won't be necessary.
     statsManager.record((StatsContextImpl) tags, measurementValues);
   }

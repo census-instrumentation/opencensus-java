@@ -17,12 +17,15 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
+import io.opencensus.stats.Measurement.DoubleMeasurement;
+import io.opencensus.stats.Measurement.LongMeasurement;
 import io.opencensus.stats.MutableView.MutableDistributionView;
 import io.opencensus.stats.MutableView.MutableIntervalView;
 import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
 import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -90,18 +93,20 @@ final class MeasureToViewMap {
   }
 
   // Records stats with a set of tags.
-  synchronized void record(StatsContextImpl tags, MeasurementMap stats) {
-    for (MeasurementValue mv : stats) {
-      Collection<MutableView> views =
-          mutableMap.get(mv.getMeasurement().getName());
+  synchronized void record(StatsContextImpl tags, MeasureMap stats) {
+    Iterator<Measurement> iterator = stats.iterator();
+    while (iterator.hasNext()) {
+      Measurement measurement = iterator.next();
+      Collection<MutableView> views = mutableMap.get(measurement.getMeasure().getName());
       for (MutableView view : views) {
-        view.record(tags, mv.getValue());
+        measurement.match(new RecordDoubleValueFunc(tags, view), new RecordLongValueFunc());
       }
     }
   }
 
   private static final class CreateMutableDistributionViewFunction
       implements Function<DistributionViewDescriptor, MutableView> {
+
     private final Clock clock;
 
     CreateMutableDistributionViewFunction(Clock clock) {
@@ -116,10 +121,35 @@ final class MeasureToViewMap {
 
   private static final class CreateMutableIntervalViewFunction
       implements Function<IntervalViewDescriptor, MutableView> {
+
     @Override
     public MutableView apply(IntervalViewDescriptor viewDescriptor) {
       // TODO(songya): Create Interval Aggregations from internal Distributions.
       return MutableIntervalView.create(viewDescriptor);
+    }
+  }
+
+  private static final class RecordDoubleValueFunc implements Function<DoubleMeasurement, Void> {
+    @Override
+    public Void apply(DoubleMeasurement arg) {
+      view.record(tags, arg.getValue());
+      return null;
+    }
+
+    private final StatsContextImpl tags;
+    private final MutableView view;
+
+    private RecordDoubleValueFunc(StatsContextImpl tags, MutableView view) {
+      this.tags = tags;
+      this.view = view;
+    }
+  }
+
+  private static final class RecordLongValueFunc implements Function<LongMeasurement, Void> {
+    @Override
+    public Void apply(LongMeasurement arg) {
+      // TODO: determine if we want to support LongMeasure in v0.1
+      throw new UnsupportedOperationException("Long measurements not supported.");
     }
   }
 }

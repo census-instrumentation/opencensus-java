@@ -53,17 +53,17 @@ final class StatsManager {
     }
   }
 
-  void record(StatsContextImpl tags, MeasurementMap measurementValues) {
+  void record(StatsContextImpl tags, MeasureMap measurementValues) {
     queue.enqueue(new StatsEvent(this, tags, measurementValues));
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
   private static final class StatsEvent implements EventQueue.Entry {
     private final StatsContextImpl tags;
-    private final MeasurementMap stats;
+    private final MeasureMap stats;
     private final StatsManager viewManager;
 
-    StatsEvent(StatsManager viewManager, StatsContextImpl tags, MeasurementMap stats) {
+    StatsEvent(StatsManager viewManager, StatsContextImpl tags, MeasureMap stats) {
       this.viewManager = viewManager;
       this.tags = tags;
       this.stats = stats;
