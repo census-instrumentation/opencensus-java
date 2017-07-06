@@ -30,13 +30,13 @@ public class MeasureMapTest {
   @Test
   public void testPutDouble() {
     MeasureMap metrics = MeasureMap.builder().put(M1, 44.4).build();
-    assertEquals(metrics, Measurement.DoubleMeasurement.create(M1, 44.4));
+    assertContains(metrics, Measurement.DoubleMeasurement.create(M1, 44.4));
   }
 
   @Test
   public void testPutLong() {
     MeasureMap metrics = MeasureMap.builder().put(M3, 9999L).put(M4, 8888L).build();
-    assertEquals(metrics,
+    assertContains(metrics,
         Measurement.LongMeasurement.create(M3, 9999L),
         Measurement.LongMeasurement.create(M4, 8888L));
   }
@@ -45,7 +45,7 @@ public class MeasureMapTest {
   public void testCombination() {
     MeasureMap metrics =
         MeasureMap.builder().put(M1, 44.4).put(M2, 66.6).put(M3, 9999L).put(M4, 8888L).build();
-    assertEquals(metrics,
+    assertContains(metrics,
         Measurement.DoubleMeasurement.create(M1, 44.4),
         Measurement.DoubleMeasurement.create(M2, 66.6),
         Measurement.LongMeasurement.create(M3, 9999L),
@@ -55,7 +55,7 @@ public class MeasureMapTest {
   @Test
   public void testBuilderEmpty() {
     MeasureMap metrics = MeasureMap.builder().build();
-    assertEquals(metrics);
+    assertContains(metrics);
   }
 
   @Test
@@ -66,39 +66,37 @@ public class MeasureMapTest {
       expected
           .add(Measurement.DoubleMeasurement.create(makeSimpleDoubleMeasure("m" + i), i * 11.1));
       builder.put(makeSimpleDoubleMeasure("m" + i), i * 11.1);
-      assertThat(Lists.newArrayList(builder.build().iterator()))
-          .containsExactlyElementsIn(expected);
-      assertEquals(builder.build(), expected.toArray(new Measurement[i]));
+      assertContains(builder.build(), expected.toArray(new Measurement[i]));
     }
   }
 
   @Test
   public void testDuplicateDoubleMeasures() {
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).build(), measurement1);
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M1, 3.0).build(), measurement1);
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M2, 2.0).put(M1, 3.0).build(), measurement1,
-        measurement2);
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M2, 2.0).build(), measurement1,
-        measurement2);
+    assertContains(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).build(), MEASUREMENT_1);
+    assertContains(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M1, 3.0).build(), MEASUREMENT_1);
+    assertContains(MeasureMap.builder().put(M1, 1.0).put(M2, 2.0).put(M1, 3.0).build(), MEASUREMENT_1,
+        MEASUREMENT_2);
+    assertContains(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M2, 2.0).build(), MEASUREMENT_1,
+        MEASUREMENT_2);
   }
 
   @Test
   public void testDuplicateLongMeasures() {
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 100L).build(), measurement3);
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M3, 300L).build(),
-        measurement3);
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M4, 200L).put(M3, 300L).build(),
-        measurement3, measurement4);
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M4, 200L).build(),
-        measurement3, measurement4);
+    assertContains(MeasureMap.builder().put(M3, 100L).put(M3, 100L).build(), MEASUREMENT_3);
+    assertContains(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M3, 300L).build(),
+        MEASUREMENT_3);
+    assertContains(MeasureMap.builder().put(M3, 100L).put(M4, 200L).put(M3, 300L).build(),
+        MEASUREMENT_3, MEASUREMENT_4);
+    assertContains(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M4, 200L).build(),
+        MEASUREMENT_3, MEASUREMENT_4);
   }
 
   @Test
   public void testDuplicateMeasures() {
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M1, 1.0).put(M3, 300L).build(),
-        measurement3, measurement1);
-    assertEquals(MeasureMap.builder().put(M2, 2.0).put(M3, 100L).put(M2, 3.0).build(),
-        measurement2, measurement3);
+    assertContains(MeasureMap.builder().put(M3, 100L).put(M1, 1.0).put(M3, 300L).build(),
+        MEASUREMENT_3, MEASUREMENT_1);
+    assertContains(MeasureMap.builder().put(M2, 2.0).put(M3, 100L).put(M2, 3.0).build(),
+        MEASUREMENT_2, MEASUREMENT_3);
   }
 
   private static final DoubleMeasure M1 = makeSimpleDoubleMeasure("m1");
@@ -106,23 +104,20 @@ public class MeasureMapTest {
   private static final LongMeasure M3 = makeSimpleLongMeasure("m3");
   private static final LongMeasure M4 = makeSimpleLongMeasure("m4");
 
-  private static final Measurement measurement1 = Measurement.DoubleMeasurement.create(M1, 1.0);
-  private static final Measurement measurement2 = Measurement.DoubleMeasurement.create(M2, 2.0);
-  private static final Measurement measurement3 = Measurement.LongMeasurement.create(M3, 100L);
-  private static final Measurement measurement4 = Measurement.LongMeasurement.create(M4, 200L);
+  private static final Measurement MEASUREMENT_1 = Measurement.DoubleMeasurement.create(M1, 1.0);
+  private static final Measurement MEASUREMENT_2 = Measurement.DoubleMeasurement.create(M2, 2.0);
+  private static final Measurement MEASUREMENT_3 = Measurement.LongMeasurement.create(M3, 100L);
+  private static final Measurement MEASUREMENT_4 = Measurement.LongMeasurement.create(M4, 200L);
 
   private static DoubleMeasure makeSimpleDoubleMeasure(String measure) {
-    return Measure.DoubleMeasure.create(
-        measure, measure + " description", "1");
+    return Measure.DoubleMeasure.create(measure, measure + " description", "1");
   }
 
   private static LongMeasure makeSimpleLongMeasure(String measure) {
-    return Measure.LongMeasure.create(
-        measure, measure + " description", "1");
+    return Measure.LongMeasure.create(measure, measure + " description", "1");
   }
 
-  private static void assertEquals(MeasureMap metrics, Measurement... measurements) {
-    assertThat(Lists.newArrayList(metrics.iterator()))
-        .containsExactly((Object[]) measurements);
+  private static void assertContains(MeasureMap metrics, Measurement... measurements) {
+    assertThat(Lists.newArrayList(metrics.iterator())).containsExactly((Object[]) measurements);
   }
 }

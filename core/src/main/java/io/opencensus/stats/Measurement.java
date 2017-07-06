@@ -19,15 +19,15 @@ import io.opencensus.stats.Measure.DoubleMeasure;
 import io.opencensus.stats.Measure.LongMeasure;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * Immutable representation of a Measure.
- */
+/** Immutable representation of a Measurement. */
 @Immutable
 public abstract class Measurement {
+
   /**
    * Applies the given match function to the underlying data type.
    */
-  public abstract <T> T match(Function<DoubleMeasurement, T> p0, Function<LongMeasurement, T> p1);
+  public abstract <T> T match(
+      Function<? super DoubleMeasurement, T> p0, Function<? super LongMeasurement, T> p1);
 
   /**
    * Extracts the measured {@link Measure}.
@@ -41,7 +41,9 @@ public abstract class Measurement {
   @Immutable
   @AutoValue
   public abstract static class DoubleMeasurement extends Measurement {
-    DoubleMeasurement() {}
+
+    DoubleMeasurement() {
+    }
 
     /**
      * Constructs a new {@link DoubleMeasurement}.
@@ -56,7 +58,8 @@ public abstract class Measurement {
     public abstract Double getValue();
 
     @Override
-    public <T> T match(Function<DoubleMeasurement, T> p0, Function<LongMeasurement, T> p1) {
+    public <T> T match(
+        Function<? super DoubleMeasurement, T> p0, Function<? super LongMeasurement, T> p1) {
       return p0.apply(this);
     }
   }
@@ -64,7 +67,9 @@ public abstract class Measurement {
   @Immutable
   @AutoValue
   public abstract static class LongMeasurement extends Measurement {
-    LongMeasurement() {}
+
+    LongMeasurement() {
+    }
 
     /**
      * Constructs a new {@link LongMeasurement}.
@@ -79,7 +84,8 @@ public abstract class Measurement {
     public abstract Long getValue();
 
     @Override
-    public <T> T match(Function<DoubleMeasurement, T> p0, Function<LongMeasurement, T> p1) {
+    public <T> T match(
+        Function<? super DoubleMeasurement, T> p0, Function<? super LongMeasurement, T> p1) {
       return p1.apply(this);
     }
   }
