@@ -37,8 +37,8 @@ public abstract class ViewData {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<DistributionViewData, T> p0,
-      Function<IntervalViewData, T> p1);
+      Function<? super DistributionViewData, T> p0,
+      Function<? super IntervalViewData, T> p1);
 
   // Prevents this class from being subclassed anywhere else.
   private ViewData() {
@@ -86,8 +86,8 @@ public abstract class ViewData {
 
     @Override
     public final <T> T match(
-        Function<DistributionViewData, T> p0,
-        Function<IntervalViewData, T> p1) {
+        Function<? super DistributionViewData, T> p0,
+        Function<? super IntervalViewData, T> p1) {
       return p0.apply(this);
     }
   }
@@ -121,8 +121,8 @@ public abstract class ViewData {
 
     @Override
     public final <T> T match(
-        Function<DistributionViewData, T> p0,
-        Function<IntervalViewData, T> p1) {
+        Function<? super DistributionViewData, T> p0,
+        Function<? super IntervalViewData, T> p1) {
       return p1.apply(this);
     }
   }
