@@ -97,19 +97,9 @@ final class MeasureToViewMap {
     Iterator<Measurement> iterator = stats.iterator();
     while (iterator.hasNext()) {
       Measurement measurement = iterator.next();
-      Collection<MutableView> views =
-          mutableMap.get(measurement.getMeasure().getName());
-      Object value = measurement.match(new GetDoubleValueFunc(), new GetLongValueFunc());
-
+      Collection<MutableView> views = mutableMap.get(measurement.getMeasure().getName());
       for (MutableView view : views) {
-        if (value instanceof Double) {
-          view.record(tags, (Double) value);
-        } else if (value instanceof Long) {
-          // TODO: determine if we want to support LongMeasure in v0.1
-          throw new UnsupportedOperationException("Long measurements not supported.");
-        } else {
-          throw new UnsupportedOperationException("Unknown measure value type.");
-        }
+        measurement.match(new RecordDoubleValueFunc(tags, view), new RecordLongValueFunc());
       }
     }
   }
@@ -139,17 +129,27 @@ final class MeasureToViewMap {
     }
   }
 
-  private static final class GetDoubleValueFunc implements Function<DoubleMeasurement, Object> {
+  private static final class RecordDoubleValueFunc implements Function<DoubleMeasurement, Void> {
     @Override
-    public Double apply(DoubleMeasurement arg) {
-      return arg.getValue();
+    public Void apply(DoubleMeasurement arg) {
+      view.record(tags, arg.getValue());
+      return null;
+    }
+
+    private final StatsContextImpl tags;
+    private final MutableView view;
+
+    private RecordDoubleValueFunc(StatsContextImpl tags, MutableView view) {
+      this.tags = tags;
+      this.view = view;
     }
   }
 
-  private static final class GetLongValueFunc implements Function<LongMeasurement, Object> {
+  private static final class RecordLongValueFunc implements Function<LongMeasurement, Void> {
     @Override
-    public Long apply(LongMeasurement arg) {
-      return arg.getValue();
+    public Void apply(LongMeasurement arg) {
+      // TODO: determine if we want to support LongMeasure in v0.1
+      throw new UnsupportedOperationException("Long measurements not supported.");
     }
   }
 }

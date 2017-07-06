@@ -15,58 +15,47 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableList;
-import io.opencensus.common.Function;
+import com.google.common.collect.Lists;
 import io.opencensus.stats.Measure.DoubleMeasure;
 import io.opencensus.stats.Measure.LongMeasure;
-import io.opencensus.stats.Measurement.DoubleMeasurement;
-import io.opencensus.stats.Measurement.LongMeasurement;
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link MeasureMap}
- */
+/** Tests for {@link MeasureMap} */
 @RunWith(JUnit4.class)
 public class MeasureMapTest {
 
   @Test
   public void testPutDouble() {
-    ImmutableList<Measurement> expected = ImmutableList.of(
-        (Measurement) Measurement.DoubleMeasurement.create(M1, 44.4));
     MeasureMap metrics = MeasureMap.builder().put(M1, 44.4).build();
-    assertEquals(expected.iterator(), metrics.iterator());
+    assertEquals(metrics, Measurement.DoubleMeasurement.create(M1, 44.4));
   }
 
   @Test
   public void testPutLong() {
-    ImmutableList<Measurement> expected = ImmutableList.of(
-        (Measurement) Measurement.LongMeasurement.create(M3, 9999L),
-        Measurement.LongMeasurement.create(M4, 8888L));
     MeasureMap metrics = MeasureMap.builder().put(M3, 9999L).put(M4, 8888L).build();
-    assertEquals(expected.iterator(), metrics.iterator());
+    assertEquals(metrics,
+        Measurement.LongMeasurement.create(M3, 9999L),
+        Measurement.LongMeasurement.create(M4, 8888L));
   }
 
   @Test
   public void testCombination() {
-    ImmutableList<Measurement> expected = ImmutableList.of(
+    MeasureMap metrics =
+        MeasureMap.builder().put(M1, 44.4).put(M2, 66.6).put(M3, 9999L).put(M4, 8888L).build();
+    assertEquals(metrics,
         Measurement.DoubleMeasurement.create(M1, 44.4),
         Measurement.DoubleMeasurement.create(M2, 66.6),
         Measurement.LongMeasurement.create(M3, 9999L),
         Measurement.LongMeasurement.create(M4, 8888L));
-    MeasureMap metrics =
-        MeasureMap.builder().put(M1, 44.4).put(M2, 66.6).put(M3, 9999L).put(M4, 8888L).build();
-    assertEquals(expected.iterator(), metrics.iterator());
   }
 
   @Test
   public void testBuilderEmpty() {
-    ImmutableList<Measurement> expected = ImmutableList.of();
     MeasureMap metrics = MeasureMap.builder().build();
-    assertEquals(expected.iterator(), metrics.iterator());
+    assertEquals(metrics);
   }
 
   @Test
@@ -77,43 +66,39 @@ public class MeasureMapTest {
       expected
           .add(Measurement.DoubleMeasurement.create(makeSimpleDoubleMeasure("m" + i), i * 11.1));
       builder.put(makeSimpleDoubleMeasure("m" + i), i * 11.1);
-      assertEquals(expected.iterator(), builder.build().iterator());
+      assertThat(Lists.newArrayList(builder.build().iterator()))
+          .containsExactlyElementsIn(expected);
+      assertEquals(builder.build(), expected.toArray(new Measurement[i]));
     }
   }
 
   @Test
+  public void testDuplicateDoubleMeasures() {
+    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).build(), measurement1);
+    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M1, 3.0).build(), measurement1);
+    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M2, 2.0).put(M1, 3.0).build(), measurement1,
+        measurement2);
+    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M2, 2.0).build(), measurement1,
+        measurement2);
+  }
+
+  @Test
+  public void testDuplicateLongMeasures() {
+    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 100L).build(), measurement3);
+    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M3, 300L).build(),
+        measurement3);
+    assertEquals(MeasureMap.builder().put(M3, 100L).put(M4, 200L).put(M3, 300L).build(),
+        measurement3, measurement4);
+    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M4, 200L).build(),
+        measurement3, measurement4);
+  }
+
+  @Test
   public void testDuplicateMeasures() {
-    // DoubleMeasure
-    MeasureMap metrics1 = MeasureMap.builder().put(M1, 1.0).build();
-    MeasureMap metrics2 = MeasureMap.builder().put(M1, 1.0).put(M2, 2.0).build();
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).build().iterator(),
-        metrics1.iterator());
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M1, 3.0).build().iterator(),
-        metrics1.iterator());
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M2, 2.0).put(M1, 3.0).build().iterator(),
-        metrics2.iterator());
-    assertEquals(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M2, 2.0).build().iterator(),
-        metrics2.iterator());
-
-    // LongMeasure
-    MeasureMap metrics3 = MeasureMap.builder().put(M3, 100L).build();
-    MeasureMap metrics4 = MeasureMap.builder().put(M3, 100L).put(M4, 200L).build();
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 100L).build().iterator(),
-        metrics3.iterator());
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M3, 300L).build().iterator(),
-        metrics3.iterator());
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M4, 200L).put(M3, 300L).build().iterator(),
-        metrics4.iterator());
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M4, 200L).build().iterator(),
-        metrics4.iterator());
-
-    // Mixed
-    MeasureMap metrics5 = MeasureMap.builder().put(M3, 100L).put(M1, 1.0).build();
-    MeasureMap metrics6 = MeasureMap.builder().put(M2, 2.0).put(M3, 200L).build();
-    assertEquals(MeasureMap.builder().put(M3, 100L).put(M1, 1.0).put(M3, 300L).build().iterator(),
-        metrics5.iterator());
-    assertEquals(MeasureMap.builder().put(M2, 2.0).put(M3, 200L).put(M2, 3.0).build().iterator(),
-        metrics6.iterator());
+    assertEquals(MeasureMap.builder().put(M3, 100L).put(M1, 1.0).put(M3, 300L).build(),
+        measurement3, measurement1);
+    assertEquals(MeasureMap.builder().put(M2, 2.0).put(M3, 100L).put(M2, 3.0).build(),
+        measurement2, measurement3);
   }
 
   private static final DoubleMeasure M1 = makeSimpleDoubleMeasure("m1");
@@ -121,43 +106,23 @@ public class MeasureMapTest {
   private static final LongMeasure M3 = makeSimpleLongMeasure("m3");
   private static final LongMeasure M4 = makeSimpleLongMeasure("m4");
 
-  private static final DoubleMeasure makeSimpleDoubleMeasure(String measure) {
+  private static final Measurement measurement1 = Measurement.DoubleMeasurement.create(M1, 1.0);
+  private static final Measurement measurement2 = Measurement.DoubleMeasurement.create(M2, 2.0);
+  private static final Measurement measurement3 = Measurement.LongMeasurement.create(M3, 100L);
+  private static final Measurement measurement4 = Measurement.LongMeasurement.create(M4, 200L);
+
+  private static DoubleMeasure makeSimpleDoubleMeasure(String measure) {
     return Measure.DoubleMeasure.create(
         measure, measure + " description", "1");
   }
 
-  private static final LongMeasure makeSimpleLongMeasure(String measure) {
+  private static LongMeasure makeSimpleLongMeasure(String measure) {
     return Measure.LongMeasure.create(
         measure, measure + " description", "1");
   }
 
-  private static void assertEquals(
-      Iterator<Measurement> expected, Iterator<Measurement> actual) {
-    while (expected.hasNext() && actual.hasNext()) {
-      Measurement expectedMeasurement = expected.next();
-      Measurement actualMeasurement = actual.next();
-      assertThat(expectedMeasurement.getMeasure().getName())
-          .isEqualTo(actualMeasurement.getMeasure().getName());
-      assertThat(expectedMeasurement.match(new GetDoubleValue(), new GetLongValue()))
-          .isEqualTo(actualMeasurement.match(new GetDoubleValue(), new GetLongValue()));
-    }
-    assertThat(expected.hasNext()).isFalse();
-    assertThat(actual.hasNext()).isFalse();
-  }
-
-  private static final class GetDoubleValue implements Function<DoubleMeasurement, Object> {
-
-    @Override
-    public Double apply(DoubleMeasurement arg) {
-      return arg.getValue();
-    }
-  }
-
-  private static final class GetLongValue implements Function<LongMeasurement, Object> {
-
-    @Override
-    public Long apply(LongMeasurement arg) {
-      return arg.getValue();
-    }
+  private static void assertEquals(MeasureMap metrics, Measurement... measurements) {
+    assertThat(Lists.newArrayList(metrics.iterator()))
+        .containsExactly((Object[]) measurements);
   }
 }
