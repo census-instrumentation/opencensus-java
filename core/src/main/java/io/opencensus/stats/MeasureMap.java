@@ -13,8 +13,8 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.stats.Measure.DoubleMeasure;
-import io.opencensus.stats.Measure.LongMeasure;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -50,28 +50,28 @@ public final class MeasureMap {
    */
   public static class Builder {
     /**
-     * Associates the {@link DoubleMeasure} with the given value. Subsequent updates to the
-     * same {@link DoubleMeasure} are ignored.
+     * Associates the {@link MeasureDouble} with the given value. Subsequent updates to the
+     * same {@link MeasureDouble} are ignored.
      *
-     * @param measure the {@link DoubleMeasure}
+     * @param measure the {@link MeasureDouble}
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder set(DoubleMeasure measure, double value) {
-      measurements.add(Measurement.DoubleMeasurement.create(measure, value));
+    public Builder set(MeasureDouble measure, double value) {
+      measurements.add(Measurement.MeasurementDouble.create(measure, value));
       return this;
     }
 
     /**
-     * Associates the {@link LongMeasure} with the given value. Subsequent updates to the
-     * same {@link LongMeasure} are ignored.
+     * Associates the {@link MeasureLong} with the given value. Subsequent updates to the
+     * same {@link MeasureLong} are ignored.
      *
-     * @param measure the {@link LongMeasure}
+     * @param measure the {@link MeasureLong}
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder set(LongMeasure measure, long value) {
-      measurements.add(Measurement.LongMeasurement.create(measure, value));
+    public Builder set(MeasureLong measure, long value) {
+      measurements.add(Measurement.MeasurementLong.create(measure, value));
       return this;
     }
 

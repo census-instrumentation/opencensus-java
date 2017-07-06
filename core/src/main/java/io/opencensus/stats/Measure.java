@@ -27,8 +27,8 @@ public abstract class Measure {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<? super DoubleMeasure, T> p0,
-      Function<? super LongMeasure, T> p1);
+      Function<? super MeasureDouble, T> p0,
+      Function<? super MeasureLong, T> p1);
 
   /**
    * Name of measure, as a {@code String}.
@@ -59,22 +59,22 @@ public abstract class Measure {
 
   @Immutable
   @AutoValue
-  public abstract static class DoubleMeasure extends Measure {
+  public abstract static class MeasureDouble extends Measure {
 
-    DoubleMeasure() {
+    MeasureDouble() {
     }
 
     /**
-     * Constructs a new {@link DoubleMeasure}.
+     * Constructs a new {@link MeasureDouble}.
      */
-    public static DoubleMeasure create(String name, String description, String unit) {
+    public static MeasureDouble create(String name, String description, String unit) {
       // TODO(dpo): ensure that measure names are unique, and consider if there should be any
       // restricitons on name (e.g. size, characters).
-      return new AutoValue_Measure_DoubleMeasure(name, description, unit);
+      return new AutoValue_Measure_MeasureDouble(name, description, unit);
     }
 
     @Override
-    public <T> T match(Function<? super DoubleMeasure, T> p0, Function<? super LongMeasure, T> p1) {
+    public <T> T match(Function<? super MeasureDouble, T> p0, Function<? super MeasureLong, T> p1) {
       return p0.apply(this);
     }
 
@@ -90,23 +90,23 @@ public abstract class Measure {
 
   @Immutable
   @AutoValue
-  // TODO: determine whether we want to support LongMeasure in V0.1
-  public abstract static class LongMeasure extends Measure {
+  // TODO: determine whether we want to support MeasureLong in V0.1
+  public abstract static class MeasureLong extends Measure {
 
-    LongMeasure() {
+    MeasureLong() {
     }
 
     /**
-     * Constructs a new {@link LongMeasure}.
+     * Constructs a new {@link MeasureLong}.
      */
-    public static LongMeasure create(String name, String description, String unit) {
+    public static MeasureLong create(String name, String description, String unit) {
       // TODO(dpo): ensure that measure names are unique, and consider if there should be any
       // restricitons on name (e.g. size, characters).
-      return new AutoValue_Measure_LongMeasure(name, description, unit);
+      return new AutoValue_Measure_MeasureLong(name, description, unit);
     }
 
     @Override
-    public <T> T match(Function<? super DoubleMeasure, T> p0, Function<? super LongMeasure, T> p1) {
+    public <T> T match(Function<? super MeasureDouble, T> p0, Function<? super MeasureLong, T> p1) {
       return p1.apply(this);
     }
 

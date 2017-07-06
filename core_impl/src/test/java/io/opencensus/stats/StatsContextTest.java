@@ -21,8 +21,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
-import io.opencensus.stats.Measure.DoubleMeasure;
-import io.opencensus.stats.Measure.LongMeasure;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
 import io.opencensus.testing.common.TestClock;
@@ -144,7 +144,7 @@ public class StatsContextTest {
             RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
     MeasureMap measurements =
         MeasureMap.builder()
-            .set((DoubleMeasure) RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
+            .set((MeasureDouble) RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
     context.record(measurements);
     View afterView =
         viewManager.getView(
@@ -175,7 +175,7 @@ public class StatsContextTest {
 
   @Test
   public void testRecordLong() {
-    LongMeasure measure = LongMeasure.create("long measure", "description", "1");
+    MeasureLong measure = MeasureLong.create("long measure", "description", "1");
     viewManager.registerView(ViewDescriptor.DistributionViewDescriptor
         .create("name", "description", measure, DistributionAggregationDescriptor.create(),
             Arrays.asList(K1)));

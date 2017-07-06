@@ -31,57 +31,57 @@ public final class RpcMeasurementConstants {
 
   // RPC client Measures.
   public static final Measure RPC_CLIENT_ERROR_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/error_count",
           "RPC Errors",
           COUNT);
   public static final Measure RPC_CLIENT_REQUEST_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/request_bytes",
           "Request bytes",
           BYTE);
   public static final Measure RPC_CLIENT_RESPONSE_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/response_bytes",
           "Response bytes",
           BYTE);
   public static final Measure RPC_CLIENT_ROUNDTRIP_LATENCY =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/roundtrip_latency",
           "RPC roundtrip latency msec",
           MILLISECOND);
   public static final Measure RPC_CLIENT_SERVER_ELAPSED_TIME =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/server_elapsed_time",
           "Server elapsed time in msecs",
           MILLISECOND);
   public static final Measure RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/uncompressed_request_bytes",
           "Uncompressed Request bytes",
           BYTE);
   public static final Measure RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/uncompressed_response_bytes",
           "Uncompressed Response bytes",
           BYTE);
   public static final Measure RPC_CLIENT_STARTED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/started_count",
           "Number of client RPCs (streams) started",
           COUNT);
   public static final Measure RPC_CLIENT_FINISHED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/finished_count",
           "Number of client RPCs (streams) finished",
           COUNT);
   public static final Measure RPC_CLIENT_REQUEST_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/request_count",
           "Number of client RPC request messages",
           COUNT);
   public static final Measure RPC_CLIENT_RESPONSE_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/client/response_count",
           "Number of client RPC response messages",
           COUNT);
@@ -89,57 +89,57 @@ public final class RpcMeasurementConstants {
 
   // RPC server Measures.
   public static final Measure RPC_SERVER_ERROR_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/error_count",
           "RPC Errors",
           COUNT);
   public static final Measure RPC_SERVER_REQUEST_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/request_bytes",
           "Request bytes",
           BYTE);
   public static final Measure RPC_SERVER_RESPONSE_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/response_bytes",
           "Response bytes",
           BYTE);
   public static final Measure RPC_SERVER_SERVER_ELAPSED_TIME =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/server_elapsed_time",
           "Server elapsed time in msecs",
           MILLISECOND);
   public static final Measure RPC_SERVER_SERVER_LATENCY =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/server_latency",
           "Latency in msecs",
           MILLISECOND);
   public static final Measure RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/uncompressed_request_bytes",
           "Uncompressed Request bytes",
           BYTE);
   public static final Measure RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/uncompressed_response_bytes",
           "Uncompressed Response bytes",
           BYTE);
   public static final Measure RPC_SERVER_STARTED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/started_count",
           "Number of server RPCs (streams) started",
           COUNT);
   public static final Measure RPC_SERVER_FINISHED_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/finished_count",
           "Number of server RPCs (streams) finished",
           COUNT);
   public static final Measure RPC_SERVER_REQUEST_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/request_count",
           "Number of server RPC request messages",
           COUNT);
   public static final Measure RPC_SERVER_RESPONSE_COUNT =
-      Measure.DoubleMeasure.create(
+      Measure.MeasureDouble.create(
           "grpc.io/server/response_count",
           "Number of server RPC response messages",
           COUNT);
