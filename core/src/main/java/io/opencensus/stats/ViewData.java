@@ -27,9 +27,9 @@ import javax.annotation.concurrent.Immutable;
  * The aggregated data for a particular {@link ViewDescriptor}.
  */
 @Immutable
-public abstract class View {
+public abstract class ViewData {
   /**
-   * The {@link ViewDescriptor} associated with this {@link View}.
+   * The {@link ViewDescriptor} associated with this {@link ViewData}.
    */
   public abstract ViewDescriptor getViewDescriptor();
 
@@ -37,26 +37,26 @@ public abstract class View {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<DistributionView, T> p0,
-      Function<IntervalView, T> p1);
+      Function<DistributionViewData, T> p0,
+      Function<IntervalViewData, T> p1);
 
   // Prevents this class from being subclassed anywhere else.
-  private View() {
+  private ViewData() {
   }
 
   /**
-   * A {@link View} for distribution-based aggregations.
+   * A {@link ViewData} for distribution-based aggregations.
    */
   @Immutable
   @AutoValue
-  public abstract static class DistributionView extends View {
+  public abstract static class DistributionViewData extends ViewData {
     /**
-     * Constructs a new {@link DistributionView}.
+     * Constructs a new {@link DistributionViewData}.
      */
-    public static DistributionView create(DistributionViewDescriptor distributionViewDescriptor,
+    public static DistributionViewData create(DistributionViewDescriptor distributionView,
         List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
-      return new AutoValue_View_DistributionView(
-          distributionViewDescriptor,
+      return new AutoValue_ViewData_DistributionViewData(
+          distributionView,
           Collections.unmodifiableList(
               new ArrayList<DistributionAggregation>(distributionAggregations)),
           start,
@@ -67,7 +67,7 @@ public abstract class View {
     public abstract DistributionViewDescriptor getViewDescriptor();
 
     /**
-     * The {@link DistributionAggregation}s associated with this {@link DistributionView}.
+     * The {@link DistributionAggregation}s associated with this {@link DistributionViewData}.
      *
      * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
@@ -86,25 +86,25 @@ public abstract class View {
 
     @Override
     public final <T> T match(
-        Function<DistributionView, T> p0,
-        Function<IntervalView, T> p1) {
+        Function<DistributionViewData, T> p0,
+        Function<IntervalViewData, T> p1) {
       return p0.apply(this);
     }
   }
 
   /**
-   * A {@link View} for interval-base aggregations.
+   * A {@link ViewData} for interval-base aggregations.
    */
   @Immutable
   @AutoValue
-  public abstract static class IntervalView extends View {
+  public abstract static class IntervalViewData extends ViewData {
     /**
-     * Constructs a new {@link IntervalView}.
+     * Constructs a new {@link IntervalViewData}.
      */
-    public static IntervalView create(IntervalViewDescriptor intervalViewDescriptor,
+    public static IntervalViewData create(IntervalViewDescriptor intervalView,
         List<IntervalAggregation> intervalAggregations) {
-      return new AutoValue_View_IntervalView(
-          intervalViewDescriptor,
+      return new AutoValue_ViewData_IntervalViewData(
+          intervalView,
           Collections.unmodifiableList(new ArrayList<IntervalAggregation>(intervalAggregations)));
     }
 
@@ -112,7 +112,7 @@ public abstract class View {
     public abstract IntervalViewDescriptor getViewDescriptor();
 
     /**
-     * The {@link IntervalAggregation}s associated with this {@link IntervalView}.
+     * The {@link IntervalAggregation}s associated with this {@link IntervalViewData}.
      *
      * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
@@ -121,8 +121,8 @@ public abstract class View {
 
     @Override
     public final <T> T match(
-        Function<DistributionView, T> p0,
-        Function<IntervalView, T> p1) {
+        Function<DistributionViewData, T> p0,
+        Function<IntervalViewData, T> p1) {
       return p1.apply(this);
     }
   }

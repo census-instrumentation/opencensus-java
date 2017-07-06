@@ -25,29 +25,28 @@ final class StatsManager {
   // clock used throughout the stats implementation
   private final Clock clock;
 
-  private final MeasureToViewMap measureToViewMap =
-      new MeasureToViewMap();
+  private final MeasureToViewMap measureToViewMap = new MeasureToViewMap();
 
   StatsManager(EventQueue queue, Clock clock) {
     this.queue = queue;
     this.clock = clock;
   }
 
-  void registerView(ViewDescriptor viewDescriptor) {
+  void registerView(ViewDescriptor view) {
     // Only DistributionViews are supported currently.
     // TODO(sebright): Remove this once all views are supported.
-    if (!(viewDescriptor instanceof DistributionViewDescriptor)) {
+    if (!(view instanceof DistributionViewDescriptor)) {
       throw new UnsupportedOperationException(
           "The prototype will only support distribution views.");
     }
-    measureToViewMap.registerView(viewDescriptor, clock);
+    measureToViewMap.registerView(view, clock);
   }
 
-  View getView(ViewDescriptor.Name viewName) {
-    View view = measureToViewMap.getView(viewName, clock);
+  ViewData getView(ViewDescriptor.Name viewName) {
+    ViewData view = measureToViewMap.getView(viewName, clock);
     if (view == null) {
       throw new IllegalArgumentException(
-          "View for view descriptor " + viewName + " not found.");
+          "ViewData for view " + viewName + " not found.");
     } else {
       return view;
     }
