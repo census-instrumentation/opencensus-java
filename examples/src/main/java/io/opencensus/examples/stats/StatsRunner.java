@@ -35,10 +35,8 @@ public class StatsRunner {
   private static final TagValue V4 = TagValue.create("v4");
 
   private static final String UNIT = "1";
-  private static final Measure M1 =
-      Measure.DoubleMeasure.create("m1", "1st test metric", UNIT);
-  private static final Measure M2 =
-      Measure.DoubleMeasure.create("m2", "2nd test metric", UNIT);
+  private static final Measure M1 = Measure.DoubleMeasure.create("m1", "1st test metric", UNIT);
+  private static final Measure M2 = Measure.DoubleMeasure.create("m2", "2nd test metric", UNIT);
 
   private static final StatsContextFactory factory = Stats.getStatsContextFactory();
   private static final StatsContext DEFAULT = factory.getDefault();
@@ -56,8 +54,7 @@ public class StatsRunner {
     try (NonThrowingCloseable scopedStatsCtx1 = factory.withStatsContext(tags1)) {
       System.out.println("  Current Tags: " + factory.getCurrentStatsContext());
       System.out.println(
-          "  Current == Default + tags1: "
-              + factory.getCurrentStatsContext().equals(tags1));
+          "  Current == Default + tags1: " + factory.getCurrentStatsContext().equals(tags1));
       StatsContext tags2 = tags1.with(K3, V3, K4, V4);
       try (NonThrowingCloseable scopedStatsCtx2 = factory.withStatsContext(tags2)) {
         System.out.println("    Current Tags: " + factory.getCurrentStatsContext());
