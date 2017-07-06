@@ -21,7 +21,6 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
-import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.View.DistributionView;
 import io.opencensus.stats.View.IntervalView;
@@ -141,10 +140,10 @@ public class StatsContextTest {
         });
     StatsContext context =
         defaultStatsContext.with(
-            RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
+            RpcMeasureConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
     MeasureMap measurements =
         MeasureMap.builder()
-            .set((MeasureDouble) RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
+            .set(RpcMeasureConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
     context.record(measurements);
     View afterView =
         viewManager.getView(
@@ -158,7 +157,7 @@ public class StatsContextTest {
             assertThat(agg.getTags())
                 .containsExactly(
                     Tag.create(
-                        RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod")));
+                        RpcMeasureConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod")));
             assertThat(agg.getCount()).isEqualTo(1);
             assertThat(agg.getMean()).isWithin(TOLERANCE).of(5.1);
             return null;
