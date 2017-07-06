@@ -18,8 +18,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.base.Status;
-import io.opencensus.trace.base.Status.CanonicalCode;
+import io.opencensus.trace.Status;
+import io.opencensus.trace.Status.CanonicalCode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

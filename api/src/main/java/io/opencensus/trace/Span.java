@@ -16,10 +16,6 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.trace.base.Annotation;
-import io.opencensus.trace.base.AttributeValue;
-import io.opencensus.trace.base.Link;
-import io.opencensus.trace.base.NetworkEvent;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;

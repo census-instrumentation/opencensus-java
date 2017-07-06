@@ -13,9 +13,6 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.trace.base.AttributeValue;
-import io.opencensus.trace.base.Link;
-import io.opencensus.trace.base.NetworkEvent;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;

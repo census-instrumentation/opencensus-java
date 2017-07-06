@@ -17,11 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.internal.TimestampConverter;
-import io.opencensus.trace.base.Link;
-import io.opencensus.trace.base.Link.Type;
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.TraceId;
-import io.opencensus.trace.base.TraceOptions;
+import io.opencensus.trace.Link.Type;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.internal.RandomHandler;

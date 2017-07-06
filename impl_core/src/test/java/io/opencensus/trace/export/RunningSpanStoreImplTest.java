@@ -19,12 +19,12 @@ import io.opencensus.common.MillisClock;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
+import io.opencensus.trace.SpanId;
 import io.opencensus.trace.SpanImpl;
 import io.opencensus.trace.SpanImpl.StartEndHandler;
 import io.opencensus.trace.StartEndHandlerImpl;
-import io.opencensus.trace.base.SpanId;
-import io.opencensus.trace.base.TraceId;
-import io.opencensus.trace.base.TraceOptions;
+import io.opencensus.trace.TraceId;
+import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.RunningSpanStore.Filter;
 import java.util.EnumSet;
@@ -33,9 +33,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link RunningSpanStore}. */
+/** Unit tests for {@link RunningSpanStoreImpl}. */
 @RunWith(JUnit4.class)
-public class RunningSpanStoreTest {
+public class RunningSpanStoreImplTest {
 
   private static final String SPAN_NAME_1 = "MySpanName/1";
   private static final String SPAN_NAME_2 = "MySpanName/2";

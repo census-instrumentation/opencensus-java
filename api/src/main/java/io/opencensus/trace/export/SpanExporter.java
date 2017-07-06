@@ -14,7 +14,7 @@
 package io.opencensus.trace.export;
 
 import io.opencensus.trace.Span;
-import io.opencensus.trace.base.TraceOptions;
+import io.opencensus.trace.TraceOptions;
 import java.util.Collection;
 import javax.annotation.concurrent.ThreadSafe;
 

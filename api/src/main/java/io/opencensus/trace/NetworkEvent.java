@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.base;
+package io.opencensus.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

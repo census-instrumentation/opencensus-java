@@ -15,8 +15,8 @@ package io.opencensus.trace.export;
 
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.trace.SpanImpl;
-import io.opencensus.trace.base.Status;
-import io.opencensus.trace.base.Status.CanonicalCode;
+import io.opencensus.trace.Status;
+import io.opencensus.trace.Status.CanonicalCode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
