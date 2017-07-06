@@ -16,9 +16,6 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.trace.Annotation;
-import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Link;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
