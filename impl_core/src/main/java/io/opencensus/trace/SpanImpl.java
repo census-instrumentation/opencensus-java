@@ -220,6 +220,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           annotationsSpanData,
           networkEventsSpanData,
           linksSpanData,
+          null,  // Not supported yet.
           hasBeenEnded ? status : null,
           hasBeenEnded ? timestampConverter.convertNanoTime(endNanoTime) : null);
     }
