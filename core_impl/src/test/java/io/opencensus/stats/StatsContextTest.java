@@ -144,7 +144,7 @@ public class StatsContextTest {
             RpcMeasurementConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
     MeasureMap measurements =
         MeasureMap.builder()
-            .put((DoubleMeasure) RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
+            .set((DoubleMeasure) RpcMeasurementConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
     context.record(measurements);
     View afterView =
         viewManager.getView(
@@ -180,7 +180,7 @@ public class StatsContextTest {
         .create("name", "description", measure, DistributionAggregationDescriptor.create(),
             Arrays.asList(K1)));
     thrown.expect(UnsupportedOperationException.class);
-    defaultStatsContext.with(K1, V1).record(MeasureMap.builder().put(measure,1L).build());
+    defaultStatsContext.with(K1, V1).record(MeasureMap.builder().set(measure,1L).build());
   }
 
   @Test
