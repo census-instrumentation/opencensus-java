@@ -14,6 +14,7 @@
 package io.opencensus.trace;
 
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.unsafe.ContextUtils;
 
 /**
  * Defines a scope of code where the given {@link Span} is in the current context. The scope is

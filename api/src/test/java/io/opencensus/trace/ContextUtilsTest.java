@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.grpc.Context;
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.unsafe.ContextUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

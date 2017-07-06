@@ -17,6 +17,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.trace.SpanBuilder.NoopSpanBuilder;
+import io.opencensus.trace.unsafe.ContextUtils;
 import javax.annotation.Nullable;
 
 /**

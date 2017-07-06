@@ -11,10 +11,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.unsafe;
 
 import io.grpc.Context;
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.Tracer;
 
 /**
  * Util methods/functionality to interact with the {@link io.grpc.Context}.
