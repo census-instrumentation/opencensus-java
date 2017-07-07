@@ -145,7 +145,7 @@ public final class TagContext {
      * @return a {@code TagContext} with the same tags as this builder.
      */
     public TagContext build() {
-      return new TagContext(new HashMap<TagKey, Object>(tags));
+      return new TagContext(tags);
     }
   }
 }
