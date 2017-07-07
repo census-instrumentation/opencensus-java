@@ -40,7 +40,7 @@ final class SpanBuilderImpl extends SpanBuilder {
 
   private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
-      boolean hasRemoteParent,
+      Boolean hasRemoteParent,
       String name,
       Sampler sampler,
       List<Span> parentLinks,
@@ -57,7 +57,7 @@ final class SpanBuilderImpl extends SpanBuilder {
       traceId = TraceId.generateRandomId(random);
       traceOptionsBuilder = TraceOptions.builder();
       // This is a root span so no remote or local parent.
-      hasRemoteParent = false;
+      hasRemoteParent = null;
     } else {
       // New child span.
       traceId = parent.getTraceId();
@@ -123,12 +123,13 @@ final class SpanBuilderImpl extends SpanBuilder {
   @Override
   public SpanImpl startSpan() {
     SpanContext parentContext = remoteParentSpanContext;
-    boolean hasRemoteParent = parentContext != null;
+    Boolean hasRemoteParent = Boolean.TRUE;
     TimestampConverter timestampConverter = null;
-    if (!hasRemoteParent) {
+    if (remoteParentSpanContext == null) {
       // This is not a child of a remote Span. Get the parent SpanContext from the parent Span if
       // any.
       Span parent = this.parent;
+      hasRemoteParent = Boolean.FALSE;
       if (parent != null) {
         parentContext = parent.getContext();
         // Pass the timestamp converter from the parent to ensure that the recorded events are in

@@ -44,7 +44,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   // The parent SpanId of this span. Null if this is a root span.
   private final SpanId parentSpanId;
   // True if the parent is on a different process.
-  private final boolean hasRemoteParent;
+  private final Boolean hasRemoteParent;
   // Active trace params when the Span was created.
   private final TraceParams traceParams;
   // Handler called when the span starts and ends.
@@ -93,7 +93,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    * @param options the options for the new span, importantly Options.RECORD_EVENTS.
    * @param name the displayed name for the new span.
    * @param parentSpanId the span_id of the parent span, or null if the new span is a root span.
-   * @param hasRemoteParent true if the parent span is in another process.
+   * @param hasRemoteParent {@code true} if the parentContext is remote. {@code null} if this is a
+   *     root span.
    * @param traceParams trace parameters like sampler and probability.
    * @param startEndHandler handler called when the span starts and ends.
    * @param timestampConverter null if the span is a root span or the parent is not sampled. If the
@@ -108,7 +109,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       @Nullable EnumSet<Options> options,
       String name,
       @Nullable SpanId parentSpanId,
-      boolean hasRemoteParent,
+      @Nullable Boolean hasRemoteParent,
       TraceParams traceParams,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
@@ -480,7 +481,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       @Nullable EnumSet<Options> options,
       String name,
       @Nullable SpanId parentSpanId,
-      boolean hasRemoteParent,
+      @Nullable Boolean hasRemoteParent,
       TraceParams traceParams,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,

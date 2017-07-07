@@ -126,7 +126,7 @@ public class SpanDataTest {
         SpanData.create(
             spanContext,
             null,
-            false,
+            null,
             SPAN_NAME,
             startTimestamp,
             attributes,
@@ -138,7 +138,7 @@ public class SpanDataTest {
             null);
     assertThat(spanData.getContext()).isEqualTo(spanContext);
     assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getHasRemoteParent()).isFalse();
+    assertThat(spanData.getHasRemoteParent()).isNull();
     assertThat(spanData.getName()).isEqualTo(SPAN_NAME);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes()).isEqualTo(attributes);

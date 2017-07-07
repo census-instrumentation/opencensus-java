@@ -32,7 +32,7 @@ final class AlwaysSampleSampler extends Sampler {
   @Override
   public boolean shouldSample(
       @Nullable SpanContext parentContext,
-      boolean remoteParent,
+      @Nullable Boolean hasRemoteParent,
       TraceId traceId,
       SpanId spanId,
       String name,

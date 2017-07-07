@@ -71,7 +71,7 @@ abstract class ProbabilitySampler extends Sampler {
   @Override
   public final boolean shouldSample(
       @Nullable SpanContext parentContext,
-      boolean remoteParent,
+      @Nullable Boolean hasRemoteParent,
       TraceId traceId,
       SpanId spanId,
       String name,
