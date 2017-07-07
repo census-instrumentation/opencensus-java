@@ -14,19 +14,19 @@
 package io.opencensus.stats;
 
 /**
- * Provides facilities to register {@link ViewDescriptor}s for collecting stats and retrieving
+ * Provides facilities to register {@link View}s for collecting stats and retrieving
  * stats data as a {@link ViewData}.
  */
 public abstract class ViewManager {
   /**
-   * Pull model for stats. Registers a {@link ViewDescriptor} that will collect data to be accessed
-   * via {@link #getView(ViewDescriptor)}.
+   * Pull model for stats. Registers a {@link View} that will collect data to be accessed
+   * via {@link #getView(View)}.
    */
-  public abstract void registerView(ViewDescriptor viewDescriptor);
+  public abstract void registerView(View view);
 
   /**
    * Returns the current stats data, {@link ViewData}, associated with the given
-   * {@link ViewDescriptor}.
+   * {@link View}.
    */
-  public abstract ViewData getView(ViewDescriptor viewDescriptor);
+  public abstract ViewData getView(View view);
 }

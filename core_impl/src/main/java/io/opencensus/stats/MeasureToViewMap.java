@@ -21,8 +21,8 @@ import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
 import io.opencensus.stats.MutableViewData.MutableDistributionViewData;
 import io.opencensus.stats.MutableViewData.MutableIntervalViewData;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.stats.View.DistributionView;
+import io.opencensus.stats.View.IntervalView;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,25 +45,25 @@ final class MeasureToViewMap {
       HashMultimap.<String, MutableViewData>create();
 
   @GuardedBy("this")
-  private final Map<ViewDescriptor.Name, ViewDescriptor> registeredViews =
-      new HashMap<ViewDescriptor.Name, ViewDescriptor>();
+  private final Map<View.Name, View> registeredViews =
+      new HashMap<View.Name, View>();
 
-  /** Returns a {@link ViewData} corresponding to the given {@link ViewDescriptor.Name}. */
-  synchronized ViewData getView(ViewDescriptor.Name viewName, Clock clock) {
+  /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
+  synchronized ViewData getView(View.Name viewName, Clock clock) {
     MutableViewData view = getMutableViewData(viewName);
     return view == null ? null : view.toViewData(clock);
   }
 
   @Nullable
-  private synchronized MutableViewData getMutableViewData(ViewDescriptor.Name viewName) {
-    ViewDescriptor view = registeredViews.get(viewName);
+  private synchronized MutableViewData getMutableViewData(View.Name viewName) {
+    View view = registeredViews.get(viewName);
     if (view == null) {
       return null;
     }
     Collection<MutableViewData> views =
         mutableMap.get(view.getMeasure().getName());
     for (MutableViewData viewData : views) {
-      if (viewData.getViewDescriptor().getViewDescriptorName().equals(viewName)) {
+      if (viewData.getView().getViewName().equals(viewName)) {
         return viewData;
       }
     }
@@ -71,9 +71,9 @@ final class MeasureToViewMap {
         + "\" registeredViews=" + registeredViews + ", mutableMap=" + mutableMap);
   }
 
-  /** Enable stats collection for the given {@link ViewDescriptor}. */
-  synchronized void registerView(ViewDescriptor view, Clock clock) {
-    ViewDescriptor existing = registeredViews.get(view.getViewDescriptorName());
+  /** Enable stats collection for the given {@link View}. */
+  synchronized void registerView(View view, Clock clock) {
+    View existing = registeredViews.get(view.getViewName());
     if (existing != null) {
       if (existing.equals(view)) {
         // Ignore views that are already registered.
@@ -83,7 +83,7 @@ final class MeasureToViewMap {
             "A different view with the same name is already registered: " + existing);
       }
     }
-    registeredViews.put(view.getViewDescriptorName(), view);
+    registeredViews.put(view.getViewName(), view);
     MutableViewData mutableViewData =
         view.match(
             new CreateMutableDistributionViewDataFunction(clock),
@@ -105,7 +105,7 @@ final class MeasureToViewMap {
   }
 
   private static final class CreateMutableDistributionViewDataFunction
-      implements Function<DistributionViewDescriptor, MutableViewData> {
+      implements Function<DistributionView, MutableViewData> {
     private final Clock clock;
 
     CreateMutableDistributionViewDataFunction(Clock clock) {
@@ -113,15 +113,15 @@ final class MeasureToViewMap {
     }
 
     @Override
-    public MutableViewData apply(DistributionViewDescriptor view) {
+    public MutableViewData apply(DistributionView view) {
       return MutableDistributionViewData.create(view, clock.now());
     }
   }
 
   private static final class CreateMutableIntervalViewDataFunction
-      implements Function<IntervalViewDescriptor, MutableViewData> {
+      implements Function<IntervalView, MutableViewData> {
     @Override
-    public MutableViewData apply(IntervalViewDescriptor view) {
+    public MutableViewData apply(IntervalView view) {
       // TODO(songya): Create Interval Aggregations from internal Distributions.
       return MutableIntervalViewData.create(view);
     }

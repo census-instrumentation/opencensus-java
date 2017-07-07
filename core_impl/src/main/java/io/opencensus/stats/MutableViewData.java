@@ -16,9 +16,9 @@ package io.opencensus.stats;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.View.DistributionView;
+import io.opencensus.stats.View.IntervalView;
 import io.opencensus.stats.ViewData.DistributionViewData;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,9 +35,9 @@ abstract class MutableViewData {
   static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
 
   /**
-   * The {@link ViewDescriptor} associated with this {@link ViewData}.
+   * The {@link View} associated with this {@link ViewData}.
    */
-  abstract ViewDescriptor getViewDescriptor();
+  abstract View getView();
 
   /**
    * Record stats with the given tags.
@@ -61,12 +61,12 @@ abstract class MutableViewData {
      * Constructs a new {@link MutableDistributionViewData}.
      */
     static MutableDistributionViewData create(
-        DistributionViewDescriptor distributionView, Timestamp start) {
+        DistributionView distributionView, Timestamp start) {
       return new MutableDistributionViewData(distributionView, start);
     }
 
     @Override
-    ViewDescriptor getViewDescriptor() {
+    View getView() {
       return distributionView;
     }
 
@@ -74,7 +74,7 @@ abstract class MutableViewData {
     void record(StatsContextImpl context, double value) {
       Map<TagKey, TagValue> tags = context.tags;
       // TagKeys need to be unique within one view descriptor.
-      final List<TagKey> tagKeys = this.distributionView.getTagKeys();
+      final List<TagKey> tagKeys = this.distributionView.getDimensions();
       final List<TagValue> tagValues = new ArrayList<TagValue>(tagKeys.size());
 
       // Record all the measures in a "Greedy" way.
@@ -127,13 +127,13 @@ abstract class MutableViewData {
       return start;
     }
 
-    private final DistributionViewDescriptor distributionView;
+    private final DistributionView distributionView;
     private final Map<List<TagValue>, MutableDistribution> tagValueDistributionMap =
         new HashMap<List<TagValue>, MutableDistribution>();
     private final Timestamp start;
 
     private MutableDistributionViewData(
-        DistributionViewDescriptor distributionView, Timestamp start) {
+        DistributionView distributionView, Timestamp start) {
       this.distributionView = distributionView;
       this.start = start;
     }
@@ -141,7 +141,7 @@ abstract class MutableViewData {
     private final List<Tag> generateTags(List<TagValue> tagValues) {
       final List<Tag> tags = new ArrayList<Tag>(tagValues.size());
       int i = 0;
-      for (TagKey tagKey : this.distributionView.getTagKeys()) {
+      for (TagKey tagKey : this.distributionView.getDimensions()) {
         tags.add(Tag.create(tagKey, tagValues.get(i)));
         ++i;
       }
@@ -163,12 +163,12 @@ abstract class MutableViewData {
     /**
      * Constructs a new {@link MutableIntervalViewData}.
      */
-    static MutableIntervalViewData create(IntervalViewDescriptor view) {
+    static MutableIntervalViewData create(IntervalView view) {
       throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
-    ViewDescriptor getViewDescriptor() {
+    View getView() {
       throw new UnsupportedOperationException("Not implemented.");
     }
 

@@ -24,8 +24,8 @@ import io.opencensus.stats.DistributionAggregation.Range;
 import io.opencensus.stats.IntervalAggregation.Interval;
 import io.opencensus.stats.ViewData.DistributionViewData;
 import io.opencensus.stats.ViewData.IntervalViewData;
-import io.opencensus.stats.ViewDescriptor.DistributionViewDescriptor;
-import io.opencensus.stats.ViewDescriptor.IntervalViewDescriptor;
+import io.opencensus.stats.View.DistributionView;
+import io.opencensus.stats.View.IntervalView;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,8 +40,8 @@ public final class ViewDataTest {
   public void testDistributionViewData() {
     DistributionAggregationDescriptor aggregationDescriptor =
         DistributionAggregationDescriptor.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
-    final DistributionViewDescriptor view =
-        DistributionViewDescriptor.create(
+    final DistributionView view =
+        DistributionView.create(
             name, description, measure, aggregationDescriptor, tagKeys);
     final List<DistributionAggregation> aggregations = Arrays.asList(
         DistributionAggregation.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
@@ -52,12 +52,12 @@ public final class ViewDataTest {
     final Timestamp end = Timestamp.fromMillis(2000);
     final ViewData viewData = DistributionViewData.create(view, aggregations, start, end);
 
-    assertThat(viewData.getViewDescriptor()).isEqualTo(view);
+    assertThat(viewData.getView()).isEqualTo(view);
     assertTrue(viewData.match(
         new Function<DistributionViewData, Boolean> () {
           @Override public Boolean apply(DistributionViewData dViewData) {
             return dViewData == viewData
-                && dViewData.getViewDescriptor().equals(view)
+                && dViewData.getView().equals(view)
                 && shallowListEquals(dViewData.getDistributionAggregations(), aggregations)
                 && dViewData.getStart().equals(start)
                 && dViewData.getEnd().equals(end);
@@ -74,8 +74,8 @@ public final class ViewDataTest {
   public void testIntervalViewData() {
     IntervalAggregationDescriptor aggregationDescriptor =
         IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111)));
-    final IntervalViewDescriptor view =
-        IntervalViewDescriptor.create(
+    final IntervalView view =
+        IntervalView.create(
             name, description, measure, aggregationDescriptor, tagKeys);
     final List<IntervalAggregation> aggregations = Arrays.asList(
         IntervalAggregation.create(tags1, Arrays.asList(
@@ -84,7 +84,7 @@ public final class ViewDataTest {
             Interval.create(Duration.fromMillis(111), 10, 100))));
 
     final ViewData viewData = IntervalViewData.create(view, aggregations);
-    assertThat(viewData.getViewDescriptor()).isEqualTo(view);
+    assertThat(viewData.getView()).isEqualTo(view);
     assertTrue(viewData.match(
         new Function<DistributionViewData, Boolean> () {
           @Override public Boolean apply(DistributionViewData dViewData) {
@@ -94,7 +94,7 @@ public final class ViewDataTest {
         new Function<IntervalViewData, Boolean> () {
           @Override public Boolean apply(IntervalViewData iViewData) {
             return iViewData == viewData
-                && iViewData.getViewDescriptor().equals(view)
+                && iViewData.getView().equals(view)
                 && shallowListEquals(iViewData.getIntervalAggregations(), aggregations);
           }
         }));
@@ -102,8 +102,8 @@ public final class ViewDataTest {
 
   @Test
   public void testViewDataEquals() {
-    DistributionViewDescriptor dView =
-        DistributionViewDescriptor.create(
+    DistributionView dView =
+        DistributionView.create(
             name,
             description,
             measure,
@@ -113,8 +113,8 @@ public final class ViewDataTest {
         Arrays.asList(
             DistributionAggregation.create(
                 5, 5.0, 15.0, Range.create(1.0, 5.0), tags1, Arrays.asList(1L)));
-    IntervalViewDescriptor iView =
-        IntervalViewDescriptor.create(
+    IntervalView iView =
+        IntervalView.create(
             name,
             description,
             measure,
