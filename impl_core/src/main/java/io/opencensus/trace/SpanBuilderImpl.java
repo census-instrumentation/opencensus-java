@@ -40,7 +40,7 @@ final class SpanBuilderImpl extends SpanBuilder {
 
   private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
-      Boolean hasRemoteParent,
+      @Nullable Boolean hasRemoteParent,
       String name,
       Sampler sampler,
       List<Span> parentLinks,
@@ -137,6 +137,8 @@ final class SpanBuilderImpl extends SpanBuilder {
         if (parent instanceof SpanImpl) {
           timestampConverter = ((SpanImpl) parent).getTimestampConverter();
         }
+      } else {
+        hasRemoteParent = null;
       }
     }
     return startSpanInternal(
