@@ -44,8 +44,8 @@ public abstract class SpanData {
    * @param context the {@code SpanContext} of the {@code Span}.
    * @param parentSpanId the parent {@code SpanId} of the {@code Span}. {@code null} if the {@code
    *     Span} is a root.
-   * @param hasRemoteParent {@code true} if the parentContext is remote. {@code null} if this is a
-   *     root span.
+   * @param hasRemoteParent {@code true} if the parent {@code Span} is remote. {@code null} if this
+   *     is a root span.
    * @param name the name of the {@code Span}.
    * @param startTimestamp the start {@code Timestamp} of the {@code Span}.
    * @param attributes the attributes associated with the {@code Span}.

@@ -23,8 +23,8 @@ public abstract class Sampler {
    *
    * @param parentContext the parent span's {@link SpanContext}. {@code null} if this is a root
    *     span.
-   * @param hasRemoteParent {@code true} if the parentContext is remote. {@code null} if this is a
-   *     root span.
+   * @param hasRemoteParent {@code true} if the parent {@code Span} is remote. {@code null} if this
+   *     is a root span.
    * @param traceId the {@link TraceId} for the new {@code Span}. This will be identical to that in
    *     the parentContext, unless this is a root span.
    * @param spanId the span ID for the new {@code Span}.
