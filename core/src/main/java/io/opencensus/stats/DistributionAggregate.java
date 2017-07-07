@@ -27,7 +27,7 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>A distribution contains summary statistics for a population of values and, optionally, a
  * histogram representing the distribution of those values across a specified set of histogram
- * buckets, as defined in {@link DistributionAggregationDescriptor#getBucketBoundaries()}.
+ * buckets, as defined in {@link DistributionAggregation#getBucketBoundaries()}.
  *
  * <p>Although not forbidden, it is generally a bad idea to include non-finite values (infinities or
  * NaNs) in the population of values, as this will render the {@code mean} meaningless.
@@ -123,12 +123,12 @@ public abstract class DistributionAggregate {
 
   /**
    * Returns the bucket counts, or {@code null} if this {@code DistributionAggregate}'s associated
-   * {@link DistributionAggregationDescriptor} has no buckets.
+   * {@link DistributionAggregation} has no buckets.
    *
    * <p>A Distribution may contain a histogram of the values in the population. The histogram is
    * given in {@link #getBucketCounts()} as counts of values that fall into one of a sequence of
    * non-overlapping buckets, described by {@link
-   * DistributionAggregationDescriptor#getBucketBoundaries()}. The sum of the values in {@link
+   * DistributionAggregation#getBucketBoundaries()}. The sum of the values in {@link
    * #getBucketCounts()} must equal the value in {@link #getCount()}.
    *
    * <p>Bucket counts are given in order under the numbering scheme described in the link above (the
@@ -136,15 +136,15 @@ public abstract class DistributionAggregate {
    * overflow bucket has number N-1).
    *
    * <p>The size of {@link #getBucketCounts()} must be no greater than N as defined in {@link
-   * DistributionAggregationDescriptor#getBucketBoundaries()}.
+   * DistributionAggregation#getBucketBoundaries()}.
    *
    * <p>Any suffix of trailing buckets containing only zero may be omitted.
    *
    * <p>{@link #getBucketCounts()} will return null iff the associated {@link
-   * DistributionAggregationDescriptor#getBucketBoundaries()} returns null.
+   * DistributionAggregation#getBucketBoundaries()} returns null.
    *
    * @return the bucket counts, or {@code null} if this {@code DistributionAggregate}'s associated
-   *     {@link DistributionAggregationDescriptor} has no buckets.
+   *     {@link DistributionAggregation} has no buckets.
    */
   @Nullable
   public abstract List<Long> getBucketCounts();

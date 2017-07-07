@@ -38,26 +38,26 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
-public abstract class DistributionAggregationDescriptor {
+public abstract class DistributionAggregation {
   /**
-   * Constructs a new {@link DistributionAggregationDescriptor} with the optional
+   * Constructs a new {@link DistributionAggregation} with the optional
    * histogram bucket boundaries.
    */
-  public static DistributionAggregationDescriptor create(List<Double> bucketBoundaries) {
+  public static DistributionAggregation create(List<Double> bucketBoundaries) {
     return createInternal(BucketBoundaries.create(bucketBoundaries));
   }
 
   /**
-   * Constructs a new {@link DistributionAggregationDescriptor} without the optional
+   * Constructs a new {@link DistributionAggregation} without the optional
    * histogram bucket boundaries.
    */
-  public static DistributionAggregationDescriptor create() {
+  public static DistributionAggregation create() {
     return createInternal(null);
   }
 
-  private static DistributionAggregationDescriptor createInternal(
+  private static DistributionAggregation createInternal(
       @Nullable BucketBoundaries bucketBoundaries) {
-    return new AutoValue_DistributionAggregationDescriptor(bucketBoundaries);
+    return new AutoValue_DistributionAggregation(bucketBoundaries);
   }
 
   /**

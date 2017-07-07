@@ -22,38 +22,38 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link DistributionAggregationDescriptor}
+ * Tests for {@link DistributionAggregation}
  */
 @RunWith(JUnit4.class)
-public final class DistributionAggregationDescriptorTest {
+public final class DistributionAggregationTest {
   @Test
-  public void testDistributionAggregationDescriptorEmpty() {
-    DistributionAggregationDescriptor dDescriptor = DistributionAggregationDescriptor.create();
-    assertThat(dDescriptor.getBucketBoundaries()).isNull();
+  public void testDistributionAggregationEmpty() {
+    DistributionAggregation d = DistributionAggregation.create();
+    assertThat(d.getBucketBoundaries()).isNull();
   }
 
   @Test
-  public void testDistributionAggregationDescriptor() {
+  public void testDistributionAggregation() {
     Double[] buckets = new Double[] { 0.1, 2.2, 33.3 };
-    DistributionAggregationDescriptor dDescriptor =
-        DistributionAggregationDescriptor.create(Arrays.asList(buckets));
-    assertThat(dDescriptor.getBucketBoundaries()).isNotNull();
-    assertThat(dDescriptor.getBucketBoundaries()).hasSize(buckets.length);
+    DistributionAggregation d =
+        DistributionAggregation.create(Arrays.asList(buckets));
+    assertThat(d.getBucketBoundaries()).isNotNull();
+    assertThat(d.getBucketBoundaries()).hasSize(buckets.length);
     for (int i = 0; i < buckets.length; i++) {
-      assertThat(dDescriptor.getBucketBoundaries().get(i))
+      assertThat(d.getBucketBoundaries().get(i))
           .isWithin(0.00000001).of(buckets[i]);
     }
   }
 
   @Test
-  public void testDistributionAggregationDescriptorEquals() {
+  public void testDistributionAggregationEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            DistributionAggregationDescriptor.create(Arrays.asList(1.0, 2.0, 5.0)),
-            DistributionAggregationDescriptor.create(Arrays.asList(1.0, 2.0, 5.0)))
+            DistributionAggregation.create(Arrays.asList(1.0, 2.0, 5.0)),
+            DistributionAggregation.create(Arrays.asList(1.0, 2.0, 5.0)))
         .addEqualityGroup(
-            DistributionAggregationDescriptor.create(),
-            DistributionAggregationDescriptor.create())
+            DistributionAggregation.create(),
+            DistributionAggregation.create())
         .testEquals();
   }
 }

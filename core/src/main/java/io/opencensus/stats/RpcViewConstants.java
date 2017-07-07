@@ -68,63 +68,63 @@ public final class RpcViewConstants {
           "grpc.io/client/error_count/distribution_cumulative",
           "RPC Errors",
           RPC_CLIENT_ERROR_COUNT,
-          DistributionAggregationDescriptor.create(),
+          DistributionAggregation.create(),
           Arrays.asList(RPC_STATUS, RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW =
       DistributionView.create(
           "grpc.io/client/roundtrip_latency/distribution_cumulative",
           "Latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
-          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW =
       DistributionView.create(
           "grpc.io/client/server_elapsed_time/distribution_cumulative",
           "Server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
-          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_REQUEST_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/client/request_bytes/distribution_cumulative",
           "Request bytes",
           RPC_CLIENT_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_RESPONSE_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/client/response_bytes/distribution_cumulative",
           "Response bytes",
           RPC_CLIENT_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/client/uncompressed_request_bytes/distribution_cumulative",
           "Uncompressed Request bytes",
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/client/uncompressed_response_bytes/distribution_cumulative",
           "Uncompressed Response bytes",
           RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_REQUEST_COUNT_VIEW =
       DistributionView.create(
           "grpc.io/client/request_count/distribution_cumulative",
           "Count of request messages per client RPC",
           RPC_CLIENT_REQUEST_COUNT,
-          DistributionAggregationDescriptor.create(),
+          DistributionAggregation.create(),
           Arrays.asList(RPC_CLIENT_METHOD));
   public static final DistributionView RPC_CLIENT_RESPONSE_COUNT_VIEW =
       DistributionView.create(
           "grpc.io/client/response_count/distribution_cumulative",
           "Count of response messages per client RPC",
           RPC_CLIENT_RESPONSE_COUNT,
-          DistributionAggregationDescriptor.create(),
+          DistributionAggregation.create(),
           Arrays.asList(RPC_CLIENT_METHOD));
 
 
@@ -134,63 +134,63 @@ public final class RpcViewConstants {
           "grpc.io/server/error_count/distribution_cumulative",
           "RPC Errors",
           RPC_SERVER_ERROR_COUNT,
-          DistributionAggregationDescriptor.create(),
+          DistributionAggregation.create(),
           Arrays.asList(RPC_STATUS, RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_SERVER_LATENCY_VIEW =
       DistributionView.create(
           "grpc.io/server/server_latency/distribution_cumulative",
           "Latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
-          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
       DistributionView.create(
           "grpc.io/server/elapsed_time/distribution_cumulative",
           "Server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
-          DistributionAggregationDescriptor.create(RPC_MILLIS_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_MILLIS_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_REQUEST_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/server/request_bytes/distribution_cumulative",
           "Request bytes",
           RPC_SERVER_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_RESPONSE_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/server/response_bytes/distribution_cumulative",
           "Response bytes",
           RPC_SERVER_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/server/uncompressed_request_bytes/distribution_cumulative",
           "Uncompressed Request bytes",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       DistributionView.create(
           "grpc.io/server/uncompressed_response_bytes/distribution_cumulative",
           "Uncompressed Response bytes",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
-          DistributionAggregationDescriptor.create(RPC_BYTES_BUCKET_BOUNDARIES),
+          DistributionAggregation.create(RPC_BYTES_BUCKET_BOUNDARIES),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_REQUEST_COUNT_VIEW =
       DistributionView.create(
           "grpc.io/server/request_count/distribution_cumulative",
           "Count of request messages per server RPC",
           RPC_SERVER_REQUEST_COUNT,
-          DistributionAggregationDescriptor.create(),
+          DistributionAggregation.create(),
           Arrays.asList(RPC_SERVER_METHOD));
   public static final DistributionView RPC_SERVER_RESPONSE_COUNT_VIEW =
       DistributionView.create(
           "grpc.io/server/response_count/distribution_cumulative",
           "Count of response messages per server RPC",
           RPC_SERVER_RESPONSE_COUNT,
-          DistributionAggregationDescriptor.create(),
+          DistributionAggregation.create(),
           Arrays.asList(RPC_SERVER_METHOD));
 
   // Interval Stats
@@ -203,7 +203,7 @@ public final class RpcViewConstants {
           "grpc.io/client/roundtrip_latency/interval",
           "Minute and Hour stats for latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_REQUEST_BYTES_INTERVAL_VIEW =
@@ -211,7 +211,7 @@ public final class RpcViewConstants {
           "grpc.io/client/request_bytes/interval",
           "Minute and Hour stats for request size in bytes",
           RPC_CLIENT_REQUEST_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_RESPONSE_BYTES_INTERVAL_VIEW =
@@ -219,7 +219,7 @@ public final class RpcViewConstants {
           "grpc.io/client/response_bytes/interval",
           "Minute and Hour stats for response size in bytes",
           RPC_CLIENT_RESPONSE_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_ERROR_COUNT_INTERVAL_VIEW =
@@ -227,7 +227,7 @@ public final class RpcViewConstants {
           "grpc.io/client/error_count/interval",
           "Minute and Hour stats for rpc errors",
           RPC_CLIENT_ERROR_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_INTERVAL_VIEW =
@@ -235,7 +235,7 @@ public final class RpcViewConstants {
           "grpc.io/client/uncompressed_request_bytes/interval",
           "Minute and Hour stats for uncompressed request size in bytes",
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW =
@@ -243,7 +243,7 @@ public final class RpcViewConstants {
           "grpc.io/client/uncompressed_response_bytes/interval",
           "Minute and Hour stats for uncompressed response size in bytes",
           RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_SERVER_ELAPSED_TIME_INTERVAL_VIEW =
@@ -251,7 +251,7 @@ public final class RpcViewConstants {
           "grpc.io/client/server_elapsed_time/interval",
           "Minute and Hour stats for server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_STARTED_COUNT_INTERVAL_VIEW =
@@ -259,7 +259,7 @@ public final class RpcViewConstants {
           "grpc.io/client/started_count/interval",
           "Minute and Hour stats on the number of client RPCs started",
           RPC_CLIENT_STARTED_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_FINISHED_COUNT_INTERVAL_VIEW =
@@ -267,7 +267,7 @@ public final class RpcViewConstants {
           "grpc.io/client/finished_count/interval",
           "Minute and Hour stats on the number of client RPCs finished",
           RPC_CLIENT_FINISHED_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_REQUEST_COUNT_INTERVAL_VIEW =
@@ -275,7 +275,7 @@ public final class RpcViewConstants {
           "grpc.io/client/request_count/interval",
           "Minute and Hour stats on the count of request messages per client RPC",
           RPC_CLIENT_REQUEST_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   public static final IntervalView RPC_CLIENT_RESPONSE_COUNT_INTERVAL_VIEW =
@@ -283,7 +283,7 @@ public final class RpcViewConstants {
           "grpc.io/client/response_count/interval",
           "Minute and Hour stats on the count of response messages per client RPC",
           RPC_CLIENT_RESPONSE_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_CLIENT_METHOD));
 
   // RPC server {@link IntervalView}s.
@@ -292,7 +292,7 @@ public final class RpcViewConstants {
           "grpc.io/server/server_latency/interval",
           "Minute and Hour stats for server latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_REQUEST_BYTES_INTERVAL_VIEW =
@@ -300,7 +300,7 @@ public final class RpcViewConstants {
           "grpc.io/server/request_bytes/interval",
           "Minute and Hour stats for request size in bytes",
           RPC_SERVER_REQUEST_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_RESPONSE_BYTES_INTERVAL_VIEW =
@@ -308,7 +308,7 @@ public final class RpcViewConstants {
           "grpc.io/server/response_bytes/interval",
           "Minute and Hour stats for response size in bytes",
           RPC_SERVER_RESPONSE_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_ERROR_COUNT_INTERVAL_VIEW =
@@ -316,7 +316,7 @@ public final class RpcViewConstants {
           "grpc.io/server/error_count/interval",
           "Minute and Hour stats for rpc errors",
           RPC_SERVER_ERROR_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_INTERVAL_VIEW =
@@ -324,7 +324,7 @@ public final class RpcViewConstants {
           "grpc.io/server/uncompressed_request_bytes/interval",
           "Minute and Hour stats for uncompressed request size in bytes",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW =
@@ -332,7 +332,7 @@ public final class RpcViewConstants {
           "grpc.io/server/uncompressed_response_bytes/interval",
           "Minute and Hour stats for uncompressed response size in bytes",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_SERVER_ELAPSED_TIME_INTERVAL_VIEW =
@@ -340,7 +340,7 @@ public final class RpcViewConstants {
           "grpc.io/server/server_elapsed_time/interval",
           "Minute and Hour stats for server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_STARTED_COUNT_INTERVAL_VIEW =
@@ -348,7 +348,7 @@ public final class RpcViewConstants {
           "grpc.io/server/started_count/interval",
           "Minute and Hour stats on the number of server RPCs started",
           RPC_SERVER_STARTED_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_FINISHED_COUNT_INTERVAL_VIEW =
@@ -356,7 +356,7 @@ public final class RpcViewConstants {
           "grpc.io/server/finished_count/interval",
           "Minute and Hour stats on the number of server RPCs finished",
           RPC_SERVER_FINISHED_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_REQUEST_COUNT_INTERVAL_VIEW =
@@ -364,7 +364,7 @@ public final class RpcViewConstants {
           "grpc.io/server/request_count/interval",
           "Minute and Hour stats on the count of request messages per server RPC",
           RPC_SERVER_REQUEST_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   public static final IntervalView RPC_SERVER_RESPONSE_COUNT_INTERVAL_VIEW =
@@ -372,7 +372,7 @@ public final class RpcViewConstants {
           "grpc.io/server/response_count/interval",
           "Minute and Hour stats on the count of response messages per server RPC",
           RPC_SERVER_RESPONSE_COUNT,
-          IntervalAggregationDescriptor.create(Arrays.asList(MINUTE, HOUR)),
+          IntervalAggregation.create(Arrays.asList(MINUTE, HOUR)),
           Arrays.asList(RPC_SERVER_METHOD));
 
   // Visible for testing.

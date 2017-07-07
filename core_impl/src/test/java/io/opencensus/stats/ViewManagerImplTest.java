@@ -67,8 +67,8 @@ public class ViewManagerImplTest {
           Arrays.asList(
               0.0, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0, 40.0, 50.0));
 
-  private static final DistributionAggregationDescriptor DISTRIBUTION_AGGREGATION_DESCRIPTOR =
-      DistributionAggregationDescriptor.create(BUCKET_BOUNDARIES.getBoundaries());
+  private static final DistributionAggregation DISTRIBUTION_AGGREGATION_DESCRIPTOR =
+      DistributionAggregation.create(BUCKET_BOUNDARIES.getBoundaries());
 
   private final TestClock clock = TestClock.create();
 
@@ -87,7 +87,7 @@ public class ViewManagerImplTest {
   private static DistributionView createDistributionView(
       View.Name name,
       Measure measure,
-      DistributionAggregationDescriptor aggDescr,
+      DistributionAggregation aggDescr,
       List<TagKey> keys) {
     return DistributionView.create(name, VIEW_DESCRIPTION, measure, aggDescr, keys);
   }
@@ -106,7 +106,7 @@ public class ViewManagerImplTest {
             VIEW_NAME,
             VIEW_DESCRIPTION,
             MEASURE,
-            IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1000))),
+            IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1000))),
             Arrays.asList(KEY));
     thrown.expect(UnsupportedOperationException.class);
     viewManager.registerView(intervalView);
@@ -281,7 +281,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testRecordWithNonExistentMeasurementDescriptor() {
+  public void testRecordWithNonExistentMeasurement() {
     viewManager.registerView(
         createDistributionView(
             VIEW_NAME,
@@ -449,7 +449,7 @@ public class ViewManagerImplTest {
   public void testGetDistributionViewDataWithoutBucketBoundaries() {
     View view =
         createDistributionView(
-            VIEW_NAME, MEASURE, DistributionAggregationDescriptor.create(),
+            VIEW_NAME, MEASURE, DistributionAggregation.create(),
             Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
     viewManager.registerView(view);

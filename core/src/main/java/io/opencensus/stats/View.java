@@ -105,13 +105,13 @@ public abstract class View {
         String name,
         String description,
         Measure measure,
-        DistributionAggregationDescriptor distributionAggregationDescriptor,
+        DistributionAggregation distributionAggregation,
         List<TagKey> tagKeys) {
       return create(
           Name.create(name),
           description,
           measure,
-          distributionAggregationDescriptor,
+          distributionAggregation,
           tagKeys);
     }
 
@@ -122,21 +122,21 @@ public abstract class View {
         Name name,
         String description,
         Measure measure,
-        DistributionAggregationDescriptor distributionAggregationDescriptor,
+        DistributionAggregation distributionAggregation,
         List<TagKey> tagKeys) {
       return new AutoValue_View_DistributionView(
           name,
           description,
           measure,
           Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys)),
-          distributionAggregationDescriptor);
+          distributionAggregation);
     }
 
     /**
-     * The {@link DistributionAggregationDescriptor} associated with this
+     * The {@link DistributionAggregation} associated with this
      * {@link DistributionView}.
      */
-    public abstract DistributionAggregationDescriptor getDistributionAggregationDescriptor();
+    public abstract DistributionAggregation getDistributionAggregation();
 
     @Override
     public <T> T match(
@@ -159,13 +159,13 @@ public abstract class View {
         String name,
         String description,
         Measure measure,
-        IntervalAggregationDescriptor intervalAggregationDescriptor,
+        IntervalAggregation intervalAggregation,
         List<TagKey> tagKeys) {
       return create(
           Name.create(name),
           description,
           measure,
-          intervalAggregationDescriptor,
+          intervalAggregation,
           tagKeys);
     }
 
@@ -176,21 +176,21 @@ public abstract class View {
         Name name,
         String description,
         Measure measure,
-        IntervalAggregationDescriptor intervalAggregationDescriptor,
+        IntervalAggregation intervalAggregation,
         List<TagKey> tagKeys) {
       return new AutoValue_View_IntervalView(
           name,
           description,
           measure,
           Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys)),
-          intervalAggregationDescriptor);
+          intervalAggregation);
     }
 
     /**
-     * The {@link IntervalAggregationDescriptor} associated with this
+     * The {@link IntervalAggregation} associated with this
      * {@link IntervalView}.
      */
-    public abstract IntervalAggregationDescriptor getIntervalAggregationDescriptor();
+    public abstract IntervalAggregation getIntervalAggregation();
 
     @Override
     public <T> T match(

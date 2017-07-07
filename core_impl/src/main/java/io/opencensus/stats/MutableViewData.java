@@ -91,7 +91,7 @@ abstract class MutableViewData {
 
       if (!tagValueDistributionMap.containsKey(tagValues)) {
         final List<Double> bucketBoundaries =
-            this.distributionView.getDistributionAggregationDescriptor()
+            this.distributionView.getDistributionAggregation()
                 .getBucketBoundaries();
         final MutableDistribution distribution =
             bucketBoundaries == null ? MutableDistribution.create()

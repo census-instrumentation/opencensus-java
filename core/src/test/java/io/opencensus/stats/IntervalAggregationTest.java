@@ -22,56 +22,56 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for {@link IntervalAggregationDescriptor}
+ * Tests for {@link IntervalAggregation}
  */
 @RunWith(JUnit4.class)
-public final class IntervalAggregationDescriptorTest {
+public final class IntervalAggregationTest {
   @Test
-  public void testIntervalAggregationDescriptor() {
+  public void testIntervalAggregation() {
     Duration[] intervals =
         new Duration[] { Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)};
-    IntervalAggregationDescriptor iDescriptor =
-        IntervalAggregationDescriptor.create(12, Arrays.asList(intervals));
-    assertThat(iDescriptor.getNumSubIntervals()).isEqualTo(12);
-    assertThat(iDescriptor.getIntervalSizes()).isNotNull();
-    assertThat(iDescriptor.getIntervalSizes()).hasSize(intervals.length);
+    IntervalAggregation intervalAggregation =
+        IntervalAggregation.create(12, Arrays.asList(intervals));
+    assertThat(intervalAggregation.getNumSubIntervals()).isEqualTo(12);
+    assertThat(intervalAggregation.getIntervalSizes()).isNotNull();
+    assertThat(intervalAggregation.getIntervalSizes()).hasSize(intervals.length);
     for (int i = 0; i < intervals.length; i++) {
-      assertThat(iDescriptor.getIntervalSizes().get(i)).isEqualTo(intervals[i]);
+      assertThat(intervalAggregation.getIntervalSizes().get(i)).isEqualTo(intervals[i]);
     }
   }
 
   @Test
-  public void testIntervalAggregationDescriptorWithDefaultNumSubIntervals() {
+  public void testIntervalAggregationWithDefaultNumSubIntervals() {
     assertThat(
-        IntervalAggregationDescriptor.create(
+        IntervalAggregation.create(
             Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
         .isEqualTo(5);
   }
 
   @Test
-  public void testIntervalAggregationDescriptorNumSubIntervalsRange() {
+  public void testIntervalAggregationNumSubIntervalsRange() {
     assertThat(
-        IntervalAggregationDescriptor.create(
+        IntervalAggregation.create(
             2, Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
         .isEqualTo(2);
     assertThat(
-        IntervalAggregationDescriptor.create(
+        IntervalAggregation.create(
             20, Arrays.asList(Duration.fromMillis(1))).getNumSubIntervals())
         .isEqualTo(20);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testIntervalAggregationDescriptorLowNumSubIntervals() {
-    IntervalAggregationDescriptor.create(1, Arrays.asList(Duration.fromMillis(1)));
+  public void testIntervalAggregationLowNumSubIntervals() {
+    IntervalAggregation.create(1, Arrays.asList(Duration.fromMillis(1)));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testIntervalAggregationDescriptorHighNumSubIntervals() {
-    IntervalAggregationDescriptor.create(21, Arrays.asList(Duration.fromMillis(1)));
+  public void testIntervalAggregationHighNumSubIntervals() {
+    IntervalAggregation.create(21, Arrays.asList(Duration.fromMillis(1)));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testIntervalAggregationDescriptorEmptyIntervalSizes() {
-    IntervalAggregationDescriptor.create(Arrays.asList(new Duration[] { }));
+  public void testIntervalAggregationEmptyIntervalSizes() {
+    IntervalAggregation.create(Arrays.asList(new Duration[] { }));
   }
 }
