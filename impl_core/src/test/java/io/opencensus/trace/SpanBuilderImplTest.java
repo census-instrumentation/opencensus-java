@@ -61,7 +61,7 @@ public class SpanBuilderImplTest {
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getHasRemoteParent()).isFalse();
+    assertThat(spanData.getHasRemoteParent()).isNull();
     assertThat(spanData.getStartTimestamp()).isEqualTo(testClock.now());
     assertThat(spanData.getName()).isEqualTo(SPAN_NAME);
   }
@@ -78,7 +78,7 @@ public class SpanBuilderImplTest {
     assertThat(span.getContext().getTraceOptions().isSampled()).isFalse();
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getHasRemoteParent()).isFalse();
+    assertThat(spanData.getHasRemoteParent()).isNull();
   }
 
   @Test
@@ -99,12 +99,16 @@ public class SpanBuilderImplTest {
     assertThat(rootSpan.getContext().isValid()).isTrue();
     assertThat(rootSpan.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
+    assertThat(((SpanImpl) rootSpan).toSpanData().getHasRemoteParent())
+        .isNull();
     Span childSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpan, spanBuilderOptions).startSpan();
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
     assertThat(((SpanImpl) childSpan).toSpanData().getParentSpanId())
         .isEqualTo(rootSpan.getContext().getSpanId());
+    assertThat(((SpanImpl) childSpan).toSpanData().getHasRemoteParent())
+        .isFalse();
     assertThat(((SpanImpl) childSpan).getTimestampConverter())
         .isEqualTo(((SpanImpl) rootSpan).getTimestampConverter());
   }
@@ -118,7 +122,7 @@ public class SpanBuilderImplTest {
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getHasRemoteParent()).isFalse();
+    assertThat(spanData.getHasRemoteParent()).isNull();
   }
 
   @Test
@@ -131,7 +135,7 @@ public class SpanBuilderImplTest {
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getParentSpanId()).isNull();
-    assertThat(spanData.getHasRemoteParent()).isFalse();
+    assertThat(spanData.getHasRemoteParent()).isNull();
   }
 
   @Test

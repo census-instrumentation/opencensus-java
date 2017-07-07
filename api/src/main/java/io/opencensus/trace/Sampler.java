@@ -21,19 +21,20 @@ public abstract class Sampler {
   /**
    * Called during {@link Span} creation to make a sampling decision.
    *
-   * @param parentContext The parent {@code Span} {@link SpanContext}. May be {@code null} if this
+   * @param parentContext the parent span's {@link SpanContext}. {@code null} if this is a root
+   *     span.
+   * @param hasRemoteParent {@code true} if the parent {@code Span} is remote. {@code null} if this
    *     is a root span.
-   * @param remoteParent true if the parentContext is remote.
-   * @param traceId The {@link TraceId} for the new {@code Span}. This will be identical to that in
+   * @param traceId the {@link TraceId} for the new {@code Span}. This will be identical to that in
    *     the parentContext, unless this is a root span.
-   * @param spanId The span ID for the new {@code Span}.
-   * @param name The name of the new {@code Span}.
-   * @param parentLinks The parentLinks associated with the new {@code Span}.
+   * @param spanId the span ID for the new {@code Span}.
+   * @param name the name of the new {@code Span}.
+   * @param parentLinks the parentLinks associated with the new {@code Span}.
    * @return {@code true} if the {@code Span} is sampled.
    */
   public abstract boolean shouldSample(
       @Nullable SpanContext parentContext,
-      boolean remoteParent,
+      @Nullable Boolean hasRemoteParent,
       TraceId traceId,
       SpanId spanId,
       String name,
