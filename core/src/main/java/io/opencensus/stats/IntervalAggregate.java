@@ -22,13 +22,13 @@ import java.util.List;
 /**
  * Contains summary stats over various time intervals.
  */
-public final class IntervalAggregation {
+public final class IntervalAggregate {
   /**
-   * Constructs new {@link IntervalAggregation}.
+   * Constructs new {@link IntervalAggregate}.
    * TODO(dpo): Determine what we should do it intervals is empty.
    */
-  public static final IntervalAggregation create(List<Tag> tags, List<Interval> intervals) {
-    return new IntervalAggregation(tags, intervals);
+  public static final IntervalAggregate create(List<Tag> tags, List<Interval> intervals) {
+    return new IntervalAggregate(tags, intervals);
   }
 
   /**
@@ -51,7 +51,7 @@ public final class IntervalAggregation {
   private final List<Tag> tags;
   private final List<Interval> intervals;
 
-  private IntervalAggregation(List<Tag> tags, List<Interval> intervals) {
+  private IntervalAggregate(List<Tag> tags, List<Interval> intervals) {
     this.tags = tags;
     this.intervals = Collections.unmodifiableList(new ArrayList<Interval>(intervals));
   }

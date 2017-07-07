@@ -16,7 +16,7 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.stats.DistributionAggregation.Range;
+import io.opencensus.stats.DistributionAggregate.Range;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -24,14 +24,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for class {@link DistributionAggregation}.
+ * Tests for class {@link DistributionAggregate}.
  */
 @RunWith(JUnit4.class)
-public final class DistributionAggregationTest {
+public final class DistributionAggregateTest {
 
   @Test
-  public void testDistributionAggregationWithOutBuckets() {
-    DistributionAggregation aggr = DistributionAggregation.create(10, 5.0, 30.0,
+  public void testDistributionAggregateWithOutBuckets() {
+    DistributionAggregate aggr = DistributionAggregate.create(10, 5.0, 30.0,
         Range.create(1.0, 5.0), TAGS);
 
     assertThat(aggr.getCount()).isEqualTo(10);
@@ -47,9 +47,9 @@ public final class DistributionAggregationTest {
   }
 
   @Test
-  public void testDistributionAggregationWithBuckets() {
+  public void testDistributionAggregateWithBuckets() {
     List<Long> buckets = Arrays.asList(2L, 2L, 2L, 2L, 2L);
-    DistributionAggregation aggr = DistributionAggregation.create(10, 5.0, 30.0,
+    DistributionAggregate aggr = DistributionAggregate.create(10, 5.0, 30.0,
         Range.create(1.0, 5.0), TAGS, buckets);
 
     assertThat(aggr.getCount()).isEqualTo(10);
@@ -69,15 +69,15 @@ public final class DistributionAggregationTest {
   }
 
   @Test
-  public void testDistributionAggregationEquals() {
+  public void testDistributionAggregateEquals() {
     List<Long> buckets = Arrays.asList(1L, 2L, 3L);
     new EqualsTester()
         .addEqualityGroup(
-            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS),
-            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS))
+            DistributionAggregate.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS),
+            DistributionAggregate.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS))
         .addEqualityGroup(
-            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS, buckets),
-            DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS, buckets))
+            DistributionAggregate.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS, buckets),
+            DistributionAggregate.create(10, 5.0, 30.0, Range.create(1.0, 5.0), TAGS, buckets))
         .testEquals();
   }
 

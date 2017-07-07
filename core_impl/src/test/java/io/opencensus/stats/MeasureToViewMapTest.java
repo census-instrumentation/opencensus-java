@@ -61,7 +61,7 @@ public class MeasureToViewMapTest {
             assertThat(view.getView()).isEqualTo(VIEW);
             assertThat(view.getStart()).isEqualTo(Timestamp.create(10, 20));
             assertThat(view.getEnd()).isEqualTo(Timestamp.create(30, 40));
-            assertThat(view.getDistributionAggregations()).isEmpty();
+            assertThat(view.getDistributionAggregates()).isEmpty();
             return null;
           }
         },

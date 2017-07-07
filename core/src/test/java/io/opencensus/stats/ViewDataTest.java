@@ -20,8 +20,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.DistributionAggregation.Range;
-import io.opencensus.stats.IntervalAggregation.Interval;
+import io.opencensus.stats.DistributionAggregate.Range;
+import io.opencensus.stats.IntervalAggregate.Interval;
 import io.opencensus.stats.ViewData.DistributionViewData;
 import io.opencensus.stats.ViewData.IntervalViewData;
 import io.opencensus.stats.View.DistributionView;
@@ -43,10 +43,10 @@ public final class ViewDataTest {
     final DistributionView view =
         DistributionView.create(
             name, description, measure, aggregationDescriptor, tagKeys);
-    final List<DistributionAggregation> aggregations = Arrays.asList(
-        DistributionAggregation.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
+    final List<DistributionAggregate> aggregations = Arrays.asList(
+        DistributionAggregate.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
             Arrays.asList(1L, 1L, 1L, 1L, 1L)),
-        DistributionAggregation.create(10, 5.0, 30.0, Range.create(1.0, 5.0), tags2,
+        DistributionAggregate.create(10, 5.0, 30.0, Range.create(1.0, 5.0), tags2,
             Arrays.asList(2L, 2L, 2L, 2L, 2L)));
     final Timestamp start = Timestamp.fromMillis(1000);
     final Timestamp end = Timestamp.fromMillis(2000);
@@ -58,7 +58,7 @@ public final class ViewDataTest {
           @Override public Boolean apply(DistributionViewData dViewData) {
             return dViewData == viewData
                 && dViewData.getView().equals(view)
-                && shallowListEquals(dViewData.getDistributionAggregations(), aggregations)
+                && shallowListEquals(dViewData.getDistributionAggregates(), aggregations)
                 && dViewData.getStart().equals(start)
                 && dViewData.getEnd().equals(end);
           }
@@ -77,10 +77,10 @@ public final class ViewDataTest {
     final IntervalView view =
         IntervalView.create(
             name, description, measure, aggregationDescriptor, tagKeys);
-    final List<IntervalAggregation> aggregations = Arrays.asList(
-        IntervalAggregation.create(tags1, Arrays.asList(
+    final List<IntervalAggregate> aggregations = Arrays.asList(
+        IntervalAggregate.create(tags1, Arrays.asList(
             Interval.create(Duration.fromMillis(111), 10, 100))),
-        IntervalAggregation.create(tags2, Arrays.asList(
+        IntervalAggregate.create(tags2, Arrays.asList(
             Interval.create(Duration.fromMillis(111), 10, 100))));
 
     final ViewData viewData = IntervalViewData.create(view, aggregations);
@@ -95,7 +95,7 @@ public final class ViewDataTest {
           @Override public Boolean apply(IntervalViewData iViewData) {
             return iViewData == viewData
                 && iViewData.getView().equals(view)
-                && shallowListEquals(iViewData.getIntervalAggregations(), aggregations);
+                && shallowListEquals(iViewData.getIntervalAggregates(), aggregations);
           }
         }));
   }
@@ -109,9 +109,9 @@ public final class ViewDataTest {
             measure,
             DistributionAggregationDescriptor.create(Arrays.asList(10.0)),
             tagKeys);
-    List<DistributionAggregation> dAggregations =
+    List<DistributionAggregate> dAggregates =
         Arrays.asList(
-            DistributionAggregation.create(
+            DistributionAggregate.create(
                 5, 5.0, 15.0, Range.create(1.0, 5.0), tags1, Arrays.asList(1L)));
     IntervalView iView =
         IntervalView.create(
@@ -120,34 +120,34 @@ public final class ViewDataTest {
             measure,
             IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111))),
             tagKeys);
-    List<IntervalAggregation> iAggregations =
+    List<IntervalAggregate> iAggregates =
         Arrays.asList(
-            IntervalAggregation.create(
+            IntervalAggregate.create(
                 tags1, Arrays.asList(Interval.create(Duration.fromMillis(111), 10, 100))));
 
     new EqualsTester()
         .addEqualityGroup(
             DistributionViewData.create(
                 dView,
-                dAggregations,
+                dAggregates,
                 Timestamp.fromMillis(1000),
                 Timestamp.fromMillis(2000)),
             DistributionViewData.create(
                 dView,
-                dAggregations,
+                dAggregates,
                 Timestamp.fromMillis(1000),
                 Timestamp.fromMillis(2000)))
         .addEqualityGroup(
             DistributionViewData.create(
                 dView,
-                dAggregations,
+                dAggregates,
                 Timestamp.fromMillis(1000),
                 Timestamp.fromMillis(3000)))
         .addEqualityGroup(
-            IntervalViewData.create(iView, iAggregations),
-            IntervalViewData.create(iView, iAggregations))
+            IntervalViewData.create(iView, iAggregates),
+            IntervalViewData.create(iView, iAggregates))
         .addEqualityGroup(
-            IntervalViewData.create(iView, Collections.<IntervalAggregation>emptyList()))
+            IntervalViewData.create(iView, Collections.<IntervalAggregate>emptyList()))
         .testEquals();
   }
 

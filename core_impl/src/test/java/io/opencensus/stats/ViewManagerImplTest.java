@@ -171,10 +171,10 @@ public class ViewManagerImplTest {
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getStart()).isEqualTo(Timestamp.create(1, 2));
     assertThat(viewData.getEnd()).isEqualTo(Timestamp.create(3, 4));
-    assertDistributionAggregationsEquivalent(
-        viewData.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)),
                 BUCKET_BOUNDARIES,
                 Arrays.asList(10.0, 20.0, 30.0, 40.0))));
@@ -196,10 +196,10 @@ public class ViewManagerImplTest {
     DistributionViewData viewData1 = (DistributionViewData) viewManager.getView(VIEW_NAME);
     assertThat(viewData1.getStart()).isEqualTo(Timestamp.create(10, 0));
     assertThat(viewData1.getEnd()).isEqualTo(Timestamp.create(11, 0));
-    assertDistributionAggregationsEquivalent(
-        viewData1.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData1.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(0.1))));
     statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 0.2).build());
     clock.setTime(Timestamp.create(12, 0));
@@ -209,10 +209,10 @@ public class ViewManagerImplTest {
     // recorded values:
     assertThat(viewData2.getStart()).isEqualTo(Timestamp.create(10, 0));
     assertThat(viewData2.getEnd()).isEqualTo(Timestamp.create(12, 0));
-    assertDistributionAggregationsEquivalent(
-        viewData2.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData2.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)),
                 BUCKET_BOUNDARIES,
                 Arrays.asList(0.1, 0.2))));
@@ -236,12 +236,12 @@ public class ViewManagerImplTest {
         createContext(factory, KEY, VALUE_2),
         MeasureMap.builder().set(MEASURE, 50.0).build());
     DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
-    assertDistributionAggregationsEquivalent(
-        viewData.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(10.0)),
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE_2)),
                 BUCKET_BOUNDARIES,
                 Arrays.asList(30.0, 50.0))));
@@ -268,10 +268,10 @@ public class ViewManagerImplTest {
     statsRecorder.record(factory.getDefault(),
         MeasureMap.builder().set(MEASURE, 10.0).build());
     DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
-    assertDistributionAggregationsEquivalent(
-        viewData.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 // Tag is missing for associated measureValues, should use default tag value
                 // "unknown/not set"
                 Arrays.asList(Tag.create(KEY, MutableViewData.UNKNOWN_TAG_VALUE)),
@@ -293,7 +293,7 @@ public class ViewManagerImplTest {
     statsRecorder.record(createContext(factory, KEY, VALUE),
         MeasureMap.builder().set(measure2, 10.0).build());
     DistributionViewData view = (DistributionViewData) viewManager.getView(VIEW_NAME);
-    assertThat(view.getDistributionAggregations()).isEmpty();
+    assertThat(view.getDistributionAggregates()).isEmpty();
   }
 
   @Test
@@ -311,10 +311,10 @@ public class ViewManagerImplTest {
         createContext(factory, TagKey.create("another wrong key"), VALUE),
         MeasureMap.builder().set(MEASURE, 50.0).build());
     DistributionViewData view = (DistributionViewData) viewManager.getView(VIEW_NAME);
-    assertDistributionAggregationsEquivalent(
-        view.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        view.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 // Won't record the unregistered tag key, will use default tag instead:
                 // "KEY" : "unknown/not set".
                 Arrays.asList(Tag.create(KEY, MutableViewData.UNKNOWN_TAG_VALUE)),
@@ -346,22 +346,22 @@ public class ViewManagerImplTest {
         createContext(factory, key1, TagValue.create("v1"), key2, TagValue.create("v10")),
         MeasureMap.builder().set(MEASURE, 4.4).build());
     DistributionViewData view = (DistributionViewData) viewManager.getView(VIEW_NAME);
-    assertDistributionAggregationsEquivalent(
-        view.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        view.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(
                     Tag.create(key1, TagValue.create("v1")),
                     Tag.create(key2, TagValue.create("v10"))),
                 BUCKET_BOUNDARIES,
                 Arrays.asList(1.1, 4.4)),
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(
                     Tag.create(key1, TagValue.create("v1")),
                     Tag.create(key2, TagValue.create("v20"))),
                 BUCKET_BOUNDARIES,
                 Arrays.asList(2.2)),
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(
                     Tag.create(key1, TagValue.create("v2")),
                     Tag.create(key2, TagValue.create("v10"))),
@@ -390,9 +390,9 @@ public class ViewManagerImplTest {
     statsRecorder.record(
         createContext(factory, KEY, VALUE),
         MeasureMap.builder().set(MEASURE, 5.0).build());
-    List<DistributionAggregation> expectedAggs =
+    List<DistributionAggregate> expectedAggs =
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(5.0)));
     clock.setTime(Timestamp.create(3, 3));
     DistributionViewData viewData1 = (DistributionViewData) viewManager.getView(VIEW_NAME);
@@ -400,10 +400,10 @@ public class ViewManagerImplTest {
     DistributionViewData viewData2 = (DistributionViewData) viewManager.getView(VIEW_NAME_2);
     assertThat(viewData1.getStart()).isEqualTo(Timestamp.create(1, 1));
     assertThat(viewData1.getEnd()).isEqualTo(Timestamp.create(3, 3));
-    assertDistributionAggregationsEquivalent(viewData1.getDistributionAggregations(), expectedAggs);
+    assertDistributionAggregatesEquivalent(viewData1.getDistributionAggregates(), expectedAggs);
     assertThat(viewData2.getStart()).isEqualTo(Timestamp.create(2, 2));
     assertThat(viewData2.getEnd()).isEqualTo(Timestamp.create(4, 4));
-    assertDistributionAggregationsEquivalent(viewData2.getDistributionAggregations(), expectedAggs);
+    assertDistributionAggregatesEquivalent(viewData2.getDistributionAggregates(), expectedAggs);
   }
 
   @Test
@@ -431,17 +431,17 @@ public class ViewManagerImplTest {
     DistributionViewData viewData2 = (DistributionViewData) viewManager.getView(VIEW_NAME_2);
     assertThat(viewData1.getStart()).isEqualTo(Timestamp.create(1, 0));
     assertThat(viewData1.getEnd()).isEqualTo(Timestamp.create(3, 0));
-    assertDistributionAggregationsEquivalent(
-        viewData1.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData1.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(1.1))));
     assertThat(viewData2.getStart()).isEqualTo(Timestamp.create(2, 0));
     assertThat(viewData2.getEnd()).isEqualTo(Timestamp.create(4, 0));
-    assertDistributionAggregationsEquivalent(
-        viewData2.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData2.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)), BUCKET_BOUNDARIES, Arrays.asList(2.2))));
   }
 
@@ -460,17 +460,17 @@ public class ViewManagerImplTest {
     DistributionViewData viewData = (DistributionViewData) viewManager.getView(VIEW_NAME);
     assertThat(viewData.getStart()).isEqualTo(Timestamp.create(1, 0));
     assertThat(viewData.getEnd()).isEqualTo(Timestamp.create(3, 0));
-    assertDistributionAggregationsEquivalent(
-        viewData.getDistributionAggregations(),
+    assertDistributionAggregatesEquivalent(
+        viewData.getDistributionAggregates(),
         Arrays.asList(
-            StatsTestUtil.createDistributionAggregation(
+            StatsTestUtil.createDistributionAggregate(
                 Arrays.asList(Tag.create(KEY, VALUE)), Arrays.asList(1.1))));
   }
 
   // TODO(sebright) Consider making this helper method work with larger ranges of double values and
   // moving it to StatsTestUtil.
-  private static void assertDistributionAggregationsEquivalent(
-      Collection<DistributionAggregation> actual, Collection<DistributionAggregation> expected) {
-    StatsTestUtil.assertDistributionAggregationsEquivalent(1e-6, actual, expected);
+  private static void assertDistributionAggregatesEquivalent(
+      Collection<DistributionAggregate> actual, Collection<DistributionAggregate> expected) {
+    StatsTestUtil.assertDistributionAggregatesEquivalent(1e-6, actual, expected);
   }
 }
