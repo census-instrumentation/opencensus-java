@@ -32,41 +32,14 @@ public abstract class TagKey {
 
   /**
    * Applies a function to the {@code TagKey} subclass. The function that is called depends on the
-   * type of the tag key. This is similar to the visitor pattern. For example, this code creates a
-   * {@code Tag} from a {@code TagKey}.
+   * type of the tag key. This is similar to the visitor pattern. {@code match} also takes a
+   * function to handle the default case, for backwards compatibility when tag types are added. For
+   * example, this code creates a {@code Tag} from a {@code TagKey}. It handles new tag types by
+   * logging an error and returning a {@code TagKeyString}.
    *
    * <pre>{@code
    * Tag tag =
    *     tagKey.match(
-   *         stringKey -> TagString.create(stringKey, TagValueString.create("string value")),
-   *         longKey -> TagLong.create(longKey, 100L),
-   *         booleanKey -> TagBoolean.create(booleanKey, true));
-   * }</pre>
-   *
-   * @param stringFunction the function to call when the {@code TagKey} is a {@code TagKeyString}.
-   * @param longFunction the function to call when the {@code TagKey} is a {@code TagKeyLong}.
-   * @param booleanFunction the function to call when the {@code TagKey} is a {@code TagKeyBoolean}.
-   * @param <T> The result type of the function.
-   * @return The result of calling the function that matches the tag key's type.
-   */
-  // TODO(sebright): Should we make this public in the first release?
-  public <T> T match(
-      Function<? super TagKeyString, T> stringFunction,
-      Function<? super TagKeyLong, T> longFunction,
-      Function<? super TagKeyBoolean, T> booleanFunction) {
-    return matchWithDefault(
-        stringFunction, longFunction, booleanFunction, TagUtils.<T>throwAssertionError());
-  }
-
-  /**
-   * Applies a function to the {@code TagKey} subclass. This method is like {@link #match(Function,
-   * Function, Function)}, except that it has a default case, for backwards compatibility when tag
-   * types are added. For example, this code creates a {@code Tag} from a {@code TagKey}. It handles
-   * new tag types by logging an error and returning a {@code TagKeyString}.
-   *
-   * <pre>{@code
-   * Tag tag =
-   *     tagKey.matchWithDefault(
    *         stringKey -> TagString.create(stringKey, TagValueString.create("string value")),
    *         longKey -> TagLong.create(longKey, 100L),
    *         booleanKey -> TagBoolean.create(booleanKey, true),
@@ -87,10 +60,7 @@ public abstract class TagKey {
    * @return The result of calling the function that matches the tag key's type.
    */
   // TODO(sebright): Should we make this public in the first release?
-  // TODO(sebright): How should we deal with the possibility of adding more tag types in the future?
-  //                 Will this method work? What type of parameter should we use for the default
-  //                 case? Should we remove the non-backwards compatible "match" method?
-  public abstract <T> T matchWithDefault(
+  public abstract <T> T match(
       Function<? super TagKeyString, T> stringFunction,
       Function<? super TagKeyLong, T> longFunction,
       Function<? super TagKeyBoolean, T> booleanFunction,
@@ -121,7 +91,7 @@ public abstract class TagKey {
     }
 
     @Override
-    public <T> T matchWithDefault(
+    public <T> T match(
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
@@ -156,7 +126,7 @@ public abstract class TagKey {
     }
 
     @Override
-    public <T> T matchWithDefault(
+    public <T> T match(
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
@@ -191,7 +161,7 @@ public abstract class TagKey {
     }
 
     @Override
-    public <T> T matchWithDefault(
+    public <T> T match(
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,

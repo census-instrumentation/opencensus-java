@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
@@ -72,7 +73,8 @@ public final class TagTest {
                       public String apply(TagBoolean tag) {
                         throw new AssertionError();
                       }
-                    }))
+                    },
+                    Functions.<String>throwIllegalArgumentException()))
         .isEqualTo("value");
   }
 
@@ -98,7 +100,8 @@ public final class TagTest {
                       public Long apply(TagBoolean tag) {
                         throw new AssertionError();
                       }
-                    }))
+                    },
+                    Functions.<Long>throwIllegalArgumentException()))
         .isEqualTo(3L);
   }
 
@@ -124,7 +127,8 @@ public final class TagTest {
                       public Boolean apply(TagBoolean tag) {
                         return tag.getValue();
                       }
-                    }))
+                    },
+                    Functions.<Boolean>throwIllegalArgumentException()))
         .isEqualTo(false);
   }
 

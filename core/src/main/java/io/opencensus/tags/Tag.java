@@ -33,40 +33,14 @@ public abstract class Tag {
 
   /**
    * Applies a function to the tag's key and value. The function that is called depends on the type
-   * of the tag. This is similar to the visitor pattern. For example, this code serializes a {@code
-   * Tag}.
+   * of the tag. This is similar to the visitor pattern. {@code match} also takes a function to
+   * handle the default case, for backwards compatibility when tag types are added. For example,
+   * this code serializes a {@code Tag} and tries to handle new tag types by calling {@code
+   * toString()}.
    *
    * <pre>{@code
    * byte[] serializedValue =
    *     tag.match(
-   *         stringTag -> serializeString(stringTag.getValue().asString()),
-   *         longTag -> serializeLong(longTag.getValue()),
-   *         booleanTag -> serializeBoolean(booleanTag.getValue()));
-   * }</pre>
-   *
-   * @param stringFunction the function to call when the tag has a {@code String} value.
-   * @param longFunction the function to call when the tag has a {@code long} value.
-   * @param booleanFunction the function to call when the tag has a {@code boolean} value.
-   * @param <T> The result type of the function.
-   * @return The result of calling the function that matches the tag's type.
-   */
-  public <T> T match(
-      Function<? super TagString, T> stringFunction,
-      Function<? super TagLong, T> longFunction,
-      Function<? super TagBoolean, T> booleanFunction) {
-    return matchWithDefault(
-        stringFunction, longFunction, booleanFunction, TagUtils.<T>throwAssertionError());
-  }
-
-  /**
-   * Applies a function to the tag's key and value. This method is like {@link #match(Function,
-   * Function, Function)}, except that it has a default case, for backwards compatibility when tag
-   * types are added. For example, this code serializes a {@code Tag} and tries to handle new tag
-   * types by calling {@code toString()}.
-   *
-   * <pre>{@code
-   * byte[] serializedValue =
-   *     tag.matchWithDefault(
    *         stringTag -> serializeString(stringTag.getValue().asString()),
    *         longTag -> serializeLong(longTag.getValue()),
    *         booleanTag -> serializeBoolean(booleanTag.getValue()),
@@ -81,10 +55,7 @@ public abstract class Tag {
    * @param <T> The result type of the function.
    * @return The result of calling the function that matches the tag's type.
    */
-  // TODO(sebright): How should we deal with the possibility of adding more tag types in the future?
-  //                 Will this method work? What type of parameter should we use for the default
-  //                 case? Should we remove the non-backwards compatible "match" method?
-  public abstract <T> T matchWithDefault(
+  public abstract <T> T match(
       Function<? super TagString, T> stringFunction,
       Function<? super TagLong, T> longFunction,
       Function<? super TagBoolean, T> booleanFunction,
@@ -118,7 +89,7 @@ public abstract class Tag {
     public abstract TagValueString getValue();
 
     @Override
-    public <T> T matchWithDefault(
+    public <T> T match(
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
@@ -156,7 +127,7 @@ public abstract class Tag {
     public abstract long getValue();
 
     @Override
-    public <T> T matchWithDefault(
+    public <T> T match(
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
@@ -194,7 +165,7 @@ public abstract class Tag {
     public abstract boolean getValue();
 
     @Override
-    public <T> T matchWithDefault(
+    public <T> T match(
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
