@@ -167,3 +167,14 @@ the repository. If this completes successfully, the repository can then be
 Central (the staging repository will be destroyed in the process). You can see
 the complete process for releasing to Maven Central on the [OSSRH
 site](http://central.sonatype.org/pages/releasing-the-deployment.html).
+
+## Known Issues
+
+### Deployment for branch v0.5.x
+For all releases on the branch v0.5.x to deploy to maven central use command
+```bash
+$ ./gradlew clean build && ./gradlew uploadArchives
+```
+
+If option `-Dorg.gradle.parallel=false` is used, you will hit [this bug](https://issues.sonatype.org/browse/OSSRH-19485)
+caused by [this bug](https://github.com/gradle/gradle/issues/1827) in gradle 3.5.
