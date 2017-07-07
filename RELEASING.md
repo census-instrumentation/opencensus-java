@@ -1,8 +1,8 @@
-# How to Create a Release of Instrumentation Java (for Maintainers Only)
+# How to Create a Release of OpenCensus Java (for Maintainers Only)
 
 ## Build Environments
 
-We deploy Instrumentation Java to Maven Central under the following systems:
+We deploy OpenCensus Java to Maven Central under the following systems:
 
 -   Ubuntu 14.04
 
@@ -19,11 +19,10 @@ your OSSRH (OSS Repository Hosting) account and signing keys.
     page](http://central.sonatype.org/pages/ossrh-guide.html) to set up an
     account with OSSRH.
     -   You only need to create the account, not set up a new project
-    -   Contact a Instrumentation Java maintainer on JIRA to add your account after you
+    -   Contact a OpenCensus Java maintainer on JIRA to add your account after you
         have created it.
-        -   Comment under [this JIRA bug](https://issues.sonatype.org/browse/OSSRH-27038?page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel)
-            for release permission to com.google.instrumentation.
-        -   Request release permission to io.opencensus.
+        -   Comment under [this JIRA bug](https://issues.sonatype.org/browse/OSSRH-32121)
+            for release permission to io.opencensus.
 -   (For release deployment only) [Install
     GnuPG](http://central.sonatype.org/pages/working-with-pgp-signatures.html#installing-gnupg)
     and [generate your key
@@ -53,8 +52,8 @@ naming convention of `v<major>.<minor>.x`, while the tags include the patch
 version `v<major>.<minor>.<patch>`. For example, the same branch `v0.4.x` would
 be used to create all `v0.4` tags (e.g. `v0.4.0`, `v0.4.1`).
 
-In this section upstream repository refers to the main instrumentation-java
-github repository.
+In this section upstream repository refers to the main opencensus-java github
+repository.
 
 Before any push to the upstream repository you need to create a [personal access
 token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/).
@@ -157,7 +156,7 @@ artifacts will go to a staging repository.
 
 When deploying a Release, the deployment will create [a new staging
 repository](https://oss.sonatype.org/#stagingRepositories). You'll need to look
-up the ID in the OSSRH UI (usually in the form of `instrumentation-*`).
+up the ID in the OSSRH UI (usually in the form of `opencensus-*`).
 
 ## Releasing on Maven Central
 
