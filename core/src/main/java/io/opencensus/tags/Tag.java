@@ -47,6 +47,37 @@ public abstract class Tag {
    *         unknownTag -> serializeString(unknownTag.toString()));
    * }</pre>
    *
+   * <p>Without lambdas:
+   *
+   * <pre><code>
+   *   byte[] serializedValue =
+   *       tag.match(
+   *           new Function&lt;TagString, String&gt;() {
+   *             &#064;Override
+   *             public String apply(TagString stringTag) {
+   *               return serializeString(stringTag.getValue().asString());
+   *             }
+   *           },
+   *           new Function&lt;TagLong, String&gt;() {
+   *             &#064;Override
+   *             public String apply(TagLong longTag) {
+   *               serializeLong(longTag.getValue());
+   *             }
+   *           },
+   *           new Function&lt;TagBoolean, String&gt;() {
+   *             &#064;Override
+   *             public String apply(TagBoolean booleanTag) {
+   *               serializeBoolean(booleanTag.getValue());
+   *             }
+   *           },
+   *           new Function&lt;Tag, String&gt;() {
+   *             &#064;Override
+   *             public String apply(TagBoolean unknownTag) {
+   *               serializeString(unknownTag.toString());
+   *             }
+   *           });
+   * </code></pre>
+   *
    * @param stringFunction the function to call when the tag has a {@code String} value.
    * @param longFunction the function to call when the tag has a {@code long} value.
    * @param booleanFunction the function to call when the tag has a {@code boolean} value.
