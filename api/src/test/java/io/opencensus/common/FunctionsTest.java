@@ -18,8 +18,11 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Tests for {@link Functions}. */
+@RunWith(JUnit4.class)
 public class FunctionsTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
