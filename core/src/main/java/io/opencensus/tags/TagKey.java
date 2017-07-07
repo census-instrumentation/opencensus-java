@@ -57,25 +57,25 @@ public abstract class TagKey {
    *   Tag tag =
    *       tagKey.match(
    *           new Function&lt;TagKeyString, Tag&gt;() {
-   *             &#064;Override
+   *            {@literal @}Override
    *             public Tag apply(TagKeyString stringKey) {
    *               return TagString.create(stringKey, TagValueString.create("string value"));
    *             }
    *           },
    *           new Function&lt;TagKeyLong, Tag&gt;() {
-   *             &#064;Override
+   *            {@literal @}Override
    *             public Tag apply(TagKeyLong longKey) {
    *               return TagLong.create(longKey, 100L);
    *             }
    *           },
    *           new Function&lt;TagKeyBoolean, Tag&gt;() {
-   *             &#064;Override
+   *            {@literal @}Override
    *             public Tag apply(TagKeyBoolean booleanKey) {
    *               return TagBoolean.create(booleanKey, true);
    *             }
    *           },
    *           new Function&lt;TagKey, Tag&gt;() {
-   *             &#064;Override
+   *            {@literal @}Override
    *             public Tag apply(TagKey unknownKey) {
    *               logger.log(Level.WARNING, "Unknown tag key type: " + unknownKey.toString());
    *               return TagString.create(
