@@ -110,17 +110,7 @@ public final class ViewTest {
   @Test(expected = NullPointerException.class)
   public void preventNullDistributionViewName() {
     DistributionView.create(
-        (View.Name) null,
-        description,
-        measure,
-        DistributionAggregation.create(),
-        keys);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void preventNullDistributionViewStringName() {
-    DistributionView.create(
-        (String) null,
+        null,
         description,
         measure,
         DistributionAggregation.create(),
@@ -130,17 +120,7 @@ public final class ViewTest {
   @Test(expected = NullPointerException.class)
   public void preventNullIntervalViewName() {
     IntervalView.create(
-        (View.Name) null,
-        description,
-        measure,
-        IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1))),
-        keys);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void preventNullIntervalViewStringName() {
-    IntervalView.create(
-        (String) null,
+        null,
         description,
         measure,
         IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1))),

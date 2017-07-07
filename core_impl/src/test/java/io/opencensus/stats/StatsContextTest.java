@@ -174,8 +174,12 @@ public class StatsContextTest {
   @Test
   public void testRecordLong() {
     MeasureLong measure = MeasureLong.create("long measure", "description", "1");
-    viewManager.registerView(View.DistributionView
-        .create("name", "description", measure, DistributionAggregation.create(),
+    viewManager.registerView(
+        View.DistributionView.create(
+            View.Name.create("name"),
+            "description",
+            measure,
+            DistributionAggregation.create(),
             Arrays.asList(K1)));
     thrown.expect(UnsupportedOperationException.class);
     defaultStatsContext.with(K1, V1).record(MeasureMap.builder().set(measure,1L).build());

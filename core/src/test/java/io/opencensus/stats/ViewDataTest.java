@@ -167,7 +167,7 @@ public final class ViewDataTest {
   List<Tag> tags2 = Arrays.asList(Tag.create(K1, V10), Tag.create(K2, V20));
 
   // name
-  private final String name = "test-view";
+  private final View.Name name = View.Name.create("test-view");
   // description
   private final String description = "test-view-descriptor description";
   // measurement descriptor
