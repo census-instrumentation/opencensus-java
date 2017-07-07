@@ -51,6 +51,7 @@ public abstract class SpanData {
    * @param annotations the annotations associated with the {@code Span}.
    * @param networkEvents the network events associated with the {@code Span}.
    * @param links the links associated with the {@code Span}.
+   * @param childSpanCount the number of child spans that were generated while the span was active.
    * @param status the {@code Status} of the {@code Span}. {@code null} if the {@code Span} is still
    *     active.
    * @param endTimestamp the end {@code Timestamp} of the {@code Span}. {@code null} if the {@code
@@ -67,6 +68,7 @@ public abstract class SpanData {
       TimedEvents<Annotation> annotations,
       TimedEvents<NetworkEvent> networkEvents,
       Links links,
+      @Nullable Integer childSpanCount,
       @Nullable Status status,
       @Nullable Timestamp endTimestamp) {
     return new AutoValue_SpanData(
@@ -79,6 +81,7 @@ public abstract class SpanData {
         annotations,
         networkEvents,
         links,
+        childSpanCount,
         status,
         endTimestamp);
   }
@@ -146,6 +149,17 @@ public abstract class SpanData {
    * @return links recorded for this {@code Span}.
    */
   public abstract Links getLinks();
+
+  /**
+   * Returns the number of child spans that were generated while the {@code Span} was running. If
+   * not {@code null} allows service implementations to detect missing child spans.
+   *
+   * <p>This information is not always available.
+   *
+   * @return the number of child spans that were generated while the {@code Span} was running.
+   */
+  @Nullable
+  public abstract Integer getChildSpanCount();
 
   /**
    * Returns the {@code Status} or {@code null} if {@code Span} is still active.
