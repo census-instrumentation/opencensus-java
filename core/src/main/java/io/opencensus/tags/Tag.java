@@ -74,7 +74,7 @@ public abstract class Tag {
      * @param value the tag value.
      * @return a {@code TagString} with the given key and value.
      */
-    public static Tag create(TagKeyString key, TagValueString value) {
+    public static TagString create(TagKeyString key, TagValueString value) {
       return new AutoValue_Tag_TagString(key, value);
     }
 
@@ -112,7 +112,7 @@ public abstract class Tag {
      * @return a {@code TagLong} with the given key and value.
      */
     // TODO(sebright): Make this public once we support types other than String.
-    static Tag create(TagKeyLong key, long value) {
+    static TagLong create(TagKeyLong key, long value) {
       return new AutoValue_Tag_TagLong(key, value);
     }
 
@@ -150,7 +150,7 @@ public abstract class Tag {
      * @return a {@code TagBoolean} with the given key and value.
      */
     // TODO(sebright): Make this public once we support types other than String.
-    static Tag create(TagKeyBoolean key, boolean value) {
+    static TagBoolean create(TagKeyBoolean key, boolean value) {
       return new AutoValue_Tag_TagBoolean(key, value);
     }
 
