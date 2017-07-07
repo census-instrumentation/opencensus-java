@@ -8,14 +8,14 @@ buildscript {
         }
     }
     dependencies {
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.3.1"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.4"
     }
 }
 
 apply plugin: "me.champeau.gradle.jmh"
 
 jmh {
-    jmhVersion = '1.18'
+    jmhVersion = '1.19'
     warmupIterations = 10
     iterations = 10
     fork = 1
