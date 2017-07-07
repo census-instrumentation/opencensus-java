@@ -34,6 +34,6 @@ final class ViewManagerImpl extends ViewManager {
   // TODO(sebright): Replace this method with the View.Name version.
   @Override
   public ViewData getView(View view) {
-    return statsManager.getView(view.getViewName());
+    return statsManager.getView(view.getName());
   }
 }

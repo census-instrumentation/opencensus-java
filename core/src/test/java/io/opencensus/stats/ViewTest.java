@@ -36,8 +36,7 @@ public final class ViewTest {
     final View view = DistributionView.create(
         name, description, measure, dAggr, keys);
 
-    assertThat(view.getViewName()).isEqualTo(name);
-    assertThat(view.getName()).isEqualTo(name.asString());
+    assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName()).isEqualTo(measure.getName());
     assertThat(view.getDimensions()).hasSize(2);
@@ -63,8 +62,7 @@ public final class ViewTest {
     final View view = IntervalView.create(
         name, description, measure, iAggr, keys);
 
-    assertThat(view.getViewName()).isEqualTo(name);
-    assertThat(view.getName()).isEqualTo(name.asString());
+    assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName())
         .isEqualTo(measure.getName());

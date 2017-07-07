@@ -29,14 +29,7 @@ public abstract class View {
   /**
    * Name of view. Must be unique.
    */
-  public abstract Name getViewName();
-
-  /**
-   * Name of view, as a {@code String}.
-   */
-  public final String getName() {
-    return getViewName().asString();
-  }
+  public abstract Name getName();
 
   /**
    * More detailed description, for documentation purposes.
