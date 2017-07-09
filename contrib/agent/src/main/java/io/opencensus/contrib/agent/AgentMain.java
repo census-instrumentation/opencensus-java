@@ -60,8 +60,9 @@ public final class AgentMain {
 
     logger.info("Initializing.");
 
-    // The classes in bootstrap.jar will be referenced from classes loaded by the bootstrap
-    // classloader. Thus, these classes have to be loaded by the bootstrap classloader, too.
+    // The classes in bootstrap.jar, such as ContextManger and ContextStrategy, will be referenced
+    // from classes loaded by the bootstrap classloader. Thus, these classes have to be loaded by
+    // the bootstrap classloader, too.
     instrumentation.appendToBootstrapClassLoaderSearch(
             new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
