@@ -87,9 +87,9 @@ public class ViewManagerImplTest {
   private static DistributionView createDistributionView(
       View.Name name,
       Measure measure,
-      DistributionAggregation aggDescr,
+      DistributionAggregation distributionAggregation,
       List<TagKey> keys) {
-    return DistributionView.create(name, VIEW_DESCRIPTION, measure, aggDescr, keys);
+    return DistributionView.create(name, VIEW_DESCRIPTION, measure, distributionAggregation, keys);
   }
 
   @Test
