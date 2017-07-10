@@ -99,7 +99,8 @@ final class MeasureToViewMap {
       Measurement measurement = iterator.next();
       Collection<MutableViewData> views = mutableMap.get(measurement.getMeasure().getName());
       for (MutableViewData view : views) {
-        measurement.match(new RecordDoubleValueFunc(tags, view), new RecordLongValueFunc());
+        measurement.match(
+            new RecordDoubleValueFunc(tags, view), new RecordLongValueFunc(tags, view));
       }
     }
   }
@@ -146,8 +147,16 @@ final class MeasureToViewMap {
   private static final class RecordLongValueFunc implements Function<MeasurementLong, Void> {
     @Override
     public Void apply(MeasurementLong arg) {
-      // TODO: determine if we want to support LongMeasure in v0.1
-      throw new UnsupportedOperationException("Long measurements not supported.");
+      view.record(tags, arg.getValue());
+      return null;
+    }
+
+    private final StatsContextImpl tags;
+    private final MutableViewData view;
+
+    private RecordLongValueFunc(StatsContextImpl tags, MutableViewData view) {
+      this.tags = tags;
+      this.view = view;
     }
   }
 }

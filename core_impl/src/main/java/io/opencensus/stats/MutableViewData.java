@@ -40,9 +40,14 @@ abstract class MutableViewData {
   abstract View getView();
 
   /**
-   * Record stats with the given tags.
+   * Record double stats with the given tags.
    */
   abstract void record(StatsContextImpl tags, double value);
+
+  /**
+   * Record long stats with the given tags.
+   */
+  abstract void record(StatsContextImpl tags, long value);
 
   /**
    * Convert this {@link MutableViewData} to {@link ViewData}.
@@ -99,6 +104,12 @@ abstract class MutableViewData {
         tagValueDistributionMap.put(tagValues, distribution);
       }
       tagValueDistributionMap.get(tagValues).add(value);
+    }
+
+    @Override
+    void record(StatsContextImpl tags, long value) {
+      // TODO(songya): modify MutableDistribution to support long values.
+      throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
@@ -174,6 +185,11 @@ abstract class MutableViewData {
 
     @Override
     void record(StatsContextImpl tags, double value) {
+      throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    void record(StatsContextImpl tags, long value) {
       throw new UnsupportedOperationException("Not implemented.");
     }
 

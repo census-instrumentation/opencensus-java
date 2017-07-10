@@ -14,11 +14,11 @@
 package io.opencensus.stats;
 
 import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 
 /**
  * Constants for collecting rpc stats.
  */
-// TODO(songya): change *_COUNT constants to LongMeasure if it's supported in v0.1.
 public final class RpcMeasureConstants {
 
   // Rpc tag keys.
@@ -32,8 +32,8 @@ public final class RpcMeasureConstants {
   private static final String MILLISECOND = "ms";
 
   // RPC client Measures.
-  public static final MeasureDouble RPC_CLIENT_ERROR_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_CLIENT_ERROR_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/client/error_count",
           "RPC Errors",
           COUNT);
@@ -67,31 +67,31 @@ public final class RpcMeasureConstants {
           "grpc.io/client/uncompressed_response_bytes",
           "Uncompressed Response bytes",
           BYTE);
-  public static final MeasureDouble RPC_CLIENT_STARTED_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_CLIENT_STARTED_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/client/started_count",
           "Number of client RPCs (streams) started",
           COUNT);
-  public static final MeasureDouble RPC_CLIENT_FINISHED_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_CLIENT_FINISHED_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/client/finished_count",
           "Number of client RPCs (streams) finished",
           COUNT);
-  public static final MeasureDouble RPC_CLIENT_REQUEST_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_CLIENT_REQUEST_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/client/request_count",
           "Number of client RPC request messages",
           COUNT);
-  public static final MeasureDouble RPC_CLIENT_RESPONSE_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_CLIENT_RESPONSE_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/client/response_count",
           "Number of client RPC response messages",
           COUNT);
 
 
   // RPC server Measures.
-  public static final MeasureDouble RPC_SERVER_ERROR_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_SERVER_ERROR_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/server/error_count",
           "RPC Errors",
           COUNT);
@@ -125,23 +125,23 @@ public final class RpcMeasureConstants {
           "grpc.io/server/uncompressed_response_bytes",
           "Uncompressed Response bytes",
           BYTE);
-  public static final MeasureDouble RPC_SERVER_STARTED_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_SERVER_STARTED_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/server/started_count",
           "Number of server RPCs (streams) started",
           COUNT);
-  public static final MeasureDouble RPC_SERVER_FINISHED_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_SERVER_FINISHED_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/server/finished_count",
           "Number of server RPCs (streams) finished",
           COUNT);
-  public static final MeasureDouble RPC_SERVER_REQUEST_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_SERVER_REQUEST_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/server/request_count",
           "Number of server RPC request messages",
           COUNT);
-  public static final MeasureDouble RPC_SERVER_RESPONSE_COUNT =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong RPC_SERVER_RESPONSE_COUNT =
+      Measure.MeasureLong.create(
           "grpc.io/server/response_count",
           "Number of server RPC response messages",
           COUNT);
