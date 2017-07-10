@@ -34,37 +34,37 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
-public abstract class DistributionAggregation {
+public abstract class DistributionAggregate {
   /**
-   * Constructs a {@code DistributionAggregation} without bucket counts.
+   * Constructs a {@code DistributionAggregate} without bucket counts.
    *
    * @param count the number of values in the population. It must be non-negative.
    * @param mean the arithmetic mean of the values. If {@code count} is zero then this value must
    *     also be zero.
    * @param sum the sum of the values. If {@code count} is zero then this value must also be zero.
    * @param range the range of the values.
-   * @param tags the {@code Tag}s associated with the {@code DistributionAggregation}.
-   * @return a {@code DistributionAggregation} without bucket counts.
+   * @param tags the {@code Tag}s associated with the {@code DistributionAggregate}.
+   * @return a {@code DistributionAggregate} without bucket counts.
    */
-  public static DistributionAggregation create(
+  public static DistributionAggregate create(
       long count, double mean, double sum, Range range, List<Tag> tags) {
     return createInternal(count, mean, sum, range, tags, null);
   }
 
   /**
-   * Constructs a {@code DistributionAggregation} with bucket counts.
+   * Constructs a {@code DistributionAggregate} with bucket counts.
    *
    * @param count the number of values in the population. It must be non-negative.
    * @param mean the arithmetic mean of the values. If {@code count} is zero then this value must
    *     also be zero.
    * @param sum the sum of the values. If {@code count} is zero then this value must also be zero.
    * @param range the range of the values.
-   * @param tags the {@code Tag}s associated with the {@code DistributionAggregation}.
+   * @param tags the {@code Tag}s associated with the {@code DistributionAggregate}.
    * @param bucketCounts the bucket counts for the histogram associated with the {@code
-   *     DistributionAggregation}.
-   * @return a {@code DistributionAggregation} with bucket counts.
+   *     DistributionAggregate}.
+   * @return a {@code DistributionAggregate} with bucket counts.
    */
-  public static DistributionAggregation create(
+  public static DistributionAggregate create(
       long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
     return createInternal(
         count,
@@ -75,14 +75,14 @@ public abstract class DistributionAggregation {
         Collections.unmodifiableList(new ArrayList<Long>(bucketCounts)));
   }
 
-  private static DistributionAggregation createInternal(
+  private static DistributionAggregate createInternal(
       long count, double mean, double sum, Range range, List<Tag> tags, List<Long> bucketCounts) {
     Preconditions.checkArgument(count >= 0, "Count must be non-negative.");
     if (count == 0) {
       Preconditions.checkArgument(mean == 0, "Mean must be 0 when the count is 0.");
       Preconditions.checkArgument(sum == 0, "Sum must be 0 when the count is 0.");
     }
-    return new AutoValue_DistributionAggregation(count, mean, sum, range, tags, bucketCounts);
+    return new AutoValue_DistributionAggregate(count, mean, sum, range, tags, bucketCounts);
   }
 
   /**
@@ -115,14 +115,14 @@ public abstract class DistributionAggregation {
   public abstract Range getRange();
 
   /**
-   * Returns the {@code Tag}s associated with this {@code DistributionAggregation}.
+   * Returns the {@code Tag}s associated with this {@code DistributionAggregate}.
    *
-   * @return the {@code Tag}s associated with this {@code DistributionAggregation}.
+   * @return the {@code Tag}s associated with this {@code DistributionAggregate}.
    */
   public abstract List<Tag> getTags();
 
   /**
-   * Returns the bucket counts, or {@code null} if this {@code DistributionAggregation}'s associated
+   * Returns the bucket counts, or {@code null} if this {@code DistributionAggregate}'s associated
    * {@link DistributionAggregationDescriptor} has no buckets.
    *
    * <p>A Distribution may contain a histogram of the values in the population. The histogram is
@@ -143,7 +143,7 @@ public abstract class DistributionAggregation {
    * <p>{@link #getBucketCounts()} will return null iff the associated {@link
    * DistributionAggregationDescriptor#getBucketBoundaries()} returns null.
    *
-   * @return the bucket counts, or {@code null} if this {@code DistributionAggregation}'s associated
+   * @return the bucket counts, or {@code null} if this {@code DistributionAggregate}'s associated
    *     {@link DistributionAggregationDescriptor} has no buckets.
    */
   @Nullable
@@ -161,7 +161,7 @@ public abstract class DistributionAggregation {
      * @return a {@code Range} with the given bounds.
      */
     public static Range create(double min, double max) {
-      return new AutoValue_DistributionAggregation_Range(min, max);
+      return new AutoValue_DistributionAggregate_Range(min, max);
     }
 
     /**

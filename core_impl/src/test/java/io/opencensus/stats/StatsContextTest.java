@@ -126,7 +126,7 @@ public class StatsContextTest {
         new Function<DistributionViewData, Void>() {
           @Override
           public Void apply(DistributionViewData view) {
-            assertThat(view.getDistributionAggregations()).isEmpty();
+            assertThat(view.getDistributionAggregates()).isEmpty();
             return null;
           }
         },
@@ -151,8 +151,8 @@ public class StatsContextTest {
         new Function<DistributionViewData, Void>() {
           @Override
           public Void apply(DistributionViewData view) {
-            assertThat(view.getDistributionAggregations()).hasSize(1);
-            DistributionAggregation agg = view.getDistributionAggregations().get(0);
+            assertThat(view.getDistributionAggregates()).hasSize(1);
+            DistributionAggregate agg = view.getDistributionAggregates().get(0);
             assertThat(agg.getTags())
                 .containsExactly(
                     Tag.create(

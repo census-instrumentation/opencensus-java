@@ -16,7 +16,7 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
-import io.opencensus.stats.IntervalAggregation.Interval;
+import io.opencensus.stats.IntervalAggregate.Interval;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -24,16 +24,16 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for class {@link IntervalAggregation}.
+ * Tests for class {@link IntervalAggregate}.
  */
 @RunWith(JUnit4.class)
-public final class IntervalAggregationTest {
+public final class IntervalAggregateTest {
   @Test
-  public void testIntervalAggregation() {
+  public void testIntervalAggregate() {
     List<Interval> intervals =  Arrays.asList(
         Interval.create(Duration.fromMillis(10), 100.0, 1000.0),
         Interval.create(Duration.fromMillis(11), 101.0, 1001.0));
-    IntervalAggregation aggr = IntervalAggregation.create(TAGS, intervals);
+    IntervalAggregate aggr = IntervalAggregate.create(TAGS, intervals);
 
     assertThat(aggr.getTags()).hasSize(TAGS.size());
     for (int i = 0; i < aggr.getTags().size(); i++) {

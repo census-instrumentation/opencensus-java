@@ -54,11 +54,11 @@ public abstract class ViewData {
      * Constructs a new {@link DistributionViewData}.
      */
     public static DistributionViewData create(DistributionView distributionView,
-        List<DistributionAggregation> distributionAggregations, Timestamp start, Timestamp end) {
+        List<DistributionAggregate> distributionAggregates, Timestamp start, Timestamp end) {
       return new AutoValue_ViewData_DistributionViewData(
           distributionView,
           Collections.unmodifiableList(
-              new ArrayList<DistributionAggregation>(distributionAggregations)),
+              new ArrayList<DistributionAggregate>(distributionAggregates)),
           start,
           end);
     }
@@ -67,12 +67,12 @@ public abstract class ViewData {
     public abstract DistributionView getView();
 
     /**
-     * The {@link DistributionAggregation}s associated with this {@link DistributionViewData}.
+     * The {@link DistributionAggregate}s associated with this {@link DistributionViewData}.
      *
      * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
      */
-    public abstract List<DistributionAggregation> getDistributionAggregations();
+    public abstract List<DistributionAggregate> getDistributionAggregates();
 
     /**
      * Returns start timestamp for this aggregation.
@@ -102,22 +102,22 @@ public abstract class ViewData {
      * Constructs a new {@link IntervalViewData}.
      */
     public static IntervalViewData create(IntervalView intervalView,
-        List<IntervalAggregation> intervalAggregations) {
+        List<IntervalAggregate> intervalAggregates) {
       return new AutoValue_ViewData_IntervalViewData(
           intervalView,
-          Collections.unmodifiableList(new ArrayList<IntervalAggregation>(intervalAggregations)));
+          Collections.unmodifiableList(new ArrayList<IntervalAggregate>(intervalAggregates)));
     }
 
     @Override
     public abstract IntervalView getView();
 
     /**
-     * The {@link IntervalAggregation}s associated with this {@link IntervalViewData}.
+     * The {@link IntervalAggregate}s associated with this {@link IntervalViewData}.
      *
      * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
      * UnsupportedOperationException.
      */
-    public abstract List<IntervalAggregation> getIntervalAggregations();
+    public abstract List<IntervalAggregate> getIntervalAggregates();
 
     @Override
     public final <T> T match(

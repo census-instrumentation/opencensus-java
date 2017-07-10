@@ -53,93 +53,93 @@ final class StatsTestUtil {
   }
 
   /**
-   * Creates a {@code DistributionAggregation} by adding the given values to a new {@link
+   * Creates a {@code DistributionAggregate} by adding the given values to a new {@link
    * MutableDistribution} that has {@code BucketBoundaries}.
    *
-   * @param tags the {@code DistributionAggregation}'s tags.
+   * @param tags the {@code DistributionAggregate}'s tags.
    * @param bucketBoundaries the bucket boundaries.
    * @param values the values to add to the distribution.
-   * @return the new {@code DistributionAggregation}
+   * @return the new {@code DistributionAggregate}
    */
-  static DistributionAggregation createDistributionAggregation(
+  static DistributionAggregate createDistributionAggregate(
       List<Tag> tags, BucketBoundaries bucketBoundaries, List<Double> values) {
     MutableDistribution mdist = MutableDistribution.create(bucketBoundaries);
     for (double value : values) {
       mdist.add(value);
     }
     MutableDistribution.Range range = mdist.getRange();
-    return DistributionAggregation.create(
+    return DistributionAggregate.create(
         mdist.getCount(),
         mdist.getMean(),
         mdist.getSum(),
-        DistributionAggregation.Range.create(range.getMin(), range.getMax()),
+        DistributionAggregate.Range.create(range.getMin(), range.getMax()),
         tags,
         mdist.getBucketCounts());
   }
 
   /**
-   * Creates a {@code DistributionAggregation} by adding the given values to a new {@link
+   * Creates a {@code DistributionAggregate} by adding the given values to a new {@link
    * MutableDistribution} that does not have {@code BucketBoundaries}.
    *
-   * @param tags the {@code DistributionAggregation}'s tags.
+   * @param tags the {@code DistributionAggregate}'s tags.
    * @param values the values to add to the distribution.
-   * @return the new {@code DistributionAggregation}
+   * @return the new {@code DistributionAggregate}
    */
-  static DistributionAggregation createDistributionAggregation(
+  static DistributionAggregate createDistributionAggregate(
       List<Tag> tags, List<Double> values) {
     MutableDistribution mdist = MutableDistribution.create();
     for (double value : values) {
       mdist.add(value);
     }
     MutableDistribution.Range range = mdist.getRange();
-    return DistributionAggregation.create(
+    return DistributionAggregate.create(
         mdist.getCount(),
         mdist.getMean(),
         mdist.getSum(),
-        DistributionAggregation.Range.create(range.getMin(), range.getMax()),
+        DistributionAggregate.Range.create(range.getMin(), range.getMax()),
         tags);
   }
 
   /**
-   * Asserts that the two sets of {@code DistributionAggregation}s are equivalent, with a given
+   * Asserts that the two sets of {@code DistributionAggregate}s are equivalent, with a given
    * tolerance. The tolerance is used when comparing the mean and sum of values. The order of the
-   * {@code DistributionAggregation}s has no effect. The expected parameter is last, because it is
+   * {@code DistributionAggregate}s has no effect. The expected parameter is last, because it is
    * likely to be a larger expression.
    *
    * @param tolerance the tolerance used for {@code double} comparison.
    * @param actual the actual test result.
    * @param expected the expected value.
-   * @throws AssertionError if the {@code DistributionAggregation}s don't match.
+   * @throws AssertionError if the {@code DistributionAggregate}s don't match.
    */
-  static void assertDistributionAggregationsEquivalent(
+  static void assertDistributionAggregatesEquivalent(
       double tolerance,
-      Collection<DistributionAggregation> actual,
-      Collection<DistributionAggregation> expected) {
-    Function<DistributionAggregation, List<Tag>> getTagsFunction =
-        new Function<DistributionAggregation, List<Tag>>() {
+      Collection<DistributionAggregate> actual,
+      Collection<DistributionAggregate> expected) {
+    Function<DistributionAggregate, List<Tag>> getTagsFunction =
+        new Function<DistributionAggregate, List<Tag>>() {
           @Override
-          public List<Tag> apply(DistributionAggregation agg) {
+          public List<Tag> apply(DistributionAggregate agg) {
             return agg.getTags();
           }
         };
     Iterable<List<Tag>> expectedTags = Iterables.transform(expected, getTagsFunction);
     Iterable<List<Tag>> actualTags = Iterables.transform(actual, getTagsFunction);
     Truth.assertThat(actualTags).containsExactlyElementsIn(expectedTags);
-    for (DistributionAggregation expectedAgg : expected) {
-      DistributionAggregation actualAgg =
+    for (DistributionAggregate expectedAgg : expected) {
+      DistributionAggregate actualAgg =
           Iterables.find(
               actual,
               Predicates.compose(Predicates.equalTo(expectedAgg.getTags()), getTagsFunction));
-      assertDistributionAggregationValuesEquivalent(
-          "DistributionAggregation tags=" + expectedAgg.getTags(),
+      assertDistributionAggregateValuesEquivalent(
+          "DistributionAggregate tags=" + expectedAgg.getTags(),
           tolerance,
           expectedAgg,
           actualAgg);
     }
   }
 
-  private static void assertDistributionAggregationValuesEquivalent(
-      String msg, double tolerance, DistributionAggregation agg1, DistributionAggregation agg2) {
+  private static void assertDistributionAggregateValuesEquivalent(
+      String msg, double tolerance, DistributionAggregate agg1, DistributionAggregate agg2) {
     Truth.assertWithMessage(msg + " count").that(agg1.getCount()).isEqualTo(agg2.getCount());
     Truth.assertWithMessage(msg + " mean")
         .that(agg1.getMean())

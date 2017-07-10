@@ -103,15 +103,15 @@ abstract class MutableViewData {
 
     @Override
     final ViewData toViewData(Clock clock) {
-      final List<DistributionAggregation> distributionAggregations =
-          new ArrayList<DistributionAggregation>();
+      final List<DistributionAggregate> distributionAggregations =
+          new ArrayList<DistributionAggregate>();
       for (Entry<List<TagValue>, MutableDistribution> entry : tagValueDistributionMap.entrySet()) {
         MutableDistribution distribution = entry.getValue();
-        DistributionAggregation distributionAggregation = distribution.getBucketCounts() == null
-            ? DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
+        DistributionAggregate distributionAggregation = distribution.getBucketCounts() == null
+            ? DistributionAggregate.create(distribution.getCount(), distribution.getMean(),
             distribution.getSum(), convertRange(distribution.getRange()),
             generateTags(entry.getKey()))
-            : DistributionAggregation.create(distribution.getCount(), distribution.getMean(),
+            : DistributionAggregate.create(distribution.getCount(), distribution.getMean(),
                 distribution.getSum(), convertRange(distribution.getRange()),
                 generateTags(entry.getKey()), distribution.getBucketCounts());
         distributionAggregations.add(distributionAggregation);
@@ -148,10 +148,10 @@ abstract class MutableViewData {
       return tags;
     }
 
-    // TODO(songya): remove DistributionAggregation.Range, then remove this method
-    private static final DistributionAggregation.Range convertRange(
+    // TODO(songya): remove DistributionAggregate.Range, then remove this method
+    private static final DistributionAggregate.Range convertRange(
         MutableDistribution.Range range) {
-      return DistributionAggregation.Range.create(range.getMin(), range.getMax());
+      return DistributionAggregate.Range.create(range.getMin(), range.getMax());
     }
   }
 
