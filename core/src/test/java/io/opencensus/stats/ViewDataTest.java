@@ -38,11 +38,11 @@ import org.junit.runners.JUnit4;
 public final class ViewDataTest {
   @Test
   public void testDistributionViewData() {
-    DistributionAggregationDescriptor aggregationDescriptor =
-        DistributionAggregationDescriptor.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
+    DistributionAggregation aggregation =
+        DistributionAggregation.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
     final DistributionView view =
         DistributionView.create(
-            name, description, measure, aggregationDescriptor, tagKeys);
+            name, description, measure, aggregation, tagKeys);
     final List<DistributionAggregate> aggregations = Arrays.asList(
         DistributionAggregate.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
             Arrays.asList(1L, 1L, 1L, 1L, 1L)),
@@ -72,11 +72,11 @@ public final class ViewDataTest {
 
   @Test
   public void testIntervalViewData() {
-    IntervalAggregationDescriptor aggregationDescriptor =
-        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111)));
+    IntervalAggregation aggregation =
+        IntervalAggregation.create(Arrays.asList(Duration.fromMillis(111)));
     final IntervalView view =
         IntervalView.create(
-            name, description, measure, aggregationDescriptor, tagKeys);
+            name, description, measure, aggregation, tagKeys);
     final List<IntervalAggregate> aggregations = Arrays.asList(
         IntervalAggregate.create(tags1, Arrays.asList(
             Interval.create(Duration.fromMillis(111), 10, 100))),
@@ -107,7 +107,7 @@ public final class ViewDataTest {
             name,
             description,
             measure,
-            DistributionAggregationDescriptor.create(Arrays.asList(10.0)),
+            DistributionAggregation.create(Arrays.asList(10.0)),
             tagKeys);
     List<DistributionAggregate> dAggregates =
         Arrays.asList(
@@ -118,7 +118,7 @@ public final class ViewDataTest {
             name,
             description,
             measure,
-            IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(111))),
+            IntervalAggregation.create(Arrays.asList(Duration.fromMillis(111))),
             tagKeys);
     List<IntervalAggregate> iAggregates =
         Arrays.asList(

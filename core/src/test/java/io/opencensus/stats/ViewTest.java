@@ -32,9 +32,9 @@ import org.junit.runners.JUnit4;
 public final class ViewTest {
   @Test
   public void testDistributionView() {
-    DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
+    DistributionAggregation dAggr = DistributionAggregation.create();
     final View view = DistributionView.create(
-        name, description, measure, dAggrDescriptor, keys);
+        name, description, measure, dAggr, keys);
 
     assertThat(view.getViewName()).isEqualTo(name);
     assertThat(view.getName()).isEqualTo(name.asString());
@@ -58,10 +58,10 @@ public final class ViewTest {
 
   @Test
   public void testIntervalView() {
-    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
+    IntervalAggregation iAggr = IntervalAggregation.create(
         Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
     final View view = IntervalView.create(
-        name, description, measure, iAggrDescriptor, keys);
+        name, description, measure, iAggr, keys);
 
     assertThat(view.getViewName()).isEqualTo(name);
     assertThat(view.getName()).isEqualTo(name.asString());
@@ -86,26 +86,26 @@ public final class ViewTest {
 
   @Test
   public void testViewEquals() {
-    DistributionAggregationDescriptor dAggrDescriptor = DistributionAggregationDescriptor.create();
-    IntervalAggregationDescriptor iAggrDescriptor = IntervalAggregationDescriptor.create(
+    DistributionAggregation dAggr = DistributionAggregation.create();
+    IntervalAggregation iAggr = IntervalAggregation.create(
         Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
     new EqualsTester()
         .addEqualityGroup(
             DistributionView.create(
-                name, description, measure, dAggrDescriptor, keys),
+                name, description, measure, dAggr, keys),
             DistributionView.create(
-                name, description, measure, dAggrDescriptor, keys))
+                name, description, measure, dAggr, keys))
         .addEqualityGroup(
             DistributionView.create(
-                name, description + 2, measure, dAggrDescriptor, keys))
+                name, description + 2, measure, dAggr, keys))
         .addEqualityGroup(
             IntervalView.create(
-                name, description, measure, iAggrDescriptor, keys),
+                name, description, measure, iAggr, keys),
             IntervalView.create(
-                name, description, measure, iAggrDescriptor, keys))
+                name, description, measure, iAggr, keys))
         .addEqualityGroup(
             IntervalView.create(
-                name, description + 2, measure, iAggrDescriptor, keys))
+                name, description + 2, measure, iAggr, keys))
         .testEquals();
   }
 
@@ -115,7 +115,7 @@ public final class ViewTest {
         (View.Name) null,
         description,
         measure,
-        DistributionAggregationDescriptor.create(),
+        DistributionAggregation.create(),
         keys);
   }
 
@@ -125,7 +125,7 @@ public final class ViewTest {
         (String) null,
         description,
         measure,
-        DistributionAggregationDescriptor.create(),
+        DistributionAggregation.create(),
         keys);
   }
 
@@ -135,7 +135,7 @@ public final class ViewTest {
         (View.Name) null,
         description,
         measure,
-        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1))),
         keys);
   }
 
@@ -145,7 +145,7 @@ public final class ViewTest {
         (String) null,
         description,
         measure,
-        IntervalAggregationDescriptor.create(Arrays.asList(Duration.fromMillis(1))),
+        IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1))),
         keys);
   }
 

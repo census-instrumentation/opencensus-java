@@ -22,16 +22,16 @@ import java.util.List;
 /**
  * Describes data aggregations based on time intervals.
  */
-public final class IntervalAggregationDescriptor {
+public final class IntervalAggregation {
   /**
-   * Constructs a new {@link IntervalAggregationDescriptor}.
+   * Constructs a new {@link IntervalAggregation}.
    *
    * <p>The given {@code numSubIntervals} must be in the range [2, 20], see
    * {@link #getNumSubIntervals()} for more details.
    *
    * <p>The given {@code intervalSizes} must have at least one entry.
    */
-  public static IntervalAggregationDescriptor create(
+  public static IntervalAggregation create(
       int numSubIntervals, List<Duration> intervalSizes) {
     if (numSubIntervals < 2 || numSubIntervals > 20) {
       throw new IllegalArgumentException(
@@ -40,16 +40,16 @@ public final class IntervalAggregationDescriptor {
     if (intervalSizes.isEmpty()) {
       throw new IllegalArgumentException("There must be at least one interval size.");
     }
-    return new IntervalAggregationDescriptor(
+    return new IntervalAggregation(
         numSubIntervals,
         Collections.unmodifiableList(new ArrayList<Duration>(intervalSizes)));
   }
 
   /**
-   * Constructs a new {@link IntervalAggregationDescriptor} with the number of sub intervals set
+   * Constructs a new {@link IntervalAggregation} with the number of sub intervals set
    * to the default value of 5.
    */
-  public static IntervalAggregationDescriptor create(List<Duration> intervalSizes) {
+  public static IntervalAggregation create(List<Duration> intervalSizes) {
     return create(5, intervalSizes);
   }
 
@@ -79,7 +79,7 @@ public final class IntervalAggregationDescriptor {
   private final int numSubIntervals;
   private final List<Duration> intervalSizes;
 
-  private IntervalAggregationDescriptor(int numSubIntervals, List<Duration> intervalSizes) {
+  private IntervalAggregation(int numSubIntervals, List<Duration> intervalSizes) {
     this.numSubIntervals = numSubIntervals;
     this.intervalSizes = intervalSizes;
   }

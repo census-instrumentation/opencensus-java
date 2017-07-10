@@ -44,7 +44,7 @@ public class MeasureToViewMapTest {
           VIEW_NAME,
           "view description",
           MEASURE,
-          DistributionAggregationDescriptor.create(),
+          DistributionAggregation.create(),
           Arrays.asList(TagKey.create("my key")));
 
   @Test
