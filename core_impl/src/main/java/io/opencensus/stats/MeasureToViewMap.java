@@ -63,7 +63,7 @@ final class MeasureToViewMap {
     Collection<MutableViewData> views =
         mutableMap.get(view.getMeasure().getName());
     for (MutableViewData viewData : views) {
-      if (viewData.getView().getViewName().equals(viewName)) {
+      if (viewData.getView().getName().equals(viewName)) {
         return viewData;
       }
     }
@@ -73,7 +73,7 @@ final class MeasureToViewMap {
 
   /** Enable stats collection for the given {@link View}. */
   synchronized void registerView(View view, Clock clock) {
-    View existing = registeredViews.get(view.getViewName());
+    View existing = registeredViews.get(view.getName());
     if (existing != null) {
       if (existing.equals(view)) {
         // Ignore views that are already registered.
@@ -83,7 +83,7 @@ final class MeasureToViewMap {
             "A different view with the same name is already registered: " + existing);
       }
     }
-    registeredViews.put(view.getViewName(), view);
+    registeredViews.put(view.getName(), view);
     MutableViewData mutableViewData =
         view.match(
             new CreateMutableDistributionViewDataFunction(clock),

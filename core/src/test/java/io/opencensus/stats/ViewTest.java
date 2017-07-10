@@ -36,8 +36,7 @@ public final class ViewTest {
     final View view = DistributionView.create(
         name, description, measure, dAggr, keys);
 
-    assertThat(view.getViewName()).isEqualTo(name);
-    assertThat(view.getName()).isEqualTo(name.asString());
+    assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName()).isEqualTo(measure.getName());
     assertThat(view.getDimensions()).hasSize(2);
@@ -63,8 +62,7 @@ public final class ViewTest {
     final View view = IntervalView.create(
         name, description, measure, iAggr, keys);
 
-    assertThat(view.getViewName()).isEqualTo(name);
-    assertThat(view.getName()).isEqualTo(name.asString());
+    assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName())
         .isEqualTo(measure.getName());
@@ -112,17 +110,7 @@ public final class ViewTest {
   @Test(expected = NullPointerException.class)
   public void preventNullDistributionViewName() {
     DistributionView.create(
-        (View.Name) null,
-        description,
-        measure,
-        DistributionAggregation.create(),
-        keys);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void preventNullDistributionViewStringName() {
-    DistributionView.create(
-        (String) null,
+        null,
         description,
         measure,
         DistributionAggregation.create(),
@@ -132,17 +120,7 @@ public final class ViewTest {
   @Test(expected = NullPointerException.class)
   public void preventNullIntervalViewName() {
     IntervalView.create(
-        (View.Name) null,
-        description,
-        measure,
-        IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1))),
-        keys);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void preventNullIntervalViewStringName() {
-    IntervalView.create(
-        (String) null,
+        null,
         description,
         measure,
         IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1))),

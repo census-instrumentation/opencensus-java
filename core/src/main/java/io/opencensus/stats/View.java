@@ -29,14 +29,7 @@ public abstract class View {
   /**
    * Name of view. Must be unique.
    */
-  public abstract Name getViewName();
-
-  /**
-   * Name of view, as a {@code String}.
-   */
-  public final String getName() {
-    return getViewName().asString();
-  }
+  public abstract Name getName();
 
   /**
    * More detailed description, for documentation purposes.
@@ -102,23 +95,6 @@ public abstract class View {
      * Constructs a new {@link DistributionView}.
      */
     public static DistributionView create(
-        String name,
-        String description,
-        Measure measure,
-        DistributionAggregation distributionAggregation,
-        List<TagKey> tagKeys) {
-      return create(
-          Name.create(name),
-          description,
-          measure,
-          distributionAggregation,
-          tagKeys);
-    }
-
-    /**
-     * Constructs a new {@link DistributionView}.
-     */
-    public static DistributionView create(
         Name name,
         String description,
         Measure measure,
@@ -152,23 +128,6 @@ public abstract class View {
   @Immutable
   @AutoValue
   public abstract static class IntervalView extends View {
-    /**
-     * Constructs a new {@link IntervalView}.
-     */
-    public static IntervalView create(
-        String name,
-        String description,
-        Measure measure,
-        IntervalAggregation intervalAggregation,
-        List<TagKey> tagKeys) {
-      return create(
-          Name.create(name),
-          description,
-          measure,
-          intervalAggregation,
-          tagKeys);
-    }
-
     /**
      * Constructs a new {@link IntervalView}.
      */
