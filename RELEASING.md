@@ -170,8 +170,8 @@ site](http://central.sonatype.org/pages/releasing-the-deployment.html).
 
 ## Known Issues
 
-### Deployment for branch v0.5.x
-For all releases on the branch v0.5.x to deploy to maven central use command
+### Deployment for tag v0.5.0
+To rebuild the releases on the tag v0.5.0 use:
 ```bash
 $ ./gradlew clean build && ./gradlew uploadArchives
 ```
