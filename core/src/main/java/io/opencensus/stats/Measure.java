@@ -90,7 +90,6 @@ public abstract class Measure {
 
   @Immutable
   @AutoValue
-  // TODO: determine whether we want to support MeasureLong in V0.1
   public abstract static class MeasureLong extends Measure {
 
     MeasureLong() {
