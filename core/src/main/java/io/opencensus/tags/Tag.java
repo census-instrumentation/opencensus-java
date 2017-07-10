@@ -120,7 +120,7 @@ public abstract class Tag {
     public abstract TagValueString getValue();
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
@@ -158,7 +158,7 @@ public abstract class Tag {
     public abstract long getValue();
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,
@@ -196,7 +196,7 @@ public abstract class Tag {
     public abstract boolean getValue();
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super TagString, T> stringFunction,
         Function<? super TagLong, T> longFunction,
         Function<? super TagBoolean, T> booleanFunction,

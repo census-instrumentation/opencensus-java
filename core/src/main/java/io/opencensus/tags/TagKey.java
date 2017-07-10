@@ -125,7 +125,7 @@ public abstract class TagKey {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
@@ -160,7 +160,7 @@ public abstract class TagKey {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
@@ -195,7 +195,7 @@ public abstract class TagKey {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super TagKeyString, T> stringFunction,
         Function<? super TagKeyLong, T> longFunction,
         Function<? super TagKeyBoolean, T> booleanFunction,
