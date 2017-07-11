@@ -89,7 +89,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super AggregationSum, T> p0,
         Function<? super AggregationCount, T> p1,
         Function<? super AggregationHistogram, T> p2,
@@ -132,7 +132,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super AggregationSum, T> p0,
         Function<? super AggregationCount, T> p1,
         Function<? super AggregationHistogram, T> p2,
@@ -180,7 +180,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super AggregationSum, T> p0,
         Function<? super AggregationCount, T> p1,
         Function<? super AggregationHistogram, T> p2,
@@ -224,7 +224,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super AggregationSum, T> p0,
         Function<? super AggregationCount, T> p1,
         Function<? super AggregationHistogram, T> p2,
@@ -270,7 +270,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super AggregationSum, T> p0,
         Function<? super AggregationCount, T> p1,
         Function<? super AggregationHistogram, T> p2,
@@ -319,7 +319,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public <T> T match(
+    public final <T> T match(
         Function<? super AggregationSum, T> p0,
         Function<? super AggregationCount, T> p1,
         Function<? super AggregationHistogram, T> p2,
