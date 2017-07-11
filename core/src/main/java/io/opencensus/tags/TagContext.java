@@ -33,7 +33,10 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class TagContext {
 
-  private static final TagContext EMPTY = newBuilder().build();
+  /**
+   * The empty {@code TagContext}.
+   */
+  public static final TagContext EMPTY = newBuilder().build();
 
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey, Object> tags;
@@ -53,15 +56,6 @@ public final class TagContext {
    */
   public Builder toBuilder() {
     return new Builder(getTags());
-  }
-
-  /**
-   * Returns an empty {@code TagContext}.
-   *
-   * @return an empty {@code TagContext}.
-   */
-  public static TagContext empty() {
-    return EMPTY;
   }
 
   /**

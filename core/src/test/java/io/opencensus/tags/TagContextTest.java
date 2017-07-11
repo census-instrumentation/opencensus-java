@@ -35,6 +35,11 @@ public class TagContextTest {
   private static final TagValueString V2 = TagValueString.create("v2");
 
   @Test
+  public void testEmpty() {
+    assertThat(TagContext.EMPTY.getTags()).isEmpty();
+  }
+
+  @Test
   public void applyBuilderOperationsInOrder() {
     assertThat(TagContext.newBuilder().set(KS1, V1).set(KS1, V2).build().getTags())
         .containsExactly(KS1, V2);
