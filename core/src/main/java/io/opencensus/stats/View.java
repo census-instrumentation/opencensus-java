@@ -42,13 +42,13 @@ public abstract class View {
   public abstract Measure getMeasure();
 
   /**
-   * Dimensions (a.k.a Tag Keys) to match with the associated {@link Measure}.
-   * If no dimensions are specified, then all stats are recorded. Dimensions must be unique.
+   * Columns (a.k.a Tag Keys) to match with the associated {@link Measure}.
+   * If no dimensions are specified, then all stats are recorded. Columns must be unique.
    *
    * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
    * UnsupportedOperationException.
    */
-  public abstract List<TagKey> getDimensions();
+  public abstract List<TagKey> getColumns();
 
   /**
    * Applies the given match function to the underlying data type.

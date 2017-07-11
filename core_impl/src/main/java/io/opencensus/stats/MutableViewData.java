@@ -79,7 +79,7 @@ abstract class MutableViewData {
     void record(StatsContextImpl context, double value) {
       Map<TagKey, TagValue> tags = context.tags;
       // TagKeys need to be unique within one view descriptor.
-      final List<TagKey> tagKeys = this.distributionView.getDimensions();
+      final List<TagKey> tagKeys = this.distributionView.getColumns();
       final List<TagValue> tagValues = new ArrayList<TagValue>(tagKeys.size());
 
       // Record all the measures in a "Greedy" way.
@@ -152,7 +152,7 @@ abstract class MutableViewData {
     private final List<Tag> generateTags(List<TagValue> tagValues) {
       final List<Tag> tags = new ArrayList<Tag>(tagValues.size());
       int i = 0;
-      for (TagKey tagKey : this.distributionView.getDimensions()) {
+      for (TagKey tagKey : this.distributionView.getColumns()) {
         tags.add(Tag.create(tagKey, tagValues.get(i)));
         ++i;
       }
