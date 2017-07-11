@@ -44,7 +44,7 @@ public abstract class Aggregation {
    *
    * @param value new value to be added to population
    */
-  public abstract void add(double value);
+  abstract void add(double value);
 
   /**
    * Applies the given match function to the underlying data type.
@@ -75,7 +75,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public void add(double value) {
+    void add(double value) {
       sum += value;
     }
 
@@ -118,7 +118,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public void add(double value) {
+    void add(double value) {
       count++;
     }
 
@@ -160,7 +160,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public void add(double value) {
+    void add(double value) {
       for (int i = 0; i < bucketBoundaries.getBoundaries().size(); i++) {
         if (value < bucketBoundaries.getBoundaries().get(i)) {
           bucketCounts[i]++;
@@ -210,7 +210,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public void add(double value) {
+    void add(double value) {
       range.add(value);
     }
 
@@ -254,7 +254,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public void add(double value) {
+    void add(double value) {
       count++;
       double deltaFromMean = value - mean;
       mean += deltaFromMean / count;
@@ -301,7 +301,7 @@ public abstract class Aggregation {
     }
 
     @Override
-    public void add(double value) {
+    void add(double value) {
       count++;
       double deltaFromMean = value - mean;
       mean += deltaFromMean / count;
