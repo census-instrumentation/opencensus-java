@@ -14,10 +14,14 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
+import io.opencensus.contrib.agent.bootstrap.ContextProxy;
 import java.lang.instrument.Instrumentation;
+import java.util.Locale;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
@@ -62,14 +66,49 @@ public final class AgentMain {
     instrumentation.appendToBootstrapClassLoaderSearch(
             new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
+    checkState(ContextProxy.class.getClassLoader() == null);
+
     AgentBuilder agentBuilder = new AgentBuilder.Default()
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new AgentBuilderListener())
             .ignore(none());
-    // TODO(stschmidt): Add instrumentation for context propagation.
+    agentBuilder = LazyLoaded.addContextPropagation(agentBuilder);
     agentBuilder.installOn(instrumentation);
 
     logger.info("Initialized.");
+  }
+
+  private static class LazyLoaded {
+
+    // Avoid triggering Errorprone's warning about using {@link Class#forName} on a
+    // class that is on the compile-time classpath. Though the class is on the compile-time
+    // classpath, it may be missing at run time, in which case the bytecode will not be instrumented
+    // for automatic context progagation.
+    private static final String CONTEXT_CLASS_NAME = "io.grpc.".toLowerCase(Locale.US) + "Context";
+
+    /**
+     * Adds automatic context propagation, if {@link io.grpc.Context} is available.
+     */
+    static AgentBuilder addContextPropagation(AgentBuilder agentBuilder) {
+      try {
+        Class.forName(CONTEXT_CLASS_NAME);
+
+        ContextProxy.init(new ContextProxyImpl());
+
+        agentBuilder = agentBuilder
+                .type(ExecutorInstrumentation.matcher())
+                .transform(ExecutorInstrumentation.transformer());
+
+        agentBuilder = agentBuilder
+                .type(ThreadInstrumentation.matcher())
+                .transform(ThreadInstrumentation.transformer());
+      } catch (ClassNotFoundException e) {
+        logger.log(Level.FINE, "Could not load io.grpc.Context, therefore not instrumenting "
+                + "the bytecode for automatic context propagation.", e);
+      }
+
+      return agentBuilder;
+    }
   }
 }
