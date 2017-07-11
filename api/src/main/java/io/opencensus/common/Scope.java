@@ -26,7 +26,4 @@ package io.opencensus.common;
  * </pre>
  */
 @SuppressWarnings("deprecation")
-public interface Scope extends NonThrowingCloseable {
-  @Override
-  void close();
-}
+public interface Scope extends NonThrowingCloseable {}
