@@ -49,12 +49,12 @@ public final class TagContext {
   }
 
   /**
-   * Returns a builder based on this {@code TagContext}.
+   * Returns the current {@code TagContext}.
    *
-   * @return a builder based on this {@code TagContext}.
+   * @return the current {@code TagContext}.
    */
-  public Builder toBuilder() {
-    return new Builder(getTags());
+  public static TagContext getCurrentTags() {
+    return CurrentTagsUtils.getCurrentTagContext();
   }
 
   /**
@@ -67,21 +67,21 @@ public final class TagContext {
   }
 
   /**
-   * Returns the current {@code TagContext}.
-   *
-   * @return the current {@code TagContext}.
-   */
-  public static TagContext getCurrentTags() {
-    return CurrentTagsUtils.getCurrentTagContext();
-  }
-
-  /**
    * Returns a new {@code Builder} created from the current {@code TagContext}.
    *
    * @return a new {@code Builder} created from the current {@code TagContext}.
    */
   public static Builder currentBuilder() {
     return getCurrentTags().toBuilder();
+  }
+
+  /**
+   * Returns a builder based on this {@code TagContext}.
+   *
+   * @return a builder based on this {@code TagContext}.
+   */
+  public Builder toBuilder() {
+    return new Builder(getTags());
   }
 
   /** Builder for the {@link TagContext} class. */
