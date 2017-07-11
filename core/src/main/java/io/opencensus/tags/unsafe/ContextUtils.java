@@ -14,7 +14,6 @@
 package io.opencensus.tags.unsafe;
 
 import io.grpc.Context;
-import io.opencensus.stats.StatsContext;
 import io.opencensus.tags.TagContext;
 
 /**
@@ -32,6 +31,6 @@ public final class ContextUtils {
    * The {@link io.grpc.Context.Key} used to interact with the {@code TagContext} contained in the
    * {@link io.grpc.Context}.
    */
-  public static final Context.Key<StatsContext> TAG_CONTEXT_KEY =
-      Context.key("opencensus-tag-context-key");
+  public static final Context.Key<TagContext> TAG_CONTEXT_KEY =
+      Context.keyWithDefault("opencensus-tag-context-key", TagContext.empty());
 }
