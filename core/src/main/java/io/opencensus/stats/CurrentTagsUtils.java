@@ -14,25 +14,18 @@
 package io.opencensus.stats;
 
 import io.grpc.Context;
+
 import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.tags.unsafe.ContextUtils;
 
 /**
  * Util methods/functionality to interact with the {@link io.grpc.Context}.
- *
- * <p>Users must interact with the current Context via the public APIs in {@link
- * StatsContextFactory} and avoid usages of the {@link #STATS_CONTEXT_KEY} directly.
  */
-public final class ContextUtils {
-
-  /**
-   * The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}.
-   */
-  // TODO(songya): Discourage the usage of STATS_CONTEXT_KEY for normal users if needed.
-  public static final Context.Key<StatsContext> STATS_CONTEXT_KEY = Context.key(
-      "instrumentation-stats-key");
+// TODO(sebright): Move this into the tags package.
+final class CurrentTagsUtils {
 
   // Static class.
-  private ContextUtils() {
+  private CurrentTagsUtils() {
   }
 
   /**
@@ -41,7 +34,7 @@ public final class ContextUtils {
    * @return The {@code StatsContext} from the current context.
    */
   static StatsContext getCurrentStatsContext() {
-    return STATS_CONTEXT_KEY.get(Context.current());
+    return ContextUtils.TAG_CONTEXT_KEY.get(Context.current());
   }
 
   /**
@@ -56,7 +49,7 @@ public final class ContextUtils {
    *     current context.
    */
   static NonThrowingCloseable withStatsContext(StatsContext statsContext) {
-    return new WithStatsContext(statsContext, STATS_CONTEXT_KEY);
+    return new WithStatsContext(statsContext, ContextUtils.TAG_CONTEXT_KEY);
   }
 
   // Supports try-with-resources idiom.
