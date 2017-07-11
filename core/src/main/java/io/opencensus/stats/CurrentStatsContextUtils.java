@@ -15,17 +15,22 @@ package io.opencensus.stats;
 
 import io.grpc.Context;
 import io.opencensus.common.Scope;
-import io.opencensus.tags.unsafe.ContextUtils;
 
 /**
  * Util methods/functionality to interact with the {@link io.grpc.Context}.
  */
-// TODO(sebright): Move this into the tags package.
-final class CurrentTagsUtils {
+final class CurrentStatsContextUtils {
 
   // Static class.
-  private CurrentTagsUtils() {
+  private CurrentStatsContextUtils() {
   }
+
+  /**
+   * The {@link io.grpc.Context.Key} used to interact with the {@code StatsContext} contained in the
+   * {@link io.grpc.Context}.
+   */
+  public static final Context.Key<StatsContext> STATS_CONTEXT_KEY =
+      Context.key("opencensus-stats-context-key");
 
   /**
    * Returns The {@link StatsContext} from the current context.
@@ -33,7 +38,7 @@ final class CurrentTagsUtils {
    * @return The {@code StatsContext} from the current context.
    */
   static StatsContext getCurrentStatsContext() {
-    return ContextUtils.TAG_CONTEXT_KEY.get(Context.current());
+    return STATS_CONTEXT_KEY.get(Context.current());
   }
 
   /**
@@ -48,7 +53,7 @@ final class CurrentTagsUtils {
    *     current context.
    */
   static Scope withStatsContext(StatsContext statsContext) {
-    return new WithStatsContext(statsContext, ContextUtils.TAG_CONTEXT_KEY);
+    return new WithStatsContext(statsContext, STATS_CONTEXT_KEY);
   }
 
   // Supports try-with-resources idiom.

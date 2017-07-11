@@ -25,10 +25,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Unit tests for {@link CurrentTagsUtils}.
+ * Unit tests for {@link CurrentStatsContextUtils}.
  */
 @RunWith(JUnit4.class)
-public class CurrentTagsUtilsTest {
+public class CurrentStatsContextUtilsTest {
 
   @Mock
   private StatsContext statsContext;
@@ -40,38 +40,38 @@ public class CurrentTagsUtilsTest {
 
   @Test
   public void testGetCurrentStatsContext_WhenNoContext() {
-    assertThat(CurrentTagsUtils.getCurrentStatsContext()).isNull();
+    assertThat(CurrentStatsContextUtils.getCurrentStatsContext()).isNull();
   }
 
   @Test
   public void testWithStatsContext() {
-    assertThat(CurrentTagsUtils.getCurrentStatsContext()).isNull();
-    Scope scopedStatsCtx = CurrentTagsUtils.withStatsContext(statsContext);
+    assertThat(CurrentStatsContextUtils.getCurrentStatsContext()).isNull();
+    Scope scopedStatsCtx = CurrentStatsContextUtils.withStatsContext(statsContext);
     try {
-      assertThat(CurrentTagsUtils.getCurrentStatsContext()).isSameAs(statsContext);
+      assertThat(CurrentStatsContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
     } finally {
       scopedStatsCtx.close();
     }
-    assertThat(CurrentTagsUtils.getCurrentStatsContext()).isNull();
+    assertThat(CurrentStatsContextUtils.getCurrentStatsContext()).isNull();
   }
 
   @Test
   public void testWithStatsContextUsingWrap() {
     Runnable runnable;
-    Scope scopedStatsCtx = CurrentTagsUtils.withStatsContext(statsContext);
+    Scope scopedStatsCtx = CurrentStatsContextUtils.withStatsContext(statsContext);
     try {
-      assertThat(CurrentTagsUtils.getCurrentStatsContext()).isSameAs(statsContext);
+      assertThat(CurrentStatsContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
       runnable = Context.current().wrap(
           new Runnable() {
             @Override
             public void run() {
-              assertThat(CurrentTagsUtils.getCurrentStatsContext()).isSameAs(statsContext);
+              assertThat(CurrentStatsContextUtils.getCurrentStatsContext()).isSameAs(statsContext);
             }
           });
     } finally {
       scopedStatsCtx.close();
     }
-    assertThat(CurrentTagsUtils.getCurrentStatsContext()).isNull();
+    assertThat(CurrentStatsContextUtils.getCurrentStatsContext()).isNull();
     // When we run the runnable we will have the statsContext in the current Context.
     runnable.run();
   }

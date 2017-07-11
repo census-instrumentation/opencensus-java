@@ -19,7 +19,6 @@ import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
-import io.opencensus.tags.unsafe.ContextUtils;
 import io.opencensus.testing.common.TestClock;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -147,7 +146,7 @@ public class StatsContextFactoryTest {
   public void testGetCurrentStatsContext() {
     assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
     Context origContext = Context.current().withValue(
-        ContextUtils.TAG_CONTEXT_KEY, statsContext)
+        CurrentStatsContextUtils.STATS_CONTEXT_KEY, statsContext)
         .attach();
     // Make sure context is detached even if test fails.
     try {
