@@ -13,26 +13,17 @@
 
 package io.opencensus.common;
 
-import java.io.Closeable;
-
 /**
- * An {@link Closeable} which cannot throw a checked exception.
- *
- * <p>This is useful because such a reversion otherwise requires the caller to catch the
- * (impossible) Exception in the try-with-resources.
+ * A {@link java.io.Closeable} that represents a change to the current context over a scope of code.
+ * {@link Scope#close} cannot throw a checked exception.
  *
  * <p>Example of usage:
  *
  * <pre>
- *   try (NonThrowingAutoCloseable ctx = tryEnter()) {
+ *   try (Scope ctx = tryEnter()) {
  *     ...
  *   }
  * </pre>
- *
- * @deprecated {@link Scope} is a better match for operations involving the current context.
  */
-@Deprecated
-public interface NonThrowingCloseable extends Closeable {
-  @Override
-  void close();
-}
+@SuppressWarnings("deprecation")
+public interface Scope extends NonThrowingCloseable {}

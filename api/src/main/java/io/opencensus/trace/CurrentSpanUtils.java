@@ -14,7 +14,7 @@
 package io.opencensus.trace;
 
 import io.grpc.Context;
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.trace.unsafe.ContextUtils;
 
 /**
@@ -43,12 +43,12 @@ final class CurrentSpanUtils {
    * @return An object that defines a scope where the given {@code Span} is set to the current
    *     context.
    */
-  static NonThrowingCloseable withSpan(Span span) {
+  static Scope withSpan(Span span) {
     return new WithSpan(span, ContextUtils.CONTEXT_SPAN_KEY);
   }
 
   // Defines an arbitrary scope of code as a traceable operation. Supports try-with-resources idiom.
-  private static final class WithSpan implements NonThrowingCloseable {
+  private static final class WithSpan implements Scope {
     private final Context origContext;
 
     /**

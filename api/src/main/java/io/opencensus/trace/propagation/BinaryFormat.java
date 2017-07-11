@@ -28,7 +28,7 @@ import java.text.ParseException;
  * private static final BinaryFormat binaryFormat =
  *     Tracing.getPropagationComponent().getBinaryFormat();
  * void onSendRequest() {
- *   try (NonThrowingCloseable ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
+ *   try (Scope ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
  *     byte[] binaryValue = binaryFormat.toBinaryValue(tracer.getCurrentContext().context());
  *     // Send the request including the binaryValue and wait for the response.
  *   }
@@ -51,7 +51,7 @@ import java.text.ParseException;
  *   } catch (ParseException e) {
  *     // Maybe log the exception.
  *   }
- *   try (NonThrowingCloseable ss =
+ *   try (Scope ss =
  *            tracer.spanBuilderWithRemoteParent("Recv.MyRequest", spanContext).startScopedSpan()) {
  *     // Handle request and send response back.
  *   }

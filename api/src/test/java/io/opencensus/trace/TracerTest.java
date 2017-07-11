@@ -18,7 +18,7 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.when;
 
 import io.grpc.Context;
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class TracerTest {
   @Test
   public void getCurrentSpan_WithSpan() {
     assertThat(noopTracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-    NonThrowingCloseable ws = noopTracer.withSpan(span);
+    Scope ws = noopTracer.withSpan(span);
     try {
       assertThat(noopTracer.getCurrentSpan()).isSameAs(span);
     } finally {
@@ -68,7 +68,7 @@ public class TracerTest {
   @Test
   public void propagationViaRunnable() {
     Runnable runnable;
-    NonThrowingCloseable ws = noopTracer.withSpan(span);
+    Scope ws = noopTracer.withSpan(span);
     try {
       assertThat(noopTracer.getCurrentSpan()).isSameAs(span);
       runnable =
@@ -129,7 +129,7 @@ public class TracerTest {
 
   @Test
   public void startSpanWithParentFromContext() {
-    NonThrowingCloseable ws = tracer.withSpan(span);
+    Scope ws = tracer.withSpan(span);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
       when(tracer.spanBuilderWithExplicitParent(same(SPAN_NAME), same(span)))
@@ -142,7 +142,7 @@ public class TracerTest {
 
   @Test
   public void startSpanWithInvalidParentFromContext() {
-    NonThrowingCloseable ws = tracer.withSpan(BlankSpan.INSTANCE);
+    Scope ws = tracer.withSpan(BlankSpan.INSTANCE);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
       when(tracer.spanBuilderWithExplicitParent(same(SPAN_NAME), same(BlankSpan.INSTANCE)))

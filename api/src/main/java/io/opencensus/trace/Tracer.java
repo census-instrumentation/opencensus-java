@@ -15,7 +15,7 @@ package io.opencensus.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.trace.SpanBuilder.NoopSpanBuilder;
 import javax.annotation.Nullable;
 
@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  * class MyClass {
  *   private static final Tracer tracer = Tracing.getTracer();
  *   void doWork() {
- *     try(NonThrowingCloseable ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
+ *     try(Scope ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
  *       tracer.getCurrentSpan().addAnnotation("Starting the work.");
  *       doWorkInternal();
  *       tracer.getCurrentSpan().addAnnotation("Finished working.");
@@ -107,7 +107,7 @@ public abstract class Tracer {
    * void doWork() {
    *   // Create a Span as a child of the current Span.
    *   Span span = tracer.spanBuilder("my span").startSpan();
-   *   try (NonThrowingCloseable ws = tracer.withSpan(span)) {
+   *   try (Scope ws = tracer.withSpan(span)) {
    *     tracer.getCurrentSpan().addAnnotation("my annotation");
    *     doSomeOtherWork();  // Here "span" is the current Span.
    *   }
@@ -125,7 +125,7 @@ public abstract class Tracer {
    * void doWork() {
    *   // Create a Span as a child of the current Span.
    *   Span span = tracer.spanBuilder("my span").startSpan();
-   *   NonThrowingCloseable ws = tracer.withSpan(span);
+   *   Scope ws = tracer.withSpan(span);
    *   try {
    *     tracer.getCurrentSpan().addAnnotation("my annotation");
    *     doSomeOtherWork();  // Here "span" is the current Span.
@@ -141,7 +141,7 @@ public abstract class Tracer {
    *     Context.
    * @throws NullPointerException if {@code span} is {@code null}.
    */
-  public final NonThrowingCloseable withSpan(Span span) {
+  public final Scope withSpan(Span span) {
     return CurrentSpanUtils.withSpan(checkNotNull(span, "span"));
   }
 

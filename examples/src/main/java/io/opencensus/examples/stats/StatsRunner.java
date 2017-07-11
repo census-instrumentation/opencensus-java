@@ -13,7 +13,7 @@
 
 package io.opencensus.examples.stats;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Stats;
@@ -56,12 +56,12 @@ public class StatsRunner {
     System.out.println("Default Tags: " + DEFAULT);
     System.out.println("Current Tags: " + factory.getCurrentStatsContext());
     StatsContext tags1 = DEFAULT.with(K1, V1, K2, V2);
-    try (NonThrowingCloseable scopedStatsCtx1 = factory.withStatsContext(tags1)) {
+    try (Scope scopedStatsCtx1 = factory.withStatsContext(tags1)) {
       System.out.println("  Current Tags: " + factory.getCurrentStatsContext());
       System.out.println(
           "  Current == Default + tags1: " + factory.getCurrentStatsContext().equals(tags1));
       StatsContext tags2 = tags1.with(K3, V3, K4, V4);
-      try (NonThrowingCloseable scopedStatsCtx2 = factory.withStatsContext(tags2)) {
+      try (Scope scopedStatsCtx2 = factory.withStatsContext(tags2)) {
         System.out.println("    Current Tags: " + factory.getCurrentStatsContext());
         System.out.println(
             "    Current == Default + tags1 + tags2: "

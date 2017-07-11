@@ -13,7 +13,7 @@
 
 package io.opencensus.examples.trace;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
@@ -33,7 +33,7 @@ public final class MultiSpansScopedTracing {
 
   private static void doSomeMoreWork() {
     // Create a child Span of the current Span.
-    try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
+    try (Scope ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
       doSomeOtherWork();
     }
   }
@@ -51,8 +51,7 @@ public final class MultiSpansScopedTracing {
    */
   public static void main(String[] args) {
     LoggingExportHandler.register(Tracing.getExportComponent().getSpanExporter());
-    try (NonThrowingCloseable ss =
-        tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startScopedSpan()) {
+    try (Scope ss = tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startScopedSpan()) {
       doWork();
     }
   }
