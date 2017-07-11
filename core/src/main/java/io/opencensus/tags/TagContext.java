@@ -54,7 +54,7 @@ public final class TagContext {
    * @return the current {@code TagContext}.
    */
   public static TagContext getCurrentTags() {
-    return CurrentTagsUtils.getCurrentTagContext();
+    return CurrentTagContextUtils.getCurrentTagContext();
   }
 
   /**
@@ -168,7 +168,7 @@ public final class TagContext {
      *     is set to the current context.
      */
     public Scope buildScoped() {
-      return CurrentTagsUtils.withTagContext(build());
+      return CurrentTagContextUtils.withTagContext(build());
     }
   }
 }

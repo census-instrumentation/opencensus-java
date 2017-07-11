@@ -22,9 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link CurrentTagsUtils}. */
+/** Unit tests for {@link CurrentTagContextUtils}. */
 @RunWith(JUnit4.class)
-public class CurrentTagsUtilsTest {
+public class CurrentTagContextUtilsTest {
 
   private static final TagContext TAG_CONTEXT =
       TagContext.emptyBuilder()
@@ -33,40 +33,41 @@ public class CurrentTagsUtilsTest {
 
   @Test
   public void testGetCurrentTagContext_WhenNoContext() {
-    assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
   }
 
   @Test
   public void testWithTagContext() {
-    assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
-    Scope scopedTags = CurrentTagsUtils.withTagContext(TAG_CONTEXT);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
+    Scope scopedTags = CurrentTagContextUtils.withTagContext(TAG_CONTEXT);
     try {
-      assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
+      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
     } finally {
       scopedTags.close();
     }
-    assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
   }
 
   @Test
   public void testWithTagContextUsingWrap() {
     Runnable runnable;
-    Scope scopedTags = CurrentTagsUtils.withTagContext(TAG_CONTEXT);
+    Scope scopedTags = CurrentTagContextUtils.withTagContext(TAG_CONTEXT);
     try {
-      assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
+      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
       runnable =
           Context.current()
               .wrap(
                   new Runnable() {
                     @Override
                     public void run() {
-                      assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
+                      assertThat(CurrentTagContextUtils.getCurrentTagContext())
+                          .isEqualTo(TAG_CONTEXT);
                     }
                   });
     } finally {
       scopedTags.close();
     }
-    assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
     // When we run the runnable we will have the TagContext in the current Context.
     runnable.run();
   }

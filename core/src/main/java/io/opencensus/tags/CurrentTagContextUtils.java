@@ -20,9 +20,9 @@ import io.opencensus.tags.unsafe.ContextUtils;
 /**
  * Utility methods for accessing the {@link TagContext} contained in the {@link io.grpc.Context}.
  */
-final class CurrentTagsUtils {
+final class CurrentTagContextUtils {
 
-  private CurrentTagsUtils() {}
+  private CurrentTagContextUtils() {}
 
   /**
    * Returns the {@link TagContext} from the current context.
