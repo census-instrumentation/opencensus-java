@@ -19,7 +19,6 @@ import io.opencensus.common.Scope;
 /**
  * Util methods/functionality to interact with the {@link io.grpc.Context}.
  */
-// TODO(sebright): Move this into the tags package.
 final class CurrentStatsContextUtils {
 
   // Static class.

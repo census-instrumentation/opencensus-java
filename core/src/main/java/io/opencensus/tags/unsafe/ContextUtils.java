@@ -20,10 +20,8 @@ import io.opencensus.tags.TagContext;
  * Utility methods for accessing the {@link TagContext} contained in the {@link io.grpc.Context}.
  *
  * <p>Most code should interact with the current context via the public APIs in {@link
- * io.opencensus.stats.StatsContextFactory} and avoid accessing {@link #TAG_CONTEXT_KEY} directly.
+ * io.opencensus.tags.TagContext} and avoid accessing {@link #TAG_CONTEXT_KEY} directly.
  */
-// TODO(sebright): Update this Javadoc to reference the class in the tags package that provides
-// methods for interacting with the current context, once TAG_CONTEXT_KEY uses TagContext.
 public final class ContextUtils {
   private ContextUtils() {}
 
