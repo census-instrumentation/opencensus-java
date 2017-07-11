@@ -14,7 +14,19 @@
 package io.opencensus.common;
 
 /**
- * A {@link NonThrowingCloseable} that represents a change to the current context over a scope of
- * code.
+ * A {@link java.io.Closeable} that represents a change to the current context over a scope of code.
+ * {@link Scope#close} cannot throw a checked exception.
+ *
+ * <p>Example of usage:
+ *
+ * <pre>
+ *   try (Scope ctx = tryEnter()) {
+ *     ...
+ *   }
+ * </pre>
  */
-public interface Scope extends NonThrowingCloseable {}
+@SuppressWarnings("deprecation")
+public interface Scope extends NonThrowingCloseable {
+  @Override
+  void close();
+}

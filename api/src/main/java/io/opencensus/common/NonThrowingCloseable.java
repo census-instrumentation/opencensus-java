@@ -28,7 +28,10 @@ import java.io.Closeable;
  *     ...
  *   }
  * </pre>
+ *
+ * @deprecated {@link Scope} is a better match for operations involving the current context.
  */
+@Deprecated
 public interface NonThrowingCloseable extends Closeable {
   @Override
   void close();
