@@ -15,6 +15,7 @@ package io.opencensus.tags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -33,10 +34,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class TagContext {
 
-  /**
-   * The empty {@code TagContext}.
-   */
-  public static final TagContext EMPTY = newBuilder().build();
+  /** The empty {@code TagContext}. */
+  public static final TagContext EMPTY = emptyBuilder().build();
 
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey, Object> tags;
@@ -59,12 +58,30 @@ public final class TagContext {
   }
 
   /**
-   * Returns an empty {@code Builder}.
+   * Returns a new empty {@code Builder}.
    *
-   * @return an empty {@code Builder}.
+   * @return a new empty {@code Builder}.
    */
-  public static Builder newBuilder() {
+  public static Builder emptyBuilder() {
     return new Builder();
+  }
+
+  /**
+   * Returns the current {@code TagContext}.
+   *
+   * @return the current {@code TagContext}.
+   */
+  public static TagContext getCurrentTags() {
+    return CurrentTagsUtils.getCurrentTagContext();
+  }
+
+  /**
+   * Returns a new {@code Builder} created from the current {@code TagContext}.
+   *
+   * @return a new {@code Builder} created from the current {@code TagContext}.
+   */
+  public static Builder currentBuilder() {
+    return getCurrentTags().toBuilder();
   }
 
   /** Builder for the {@link TagContext} class. */
@@ -140,6 +157,18 @@ public final class TagContext {
      */
     public TagContext build() {
       return new TagContext(tags);
+    }
+
+    /**
+     * Enters the scope of code where the {@link TagContext} created from this builder is in the
+     * current context and returns an object that represents that scope. The scope is exited when
+     * the returned object is closed.
+     *
+     * @return an object that defines a scope where the {@code TagContext} created from this builder
+     *     is set to the current context.
+     */
+    public NonThrowingCloseable buildScoped() {
+      return CurrentTagsUtils.withTagContext(build());
     }
   }
 }

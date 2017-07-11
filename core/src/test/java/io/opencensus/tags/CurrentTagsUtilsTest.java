@@ -27,7 +27,7 @@ import org.junit.runners.JUnit4;
 public class CurrentTagsUtilsTest {
 
   private static final TagContext TAG_CONTEXT =
-      TagContext.newBuilder()
+      TagContext.emptyBuilder()
           .set(TagKeyString.create("Key"), TagValueString.create("Value"))
           .build();
 

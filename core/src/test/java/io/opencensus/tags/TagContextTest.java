@@ -41,7 +41,7 @@ public class TagContextTest {
 
   @Test
   public void applyBuilderOperationsInOrder() {
-    assertThat(TagContext.newBuilder().set(KS1, V1).set(KS1, V2).build().getTags())
+    assertThat(TagContext.emptyBuilder().set(KS1, V1).set(KS1, V2).build().getTags())
         .containsExactly(KS1, V2);
   }
 
@@ -51,7 +51,7 @@ public class TagContextTest {
     TagKeyLong longKey = TagKeyLong.create("key");
     TagKeyBoolean boolKey = TagKeyBoolean.create("key");
     assertThat(
-            TagContext.newBuilder()
+            TagContext.emptyBuilder()
                 .set(stringKey, TagValueString.create("value"))
                 .set(longKey, 123)
                 .set(boolKey, true)
