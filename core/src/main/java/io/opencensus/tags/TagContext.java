@@ -15,7 +15,7 @@ package io.opencensus.tags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -167,7 +167,7 @@ public final class TagContext {
      * @return an object that defines a scope where the {@code TagContext} created from this builder
      *     is set to the current context.
      */
-    public NonThrowingCloseable buildScoped() {
+    public Scope buildScoped() {
       return CurrentTagsUtils.withTagContext(build());
     }
   }

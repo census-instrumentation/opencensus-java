@@ -16,7 +16,7 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.grpc.Context;
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.tags.TagKey.TagKeyString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class CurrentTagsUtilsTest {
   @Test
   public void testWithTagContext() {
     assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
-    NonThrowingCloseable scopedTags = CurrentTagsUtils.withTagContext(TAG_CONTEXT);
+    Scope scopedTags = CurrentTagsUtils.withTagContext(TAG_CONTEXT);
     try {
       assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
     } finally {
@@ -51,7 +51,7 @@ public class CurrentTagsUtilsTest {
   @Test
   public void testWithTagContextUsingWrap() {
     Runnable runnable;
-    NonThrowingCloseable scopedTags = CurrentTagsUtils.withTagContext(TAG_CONTEXT);
+    Scope scopedTags = CurrentTagsUtils.withTagContext(TAG_CONTEXT);
     try {
       assertThat(CurrentTagsUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
       runnable =

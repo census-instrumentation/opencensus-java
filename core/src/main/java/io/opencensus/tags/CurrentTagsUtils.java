@@ -14,7 +14,7 @@
 package io.opencensus.tags;
 
 import io.grpc.Context;
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.tags.unsafe.ContextUtils;
 
 /**
@@ -42,11 +42,11 @@ final class CurrentTagsUtils {
    * @return an object that defines a scope where the given {@code TagContext} is set to the current
    *     context.
    */
-  static NonThrowingCloseable withTagContext(TagContext tags) {
+  static Scope withTagContext(TagContext tags) {
     return new WithTagContext(tags);
   }
 
-  private static final class WithTagContext implements NonThrowingCloseable {
+  private static final class WithTagContext implements Scope {
 
     private final Context orig;
 
