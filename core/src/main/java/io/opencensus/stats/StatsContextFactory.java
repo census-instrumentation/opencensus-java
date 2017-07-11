@@ -48,7 +48,7 @@ public abstract class StatsContextFactory {
    * {@code io.grpc.Context}.
    */
   public final StatsContext getCurrentStatsContext() {
-    StatsContext statsContext = ContextUtils.getCurrentStatsContext();
+    StatsContext statsContext = CurrentTagsUtils.getCurrentStatsContext();
     return statsContext != null ? statsContext : getDefault();
   }
 
@@ -99,6 +99,6 @@ public abstract class StatsContextFactory {
    * @throws NullPointerException if statsContext is null.
    */
   public final NonThrowingCloseable withStatsContext(StatsContext statsContext) {
-    return ContextUtils.withStatsContext(checkNotNull(statsContext, "statsContext"));
+    return CurrentTagsUtils.withStatsContext(checkNotNull(statsContext, "statsContext"));
   }
 }

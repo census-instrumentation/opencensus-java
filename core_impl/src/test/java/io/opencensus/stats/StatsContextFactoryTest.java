@@ -15,11 +15,12 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.grpc.Context;
 import io.opencensus.common.NonThrowingCloseable;
 import io.opencensus.internal.SimpleEventQueue;
-import io.opencensus.testing.common.TestClock;
 import io.opencensus.internal.VarInt;
-import io.grpc.Context;
+import io.opencensus.tags.unsafe.ContextUtils;
+import io.opencensus.testing.common.TestClock;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -146,7 +147,7 @@ public class StatsContextFactoryTest {
   public void testGetCurrentStatsContext() {
     assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
     Context origContext = Context.current().withValue(
-        ContextUtils.STATS_CONTEXT_KEY, statsContext)
+        ContextUtils.TAG_CONTEXT_KEY, statsContext)
         .attach();
     // Make sure context is detached even if test fails.
     try {
