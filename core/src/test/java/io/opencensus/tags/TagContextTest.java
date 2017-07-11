@@ -19,9 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -29,8 +27,6 @@ import org.junit.runners.JUnit4;
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
 public class TagContextTest {
-
-  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final TagKeyString KS1 = TagKeyString.create("k1");
   private static final TagKeyString KS2 = TagKeyString.create("k2");
@@ -40,7 +36,7 @@ public class TagContextTest {
 
   @Test
   public void applyBuilderOperationsInOrder() {
-    assertThat(newBuilder().set(KS1, V1).set(KS1, V2).build().getTags())
+    assertThat(TagContext.newBuilder().set(KS1, V1).set(KS1, V2).build().getTags())
         .containsExactly(KS1, V2);
   }
 
@@ -50,7 +46,7 @@ public class TagContextTest {
     TagKeyLong longKey = TagKeyLong.create("key");
     TagKeyBoolean boolKey = TagKeyBoolean.create("key");
     assertThat(
-            newBuilder()
+            TagContext.newBuilder()
                 .set(stringKey, TagValueString.create("value"))
                 .set(longKey, 123)
                 .set(boolKey, true)
@@ -63,8 +59,7 @@ public class TagContextTest {
   public void testSet() {
     TagContext tags = singletonTagContext(KS1, V1);
     assertThat(tags.toBuilder().set(KS1, V2).build().getTags()).containsExactly(KS1, V2);
-    assertThat(tags.toBuilder().set(KS2, V2).build().getTags())
-        .containsExactly(KS1, V1, KS2, V2);
+    assertThat(tags.toBuilder().set(KS2, V2).build().getTags()).containsExactly(KS1, V1, KS2, V2);
   }
 
   @Test
@@ -72,10 +67,6 @@ public class TagContextTest {
     TagContext tags = singletonTagContext(KS1, V1);
     assertThat(tags.toBuilder().clear(KS1).build().getTags()).isEmpty();
     assertThat(tags.toBuilder().clear(KS2).build().getTags()).containsExactly(KS1, V1);
-  }
-
-  private static TagContext.Builder newBuilder() {
-    return new TagContext.Builder();
   }
 
   private static TagContext singletonTagContext(TagKey key, Object value) {
