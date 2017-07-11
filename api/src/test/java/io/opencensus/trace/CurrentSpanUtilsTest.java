@@ -16,7 +16,7 @@ package io.opencensus.trace;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.grpc.Context;
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.trace.unsafe.ContextUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class CurrentSpanUtilsTest {
   @Test
   public void withSpan() {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
-    NonThrowingCloseable ws = CurrentSpanUtils.withSpan(span);
+    Scope ws = CurrentSpanUtils.withSpan(span);
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
@@ -68,7 +68,7 @@ public class CurrentSpanUtilsTest {
   @Test
   public void propagationViaRunnable() {
     Runnable runnable = null;
-    NonThrowingCloseable ws = CurrentSpanUtils.withSpan(span);
+    Scope ws = CurrentSpanUtils.withSpan(span);
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
       runnable =

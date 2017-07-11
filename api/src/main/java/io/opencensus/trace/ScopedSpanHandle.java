@@ -13,7 +13,7 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 
 /**
  * Defines a scope of code where the given {@link Span} is in the current context. The scope is
@@ -22,9 +22,9 @@ import io.opencensus.common.NonThrowingCloseable;
  *
  * <p>Supports try-with-resource idiom.
  */
-final class ScopedSpanHandle implements NonThrowingCloseable {
+final class ScopedSpanHandle implements Scope {
   private final Span span;
-  private final NonThrowingCloseable withSpan;
+  private final Scope withSpan;
 
   /**
    * Creates a {@code ScopedSpanHandle}

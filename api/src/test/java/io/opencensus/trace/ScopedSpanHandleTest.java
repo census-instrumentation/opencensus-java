@@ -17,7 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class ScopedSpanHandleTest {
   @Test
   public void initAttachesSpan_CloseDetachesAndEndsSpan() {
     assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-    NonThrowingCloseable ss = new ScopedSpanHandle(span);
+    Scope ss = new ScopedSpanHandle(span);
     try {
       assertThat(tracer.getCurrentSpan()).isSameAs(span);
     } finally {

@@ -15,7 +15,7 @@ package io.opencensus.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
  *   private static final Tracer tracer = Tracing.getTracer();
  *   void doWork {
  *     // Create a Span as a child of the current Span.
- *     try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
+ *     try (Scope ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
  *       tracer.getCurrentSpan().addAnnotation("my annotation");
  *       doSomeWork();  // Here the new span is in the current Context, so it can be used
  *                      // implicitly anywhere down the stack.
@@ -57,7 +57,7 @@ import javax.annotation.Nullable;
  *   }
  *
  *   public void onExecuteHandler(ServerCallHandler serverCallHandler) {
- *     try (NonThrowingCloseable ws = tracer.withSpan(mySpan)) {
+ *     try (Scope ws = tracer.withSpan(mySpan)) {
  *       tracer.getCurrentSpan().addAnnotation("Start rpc execution.");
  *       serverCallHandler.run();  // Here the new span is in the current Context, so it can be
  *                                 // used implicitly anywhere down the stack.
@@ -178,7 +178,7 @@ public abstract class SpanBuilder {
    *   private static final Tracer tracer = Tracing.getTracer();
    *   void doWork {
    *     // Create a Span as a child of the current Span.
-   *     try (NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
+   *     try (Scope ss = tracer.spanBuilder("MyChildSpan").startScopedSpan()) {
    *       tracer.getCurrentSpan().addAnnotation("my annotation");
    *       doSomeWork();  // Here the new span is in the current Context, so it can be used
    *                      // implicitly anywhere down the stack. Anytime in this closure the span
@@ -199,7 +199,7 @@ public abstract class SpanBuilder {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void doWork {
    *     // Create a Span as a child of the current Span.
-   *     NonThrowingCloseable ss = tracer.spanBuilder("MyChildSpan").startScopedSpan();
+   *     Scope ss = tracer.spanBuilder("MyChildSpan").startScopedSpan();
    *     try {
    *       tracer.getCurrentSpan().addAnnotation("my annotation");
    *       doSomeWork();  // Here the new span is in the current Context, so it can be used
@@ -215,7 +215,7 @@ public abstract class SpanBuilder {
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context.
    */
-  public final NonThrowingCloseable startScopedSpan() {
+  public final Scope startScopedSpan() {
     return new ScopedSpanHandle(startSpan());
   }
 

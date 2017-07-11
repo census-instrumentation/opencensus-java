@@ -15,7 +15,7 @@ package io.opencensus.stats;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -67,7 +67,7 @@ public abstract class StatsContextFactory {
    * void doWork() {
    *   // Construct a new StatsContext with required tags to be set into current context.
    *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
-   *   try (NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx)) {
+   *   try (Scope scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx)) {
    *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
    *   }
    * }
@@ -84,7 +84,7 @@ public abstract class StatsContextFactory {
    * void doWork() {
    *   // Construct a new StatsContext with required tags to be set into current context.
    *   StatsContext statsCtx = statsCtxFactory.getCurrentStatsContext().with(tagKey, tagValue);
-   *   NonThrowingCloseable scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx);
+   *   Scope scopedStatsCtx = statsCtxFactory.withStatsContext(statsCtx);
    *   try {
    *     doSomeOtherWork();  // Here "scopedStatsCtx" is the current StatsContext.
    *   } finally {
@@ -98,7 +98,7 @@ public abstract class StatsContextFactory {
    *     current Context.
    * @throws NullPointerException if statsContext is null.
    */
-  public final NonThrowingCloseable withStatsContext(StatsContext statsContext) {
+  public final Scope withStatsContext(StatsContext statsContext) {
     return CurrentTagsUtils.withStatsContext(checkNotNull(statsContext, "statsContext"));
   }
 }

@@ -16,7 +16,7 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.grpc.Context;
-import io.opencensus.common.NonThrowingCloseable;
+import io.opencensus.common.Scope;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
 import io.opencensus.tags.unsafe.ContextUtils;
@@ -166,7 +166,7 @@ public class StatsContextFactoryTest {
   @Test
   public void testWithStatsContext() {
     assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-    NonThrowingCloseable scopedStatsCtx = factory.withStatsContext(statsContext);
+    Scope scopedStatsCtx = factory.withStatsContext(statsContext);
     try {
       assertThat(factory.getCurrentStatsContext()).isEqualTo(statsContext);
     } finally {
@@ -178,7 +178,7 @@ public class StatsContextFactoryTest {
   @Test
   public void testWithStatsContextUsingWrap() {
     Runnable runnable;
-    NonThrowingCloseable scopedStatsCtx = factory.withStatsContext(statsContext);
+    Scope scopedStatsCtx = factory.withStatsContext(statsContext);
     try {
       assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
       runnable = Context.current().wrap(
