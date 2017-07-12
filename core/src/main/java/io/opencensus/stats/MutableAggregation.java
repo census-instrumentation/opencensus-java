@@ -299,12 +299,12 @@ abstract class MutableAggregation {
     }
 
     /**
-     * Returns the aggregated sum of squared deviations.
+     * Returns the aggregated standard deviations.
      *
-     * @return the aggregated sum of squared deviations.
+     * @return the aggregated standard deviations.
      */
     double get() {
-      return sumOfSquaredDeviations;
+      return count == 0 ? 0 : Math.sqrt(sumOfSquaredDeviations / count);
     }
 
     @Override

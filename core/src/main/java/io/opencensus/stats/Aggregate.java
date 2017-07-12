@@ -13,6 +13,8 @@
 
 package io.opencensus.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
 import java.util.ArrayList;
@@ -125,6 +127,7 @@ public abstract class Aggregate {
     }
 
     static AggregateHistogram create(long[] bucketCounts) {
+      checkNotNull(bucketCounts, "bucket counts should not be null.");
       List<Long> boxedBucketCounts = new ArrayList<Long>();
       for (long bucketCount : bucketCounts) {
         boxedBucketCounts.add(bucketCount);
@@ -228,9 +231,9 @@ public abstract class Aggregate {
     }
 
     /**
-     * Returns the aggregated sum of squared deviations.
+     * Returns the aggregated standard deviation.
      *
-     * @return the aggregated sum of squared deviations.
+     * @return the aggregated standard deviation.
      */
     public abstract double get();
 
@@ -258,8 +261,8 @@ public abstract class Aggregate {
      * @param max the maximum of the population values.
      * @return a {@code Range} with the given bounds.
      */
-    static io.opencensus.stats.DistributionAggregate.Range create(double min, double max) {
-      return new AutoValue_DistributionAggregate_Range(min, max);
+    static Range create(double min, double max) {
+      return new AutoValue_Aggregate_Range(min, max);
     }
 
     /**
