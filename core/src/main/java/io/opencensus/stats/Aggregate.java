@@ -173,7 +173,8 @@ public abstract class Aggregate {
      *
      * @return the aggregated {@code Range}.
      */
-    public abstract Range get();
+    // TODO(songya): not v0.1, expose this method later.
+    abstract Range get();
 
     @Override
     public final <T> T match(
@@ -204,7 +205,8 @@ public abstract class Aggregate {
      *
      * @return the aggregated mean.
      */
-    public abstract double get();
+    // TODO(songya): not v0.1, expose this method later.
+    abstract double get();
 
     @Override
     public final <T> T match(
@@ -235,7 +237,8 @@ public abstract class Aggregate {
      *
      * @return the aggregated standard deviation.
      */
-    public abstract double get();
+    // TODO(songya): not v0.1, expose this method later.
+    abstract double get();
 
     @Override
     public final <T> T match(

@@ -156,7 +156,8 @@ public abstract class Aggregation {
      *
      * @return a new {@code AggregationRange}.
      */
-    public static AggregationRange create() {
+    // TODO(songya): not v0.1, expose this method later.
+    static AggregationRange create() {
       return new AutoValue_Aggregation_AggregationRange();
     }
 
@@ -185,7 +186,8 @@ public abstract class Aggregation {
      *
      * @return a new {@code AggregationMean}.
      */
-    public static AggregationMean create() {
+    // TODO(songya): not v0.1, expose this method later.
+    static AggregationMean create() {
       return new AutoValue_Aggregation_AggregationMean();
     }
 
@@ -214,7 +216,8 @@ public abstract class Aggregation {
      *
      * @return a new {@code AggregationStdDev}.
      */
-    public static AggregationStdDev create() {
+    // TODO(songya): not v0.1, expose this method later.
+    static AggregationStdDev create() {
       return new AutoValue_Aggregation_AggregationStdDev();
     }
 
