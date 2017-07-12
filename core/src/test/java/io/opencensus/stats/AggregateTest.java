@@ -23,7 +23,6 @@ import io.opencensus.stats.Aggregate.AggregateMean;
 import io.opencensus.stats.Aggregate.AggregateRange;
 import io.opencensus.stats.Aggregate.AggregateStdDev;
 import io.opencensus.stats.Aggregate.AggregateSum;
-import io.opencensus.stats.Aggregate.Range;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,8 +41,7 @@ public class AggregateTest {
 
   @Test
   public void testCreateAggregateHistogram() {
-    long[] bucketCounts = new long[]{0, 0, 0};
-    AggregateHistogram histogram = AggregateHistogram.create(bucketCounts);
+    AggregateHistogram histogram = AggregateHistogram.create(0, 0, 0);
     assertThat(new ArrayList<Long>(histogram.get())).isEqualTo(Arrays.asList(0L, 0L, 0L));
   }
 

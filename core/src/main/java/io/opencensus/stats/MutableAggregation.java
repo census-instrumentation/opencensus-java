@@ -322,7 +322,7 @@ abstract class MutableAggregation {
   /**
    * Describes a range of population values.
    *
-   * <p>Mutable version of {@link Aggregate.Range}.
+   * <p>Mutable version of {@code Range}.
    */
   static final class Range {
 

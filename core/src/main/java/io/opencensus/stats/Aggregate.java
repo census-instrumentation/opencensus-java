@@ -126,7 +126,7 @@ public abstract class Aggregate {
     AggregateHistogram() {
     }
 
-    static AggregateHistogram create(long[] bucketCounts) {
+    static AggregateHistogram create(long... bucketCounts) {
       checkNotNull(bucketCounts, "bucket counts should not be null.");
       List<Long> boxedBucketCounts = new ArrayList<Long>();
       for (long bucketCount : bucketCounts) {
@@ -247,36 +247,5 @@ public abstract class Aggregate {
         Function<? super AggregateStdDev, T> p5) {
       return p5.apply(this);
     }
-  }
-
-  /** The range of a population's values. */
-  @Immutable
-  @AutoValue
-  public abstract static class Range {
-
-    /**
-     * Returns a {@code Range} with the given bounds.
-     *
-     * @param min the minimum of the population values.
-     * @param max the maximum of the population values.
-     * @return a {@code Range} with the given bounds.
-     */
-    static Range create(double min, double max) {
-      return new AutoValue_Aggregate_Range(min, max);
-    }
-
-    /**
-     * Returns the minimum of the population values.
-     *
-     * @return the minimum of the population values.
-     */
-    public abstract double getMin();
-
-    /**
-     * Returns the maximum of the population values.
-     *
-     * @return the maximum of the population values.
-     */
-    public abstract double getMax();
   }
 }
