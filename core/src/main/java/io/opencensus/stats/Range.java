@@ -31,7 +31,9 @@ public abstract class Range {
    * @return a {@code Range} with the given bounds.
    */
   static Range create(double min, double max) {
-    checkArgument(min <= max, "max should be greater or equal to min.");
+    if (min != Double.POSITIVE_INFINITY && max != Double.NEGATIVE_INFINITY) {
+      checkArgument(min <= max, "max should be greater or equal to min.");
+    }
     return new AutoValue_Range(min, max);
   }
 

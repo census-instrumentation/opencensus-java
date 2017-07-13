@@ -35,6 +35,10 @@ public class RangeTest {
     Range range = Range.create(1.0, 9.0);
     assertThat(range.getMax()).isWithin(TOLERANCE).of(9.0);
     assertThat(range.getMin()).isWithin(TOLERANCE).of(1.0);
+
+    Range range2 = Range.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
+    assertThat(range2.getMax()).isNegativeInfinity();
+    assertThat(range2.getMin()).isPositiveInfinity();
   }
 
   @Test
