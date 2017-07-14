@@ -99,9 +99,9 @@ subprojects {
 
     ext {
         autoValueVersion = '1.4'
-        guavaVersion = '19.0'
-        grpcContextVersion = '1.4.0'
         findBugsVersion = '3.0.1'
+        grpcContextVersion = '1.4.0'
+        guavaVersion = '19.0'
 
         libraries = [
                 auto_value     : "com.google.auto.value:auto-value:${autoValueVersion}",
