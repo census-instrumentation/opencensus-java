@@ -39,7 +39,8 @@ abstract class MutableAggregation {
       Function<? super MutableAggregationHistogram, T> p2,
       Function<? super MutableAggregationRange, T> p3,
       Function<? super MutableAggregationMean, T> p4,
-      Function<? super MutableAggregationStdDev, T> p5);
+      Function<? super MutableAggregationStdDev, T> p5,
+      Function<? super Aggregate, T> defaultFunction);
 
   /** Calculate sum on aggregated {@code MeasureValue}s. */
   static final class MutableAggregationSum extends MutableAggregation {
@@ -79,7 +80,8 @@ abstract class MutableAggregation {
         Function<? super MutableAggregationHistogram, T> p2,
         Function<? super MutableAggregationRange, T> p3,
         Function<? super MutableAggregationMean, T> p4,
-        Function<? super MutableAggregationStdDev, T> p5) {
+        Function<? super MutableAggregationStdDev, T> p5,
+        Function<? super Aggregate, T> defaultFunction) {
       return p0.apply(this);
     }
   }
@@ -122,7 +124,8 @@ abstract class MutableAggregation {
         Function<? super MutableAggregationHistogram, T> p2,
         Function<? super MutableAggregationRange, T> p3,
         Function<? super MutableAggregationMean, T> p4,
-        Function<? super MutableAggregationStdDev, T> p5) {
+        Function<? super MutableAggregationStdDev, T> p5,
+        Function<? super Aggregate, T> defaultFunction) {
       return p1.apply(this);
     }
   }
@@ -175,7 +178,8 @@ abstract class MutableAggregation {
         Function<? super MutableAggregationHistogram, T> p2,
         Function<? super MutableAggregationRange, T> p3,
         Function<? super MutableAggregationMean, T> p4,
-        Function<? super MutableAggregationStdDev, T> p5) {
+        Function<? super MutableAggregationStdDev, T> p5,
+        Function<? super Aggregate, T> defaultFunction) {
       return p2.apply(this);
     }
   }
@@ -219,7 +223,8 @@ abstract class MutableAggregation {
         Function<? super MutableAggregationHistogram, T> p2,
         Function<? super MutableAggregationRange, T> p3,
         Function<? super MutableAggregationMean, T> p4,
-        Function<? super MutableAggregationStdDev, T> p5) {
+        Function<? super MutableAggregationStdDev, T> p5,
+        Function<? super Aggregate, T> defaultFunction) {
       return p3.apply(this);
     }
   }
@@ -265,7 +270,8 @@ abstract class MutableAggregation {
         Function<? super MutableAggregationHistogram, T> p2,
         Function<? super MutableAggregationRange, T> p3,
         Function<? super MutableAggregationMean, T> p4,
-        Function<? super MutableAggregationStdDev, T> p5) {
+        Function<? super MutableAggregationStdDev, T> p5,
+        Function<? super Aggregate, T> defaultFunction) {
       return p4.apply(this);
     }
   }
@@ -314,7 +320,8 @@ abstract class MutableAggregation {
         Function<? super MutableAggregationHistogram, T> p2,
         Function<? super MutableAggregationRange, T> p3,
         Function<? super MutableAggregationMean, T> p4,
-        Function<? super MutableAggregationStdDev, T> p5) {
+        Function<? super MutableAggregationStdDev, T> p5,
+        Function<? super Aggregate, T> defaultFunction) {
       return p5.apply(this);
     }
   }

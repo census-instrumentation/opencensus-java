@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.stats.Aggregation.AggregationCount;
 import io.opencensus.stats.Aggregation.AggregationHistogram;
 import io.opencensus.stats.Aggregation.AggregationMean;
@@ -132,8 +133,8 @@ public class AggregationTest {
             public String apply(AggregationStdDev arg) {
               return "STDDEV";
             }
-          }
-      ));
+          },
+          Functions.<String>throwIllegalArgumentException()));
     }
 
     assertThat(actual)
