@@ -99,8 +99,9 @@ subprojects {
 
     ext {
         autoValueVersion = '1.4'
-        guavaVersion = '19.0'
+        findBugsVersion = '3.0.1'
         grpcContextVersion = '1.4.0'
+        guavaVersion = '19.0'
 
         libraries = [
                 auto_value     : "com.google.auto.value:auto-value:${autoValueVersion}",
@@ -108,7 +109,7 @@ subprojects {
                 errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
                 grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",
                 guava        : "com.google.guava:guava:${guavaVersion}",
-                jsr305       : 'com.google.code.findbugs:jsr305:3.0.0',
+                jsr305       : "com.google.code.findbugs:jsr305:${findBugsVersion}",
 
                 // Test dependencies.
                 guava_testlib  : "com.google.guava:guava-testlib:${guavaVersion}",
@@ -135,7 +136,7 @@ subprojects {
     }
 
     findbugs {
-        toolVersion = '3.0.1'
+        toolVersion = findBugsVersion
         ignoreFailures = false   // bug free or it doesn't ship!
         effort = 'max'
         reportLevel = 'low'      // low = sensitive to even minor mistakes
