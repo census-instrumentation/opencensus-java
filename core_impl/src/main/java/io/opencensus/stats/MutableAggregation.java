@@ -69,7 +69,7 @@ abstract class MutableAggregation {
      *
      * @return the aggregated sum.
      */
-    double get() {
+    double getSum() {
       return sum;
     }
 
@@ -113,7 +113,7 @@ abstract class MutableAggregation {
      *
      * @return the aggregated count.
      */
-    long get() {
+    long getCount() {
       return count;
     }
 
@@ -167,7 +167,7 @@ abstract class MutableAggregation {
      *
      * @return the aggregated bucket count.
      */
-    long[] get() {
+    long[] getBucketCounts() {
       return bucketCounts;
     }
 
@@ -187,10 +187,11 @@ abstract class MutableAggregation {
   /** Calculate range on aggregated {@code MeasureValue}s. */
   static final class MutableAggregationRange extends MutableAggregation {
 
-    private final Range range;
+    // Initial "impossible" values, that will get reset as soon as first value is added.
+    private double min = Double.POSITIVE_INFINITY;
+    private double max = Double.NEGATIVE_INFINITY;
 
     private MutableAggregationRange() {
-      range = Range.create();
     }
 
     /**
@@ -202,18 +203,37 @@ abstract class MutableAggregation {
       return new MutableAggregationRange();
     }
 
-    @Override
-    void add(double value) {
-      range.add(value);
+    /**
+     * The minimum of the population values.
+     *
+     * @return The minimum of the population values.
+     */
+    double getMin() {
+      return min;
     }
 
     /**
-     * Returns the aggregated {@code Range}.
+     * The maximum of the population values.
      *
-     * @return the aggregated {@code Range}.
+     * @return The maximum of the population values.
      */
-    Range get() {
-      return range;
+    double getMax() {
+      return max;
+    }
+
+    /**
+     * Put a new value into the Range. Sets min and max values if appropriate.
+     *
+     * @param value the new value
+     */
+    @Override
+    void add(double value) {
+      if (value < min) {
+        min = value;
+      }
+      if (value > max) {
+        max = value;
+      }
     }
 
     @Override
@@ -259,7 +279,7 @@ abstract class MutableAggregation {
      *
      * @return the aggregated mean.
      */
-    double get() {
+    double getMean() {
       return mean;
     }
 
@@ -309,7 +329,7 @@ abstract class MutableAggregation {
      *
      * @return the aggregated standard deviations.
      */
-    double get() {
+    double getStdDev() {
       return count == 0 ? 0 : Math.sqrt(sumOfSquaredDeviations / count);
     }
 
@@ -323,60 +343,6 @@ abstract class MutableAggregation {
         Function<? super MutableAggregationStdDev, T> p5,
         Function<? super Aggregate, T> defaultFunction) {
       return p5.apply(this);
-    }
-  }
-
-  /**
-   * Describes a range of population values.
-   *
-   * <p>Mutable version of {@code Range}.
-   */
-  static final class Range {
-
-    // Initial "impossible" values, that will get reset as soon as first value is added.
-    private double min = Double.POSITIVE_INFINITY;
-    private double max = Double.NEGATIVE_INFINITY;
-
-    /**
-     * Construct a new, empty {@code Range}.
-     */
-    static final Range create() {
-      return new Range();
-    }
-
-    /**
-     * The minimum of the population values.
-     *
-     * @return The minimum of the population values.
-     */
-    double getMin() {
-      return min;
-    }
-
-    /**
-     * The maximum of the population values.
-     *
-     * @return The maximum of the population values.
-     */
-    double getMax() {
-      return max;
-    }
-
-    /**
-     * Put a new value into the Range. Sets min and max values if appropriate.
-     *
-     * @param value the new value
-     */
-    void add(double value) {
-      if (value < min) {
-        min = value;
-      }
-      if (value > max) {
-        max = value;
-      }
-    }
-
-    private Range() {
     }
   }
 }

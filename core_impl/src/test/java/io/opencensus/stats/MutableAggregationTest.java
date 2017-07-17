@@ -23,7 +23,6 @@ import io.opencensus.stats.MutableAggregation.MutableAggregationMean;
 import io.opencensus.stats.MutableAggregation.MutableAggregationRange;
 import io.opencensus.stats.MutableAggregation.MutableAggregationStdDev;
 import io.opencensus.stats.MutableAggregation.MutableAggregationSum;
-import io.opencensus.stats.MutableAggregation.Range;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,12 +45,14 @@ public class MutableAggregationTest {
   public void testCreateEmpty() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(0.1, 2.2, 33.3));
 
-    assertThat(MutableAggregationSum.create().get()).isWithin(TOLERANCE).of(0);
-    assertThat(MutableAggregationCount.create().get()).isEqualTo(0);
-    assertThat(MutableAggregationHistogram.create(bucketBoundaries).get()).isEqualTo(new long[4]);
-    assertRangeEquals(MutableAggregationRange.create().get(), Range.create());
-    assertThat(MutableAggregationMean.create().get()).isWithin(TOLERANCE).of(0);
-    assertThat(MutableAggregationStdDev.create().get()).isWithin(TOLERANCE).of(0);
+    assertThat(MutableAggregationSum.create().getSum()).isWithin(TOLERANCE).of(0);
+    assertThat(MutableAggregationCount.create().getCount()).isEqualTo(0);
+    assertThat(MutableAggregationHistogram.create(bucketBoundaries).getBucketCounts())
+        .isEqualTo(new long[4]);
+    assertThat(MutableAggregationRange.create().getMin()).isPositiveInfinity();
+    assertThat(MutableAggregationRange.create().getMax()).isNegativeInfinity();
+    assertThat(MutableAggregationMean.create().getMean()).isWithin(TOLERANCE).of(0);
+    assertThat(MutableAggregationStdDev.create().getStdDev()).isWithin(TOLERANCE).of(0);
   }
 
   @Test
@@ -73,8 +74,8 @@ public class MutableAggregationTest {
     List<Double> buckets = Arrays.asList();
     MutableAggregationHistogram noBoundaries =
         MutableAggregationHistogram.create(BucketBoundaries.create(buckets));
-    assertThat(noBoundaries.get().length).isEqualTo(1);
-    assertThat(noBoundaries.get()[0]).isEqualTo(0);
+    assertThat(noBoundaries.getBucketCounts().length).isEqualTo(1);
+    assertThat(noBoundaries.getBucketCounts()[0]).isEqualTo(0);
   }
 
   @Test
@@ -101,43 +102,43 @@ public class MutableAggregationTest {
           new Function<MutableAggregationSum, Void>() {
             @Override
             public Void apply(MutableAggregationSum arg) {
-              assertThat(arg.get()).isWithin(TOLERANCE).of(20.0);
+              assertThat(arg.getSum()).isWithin(TOLERANCE).of(20.0);
               return null;
             }
           },
           new Function<MutableAggregationCount, Void>() {
             @Override
             public Void apply(MutableAggregationCount arg) {
-              assertThat(arg.get()).isEqualTo(5);
+              assertThat(arg.getCount()).isEqualTo(5);
               return null;
             }
           },
           new Function<MutableAggregationHistogram, Void>() {
             @Override
             public Void apply(MutableAggregationHistogram arg) {
-              assertThat(arg.get()).isEqualTo(new long[]{0, 2, 2, 1});
+              assertThat(arg.getBucketCounts()).isEqualTo(new long[]{0, 2, 2, 1});
               return null;
             }
           },
           new Function<MutableAggregationRange, Void>() {
             @Override
             public Void apply(MutableAggregationRange arg) {
-              assertThat(arg.get().getMin()).isWithin(TOLERANCE).of(-5.0);
-              assertThat(arg.get().getMax()).isWithin(TOLERANCE).of(20.0);
+              assertThat(arg.getMin()).isWithin(TOLERANCE).of(-5.0);
+              assertThat(arg.getMax()).isWithin(TOLERANCE).of(20.0);
               return null;
             }
           },
           new Function<MutableAggregationMean, Void>() {
             @Override
             public Void apply(MutableAggregationMean arg) {
-              assertThat(arg.get()).isWithin(TOLERANCE).of(4.0);
+              assertThat(arg.getMean()).isWithin(TOLERANCE).of(4.0);
               return null;
             }
           },
           new Function<MutableAggregationStdDev, Void>() {
             @Override
             public Void apply(MutableAggregationStdDev arg) {
-              assertThat(arg.get()).isWithin(TOLERANCE).of(Math.sqrt(372 / 5.0));
+              assertThat(arg.getStdDev()).isWithin(TOLERANCE).of(Math.sqrt(372 / 5.0));
               return null;
             }
           },
@@ -200,19 +201,5 @@ public class MutableAggregationTest {
 
     assertThat(actual)
         .isEqualTo(Arrays.asList("SUM", "COUNT", "HISTOGRAM", "RANGE", "MEAN", "STDDEV"));
-  }
-
-  private static void assertRangeEquals(Range actual, Range expected) {
-    if (expected.getMax() == Double.NEGATIVE_INFINITY) {
-      assertThat(actual.getMax()).isNegativeInfinity();
-    } else {
-      assertThat(actual.getMax()).isWithin(TOLERANCE).of(expected.getMax());
-    }
-
-    if (expected.getMin() == Double.POSITIVE_INFINITY) {
-      assertThat(actual.getMin()).isPositiveInfinity();
-    } else {
-      assertThat(actual.getMin()).isWithin(TOLERANCE).of(expected.getMin());
-    }
   }
 }
