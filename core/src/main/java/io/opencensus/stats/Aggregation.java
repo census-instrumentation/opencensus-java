@@ -52,7 +52,7 @@ public abstract class Aggregation {
       Function<? super AggregationRange, T> p3,
       Function<? super AggregationMean, T> p4,
       Function<? super AggregationStdDev, T> p5,
-        Function<? super Aggregate, T> defaultFunction);
+      Function<? super Aggregate, T> defaultFunction);
 
   /** Calculate sum on aggregated {@code MeasureValue}s. */
   @Immutable
@@ -132,7 +132,7 @@ public abstract class Aggregation {
       return new AutoValue_Aggregation_AggregationHistogram(bucketBoundaries);
     }
 
-    abstract BucketBoundaries getBucketBoundaries();
+    public abstract BucketBoundaries getBucketBoundaries();
 
     @Override
     public final <T> T match(
@@ -160,8 +160,7 @@ public abstract class Aggregation {
      *
      * @return a new {@code AggregationRange}.
      */
-    // TODO(songya): not v0.1, expose this method later.
-    static AggregationRange create() {
+    public static AggregationRange create() {
       return new AutoValue_Aggregation_AggregationRange();
     }
 
@@ -191,8 +190,7 @@ public abstract class Aggregation {
      *
      * @return a new {@code AggregationMean}.
      */
-    // TODO(songya): not v0.1, expose this method later.
-    static AggregationMean create() {
+    public static AggregationMean create() {
       return new AutoValue_Aggregation_AggregationMean();
     }
 
@@ -222,8 +220,7 @@ public abstract class Aggregation {
      *
      * @return a new {@code AggregationStdDev}.
      */
-    // TODO(songya): not v0.1, expose this method later.
-    static AggregationStdDev create() {
+    public static AggregationStdDev create() {
       return new AutoValue_Aggregation_AggregationStdDev();
     }
 

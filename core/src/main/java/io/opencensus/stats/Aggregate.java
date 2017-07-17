@@ -50,24 +50,24 @@ public abstract class Aggregate {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<? super Sum, T> p0,
-      Function<? super Count, T> p1,
-      Function<? super Histogram, T> p2,
-      Function<? super Range, T> p3,
-      Function<? super Mean, T> p4,
-      Function<? super StdDev, T> p5,
+      Function<? super AggregateSum, T> p0,
+      Function<? super AggregateCount, T> p1,
+      Function<? super AggregateHistogram, T> p2,
+      Function<? super AggregateRange, T> p3,
+      Function<? super AggregateMean, T> p4,
+      Function<? super AggregateStdDev, T> p5,
       Function<? super Aggregate, T> defaultFunction);
 
   /** The sum value of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class Sum extends Aggregate {
+  public abstract static class AggregateSum extends Aggregate {
 
-    Sum() {
+    AggregateSum() {
     }
 
-    static Sum create(double sum) {
-      return new AutoValue_Aggregate_Sum(sum);
+    static AggregateSum create(double sum) {
+      return new AutoValue_Aggregate_AggregateSum(sum);
     }
 
     /**
@@ -75,16 +75,16 @@ public abstract class Aggregate {
      *
      * @return the aggregated sum.
      */
-    public abstract double get();
+    public abstract double getSum();
 
     @Override
     public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super AggregateSum, T> p0,
+        Function<? super AggregateCount, T> p1,
+        Function<? super AggregateHistogram, T> p2,
+        Function<? super AggregateRange, T> p3,
+        Function<? super AggregateMean, T> p4,
+        Function<? super AggregateStdDev, T> p5,
         Function<? super Aggregate, T> defaultFunction) {
       return p0.apply(this);
     }
@@ -93,13 +93,13 @@ public abstract class Aggregate {
   /** The count value of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class Count extends Aggregate {
+  public abstract static class AggregateCount extends Aggregate {
 
-    Count() {
+    AggregateCount() {
     }
 
-    static Count create(long count) {
-      return new AutoValue_Aggregate_Count(count);
+    static AggregateCount create(long count) {
+      return new AutoValue_Aggregate_AggregateCount(count);
     }
 
     /**
@@ -107,16 +107,16 @@ public abstract class Aggregate {
      *
      * @return the aggregated count.
      */
-    public abstract long get();
+    public abstract long getCount();
 
     @Override
     public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super AggregateSum, T> p0,
+        Function<? super AggregateCount, T> p1,
+        Function<? super AggregateHistogram, T> p2,
+        Function<? super AggregateRange, T> p3,
+        Function<? super AggregateMean, T> p4,
+        Function<? super AggregateStdDev, T> p5,
         Function<? super Aggregate, T> defaultFunction) {
       return p1.apply(this);
     }
@@ -125,19 +125,19 @@ public abstract class Aggregate {
   /** The histogram of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class Histogram extends Aggregate {
+  public abstract static class AggregateHistogram extends Aggregate {
 
-    Histogram() {
+    AggregateHistogram() {
     }
 
-    static Histogram create(long... bucketCounts) {
-      checkNotNull(bucketCounts, "bucket counts should not be null.");
-      List<Long> boxedBucketCounts = new ArrayList<Long>();
-      for (long bucketCount : bucketCounts) {
-        boxedBucketCounts.add(bucketCount);
+    static AggregateHistogram create(long... bucketAggregateCounts) {
+      checkNotNull(bucketAggregateCounts, "bucket counts should not be null.");
+      List<Long> boxedBucketAggregateCounts = new ArrayList<Long>();
+      for (long bucketAggregateCount : bucketAggregateCounts) {
+        boxedBucketAggregateCounts.add(bucketAggregateCount);
       }
-      return new AutoValue_Aggregate_Histogram(
-          Collections.unmodifiableList(boxedBucketCounts));
+      return new AutoValue_Aggregate_AggregateHistogram(
+          Collections.unmodifiableList(boxedBucketAggregateCounts));
     }
 
     /**
@@ -146,16 +146,16 @@ public abstract class Aggregate {
      *
      * @return the aggregated bucket counts.
      */
-    public abstract List<Long> get();
+    public abstract List<Long> getBucketCounts();
 
     @Override
     public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super AggregateSum, T> p0,
+        Function<? super AggregateCount, T> p1,
+        Function<? super AggregateHistogram, T> p2,
+        Function<? super AggregateRange, T> p3,
+        Function<? super AggregateMean, T> p4,
+        Function<? super AggregateStdDev, T> p5,
         Function<? super Aggregate, T> defaultFunction) {
       return p2.apply(this);
     }
@@ -164,16 +164,16 @@ public abstract class Aggregate {
   /** The range of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class Range extends Aggregate {
+  public abstract static class AggregateRange extends Aggregate {
 
-    Range() {
+    AggregateRange() {
     }
 
-    static Range create(double min, double max) {
+    static AggregateRange create(double min, double max) {
       if (min != Double.POSITIVE_INFINITY && max != Double.NEGATIVE_INFINITY) {
         checkArgument(min <= max, "max should be greater or equal to min.");
       }
-      return new AutoValue_Aggregate_Range(min, max);
+      return new AutoValue_Aggregate_AggregateRange(min, max);
     }
 
     /**
@@ -181,7 +181,6 @@ public abstract class Aggregate {
      *
      * @return the minimum of the population values.
      */
-    // TODO(songya): not v0.1, expose this method later.
     public abstract double getMin();
 
     /**
@@ -189,17 +188,16 @@ public abstract class Aggregate {
      *
      * @return the maximum of the population values.
      */
-    // TODO(songya): not v0.1, expose this method later.
     public abstract double getMax();
 
     @Override
     public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super AggregateSum, T> p0,
+        Function<? super AggregateCount, T> p1,
+        Function<? super AggregateHistogram, T> p2,
+        Function<? super AggregateRange, T> p3,
+        Function<? super AggregateMean, T> p4,
+        Function<? super AggregateStdDev, T> p5,
         Function<? super Aggregate, T> defaultFunction) {
       return p3.apply(this);
     }
@@ -208,13 +206,13 @@ public abstract class Aggregate {
   /** The mean value of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class Mean extends Aggregate {
+  public abstract static class AggregateMean extends Aggregate {
 
-    Mean() {
+    AggregateMean() {
     }
 
-    static Mean create(double mean) {
-      return new AutoValue_Aggregate_Mean(mean);
+    static AggregateMean create(double mean) {
+      return new AutoValue_Aggregate_AggregateMean(mean);
     }
 
     /**
@@ -222,17 +220,16 @@ public abstract class Aggregate {
      *
      * @return the aggregated mean.
      */
-    // TODO(songya): not v0.1, expose this method later.
-    abstract double get();
+    public abstract double getMean();
 
     @Override
     public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super AggregateSum, T> p0,
+        Function<? super AggregateCount, T> p1,
+        Function<? super AggregateHistogram, T> p2,
+        Function<? super AggregateRange, T> p3,
+        Function<? super AggregateMean, T> p4,
+        Function<? super AggregateStdDev, T> p5,
         Function<? super Aggregate, T> defaultFunction) {
       return p4.apply(this);
     }
@@ -241,13 +238,13 @@ public abstract class Aggregate {
   /** The standard deviation value of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class StdDev extends Aggregate {
+  public abstract static class AggregateStdDev extends Aggregate {
 
-    StdDev() {
+    AggregateStdDev() {
     }
 
-    static StdDev create(double stdDev) {
-      return new AutoValue_Aggregate_StdDev(stdDev);
+    static AggregateStdDev create(double stdDev) {
+      return new AutoValue_Aggregate_AggregateStdDev(stdDev);
     }
 
     /**
@@ -255,17 +252,16 @@ public abstract class Aggregate {
      *
      * @return the aggregated standard deviation.
      */
-    // TODO(songya): not v0.1, expose this method later.
-    abstract double get();
+    public abstract double getStdDev();
 
     @Override
     public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super AggregateSum, T> p0,
+        Function<? super AggregateCount, T> p1,
+        Function<? super AggregateHistogram, T> p2,
+        Function<? super AggregateRange, T> p3,
+        Function<? super AggregateMean, T> p4,
+        Function<? super AggregateStdDev, T> p5,
         Function<? super Aggregate, T> defaultFunction) {
       return p5.apply(this);
     }
