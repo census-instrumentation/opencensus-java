@@ -91,8 +91,12 @@ public final class AgentMain {
 
     /**
      * Adds automatic context propagation.
+     * 
+     * @param agentBuilder an {@link AgentBuilder} object to which the additional instrumentation is
+     *                     added
+     * @return an {@link AgentBuilder} object having the additional instrumentation 
      */
-    static AgentBuilder addContextPropagation(AgentBuilder agentBuilder) {
+    private static AgentBuilder addContextPropagation(AgentBuilder agentBuilder) {
       // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
 
       // Initialize the ContextManager with the concrete ContextStrategy.

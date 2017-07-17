@@ -45,7 +45,8 @@ final class ExecutorInstrumentation {
   }
 
   static ElementMatcher.Junction<TypeDescription> createMatcher() {
-    // TODO(stschmidt): Exclude known call sites that already propagate the context.
+    // TODO(stschmidt): Exclude known call sites that already propagate the context, such as
+    // io.grpc.Context#currentContextExecutor.
 
     return isSubTypeOf(Executor.class).and(not(isAbstract()));
   }
