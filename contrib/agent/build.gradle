@@ -34,7 +34,7 @@ dependencies {
   testCompile libraries.grpc_context
   compile libraries.findbugs_annotations
   compile libraries.guava
-  compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
+  compile libraries.byte_buddy
 
   signature 'org.codehaus.mojo.signature:java16:+@signature'
 }

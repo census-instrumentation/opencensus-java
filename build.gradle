@@ -105,6 +105,7 @@ subprojects {
 
         libraries = [
                 auto_value     : "com.google.auto.value:auto-value:${autoValueVersion}",
+                byte_buddy   : 'net.bytebuddy:byte-buddy:1.7.1',
                 disruptor    : 'com.lmax:disruptor:3.3.6',
                 errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
                 findbugs_annotations : "com.google.code.findbugs:annotations:${findBugsVersion}",
