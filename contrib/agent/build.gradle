@@ -60,6 +60,9 @@ dependencies {
 // Disable findbugs for integration tests, too.
 findbugsIntegrationTest.enabled = false
 
+// Disable checkstyle for integration tests if not java8.
+checkstyleIntegrationTest.enabled = JavaVersion.current().isJava8Compatible()
+
 jar {
   manifest {
     // Set the required manifest attributes for the Java agent, cf.
