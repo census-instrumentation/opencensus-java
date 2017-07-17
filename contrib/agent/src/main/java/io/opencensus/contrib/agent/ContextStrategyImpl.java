@@ -11,12 +11,19 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.agent.bootstrap;
+package io.opencensus.contrib.agent;
+
+import io.grpc.Context;
+import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
 
 /**
- * Contains classes that need to be loaded by the bootstrap classloader because they are used from
- * classes loaded by the bootstrap classloader.
- *
- * <p>NB: Do not add direct dependencies on classes that are not loaded by the bootstrap
- * classloader. Keep this package small.
+ * Implementation of {@link ContextStrategy} for accessing and manipulating the
+ * {@link io.grpc.Context}.
  */
+final class ContextStrategyImpl implements ContextStrategy {
+
+  @Override
+  public Runnable wrapInCurrentContext(Runnable runnable) {
+    return Context.current().wrap(runnable);
+  }
+}

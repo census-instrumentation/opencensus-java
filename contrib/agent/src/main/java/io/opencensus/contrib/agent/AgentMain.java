@@ -14,8 +14,11 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
+import io.opencensus.contrib.agent.bootstrap.ContextManager;
+import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
 import java.lang.instrument.Instrumentation;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -57,19 +60,52 @@ public final class AgentMain {
 
     logger.info("Initializing.");
 
-    // The classes in bootstrap.jar will be referenced from classes loaded by the bootstrap
-    // classloader. Thus, these classes have to be loaded by the bootstrap classloader, too.
+    // The classes in bootstrap.jar, such as ContextManger and ContextStrategy, will be referenced
+    // from classes loaded by the bootstrap classloader. Thus, these classes have to be loaded by
+    // the bootstrap classloader, too.
     instrumentation.appendToBootstrapClassLoaderSearch(
             new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
+
+    checkLoadedByBootstrapClassloader(ContextManager.class);
+    checkLoadedByBootstrapClassloader(ContextStrategy.class);
 
     AgentBuilder agentBuilder = new AgentBuilder.Default()
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new AgentBuilderListener())
             .ignore(none());
-    // TODO(stschmidt): Add instrumentation for context propagation.
+    agentBuilder = LazyLoaded.addContextPropagation(agentBuilder);
+    // TODO: Add more instrumentation, potentially introducing a plugin mechanism.
     agentBuilder.installOn(instrumentation);
 
     logger.info("Initialized.");
+  }
+
+  private static void checkLoadedByBootstrapClassloader(Class<?> clazz) {
+    checkState(clazz.getClassLoader() == null,
+            "%s must be loaded by the bootstrap classloader",
+            clazz);
+  }
+
+  private static class LazyLoaded {
+
+    /**
+     * Adds automatic context propagation.
+     */
+    static AgentBuilder addContextPropagation(AgentBuilder agentBuilder) {
+      // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
+
+      // Initialize the ContextManager with the concrete ContextStrategy.
+      ContextManager.setContextStrategy(new ContextStrategyImpl());
+
+      // Add automatic context propagation to Executor#execute.
+      agentBuilder = agentBuilder
+              .type(ExecutorInstrumentation.createMatcher())
+              .transform(ExecutorInstrumentation.createTransformer());
+
+      // TODO(stschmidt): Add automatic context propagation to Thread#start.
+
+      return agentBuilder;
+    }
   }
 }
