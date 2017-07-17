@@ -32,7 +32,7 @@ def agentRepackaged = "${agentPackage}.deps"
 dependencies {
   compileOnly libraries.grpc_context
   testCompile libraries.grpc_context
-  compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.1u2'
+  compile libraries.findbugs_annotations
   compile libraries.guava
   compile group: 'net.bytebuddy', name: 'byte-buddy', version: '1.7.1'
 

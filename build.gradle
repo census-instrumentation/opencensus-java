@@ -107,6 +107,7 @@ subprojects {
                 auto_value     : "com.google.auto.value:auto-value:${autoValueVersion}",
                 disruptor    : 'com.lmax:disruptor:3.3.6',
                 errorprone   : 'com.google.errorprone:error_prone_annotations:2.0.11',
+                findbugs_annotations : "com.google.code.findbugs:annotations:${findBugsVersion}",
                 grpc_context : "io.grpc:grpc-context:${grpcContextVersion}",
                 guava        : "com.google.guava:guava:${guavaVersion}",
                 jsr305       : "com.google.code.findbugs:jsr305:${findBugsVersion}",
