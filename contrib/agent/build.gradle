@@ -1,5 +1,5 @@
 plugins {
-  id 'com.github.johnrengelman.shadow' version '2.0.0'
+  id 'com.github.johnrengelman.shadow' version '2.0.1'
   id 'me.tatarka.retrolambda' version '3.6.0'
 }
 
@@ -29,15 +29,39 @@ def agentBootstrapClasses = agentBootstrapPackageDir + '**'
 // classloader).
 def agentRepackaged = "${agentPackage}.deps"
 
+// The setup for integration testing is mostly based on
+// https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/.
+sourceSets {
+  integrationTest {
+    java {
+      compileClasspath += main.output + test.output
+      runtimeClasspath += main.output + test.output
+      srcDir file('src/integration-test/java')
+    }
+    resources.srcDir file('src/integration-test/resources')
+  }
+}
+
+configurations {
+  integrationTestCompile.extendsFrom testCompile
+  integrationTestRuntime.extendsFrom testRuntime
+}
+
 dependencies {
   compileOnly libraries.grpc_context
-  testCompile libraries.grpc_context
+  integrationTestCompile libraries.grpc_context
   compile libraries.findbugs_annotations
   compile libraries.guava
   compile libraries.byte_buddy
 
   signature 'org.codehaus.mojo.signature:java16:+@signature'
 }
+
+// Disable findbugs for integration tests, too.
+findbugsIntegrationTest.enabled = false
+
+// Disable checkstyle for integration tests if not java8.
+checkstyleIntegrationTest.enabled = JavaVersion.current().isJava8Compatible()
 
 jar {
   manifest {
@@ -123,8 +147,13 @@ jar.finalizedBy shadowJar
 
 // TODO(stschmidt): Proguard-shrink the agent JAR.
 
-// TODO(stschmidt): Move the integration tests to a separate SourceSet once
-// https://github.com/johnrengelman/shadow/issues/297 is fixed.
-test {
+// Run integration tests with the agent enabled.
+task integrationTest(type: Test) {
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+
   jvmArgs "-javaagent:${shadowJar.archivePath}"
 }
+
+check.dependsOn integrationTest
+integrationTest.mustRunAfter test
