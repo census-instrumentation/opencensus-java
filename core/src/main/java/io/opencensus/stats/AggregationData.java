@@ -27,14 +27,14 @@ import javax.annotation.concurrent.Immutable;
  * {@link AggregationData} is the result of applying a given {@link Aggregation} to a set of
  * {@code MeasureValue}s.
  *
- * <p>{@link AggregationData} currently supports 6 types of basic aggregation:
+ * <p>{@link AggregationData} currently supports 6 types of basic aggregation values:
  * <ul>
- *   <li>SUM
- *   <li>COUNT
- *   <li>HISTOGRAM
- *   <li>RANGE
- *   <li>MEAN
- *   <li>STDDEV (standard deviation)
+ *   <li>SumData
+ *   <li>CountData
+ *   <li>HistogramData
+ *   <li>RangeData
+ *   <li>MeanData
+ *   <li>StdDevData (standard deviation)
  * </ul>
  *
  * <p>{@link ViewData} will contain one or more {@link AggregationData}s, corresponding to its

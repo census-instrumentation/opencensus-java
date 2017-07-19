@@ -25,12 +25,12 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>{@link Aggregation} currently supports 6 types of basic aggregation:
  * <ul>
- *   <li>SUM
- *   <li>COUNT
- *   <li>HISTOGRAM
- *   <li>RANGE
- *   <li>MEAN
- *   <li>STDDEV (standard deviation)
+ *   <li>Sum
+ *   <li>Count
+ *   <li>Histogram
+ *   <li>Range
+ *   <li>Mean
+ *   <li>StdDev (standard deviation)
  * </ul>
  *
  * <p>When creating a {@link View}, one or more {@link Aggregation} needs to be specified as how to
