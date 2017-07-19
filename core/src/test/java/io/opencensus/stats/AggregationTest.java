@@ -18,12 +18,12 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.stats.Aggregation.AggregationCount;
-import io.opencensus.stats.Aggregation.AggregationHistogram;
-import io.opencensus.stats.Aggregation.AggregationMean;
-import io.opencensus.stats.Aggregation.AggregationRange;
-import io.opencensus.stats.Aggregation.AggregationStdDev;
-import io.opencensus.stats.Aggregation.AggregationSum;
+import io.opencensus.stats.Aggregation.Count;
+import io.opencensus.stats.Aggregation.Histogram;
+import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.Aggregation.Range;
+import io.opencensus.stats.Aggregation.StdDev;
+import io.opencensus.stats.Aggregation.Sum;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,9 +41,9 @@ public class AggregationTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testCreateAggregationHistogram() {
+  public void testCreateHistogram() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(0.1, 2.2, 33.3));
-    AggregationHistogram histogram = AggregationHistogram.create(bucketBoundaries);
+    Histogram histogram = Histogram.create(bucketBoundaries);
     assertThat(histogram.getBucketBoundaries()).isEqualTo(bucketBoundaries);
   }
 
@@ -51,86 +51,89 @@ public class AggregationTest {
   public void testNullBucketBoundaries() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucketBoundaries should not be null.");
-    AggregationHistogram.create(null);
+    Histogram.create(null);
   }
 
   @Test
   public void testUnsortedBoundaries() throws Exception {
     List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
     thrown.expect(IllegalArgumentException.class);
-    AggregationHistogram.create(BucketBoundaries.create(buckets));
+    Histogram.create(BucketBoundaries.create(buckets));
   }
 
   @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            AggregationSum.create(),
-            AggregationSum.create())
+            Sum.create(),
+            Sum.create())
         .addEqualityGroup(
-            AggregationCount.create(),
-            AggregationCount.create())
+            Count.create(),
+            Count.create())
         .addEqualityGroup(
-            AggregationHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
-            AggregationHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))))
+            Histogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
+            Histogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))))
         .addEqualityGroup(
-            AggregationRange.create(),
-            AggregationRange.create())
+            Histogram.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))),
+            Histogram.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))))
         .addEqualityGroup(
-            AggregationMean.create(),
-            AggregationMean.create())
+            Range.create(),
+            Range.create())
         .addEqualityGroup(
-            AggregationStdDev.create(),
-            AggregationStdDev.create())
+            Mean.create(),
+            Mean.create())
+        .addEqualityGroup(
+            StdDev.create(),
+            StdDev.create())
         .testEquals();
   }
 
   @Test
   public void testMatch() {
     List<Aggregation> aggregations = Arrays.asList(
-        AggregationSum.create(),
-        AggregationCount.create(),
-        AggregationHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
-        AggregationRange.create(),
-        AggregationMean.create(),
-        AggregationStdDev.create());
+        Sum.create(),
+        Count.create(),
+        Histogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
+        Range.create(),
+        Mean.create(),
+        StdDev.create());
 
     List<String> actual = new ArrayList<String>();
     for (Aggregation aggregation : aggregations) {
       actual.add(aggregation.match(
-          new Function<AggregationSum, String>() {
+          new Function<Sum, String>() {
             @Override
-            public String apply(AggregationSum arg) {
+            public String apply(Sum arg) {
               return "SUM";
             }
           },
-          new Function<AggregationCount, String>() {
+          new Function<Count, String>() {
             @Override
-            public String apply(AggregationCount arg) {
+            public String apply(Count arg) {
               return "COUNT";
             }
           },
-          new Function<AggregationHistogram, String>() {
+          new Function<Histogram, String>() {
             @Override
-            public String apply(AggregationHistogram arg) {
+            public String apply(Histogram arg) {
               return "HISTOGRAM";
             }
           },
-          new Function<AggregationRange, String>() {
+          new Function<Range, String>() {
             @Override
-            public String apply(AggregationRange arg) {
+            public String apply(Range arg) {
               return "RANGE";
             }
           },
-          new Function<AggregationMean, String>() {
+          new Function<Mean, String>() {
             @Override
-            public String apply(AggregationMean arg) {
+            public String apply(Mean arg) {
               return "MEAN";
             }
           },
-          new Function<AggregationStdDev, String>() {
+          new Function<StdDev, String>() {
             @Override
-            public String apply(AggregationStdDev arg) {
+            public String apply(StdDev arg) {
               return "STDDEV";
             }
           },

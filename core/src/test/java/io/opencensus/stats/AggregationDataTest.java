@@ -18,12 +18,12 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.stats.Aggregate.AggregateCount;
-import io.opencensus.stats.Aggregate.AggregateHistogram;
-import io.opencensus.stats.Aggregate.AggregateMean;
-import io.opencensus.stats.Aggregate.AggregateRange;
-import io.opencensus.stats.Aggregate.AggregateStdDev;
-import io.opencensus.stats.Aggregate.AggregateSum;
+import io.opencensus.stats.AggregationData.CountData;
+import io.opencensus.stats.AggregationData.HistogramData;
+import io.opencensus.stats.AggregationData.MeanData;
+import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.StdDevData;
+import io.opencensus.stats.AggregationData.SumData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,110 +33,128 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.opencensus.stats.Aggregate}. */
+/** Unit tests for {@link io.opencensus.stats.AggregationData}. */
 @RunWith(JUnit4.class)
-public class AggregateTest {
+public class AggregationDataTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testCreateAggregateHistogram() {
-    AggregateHistogram histogram = AggregateHistogram.create(0, 0, 0);
+  public void testCreateHistogramData() {
+    HistogramData histogram = HistogramData.create(0, 0, 0);
     assertThat(new ArrayList<Long>(histogram.getBucketCounts())).isEqualTo(
         Arrays.asList(0L, 0L, 0L));
   }
 
   @Test
-  public void testNullBucketAggregateCounts() {
+  public void testNullBucketCountData() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket counts should not be null.");
-    AggregateHistogram.create(null);
+    HistogramData.create(null);
   }
 
   @Test
-  public void testAggregateRangeMinIsGreaterThanMax() {
+  public void testRangeDataMinIsGreaterThanMax() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("max should be greater or equal to min.");
-    AggregateRange.create(10.0, 0.0);
+    RangeData.create(10.0, 0.0);
   }
 
   @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            AggregateSum.create(10.0),
-            AggregateSum.create(10.0))
+            SumData.create(10.0),
+            SumData.create(10.0))
         .addEqualityGroup(
-            AggregateCount.create(40),
-            AggregateCount.create(40))
+            SumData.create(20.0),
+            SumData.create(20.0))
         .addEqualityGroup(
-            AggregateHistogram.create(new long[]{0, 10, 0}),
-            AggregateHistogram.create(new long[]{0, 10, 0}))
+            CountData.create(40),
+            CountData.create(40))
         .addEqualityGroup(
-            AggregateRange.create(-1.0, 1.0),
-            AggregateRange.create(-1.0, 1.0))
+            CountData.create(80),
+            CountData.create(80))
         .addEqualityGroup(
-            AggregateMean.create(5.0),
-            AggregateMean.create(5.0))
+            HistogramData.create(new long[]{0, 10, 0}),
+            HistogramData.create(new long[]{0, 10, 0}))
         .addEqualityGroup(
-            AggregateStdDev.create(23.3),
-            AggregateStdDev.create(23.3))
+            HistogramData.create(new long[]{0, 10, 100}),
+            HistogramData.create(new long[]{0, 10, 100}))
+        .addEqualityGroup(
+            RangeData.create(-1.0, 1.0),
+            RangeData.create(-1.0, 1.0))
+        .addEqualityGroup(
+            RangeData.create(-5.0, 1.0),
+            RangeData.create(-5.0, 1.0))
+        .addEqualityGroup(
+            MeanData.create(5.0),
+            MeanData.create(5.0))
+        .addEqualityGroup(
+            MeanData.create(-5.0),
+            MeanData.create(-5.0))
+        .addEqualityGroup(
+            StdDevData.create(23.3),
+            StdDevData.create(23.3))
+        .addEqualityGroup(
+            StdDevData.create(-23.3),
+            StdDevData.create(-23.3))
         .testEquals();
   }
 
   @Test
   public void testMatchAndGet() {
-    List<Aggregate> aggregations = Arrays.asList(
-        AggregateSum.create(10.0),
-        AggregateCount.create(40),
-        AggregateHistogram.create(new long[]{0, 10, 0}),
-        AggregateRange.create(-1.0, 1.0),
-        AggregateMean.create(5.0),
-        AggregateStdDev.create(23.3));
+    List<AggregationData> aggregations = Arrays.asList(
+        SumData.create(10.0),
+        CountData.create(40),
+        HistogramData.create(new long[]{0, 10, 0}),
+        RangeData.create(-1.0, 1.0),
+        MeanData.create(5.0),
+        StdDevData.create(23.3));
 
     final List<Object> actual = new ArrayList<Object>();
-    for (Aggregate aggregation : aggregations) {
+    for (AggregationData aggregation : aggregations) {
       aggregation.match(
-          new Function<AggregateSum, Void>() {
+          new Function<SumData, Void>() {
             @Override
-            public Void apply(AggregateSum arg) {
+            public Void apply(SumData arg) {
               actual.add(arg.getSum());
               return null;
             }
           },
-          new Function<AggregateCount, Void>() {
+          new Function<CountData, Void>() {
             @Override
-            public Void apply(AggregateCount arg) {
+            public Void apply(CountData arg) {
               actual.add(arg.getCount());
               return null;
             }
           },
-          new Function<AggregateHistogram, Void>() {
+          new Function<HistogramData, Void>() {
             @Override
-            public Void apply(AggregateHistogram arg) {
+            public Void apply(HistogramData arg) {
               actual.add(arg.getBucketCounts());
               return null;
             }
           },
-          new Function<AggregateRange, Void>() {
+          new Function<RangeData, Void>() {
             @Override
-            public Void apply(AggregateRange arg) {
+            public Void apply(RangeData arg) {
               actual.add(arg.getMin());
               actual.add(arg.getMax());
               return null;
             }
           },
-          new Function<AggregateMean, Void>() {
+          new Function<MeanData, Void>() {
             @Override
-            public Void apply(AggregateMean arg) {
+            public Void apply(MeanData arg) {
               actual.add(arg.getMean());
               return null;
             }
           },
-          new Function<AggregateStdDev, Void>() {
+          new Function<StdDevData, Void>() {
             @Override
-            public Void apply(AggregateStdDev arg) {
+            public Void apply(StdDevData arg) {
               actual.add(arg.getStdDev());
               return null;
             }

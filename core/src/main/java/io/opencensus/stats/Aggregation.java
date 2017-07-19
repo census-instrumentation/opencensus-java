@@ -21,7 +21,7 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * {@link Aggregation} is the process of combining a certain set of {@code MeasureValue}s
- * for a given {@code Measure} into an {@code Aggregate}.
+ * for a given {@code Measure} into an {@link AggregationData}.
  *
  * <p>{@link Aggregation} currently supports 6 types of basic aggregation:
  * <ul>
@@ -46,40 +46,40 @@ public abstract class Aggregation {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<? super AggregationSum, T> p0,
-      Function<? super AggregationCount, T> p1,
-      Function<? super AggregationHistogram, T> p2,
-      Function<? super AggregationRange, T> p3,
-      Function<? super AggregationMean, T> p4,
-      Function<? super AggregationStdDev, T> p5,
-      Function<? super Aggregate, T> defaultFunction);
+      Function<? super Sum, T> p0,
+      Function<? super Count, T> p1,
+      Function<? super Histogram, T> p2,
+      Function<? super Range, T> p3,
+      Function<? super Mean, T> p4,
+      Function<? super StdDev, T> p5,
+      Function<? super Aggregation, T> defaultFunction);
 
   /** Calculate sum on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class AggregationSum extends Aggregation {
+  public abstract static class Sum extends Aggregation {
 
-    AggregationSum() {
+    Sum() {
     }
 
     /**
-     * Construct a {@code AggregationSum}.
+     * Construct a {@code Sum}.
      *
-     * @return a new {@code AggregationSum}.
+     * @return a new {@code Sum}.
      */
-    public static AggregationSum create() {
-      return new AutoValue_Aggregation_AggregationSum();
+    public static Sum create() {
+      return new AutoValue_Aggregation_Sum();
     }
 
     @Override
     public final <T> T match(
-        Function<? super AggregationSum, T> p0,
-        Function<? super AggregationCount, T> p1,
-        Function<? super AggregationHistogram, T> p2,
-        Function<? super AggregationRange, T> p3,
-        Function<? super AggregationMean, T> p4,
-        Function<? super AggregationStdDev, T> p5,
-        Function<? super Aggregate, T> defaultFunction) {
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Histogram, T> p2,
+        Function<? super Range, T> p3,
+        Function<? super Mean, T> p4,
+        Function<? super StdDev, T> p5,
+        Function<? super Aggregation, T> defaultFunction) {
       return p0.apply(this);
     }
   }
@@ -87,29 +87,29 @@ public abstract class Aggregation {
   /** Calculate count on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class AggregationCount extends Aggregation {
+  public abstract static class Count extends Aggregation {
 
-    AggregationCount() {
+    Count() {
     }
 
     /**
-     * Construct a {@code AggregationCount}.
+     * Construct a {@code Count}.
      *
-     * @return a new {@code AggregationCount}.
+     * @return a new {@code Count}.
      */
-    public static AggregationCount create() {
-      return new AutoValue_Aggregation_AggregationCount();
+    public static Count create() {
+      return new AutoValue_Aggregation_Count();
     }
 
     @Override
     public final <T> T match(
-        Function<? super AggregationSum, T> p0,
-        Function<? super AggregationCount, T> p1,
-        Function<? super AggregationHistogram, T> p2,
-        Function<? super AggregationRange, T> p3,
-        Function<? super AggregationMean, T> p4,
-        Function<? super AggregationStdDev, T> p5,
-        Function<? super Aggregate, T> defaultFunction) {
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Histogram, T> p2,
+        Function<? super Range, T> p3,
+        Function<? super Mean, T> p4,
+        Function<? super StdDev, T> p5,
+        Function<? super Aggregation, T> defaultFunction) {
       return p1.apply(this);
     }
   }
@@ -117,32 +117,32 @@ public abstract class Aggregation {
   /** Calculate histogram on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class AggregationHistogram extends Aggregation {
+  public abstract static class Histogram extends Aggregation {
 
-    AggregationHistogram() {
+    Histogram() {
     }
 
     /**
-     * Construct a {@code AggregationHistogram}.
+     * Construct a {@code Histogram}.
      *
-     * @return a new {@code AggregationHistogram}.
+     * @return a new {@code Histogram}.
      */
-    public static AggregationHistogram create(BucketBoundaries bucketBoundaries) {
+    public static Histogram create(BucketBoundaries bucketBoundaries) {
       checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
-      return new AutoValue_Aggregation_AggregationHistogram(bucketBoundaries);
+      return new AutoValue_Aggregation_Histogram(bucketBoundaries);
     }
 
     public abstract BucketBoundaries getBucketBoundaries();
 
     @Override
     public final <T> T match(
-        Function<? super AggregationSum, T> p0,
-        Function<? super AggregationCount, T> p1,
-        Function<? super AggregationHistogram, T> p2,
-        Function<? super AggregationRange, T> p3,
-        Function<? super AggregationMean, T> p4,
-        Function<? super AggregationStdDev, T> p5,
-        Function<? super Aggregate, T> defaultFunction) {
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Histogram, T> p2,
+        Function<? super Range, T> p3,
+        Function<? super Mean, T> p4,
+        Function<? super StdDev, T> p5,
+        Function<? super Aggregation, T> defaultFunction) {
       return p2.apply(this);
     }
   }
@@ -150,29 +150,29 @@ public abstract class Aggregation {
   /** Calculate range on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class AggregationRange extends Aggregation {
+  public abstract static class Range extends Aggregation {
 
-    AggregationRange() {
+    Range() {
     }
 
     /**
-     * Construct a {@code AggregationRange}.
+     * Construct a {@code Range}.
      *
-     * @return a new {@code AggregationRange}.
+     * @return a new {@code Range}.
      */
-    public static AggregationRange create() {
-      return new AutoValue_Aggregation_AggregationRange();
+    public static Range create() {
+      return new AutoValue_Aggregation_Range();
     }
 
     @Override
     public final <T> T match(
-        Function<? super AggregationSum, T> p0,
-        Function<? super AggregationCount, T> p1,
-        Function<? super AggregationHistogram, T> p2,
-        Function<? super AggregationRange, T> p3,
-        Function<? super AggregationMean, T> p4,
-        Function<? super AggregationStdDev, T> p5,
-        Function<? super Aggregate, T> defaultFunction) {
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Histogram, T> p2,
+        Function<? super Range, T> p3,
+        Function<? super Mean, T> p4,
+        Function<? super StdDev, T> p5,
+        Function<? super Aggregation, T> defaultFunction) {
       return p3.apply(this);
     }
   }
@@ -180,29 +180,29 @@ public abstract class Aggregation {
   /** Calculate mean on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class AggregationMean extends Aggregation {
+  public abstract static class Mean extends Aggregation {
 
-    AggregationMean() {
+    Mean() {
     }
 
     /**
-     * Construct a {@code AggregationMean}.
+     * Construct a {@code Mean}.
      *
-     * @return a new {@code AggregationMean}.
+     * @return a new {@code Mean}.
      */
-    public static AggregationMean create() {
-      return new AutoValue_Aggregation_AggregationMean();
+    public static Mean create() {
+      return new AutoValue_Aggregation_Mean();
     }
 
     @Override
     public final <T> T match(
-        Function<? super AggregationSum, T> p0,
-        Function<? super AggregationCount, T> p1,
-        Function<? super AggregationHistogram, T> p2,
-        Function<? super AggregationRange, T> p3,
-        Function<? super AggregationMean, T> p4,
-        Function<? super AggregationStdDev, T> p5,
-        Function<? super Aggregate, T> defaultFunction) {
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Histogram, T> p2,
+        Function<? super Range, T> p3,
+        Function<? super Mean, T> p4,
+        Function<? super StdDev, T> p5,
+        Function<? super Aggregation, T> defaultFunction) {
       return p4.apply(this);
     }
   }
@@ -210,29 +210,29 @@ public abstract class Aggregation {
   /** Calculate standard deviation on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
-  public abstract static class AggregationStdDev extends Aggregation {
+  public abstract static class StdDev extends Aggregation {
 
-    AggregationStdDev() {
+    StdDev() {
     }
 
     /**
-     * Construct a {@code AggregationStdDev}.
+     * Construct a {@code StdDev}.
      *
-     * @return a new {@code AggregationStdDev}.
+     * @return a new {@code StdDev}.
      */
-    public static AggregationStdDev create() {
-      return new AutoValue_Aggregation_AggregationStdDev();
+    public static StdDev create() {
+      return new AutoValue_Aggregation_StdDev();
     }
 
     @Override
     public final <T> T match(
-        Function<? super AggregationSum, T> p0,
-        Function<? super AggregationCount, T> p1,
-        Function<? super AggregationHistogram, T> p2,
-        Function<? super AggregationRange, T> p3,
-        Function<? super AggregationMean, T> p4,
-        Function<? super AggregationStdDev, T> p5,
-        Function<? super Aggregate, T> defaultFunction) {
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Histogram, T> p2,
+        Function<? super Range, T> p3,
+        Function<? super Mean, T> p4,
+        Function<? super StdDev, T> p5,
+        Function<? super Aggregation, T> defaultFunction) {
       return p5.apply(this);
     }
   }
