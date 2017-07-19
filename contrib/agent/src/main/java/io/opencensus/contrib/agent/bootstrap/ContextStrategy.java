@@ -26,4 +26,21 @@ public interface ContextStrategy {
    * @return the wrapped {@link Runnable} object
    */
   Runnable wrapInCurrentContext(Runnable runnable);
+
+  /**
+   * Saves the context that is associated with the current scope.
+   *
+   * <p>The context will be attached when entering the specified thread's {@link Thread#run()}
+   * method.
+   *
+   * @param thread a {@link Thread} object
+   */
+  void saveContextForThread(Thread thread);
+
+  /**
+   * Attaches the context that was previously saved for the specified thread.
+   *
+   * @param thread a {@link Thread} object
+   */
+  void attachContextForThread(Thread thread);
 }
