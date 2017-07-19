@@ -13,7 +13,11 @@
 
 package io.opencensus.contrib.agent.bootstrap;
 
+import static org.mockito.Mockito.mock;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -25,16 +29,28 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ContextManagerTest {
 
-  @Mock
-  private ContextStrategy mockContextStrategy;
+  private static final ContextStrategy mockContextStrategy;
+
+  static {
+    mockContextStrategy = mock(ContextStrategy.class);
+    ContextManager.setContextStrategy(mockContextStrategy);
+  }
+
+  @Rule
+  public final ExpectedException exception = ExpectedException.none();
 
   @Mock
   private Runnable runnable;
 
   @Test
-  public void setContextStrategy() {
-    ContextManager.setContextStrategy(mockContextStrategy);
+  public void setContextStrategy_already_initialized() {
+    exception.expect(IllegalStateException.class);
 
+    ContextManager.setContextStrategy(mockContextStrategy);
+  }
+
+  @Test
+  public void wrapInCurrentContext() {
     ContextManager.wrapInCurrentContext(runnable);
 
     Mockito.verify(mockContextStrategy).wrapInCurrentContext(runnable);
