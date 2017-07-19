@@ -24,7 +24,7 @@ import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
  */
 final class ContextStrategyImpl implements ContextStrategy {
 
-  private static final Cache<Thread, Context> SAVED_CONTEXTS
+  private final Cache<Thread, Context> savedContexts
           = CacheBuilder.newBuilder().weakKeys().build();
 
   @Override
@@ -34,15 +34,15 @@ final class ContextStrategyImpl implements ContextStrategy {
 
   @Override
   public void saveContextForThread(Thread thread) {
-    SAVED_CONTEXTS.put(thread, Context.current());
+    savedContexts.put(thread, Context.current());
   }
 
   @Override
   public void attachContextForThread(Thread thread) {
     if (Thread.currentThread() == thread) {
-      Context context = SAVED_CONTEXTS.getIfPresent(thread);
+      Context context = savedContexts.getIfPresent(thread);
       if (context != null) {
-        SAVED_CONTEXTS.invalidate(thread);
+        savedContexts.invalidate(thread);
         context.attach();
       }
     }
