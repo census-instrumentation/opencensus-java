@@ -49,29 +49,52 @@ public final class RpcViewConstantsTest {
     assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_VIEW).isNotNull();
 
     // Test client interval view descriptors.
-    assertThat(RpcViewConstants.RPC_CLIENT_ERROR_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_REQUEST_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_RESPONSE_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_STARTED_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_SERVER_ELAPSED_TIME_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_REQUEST_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_CLIENT_RESPONSE_COUNT_INTERVAL_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_ERROR_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_REQUEST_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_RESPONSE_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_SERVER_ELAPSED_TIME_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_REQUEST_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_RESPONSE_COUNT_MINUTE_VIEW).isNotNull();
+
+    assertThat(RpcViewConstants.RPC_CLIENT_ERROR_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_REQUEST_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_RESPONSE_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_STARTED_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_SERVER_ELAPSED_TIME_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_REQUEST_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_CLIENT_RESPONSE_COUNT_HOUR_VIEW).isNotNull();
 
     // Test server interval view descriptors.
-    assertThat(RpcViewConstants.RPC_SERVER_ERROR_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_SERVER_LATENCY_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_REQUEST_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_STARTED_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_FINISHED_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_REQUEST_COUNT_INTERVAL_VIEW).isNotNull();
-    assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_INTERVAL_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_ERROR_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_SERVER_LATENCY_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_REQUEST_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_STARTED_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_FINISHED_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_REQUEST_COUNT_MINUTE_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_MINUTE_VIEW).isNotNull();
+
+    assertThat(RpcViewConstants.RPC_SERVER_ERROR_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_SERVER_LATENCY_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_REQUEST_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_STARTED_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_FINISHED_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_REQUEST_COUNT_HOUR_VIEW).isNotNull();
+    assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_HOUR_VIEW).isNotNull();
   }
 
   @Test(expected = AssertionError.class)

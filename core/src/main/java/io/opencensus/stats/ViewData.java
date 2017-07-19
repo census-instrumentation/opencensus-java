@@ -14,116 +14,85 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.View.IntervalView;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
  * The aggregated data for a particular {@link View}.
  */
 @Immutable
+@AutoValue
 public abstract class ViewData {
+
+  // Prevents this class from being subclassed anywhere else.
+  ViewData() {
+  }
+
   /**
    * The {@link View} associated with this {@link ViewData}.
    */
   public abstract View getView();
 
   /**
-   * Applies the given match function to the underlying data type.
+   * The {@link AggregationData}s grouped by {@link TagValue}s, associated with this
+   * {@link ViewData}.
+   *
+   * <p>Note: The returned map is unmodifiable, attempts to update it will throw an
+   * UnsupportedOperationException.
    */
-  public abstract <T> T match(
-      Function<? super DistributionViewData, T> p0,
-      Function<? super IntervalViewData, T> p1);
+  public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
 
-  // Prevents this class from being subclassed anywhere else.
-  private ViewData() {
+  /**
+   * Returns the {@link WindowTimestamp} associated with this {@link ViewData}.
+   *
+   * @return the {@code WindowTimestamp}.
+   */
+  public abstract WindowTimestamp getWindowTimestamp();
+
+  /**
+   * Constructs a new {@link ViewData}.
+   */
+  public static ViewData create(View view, Map<List<TagValue>, List<AggregationData>> map,
+      WindowTimestamp windowTimestamp) {
+    return new AutoValue_ViewData(
+        view,
+        Collections.unmodifiableMap(new HashMap<List<TagValue>, List<AggregationData>>(map)),
+        windowTimestamp);
   }
 
   /**
-   * A {@link ViewData} for distribution-based aggregations.
+   * The start and end {@code Timestamp} for a {@link ViewData}.
    */
   @Immutable
   @AutoValue
-  public abstract static class DistributionViewData extends ViewData {
-    /**
-     * Constructs a new {@link DistributionViewData}.
-     */
-    public static DistributionViewData create(DistributionView distributionView,
-        List<DistributionAggregate> distributionAggregates, Timestamp start, Timestamp end) {
-      return new AutoValue_ViewData_DistributionViewData(
-          distributionView,
-          Collections.unmodifiableList(
-              new ArrayList<DistributionAggregate>(distributionAggregates)),
-          start,
-          end);
+  public abstract static class WindowTimestamp {
+
+    WindowTimestamp() {
     }
 
-    @Override
-    public abstract DistributionView getView();
-
     /**
-     * The {@link DistributionAggregate}s associated with this {@link DistributionViewData}.
+     * Returns the start {@code Timestamp} for a {@link ViewData}. For interval-based views, start
+     * {@code Timestamp} is {@code null}.
      *
-     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-     * UnsupportedOperationException.
+     * @return the start {@code Timestamp}.
      */
-    public abstract List<DistributionAggregate> getDistributionAggregates();
-
-    /**
-     * Returns start timestamp for this aggregation.
-     */
+    @Nullable
     public abstract Timestamp getStart();
 
     /**
-     * Returns end timestamp for this aggregation.
+     * Returns the end {@code Timestamp} for a {@link ViewData}.
+     *
+     * @return the end {@code Timestamp}.
      */
     public abstract Timestamp getEnd();
 
-    @Override
-    public final <T> T match(
-        Function<? super DistributionViewData, T> p0,
-        Function<? super IntervalViewData, T> p1) {
-      return p0.apply(this);
-    }
-  }
-
-  /**
-   * A {@link ViewData} for interval-base aggregations.
-   */
-  @Immutable
-  @AutoValue
-  public abstract static class IntervalViewData extends ViewData {
-    /**
-     * Constructs a new {@link IntervalViewData}.
-     */
-    public static IntervalViewData create(IntervalView intervalView,
-        List<IntervalAggregate> intervalAggregates) {
-      return new AutoValue_ViewData_IntervalViewData(
-          intervalView,
-          Collections.unmodifiableList(new ArrayList<IntervalAggregate>(intervalAggregates)));
-    }
-
-    @Override
-    public abstract IntervalView getView();
-
-    /**
-     * The {@link IntervalAggregate}s associated with this {@link IntervalViewData}.
-     *
-     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-     * UnsupportedOperationException.
-     */
-    public abstract List<IntervalAggregate> getIntervalAggregates();
-
-    @Override
-    public final <T> T match(
-        Function<? super DistributionViewData, T> p0,
-        Function<? super IntervalViewData, T> p1) {
-      return p1.apply(this);
+    static WindowTimestamp create(@Nullable Timestamp start, Timestamp end) {
+      return new AutoValue_ViewData_WindowTimestamp(start, end);
     }
   }
 }

@@ -15,7 +15,6 @@ package io.opencensus.stats;
 
 import io.opencensus.common.Clock;
 import io.opencensus.internal.EventQueue;
-import io.opencensus.stats.View.DistributionView;
 
 /** Object that stores all views and stats. */
 final class StatsManager {
@@ -33,12 +32,6 @@ final class StatsManager {
   }
 
   void registerView(View view) {
-    // Only DistributionViews are supported currently.
-    // TODO(sebright): Remove this once all views are supported.
-    if (!(view instanceof DistributionView)) {
-      throw new UnsupportedOperationException(
-          "The prototype will only support distribution views.");
-    }
     measureToViewMap.registerView(view, clock);
   }
 

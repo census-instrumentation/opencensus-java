@@ -14,10 +14,11 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Function;
+import io.opencensus.common.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -25,7 +26,12 @@ import javax.annotation.concurrent.Immutable;
  * down by the unique set of matching tag values for each measure.
  */
 @Immutable
+@AutoValue
 public abstract class View {
+
+  View() {
+  }
+
   /**
    * Name of view. Must be unique.
    */
@@ -42,8 +48,16 @@ public abstract class View {
   public abstract Measure getMeasure();
 
   /**
+   * The {@link Aggregation}s associated with this {@link View}.
+   */
+  public abstract List<Aggregation> getAggregations();
+
+  /**
    * Columns (a.k.a Tag Keys) to match with the associated {@link Measure}.
-   * If no dimensions are specified, then all stats are recorded. Columns must be unique.
+   *
+   * <p>{@link Measure} will be recorded in a "greedy" way. That is, every view aggregates every
+   * measure. This is similar to doing a GROUPBY on view’s columns. If no columns are specified,
+   * then all stats will be recorded. Columns must be unique.
    *
    * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
    * UnsupportedOperationException.
@@ -51,11 +65,31 @@ public abstract class View {
   public abstract List<TagKey> getColumns();
 
   /**
-   * Applies the given match function to the underlying data type.
+   * Returns the time window for this {@code View}.
+   *
+   * @return the time window. Time window is null for cumulative views.
    */
-  public abstract <T> T match(
-      Function<? super DistributionView, T> p0,
-      Function<? super IntervalView, T> p1);
+  @Nullable
+  public abstract Duration getWindow();
+
+  /**
+   * Constructs a new {@link View}.
+   */
+  public static View create(
+      Name name,
+      String description,
+      Measure measure,
+      List<Aggregation> aggregations,
+      List<TagKey> columns,
+      @Nullable Duration window) {
+    return new AutoValue_View(
+        name,
+        description,
+        measure,
+        Collections.unmodifiableList(new ArrayList<Aggregation>(aggregations)),
+        Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
+        window);
+  }
 
   /**
    * The name of a {@code View}.
@@ -82,80 +116,6 @@ public abstract class View {
      */
     public static Name create(String name) {
       return new AutoValue_View_Name(name);
-    }
-  }
-
-  /**
-   * A {@link View} for distribution-base aggregations.
-   */
-  @Immutable
-  @AutoValue
-  public abstract static class DistributionView extends View {
-    /**
-     * Constructs a new {@link DistributionView}.
-     */
-    public static DistributionView create(
-        Name name,
-        String description,
-        Measure measure,
-        DistributionAggregation distributionAggregation,
-        List<TagKey> tagKeys) {
-      return new AutoValue_View_DistributionView(
-          name,
-          description,
-          measure,
-          Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys)),
-          distributionAggregation);
-    }
-
-    /**
-     * The {@link DistributionAggregation} associated with this
-     * {@link DistributionView}.
-     */
-    public abstract DistributionAggregation getDistributionAggregation();
-
-    @Override
-    public <T> T match(
-        Function<? super DistributionView, T> p0,
-        Function<? super IntervalView, T> p1) {
-      return p0.apply(this);
-    }
-  }
-
-  /**
-   * A {@link View} for interval-based aggregations.
-   */
-  @Immutable
-  @AutoValue
-  public abstract static class IntervalView extends View {
-    /**
-     * Constructs a new {@link IntervalView}.
-     */
-    public static IntervalView create(
-        Name name,
-        String description,
-        Measure measure,
-        IntervalAggregation intervalAggregation,
-        List<TagKey> tagKeys) {
-      return new AutoValue_View_IntervalView(
-          name,
-          description,
-          measure,
-          Collections.unmodifiableList(new ArrayList<TagKey>(tagKeys)),
-          intervalAggregation);
-    }
-
-    /**
-     * The {@link IntervalAggregation} associated with this
-     * {@link IntervalView}.
-     */
-    public abstract IntervalAggregation getIntervalAggregation();
-
-    @Override
-    public <T> T match(
-        Function<? super DistributionView, T> p0,
-        Function<? super IntervalView, T> p1) {
-      return p1.apply(this);
     }
   }
 }
