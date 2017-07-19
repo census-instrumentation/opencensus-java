@@ -127,7 +127,8 @@ public abstract class Aggregation {
      *
      * @return a new {@code Histogram}.
      */
-    public static Histogram create(BucketBoundaries bucketBoundaries) {
+    // TODO(songya): not v0.1, expose factory method later.
+    static Histogram create(BucketBoundaries bucketBoundaries) {
       checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
       return new AutoValue_Aggregation_Histogram(bucketBoundaries);
     }
@@ -190,7 +191,8 @@ public abstract class Aggregation {
      *
      * @return a new {@code Mean}.
      */
-    public static Mean create() {
+    // TODO(songya): not v0.1, expose factory method later.
+    static Mean create() {
       return new AutoValue_Aggregation_Mean();
     }
 
@@ -220,7 +222,8 @@ public abstract class Aggregation {
      *
      * @return a new {@code StdDev}.
      */
-    public static StdDev create() {
+    // TODO(songya): not v0.1, expose factory method later.
+    static StdDev create() {
       return new AutoValue_Aggregation_StdDev();
     }
 
