@@ -39,9 +39,9 @@ public final class ViewTest {
     assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName()).isEqualTo(measure.getName());
-    assertThat(view.getDimensions()).hasSize(2);
-    assertThat(view.getDimensions().get(0).toString()).isEqualTo("foo");
-    assertThat(view.getDimensions().get(1).toString()).isEqualTo("bar");
+    assertThat(view.getColumns()).hasSize(2);
+    assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
+    assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
     assertTrue(view.match(
         new Function<DistributionView, Boolean> () {
           @Override public Boolean apply(DistributionView dView) {
@@ -66,9 +66,9 @@ public final class ViewTest {
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName())
         .isEqualTo(measure.getName());
-    assertThat(view.getDimensions()).hasSize(2);
-    assertThat(view.getDimensions().get(0).toString()).isEqualTo("foo");
-    assertThat(view.getDimensions().get(1).toString()).isEqualTo("bar");
+    assertThat(view.getColumns()).hasSize(2);
+    assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
+    assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
     assertTrue(view.match(
         new Function<DistributionView, Boolean> () {
           @Override public Boolean apply(DistributionView dView) {
