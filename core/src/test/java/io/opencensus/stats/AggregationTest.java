@@ -55,13 +55,6 @@ public class AggregationTest {
   }
 
   @Test
-  public void testUnsortedBoundaries() throws Exception {
-    List<Double> buckets = Arrays.asList(0.0, 1.0, 1.0);
-    thrown.expect(IllegalArgumentException.class);
-    Histogram.create(BucketBoundaries.create(buckets));
-  }
-
-  @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(

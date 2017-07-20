@@ -170,7 +170,7 @@ public abstract class AggregationData {
     }
 
     static RangeData create(double min, double max) {
-      if (min != Double.POSITIVE_INFINITY && max != Double.NEGATIVE_INFINITY) {
+      if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
         checkArgument(min <= max, "max should be greater or equal to min.");
       }
       return new AutoValue_AggregationData_RangeData(min, max);

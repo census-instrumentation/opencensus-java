@@ -43,8 +43,7 @@ public class AggregationDataTest {
   @Test
   public void testCreateHistogramData() {
     HistogramData histogram = HistogramData.create(0, 0, 0);
-    assertThat(new ArrayList<Long>(histogram.getBucketCounts())).isEqualTo(
-        Arrays.asList(0L, 0L, 0L));
+    assertThat(histogram.getBucketCounts()).containsExactly(0L, 0L, 0L).inOrder();
   }
 
   @Test
