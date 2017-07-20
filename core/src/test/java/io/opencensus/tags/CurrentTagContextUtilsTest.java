@@ -15,9 +15,10 @@ package io.opencensus.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableSet;
 import io.grpc.Context;
 import io.opencensus.common.Scope;
-import io.opencensus.tags.TagKey.TagKeyString;
+import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -25,35 +26,38 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link CurrentTagContextUtils}. */
 @RunWith(JUnit4.class)
 public class CurrentTagContextUtilsTest {
+  private final TagContext tagContext =
+      new TagContext() {
 
-  private static final TagContext TAG_CONTEXT =
-      TagContext.emptyBuilder()
-          .set(TagKeyString.create("Key"), TagValueString.create("Value"))
-          .build();
+        @Override
+        public Iterator<Tag> iterator() {
+          return ImmutableSet.<Tag>of().iterator();
+        }
+      };
 
   @Test
   public void testGetCurrentTagContext_WhenNoContext() {
-    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isNull();
   }
 
   @Test
   public void testWithTagContext() {
-    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
-    Scope scopedTags = CurrentTagContextUtils.withTagContext(TAG_CONTEXT);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isNull();
+    Scope scopedTags = CurrentTagContextUtils.withTagContext(tagContext);
     try {
-      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
+      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(tagContext);
     } finally {
       scopedTags.close();
     }
-    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isNull();
   }
 
   @Test
   public void testWithTagContextUsingWrap() {
     Runnable runnable;
-    Scope scopedTags = CurrentTagContextUtils.withTagContext(TAG_CONTEXT);
+    Scope scopedTags = CurrentTagContextUtils.withTagContext(tagContext);
     try {
-      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TAG_CONTEXT);
+      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(tagContext);
       runnable =
           Context.current()
               .wrap(
@@ -61,13 +65,13 @@ public class CurrentTagContextUtilsTest {
                     @Override
                     public void run() {
                       assertThat(CurrentTagContextUtils.getCurrentTagContext())
-                          .isEqualTo(TAG_CONTEXT);
+                          .isEqualTo(tagContext);
                     }
                   });
     } finally {
       scopedTags.close();
     }
-    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(TagContext.EMPTY);
+    assertThat(CurrentTagContextUtils.getCurrentTagContext()).isNull();
     // When we run the runnable we will have the TagContext in the current Context.
     runnable.run();
   }
