@@ -14,9 +14,12 @@
 package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
+import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
@@ -30,7 +33,10 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
-import io.opencensus.stats.ViewData.WindowTimestamp;
+import io.opencensus.stats.View.Window.CumulativeWindow;
+import io.opencensus.stats.ViewData.WindowData;
+import io.opencensus.stats.ViewData.WindowData.CumulativeWindowData;
+import io.opencensus.stats.ViewData.WindowData.IntervalWindowData;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,62 +51,95 @@ public final class ViewDataTest {
   @Test
   public void testDistributionViewData() {
     final View view =
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, null);
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, CumulativeWindow.create());
     final Timestamp start = Timestamp.fromMillis(1000);
     final Timestamp end = Timestamp.fromMillis(2000);
-    final WindowTimestamp windowTimestamp = WindowTimestamp.create(start, end);
-    final ViewData viewData = ViewData.create(view, ENTRIES, windowTimestamp);
+    final WindowData windowData = CumulativeWindowData.create(start, end);
+    final ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
-    assertThat(viewData.getWindowTimestamp().getStart()).isEqualTo(start);
-    assertThat(viewData.getWindowTimestamp().getEnd()).isEqualTo(end);
+    viewData.getWindowData().match(
+        new Function<CumulativeWindowData, Void>() {
+          @Override
+          public Void apply(CumulativeWindowData windowData) {
+            assertThat(windowData.getStart()).isEqualTo(start);
+            assertThat(windowData.getEnd()).isEqualTo(end);
+            return null;
+          }
+        },
+        new Function<IntervalWindowData, Void>() {
+          @Override
+          public Void apply(IntervalWindowData windowData) {
+            fail("CumulativeWindowData expected.");
+            return null;
+          }
+        },
+        Functions.<Void>throwIllegalArgumentException());
   }
 
   @Test
   public void testIntervalViewData() {
     final View view = View.create(
-        name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.HOUR);
+        name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.INTERVAL_HOUR);
     final Timestamp end = Timestamp.fromMillis(2000);
-    final WindowTimestamp windowTimestamp = WindowTimestamp.create(null, end);
-    final ViewData viewData = ViewData.create(view, ENTRIES, windowTimestamp);
+    final WindowData windowData = IntervalWindowData.create(end);
+    final ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
-    assertThat(viewData.getWindowTimestamp().getStart()).isNull();
-    assertThat(viewData.getWindowTimestamp().getEnd()).isEqualTo(end);
+    viewData.getWindowData().match(
+        new Function<CumulativeWindowData, Void>() {
+          @Override
+          public Void apply(CumulativeWindowData windowData) {
+            fail("IntervalWindowData expected.");
+            return null;
+          }
+        },
+        new Function<IntervalWindowData, Void>() {
+          @Override
+          public Void apply(IntervalWindowData windowData) {
+            assertThat(windowData.getEnd()).isEqualTo(end);
+            return null;
+          }
+        },
+        Functions.<Void>throwIllegalArgumentException());
   }
 
   @Test
   public void testViewDataEquals() {
     View dView = 
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, null);
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.CUMULATIVE);
     View iView =
         View.create(
-            name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.HOUR);
+            name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.INTERVAL_HOUR);
 
     new EqualsTester()
         .addEqualityGroup(
             ViewData.create(
-                dView,
-                ENTRIES,
-                WindowTimestamp.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))),
+                dView, ENTRIES,
+                CumulativeWindowData.create(
+                    Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))),
             ViewData.create(
                 dView,
                 ENTRIES,
-                WindowTimestamp.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))))
+                CumulativeWindowData.create(
+                    Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
                 dView,
                 ENTRIES,
-                WindowTimestamp.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(3000))))
+                CumulativeWindowData.create(
+                    Timestamp.fromMillis(1000), Timestamp.fromMillis(3000))))
         .addEqualityGroup(
             ViewData.create(
-                iView, ENTRIES, WindowTimestamp.create(null, Timestamp.fromMillis(2000))),
+                iView, ENTRIES,
+                IntervalWindowData.create(Timestamp.fromMillis(2000))),
             ViewData.create(
-                iView, ENTRIES, WindowTimestamp.create(null, Timestamp.fromMillis(2000))))
+                iView, ENTRIES,
+                IntervalWindowData.create(Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
                 iView, Collections.<List<TagValue>, List<AggregationData>>emptyMap(),
-                WindowTimestamp.create(null, Timestamp.fromMillis(2000))))
+                IntervalWindowData.create(Timestamp.fromMillis(2000))))
         .testEquals();
   }
 

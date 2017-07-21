@@ -15,10 +15,10 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Duration;
+import io.opencensus.common.Function;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -65,12 +65,11 @@ public abstract class View {
   public abstract List<TagKey> getColumns();
 
   /**
-   * Returns the time window for this {@code View}.
+   * Returns the time {@link Window} for this {@code View}.
    *
-   * @return the time window. Time window is null for cumulative views.
+   * @return the time {@link Window}.
    */
-  @Nullable
-  public abstract Duration getWindow();
+  public abstract Window getWindow();
 
   /**
    * Constructs a new {@link View}.
@@ -81,7 +80,7 @@ public abstract class View {
       Measure measure,
       List<Aggregation> aggregations,
       List<TagKey> columns,
-      @Nullable Duration window) {
+      Window window) {
     return new AutoValue_View(
         name,
         description,
@@ -116,6 +115,79 @@ public abstract class View {
      */
     public static Name create(String name) {
       return new AutoValue_View_Name(name);
+    }
+  }
+
+  /** The time window for a {@code View}. */
+  @Immutable
+  public abstract static class Window {
+
+    private Window() {}
+
+    /**
+     * Applies the given match function to the underlying data type.
+     */
+    public abstract <T> T match(
+        Function<? super CumulativeWindow, T> p0,
+        Function<? super IntervalWindow, T> p1,
+        Function<? super Window, T> defaultFunction);
+
+    /** Cumulative time {@code Window.} */
+    @Immutable
+    @AutoValue
+    public abstract static class CumulativeWindow extends Window {
+
+      CumulativeWindow() {}
+
+      /**
+       * Constructs a cumulative {@code Window} that does not have a {@code Duration}.
+       *
+       * @return a cumulative {@code Window}.
+       */
+      public static CumulativeWindow create() {
+        return new AutoValue_View_Window_CumulativeWindow();
+      }
+
+      @Override
+      public final <T> T match(
+          Function<? super CumulativeWindow, T> p0,
+          Function<? super IntervalWindow, T> p1,
+          Function<? super Window, T> defaultFunction) {
+        return  p0.apply(this);
+      }
+    }
+
+    /** Interval time {@code Window.} */
+    @Immutable
+    @AutoValue
+    public abstract static class IntervalWindow extends Window {
+
+      IntervalWindow() {}
+
+      /**
+       * Returns the {@code Duration} associated with this {@code IntervalWindow}.
+       *
+       * @return a {@code Duration}.
+       */
+      public abstract Duration getDuration();
+
+
+      /**
+       * Constructs an interval {@code Window} that has one {@code Duration}.
+       *
+       * @return an interval {@code Window}.
+       */
+      public static IntervalWindow create(Duration duration) {
+        return new AutoValue_View_Window_IntervalWindow(duration);
+      }
+
+      @Override
+      public final <T> T match(
+          Function<? super CumulativeWindow, T> p0,
+          Function<? super IntervalWindow, T> p1,
+          Function<? super Window, T> defaultFunction) {
+        return  p1.apply(this);
+      }
     }
   }
 }

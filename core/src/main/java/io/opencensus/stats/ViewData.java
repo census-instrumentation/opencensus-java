@@ -14,12 +14,12 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -48,51 +48,102 @@ public abstract class ViewData {
   public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
 
   /**
-   * Returns the {@link WindowTimestamp} associated with this {@link ViewData}.
+   * Returns the {@link WindowData} associated with this {@link ViewData}.
    *
-   * @return the {@code WindowTimestamp}.
+   * @return the {@code WindowData}.
    */
-  public abstract WindowTimestamp getWindowTimestamp();
+  public abstract WindowData getWindowData();
 
   /**
    * Constructs a new {@link ViewData}.
    */
   public static ViewData create(View view, Map<List<TagValue>, List<AggregationData>> map,
-      WindowTimestamp windowTimestamp) {
+      WindowData windowData) {
     return new AutoValue_ViewData(
         view,
         Collections.unmodifiableMap(new HashMap<List<TagValue>, List<AggregationData>>(map)),
-        windowTimestamp);
+        windowData);
   }
 
   /**
-   * The start and end {@code Timestamp} for a {@link ViewData}.
+   * The {@code Timestamp} window data for a {@link ViewData}.
    */
   @Immutable
-  @AutoValue
-  public abstract static class WindowTimestamp {
+  public abstract static class WindowData {
 
-    WindowTimestamp() {
+    private WindowData() {
     }
 
     /**
-     * Returns the start {@code Timestamp} for a {@link ViewData}. For interval-based views, start
-     * {@code Timestamp} is {@code null}.
-     *
-     * @return the start {@code Timestamp}.
+     * Applies the given match function to the underlying data type.
      */
-    @Nullable
-    public abstract Timestamp getStart();
+    public abstract <T> T match(
+        Function<? super CumulativeWindowData, T> p0,
+        Function<? super IntervalWindowData, T> p1,
+        Function<? super WindowData, T> defaultFunction);
 
-    /**
-     * Returns the end {@code Timestamp} for a {@link ViewData}.
-     *
-     * @return the end {@code Timestamp}.
-     */
-    public abstract Timestamp getEnd();
+    /** Cumulative {@code WindowData.} */
+    @Immutable
+    @AutoValue
+    public abstract static class CumulativeWindowData extends WindowData {
 
-    static WindowTimestamp create(@Nullable Timestamp start, Timestamp end) {
-      return new AutoValue_ViewData_WindowTimestamp(start, end);
+      CumulativeWindowData() {}
+
+      /**
+       * Returns the start {@code Timestamp} for a {@link CumulativeWindowData}.
+       *
+       * @return the start {@code Timestamp}.
+       */
+      public abstract Timestamp getStart();
+
+      /**
+       * Returns the end {@code Timestamp} for a {@link CumulativeWindowData}.
+       *
+       * @return the end {@code Timestamp}.
+       */
+      public abstract Timestamp getEnd();
+
+      @Override
+      public final <T> T match(
+          Function<? super CumulativeWindowData, T> p0,
+          Function<? super IntervalWindowData, T> p1,
+          Function<? super WindowData, T> defaultFunction) {
+        return p0.apply(this);
+      }
+
+      /** Constructs a new {@link CumulativeWindowData}. */
+      static CumulativeWindowData create(Timestamp start, Timestamp end) {
+        return new AutoValue_ViewData_WindowData_CumulativeWindowData(start, end);
+      }
+    }
+
+
+    /** Interval {@code WindowData.} */
+    @Immutable
+    @AutoValue
+    public abstract static class IntervalWindowData extends WindowData {
+
+      IntervalWindowData() {}
+
+      /**
+       * Returns the end {@code Timestamp} for an {@link IntervalWindowData}.
+       *
+       * @return the end {@code Timestamp}.
+       */
+      public abstract Timestamp getEnd();
+
+      @Override
+      public final <T> T match(
+          Function<? super CumulativeWindowData, T> p0,
+          Function<? super IntervalWindowData, T> p1,
+          Function<? super WindowData, T> defaultFunction) {
+        return p1.apply(this);
+      }
+
+      /** Constructs a new {@link IntervalWindowData}. */
+      static IntervalWindowData create(Timestamp end) {
+        return new AutoValue_ViewData_WindowData_IntervalWindowData(end);
+      }
     }
   }
 }

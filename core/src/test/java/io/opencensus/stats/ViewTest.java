@@ -17,6 +17,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.View.Window.CumulativeWindow;
+import io.opencensus.stats.View.Window.IntervalWindow;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -31,7 +33,8 @@ import static com.google.common.truth.Truth.assertThat;
 public final class ViewTest {
   @Test
   public void testDistributionView() {
-    final View view = View.create(name, description, measure, aggregations, keys, null);
+    final View view = View.create(
+        name, description, measure, aggregations, keys, CumulativeWindow.create());
     assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName()).isEqualTo(measure.getName());
@@ -39,12 +42,13 @@ public final class ViewTest {
     assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
     assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
-    assertThat(view.getWindow()).isNull();
+    assertThat(view.getWindow()).isEqualTo(RpcViewConstants.CUMULATIVE);
   }
 
   @Test
   public void testIntervalView() {
-    final View view = View.create(name, description, measure, aggregations, keys, minute);
+    final View view = View.create(
+        name, description, measure, aggregations, keys, IntervalWindow.create(minute));
     assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName())
@@ -53,28 +57,34 @@ public final class ViewTest {
     assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
     assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
-    assertThat(view.getWindow()).isEqualTo(minute);
+    assertThat(view.getWindow()).isEqualTo(RpcViewConstants.INTERVAL_MINUTE);
   }
 
   @Test
   public void testViewEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            View.create(name, description, measure, aggregations, keys, null),
-            View.create(name, description, measure, aggregations, keys, null))
+            View.create(
+                name, description, measure, aggregations, keys, CumulativeWindow.create()),
+            View.create(
+                name, description, measure, aggregations, keys, CumulativeWindow.create()))
         .addEqualityGroup(
-            View.create(name, description + 2, measure, aggregations, keys, null))
+            View.create(
+                name, description + 2, measure, aggregations, keys, CumulativeWindow.create()))
         .addEqualityGroup(
-            View.create(name, description, measure, aggregations, keys, minute),
-            View.create(name, description, measure, aggregations, keys, minute))
+            View.create(
+                name, description, measure, aggregations, keys, IntervalWindow.create(minute)),
+            View.create(
+                name, description, measure, aggregations, keys, IntervalWindow.create(minute)))
         .addEqualityGroup(
-            View.create(name, description + 2, measure, aggregations, keys, minute))
+            View.create(
+                name, description + 2, measure, aggregations, keys, IntervalWindow.create(minute)))
         .testEquals();
   }
 
   @Test(expected = NullPointerException.class)
   public void preventNullViewName() {
-    View.create(null, description, measure, aggregations, keys, minute);
+    View.create(null, description, measure, aggregations, keys, IntervalWindow.create(minute));
   }
 
   @Test
