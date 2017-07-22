@@ -24,7 +24,6 @@ import io.opencensus.stats.Aggregation.StdDev;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.View.Window.CumulativeWindow;
 import io.opencensus.stats.View.Window.IntervalWindow;
-import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
