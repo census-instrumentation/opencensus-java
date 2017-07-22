@@ -14,7 +14,6 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Charsets;
@@ -27,20 +26,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Unit tests for {@link Resources}.
  */
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ResourcesTest {
 
   @Rule
   public final ExpectedException exception = ExpectedException.none();
+  
+  @Mock
+  private File mockFile;
 
   @Test
   public void getResourceAsTempFile() throws IOException {
-    File mockFile = mock(File.class);
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
     Resources.getResourceAsTempFile("some_resource.txt", mockFile, bytes);
@@ -54,7 +56,7 @@ public class ResourcesTest {
     exception.expect(FileNotFoundException.class);
 
     Resources.getResourceAsTempFile("missing_resource.txt",
-            mock(File.class), new ByteArrayOutputStream());
+            mockFile, new ByteArrayOutputStream());
   }
 
   @Test
@@ -69,6 +71,6 @@ public class ResourcesTest {
     exception.expect(IOException.class);
     exception.expectMessage("denied");
 
-    Resources.getResourceAsTempFile("some_resource.txt", mock(File.class), badOutputStream);
+    Resources.getResourceAsTempFile("some_resource.txt", mockFile, badOutputStream);
   }
 }
