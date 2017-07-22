@@ -59,7 +59,7 @@ public class SpanExporterImplTest {
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final SpanExporterImpl spanExporter = SpanExporterImpl.create(4, 1000);
   private final RunningSpanStoreImpl runningSpanStore = new RunningSpanStoreImpl();
-  private StartEndHandler startEndHandler =
+  private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
