@@ -57,9 +57,10 @@ public class SpanExporterImplTest {
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private final SpanExporterImpl sampledSpansServiceExporter = SpanExporterImpl.create(4, 1000);
+  private final SpanExporterImpl spanExporter = SpanExporterImpl.create(4, 1000);
+  private final RunningSpanStoreImpl runningSpanStore = new RunningSpanStoreImpl();
   private final StartEndHandler startEndHandler =
-      new StartEndHandlerImpl(sampledSpansServiceExporter, null, null, new SimpleEventQueue());
+      new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
   @Mock private Handler mockServiceHandler;
@@ -67,7 +68,8 @@ public class SpanExporterImplTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    sampledSpansServiceExporter.registerHandler("test.service", serviceHandler);
+
+    spanExporter.registerHandler("test.service", serviceHandler);
   }
 
   private final SpanImpl createSampledEndedSpan(String spanName) {
@@ -132,7 +134,7 @@ public class SpanExporterImplTest {
 
   @Test
   public void interruptWorkerThreadStops() throws InterruptedException {
-    Thread serviceExporterThread = sampledSpansServiceExporter.getServiceExporterThread();
+    Thread serviceExporterThread = spanExporter.getServiceExporterThread();
     serviceExporterThread.interrupt();
     // Test that the worker thread will stop.
     serviceExporterThread.join();
@@ -143,7 +145,7 @@ public class SpanExporterImplTest {
     doThrow(new IllegalArgumentException("No export for you."))
         .when(mockServiceHandler)
         .export(anyListOf(SpanData.class));
-    sampledSpansServiceExporter.registerHandler("mock.service", mockServiceHandler);
+    spanExporter.registerHandler("mock.service", mockServiceHandler);
     SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(1);
     assertThat(exported.size()).isEqualTo(1);
@@ -158,7 +160,7 @@ public class SpanExporterImplTest {
   @Test
   public void exportSpansToMultipleServices() {
     FakeServiceHandler serviceHandler2 = new FakeServiceHandler();
-    sampledSpansServiceExporter.registerHandler("test.service2", serviceHandler2);
+    spanExporter.registerHandler("test.service2", serviceHandler2);
     SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
     List<SpanData> exported1 = serviceHandler.waitForExport(2);
