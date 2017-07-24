@@ -56,11 +56,7 @@ public abstract class View {
    * Columns (a.k.a Tag Keys) to match with the associated {@link Measure}.
    *
    * <p>{@link Measure} will be recorded in a "greedy" way. That is, every view aggregates every
-   * measure. This is similar to doing a GROUPBY on view’s columns. If no columns are specified,
-   * then all stats will be recorded. Columns must be unique.
-   *
-   * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-   * UnsupportedOperationException.
+   * measure. This is similar to doing a GROUPBY on view’s columns. Columns must be unique.
    */
   public abstract List<TagKey> getColumns();
 
@@ -132,7 +128,7 @@ public abstract class View {
         Function<? super IntervalWindow, T> p1,
         Function<? super Window, T> defaultFunction);
 
-    /** Cumulative time {@code Window.} */
+    /** Cumulative (infinite interval) time {@code Window}. */
     @Immutable
     @AutoValue
     public abstract static class CumulativeWindow extends Window {
@@ -140,7 +136,8 @@ public abstract class View {
       CumulativeWindow() {}
 
       /**
-       * Constructs a cumulative {@code Window} that does not have a {@code Duration}.
+       * Constructs a cumulative {@code Window} that does not have an explicit {@code Duration}.
+       * Instead, cumulative {@code Window} always has an interval of infinite {@code Duration}.
        *
        * @return a cumulative {@code Window}.
        */
@@ -157,7 +154,7 @@ public abstract class View {
       }
     }
 
-    /** Interval time {@code Window.} */
+    /** Interval (finite interval) time {@code Window.} */
     @Immutable
     @AutoValue
     public abstract static class IntervalWindow extends Window {
@@ -173,7 +170,7 @@ public abstract class View {
 
 
       /**
-       * Constructs an interval {@code Window} that has one {@code Duration}.
+       * Constructs an interval {@code Window} that has a finite explicit {@code Duration}.
        *
        * @return an interval {@code Window}.
        */

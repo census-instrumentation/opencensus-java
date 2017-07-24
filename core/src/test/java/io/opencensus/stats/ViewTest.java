@@ -42,7 +42,7 @@ public final class ViewTest {
     assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
     assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
-    assertThat(view.getWindow()).isEqualTo(RpcViewConstants.CUMULATIVE);
+    assertThat(view.getWindow()).isEqualTo(CumulativeWindow.create());
   }
 
   @Test
@@ -57,7 +57,7 @@ public final class ViewTest {
     assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
     assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
-    assertThat(view.getWindow()).isEqualTo(RpcViewConstants.INTERVAL_MINUTE);
+    assertThat(view.getWindow()).isEqualTo(IntervalWindow.create(minute));
   }
 
   @Test
@@ -78,7 +78,7 @@ public final class ViewTest {
                 name, description, measure, aggregations, keys, IntervalWindow.create(minute)))
         .addEqualityGroup(
             View.create(
-                name, description + 2, measure, aggregations, keys, IntervalWindow.create(minute)))
+                name, description, measure, aggregations, keys, IntervalWindow.create(twoMinutes)))
         .testEquals();
   }
 
@@ -113,4 +113,5 @@ public final class ViewTest {
   private final List<TagKey> keys = Arrays.asList(TagKey.create("foo"), TagKey.create("bar"));
   private final List<Aggregation> aggregations = Arrays.asList(Sum.create(), Count.create());
   private final Duration minute = Duration.create(60, 0);
+  private final Duration twoMinutes = Duration.create(120, 0);
 }

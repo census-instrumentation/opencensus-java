@@ -13,11 +13,9 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -33,84 +31,63 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.View.Window;
 import io.opencensus.stats.View.Window.CumulativeWindow;
+import io.opencensus.stats.View.Window.IntervalWindow;
 import io.opencensus.stats.ViewData.WindowData;
 import io.opencensus.stats.ViewData.WindowData.CumulativeWindowData;
 import io.opencensus.stats.ViewData.WindowData.IntervalWindowData;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 /** Tests for class {@link ViewData}. */
 @RunWith(JUnit4.class)
 public final class ViewDataTest {
-  
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void testDistributionViewData() {
-    final View view =
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, CumulativeWindow.create());
-    final Timestamp start = Timestamp.fromMillis(1000);
-    final Timestamp end = Timestamp.fromMillis(2000);
-    final WindowData windowData = CumulativeWindowData.create(start, end);
-    final ViewData viewData = ViewData.create(view, ENTRIES, windowData);
+    View view =
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
+    Timestamp start = Timestamp.fromMillis(1000);
+    Timestamp end = Timestamp.fromMillis(2000);
+    WindowData windowData = CumulativeWindowData.create(start, end);
+    ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
-    viewData.getWindowData().match(
-        new Function<CumulativeWindowData, Void>() {
-          @Override
-          public Void apply(CumulativeWindowData windowData) {
-            assertThat(windowData.getStart()).isEqualTo(start);
-            assertThat(windowData.getEnd()).isEqualTo(end);
-            return null;
-          }
-        },
-        new Function<IntervalWindowData, Void>() {
-          @Override
-          public Void apply(IntervalWindowData windowData) {
-            fail("CumulativeWindowData expected.");
-            return null;
-          }
-        },
-        Functions.<Void>throwIllegalArgumentException());
+    assertThat(viewData.getWindowData()).isEqualTo(windowData);
   }
 
   @Test
   public void testIntervalViewData() {
-    final View view = View.create(
-        name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.INTERVAL_HOUR);
-    final Timestamp end = Timestamp.fromMillis(2000);
-    final WindowData windowData = IntervalWindowData.create(end);
-    final ViewData viewData = ViewData.create(view, ENTRIES, windowData);
+    View view = View.create(
+        name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
+    Timestamp end = Timestamp.fromMillis(2000);
+    WindowData windowData = IntervalWindowData.create(end);
+    ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
-    viewData.getWindowData().match(
-        new Function<CumulativeWindowData, Void>() {
-          @Override
-          public Void apply(CumulativeWindowData windowData) {
-            fail("IntervalWindowData expected.");
-            return null;
-          }
-        },
-        new Function<IntervalWindowData, Void>() {
-          @Override
-          public Void apply(IntervalWindowData windowData) {
-            assertThat(windowData.getEnd()).isEqualTo(end);
-            return null;
-          }
-        },
-        Functions.<Void>throwIllegalArgumentException());
+    assertThat(viewData.getWindowData()).isEqualTo(windowData);
   }
 
   @Test
   public void testViewDataEquals() {
     View dView = 
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.CUMULATIVE);
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
     View iView =
-        View.create(
-            name, description, measure, AGGREGATIONS, tagKeys, RpcViewConstants.INTERVAL_HOUR);
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
 
     new EqualsTester()
         .addEqualityGroup(
@@ -143,6 +120,72 @@ public final class ViewDataTest {
         .testEquals();
   }
 
+  @Test
+  public void testWindowDataMatch() {
+    final Timestamp start = Timestamp.fromMillis(1000);
+    final Timestamp end = Timestamp.fromMillis(2000);
+    final WindowData windowData1 = CumulativeWindowData.create(start, end);
+    final WindowData windowData2 = IntervalWindowData.create(end);
+    windowData1.match(
+        new Function<CumulativeWindowData, Void>() {
+          @Override
+          public Void apply(CumulativeWindowData windowData) {
+            assertThat(windowData.getStart()).isEqualTo(start);
+            assertThat(windowData.getEnd()).isEqualTo(end);
+            return null;
+          }
+        },
+        new Function<IntervalWindowData, Void>() {
+          @Override
+          public Void apply(IntervalWindowData windowData) {
+            fail("CumulativeWindowData expected.");
+            return null;
+          }
+        },
+        Functions.<Void>throwIllegalArgumentException());
+    windowData2.match(
+        new Function<CumulativeWindowData, Void>() {
+          @Override
+          public Void apply(CumulativeWindowData windowData) {
+            fail("IntervalWindowData expected.");
+            return null;
+          }
+        },
+        new Function<IntervalWindowData, Void>() {
+          @Override
+          public Void apply(IntervalWindowData windowData) {
+            assertThat(windowData.getEnd()).isEqualTo(end);
+            return null;
+          }
+        },
+        Functions.<Void>throwIllegalArgumentException());
+  }
+
+  @Test
+  public void preventWindowAndWindowDataMismatch() {
+    thrown.expect(IllegalArgumentException.class);
+    ViewData.create(
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR),
+        ENTRIES,
+        CumulativeWindowData.create(
+            Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
+  }
+
+  @Test
+  public void preventWindowAndWindowDataMismatch2() {
+    thrown.expect(IllegalArgumentException.class);
+    ViewData.create(
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE),
+        ENTRIES,
+        IntervalWindowData.create(Timestamp.fromMillis(1000)));
+  }
+
+  @Test
+  public void preventStartTimeLaterThanEndTime() {
+    thrown.expect(IllegalArgumentException.class);
+    CumulativeWindowData.create(Timestamp.fromMillis(3000), Timestamp.fromMillis(2000));
+  }
+
   // tag keys
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
@@ -154,11 +197,14 @@ public final class ViewDataTest {
   private static final TagValue V10 = TagValue.create("v10");
   private static final TagValue V20 = TagValue.create("v20");
 
+  private static final Window CUMULATIVE = CumulativeWindow.create();
+  private static final Window INTERVAL_HOUR = IntervalWindow.create(Duration.create(3600, 0));
+
   private static final BucketBoundaries BUCKET_BOUNDARIES = BucketBoundaries.create(
       Arrays.asList(10.0, 20.0, 30.0, 40.0));
   
   private static final List<Aggregation> AGGREGATIONS = Collections.unmodifiableList(Arrays.asList(
-      Sum.create(), Count.create(), Range.create(), Histogram.create(BUCKET_BOUNDARIES), 
+      Sum.create(), Count.create(), Range.create(), Histogram.create(BUCKET_BOUNDARIES),
       Mean.create(), StdDev.create()));
   
   private static final ImmutableMap<List<TagValue>, List<AggregationData>> ENTRIES = ImmutableMap.of(

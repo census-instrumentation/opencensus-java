@@ -15,35 +15,32 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * The aggregated data for a particular {@link View}.
- */
+
+/** The aggregated data for a particular {@link View}. */
 @Immutable
 @AutoValue
 public abstract class ViewData {
 
   // Prevents this class from being subclassed anywhere else.
-  ViewData() {
-  }
+  ViewData() {}
 
-  /**
-   * The {@link View} associated with this {@link ViewData}.
-   */
+  /** The {@link View} associated with this {@link ViewData}. */
   public abstract View getView();
 
   /**
-   * The {@link AggregationData}s grouped by {@link TagValue}s, associated with this
+   * The {@link AggregationData}s grouped by combination of {@link TagValue}s, associated with this
    * {@link ViewData}.
-   *
-   * <p>Note: The returned map is unmodifiable, attempts to update it will throw an
-   * UnsupportedOperationException.
    */
   public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
 
@@ -54,29 +51,59 @@ public abstract class ViewData {
    */
   public abstract WindowData getWindowData();
 
-  /**
-   * Constructs a new {@link ViewData}.
-   */
-  public static ViewData create(View view, Map<List<TagValue>, List<AggregationData>> map,
-      WindowData windowData) {
-    return new AutoValue_ViewData(
-        view,
-        Collections.unmodifiableMap(new HashMap<List<TagValue>, List<AggregationData>>(map)),
-        windowData);
+  /** Constructs a new {@link ViewData}. */
+  public static ViewData create(
+      View view, Map<List<TagValue>, List<AggregationData>> map, final WindowData windowData) {
+    view.getWindow()
+        .match(
+            new Function<View.Window.CumulativeWindow, Void>() {
+              @Override
+              public Void apply(View.Window.CumulativeWindow arg) {
+                if (!(windowData instanceof WindowData.CumulativeWindowData)) {
+                  throw new IllegalArgumentException(
+                      "Window and WindowData types mismatch. "
+                          + "Window: "
+                          + arg
+                          + " WindowData: "
+                          + windowData);
+                }
+                return null;
+              }
+            },
+            new Function<View.Window.IntervalWindow, Void>() {
+              @Override
+              public Void apply(View.Window.IntervalWindow arg) {
+                if (!(windowData instanceof WindowData.IntervalWindowData)) {
+                  throw new IllegalArgumentException(
+                      "Window and WindowData types mismatch. "
+                          + "Window: "
+                          + arg
+                          + " WindowData: "
+                          + windowData);
+                }
+                return null;
+              }
+            },
+            Functions.<Void>throwIllegalArgumentException());
+
+    Map<List<TagValue>, List<AggregationData>> deepCopy =
+        new HashMap<List<TagValue>, List<AggregationData>>();
+    for (Entry<List<TagValue>, List<AggregationData>> entry : map.entrySet()) {
+      deepCopy.put(
+          Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())),
+          Collections.unmodifiableList(new ArrayList<AggregationData>(entry.getValue())));
+    }
+
+    return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), windowData);
   }
 
-  /**
-   * The {@code Timestamp} window data for a {@link ViewData}.
-   */
+  /** The {@code WindowData} for a {@link ViewData}. */
   @Immutable
   public abstract static class WindowData {
 
-    private WindowData() {
-    }
+    private WindowData() {}
 
-    /**
-     * Applies the given match function to the underlying data type.
-     */
+    /** Applies the given match function to the underlying data type. */
     public abstract <T> T match(
         Function<? super CumulativeWindowData, T> p0,
         Function<? super IntervalWindowData, T> p1,
@@ -112,11 +139,13 @@ public abstract class ViewData {
       }
 
       /** Constructs a new {@link CumulativeWindowData}. */
-      static CumulativeWindowData create(Timestamp start, Timestamp end) {
+      public static CumulativeWindowData create(Timestamp start, Timestamp end) {
+        if (start.compareTo(end) > 0) {
+          throw new IllegalArgumentException("Start time is later than end time.");
+        }
         return new AutoValue_ViewData_WindowData_CumulativeWindowData(start, end);
       }
     }
-
 
     /** Interval {@code WindowData.} */
     @Immutable
@@ -141,7 +170,7 @@ public abstract class ViewData {
       }
 
       /** Constructs a new {@link IntervalWindowData}. */
-      static IntervalWindowData create(Timestamp end) {
+      public static IntervalWindowData create(Timestamp end) {
         return new AutoValue_ViewData_WindowData_IntervalWindowData(end);
       }
     }
