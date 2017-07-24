@@ -110,7 +110,9 @@ public final class StartEndHandlerImpl implements StartEndHandler {
 
     @Override
     public void process() {
-      spanExporter.addSpan(span);
+      if (span.getContext().getTraceOptions().isSampled()) {
+        spanExporter.addSpan(span);
+      }
       if (runningSpanStore != null) {
         runningSpanStore.onEnd(span);
       }
