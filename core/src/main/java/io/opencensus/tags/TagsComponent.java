@@ -14,7 +14,7 @@
 package io.opencensus.tags;
 
 /**
- * Class that holds the implementations for {@link TagContextFactory}.
+ * Class that holds the implementation for {@link TagContextFactory}.
  *
  * <p>All objects returned by methods on {@code TagsComponent} are cacheable.
  */
