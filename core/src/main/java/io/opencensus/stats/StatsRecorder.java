@@ -13,6 +13,7 @@
 
 package io.opencensus.stats;
 
+import com.google.common.base.Preconditions;
 import javax.annotation.concurrent.Immutable;
 
 /** Provides methods to record stats against tags. */
@@ -46,6 +47,9 @@ public abstract class StatsRecorder {
   private static final class NoopStatsRecorder extends StatsRecorder {
 
     @Override
-    void record(StatsContext tags, MeasureMap measurementValues) {}
+    void record(StatsContext tags, MeasureMap measurementValues) {
+      Preconditions.checkNotNull(tags);
+      Preconditions.checkNotNull(measurementValues);
+    }
   }
 }
