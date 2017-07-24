@@ -17,4 +17,5 @@ package io.opencensus.tags;
  * Factory for new {@link TagContext}s and {@code TagContext}s based on the current context.
  */
 public abstract class TagContextFactory {
+  // TODO(sebright): Add TagContext related methods to this class.
 }
