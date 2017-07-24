@@ -46,7 +46,6 @@ public final class Stats {
 
   // Any provider that may be used for StatsComponent can be added here.
   @VisibleForTesting
-  @Nullable
   static StatsComponent loadStatsComponent(ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
@@ -72,8 +71,7 @@ public final class Stats {
               + "default implementation for StatsComponent.",
           e);
     }
-    // TODO: Add a no-op implementation.
-    return null;
+    return StatsComponent.getNoopStatsComponent();
   }
 
   private Stats() {}

@@ -13,8 +13,12 @@
 
 package io.opencensus.stats;
 
+import javax.annotation.concurrent.Immutable;
+
 /** Provides methods to record stats against tags. */
 public abstract class StatsRecorder {
+  private static final StatsRecorder NOOP_STATS_RECORDER = new NoopStatsRecorder();
+
   //  // TODO(sebright): Add a "record" method for implicit propagation:
   //
   //  public void record(MeasurementMap measurementValues) {
@@ -28,4 +32,20 @@ public abstract class StatsRecorder {
    * @param measurementValues the measurements to record.
    */
   abstract void record(StatsContext tags, MeasureMap measurementValues);
+
+  /**
+   * Returns a {@code StatsRecorder} that does not record any data.
+   *
+   * @return a {@code StatsRecorder} that does not record any data.
+   */
+  static StatsRecorder getNoopStatsRecorder() {
+    return NOOP_STATS_RECORDER;
+  }
+
+  @Immutable
+  private static final class NoopStatsRecorder extends StatsRecorder {
+
+    @Override
+    void record(StatsContext tags, MeasureMap measurementValues) {}
+  }
 }
