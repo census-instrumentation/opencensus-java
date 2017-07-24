@@ -42,4 +42,12 @@ public class FunctionsTest {
     thrown.expect(IllegalArgumentException.class);
     f.apply("ignored");
   }
+
+  @Test
+  public void testThrowAssertionError() {
+    Function<Object, Void> f = Functions.throwAssertionError();
+    thrown.handleAssertionErrors();
+    thrown.expect(AssertionError.class);
+    f.apply("ignored");
+  }
 }
