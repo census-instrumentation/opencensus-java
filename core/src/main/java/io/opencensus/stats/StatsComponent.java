@@ -52,6 +52,7 @@ public abstract class StatsComponent {
     @Override
     @Nullable
     public ViewManager getViewManager() {
+      // TODO(sebright): Decide whether to also provide a no-op implementation for the ViewManager.
       return null;
     }
 
