@@ -13,11 +13,14 @@
 
 package io.opencensus.stats;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
@@ -78,6 +81,11 @@ public abstract class View {
       List<Aggregation> aggregations,
       List<TagKey> columns,
       Window window) {
+    checkArgument(new HashSet<Aggregation>(aggregations).size() == aggregations.size(),
+        "Aggregations have duplicate.");
+    checkArgument(new HashSet<TagKey>(columns).size() == columns.size(),
+        "Columns have duplicate.");
+
     return new AutoValue_View(
         name,
         description,

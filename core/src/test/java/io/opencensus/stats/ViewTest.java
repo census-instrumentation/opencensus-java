@@ -79,6 +79,18 @@ public final class ViewTest {
         .testEquals();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void preventDuplicateAggregations() {
+    View.create(name, description, measure,
+        Arrays.asList(Sum.create(), Sum.create(), Count.create()), keys, Cumulative.create());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void preventDuplicateColumns() {
+    View.create(name, description, measure, aggregations,
+        Arrays.asList(TagKey.create("duplicate"), TagKey.create("duplicate")), Cumulative.create());
+  }
+
   @Test(expected = NullPointerException.class)
   public void preventNullViewName() {
     View.create(null, description, measure, aggregations, keys, Interval.create(minute));
