@@ -75,7 +75,7 @@ public final class Functions {
    *     IllegalArgumentException}.
    */
   public static <T> Function<Object, T> throwIllegalArgumentException() {
-    // It is safe to cast a producer of Void to anything, because Void is always null.
+    // It is safe to cast this function to have any return type, since it never returns a result.
     @SuppressWarnings("unchecked")
     Function<Object, T> function = (Function<Object, T>) THROW_ILLEGAL_ARGUMENT_EXCEPTION;
     return function;
@@ -88,7 +88,7 @@ public final class Functions {
    *     AssertionError}.
    */
   public static <T> Function<Object, T> throwAssertionError() {
-    // It is safe to cast a producer of Void to anything, because Void is always null.
+    // It is safe to cast this function to have any return type, since it never returns a result.
     @SuppressWarnings("unchecked")
     Function<Object, T> function = (Function<Object, T>) THROW_ASSERTION_ERROR;
     return function;
