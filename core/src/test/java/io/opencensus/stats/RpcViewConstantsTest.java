@@ -17,8 +17,8 @@ import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
 import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.View.Window.CumulativeWindow;
-import io.opencensus.stats.View.Window.IntervalWindow;
+import io.opencensus.stats.View.Window.Cumulative;
+import io.opencensus.stats.View.Window.Interval;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -73,11 +73,11 @@ public final class RpcViewConstantsTest {
     // Test Duration and Window
     assertThat(RpcViewConstants.MINUTE).isEqualTo(Duration.create(60, 0));
     assertThat(RpcViewConstants.HOUR).isEqualTo(Duration.create(60 * 60, 0));
-    assertThat(RpcViewConstants.CUMULATIVE).isEqualTo(CumulativeWindow.create());
+    assertThat(RpcViewConstants.CUMULATIVE).isEqualTo(Cumulative.create());
     assertThat(RpcViewConstants.INTERVAL_MINUTE).isEqualTo(
-        IntervalWindow.create(RpcViewConstants.MINUTE));
+        Interval.create(RpcViewConstants.MINUTE));
     assertThat(RpcViewConstants.INTERVAL_HOUR).isEqualTo(
-        IntervalWindow.create(RpcViewConstants.HOUR));
+        Interval.create(RpcViewConstants.HOUR));
 
 
     // Test client distribution view descriptors.

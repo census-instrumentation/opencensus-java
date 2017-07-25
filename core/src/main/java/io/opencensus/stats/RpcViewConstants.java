@@ -44,8 +44,8 @@ import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.View.Window;
-import io.opencensus.stats.View.Window.CumulativeWindow;
-import io.opencensus.stats.View.Window.IntervalWindow;
+import io.opencensus.stats.View.Window.Cumulative;
+import io.opencensus.stats.View.Window.Interval;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -88,9 +88,9 @@ public final class RpcViewConstants {
 
   static final Duration MINUTE = Duration.create(60, 0);
   static final Duration HOUR = Duration.create(60 * 60, 0);
-  static final Window CUMULATIVE = CumulativeWindow.create();
-  static final Window INTERVAL_MINUTE = IntervalWindow.create(MINUTE);
-  static final Window INTERVAL_HOUR = IntervalWindow.create(HOUR);
+  static final Window CUMULATIVE = Cumulative.create();
+  static final Window INTERVAL_MINUTE = Interval.create(MINUTE);
+  static final Window INTERVAL_HOUR = Interval.create(HOUR);
 
   // Rpc client cumulative {@link View}s.
   public static final View RPC_CLIENT_ERROR_COUNT_VIEW =

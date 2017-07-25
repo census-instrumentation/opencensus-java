@@ -125,16 +125,16 @@ public abstract class View {
      * Applies the given match function to the underlying data type.
      */
     public abstract <T> T match(
-        Function<? super CumulativeWindow, T> p0,
-        Function<? super IntervalWindow, T> p1,
+        Function<? super Cumulative, T> p0,
+        Function<? super Interval, T> p1,
         Function<? super Window, T> defaultFunction);
 
     /** Cumulative (infinite interval) time {@code Window}. */
     @Immutable
     @AutoValue
-    public abstract static class CumulativeWindow extends Window {
+    public abstract static class Cumulative extends Window {
 
-      CumulativeWindow() {}
+      Cumulative() {}
 
       /**
        * Constructs a cumulative {@code Window} that does not have an explicit {@code Duration}.
@@ -142,14 +142,14 @@ public abstract class View {
        *
        * @return a cumulative {@code Window}.
        */
-      public static CumulativeWindow create() {
-        return new AutoValue_View_Window_CumulativeWindow();
+      public static Cumulative create() {
+        return new AutoValue_View_Window_Cumulative();
       }
 
       @Override
       public final <T> T match(
-          Function<? super CumulativeWindow, T> p0,
-          Function<? super IntervalWindow, T> p1,
+          Function<? super Cumulative, T> p0,
+          Function<? super Interval, T> p1,
           Function<? super Window, T> defaultFunction) {
         return  p0.apply(this);
       }
@@ -158,12 +158,12 @@ public abstract class View {
     /** Interval (finite interval) time {@code Window.} */
     @Immutable
     @AutoValue
-    public abstract static class IntervalWindow extends Window {
+    public abstract static class Interval extends Window {
 
-      IntervalWindow() {}
+      Interval() {}
 
       /**
-       * Returns the {@code Duration} associated with this {@code IntervalWindow}.
+       * Returns the {@code Duration} associated with this {@code Interval}.
        *
        * @return a {@code Duration}.
        */
@@ -175,14 +175,14 @@ public abstract class View {
        *
        * @return an interval {@code Window}.
        */
-      public static IntervalWindow create(Duration duration) {
-        return new AutoValue_View_Window_IntervalWindow(duration);
+      public static Interval create(Duration duration) {
+        return new AutoValue_View_Window_Interval(duration);
       }
 
       @Override
       public final <T> T match(
-          Function<? super CumulativeWindow, T> p0,
-          Function<? super IntervalWindow, T> p1,
+          Function<? super Cumulative, T> p0,
+          Function<? super Interval, T> p1,
           Function<? super Window, T> defaultFunction) {
         return  p1.apply(this);
       }

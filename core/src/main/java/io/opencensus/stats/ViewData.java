@@ -56,10 +56,10 @@ public abstract class ViewData {
       View view, Map<List<TagValue>, List<AggregationData>> map, final WindowData windowData) {
     view.getWindow()
         .match(
-            new Function<View.Window.CumulativeWindow, Void>() {
+            new Function<View.Window.Cumulative, Void>() {
               @Override
-              public Void apply(View.Window.CumulativeWindow arg) {
-                if (!(windowData instanceof WindowData.CumulativeWindowData)) {
+              public Void apply(View.Window.Cumulative arg) {
+                if (!(windowData instanceof WindowData.CumulativeData)) {
                   throw new IllegalArgumentException(
                       "Window and WindowData types mismatch. "
                           + "Window: "
@@ -70,10 +70,10 @@ public abstract class ViewData {
                 return null;
               }
             },
-            new Function<View.Window.IntervalWindow, Void>() {
+            new Function<View.Window.Interval, Void>() {
               @Override
-              public Void apply(View.Window.IntervalWindow arg) {
-                if (!(windowData instanceof WindowData.IntervalWindowData)) {
+              public Void apply(View.Window.Interval arg) {
+                if (!(windowData instanceof WindowData.IntervalData)) {
                   throw new IllegalArgumentException(
                       "Window and WindowData types mismatch. "
                           + "Window: "
@@ -105,26 +105,26 @@ public abstract class ViewData {
 
     /** Applies the given match function to the underlying data type. */
     public abstract <T> T match(
-        Function<? super CumulativeWindowData, T> p0,
-        Function<? super IntervalWindowData, T> p1,
+        Function<? super CumulativeData, T> p0,
+        Function<? super IntervalData, T> p1,
         Function<? super WindowData, T> defaultFunction);
 
     /** Cumulative {@code WindowData.} */
     @Immutable
     @AutoValue
-    public abstract static class CumulativeWindowData extends WindowData {
+    public abstract static class CumulativeData extends WindowData {
 
-      CumulativeWindowData() {}
+      CumulativeData() {}
 
       /**
-       * Returns the start {@code Timestamp} for a {@link CumulativeWindowData}.
+       * Returns the start {@code Timestamp} for a {@link CumulativeData}.
        *
        * @return the start {@code Timestamp}.
        */
       public abstract Timestamp getStart();
 
       /**
-       * Returns the end {@code Timestamp} for a {@link CumulativeWindowData}.
+       * Returns the end {@code Timestamp} for a {@link CumulativeData}.
        *
        * @return the end {@code Timestamp}.
        */
@@ -132,30 +132,30 @@ public abstract class ViewData {
 
       @Override
       public final <T> T match(
-          Function<? super CumulativeWindowData, T> p0,
-          Function<? super IntervalWindowData, T> p1,
+          Function<? super CumulativeData, T> p0,
+          Function<? super IntervalData, T> p1,
           Function<? super WindowData, T> defaultFunction) {
         return p0.apply(this);
       }
 
-      /** Constructs a new {@link CumulativeWindowData}. */
-      public static CumulativeWindowData create(Timestamp start, Timestamp end) {
+      /** Constructs a new {@link CumulativeData}. */
+      public static CumulativeData create(Timestamp start, Timestamp end) {
         if (start.compareTo(end) > 0) {
           throw new IllegalArgumentException("Start time is later than end time.");
         }
-        return new AutoValue_ViewData_WindowData_CumulativeWindowData(start, end);
+        return new AutoValue_ViewData_WindowData_CumulativeData(start, end);
       }
     }
 
     /** Interval {@code WindowData.} */
     @Immutable
     @AutoValue
-    public abstract static class IntervalWindowData extends WindowData {
+    public abstract static class IntervalData extends WindowData {
 
-      IntervalWindowData() {}
+      IntervalData() {}
 
       /**
-       * Returns the end {@code Timestamp} for an {@link IntervalWindowData}.
+       * Returns the end {@code Timestamp} for an {@link IntervalData}.
        *
        * @return the end {@code Timestamp}.
        */
@@ -163,15 +163,15 @@ public abstract class ViewData {
 
       @Override
       public final <T> T match(
-          Function<? super CumulativeWindowData, T> p0,
-          Function<? super IntervalWindowData, T> p1,
+          Function<? super CumulativeData, T> p0,
+          Function<? super IntervalData, T> p1,
           Function<? super WindowData, T> defaultFunction) {
         return p1.apply(this);
       }
 
-      /** Constructs a new {@link IntervalWindowData}. */
-      public static IntervalWindowData create(Timestamp end) {
-        return new AutoValue_ViewData_WindowData_IntervalWindowData(end);
+      /** Constructs a new {@link IntervalData}. */
+      public static IntervalData create(Timestamp end) {
+        return new AutoValue_ViewData_WindowData_IntervalData(end);
       }
     }
   }
