@@ -107,7 +107,9 @@ public final class ViewTest {
   private final String description = "test-view-name description";
   private final Measure measure = Measure.MeasureDouble.create(
       "measure", "measure description", "1");
-  private final List<TagKey> keys = Arrays.asList(TagKey.create("foo"), TagKey.create("bar"));
+  private static final TagKey FOO = TagKey.create("foo");
+  private static final TagKey BAR = TagKey.create("bar");
+  private final List<TagKey> keys = Arrays.asList(FOO, BAR);
   private final List<Aggregation> aggregations = Arrays.asList(Sum.create(), Count.create());
   private final Duration minute = Duration.create(60, 0);
   private final Duration twoMinutes = Duration.create(120, 0);

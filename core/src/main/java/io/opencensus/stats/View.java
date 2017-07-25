@@ -134,6 +134,8 @@ public abstract class View {
     @AutoValue
     public abstract static class Cumulative extends Window {
 
+      private static final Cumulative CUMULATIVE = new AutoValue_View_Window_Cumulative();
+
       Cumulative() {}
 
       /**
@@ -143,7 +145,7 @@ public abstract class View {
        * @return a cumulative {@code Window}.
        */
       public static Cumulative create() {
-        return new AutoValue_View_Window_Cumulative();
+        return CUMULATIVE;
       }
 
       @Override
