@@ -48,7 +48,8 @@ public abstract class View {
   public abstract Measure getMeasure();
 
   /**
-   * The {@link Aggregation}s associated with this {@link View}.
+   * The {@link Aggregation}s associated with this {@link View}. {@link Aggregation}s should be
+   * unique within one view.
    */
   public abstract List<Aggregation> getAggregations();
 
