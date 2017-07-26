@@ -14,9 +14,6 @@
 package io.opencensus.internal;
 
 import java.util.ServiceConfigurationError;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /**
  * Instrumentation specific service provider mechanism.
@@ -27,32 +24,6 @@ import javax.annotation.Nullable;
  * }</pre>
  */
 public final class Provider {
-  private static final Logger logger = Logger.getLogger(Provider.class.getName());
-
-  /**
-   * Returns a new instance of the class specified with {@code name} by invoking the empty-argument
-   * constructor via reflections. If the specified class is not found, the {@code defaultValue} is
-   * returned.
-   */
-  @SuppressWarnings("unchecked")
-  @Nullable
-  public static <T> T newInstance(String name, @Nullable T defaultValue) {
-    try {
-      Class<?> provider = Class.forName(name);
-      T result = (T) provider.getConstructor().newInstance();
-      logger.fine("Loaded: " + name);
-      return result;
-    } catch (ClassNotFoundException e) {
-      logger.log(Level.FINE, "Falling back to " + defaultValue, e);
-      return defaultValue;
-    } catch (Exception e) {
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException) e;
-      } else {
-        throw new RuntimeException(e);
-      }
-    }
-  }
 
   /**
    * Tries to create an instance of the given rawClass as a subclass of the given superclass.
