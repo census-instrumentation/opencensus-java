@@ -73,6 +73,16 @@ public abstract class View {
 
   /**
    * Constructs a new {@link View}.
+   *
+   * @param name the {@link Name} of view. Must be unique.
+   * @param description the description of view.
+   * @param measure the {@link Measure} to be aggregated by this view.
+   * @param aggregations basic {@link Aggregation}s that this view will support. The aggregation
+   *     list should not contain duplicates.
+   * @param columns the {@link TagKey}s that this view will aggregate on. Columns should not contain
+   *     duplicate.
+   * @param window the {@link Window} of view.
+   * @return a new {@link View}.
    */
   public static View create(
       Name name,
