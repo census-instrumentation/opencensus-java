@@ -80,7 +80,7 @@ public abstract class View {
    * @param aggregations basic {@link Aggregation}s that this view will support. The aggregation
    *     list should not contain duplicates.
    * @param columns the {@link TagKey}s that this view will aggregate on. Columns should not contain
-   *     duplicate.
+   *     duplicates.
    * @param window the {@link Window} of view.
    * @return a new {@link View}.
    */
