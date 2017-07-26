@@ -34,7 +34,7 @@ public final class Tags {
    * @return the default {@code TagContextFactory}.
    */
   public static TagContextFactory getTagContextFactory() {
-    return tagsComponent.getTagContextFactory();
+    return tagsComponent == null ? null : tagsComponent.getTagContextFactory();
   }
 
   // Any provider that may be used for TagsComponent can be added here.
