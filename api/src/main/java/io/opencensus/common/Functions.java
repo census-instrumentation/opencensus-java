@@ -33,6 +33,14 @@ public final class Functions {
         }
       };
 
+  private static final Function<Object, Void> THROW_ASSERTION_ERROR =
+      new Function<Object, Void>() {
+        @Override
+        public Void apply(Object ignored) {
+          throw new AssertionError();
+        }
+      };
+
   /**
    * A {@code Function} that always ignores its argument and returns {@code null}.
    *
@@ -67,9 +75,22 @@ public final class Functions {
    *     IllegalArgumentException}.
    */
   public static <T> Function<Object, T> throwIllegalArgumentException() {
-    // It is safe to cast a producer of Void to anything, because Void is always null.
+    // It is safe to cast this function to have any return type, since it never returns a result.
     @SuppressWarnings("unchecked")
     Function<Object, T> function = (Function<Object, T>) THROW_ILLEGAL_ARGUMENT_EXCEPTION;
+    return function;
+  }
+
+  /**
+   * A {@code Function} that always ignores its argument and throws an {@link AssertionError}.
+   *
+   * @return a {@code Function} that always ignores its argument and throws an {@code
+   *     AssertionError}.
+   */
+  public static <T> Function<Object, T> throwAssertionError() {
+    // It is safe to cast this function to have any return type, since it never returns a result.
+    @SuppressWarnings("unchecked")
+    Function<Object, T> function = (Function<Object, T>) THROW_ASSERTION_ERROR;
     return function;
   }
 }

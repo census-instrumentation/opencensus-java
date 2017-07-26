@@ -49,14 +49,16 @@ public final class StatsTest {
                       public Class<?> loadClass(String name) throws ClassNotFoundException {
                         throw new ClassNotFoundException();
                       }
-                    }))
-        .isNull();
+                    })
+                .getClass()
+                .getName())
+        .isEqualTo("io.opencensus.stats.StatsComponent$NoopStatsComponent");
   }
 
   @Test
   public void defaultValues() {
     assertThat(Stats.getStatsContextFactory()).isNull();
-    assertThat(Stats.getStatsRecorder()).isNull();
+    assertThat(Stats.getStatsRecorder()).isEqualTo(StatsRecorder.getNoopStatsRecorder());
     assertThat(Stats.getViewManager()).isNull();
   }
 }
