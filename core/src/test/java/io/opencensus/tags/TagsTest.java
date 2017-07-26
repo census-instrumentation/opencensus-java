@@ -49,11 +49,12 @@ public class TagsTest {
             throw new ClassNotFoundException();
           }
         };
-    assertThat(Tags.loadTagsComponent(classLoader)).isNull();
+    assertThat(Tags.loadTagsComponent(classLoader).getClass().getName())
+        .isEqualTo("io.opencensus.tags.TagsComponent$NoopTagsComponent");
   }
 
   @Test
   public void defaultTagContextFactory() {
-    assertThat(Tags.getTagContextFactory()).isNull();
+    assertThat(Tags.getTagContextFactory()).isEqualTo(TagContextFactory.getNoopTagContextFactory());
   }
 }

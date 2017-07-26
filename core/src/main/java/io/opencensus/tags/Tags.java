@@ -17,7 +17,6 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.internal.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** Class for accessing the default {@link TagsComponent}. */
 public final class Tags {
@@ -34,12 +33,11 @@ public final class Tags {
    * @return the default {@code TagContextFactory}.
    */
   public static TagContextFactory getTagContextFactory() {
-    return tagsComponent == null ? null : tagsComponent.getTagContextFactory();
+    return tagsComponent.getTagContextFactory();
   }
 
   // Any provider that may be used for TagsComponent can be added here.
   @VisibleForTesting
-  @Nullable
   static TagsComponent loadTagsComponent(ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
@@ -65,7 +63,6 @@ public final class Tags {
               + "default implementation for TagsComponent.",
           e);
     }
-    // TODO: Add a no-op implementation.
-    return null;
+    return TagsComponent.getNoopTagsComponent();
   }
 }
