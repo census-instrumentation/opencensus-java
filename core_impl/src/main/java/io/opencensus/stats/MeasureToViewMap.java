@@ -19,10 +19,6 @@ import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
-import io.opencensus.stats.MutableViewData.MutableDistributionViewData;
-import io.opencensus.stats.MutableViewData.MutableIntervalViewData;
-import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.View.IntervalView;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,12 +80,13 @@ final class MeasureToViewMap {
       }
     }
     registeredViews.put(view.getName(), view);
-    MutableViewData mutableViewData =
-        view.match(
-            new CreateMutableDistributionViewDataFunction(clock),
-            new CreateMutableIntervalViewDataFunction());
-    mutableMap.put(
-        view.getMeasure().getName(), mutableViewData);
+    // TODO(songya): update to use refactored implementation.
+    //    MutableViewData mutableViewData =
+    //        view.match(
+    //            new CreateMutableDistributionViewDataFunction(clock),
+    //            new CreateMutableIntervalViewDataFunction());
+    //    mutableMap.put(
+    //        view.getMeasure().getName(), mutableViewData);
   }
 
   // Records stats with a set of tags.
@@ -102,29 +99,6 @@ final class MeasureToViewMap {
         measurement.match(
             new RecordDoubleValueFunc(tags, view), new RecordLongValueFunc(tags, view));
       }
-    }
-  }
-
-  private static final class CreateMutableDistributionViewDataFunction
-      implements Function<DistributionView, MutableViewData> {
-    private final Clock clock;
-
-    CreateMutableDistributionViewDataFunction(Clock clock) {
-      this.clock = clock;
-    }
-
-    @Override
-    public MutableViewData apply(DistributionView view) {
-      return MutableDistributionViewData.create(view, clock.now());
-    }
-  }
-
-  private static final class CreateMutableIntervalViewDataFunction
-      implements Function<IntervalView, MutableViewData> {
-    @Override
-    public MutableViewData apply(IntervalView view) {
-      // TODO(songya): Create Interval Aggregations from internal Distributions.
-      return MutableIntervalViewData.create(view);
     }
   }
 

@@ -14,141 +14,175 @@
 package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.DistributionAggregate.Range;
-import io.opencensus.stats.IntervalAggregate.Interval;
-import io.opencensus.stats.ViewData.DistributionViewData;
-import io.opencensus.stats.ViewData.IntervalViewData;
-import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.View.IntervalView;
+import io.opencensus.stats.Aggregation.Count;
+import io.opencensus.stats.Aggregation.Histogram;
+import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.Aggregation.Range;
+import io.opencensus.stats.Aggregation.StdDev;
+import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.AggregationData.CountData;
+import io.opencensus.stats.AggregationData.HistogramData;
+import io.opencensus.stats.AggregationData.MeanData;
+import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.StdDevData;
+import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.View.Window;
+import io.opencensus.stats.View.Window.Cumulative;
+import io.opencensus.stats.View.Window.Interval;
+import io.opencensus.stats.ViewData.WindowData;
+import io.opencensus.stats.ViewData.WindowData.CumulativeData;
+import io.opencensus.stats.ViewData.WindowData.IntervalData;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Tests for class {@link ViewData}. */
 @RunWith(JUnit4.class)
 public final class ViewDataTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void testDistributionViewData() {
-    DistributionAggregation aggregation =
-        DistributionAggregation.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
-    final DistributionView view =
-        DistributionView.create(
-            name, description, measure, aggregation, tagKeys);
-    final List<DistributionAggregate> aggregations = Arrays.asList(
-        DistributionAggregate.create(5, 5.0, 15.0, Range.create(1.0, 5.0), tags1,
-            Arrays.asList(1L, 1L, 1L, 1L, 1L)),
-        DistributionAggregate.create(10, 5.0, 30.0, Range.create(1.0, 5.0), tags2,
-            Arrays.asList(2L, 2L, 2L, 2L, 2L)));
-    final Timestamp start = Timestamp.fromMillis(1000);
-    final Timestamp end = Timestamp.fromMillis(2000);
-    final ViewData viewData = DistributionViewData.create(view, aggregations, start, end);
-
+    View view =
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
+    Timestamp start = Timestamp.fromMillis(1000);
+    Timestamp end = Timestamp.fromMillis(2000);
+    WindowData windowData = CumulativeData.create(start, end);
+    ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
-    assertTrue(viewData.match(
-        new Function<DistributionViewData, Boolean> () {
-          @Override public Boolean apply(DistributionViewData dViewData) {
-            return dViewData == viewData
-                && dViewData.getView().equals(view)
-                && shallowListEquals(dViewData.getDistributionAggregates(), aggregations)
-                && dViewData.getStart().equals(start)
-                && dViewData.getEnd().equals(end);
-          }
-        },
-        new Function<IntervalViewData, Boolean> () {
-          @Override public Boolean apply(IntervalViewData iViewData) {
-            return false;
-          }
-        }));
+    assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
+    assertThat(viewData.getWindowData()).isEqualTo(windowData);
   }
 
   @Test
   public void testIntervalViewData() {
-    IntervalAggregation aggregation =
-        IntervalAggregation.create(Arrays.asList(Duration.fromMillis(111)));
-    final IntervalView view =
-        IntervalView.create(
-            name, description, measure, aggregation, tagKeys);
-    final List<IntervalAggregate> aggregations = Arrays.asList(
-        IntervalAggregate.create(tags1, Arrays.asList(
-            Interval.create(Duration.fromMillis(111), 10, 100))),
-        IntervalAggregate.create(tags2, Arrays.asList(
-            Interval.create(Duration.fromMillis(111), 10, 100))));
-
-    final ViewData viewData = IntervalViewData.create(view, aggregations);
+    View view = View.create(
+        name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
+    Timestamp end = Timestamp.fromMillis(2000);
+    WindowData windowData = IntervalData.create(end);
+    ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
-    assertTrue(viewData.match(
-        new Function<DistributionViewData, Boolean> () {
-          @Override public Boolean apply(DistributionViewData dViewData) {
-            return false;
-          }
-        },
-        new Function<IntervalViewData, Boolean> () {
-          @Override public Boolean apply(IntervalViewData iViewData) {
-            return iViewData == viewData
-                && iViewData.getView().equals(view)
-                && shallowListEquals(iViewData.getIntervalAggregates(), aggregations);
-          }
-        }));
+    assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
+    assertThat(viewData.getWindowData()).isEqualTo(windowData);
   }
 
   @Test
   public void testViewDataEquals() {
-    DistributionView dView =
-        DistributionView.create(
-            name,
-            description,
-            measure,
-            DistributionAggregation.create(Arrays.asList(10.0)),
-            tagKeys);
-    List<DistributionAggregate> dAggregates =
-        Arrays.asList(
-            DistributionAggregate.create(
-                5, 5.0, 15.0, Range.create(1.0, 5.0), tags1, Arrays.asList(1L)));
-    IntervalView iView =
-        IntervalView.create(
-            name,
-            description,
-            measure,
-            IntervalAggregation.create(Arrays.asList(Duration.fromMillis(111))),
-            tagKeys);
-    List<IntervalAggregate> iAggregates =
-        Arrays.asList(
-            IntervalAggregate.create(
-                tags1, Arrays.asList(Interval.create(Duration.fromMillis(111), 10, 100))));
+    View dView = 
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
+    View iView =
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
 
     new EqualsTester()
         .addEqualityGroup(
-            DistributionViewData.create(
+            ViewData.create(
+                dView, ENTRIES,
+                CumulativeData.create(
+                    Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))),
+            ViewData.create(
                 dView,
-                dAggregates,
-                Timestamp.fromMillis(1000),
-                Timestamp.fromMillis(2000)),
-            DistributionViewData.create(
+                ENTRIES,
+                CumulativeData.create(
+                    Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))))
+        .addEqualityGroup(
+            ViewData.create(
                 dView,
-                dAggregates,
-                Timestamp.fromMillis(1000),
-                Timestamp.fromMillis(2000)))
+                ENTRIES,
+                CumulativeData.create(
+                    Timestamp.fromMillis(1000), Timestamp.fromMillis(3000))))
         .addEqualityGroup(
-            DistributionViewData.create(
-                dView,
-                dAggregates,
-                Timestamp.fromMillis(1000),
-                Timestamp.fromMillis(3000)))
+            ViewData.create(
+                iView, ENTRIES,
+                IntervalData.create(Timestamp.fromMillis(2000))),
+            ViewData.create(
+                iView, ENTRIES,
+                IntervalData.create(Timestamp.fromMillis(2000))))
         .addEqualityGroup(
-            IntervalViewData.create(iView, iAggregates),
-            IntervalViewData.create(iView, iAggregates))
-        .addEqualityGroup(
-            IntervalViewData.create(iView, Collections.<IntervalAggregate>emptyList()))
+            ViewData.create(
+                iView, Collections.<List<TagValue>, List<AggregationData>>emptyMap(),
+                IntervalData.create(Timestamp.fromMillis(2000))))
         .testEquals();
+  }
+
+  @Test
+  public void testWindowDataMatch() {
+    final Timestamp start = Timestamp.fromMillis(1000);
+    final Timestamp end = Timestamp.fromMillis(2000);
+    final WindowData windowData1 = CumulativeData.create(start, end);
+    final WindowData windowData2 = IntervalData.create(end);
+    windowData1.match(
+        new Function<CumulativeData, Void>() {
+          @Override
+          public Void apply(CumulativeData windowData) {
+            assertThat(windowData.getStart()).isEqualTo(start);
+            assertThat(windowData.getEnd()).isEqualTo(end);
+            return null;
+          }
+        },
+        new Function<IntervalData, Void>() {
+          @Override
+          public Void apply(IntervalData windowData) {
+            fail("CumulativeData expected.");
+            return null;
+          }
+        },
+        Functions.<Void>throwIllegalArgumentException());
+    windowData2.match(
+        new Function<CumulativeData, Void>() {
+          @Override
+          public Void apply(CumulativeData windowData) {
+            fail("IntervalData expected.");
+            return null;
+          }
+        },
+        new Function<IntervalData, Void>() {
+          @Override
+          public Void apply(IntervalData windowData) {
+            assertThat(windowData.getEnd()).isEqualTo(end);
+            return null;
+          }
+        },
+        Functions.<Void>throwIllegalArgumentException());
+  }
+
+  @Test
+  public void preventWindowAndWindowDataMismatch() {
+    thrown.expect(IllegalArgumentException.class);
+    ViewData.create(
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR),
+        ENTRIES,
+        CumulativeData.create(
+            Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
+  }
+
+  @Test
+  public void preventWindowAndWindowDataMismatch2() {
+    thrown.expect(IllegalArgumentException.class);
+    ViewData.create(
+        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE),
+        ENTRIES,
+        IntervalData.create(Timestamp.fromMillis(1000)));
+  }
+
+  @Test
+  public void preventStartTimeLaterThanEndTime() {
+    thrown.expect(IllegalArgumentException.class);
+    CumulativeData.create(Timestamp.fromMillis(3000), Timestamp.fromMillis(2000));
   }
 
   // tag keys
@@ -162,9 +196,23 @@ public final class ViewDataTest {
   private static final TagValue V10 = TagValue.create("v10");
   private static final TagValue V20 = TagValue.create("v20");
 
-  // tags
-  List<Tag> tags1 = Arrays.asList(Tag.create(K1, V1), Tag.create(K2, V2));
-  List<Tag> tags2 = Arrays.asList(Tag.create(K1, V10), Tag.create(K2, V20));
+  private static final Window CUMULATIVE = Cumulative.create();
+  private static final Window INTERVAL_HOUR = Interval.create(Duration.create(3600, 0));
+
+  private static final BucketBoundaries BUCKET_BOUNDARIES = BucketBoundaries.create(
+      Arrays.asList(10.0, 20.0, 30.0, 40.0));
+  
+  private static final List<Aggregation> AGGREGATIONS = Collections.unmodifiableList(Arrays.asList(
+      Sum.create(), Count.create(), Range.create(), Histogram.create(BUCKET_BOUNDARIES),
+      Mean.create(), StdDev.create()));
+  
+  private static final ImmutableMap<List<TagValue>, List<AggregationData>> ENTRIES = ImmutableMap.of(
+      Arrays.asList(V1, V2),
+      Arrays.asList(SumData.create(0), CountData.create(1), HistogramData.create(1, 0, 0, 0, 0),
+          RangeData.create(0, 0), MeanData.create(0), StdDevData.create(0)),
+      Arrays.asList(V10, V20),
+      Arrays.asList(SumData.create(50), CountData.create(2), HistogramData.create(0, 0, 2, 0, 0),
+          RangeData.create(25, 25), MeanData.create(25), StdDevData.create(0)));
 
   // name
   private final View.Name name = View.Name.create("test-view");
@@ -175,16 +223,4 @@ public final class ViewDataTest {
       "measure",
       "measure description",
       "1");
-
-  private static final <T> boolean shallowListEquals(List<T> l1, List <T> l2) {
-    if (l1.size() != l2.size()) {
-      return false;
-    }
-    for (int i = 0; i < l1.size(); i++) {
-      if (l1.get(i) != l2.get(i)) {
-        return false;
-      }
-    }
-    return true;
-  }
 }

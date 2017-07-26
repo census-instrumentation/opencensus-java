@@ -14,13 +14,13 @@
 package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
-import io.opencensus.common.Function;
-import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.View.IntervalView;
+import io.opencensus.stats.Aggregation.Count;
+import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.View.Window.Cumulative;
+import io.opencensus.stats.View.Window.Interval;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -32,99 +32,68 @@ import org.junit.runners.JUnit4;
 public final class ViewTest {
   @Test
   public void testDistributionView() {
-    DistributionAggregation dAggr = DistributionAggregation.create();
-    final View view = DistributionView.create(
-        name, description, measure, dAggr, keys);
-
+    final View view = View.create(
+        name, description, measure, aggregations, keys, Cumulative.create());
     assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName()).isEqualTo(measure.getName());
+    assertThat(view.getAggregations()).isEqualTo(aggregations);
     assertThat(view.getColumns()).hasSize(2);
-    assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
-    assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
-    assertTrue(view.match(
-        new Function<DistributionView, Boolean> () {
-          @Override public Boolean apply(DistributionView dView) {
-            return dView == view;
-          }
-        },
-        new Function<IntervalView, Boolean> () {
-          @Override public Boolean apply(IntervalView iView) {
-            return false;
-          }
-        }));
+    assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
+    assertThat(view.getWindow()).isEqualTo(Cumulative.create());
   }
 
   @Test
   public void testIntervalView() {
-    IntervalAggregation iAggr = IntervalAggregation.create(
-        Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
-    final View view = IntervalView.create(
-        name, description, measure, iAggr, keys);
-
+    final View view = View.create(
+        name, description, measure, aggregations, keys, Interval.create(minute));
     assertThat(view.getName()).isEqualTo(name);
     assertThat(view.getDescription()).isEqualTo(description);
     assertThat(view.getMeasure().getName())
         .isEqualTo(measure.getName());
+    assertThat(view.getAggregations()).isEqualTo(aggregations);
     assertThat(view.getColumns()).hasSize(2);
-    assertThat(view.getColumns().get(0).toString()).isEqualTo("foo");
-    assertThat(view.getColumns().get(1).toString()).isEqualTo("bar");
-    assertTrue(view.match(
-        new Function<DistributionView, Boolean> () {
-          @Override public Boolean apply(DistributionView dView) {
-            return false;
-          }
-        },
-        new Function<IntervalView, Boolean> () {
-          @Override public Boolean apply(IntervalView iView) {
-            return iView == view;
-          }
-        }));
+    assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
+    assertThat(view.getWindow()).isEqualTo(Interval.create(minute));
   }
 
   @Test
   public void testViewEquals() {
-    DistributionAggregation dAggr = DistributionAggregation.create();
-    IntervalAggregation iAggr = IntervalAggregation.create(
-        Arrays.asList(Duration.fromMillis(1), Duration.fromMillis(22), Duration.fromMillis(333)));
     new EqualsTester()
         .addEqualityGroup(
-            DistributionView.create(
-                name, description, measure, dAggr, keys),
-            DistributionView.create(
-                name, description, measure, dAggr, keys))
+            View.create(
+                name, description, measure, aggregations, keys, Cumulative.create()),
+            View.create(
+                name, description, measure, aggregations, keys, Cumulative.create()))
         .addEqualityGroup(
-            DistributionView.create(
-                name, description + 2, measure, dAggr, keys))
+            View.create(
+                name, description + 2, measure, aggregations, keys, Cumulative.create()))
         .addEqualityGroup(
-            IntervalView.create(
-                name, description, measure, iAggr, keys),
-            IntervalView.create(
-                name, description, measure, iAggr, keys))
+            View.create(
+                name, description, measure, aggregations, keys, Interval.create(minute)),
+            View.create(
+                name, description, measure, aggregations, keys, Interval.create(minute)))
         .addEqualityGroup(
-            IntervalView.create(
-                name, description + 2, measure, iAggr, keys))
+            View.create(
+                name, description, measure, aggregations, keys, Interval.create(twoMinutes)))
         .testEquals();
   }
 
-  @Test(expected = NullPointerException.class)
-  public void preventNullDistributionViewName() {
-    DistributionView.create(
-        null,
-        description,
-        measure,
-        DistributionAggregation.create(),
-        keys);
+  @Test(expected = IllegalArgumentException.class)
+  public void preventDuplicateAggregations() {
+    View.create(name, description, measure,
+        Arrays.asList(Sum.create(), Sum.create(), Count.create()), keys, Cumulative.create());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void preventDuplicateColumns() {
+    View.create(name, description, measure, aggregations,
+        Arrays.asList(TagKey.create("duplicate"), TagKey.create("duplicate")), Cumulative.create());
   }
 
   @Test(expected = NullPointerException.class)
-  public void preventNullIntervalViewName() {
-    IntervalView.create(
-        null,
-        description,
-        measure,
-        IntervalAggregation.create(Arrays.asList(Duration.fromMillis(1))),
-        keys);
+  public void preventNullViewName() {
+    View.create(null, description, measure, aggregations, keys, Interval.create(minute));
   }
 
   @Test
@@ -150,5 +119,10 @@ public final class ViewTest {
   private final String description = "test-view-name description";
   private final Measure measure = Measure.MeasureDouble.create(
       "measure", "measure description", "1");
-  private final List<TagKey> keys = Arrays.asList(TagKey.create("foo"), TagKey.create("bar"));
+  private static final TagKey FOO = TagKey.create("foo");
+  private static final TagKey BAR = TagKey.create("bar");
+  private final List<TagKey> keys = Arrays.asList(FOO, BAR);
+  private final List<Aggregation> aggregations = Arrays.asList(Sum.create(), Count.create());
+  private final Duration minute = Duration.create(60, 0);
+  private final Duration twoMinutes = Duration.create(120, 0);
 }
