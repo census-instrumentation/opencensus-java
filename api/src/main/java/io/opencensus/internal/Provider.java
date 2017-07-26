@@ -16,11 +16,12 @@ package io.opencensus.internal;
 import java.util.ServiceConfigurationError;
 
 /**
- * Instrumentation specific service provider mechanism.
+ * OpenCensus service provider mechanism.
  *
  * <pre>{@code
- * // Initialize a static variable using reflection.
- * static final Foo foo = Provider.newInstance("Foo", new NoopFoo());
+ * // Initialize a variable using reflection.
+ * foo = Provider.createInstance(
+ *     Class.forName("FooImpl", true, classLoader), Foo.class);
  * }</pre>
  */
 public final class Provider {
