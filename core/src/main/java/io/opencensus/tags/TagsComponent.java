@@ -20,6 +20,6 @@ package io.opencensus.tags;
  */
 public abstract class TagsComponent {
 
-  /** Returns the default {@link TagContextFactory}. */
+  /** Returns the {@link TagContextFactory} for this implementation. */
   abstract TagContextFactory getTagContextFactory();
 }
