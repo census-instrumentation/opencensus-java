@@ -43,20 +43,6 @@ public class ProviderTest {
     public MyInterfaceImpl() {}
   }
 
-  @Test
-  public void testGoodClass() {
-    assertThat(
-            Provider.<GoodClass>newInstance("io.opencensus.internal.ProviderTest$GoodClass", null))
-        .isNotNull();
-  }
-
-  @Test
-  public void testBadClass() {
-    assertThat(
-            Provider.<GoodClass>newInstance("io.opencensus.internal.ProviderTest$BadClass", null))
-        .isNull();
-  }
-
   @Test(expected = ServiceConfigurationError.class)
   public void createInstance_ThrowsErrorWhenClassIsPrivate() throws ClassNotFoundException {
     Provider.createInstance(
