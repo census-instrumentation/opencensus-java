@@ -16,6 +16,7 @@ package io.opencensus.tags;
 import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.tags.unsafe.ContextUtils;
+import javax.annotation.Nullable;
 
 /**
  * Utility methods for accessing the {@link TagContext} contained in the {@link io.grpc.Context}.
@@ -29,6 +30,7 @@ final class CurrentTagContextUtils {
    *
    * @return the {@code TagContext} from the current context.
    */
+  @Nullable
   static TagContext getCurrentTagContext() {
     return ContextUtils.TAG_CONTEXT_KEY.get(Context.current());
   }
