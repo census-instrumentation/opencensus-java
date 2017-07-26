@@ -13,15 +13,20 @@
 
 package io.opencensus.stats;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Class that holds the implementations for {@link ViewManager}, {@link StatsRecorder}, and {@link
  * StatsContextFactory}.
  *
  * <p>All objects returned by methods on {@code StatsComponent} are cacheable.
  */
-// TODO(sebright): Add a no-op StatsComponent.
 public abstract class StatsComponent {
+  private static final StatsComponent NOOP_STATS_COMPONENT = new NoopStatsComponent();
+
   /** Returns the default {@link ViewManager}. */
+  @Nullable
   public abstract ViewManager getViewManager();
 
   /** Returns the default {@link StatsRecorder}. */
@@ -29,5 +34,37 @@ public abstract class StatsComponent {
 
   /** Returns the default {@link StatsContextFactory}. */
   // TODO(sebright): Remove this method once StatsContext is replaced by TagContext.
+  @Nullable
   abstract StatsContextFactory getStatsContextFactory();
+
+  /**
+   * Returns a {@code StatsComponent} that has a no-op implementation for the {@link StatsRecorder}.
+   *
+   * @return a {@code StatsComponent} that has a no-op implementation for the {@code StatsRecorder}.
+   */
+  static StatsComponent getNoopStatsComponent() {
+    return NOOP_STATS_COMPONENT;
+  }
+
+  @Immutable
+  private static final class NoopStatsComponent extends StatsComponent {
+
+    @Override
+    @Nullable
+    public ViewManager getViewManager() {
+      // TODO(sebright): Decide whether to also provide a no-op implementation for the ViewManager.
+      return null;
+    }
+
+    @Override
+    public StatsRecorder getStatsRecorder() {
+      return StatsRecorder.getNoopStatsRecorder();
+    }
+
+    @Override
+    @Nullable
+    StatsContextFactory getStatsContextFactory() {
+      return null;
+    }
+  }
 }
