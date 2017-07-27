@@ -14,4 +14,29 @@
 package io.opencensus.tags;
 
 final class TagContextFactoryImpl extends TagContextFactory {
+  TagContextFactoryImpl() {}
+
+  @Override
+  public TagContextImpl empty() {
+    return TagContextImpl.EMPTY;
+  }
+
+  @Override
+  public TagContextBuilder emptyBuilder() {
+    return new TagContextBuilderImpl();
+  }
+
+  @Override
+  public TagContextBuilder toBuilder(TagContext tags) {
+    // Copy the tags more efficiently in the expected case, when the TagContext is a TagContextImpl.
+    if (tags instanceof TagContextImpl) {
+      return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
+    } else {
+      TagContextBuilder builder = new TagContextBuilderImpl();
+      for (Tag tag : tags) {
+        TagContextUtils.addTagToBuilder(tag, builder);
+      }
+      return builder;
+    }
+  }
 }

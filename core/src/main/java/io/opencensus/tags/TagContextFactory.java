@@ -15,8 +15,51 @@ package io.opencensus.tags;
 
 /**
  * Factory for new {@link TagContext}s and {@code TagContext}s based on the current context.
+ *
+ * <p>This class returns {@link TagContextBuilder builders} that can be used to create the
+ * implementation-dependent {@link TagContext}s.
  */
 // TODO(sebright): Pick a more descriptive name for this class.
 public abstract class TagContextFactory {
-  // TODO(sebright): Add TagContext related methods to this class.
+
+  /**
+   * Returns an empty {@code TagContext}.
+   *
+   * @return an empty {@code TagContext}.
+   */
+  public abstract TagContext empty();
+
+  /**
+   * Returns the current {@code TagContext}.
+   *
+   * @return the current {@code TagContext}.
+   */
+  // TODO(sebright): Should we let the implementation override this method?
+  public final TagContext getCurrentTagContext() {
+    TagContext tags = CurrentTagContextUtils.getCurrentTagContext();
+    return tags == null ? empty() : tags;
+  }
+
+  /**
+   * Returns a new empty {@code Builder}.
+   *
+   * @return a new empty {@code Builder}.
+   */
+  public abstract TagContextBuilder emptyBuilder();
+
+  /**
+   * Returns a builder based on this {@code TagContext}.
+   *
+   * @return a builder based on this {@code TagContext}.
+   */
+  public abstract TagContextBuilder toBuilder(TagContext tags);
+
+  /**
+   * Returns a new builder created from the current {@code TagContext}.
+   *
+   * @return a new builder created from the current {@code TagContext}.
+   */
+  public final TagContextBuilder currentBuilder() {
+    return toBuilder(getCurrentTagContext());
+  }
 }
