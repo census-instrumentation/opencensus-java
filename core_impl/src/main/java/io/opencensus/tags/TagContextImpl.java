@@ -31,6 +31,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 final class TagContextImpl extends TagContext {
 
+  static final TagContextImpl EMPTY = new TagContextImpl(Collections.<TagKey, Object>emptyMap());
+
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey, Object> tags;
 

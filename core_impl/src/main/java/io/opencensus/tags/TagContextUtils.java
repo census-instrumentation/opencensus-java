@@ -22,7 +22,7 @@ import io.opencensus.tags.Tag.TagString;
 final class TagContextUtils {
   private TagContextUtils() {}
 
-  static void addTagToBuilder(Tag tag, TagContextFactory.Builder builder) {
+  static void addTagToBuilder(Tag tag, TagContextBuilder builder) {
     tag.match(
         new AddTagString(builder),
         new AddTagLong(builder),
@@ -31,9 +31,9 @@ final class TagContextUtils {
   }
 
   private static class AddTagString implements Function<TagString, Void> {
-    private final TagContextFactory.Builder builder;
+    private final TagContextBuilder builder;
 
-    AddTagString(TagContextFactory.Builder builder) {
+    AddTagString(TagContextBuilder builder) {
       this.builder = builder;
     }
 
@@ -45,9 +45,9 @@ final class TagContextUtils {
   }
 
   private static class AddTagLong implements Function<TagLong, Void> {
-    private final TagContextFactory.Builder builder;
+    private final TagContextBuilder builder;
 
-    AddTagLong(TagContextFactory.Builder builder) {
+    AddTagLong(TagContextBuilder builder) {
       this.builder = builder;
     }
 
@@ -59,9 +59,9 @@ final class TagContextUtils {
   }
 
   private static class AddTagBoolean implements Function<TagBoolean, Void> {
-    private final TagContextFactory.Builder builder;
+    private final TagContextBuilder builder;
 
-    AddTagBoolean(TagContextFactory.Builder builder) {
+    AddTagBoolean(TagContextBuilder builder) {
       this.builder = builder;
     }
 

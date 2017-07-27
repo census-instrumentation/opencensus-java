@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagContextImpl}. */
+/** Tests for {@link TagContextImpl} and {@link TagContextBuilderImpl}. */
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
-public class TagContextTest {
+public class TagContextImplTest {
   private final TagContextFactory factory = new TagContextFactoryImpl();
 
   private static final TagKeyString KS1 = TagKeyString.create("k1");
