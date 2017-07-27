@@ -11,14 +11,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.impl.tags;
 
-/** Base implementation of {@link TagsComponent}. */
-public abstract class TagsComponentImplBase extends TagsComponent {
-  private final TagContextFactory tagContextFactory = new TagContextFactoryImpl();
+import io.opencensus.tags.TagContextFactory;
 
-  @Override
-  public TagContextFactory getTagContextFactory() {
-    return tagContextFactory;
-  }
+final class TagContextFactoryImpl extends TagContextFactory {
 }

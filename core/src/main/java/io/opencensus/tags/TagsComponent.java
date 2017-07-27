@@ -24,7 +24,7 @@ public abstract class TagsComponent {
   private static final TagsComponent NOOP_TAGS_COMPONENT = new NoopTagsComponent();
 
   /** Returns the {@link TagContextFactory} for this implementation. */
-  abstract TagContextFactory getTagContextFactory();
+  public abstract TagContextFactory getTagContextFactory();
 
   /**
    * Returns a {@code TagsComponent} that has a no-op implementation for the {@link
@@ -41,7 +41,7 @@ public abstract class TagsComponent {
   private static final class NoopTagsComponent extends TagsComponent {
 
     @Override
-    TagContextFactory getTagContextFactory() {
+    public TagContextFactory getTagContextFactory() {
       return TagContextFactory.getNoopTagContextFactory();
     }
   }
