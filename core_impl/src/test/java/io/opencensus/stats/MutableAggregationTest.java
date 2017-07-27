@@ -16,7 +16,6 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.stats.MutableAggregation.MutableCount;
 import io.opencensus.stats.MutableAggregation.MutableHistogram;
 import io.opencensus.stats.MutableAggregation.MutableMean;
@@ -134,8 +133,7 @@ public class MutableAggregationTest {
               assertThat(arg.getStdDev()).isWithin(TOLERANCE).of(Math.sqrt(372 / 5.0));
               return null;
             }
-          },
-          Functions.<Void>throwIllegalArgumentException());
+          });
     }
   }
 
@@ -188,8 +186,7 @@ public class MutableAggregationTest {
             public String apply(MutableStdDev arg) {
               return "STDDEV";
             }
-          },
-          Functions.<String>throwIllegalArgumentException()));
+          }));
     }
 
     assertThat(actual)

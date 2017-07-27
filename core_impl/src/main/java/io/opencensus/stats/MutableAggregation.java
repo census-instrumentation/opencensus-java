@@ -17,6 +17,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Function;
 
+import java.util.Arrays;
+
 /** Mutable version of {@link Aggregation} that supports adding values. */
 abstract class MutableAggregation {
 
@@ -39,8 +41,7 @@ abstract class MutableAggregation {
       Function<? super MutableHistogram, T> p2,
       Function<? super MutableRange, T> p3,
       Function<? super MutableMean, T> p4,
-      Function<? super MutableStdDev, T> p5,
-      Function<? super MutableAggregation, T> defaultFunction);
+      Function<? super MutableStdDev, T> p5);
 
   /** Calculate sum on aggregated {@code MeasureValue}s. */
   static final class MutableSum extends MutableAggregation {
@@ -80,8 +81,7 @@ abstract class MutableAggregation {
         Function<? super MutableHistogram, T> p2,
         Function<? super MutableRange, T> p3,
         Function<? super MutableMean, T> p4,
-        Function<? super MutableStdDev, T> p5,
-        Function<? super MutableAggregation, T> defaultFunction) {
+        Function<? super MutableStdDev, T> p5) {
       return p0.apply(this);
     }
   }
@@ -124,8 +124,7 @@ abstract class MutableAggregation {
         Function<? super MutableHistogram, T> p2,
         Function<? super MutableRange, T> p3,
         Function<? super MutableMean, T> p4,
-        Function<? super MutableStdDev, T> p5,
-        Function<? super MutableAggregation, T> defaultFunction) {
+        Function<? super MutableStdDev, T> p5) {
       return p1.apply(this);
     }
   }
@@ -168,7 +167,7 @@ abstract class MutableAggregation {
      * @return the aggregated bucket count.
      */
     long[] getBucketCounts() {
-      return bucketCounts;
+      return Arrays.copyOf(bucketCounts, bucketCounts.length);
     }
 
     @Override
@@ -178,8 +177,7 @@ abstract class MutableAggregation {
         Function<? super MutableHistogram, T> p2,
         Function<? super MutableRange, T> p3,
         Function<? super MutableMean, T> p4,
-        Function<? super MutableStdDev, T> p5,
-        Function<? super MutableAggregation, T> defaultFunction) {
+        Function<? super MutableStdDev, T> p5) {
       return p2.apply(this);
     }
   }
@@ -243,8 +241,7 @@ abstract class MutableAggregation {
         Function<? super MutableHistogram, T> p2,
         Function<? super MutableRange, T> p3,
         Function<? super MutableMean, T> p4,
-        Function<? super MutableStdDev, T> p5,
-        Function<? super MutableAggregation, T> defaultFunction) {
+        Function<? super MutableStdDev, T> p5) {
       return p3.apply(this);
     }
   }
@@ -290,8 +287,7 @@ abstract class MutableAggregation {
         Function<? super MutableHistogram, T> p2,
         Function<? super MutableRange, T> p3,
         Function<? super MutableMean, T> p4,
-        Function<? super MutableStdDev, T> p5,
-        Function<? super MutableAggregation, T> defaultFunction) {
+        Function<? super MutableStdDev, T> p5) {
       return p4.apply(this);
     }
   }
@@ -315,6 +311,14 @@ abstract class MutableAggregation {
       return new MutableStdDev();
     }
 
+    /**
+     * Update the sum of squared deviations from the mean with the given value. For values
+     * x_i this is Sum[i=1..n]((x_i - mean)^2)
+     *
+     * <p>Computed using Welfords method (see
+     * https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance, or Knuth, "The Art of
+     * Computer Programming", Vol. 2, page 323, 3rd edition)
+     */
     @Override
     void add(double value) {
       count++;
@@ -326,6 +330,8 @@ abstract class MutableAggregation {
 
     /**
      * Returns the aggregated standard deviations.
+     *
+     * <p>If count is zero then this value will also be zero.
      *
      * @return the aggregated standard deviations.
      */
@@ -340,8 +346,7 @@ abstract class MutableAggregation {
         Function<? super MutableHistogram, T> p2,
         Function<? super MutableRange, T> p3,
         Function<? super MutableMean, T> p4,
-        Function<? super MutableStdDev, T> p5,
-        Function<? super MutableAggregation, T> defaultFunction) {
+        Function<? super MutableStdDev, T> p5) {
       return p5.apply(this);
     }
   }
