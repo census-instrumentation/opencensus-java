@@ -32,7 +32,6 @@ final class TagContextFactoryImpl extends TagContextFactory {
     if (tags instanceof TagContextImpl) {
       return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
     } else {
-      // TODO(sebright): Write a test for this.
       TagContextBuilder builder = new TagContextBuilderImpl();
       for (Tag tag : tags) {
         TagContextUtils.addTagToBuilder(tag, builder);

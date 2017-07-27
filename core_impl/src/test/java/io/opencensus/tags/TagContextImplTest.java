@@ -22,8 +22,11 @@ import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
+import java.util.Iterator;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -39,16 +42,7 @@ public class TagContextImplTest {
   private static final TagValueString V1 = TagValueString.create("v1");
   private static final TagValueString V2 = TagValueString.create("v2");
 
-  @Test
-  public void testEmpty() {
-    assertThat(asList(factory.empty())).isEmpty();
-  }
-
-  @Test
-  public void applyBuilderOperationsInOrder() {
-    assertThat(asList(factory.emptyBuilder().set(KS1, V1).set(KS1, V2).build()))
-        .containsExactly(TagString.create(KS1, V2));
-  }
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void allowMutlipleKeysWithSameNameButDifferentTypes() {
@@ -84,6 +78,15 @@ public class TagContextImplTest {
     assertThat(asList(factory.toBuilder(tags).clear(KS1).build())).isEmpty();
     assertThat(asList(factory.toBuilder(tags).clear(KS2).build()))
         .containsExactly(TagString.create(KS1, V1));
+  }
+
+  @Test
+  public void disallowCallingRemoveOnIterator() {
+    TagContext tags = factory.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
+    Iterator<Tag> i = tags.iterator();
+    i.next();
+    thrown.expect(UnsupportedOperationException.class);
+    i.remove();
   }
 
   private static List<Tag> asList(TagContext tags) {
