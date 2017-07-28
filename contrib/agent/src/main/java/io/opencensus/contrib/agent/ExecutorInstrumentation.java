@@ -15,6 +15,8 @@ package io.opencensus.contrib.agent;
 
 import static net.bytebuddy.matcher.ElementMatchers.isAbstract;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
+import static net.bytebuddy.matcher.ElementMatchers.nameEndsWith;
+import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
@@ -45,10 +47,17 @@ final class ExecutorInstrumentation {
   }
 
   static ElementMatcher.Junction<TypeDescription> createMatcher() {
-    // TODO(stschmidt): Exclude known call sites that already propagate the context, such as
-    // io.grpc.Context#currentContextExecutor.
-
-    return isSubTypeOf(Executor.class).and(not(isAbstract()));
+    // This matcher matches implementations of Executor, but excludes CurrentContextExecutor and
+    // FixedContextExecutor from io.grpc.Context, which already propagate the context.
+    // TODO(stschmidt): As the executor implementation itself (e.g. ThreadPoolExecutor) is
+    // instrumented by the agent for automatic context propagation, CurrentContextExecutor could be
+    // turned into a no-op to avoid another unneeded context propagation. Likewise, when using
+    // FixedContextExecutor, the automatic context propagation added by the agent is unneeded.
+    return isSubTypeOf(Executor.class)
+            .and(not(isAbstract()))
+            .and(not(nameStartsWith("io.grpc.Context$")
+                    .and(nameEndsWith("CurrentContextExecutor")
+                            .or(nameEndsWith("FixedContextExecutor")))));
   }
 
   static AgentBuilder.Transformer createTransformer() {
