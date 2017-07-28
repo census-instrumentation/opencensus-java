@@ -11,7 +11,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.impl.tags;
 
-final class TagContextFactoryImpl extends TagContextFactory {
-}
+import io.opencensus.tags.TagsComponent;
+
+/** Android-compatible implementation of {@link TagsComponent}. */
+public final class TagsComponentImplLite extends TagsComponentImplBase {}

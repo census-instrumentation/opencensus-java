@@ -11,7 +11,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.impl.tags;
 
-/** Android-compatible implementation of {@link TagsComponent}. */
-public final class TagsComponentImplLite extends TagsComponentImplBase {}
+import io.opencensus.tags.TagsComponent;
+
+/** Java 7 and 8 implementation of {@link TagsComponent}. */
+public final class TagsComponentImpl extends TagsComponentImplBase {}
