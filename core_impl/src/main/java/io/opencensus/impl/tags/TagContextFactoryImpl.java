@@ -33,6 +33,9 @@ final class TagContextFactoryImpl extends TagContextFactory {
 
   @Override
   public TagContextBuilder toBuilder(TagContext tags) {
+    // TODO(sebright): Consider treating an unknown TagContext as empty.  That would allow us to
+    // remove TagContext.iterator().
+
     // Copy the tags more efficiently in the expected case, when the TagContext is a TagContextImpl.
     if (tags instanceof TagContextImpl) {
       return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());

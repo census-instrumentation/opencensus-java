@@ -24,6 +24,8 @@ import javax.annotation.concurrent.Immutable;
  * <p>For example, {@code TagContext}s can be used to label stats, log messages, or debugging
  * information.
  */
+// TODO(sebright): Consider removing TagContext.iterator() so that we don't need to support fast
+// access to tags.
 @Immutable
 public abstract class TagContext implements Iterable<Tag> {
   private static final TagContext NOOP_TAG_CONTEXT = new NoopTagContext();
