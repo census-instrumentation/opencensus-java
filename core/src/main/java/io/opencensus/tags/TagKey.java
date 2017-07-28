@@ -20,10 +20,19 @@ import io.opencensus.common.Function;
 import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
-/** A key to a value stored in a {@link TagContext}. */
+/**
+ * A key to a value stored in a {@link TagContext}.
+ *
+ * <p>There is one {@code TagKey} subclass corresponding to each tag value type, so that each key
+ * can only be paired with a single type of value. For example, {@link TagKeyString} can only be
+ * used to set {@link TagValueString} values in a {@code TagContext}.
+ *
+ * <p>Each {@code TagKey} has a {@code String} name. Names have a maximum length of {@link
+ * #MAX_LENGTH} and contain only printable ASCII characters.
+ */
 @Immutable
 public abstract class TagKey {
-  /** The maximum length for a tag key name. */
+  /** The maximum length for a tag key name. The value is {@value #MAX_LENGTH}. */
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
   TagKey() {}

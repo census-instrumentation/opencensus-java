@@ -19,11 +19,16 @@ import io.opencensus.internal.StringUtil;
 import io.opencensus.tags.TagKey.TagKeyString;
 import javax.annotation.concurrent.Immutable;
 
-/** A validated tag value associated with a {@link TagKeyString}. */
+/**
+ * A validated tag value associated with a {@link TagKeyString}.
+ *
+ * <p>Validation ensures that the {@code String} has a maximum length of {@link #MAX_LENGTH} and
+ * contains only printable ASCII characters.
+ */
 @Immutable
 @AutoValue
 public abstract class TagValueString {
-  /** The maximum length for a {@code String} tag value. */
+  /** The maximum length for a {@code String} tag value. The value is {@value #MAX_LENGTH}. */
   public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
 
   TagValueString() {}
