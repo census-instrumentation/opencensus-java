@@ -47,8 +47,12 @@ final class ExecutorInstrumentation {
   }
 
   static ElementMatcher.Junction<TypeDescription> createMatcher() {
-    // Matches implementations of Executor, but excludes CurrentContextExecutor and
+    // This matcher matches implementations of Executor, but excludes CurrentContextExecutor and
     // FixedContextExecutor from io.grpc.Context, which already propagate the context.
+    // TODO(stschmidt): As the executor implementation itself (e.g. ThreadPoolExecutor) is
+    // instrumented by the agent for automatic context propagation, CurrentContextExecutor could be
+    // turned into a no-op to avoid another unneeded context propagation. Likewise, when using
+    // FixedContextExecutor, the automatic context propagation added by the agent is unneeded.
     return isSubTypeOf(Executor.class)
             .and(not(isAbstract()))
             .and(not(nameStartsWith("io.grpc.Context$")

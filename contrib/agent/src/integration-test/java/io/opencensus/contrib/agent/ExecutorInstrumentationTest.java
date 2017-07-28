@@ -148,4 +148,46 @@ public class ExecutorInstrumentationTest {
     assertThat(future.get()).isSameAs(result);
     assertThat(tested.get()).isTrue();
   }
+
+  @Test(timeout = 5000)
+  public void currentContextExecutor() throws Exception {
+    final Thread callerThread = Thread.currentThread();
+    final Context context = Context.current().withValue(KEY, "myvalue");
+    previousContext = context.attach();
+
+    final AtomicBoolean tested = new AtomicBoolean(false);
+
+    Context.currentContextExecutor(executor).execute(new Runnable() {
+      @Override
+      public void run() {
+        StackTraceElement[] ste = new Exception().fillInStackTrace().getStackTrace();
+        assertThat(ste[0].getClassName()).doesNotContain("Context");
+        assertThat(ste[1].getClassName()).startsWith("io.grpc.Context$");
+        // NB: Actually, we want the Runnable to be wrapped only once, but currently it is still
+        // wrapped twice. The two places where the Runnable is wrapped are: (1) the executor
+        // implementation itself, e.g. ThreadPoolExecutor, to which the Agent added automatic
+        // context propagation, (2) CurrentContextExecutor.
+        // ExecutorInstrumentation already avoids adding the automatic context propagation to
+        // CurrentContextExecutor, but does not make it a no-op yet. Also see
+        // ExecutorInstrumentation#createMatcher.
+        assertThat(ste[2].getClassName()).startsWith("io.grpc.Context$");
+        assertThat(ste[3].getClassName()).doesNotContain("Context");
+
+        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
+        assertThat(Context.current()).isSameAs(context);
+        assertThat(KEY.get()).isEqualTo("myvalue");
+        tested.set(true);
+
+        synchronized (tested) {
+          tested.notify();
+        }
+      }
+    });
+
+    synchronized (tested) {
+      tested.wait();
+    }
+
+    assertThat(tested.get()).isTrue();
+  }
 }
