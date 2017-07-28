@@ -13,7 +13,6 @@
 
 package io.opencensus.tags;
 
-import io.opencensus.common.Scope;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -69,18 +68,6 @@ public abstract class TagContextBuilder {
    * @return a {@code TagContext} with the same tags as this builder.
    */
   public abstract TagContext build();
-
-  /**
-   * Enters the scope of code where the {@link TagContextBuilder} created from this builder is in
-   * the current context and returns an object that represents that scope. The scope is exited when
-   * the returned object is closed.
-   *
-   * @return an object that defines a scope where the {@code TagContext} created from this builder
-   *     is set to the current context.
-   */
-  public final Scope buildScoped() {
-    return CurrentTagContextUtils.withTagContext(build());
-  }
 
   /**
    * Returns a {@code TagContextBuilder} that ignores all calls to {@link #set}.
