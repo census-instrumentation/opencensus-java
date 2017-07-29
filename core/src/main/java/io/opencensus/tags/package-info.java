@@ -16,7 +16,7 @@
  *
  * <p>This package manages a set of tags in the {@code io.grpc.Context}. The tags can be used to
  * label anything that is associated with a specific operation. For example, the {@code
- * io.opencensus.stats} package labels all measurements with the current tags.
+ * io.opencensus.stats} package labels all stats with the current tags.
  *
  * <p>{@link io.opencensus.tags.Tag Tags} are key-value pairs. The {@link io.opencensus.tags.TagKey
  * keys} are wrapped {@code String}s, but the values can have multiple types, such as {@code
