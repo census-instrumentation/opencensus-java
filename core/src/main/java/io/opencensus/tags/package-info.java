@@ -22,6 +22,9 @@
  * keys} are wrapped {@code String}s, but the values can have multiple types, such as {@code
  * String}, {@code long}, and {@code boolean}. They are stored as a map in a {@link
  * io.opencensus.tags.TagContext}.
+ *
+ * <p>Note that tags are independent of the tracing data that is propagated in the {@code
+ * io.grpc.Context}, such as trace ID.
  */
 // TODO(sebright): Add code examples after the API is updated to use a TagContext factory.
 package io.opencensus.tags;
