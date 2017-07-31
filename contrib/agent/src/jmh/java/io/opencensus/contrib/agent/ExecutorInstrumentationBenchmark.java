@@ -46,7 +46,7 @@ public class ExecutorInstrumentationBenchmark {
    * @param blackhole a {@link Blackhole} object supplied by JMH
    */
   @Benchmark
-  @BenchmarkMode({Mode.AverageTime, Mode.SampleTime})
+  @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork
   public void none(final Blackhole blackhole) {
@@ -59,7 +59,7 @@ public class ExecutorInstrumentationBenchmark {
    * @param blackhole a {@link Blackhole} object supplied by JMH
    */
   @Benchmark
-  @BenchmarkMode({Mode.AverageTime, Mode.SampleTime})
+  @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork
   public void manual(final Blackhole blackhole) {
@@ -72,7 +72,7 @@ public class ExecutorInstrumentationBenchmark {
    * @param blackhole a {@link Blackhole} object supplied by JMH
    */
   @Benchmark
-  @BenchmarkMode({Mode.AverageTime, Mode.SampleTime})
+  @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   @Fork(jvmArgsAppend = "-javaagent:contrib/agent/build/libs/agent.jar")
   public void automatic(final Blackhole blackhole) {
