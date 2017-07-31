@@ -43,7 +43,7 @@ public class ExecutorInstrumentationBenchmark {
   /**
    * This benchmark attempts to measure the performance without any context propagation.
    *
-   * @param blackhole a {@Blackhole} object supplied by JMH
+   * @param blackhole a {@link Blackhole} object supplied by JMH
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
@@ -56,7 +56,7 @@ public class ExecutorInstrumentationBenchmark {
   /**
    * This benchmark attempts to measure the performance with manual context propagation.
    *
-   * @param blackhole a {@Blackhole} object supplied by JMH
+   * @param blackhole a {@link Blackhole} object supplied by JMH
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
@@ -69,7 +69,7 @@ public class ExecutorInstrumentationBenchmark {
   /**
    * This benchmark attempts to measure the performance with automatic context propagation.
    *
-   * @param blackhole a {@Blackhole} object supplied by JMH
+   * @param blackhole a {@link Blackhole} object supplied by JMH
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
