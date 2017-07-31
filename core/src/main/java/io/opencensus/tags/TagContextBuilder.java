@@ -28,7 +28,6 @@ public abstract class TagContextBuilder {
    * @param key the {@code TagKey} which will be set.
    * @param value the value to set for the given key.
    * @return this
-   * @throws IllegalArgumentException if either argument is null.
    */
   public abstract TagContextBuilder set(TagKeyString key, TagValueString value);
 
@@ -38,7 +37,6 @@ public abstract class TagContextBuilder {
    * @param key the {@code TagKey} which will be set.
    * @param value the value to set for the given key.
    * @return this
-   * @throws IllegalArgumentException if the key is null.
    */
   // TODO(sebright): Make this public once we support types other than String.
   protected abstract TagContextBuilder set(TagKeyLong key, long value);
@@ -49,7 +47,6 @@ public abstract class TagContextBuilder {
    * @param key the {@code TagKey} which will be set.
    * @param value the value to set for the given key.
    * @return this
-   * @throws IllegalArgumentException if the key is null.
    */
   // TODO(sebright): Make this public once we support types other than String.
   protected abstract TagContextBuilder set(TagKeyBoolean key, boolean value);
