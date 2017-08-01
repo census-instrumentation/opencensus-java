@@ -29,6 +29,10 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Each {@code TagKey} has a {@code String} name. Names have a maximum length of {@link
  * #MAX_LENGTH} and contain only printable ASCII characters.
+ *
+ * <p>{@code TagKey}s are designed to be used as constants. Declaring each key as a constant ensures
+ * that the keys have consistent value types and prevents key names from being validated multiple
+ * times.
  */
 @Immutable
 public abstract class TagKey {
