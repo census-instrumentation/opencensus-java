@@ -30,14 +30,4 @@ public final class UnreleasedApiAccessor {
   public static TagKeyBoolean createTagKeyBoolean(String name) {
     return TagKeyBoolean.create(name);
   }
-
-  public static TagContextBuilder addLongToBuilder(
-      TagContextBuilder builder, TagKeyLong key, long value) {
-    return builder.set(key, value);
-  }
-
-  public static TagContextBuilder addBooleanToBuilder(
-      TagContextBuilder builder, TagKeyBoolean key, boolean value) {
-    return builder.set(key, value);
-  }
 }

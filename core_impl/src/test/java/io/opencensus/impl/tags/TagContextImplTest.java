@@ -21,7 +21,6 @@ import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
@@ -55,11 +54,13 @@ public class TagContextImplTest {
     TagKeyString stringKey = TagKeyString.create("key");
     TagKeyLong longKey = UnreleasedApiAccessor.createTagKeyLong("key");
     TagKeyBoolean boolKey = UnreleasedApiAccessor.createTagKeyBoolean("key");
-    TagContextBuilder builder = tagContexts.emptyBuilder();
-    builder.set(stringKey, TagValueString.create("value"));
-    UnreleasedApiAccessor.addLongToBuilder(builder, longKey, 123);
-    UnreleasedApiAccessor.addBooleanToBuilder(builder, boolKey, true);
-    assertThat(asList(builder.build()))
+    assertThat(
+            tagContexts
+                .emptyBuilder()
+                .set(stringKey, TagValueString.create("value"))
+                .set(longKey, 123)
+                .set(boolKey, true)
+                .build())
         .containsExactly(
             TagString.create(stringKey, TagValueString.create("value")),
             TagLong.create(longKey, 123L),

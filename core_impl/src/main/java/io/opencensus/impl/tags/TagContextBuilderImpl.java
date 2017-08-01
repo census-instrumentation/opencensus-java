@@ -41,12 +41,12 @@ final class TagContextBuilderImpl extends TagContextBuilder {
   }
 
   @Override
-  protected TagContextBuilderImpl set(TagKeyLong key, long value) {
+  public TagContextBuilderImpl set(TagKeyLong key, long value) {
     return setInternal(key, value);
   }
 
   @Override
-  protected TagContextBuilderImpl set(TagKeyBoolean key, boolean value) {
+  public TagContextBuilderImpl set(TagKeyBoolean key, boolean value) {
     return setInternal(key, value);
   }
 

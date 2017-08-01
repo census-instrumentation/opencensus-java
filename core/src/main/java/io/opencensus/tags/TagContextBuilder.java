@@ -38,8 +38,7 @@ public abstract class TagContextBuilder {
    * @param value the value to set for the given key.
    * @return this
    */
-  // TODO(sebright): Make this public once we support types other than String.
-  protected abstract TagContextBuilder set(TagKeyLong key, long value);
+  public abstract TagContextBuilder set(TagKeyLong key, long value);
 
   /**
    * Adds the key/value pair regardless of whether the key is present.
@@ -48,8 +47,7 @@ public abstract class TagContextBuilder {
    * @param value the value to set for the given key.
    * @return this
    */
-  // TODO(sebright): Make this public once we support types other than String.
-  protected abstract TagContextBuilder set(TagKeyBoolean key, boolean value);
+  public abstract TagContextBuilder set(TagKeyBoolean key, boolean value);
 
   /**
    * Removes the key if it exists.
@@ -84,12 +82,12 @@ public abstract class TagContextBuilder {
     }
 
     @Override
-    protected TagContextBuilder set(TagKeyLong key, long value) {
+    public TagContextBuilder set(TagKeyLong key, long value) {
       return this;
     }
 
     @Override
-    protected TagContextBuilder set(TagKeyBoolean key, boolean value) {
+    public TagContextBuilder set(TagKeyBoolean key, boolean value) {
       return this;
     }
 
