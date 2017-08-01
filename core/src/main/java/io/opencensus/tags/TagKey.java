@@ -143,7 +143,12 @@ public abstract class TagKey {
     }
   }
 
-  /** A {@code TagKey} for values of type {@code long}. */
+  /**
+   * A {@code TagKey} for values of type {@code long}.
+   *
+   * <p>Note that {@link TagKeyLong} isn't supported by the implementation yet, so the factory
+   * method isn't exposed.
+   */
   @Immutable
   @AutoValue
   public abstract static class TagKeyLong extends TagKey {
@@ -178,7 +183,12 @@ public abstract class TagKey {
     }
   }
 
-  /** A {@code TagKey} for values of type {@code boolean}. */
+  /**
+   * A {@code TagKey} for values of type {@code boolean}.
+   *
+   * <p>Note that {@link TagKeyBoolean} isn't supported by the implementation yet, so the factory
+   * method isn't exposed.
+   */
   @Immutable
   @AutoValue
   public abstract static class TagKeyBoolean extends TagKey {

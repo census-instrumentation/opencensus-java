@@ -23,6 +23,9 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>For example, {@code TagContext}s can be used to label stats, log messages, or debugging
  * information.
+ *
+ * <p>Keys have type {@link TagKey}. Values have type {@link TagValueString}, though the library
+ * will support more types in the future, including {@code long} and {@code boolean}.
  */
 // TODO(sebright): Consider removing TagContext.iterator() so that we don't need to support fast
 // access to tags.
