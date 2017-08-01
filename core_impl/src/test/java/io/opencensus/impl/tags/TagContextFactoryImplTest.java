@@ -21,7 +21,7 @@ import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextFactory;
+import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -36,10 +36,10 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagContextFactoryImpl}. */
+/** Tests for {@link TagContextsImpl}. */
 @RunWith(JUnit4.class)
 public class TagContextFactoryImplTest {
-  private final TagContextFactory factory = new TagContextFactoryImpl();
+  private final TagContexts tagContexts = new TagContextsImpl();
 
   private static final TagKeyString KS = TagKeyString.create("ks");
   private static final TagKeyLong KL = UnreleasedApiAccessor.createTagKeyLong("kl");
@@ -52,12 +52,12 @@ public class TagContextFactoryImplTest {
 
   @Test
   public void empty() {
-    assertThat(asList(factory.empty())).isEmpty();
+    assertThat(asList(tagContexts.empty())).isEmpty();
   }
 
   @Test
   public void emptyBuilder() {
-    assertThat(asList(factory.emptyBuilder().build())).isEmpty();
+    assertThat(asList(tagContexts.emptyBuilder().build())).isEmpty();
   }
 
   @Test
@@ -66,7 +66,7 @@ public class TagContextFactoryImplTest {
     Tag tag2 = TagLong.create(KL, 10L);
     Tag tag3 = TagBoolean.create(KB, false);
     TagContext unknownTagContext = new SimpleTagContext(tag1, tag2, tag3);
-    TagContext newTagContext = factory.toBuilder(unknownTagContext).build();
+    TagContext newTagContext = tagContexts.toBuilder(unknownTagContext).build();
     assertThat(asList(newTagContext)).containsExactly(tag1, tag2, tag3);
     assertThat(newTagContext).isInstanceOf(TagContextImpl.class);
   }
@@ -76,7 +76,7 @@ public class TagContextFactoryImplTest {
     Tag tag1 = TagString.create(KS, V1);
     Tag tag2 = TagString.create(KS, V2);
     TagContext unknownTagContext = new SimpleTagContext(tag1, tag2);
-    TagContext newTagContext = factory.toBuilder(unknownTagContext).build();
+    TagContext newTagContext = tagContexts.toBuilder(unknownTagContext).build();
     assertThat(asList(newTagContext)).containsExactly(tag2);
   }
 
@@ -85,7 +85,7 @@ public class TagContextFactoryImplTest {
     TagContext unknownTagContext =
         new SimpleTagContext(TagString.create(KS, V2), null, TagLong.create(KL, 5L));
     thrown.expect(NullPointerException.class);
-    factory.toBuilder(unknownTagContext).build();
+    tagContexts.toBuilder(unknownTagContext).build();
   }
 
   private static List<Tag> asList(TagContext tags) {

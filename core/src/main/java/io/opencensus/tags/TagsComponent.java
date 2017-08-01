@@ -16,22 +16,20 @@ package io.opencensus.tags;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Class that holds the implementation for {@link TagContextFactory}.
+ * Class that holds the implementation for {@link TagContexts}.
  *
  * <p>All objects returned by methods on {@code TagsComponent} are cacheable.
  */
 public abstract class TagsComponent {
   private static final TagsComponent NOOP_TAGS_COMPONENT = new NoopTagsComponent();
 
-  /** Returns the {@link TagContextFactory} for this implementation. */
-  public abstract TagContextFactory getTagContextFactory();
+  /** Returns the {@link TagContexts} for this implementation. */
+  public abstract TagContexts getTagContexts();
 
   /**
-   * Returns a {@code TagsComponent} that has a no-op implementation for the {@link
-   * TagContextFactory}.
+   * Returns a {@code TagsComponent} that has a no-op implementation for the {@link TagContexts}.
    *
-   * @return a {@code TagsComponent} that has a no-op implementation for the {@code
-   *     TagContextFactory}.
+   * @return a {@code TagsComponent} that has a no-op implementation for the {@code TagContexts}.
    */
   static TagsComponent getNoopTagsComponent() {
     return NOOP_TAGS_COMPONENT;
@@ -41,8 +39,8 @@ public abstract class TagsComponent {
   private static final class NoopTagsComponent extends TagsComponent {
 
     @Override
-    public TagContextFactory getTagContextFactory() {
-      return TagContextFactory.getNoopTagContextFactory();
+    public TagContexts getTagContexts() {
+      return TagContexts.getNoopTagContexts();
     }
   }
 }

@@ -16,10 +16,10 @@ package io.opencensus.impl.tags;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagContextFactory;
+import io.opencensus.tags.TagContexts;
 
-final class TagContextFactoryImpl extends TagContextFactory {
-  TagContextFactoryImpl() {}
+final class TagContextsImpl extends TagContexts {
+  TagContextsImpl() {}
 
   @Override
   public TagContextImpl empty() {

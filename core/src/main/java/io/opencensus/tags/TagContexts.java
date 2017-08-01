@@ -16,14 +16,13 @@ package io.opencensus.tags;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Factory for new {@link TagContext}s.
+ * Object for creating new {@link TagContext}s.
  *
  * <p>This class returns {@link TagContextBuilder builders} that can be used to create the
  * implementation-dependent {@link TagContext}s.
  */
-// TODO(sebright): Pick a more descriptive name for this class.
-public abstract class TagContextFactory {
-  private static final TagContextFactory NOOP_TAG_CONTEXT_FACTORY = new NoopTagContextFactory();
+public abstract class TagContexts {
+  private static final TagContexts NOOP_TAG_CONTEXTS = new NoopTagContexts();
 
   /**
    * Returns an empty {@code TagContext}.
@@ -47,16 +46,16 @@ public abstract class TagContextFactory {
   public abstract TagContextBuilder toBuilder(TagContext tags);
 
   /**
-   * Returns a {@code TagContextFactory} that only produces {@link TagContext}s with no tags.
+   * Returns a {@code TagContexts} that only produces {@link TagContext}s with no tags.
    *
-   * @return a {@code TagContextFactory} that only produces {@code TagContext}s with no tags.
+   * @return a {@code TagContexts} that only produces {@code TagContext}s with no tags.
    */
-  static TagContextFactory getNoopTagContextFactory() {
-    return NOOP_TAG_CONTEXT_FACTORY;
+  static TagContexts getNoopTagContexts() {
+    return NOOP_TAG_CONTEXTS;
   }
 
   @Immutable
-  private static final class NoopTagContextFactory extends TagContextFactory {
+  private static final class NoopTagContexts extends TagContexts {
 
     @Override
     public TagContext empty() {

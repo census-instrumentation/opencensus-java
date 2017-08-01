@@ -22,7 +22,7 @@ import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagContextFactory;
+import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -40,7 +40,7 @@ import org.junit.runners.JUnit4;
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
 public class TagContextImplTest {
-  private final TagContextFactory factory = new TagContextFactoryImpl();
+  private final TagContexts tagContexts = new TagContextsImpl();
 
   private static final TagKeyString KS1 = TagKeyString.create("k1");
   private static final TagKeyString KS2 = TagKeyString.create("k2");
@@ -55,7 +55,7 @@ public class TagContextImplTest {
     TagKeyString stringKey = TagKeyString.create("key");
     TagKeyLong longKey = UnreleasedApiAccessor.createTagKeyLong("key");
     TagKeyBoolean boolKey = UnreleasedApiAccessor.createTagKeyBoolean("key");
-    TagContextBuilder builder = factory.emptyBuilder();
+    TagContextBuilder builder = tagContexts.emptyBuilder();
     builder.set(stringKey, TagValueString.create("value"));
     UnreleasedApiAccessor.addLongToBuilder(builder, longKey, 123);
     UnreleasedApiAccessor.addBooleanToBuilder(builder, boolKey, true);
@@ -68,24 +68,24 @@ public class TagContextImplTest {
 
   @Test
   public void testSet() {
-    TagContext tags = factory.emptyBuilder().set(KS1, V1).build();
-    assertThat(asList(factory.toBuilder(tags).set(KS1, V2).build()))
+    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).build();
+    assertThat(asList(tagContexts.toBuilder(tags).set(KS1, V2).build()))
         .containsExactly(TagString.create(KS1, V2));
-    assertThat(asList(factory.toBuilder(tags).set(KS2, V2).build()))
+    assertThat(asList(tagContexts.toBuilder(tags).set(KS2, V2).build()))
         .containsExactly(TagString.create(KS1, V1), TagString.create(KS2, V2));
   }
 
   @Test
   public void testClear() {
-    TagContext tags = factory.emptyBuilder().set(KS1, V1).build();
-    assertThat(asList(factory.toBuilder(tags).clear(KS1).build())).isEmpty();
-    assertThat(asList(factory.toBuilder(tags).clear(KS2).build()))
+    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).build();
+    assertThat(asList(tagContexts.toBuilder(tags).clear(KS1).build())).isEmpty();
+    assertThat(asList(tagContexts.toBuilder(tags).clear(KS2).build()))
         .containsExactly(TagString.create(KS1, V1));
   }
 
   @Test
   public void disallowCallingRemoveOnIterator() {
-    TagContext tags = factory.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
+    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
     Iterator<Tag> i = tags.iterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);
