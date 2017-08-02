@@ -26,6 +26,7 @@ import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** Stats test utilities. */
 final class StatsTestUtil {
@@ -77,6 +78,93 @@ final class StatsTestUtil {
       aggregationDataList.add(MutableViewData.createAggregationData(mAggregation));
     }
     return aggregationDataList;
+  }
+
+  /**
+   * Compare the actual and expected AggregationMap within the given tolerance.
+   *
+   * @param expected the expected map.
+   * @param actual the actual mapping from {@code List<TagValue>} to
+   *     {@code List<AggregationData>}.
+   * @param tolerance the tolerance used for {@code double} comparison.
+   * @throws AssertionError if the AggregationMap does not contain exactly the keys and values.
+   */
+  static void assertAggregationMapEquals(
+      Map<List<TagValue>, List<AggregationData>> actual,
+      Map<List<TagValue>, List<AggregationData>> expected,
+      double tolerance) {
+    assertThat(actual.keySet()).containsExactlyElementsIn(expected.keySet());
+    for (List<TagValue> tagValues : actual.keySet()) {
+      assertAggregationDataListEquals(expected.get(tagValues), actual.get(tagValues), tolerance);
+    }
+  }
+
+  /**
+   * Compare the expected and actual list of {@code AggregationData} within the given tolerance.
+   *
+   * @param expectedValue the expected list of {@code AggregationData}.
+   * @param actualValue the actual list of {@code AggregationData}.
+   * @param tolerance the tolerance used for {@code double} comparison.
+   * @throws AssertionError if the AggregationMap does not contain exactly the keys and values.
+   */
+  static void assertAggregationDataListEquals(
+      List<AggregationData> expectedValue, List<AggregationData> actualValue,
+      final double tolerance) {
+    assertThat(expectedValue.size()).isEqualTo(actualValue.size());
+    for (int i = 0; i < expectedValue.size(); i++) {
+      AggregationData actual = actualValue.get(i);
+      final AggregationData expected = expectedValue.get(i);
+      actual.match(
+          new Function<SumData, Void>() {
+            @Override
+            public Void apply(SumData arg) {
+              assertAggregationDataEquals(
+                  expected, arg.getSum(), null, null, null, null, null, null, tolerance);
+              return null;
+            }
+          },
+          new Function<CountData, Void>() {
+            @Override
+            public Void apply(CountData arg) {
+              assertAggregationDataEquals(
+                  expected, null, arg.getCount(), null, null, null, null, null, tolerance);
+              return null;
+            }
+          },
+          new Function<HistogramData, Void>() {
+            @Override
+            public Void apply(HistogramData arg) {
+              assertAggregationDataEquals(
+                  expected, null, null, arg.getBucketCounts(), null, null, null, null, tolerance);
+              return null;
+            }
+          },
+          new Function<RangeData, Void>() {
+            @Override
+            public Void apply(RangeData arg) {
+              assertAggregationDataEquals(
+                  expected, null, null, null, arg.getMin(), arg.getMax(), null, null, tolerance);
+              return null;
+            }
+          },
+          new Function<MeanData, Void>() {
+            @Override
+            public Void apply(MeanData arg) {
+              assertAggregationDataEquals(
+                  expected, null, null, null, null, null, arg.getMean(), null, tolerance);
+              return null;
+            }
+          },
+          new Function<StdDevData, Void>() {
+            @Override
+            public Void apply(StdDevData arg) {
+              assertAggregationDataEquals(
+                  expected, null, null, null, null, null, null, arg.getStdDev(), tolerance);
+              return null;
+            }
+          },
+          Functions.<Void>throwIllegalArgumentException());
+    }
   }
 
   /**

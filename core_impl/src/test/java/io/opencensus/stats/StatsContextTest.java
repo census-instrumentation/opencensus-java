@@ -139,12 +139,13 @@ public class StatsContextTest {
         afterViewData.getAggregationMap().entrySet()) {
       assertThat(entry.getKey()).containsExactly(TagValue.create("myMethod"));
       assertThat(entry.getValue()).hasSize(3);
-      // TODO(songya): update this using assertAggregationDataListEquals()
-      for (AggregationData aggregate : entry.getValue()) {
-        StatsTestUtil.assertAggregationDataEquals(aggregate, 5.1, 1L,
-            StatsTestUtil.removeTrailingZeros(0, 0, 0, 0, 0, 0, 1), null, null, null, null,
-            TOLERANCE);
-      }
+      StatsTestUtil.assertAggregationDataListEquals(
+          Arrays.asList(
+              AggregationData.SumData.create(5.1),
+              AggregationData.CountData.create(1),
+              AggregationData.HistogramData.create(0, 0, 0, 0, 0, 0, 1)),
+          entry.getValue(),
+          TOLERANCE);
     }
   }
 

@@ -16,6 +16,7 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.stats.StatsTestUtil.createContext;
 
+import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.SimpleEventQueue;
@@ -28,6 +29,7 @@ import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
+import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,6 +69,8 @@ public class ViewManagerImplTest {
   private static final String VIEW_DESCRIPTION = "view description";
 
   private static final Cumulative CUMULATIVE = Cumulative.create();
+
+  private static final double EPSILON = 1e-7;
   
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(
@@ -183,11 +187,14 @@ public class ViewManagerImplTest {
     clock.setTime(Timestamp.create(3, 4));
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertThat(viewData.getView()).isEqualTo(view);
-    StatsTestUtil.assertWindowDataEquals(
-        viewData.getWindowData(), Timestamp.create(1, 2), Timestamp.create(3, 4));
-    assertThat(viewData.getAggregationMap()).hasSize(1);
-    assertThat(viewData.getAggregationMap()).containsExactly(
-        Arrays.asList(VALUE), StatsTestUtil.createAggregationData(AGGREGATIONS, values));
+    assertThat(viewData.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(1, 2), Timestamp.create(3, 4)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, values)),
+        EPSILON);
   }
 
   @Test
@@ -204,12 +211,14 @@ public class ViewManagerImplTest {
     statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 0.1).build());
     clock.setTime(Timestamp.create(11, 0));
     ViewData viewData1 = viewManager.getView(VIEW_NAME);
-    StatsTestUtil.assertWindowDataEquals(
-        viewData1.getWindowData(), Timestamp.create(10, 0), Timestamp.create(11, 0));
-    assertThat(viewData1.getAggregationMap()).hasSize(1);
-    assertThat(viewData1.getAggregationMap()).containsExactly(
-        Arrays.asList(VALUE),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 0.1));
+    assertThat(viewData1.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(10, 0), Timestamp.create(11, 0)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData1.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 0.1)),
+        EPSILON);
 
     statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 0.2).build());
     clock.setTime(Timestamp.create(12, 0));
@@ -217,12 +226,14 @@ public class ViewManagerImplTest {
 
     // The second view should have the same start time as the first view, and it should include both
     // recorded values:
-    StatsTestUtil.assertWindowDataEquals(
-        viewData2.getWindowData(), Timestamp.create(10, 0), Timestamp.create(12, 0));
-    assertThat(viewData2.getAggregationMap()).hasSize(1);
-    assertThat(viewData2.getAggregationMap()).containsExactly(
-        Arrays.asList(TagValue.create("VALUE")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 0.1, 0.2));
+    assertThat(viewData2.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(10, 0), Timestamp.create(12, 0)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData2.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 0.1, 0.2)),
+        EPSILON);
   }
 
   @Test
@@ -243,12 +254,14 @@ public class ViewManagerImplTest {
         createContext(factory, KEY, VALUE_2),
         MeasureMap.builder().set(MEASURE, 50.0).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
-    assertThat(viewData.getAggregationMap()).hasSize(2);
-    assertThat(viewData.getAggregationMap()).containsExactly(
-        Arrays.asList(TagValue.create("VALUE")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 10.0),
-        Arrays.asList(TagValue.create("VALUE_2")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 30.0, 50.0));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 10.0),
+            Arrays.asList(VALUE_2),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 30.0, 50.0)),
+        EPSILON);
   }
 
   // This test checks that StatsRecorder.record(...) does not throw an exception when no views are
@@ -272,13 +285,15 @@ public class ViewManagerImplTest {
     statsRecorder.record(factory.getDefault(),
         MeasureMap.builder().set(MEASURE, 10.0).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
-    assertThat(viewData.getAggregationMap()).hasSize(1);
-    assertThat(viewData.getAggregationMap()).containsExactly(
-        // Tag is missing for associated measureValues, should use default tag value
-        // "unknown/not set".
-        Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-        // Should record stats with default tag value: "KEY" : "unknown/not set".
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 10.0));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            // Tag is missing for associated measureValues, should use default tag value
+            // "unknown/not set".
+            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
+            // Should record stats with default tag value: "KEY" : "unknown/not set".
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 10.0)),
+        EPSILON);
   }
 
   @Test
@@ -312,13 +327,15 @@ public class ViewManagerImplTest {
         createContext(factory, TagKey.create("another wrong key"), VALUE),
         MeasureMap.builder().set(MEASURE, 50.0).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
-    assertThat(viewData.getAggregationMap()).hasSize(1);
-    assertThat(viewData.getAggregationMap()).containsExactly(
-        // Won't record the unregistered tag key, for missing registered keys will use default
-        // tag value : "unknown/not set".
-        Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-        // Should record stats with default tag value: "KEY" : "unknown/not set".
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 10.0, 50.0));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            // Won't record the unregistered tag key, for missing registered keys will use default
+            // tag value : "unknown/not set".
+            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
+            // Should record stats with default tag value: "KEY" : "unknown/not set".
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 10.0, 50.0)),
+        EPSILON);
   }
 
   @Test
@@ -344,14 +361,16 @@ public class ViewManagerImplTest {
         createContext(factory, key1, TagValue.create("v1"), key2, TagValue.create("v10")),
         MeasureMap.builder().set(MEASURE, 4.4).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
-    assertThat(viewData.getAggregationMap()).hasSize(3);
-    assertThat(viewData.getAggregationMap()).containsExactly(
-        Arrays.asList(TagValue.create("v1"), TagValue.create("v10")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 1.1, 4.4),
-        Arrays.asList(TagValue.create("v1"), TagValue.create("v20")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 2.2),
-        Arrays.asList(TagValue.create("v2"), TagValue.create("v10")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 3.3));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(TagValue.create("v1"), TagValue.create("v10")),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 1.1, 4.4),
+            Arrays.asList(TagValue.create("v1"), TagValue.create("v20")),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 2.2),
+            Arrays.asList(TagValue.create("v2"), TagValue.create("v10")),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 3.3)),
+        EPSILON);
   }
 
   @Test
@@ -379,15 +398,22 @@ public class ViewManagerImplTest {
     ViewData viewData1 = viewManager.getView(VIEW_NAME);
     clock.setTime(Timestamp.create(4, 4));
     ViewData viewData2 = viewManager.getView(VIEW_NAME_2);
-    StatsTestUtil.assertWindowDataEquals(
-        viewData1.getWindowData(), Timestamp.create(1, 1), Timestamp.create(3, 3));
-    assertThat(viewData1.getAggregationMap()).containsExactly(
-        Arrays.asList(TagValue.create("VALUE")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 5.0));
-    StatsTestUtil.assertWindowDataEquals(
-        viewData2.getWindowData(), Timestamp.create(2, 2), Timestamp.create(4, 4));
-    assertThat(viewData2.getAggregationMap()).containsExactly(
-        Arrays.asList(TagValue.create("VALUE")), StatsTestUtil.createAggregationData(AGGREGATIONS, 5.0));
+    assertThat(viewData1.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(1, 1), Timestamp.create(3, 3)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData1.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 5.0)),
+        EPSILON);
+    assertThat(viewData2.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(2, 2), Timestamp.create(4, 4)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData2.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 5.0)),
+        EPSILON);
   }
 
   @Test
@@ -413,15 +439,21 @@ public class ViewManagerImplTest {
     ViewData viewData1 = viewManager.getView(VIEW_NAME);
     clock.setTime(Timestamp.create(4, 0));
     ViewData viewData2 = viewManager.getView(VIEW_NAME_2);
-    StatsTestUtil.assertWindowDataEquals(
-        viewData1.getWindowData(), Timestamp.create(1, 0), Timestamp.create(3, 0));
-    assertThat(viewData1.getAggregationMap()).containsExactly(
-        Arrays.asList(TagValue.create("VALUE")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 1.1));
-    StatsTestUtil.assertWindowDataEquals(
-        viewData2.getWindowData(), Timestamp.create(2, 0), Timestamp.create(4, 0));
-    assertThat(viewData2.getAggregationMap()).containsExactly(
-        Arrays.asList(TagValue.create("VALUE")),
-        StatsTestUtil.createAggregationData(AGGREGATIONS, 2.2));
+    assertThat(viewData1.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData1.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 1.1)),
+        EPSILON);
+    assertThat(viewData2.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(2, 0), Timestamp.create(4, 0)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData2.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS, 2.2)),
+        EPSILON);
   }
 }
