@@ -38,6 +38,7 @@ import io.opencensus.stats.MutableAggregation.MutableMean;
 import io.opencensus.stats.MutableAggregation.MutableRange;
 import io.opencensus.stats.MutableAggregation.MutableStdDev;
 import io.opencensus.stats.MutableAggregation.MutableSum;
+import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import java.util.ArrayList;
@@ -67,13 +68,27 @@ final class MutableViewData {
 
   /**
    * Constructs a new {@link MutableViewData}.
+   *
+   * @param view the {@code View} linked with this {@code MutableViewData}.
+   * @param start the start {@code Timestamp}. Not needed for {@code Interval} based {@code View}s.
+   * @return a {@code MutableViewData}.
    */
-  static MutableViewData create(View view, Timestamp start) {
-    if (view.getWindow() instanceof Interval) {
-      // TODO(songya): support IntervalView.
-      throw new UnsupportedOperationException("Interval views not supported yet.");
-    }
-    return new MutableViewData(view, start);
+  static MutableViewData create(final View view, @Nullable final Timestamp start) {
+    return view.getWindow().match(
+        new Function<Cumulative, MutableViewData>() {
+          @Override
+          public MutableViewData apply(Cumulative arg) {
+            return new MutableViewData(view, start);
+          }
+        },
+        new Function<Interval, MutableViewData>() {
+          @Override
+          public MutableViewData apply(Interval arg) {
+            // TODO(songya): support IntervalView.
+            throw new UnsupportedOperationException("Interval views not supported yet.");
+          }
+        },
+        Functions.<MutableViewData>throwIllegalArgumentException());
   }
 
   /**
@@ -158,42 +173,12 @@ final class MutableViewData {
   @VisibleForTesting
   static MutableAggregation createMutableAggregation(Aggregation aggregation) {
     return aggregation.match(
-        new Function<Sum, MutableAggregation>() {
-          @Override
-          public MutableAggregation apply(Sum arg) {
-            return MutableSum.create();
-          }
-        },
-        new Function<Count, MutableAggregation>() {
-          @Override
-          public MutableAggregation apply(Count arg) {
-            return MutableCount.create();
-          }
-        },
-        new Function<Histogram, MutableAggregation>() {
-          @Override
-          public MutableAggregation apply(Histogram arg) {
-            return MutableHistogram.create(arg.getBucketBoundaries());
-          }
-        },
-        new Function<Range, MutableAggregation>() {
-          @Override
-          public MutableAggregation apply(Range arg) {
-            return MutableRange.create();
-          }
-        },
-        new Function<Mean, MutableAggregation>() {
-          @Override
-          public MutableAggregation apply(Mean arg) {
-            return MutableMean.create();
-          }
-        },
-        new Function<StdDev, MutableAggregation>() {
-          @Override
-          public MutableAggregation apply(StdDev arg) {
-            return MutableStdDev.create();
-          }
-        },
+        CreateMutableSum.INSTANCE,
+        CreateMutableCount.INSTANCE,
+        CreateMutableHistogram.INSTANCE,
+        CreateMutableRange.INSTANCE,
+        CreateMutableMean.INSTANCE,
+        CreateMutableStdDev.INSTANCE,
         Functions.<MutableAggregation>throwIllegalArgumentException());
   }
 
@@ -206,41 +191,148 @@ final class MutableViewData {
   @VisibleForTesting
   static AggregationData createAggregationData(MutableAggregation aggregation) {
     return aggregation.match(
-        new Function<MutableSum, AggregationData>() {
-          @Override
-          public AggregationData apply(MutableSum arg) {
-            return SumData.create(arg.getSum());
-          }
-        },
-        new Function<MutableCount, AggregationData>() {
-          @Override
-          public AggregationData apply(MutableCount arg) {
-            return CountData.create(arg.getCount());
-          }
-        },
-        new Function<MutableHistogram, AggregationData>() {
-          @Override
-          public AggregationData apply(MutableHistogram arg) {
-            return HistogramData.create(arg.getBucketCounts());
-          }
-        },
-        new Function<MutableRange, AggregationData>() {
-          @Override
-          public AggregationData apply(MutableRange arg) {
-            return RangeData.create(arg.getMin(), arg.getMax());
-          }
-        },
-        new Function<MutableMean, AggregationData>() {
-          @Override
-          public AggregationData apply(MutableMean arg) {
-            return MeanData.create(arg.getMean());
-          }
-        },
-        new Function<MutableStdDev, AggregationData>() {
-          @Override
-          public AggregationData apply(MutableStdDev arg) {
-            return StdDevData.create(arg.getStdDev());
-          }
-        });
+        CreateSumData.INSTANCE,
+        CreateCountData.INSTANCE,
+        CreateHistogramData.INSTANCE,
+        CreateRangeData.INSTANCE,
+        CreateMeanData.INSTANCE,
+        CreateStdDevData.INSTANCE);
+  }
+  
+  // static inner Function classes
+  
+  private static final class CreateMutableSum implements Function<Sum, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(Sum arg) {
+      return MutableSum.create();
+    }
+    
+    private CreateMutableSum() {}
+    
+    private static final CreateMutableSum INSTANCE = new CreateMutableSum();
+  }
+
+  private static final class CreateMutableCount implements Function<Count, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(Count arg) {
+      return MutableCount.create();
+    }
+
+    private CreateMutableCount() {}
+
+    private static final CreateMutableCount INSTANCE = new CreateMutableCount();
+  }
+
+  private static final class CreateMutableHistogram 
+      implements Function<Histogram, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(Histogram arg) {
+      return MutableHistogram.create(arg.getBucketBoundaries());
+    }
+
+    private CreateMutableHistogram() {}
+
+    private static final CreateMutableHistogram INSTANCE = new CreateMutableHistogram();
+  }
+
+  private static final class CreateMutableRange implements Function<Range, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(Range arg) {
+      return MutableRange.create();
+    }
+
+    private CreateMutableRange() {}
+
+    private static final CreateMutableRange INSTANCE = new CreateMutableRange();
+  }
+
+  private static final class CreateMutableMean implements Function<Mean, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(Mean arg) {
+      return MutableMean.create();
+    }
+
+    private CreateMutableMean() {}
+
+    private static final CreateMutableMean INSTANCE = new CreateMutableMean();
+  }
+
+  private static final class CreateMutableStdDev implements Function<StdDev, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(StdDev arg) {
+      return MutableStdDev.create();
+    }
+
+    private CreateMutableStdDev() {}
+
+    private static final CreateMutableStdDev INSTANCE = new CreateMutableStdDev();
+  }
+
+
+  private static final class CreateSumData implements Function<MutableSum, AggregationData> {
+    @Override
+    public AggregationData apply(MutableSum arg) {
+      return SumData.create(arg.getSum());
+    }
+
+    private CreateSumData() {}
+
+    private static final CreateSumData INSTANCE = new CreateSumData();
+  }
+
+  private static final class CreateCountData implements Function<MutableCount, AggregationData> {
+    @Override
+    public AggregationData apply(MutableCount arg) {
+      return CountData.create(arg.getCount());
+    }
+
+    private CreateCountData() {}
+
+    private static final CreateCountData INSTANCE = new CreateCountData();
+  }
+
+  private static final class CreateHistogramData
+      implements Function<MutableHistogram, AggregationData> {
+    @Override
+    public AggregationData apply(MutableHistogram arg) {
+      return HistogramData.create(arg.getBucketCounts());
+    }
+
+    private CreateHistogramData() {}
+
+    private static final CreateHistogramData INSTANCE = new CreateHistogramData();
+  }
+
+  private static final class CreateRangeData implements Function<MutableRange, AggregationData> {
+    @Override
+    public AggregationData apply(MutableRange arg) {
+      return RangeData.create(arg.getMin(), arg.getMax());
+    }
+
+    private CreateRangeData() {}
+
+    private static final CreateRangeData INSTANCE = new CreateRangeData();
+  }
+
+  private static final class CreateMeanData implements Function<MutableMean, AggregationData> {
+    @Override
+    public AggregationData apply(MutableMean arg) {
+      return MeanData.create(arg.getMean());
+    }
+
+    private CreateMeanData() {}
+
+    private static final CreateMeanData INSTANCE = new CreateMeanData();
+  }
+
+  private static final class CreateStdDevData implements Function<MutableStdDev, AggregationData> {
+    @Override
+    public AggregationData apply(MutableStdDev arg) {
+      return StdDevData.create(arg.getStdDev());
+    }
+
+    private CreateStdDevData() {}
+
+    private static final CreateStdDevData INSTANCE = new CreateStdDevData();
   }
 }
