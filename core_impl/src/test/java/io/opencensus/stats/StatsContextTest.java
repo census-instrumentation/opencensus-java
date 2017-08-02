@@ -76,6 +76,12 @@ public class StatsContextTest {
   private static final Tag T3 = Tag.create(K3, V3);
   private static final Tag T4 = Tag.create(K4, V4);
 
+  private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM = Arrays.asList(
+      Aggregation.Sum.create(), Aggregation.Count.create(), Aggregation.Range.create(),
+      Aggregation.Mean.create(), Aggregation.StdDev.create());
+
+  private static final View.Window.Cumulative CUMULATIVE = View.Window.Cumulative.create();
+
   @Test
   public void testWith() {
     assertThat(defaultStatsContext.builder().set(K1, V1).build())
@@ -133,6 +139,7 @@ public class StatsContextTest {
         afterViewData.getAggregationMap().entrySet()) {
       assertThat(entry.getKey()).containsExactly(TagValue.create("myMethod"));
       assertThat(entry.getValue()).hasSize(3);
+      // TODO(songya): update this using assertAggregationDataListEquals()
       for (AggregationData aggregate : entry.getValue()) {
         StatsTestUtil.assertAggregationDataEquals(aggregate, 5.1, 1L,
             StatsTestUtil.removeTrailingZeros(0, 0, 0, 0, 0, 0, 1), null, null, null, null,
@@ -144,11 +151,13 @@ public class StatsContextTest {
   @Test
   public void testRecordLong() {
     MeasureLong measure = MeasureLong.create("long measure", "description", "1");
-    viewManager.registerView(View.create(View.Name.create("name"), "description", measure,
-        RpcViewConstants.AGGREGATION_NO_HISTOGRAM, Arrays.asList(K1),
-        RpcViewConstants.CUMULATIVE));
+    viewManager.registerView(View.create(
+        View.Name.create("name"), "description", measure, AGGREGATIONS_NO_HISTOGRAM,
+        Arrays.asList(K1), CUMULATIVE));
+    MeasureMap measureMap = MeasureMap.builder().set(measure, 1L).build();
+    StatsContext context = defaultStatsContext.with(K1, V1);
     thrown.expect(UnsupportedOperationException.class);
-    defaultStatsContext.with(K1, V1).record(MeasureMap.builder().set(measure, 1L).build());
+    context.record(measureMap);
   }
 
   @Test

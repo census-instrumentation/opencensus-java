@@ -16,8 +16,11 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -34,10 +37,15 @@ public class MeasureToViewMapTest {
 
   private static final View.Name VIEW_NAME = View.Name.create("my view");
 
+  private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM = Arrays.asList(
+      Aggregation.Sum.create(), Aggregation.Count.create(), Aggregation.Range.create(),
+      Aggregation.Mean.create(), Aggregation.StdDev.create());
+
+  private static final View.Window.Cumulative CUMULATIVE = View.Window.Cumulative.create();
+
   private static final View VIEW =
-      View.create(VIEW_NAME, "view description", MEASURE,
-          RpcViewConstants.AGGREGATION_NO_HISTOGRAM, Arrays.asList(TagKey.create("my key")),
-          RpcViewConstants.CUMULATIVE);
+      View.create(VIEW_NAME, "view description", MEASURE, AGGREGATIONS_NO_HISTOGRAM,
+          Arrays.asList(TagKey.create("my key")), CUMULATIVE);
 
   @Test
   public void testRegisterAndGetView() {
@@ -47,8 +55,8 @@ public class MeasureToViewMapTest {
     clock.setTime(Timestamp.create(30, 40));
     ViewData viewData = measureToViewMap.getView(VIEW_NAME, clock);
     assertThat(viewData.getView()).isEqualTo(VIEW);
-    StatsTestUtil.assertWindowDataEquals(
-        viewData.getWindowData(), Timestamp.create(10, 20), Timestamp.create(30, 40));
+    assertThat(viewData.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(10, 20), Timestamp.create(30, 40)));
     assertThat(viewData.getAggregationMap()).isEmpty();
   }
 }

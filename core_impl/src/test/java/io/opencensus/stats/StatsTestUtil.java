@@ -14,30 +14,18 @@
 package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import com.google.common.collect.Iterables;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.common.Timestamp;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
-import io.opencensus.stats.MutableAggregation.MutableCount;
-import io.opencensus.stats.MutableAggregation.MutableHistogram;
-import io.opencensus.stats.MutableAggregation.MutableMean;
-import io.opencensus.stats.MutableAggregation.MutableRange;
-import io.opencensus.stats.MutableAggregation.MutableStdDev;
-import io.opencensus.stats.MutableAggregation.MutableSum;
-import io.opencensus.stats.ViewData.WindowData;
-import io.opencensus.stats.ViewData.WindowData.CumulativeData;
-import io.opencensus.stats.ViewData.WindowData.IntervalData;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /** Stats test utilities. */
 final class StatsTestUtil {
@@ -80,93 +68,15 @@ final class StatsTestUtil {
    */
   static List<AggregationData> createAggregationData(
       List<Aggregation> aggregations, double... values) {
-    List<MutableAggregation> mAggregations = new ArrayList<MutableAggregation>(aggregations.size());
+    List<AggregationData> aggregationDataList = new ArrayList<AggregationData>(aggregations.size());
     for (Aggregation aggregation : aggregations) {
       MutableAggregation mAggregation = MutableViewData.createMutableAggregation(aggregation);
       for (double value : values) {
         mAggregation.add(value);
       }
-      mAggregations.add(mAggregation);
+      aggregationDataList.add(MutableViewData.createAggregationData(mAggregation));
     }
-
-    List<AggregationData> aggregates = new ArrayList<AggregationData>(aggregations.size());
-    for (MutableAggregation mAggregation : mAggregations) {
-      aggregates.add(MutableViewData.createAggregationData(mAggregation));
-    }
-    return aggregates;
-  }
-
-  /**
-   * Compare the {@code MutableAggregation} with expected values based on its underlying type. The
-   * expected values are all optional (nullable).
-   *
-   * @param aggregation the {@code MutableAggregation} to be verified.
-   * @param sum the expected sum value, if aggregation is a {@code MutableSum}.
-   * @param count the expected count value, if aggregation is a {@code MutableCount}.
-   * @param bucketCounts the expected bucket counts, if aggregation is a
-   *        {@code MutableHistogram}.
-   * @param min the expected min value, if aggregation is a {@code MutableRange}.
-   * @param max the expected max value, if aggregation is a {@code MutableRange}.
-   * @param mean the expected mean value, if aggregation is a {@code MutableMean}.
-   * @param stdDev the expected standard deviation, if aggregation is a
-   *        {@code MutableStdDev}.
-   * @param tolerance the tolerance used for {@code double} comparison.
-   * @throws AssertionError if {@code MutableAggregation} doesn't match with expected value.
-   */
-  static void assertMutableAggregationEquals(
-      MutableAggregation aggregation, final Double sum, final Long count, final long[] bucketCounts,
-      final Double min, final Double max, final Double mean, final Double stdDev,
-      final double tolerance) {
-    aggregation.match(
-        new Function<MutableSum, Void>() {
-          @Override
-          public Void apply(MutableSum arg) {
-            assertThat(arg.getSum()).isWithin(tolerance).of(sum);
-            return null;
-          }
-        },
-        new Function<MutableCount, Void>() {
-          @Override
-          public Void apply(MutableCount arg) {
-            assertThat(arg.getCount()).isEqualTo(count);
-            return null;
-          }
-        },
-        new Function<MutableHistogram, Void>() {
-          @Override
-          public Void apply(MutableHistogram arg) {
-            assertThat(removeTrailingZeros(arg.getBucketCounts())).isEqualTo(
-                removeTrailingZeros(bucketCounts));
-            return null;
-          }
-        },
-        new Function<MutableRange, Void>() {
-          @Override
-          public Void apply(MutableRange arg) {
-            if (max == Double.NEGATIVE_INFINITY && min == Double.POSITIVE_INFINITY) {
-              assertThat(arg.getMax()).isNegativeInfinity();
-              assertThat(arg.getMin()).isPositiveInfinity();
-            } else {
-              assertThat(arg.getMax()).isWithin(tolerance).of(max);
-              assertThat(arg.getMin()).isWithin(tolerance).of(min);
-            }
-            return null;
-          }
-        },
-        new Function<MutableMean, Void>() {
-          @Override
-          public Void apply(MutableMean arg) {
-            assertThat(arg.getMean()).isWithin(tolerance).of(mean);
-            return null;
-          }
-        },
-        new Function<MutableStdDev, Void>() {
-          @Override
-          public Void apply(MutableStdDev arg) {
-            assertThat(arg.getStdDev()).isWithin(tolerance).of(stdDev);
-            return null;
-          }
-        });
+    return aggregationDataList;
   }
 
   /**
@@ -182,7 +92,6 @@ final class StatsTestUtil {
    * @param mean the expected mean value, if aggregation is a {@code MeanData}.
    * @param stdDev the expected standard deviation, if aggregation is a {@code StdDevData}.
    * @param tolerance the tolerance used for {@code double} comparison.
-   * @throws AssertionError if {@code AggregationData} doesn't match with expected value.
    */
   static void assertAggregationDataEquals(
       AggregationData aggregate, final Double sum, final Long count, final List<Long> bucketCounts,
@@ -235,41 +144,6 @@ final class StatsTestUtil {
           @Override
           public Void apply(StdDevData arg) {
             assertThat(arg.getStdDev()).isWithin(tolerance).of(stdDev);
-            return null;
-          }
-        },
-        Functions.<Void>throwIllegalArgumentException());
-  }
-
-  /**
-   * Compare the given {@code WindowData} with expected start and/or end {@code Timestamp}s.
-   *
-   * @param windowData the actual {@code WindowData}.
-   * @param start the expected start {@code Timestamp}. Should be non-null for {@link
-   * CumulativeData}, null for {@link IntervalData}.
-   * @param end the expected end {@code Timestamp}.
-   */
-  static void assertWindowDataEquals(
-      WindowData windowData, @Nullable final Timestamp start, final Timestamp end) {
-    windowData.match(
-        new Function<CumulativeData, Void>() {
-          @Override
-          public Void apply(CumulativeData windowData) {
-            if (start == null) {
-              fail("expected an IntervalData.");
-            }
-            assertThat(windowData.getStart()).isEqualTo(start);
-            assertThat(windowData.getEnd()).isEqualTo(end);
-            return null;
-          }
-        },
-        new Function<IntervalData, Void>() {
-          @Override
-          public Void apply(IntervalData windowData) {
-            if (start != null) {
-              fail("expected a CumulativeData.");
-            }
-            assertThat(windowData.getEnd()).isEqualTo(end);
             return null;
           }
         },

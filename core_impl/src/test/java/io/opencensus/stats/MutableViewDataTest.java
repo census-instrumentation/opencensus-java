@@ -28,6 +28,12 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.MutableAggregation.MutableCount;
+import io.opencensus.stats.MutableAggregation.MutableHistogram;
+import io.opencensus.stats.MutableAggregation.MutableMean;
+import io.opencensus.stats.MutableAggregation.MutableRange;
+import io.opencensus.stats.MutableAggregation.MutableStdDev;
+import io.opencensus.stats.MutableAggregation.MutableSum;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +45,8 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link MutableViewData}. */
 @RunWith(JUnit4.class)
 public class MutableViewDataTest {
+
+  private static final double EPSILON = 1e-7;
 
   @Test
   public void testConstants() {
@@ -52,33 +60,53 @@ public class MutableViewDataTest {
     TagKey method = TagKey.create("method");
     TagValue callerV = TagValue.create("some caller");
     TagValue methodV = TagValue.create("some method");
-    List<TagKey> columns = Arrays.asList(originator, caller, method);
+    List<TagKey> columns = Arrays.asList(caller, method, originator);
     Map<TagKey, TagValue> tags = ImmutableMap.of(caller, callerV, method, methodV);
 
     assertThat(MutableViewData.getTagValues(tags, columns))
-        .containsExactly(callerV, methodV, MutableViewData.UNKNOWN_TAG_VALUE);
+        .containsExactly(callerV, methodV, MutableViewData.UNKNOWN_TAG_VALUE)
+        .inOrder();
   }
 
   @Test
-  public void testCreateAggr() {
+  public void createMutableAggregation() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
-    List<Aggregation> aggregations = Arrays.asList(
-        Sum.create(),
-        Count.create(),
-        Histogram.create(bucketBoundaries),
-        Range.create(),
-        Mean.create(),
-        StdDev.create());
-    List<MutableAggregation> mutableAggregations = new ArrayList<MutableAggregation>();
+
+    assertThat(
+        ((MutableSum) MutableViewData.createMutableAggregation(Sum.create())).getSum())
+        .isWithin(EPSILON).of(0.0);
+    assertThat(
+        ((MutableCount) MutableViewData.createMutableAggregation(Count.create())).getCount())
+        .isEqualTo(0L);
+    assertThat(
+        ((MutableHistogram) MutableViewData.createMutableAggregation(
+            Histogram.create(bucketBoundaries))).getBucketCounts())
+        .isEqualTo(new long[]{0, 0, 0, 0});
+    assertThat(
+        ((MutableRange) MutableViewData.createMutableAggregation(Range.create())).getMin())
+        .isPositiveInfinity();
+    assertThat(
+        ((MutableRange) MutableViewData.createMutableAggregation(Range.create())).getMax())
+        .isNegativeInfinity();
+    assertThat(
+        ((MutableMean) MutableViewData.createMutableAggregation(Mean.create())).getMean())
+        .isWithin(EPSILON).of(0D);
+    assertThat(
+        ((MutableStdDev) MutableViewData.createMutableAggregation(StdDev.create())).getStdDev())
+        .isWithin(EPSILON).of(0D);
+  }
+
+  @Test
+  public void createAggregationData() {
+    BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
+    List<MutableAggregation> mutableAggregations = Arrays.asList(
+        MutableSum.create(),
+        MutableCount.create(),
+        MutableHistogram.create(bucketBoundaries),
+        MutableRange.create(),
+        MutableMean.create(),
+        MutableStdDev.create());
     List<AggregationData> aggregates = new ArrayList<AggregationData>();
-
-    for (Aggregation aggregation : aggregations) {
-      MutableAggregation mAggregation = MutableViewData.createMutableAggregation(aggregation);
-      mutableAggregations.add(mAggregation);
-      StatsTestUtil.assertMutableAggregationEquals(mAggregation, 0D, 0L, new long[]{0, 0, 0, 0},
-          Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0D, 0D, 1e-6);
-    }
-
     for (MutableAggregation mutableAggregation : mutableAggregations) {
       aggregates.add(MutableViewData.createAggregationData(mutableAggregation));
     }
@@ -88,6 +116,7 @@ public class MutableViewDataTest {
         HistogramData.create(0, 0, 0, 0),
         RangeData.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY),
         MeanData.create(0),
-        StdDevData.create(0));
+        StdDevData.create(0))
+        .inOrder();
   }
 }
