@@ -128,7 +128,7 @@ shadowJar {
     // Assert that there's nothing obviously wrong with the JAR's contents.
     new java.util.zip.ZipFile(shadowJar.archivePath).withCloseable {
       // Must have bundled the bootstrap.jar.
-      assert it.entries().any { it.name = agentBootstrapJar }
+      assert it.entries().any { it.name == agentBootstrapJar }
 
       it.entries().each {
         // Must not contain anything outside of ${agentPackage}, except for the manifest.
