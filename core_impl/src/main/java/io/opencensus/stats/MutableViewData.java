@@ -207,8 +207,6 @@ final class MutableViewData {
       return MutableSum.create();
     }
     
-    private CreateMutableSum() {}
-    
     private static final CreateMutableSum INSTANCE = new CreateMutableSum();
   }
 
@@ -217,8 +215,6 @@ final class MutableViewData {
     public MutableAggregation apply(Count arg) {
       return MutableCount.create();
     }
-
-    private CreateMutableCount() {}
 
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
@@ -230,8 +226,6 @@ final class MutableViewData {
       return MutableHistogram.create(arg.getBucketBoundaries());
     }
 
-    private CreateMutableHistogram() {}
-
     private static final CreateMutableHistogram INSTANCE = new CreateMutableHistogram();
   }
 
@@ -240,8 +234,6 @@ final class MutableViewData {
     public MutableAggregation apply(Range arg) {
       return MutableRange.create();
     }
-
-    private CreateMutableRange() {}
 
     private static final CreateMutableRange INSTANCE = new CreateMutableRange();
   }
@@ -252,8 +244,6 @@ final class MutableViewData {
       return MutableMean.create();
     }
 
-    private CreateMutableMean() {}
-
     private static final CreateMutableMean INSTANCE = new CreateMutableMean();
   }
 
@@ -262,8 +252,6 @@ final class MutableViewData {
     public MutableAggregation apply(StdDev arg) {
       return MutableStdDev.create();
     }
-
-    private CreateMutableStdDev() {}
 
     private static final CreateMutableStdDev INSTANCE = new CreateMutableStdDev();
   }
@@ -275,8 +263,6 @@ final class MutableViewData {
       return SumData.create(arg.getSum());
     }
 
-    private CreateSumData() {}
-
     private static final CreateSumData INSTANCE = new CreateSumData();
   }
 
@@ -285,8 +271,6 @@ final class MutableViewData {
     public AggregationData apply(MutableCount arg) {
       return CountData.create(arg.getCount());
     }
-
-    private CreateCountData() {}
 
     private static final CreateCountData INSTANCE = new CreateCountData();
   }
@@ -298,8 +282,6 @@ final class MutableViewData {
       return HistogramData.create(arg.getBucketCounts());
     }
 
-    private CreateHistogramData() {}
-
     private static final CreateHistogramData INSTANCE = new CreateHistogramData();
   }
 
@@ -308,8 +290,6 @@ final class MutableViewData {
     public AggregationData apply(MutableRange arg) {
       return RangeData.create(arg.getMin(), arg.getMax());
     }
-
-    private CreateRangeData() {}
 
     private static final CreateRangeData INSTANCE = new CreateRangeData();
   }
@@ -320,8 +300,6 @@ final class MutableViewData {
       return MeanData.create(arg.getMean());
     }
 
-    private CreateMeanData() {}
-
     private static final CreateMeanData INSTANCE = new CreateMeanData();
   }
 
@@ -330,8 +308,6 @@ final class MutableViewData {
     public AggregationData apply(MutableStdDev arg) {
       return StdDevData.create(arg.getStdDev());
     }
-
-    private CreateStdDevData() {}
 
     private static final CreateStdDevData INSTANCE = new CreateStdDevData();
   }
