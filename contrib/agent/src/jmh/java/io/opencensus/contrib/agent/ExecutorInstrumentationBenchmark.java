@@ -26,7 +26,7 @@ import org.openjdk.jmh.infra.Blackhole;
 /** Benchmarks for automatic context propagation added by {@link ExecutorInstrumentation}. */
 public class ExecutorInstrumentationBenchmark {
 
-  private static class MyRunnable implements Runnable {
+  private static final class MyRunnable implements Runnable {
 
     private final Blackhole blackhole;
 
