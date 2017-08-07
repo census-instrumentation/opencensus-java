@@ -1,6 +1,7 @@
 plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.1'
   id 'me.tatarka.retrolambda' version '3.6.0'
+  id "me.champeau.gradle.jmh" version "0.4.4"
 }
 
 description = 'OpenCensus Agent'
@@ -157,3 +158,40 @@ task integrationTest(type: Test) {
 
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
+
+// JMH benchmarks
+
+dependencies {
+  jmh libraries.grpc_context
+}
+
+// Disable checkstyle for JMH benchmarks if not java8.
+checkstyleJmh.enabled = JavaVersion.current().isJava8Compatible()
+
+// Generate html report for findbugsJmh.
+findbugsJmh {
+  reports {
+    xml.enabled = false
+    html.enabled = true
+  }
+}
+
+// Make the agent JAR available using a fixed file name so that we don't have to modify the JMH
+// benchmarks whenever the version changes.
+task agentJar(type: Copy) {
+  dependsOn shadowJar
+
+  from shadowJar.archivePath
+  into libsDir
+  rename { 'agent.jar' }
+}
+
+jmhJar.dependsOn agentJar
+
+jmh {
+  jmhVersion = '1.19'
+  warmupIterations = 10
+  iterations = 10
+  fork = 1
+  failOnError = true
+}
