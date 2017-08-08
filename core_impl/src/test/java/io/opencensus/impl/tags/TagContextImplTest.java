@@ -29,6 +29,7 @@ import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValueString;
 import io.opencensus.tags.UnreleasedApiAccessor;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -93,10 +94,12 @@ public class TagContextImplTest {
     TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
     Iterator<Tag> i = tags.unsafeGetIterator();
     assertTrue(i.hasNext());
-    assertThat(i.next()).isEqualTo(TagString.create(KS1, V1));
+    Tag tag1 = i.next();
     assertTrue(i.hasNext());
-    assertThat(i.next()).isEqualTo(TagString.create(KS2, V2));
+    Tag tag2 = i.next();
     assertFalse(i.hasNext());
+    assertThat(Arrays.asList(tag1, tag2))
+        .containsExactly(TagString.create(KS1, V1), TagString.create(KS2, V2));
     thrown.expect(NoSuchElementException.class);
     i.next();
   }
