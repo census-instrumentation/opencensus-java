@@ -14,6 +14,8 @@
 package io.opencensus.impl.tags;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import io.opencensus.tags.Tag;
@@ -29,6 +31,7 @@ import io.opencensus.tags.TagValueString;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -83,6 +86,19 @@ public class TagContextImplTest {
     assertThat(asList(tagContexts.toBuilder(tags).clear(KS1).build())).isEmpty();
     assertThat(asList(tagContexts.toBuilder(tags).clear(KS2).build()))
         .containsExactly(TagString.create(KS1, V1));
+  }
+
+  @Test
+  public void testIterator() {
+    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
+    Iterator<Tag> i = tags.unsafeGetIterator();
+    assertTrue(i.hasNext());
+    assertThat(i.next()).isEqualTo(TagString.create(KS1, V1));
+    assertTrue(i.hasNext());
+    assertThat(i.next()).isEqualTo(TagString.create(KS2, V2));
+    assertFalse(i.hasNext());
+    thrown.expect(NoSuchElementException.class);
+    i.next();
   }
 
   @Test
