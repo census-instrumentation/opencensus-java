@@ -89,7 +89,7 @@ public class TagContextFactoryImplTest {
   }
 
   private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.iterator());
+    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 
   private static final class SimpleTagContext extends TagContext {
@@ -100,7 +100,7 @@ public class TagContextFactoryImplTest {
     }
 
     @Override
-    public Iterator<Tag> iterator() {
+    public Iterator<Tag> unsafeGetIterator() {
       return tags.iterator();
     }
   }

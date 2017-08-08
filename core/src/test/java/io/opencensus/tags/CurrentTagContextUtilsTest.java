@@ -30,7 +30,7 @@ public class CurrentTagContextUtilsTest {
       new TagContext() {
 
         @Override
-        public Iterator<Tag> iterator() {
+        public Iterator<Tag> unsafeGetIterator() {
           return ImmutableSet.<Tag>of().iterator();
         }
       };

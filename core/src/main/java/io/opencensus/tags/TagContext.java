@@ -27,14 +27,13 @@ import javax.annotation.concurrent.Immutable;
  * <p>Keys have type {@link TagKey}. Values have type {@link TagValueString}, though the library
  * will support more types in the future, including {@code long} and {@code boolean}.
  */
-// TODO(sebright): Consider removing TagContext.iterator() so that we don't need to support fast
-// access to tags.
 @Immutable
-public abstract class TagContext implements Iterable<Tag> {
+public abstract class TagContext {
   private static final TagContext NOOP_TAG_CONTEXT = new NoopTagContext();
 
-  @Override
-  public abstract Iterator<Tag> iterator();
+  // TODO(sebright): Consider removing TagContext.unsafeGetIterator() so that we don't need to
+  // support fast access to tags.
+  public abstract Iterator<Tag> unsafeGetIterator();
 
   /**
    * Returns a {@code TagContext} that does not contain any tags.
@@ -50,7 +49,7 @@ public abstract class TagContext implements Iterable<Tag> {
 
     // TODO(sebright): Is there any way to let the user know that their tags were ignored?
     @Override
-    public Iterator<Tag> iterator() {
+    public Iterator<Tag> unsafeGetIterator() {
       return Collections.<Tag>emptySet().iterator();
     }
   }

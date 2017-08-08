@@ -49,7 +49,7 @@ final class TagContextImpl extends TagContext {
   }
 
   @Override
-  public Iterator<Tag> iterator() {
+  public Iterator<Tag> unsafeGetIterator() {
     return new TagIterator(tags);
   }
 

@@ -55,12 +55,13 @@ public class TagContextImplTest {
     TagKeyLong longKey = UnreleasedApiAccessor.createTagKeyLong("key");
     TagKeyBoolean boolKey = UnreleasedApiAccessor.createTagKeyBoolean("key");
     assertThat(
-            tagContexts
-                .emptyBuilder()
-                .set(stringKey, TagValueString.create("value"))
-                .set(longKey, 123)
-                .set(boolKey, true)
-                .build())
+            asList(
+                tagContexts
+                    .emptyBuilder()
+                    .set(stringKey, TagValueString.create("value"))
+                    .set(longKey, 123)
+                    .set(boolKey, true)
+                    .build()))
         .containsExactly(
             TagString.create(stringKey, TagValueString.create("value")),
             TagLong.create(longKey, 123L),
@@ -87,13 +88,13 @@ public class TagContextImplTest {
   @Test
   public void disallowCallingRemoveOnIterator() {
     TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
-    Iterator<Tag> i = tags.iterator();
+    Iterator<Tag> i = tags.unsafeGetIterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);
     i.remove();
   }
 
   private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.iterator());
+    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 }

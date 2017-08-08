@@ -17,6 +17,7 @@ import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagContexts;
+import java.util.Iterator;
 
 final class TagContextsImpl extends TagContexts {
   TagContextsImpl() {}
@@ -34,15 +35,15 @@ final class TagContextsImpl extends TagContexts {
   @Override
   public TagContextBuilder toBuilder(TagContext tags) {
     // TODO(sebright): Consider treating an unknown TagContext as empty.  That would allow us to
-    // remove TagContext.iterator().
+    // remove TagContext.unsafeGetIterator().
 
     // Copy the tags more efficiently in the expected case, when the TagContext is a TagContextImpl.
     if (tags instanceof TagContextImpl) {
       return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
     } else {
       TagContextBuilderImpl builder = new TagContextBuilderImpl();
-      for (Tag tag : tags) {
-        TagContextUtils.addTagToBuilder(tag, builder);
+      for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
+        TagContextUtils.addTagToBuilder(i.next(), builder);
       }
       return builder;
     }
