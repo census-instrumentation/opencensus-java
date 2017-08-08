@@ -36,7 +36,9 @@ public abstract class TagContexts {
    *
    * @return a new empty {@code Builder}.
    */
-  public abstract TagContextBuilder emptyBuilder();
+  public TagContextBuilder emptyBuilder() {
+    return toBuilder(empty());
+  }
 
   /**
    * Returns a builder based on this {@code TagContext}.
@@ -60,11 +62,6 @@ public abstract class TagContexts {
     @Override
     public TagContext empty() {
       return TagContext.getNoopTagContext();
-    }
-
-    @Override
-    public TagContextBuilder emptyBuilder() {
-      return TagContextBuilder.getNoopTagContextBuilder();
     }
 
     @Override
