@@ -80,13 +80,7 @@ final class MeasureToViewMap {
       }
     }
     registeredViews.put(view.getName(), view);
-    // TODO(songya): update to use refactored implementation.
-    //    MutableViewData mutableViewData =
-    //        view.match(
-    //            new CreateMutableDistributionViewDataFunction(clock),
-    //            new CreateMutableIntervalViewDataFunction());
-    //    mutableMap.put(
-    //        view.getMeasure().getName(), mutableViewData);
+    mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
   }
 
   // Records stats with a set of tags.
