@@ -13,10 +13,13 @@
 
 package io.opencensus.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.opencensus.common.Clock;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -40,18 +43,26 @@ import io.opencensus.stats.MutableAggregation.MutableStdDev;
 import io.opencensus.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
+import io.opencensus.stats.ViewData.WindowData;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
+import io.opencensus.stats.ViewData.WindowData.IntervalData;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A mutable version of {@link ViewData}, used for recording stats and start/end time.
  */
 final class MutableViewData {
 
+  private static final Logger logger = Logger.getLogger(MutableViewData.class.getName());
+  
   // TODO(songya): might want to update the default tag value later.
   @VisibleForTesting
   static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
@@ -60,6 +71,9 @@ final class MutableViewData {
   private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
       Maps.newHashMap();
   @Nullable private final Timestamp start;
+
+  // The queue of TimestampedValues for interval aggregations.
+  private final Queue<TimestampedValue> valueQueue = new LinkedList<TimestampedValue>();
 
   private MutableViewData(View view, @Nullable Timestamp start) {
     this.view = view;
@@ -74,21 +88,7 @@ final class MutableViewData {
    * @return a {@code MutableViewData}.
    */
   static MutableViewData create(final View view, @Nullable final Timestamp start) {
-    return view.getWindow().match(
-        new Function<Cumulative, MutableViewData>() {
-          @Override
-          public MutableViewData apply(Cumulative arg) {
-            return new MutableViewData(view, start);
-          }
-        },
-        new Function<Interval, MutableViewData>() {
-          @Override
-          public MutableViewData apply(Interval arg) {
-            // TODO(songya): support IntervalView.
-            throw new UnsupportedOperationException("Interval views not supported yet.");
-          }
-        },
-        Functions.<MutableViewData>throwIllegalArgumentException());
+    return new MutableViewData(view, start);
   }
 
   /**
@@ -101,7 +101,10 @@ final class MutableViewData {
   /**
    * Record double stats with the given tags.
    */
-  void record(StatsContextImpl context, double value) {
+  void record(StatsContextImpl context, double value, Clock clock) {
+    // Add Timestamp to value after the value went through the DisruptorQueue.
+    addValueToQueue(value, clock.now());
+
     List<TagValue> tagValues = getTagValues(context.tags, view.getColumns());
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       List<MutableAggregation> aggregations = Lists.newArrayList();
@@ -118,7 +121,7 @@ final class MutableViewData {
   /**
    * Record long stats with the given tags.
    */
-  void record(StatsContextImpl tags, long value) {
+  void record(StatsContextImpl tags, long value, Clock clock) {
     // TODO(songya): modify MutableDistribution to support long values.
     throw new UnsupportedOperationException("Not implemented.");
   }
@@ -127,6 +130,7 @@ final class MutableViewData {
    * Convert this {@link MutableViewData} to {@link ViewData}.
    */
   ViewData toViewData(Clock clock) {
+    removeExpiredValues(clock.now());
     Map<List<TagValue>, List<AggregationData>> map = Maps.newHashMap();
     for (Entry<List<TagValue>, List<MutableAggregation>> entry :
         tagValueAggregationMap.entrySet()) {
@@ -136,9 +140,45 @@ final class MutableViewData {
       }
       map.put(entry.getKey(), aggregates);
     }
-    return ViewData.create(view, map, CumulativeData.create(start, clock.now()));
+
+    WindowData windowData = view.getWindow().match(
+        new CreateCumulativeData(start, clock.now()),
+        new CreateIntervalData(clock.now()),
+        Functions.<WindowData>throwIllegalArgumentException());
+
+    return ViewData.create(view, map, windowData);
+  }
+  
+  // If this MutableViewData has an IntervalWindow, add the value associated with the given
+  // timestamp to valueQueue.
+  private void addValueToQueue(double value, Timestamp now) {
+    if (view.getWindow() instanceof Interval) {
+      checkNotNull(now, "Timestamp");
+      boolean added = valueQueue.offer(new TimestampedValue(value, now));
+      if (!added) {
+        logger.severe("Failed to add value " + value + " at " + now);
+      }
+    }
   }
 
+  // If this MutableViewData has an IntervalWindow, dequeue expired values from valueQueue against
+  // current timestamp, and update summary stats by eliminating expired values.
+  private void removeExpiredValues(Timestamp now) {
+    if (view.getWindow() instanceof Interval) {
+      checkNotNull(now, "Timestamp");
+      Interval interval = (Interval) view.getWindow();
+      while (!valueQueue.isEmpty() && valueQueue.peek().isExpired(interval.getDuration(), now)) {
+        double expired = valueQueue.poll().value;
+        for (Entry<List<TagValue>, List<MutableAggregation>> entry : 
+            tagValueAggregationMap.entrySet()) {
+          for (MutableAggregation mutableAggregation : entry.getValue()) {
+            mutableAggregation.remove(expired);
+          }
+        }
+      }
+    }
+  }
+  
   /**
    * Returns start timestamp for this aggregation.
    */
@@ -219,7 +259,7 @@ final class MutableViewData {
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
 
-  private static final class CreateMutableHistogram 
+  private static final class CreateMutableHistogram
       implements Function<Histogram, MutableAggregation> {
     @Override
     public MutableAggregation apply(Histogram arg) {
@@ -310,5 +350,51 @@ final class MutableViewData {
     }
 
     private static final CreateStdDevData INSTANCE = new CreateStdDevData();
+  }
+
+  private static final class CreateCumulativeData implements Function<Cumulative, WindowData> {
+    @Override
+    public WindowData apply(Cumulative arg) {
+      return CumulativeData.create(start, end);
+    }
+
+    private final Timestamp start;
+    private final Timestamp end;
+
+    private CreateCumulativeData(Timestamp start, Timestamp end) {
+      this.start = start;
+      this.end = end;
+    }
+  }
+
+  private static final class CreateIntervalData implements Function<Interval, WindowData> {
+    @Override
+    public WindowData apply(Interval arg) {
+      return IntervalData.create(end);
+    }
+
+    private final Timestamp end;
+
+    private CreateIntervalData(Timestamp end) {
+      this.end = end;
+    }
+  }
+
+  /** Value associated with a {@code TimeStamp}. */
+  @Immutable
+  private static final class TimestampedValue {
+
+    private final double value;
+    private final Timestamp timestamp;
+
+    private TimestampedValue(double value, Timestamp timestamp) {
+      checkNotNull(timestamp, "Timestamp");
+      this.value = value;
+      this.timestamp = timestamp;
+    }
+
+    private boolean isExpired(Duration duration, Timestamp now) {
+      return now.compareTo(timestamp.addDuration(duration)) > 0;
+    }
   }
 }
