@@ -48,6 +48,12 @@ public class MutableViewDataTest {
 
   private static final double EPSILON = 1e-7;
 
+  private static final TagKey ORIGINATOR = TagKey.create("originator");
+  private static final TagKey CALLER = TagKey.create("caller");
+  private static final TagKey METHOD = TagKey.create("method");
+  private static final TagValue CALLER_V = TagValue.create("some caller");
+  private static final TagValue METHOD_V = TagValue.create("some method");
+
   @Test
   public void testConstants() {
     assertThat(MutableViewData.UNKNOWN_TAG_VALUE.asString()).isEqualTo("unknown/not set");
@@ -55,16 +61,11 @@ public class MutableViewDataTest {
 
   @Test
   public void testGetTagValues() {
-    TagKey originator = TagKey.create("originator");
-    TagKey caller = TagKey.create("caller");
-    TagKey method = TagKey.create("method");
-    TagValue callerV = TagValue.create("some caller");
-    TagValue methodV = TagValue.create("some method");
-    List<TagKey> columns = Arrays.asList(caller, method, originator);
-    Map<TagKey, TagValue> tags = ImmutableMap.of(caller, callerV, method, methodV);
+    List<TagKey> columns = Arrays.asList(CALLER, METHOD, ORIGINATOR);
+    Map<TagKey, TagValue> tags = ImmutableMap.of(CALLER, CALLER_V, METHOD, METHOD_V);
 
     assertThat(MutableViewData.getTagValues(tags, columns))
-        .containsExactly(callerV, methodV, MutableViewData.UNKNOWN_TAG_VALUE)
+        .containsExactly(CALLER_V, METHOD_V, MutableViewData.UNKNOWN_TAG_VALUE)
         .inOrder();
   }
 
