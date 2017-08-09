@@ -17,7 +17,6 @@ import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
-import java.util.Collection;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -459,11 +458,4 @@ public class ViewManagerImplTest {
 //            StatsTestUtil.createDistributionAggregate(
 //                Arrays.asList(Tag.create(KEY, VALUE)), Arrays.asList(1.1))));
 //  }
-
-  // TODO(sebright) Consider making this helper method work with larger ranges of double values and
-  // moving it to StatsTestUtil.
-  private static void assertDistributionAggregatesEquivalent(
-      Collection<DistributionAggregate> actual, Collection<DistributionAggregate> expected) {
-    StatsTestUtil.assertDistributionAggregatesEquivalent(1e-6, actual, expected);
-  }
 }
