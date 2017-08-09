@@ -19,6 +19,8 @@ import io.opencensus.tags.TagKey.TagKeyString;
 import javax.annotation.concurrent.Immutable;
 
 /** Builder for the {@link TagContext} class. */
+// TODO(sebright): Decide what to do when 'set' is called with a key that has the same name as an
+// existing key, but a different type.  We currently keep both keys.
 public abstract class TagContextBuilder {
   private static final TagContextBuilder NOOP_TAG_CONTEXT_BUILDER = new NoopTagContextBuilder();
 
