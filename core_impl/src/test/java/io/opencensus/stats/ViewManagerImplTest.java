@@ -374,7 +374,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testMultipleViewDataSameMeasure() {
+  public void testMultipleViewSameMeasure() {
     View view1 =
         createDistributionView(
             VIEW_NAME,
@@ -454,6 +454,32 @@ public class ViewManagerImplTest {
         ImmutableMap.of(
             Arrays.asList(VALUE),
             StatsTestUtil.createAggregationData(AGGREGATIONS, 2.2)),
+        EPSILON);
+  }
+
+  @Test
+  public void testGetDistributionViewDataWithoutBucketBoundaries() {
+    List<Aggregation> aggregationsNoHistogram = Arrays.asList(
+        Sum.create(), Count.create(), Mean.create(), Range.create(), StdDev.create());
+    View view =
+        createDistributionView(
+            VIEW_NAME, MEASURE,
+            aggregationsNoHistogram,
+            Arrays.asList(KEY));
+    clock.setTime(Timestamp.create(1, 0));
+    viewManager.registerView(view);
+    statsRecorder.record(
+        createContext(factory, KEY, VALUE),
+        MeasureMap.builder().set(MEASURE, 1.1).build());
+    clock.setTime(Timestamp.create(3, 0));
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+    assertThat(viewData.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(aggregationsNoHistogram, 1.1)),
         EPSILON);
   }
 }

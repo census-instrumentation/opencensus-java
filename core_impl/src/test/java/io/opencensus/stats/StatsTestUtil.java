@@ -87,7 +87,6 @@ final class StatsTestUtil {
    * @param actual the actual mapping from {@code List<TagValue>} to
    *     {@code List<AggregationData>}.
    * @param tolerance the tolerance used for {@code double} comparison.
-   * @throws AssertionError if the AggregationMap does not contain exactly the keys and values.
    */
   static void assertAggregationMapEquals(
       Map<List<TagValue>, List<AggregationData>> actual,
@@ -105,61 +104,61 @@ final class StatsTestUtil {
    * @param expectedValue the expected list of {@code AggregationData}.
    * @param actualValue the actual list of {@code AggregationData}.
    * @param tolerance the tolerance used for {@code double} comparison.
-   * @throws AssertionError if the AggregationMap does not contain exactly the keys and values.
    */
   static void assertAggregationDataListEquals(
       List<AggregationData> expectedValue, List<AggregationData> actualValue,
       final double tolerance) {
     assertThat(expectedValue.size()).isEqualTo(actualValue.size());
     for (int i = 0; i < expectedValue.size(); i++) {
-      AggregationData actual = actualValue.get(i);
+      final AggregationData actual = actualValue.get(i);
       final AggregationData expected = expectedValue.get(i);
-      actual.match(
+      expected.match(
           new Function<SumData, Void>() {
             @Override
             public Void apply(SumData arg) {
-              assertAggregationDataEquals(
-                  expected, arg.getSum(), null, null, null, null, null, null, tolerance);
+              assertThat(actual).isInstanceOf(SumData.class);
+              assertThat(((SumData) actual).getSum()).isWithin(tolerance).of(arg.getSum());
               return null;
             }
           },
           new Function<CountData, Void>() {
             @Override
             public Void apply(CountData arg) {
-              assertAggregationDataEquals(
-                  expected, null, arg.getCount(), null, null, null, null, null, tolerance);
+              assertThat(actual).isInstanceOf(CountData.class);
+              assertThat(((CountData) actual).getCount()).isEqualTo(arg.getCount());
               return null;
             }
           },
           new Function<HistogramData, Void>() {
             @Override
             public Void apply(HistogramData arg) {
-              assertAggregationDataEquals(
-                  expected, null, null, arg.getBucketCounts(), null, null, null, null, tolerance);
+              assertThat(actual).isInstanceOf(HistogramData.class);
+              assertThat(removeTrailingZeros(((HistogramData) actual).getBucketCounts()))
+                  .isEqualTo(removeTrailingZeros(arg.getBucketCounts()));
               return null;
             }
           },
           new Function<RangeData, Void>() {
             @Override
             public Void apply(RangeData arg) {
-              assertAggregationDataEquals(
-                  expected, null, null, null, arg.getMin(), arg.getMax(), null, null, tolerance);
+              assertThat(actual).isInstanceOf(RangeData.class);
+              assertRangeDataEquals((RangeData) actual, arg, tolerance);
               return null;
             }
           },
           new Function<MeanData, Void>() {
             @Override
             public Void apply(MeanData arg) {
-              assertAggregationDataEquals(
-                  expected, null, null, null, null, null, arg.getMean(), null, tolerance);
+              assertThat(actual).isInstanceOf(MeanData.class);
+              assertThat(((MeanData) actual).getMean()).isWithin(tolerance).of(arg.getMean());
               return null;
             }
           },
           new Function<StdDevData, Void>() {
             @Override
             public Void apply(StdDevData arg) {
-              assertAggregationDataEquals(
-                  expected, null, null, null, null, null, null, arg.getStdDev(), tolerance);
+              assertThat(actual).isInstanceOf(StdDevData.class);
+              assertThat(((StdDevData) actual).getStdDev()).isWithin(tolerance).of(arg.getStdDev());
               return null;
             }
           },
@@ -167,92 +166,17 @@ final class StatsTestUtil {
     }
   }
 
-  /**
-   * Compare the {@code AggregationData} with expected values based on its underlying type. The
-   * expected values are all optional (nullable).
-   *
-   * @param aggregate the {@code AggregationData} to be verified.
-   * @param sum the expected sum value, if aggregation is a {@code SumData}.
-   * @param count the expected count value, if aggregation is a {@code CountData}.
-   * @param bucketCounts the expected bucket counts, if aggregation is a {@code HistogramData}.
-   * @param min the expected min value, if aggregation is a {@code RangeData}.
-   * @param max the expected max value, if aggregation is a {@code RangeData}.
-   * @param mean the expected mean value, if aggregation is a {@code MeanData}.
-   * @param stdDev the expected standard deviation, if aggregation is a {@code StdDevData}.
-   * @param tolerance the tolerance used for {@code double} comparison.
-   */
-  static void assertAggregationDataEquals(
-      AggregationData aggregate, final Double sum, final Long count, final List<Long> bucketCounts,
-      final Double min, final Double max, final Double mean, final Double stdDev,
-      final double tolerance) {
-    aggregate.match(
-        new Function<SumData, Void>() {
-          @Override
-          public Void apply(SumData arg) {
-            assertThat(arg.getSum()).isWithin(tolerance).of(sum);
-            return null;
-          }
-        },
-        new Function<CountData, Void>() {
-          @Override
-          public Void apply(CountData arg) {
-            assertThat(arg.getCount()).isEqualTo(count);
-            return null;
-          }
-        },
-        new Function<HistogramData, Void>() {
-          @Override
-          public Void apply(HistogramData arg) {
-            assertThat(removeTrailingZeros(arg.getBucketCounts())).isEqualTo(
-                removeTrailingZeros(bucketCounts));
-            return null;
-          }
-        },
-        new Function<RangeData, Void>() {
-          @Override
-          public Void apply(RangeData arg) {
-            if (max == Double.NEGATIVE_INFINITY && min == Double.POSITIVE_INFINITY) {
-              assertThat(arg.getMax()).isNegativeInfinity();
-              assertThat(arg.getMin()).isPositiveInfinity();
-            } else {
-              assertThat(arg.getMax()).isWithin(tolerance).of(max);
-              assertThat(arg.getMin()).isWithin(tolerance).of(min);
-            }
-            return null;
-          }
-        },
-        new Function<MeanData, Void>() {
-          @Override
-          public Void apply(MeanData arg) {
-            assertThat(arg.getMean()).isWithin(tolerance).of(mean);
-            return null;
-          }
-        },
-        new Function<StdDevData, Void>() {
-          @Override
-          public Void apply(StdDevData arg) {
-            assertThat(arg.getStdDev()).isWithin(tolerance).of(stdDev);
-            return null;
-          }
-        },
-        Functions.<Void>throwIllegalArgumentException());
-  }
-
-  /**
-   * Remove trailing zeros and return a boxed list of {@code Long}.
-   *
-   * @param longs the input array of primitive type long.
-   * @return a list of boxed object Long, with trailing zeros removed.
-   */
-  static List<Long> removeTrailingZeros(long... longs) {
-    if (longs == null) {
-      return null;
+  // Compare the expected and actual RangeData within the given tolerance.
+  private static void assertRangeDataEquals(
+      RangeData actual, RangeData expected, double tolerance) {
+    if (expected.getMax() == Double.NEGATIVE_INFINITY
+        && expected.getMin() == Double.POSITIVE_INFINITY) {
+      assertThat(actual.getMax()).isNegativeInfinity();
+      assertThat(actual.getMin()).isPositiveInfinity();
+    } else {
+      assertThat(actual.getMax()).isWithin(tolerance).of(expected.getMax());
+      assertThat(actual.getMin()).isWithin(tolerance).of(expected.getMin());
     }
-    List<Long> boxed = new ArrayList<Long>(longs.length);
-    for (long l : longs) {
-      boxed.add(l);  // Boxing. Could use Arrays.stream().boxed().collect after Java 8.
-    }
-    return removeTrailingZeros(boxed);
   }
 
   private static List<Long> removeTrailingZeros(List<Long> longs) {
