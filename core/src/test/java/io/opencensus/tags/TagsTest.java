@@ -54,7 +54,7 @@ public class TagsTest {
   }
 
   @Test
-  public void defaultTagContextFactory() {
-    assertThat(Tags.getTagContextFactory()).isEqualTo(TagContextFactory.getNoopTagContextFactory());
+  public void defaultTagContexts() {
+    assertThat(Tags.getTagContexts()).isEqualTo(TagContexts.getNoopTagContexts());
   }
 }

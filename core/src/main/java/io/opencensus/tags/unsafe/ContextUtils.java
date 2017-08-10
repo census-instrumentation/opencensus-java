@@ -30,5 +30,5 @@ public final class ContextUtils {
    * {@link io.grpc.Context}.
    */
   public static final Context.Key<TagContext> TAG_CONTEXT_KEY =
-      Context.keyWithDefault("opencensus-tag-context-key", TagContext.EMPTY);
+      Context.key("opencensus-tag-context-key");
 }

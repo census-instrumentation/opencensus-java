@@ -28,12 +28,12 @@ public final class Tags {
   private Tags() {}
 
   /**
-   * Returns the default {@code TagContextFactory}.
+   * Returns the default {@code TagContexts}.
    *
-   * @return the default {@code TagContextFactory}.
+   * @return the default {@code TagContexts}.
    */
-  public static TagContextFactory getTagContextFactory() {
-    return tagsComponent.getTagContextFactory();
+  public static TagContexts getTagContexts() {
+    return tagsComponent.getTagContexts();
   }
 
   // Any provider that may be used for TagsComponent can be added here.

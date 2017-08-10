@@ -29,6 +29,10 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Each {@code TagKey} has a {@code String} name. Names have a maximum length of {@link
  * #MAX_LENGTH} and contain only printable ASCII characters.
+ *
+ * <p>{@code TagKey}s are designed to be used as constants. Declaring each key as a constant ensures
+ * that the keys have consistent value types and prevents key names from being validated multiple
+ * times.
  */
 @Immutable
 public abstract class TagKey {
@@ -143,7 +147,12 @@ public abstract class TagKey {
     }
   }
 
-  /** A {@code TagKey} for values of type {@code long}. */
+  /**
+   * A {@code TagKey} for values of type {@code long}.
+   *
+   * <p>Note that {@link TagKeyLong} isn't supported by the implementation yet, so the factory
+   * method isn't exposed.
+   */
   @Immutable
   @AutoValue
   public abstract static class TagKeyLong extends TagKey {
@@ -178,7 +187,12 @@ public abstract class TagKey {
     }
   }
 
-  /** A {@code TagKey} for values of type {@code boolean}. */
+  /**
+   * A {@code TagKey} for values of type {@code boolean}.
+   *
+   * <p>Note that {@link TagKeyBoolean} isn't supported by the implementation yet, so the factory
+   * method isn't exposed.
+   */
   @Immutable
   @AutoValue
   public abstract static class TagKeyBoolean extends TagKey {

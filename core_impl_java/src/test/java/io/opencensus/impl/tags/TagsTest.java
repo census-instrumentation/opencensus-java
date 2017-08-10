@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class TagsTest {
   @Test
-  public void getTagContextFactory() {
-    assertThat(Tags.getTagContextFactory()).isInstanceOf(TagContextFactoryImpl.class);
+  public void getTagContexts() {
+    assertThat(Tags.getTagContexts()).isInstanceOf(TagContextsImpl.class);
   }
 }

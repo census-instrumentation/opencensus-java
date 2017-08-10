@@ -13,15 +13,15 @@
 
 package io.opencensus.impl.tags;
 
-import io.opencensus.tags.TagContextFactory;
+import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagsComponent;
 
 /** Base implementation of {@link TagsComponent}. */
 public abstract class TagsComponentImplBase extends TagsComponent {
-  private final TagContextFactory tagContextFactory = new TagContextFactoryImpl();
+  private final TagContexts tagContexts = new TagContextsImpl();
 
   @Override
-  public TagContextFactory getTagContextFactory() {
-    return tagContextFactory;
+  public TagContexts getTagContexts() {
+    return tagContexts;
   }
 }

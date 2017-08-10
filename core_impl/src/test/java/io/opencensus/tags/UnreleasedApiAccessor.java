@@ -11,9 +11,23 @@
  * limitations under the License.
  */
 
-package io.opencensus.impl.tags;
+package io.opencensus.tags;
 
-import io.opencensus.tags.TagContextFactory;
+import io.opencensus.tags.TagKey.TagKeyBoolean;
+import io.opencensus.tags.TagKey.TagKeyLong;
 
-final class TagContextFactoryImpl extends TagContextFactory {
+/**
+ * Class for accessing methods in the {@code io.opencensus.tags} package that haven't been made
+ * public yet.
+ */
+public final class UnreleasedApiAccessor {
+  private UnreleasedApiAccessor() {}
+
+  public static TagKeyLong createTagKeyLong(String name) {
+    return TagKeyLong.create(name);
+  }
+
+  public static TagKeyBoolean createTagKeyBoolean(String name) {
+    return TagKeyBoolean.create(name);
+  }
 }
