@@ -60,22 +60,10 @@ public abstract class AggregationData {
 
   /** The sum value of aggregated {@code MeasureValue}s. */
   @Immutable
-  @AutoValue
   public abstract static class SumData extends AggregationData {
 
-    SumData() {
+    private SumData() {
     }
-
-    static SumData create(double sum) {
-      return new AutoValue_AggregationData_SumData(sum);
-    }
-
-    /**
-     * Returns the aggregated sum.
-     *
-     * @return the aggregated sum.
-     */
-    public abstract double getSum();
 
     @Override
     public final <T> T match(
@@ -87,6 +75,68 @@ public abstract class AggregationData {
         Function<? super StdDevData, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return p0.apply(this);
+    }
+
+    /** Applies the given match function to the underlying data type. */
+    public abstract <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super SumData, T> defaultFunction);
+
+    /** The double sum value on aggregated values of type {@code MeasureDouble}. */
+    @Immutable
+    @AutoValue
+    public abstract static class SumDataDouble extends SumData {
+
+      SumDataDouble() {
+      }
+
+      static SumDataDouble create(double sum) {
+        return new AutoValue_AggregationData_SumData_SumDataDouble(sum);
+      }
+
+      /**
+       * Returns the aggregated sum.
+       *
+       * @return the aggregated sum.
+       */
+      public abstract double getSum();
+
+      @Override
+      public final <T> T match(
+          Function<? super SumDataDouble, T> p0,
+          Function<? super SumDataLong, T> p1,
+          Function<? super SumData, T> defaultFunction) {
+        return p0.apply(this);
+      }
+    }
+
+    /** The long sum value on aggregated values of type {@code MeasureLong}. */
+    @Immutable
+    @AutoValue
+    public abstract static class SumDataLong extends SumData {
+
+      SumDataLong() {
+      }
+
+      static SumDataLong create(long sum) {
+        return new AutoValue_AggregationData_SumData_SumDataLong(sum);
+      }
+
+      /**
+       * Returns the aggregated sum.
+       *
+       * @return the aggregated sum.
+       */
+      public abstract long getSum();
+
+      @Override
+      public final <T> T match(
+          Function<? super SumDataDouble, T> p0,
+          Function<? super SumDataLong, T> p1,
+          Function<? super SumData, T> defaultFunction) {
+        return p1.apply(this);
+      }
     }
   }
 
@@ -163,32 +213,10 @@ public abstract class AggregationData {
 
   /** The range of aggregated {@code MeasureValue}s. */
   @Immutable
-  @AutoValue
   public abstract static class RangeData extends AggregationData {
 
-    RangeData() {
+    private RangeData() {
     }
-
-    static RangeData create(double min, double max) {
-      if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
-        checkArgument(min <= max, "max should be greater or equal to min.");
-      }
-      return new AutoValue_AggregationData_RangeData(min, max);
-    }
-
-    /**
-     * Returns the minimum of the population values.
-     *
-     * @return the minimum of the population values.
-     */
-    public abstract double getMin();
-
-    /**
-     * Returns the maximum of the population values.
-     *
-     * @return the maximum of the population values.
-     */
-    public abstract double getMax();
 
     @Override
     public final <T> T match(
@@ -200,6 +228,88 @@ public abstract class AggregationData {
         Function<? super StdDevData, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return p3.apply(this);
+    }
+
+    /** Applies the given match function to the underlying data type. */
+    public abstract <T> T match(
+        Function<? super RangeDataDouble, T> p0,
+        Function<? super RangeDataLong, T> p1,
+        Function<? super RangeData, T> defaultFunction);
+
+    /** The range on aggregated values of type {@code MeasureDouble}. */
+    @Immutable
+    @AutoValue
+    public abstract static class RangeDataDouble extends RangeData {
+
+      RangeDataDouble() {
+      }
+
+      static RangeDataDouble create(double min, double max) {
+        if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
+          checkArgument(min <= max, "max should be greater or equal to min.");
+        }
+        return new AutoValue_AggregationData_RangeData_RangeDataDouble(min, max);
+      }
+
+      /**
+       * Returns the minimum of the population values.
+       *
+       * @return the minimum of the population values.
+       */
+      public abstract double getMin();
+
+      /**
+       * Returns the maximum of the population values.
+       *
+       * @return the maximum of the population values.
+       */
+      public abstract double getMax();
+
+      @Override
+      public final <T> T match(
+          Function<? super RangeDataDouble, T> p0,
+          Function<? super RangeDataLong, T> p1,
+          Function<? super RangeData, T> defaultFunction) {
+        return p0.apply(this);
+      }
+    }
+
+    /** The range on aggregated values of type {@code MeasureLong}. */
+    @Immutable
+    @AutoValue
+    public abstract static class RangeDataLong extends RangeData {
+
+      RangeDataLong() {
+      }
+
+      static RangeDataLong create(long min, long max) {
+        if (min != Long.MAX_VALUE || max != Long.MIN_VALUE) {
+          checkArgument(min <= max, "max should be greater or equal to min.");
+        }
+        return new AutoValue_AggregationData_RangeData_RangeDataLong(min, max);
+      }
+
+      /**
+       * Returns the minimum of the population values.
+       *
+       * @return the minimum of the population values.
+       */
+      public abstract long getMin();
+
+      /**
+       * Returns the maximum of the population values.
+       *
+       * @return the maximum of the population values.
+       */
+      public abstract long getMax();
+
+      @Override
+      public final <T> T match(
+          Function<? super RangeDataDouble, T> p0,
+          Function<? super RangeDataLong, T> p1,
+          Function<? super RangeData, T> defaultFunction) {
+        return p1.apply(this);
+      }
     }
   }
 

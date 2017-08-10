@@ -22,8 +22,12 @@ import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.RangeData.RangeDataDouble;
+import io.opencensus.stats.AggregationData.RangeData.RangeDataLong;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumData.SumDataLong;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,18 +61,21 @@ public class AggregationDataTest {
   public void testRangeDataMinIsGreaterThanMax() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("max should be greater or equal to min.");
-    RangeData.create(10.0, 0.0);
+    RangeDataDouble.create(10.0, 0.0);
   }
 
   @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            SumData.create(10.0),
-            SumData.create(10.0))
+            SumDataDouble.create(10.0),
+            SumDataDouble.create(10.0))
         .addEqualityGroup(
-            SumData.create(20.0),
-            SumData.create(20.0))
+            SumDataDouble.create(20.0),
+            SumDataDouble.create(20.0))
+        .addEqualityGroup(
+            SumDataLong.create(10),
+            SumDataLong.create(10))
         .addEqualityGroup(
             CountData.create(40),
             CountData.create(40))
@@ -82,11 +89,14 @@ public class AggregationDataTest {
             HistogramData.create(new long[]{0, 10, 100}),
             HistogramData.create(new long[]{0, 10, 100}))
         .addEqualityGroup(
-            RangeData.create(-1.0, 1.0),
-            RangeData.create(-1.0, 1.0))
+            RangeDataDouble.create(-1.0, 1.0),
+            RangeDataDouble.create(-1.0, 1.0))
         .addEqualityGroup(
-            RangeData.create(-5.0, 1.0),
-            RangeData.create(-5.0, 1.0))
+            RangeDataDouble.create(-5.0, 1.0),
+            RangeDataDouble.create(-5.0, 1.0))
+        .addEqualityGroup(
+            RangeDataLong.create(-1, 1),
+            RangeDataLong.create(-1, 1))
         .addEqualityGroup(
             MeanData.create(5.0),
             MeanData.create(5.0))
@@ -105,10 +115,10 @@ public class AggregationDataTest {
   @Test
   public void testMatchAndGet() {
     List<AggregationData> aggregations = Arrays.asList(
-        SumData.create(10.0),
+        SumDataDouble.create(10.0),
         CountData.create(40),
         HistogramData.create(new long[]{0, 10, 0}),
-        RangeData.create(-1.0, 1.0),
+        RangeDataDouble.create(-1.0, 1.0),
         MeanData.create(5.0),
         StdDevData.create(23.3));
 
@@ -118,7 +128,7 @@ public class AggregationDataTest {
           new Function<SumData, Void>() {
             @Override
             public Void apply(SumData arg) {
-              actual.add(arg.getSum());
+              actual.add(((SumDataDouble) arg).getSum());
               return null;
             }
           },
@@ -139,8 +149,8 @@ public class AggregationDataTest {
           new Function<RangeData, Void>() {
             @Override
             public Void apply(RangeData arg) {
-              actual.add(arg.getMin());
-              actual.add(arg.getMax());
+              actual.add(((RangeDataDouble) arg).getMin());
+              actual.add(((RangeDataDouble) arg).getMax());
               return null;
             }
           },
