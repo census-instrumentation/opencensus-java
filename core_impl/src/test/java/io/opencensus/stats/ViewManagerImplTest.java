@@ -375,13 +375,13 @@ public class ViewManagerImplTest {
 
   @Test
   public void testMultipleViewSameMeasure() {
-    View view1 =
+    final View view1 =
         createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
             Arrays.asList(KEY));
-    View view2 =
+    final View view2 =
         createCumulativeView(
             VIEW_NAME_2,
             MEASURE,
@@ -422,10 +422,10 @@ public class ViewManagerImplTest {
         Measure.MeasureDouble.create(MEASURE_NAME, MEASURE_DESCRIPTION, MEASURE_UNIT);
     MeasureDouble measure2 =
         Measure.MeasureDouble.create(MEASURE_NAME_2, MEASURE_DESCRIPTION, MEASURE_UNIT);
-    View view1 =
+    final View view1 =
         createCumulativeView(
             VIEW_NAME, measure1, AGGREGATIONS, Arrays.asList(KEY));
-    View view2 =
+    final View view2 =
         createCumulativeView(
             VIEW_NAME_2, measure2, AGGREGATIONS, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));

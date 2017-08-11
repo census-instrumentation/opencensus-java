@@ -88,7 +88,6 @@ public class StatsContextFactoryTest {
   @Test
   public void testDeserializeMultipleString() throws Exception {
     sampleTags.put(TagKey.create("Key2"), TagValue.create("String2"));
-    StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
@@ -99,6 +98,7 @@ public class StatsContextFactoryTest {
     StatsContext actual = testDeserialize(
         new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
 
+    StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
     assertThat(actual).isEqualTo(expected);
   }
 

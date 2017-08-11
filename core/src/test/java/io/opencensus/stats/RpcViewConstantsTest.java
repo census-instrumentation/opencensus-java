@@ -13,6 +13,8 @@
 
 package io.opencensus.stats;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
@@ -23,11 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
-
-/**
- * Test for {@link RpcViewConstants}.
- */
+/** Test for {@link RpcViewConstants}. */
 @RunWith(JUnit4.class)
 public final class RpcViewConstantsTest {
 

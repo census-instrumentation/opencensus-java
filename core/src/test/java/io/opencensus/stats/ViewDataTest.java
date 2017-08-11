@@ -83,38 +83,38 @@ public final class ViewDataTest {
 
   @Test
   public void testViewDataEquals() {
-    View dView = 
+    View cumulativeView =
         View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
-    View iView =
+    View intervalView =
         View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
 
     new EqualsTester()
         .addEqualityGroup(
             ViewData.create(
-                dView, ENTRIES,
+                cumulativeView, ENTRIES,
                 CumulativeData.create(
                     Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))),
             ViewData.create(
-                dView,
+                cumulativeView,
                 ENTRIES,
                 CumulativeData.create(
                     Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
-                dView,
+                cumulativeView,
                 ENTRIES,
                 CumulativeData.create(
                     Timestamp.fromMillis(1000), Timestamp.fromMillis(3000))))
         .addEqualityGroup(
             ViewData.create(
-                iView, ENTRIES,
+                intervalView, ENTRIES,
                 IntervalData.create(Timestamp.fromMillis(2000))),
             ViewData.create(
-                iView, ENTRIES,
+                intervalView, ENTRIES,
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
-                iView, Collections.<List<TagValue>, List<AggregationData>>emptyMap(),
+                intervalView, Collections.<List<TagValue>, List<AggregationData>>emptyMap(),
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .testEquals();
   }
@@ -205,14 +205,25 @@ public final class ViewDataTest {
   private static final List<Aggregation> AGGREGATIONS = Collections.unmodifiableList(Arrays.asList(
       Sum.create(), Count.create(), Range.create(), Histogram.create(BUCKET_BOUNDARIES),
       Mean.create(), StdDev.create()));
-  
-  private static final ImmutableMap<List<TagValue>, List<AggregationData>> ENTRIES = ImmutableMap.of(
-      Arrays.asList(V1, V2),
-      Arrays.asList(SumData.create(0), CountData.create(1), HistogramData.create(1, 0, 0, 0, 0),
-          RangeData.create(0, 0), MeanData.create(0), StdDevData.create(0)),
-      Arrays.asList(V10, V20),
-      Arrays.asList(SumData.create(50), CountData.create(2), HistogramData.create(0, 0, 2, 0, 0),
-          RangeData.create(25, 25), MeanData.create(25), StdDevData.create(0)));
+
+  private static final ImmutableMap<List<TagValue>, List<AggregationData>> ENTRIES =
+      ImmutableMap.of(
+          Arrays.asList(V1, V2),
+          Arrays.asList(
+              SumData.create(0),
+              CountData.create(1),
+              HistogramData.create(1, 0, 0, 0, 0),
+              RangeData.create(0, 0),
+              MeanData.create(0),
+              StdDevData.create(0)),
+          Arrays.asList(V10, V20),
+          Arrays.asList(
+              SumData.create(50),
+              CountData.create(2),
+              HistogramData.create(0, 0, 2, 0, 0),
+              RangeData.create(25, 25),
+              MeanData.create(25),
+              StdDevData.create(0)));
 
   // name
   private final View.Name name = View.Name.create("test-view");

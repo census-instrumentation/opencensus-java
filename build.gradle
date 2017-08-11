@@ -165,11 +165,6 @@ subprojects {
         configProperties["rootDir"] = rootDir
     }
 
-    checkstyleTest {
-        // TODO(sebright): Fix style errors in stats tests.
-        excludes = ["io/opencensus/stats/**"]
-    }
-
     // Disable checkstyle if no java8.
     checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
     checkstyleTest.enabled = JavaVersion.current().isJava8Compatible()

@@ -44,12 +44,12 @@ public final class StatsTest {
   public void loadStatsManager_IgnoresMissingClasses() {
     assertThat(
             Stats.loadStatsComponent(
-                    new ClassLoader() {
-                      @Override
-                      public Class<?> loadClass(String name) throws ClassNotFoundException {
-                        throw new ClassNotFoundException();
-                      }
-                    })
+                  new ClassLoader() {
+                    @Override
+                    public Class<?> loadClass(String name) throws ClassNotFoundException {
+                      throw new ClassNotFoundException();
+                    }
+                  })
                 .getClass()
                 .getName())
         .isEqualTo("io.opencensus.stats.StatsComponent$NoopStatsComponent");
