@@ -15,6 +15,7 @@ package io.opencensus.impl.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.tags.TagContextSerializer;
 import io.opencensus.tags.Tags;
 import io.opencensus.tags.TagsComponent;
 import org.junit.Test;
@@ -27,5 +28,10 @@ public final class TagsTest {
   @Test
   public void getTagContexts() {
     assertThat(Tags.getTagContexts()).isInstanceOf(TagContextsImpl.class);
+  }
+
+  @Test
+  public void getTagContextSerializer() {
+    assertThat(Tags.getTagContextSerializer()).isInstanceOf(TagContextSerializer.class);
   }
 }

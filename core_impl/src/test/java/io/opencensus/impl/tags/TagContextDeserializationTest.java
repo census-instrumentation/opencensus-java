@@ -15,21 +15,24 @@ package io.opencensus.impl.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.grpc.Context;
-import io.opencensus.common.Scope;
-import io.opencensus.internal.SimpleEventQueue;
+import com.google.common.collect.Lists;
 import io.opencensus.internal.VarInt;
-import io.opencensus.testing.common.TestClock;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContexts;
+import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagValueString;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link StatsContextFactory}. */
+/**
+ * Tests for deserializing tags with {@link SerializationUtils} and {@link
+ * TagContextSerializerImpl}.
+ */
 @RunWith(JUnit4.class)
 public class TagContextDeserializationTest {
 
@@ -37,38 +40,29 @@ public class TagContextDeserializationTest {
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
 
-  private final StatsComponentImplBase statsComponent =
-      new StatsComponentImplBase(new SimpleEventQueue(), TestClock.create());
-  private final StatsContextFactory factory = statsComponent.getStatsContextFactory();
-  private final StatsRecorderImpl statsRecorder = statsComponent.getStatsRecorder();
-  private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
-  private final StatsContext defaultCtx = factory.getDefault();
-  private final StatsContext statsContext =
-      factory.getDefault().with(TagKey.create(KEY), TagValue.create(VALUE_STRING));
-
-  public TagContextDeserializationTest() {
-    sampleTags.put(
-        TagKey.create(KEY + StatsSerializer.VALUE_TYPE_STRING), TagValue.create(VALUE_STRING));
-  }
+  private final TagContextSerializerImpl serializer = new TagContextSerializerImpl();
+  private final TagContexts tagContexts = new TagContextsImpl();
 
   @Test
   public void testVersionAndValueTypeConstants() {
-    // Refer to the JavaDoc on StatsSerializer for the definitions on these constants.
-    assertThat(StatsSerializer.VERSION_ID).isEqualTo(0);
-    assertThat(StatsSerializer.VALUE_TYPE_STRING).isEqualTo(0);
-    assertThat(StatsSerializer.VALUE_TYPE_INTEGER).isEqualTo(1);
-    assertThat(StatsSerializer.VALUE_TYPE_TRUE).isEqualTo(2);
-    assertThat(StatsSerializer.VALUE_TYPE_FALSE).isEqualTo(3);
+    // Refer to the JavaDoc on SerializationUtils for the definitions on these constants.
+    assertThat(SerializationUtils.VERSION_ID).isEqualTo(0);
+    assertThat(SerializationUtils.VALUE_TYPE_STRING).isEqualTo(0);
+    assertThat(SerializationUtils.VALUE_TYPE_INTEGER).isEqualTo(1);
+    assertThat(SerializationUtils.VALUE_TYPE_TRUE).isEqualTo(2);
+    assertThat(SerializationUtils.VALUE_TYPE_FALSE).isEqualTo(3);
   }
 
   @Test
   public void testDeserializeNoTags() throws Exception {
-    StatsContext expected = factory.getDefault();
-    StatsContext actual =
+    TagContext expected = tagContexts.empty();
+    TagContext actual =
         testDeserialize(
             new ByteArrayInputStream(
-                new byte[] {StatsSerializer.VERSION_ID})); // One byte that represents Version ID.
-    assertThat(actual).isEqualTo(expected);
+                new byte[] {
+                  SerializationUtils.VERSION_ID
+                })); // One byte that represents Version ID.
+    assertTagContextsEqual(actual, expected);
   }
 
   @Test(expected = IOException.class)
@@ -78,45 +72,55 @@ public class TagContextDeserializationTest {
 
   @Test
   public void testDeserializeValueTypeString() throws Exception {
-    StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
-    StatsContext actual =
-        testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_STRING));
-    assertThat(actual).isEqualTo(expected);
+    TagContext actual =
+        testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_STRING));
+    TagContext expected =
+        tagContexts
+            .emptyBuilder()
+            .set(
+                TagKeyString.create(KEY + SerializationUtils.VALUE_TYPE_STRING),
+                TagValueString.create(VALUE_STRING))
+            .build();
+    assertTagContextsEqual(actual, expected);
   }
 
   @Test
   public void testDeserializeMultipleString() throws Exception {
-    sampleTags.put(TagKey.create("Key2"), TagValue.create("String2"));
-
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
-    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_STRING, byteArrayOutputStream);
-    byteArrayOutputStream.write(StatsSerializer.VALUE_TYPE_STRING);
+    byteArrayOutputStream.write(SerializationUtils.VERSION_ID);
+    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_STRING, byteArrayOutputStream);
+    byteArrayOutputStream.write(SerializationUtils.VALUE_TYPE_STRING);
     encodeString("Key2", byteArrayOutputStream);
     encodeString("String2", byteArrayOutputStream);
-    StatsContext actual =
+    TagContext actual =
         testDeserialize(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
-
-    StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
-    assertThat(actual).isEqualTo(expected);
+    TagContext expected =
+        tagContexts
+            .emptyBuilder()
+            .set(
+                TagKeyString.create(KEY + SerializationUtils.VALUE_TYPE_STRING),
+                TagValueString.create(VALUE_STRING))
+            .set(TagKeyString.create("Key2"), TagValueString.create("String2"))
+            .build();
+    assertTagContextsEqual(actual, expected);
   }
 
   @Test(expected = IOException.class)
   public void testDeserializeValueTypeInteger() throws Exception {
     // TODO(songya): test should pass after we add support for type integer
-    testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_INTEGER));
+    testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_INTEGER));
   }
 
   @Test(expected = IOException.class)
   public void testDeserializeValueTypeTrue() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_TRUE));
+    testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_TRUE));
   }
 
   @Test(expected = IOException.class)
   public void testDeserializeValueTypeFalse() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_FALSE));
+    testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_FALSE));
   }
 
   @Test(expected = IOException.class)
@@ -133,72 +137,12 @@ public class TagContextDeserializationTest {
 
   @Test(expected = IOException.class)
   public void testDeserializeWrongVersionId() throws Exception {
-    testDeserialize(new ByteArrayInputStream(new byte[] {(byte) (StatsSerializer.VERSION_ID + 1)}));
+    testDeserialize(
+        new ByteArrayInputStream(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)}));
   }
 
-  @Test
-  public void testGetDefaultForCurrentStatsContextWhenNotSet() {
-    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-  }
-
-  @Test
-  public void testGetCurrentStatsContext() {
-    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-    Context origContext =
-        Context.current()
-            .withValue(CurrentStatsContextUtils.STATS_CONTEXT_KEY, statsContext)
-            .attach();
-    // Make sure context is detached even if test fails.
-    try {
-      assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
-    } finally {
-      Context.current().detach(origContext);
-    }
-    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void testWithNullStatsContext() {
-    factory.withStatsContext(null);
-  }
-
-  @Test
-  public void testWithStatsContext() {
-    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-    Scope scopedStatsCtx = factory.withStatsContext(statsContext);
-    try {
-      assertThat(factory.getCurrentStatsContext()).isEqualTo(statsContext);
-    } finally {
-      scopedStatsCtx.close();
-    }
-    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-  }
-
-  @Test
-  public void testWithStatsContextUsingWrap() {
-    Runnable runnable;
-    Scope scopedStatsCtx = factory.withStatsContext(statsContext);
-    try {
-      assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
-      runnable =
-          Context.current()
-              .wrap(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
-                    }
-                  });
-    } finally {
-      scopedStatsCtx.close();
-    }
-    assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-    // When we run the runnable we will have the statsContext in the current Context.
-    runnable.run();
-  }
-
-  private StatsContext testDeserialize(InputStream inputStream) throws IOException {
-    return factory.deserialize(inputStream);
+  private TagContext testDeserialize(InputStream inputStream) throws IOException {
+    return serializer.deserialize(inputStream);
   }
 
   /*
@@ -211,7 +155,7 @@ public class TagContextDeserializationTest {
    */
   private static InputStream constructSingleTypeTagInputStream(int valueType) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
+    byteArrayOutputStream.write(SerializationUtils.VERSION_ID);
     encodeSingleTypeTagToOutputStream(valueType, byteArrayOutputStream);
     return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
   }
@@ -219,11 +163,11 @@ public class TagContextDeserializationTest {
   // Construct an InputStream with all 4 types of tags.
   private static InputStream constructMultiTypeTagInputStream() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    byteArrayOutputStream.write(StatsSerializer.VERSION_ID);
-    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_STRING, byteArrayOutputStream);
-    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_INTEGER, byteArrayOutputStream);
-    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_TRUE, byteArrayOutputStream);
-    encodeSingleTypeTagToOutputStream(StatsSerializer.VALUE_TYPE_FALSE, byteArrayOutputStream);
+    byteArrayOutputStream.write(SerializationUtils.VERSION_ID);
+    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_STRING, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_INTEGER, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_TRUE, byteArrayOutputStream);
+    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_FALSE, byteArrayOutputStream);
     return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
   }
 
@@ -234,16 +178,16 @@ public class TagContextDeserializationTest {
     // encode <tag_key_len><tag_key>, tag key is a string "KEY" appended by the field id here.
     encodeString(KEY + valueType, byteArrayOutputStream);
     switch (valueType) {
-      case StatsSerializer.VALUE_TYPE_STRING:
+      case SerializationUtils.VALUE_TYPE_STRING:
         // String encoded format: <tag_key_len><tag_key><tag_val_len><tag_val>.
         encodeString(VALUE_STRING, byteArrayOutputStream);
         break;
-      case StatsSerializer.VALUE_TYPE_INTEGER:
+      case SerializationUtils.VALUE_TYPE_INTEGER:
         // Integer encoded format: <tag_key_len><tag_key><int_tag_val>.
         encodeInteger(VALUE_INT, byteArrayOutputStream);
         break;
-      case StatsSerializer.VALUE_TYPE_TRUE:
-      case StatsSerializer.VALUE_TYPE_FALSE:
+      case SerializationUtils.VALUE_TYPE_TRUE:
+      case SerializationUtils.VALUE_TYPE_FALSE:
         // Boolean encoded format: <tag_key_len><tag_key>. No tag_value is needed
         break;
       default:
@@ -270,5 +214,10 @@ public class TagContextDeserializationTest {
   //         <int_tag_value> == 8 bytes, little-endian integer
   private static void encodeInteger(int input, ByteArrayOutputStream byteArrayOutputStream) {
     byteArrayOutputStream.write((byte) input);
+  }
+
+  private static void assertTagContextsEqual(TagContext actual, TagContext expected) {
+    assertThat(Lists.newArrayList(actual.unsafeGetIterator()))
+        .containsExactlyElementsIn(Lists.newArrayList(expected.unsafeGetIterator()));
   }
 }

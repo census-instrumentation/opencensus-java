@@ -13,25 +13,22 @@
 
 package io.opencensus.impl.tags;
 
-import static com.google.common.truth.Truth.assertThat;
-
+import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextSerializer;
-import io.opencensus.tags.Tags;
-import io.opencensus.tags.TagsComponent;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-/** Test for accessing the {@link TagsComponent} through the {@link Tags} class. */
-@RunWith(JUnit4.class)
-public final class TagsTest {
-  @Test
-  public void getTagContexts() {
-    assertThat(Tags.getTagContexts()).isInstanceOf(TagContextsImpl.class);
+final class TagContextSerializerImpl extends TagContextSerializer {
+  TagContextSerializerImpl() {}
+
+  @Override
+  public void serialize(TagContext tags, OutputStream output) throws IOException {
+    SerializationUtils.serialize(tags, output);
   }
 
-  @Test
-  public void getTagContextSerializer() {
-    assertThat(Tags.getTagContextSerializer()).isInstanceOf(TagContextSerializer.class);
+  @Override
+  public TagContext deserialize(InputStream input) throws IOException {
+    return SerializationUtils.deserialize(input);
   }
 }

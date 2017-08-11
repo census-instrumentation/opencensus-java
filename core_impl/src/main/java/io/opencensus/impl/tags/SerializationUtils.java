@@ -15,7 +15,17 @@ package io.opencensus.impl.tags;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
+import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.internal.VarInt;
+import io.opencensus.tags.Tag;
+import io.opencensus.tags.Tag.TagBoolean;
+import io.opencensus.tags.Tag.TagLong;
+import io.opencensus.tags.Tag.TagString;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagValueString;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,13 +33,12 @@ import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Iterator;
 
 /**
- * Native implementation {@link StatsContext} serialization.
+ * {@link TagContext} serialization.
  *
- * <p>Encoding of stats context information (tags) for passing across RPC's:
+ * <p>Encoding of tag context information for passing across RPC's:
  *
  * <ul>
  *   <li>Tags are encoded in single byte sequence. The version 0 format is:
@@ -64,6 +73,7 @@ import java.util.Set;
  * </ul>
  */
 final class SerializationUtils {
+  private SerializationUtils() {}
 
   // TODO(songya): Currently we only support encoding on string type.
   @VisibleForTesting static final int VERSION_ID = 0;
@@ -72,27 +82,56 @@ final class SerializationUtils {
   @VisibleForTesting static final int VALUE_TYPE_TRUE = 2;
   @VisibleForTesting static final int VALUE_TYPE_FALSE = 3;
 
-  // Serializes a StatsContext to the on-the-wire format.
+  // Serializes a TagContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
-  static void serialize(StatsContextImpl context, OutputStream output) throws IOException {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+  static void serialize(TagContext tags, OutputStream output) throws IOException {
+    final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
-    Set<Entry<TagKey, TagValue>> tags = context.tags.entrySet();
-    for (Entry<TagKey, TagValue> tag : tags) {
-      encodeStringTag(tag.getKey(), tag.getValue(), byteArrayOutputStream);
+    for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
+      Tag tag = i.next();
+
+      // TODO(sebright): Is there a better way to handle checked exceptions in function objects?
+      IOException ex =
+          tag.match(
+              new Function<TagString, IOException>() {
+                @Override
+                public IOException apply(TagString arg) {
+                  try {
+                    encodeStringTag(arg, byteArrayOutputStream);
+                    return null;
+                  } catch (IOException e) {
+                    return e;
+                  }
+                }
+              },
+              new Function<TagLong, IOException>() {
+                @Override
+                public IOException apply(TagLong arg) {
+                  throw new IllegalArgumentException("long tags are not supported.");
+                }
+              },
+              new Function<TagBoolean, IOException>() {
+                @Override
+                public IOException apply(TagBoolean arg) {
+                  throw new IllegalArgumentException("boolean tags are not supported.");
+                }
+              },
+              Functions.<IOException>throwAssertionError());
+      if (ex != null) {
+        throw ex;
+      }
     }
     byteArrayOutputStream.writeTo(output);
   }
 
-  // Deserializes input to StatsContext based on the binary format standard.
+  // Deserializes input to TagContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static StatsContextImpl deserialize(StatsRecorderImpl statsRecorder, InputStream input)
-      throws IOException {
+  static TagContextImpl deserialize(InputStream input) throws IOException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
-      HashMap<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
+      HashMap<TagKey, Object> tags = new HashMap<TagKey, Object>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
         throw new IOException("Input byte stream can not be empty.");
@@ -110,8 +149,8 @@ final class SerializationUtils {
         int type = buffer.get();
         switch (type) {
           case VALUE_TYPE_STRING:
-            TagKey key = TagKey.create(decodeString(buffer));
-            TagValue val = TagValue.create(decodeString(buffer));
+            TagKeyString key = TagKeyString.create(decodeString(buffer));
+            TagValueString val = TagValueString.create(decodeString(buffer));
             tags.put(key, val);
             break;
           case VALUE_TYPE_INTEGER:
@@ -122,7 +161,7 @@ final class SerializationUtils {
             throw new IOException("Unsupported tag value type.");
         }
       }
-      return new StatsContextImpl(statsRecorder, tags);
+      return new TagContextImpl(tags);
     } catch (BufferUnderflowException exn) {
       throw new IOException(exn.toString()); // byte array format error.
     }
@@ -130,10 +169,10 @@ final class SerializationUtils {
 
   //  TODO(songya): Currently we only support encoding on string type.
   private static final void encodeStringTag(
-      TagKey key, TagValue value, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
+      TagString tag, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
     byteArrayOutputStream.write(VALUE_TYPE_STRING);
-    encodeString(key.asString(), byteArrayOutputStream);
-    encodeString(value.asString(), byteArrayOutputStream);
+    encodeString(tag.getKey().getName(), byteArrayOutputStream);
+    encodeString(tag.getValue().asString(), byteArrayOutputStream);
   }
 
   private static final void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)

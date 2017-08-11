@@ -26,6 +26,9 @@ public abstract class TagsComponent {
   /** Returns the {@link TagContexts} for this implementation. */
   public abstract TagContexts getTagContexts();
 
+  /** Returns the {@link TagContextSerializer} for this implementation. */
+  public abstract TagContextSerializer getTagContextSerializer();
+
   /**
    * Returns a {@code TagsComponent} that has a no-op implementation for the {@link TagContexts}.
    *
@@ -41,6 +44,11 @@ public abstract class TagsComponent {
     @Override
     public TagContexts getTagContexts() {
       return TagContexts.getNoopTagContexts();
+    }
+
+    @Override
+    public TagContextSerializer getTagContextSerializer() {
+      return TagContextSerializer.getNoopTagContextSerializer();
     }
   }
 }

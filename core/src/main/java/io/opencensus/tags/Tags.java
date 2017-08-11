@@ -36,6 +36,15 @@ public final class Tags {
     return tagsComponent.getTagContexts();
   }
 
+  /**
+   * Returns the default {@code TagContextSerializer}.
+   *
+   * @return the default {@code TagContextSerializer}.
+   */
+  public static TagContextSerializer getTagContextSerializer() {
+    return tagsComponent.getTagContextSerializer();
+  }
+
   // Any provider that may be used for TagsComponent can be added here.
   @VisibleForTesting
   static TagsComponent loadTagsComponent(ClassLoader classLoader) {

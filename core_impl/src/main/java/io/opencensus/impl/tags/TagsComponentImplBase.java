@@ -13,15 +13,22 @@
 
 package io.opencensus.impl.tags;
 
+import io.opencensus.tags.TagContextSerializer;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagsComponent;
 
 /** Base implementation of {@link TagsComponent}. */
 public abstract class TagsComponentImplBase extends TagsComponent {
   private final TagContexts tagContexts = new TagContextsImpl();
+  private final TagContextSerializer tagContextSerializer = new TagContextSerializerImpl();
 
   @Override
   public TagContexts getTagContexts() {
     return tagContexts;
+  }
+
+  @Override
+  public TagContextSerializer getTagContextSerializer() {
+    return tagContextSerializer;
   }
 }

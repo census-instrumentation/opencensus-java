@@ -27,6 +27,7 @@ import javax.annotation.concurrent.Immutable;
  * <p>Keys have type {@link TagKey}. Values have type {@link TagValueString}, though the library
  * will support more types in the future, including {@code long} and {@code boolean}.
  */
+// TODO(sebright): Implement equals and hashCode.
 @Immutable
 public abstract class TagContext {
   private static final TagContext NOOP_TAG_CONTEXT = new NoopTagContext();
