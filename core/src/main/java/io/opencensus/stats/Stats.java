@@ -24,7 +24,7 @@ public final class Stats {
   private static final Logger logger = Logger.getLogger(Stats.class.getName());
 
   private static final StatsComponent statsComponent =
-      loadStatsComponent(Provider.getCorrectClassLoader(StatsComponent.class));
+      loadStatsComponent(StatsComponent.class.getClassLoader());
 
   /** Returns the default {@link StatsContextFactory}. */
   @Nullable

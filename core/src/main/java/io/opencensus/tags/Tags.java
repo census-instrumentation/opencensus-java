@@ -23,7 +23,7 @@ public final class Tags {
   private static final Logger logger = Logger.getLogger(Tags.class.getName());
 
   private static final TagsComponent tagsComponent =
-      loadTagsComponent(Provider.getCorrectClassLoader(TagsComponent.class));
+      loadTagsComponent(TagsComponent.class.getClassLoader());
 
   private Tags() {}
 
