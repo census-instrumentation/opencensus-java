@@ -26,8 +26,8 @@ def agentBootstrapPackage = "${agentPackage}.bootstrap"
 def agentBootstrapPackageDir = agentBootstrapPackage.replace('.', '/') + '/'
 def agentBootstrapClasses = agentBootstrapPackageDir + '**'
 
-// The package to which which we relocate all third party packages. This avoids any conflicts of
-// the agent's classes with the app's classes, which are loaded by the same classloader (the system
+// The package to which we relocate all third party packages. This avoids any conflicts of the
+// agent's classes with the app's classes, which are loaded by the same classloader (the system
 // classloader).
 def agentRepackaged = "${agentPackage}.deps"
 
