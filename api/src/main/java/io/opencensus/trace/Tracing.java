@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 public final class Tracing {
   private static final Logger logger = Logger.getLogger(Tracing.class.getName());
   private static final TraceComponent traceComponent =
-      loadTraceComponent(Provider.getCorrectClassLoader(TraceComponent.class));
+      loadTraceComponent(TraceComponent.class.getClassLoader());
 
   /**
    * Returns the global {@link Tracer}.

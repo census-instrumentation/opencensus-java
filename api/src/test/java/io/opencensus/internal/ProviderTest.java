@@ -49,7 +49,7 @@ public class ProviderTest {
         Class.forName(
             "io.opencensus.internal.ProviderTest$PrivateClass",
             true,
-            Provider.getCorrectClassLoader(ProviderTest.class)),
+            ProviderTest.class.getClassLoader()),
         PrivateClass.class);
   }
 
@@ -60,7 +60,7 @@ public class ProviderTest {
         Class.forName(
             "io.opencensus.internal.ProviderTest$PrivateConstructorClass",
             true,
-            Provider.getCorrectClassLoader(ProviderTest.class)),
+            ProviderTest.class.getClassLoader()),
         PrivateConstructorClass.class);
   }
 
@@ -71,7 +71,7 @@ public class ProviderTest {
         Class.forName(
             "io.opencensus.internal.ProviderTest$NoDefaultConstructorClass",
             true,
-            Provider.getCorrectClassLoader(ProviderTest.class)),
+            ProviderTest.class.getClassLoader()),
         NoDefaultConstructorClass.class);
   }
 
@@ -81,7 +81,7 @@ public class ProviderTest {
         Class.forName(
             "io.opencensus.internal.ProviderTest$GoodClass",
             true,
-            Provider.getCorrectClassLoader(ProviderTest.class)),
+            ProviderTest.class.getClassLoader()),
         MyInterface.class);
   }
 
@@ -92,7 +92,7 @@ public class ProviderTest {
                 Class.forName(
                     "io.opencensus.internal.ProviderTest$GoodClass",
                     true,
-                    Provider.getCorrectClassLoader(ProviderTest.class)),
+                    ProviderTest.class.getClassLoader()),
                 GoodClass.class))
         .isNotNull();
   }
@@ -104,7 +104,7 @@ public class ProviderTest {
                 Class.forName(
                     "io.opencensus.internal.ProviderTest$MyInterfaceImpl",
                     true,
-                    Provider.getCorrectClassLoader(ProviderTest.class)),
+                    ProviderTest.class.getClassLoader()),
                 MyInterface.class))
         .isNotNull();
   }

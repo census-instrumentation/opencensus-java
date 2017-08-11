@@ -42,30 +42,4 @@ public final class Provider {
           "Provider " + rawClass.getName() + " could not be instantiated.", e);
     }
   }
-
-  /**
-   * Get the correct {@link ClassLoader} that must be used when loading using reflection.
-   *
-   * @return The correct {@code ClassLoader} that must be used when loading using reflection.
-   */
-  public static <T> ClassLoader getCorrectClassLoader(Class<T> superClass) {
-    if (isAndroid()) {
-      // When android:sharedUserId or android:process is used, Android will setup a dummy
-      // ClassLoader for the thread context (http://stackoverflow.com/questions/13407006),
-      // instead of letting users to manually set context class loader, we choose the
-      // correct class loader here.
-      return superClass.getClassLoader();
-    }
-    return Thread.currentThread().getContextClassLoader();
-  }
-
-  private static boolean isAndroid() {
-    try {
-      Class.forName("android.app.Application", /*initialize=*/ false, null);
-      return true;
-    } catch (Exception e) {
-      // If Application isn't loaded, it might as well not be Android.
-      return false;
-    }
-  }
 }
