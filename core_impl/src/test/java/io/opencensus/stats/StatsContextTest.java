@@ -186,6 +186,14 @@ public class StatsContextTest {
     testRoundtripSerialization(defaultStatsContext.with(K_EMPTY, V_EMPTY));
   }
 
+  private void testRoundtripSerialization(StatsContext expected) throws Exception {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    expected.serialize(output);
+    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+    StatsContext actual = factory.deserialize(input);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   // Tests for Object overrides.
 
   @Test
@@ -236,14 +244,6 @@ public class StatsContextTest {
     }
 
     assertThat(possibleOutputs).contains(actual.toString());
-  }
-
-  private void testRoundtripSerialization(StatsContext expected) throws Exception {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    expected.serialize(output);
-    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-    StatsContext actual = factory.deserialize(input);
-    assertThat(actual).isEqualTo(expected);
   }
 
   private static final void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)

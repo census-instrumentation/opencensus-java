@@ -71,11 +71,11 @@ final class StatsTestUtil {
       List<Aggregation> aggregations, double... values) {
     List<AggregationData> aggregationDataList = new ArrayList<AggregationData>(aggregations.size());
     for (Aggregation aggregation : aggregations) {
-      MutableAggregation mAggregation = MutableViewData.createMutableAggregation(aggregation);
+      MutableAggregation mutableAggregation = MutableViewData.createMutableAggregation(aggregation);
       for (double value : values) {
-        mAggregation.add(value);
+        mutableAggregation.add(value);
       }
-      aggregationDataList.add(MutableViewData.createAggregationData(mAggregation));
+      aggregationDataList.add(MutableViewData.createAggregationData(mutableAggregation));
     }
     return aggregationDataList;
   }
