@@ -1,7 +1,8 @@
 plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.1'
   id 'me.tatarka.retrolambda' version '3.6.0'
-  id "me.champeau.gradle.jmh" version "0.4.4"
+  id 'me.champeau.gradle.jmh' version "0.4.4"
+  id 'io.morethan.jmhreport' version '0.5.0'
 }
 
 description = 'OpenCensus Agent'
@@ -195,4 +196,12 @@ jmh {
   iterations = 10
   fork = 1
   failOnError = true
+  resultFormat = 'JSON'
 }
+
+jmhReport {
+  jmhResultPath = project.file("${project.buildDir}/reports/jmh/results.json")
+  jmhReportOutput = project.file("${project.buildDir}/reports/jmh")
+}
+
+tasks.jmh.finalizedBy tasks.jmhReport
