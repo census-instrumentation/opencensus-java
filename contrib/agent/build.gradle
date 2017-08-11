@@ -98,7 +98,7 @@ shadowJar {
 
   // Include only the following dependencies (excluding transitive dependencies).
   dependencies {
-    include(dependency('net.bytebuddy:byte-buddy'))
+    include(dependency(libraries.byte_buddy))
     include(dependency(libraries.guava))
   }
 
