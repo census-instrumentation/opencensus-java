@@ -92,12 +92,12 @@ public class ViewManagerImplTest {
   private final ViewManagerImpl viewManager = statsComponent.getViewManager();
   private final StatsRecorder statsRecorder = statsComponent.getStatsRecorder();
 
-  private static View createDistributionView() {
-    return createDistributionView(
+  private static View createCumulativeView() {
+    return createCumulativeView(
         VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY));
   }
 
-  private static View createDistributionView(
+  private static View createCumulativeView(
       View.Name name,
       Measure measure,
       List<Aggregation> aggregations,
@@ -107,8 +107,8 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testRegisterAndGetView() {
-    View view = createDistributionView();
+  public void testRegisterAndGetCumulativeView() {
+    View view = createCumulativeView();
     viewManager.registerView(view);
     assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view);
   }
@@ -129,7 +129,7 @@ public class ViewManagerImplTest {
 
   @Test
   public void allowRegisteringSameViewTwice() {
-    View view = createDistributionView();
+    View view = createCumulativeView();
     viewManager.registerView(view);
     viewManager.registerView(view);
     assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view);
@@ -172,7 +172,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecord() {
     View view =
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
@@ -200,7 +200,7 @@ public class ViewManagerImplTest {
   @Test
   public void getViewDoesNotClearStats() {
     View view =
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
@@ -239,7 +239,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordMultipleTagValues() {
     viewManager.registerView(
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
@@ -276,7 +276,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithEmptyStatsContext() {
     viewManager.registerView(
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
@@ -299,7 +299,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithNonExistentMeasurement() {
     viewManager.registerView(
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             Measure.MeasureDouble.create(MEASURE_NAME, "measure", MEASURE_UNIT),
             AGGREGATIONS,
@@ -315,7 +315,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithTagsThatDoNotMatchViewData() {
     viewManager.registerView(
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
@@ -343,7 +343,7 @@ public class ViewManagerImplTest {
     TagKey key1 = TagKey.create("Key-1");
     TagKey key2 = TagKey.create("Key-2");
     viewManager.registerView(
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
@@ -376,13 +376,13 @@ public class ViewManagerImplTest {
   @Test
   public void testMultipleViewSameMeasure() {
     View view1 =
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME,
             MEASURE,
             AGGREGATIONS,
             Arrays.asList(KEY));
     View view2 =
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME_2,
             MEASURE,
             AGGREGATIONS,
@@ -423,10 +423,10 @@ public class ViewManagerImplTest {
     MeasureDouble measure2 =
         Measure.MeasureDouble.create(MEASURE_NAME_2, MEASURE_DESCRIPTION, MEASURE_UNIT);
     View view1 =
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME, measure1, AGGREGATIONS, Arrays.asList(KEY));
     View view2 =
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME_2, measure2, AGGREGATIONS, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
     viewManager.registerView(view1);
@@ -458,11 +458,11 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testGetDistributionViewDataWithoutBucketBoundaries() {
+  public void testGetCumulativeViewDataWithoutBucketBoundaries() {
     List<Aggregation> aggregationsNoHistogram = Arrays.asList(
         Sum.create(), Count.create(), Mean.create(), Range.create(), StdDev.create());
     View view =
-        createDistributionView(
+        createCumulativeView(
             VIEW_NAME, MEASURE,
             aggregationsNoHistogram,
             Arrays.asList(KEY));

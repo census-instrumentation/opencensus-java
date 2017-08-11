@@ -111,7 +111,7 @@ final class StatsTestUtil {
     assertThat(expectedValue.size()).isEqualTo(actualValue.size());
     for (int i = 0; i < expectedValue.size(); i++) {
       final AggregationData actual = actualValue.get(i);
-      final AggregationData expected = expectedValue.get(i);
+      AggregationData expected = expectedValue.get(i);
       expected.match(
           new Function<SumData, Void>() {
             @Override
