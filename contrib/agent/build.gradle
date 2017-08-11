@@ -131,14 +131,15 @@ shadowJar {
       // Must have bundled the bootstrap.jar.
       assert it.entries().any { it.name == agentBootstrapJar }
 
-      it.entries().each {
-        // Must not contain anything outside of ${agentPackage}, except for the manifest.
-        assert it.name.startsWith(agentPackageDir) ||
-               (it.isDirectory() && agentPackageDir.startsWith(it.name)) ||
-               it.name == 'META-INF/' ||
-               it.name == 'META-INF/MANIFEST.MF'
+      it.entries().each { entry ->
+        // Must not contain anything outside of ${agentPackage}, ...
+        assert entry.name.startsWith(agentPackageDir) ||
+               // ... except for the expected entries.
+               [ agentPackageDir,
+                 'META-INF/MANIFEST.MF',
+               ].any { entry.isDirectory() ? it.startsWith(entry.name) : it == entry.name }
         // Also, should not have the bootstrap classes.
-        assert !it.name.startsWith(agentBootstrapPackageDir)
+        assert !entry.name.startsWith(agentBootstrapPackageDir)
       }
     }
   }
