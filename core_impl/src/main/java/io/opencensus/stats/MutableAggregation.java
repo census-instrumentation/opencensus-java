@@ -335,6 +335,7 @@ abstract class MutableAggregation {
      *
      * @return the aggregated standard deviations.
      */
+    // TODO(songya): decide if we want to return sumOfSquaredDeviations directly.
     double getStdDev() {
       return count == 0 ? 0 : Math.sqrt(sumOfSquaredDeviations / count);
     }

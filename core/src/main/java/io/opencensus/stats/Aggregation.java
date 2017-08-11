@@ -212,6 +212,8 @@ public abstract class Aggregation {
   /** Calculate standard deviation on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // TODO(songya): StackDriver uses sumOfSquaredDeviation instead of standard deviation, do we want
+  // to change this aggregation to sumOfSquaredDeviation instead?
   public abstract static class StdDev extends Aggregation {
 
     StdDev() {
