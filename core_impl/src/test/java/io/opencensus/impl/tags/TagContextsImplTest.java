@@ -38,7 +38,7 @@ import org.junit.runners.JUnit4;
 
 /** Tests for {@link TagContextsImpl}. */
 @RunWith(JUnit4.class)
-public class TagContextFactoryImplTest {
+public class TagContextsImplTest {
   private final TagContexts tagContexts = new TagContextsImpl();
 
   private static final TagKeyString KS = TagKeyString.create("ks");
