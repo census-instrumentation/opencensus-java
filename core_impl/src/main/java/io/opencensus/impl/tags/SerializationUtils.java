@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * Native implementation {@link StatsContext} serialization.
  *
- * <p>Encoding of stats context information (tags) for passing across RPC's:</p>
+ * <p>Encoding of stats context information (tags) for passing across RPC's:
  *
  * <ul>
  *   <li>Tags are encoded in single byte sequence. The version 0 format is:
@@ -37,29 +37,29 @@ import java.util.Set;
  *   <li>{@code <version_id> == a single byte, value 0}
  *   <li>{@code <encoded_tags> == (<tag_field_id><tag_encoding>)*}
  *       <ul>
- *       <li>{@code <tag_field_id>} == a single byte, value 0 (string tag), 1 (int tag),
- *           2 (true bool tag), 3 (false bool tag)
- *       <li>{@code <tag_encoding>}:
- *           <ul>
- *           <li>{@code (tag_field_id == 0) == <tag_key_len><tag_key><tag_val_len><tag_val>}
- *               <ul>
- *               <li>{@code <tag_key_len>} == varint encoded integer
- *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
- *               <li>{@code <tag_val_len>} == varint encoded integer
- *               <li>{@code <tag_val>} == tag_val_len bytes comprising UTF-8 string
- *               </ul>
- *           <li>{@code (tag_field_id == 1) == <tag_key_len><tag_key><int_tag_val>}
- *               <ul>
- *               <li>{@code <tag_key_len>} == varint encoded integer
- *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
- *               <li>{@code <int_tag_value>} == 8 bytes, little-endian integer
- *               </ul>
- *           <li>{@code (tag_field_id == 2 || tag_field_id == 3) == <tag_key_len><tag_key>}
- *               <ul>
- *               <li>{@code <tag_key_len>} == varint encoded integer
- *               <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
- *               </ul>
- *           </ul>
+ *         <li>{@code <tag_field_id>} == a single byte, value 0 (string tag), 1 (int tag), 2 (true
+ *             bool tag), 3 (false bool tag)
+ *         <li>{@code <tag_encoding>}:
+ *             <ul>
+ *               <li>{@code (tag_field_id == 0) == <tag_key_len><tag_key><tag_val_len><tag_val>}
+ *                   <ul>
+ *                     <li>{@code <tag_key_len>} == varint encoded integer
+ *                     <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
+ *                     <li>{@code <tag_val_len>} == varint encoded integer
+ *                     <li>{@code <tag_val>} == tag_val_len bytes comprising UTF-8 string
+ *                   </ul>
+ *               <li>{@code (tag_field_id == 1) == <tag_key_len><tag_key><int_tag_val>}
+ *                   <ul>
+ *                     <li>{@code <tag_key_len>} == varint encoded integer
+ *                     <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
+ *                     <li>{@code <int_tag_value>} == 8 bytes, little-endian integer
+ *                   </ul>
+ *               <li>{@code (tag_field_id == 2 || tag_field_id == 3) == <tag_key_len><tag_key>}
+ *                   <ul>
+ *                     <li>{@code <tag_key_len>} == varint encoded integer
+ *                     <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
+ *                   </ul>
+ *             </ul>
  *       </ul>
  * </ul>
  */
@@ -71,7 +71,6 @@ final class SerializationUtils {
   @VisibleForTesting static final int VALUE_TYPE_INTEGER = 1;
   @VisibleForTesting static final int VALUE_TYPE_TRUE = 2;
   @VisibleForTesting static final int VALUE_TYPE_FALSE = 3;
-
 
   // Serializes a StatsContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
@@ -125,14 +124,13 @@ final class SerializationUtils {
       }
       return new StatsContextImpl(statsRecorder, tags);
     } catch (BufferUnderflowException exn) {
-      throw new IOException(exn.toString());  // byte array format error.
+      throw new IOException(exn.toString()); // byte array format error.
     }
   }
 
   //  TODO(songya): Currently we only support encoding on string type.
   private static final void encodeStringTag(
-      TagKey key, TagValue value, ByteArrayOutputStream byteArrayOutputStream)
-      throws IOException {
+      TagKey key, TagValue value, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
     byteArrayOutputStream.write(VALUE_TYPE_STRING);
     encodeString(key.asString(), byteArrayOutputStream);
     encodeString(value.asString(), byteArrayOutputStream);
