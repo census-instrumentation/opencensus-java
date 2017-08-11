@@ -11,29 +11,29 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import io.opencensus.impl.stats.MutableAggregation.MutableCount;
+import io.opencensus.impl.stats.MutableAggregation.MutableHistogram;
+import io.opencensus.impl.stats.MutableAggregation.MutableMean;
+import io.opencensus.impl.stats.MutableAggregation.MutableRange;
+import io.opencensus.impl.stats.MutableAggregation.MutableStdDev;
+import io.opencensus.impl.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
-import io.opencensus.stats.Aggregation.Mean;
-import io.opencensus.stats.Aggregation.Range;
-import io.opencensus.stats.Aggregation.StdDev;
 import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
-import io.opencensus.stats.MutableAggregation.MutableCount;
-import io.opencensus.stats.MutableAggregation.MutableHistogram;
-import io.opencensus.stats.MutableAggregation.MutableMean;
-import io.opencensus.stats.MutableAggregation.MutableRange;
-import io.opencensus.stats.MutableAggregation.MutableStdDev;
-import io.opencensus.stats.MutableAggregation.MutableSum;
+import io.opencensus.stats.BucketBoundaries;
+import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValueString;
 import java.util.ArrayList;
@@ -87,16 +87,20 @@ public class MutableViewDataTest {
             Histogram.create(bucketBoundaries))).getBucketCounts())
         .isEqualTo(new long[]{0, 0, 0, 0});
     assertThat(
-        ((MutableRange) MutableViewData.createMutableAggregation(Range.create())).getMin())
+        ((MutableRange) MutableViewData
+            .createMutableAggregation(UnreleasedApiAccessor.createRange())).getMin())
         .isPositiveInfinity();
     assertThat(
-        ((MutableRange) MutableViewData.createMutableAggregation(Range.create())).getMax())
+        ((MutableRange) MutableViewData
+            .createMutableAggregation(UnreleasedApiAccessor.createRange())).getMax())
         .isNegativeInfinity();
     assertThat(
-        ((MutableMean) MutableViewData.createMutableAggregation(Mean.create())).getMean())
+        ((MutableMean) MutableViewData.createMutableAggregation(UnreleasedApiAccessor.createMean()))
+            .getMean())
         .isWithin(EPSILON).of(0D);
     assertThat(
-        ((MutableStdDev) MutableViewData.createMutableAggregation(StdDev.create())).getStdDev())
+        ((MutableStdDev) MutableViewData
+            .createMutableAggregation(UnreleasedApiAccessor.createStdDev())).getStdDev())
         .isWithin(EPSILON).of(0D);
   }
 

@@ -11,17 +11,18 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Function;
-import io.opencensus.stats.MutableAggregation.MutableCount;
-import io.opencensus.stats.MutableAggregation.MutableHistogram;
-import io.opencensus.stats.MutableAggregation.MutableMean;
-import io.opencensus.stats.MutableAggregation.MutableRange;
-import io.opencensus.stats.MutableAggregation.MutableStdDev;
-import io.opencensus.stats.MutableAggregation.MutableSum;
+import io.opencensus.impl.stats.MutableAggregation.MutableCount;
+import io.opencensus.impl.stats.MutableAggregation.MutableHistogram;
+import io.opencensus.impl.stats.MutableAggregation.MutableMean;
+import io.opencensus.impl.stats.MutableAggregation.MutableRange;
+import io.opencensus.impl.stats.MutableAggregation.MutableStdDev;
+import io.opencensus.impl.stats.MutableAggregation.MutableSum;
+import io.opencensus.stats.BucketBoundaries;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.opencensus.stats.MutableAggregation}. */
+/** Unit tests for {@link io.opencensus.impl.stats.MutableAggregation}. */
 @RunWith(JUnit4.class)
 public class MutableAggregationTest {
 

@@ -33,7 +33,7 @@ public abstract class StatsRecorder {
    * @param tags the tags associated with the measurements.
    * @param measurementValues the measurements to record.
    */
-  abstract void record(TagContext tags, MeasureMap measurementValues);
+  protected abstract void record(TagContext tags, MeasureMap measurementValues);
 
   /**
    * Returns a {@code StatsRecorder} that does not record any data.
@@ -48,7 +48,7 @@ public abstract class StatsRecorder {
   private static final class NoopStatsRecorder extends StatsRecorder {
 
     @Override
-    void record(TagContext tags, MeasureMap measurementValues) {
+    protected void record(TagContext tags, MeasureMap measurementValues) {
       Preconditions.checkNotNull(tags);
       Preconditions.checkNotNull(measurementValues);
     }

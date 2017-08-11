@@ -66,7 +66,7 @@ public abstract class AggregationData {
     SumData() {
     }
 
-    static SumData create(double sum) {
+    public static SumData create(double sum) {
       return new AutoValue_AggregationData_SumData(sum);
     }
 
@@ -98,7 +98,7 @@ public abstract class AggregationData {
     CountData() {
     }
 
-    static CountData create(long count) {
+    public static CountData create(long count) {
       return new AutoValue_AggregationData_CountData(count);
     }
 
@@ -130,10 +130,16 @@ public abstract class AggregationData {
     HistogramData() {
     }
 
-    static HistogramData create(long... bucketCountDatas) {
-      checkNotNull(bucketCountDatas, "bucket counts should not be null.");
+    /**
+     * Create a {@code HistogramData}.
+     *
+     * @param bucketCounts bucket counts.
+     * @return a {@code HistogramData}.
+     */
+    public static HistogramData create(long... bucketCounts) {
+      checkNotNull(bucketCounts, "bucket counts should not be null.");
       List<Long> boxedBucketCountDatas = new ArrayList<Long>();
-      for (long bucketCountData : bucketCountDatas) {
+      for (long bucketCountData : bucketCounts) {
         boxedBucketCountDatas.add(bucketCountData);
       }
       return new AutoValue_AggregationData_HistogramData(
@@ -169,7 +175,14 @@ public abstract class AggregationData {
     RangeData() {
     }
 
-    static RangeData create(double min, double max) {
+    /**
+     * Create a {@code RangeData}.
+     *
+     * @param min the minimum value
+     * @param max the maximum value
+     * @return a {@code RangeData}.
+     */
+    public static RangeData create(double min, double max) {
       if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
         checkArgument(min <= max, "max should be greater or equal to min.");
       }
@@ -211,7 +224,7 @@ public abstract class AggregationData {
     MeanData() {
     }
 
-    static MeanData create(double mean) {
+    public static MeanData create(double mean) {
       return new AutoValue_AggregationData_MeanData(mean);
     }
 
@@ -243,7 +256,7 @@ public abstract class AggregationData {
     StdDevData() {
     }
 
-    static StdDevData create(double stdDev) {
+    public static StdDevData create(double stdDev) {
       return new AutoValue_AggregationData_StdDevData(stdDev);
     }
 

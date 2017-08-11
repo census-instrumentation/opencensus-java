@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import io.opencensus.impl.common.MillisClock;
 import io.opencensus.impl.internal.DisruptorEventQueue;
+import io.opencensus.stats.StatsComponent;
 
 /** Java 7 and 8 implementation of {@link StatsComponent}. */
 public final class StatsComponentImpl extends StatsComponentImplBase {

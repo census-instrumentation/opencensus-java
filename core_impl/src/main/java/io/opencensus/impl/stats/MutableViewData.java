@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -20,27 +20,31 @@ import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.impl.stats.MutableAggregation.MutableCount;
+import io.opencensus.impl.stats.MutableAggregation.MutableHistogram;
+import io.opencensus.impl.stats.MutableAggregation.MutableMean;
+import io.opencensus.impl.stats.MutableAggregation.MutableRange;
+import io.opencensus.impl.stats.MutableAggregation.MutableStdDev;
+import io.opencensus.impl.stats.MutableAggregation.MutableSum;
 import io.opencensus.impl.tags.TagContextImpl;
+import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Range;
 import io.opencensus.stats.Aggregation.StdDev;
 import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
-import io.opencensus.stats.MutableAggregation.MutableCount;
-import io.opencensus.stats.MutableAggregation.MutableHistogram;
-import io.opencensus.stats.MutableAggregation.MutableMean;
-import io.opencensus.stats.MutableAggregation.MutableRange;
-import io.opencensus.stats.MutableAggregation.MutableStdDev;
-import io.opencensus.stats.MutableAggregation.MutableSum;
+import io.opencensus.stats.View;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
+import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;

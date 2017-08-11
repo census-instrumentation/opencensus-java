@@ -11,18 +11,22 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
-import io.opencensus.impl.common.MillisClock;
-import io.opencensus.impl.internal.SimpleEventQueue;
+import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.StatsRecorder;
+import io.opencensus.tags.TagContext;
 
-/**
- * Android-compatible implementation of {@link StatsComponent}.
- */
-public final class StatsComponentImplLite extends StatsComponentImplBase {
+/** Implementation of {@link StatsRecorder}. */
+final class StatsRecorderImpl extends StatsRecorder {
+  private final StatsManager statsManager;
 
-  public StatsComponentImplLite() {
-    // TODO(sebright): Use a more efficient queue implementation.
-    super(new SimpleEventQueue(), MillisClock.getInstance());
+  StatsRecorderImpl(StatsManager statsManager) {
+    this.statsManager = statsManager;
+  }
+
+  @Override
+  protected void record(TagContext tags, MeasureMap measurementValues) {
+    statsManager.record(tags, measurementValues);
   }
 }

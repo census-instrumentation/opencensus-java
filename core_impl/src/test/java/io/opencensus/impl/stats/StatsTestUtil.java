@@ -11,13 +11,15 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Iterables;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;

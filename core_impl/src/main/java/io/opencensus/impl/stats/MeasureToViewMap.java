@@ -11,14 +11,18 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
+import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.Measurement;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
+import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
 import java.util.Collection;
 import java.util.HashMap;

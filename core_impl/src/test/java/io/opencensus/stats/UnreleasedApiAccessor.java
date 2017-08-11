@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, Google Inc.
+ * Copyright 2017, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,24 +13,26 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.Aggregation.Range;
+import io.opencensus.stats.Aggregation.StdDev;
 
 /**
- * Test for accessing the {@link StatsComponent} through the {@link Stats} class.
+ * Class for accessing methods in the {@code io.opencensus.stats} package that haven't been made
+ * public yet.
  */
-@RunWith(JUnit4.class)
-public final class StatsTest {
-  @Test
-  public void getStatsRecorder() {
-    assertThat(Stats.getStatsRecorder()).isInstanceOf(StatsRecorderImpl.class);
+public final class UnreleasedApiAccessor {
+  private UnreleasedApiAccessor() {}
+
+  public static Range createRange() {
+    return Range.create();
   }
 
-  @Test
-  public void getViewManager() {
-    assertThat(Stats.getViewManager()).isInstanceOf(ViewManagerImpl.class);
+  public static Mean createMean() {
+    return Mean.create();
+  }
+
+  public static StdDev createStdDev() {
+    return StdDev.create();
   }
 }

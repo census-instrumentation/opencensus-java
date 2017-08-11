@@ -11,11 +11,17 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Measure;
+import io.opencensus.stats.UnreleasedApiAccessor;
+import io.opencensus.stats.View;
+import io.opencensus.stats.View.Name;
+import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.testing.common.TestClock;
@@ -35,11 +41,11 @@ public class MeasureToViewMapTest {
           "measurement description",
           "By");
 
-  private static final View.Name VIEW_NAME = View.Name.create("my view");
+  private static final Name VIEW_NAME = View.Name.create("my view");
 
   private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM = Arrays.asList(
-      Aggregation.Sum.create(), Aggregation.Count.create(), Aggregation.Range.create(),
-      Aggregation.Mean.create(), Aggregation.StdDev.create());
+      Aggregation.Sum.create(), Aggregation.Count.create(), UnreleasedApiAccessor.createRange(),
+      UnreleasedApiAccessor.createMean(), UnreleasedApiAccessor.createStdDev());
 
   private static final View.Window.Cumulative CUMULATIVE = View.Window.Cumulative.create();
 
