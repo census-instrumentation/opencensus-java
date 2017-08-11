@@ -15,115 +15,164 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.View.IntervalView;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * The aggregated data for a particular {@link View}.
- */
+
+/** The aggregated data for a particular {@link View}. */
 @Immutable
+@AutoValue
 public abstract class ViewData {
-  /**
-   * The {@link View} associated with this {@link ViewData}.
-   */
+
+  // Prevents this class from being subclassed anywhere else.
+  ViewData() {}
+
+  /** The {@link View} associated with this {@link ViewData}. */
   public abstract View getView();
 
   /**
-   * Applies the given match function to the underlying data type.
+   * The {@link AggregationData}s grouped by combination of {@link TagValue}s, associated with this
+   * {@link ViewData}.
    */
-  public abstract <T> T match(
-      Function<? super DistributionViewData, T> p0,
-      Function<? super IntervalViewData, T> p1);
-
-  // Prevents this class from being subclassed anywhere else.
-  private ViewData() {
-  }
+  public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
 
   /**
-   * A {@link ViewData} for distribution-based aggregations.
+   * Returns the {@link WindowData} associated with this {@link ViewData}.
+   *
+   * @return the {@code WindowData}.
    */
-  @Immutable
-  @AutoValue
-  public abstract static class DistributionViewData extends ViewData {
-    /**
-     * Constructs a new {@link DistributionViewData}.
-     */
-    public static DistributionViewData create(DistributionView distributionView,
-        List<DistributionAggregate> distributionAggregates, Timestamp start, Timestamp end) {
-      return new AutoValue_ViewData_DistributionViewData(
-          distributionView,
-          Collections.unmodifiableList(
-              new ArrayList<DistributionAggregate>(distributionAggregates)),
-          start,
-          end);
+  public abstract WindowData getWindowData();
+
+  /** Constructs a new {@link ViewData}. */
+  public static ViewData create(
+      View view, Map<List<TagValue>, List<AggregationData>> map, final WindowData windowData) {
+    view.getWindow()
+        .match(
+            new Function<View.Window.Cumulative, Void>() {
+              @Override
+              public Void apply(View.Window.Cumulative arg) {
+                if (!(windowData instanceof WindowData.CumulativeData)) {
+                  throw new IllegalArgumentException(
+                      "Window and WindowData types mismatch. "
+                          + "Window: "
+                          + arg
+                          + " WindowData: "
+                          + windowData);
+                }
+                return null;
+              }
+            },
+            new Function<View.Window.Interval, Void>() {
+              @Override
+              public Void apply(View.Window.Interval arg) {
+                if (!(windowData instanceof WindowData.IntervalData)) {
+                  throw new IllegalArgumentException(
+                      "Window and WindowData types mismatch. "
+                          + "Window: "
+                          + arg
+                          + " WindowData: "
+                          + windowData);
+                }
+                return null;
+              }
+            },
+            Functions.<Void>throwIllegalArgumentException());
+
+    Map<List<TagValue>, List<AggregationData>> deepCopy =
+        new HashMap<List<TagValue>, List<AggregationData>>();
+    for (Entry<List<TagValue>, List<AggregationData>> entry : map.entrySet()) {
+      deepCopy.put(
+          Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())),
+          Collections.unmodifiableList(new ArrayList<AggregationData>(entry.getValue())));
     }
 
-    @Override
-    public abstract DistributionView getView();
-
-    /**
-     * The {@link DistributionAggregate}s associated with this {@link DistributionViewData}.
-     *
-     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-     * UnsupportedOperationException.
-     */
-    public abstract List<DistributionAggregate> getDistributionAggregates();
-
-    /**
-     * Returns start timestamp for this aggregation.
-     */
-    public abstract Timestamp getStart();
-
-    /**
-     * Returns end timestamp for this aggregation.
-     */
-    public abstract Timestamp getEnd();
-
-    @Override
-    public final <T> T match(
-        Function<? super DistributionViewData, T> p0,
-        Function<? super IntervalViewData, T> p1) {
-      return p0.apply(this);
-    }
+    return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), windowData);
   }
 
-  /**
-   * A {@link ViewData} for interval-base aggregations.
-   */
+  /** The {@code WindowData} for a {@link ViewData}. */
   @Immutable
-  @AutoValue
-  public abstract static class IntervalViewData extends ViewData {
-    /**
-     * Constructs a new {@link IntervalViewData}.
-     */
-    public static IntervalViewData create(IntervalView intervalView,
-        List<IntervalAggregate> intervalAggregates) {
-      return new AutoValue_ViewData_IntervalViewData(
-          intervalView,
-          Collections.unmodifiableList(new ArrayList<IntervalAggregate>(intervalAggregates)));
+  public abstract static class WindowData {
+
+    private WindowData() {}
+
+    /** Applies the given match function to the underlying data type. */
+    public abstract <T> T match(
+        Function<? super CumulativeData, T> p0,
+        Function<? super IntervalData, T> p1,
+        Function<? super WindowData, T> defaultFunction);
+
+    /** Cumulative {@code WindowData.} */
+    @Immutable
+    @AutoValue
+    public abstract static class CumulativeData extends WindowData {
+
+      CumulativeData() {}
+
+      /**
+       * Returns the start {@code Timestamp} for a {@link CumulativeData}.
+       *
+       * @return the start {@code Timestamp}.
+       */
+      public abstract Timestamp getStart();
+
+      /**
+       * Returns the end {@code Timestamp} for a {@link CumulativeData}.
+       *
+       * @return the end {@code Timestamp}.
+       */
+      public abstract Timestamp getEnd();
+
+      @Override
+      public final <T> T match(
+          Function<? super CumulativeData, T> p0,
+          Function<? super IntervalData, T> p1,
+          Function<? super WindowData, T> defaultFunction) {
+        return p0.apply(this);
+      }
+
+      /** Constructs a new {@link CumulativeData}. */
+      public static CumulativeData create(Timestamp start, Timestamp end) {
+        if (start.compareTo(end) > 0) {
+          throw new IllegalArgumentException("Start time is later than end time.");
+        }
+        return new AutoValue_ViewData_WindowData_CumulativeData(start, end);
+      }
     }
 
-    @Override
-    public abstract IntervalView getView();
+    /** Interval {@code WindowData.} */
+    @Immutable
+    @AutoValue
+    public abstract static class IntervalData extends WindowData {
 
-    /**
-     * The {@link IntervalAggregate}s associated with this {@link IntervalViewData}.
-     *
-     * <p>Note: The returned list is unmodifiable, attempts to update it will throw an
-     * UnsupportedOperationException.
-     */
-    public abstract List<IntervalAggregate> getIntervalAggregates();
+      IntervalData() {}
 
-    @Override
-    public final <T> T match(
-        Function<? super DistributionViewData, T> p0,
-        Function<? super IntervalViewData, T> p1) {
-      return p1.apply(this);
+      /**
+       * Returns the end {@code Timestamp} for an {@link IntervalData}.
+       *
+       * @return the end {@code Timestamp}.
+       */
+      public abstract Timestamp getEnd();
+
+      @Override
+      public final <T> T match(
+          Function<? super CumulativeData, T> p0,
+          Function<? super IntervalData, T> p1,
+          Function<? super WindowData, T> defaultFunction) {
+        return p1.apply(this);
+      }
+
+      /** Constructs a new {@link IntervalData}. */
+      public static IntervalData create(Timestamp end) {
+        return new AutoValue_ViewData_WindowData_IntervalData(end);
+      }
     }
   }
 }

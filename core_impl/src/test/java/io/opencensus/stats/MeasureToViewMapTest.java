@@ -14,15 +14,13 @@
 package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
-import io.opencensus.common.Function;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.View.DistributionView;
-import io.opencensus.stats.ViewData.DistributionViewData;
-import io.opencensus.stats.ViewData.IntervalViewData;
+import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,38 +37,26 @@ public class MeasureToViewMapTest {
 
   private static final View.Name VIEW_NAME = View.Name.create("my view");
 
+  private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM = Arrays.asList(
+      Aggregation.Sum.create(), Aggregation.Count.create(), Aggregation.Range.create(),
+      Aggregation.Mean.create(), Aggregation.StdDev.create());
+
+  private static final View.Window.Cumulative CUMULATIVE = View.Window.Cumulative.create();
+
   private static final View VIEW =
-      DistributionView.create(
-          VIEW_NAME,
-          "view description",
-          MEASURE,
-          DistributionAggregation.create(),
-          Arrays.asList(TagKey.create("my key")));
+      View.create(VIEW_NAME, "view description", MEASURE, AGGREGATIONS_NO_HISTOGRAM,
+          Arrays.asList(TagKey.create("my key")), CUMULATIVE);
 
   @Test
-  public void testRegisterAndGetDistributionView() {
+  public void testRegisterAndGetView() {
     MeasureToViewMap measureToViewMap = new MeasureToViewMap();
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
     measureToViewMap.registerView(VIEW, clock);
     clock.setTime(Timestamp.create(30, 40));
-    ViewData actual = measureToViewMap.getView(VIEW_NAME, clock);
-    actual.match(
-        new Function<ViewData.DistributionViewData, Void>() {
-          @Override
-          public Void apply(DistributionViewData view) {
-            assertThat(view.getView()).isEqualTo(VIEW);
-            assertThat(view.getStart()).isEqualTo(Timestamp.create(10, 20));
-            assertThat(view.getEnd()).isEqualTo(Timestamp.create(30, 40));
-            assertThat(view.getDistributionAggregates()).isEmpty();
-            return null;
-          }
-        },
-        new Function<ViewData.IntervalViewData, Void>() {
-          @Override
-          public Void apply(IntervalViewData view) {
-            fail("Wrong view type.");
-            return null;
-          }
-        });
+    ViewData viewData = measureToViewMap.getView(VIEW_NAME, clock);
+    assertThat(viewData.getView()).isEqualTo(VIEW);
+    assertThat(viewData.getWindowData()).isEqualTo(
+        CumulativeData.create(Timestamp.create(10, 20), Timestamp.create(30, 40)));
+    assertThat(viewData.getAggregationMap()).isEmpty();
   }
 }

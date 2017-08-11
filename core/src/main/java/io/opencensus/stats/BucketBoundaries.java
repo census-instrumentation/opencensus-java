@@ -22,15 +22,14 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * The optional histogram bucket boundaries for a {@link Distribution}.
- */
+/** The histogram bucket boundaries for an {@link Aggregation.Histogram}. */
 @Immutable
 @AutoValue
 public abstract class BucketBoundaries {
 
   /**
-   * @param bucketBoundaries the boundaries for the buckets in the underlying {@link Distribution}.
+   * @param bucketBoundaries the boundaries for the buckets in the underlying {@link
+   * Aggregation.Histogram}.
    * @return a new {@code BucketBoundaries} with the specified boundaries.
    * @throws NullPointerException if {@code bucketBoundaries} is null.
    * @throws IllegalArgumentException if {@code bucketBoundaries} is not sorted.

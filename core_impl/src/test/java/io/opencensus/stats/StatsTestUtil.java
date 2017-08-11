@@ -13,13 +13,20 @@
 
 package io.opencensus.stats;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.common.collect.Iterables;
-import com.google.common.truth.Truth;
+import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
+import io.opencensus.stats.AggregationData.CountData;
+import io.opencensus.stats.AggregationData.HistogramData;
+import io.opencensus.stats.AggregationData.MeanData;
+import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.StdDevData;
+import io.opencensus.stats.AggregationData.SumData;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /** Stats test utilities. */
 final class StatsTestUtil {
@@ -53,107 +60,122 @@ final class StatsTestUtil {
   }
 
   /**
-   * Creates a {@code DistributionAggregate} by adding the given values to a new {@link
-   * MutableDistribution} that has {@code BucketBoundaries}.
+   * Creates a list of {@link AggregationData}s by adding the given sequence of values, based on the
+   * definition of the given {@link Aggregation}s.
    *
-   * @param tags the {@code DistributionAggregate}'s tags.
-   * @param bucketBoundaries the bucket boundaries.
-   * @param values the values to add to the distribution.
-   * @return the new {@code DistributionAggregate}
+   * @param aggregations the {@code Aggregation}s to apply the values to.
+   * @param values the values to add to the {@code MutableAggregation}s.
+   * @return the new {@code AggregationData}s.
    */
-  static DistributionAggregate createDistributionAggregate(
-      List<Tag> tags, BucketBoundaries bucketBoundaries, List<Double> values) {
-    MutableDistribution mdist = MutableDistribution.create(bucketBoundaries);
-    for (double value : values) {
-      mdist.add(value);
+  static List<AggregationData> createAggregationData(
+      List<Aggregation> aggregations, double... values) {
+    List<AggregationData> aggregationDataList = new ArrayList<AggregationData>(aggregations.size());
+    for (Aggregation aggregation : aggregations) {
+      MutableAggregation mAggregation = MutableViewData.createMutableAggregation(aggregation);
+      for (double value : values) {
+        mAggregation.add(value);
+      }
+      aggregationDataList.add(MutableViewData.createAggregationData(mAggregation));
     }
-    MutableDistribution.Range range = mdist.getRange();
-    return DistributionAggregate.create(
-        mdist.getCount(),
-        mdist.getMean(),
-        mdist.getSum(),
-        DistributionAggregate.Range.create(range.getMin(), range.getMax()),
-        tags,
-        mdist.getBucketCounts());
+    return aggregationDataList;
   }
 
   /**
-   * Creates a {@code DistributionAggregate} by adding the given values to a new {@link
-   * MutableDistribution} that does not have {@code BucketBoundaries}.
+   * Compare the actual and expected AggregationMap within the given tolerance.
    *
-   * @param tags the {@code DistributionAggregate}'s tags.
-   * @param values the values to add to the distribution.
-   * @return the new {@code DistributionAggregate}
-   */
-  static DistributionAggregate createDistributionAggregate(
-      List<Tag> tags, List<Double> values) {
-    MutableDistribution mdist = MutableDistribution.create();
-    for (double value : values) {
-      mdist.add(value);
-    }
-    MutableDistribution.Range range = mdist.getRange();
-    return DistributionAggregate.create(
-        mdist.getCount(),
-        mdist.getMean(),
-        mdist.getSum(),
-        DistributionAggregate.Range.create(range.getMin(), range.getMax()),
-        tags);
-  }
-
-  /**
-   * Asserts that the two sets of {@code DistributionAggregate}s are equivalent, with a given
-   * tolerance. The tolerance is used when comparing the mean and sum of values. The order of the
-   * {@code DistributionAggregate}s has no effect. The expected parameter is last, because it is
-   * likely to be a larger expression.
-   *
+   * @param expected the expected map.
+   * @param actual the actual mapping from {@code List<TagValue>} to
+   *     {@code List<AggregationData>}.
    * @param tolerance the tolerance used for {@code double} comparison.
-   * @param actual the actual test result.
-   * @param expected the expected value.
-   * @throws AssertionError if the {@code DistributionAggregate}s don't match.
    */
-  static void assertDistributionAggregatesEquivalent(
-      double tolerance,
-      Collection<DistributionAggregate> actual,
-      Collection<DistributionAggregate> expected) {
-    Function<DistributionAggregate, List<Tag>> getTagsFunction =
-        new Function<DistributionAggregate, List<Tag>>() {
-          @Override
-          public List<Tag> apply(DistributionAggregate agg) {
-            return agg.getTags();
-          }
-        };
-    Iterable<List<Tag>> expectedTags = Iterables.transform(expected, getTagsFunction);
-    Iterable<List<Tag>> actualTags = Iterables.transform(actual, getTagsFunction);
-    Truth.assertThat(actualTags).containsExactlyElementsIn(expectedTags);
-    for (DistributionAggregate expectedAgg : expected) {
-      DistributionAggregate actualAgg =
-          Iterables.find(
-              actual,
-              Predicates.compose(Predicates.equalTo(expectedAgg.getTags()), getTagsFunction));
-      assertDistributionAggregateValuesEquivalent(
-          "DistributionAggregate tags=" + expectedAgg.getTags(),
-          tolerance,
-          expectedAgg,
-          actualAgg);
+  static void assertAggregationMapEquals(
+      Map<List<TagValue>, List<AggregationData>> actual,
+      Map<List<TagValue>, List<AggregationData>> expected,
+      double tolerance) {
+    assertThat(actual.keySet()).containsExactlyElementsIn(expected.keySet());
+    for (List<TagValue> tagValues : actual.keySet()) {
+      assertAggregationDataListEquals(expected.get(tagValues), actual.get(tagValues), tolerance);
     }
   }
 
-  private static void assertDistributionAggregateValuesEquivalent(
-      String msg, double tolerance, DistributionAggregate agg1, DistributionAggregate agg2) {
-    Truth.assertWithMessage(msg + " count").that(agg1.getCount()).isEqualTo(agg2.getCount());
-    Truth.assertWithMessage(msg + " mean")
-        .that(agg1.getMean())
-        .isWithin(tolerance)
-        .of(agg2.getMean());
-    Truth.assertWithMessage(msg + " sum").that(agg1.getSum()).isWithin(tolerance).of(agg2.getSum());
-    Truth.assertWithMessage(msg + " range").that(agg1.getRange()).isEqualTo(agg2.getRange());
+  /**
+   * Compare the expected and actual list of {@code AggregationData} within the given tolerance.
+   *
+   * @param expectedValue the expected list of {@code AggregationData}.
+   * @param actualValue the actual list of {@code AggregationData}.
+   * @param tolerance the tolerance used for {@code double} comparison.
+   */
+  static void assertAggregationDataListEquals(
+      List<AggregationData> expectedValue, List<AggregationData> actualValue,
+      final double tolerance) {
+    assertThat(expectedValue.size()).isEqualTo(actualValue.size());
+    for (int i = 0; i < expectedValue.size(); i++) {
+      final AggregationData actual = actualValue.get(i);
+      AggregationData expected = expectedValue.get(i);
+      expected.match(
+          new Function<SumData, Void>() {
+            @Override
+            public Void apply(SumData arg) {
+              assertThat(actual).isInstanceOf(SumData.class);
+              assertThat(((SumData) actual).getSum()).isWithin(tolerance).of(arg.getSum());
+              return null;
+            }
+          },
+          new Function<CountData, Void>() {
+            @Override
+            public Void apply(CountData arg) {
+              assertThat(actual).isInstanceOf(CountData.class);
+              assertThat(((CountData) actual).getCount()).isEqualTo(arg.getCount());
+              return null;
+            }
+          },
+          new Function<HistogramData, Void>() {
+            @Override
+            public Void apply(HistogramData arg) {
+              assertThat(actual).isInstanceOf(HistogramData.class);
+              assertThat(removeTrailingZeros(((HistogramData) actual).getBucketCounts()))
+                  .isEqualTo(removeTrailingZeros(arg.getBucketCounts()));
+              return null;
+            }
+          },
+          new Function<RangeData, Void>() {
+            @Override
+            public Void apply(RangeData arg) {
+              assertThat(actual).isInstanceOf(RangeData.class);
+              assertRangeDataEquals((RangeData) actual, arg, tolerance);
+              return null;
+            }
+          },
+          new Function<MeanData, Void>() {
+            @Override
+            public Void apply(MeanData arg) {
+              assertThat(actual).isInstanceOf(MeanData.class);
+              assertThat(((MeanData) actual).getMean()).isWithin(tolerance).of(arg.getMean());
+              return null;
+            }
+          },
+          new Function<StdDevData, Void>() {
+            @Override
+            public Void apply(StdDevData arg) {
+              assertThat(actual).isInstanceOf(StdDevData.class);
+              assertThat(((StdDevData) actual).getStdDev()).isWithin(tolerance).of(arg.getStdDev());
+              return null;
+            }
+          },
+          Functions.<Void>throwIllegalArgumentException());
+    }
+  }
 
-    if (agg1.getBucketCounts() == null && agg2.getBucketCounts() == null) {
-      return;
+  // Compare the expected and actual RangeData within the given tolerance.
+  private static void assertRangeDataEquals(
+      RangeData actual, RangeData expected, double tolerance) {
+    if (expected.getMax() == Double.NEGATIVE_INFINITY
+        && expected.getMin() == Double.POSITIVE_INFINITY) {
+      assertThat(actual.getMax()).isNegativeInfinity();
+      assertThat(actual.getMin()).isPositiveInfinity();
     } else {
-      Truth.assertWithMessage(msg + " bucket counts")
-          .that(removeTrailingZeros(agg1.getBucketCounts()))
-          .isEqualTo(removeTrailingZeros(agg2.getBucketCounts()));
+      assertThat(actual.getMax()).isWithin(tolerance).of(expected.getMax());
+      assertThat(actual.getMin()).isWithin(tolerance).of(expected.getMin());
     }
   }
 

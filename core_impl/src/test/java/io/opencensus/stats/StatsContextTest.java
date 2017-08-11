@@ -14,16 +14,12 @@
 package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import com.google.common.collect.Collections2;
 import com.google.common.testing.EqualsTester;
-import io.opencensus.common.Function;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.internal.VarInt;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.stats.ViewData.DistributionViewData;
-import io.opencensus.stats.ViewData.IntervalViewData;
 import io.opencensus.testing.common.TestClock;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,9 +36,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link StatsContext}.
- */
+/** Tests for {@link StatsContext}. */
 @RunWith(JUnit4.class)
 public class StatsContextTest {
 
@@ -80,6 +75,12 @@ public class StatsContextTest {
   private static final Tag T2 = Tag.create(K2, V2);
   private static final Tag T3 = Tag.create(K3, V3);
   private static final Tag T4 = Tag.create(K4, V4);
+
+  private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM = Arrays.asList(
+      Aggregation.Sum.create(), Aggregation.Count.create(), Aggregation.Range.create(),
+      Aggregation.Mean.create(), Aggregation.StdDev.create());
+
+  private static final View.Window.Cumulative CUMULATIVE = View.Window.Cumulative.create();
 
   @Test
   public void testWith() {
@@ -122,21 +123,7 @@ public class StatsContextTest {
     viewManager.registerView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     ViewData beforeViewData =
         viewManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    beforeViewData.match(
-        new Function<DistributionViewData, Void>() {
-          @Override
-          public Void apply(DistributionViewData view) {
-            assertThat(view.getDistributionAggregates()).isEmpty();
-            return null;
-          }
-        },
-        new Function<IntervalViewData, Void>() {
-          @Override
-          public Void apply(IntervalViewData view) {
-            fail("Expected a DistributionViewData");
-            return null;
-          }
-        });
+    assertThat(beforeViewData.getAggregationMap()).isEmpty();
     StatsContext context =
         defaultStatsContext.with(
             RpcMeasureConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
@@ -147,42 +134,31 @@ public class StatsContextTest {
     ViewData afterViewData =
         viewManager.getView(
             RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
-    afterViewData.match(
-        new Function<DistributionViewData, Void>() {
-          @Override
-          public Void apply(DistributionViewData view) {
-            assertThat(view.getDistributionAggregates()).hasSize(1);
-            DistributionAggregate agg = view.getDistributionAggregates().get(0);
-            assertThat(agg.getTags())
-                .containsExactly(
-                    Tag.create(
-                        RpcMeasureConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod")));
-            assertThat(agg.getCount()).isEqualTo(1);
-            assertThat(agg.getMean()).isWithin(TOLERANCE).of(5.1);
-            return null;
-          }
-        },
-        new Function<IntervalViewData, Void>() {
-          @Override
-          public Void apply(IntervalViewData view) {
-            fail("Expected a DistributionViewData");
-            return null;
-          }
-        });
+    assertThat(afterViewData.getAggregationMap()).hasSize(1);
+    for (Entry<List<TagValue>, List<AggregationData>> entry :
+        afterViewData.getAggregationMap().entrySet()) {
+      assertThat(entry.getKey()).containsExactly(TagValue.create("myMethod"));
+      assertThat(entry.getValue()).hasSize(3);
+      StatsTestUtil.assertAggregationDataListEquals(
+          Arrays.asList(
+              AggregationData.SumData.create(5.1),
+              AggregationData.CountData.create(1),
+              AggregationData.HistogramData.create(0, 0, 0, 0, 0, 0, 1)),
+          entry.getValue(),
+          TOLERANCE);
+    }
   }
 
   @Test
   public void testRecordLong() {
     MeasureLong measure = MeasureLong.create("long measure", "description", "1");
-    viewManager.registerView(
-        View.DistributionView.create(
-            View.Name.create("name"),
-            "description",
-            measure,
-            DistributionAggregation.create(),
-            Arrays.asList(K1)));
+    viewManager.registerView(View.create(
+        View.Name.create("name"), "description", measure, AGGREGATIONS_NO_HISTOGRAM,
+        Arrays.asList(K1), CUMULATIVE));
+    MeasureMap measureMap = MeasureMap.builder().set(measure, 1L).build();
+    StatsContext context = defaultStatsContext.with(K1, V1);
     thrown.expect(UnsupportedOperationException.class);
-    defaultStatsContext.with(K1, V1).record(MeasureMap.builder().set(measure,1L).build());
+    context.record(measureMap);
   }
 
   @Test
