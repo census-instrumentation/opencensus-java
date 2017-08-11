@@ -29,9 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Tests for {@link StatsContextFactory}.
- */
+/** Tests for {@link StatsContextFactory}. */
 @RunWith(JUnit4.class)
 public class TagContextDeserializationTest {
 
@@ -45,8 +43,8 @@ public class TagContextDeserializationTest {
   private final StatsRecorderImpl statsRecorder = statsComponent.getStatsRecorder();
   private final HashMap<TagKey, TagValue> sampleTags = new HashMap<TagKey, TagValue>();
   private final StatsContext defaultCtx = factory.getDefault();
-  private final StatsContext statsContext = factory.getDefault()
-      .with(TagKey.create(KEY), TagValue.create(VALUE_STRING));
+  private final StatsContext statsContext =
+      factory.getDefault().with(TagKey.create(KEY), TagValue.create(VALUE_STRING));
 
   public TagContextDeserializationTest() {
     sampleTags.put(
@@ -66,9 +64,10 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeNoTags() throws Exception {
     StatsContext expected = factory.getDefault();
-    StatsContext actual = testDeserialize(
-        new ByteArrayInputStream(
-            new byte[]{StatsSerializer.VERSION_ID}));  // One byte that represents Version ID.
+    StatsContext actual =
+        testDeserialize(
+            new ByteArrayInputStream(
+                new byte[] {StatsSerializer.VERSION_ID})); // One byte that represents Version ID.
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -80,8 +79,8 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeValueTypeString() throws Exception {
     StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
-    StatsContext actual = testDeserialize(
-        constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_STRING));
+    StatsContext actual =
+        testDeserialize(constructSingleTypeTagInputStream(StatsSerializer.VALUE_TYPE_STRING));
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -95,8 +94,8 @@ public class TagContextDeserializationTest {
     byteArrayOutputStream.write(StatsSerializer.VALUE_TYPE_STRING);
     encodeString("Key2", byteArrayOutputStream);
     encodeString("String2", byteArrayOutputStream);
-    StatsContext actual = testDeserialize(
-        new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+    StatsContext actual =
+        testDeserialize(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
 
     StatsContext expected = new StatsContextImpl(statsRecorder, sampleTags);
     assertThat(actual).isEqualTo(expected);
@@ -134,7 +133,7 @@ public class TagContextDeserializationTest {
 
   @Test(expected = IOException.class)
   public void testDeserializeWrongVersionId() throws Exception {
-    testDeserialize(new ByteArrayInputStream(new byte[]{(byte) (StatsSerializer.VERSION_ID + 1)}));
+    testDeserialize(new ByteArrayInputStream(new byte[] {(byte) (StatsSerializer.VERSION_ID + 1)}));
   }
 
   @Test
@@ -145,9 +144,10 @@ public class TagContextDeserializationTest {
   @Test
   public void testGetCurrentStatsContext() {
     assertThat(factory.getCurrentStatsContext()).isEqualTo(defaultCtx);
-    Context origContext = Context.current().withValue(
-        CurrentStatsContextUtils.STATS_CONTEXT_KEY, statsContext)
-        .attach();
+    Context origContext =
+        Context.current()
+            .withValue(CurrentStatsContextUtils.STATS_CONTEXT_KEY, statsContext)
+            .attach();
     // Make sure context is detached even if test fails.
     try {
       assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
@@ -180,13 +180,15 @@ public class TagContextDeserializationTest {
     Scope scopedStatsCtx = factory.withStatsContext(statsContext);
     try {
       assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
-      runnable = Context.current().wrap(
-          new Runnable() {
-            @Override
-            public void run() {
-              assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
-            }
-          });
+      runnable =
+          Context.current()
+              .wrap(
+                  new Runnable() {
+                    @Override
+                    public void run() {
+                      assertThat(factory.getCurrentStatsContext()).isSameAs(statsContext);
+                    }
+                  });
     } finally {
       scopedStatsCtx.close();
     }
@@ -195,8 +197,7 @@ public class TagContextDeserializationTest {
     runnable.run();
   }
 
-  private StatsContext testDeserialize(InputStream inputStream)
-      throws IOException {
+  private StatsContext testDeserialize(InputStream inputStream) throws IOException {
     return factory.deserialize(inputStream);
   }
 

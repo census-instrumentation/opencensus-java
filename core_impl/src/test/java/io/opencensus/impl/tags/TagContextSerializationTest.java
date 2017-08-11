@@ -40,8 +40,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TagContextSerializationTest {
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final double TOLERANCE = 1e-6;
 
@@ -76,9 +75,13 @@ public class TagContextSerializationTest {
   private static final Tag T3 = Tag.create(K3, V3);
   private static final Tag T4 = Tag.create(K4, V4);
 
-  private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM = Arrays.asList(
-      Aggregation.Sum.create(), Aggregation.Count.create(), Aggregation.Range.create(),
-      Aggregation.Mean.create(), Aggregation.StdDev.create());
+  private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM =
+      Arrays.asList(
+          Aggregation.Sum.create(),
+          Aggregation.Count.create(),
+          Aggregation.Range.create(),
+          Aggregation.Mean.create(),
+          Aggregation.StdDev.create());
 
   private static final View.Window.Cumulative CUMULATIVE = View.Window.Cumulative.create();
 
@@ -107,13 +110,13 @@ public class TagContextSerializationTest {
 
     StatsContext context4 = context3.with(K3, V30, K4, V4);
     assertThat(
-        defaultStatsContext
-            .builder()
-            .set(K1, V100)
-            .set(K2, V20)
-            .set(K3, V30)
-            .set(K4, V4)
-            .build())
+            defaultStatsContext
+                .builder()
+                .set(K1, V100)
+                .set(K2, V20)
+                .set(K3, V30)
+                .set(K4, V4)
+                .build())
         .isEqualTo(context4);
   }
 
@@ -128,12 +131,10 @@ public class TagContextSerializationTest {
         defaultStatsContext.with(
             RpcMeasureConstants.RPC_CLIENT_METHOD, TagValue.create("myMethod"));
     MeasureMap measurements =
-        MeasureMap.builder()
-            .set(RpcMeasureConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
+        MeasureMap.builder().set(RpcMeasureConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 5.1).build();
     context.record(measurements);
     ViewData afterViewData =
-        viewManager.getView(
-            RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
+        viewManager.getView(RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW);
     assertThat(afterViewData.getAggregationMap()).hasSize(1);
     for (Entry<List<TagValue>, List<AggregationData>> entry :
         afterViewData.getAggregationMap().entrySet()) {
@@ -152,9 +153,14 @@ public class TagContextSerializationTest {
   @Test
   public void testRecordLong() {
     MeasureLong measure = MeasureLong.create("long measure", "description", "1");
-    viewManager.registerView(View.create(
-        View.Name.create("name"), "description", measure, AGGREGATIONS_NO_HISTOGRAM,
-        Arrays.asList(K1), CUMULATIVE));
+    viewManager.registerView(
+        View.create(
+            View.Name.create("name"),
+            "description",
+            measure,
+            AGGREGATIONS_NO_HISTOGRAM,
+            Arrays.asList(K1),
+            CUMULATIVE));
     MeasureMap measureMap = MeasureMap.builder().set(measure, 1L).build();
     StatsContext context = defaultStatsContext.with(K1, V1);
     thrown.expect(UnsupportedOperationException.class);
