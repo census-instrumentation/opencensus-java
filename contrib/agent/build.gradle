@@ -31,39 +31,14 @@ def agentBootstrapClasses = agentBootstrapPackageDir + '**'
 // classloader).
 def agentRepackaged = "${agentPackage}.deps"
 
-// The setup for integration testing is mostly based on
-// https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/.
-sourceSets {
-  integrationTest {
-    java {
-      compileClasspath += main.output + test.output
-      runtimeClasspath += main.output + test.output
-      srcDir file('src/integration-test/java')
-    }
-    resources.srcDir file('src/integration-test/resources')
-  }
-}
-
-configurations {
-  integrationTestCompile.extendsFrom testCompile
-  integrationTestRuntime.extendsFrom testRuntime
-}
-
 dependencies {
   compileOnly libraries.grpc_context
-  integrationTestCompile libraries.grpc_context
   compile libraries.findbugs_annotations
   compile libraries.guava
   compile libraries.byte_buddy
 
   signature 'org.codehaus.mojo.signature:java16:+@signature'
 }
-
-// Disable findbugs for integration tests, too.
-findbugsIntegrationTest.enabled = false
-
-// Disable checkstyle for integration tests if not java8.
-checkstyleIntegrationTest.enabled = JavaVersion.current().isJava8Compatible()
 
 jar {
   manifest {
@@ -149,6 +124,35 @@ shadowJar {
 jar.finalizedBy shadowJar
 
 // TODO(stschmidt): Proguard-shrink the agent JAR.
+
+// Integration tests. The setup is mostly based on
+// https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/.
+
+sourceSets {
+  integrationTest {
+    java {
+      compileClasspath += main.output + test.output
+      runtimeClasspath += main.output + test.output
+      srcDir file('src/integration-test/java')
+    }
+    resources.srcDir file('src/integration-test/resources')
+  }
+}
+
+configurations {
+  integrationTestCompile.extendsFrom testCompile
+  integrationTestRuntime.extendsFrom testRuntime
+}
+
+dependencies {
+  integrationTestCompile libraries.grpc_context
+}
+
+// Disable checkstyle for integration tests if not java8.
+checkstyleIntegrationTest.enabled = JavaVersion.current().isJava8Compatible()
+
+// Disable findbugs for integration tests, too.
+findbugsIntegrationTest.enabled = false
 
 // Run integration tests with the agent enabled.
 task integrationTest(type: Test) {
