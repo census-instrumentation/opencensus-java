@@ -32,6 +32,7 @@ def agentBootstrapClasses = agentBootstrapPackageDir + '**'
 def agentRepackaged = "${agentPackage}.deps"
 
 dependencies {
+  compileOnly libraries.auto_service
   compileOnly libraries.grpc_context
   compile libraries.findbugs_annotations
   compile libraries.guava
@@ -113,6 +114,7 @@ shadowJar {
                // ... except for the expected entries.
                [ agentPackageDir,
                  'META-INF/MANIFEST.MF',
+                 'META-INF/services/io.opencensus.contrib.agent.instrumentation.Instrumenter'
                ].any { entry.isDirectory() ? it.startsWith(entry.name) : it == entry.name }
         // Also, should not have the bootstrap classes.
         assert !entry.name.startsWith(agentBootstrapPackageDir)

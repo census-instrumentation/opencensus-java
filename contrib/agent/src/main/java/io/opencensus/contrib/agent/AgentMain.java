@@ -19,7 +19,9 @@ import static net.bytebuddy.matcher.ElementMatchers.none;
 
 import io.opencensus.contrib.agent.bootstrap.ContextManager;
 import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
+import io.opencensus.contrib.agent.instrumentation.Instrumenter;
 import java.lang.instrument.Instrumentation;
+import java.util.ServiceLoader;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -74,8 +76,9 @@ public final class AgentMain {
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new AgentBuilderListener())
             .ignore(none());
-    agentBuilder = LazyLoaded.addContextPropagation(agentBuilder);
-    // TODO: Add more instrumentation, potentially introducing a plugin mechanism.
+    for (Instrumenter instrumenter : ServiceLoader.load(Instrumenter.class)) {
+      agentBuilder = instrumenter.instrument(agentBuilder);
+    }
     agentBuilder.installOn(instrumentation);
 
     logger.info("Initialized.");
@@ -85,31 +88,5 @@ public final class AgentMain {
     checkState(clazz.getClassLoader() == null,
             "%s must be loaded by the bootstrap classloader",
             clazz);
-  }
-
-  private static class LazyLoaded {
-
-    /**
-     * Adds automatic context propagation.
-     * 
-     * @param agentBuilder an {@link AgentBuilder} object to which the additional instrumentation is
-     *                     added
-     * @return an {@link AgentBuilder} object having the additional instrumentation 
-     */
-    private static AgentBuilder addContextPropagation(AgentBuilder agentBuilder) {
-      // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
-
-      // Initialize the ContextManager with the concrete ContextStrategy.
-      ContextManager.setContextStrategy(new ContextStrategyImpl());
-
-      // Add automatic context propagation to Executor#execute.
-      agentBuilder = agentBuilder
-              .type(ExecutorInstrumentation.createMatcher())
-              .transform(ExecutorInstrumentation.createTransformer());
-
-      // TODO(stschmidt): Add automatic context propagation to Thread#start.
-
-      return agentBuilder;
-    }
   }
 }
