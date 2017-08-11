@@ -260,7 +260,7 @@ final class MutableViewData {
   private static final class CreateSumData implements Function<MutableSum, AggregationData> {
     @Override
     public AggregationData apply(MutableSum arg) {
-      return SumData.create(arg.getSum());
+      return SumData.SumDataDouble.create(arg.getSum());
     }
 
     private static final CreateSumData INSTANCE = new CreateSumData();
@@ -288,7 +288,7 @@ final class MutableViewData {
   private static final class CreateRangeData implements Function<MutableRange, AggregationData> {
     @Override
     public AggregationData apply(MutableRange arg) {
-      return RangeData.create(arg.getMin(), arg.getMax());
+      return RangeData.RangeDataDouble.create(arg.getMin(), arg.getMax());
     }
 
     private static final CreateRangeData INSTANCE = new CreateRangeData();

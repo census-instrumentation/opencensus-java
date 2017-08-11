@@ -112,10 +112,10 @@ public class MutableViewDataTest {
       aggregates.add(MutableViewData.createAggregationData(mutableAggregation));
     }
     assertThat(aggregates).containsExactly(
-        SumData.create(0),
+        SumData.SumDataDouble.create(0),
         CountData.create(0),
         HistogramData.create(0, 0, 0, 0),
-        RangeData.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY),
+        RangeData.RangeDataDouble.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY),
         MeanData.create(0),
         StdDevData.create(0))
         .inOrder();

@@ -22,8 +22,10 @@ import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.RangeData.RangeDataDouble;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumData.SumDataDouble;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -116,8 +118,9 @@ final class StatsTestUtil {
           new Function<SumData, Void>() {
             @Override
             public Void apply(SumData arg) {
-              assertThat(actual).isInstanceOf(SumData.class);
-              assertThat(((SumData) actual).getSum()).isWithin(tolerance).of(arg.getSum());
+              assertThat(actual).isInstanceOf(SumDataDouble.class);
+              assertThat(((SumDataDouble) actual).getSum()).isWithin(tolerance).of(
+                  ((SumDataDouble) arg).getSum());
               return null;
             }
           },
@@ -141,8 +144,8 @@ final class StatsTestUtil {
           new Function<RangeData, Void>() {
             @Override
             public Void apply(RangeData arg) {
-              assertThat(actual).isInstanceOf(RangeData.class);
-              assertRangeDataEquals((RangeData) actual, arg, tolerance);
+              assertThat(actual).isInstanceOf(RangeDataDouble.class);
+              assertRangeDataEquals((RangeDataDouble) actual, (RangeDataDouble) arg, tolerance);
               return null;
             }
           },
@@ -168,7 +171,7 @@ final class StatsTestUtil {
 
   // Compare the expected and actual RangeData within the given tolerance.
   private static void assertRangeDataEquals(
-      RangeData actual, RangeData expected, double tolerance) {
+      RangeDataDouble actual, RangeDataDouble expected, double tolerance) {
     if (expected.getMax() == Double.NEGATIVE_INFINITY
         && expected.getMin() == Double.POSITIVE_INFINITY) {
       assertThat(actual.getMax()).isNegativeInfinity();

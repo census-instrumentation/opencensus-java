@@ -210,18 +210,18 @@ public final class ViewDataTest {
       ImmutableMap.of(
           Arrays.asList(V1, V2),
           Arrays.asList(
-              SumData.create(0),
+              SumData.SumDataDouble.create(0),
               CountData.create(1),
               HistogramData.create(1, 0, 0, 0, 0),
-              RangeData.create(0, 0),
+              RangeData.RangeDataDouble.create(0, 0),
               MeanData.create(0),
               StdDevData.create(0)),
           Arrays.asList(V10, V20),
           Arrays.asList(
-              SumData.create(50),
+              SumData.SumDataDouble.create(50),
               CountData.create(2),
               HistogramData.create(0, 0, 2, 0, 0),
-              RangeData.create(25, 25),
+              RangeData.RangeDataDouble.create(25, 25),
               MeanData.create(25),
               StdDevData.create(0)));
 
