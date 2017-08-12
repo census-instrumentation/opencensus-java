@@ -193,6 +193,7 @@ task agentJar(type: Copy) {
 }
 
 jmhJar.dependsOn agentJar
+jmhJar.dependsOn integrationTest
 
 jmh {
   jmhVersion = '1.19'
