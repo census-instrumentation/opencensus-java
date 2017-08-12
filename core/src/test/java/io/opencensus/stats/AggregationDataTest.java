@@ -21,13 +21,11 @@ import io.opencensus.common.Functions;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
-import io.opencensus.stats.AggregationData.RangeData.RangeDataDouble;
-import io.opencensus.stats.AggregationData.RangeData.RangeDataLong;
+import io.opencensus.stats.AggregationData.RangeDataDouble;
+import io.opencensus.stats.AggregationData.RangeDataLong;
 import io.opencensus.stats.AggregationData.StdDevData;
-import io.opencensus.stats.AggregationData.SumData;
-import io.opencensus.stats.AggregationData.SumData.SumDataDouble;
-import io.opencensus.stats.AggregationData.SumData.SumDataLong;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -116,19 +114,28 @@ public class AggregationDataTest {
   public void testMatchAndGet() {
     List<AggregationData> aggregations = Arrays.asList(
         SumDataDouble.create(10.0),
+        SumDataLong.create(100),
         CountData.create(40),
         HistogramData.create(new long[]{0, 10, 0}),
         RangeDataDouble.create(-1.0, 1.0),
+        RangeDataLong.create(10000, 500000),
         MeanData.create(5.0),
         StdDevData.create(23.3));
 
     final List<Object> actual = new ArrayList<Object>();
     for (AggregationData aggregation : aggregations) {
       aggregation.match(
-          new Function<SumData, Void>() {
+          new Function<SumDataDouble, Void>() {
             @Override
-            public Void apply(SumData arg) {
-              actual.add(((SumDataDouble) arg).getSum());
+            public Void apply(SumDataDouble arg) {
+              actual.add(arg.getSum());
+              return null;
+            }
+          },
+          new Function<SumDataLong, Void>() {
+            @Override
+            public Void apply(SumDataLong arg) {
+              actual.add(arg.getSum());
               return null;
             }
           },
@@ -146,11 +153,19 @@ public class AggregationDataTest {
               return null;
             }
           },
-          new Function<RangeData, Void>() {
+          new Function<RangeDataDouble, Void>() {
             @Override
-            public Void apply(RangeData arg) {
-              actual.add(((RangeDataDouble) arg).getMin());
-              actual.add(((RangeDataDouble) arg).getMax());
+            public Void apply(RangeDataDouble arg) {
+              actual.add(arg.getMin());
+              actual.add(arg.getMax());
+              return null;
+            }
+          },
+          new Function<RangeDataLong, Void>() {
+            @Override
+            public Void apply(RangeDataLong arg) {
+              actual.add(arg.getMin());
+              actual.add(arg.getMax());
               return null;
             }
           },
@@ -171,7 +186,7 @@ public class AggregationDataTest {
           Functions.<Void>throwIllegalArgumentException());
     }
 
-    assertThat(actual).isEqualTo(
-        Arrays.asList(10.0, 40L, Arrays.asList(0L, 10L, 0L), -1.0, 1.0, 5.0, 23.3));
+    assertThat(actual).isEqualTo(Arrays.asList(
+        10.0, 100L, 40L, Arrays.asList(0L, 10L, 0L), -1.0, 1.0, 10000L, 500000L, 5.0, 23.3));
   }
 }

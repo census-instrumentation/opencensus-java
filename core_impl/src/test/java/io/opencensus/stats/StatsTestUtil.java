@@ -21,11 +21,11 @@ import io.opencensus.common.Functions;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
-import io.opencensus.stats.AggregationData.RangeData.RangeDataDouble;
+import io.opencensus.stats.AggregationData.RangeDataDouble;
+import io.opencensus.stats.AggregationData.RangeDataLong;
 import io.opencensus.stats.AggregationData.StdDevData;
-import io.opencensus.stats.AggregationData.SumData;
-import io.opencensus.stats.AggregationData.SumData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -115,12 +115,19 @@ final class StatsTestUtil {
       final AggregationData actual = actualValue.get(i);
       AggregationData expected = expectedValue.get(i);
       expected.match(
-          new Function<SumData, Void>() {
+          new Function<SumDataDouble, Void>() {
             @Override
-            public Void apply(SumData arg) {
+            public Void apply(SumDataDouble arg) {
               assertThat(actual).isInstanceOf(SumDataDouble.class);
-              assertThat(((SumDataDouble) actual).getSum()).isWithin(tolerance).of(
-                  ((SumDataDouble) arg).getSum());
+              assertThat(((SumDataDouble) actual).getSum()).isWithin(tolerance).of((arg.getSum()));
+              return null;
+            }
+          },
+          new Function<SumDataLong, Void>() {
+            @Override
+            public Void apply(SumDataLong arg) {
+              assertThat(actual).isInstanceOf(SumDataLong.class);
+              assertThat(((SumDataLong) actual).getSum()).isEqualTo(arg.getSum());
               return null;
             }
           },
@@ -141,11 +148,20 @@ final class StatsTestUtil {
               return null;
             }
           },
-          new Function<RangeData, Void>() {
+          new Function<RangeDataDouble, Void>() {
             @Override
-            public Void apply(RangeData arg) {
+            public Void apply(RangeDataDouble arg) {
               assertThat(actual).isInstanceOf(RangeDataDouble.class);
-              assertRangeDataEquals((RangeDataDouble) actual, (RangeDataDouble) arg, tolerance);
+              assertRangeDataDoubleEquals((RangeDataDouble) actual, arg, tolerance);
+              return null;
+            }
+          },
+          new Function<RangeDataLong, Void>() {
+            @Override
+            public Void apply(RangeDataLong arg) {
+              assertThat(actual).isInstanceOf(RangeDataLong.class);
+              assertThat(((RangeDataLong) actual).getMax()).isEqualTo(arg.getMax());
+              assertThat(((RangeDataLong) actual).getMin()).isEqualTo(arg.getMin());
               return null;
             }
           },
@@ -169,8 +185,8 @@ final class StatsTestUtil {
     }
   }
 
-  // Compare the expected and actual RangeData within the given tolerance.
-  private static void assertRangeDataEquals(
+  // Compare the expected and actual RangeDataDouble within the given tolerance.
+  private static void assertRangeDataDoubleEquals(
       RangeDataDouble actual, RangeDataDouble expected, double tolerance) {
     if (expected.getMax() == Double.NEGATIVE_INFINITY
         && expected.getMin() == Double.POSITIVE_INFINITY) {

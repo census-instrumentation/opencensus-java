@@ -25,9 +25,9 @@ import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.RangeDataDouble;
 import io.opencensus.stats.AggregationData.StdDevData;
-import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.MutableAggregation.MutableCount;
 import io.opencensus.stats.MutableAggregation.MutableHistogram;
 import io.opencensus.stats.MutableAggregation.MutableMean;
@@ -112,10 +112,10 @@ public class MutableViewDataTest {
       aggregates.add(MutableViewData.createAggregationData(mutableAggregation));
     }
     assertThat(aggregates).containsExactly(
-        SumData.SumDataDouble.create(0),
+        SumDataDouble.create(0),
         CountData.create(0),
         HistogramData.create(0, 0, 0, 0),
-        RangeData.RangeDataDouble.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY),
+        RangeDataDouble.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY),
         MeanData.create(0),
         StdDevData.create(0))
         .inOrder();
