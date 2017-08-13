@@ -73,8 +73,8 @@ public class ViewManagerImplTest {
   private static final MeasureDouble MEASURE =
       Measure.MeasureDouble.create(MEASURE_NAME, MEASURE_DESCRIPTION, MEASURE_UNIT);
 
-  private static final Name VIEW_NAME = View.Name.create("my view");
-  private static final View.Name VIEW_NAME_2 = View.Name.create("my view 2");
+  private static final Name VIEW_NAME = Name.create("my view");
+  private static final Name VIEW_NAME_2 = Name.create("my view 2");
 
   private static final String VIEW_DESCRIPTION = "view description";
 

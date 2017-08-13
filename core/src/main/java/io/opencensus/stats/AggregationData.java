@@ -66,6 +66,12 @@ public abstract class AggregationData {
     SumData() {
     }
 
+    /**
+     * Creates a {@code SumData}.
+     *
+     * @param sum the aggregated sum.
+     * @return a {@code SumData}.
+     */
     public static SumData create(double sum) {
       return new AutoValue_AggregationData_SumData(sum);
     }
@@ -98,6 +104,12 @@ public abstract class AggregationData {
     CountData() {
     }
 
+    /**
+     * Creates a {@code CountData}.
+     *
+     * @param count the aggregated count.
+     * @return a {@code CountData}.
+     */
     public static CountData create(long count) {
       return new AutoValue_AggregationData_CountData(count);
     }
@@ -131,7 +143,7 @@ public abstract class AggregationData {
     }
 
     /**
-     * Create a {@code HistogramData}.
+     * Creates a {@code HistogramData}.
      *
      * @param bucketCounts bucket counts.
      * @return a {@code HistogramData}.
@@ -176,7 +188,7 @@ public abstract class AggregationData {
     }
 
     /**
-     * Create a {@code RangeData}.
+     * Creates a {@code RangeData}.
      *
      * @param min the minimum value
      * @param max the maximum value
@@ -224,6 +236,12 @@ public abstract class AggregationData {
     MeanData() {
     }
 
+    /**
+     * Creates a {@code MeanData}.
+     *
+     * @param mean the aggregated mean.
+     * @return a {@code MeanData}.
+     */
     public static MeanData create(double mean) {
       return new AutoValue_AggregationData_MeanData(mean);
     }
@@ -256,6 +274,12 @@ public abstract class AggregationData {
     StdDevData() {
     }
 
+    /**
+     * Creates a {@code StdDevData}.
+     *
+     * @param stdDev the aggregated standard deviation.
+     * @return a {@code StdDevData}.
+     */
     public static StdDevData create(double stdDev) {
       return new AutoValue_AggregationData_StdDevData(stdDev);
     }
