@@ -29,6 +29,10 @@ import net.bytebuddy.utility.JavaModule;
  * Propagates the context of the caller of {@link Thread#start} to the new thread, just like the
  * Microsoft .Net Framework propagates the <a
  * href="https://msdn.microsoft.com/en-us/library/system.threading.executioncontext(v=vs.110).aspx">System.Threading.ExecutionContext</a>.
+ *
+ * <p>NB: A similar effect could be achieved with {@link InheritableThreadLocal}, but the semantics
+ * are different: {@link InheritableThreadLocal} inherits values when the thread object is
+ * initialized as opposed to when {@link Thread#start()} is called.
  */
 final class ThreadInstrumentation {
 
