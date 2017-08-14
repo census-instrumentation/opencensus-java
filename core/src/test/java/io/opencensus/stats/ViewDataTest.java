@@ -31,9 +31,11 @@ import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.RangeDataDouble;
+import io.opencensus.stats.AggregationData.RangeDataLong;
 import io.opencensus.stats.AggregationData.StdDevData;
-import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View.Window;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
@@ -210,18 +212,22 @@ public final class ViewDataTest {
       ImmutableMap.of(
           Arrays.asList(V1, V2),
           Arrays.asList(
-              SumData.create(0),
+              SumDataDouble.create(0),
+              SumDataLong.create(0),
               CountData.create(1),
               HistogramData.create(1, 0, 0, 0, 0),
-              RangeData.create(0, 0),
+              RangeDataDouble.create(0, 0),
+              RangeDataLong.create(0, 0),
               MeanData.create(0),
               StdDevData.create(0)),
           Arrays.asList(V10, V20),
           Arrays.asList(
-              SumData.create(50),
+              SumDataDouble.create(50),
+              SumDataLong.create(10000000),
               CountData.create(2),
               HistogramData.create(0, 0, 2, 0, 0),
-              RangeData.create(25, 25),
+              RangeDataDouble.create(25, 25),
+              RangeDataLong.create(25000, 250000),
               MeanData.create(25),
               StdDevData.create(0)));
 

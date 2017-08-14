@@ -141,7 +141,7 @@ public class StatsContextTest {
       assertThat(entry.getValue()).hasSize(3);
       StatsTestUtil.assertAggregationDataListEquals(
           Arrays.asList(
-              AggregationData.SumData.create(5.1),
+              AggregationData.SumDataDouble.create(5.1),
               AggregationData.CountData.create(1),
               AggregationData.HistogramData.create(0, 0, 0, 0, 0, 0, 1)),
           entry.getValue(),

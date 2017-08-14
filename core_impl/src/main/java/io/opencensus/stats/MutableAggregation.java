@@ -20,6 +20,7 @@ import io.opencensus.common.Function;
 import java.util.Arrays;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */
+// TODO(songya): Add MutableSumLong and MutableRangeLong
 abstract class MutableAggregation {
 
   private MutableAggregation() {

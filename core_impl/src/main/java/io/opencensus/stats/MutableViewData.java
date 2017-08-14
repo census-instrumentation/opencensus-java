@@ -29,9 +29,9 @@ import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
+import io.opencensus.stats.AggregationData.RangeDataDouble;
 import io.opencensus.stats.AggregationData.StdDevData;
-import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.MutableAggregation.MutableCount;
 import io.opencensus.stats.MutableAggregation.MutableHistogram;
 import io.opencensus.stats.MutableAggregation.MutableMean;
@@ -171,6 +171,7 @@ final class MutableViewData {
    * @return an empty {@code MutableAggregation}.
    */
   @VisibleForTesting
+  // TODO(songya): support SumLong and RangeLong
   static MutableAggregation createMutableAggregation(Aggregation aggregation) {
     return aggregation.match(
         CreateMutableSum.INSTANCE,
@@ -189,12 +190,13 @@ final class MutableViewData {
    * @return an {@code AggregationData} which is the snapshot of current summary statistics.
    */
   @VisibleForTesting
+  // TODO(songya): support SumLong and RangeLong
   static AggregationData createAggregationData(MutableAggregation aggregation) {
     return aggregation.match(
-        CreateSumData.INSTANCE,
+        CreateSumDataDouble.INSTANCE,
         CreateCountData.INSTANCE,
         CreateHistogramData.INSTANCE,
-        CreateRangeData.INSTANCE,
+        CreateRangeDataDouble.INSTANCE,
         CreateMeanData.INSTANCE,
         CreateStdDevData.INSTANCE);
   }
@@ -257,13 +259,23 @@ final class MutableViewData {
   }
 
 
-  private static final class CreateSumData implements Function<MutableSum, AggregationData> {
+  private static final class CreateSumDataDouble implements Function<MutableSum, AggregationData> {
     @Override
     public AggregationData apply(MutableSum arg) {
-      return SumData.create(arg.getSum());
+      return SumDataDouble.create(arg.getSum());
     }
 
-    private static final CreateSumData INSTANCE = new CreateSumData();
+    private static final CreateSumDataDouble INSTANCE = new CreateSumDataDouble();
+  }
+
+  private static final class CreateSumDataLong implements Function<MutableSum, AggregationData> {
+    @Override
+    public AggregationData apply(MutableSum arg) {
+      // TODO(songya): implement this
+      throw new UnsupportedOperationException();
+    }
+
+    private static final MutableViewData.CreateSumDataLong INSTANCE = new CreateSumDataLong();
   }
 
   private static final class CreateCountData implements Function<MutableCount, AggregationData> {
@@ -285,13 +297,25 @@ final class MutableViewData {
     private static final CreateHistogramData INSTANCE = new CreateHistogramData();
   }
 
-  private static final class CreateRangeData implements Function<MutableRange, AggregationData> {
+  private static final class CreateRangeDataDouble
+      implements Function<MutableRange, AggregationData> {
     @Override
     public AggregationData apply(MutableRange arg) {
-      return RangeData.create(arg.getMin(), arg.getMax());
+      return RangeDataDouble.create(arg.getMin(), arg.getMax());
     }
 
-    private static final CreateRangeData INSTANCE = new CreateRangeData();
+    private static final CreateRangeDataDouble INSTANCE = new CreateRangeDataDouble();
+  }
+
+  private static final class CreateRangeDataLong
+      implements Function<MutableRange, AggregationData> {
+    @Override
+    public AggregationData apply(MutableRange arg) {
+      // TODO(songya): implement this
+      throw new UnsupportedOperationException();
+    }
+
+    private static final CreateRangeDataLong INSTANCE = new CreateRangeDataLong();
   }
 
   private static final class CreateMeanData implements Function<MutableMean, AggregationData> {
