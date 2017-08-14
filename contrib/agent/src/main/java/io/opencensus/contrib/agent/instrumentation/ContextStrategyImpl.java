@@ -35,8 +35,8 @@ final class ContextStrategyImpl implements ContextStrategy {
    * <p>NB: {@link Thread#run()} is not guaranteed to be called after {@link Thread#start()}, for
    * example when attempting to start a thread a second time. Therefore, threads are wrapped in
    * {@link WeakReference}s so that this map does not prevent the garbage collection of otherwise
-   * unreferenced threads. Unreferenced threads will be automatically removed from the map routine
-   * cleanup.
+   * unreferenced threads. Unreferenced threads will be automatically removed from the map by the
+   * routine cleanup of the underlying {@link Cache} implementation.
    *
    * <p>NB: A side-effect of {@link CacheBuilder#weakKeys()} is the use of identity ({@code ==})
    * comparison to determine equality of threads. Identity comparison is required here because
