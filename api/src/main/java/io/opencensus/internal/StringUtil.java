@@ -44,17 +44,12 @@ public final class StringUtil {
   }
 
   /**
-   * Determines whether the {@code String} is a valid tag key, tag value, or metric name.
+   * Determines whether the {@code String} contains only printable characters.
    *
-   * @param string the {@code String} to be validated.
-   * @return whether the {@code String} is valid.
-   * @see #sanitize(String)
+   * @param str the {@code String} to be validated.
+   * @return whether the {@code String} contains only printable characters.
    */
-  public static boolean isValid(String string) {
-    return string.length() <= MAX_LENGTH && isPrintableString(string);
-  }
-
-  private static boolean isPrintableString(String str) {
+  public static boolean isPrintableString(String str) {
     for (int i = 0; i < str.length(); i++) {
       if (!isPrintableChar(str.charAt(i))) {
         return false;

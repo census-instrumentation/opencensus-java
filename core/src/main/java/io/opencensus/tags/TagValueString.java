@@ -29,7 +29,7 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 public abstract class TagValueString {
   /** The maximum length for a {@code String} tag value. The value is {@value #MAX_LENGTH}. */
-  public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
+  public static final int MAX_LENGTH = 255;
 
   TagValueString() {}
 
@@ -46,7 +46,7 @@ public abstract class TagValueString {
    * @throws IllegalArgumentException if the {@code String} is not valid.
    */
   public static TagValueString create(String value) {
-    Preconditions.checkArgument(StringUtil.isValid(value));
+    Preconditions.checkArgument(isValid(value));
     return new AutoValue_TagValueString(value);
   }
 
@@ -56,4 +56,14 @@ public abstract class TagValueString {
    * @return the tag value as a {@code String}.
    */
   public abstract String asString();
+
+  /**
+   * Determines whether the given {@code String} is a valid tag value.
+   *
+   * @param name the tag value to be validated.
+   * @return whether the value is valid.
+   */
+  private static boolean isValid(String name) {
+    return name.length() <= MAX_LENGTH && StringUtil.isPrintableString(name);
+  }
 }
