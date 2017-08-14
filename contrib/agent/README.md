@@ -1,6 +1,6 @@
 # OpenCensus Agent for Java
 
-[![Build Status](https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master)](https://travis-ci.org/census-instrumentation/opencensus-java) [![Build status](https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true)](https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master)
+[![Build Status][travis-image]][travis-url] [![Build status][appveyor-image]][appveyor-url] [![Maven Central][maven-image]][maven-url]
 
 The *OpenCensus Agent for Java* collects and sends latency data about your Java process to
 OpenCensus backends such as Zipkin, Stackdriver Trace, etc. for analysis and visualization.
@@ -48,3 +48,10 @@ the following example:
 ```shell
 java -javaagent:path/to/opencensus-agent.jar ...
 ```
+
+[travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
+[travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
+[appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master
+[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-agent/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-agent
