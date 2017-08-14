@@ -18,8 +18,6 @@ import static com.google.common.truth.Truth.assertThat;
 import io.grpc.Context;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Test;
 
