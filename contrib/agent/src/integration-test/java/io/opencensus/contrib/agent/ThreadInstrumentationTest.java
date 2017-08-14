@@ -16,7 +16,10 @@ package io.opencensus.contrib.agent;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.grpc.Context;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Test;
 
@@ -81,6 +84,47 @@ public class ThreadInstrumentationTest {
 
     thread.start();
     thread.join();
+
+    assertThat(tested.get()).isTrue();
+  }
+
+  @Test(timeout = 5000)
+  public void start_wrappedRunnable() throws Exception {
+    final Thread callerThread = Thread.currentThread();
+    final Context context = Context.current().withValue(KEY, "myvalue");
+    previousContext = context.attach();
+
+    final AtomicBoolean tested = new AtomicBoolean(false);
+
+    Executor newThreadExecutor = new Executor() {
+      @Override
+      public void execute(Runnable command) {
+        // Attach a new context before starting a new thread. This new context will be propagated to
+        // the new thread as in #start_Runnable. However, since the Runnable has been wrapped in a
+        // different context (by automatic instrumentation of Executor#execute), that context will
+        // be attached when executing the Runnable.
+        Context context2 = Context.current().withValue(KEY, "wrong context");
+        context2.attach();
+        Thread thread = new Thread(command);
+        thread.start();
+        try {
+          thread.join();
+        } catch (InterruptedException ex) {
+          Thread.currentThread().interrupt();
+        }
+        context2.detach(context);
+      }
+    };
+
+    newThreadExecutor.execute(new Runnable() {
+      @Override
+      public void run() {
+        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
+        assertThat(Context.current()).isSameAs(context);
+        assertThat(KEY.get()).isEqualTo("myvalue");
+        tested.set(true);
+      }
+    });
 
     assertThat(tested.get()).isTrue();
   }
