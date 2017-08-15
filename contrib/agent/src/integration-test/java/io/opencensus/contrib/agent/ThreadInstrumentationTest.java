@@ -119,6 +119,8 @@ public class ThreadInstrumentationTest {
     newThreadExecutor.execute(new Runnable() {
       @Override
       public void run() {
+        // Assert that the automatic context propagation added by ThreadInstrumentation did not
+        // interfere with the automatically propagated context from Executor#execute.
         assertThat(Context.current()).isSameAs(context);
         assertThat(KEY.get()).isEqualTo("myvalue");
         tested.set(true);
