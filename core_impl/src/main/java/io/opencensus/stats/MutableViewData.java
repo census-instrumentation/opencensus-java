@@ -56,12 +56,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * A mutable version of {@link ViewData}, used for recording stats and start/end time.
- */
-final class MutableViewData {
-
-  private static final Logger logger = Logger.getLogger(MutableViewData.class.getName());
+/** A mutable version of {@link ViewData}, used for recording stats and start/end time. */
+abstract class MutableViewData {
   
   // TODO(songya): might want to update the default tag value later.
   @VisibleForTesting
@@ -70,14 +66,9 @@ final class MutableViewData {
   private final View view;
   private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
       Maps.newHashMap();
-  @Nullable private final Timestamp start;
 
-  // The queue of TimestampedValues for interval aggregations.
-  private final Queue<TimestampedValue> valueQueue = new LinkedList<TimestampedValue>();
-
-  private MutableViewData(View view, @Nullable Timestamp start) {
+  private MutableViewData(View view) {
     this.view = view;
-    this.start = start;
   }
 
   /**
@@ -88,7 +79,10 @@ final class MutableViewData {
    * @return a {@code MutableViewData}.
    */
   static MutableViewData create(final View view, @Nullable final Timestamp start) {
-    return new MutableViewData(view, start);
+    return view.getWindow().match(
+        new CreateCumulative(view, start),
+        new CreateInterval(view),
+        Functions.<MutableViewData>throwAssertionError());
   }
 
   /**
@@ -101,11 +95,19 @@ final class MutableViewData {
   /**
    * Record double stats with the given tags.
    */
-  void record(StatsContextImpl context, double value, Clock clock) {
-    // Add Timestamp to value after the value went through the DisruptorQueue.
-    addValueToQueue(value, clock.now());
+  abstract void record(StatsContextImpl context, double value, Clock clock);
 
-    List<TagValue> tagValues = getTagValues(context.tags, view.getColumns());
+  /**
+   * Record long stats with the given tags.
+   */
+  abstract void record(StatsContextImpl tags, long value, Clock clock);
+
+  /**
+   * Convert this {@link MutableViewData} to {@link ViewData}.
+   */
+  abstract ViewData toViewData(Clock clock);
+
+  private void recordInternal(List<TagValue> tagValues, double value) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       List<MutableAggregation> aggregations = Lists.newArrayList();
       for (Aggregation aggregation : view.getAggregations()) {
@@ -118,19 +120,7 @@ final class MutableViewData {
     }
   }
 
-  /**
-   * Record long stats with the given tags.
-   */
-  void record(StatsContextImpl tags, long value, Clock clock) {
-    // TODO(songya): modify MutableDistribution to support long values.
-    throw new UnsupportedOperationException("Not implemented.");
-  }
-
-  /**
-   * Convert this {@link MutableViewData} to {@link ViewData}.
-   */
-  ViewData toViewData(Clock clock) {
-    removeExpiredValues(clock.now());
+  private Map<List<TagValue>, List<AggregationData>> toAggregationMap() {
     Map<List<TagValue>, List<AggregationData>> map = Maps.newHashMap();
     for (Entry<List<TagValue>, List<MutableAggregation>> entry :
         tagValueAggregationMap.entrySet()) {
@@ -140,51 +130,7 @@ final class MutableViewData {
       }
       map.put(entry.getKey(), aggregates);
     }
-
-    WindowData windowData = view.getWindow().match(
-        new CreateCumulativeData(start, clock.now()),
-        new CreateIntervalData(clock.now()),
-        Functions.<WindowData>throwIllegalArgumentException());
-
-    return ViewData.create(view, map, windowData);
-  }
-  
-  // If this MutableViewData has an IntervalWindow, add the value associated with the given
-  // timestamp to valueQueue.
-  private void addValueToQueue(double value, Timestamp now) {
-    if (view.getWindow() instanceof Interval) {
-      checkNotNull(now, "Timestamp");
-      boolean added = valueQueue.offer(new TimestampedValue(value, now));
-      if (!added) {
-        logger.severe("Failed to add value " + value + " at " + now);
-      }
-    }
-  }
-
-  // If this MutableViewData has an IntervalWindow, dequeue expired values from valueQueue against
-  // current timestamp, and update summary stats by eliminating expired values.
-  private void removeExpiredValues(Timestamp now) {
-    if (view.getWindow() instanceof Interval) {
-      checkNotNull(now, "Timestamp");
-      Interval interval = (Interval) view.getWindow();
-      while (!valueQueue.isEmpty() && valueQueue.peek().isExpired(interval.getDuration(), now)) {
-        double expired = valueQueue.poll().value;
-        for (Entry<List<TagValue>, List<MutableAggregation>> entry : 
-            tagValueAggregationMap.entrySet()) {
-          for (MutableAggregation mutableAggregation : entry.getValue()) {
-            mutableAggregation.remove(expired);
-          }
-        }
-      }
-    }
-  }
-  
-  /**
-   * Returns start timestamp for this aggregation.
-   */
-  @Nullable
-  Timestamp getStart() {
-    return start;
+    return map;
   }
 
   @VisibleForTesting
@@ -238,7 +184,91 @@ final class MutableViewData {
         CreateMeanData.INSTANCE,
         CreateStdDevData.INSTANCE);
   }
-  
+
+  private static final class CumulativeMutableViewData extends MutableViewData {
+
+    private final Timestamp start;
+
+    private CumulativeMutableViewData(View view, Timestamp start) {
+      super(view);
+      checkNotNull(start, "Start Timestamp");
+      this.start = start;
+    }
+
+    @Override
+    void record(StatsContextImpl context, double value, Clock clock) {
+      List<TagValue> tagValues = getTagValues(context.tags, super.view.getColumns());
+      super.recordInternal(tagValues, value);
+    }
+
+    @Override
+    void record(StatsContextImpl tags, long value, Clock clock) {
+      // TODO(songya): implement this.
+      throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    ViewData toViewData(Clock clock) {
+      return ViewData.create(
+          super.view, super.toAggregationMap(), CumulativeData.create(start, clock.now()));
+    }
+  }
+
+  private static final class IntervalMutableViewData extends MutableViewData {
+
+    // The queue of TimestampedValues for interval aggregations.
+    private final LinkedList<TimestampedValue> valueQueue = new LinkedList<TimestampedValue>();
+
+    private IntervalMutableViewData(View view) {
+      super(view);
+    }
+
+    @Override
+    void record(StatsContextImpl context, double value, Clock clock) {
+      removeExpiredValues(clock.now());
+      List<TagValue> tagValues = getTagValues(context.tags, super.view.getColumns());
+      // Add Timestamp to value after the value went through the DisruptorQueue.
+      addValueToQueue(value, clock.now(), tagValues);
+      super.recordInternal(tagValues, value);
+    }
+
+    @Override
+    void record(StatsContextImpl tags, long value, Clock clock) {
+      // TODO(songya): implement this.
+      throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    ViewData toViewData(Clock clock) {
+      removeExpiredValues(clock.now());
+      return ViewData.create(
+          super.view, super.toAggregationMap(), IntervalData.create(clock.now()));
+    }
+
+    // If this MutableViewData has an IntervalWindow, add the value associated with the given
+    // timestamp to valueQueue.
+    private void addValueToQueue(double value, Timestamp now, List<TagValue> tagValues) {
+      checkNotNull(now, "Timestamp");
+      checkNotNull(tagValues, "TagValues");
+      valueQueue.addLast(new TimestampedValue(value, now, tagValues));
+    }
+
+    // If this MutableViewData has an IntervalWindow, dequeue expired values from valueQueue against
+    // current timestamp, and update summary stats by eliminating expired values.
+    private void removeExpiredValues(Timestamp now) {
+      checkNotNull(now, "Timestamp");
+      Interval interval = (Interval) super.view.getWindow();
+      while (!valueQueue.isEmpty() && valueQueue.peek().isExpired(interval.getDuration(), now)) {
+        TimestampedValue expired = valueQueue.poll();
+        List<MutableAggregation> mutableAggregations = super.tagValueAggregationMap
+            .get(expired.tagValues);
+        for (MutableAggregation mutableAggregation : mutableAggregations) {
+          mutableAggregation.remove(expired.value);
+        }
+      }
+    }
+  }
+
   // static inner Function classes
   
   private static final class CreateMutableSum implements Function<Sum, MutableAggregation> {
@@ -352,31 +382,31 @@ final class MutableViewData {
     private static final CreateStdDevData INSTANCE = new CreateStdDevData();
   }
 
-  private static final class CreateCumulativeData implements Function<Cumulative, WindowData> {
+  private static final class CreateCumulative implements Function<Cumulative, MutableViewData> {
     @Override
-    public WindowData apply(Cumulative arg) {
-      return CumulativeData.create(start, end);
+    public MutableViewData apply(Cumulative arg) {
+      return new CumulativeMutableViewData(view, start);
     }
 
+    private final View view;
     private final Timestamp start;
-    private final Timestamp end;
 
-    private CreateCumulativeData(Timestamp start, Timestamp end) {
+    private CreateCumulative(View view, Timestamp start) {
+      this.view = view;
       this.start = start;
-      this.end = end;
     }
   }
 
-  private static final class CreateIntervalData implements Function<Interval, WindowData> {
+  private static final class CreateInterval implements Function<Interval, MutableViewData> {
     @Override
-    public WindowData apply(Interval arg) {
-      return IntervalData.create(end);
+    public MutableViewData apply(Interval arg) {
+      return new IntervalMutableViewData(view);
     }
 
-    private final Timestamp end;
+    private final View view;
 
-    private CreateIntervalData(Timestamp end) {
-      this.end = end;
+    private CreateInterval(View view) {
+      this.view = view;
     }
   }
 
@@ -386,11 +416,12 @@ final class MutableViewData {
 
     private final double value;
     private final Timestamp timestamp;
+    private final List<TagValue> tagValues;
 
-    private TimestampedValue(double value, Timestamp timestamp) {
-      checkNotNull(timestamp, "Timestamp");
+    private TimestampedValue(double value, Timestamp timestamp, List<TagValue> tagValues) {
       this.value = value;
       this.timestamp = timestamp;
+      this.tagValues = tagValues;
     }
 
     private boolean isExpired(Duration duration, Timestamp now) {

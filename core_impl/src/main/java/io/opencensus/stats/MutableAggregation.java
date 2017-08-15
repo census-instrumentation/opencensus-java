@@ -23,7 +23,6 @@ import java.util.Queue;
 import java.util.logging.Logger;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */
-// TODO(songya): synchronization
 abstract class MutableAggregation {
 
   private static final Logger logger = Logger.getLogger(MutableAggregation.class.getName());
