@@ -221,7 +221,7 @@ public class ViewManagerImplTest {
     clock.setTime(Timestamp.fromMillis(8 * MILLIS_PER_SECOND));
     // 8s, no values should have expired
     StatsTestUtil.assertAggregationMapEquals(
-       viewManager.getView(VIEW_NAME).getAggregationMap(),
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(VALUE),
             StatsTestUtil.createAggregationData(AGGREGATIONS, values)),
