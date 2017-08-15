@@ -67,9 +67,6 @@ public abstract class TraceComponent {
    */
   public abstract TraceConfig getTraceConfig();
 
-  // Disallow external overrides until we define the final API.
-  TraceComponent() {}
-
   /**
    * Returns an instance that contains no-op implementations for all the instances.
    *

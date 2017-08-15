@@ -13,8 +13,8 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.common.MillisClock;
-import io.opencensus.internal.DisruptorEventQueue;
+import io.opencensus.impl.common.MillisClock;
+import io.opencensus.impl.internal.DisruptorEventQueue;
 
 /** Java 7 and 8 implementation of {@link StatsComponent}. */
 public final class StatsComponentImpl extends StatsComponentImplBase {

@@ -11,24 +11,35 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.internal;
+package io.opencensus.impl.common;
 
-import io.opencensus.impl.trace.internal.RandomHandler;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
+import io.opencensus.common.Clock;
+import io.opencensus.common.Timestamp;
 import javax.annotation.concurrent.ThreadSafe;
 
-/** Implementation of the {@link RandomHandler} using {@link ThreadLocalRandom}. */
+/** A {@link Clock} that uses {@link System#currentTimeMillis()} and {@link System#nanoTime()}. */
 @ThreadSafe
-public final class ThreadLocalRandomHandler extends RandomHandler {
+public final class MillisClock extends Clock {
+  private static final MillisClock INSTANCE = new MillisClock();
+
+  private MillisClock() {}
 
   /**
-   * Constructs a new {@code ThreadLocalRandomHandler}.
+   * Returns a {@code MillisClock}.
+   *
+   * @return a {@code MillisClock}.
    */
-  public ThreadLocalRandomHandler() {}
+  public static MillisClock getInstance() {
+    return INSTANCE;
+  }
 
   @Override
-  public Random current() {
-    return ThreadLocalRandom.current();
+  public Timestamp now() {
+    return Timestamp.fromMillis(System.currentTimeMillis());
+  }
+
+  @Override
+  public long nowNanos() {
+    return System.nanoTime();
   }
 }

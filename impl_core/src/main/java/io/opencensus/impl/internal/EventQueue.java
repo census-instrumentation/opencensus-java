@@ -11,18 +11,21 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.internal;
 
-import io.opencensus.impl.common.MillisClock;
-import io.opencensus.impl.internal.SimpleEventQueue;
+/** A queue that processes events. See {@code DisruptorEventQueue} for an example. */
+public interface EventQueue {
+  void enqueue(Entry entry);
 
-/**
- * Android-compatible implementation of {@link StatsComponent}.
- */
-public final class StatsComponentImplLite extends StatsComponentImplBase {
-
-  public StatsComponentImplLite() {
-    // TODO(sebright): Use a more efficient queue implementation.
-    super(new SimpleEventQueue(), MillisClock.getInstance());
+  /**
+   * Base interface to be used for all entries in {@link EventQueue}. For example usage, see {@code
+   * DisruptorEventQueue}.
+   */
+  public interface Entry {
+    /**
+     * Process the event associated with this entry. This will be called for every event in the
+     * associated {@link EventQueue}.
+     */
+    void process();
   }
 }
