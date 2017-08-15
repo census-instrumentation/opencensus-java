@@ -43,7 +43,6 @@ import io.opencensus.stats.MutableAggregation.MutableStdDev;
 import io.opencensus.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
-import io.opencensus.stats.ViewData.WindowData;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.stats.ViewData.WindowData.IntervalData;
 import java.util.ArrayList;
@@ -51,8 +50,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 

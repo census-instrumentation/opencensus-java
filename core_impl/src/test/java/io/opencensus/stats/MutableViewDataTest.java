@@ -16,9 +16,6 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import io.opencensus.common.Duration;
-import io.opencensus.common.Timestamp;
-import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
 import io.opencensus.stats.Aggregation.Mean;
@@ -37,13 +34,8 @@ import io.opencensus.stats.MutableAggregation.MutableMean;
 import io.opencensus.stats.MutableAggregation.MutableRange;
 import io.opencensus.stats.MutableAggregation.MutableStdDev;
 import io.opencensus.stats.MutableAggregation.MutableSum;
-import io.opencensus.stats.View.Window;
-import io.opencensus.stats.View.Window.Cumulative;
-import io.opencensus.stats.View.Window.Interval;
-import io.opencensus.testing.common.TestClock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -54,28 +46,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class MutableViewDataTest {
 
-  private final TestClock clock = TestClock.create();
-  private final StatsContextImpl context = new StatsContextImpl(
-      new StatsRecorderImpl(new StatsManager(new SimpleEventQueue(), clock)),
-      Collections.<TagKey, TagValue>emptyMap());
-
-  private static final Cumulative CUMULATIVE = Cumulative.create();
-  private static final int MILLIS_PER_SECOND = 1000;
-  private static final Duration TEN_SECONDS = Duration.create(10, 0);
-  private static final Window INTERVAL = Interval.create(TEN_SECONDS);
   private static final double EPSILON = 1e-7;
-  private static final Measure MEASURE = Measure.MeasureDouble.create(
-      "measure", "description", "1");
-  private static final View.Name VIEW_NAME = View.Name.create("view");
-  private static final String VIEW_DESC = "description";
-  private static final List<TagKey> TAG_KEYS = Arrays.asList(TagKey.create("key1"));
-  private static final List<Aggregation> AGGREGATIONS = Arrays.asList(
-      Sum.create(),
-      Count.create(),
-      Histogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0))),
-      Range.create(),
-      Mean.create(),
-      StdDev.create());
 
   private static final TagKey ORIGINATOR = TagKey.create("originator");
   private static final TagKey CALLER = TagKey.create("caller");
@@ -148,87 +119,5 @@ public class MutableViewDataTest {
         MeanData.create(0),
         StdDevData.create(0))
         .inOrder();
-  }
-
-  @Test
-  public void testRecordCumulative() {
-    View view = View.create(VIEW_NAME, VIEW_DESC, MEASURE, AGGREGATIONS, TAG_KEYS, CUMULATIVE);
-    MutableViewData mView = MutableViewData.create(view, Timestamp.create(5, 0));
-
-    double[] values = {-1.0, 1.0, -5.0, 20.0, 5.0};
-
-    for (double value : values) {
-      mView.record(context, value, clock);
-    }
-
-    StatsTestUtil.assertAggregationMapEquals(
-        mView.toViewData(clock).getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-            StatsTestUtil.createAggregationData(AGGREGATIONS, values)),
-        EPSILON);
-  }
-
-  @Test
-  public void testRecordInterval() {
-    // The interval is 10 seconds, i.e. values should expire after 10 seconds.
-    View view = View.create(VIEW_NAME, VIEW_DESC, MEASURE, AGGREGATIONS, TAG_KEYS, INTERVAL);
-    MutableViewData mView = MutableViewData.create(view, Timestamp.fromMillis(100));
-
-    double[] values = {20.0, -1.0, 1.0, -5.0, 5.0};
-    for (int i = 1; i <= 5; i++) {
-      // Add each value in sequence, at 1st second, 2nd second, 3rd second, etc.
-      clock.setTime(Timestamp.fromMillis(i * MILLIS_PER_SECOND));
-      mView.record(context, values[i - 1], clock);
-    }
-
-    clock.setTime(Timestamp.fromMillis(8 * MILLIS_PER_SECOND));
-    // 8s, no values should have expired
-    StatsTestUtil.assertAggregationMapEquals(
-        mView.toViewData(clock).getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-            StatsTestUtil.createAggregationData(AGGREGATIONS, values)),
-        EPSILON);
-
-    clock.setTime(Timestamp.fromMillis((long) (11.1 * MILLIS_PER_SECOND)));
-    // 11.1s, the first value should have expired
-    StatsTestUtil.assertAggregationMapEquals(
-        mView.toViewData(clock).getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-            StatsTestUtil.createAggregationData(AGGREGATIONS, -1.0, 1.0, -5.0, 5.0)),
-        EPSILON);
-
-    clock.setTime(Timestamp.fromMillis((long) (13.1 * MILLIS_PER_SECOND)));
-    // 13.1s, the 1st, 2nd and 3rd value should have expired
-    StatsTestUtil.assertAggregationMapEquals(
-        mView.toViewData(clock).getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-            StatsTestUtil.createAggregationData(AGGREGATIONS, -5.0, 5.0)),
-        EPSILON);
-
-    clock.setTime(Timestamp.fromMillis((long) 13.2 * MILLIS_PER_SECOND));
-    // 13.2s, add a new value 9.0
-    mView.record(context, 9.0, clock);
-
-    clock.setTime(Timestamp.fromMillis((long) (13.5 * MILLIS_PER_SECOND)));
-    // 13.5s, after adding value 9.0
-    StatsTestUtil.assertAggregationMapEquals(
-        mView.toViewData(clock).getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-            StatsTestUtil.createAggregationData(AGGREGATIONS, -5.0, 5.0, 9.0)),
-        EPSILON);
-
-    clock.setTime(Timestamp.fromMillis((long) (60.0 * MILLIS_PER_SECOND)));
-    // 60s, all values should have expired
-    StatsTestUtil.assertAggregationMapEquals(
-        mView.toViewData(clock).getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
-            StatsTestUtil.createAggregationData(AGGREGATIONS)),
-        EPSILON);
   }
 }
