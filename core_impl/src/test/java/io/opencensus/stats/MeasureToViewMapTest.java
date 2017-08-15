@@ -17,10 +17,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
+import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -45,7 +45,7 @@ public class MeasureToViewMapTest {
 
   private static final View VIEW =
       View.create(VIEW_NAME, "view description", MEASURE, AGGREGATIONS_NO_HISTOGRAM,
-          Arrays.asList(TagKey.create("my key")), CUMULATIVE);
+          Arrays.asList(TagKeyString.create("my key")), CUMULATIVE);
 
   @Test
   public void testRegisterAndGetView() {

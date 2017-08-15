@@ -13,6 +13,8 @@
 
 package io.opencensus.stats;
 
+import io.opencensus.tags.TagContext;
+
 /** Implementation of {@link StatsRecorder}. */
 final class StatsRecorderImpl extends StatsRecorder {
   private final StatsManager statsManager;
@@ -22,8 +24,7 @@ final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  void record(StatsContext tags, MeasureMap measurementValues) {
-    // TODO(sebright): Replace StatsContext with TagContext, and then this cast won't be necessary.
-    statsManager.record((StatsContextImpl) tags, measurementValues);
+  void record(TagContext tags, MeasureMap measurementValues) {
+    statsManager.record(tags, measurementValues);
   }
 }

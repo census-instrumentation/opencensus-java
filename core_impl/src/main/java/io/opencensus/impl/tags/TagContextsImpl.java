@@ -19,8 +19,7 @@ import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagContexts;
 import java.util.Iterator;
 
-final class TagContextsImpl extends TagContexts {
-  TagContextsImpl() {}
+public final class TagContextsImpl extends TagContexts {
 
   @Override
   public TagContextImpl empty() {

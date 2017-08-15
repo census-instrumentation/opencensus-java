@@ -15,6 +15,7 @@ package io.opencensus.stats;
 
 import io.opencensus.common.Clock;
 import io.opencensus.internal.EventQueue;
+import io.opencensus.tags.TagContext;
 
 /** Object that stores all views and stats. */
 final class StatsManager {
@@ -48,17 +49,17 @@ final class StatsManager {
     }
   }
 
-  void record(StatsContextImpl tags, MeasureMap measurementValues) {
+  void record(TagContext tags, MeasureMap measurementValues) {
     queue.enqueue(new StatsEvent(this, tags, measurementValues));
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
   private static final class StatsEvent implements EventQueue.Entry {
-    private final StatsContextImpl tags;
+    private final TagContext tags;
     private final MeasureMap stats;
     private final StatsManager viewManager;
 
-    StatsEvent(StatsManager viewManager, StatsContextImpl tags, MeasureMap stats) {
+    StatsEvent(StatsManager viewManager, TagContext tags, MeasureMap stats) {
       this.viewManager = viewManager;
       this.tags = tags;
       this.stats = stats;

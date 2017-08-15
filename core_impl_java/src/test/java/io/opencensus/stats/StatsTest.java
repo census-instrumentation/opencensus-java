@@ -31,9 +31,4 @@ public final class StatsTest {
   public void getViewManager() {
     assertThat(Stats.getViewManager()).isInstanceOf(ViewManagerImpl.class);
   }
-
-  @Test
-  public void getStatsContextFactory() {
-    assertThat(Stats.getStatsContextFactory()).isInstanceOf(StatsContextFactoryImpl.class);
-  }
 }

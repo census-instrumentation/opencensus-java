@@ -13,8 +13,10 @@
 
 package io.opencensus.stats;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import io.opencensus.tags.Tag;
+import io.opencensus.tags.TagContext;
+import java.util.Collections;
+import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -23,27 +25,18 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class StatsRecorderTest {
 
-  private final StatsContext statsContext =
-      new StatsContext() {
+  private final TagContext tagContext =
+      new TagContext() {
 
         @Override
-        public void serialize(OutputStream output) throws IOException {
-        }
-
-        @Override
-        public StatsContext record(MeasureMap measurements) {
-          return null;
-        }
-
-        @Override
-        public Builder builder() {
-          return null;
+        public Iterator<Tag> unsafeGetIterator() {
+          return Collections.<Tag>emptySet().iterator();
         }
       };
 
   @Test
   public void defaultRecord() {
-    StatsRecorder.getNoopStatsRecorder().record(statsContext, MeasureMap.builder().build());
+    StatsRecorder.getNoopStatsRecorder().record(tagContext, MeasureMap.builder().build());
   }
 
   @Test(expected = NullPointerException.class)
@@ -53,6 +46,6 @@ public final class StatsRecorderTest {
 
   @Test(expected = NullPointerException.class)
   public void defaultRecord_DisallowNullMeasureMap() {
-    StatsRecorder.getNoopStatsRecorder().record(statsContext, null);
+    StatsRecorder.getNoopStatsRecorder().record(tagContext, null);
   }
 }

@@ -20,6 +20,7 @@ import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.impl.tags.TagContextImpl;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
 import io.opencensus.stats.Aggregation.Mean;
@@ -41,7 +42,14 @@ import io.opencensus.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
+import io.opencensus.tags.Tag;
+import io.opencensus.tags.Tag.TagBoolean;
+import io.opencensus.tags.Tag.TagLong;
+import io.opencensus.tags.Tag.TagString;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,12 +60,36 @@ import javax.annotation.Nullable;
  */
 final class MutableViewData {
 
-  // TODO(songya): might want to update the default tag value later.
+  private static final Function<TagString, Object> GET_STRING_TAG_VALUE =
+      new Function<TagString, Object>() {
+        @Override
+        public Object apply(TagString tag) {
+          return tag.getValue();
+        }
+      };
+
+  private static final Function<TagLong, Object> GET_LONG_TAG_VALUE =
+      new Function<TagLong, Object>() {
+        @Override
+        public Object apply(TagLong tag) {
+          return tag.getValue();
+        }
+      };
+
+  private static final Function<TagBoolean, Object> GET_BOOLEAN_TAG_VALUE =
+      new Function<TagBoolean, Object>() {
+        @Override
+        public Object apply(TagBoolean tag) {
+          return tag.getValue();
+        }
+      };
+
+  // TODO(sebright): Change this field to type TagValue once we have a TagValue class.
   @VisibleForTesting
-  static final TagValue UNKNOWN_TAG_VALUE = TagValue.create("unknown/not set");
+  static final Object UNKNOWN_TAG_VALUE = null;
 
   private final View view;
-  private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
+  private final Map<List<Object>, List<MutableAggregation>> tagValueAggregationMap =
       Maps.newHashMap();
   @Nullable private final Timestamp start;
 
@@ -101,8 +133,8 @@ final class MutableViewData {
   /**
    * Record double stats with the given tags.
    */
-  void record(StatsContextImpl context, double value) {
-    List<TagValue> tagValues = getTagValues(context.tags, view.getColumns());
+  void record(TagContext context, double value) {
+    List<Object> tagValues = getTagValues(getTagMap(context), view.getColumns());
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       List<MutableAggregation> aggregations = Lists.newArrayList();
       for (Aggregation aggregation : view.getAggregations()) {
@@ -118,17 +150,36 @@ final class MutableViewData {
   /**
    * Record long stats with the given tags.
    */
-  void record(StatsContextImpl tags, long value) {
+  void record(TagContext tags, long value) {
     // TODO(songya): modify MutableDistribution to support long values.
     throw new UnsupportedOperationException("Not implemented.");
+  }
+
+  private static Map<TagKey, Object> getTagMap(TagContext ctx) {
+    if (ctx instanceof TagContextImpl) {
+      return ((TagContextImpl) ctx).getTags();
+    } else {
+      Map<TagKey, Object> tags = Maps.newHashMap();
+      for (Iterator<Tag> i = ctx.unsafeGetIterator(); i.hasNext(); ) {
+        Tag tag = i.next();
+        tags.put(
+            tag.getKey(),
+            tag.match(
+                GET_STRING_TAG_VALUE,
+                GET_LONG_TAG_VALUE,
+                GET_BOOLEAN_TAG_VALUE,
+                Functions.throwAssertionError()));
+      }
+      return tags;
+    }
   }
 
   /**
    * Convert this {@link MutableViewData} to {@link ViewData}.
    */
   ViewData toViewData(Clock clock) {
-    Map<List<TagValue>, List<AggregationData>> map = Maps.newHashMap();
-    for (Entry<List<TagValue>, List<MutableAggregation>> entry :
+    Map<List<Object>, List<AggregationData>> map = Maps.newHashMap();
+    for (Entry<List<Object>, List<MutableAggregation>> entry :
         tagValueAggregationMap.entrySet()) {
       List<AggregationData> aggregates = Lists.newArrayList();
       for (MutableAggregation aggregation : entry.getValue()) {
@@ -148,8 +199,9 @@ final class MutableViewData {
   }
 
   @VisibleForTesting
-  static List<TagValue> getTagValues(Map<TagKey, TagValue> tags, List<TagKey> columns) {
-    List<TagValue> tagValues = new ArrayList<TagValue>(columns.size());
+  static List<Object> getTagValues(
+      Map<? extends TagKey, ? extends Object> tags, List<? extends TagKey> columns) {
+    List<Object> tagValues = new ArrayList<Object>(columns.size());
     // Record all the measures in a "Greedy" way.
     // Every view aggregates every measure. This is similar to doing a GROUPBY view’s keys.
     for (int i = 0; i < columns.size(); ++i) {

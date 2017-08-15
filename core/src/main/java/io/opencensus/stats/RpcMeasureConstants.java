@@ -15,6 +15,7 @@ package io.opencensus.stats;
 
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
+import io.opencensus.tags.TagKey.TagKeyString;
 
 /**
  * Constants for collecting rpc stats.
@@ -22,9 +23,9 @@ import io.opencensus.stats.Measure.MeasureLong;
 public final class RpcMeasureConstants {
 
   // Rpc tag keys.
-  public static final TagKey RPC_STATUS = TagKey.create("canonical_status");
-  public static final TagKey RPC_CLIENT_METHOD = TagKey.create("method");
-  public static final TagKey RPC_SERVER_METHOD = TagKey.create("method");
+  public static final TagKeyString RPC_STATUS = TagKeyString.create("canonical_status");
+  public static final TagKeyString RPC_CLIENT_METHOD = TagKeyString.create("method");
+  public static final TagKeyString RPC_SERVER_METHOD = TagKeyString.create("method");
 
   // Constants used to define the following Measures.
   private static final String BYTE = "By";

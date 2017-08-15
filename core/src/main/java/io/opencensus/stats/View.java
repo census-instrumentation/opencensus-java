@@ -18,6 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
+import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -89,7 +90,7 @@ public abstract class View {
       String description,
       Measure measure,
       List<Aggregation> aggregations,
-      List<TagKey> columns,
+      List<? extends TagKey> columns,
       Window window) {
     checkArgument(new HashSet<Aggregation>(aggregations).size() == aggregations.size(),
         "Aggregations have duplicate.");

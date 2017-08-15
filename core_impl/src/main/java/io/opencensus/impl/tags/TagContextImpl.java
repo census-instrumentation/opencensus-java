@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-final class TagContextImpl extends TagContext {
+public final class TagContextImpl extends TagContext {
 
   static final TagContextImpl EMPTY = new TagContextImpl(Collections.<TagKey, Object>emptyMap());
 
@@ -44,7 +44,7 @@ final class TagContextImpl extends TagContext {
     this.tags = Collections.unmodifiableMap(new HashMap<TagKey, Object>(tags));
   }
 
-  Map<TagKey, Object> getTags() {
+  public Map<TagKey, Object> getTags() {
     return tags;
   }
 
