@@ -17,7 +17,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.stats.StatsTestUtil.createContext;
 
 import com.google.common.collect.ImmutableMap;
-import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.SimpleEventQueue;
 import io.opencensus.stats.Aggregation.Count;
@@ -28,7 +27,6 @@ import io.opencensus.stats.Aggregation.StdDev;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.View.Window.Cumulative;
-import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
@@ -111,20 +109,6 @@ public class ViewManagerImplTest {
     View view = createCumulativeView();
     viewManager.registerView(view);
     assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view);
-  }
-
-  @Test
-  public void preventRegisteringIntervalView() {
-    View intervalView =
-        View.create(
-            VIEW_NAME,
-            VIEW_DESCRIPTION,
-            MEASURE,
-            AGGREGATIONS,
-            Arrays.asList(KEY),
-            Interval.create(Duration.create(60, 0)));
-    thrown.expect(UnsupportedOperationException.class);
-    viewManager.registerView(intervalView);
   }
 
   @Test
