@@ -40,7 +40,6 @@ public class ThreadInstrumentationTest {
 
   @Test(timeout = 5000)
   public void start_Runnable() throws Exception {
-    final Thread callerThread = Thread.currentThread();
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
 
@@ -49,7 +48,6 @@ public class ThreadInstrumentationTest {
     Thread thread = new Thread(new Runnable() {
       @Override
       public void run() {
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
         assertThat(Context.current()).isSameAs(context);
         assertThat(KEY.get()).isEqualTo("myvalue");
         tested.set(true);
@@ -64,21 +62,22 @@ public class ThreadInstrumentationTest {
 
   @Test(timeout = 5000)
   public void start_Subclass() throws Exception {
-    final Thread callerThread = Thread.currentThread();
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    Thread thread = new Thread() {
+    class MyThread extends Thread {
+
       @Override
       public void run() {
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
         assertThat(Context.current()).isSameAs(context);
         assertThat(KEY.get()).isEqualTo("myvalue");
         tested.set(true);
       }
-    };
+    }
+
+    Thread thread = new MyThread();
 
     thread.start();
     thread.join();
@@ -86,9 +85,12 @@ public class ThreadInstrumentationTest {
     assertThat(tested.get()).isTrue();
   }
 
+  /**
+   * Tests that the automatic context propagation added by {@link ThreadInstrumentation} does not
+   * interfere with the automatically propagated context from Executor#execute.
+   */
   @Test(timeout = 5000)
-  public void start_wrappedRunnable() throws Exception {
-    final Thread callerThread = Thread.currentThread();
+  public void start_automaticallyWrappedRunnable() throws Exception {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
 
@@ -117,7 +119,6 @@ public class ThreadInstrumentationTest {
     newThreadExecutor.execute(new Runnable() {
       @Override
       public void run() {
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
         assertThat(Context.current()).isSameAs(context);
         assertThat(KEY.get()).isEqualTo("myvalue");
         tested.set(true);
