@@ -13,19 +13,13 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Function;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.logging.Logger;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */
 abstract class MutableAggregation {
-
-  private static final Logger logger = Logger.getLogger(MutableAggregation.class.getName());
 
   private MutableAggregation() {
   }
@@ -43,13 +37,6 @@ abstract class MutableAggregation {
    * @param value the expired value to be removed from population.
    */
   abstract void remove(double value);
-
-  private static final double EPSILON = 1e-7;
-
-  // Compare two double values to see if their difference is within Epsilon.
-  private static boolean isEqualWithinEpsilon(double v1, double v2) {
-    return Math.abs(v1 - v2) <= EPSILON;
-  }
 
   /**
    * Applies the given match function to the underlying data type.
@@ -229,8 +216,6 @@ abstract class MutableAggregation {
     private double min = Double.POSITIVE_INFINITY;
     private double max = Double.NEGATIVE_INFINITY;
 
-    private Queue<Double> values = new LinkedList<Double>();
-
     private MutableRange() {
     }
 
@@ -274,41 +259,12 @@ abstract class MutableAggregation {
       if (value > max) {
         max = value;
       }
-
-      boolean added = values.offer(value);
-      if (!added) {
-        logger.severe("Failed to enqueue value " + value + " for MutableRange.");
-      }
     }
 
-    // TODO(songya): shall we use a more efficient but complicated algorithm to calculate this?
-    // e.g. sliding window max/min?
+    // TODO(songya): not v0.1
     @Override
     void remove(double value) {
-      checkArgument(isEqualWithinEpsilon(value, values.poll()),
-          "The value queues between MutableViewData and MutableRange don't match.");
-      if (!isEqualWithinEpsilon(value, min) && !isEqualWithinEpsilon(value, max)) {
-        return; // the passed-in value is neither min nor max.
-      }
-
-      double minOfRestValues = Double.POSITIVE_INFINITY;
-      double maxOfRestValues = Double.NEGATIVE_INFINITY;
-      for (double v : values) {
-        // The passed-in value has already been dequeued.
-        if (v < minOfRestValues) {
-          minOfRestValues = v;
-        }
-        if (v > maxOfRestValues) {
-          maxOfRestValues = v;
-        }
-      }
-
-      if (isEqualWithinEpsilon(value, min)) {
-        min = minOfRestValues;
-      }
-      if (isEqualWithinEpsilon(value, max)) {
-        max = maxOfRestValues;
-      }
+      throw new UnsupportedOperationException("Not supported for IntervalView.");
     }
 
     @Override
@@ -349,14 +305,9 @@ abstract class MutableAggregation {
     }
 
     @Override
+    // TODO(songya): not v0.1
     void remove(double value) {
-      count--;
-      if (count == 0) {
-        mean = 0;
-      } else {
-        double deltaFromMean = value - mean;
-        mean -= deltaFromMean / count;
-      }
+      throw new UnsupportedOperationException("Not supported for IntervalView.");
     }
 
     /**
@@ -417,17 +368,9 @@ abstract class MutableAggregation {
     }
 
     @Override
+    // TODO(songya): not v0.1
     void remove(double value) {
-      count--;
-      if (count == 0) {
-        mean = 0;
-        sumOfSquaredDeviations = 0;
-      } else {
-        double deltaFromMean = value - mean;
-        mean -= deltaFromMean / count;
-        double deltaFromMean2 = value - mean;
-        sumOfSquaredDeviations -= deltaFromMean * deltaFromMean2;
-      }
+      throw new UnsupportedOperationException("Not supported for IntervalView.");
     }
 
     /**

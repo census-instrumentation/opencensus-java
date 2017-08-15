@@ -67,7 +67,7 @@ final class StatsManager {
 
     @Override
     public void process() {
-      statsManager.measureToViewMap.record(tags, stats, statsManager.clock);
+      statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now());
     }
   }
 }

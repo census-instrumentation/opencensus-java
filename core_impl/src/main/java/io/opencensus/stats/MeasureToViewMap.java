@@ -17,6 +17,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
+import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
 import java.util.Collection;
@@ -84,15 +85,15 @@ final class MeasureToViewMap {
   }
 
   // Records stats with a set of tags.
-  synchronized void record(StatsContextImpl tags, MeasureMap stats, Clock clock) {
+  synchronized void record(StatsContextImpl tags, MeasureMap stats, Timestamp timestamp) {
     Iterator<Measurement> iterator = stats.iterator();
     while (iterator.hasNext()) {
       Measurement measurement = iterator.next();
       Collection<MutableViewData> views = mutableMap.get(measurement.getMeasure().getName());
       for (MutableViewData view : views) {
         measurement.match(
-            new RecordDoubleValueFunc(tags, view, clock),
-            new RecordLongValueFunc(tags, view, clock));
+            new RecordDoubleValueFunc(tags, view, timestamp),
+            new RecordLongValueFunc(tags, view, timestamp));
       }
     }
   }
@@ -100,36 +101,37 @@ final class MeasureToViewMap {
   private static final class RecordDoubleValueFunc implements Function<MeasurementDouble, Void> {
     @Override
     public Void apply(MeasurementDouble arg) {
-      view.record(tags, arg.getValue(), clock);
+      view.record(tags, arg.getValue(), timestamp);
       return null;
     }
 
     private final StatsContextImpl tags;
     private final MutableViewData view;
-    private final Clock clock;
+    private final Timestamp timestamp;
 
-    private RecordDoubleValueFunc(StatsContextImpl tags, MutableViewData view, Clock clock) {
+    private RecordDoubleValueFunc(
+        StatsContextImpl tags, MutableViewData view, Timestamp timestamp) {
       this.tags = tags;
       this.view = view;
-      this.clock = clock;
+      this.timestamp = timestamp;
     }
   }
 
   private static final class RecordLongValueFunc implements Function<MeasurementLong, Void> {
     @Override
     public Void apply(MeasurementLong arg) {
-      view.record(tags, arg.getValue(), clock);
+      view.record(tags, arg.getValue(), timestamp);
       return null;
     }
 
     private final StatsContextImpl tags;
     private final MutableViewData view;
-    private final Clock clock;
+    private final Timestamp timestamp;
 
-    private RecordLongValueFunc(StatsContextImpl tags, MutableViewData view, Clock clock) {
+    private RecordLongValueFunc(StatsContextImpl tags, MutableViewData view, Timestamp timestamp) {
       this.tags = tags;
       this.view = view;
-      this.clock = clock;
+      this.timestamp = timestamp;
     }
   }
 }

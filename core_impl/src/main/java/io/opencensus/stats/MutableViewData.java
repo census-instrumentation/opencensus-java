@@ -92,12 +92,12 @@ abstract class MutableViewData {
   /**
    * Record double stats with the given tags.
    */
-  abstract void record(StatsContextImpl context, double value, Clock clock);
+  abstract void record(StatsContextImpl context, double value, Timestamp timestamp);
 
   /**
    * Record long stats with the given tags.
    */
-  abstract void record(StatsContextImpl tags, long value, Clock clock);
+  abstract void record(StatsContextImpl tags, long value, Timestamp timestamp);
 
   /**
    * Convert this {@link MutableViewData} to {@link ViewData}.
@@ -117,7 +117,7 @@ abstract class MutableViewData {
     }
   }
 
-  private Map<List<TagValue>, List<AggregationData>> toAggregationMap() {
+  private Map<List<TagValue>, List<AggregationData>> getAggregationMap() {
     Map<List<TagValue>, List<AggregationData>> map = Maps.newHashMap();
     for (Entry<List<TagValue>, List<MutableAggregation>> entry :
         tagValueAggregationMap.entrySet()) {
@@ -193,13 +193,13 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(StatsContextImpl context, double value, Clock clock) {
+    void record(StatsContextImpl context, double value, Timestamp timestamp) {
       List<TagValue> tagValues = getTagValues(context.tags, super.view.getColumns());
       super.recordInternal(tagValues, value);
     }
 
     @Override
-    void record(StatsContextImpl tags, long value, Clock clock) {
+    void record(StatsContextImpl tags, long value, Timestamp timestamp) {
       // TODO(songya): implement this.
       throw new UnsupportedOperationException("Not implemented.");
     }
@@ -207,7 +207,7 @@ abstract class MutableViewData {
     @Override
     ViewData toViewData(Clock clock) {
       return ViewData.create(
-          super.view, super.toAggregationMap(), CumulativeData.create(start, clock.now()));
+          super.view, super.getAggregationMap(), CumulativeData.create(start, clock.now()));
     }
   }
 
@@ -221,16 +221,16 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(StatsContextImpl context, double value, Clock clock) {
-      removeExpiredValues(clock.now());
+    void record(StatsContextImpl context, double value, Timestamp timestamp) {
+      removeExpiredValues(timestamp);
       List<TagValue> tagValues = getTagValues(context.tags, super.view.getColumns());
       // Add Timestamp to value after the value went through the DisruptorQueue.
-      addValueToQueue(value, clock.now(), tagValues);
+      addValueToQueue(value, timestamp, tagValues);
       super.recordInternal(tagValues, value);
     }
 
     @Override
-    void record(StatsContextImpl tags, long value, Clock clock) {
+    void record(StatsContextImpl tags, long value, Timestamp timestamp) {
       // TODO(songya): implement this.
       throw new UnsupportedOperationException("Not implemented.");
     }
@@ -239,19 +239,18 @@ abstract class MutableViewData {
     ViewData toViewData(Clock clock) {
       removeExpiredValues(clock.now());
       return ViewData.create(
-          super.view, super.toAggregationMap(), IntervalData.create(clock.now()));
+          super.view, super.getAggregationMap(), IntervalData.create(clock.now()));
     }
 
-    // If this MutableViewData has an IntervalWindow, add the value associated with the given
-    // timestamp to valueQueue.
+    // Add the measure value associated with the given timestamp and tag values to valueQueue.
     private void addValueToQueue(double value, Timestamp now, List<TagValue> tagValues) {
       checkNotNull(now, "Timestamp");
       checkNotNull(tagValues, "TagValues");
       valueQueue.addLast(new TimestampedValue(value, now, tagValues));
     }
 
-    // If this MutableViewData has an IntervalWindow, dequeue expired values from valueQueue against
-    // current timestamp, and update summary stats by eliminating expired values.
+    // Dequeue expired values from valueQueue against current timestamp, and update summary stats
+    // by eliminating expired values.
     private void removeExpiredValues(Timestamp now) {
       checkNotNull(now, "Timestamp");
       Interval interval = (Interval) super.view.getWindow();
@@ -407,7 +406,7 @@ abstract class MutableViewData {
     }
   }
 
-  /** Value associated with a {@code TimeStamp}. */
+  /** Value associated with a {@code TimeStamp} and a list of {@code TagValue}s. */
   @Immutable
   private static final class TimestampedValue {
 
