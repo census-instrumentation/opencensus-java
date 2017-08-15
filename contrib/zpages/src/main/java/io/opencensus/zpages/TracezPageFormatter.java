@@ -121,12 +121,26 @@ public final class TracezPageFormatter {
     PrintWriter out =
         new PrintWriter(
             new BufferedWriter(new OutputStreamWriter(outputStream, Charset.forName("US-ASCII"))));
-    out.write("<html><head><title>Tracez</title>");
-    out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>");
+    out.write("<!DOCTYPE html>\n");
+    out.write("<html lang=\"en\"><head>\n");
+    out.write("<meta charset=\"utf-8\">\n");
+    out.write("<title>Tracez</title>\n");
+    out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
     out.write("</head>\n");
+    out.write("<body>\n");
+    try {
+      emitHtmlBody(queryMap, out);
+    } catch (Throwable t) {
+      out.write("Errors while generate the HTML page " + t);
+    }
+    out.write("</body>\n");
+    out.write("</html>\n");
+    out.close();
+  }
+
+  private void emitHtmlBody(Map<String, String> queryMap, PrintWriter out) {
     if (runningSpanStore == null || sampledSpanStore == null) {
       out.write("OpenCensus implementation not available.");
-      out.close();
       return;
     }
     Formatter formatter = new Formatter(out, Locale.US);
@@ -194,10 +208,7 @@ public final class TracezPageFormatter {
         }
       }
     }
-    out.write("</body>\n");
-    out.write("</html>\n");
     tracer.getCurrentSpan().addAnnotation("Finish rendering.");
-    out.close();
   }
 
   private static void emitSpanNameAndCountPages(
