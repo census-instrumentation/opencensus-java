@@ -224,7 +224,6 @@ abstract class MutableViewData {
     void record(StatsContextImpl context, double value, Timestamp timestamp) {
       removeExpiredValues(timestamp);
       List<TagValue> tagValues = getTagValues(context.tags, super.view.getColumns());
-      // Add Timestamp to value after the value went through the DisruptorQueue.
       addValueToQueue(value, timestamp, tagValues);
       super.recordInternal(tagValues, value);
     }

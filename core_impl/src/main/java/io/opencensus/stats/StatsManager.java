@@ -67,6 +67,7 @@ final class StatsManager {
 
     @Override
     public void process() {
+      // Add Timestamp to value after it went through the DisruptorQueue.
       statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now());
     }
   }
