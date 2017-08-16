@@ -40,6 +40,8 @@ import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.stats.ViewData.WindowData;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.stats.ViewData.WindowData.IntervalData;
+import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagValueString;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -114,7 +116,7 @@ public final class ViewDataTest {
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
-                intervalView, Collections.<List<TagValue>, List<AggregationData>>emptyMap(),
+                intervalView, Collections.<List<Object>, List<AggregationData>>emptyMap(),
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .testEquals();
   }
@@ -186,15 +188,15 @@ public final class ViewDataTest {
   }
 
   // tag keys
-  private static final TagKey K1 = TagKey.create("k1");
-  private static final TagKey K2 = TagKey.create("k2");
-  private final List<TagKey> tagKeys = Arrays.asList(K1, K2);
+  private static final TagKeyString K1 = TagKeyString.create("k1");
+  private static final TagKeyString K2 = TagKeyString.create("k2");
+  private final List<TagKeyString> tagKeys = Arrays.asList(K1, K2);
 
   // tag values
-  private static final TagValue V1 = TagValue.create("v1");
-  private static final TagValue V2 = TagValue.create("v2");
-  private static final TagValue V10 = TagValue.create("v10");
-  private static final TagValue V20 = TagValue.create("v20");
+  private static final TagValueString V1 = TagValueString.create("v1");
+  private static final TagValueString V2 = TagValueString.create("v2");
+  private static final TagValueString V10 = TagValueString.create("v10");
+  private static final TagValueString V20 = TagValueString.create("v20");
 
   private static final Window CUMULATIVE = Cumulative.create();
   private static final Window INTERVAL_HOUR = Interval.create(Duration.create(3600, 0));
@@ -206,7 +208,7 @@ public final class ViewDataTest {
       Sum.create(), Count.create(), Range.create(), Histogram.create(BUCKET_BOUNDARIES),
       Mean.create(), StdDev.create()));
 
-  private static final ImmutableMap<List<TagValue>, List<AggregationData>> ENTRIES =
+  private static final ImmutableMap<List<TagValueString>, List<AggregationData>> ENTRIES =
       ImmutableMap.of(
           Arrays.asList(V1, V2),
           Arrays.asList(

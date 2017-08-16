@@ -19,6 +19,7 @@ import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
+import io.opencensus.tags.TagContext;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,7 +85,7 @@ final class MeasureToViewMap {
   }
 
   // Records stats with a set of tags.
-  synchronized void record(StatsContextImpl tags, MeasureMap stats) {
+  synchronized void record(TagContext tags, MeasureMap stats) {
     Iterator<Measurement> iterator = stats.iterator();
     while (iterator.hasNext()) {
       Measurement measurement = iterator.next();
@@ -103,10 +104,10 @@ final class MeasureToViewMap {
       return null;
     }
 
-    private final StatsContextImpl tags;
+    private final TagContext tags;
     private final MutableViewData view;
 
-    private RecordDoubleValueFunc(StatsContextImpl tags, MutableViewData view) {
+    private RecordDoubleValueFunc(TagContext tags, MutableViewData view) {
       this.tags = tags;
       this.view = view;
     }
@@ -119,10 +120,10 @@ final class MeasureToViewMap {
       return null;
     }
 
-    private final StatsContextImpl tags;
+    private final TagContext tags;
     private final MutableViewData view;
 
-    private RecordLongValueFunc(StatsContextImpl tags, MutableViewData view) {
+    private RecordLongValueFunc(TagContext tags, MutableViewData view) {
       this.tags = tags;
       this.view = view;
     }

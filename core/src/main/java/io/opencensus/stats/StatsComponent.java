@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Class that holds the implementations for {@link ViewManager}, {@link StatsRecorder}, and {@link
- * StatsContextFactory}.
+ * Class that holds the implementations for {@link ViewManager} and {@link StatsRecorder}.
  *
  * <p>All objects returned by methods on {@code StatsComponent} are cacheable.
  */
@@ -31,11 +30,6 @@ public abstract class StatsComponent {
 
   /** Returns the default {@link StatsRecorder}. */
   public abstract StatsRecorder getStatsRecorder();
-
-  /** Returns the default {@link StatsContextFactory}. */
-  // TODO(sebright): Remove this method once StatsContext is replaced by TagContext.
-  @Nullable
-  abstract StatsContextFactory getStatsContextFactory();
 
   /**
    * Returns a {@code StatsComponent} that has a no-op implementation for the {@link StatsRecorder}.
@@ -59,12 +53,6 @@ public abstract class StatsComponent {
     @Override
     public StatsRecorder getStatsRecorder() {
       return StatsRecorder.getNoopStatsRecorder();
-    }
-
-    @Override
-    @Nullable
-    StatsContextFactory getStatsContextFactory() {
-      return null;
     }
   }
 }

@@ -14,6 +14,7 @@
 package io.opencensus.stats;
 
 import com.google.common.base.Preconditions;
+import io.opencensus.tags.TagContext;
 import javax.annotation.concurrent.Immutable;
 
 /** Provides methods to record stats against tags. */
@@ -32,7 +33,7 @@ public abstract class StatsRecorder {
    * @param tags the tags associated with the measurements.
    * @param measurementValues the measurements to record.
    */
-  abstract void record(StatsContext tags, MeasureMap measurementValues);
+  abstract void record(TagContext tags, MeasureMap measurementValues);
 
   /**
    * Returns a {@code StatsRecorder} that does not record any data.
@@ -47,7 +48,7 @@ public abstract class StatsRecorder {
   private static final class NoopStatsRecorder extends StatsRecorder {
 
     @Override
-    void record(StatsContext tags, MeasureMap measurementValues) {
+    void record(TagContext tags, MeasureMap measurementValues) {
       Preconditions.checkNotNull(tags);
       Preconditions.checkNotNull(measurementValues);
     }

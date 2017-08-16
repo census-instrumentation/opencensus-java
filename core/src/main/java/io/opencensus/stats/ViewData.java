@@ -39,10 +39,11 @@ public abstract class ViewData {
   public abstract View getView();
 
   /**
-   * The {@link AggregationData}s grouped by combination of {@link TagValue}s, associated with this
+   * The {@link AggregationData}s grouped by combination of tag values, associated with this
    * {@link ViewData}.
    */
-  public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
+  // TODO(sebright): Create a TagValue class.
+  public abstract Map<List<Object>, List<AggregationData>> getAggregationMap();
 
   /**
    * Returns the {@link WindowData} associated with this {@link ViewData}.
@@ -53,7 +54,9 @@ public abstract class ViewData {
 
   /** Constructs a new {@link ViewData}. */
   public static ViewData create(
-      View view, Map<List<TagValue>, List<AggregationData>> map, final WindowData windowData) {
+      View view,
+      Map<? extends List<? extends Object>, List<AggregationData>> map,
+      final WindowData windowData) {
     view.getWindow()
         .match(
             new Function<View.Window.Cumulative, Void>() {
@@ -86,11 +89,11 @@ public abstract class ViewData {
             },
             Functions.<Void>throwIllegalArgumentException());
 
-    Map<List<TagValue>, List<AggregationData>> deepCopy =
-        new HashMap<List<TagValue>, List<AggregationData>>();
-    for (Entry<List<TagValue>, List<AggregationData>> entry : map.entrySet()) {
+    Map<List<Object>, List<AggregationData>> deepCopy =
+        new HashMap<List<Object>, List<AggregationData>>();
+    for (Entry<? extends List<? extends Object>, List<AggregationData>> entry : map.entrySet()) {
       deepCopy.put(
-          Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())),
+          Collections.unmodifiableList(new ArrayList<Object>(entry.getKey())),
           Collections.unmodifiableList(new ArrayList<AggregationData>(entry.getValue())));
     }
 
