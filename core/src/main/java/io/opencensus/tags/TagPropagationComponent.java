@@ -16,6 +16,8 @@ package io.opencensus.tags;
 import javax.annotation.concurrent.Immutable;
 
 /** Object containing all supported {@link TagContext} propagation formats. */
+// TODO(sebright): Add a link to the specification for the cross-language OpenCensus tag context
+// serialization format.
 // TODO(sebright): Add an HTTP serializer.
 public abstract class TagPropagationComponent {
   private static final TagPropagationComponent NOOP_TAG_PROPAGATION_COMPONENT =
