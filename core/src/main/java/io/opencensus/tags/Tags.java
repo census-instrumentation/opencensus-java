@@ -37,12 +37,12 @@ public final class Tags {
   }
 
   /**
-   * Returns the default {@code TagContextSerializer}.
+   * Returns the default {@code TagPropagationComponent}.
    *
-   * @return the default {@code TagContextSerializer}.
+   * @return the default {@code TagPropagationComponent}.
    */
-  public static TagContextSerializer getTagContextSerializer() {
-    return tagsComponent.getTagContextSerializer();
+  public static TagPropagationComponent getTagPropagationComponent() {
+    return tagsComponent.getTagPropagationComponent();
   }
 
   // Any provider that may be used for TagsComponent can be added here.

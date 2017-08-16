@@ -18,6 +18,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.Collections2;
 import io.opencensus.internal.VarInt;
 import io.opencensus.tags.Tag.TagString;
+import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -34,7 +35,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Tests for serializing tags with {@link SerializationUtils} and {@link TagContextSerializerImpl}.
+ * Tests for serializing tags with {@link SerializationUtils} and {@link
+ * TagContextBinarySerializerImpl}.
  */
 @RunWith(JUnit4.class)
 public class TagContextSerializationTest {
@@ -57,7 +59,7 @@ public class TagContextSerializationTest {
   private static final TagString T3 = TagString.create(K3, V3);
   private static final TagString T4 = TagString.create(K4, V4);
 
-  private final TagContextSerializerImpl serializer = new TagContextSerializerImpl();
+  private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
   private final TagContexts tagContexts = new TagContextsImpl();
 
   @Test

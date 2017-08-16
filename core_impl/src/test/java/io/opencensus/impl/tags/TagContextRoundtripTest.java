@@ -17,6 +17,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValueString;
@@ -26,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for roundtrip serialization with {@link TagContextSerializerImpl}. */
+/** Tests for roundtrip serialization with {@link TagContextBinarySerializerImpl}. */
 @RunWith(JUnit4.class)
 public class TagContextRoundtripTest {
 
@@ -40,7 +41,7 @@ public class TagContextRoundtripTest {
   private static final TagValueString V2 = TagValueString.create("v2");
   private static final TagValueString V3 = TagValueString.create("v3");
 
-  private final TagContextSerializerImpl serializer = new TagContextSerializerImpl();
+  private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
   private final TagContexts tagContexts = new TagContextsImpl();
 
   @Test

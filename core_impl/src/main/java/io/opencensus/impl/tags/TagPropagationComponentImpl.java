@@ -13,22 +13,15 @@
 
 package io.opencensus.impl.tags;
 
-import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextSerializer;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import io.opencensus.tags.TagContextBinarySerializer;
+import io.opencensus.tags.TagPropagationComponent;
 
-final class TagContextSerializerImpl extends TagContextSerializer {
-  TagContextSerializerImpl() {}
+final class TagPropagationComponentImpl extends TagPropagationComponent {
+  private final TagContextBinarySerializer tagContextBinarySerializer =
+      new TagContextBinarySerializerImpl();
 
   @Override
-  public void serialize(TagContext tags, OutputStream output) throws IOException {
-    SerializationUtils.serialize(tags, output);
-  }
-
-  @Override
-  public TagContext deserialize(InputStream input) throws IOException {
-    return SerializationUtils.deserialize(input);
+  public TagContextBinarySerializer getBinarySerializer() {
+    return tagContextBinarySerializer;
   }
 }
