@@ -36,9 +36,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * {@link TagContext} serialization.
+ * Methods for serializing and deserializing {@link TagContext}s.
  *
- * <p>Encoding of tag context information for passing across RPC's:
+ * <p>The format defined in this class is shared across all implementations of OpenCensus. It allows
+ * tags to propagate across requests.
+ *
+ * <p>OpenCensus tag context encoding:
  *
  * <ul>
  *   <li>Tags are encoded in single byte sequence. The version 0 format is:
