@@ -11,11 +11,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.agent;
+package io.opencensus.contrib.agent.instrumentation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
+import com.google.auto.service.AutoService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.agent.bootstrap.ContextManager;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -34,7 +36,17 @@ import net.bytebuddy.utility.JavaModule;
  * are different: {@link InheritableThreadLocal} inherits values when the thread object is
  * initialized as opposed to when {@link Thread#start()} is called.
  */
-final class ThreadInstrumentation {
+@AutoService(Instrumenter.class)
+public final class ThreadInstrumentation implements Instrumenter {
+
+  @Override
+  public AgentBuilder instrument(AgentBuilder agentBuilder) {
+    checkNotNull(agentBuilder, "agentBuilder");
+
+    return agentBuilder
+            .type(createMatcher())
+            .transform(createTransformer());
+  }
 
   private static class Transformer implements AgentBuilder.Transformer {
 
@@ -47,13 +59,13 @@ final class ThreadInstrumentation {
     }
   }
 
-  static ElementMatcher.Junction<TypeDescription> createMatcher() {
+  private static ElementMatcher.Junction<TypeDescription> createMatcher() {
     // TODO(stschmidt): Exclude known call sites that already propagate the context.
 
     return isSubTypeOf(Thread.class);
   }
 
-  static AgentBuilder.Transformer createTransformer() {
+  private static AgentBuilder.Transformer createTransformer() {
     return new Transformer();
   }
 
