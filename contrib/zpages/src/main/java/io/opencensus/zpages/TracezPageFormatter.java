@@ -15,6 +15,7 @@ package io.opencensus.zpages;
 
 import static com.google.common.html.HtmlEscapers.htmlEscaper;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Duration;
@@ -45,7 +46,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -59,7 +59,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
@@ -68,11 +67,13 @@ import javax.annotation.Nullable;
  *
  * <p>It prints a summary table which contains one row for each span name and data about number of
  * active and sampled spans.
+ *
+ * <p>See {@link TracezHttpHandler} for how to use the formatter with private HTTP server
+ * implementations or how to use with {@link com.sun.net.httpserver.HttpServer}.
  */
 public final class TracezPageFormatter {
 
   private static final Tracer tracer = Tracing.getTracer();
-  private static final Logger logger = Logger.getLogger(TracezPageFormatter.class.getName());
 
   // Color to use for zebra-striping.
   private static final String ZEBRA_STRIPE_COLOR = "#eee";
@@ -121,12 +122,11 @@ public final class TracezPageFormatter {
    */
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
     PrintWriter out =
-        new PrintWriter(
-            new BufferedWriter(new OutputStreamWriter(outputStream, Charset.forName("US-ASCII"))));
+        new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream, Charsets.UTF_8)));
     out.write("<!DOCTYPE html>\n");
     out.write("<html lang=\"en\"><head>\n");
     out.write("<meta charset=\"utf-8\">\n");
-    out.write("<title>Tracez</title>\n");
+    out.write("<title>TraceZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
     out.write("</head>\n");
     out.write("<body>\n");
@@ -428,7 +428,7 @@ public final class TracezPageFormatter {
 
   private static void emitSummaryTableHeader(PrintWriter out, Formatter formatter) {
     out.write(
-        "<tr><td colspan=25 align=\"center\"><font size=\"5\"><b>Tracez "
+        "<tr><td colspan=25 align=\"center\"><font size=\"5\"><b>TraceZ "
             + "Summary</b></font></td></tr>\n");
     // First line.
     out.write("<tr>\n");
@@ -459,12 +459,8 @@ public final class TracezPageFormatter {
   // If numSamples is greater than 0 then emit a link to see span data, if the numSamples is
   // negative then print "N/A", otherwise print the text "0".
   private static void emitSingleCell(
-      PrintWriter out,
-      Formatter formatter,
-      String spanName,
-      int numSamples,
-      int type,
-      int subtype) throws UnsupportedEncodingException {
+      PrintWriter out, Formatter formatter, String spanName, int numSamples, int type, int subtype)
+      throws UnsupportedEncodingException {
     if (numSamples > 0) {
       formatter.format(
           "<td align=\"center\"><a href='?%s=%s&%s=%d&%s=%d'>%d</a></td>%n",

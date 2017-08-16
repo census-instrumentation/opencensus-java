@@ -13,6 +13,7 @@
 
 package io.opencensus.zpages;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -23,16 +24,17 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.ExportComponent;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An {@code HttpHandler} that displays information about active and sampled spans recorded using
+ * An {@link HttpHandler} that displays information about active and sampled spans recorded using
  * the OpenCensus library.
  *
- * <p>Example usage with automatic context propagation:
+ * <p>Example usage with {@link HttpServer}:
  *
  * <pre>{@code
  * public class Main {
@@ -86,13 +88,16 @@ public final class TracezHttpHandler implements HttpHandler {
                       AttributeValue.stringAttributeValue(httpExchange.getRequestMethod()))
                   .build());
       httpExchange.sendResponseHeaders(200, 0);
-      pageFormatter.emitHtml(queryToMap(httpExchange), httpExchange.getResponseBody());
+      pageFormatter.emitHtml(
+          uriQueryToMap(httpExchange.getRequestURI()), httpExchange.getResponseBody());
+    } finally{
       httpExchange.close();
     }
   }
 
-  private static Map<String, String> queryToMap(HttpExchange httpExchange) {
-    String query = httpExchange.getRequestURI().getQuery();
+  @VisibleForTesting
+  static Map<String, String> uriQueryToMap(URI uri) {
+    String query = uri.getQuery();
     if (query == null) {
       return Collections.emptyMap();
     }
@@ -105,7 +110,6 @@ public final class TracezHttpHandler implements HttpHandler {
         result.put(pair[0], "");
       }
     }
-    tracer.getCurrentSpan().addAnnotation("Finish to parse query components.");
     return result;
   }
 }

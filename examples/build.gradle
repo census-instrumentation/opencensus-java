@@ -49,7 +49,7 @@ task multiSpansContextTracing(type: CreateStartScripts) {
 }
 
 task zPagesTester(type: CreateStartScripts) {
-    mainClassName = 'io.opencensus.examples.zpages.Tester'
+    mainClassName = 'io.opencensus.examples.zpages.ZPagesTester'
     applicationName = 'ZPagesTester'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime

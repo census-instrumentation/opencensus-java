@@ -21,8 +21,8 @@ import java.util.logging.Logger;
 /**
  * Testing only class for the UI.
  */
-public class Tester {
-  private static final Logger logger = Logger.getLogger(Tester.class.getName());
+public class ZPagesTester {
+  private static final Logger logger = Logger.getLogger(ZPagesTester.class.getName());
 
   /** Main method. */
   public static void main(String[] args) throws Exception {
