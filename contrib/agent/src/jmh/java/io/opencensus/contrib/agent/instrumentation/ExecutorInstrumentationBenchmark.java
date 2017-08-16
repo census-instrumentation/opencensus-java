@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.agent;
+package io.opencensus.contrib.agent.instrumentation;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.Context;
