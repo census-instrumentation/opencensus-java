@@ -11,18 +11,24 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.trace.internal;
 
-import io.opencensus.impl.common.MillisClock;
-import io.opencensus.impl.internal.SimpleEventQueue;
+import io.opencensus.impl.trace.internal.RandomHandler;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.concurrent.ThreadSafe;
 
-/**
- * Android-compatible implementation of {@link StatsComponent}.
- */
-public final class StatsComponentImplLite extends StatsComponentImplBase {
+/** Implementation of the {@link RandomHandler} using {@link ThreadLocalRandom}. */
+@ThreadSafe
+public final class ThreadLocalRandomHandler extends RandomHandler {
 
-  public StatsComponentImplLite() {
-    // TODO(sebright): Use a more efficient queue implementation.
-    super(new SimpleEventQueue(), MillisClock.getInstance());
+  /**
+   * Constructs a new {@code ThreadLocalRandomHandler}.
+   */
+  public ThreadLocalRandomHandler() {}
+
+  @Override
+  public Random current() {
+    return ThreadLocalRandom.current();
   }
 }

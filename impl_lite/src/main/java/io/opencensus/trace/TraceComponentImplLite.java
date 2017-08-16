@@ -13,11 +13,15 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.common.MillisClock;
-import io.opencensus.internal.SimpleEventQueue;
-import io.opencensus.trace.internal.RandomHandler.SecureRandomHandler;
+import io.opencensus.impl.common.MillisClock;
+import io.opencensus.impl.internal.SimpleEventQueue;
+import io.opencensus.impl.trace.TraceComponentImplBase;
+import io.opencensus.impl.trace.internal.RandomHandler.SecureRandomHandler;
 
 /** Android-compatible implementation of the {@link TraceComponent}. */
+// TraceComponentImplLite was moved to io.opencensus.impl.trace. This class exists for backwards
+// compatibility, so that it can be loaded by opencensus-api O.5.
+@Deprecated
 public final class TraceComponentImplLite extends TraceComponentImplBase {
 
   public TraceComponentImplLite() {

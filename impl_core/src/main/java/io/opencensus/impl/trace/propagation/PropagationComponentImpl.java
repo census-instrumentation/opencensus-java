@@ -11,18 +11,17 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.trace.propagation;
 
-import io.opencensus.impl.common.MillisClock;
-import io.opencensus.impl.internal.SimpleEventQueue;
+import io.opencensus.trace.propagation.BinaryFormat;
+import io.opencensus.trace.propagation.PropagationComponent;
 
-/**
- * Android-compatible implementation of {@link StatsComponent}.
- */
-public final class StatsComponentImplLite extends StatsComponentImplBase {
+/** Implementation of the {@link PropagationComponent}. */
+public class PropagationComponentImpl extends PropagationComponent {
+  private final BinaryFormat binaryFormat = new BinaryFormatImpl();
 
-  public StatsComponentImplLite() {
-    // TODO(sebright): Use a more efficient queue implementation.
-    super(new SimpleEventQueue(), MillisClock.getInstance());
+  @Override
+  public BinaryFormat getBinaryFormat() {
+    return binaryFormat;
   }
 }

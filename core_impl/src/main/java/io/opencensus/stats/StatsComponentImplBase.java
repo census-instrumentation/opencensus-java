@@ -14,7 +14,7 @@
 package io.opencensus.stats;
 
 import io.opencensus.common.Clock;
-import io.opencensus.internal.EventQueue;
+import io.opencensus.impl.internal.EventQueue;
 
 /** Base implementation of {@link StatsComponent}. */
 class StatsComponentImplBase extends StatsComponent {

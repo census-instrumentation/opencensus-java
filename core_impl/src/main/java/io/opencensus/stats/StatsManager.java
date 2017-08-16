@@ -14,7 +14,7 @@
 package io.opencensus.stats;
 
 import io.opencensus.common.Clock;
-import io.opencensus.internal.EventQueue;
+import io.opencensus.impl.internal.EventQueue;
 import io.opencensus.tags.TagContext;
 
 /** Object that stores all views and stats. */
