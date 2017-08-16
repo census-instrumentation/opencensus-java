@@ -46,8 +46,6 @@ import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.stats.ViewData.WindowData.IntervalData;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
@@ -56,6 +54,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -246,13 +245,13 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(StatsContextImpl context, double value, Timestamp timestamp) {
+    void record(TagContext context, double value, Timestamp timestamp) {
       List<Object> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
       super.recordInternal(tagValues, value);
     }
 
     @Override
-    void record(StatsContextImpl tags, long value, Timestamp timestamp) {
+    void record(TagContext tags, long value, Timestamp timestamp) {
       // TODO(songya): implement this.
       throw new UnsupportedOperationException("Not implemented.");
     }
@@ -274,7 +273,7 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(StatsContextImpl context, double value, Timestamp timestamp) {
+    void record(TagContext context, double value, Timestamp timestamp) {
       removeExpiredValues(timestamp);
       List<Object> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
       addValueToQueue(value, timestamp, tagValues);
@@ -282,7 +281,7 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(StatsContextImpl tags, long value, Timestamp timestamp) {
+    void record(TagContext tags, long value, Timestamp timestamp) {
       // TODO(songya): implement this.
       throw new UnsupportedOperationException("Not implemented.");
     }
