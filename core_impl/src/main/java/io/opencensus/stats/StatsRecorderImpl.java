@@ -13,6 +13,8 @@
 
 package io.opencensus.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.opencensus.tags.TagContext;
 
 /** Implementation of {@link StatsRecorder}. */
@@ -20,6 +22,7 @@ final class StatsRecorderImpl extends StatsRecorder {
   private final StatsManager statsManager;
 
   StatsRecorderImpl(StatsManager statsManager) {
+    checkNotNull(statsManager, "statsManager");
     this.statsManager = statsManager;
   }
 

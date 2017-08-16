@@ -73,7 +73,7 @@ public class MutableViewDataTest {
   }
 
   @Test
-  public void createMutableAggregation() {
+  public void testCreateMutableAggregation() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
 
     assertThat(
@@ -101,7 +101,7 @@ public class MutableViewDataTest {
   }
 
   @Test
-  public void createAggregationData() {
+  public void testCreateAggregationData() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
     List<MutableAggregation> mutableAggregations = Arrays.asList(
         MutableSum.create(),

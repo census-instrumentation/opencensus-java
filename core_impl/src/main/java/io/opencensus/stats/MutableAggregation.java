@@ -16,7 +16,6 @@ package io.opencensus.stats;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Function;
-
 import java.util.Arrays;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */
@@ -31,6 +30,13 @@ abstract class MutableAggregation {
    * @param value new value to be added to population
    */
   abstract void add(double value);
+
+  /**
+   * Update the summary stats by removing an expired value.
+   *
+   * @param value the expired value to be removed from population.
+   */
+  abstract void remove(double value);
 
   /**
    * Applies the given match function to the underlying data type.
@@ -63,6 +69,11 @@ abstract class MutableAggregation {
     @Override
     void add(double value) {
       sum += value;
+    }
+
+    @Override
+    void remove(double value) {
+      sum -= value;
     }
 
     /**
@@ -106,6 +117,11 @@ abstract class MutableAggregation {
     @Override
     void add(double value) {
       count++;
+    }
+
+    @Override
+    void remove(double value) {
+      count--;
     }
 
     /**
@@ -159,6 +175,17 @@ abstract class MutableAggregation {
         }
       }
       bucketCounts[bucketCounts.length - 1]++;
+    }
+
+    @Override
+    void remove(double value) {
+      for (int i = 0; i < bucketBoundaries.getBoundaries().size(); i++) {
+        if (value < bucketBoundaries.getBoundaries().get(i)) {
+          bucketCounts[i]--;
+          return;
+        }
+      }
+      bucketCounts[bucketCounts.length - 1]--;
     }
 
     /**
@@ -234,6 +261,12 @@ abstract class MutableAggregation {
       }
     }
 
+    // TODO(songya): not v0.1
+    @Override
+    void remove(double value) {
+      throw new UnsupportedOperationException("Not supported for IntervalView.");
+    }
+
     @Override
     final <T> T match(
         Function<? super MutableSum, T> p0,
@@ -269,6 +302,12 @@ abstract class MutableAggregation {
       count++;
       double deltaFromMean = value - mean;
       mean += deltaFromMean / count;
+    }
+
+    @Override
+    // TODO(songya): not v0.1
+    void remove(double value) {
+      throw new UnsupportedOperationException("Not supported for IntervalView.");
     }
 
     /**
@@ -326,6 +365,12 @@ abstract class MutableAggregation {
       mean += deltaFromMean / count;
       double deltaFromMean2 = value - mean;
       sumOfSquaredDeviations += deltaFromMean * deltaFromMean2;
+    }
+
+    @Override
+    // TODO(songya): not v0.1
+    void remove(double value) {
+      throw new UnsupportedOperationException("Not supported for IntervalView.");
     }
 
     /**
