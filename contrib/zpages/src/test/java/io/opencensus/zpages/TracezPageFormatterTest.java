@@ -138,4 +138,7 @@ public class TracezPageFormatterTest {
     assertThat(output.toString())
         .contains("href='?zspanname=TestActiveAndSampledSpan&ztype=2&zsubtype=0'>7");
   }
+
+  // TODO(bdrutu): Add tests for latency.
+  // TODO(bdrutu): Add tests for samples/running/errors.
 }

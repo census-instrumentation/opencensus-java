@@ -90,7 +90,7 @@ public final class TracezHttpHandler implements HttpHandler {
       httpExchange.sendResponseHeaders(200, 0);
       pageFormatter.emitHtml(
           uriQueryToMap(httpExchange.getRequestURI()), httpExchange.getResponseBody());
-    } finally{
+    } finally {
       httpExchange.close();
     }
   }

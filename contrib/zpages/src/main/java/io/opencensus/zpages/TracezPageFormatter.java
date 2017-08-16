@@ -73,26 +73,51 @@ import javax.annotation.Nullable;
  */
 public final class TracezPageFormatter {
 
-  private static final Tracer tracer = Tracing.getTracer();
+  private enum RequestType {
+    RUNNING(0),
+    FINISHED(1),
+    FAILED(2),
+    UNKNOWN(-1);
 
+    private final int value;
+
+    RequestType(int value) {
+      this.value = value;
+    }
+
+    static RequestType fromString(String str) {
+      int value = Integer.parseInt(str);
+      switch (value) {
+        case 0:
+          return RUNNING;
+        case 1:
+          return FINISHED;
+        case 2:
+          return FAILED;
+        default:
+          return UNKNOWN;
+      }
+    }
+
+    int getValue() {
+      return value;
+    }
+  }
+
+  private static final Tracer tracer = Tracing.getTracer();
   // Color to use for zebra-striping.
   private static final String ZEBRA_STRIPE_COLOR = "#eee";
   // The header for span name.
   private static final String HEADER_SPAN_NAME = "zspanname";
   // The header for type (running = 0, latency = 1, error = 2) to display.
   private static final String HEADER_SAMPLES_TYPE = "ztype";
-  private static final int TYPE_RUNNING = 0;
-  private static final int TYPE_LATENCY = 1;
-  private static final int TYPE_ERROR = 2;
   // The header for sub-type:
   // * for latency based samples [0, 8] representing the latency buckets, where 0 is the first one;
   // * for error based samples [0, 15], 0 - means all, otherwise the error code;
   private static final String HEADER_SAMPLES_SUB_TYPE = "zsubtype";
-
   // Map from LatencyBucketBoundaries to the human string displayed on the UI for each bucket.
   private static final Map<LatencyBucketBoundaries, String> LATENCY_BUCKET_BOUNDARIES_STRING_MAP =
       buildLatencyBucketBoundariesStringMap();
-
   private final RunningSpanStore runningSpanStore;
   private final SampledSpanStore sampledSpanStore;
 
@@ -160,11 +185,11 @@ public final class TracezPageFormatter {
       String typeStr = queryMap.get(HEADER_SAMPLES_TYPE);
       if (typeStr != null) {
         List<SpanData> spans = null;
-        int type = Integer.parseInt(typeStr);
-        if (type < 0 || type > TYPE_ERROR) {
+        RequestType type = RequestType.fromString(typeStr);
+        if (type == RequestType.UNKNOWN) {
           return;
         }
-        if (type == TYPE_RUNNING) {
+        if (type == RequestType.RUNNING) {
           // Display running.
           spans =
               new ArrayList<>(
@@ -175,7 +200,7 @@ public final class TracezPageFormatter {
           String subtypeStr = queryMap.get(HEADER_SAMPLES_SUB_TYPE);
           if (subtypeStr != null) {
             int subtype = Integer.parseInt(subtypeStr);
-            if (type == TYPE_ERROR) {
+            if (type == RequestType.FAILED) {
               if (subtype < 0 || subtype >= CanonicalCode.values().length) {
                 return;
               }
@@ -211,15 +236,17 @@ public final class TracezPageFormatter {
         }
       }
     }
-    tracer.getCurrentSpan().addAnnotation("Finish rendering.");
   }
 
   private static void emitSpanNameAndCountPages(
-      Formatter formatter, String spanName, int returnedNum, int type) {
+      Formatter formatter, String spanName, int returnedNum, RequestType type) {
     formatter.format("<p><b>Span Name: %s </b></p>%n", htmlEscaper().escape(spanName));
     formatter.format(
         "%s Requests %d</b></p>%n",
-        type == 0 ? "Running" : type == 1 ? "Finished" : "Failed", returnedNum);
+        type == RequestType.RUNNING
+            ? "Running"
+            : type == RequestType.FINISHED ? "Finished" : "Failed",
+        returnedNum);
   }
 
   /** Emits the list of SampledRequets with a header. */
@@ -251,15 +278,16 @@ public final class TracezPageFormatter {
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(span.getStartTimestamp().getSeconds()));
     long microsField = TimeUnit.NANOSECONDS.toMicros(span.getStartTimestamp().getNanos());
-    double elapsedSeconds =
-        (span.getEndTimestamp() == null
-                ? 0
-                : durationToNanos(
-                    span.getEndTimestamp().subtractTimestamp(span.getStartTimestamp())))
-            * 1.0e-9;
+    String elapsedSecondsStr =
+        span.getEndTimestamp() != null
+            ? String.format(
+                "%13.6f",
+                durationToNanos(span.getEndTimestamp().subtractTimestamp(span.getStartTimestamp()))
+                    * 1.0e-9)
+            : String.format("%13s", " ");
 
     formatter.format(
-        "<b>%04d/%02d/%02d-%02d:%02d:%02d.%06d %13.6f     TraceId: %s SpanId: %s "
+        "<b>%04d/%02d/%02d-%02d:%02d:%02d.%06d %s     TraceId: %s SpanId: %s "
             + "ParentSpanId: %s</b>%n",
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH) + 1,
@@ -268,7 +296,7 @@ public final class TracezPageFormatter {
         calendar.get(Calendar.MINUTE),
         calendar.get(Calendar.SECOND),
         microsField,
-        elapsedSeconds,
+        elapsedSecondsStr,
         BaseEncoding.base16().lowerCase().encode(span.getContext().getTraceId().getBytes()),
         BaseEncoding.base16().lowerCase().encode(span.getContext().getSpanId().getBytes()),
         BaseEncoding.base16()
@@ -379,7 +407,7 @@ public final class TracezPageFormatter {
           runningSpanStorePerSpanNameSummary == null
               ? 0
               : runningSpanStorePerSpanNameSummary.getNumRunningSpans(),
-          TYPE_RUNNING,
+          RequestType.RUNNING,
           0);
 
       SampledSpanStore.PerSpanNameSummary sampledSpanStorePerSpanNameSummary =
@@ -398,10 +426,10 @@ public final class TracezPageFormatter {
               latencyBucketsSummaries.containsKey(latencyBucketsBoundaries)
                   ? latencyBucketsSummaries.get(latencyBucketsBoundaries)
                   : 0;
-          emitSingleCell(out, formatter, spanName, numSamples, TYPE_LATENCY, subtype++);
+          emitSingleCell(out, formatter, spanName, numSamples, RequestType.FINISHED, subtype++);
         } else {
           // numSamples < -1 means "Not Available".
-          emitSingleCell(out, formatter, spanName, -1, TYPE_LATENCY, subtype++);
+          emitSingleCell(out, formatter, spanName, -1, RequestType.FINISHED, subtype++);
         }
       }
 
@@ -415,10 +443,10 @@ public final class TracezPageFormatter {
           numErrorSamples += it.getValue();
         }
         // subtype 0 means all;
-        emitSingleCell(out, formatter, spanName, numErrorSamples, TYPE_ERROR, 0);
+        emitSingleCell(out, formatter, spanName, numErrorSamples, RequestType.FAILED, 0);
       } else {
         // numSamples < -1 means "Not Available".
-        emitSingleCell(out, formatter, spanName, -1, TYPE_ERROR, 0);
+        emitSingleCell(out, formatter, spanName, -1, RequestType.FAILED, 0);
       }
 
       out.write("</tr>\n");
@@ -459,7 +487,12 @@ public final class TracezPageFormatter {
   // If numSamples is greater than 0 then emit a link to see span data, if the numSamples is
   // negative then print "N/A", otherwise print the text "0".
   private static void emitSingleCell(
-      PrintWriter out, Formatter formatter, String spanName, int numSamples, int type, int subtype)
+      PrintWriter out,
+      Formatter formatter,
+      String spanName,
+      int numSamples,
+      RequestType type,
+      int subtype)
       throws UnsupportedEncodingException {
     if (numSamples > 0) {
       formatter.format(
@@ -467,7 +500,7 @@ public final class TracezPageFormatter {
           HEADER_SPAN_NAME,
           URLEncoder.encode(spanName, "UTF-8"),
           HEADER_SAMPLES_TYPE,
-          type,
+          type.getValue(),
           HEADER_SAMPLES_SUB_TYPE,
           subtype,
           numSamples);
