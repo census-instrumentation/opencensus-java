@@ -43,6 +43,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -138,7 +140,8 @@ public final class TracezPageFormatter {
     out.close();
   }
 
-  private void emitHtmlBody(Map<String, String> queryMap, PrintWriter out) {
+  private void emitHtmlBody(Map<String, String> queryMap, PrintWriter out)
+      throws UnsupportedEncodingException {
     if (runningSpanStore == null || sampledSpanStore == null) {
       out.write("OpenCensus implementation not available.");
       return;
@@ -342,7 +345,8 @@ public final class TracezPageFormatter {
   }
 
   // Emits the summary table with links to all samples.
-  private void emitSummaryTable(PrintWriter out, Formatter formatter) {
+  private void emitSummaryTable(PrintWriter out, Formatter formatter)
+      throws UnsupportedEncodingException {
     RunningSpanStore.Summary runningSpanStoreSummary = runningSpanStore.getSummary();
     SampledSpanStore.Summary sampledSpanStoreSummary = sampledSpanStore.getSummary();
 
@@ -460,12 +464,12 @@ public final class TracezPageFormatter {
       String spanName,
       int numSamples,
       int type,
-      int subtype) {
+      int subtype) throws UnsupportedEncodingException {
     if (numSamples > 0) {
       formatter.format(
           "<td align=\"center\"><a href='?%s=%s&%s=%d&%s=%d'>%d</a></td>%n",
           HEADER_SPAN_NAME,
-          spanName,
+          URLEncoder.encode(spanName, "UTF-8"),
           HEADER_SAMPLES_TYPE,
           type,
           HEADER_SAMPLES_SUB_TYPE,
