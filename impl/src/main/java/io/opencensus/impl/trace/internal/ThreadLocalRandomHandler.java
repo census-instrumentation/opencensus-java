@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.internal;
+package io.opencensus.impl.trace.internal;
 
 import io.opencensus.impl.trace.internal.RandomHandler;
 import java.util.Random;

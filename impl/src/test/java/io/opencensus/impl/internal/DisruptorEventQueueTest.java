@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.internal;
+package io.opencensus.impl.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
