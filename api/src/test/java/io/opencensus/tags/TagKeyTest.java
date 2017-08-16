@@ -59,6 +59,12 @@ public final class TagKeyTest {
   }
 
   @Test
+  public void createString_DisallowEmpty() {
+    thrown.expect(IllegalArgumentException.class);
+    TagKey.create("");
+  }
+
+  @Test
   public void testTagKeyEquals() {
     new EqualsTester()
         .addEqualityGroup(TagKey.create("foo"), TagKey.create("foo"))
