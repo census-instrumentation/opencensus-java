@@ -33,32 +33,6 @@ final class StatsTestUtil {
 
   private StatsTestUtil() {}
 
-  static StatsContextImpl createContext(
-      StatsContextFactoryImpl factory, TagKey key, TagValue value) {
-    return createContext(factory, Tag.create(key, value));
-  }
-
-  static StatsContextImpl createContext(
-      StatsContextFactoryImpl factory, TagKey key1, TagValue value1, TagKey key2, TagValue value2) {
-    return createContext(factory, Tag.create(key1, value1), Tag.create(key2, value2));
-  }
-
-  /**
-   * Creates a {@code StatsContextImpl} from a factory and a list tags.
-   *
-   * @param factory the factory used to produce the {@code StatsContextImpl}.
-   * @param tags a list of tags to add to the {@code StatsContextImpl}.
-   * @return a {@code StatsContextImpl} with the given tags.
-   */
-  private static StatsContextImpl createContext(
-      StatsContextFactoryImpl factory, Tag... tags) {
-    StatsContextImpl.Builder builder = factory.getDefault().builder();
-    for (Tag tag : tags) {
-      builder.set(tag.getKey(), tag.getValue());
-    }
-    return builder.build();
-  }
-
   /**
    * Creates a list of {@link AggregationData}s by adding the given sequence of values, based on the
    * definition of the given {@link Aggregation}s.
@@ -89,11 +63,11 @@ final class StatsTestUtil {
    * @param tolerance the tolerance used for {@code double} comparison.
    */
   static void assertAggregationMapEquals(
-      Map<List<TagValue>, List<AggregationData>> actual,
-      Map<List<TagValue>, List<AggregationData>> expected,
+      Map<? extends List<? extends Object>, List<AggregationData>> actual,
+      Map<? extends List<? extends Object>, List<AggregationData>> expected,
       double tolerance) {
     assertThat(actual.keySet()).containsExactlyElementsIn(expected.keySet());
-    for (List<TagValue> tagValues : actual.keySet()) {
+    for (List<? extends Object> tagValues : actual.keySet()) {
       assertAggregationDataListEquals(expected.get(tagValues), actual.get(tagValues), tolerance);
     }
   }

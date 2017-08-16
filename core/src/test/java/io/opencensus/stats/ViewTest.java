@@ -21,6 +21,7 @@ import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
+import io.opencensus.tags.TagKey.TagKeyString;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -87,8 +88,13 @@ public final class ViewTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void preventDuplicateColumns() {
-    View.create(name, description, measure, aggregations,
-        Arrays.asList(TagKey.create("duplicate"), TagKey.create("duplicate")), Cumulative.create());
+    View.create(
+        name,
+        description,
+        measure,
+        aggregations,
+        Arrays.asList(TagKeyString.create("duplicate"), TagKeyString.create("duplicate")),
+        Cumulative.create());
   }
 
   @Test(expected = NullPointerException.class)
@@ -119,9 +125,9 @@ public final class ViewTest {
   private final String description = "test-view-name description";
   private final Measure measure = Measure.MeasureDouble.create(
       "measure", "measure description", "1");
-  private static final TagKey FOO = TagKey.create("foo");
-  private static final TagKey BAR = TagKey.create("bar");
-  private final List<TagKey> keys = Arrays.asList(FOO, BAR);
+  private static final TagKeyString FOO = TagKeyString.create("foo");
+  private static final TagKeyString BAR = TagKeyString.create("bar");
+  private final List<TagKeyString> keys = Arrays.asList(FOO, BAR);
   private final List<Aggregation> aggregations = Arrays.asList(Sum.create(), Count.create());
   private final Duration minute = Duration.create(60, 0);
   private final Duration twoMinutes = Duration.create(120, 0);

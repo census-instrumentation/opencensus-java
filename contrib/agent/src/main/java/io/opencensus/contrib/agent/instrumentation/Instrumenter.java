@@ -11,23 +11,21 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.contrib.agent.instrumentation;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import net.bytebuddy.agent.builder.AgentBuilder;
 
-import io.opencensus.tags.TagContext;
+/**
+ * Interface for plug-ins that add bytecode instrumentation.
+ */
+public interface Instrumenter {
 
-/** Implementation of {@link StatsRecorder}. */
-final class StatsRecorderImpl extends StatsRecorder {
-  private final StatsManager statsManager;
-
-  StatsRecorderImpl(StatsManager statsManager) {
-    checkNotNull(statsManager, "statsManager");
-    this.statsManager = statsManager;
-  }
-
-  @Override
-  void record(TagContext tags, MeasureMap measurementValues) {
-    statsManager.record(tags, measurementValues);
-  }
+  /**
+   * Adds bytecode instrumentation to the given {@link AgentBuilder}.
+   *
+   * @param agentBuilder an {@link AgentBuilder} object to which the additional instrumentation is
+   *                     added
+   * @return an {@link AgentBuilder} object having the additional instrumentation
+   */
+  AgentBuilder instrument(AgentBuilder agentBuilder);
 }

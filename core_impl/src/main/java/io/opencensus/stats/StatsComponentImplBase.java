@@ -21,13 +21,11 @@ class StatsComponentImplBase extends StatsComponent {
 
   private final ViewManagerImpl viewManager;
   private final StatsRecorderImpl statsRecorder;
-  private final StatsContextFactoryImpl statsContextFactory;
 
   StatsComponentImplBase(EventQueue queue, Clock clock) {
     StatsManager statsManager = new StatsManager(queue, clock);
     this.viewManager = new ViewManagerImpl(statsManager);
     this.statsRecorder = new StatsRecorderImpl(statsManager);
-    this.statsContextFactory = new StatsContextFactoryImpl(statsRecorder);
   }
 
   @Override
@@ -38,10 +36,5 @@ class StatsComponentImplBase extends StatsComponent {
   @Override
   public StatsRecorderImpl getStatsRecorder() {
     return statsRecorder;
-  }
-
-  @Override
-  StatsContextFactoryImpl getStatsContextFactory() {
-    return statsContextFactory;
   }
 }

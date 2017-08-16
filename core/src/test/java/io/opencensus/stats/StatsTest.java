@@ -57,7 +57,6 @@ public final class StatsTest {
 
   @Test
   public void defaultValues() {
-    assertThat(Stats.getStatsContextFactory()).isNull();
     assertThat(Stats.getStatsRecorder()).isEqualTo(StatsRecorder.getNoopStatsRecorder());
     assertThat(Stats.getViewManager()).isNull();
   }

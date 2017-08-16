@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.agent;
+package io.opencensus.contrib.agent.instrumentation;
 
 import io.grpc.Context;
 import io.opencensus.contrib.agent.bootstrap.ContextStrategy;

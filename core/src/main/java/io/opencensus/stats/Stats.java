@@ -26,12 +26,6 @@ public final class Stats {
   private static final StatsComponent statsComponent =
       loadStatsComponent(StatsComponent.class.getClassLoader());
 
-  /** Returns the default {@link StatsContextFactory}. */
-  @Nullable
-  public static StatsContextFactory getStatsContextFactory() {
-    return statsComponent == null ? null : statsComponent.getStatsContextFactory();
-  }
-
   /** Returns the default {@link StatsRecorder}. */
   @Nullable
   public static StatsRecorder getStatsRecorder() {

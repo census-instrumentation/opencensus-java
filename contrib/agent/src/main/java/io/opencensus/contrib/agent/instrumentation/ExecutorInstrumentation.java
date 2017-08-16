@@ -11,8 +11,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.agent;
+package io.opencensus.contrib.agent.instrumentation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static net.bytebuddy.matcher.ElementMatchers.isAbstract;
 import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
 import static net.bytebuddy.matcher.ElementMatchers.nameEndsWith;
@@ -20,6 +21,7 @@ import static net.bytebuddy.matcher.ElementMatchers.nameStartsWith;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
+import com.google.auto.service.AutoService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.agent.bootstrap.ContextManager;
 import java.util.concurrent.Executor;
@@ -35,7 +37,22 @@ import net.bytebuddy.utility.JavaModule;
  * {@link Runnable}, just like the Microsoft .Net Framework propagates the <a
  * href="https://msdn.microsoft.com/en-us/library/system.threading.executioncontext(v=vs.110).aspx">System.Threading.ExecutionContext</a>.
  */
-final class ExecutorInstrumentation {
+@AutoService(Instrumenter.class)
+public final class ExecutorInstrumentation implements Instrumenter {
+
+  @Override
+  public AgentBuilder instrument(AgentBuilder agentBuilder) {
+    checkNotNull(agentBuilder, "agentBuilder");
+
+    // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
+
+    // Initialize the ContextManager with the concrete ContextStrategy.
+    ContextManager.setContextStrategy(new ContextStrategyImpl());
+
+    return agentBuilder
+            .type(createMatcher())
+            .transform(createTransformer());
+  }
 
   private static class Transformer implements AgentBuilder.Transformer {
 
@@ -46,7 +63,7 @@ final class ExecutorInstrumentation {
     }
   }
 
-  static ElementMatcher.Junction<TypeDescription> createMatcher() {
+  private static ElementMatcher.Junction<TypeDescription> createMatcher() {
     // This matcher matches implementations of Executor, but excludes CurrentContextExecutor and
     // FixedContextExecutor from io.grpc.Context, which already propagate the context.
     // TODO(stschmidt): As the executor implementation itself (e.g. ThreadPoolExecutor) is
@@ -60,7 +77,7 @@ final class ExecutorInstrumentation {
                             .or(nameEndsWith("FixedContextExecutor")))));
   }
 
-  static AgentBuilder.Transformer createTransformer() {
+  private static AgentBuilder.Transformer createTransformer() {
     return new Transformer();
   }
 

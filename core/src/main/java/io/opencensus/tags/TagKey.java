@@ -37,7 +37,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class TagKey {
   /** The maximum length for a tag key name. The value is {@value #MAX_LENGTH}. */
-  public static final int MAX_LENGTH = StringUtil.MAX_LENGTH;
+  public static final int MAX_LENGTH = 255;
 
   TagKey() {}
 
@@ -113,6 +113,16 @@ public abstract class TagKey {
       Function<? super TagKeyBoolean, T> booleanFunction,
       Function<? super TagKey, T> defaultFunction);
 
+  /**
+   * Determines whether the given {@code String} is a valid tag key.
+   *
+   * @param name the tag key name to be validated.
+   * @return whether the name is valid.
+   */
+  private static boolean isValid(String name) {
+    return name.length() <= MAX_LENGTH && StringUtil.isPrintableString(name);
+  }
+
   /** A {@code TagKey} for values of type {@code String}. */
   @Immutable
   @AutoValue
@@ -133,7 +143,7 @@ public abstract class TagKey {
      * @throws IllegalArgumentException if the name is not valid.
      */
     public static TagKeyString create(String name) {
-      checkArgument(StringUtil.isValid(name));
+      checkArgument(isValid(name));
       return new AutoValue_TagKey_TagKeyString(name);
     }
 
@@ -173,7 +183,7 @@ public abstract class TagKey {
      */
     // TODO(sebright): Make this public once we support types other than String.
     static TagKeyLong create(String name) {
-      checkArgument(StringUtil.isValid(name));
+      checkArgument(isValid(name));
       return new AutoValue_TagKey_TagKeyLong(name);
     }
 
@@ -213,7 +223,7 @@ public abstract class TagKey {
      */
     // TODO(sebright): Make this public once we support types other than String.
     static TagKeyBoolean create(String name) {
-      checkArgument(StringUtil.isValid(name));
+      checkArgument(isValid(name));
       return new AutoValue_TagKey_TagKeyBoolean(name);
     }
 
