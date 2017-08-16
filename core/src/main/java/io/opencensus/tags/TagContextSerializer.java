@@ -30,6 +30,7 @@ public abstract class TagContextSerializer {
    *
    * @param tags the {@code TagContext} to serialize.
    * @param output the {@link OutputStream} to write the serialized tags to.
+   * @throws IOException if there is an {@code IOException} while writing to {@code output}.
    */
   public abstract void serialize(TagContext tags, OutputStream output) throws IOException;
 
@@ -40,6 +41,8 @@ public abstract class TagContextSerializer {
    *
    * @param input on-the-wire representation of a {@code TagContext}.
    * @return a {@code TagContext} deserialized from {@code input}.
+   * @throws IOException if there is a parse error or an {@code IOException} while reading from
+   *     {@code input}.
    */
   public abstract TagContext deserialize(InputStream input) throws IOException;
 
