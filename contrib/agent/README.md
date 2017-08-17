@@ -20,6 +20,12 @@ The context of the caller of [Executor#execute](https://docs.oracle.com/javase/8
 is automatically propagated to the submitted Runnable.
 
 
+### Automatic context propagation for Threads
+
+The context of the caller of [Thread#start](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#start--)
+is automatically propagated to the new thread.
+
+
 ## Design Ideas
 
 We see tracing as a cross-cutting concern which the *OpenCensus Agent for Java* weaves into

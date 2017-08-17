@@ -42,6 +42,9 @@ public class ContextManagerTest {
   @Mock
   private Runnable runnable;
 
+  @Mock
+  private Thread thread;
+
   @Test
   public void setContextStrategy_already_initialized() {
     exception.expect(IllegalStateException.class);
@@ -54,5 +57,19 @@ public class ContextManagerTest {
     ContextManager.wrapInCurrentContext(runnable);
 
     Mockito.verify(mockContextStrategy).wrapInCurrentContext(runnable);
+  }
+
+  @Test
+  public void saveContextForThread() {
+    ContextManager.saveContextForThread(thread);
+
+    Mockito.verify(mockContextStrategy).saveContextForThread(thread);
+  }
+
+  @Test
+  public void attachContextForThread() {
+    ContextManager.attachContextForThread(thread);
+
+    Mockito.verify(mockContextStrategy).attachContextForThread(thread);
   }
 }
