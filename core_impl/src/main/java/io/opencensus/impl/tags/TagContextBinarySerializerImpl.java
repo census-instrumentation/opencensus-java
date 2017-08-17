@@ -22,11 +22,11 @@ import java.io.OutputStream;
 final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   @Override
   public void serialize(TagContext tags, OutputStream output) throws IOException {
-    SerializationUtils.serialize(tags, output);
+    SerializationUtils.serializeBinary(tags, output);
   }
 
   @Override
   public TagContext deserialize(InputStream input) throws IOException {
-    return SerializationUtils.deserialize(input);
+    return SerializationUtils.deserializeBinary(input);
   }
 }

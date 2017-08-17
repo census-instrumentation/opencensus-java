@@ -87,7 +87,7 @@ final class SerializationUtils {
 
   // Serializes a TagContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
-  static void serialize(TagContext tags, OutputStream output) throws IOException {
+  static void serializeBinary(TagContext tags, OutputStream output) throws IOException {
     final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(VERSION_ID);
 
@@ -131,7 +131,7 @@ final class SerializationUtils {
 
   // Deserializes input to TagContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static TagContextImpl deserialize(InputStream input) throws IOException {
+  static TagContextImpl deserializeBinary(InputStream input) throws IOException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
       HashMap<TagKey, Object> tags = new HashMap<TagKey, Object>();
