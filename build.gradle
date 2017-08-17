@@ -10,6 +10,7 @@ buildscript {
         classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.4.0'
         classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.11'
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
     }
 }
 
@@ -24,6 +25,7 @@ subprojects {
     apply plugin: 'ru.vyarus.animalsniffer'
     apply plugin: 'findbugs'
     apply plugin: "net.ltgt.apt"
+    apply plugin: 'com.github.ben-manes.versions'
     // Plugins that require java8
     if (JavaVersion.current().isJava8Compatible()) {
         // TODO(bdrutu): enable all checks.
