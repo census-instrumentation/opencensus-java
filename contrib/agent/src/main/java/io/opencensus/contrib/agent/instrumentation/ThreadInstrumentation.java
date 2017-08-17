@@ -24,7 +24,6 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.utility.JavaModule;
 
 /**
@@ -44,8 +43,8 @@ public final class ThreadInstrumentation implements Instrumenter {
     checkNotNull(agentBuilder, "agentBuilder");
 
     return agentBuilder
-            .type(createMatcher())
-            .transform(createTransformer());
+            .type(isSubTypeOf(Thread.class))
+            .transform(new Transformer());
   }
 
   private static class Transformer implements AgentBuilder.Transformer {
@@ -57,16 +56,6 @@ public final class ThreadInstrumentation implements Instrumenter {
               .visit(Advice.to(Start.class).on(named("start")))
               .visit(Advice.to(Run.class).on(named("run")));
     }
-  }
-
-  private static ElementMatcher.Junction<TypeDescription> createMatcher() {
-    // TODO(stschmidt): Exclude known call sites that already propagate the context.
-
-    return isSubTypeOf(Thread.class);
-  }
-
-  private static AgentBuilder.Transformer createTransformer() {
-    return new Transformer();
   }
 
   private static class Start {
