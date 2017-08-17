@@ -19,8 +19,8 @@ import io.opencensus.implcore.trace.TraceComponentImplBase;
 import io.opencensus.implcore.trace.internal.RandomHandler.SecureRandomHandler;
 
 /** Android-compatible implementation of the {@link TraceComponent}. */
-// TraceComponentImplLite was moved to io.opencensus.impl.trace. This class exists for backwards
-// compatibility, so that it can be loaded by opencensus-api O.5.
+// TraceComponentImplLite was moved to io.opencensus.impllite.trace. This class exists for backwards
+// compatibility, so that it can be loaded by opencensus-api 0.5.
 @Deprecated
 public final class TraceComponentImplLite extends TraceComponentImplBase {
 

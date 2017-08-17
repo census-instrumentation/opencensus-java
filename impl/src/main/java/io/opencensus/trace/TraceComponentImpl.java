@@ -20,7 +20,7 @@ import io.opencensus.implcore.trace.TraceComponentImplBase;
 
 /** Java 7 and 8 implementation of the {@link TraceComponent}. */
 // TraceComponentImpl was moved to io.opencensus.impl.trace. This class exists for backwards
-// compatibility, so that it can be loaded by opencensus-api O.5.
+// compatibility, so that it can be loaded by opencensus-api 0.5.
 @Deprecated
 public final class TraceComponentImpl extends TraceComponentImplBase {
 
