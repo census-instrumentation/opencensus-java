@@ -1,0 +1,14 @@
+description = 'OpenCensus Z-Pages'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
+}
+
+dependencies {
+    compile project(':opencensus-api')
+
+    signature "org.codehaus.mojo.signature:java18:+@signature"
+}
