@@ -51,7 +51,7 @@ public final class ExecutorInstrumentation implements Instrumenter {
 
     return agentBuilder
             .type(createMatcher())
-            .transform(createTransformer());
+            .transform(new Transformer());
   }
 
   private static class Transformer implements AgentBuilder.Transformer {
@@ -75,10 +75,6 @@ public final class ExecutorInstrumentation implements Instrumenter {
             .and(not(nameStartsWith("io.grpc.Context$")
                     .and(nameEndsWith("CurrentContextExecutor")
                             .or(nameEndsWith("FixedContextExecutor")))));
-  }
-
-  private static AgentBuilder.Transformer createTransformer() {
-    return new Transformer();
   }
 
   private static class Execute {
