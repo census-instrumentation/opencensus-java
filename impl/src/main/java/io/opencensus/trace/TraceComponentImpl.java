@@ -13,10 +13,10 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.impl.common.MillisClock;
 import io.opencensus.impl.internal.DisruptorEventQueue;
-import io.opencensus.impl.trace.TraceComponentImplBase;
 import io.opencensus.impl.trace.internal.ThreadLocalRandomHandler;
+import io.opencensus.implcore.common.MillisClock;
+import io.opencensus.implcore.trace.TraceComponentImplBase;
 
 /** Java 7 and 8 implementation of the {@link TraceComponent}. */
 // TraceComponentImpl was moved to io.opencensus.impl.trace. This class exists for backwards

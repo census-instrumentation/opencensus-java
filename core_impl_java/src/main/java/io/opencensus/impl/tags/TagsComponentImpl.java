@@ -13,6 +13,7 @@
 
 package io.opencensus.impl.tags;
 
+import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagsComponent;
 
 /** Java 7 and 8 implementation of {@link TagsComponent}. */
