@@ -46,7 +46,6 @@ public abstract class TagValueString {
    * @throws IllegalArgumentException if the {@code String} is not valid.
    */
   public static TagValueString create(String value) {
-    // TODO(sebright): Should we disallow empty?
     Preconditions.checkArgument(isValid(value));
     return new AutoValue_TagValueString(value);
   }
