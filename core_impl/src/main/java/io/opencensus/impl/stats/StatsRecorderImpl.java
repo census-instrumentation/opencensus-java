@@ -26,7 +26,7 @@ final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  protected void record(TagContext tags, MeasureMap measurementValues) {
+  public void record(TagContext tags, MeasureMap measurementValues) {
     statsManager.record(tags, measurementValues);
   }
 }
