@@ -127,8 +127,7 @@ public abstract class Aggregation {
      *
      * @return a new {@code Histogram}.
      */
-    // TODO(songya): not v0.1, expose factory method later.
-    static Histogram create(BucketBoundaries bucketBoundaries) {
+    public static Histogram create(BucketBoundaries bucketBoundaries) {
       checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
       return new AutoValue_Aggregation_Histogram(bucketBoundaries);
     }
@@ -161,7 +160,8 @@ public abstract class Aggregation {
      *
      * @return a new {@code Range}.
      */
-    public static Range create() {
+    // TODO(songya): not v0.1, expose factory method later.
+    static Range create() {
       return new AutoValue_Aggregation_Range();
     }
 

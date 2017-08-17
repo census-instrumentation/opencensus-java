@@ -11,7 +11,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
+
+import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
+import io.opencensus.stats.ViewManager;
 
 /** Implementation of {@link ViewManager}. */
 final class ViewManagerImpl extends ViewManager {

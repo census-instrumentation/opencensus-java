@@ -11,8 +11,10 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
+import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
 
 /** Implementation of {@link StatsRecorder}. */
@@ -24,7 +26,7 @@ final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  void record(TagContext tags, MeasureMap measurementValues) {
+  public void record(TagContext tags, MeasureMap measurementValues) {
     statsManager.record(tags, measurementValues);
   }
 }

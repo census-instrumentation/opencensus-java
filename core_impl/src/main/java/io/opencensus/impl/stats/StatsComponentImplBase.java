@@ -11,10 +11,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import io.opencensus.common.Clock;
 import io.opencensus.impl.internal.EventQueue;
+import io.opencensus.stats.StatsComponent;
 
 /** Base implementation of {@link StatsComponent}. */
 class StatsComponentImplBase extends StatsComponent {

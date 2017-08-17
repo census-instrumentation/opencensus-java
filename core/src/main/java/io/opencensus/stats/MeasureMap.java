@@ -35,7 +35,7 @@ public final class MeasureMap {
    * Returns an {@link Iterator} over the measure/value mappings in this {@link MeasureMap}.
    * The {@code Iterator} does not support {@link Iterator#remove()}.
    */
-  Iterator<Measurement> iterator() {
+  public Iterator<Measurement> iterator() {
     return new MeasureMapIterator();
   }
 

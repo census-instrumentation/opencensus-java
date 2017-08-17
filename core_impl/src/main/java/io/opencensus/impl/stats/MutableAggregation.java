@@ -11,12 +11,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Function;
 
+import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.BucketBoundaries;
 import java.util.Arrays;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */

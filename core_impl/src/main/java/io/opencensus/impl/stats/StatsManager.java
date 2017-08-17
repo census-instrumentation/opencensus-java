@@ -11,10 +11,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.impl.stats;
 
 import io.opencensus.common.Clock;
 import io.opencensus.impl.internal.EventQueue;
+import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
 
 /** Object that stores all views and stats. */

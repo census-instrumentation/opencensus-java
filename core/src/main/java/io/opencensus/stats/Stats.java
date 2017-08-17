@@ -44,7 +44,7 @@ public final class Stats {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsComponentImpl", true, classLoader),
+          Class.forName("io.opencensus.impl.stats.StatsComponentImpl", true, classLoader),
           StatsComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(
@@ -56,7 +56,7 @@ public final class Stats {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.stats.StatsComponentImplLite", true, classLoader),
+          Class.forName("io.opencensus.impl.stats.StatsComponentImplLite", true, classLoader),
           StatsComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(

@@ -13,14 +13,26 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.impl.common.MillisClock;
-import io.opencensus.impl.internal.DisruptorEventQueue;
+import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.Aggregation.Range;
+import io.opencensus.stats.Aggregation.StdDev;
 
-/** Java 7 and 8 implementation of {@link StatsComponent}. */
-public final class StatsComponentImpl extends StatsComponentImplBase {
+/**
+ * Class for accessing methods in the {@code io.opencensus.stats} package that haven't been made
+ * public yet.
+ */
+public final class UnreleasedApiAccessor {
+  private UnreleasedApiAccessor() {}
 
-  /** Public constructor to be used with reflection loading. */
-  public StatsComponentImpl() {
-    super(DisruptorEventQueue.getInstance(), MillisClock.getInstance());
+  public static Range createRange() {
+    return Range.create();
+  }
+
+  public static Mean createMean() {
+    return Mean.create();
+  }
+
+  public static StdDev createStdDev() {
+    return StdDev.create();
   }
 }
