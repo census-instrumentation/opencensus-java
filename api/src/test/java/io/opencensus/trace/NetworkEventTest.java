@@ -34,7 +34,7 @@ public class NetworkEventTest {
     assertThat(networkEvent.getType()).isEqualTo(NetworkEvent.Type.SENT);
     assertThat(networkEvent.getMessageId()).isEqualTo(1L);
     assertThat(networkEvent.getKernelTimestamp()).isNull();
-    assertThat(networkEvent.getMessageSize()).isEqualTo(0L);
+    assertThat(networkEvent.getUncompressedMessageSize()).isEqualTo(0L);
   }
 
   @Test
@@ -46,17 +46,27 @@ public class NetworkEventTest {
     assertThat(networkEvent.getKernelTimestamp()).isEqualTo(Timestamp.fromMillis(123456L));
     assertThat(networkEvent.getType()).isEqualTo(NetworkEvent.Type.SENT);
     assertThat(networkEvent.getMessageId()).isEqualTo(1L);
-    assertThat(networkEvent.getMessageSize()).isEqualTo(0L);
+    assertThat(networkEvent.getUncompressedMessageSize()).isEqualTo(0L);
   }
 
   @Test
-  public void buildNetworkEvent_WithMessageSize() {
+  public void buildNetworkEvent_WithUncompressedMessageSize() {
     NetworkEvent networkEvent =
-        NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).setMessageSize(123L).build();
+        NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).setUncompressedMessageSize(123L).build();
     assertThat(networkEvent.getKernelTimestamp()).isNull();
     assertThat(networkEvent.getType()).isEqualTo(NetworkEvent.Type.SENT);
     assertThat(networkEvent.getMessageId()).isEqualTo(1L);
-    assertThat(networkEvent.getMessageSize()).isEqualTo(123L);
+    assertThat(networkEvent.getUncompressedMessageSize()).isEqualTo(123L);
+  }
+
+  @Test
+  public void buildNetworkEvent_WithCompressedMessageSize() {
+    NetworkEvent networkEvent =
+        NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).setCompressedMessageSize(123L).build();
+    assertThat(networkEvent.getKernelTimestamp()).isNull();
+    assertThat(networkEvent.getType()).isEqualTo(NetworkEvent.Type.SENT);
+    assertThat(networkEvent.getMessageId()).isEqualTo(1L);
+    assertThat(networkEvent.getCompressedMessageSize()).isEqualTo(123L);
   }
 
   @Test
@@ -64,12 +74,16 @@ public class NetworkEventTest {
     NetworkEvent networkEvent =
         NetworkEvent.builder(NetworkEvent.Type.RECV, 1L)
             .setKernelTimestamp(Timestamp.fromMillis(123456L))
-            .setMessageSize(123L)
+            .setUncompressedMessageSize(123L)
+            .setCompressedMessageSize(456L)
             .build();
     assertThat(networkEvent.getKernelTimestamp()).isEqualTo(Timestamp.fromMillis(123456L));
     assertThat(networkEvent.getType()).isEqualTo(NetworkEvent.Type.RECV);
     assertThat(networkEvent.getMessageId()).isEqualTo(1L);
+    assertThat(networkEvent.getUncompressedMessageSize()).isEqualTo(123L);
+    // Test that getMessageSize returns same as getUncompressedMessageSize();
     assertThat(networkEvent.getMessageSize()).isEqualTo(123L);
+    assertThat(networkEvent.getCompressedMessageSize()).isEqualTo(456L);
   }
 
   @Test
@@ -77,7 +91,7 @@ public class NetworkEventTest {
     NetworkEvent networkEvent =
         NetworkEvent.builder(NetworkEvent.Type.SENT, 1L)
             .setKernelTimestamp(Timestamp.fromMillis(123456L))
-            .setMessageSize(123L)
+            .setUncompressedMessageSize(123L)
             .build();
     assertThat(networkEvent.toString()).contains(Timestamp.fromMillis(123456L).toString());
     assertThat(networkEvent.toString()).contains("type=SENT");

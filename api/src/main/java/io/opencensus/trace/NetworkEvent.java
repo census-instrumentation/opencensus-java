@@ -50,8 +50,8 @@ public abstract class NetworkEvent {
         .setMessageId(messageId)
         // We need to set a value for the message size because the autovalue requires all
         // primitives to be initialized.
-        // TODO(bdrutu): Consider to change the API to require message size.
-        .setMessageSize(0);
+        .setUncompressedMessageSize(0)
+        .setCompressedMessageSize(0);
   }
 
   /**
@@ -74,16 +74,33 @@ public abstract class NetworkEvent {
   /**
    * Returns the message id argument that serves to uniquely identify each network message.
    *
-   * @return The message id of the {@code NetworkEvent}.
+   * @return the message id of the {@code NetworkEvent}.
    */
   public abstract long getMessageId();
 
   /**
-   * Returns The message size in bytes of the {@code NetworkEvent}.
+   * Returns the uncompressed size in bytes of the {@code NetworkEvent}.
    *
-   * @return The message size in bytes of the {@code NetworkEvent}.
+   * @return the uncompressed size in bytes of the {@code NetworkEvent}.
    */
-  public abstract long getMessageSize();
+  public abstract long getUncompressedMessageSize();
+
+  /**
+   * Returns the compressed size in bytes of the {@code NetworkEvent}.
+   *
+   * @return the compressed size in bytes of the {@code NetworkEvent}.
+   */
+  public abstract long getCompressedMessageSize();
+
+  /**
+   * Use {@link #getUncompressedMessageSize}.
+   *
+   * @return the uncompressed size in bytes of the {@code NetworkEvent}.
+   */
+  @Deprecated
+  public long getMessageSize() {
+    return getUncompressedMessageSize();
+  }
 
   /** Builder class for {@link NetworkEvent}. */
   @AutoValue.Builder
@@ -103,12 +120,31 @@ public abstract class NetworkEvent {
     public abstract Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp);
 
     /**
-     * Sets the message size.
+     * Use {@link #setUncompressedMessageSize}.
      *
-     * @param messageSize represents the size in bytes of this network message.
+     * @param messageSize represents the uncompressed size in bytes of this message.
      * @return this.
      */
-    public abstract Builder setMessageSize(long messageSize);
+    @Deprecated
+    public Builder setMessageSize(long messageSize) {
+      return setUncompressedMessageSize(messageSize);
+    }
+
+    /**
+     * Sets the uncompressed message size.
+     *
+     * @param uncompressedMessageSize represents the uncompressed size in bytes of this message.
+     * @return this.
+     */
+    public abstract Builder setUncompressedMessageSize(long uncompressedMessageSize);
+
+    /**
+     * Sets the compressed message size.
+     *
+     * @param compressedMessageSize represents the compressed size in bytes of this message.
+     * @return this.
+     */
+    public abstract Builder setCompressedMessageSize(long compressedMessageSize);
 
     /**
      * Builds and returns a {@code NetworkEvent} with the desired values.

@@ -560,7 +560,7 @@ public final class TracezPageFormatter {
     stringBuilder.append(" message_id=");
     stringBuilder.append(networkEvent.getMessageId());
     stringBuilder.append(" message_size=");
-    stringBuilder.append(networkEvent.getMessageSize());
+    stringBuilder.append(networkEvent.getUncompressedMessageSize());
     if (networkEvent.getKernelTimestamp() != null) {
       stringBuilder.append(" kernel_timestamp=");
       stringBuilder.append(networkEvent.getKernelTimestamp().toString());
