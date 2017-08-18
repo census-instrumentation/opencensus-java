@@ -37,7 +37,9 @@ public abstract class View {
   }
 
   /**
-   * Name of view. Must be unique.
+   * Name of view. Must be unique. Should be a ASCII string with a length <= 255 characters.
+   *
+   * <p>Suggested format for name: {@code <web_host>/<path>}.
    */
   public abstract Name getName();
 
@@ -75,7 +77,8 @@ public abstract class View {
   /**
    * Constructs a new {@link View}.
    *
-   * @param name the {@link Name} of view. Must be unique.
+   * @param name the {@link Name} of view. Must be unique. Suggested format for name:
+   *     {@code <web_host>/<path>}.
    * @param description the description of view.
    * @param measure the {@link Measure} to be aggregated by this view.
    * @param aggregations basic {@link Aggregation}s that this view will support. The aggregation
