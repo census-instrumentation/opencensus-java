@@ -13,33 +13,27 @@
 
 package io.opencensus.stats;
 
-import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.verify;
-
-import io.grpc.Context;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValueString;
-import io.opencensus.tags.unsafe.ContextUtils;
 import java.util.Collections;
 import java.util.Iterator;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-/** Tests for {@link StatsRecorder}. */
+/** Tests for {@link StatsRecorder#getNoopStatsRecorder}. */
 @RunWith(JUnit4.class)
-public final class StatsRecorderTest {
+public final class NoopStatsRecorderTest {
   private static final TagString TAG =
       TagString.create(TagKeyString.create("key"), TagValueString.create("value"));
   private static final MeasureDouble MEASURE =
-      Measure.MeasureDouble.create("my measure", "description", "bit/s");
+      Measure.MeasureDouble.create("my measure", "description", "s");
 
   private final TagContext tagContext =
       new TagContext() {
@@ -50,29 +44,24 @@ public final class StatsRecorderTest {
         }
       };
 
-  @Mock private StatsRecorder statsRecorder;
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
+  @Test
+  public void defaultRecord() {
+    StatsRecorder.getNoopStatsRecorder()
+        .record(tagContext, MeasureMap.builder().set(MEASURE, 5).build());
   }
 
   @Test
-  public void record_CurrentContextNotSet() {
-    MeasureMap measures = MeasureMap.builder().set(MEASURE, 1.0).build();
-    statsRecorder.record(measures);
-    verify(statsRecorder).record(same(ContextUtils.TAG_CONTEXT_KEY.get()), same(measures));
+  public void defaultRecord_DisallowNullTagContext() {
+    MeasureMap measures = MeasureMap.builder().set(MEASURE, 6).build();
+    thrown.expect(NullPointerException.class);
+    StatsRecorder.getNoopStatsRecorder().record(null, measures);
   }
 
   @Test
-  public void record_CurrentContextSet() {
-    Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tagContext).attach();
-    try {
-      MeasureMap measures = MeasureMap.builder().set(MEASURE, 2.0).build();
-      statsRecorder.record(measures);
-      verify(statsRecorder).record(same(tagContext), same(measures));
-    } finally {
-      Context.current().detach(orig);
-    }
+  public void defaultRecord_DisallowNullMeasureMap() {
+    thrown.expect(NullPointerException.class);
+    StatsRecorder.getNoopStatsRecorder().record(tagContext, null);
   }
 }
