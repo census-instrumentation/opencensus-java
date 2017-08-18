@@ -11,12 +11,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.impl.tags;
+package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Collections2;
-import io.opencensus.impl.internal.VarInt;
+import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContextBuilder;

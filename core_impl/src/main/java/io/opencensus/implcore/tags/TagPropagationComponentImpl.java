@@ -11,22 +11,17 @@
  * limitations under the License.
  */
 
-package io.opencensus.impl.tags;
+package io.opencensus.implcore.tags;
 
-import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import io.opencensus.tags.TagPropagationComponent;
 
-final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
-  @Override
-  public void serialize(TagContext tags, OutputStream output) throws IOException {
-    SerializationUtils.serializeBinary(tags, output);
-  }
+public final class TagPropagationComponentImpl extends TagPropagationComponent {
+  private final TagContextBinarySerializer tagContextBinarySerializer =
+      new TagContextBinarySerializerImpl();
 
   @Override
-  public TagContext deserialize(InputStream input) throws IOException {
-    return SerializationUtils.deserializeBinary(input);
+  public TagContextBinarySerializer getBinarySerializer() {
+    return tagContextBinarySerializer;
   }
 }

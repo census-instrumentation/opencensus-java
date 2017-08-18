@@ -16,6 +16,7 @@ package io.opencensus.impl.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.tags.TagContextsImpl;
+import io.opencensus.implcore.tags.TagPropagationComponentImpl;
 import io.opencensus.tags.Tags;
 import io.opencensus.tags.TagsComponent;
 import org.junit.Test;

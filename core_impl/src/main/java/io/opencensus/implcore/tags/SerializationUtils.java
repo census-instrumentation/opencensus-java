@@ -11,13 +11,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.impl.tags;
+package io.opencensus.implcore.tags;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.impl.internal.VarInt;
+import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
