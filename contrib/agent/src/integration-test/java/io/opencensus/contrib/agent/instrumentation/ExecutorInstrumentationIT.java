@@ -37,7 +37,8 @@ import org.junit.runners.JUnit4;
  * via the {@code -javaagent} command line option.
  */
 @RunWith(JUnit4.class)
-public class ExecutorInstrumentationTest {
+@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
+public class ExecutorInstrumentationIT {
 
   private static final Context.Key<String> KEY = Context.key("mykey");
 
