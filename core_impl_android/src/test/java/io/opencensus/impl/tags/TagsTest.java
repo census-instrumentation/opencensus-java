@@ -28,4 +28,10 @@ public final class TagsTest {
   public void getTagContexts() {
     assertThat(Tags.getTagContexts()).isInstanceOf(TagContextsImpl.class);
   }
+
+  @Test
+  public void getTagContextSerializer() {
+    assertThat(Tags.getTagPropagationComponent())
+        .isInstanceOf(TagPropagationComponentImpl.class);
+  }
 }

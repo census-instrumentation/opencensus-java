@@ -57,4 +57,10 @@ public class TagsTest {
   public void defaultTagContexts() {
     assertThat(Tags.getTagContexts()).isEqualTo(TagContexts.getNoopTagContexts());
   }
+
+  @Test
+  public void defaultTagContextSerializer() {
+    assertThat(Tags.getTagPropagationComponent())
+        .isEqualTo(TagPropagationComponent.getNoopTagPropagationComponent());
+  }
 }

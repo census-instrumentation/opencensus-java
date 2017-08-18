@@ -26,10 +26,13 @@ public abstract class TagsComponent {
   /** Returns the {@link TagContexts} for this implementation. */
   public abstract TagContexts getTagContexts();
 
+  /** Returns the {@link TagPropagationComponent} for this implementation. */
+  public abstract TagPropagationComponent getTagPropagationComponent();
+
   /**
-   * Returns a {@code TagsComponent} that has a no-op implementation for the {@link TagContexts}.
+   * Returns a {@code TagsComponent} that has a no-op implementation for {@link TagContexts}.
    *
-   * @return a {@code TagsComponent} that has a no-op implementation for the {@code TagContexts}.
+   * @return a {@code TagsComponent} that has a no-op implementation for {@code TagContexts}.
    */
   static TagsComponent getNoopTagsComponent() {
     return NOOP_TAGS_COMPONENT;
@@ -41,6 +44,11 @@ public abstract class TagsComponent {
     @Override
     public TagContexts getTagContexts() {
       return TagContexts.getNoopTagContexts();
+    }
+
+    @Override
+    public TagPropagationComponent getTagPropagationComponent() {
+      return TagPropagationComponent.getNoopTagPropagationComponent();
     }
   }
 }

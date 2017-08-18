@@ -13,22 +13,15 @@
 
 package io.opencensus.impl.tags;
 
-import io.opencensus.tags.TagContexts;
+import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagPropagationComponent;
-import io.opencensus.tags.TagsComponent;
 
-/** Base implementation of {@link TagsComponent}. */
-public abstract class TagsComponentImplBase extends TagsComponent {
-  private final TagContexts tagContexts = new TagContextsImpl();
-  private final TagPropagationComponent tagPropagationComponent = new TagPropagationComponentImpl();
+final class TagPropagationComponentImpl extends TagPropagationComponent {
+  private final TagContextBinarySerializer tagContextBinarySerializer =
+      new TagContextBinarySerializerImpl();
 
   @Override
-  public TagContexts getTagContexts() {
-    return tagContexts;
-  }
-
-  @Override
-  public TagPropagationComponent getTagPropagationComponent() {
-    return tagPropagationComponent;
+  public TagContextBinarySerializer getBinarySerializer() {
+    return tagContextBinarySerializer;
   }
 }

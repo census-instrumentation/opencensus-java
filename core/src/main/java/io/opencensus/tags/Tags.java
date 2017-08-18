@@ -36,6 +36,15 @@ public final class Tags {
     return tagsComponent.getTagContexts();
   }
 
+  /**
+   * Returns the default {@code TagPropagationComponent}.
+   *
+   * @return the default {@code TagPropagationComponent}.
+   */
+  public static TagPropagationComponent getTagPropagationComponent() {
+    return tagsComponent.getTagPropagationComponent();
+  }
+
   // Any provider that may be used for TagsComponent can be added here.
   @VisibleForTesting
   static TagsComponent loadTagsComponent(ClassLoader classLoader) {
