@@ -13,8 +13,12 @@
 
 package io.opencensus.stats;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static io.opencensus.internal.StringUtil.MAX_LENGTH;
+
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -76,8 +80,8 @@ public abstract class Measure {
      * @return a {@code MeasureDouble}.
      */
     public static MeasureDouble create(String name, String description, String unit) {
-      // TODO(dpo): ensure that measure names are unique, and consider if there should be any
-      // restricitons on name (e.g. size, characters).
+      checkArgument(StringUtil.isPrintableString(name) && name.length() <= MAX_LENGTH,
+          "Name should be a ASCII string with a length no greater than 255 characters.");
       return new AutoValue_Measure_MeasureDouble(name, description, unit);
     }
 
@@ -112,8 +116,8 @@ public abstract class Measure {
      * @return a {@code MeasureLong}.
      */
     public static MeasureLong create(String name, String description, String unit) {
-      // TODO(dpo): ensure that measure names are unique, and consider if there should be any
-      // restricitons on name (e.g. size, characters).
+      checkArgument(StringUtil.isPrintableString(name) && name.length() <= MAX_LENGTH,
+          "Name should be a ASCII string with a length no greater than 255 characters.");
       return new AutoValue_Measure_MeasureLong(name, description, unit);
     }
 

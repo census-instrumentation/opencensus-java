@@ -14,10 +14,12 @@
 package io.opencensus.stats;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static io.opencensus.internal.StringUtil.MAX_LENGTH;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
+import io.opencensus.internal.StringUtil;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,10 +39,7 @@ public abstract class View {
   }
 
   /**
-   * Name of view. Must be unique. Should be a ASCII string with a length no greater than 255
-   * characters.
-   *
-   * <p>Suggested format for name: {@code <web_host>/<path>}.
+   * Name of view. Must be unique.
    */
   public abstract Name getName();
 
@@ -78,8 +77,7 @@ public abstract class View {
   /**
    * Constructs a new {@link View}.
    *
-   * @param name the {@link Name} of view. Must be unique. Suggested format for name:
-   *     {@code <web_host>/<path>}.
+   * @param name the {@link Name} of view. Must be unique.
    * @param description the description of view.
    * @param measure the {@link Measure} to be aggregated by this view.
    * @param aggregations basic {@link Aggregation}s that this view will support. The aggregation
@@ -128,12 +126,17 @@ public abstract class View {
     public abstract String asString();
 
     /**
-     * Creates a {@code View.Name} from a {@code String}.
+     * Creates a {@code View.Name} from a {@code String}. Should be a ASCII string with a length
+     * no greater than 255 characters.
+     *
+     * <p>Suggested format for name: {@code <web_host>/<path>}.
      *
      * @param name the name {@code String}.
      * @return a {@code View.Name} with the given name {@code String}.
      */
     public static Name create(String name) {
+      checkArgument(StringUtil.isPrintableString(name) && name.length() <= MAX_LENGTH,
+          "Name should be a ASCII string with a length no greater than 255 characters.");
       return new AutoValue_View_Name(name);
     }
   }

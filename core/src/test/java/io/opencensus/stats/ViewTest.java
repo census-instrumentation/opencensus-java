@@ -17,20 +17,27 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
+import io.opencensus.internal.StringUtil;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.View.Name;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.tags.TagKey.TagKeyString;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Tests for {@link View}. */
 @RunWith(JUnit4.class)
 public final class ViewTest {
+
+  @Rule public final ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void testDistributionView() {
     final View view = View.create(
@@ -101,6 +108,20 @@ public final class ViewTest {
   public void preventNullViewName() {
     View.create(null, description, measure, aggregations, keys, Interval.create(minute));
   }
+
+  @Test
+  public void preventTooLongViewName() {
+    String longName = new String(new char[StringUtil.MAX_LENGTH + 1]).replace('\0', 'a');
+    thrown.expect(IllegalArgumentException.class);
+    View.Name.create(longName);
+  }
+
+  @Test
+  public void preventNonPrintableViewName() {
+    thrown.expect(IllegalArgumentException.class);
+    View.Name.create("\2");
+  }
+
 
   @Test
   public void testViewName() {
