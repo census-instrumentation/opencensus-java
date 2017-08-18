@@ -30,6 +30,8 @@ import org.mockito.MockitoAnnotations;
 
 /** Unit tests for {@link Tracer}. */
 @RunWith(JUnit4.class)
+// Need to suppress warnings for MustBeClosed because Java-6 does not support try-with-resources.
+@SuppressWarnings("MustBeClosedChecker")
 public class TracerTest {
   private static final Tracer noopTracer = Tracer.getNoopTracer();
   private static final String SPAN_NAME = "MySpanName";

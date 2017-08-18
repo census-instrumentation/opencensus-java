@@ -15,6 +15,7 @@ package io.opencensus.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.common.Scope;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -160,7 +161,6 @@ public abstract class SpanBuilder {
    */
   public abstract Span startSpan();
 
-  // TODO(bdrutu): Add error_prone annotation @MustBeClosed when the 2.0.16 jar is fixed.
   /**
    * Starts a new new span and sets it as the {@link Tracer#getCurrentSpan current span}.
    *
@@ -215,6 +215,7 @@ public abstract class SpanBuilder {
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context.
    */
+  @MustBeClosed
   public final Scope startScopedSpan() {
     return new ScopedSpanHandle(startSpan());
   }
