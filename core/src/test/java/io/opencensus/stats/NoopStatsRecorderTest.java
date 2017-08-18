@@ -47,21 +47,32 @@ public final class NoopStatsRecorderTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void defaultRecord() {
+  public void record() {
     StatsRecorder.getNoopStatsRecorder()
         .record(tagContext, MeasureMap.builder().set(MEASURE, 5).build());
   }
 
   @Test
-  public void defaultRecord_DisallowNullTagContext() {
-    MeasureMap measures = MeasureMap.builder().set(MEASURE, 6).build();
+  public void recordWithCurrentContext() {
+    StatsRecorder.getNoopStatsRecorder().record(MeasureMap.builder().set(MEASURE, 6).build());
+  }
+
+  @Test
+  public void record_DisallowNullTagContext() {
+    MeasureMap measures = MeasureMap.builder().set(MEASURE, 7).build();
     thrown.expect(NullPointerException.class);
     StatsRecorder.getNoopStatsRecorder().record(null, measures);
   }
 
   @Test
-  public void defaultRecord_DisallowNullMeasureMap() {
+  public void record_DisallowNullMeasureMap() {
     thrown.expect(NullPointerException.class);
     StatsRecorder.getNoopStatsRecorder().record(tagContext, null);
+  }
+
+  @Test
+  public void recordWithCurrentContext_DisallowNullMeasureMap() {
+    thrown.expect(NullPointerException.class);
+    StatsRecorder.getNoopStatsRecorder().record(null);
   }
 }
