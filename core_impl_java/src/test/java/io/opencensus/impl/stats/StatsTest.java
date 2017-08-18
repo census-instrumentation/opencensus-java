@@ -15,6 +15,8 @@ package io.opencensus.impl.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.implcore.stats.StatsRecorderImpl;
+import io.opencensus.implcore.stats.ViewManagerImpl;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsComponent;
 import org.junit.Test;

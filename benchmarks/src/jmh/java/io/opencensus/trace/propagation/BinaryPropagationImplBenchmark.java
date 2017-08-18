@@ -13,7 +13,7 @@
 
 package io.opencensus.trace.propagation;
 
-import io.opencensus.impl.trace.propagation.BinaryFormatImpl;
+import io.opencensus.implcore.trace.propagation.BinaryFormatImpl;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;

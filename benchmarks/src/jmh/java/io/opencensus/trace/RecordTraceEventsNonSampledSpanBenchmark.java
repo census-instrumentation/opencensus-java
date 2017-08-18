@@ -13,7 +13,7 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.impl.trace.SpanImpl;
+import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;

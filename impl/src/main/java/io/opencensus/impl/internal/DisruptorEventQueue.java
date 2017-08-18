@@ -19,7 +19,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import io.opencensus.impl.internal.EventQueue;
+import io.opencensus.implcore.internal.EventQueue;
 import java.util.concurrent.Executors;
 import javax.annotation.concurrent.ThreadSafe;
 
