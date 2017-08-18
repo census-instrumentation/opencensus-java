@@ -37,7 +37,8 @@ public abstract class View {
   }
 
   /**
-   * Name of view. Must be unique. Should be a ASCII string with a length <= 255 characters.
+   * Name of view. Must be unique. Should be a ASCII string with a length no greater than 255
+   * characters.
    *
    * <p>Suggested format for name: {@code <web_host>/<path>}.
    */

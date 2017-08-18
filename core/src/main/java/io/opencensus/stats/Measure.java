@@ -31,7 +31,8 @@ public abstract class Measure {
       Function<? super MeasureLong, T> p1);
 
   /**
-   * Name of measure, as a {@code String}. Should be a ASCII string with a length <= 255 characters.
+   * Name of measure, as a {@code String}. Should be a ASCII string with a length no greater than
+   * 255 characters.
    *
    * <p>Suggested format for name: {@code <web_host>/<path>}.
    */
