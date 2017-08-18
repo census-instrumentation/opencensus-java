@@ -20,6 +20,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  * Integration tests for {@link ThreadInstrumentation}.
@@ -27,6 +29,7 @@ import org.junit.Test;
  * <p>The integration tests are executed in a separate JVM that has the OpenCensus agent enabled
  * via the {@code -javaagent} command line option.
  */
+@RunWith(JUnit4.class)
 public class ThreadInstrumentationTest {
 
   private static final Context.Key<String> KEY = Context.key("mykey");
