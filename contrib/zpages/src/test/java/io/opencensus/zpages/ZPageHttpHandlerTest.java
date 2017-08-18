@@ -24,19 +24,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TracezHttpHandler}. */
+/** Unit tests for {@link ZPageHttpHandler}. */
 @RunWith(JUnit4.class)
-public class TracezHttpHandlerTest {
+public class ZPageHttpHandlerTest {
   @Test
   public void parseUndefinedQuery() throws URISyntaxException {
     URI uri = new URI("http://localhost:8000/tracez");
-    assertThat(TracezHttpHandler.uriQueryToMap(uri)).isEmpty();
+    assertThat(ZPageHttpHandler.uriQueryToMap(uri)).isEmpty();
   }
 
   @Test
   public void parseQuery() throws URISyntaxException {
     URI uri = new URI("http://localhost:8000/tracez?ztype=1&zsubtype&zname=Test");
-    assertThat(TracezHttpHandler.uriQueryToMap(uri))
+    assertThat(ZPageHttpHandler.uriQueryToMap(uri))
         .containsExactly("ztype", "1", "zsubtype", "", "zname", "Test");
   }
 }

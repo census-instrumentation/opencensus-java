@@ -71,10 +71,10 @@ import javax.annotation.Nullable;
  * <p>It prints a summary table which contains one row for each span name and data about number of
  * active and sampled spans.
  *
- * <p>See {@link TracezHttpHandler} for how to use the formatter with private HTTP server
- * implementations or how to use with {@link com.sun.net.httpserver.HttpServer}.
+ * <p>See {@link ZPagesHttpHandlers} for how to export this using an {@link
+ * com.sun.net.httpserver.HttpServer}.
  */
-public final class TracezPageFormatter {
+public final class TracezPageFormatter extends PageFormatter {
 
   private enum RequestType {
     RUNNING(0),
@@ -142,12 +142,7 @@ public final class TracezPageFormatter {
     return new TracezPageFormatter(runningSpanStore, sampledSpanStore);
   }
 
-  /**
-   * Emits the HTML generated page to the {@code outputStream}.
-   *
-   * @param queryMap the query components map.
-   * @param outputStream the output {@code OutputStream}.
-   */
+  @Override
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
     PrintWriter out =
         new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream, Charsets.UTF_8)));
