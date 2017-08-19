@@ -18,7 +18,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.internal.StringUtil;
 import java.util.Arrays;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,7 +33,9 @@ public final class MeasureTest {
 
   @Test
   public void preventTooLongMeasureName() {
-    String longName = new String(new char[StringUtil.MAX_LENGTH + 1]).replace('\0', 'a');
+    char[] chars = new char[StringUtil.MAX_LENGTH + 1];
+    Arrays.fill(chars, 'a');
+    String longName = String.valueOf(chars);
     thrown.expect(IllegalArgumentException.class);
     Measure.MeasureDouble.create(longName, "description", "1");
   }

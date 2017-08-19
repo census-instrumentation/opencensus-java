@@ -20,7 +20,6 @@ import io.opencensus.common.Duration;
 import io.opencensus.internal.StringUtil;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.View.Name;
 import io.opencensus.stats.View.Window.Cumulative;
 import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -111,7 +110,9 @@ public final class ViewTest {
 
   @Test
   public void preventTooLongViewName() {
-    String longName = new String(new char[StringUtil.MAX_LENGTH + 1]).replace('\0', 'a');
+    char[] chars = new char[StringUtil.MAX_LENGTH + 1];
+    Arrays.fill(chars, 'a');
+    String longName = String.valueOf(chars);
     thrown.expect(IllegalArgumentException.class);
     View.Name.create(longName);
   }
