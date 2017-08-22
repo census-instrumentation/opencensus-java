@@ -126,8 +126,7 @@ public final class ViewTest {
     thrown.expect(IllegalArgumentException.class);
     View.Name.create("\2");
   }
-
-
+  
   @Test
   public void testViewName() {
     assertThat(View.Name.create("my name").asString()).isEqualTo("my name");
