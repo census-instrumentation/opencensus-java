@@ -228,12 +228,7 @@ final class MutableViewData {
     return tagValues;
   }
 
-  /**
-   * Returns the milliseconds representation of this {@code Duration}.
-   *
-   * @param duration {@code Duration}.
-   * @return the milliseconds representation of a {@code Duration}.
-   */
+  // Returns the milliseconds representation of a Duration.
   static long toMillis(Duration duration) {
     return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
   }
