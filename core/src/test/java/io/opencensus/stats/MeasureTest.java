@@ -16,7 +16,6 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.internal.StringUtil;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;

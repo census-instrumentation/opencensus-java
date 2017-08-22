@@ -17,7 +17,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
-import io.opencensus.internal.StringUtil;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.View.Window.Cumulative;
