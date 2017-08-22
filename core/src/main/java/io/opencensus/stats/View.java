@@ -206,6 +206,9 @@ public abstract class View {
       /**
        * Constructs an interval {@code Window} that has a finite explicit {@code Duration}.
        *
+       * <p>The {@code Duration} should be able to round to milliseconds. Currently interval window
+       * cannot have smaller {@code Duration} such as microseconds or nanoseconds.
+       *
        * @return an interval {@code Window}.
        */
       public static Interval create(Duration duration) {
