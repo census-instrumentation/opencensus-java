@@ -46,12 +46,16 @@ public final class NoopStatsRecorderTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
+  // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
+  // exception.
   @Test
   public void record() {
     StatsRecorder.getNoopStatsRecorder()
         .record(tagContext, MeasureMap.builder().set(MEASURE, 5).build());
   }
 
+  // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
+  // exception.
   @Test
   public void recordWithCurrentContext() {
     StatsRecorder.getNoopStatsRecorder().record(MeasureMap.builder().set(MEASURE, 6).build());
