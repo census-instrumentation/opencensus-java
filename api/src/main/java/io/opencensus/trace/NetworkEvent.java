@@ -93,8 +93,7 @@ public abstract class NetworkEvent {
   public abstract long getCompressedMessageSize();
 
   /**
-   * Use {@link #getUncompressedMessageSize}.
-   *
+   * @deprecated Use {@link #getUncompressedMessageSize}.
    * @return the uncompressed size in bytes of the {@code NetworkEvent}.
    */
   @Deprecated
@@ -120,8 +119,7 @@ public abstract class NetworkEvent {
     public abstract Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp);
 
     /**
-     * Use {@link #setUncompressedMessageSize}.
-     *
+     * @deprecated Use {@link #setUncompressedMessageSize}.
      * @param messageSize represents the uncompressed size in bytes of this message.
      * @return this.
      */
