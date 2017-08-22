@@ -16,6 +16,8 @@
 
 package io.opencensus.implcore.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.stats.MeasureMap;
@@ -34,14 +36,13 @@ final class StatsManager {
   private final MeasureToViewMap measureToViewMap = new MeasureToViewMap();
 
   StatsManager(EventQueue queue, Clock clock) {
+    checkNotNull(queue, "EventQueue");
+    checkNotNull(clock, "Clock");
     this.queue = queue;
     this.clock = clock;
   }
 
   void registerView(View view) {
-    if (view.getWindow() instanceof View.Window.Interval) {
-      throw new UnsupportedOperationException("IntervalView not supported yet.");
-    }
     measureToViewMap.registerView(view, clock);
   }
 
@@ -63,17 +64,18 @@ final class StatsManager {
   private static final class StatsEvent implements EventQueue.Entry {
     private final TagContext tags;
     private final MeasureMap stats;
-    private final StatsManager viewManager;
+    private final StatsManager statsManager;
 
-    StatsEvent(StatsManager viewManager, TagContext tags, MeasureMap stats) {
-      this.viewManager = viewManager;
+    StatsEvent(StatsManager statsManager, TagContext tags, MeasureMap stats) {
+      this.statsManager = statsManager;
       this.tags = tags;
       this.stats = stats;
     }
 
     @Override
     public void process() {
-      viewManager.measureToViewMap.record(tags, stats);
+      // Add Timestamp to value after it went through the DisruptorQueue.
+      statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now());
     }
   }
 }
