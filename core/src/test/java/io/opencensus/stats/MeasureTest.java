@@ -32,8 +32,13 @@ public final class MeasureTest {
   public final ExpectedException thrown = ExpectedException.none();
 
   @Test
+  public void testConstants() {
+    assertThat(Measure.NAME_MAX_LENGTH).isEqualTo(256);
+  }
+
+  @Test
   public void preventTooLongMeasureName() {
-    char[] chars = new char[StringUtil.MAX_LENGTH + 1];
+    char[] chars = new char[Measure.NAME_MAX_LENGTH + 1];
     Arrays.fill(chars, 'a');
     String longName = String.valueOf(chars);
     thrown.expect(IllegalArgumentException.class);

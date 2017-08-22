@@ -38,6 +38,11 @@ public final class ViewTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
+  public void testConstants() {
+    assertThat(View.NAME_MAX_LENGTH).isEqualTo(256);
+  }
+
+  @Test
   public void testDistributionView() {
     final View view = View.create(
         name, description, measure, aggregations, keys, Cumulative.create());
@@ -110,7 +115,7 @@ public final class ViewTest {
 
   @Test
   public void preventTooLongViewName() {
-    char[] chars = new char[StringUtil.MAX_LENGTH + 1];
+    char[] chars = new char[View.NAME_MAX_LENGTH + 1];
     Arrays.fill(chars, 'a');
     String longName = String.valueOf(chars);
     thrown.expect(IllegalArgumentException.class);

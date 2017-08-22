@@ -14,9 +14,9 @@
 package io.opencensus.stats;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static io.opencensus.internal.StringUtil.MAX_LENGTH;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Function;
 import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
@@ -27,6 +27,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class Measure {
 
+  @VisibleForTesting static final int NAME_MAX_LENGTH = 256;
+
   /**
    * Applies the given match function to the underlying data type.
    */
@@ -36,7 +38,7 @@ public abstract class Measure {
 
   /**
    * Name of measure, as a {@code String}. Should be a ASCII string with a length no greater than
-   * 255 characters.
+   * 256 characters.
    *
    * <p>Suggested format for name: {@code <web_host>/<path>}.
    */
@@ -80,8 +82,8 @@ public abstract class Measure {
      * @return a {@code MeasureDouble}.
      */
     public static MeasureDouble create(String name, String description, String unit) {
-      checkArgument(StringUtil.isPrintableString(name) && name.length() <= MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than 255 characters.");
+      checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+          "Name should be a ASCII string with a length no greater than 256 characters.");
       return new AutoValue_Measure_MeasureDouble(name, description, unit);
     }
 
@@ -116,8 +118,8 @@ public abstract class Measure {
      * @return a {@code MeasureLong}.
      */
     public static MeasureLong create(String name, String description, String unit) {
-      checkArgument(StringUtil.isPrintableString(name) && name.length() <= MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than 255 characters.");
+      checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+          "Name should be a ASCII string with a length no greater than 256 characters.");
       return new AutoValue_Measure_MeasureLong(name, description, unit);
     }
 
