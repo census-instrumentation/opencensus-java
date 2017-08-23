@@ -16,6 +16,7 @@
 
 package io.opencensus.implcore.stats;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Function;
@@ -38,6 +39,18 @@ abstract class MutableAggregation {
   abstract void add(double value);
 
   /**
+   * Creates a new {@code MutableAggregation} by combining the internal values of this {@code 
+   * MutableAggregation} and the given {@code MutableAggregation}, with the given fraction.
+   * 
+   * @param other the other {@code MutableAggregation}. The type of this and other {@code
+   *     MutableAggregation} must match.
+   * @param fraction the fraction that the value in other {@code MutableAggregation} should
+   *     contribute. Must be within [0.0, 1.0].
+   * @return a new {@code MutableAggregation} with the combined value.
+   */
+  abstract MutableAggregation combine(MutableAggregation other, double fraction);
+
+  /**
    * Applies the given match function to the underlying data type.
    */
   abstract <T> T match(
@@ -56,6 +69,10 @@ abstract class MutableAggregation {
     private MutableSum() {
     }
 
+    private MutableSum(double sum) {
+      this.sum = sum;
+    }
+
     /**
      * Construct a {@code MutableSum}.
      *
@@ -68,6 +85,12 @@ abstract class MutableAggregation {
     @Override
     void add(double value) {
       sum += value;
+    }
+
+    @Override
+    MutableAggregation combine(MutableAggregation other, double fraction) {
+      checkArgument(other instanceof MutableSum, "MutableSum expected.");
+      return new MutableSum(this.sum + fraction * ((MutableSum) other).getSum());
     }
 
     /**
@@ -99,6 +122,10 @@ abstract class MutableAggregation {
     private MutableCount() {
     }
 
+    private MutableCount(long count) {
+      this.count = count;
+    }
+
     /**
      * Construct a {@code MutableCount}.
      *
@@ -111,6 +138,12 @@ abstract class MutableAggregation {
     @Override
     void add(double value) {
       count++;
+    }
+
+    @Override
+    MutableAggregation combine(MutableAggregation other, double fraction) {
+      checkArgument(other instanceof MutableCount, "MutableCount expected.");
+      return new MutableCount(this.count + (long) (fraction * ((MutableCount) other).getCount()));
     }
 
     /**
@@ -145,6 +178,11 @@ abstract class MutableAggregation {
       this.bucketCounts = new long[bucketBoundaries.getBoundaries().size() + 1];
     }
 
+    private MutableHistogram(BucketBoundaries bucketBoundaries, long[] bucketCounts) {
+      this.bucketBoundaries = bucketBoundaries;
+      this.bucketCounts = bucketCounts;
+    }
+
     /**
      * Construct a {@code MutableHistogram}.
      *
@@ -164,6 +202,19 @@ abstract class MutableAggregation {
         }
       }
       bucketCounts[bucketCounts.length - 1]++;
+    }
+
+    @Override
+    MutableAggregation combine(MutableAggregation other, double fraction) {
+      checkArgument(other instanceof MutableHistogram, "MutableHistogram expected.");
+      checkArgument(((MutableHistogram) other).bucketBoundaries.equals(this.bucketBoundaries),
+          "Bucket boundaries should match.");
+      long[] bucketCounts = ((MutableHistogram) other).getBucketCounts();
+      long[] combined = new long[bucketCounts.length];
+      for (int i = 0; i < bucketCounts.length; i++) {
+        combined[i] = this.bucketCounts[i] + (long) (bucketCounts[i] * fraction);
+      }
+      return new MutableHistogram(this.bucketBoundaries, combined);
     }
 
     /**
@@ -240,6 +291,11 @@ abstract class MutableAggregation {
     }
 
     @Override
+    MutableAggregation combine(MutableAggregation other, double fraction) {
+      throw new UnsupportedOperationException("Not supported in v0.1.");
+    }
+
+    @Override
     final <T> T match(
         Function<? super MutableSum, T> p0,
         Function<? super MutableCount, T> p1,
@@ -274,6 +330,11 @@ abstract class MutableAggregation {
       count++;
       double deltaFromMean = value - mean;
       mean += deltaFromMean / count;
+    }
+
+    @Override
+    MutableAggregation combine(MutableAggregation other, double fraction) {
+      throw new UnsupportedOperationException("Not supported in v0.1.");
     }
 
     /**
@@ -331,6 +392,11 @@ abstract class MutableAggregation {
       mean += deltaFromMean / count;
       double deltaFromMean2 = value - mean;
       sumOfSquaredDeviations += deltaFromMean * deltaFromMean2;
+    }
+
+    @Override
+    MutableAggregation combine(MutableAggregation other, double fraction) {
+      throw new UnsupportedOperationException("Not supported in v0.1.");
     }
 
     /**

@@ -18,6 +18,7 @@ package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.Lists;
 import io.opencensus.common.Function;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableHistogram;
@@ -195,5 +196,40 @@ public class MutableAggregationTest {
 
     assertThat(actual)
         .isEqualTo(Arrays.asList("SUM", "COUNT", "HISTOGRAM", "RANGE", "MEAN", "STDDEV"));
+  }
+
+  @Test
+  public void testCombine() {
+    List<MutableAggregation> aggregations1 = Arrays.asList(
+        MutableSum.create(),
+        MutableCount.create(),
+        MutableHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0))));
+    List<MutableAggregation> aggregations2 = Arrays.asList(
+        MutableSum.create(),
+        MutableCount.create(),
+        MutableHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0))));
+
+    List<Double> valueList1 = Arrays.asList(-1.0, -5.0);
+    List<Double> valueList2 = Arrays.asList(10.0, 50.0);
+
+    for (int i = 0; i < valueList1.size(); i++) {
+      for (MutableAggregation aggregation : aggregations1) {
+        aggregation.add(valueList1.get(i));
+      }
+      for (MutableAggregation aggregation : aggregations2) {
+        aggregation.add(valueList2.get(i));
+      }
+    }
+
+    List<MutableAggregation> combined = Lists.newArrayList();
+    double fraction = 0.6;
+    for (int i = 0; i < aggregations1.size(); i++) {
+      combined.add(aggregations1.get(i).combine(aggregations2.get(i), fraction));
+    }
+
+    assertThat(((MutableSum) combined.get(0)).getSum()).isWithin(TOLERANCE).of(30);
+    assertThat(((MutableCount) combined.get(1)).getCount()).isEqualTo(3);
+    assertThat(((MutableHistogram) combined.get(2)).getBucketCounts()).isEqualTo(
+        new long[]{0, 2, 0, 1}); // 2 * 0.6 = 1.2, rounded down to 1
   }
 }
