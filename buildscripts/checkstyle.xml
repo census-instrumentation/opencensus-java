@@ -22,7 +22,7 @@
 
 
     <module name="RegexpHeader">
-        <property name="headerFile" value="${rootDir}/checkstyle.license"/>
+        <property name="headerFile" value="${rootDir}/buildscripts/checkstyle.license"/>
         <property name="fileExtensions" value="java"/>
     </module>
 

@@ -31,7 +31,6 @@ subprojects {
     apply plugin: "net.ltgt.apt"
     // Plugins that require java8
     if (JavaVersion.current().isJava8Compatible()) {
-        // TODO(bdrutu): enable all checks.
         apply plugin: "net.ltgt.errorprone"
     }
 
@@ -162,7 +161,7 @@ subprojects {
     findbugsTest.enabled = false
 
     checkstyle {
-        configFile = file("$rootDir/checkstyle.xml")
+        configFile = file("$rootDir/buildscripts/checkstyle.xml")
         toolVersion = "7.6"
         ignoreFailures = false
         if (rootProject.hasProperty("checkstyle.ignoreFailures")) {
