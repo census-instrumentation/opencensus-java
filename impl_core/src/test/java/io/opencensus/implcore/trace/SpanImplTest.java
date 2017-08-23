@@ -95,7 +95,8 @@ public class SpanImplTest {
     span.addAttributes(attributes);
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
-    span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
+    span.addNetworkEvent(
+        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build());
     span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
     span.end();
     exception.expect(IllegalStateException.class);
@@ -121,7 +122,8 @@ public class SpanImplTest {
     span.addAttributes(attributes);
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
-    span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
+    span.addNetworkEvent(
+        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build());
     span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getStartTimestamp()).isEqualTo(timestamp);
@@ -154,7 +156,7 @@ public class SpanImplTest {
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     testClock.advanceTime(Duration.create(0, 100));
     NetworkEvent networkEvent =
-        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
+        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build();
     span.addNetworkEvent(networkEvent);
     testClock.advanceTime(Duration.create(0, 100));
     Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN);
@@ -210,7 +212,7 @@ public class SpanImplTest {
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     testClock.advanceTime(Duration.create(0, 100));
     NetworkEvent networkEvent =
-        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
+        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build();
     span.addNetworkEvent(networkEvent);
     Link link = Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN);
     span.addLink(link);
@@ -413,7 +415,7 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     NetworkEvent networkEvent =
-        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build();
+        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build();
     for (int i = 0; i < 2 * maxNumberOfNetworkEvents; i++) {
       span.addNetworkEvent(networkEvent);
       testClock.advanceTime(Duration.create(0, 100));

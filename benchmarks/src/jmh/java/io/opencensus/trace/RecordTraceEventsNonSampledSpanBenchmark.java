@@ -79,7 +79,8 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public Span addNetworkEvent() {
-    span.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setMessageSize(3).build());
+    span.addNetworkEvent(
+        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build());
     return span;
   }
 
