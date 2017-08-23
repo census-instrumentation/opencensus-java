@@ -63,7 +63,7 @@ public final class AgentMain {
   public static void premain(String agentArgs, Instrumentation instrumentation) throws Exception {
     checkNotNull(instrumentation, "instrumentation");
 
-    logger.info("Initializing.");
+    logger.fine("Initializing.");
 
     // The classes in bootstrap.jar, such as ContextManger and ContextStrategy, will be referenced
     // from classes loaded by the bootstrap classloader. Thus, these classes have to be loaded by
@@ -84,7 +84,7 @@ public final class AgentMain {
     }
     agentBuilder.installOn(instrumentation);
 
-    logger.info("Initialized.");
+    logger.fine("Initialized.");
   }
 
   private static void checkLoadedByBootstrapClassloader(Class<?> clazz) {
