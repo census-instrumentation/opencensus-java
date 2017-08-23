@@ -158,6 +158,12 @@ findbugsIntegrationTest.enabled = false
 
 // Run integration tests with the agent enabled.
 task integrationTest(type: Test) {
+  testLogging {
+    // Let Gradle output the stdout and stderr from tests, too. This is useful for investigating
+    // test failures on Travis, where we can't view Gradle's test reports.
+    showStandardStreams = true
+  }
+
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath = sourceSets.integrationTest.runtimeClasspath
 
