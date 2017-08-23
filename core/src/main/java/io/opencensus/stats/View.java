@@ -16,8 +16,10 @@ package io.opencensus.stats;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
+import io.opencensus.internal.StringUtil;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +34,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class View {
+
+  @VisibleForTesting static final int NAME_MAX_LENGTH = 256;
 
   View() {
   }
@@ -124,12 +128,17 @@ public abstract class View {
     public abstract String asString();
 
     /**
-     * Creates a {@code View.Name} from a {@code String}.
+     * Creates a {@code View.Name} from a {@code String}. Should be a ASCII string with a length
+     * no greater than 256 characters.
+     *
+     * <p>Suggested format for name: {@code <web_host>/<path>}.
      *
      * @param name the name {@code String}.
      * @return a {@code View.Name} with the given name {@code String}.
      */
     public static Name create(String name) {
+      checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+          "Name should be a ASCII string with a length no greater than 256 characters.");
       return new AutoValue_View_Name(name);
     }
   }

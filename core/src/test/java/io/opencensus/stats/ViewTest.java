@@ -24,13 +24,23 @@ import io.opencensus.stats.View.Window.Interval;
 import io.opencensus.tags.TagKey.TagKeyString;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Tests for {@link View}. */
 @RunWith(JUnit4.class)
 public final class ViewTest {
+
+  @Rule public final ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void testConstants() {
+    assertThat(View.NAME_MAX_LENGTH).isEqualTo(256);
+  }
+
   @Test
   public void testDistributionView() {
     final View view = View.create(
@@ -102,6 +112,21 @@ public final class ViewTest {
     View.create(null, description, measure, aggregations, keys, Interval.create(minute));
   }
 
+  @Test
+  public void preventTooLongViewName() {
+    char[] chars = new char[View.NAME_MAX_LENGTH + 1];
+    Arrays.fill(chars, 'a');
+    String longName = String.valueOf(chars);
+    thrown.expect(IllegalArgumentException.class);
+    View.Name.create(longName);
+  }
+
+  @Test
+  public void preventNonPrintableViewName() {
+    thrown.expect(IllegalArgumentException.class);
+    View.Name.create("\2");
+  }
+  
   @Test
   public void testViewName() {
     assertThat(View.Name.create("my name").asString()).isEqualTo("my name");

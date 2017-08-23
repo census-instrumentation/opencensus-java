@@ -16,10 +16,10 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.internal.StringUtil;
 import java.util.Arrays;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -27,23 +27,27 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class MeasureTest {
 
-  @Ignore  // TODO: determine whether there are any restrictions on measure names.
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
+
   @Test
-  public void testNameMaxLength() {
-    char[] name = new char[StringUtil.MAX_LENGTH];
-    char[] truncName = new char[StringUtil.MAX_LENGTH + 10];
-    Arrays.fill(name, 'n');
-    Arrays.fill(truncName, 'n');
-    assertThat(makeSimpleMeasure(new String(name)).getName())
-        .isEqualTo(makeSimpleMeasure(new String(truncName)).getName());
+  public void testConstants() {
+    assertThat(Measure.NAME_MAX_LENGTH).isEqualTo(256);
   }
 
-  @Ignore  // TODO: determine whether there are any restrictions on measure names.
   @Test
-  public void testNameBadChar() {
-    assertThat(makeSimpleMeasure("\2ab\3cd").getName())
-        .isEqualTo(StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "ab"
-            + StringUtil.UNPRINTABLE_CHAR_SUBSTITUTE + "cd");
+  public void preventTooLongMeasureName() {
+    char[] chars = new char[Measure.NAME_MAX_LENGTH + 1];
+    Arrays.fill(chars, 'a');
+    String longName = String.valueOf(chars);
+    thrown.expect(IllegalArgumentException.class);
+    Measure.MeasureDouble.create(longName, "description", "1");
+  }
+
+  @Test
+  public void preventNonPrintableMeasureName() {
+    thrown.expect(IllegalArgumentException.class);
+    Measure.MeasureDouble.create("\2", "description", "1");
   }
 
   @Test
@@ -112,9 +116,5 @@ public final class MeasureTest {
   public void testMeasureDoubleIsNotEqualToMeasureLong() {
     assertThat(Measure.MeasureDouble.create("name", "description", "bit/s"))
         .isNotEqualTo(Measure.MeasureLong.create("name", "description", "bit/s"));
-  }
-
-  private static final Measure makeSimpleMeasure(String name) {
-    return Measure.MeasureDouble.create(name, name + " description", "1");
   }
 }
