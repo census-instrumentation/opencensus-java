@@ -21,10 +21,8 @@
     <property name="severity" value="error"/>
 
 
-    <module name="Header">
+    <module name="RegexpHeader">
         <property name="headerFile" value="${rootDir}/checkstyle.license"/>
-        <!-- Ignores the first line and the second line with the year -->
-        <property name="ignoreLines" value="2"/>
         <property name="fileExtensions" value="java"/>
     </module>
 
