@@ -245,8 +245,8 @@ subprojects {
     }
     // Upload the following artifacts only:
     uploadArchives.onlyIf {
-        name in ['opencensus-agent',
-                 'opencensus-api',
+        name in ['opencensus-api',
+                 'opencensus-contrib-agent',
                  'opencensus-impl-core',
                  'opencensus-impl-lite',
                  'opencensus-impl',
