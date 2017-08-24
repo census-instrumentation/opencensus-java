@@ -17,48 +17,48 @@
 package io.opencensus.contrib.agent.bootstrap;
 
 /**
- * {@code ContextManager} provides methods for accessing and manipulating the context from
- * instrumented bytecode.
+ * {@code TraceTrampoline} provides access to tracing-related methods of classes which are otherwise
+ * inaccessible from classes loaded by the bootstrap classloader.
  *
- * <p>{@code ContextManager} avoids tight coupling with the concrete implementation of the context
- * by accessing and manipulating the context through the {@link ContextStrategy} interface.
+ * <p>{@code TraceTrampoline} avoids tight coupling with the concrete implementation of the
+ * tracing-related methods via the {@link TraceStrategy} interface.
  *
- * <p>Both {@link ContextManager} and {@link ContextStrategy} are loaded by the bootstrap
+ * <p>Both {@link TraceTrampoline} and {@link TraceStrategy} are loaded by the bootstrap
  * classloader so that they can be used from classes loaded by the bootstrap classloader.
- * A concrete implementation of {@link ContextStrategy} will be loaded by the system classloader.
- * This allows for using the same context implementation as the instrumented application.
+ * A concrete implementation of {@link TraceStrategy} will be loaded by the system classloader.
+ * This allows for using the same implementation as the instrumented application.
  *
- * <p>{@code ContextManager} is implemented as a static class to allow for easy and fast use from
+ * <p>{@code TraceTrampoline} is implemented as a static class to allow for easy and fast use from
  * instrumented bytecode. We cannot use dependency injection for the instrumented bytecode.
  */
-public final class ContextManager {
+public final class TraceTrampoline {
 
   // Not synchronized to avoid any synchronization costs after initialization.
-  // The agent is responsible for initializing this once (through #setContextStrategy) before any
+  // The agent is responsible for initializing this once (through #setTraceStrategy) before any
   // other method of this class is called.
-  private static ContextStrategy contextStrategy;
+  private static TraceStrategy traceStrategy;
 
-  private ContextManager() {
+  private TraceTrampoline() {
   }
 
   /**
-   * Sets the concrete strategy for accessing and manipulating the context.
+   * Sets the concrete strategy for tracing-related methods.
    *
-   * <p>NB: The agent is responsible for setting the context strategy once before any other method
-   * of this class is called.
+   * <p>NB: The agent is responsible for setting the {@link TraceStrategy} once before any other
+   * method of this class is called.
    *
-   * @param contextStrategy the concrete strategy for accessing and manipulating the context
+   * @param traceStrategy the concrete strategy for for tracing-related methods
    */
-  public static void setContextStrategy(ContextStrategy contextStrategy) {
-    if (ContextManager.contextStrategy != null) {
-      throw new IllegalStateException("contextStrategy was already set");
+  public static void setTraceStrategy(TraceStrategy traceStrategy) {
+    if (TraceTrampoline.traceStrategy != null) {
+      throw new IllegalStateException("traceStrategy was already set");
     }
 
-    if (contextStrategy == null) {
-      throw new NullPointerException("contextStrategy");
+    if (traceStrategy == null) {
+      throw new NullPointerException("traceStrategy");
     }
 
-    ContextManager.contextStrategy = contextStrategy;
+    TraceTrampoline.traceStrategy = traceStrategy;
   }
 
   /**
@@ -68,10 +68,10 @@ public final class ContextManager {
    * @param runnable a {@link Runnable} object
    * @return the wrapped {@link Runnable} object
    *
-   * @see ContextStrategy#wrapInCurrentContext
+   * @see TraceStrategy#wrapInCurrentContext
    */
   public static Runnable wrapInCurrentContext(Runnable runnable) {
-    return contextStrategy.wrapInCurrentContext(runnable);
+    return traceStrategy.wrapInCurrentContext(runnable);
   }
 
   /**
@@ -83,7 +83,7 @@ public final class ContextManager {
    * @param thread a {@link Thread} object
    */
   public static void saveContextForThread(Thread thread) {
-    contextStrategy.saveContextForThread(thread);
+    traceStrategy.saveContextForThread(thread);
   }
 
   /**
@@ -92,6 +92,6 @@ public final class ContextManager {
    * @param thread a {@link Thread} object
    */
   public static void attachContextForThread(Thread thread) {
-    contextStrategy.attachContextForThread(thread);
+    traceStrategy.attachContextForThread(thread);
   }
 }
