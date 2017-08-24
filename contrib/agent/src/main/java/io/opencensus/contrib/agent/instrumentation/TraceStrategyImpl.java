@@ -23,8 +23,7 @@ import io.opencensus.contrib.agent.bootstrap.TraceStrategy;
 import java.lang.ref.WeakReference;
 
 /**
- * Implementation of {@link TraceStrategy} for accessing and manipulating the
- * {@link io.grpc.Context}.
+ * Implementation of {@link TraceStrategy} for tracing-related methods.
  */
 final class TraceStrategyImpl implements TraceStrategy {
 
