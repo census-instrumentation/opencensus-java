@@ -225,6 +225,8 @@
         </module>
         <module name="CommentsIndentation"/>
         <module name="FileContentsHolder"/>
+        <module name="SuppressWarningsHolder"/>
     </module>
     <module name="SuppressionCommentFilter"/>
+    <module name="SuppressWarningsFilter"/>
 </module>
