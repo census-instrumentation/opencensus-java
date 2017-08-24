@@ -9,7 +9,7 @@ dependencies {
     compile project(':core'),
             project(':opencensus-api'),
             project(':opencensus-trace-logging-exporter'),
-            project(':opencensus-zpages')
+            project(':opencensus-contrib-zpages')
 
     runtime project(':core_impl_java'),
             project(':opencensus-impl')

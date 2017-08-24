@@ -8,5 +8,5 @@ allows library configuration control.
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master
-[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-zpages/badge.svg
-[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-zpages
+[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-zpages/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-zpages
