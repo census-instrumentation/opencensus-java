@@ -4,6 +4,7 @@ dist: precise
 language: java
 
 matrix:
+  fast_finish: true
   include:
   - jdk: oraclejdk7
     env: TASK=BUILD
@@ -13,12 +14,17 @@ matrix:
     env: TASK=BUILD
     os: linux
 
+  - env: TASK=CHECK_GIT_HISTORY
+    os: linux
+
   # Work around https://github.com/travis-ci/travis-ci/issues/2317
   - env: TASK=BUILD
     os: osx
 
-  - env: TASK=CHECK_GIT_HISTORY
-    os: linux
+  allow_failures:
+  # Allowing failures because osx builds are very slow.
+  - env: TASK=BUILD
+    os: osx
 
 before_install:
   - git log --oneline --decorate --graph -30
