@@ -243,8 +243,15 @@ subprojects {
             }
         }
     }
-    // For the moment we upload only the artifact for the API
-    uploadArchives.onlyIf { name == 'opencensus-api' || name == 'opencensus-impl-core' || name == 'opencensus-impl-lite' || name == 'opencensus-impl' || name == 'opencensus-testing'}
+    // Upload the following artifacts only:
+    uploadArchives.onlyIf {
+        name in ['opencensus-api',
+                 'opencensus-contrib-agent',
+                 'opencensus-impl-core',
+                 'opencensus-impl-lite',
+                 'opencensus-impl',
+                 'opencensus-testing']
+    }
 
     // At a test failure, log the stack trace to the console so that we don't
     // have to open the HTML in a browser.
