@@ -48,16 +48,16 @@ load-time. Which Java methods we want to intercept/instrument obviously depends 
 ## Installation
 
 To enable the *OpenCensus Agent for Java* for your application, add the option
-`-javaagent:path/to/opencensus-agent.jar` to the invocation of the `java` executable as shown in
-the following example:
+`-javaagent:path/to/opencensus-contrib-agent.jar` to the invocation of the `java` executable as
+shown in the following example:
 
 ```shell
-java -javaagent:path/to/opencensus-agent.jar ...
+java -javaagent:path/to/opencensus-contrib-agent.jar ...
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master
-[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-agent/badge.svg
-[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-agent
+[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-agent/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-agent

@@ -34,11 +34,11 @@ import net.bytebuddy.agent.builder.AgentBuilder;
  * process to OpenCensus backends such as Stackdriver Trace for analysis and visualization.
  *
  * <p>To enable the *OpenCensus Agent for Java* for your application, add the option
- * <code>-javaagent:path/to/opencensus-agent.jar</code> to the invocation of the
+ * <code>-javaagent:path/to/opencensus-contrib-agent.jar</code> to the invocation of the
  * <code>java</code> executable as shown in the following example:
  *
  * <pre>
- * java -javaagent:path/to/opencensus-agent.jar ...
+ * java -javaagent:path/to/opencensus-contrib-agent.jar ...
  * </pre>
  *
  * @see <a href="https://github.com/census-instrumentation/instrumentation-java/tree/master/agent">https://github.com/census-instrumentation/instrumentation-java/tree/master/agent</a>

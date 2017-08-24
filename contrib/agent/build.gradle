@@ -69,8 +69,7 @@ shadowJar.dependsOn bootstrapJar
 
 // Bundle the agent's classes and dependencies into a single, self-contained JAR file.
 shadowJar {
-  // Output to opencensus-agent-VERSION.jar.
-  baseName = 'opencensus-agent'
+  // Output to opencensus-contrib-agent-VERSION.jar.
   classifier = null
 
   // Include only the following dependencies (excluding transitive dependencies).
