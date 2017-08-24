@@ -45,14 +45,17 @@ load-time. Which Java methods we want to intercept/instrument obviously depends 
 (MongoDB vs. Redis, etc.) and the application.
 
 
-## Installation
+## Installation and Usage
+
+Download the latest version of the *OpenCensus Agent for Java* `.jar` file
+from [Maven Central][maven-url]. Store it somewhere on disk.
 
 To enable the *OpenCensus Agent for Java* for your application, add the option
-`-javaagent:path/to/opencensus-contrib-agent.jar` to the invocation of the `java` executable as
-shown in the following example:
+`-javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar` to the invocation of the `java`
+executable as shown in the following example. Replace `X.Y.Z` with the actual version number.
 
 ```shell
-java -javaagent:path/to/opencensus-contrib-agent.jar ...
+java -javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar ...
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
