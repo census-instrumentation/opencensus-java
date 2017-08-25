@@ -35,9 +35,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link TracezPageFormatter}. */
+/** Unit tests for {@link TracezZPageHandler}. */
 @RunWith(JUnit4.class)
-public class TracezPageFormatterTest {
+public class TracezZPageHandlerTest {
   private static final String ACTIVE_SPAN_NAME = "TestActiveSpan";
   private static final String SAMPLED_SPAN_NAME = "TestSampledSpan";
   private static final String ACTIVE_SAMPLED_SPAN_NAME = "TestActiveAndSampledSpan";
@@ -74,11 +74,11 @@ public class TracezPageFormatterTest {
   @Test
   public void emitSummaryTableForEachSpan() {
     OutputStream output = new ByteArrayOutputStream();
-    TracezPageFormatter tracezPageFormatter =
-        TracezPageFormatter.create(runningSpanStore, sampledSpanStore);
+    TracezZPageHandler tracezZPageHandler =
+        TracezZPageHandler.create(runningSpanStore, sampledSpanStore);
     when(runningSpanStore.getSummary()).thenReturn(runningSpanStoreSummary);
     when(sampledSpanStore.getSummary()).thenReturn(sampledSpanStoreSummary);
-    tracezPageFormatter.emitHtml(Collections.emptyMap(), output);
+    tracezZPageHandler.emitHtml(Collections.emptyMap(), output);
     assertThat(output.toString()).contains(ACTIVE_SPAN_NAME);
     assertThat(output.toString()).contains(SAMPLED_SPAN_NAME);
     assertThat(output.toString()).contains(ACTIVE_SAMPLED_SPAN_NAME);
@@ -87,11 +87,11 @@ public class TracezPageFormatterTest {
   @Test
   public void linksForActiveRequests_InSummaryTable() {
     OutputStream output = new ByteArrayOutputStream();
-    TracezPageFormatter tracezPageFormatter =
-        TracezPageFormatter.create(runningSpanStore, sampledSpanStore);
+    TracezZPageHandler tracezZPageHandler =
+        TracezZPageHandler.create(runningSpanStore, sampledSpanStore);
     when(runningSpanStore.getSummary()).thenReturn(runningSpanStoreSummary);
     when(sampledSpanStore.getSummary()).thenReturn(sampledSpanStoreSummary);
-    tracezPageFormatter.emitHtml(Collections.emptyMap(), output);
+    tracezZPageHandler.emitHtml(Collections.emptyMap(), output);
     // 3 active requests
     assertThat(output.toString()).contains("href='?zspanname=TestActiveSpan&ztype=0&zsubtype=0'>3");
     // No active links
@@ -105,11 +105,11 @@ public class TracezPageFormatterTest {
   @Test
   public void linksForSampledRequests_InSummaryTable() {
     OutputStream output = new ByteArrayOutputStream();
-    TracezPageFormatter tracezPageFormatter =
-        TracezPageFormatter.create(runningSpanStore, sampledSpanStore);
+    TracezZPageHandler tracezZPageHandler =
+        TracezZPageHandler.create(runningSpanStore, sampledSpanStore);
     when(runningSpanStore.getSummary()).thenReturn(runningSpanStoreSummary);
     when(sampledSpanStore.getSummary()).thenReturn(sampledSpanStoreSummary);
-    tracezPageFormatter.emitHtml(Collections.emptyMap(), output);
+    tracezZPageHandler.emitHtml(Collections.emptyMap(), output);
     // No sampled links (ztype=1);
     assertThat(output.toString()).doesNotContain("href=\"?zspanname=TestActiveSpan&ztype=1");
     // Links for 7 samples [10us, 100us) and 3 samples [1ms, 10ms);
@@ -127,11 +127,11 @@ public class TracezPageFormatterTest {
   @Test
   public void linksForFailedRequests_InSummaryTable() {
     OutputStream output = new ByteArrayOutputStream();
-    TracezPageFormatter tracezPageFormatter =
-        TracezPageFormatter.create(runningSpanStore, sampledSpanStore);
+    TracezZPageHandler tracezZPageHandler =
+        TracezZPageHandler.create(runningSpanStore, sampledSpanStore);
     when(runningSpanStore.getSummary()).thenReturn(runningSpanStoreSummary);
     when(sampledSpanStore.getSummary()).thenReturn(sampledSpanStoreSummary);
-    tracezPageFormatter.emitHtml(Collections.emptyMap(), output);
+    tracezZPageHandler.emitHtml(Collections.emptyMap(), output);
     // No sampled links (ztype=1);
     assertThat(output.toString()).doesNotContain("href=\"?zspanname=TestActiveSpan&ztype=2");
     // Links for 7 errors 2 CANCELLED + 5 DEADLINE_EXCEEDED;

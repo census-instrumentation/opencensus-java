@@ -18,25 +18,16 @@ package io.opencensus.zpages;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TracezHttpHandler}. */
+/** Unit tests for {@link ZPageHandlers}. */
 @RunWith(JUnit4.class)
-public class TracezHttpHandlerTest {
-  @Test
-  public void parseUndefinedQuery() throws URISyntaxException {
-    URI uri = new URI("http://localhost:8000/tracez");
-    assertThat(TracezHttpHandler.uriQueryToMap(uri)).isEmpty();
-  }
+public class ZPageHandlersTest {
 
   @Test
-  public void parseQuery() throws URISyntaxException {
-    URI uri = new URI("http://localhost:8000/tracez?ztype=1&zsubtype&zname=Test");
-    assertThat(TracezHttpHandler.uriQueryToMap(uri))
-        .containsExactly("ztype", "1", "zsubtype", "", "zname", "Test");
+  public void implementationOfTracez() {
+    assertThat(ZPageHandlers.getTracezZPageHandler()).isInstanceOf(TracezZPageHandler.class);
   }
 }

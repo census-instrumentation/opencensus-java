@@ -70,12 +70,8 @@ import javax.annotation.Nullable;
  *
  * <p>It prints a summary table which contains one row for each span name and data about number of
  * active and sampled spans.
- *
- * <p>See {@link TracezHttpHandler} for how to use the formatter with private HTTP server
- * implementations or how to use with {@link com.sun.net.httpserver.HttpServer}.
  */
-public final class TracezPageFormatter {
-
+final class TracezZPageHandler extends ZPageHandler {
   private enum RequestType {
     RUNNING(0),
     FINISHED(1),
@@ -107,6 +103,7 @@ public final class TracezPageFormatter {
     }
   }
 
+  private static final String TRACEZ_URL = "/tracez";
   private static final Tracer tracer = Tracing.getTracer();
   // Color to use for zebra-striping.
   private static final String ZEBRA_STRIPE_COLOR = "#eee";
@@ -124,30 +121,30 @@ public final class TracezPageFormatter {
   private final RunningSpanStore runningSpanStore;
   private final SampledSpanStore sampledSpanStore;
 
-  private TracezPageFormatter(
+  private TracezZPageHandler(
       @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
     this.runningSpanStore = runningSpanStore;
     this.sampledSpanStore = sampledSpanStore;
   }
 
   /**
-   * Constructs a new {@code TracezPageFormatter}.
+   * Constructs a new {@code TracezZPageHandler}.
    *
    * @param runningSpanStore the instance of the {@code RunningSpanStore} to be used.
    * @param sampledSpanStore the instance of the {@code SampledSpanStore} to be used.
-   * @return a new {@code TracezPageFormatter}.
+   * @return a new {@code TracezZPageHandler}.
    */
-  public static TracezPageFormatter create(
+  public static TracezZPageHandler create(
       @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
-    return new TracezPageFormatter(runningSpanStore, sampledSpanStore);
+    return new TracezZPageHandler(runningSpanStore, sampledSpanStore);
   }
 
-  /**
-   * Emits the HTML generated page to the {@code outputStream}.
-   *
-   * @param queryMap the query components map.
-   * @param outputStream the output {@code OutputStream}.
-   */
+  @Override
+  public String getUrlPath() {
+    return TRACEZ_URL;
+  }
+
+  @Override
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
     PrintWriter out =
         new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream, Charsets.UTF_8)));
