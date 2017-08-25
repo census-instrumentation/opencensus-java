@@ -18,10 +18,9 @@ package io.opencensus.zpages;
 
 import com.sun.net.httpserver.HttpServer;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.export.ExportComponent;
 
 /**
- * A collection of HTML pages to display stats and trace data and allows library configuration
+ * A collection of HTML pages to display stats and trace data and allow library configuration
  * control.
  *
  * <p>Example usage with {@link HttpServer}:
@@ -30,25 +29,40 @@ import io.opencensus.trace.export.ExportComponent;
  * public class Main {
  *   public static void main(String[] args) throws Exception {
  *     HttpServer server = HttpServer.create(new InetSocketAddress(8000), 10);
- *     ZPagesHttpHandlers.register(server);
+ *     ZPageHandlers.registerAllToHttpServer(server);
  *     server.start();
+ *     ... // do work
  *   }
  * }
  * }</pre>
  */
-public final class ZPagesHttpHandlers {
-  private static final String TRACEZ_URL = "/tracez";
+public final class ZPageHandlers {
+  private static final ZPageHandler tracezZPageHandler =
+      TracezZPageHandler.create(
+          Tracing.getExportComponent().getRunningSpanStore(),
+          Tracing.getExportComponent().getSampledSpanStore());
+
+  /**
+   * Returns a {@code ZPageHandler} for tracing debug. The page displays information about all
+   * active spans and all sampled spans based on latency and errors.
+   *
+   * <p>It prints a summary table which contains one row for each span name and data about number of
+   * active and sampled spans.
+   *
+   * <p>To
+   */
+  public static ZPageHandler getTracezZPageHandler() {
+    return tracezZPageHandler;
+  }
 
   /**
    * Registers all pages to the given {@code HttpServer}.
    *
    * @param server the server that exports the tracez page.
    */
-  public static void register(HttpServer server) {
-    ExportComponent exportComponent = Tracing.getExportComponent();
-    PageFormatter tracezPageFormatter =
-        TracezPageFormatter.create(
-            exportComponent.getRunningSpanStore(), exportComponent.getSampledSpanStore());
-    server.createContext(TRACEZ_URL, new ZPageHttpHandler<>(tracezPageFormatter, TRACEZ_URL));
+  public static void registerAllToHttpServer(HttpServer server) {
+    server.createContext(tracezZPageHandler.getUrlPath(), new ZPageHttpHandler(tracezZPageHandler));
   }
+
+  private ZPageHandlers() {}
 }

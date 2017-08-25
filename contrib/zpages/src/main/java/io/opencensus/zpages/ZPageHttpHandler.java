@@ -31,20 +31,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * An {@link HttpHandler} that can be used to render HTML pages using any {@code
- * PageFormatterInterface}.
- */
-final class ZPageHttpHandler<T extends PageFormatter> implements HttpHandler {
+/** An {@link HttpHandler} that can be used to render HTML pages using any {@code ZPageHandler}. */
+final class ZPageHttpHandler implements HttpHandler {
   private static final Tracer tracer = Tracing.getTracer();
   private static final String HTTP_SERVER = "HttpServer";
-  private final T pageFormatter;
+  private final ZPageHandler zpageHandler;
   private final String httpServerSpanName;
 
   /** Constructs a new {@code TracezHttpHandler}. */
-  ZPageHttpHandler(T pageFormatter, String baseUrl) {
-    this.pageFormatter = pageFormatter;
-    this.httpServerSpanName = HTTP_SERVER + baseUrl;
+  ZPageHttpHandler(ZPageHandler zpageHandler) {
+    this.zpageHandler = zpageHandler;
+    this.httpServerSpanName = HTTP_SERVER + zpageHandler.getUrlPath();
     Tracing.getExportComponent()
         .getSampledSpanStore()
         .registerSpanNamesForCollection(Arrays.asList(httpServerSpanName));
@@ -66,7 +63,7 @@ final class ZPageHttpHandler<T extends PageFormatter> implements HttpHandler {
                       AttributeValue.stringAttributeValue(httpExchange.getRequestMethod()))
                   .build());
       httpExchange.sendResponseHeaders(200, 0);
-      pageFormatter.emitHtml(
+      zpageHandler.emitHtml(
           uriQueryToMap(httpExchange.getRequestURI()), httpExchange.getResponseBody());
     } finally {
       httpExchange.close();

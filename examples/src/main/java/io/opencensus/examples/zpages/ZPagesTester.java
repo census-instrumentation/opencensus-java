@@ -17,7 +17,7 @@
 package io.opencensus.examples.zpages;
 
 import com.sun.net.httpserver.HttpServer;
-import io.opencensus.zpages.ZPagesHttpHandlers;
+import io.opencensus.zpages.ZPageHandlers;
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 
@@ -30,7 +30,7 @@ public class ZPagesTester {
   /** Main method. */
   public static void main(String[] args) throws Exception {
     HttpServer server = HttpServer.create(new InetSocketAddress(8000), 10);
-    ZPagesHttpHandlers.register(server);
+    ZPageHandlers.registerAllToHttpServer(server);
     server.start();
     logger.info(server.getAddress().toString());
   }

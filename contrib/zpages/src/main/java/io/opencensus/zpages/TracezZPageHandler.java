@@ -70,12 +70,8 @@ import javax.annotation.Nullable;
  *
  * <p>It prints a summary table which contains one row for each span name and data about number of
  * active and sampled spans.
- *
- * <p>See {@link ZPagesHttpHandlers} for how to export this using an {@link
- * com.sun.net.httpserver.HttpServer}.
  */
-public final class TracezPageFormatter extends PageFormatter {
-
+final class TracezZPageHandler extends ZPageHandler {
   private enum RequestType {
     RUNNING(0),
     FINISHED(1),
@@ -107,6 +103,7 @@ public final class TracezPageFormatter extends PageFormatter {
     }
   }
 
+  private static final String TRACEZ_URL = "/tracez";
   private static final Tracer tracer = Tracing.getTracer();
   // Color to use for zebra-striping.
   private static final String ZEBRA_STRIPE_COLOR = "#eee";
@@ -124,22 +121,27 @@ public final class TracezPageFormatter extends PageFormatter {
   private final RunningSpanStore runningSpanStore;
   private final SampledSpanStore sampledSpanStore;
 
-  private TracezPageFormatter(
+  private TracezZPageHandler(
       @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
     this.runningSpanStore = runningSpanStore;
     this.sampledSpanStore = sampledSpanStore;
   }
 
   /**
-   * Constructs a new {@code TracezPageFormatter}.
+   * Constructs a new {@code TracezZPageHandler}.
    *
    * @param runningSpanStore the instance of the {@code RunningSpanStore} to be used.
    * @param sampledSpanStore the instance of the {@code SampledSpanStore} to be used.
-   * @return a new {@code TracezPageFormatter}.
+   * @return a new {@code TracezZPageHandler}.
    */
-  public static TracezPageFormatter create(
+  public static TracezZPageHandler create(
       @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
-    return new TracezPageFormatter(runningSpanStore, sampledSpanStore);
+    return new TracezZPageHandler(runningSpanStore, sampledSpanStore);
+  }
+
+  @Override
+  public String getUrlPath() {
+    return TRACEZ_URL;
   }
 
   @Override

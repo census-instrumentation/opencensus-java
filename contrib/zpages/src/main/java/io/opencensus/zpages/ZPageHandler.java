@@ -20,11 +20,17 @@ import java.io.OutputStream;
 import java.util.Map;
 
 /**
- * Main interface for all the HTML pages. This allows implementations of different HTTP Servers to
- * use the same logic for all Z-Pages. See {@code ZPageHttpHandler} for an example of using this
- * interface.
+ * Main interface for all the Z-Pages. All Z-Pages must implement this interface to allow other HTTP
+ * server implementation to support these pages.
  */
-abstract class PageFormatter {
+public abstract class ZPageHandler {
+
+  /**
+   * Returns the URL path that should be used to register this page.
+   *
+   * @return the URL path that should be used to register this page.
+   */
+  public abstract String getUrlPath();
 
   /**
    * Emits the HTML generated page to the {@code outputStream}.

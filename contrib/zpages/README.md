@@ -29,7 +29,7 @@ public class MyMainClass {
   public static void main(String[] args) throws Exception {
     // ...
     HttpServer server = HttpServer.create(new InetSocketAddress(8000), 10);
-    ZPagesHttpHandlers.register(server);
+    ZPageHandlers.registerAllToHttpServer(server);
     server.start();
     // ...
   }
