@@ -19,7 +19,7 @@ package io.opencensus.examples.trace;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.export.LoggingExportHandler;
+import io.opencensus.trace.export.LoggingExporter;
 
 /** Example showing how to directly create a child {@link Span} and add annotations. */
 public final class MultiSpansTracing {
@@ -42,7 +42,7 @@ public final class MultiSpansTracing {
    * @param args the main arguments.
    */
   public static void main(String[] args) {
-    LoggingExportHandler.register(Tracing.getExportComponent().getSpanExporter());
+    LoggingExporter.register();
     doWork();
   }
 }
