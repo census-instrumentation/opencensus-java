@@ -68,12 +68,12 @@ public class ScopedTagContextsTest {
 
   @Test
   public void defaultTagContext() {
-    assertThat(tagContexts.getCurrentTagContext()).isSameAs(emptyTagContext);
+    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
   }
 
   @Test
   public void withTagContext() {
-    assertThat(tagContexts.getCurrentTagContext()).isSameAs(emptyTagContext);
+    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
     TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
     Scope scope = tagContexts.withTagContext(scopedTags);
     try {
@@ -81,7 +81,7 @@ public class ScopedTagContextsTest {
     } finally {
       scope.close();
     }
-    assertThat(tagContexts.getCurrentTagContext()).isSameAs(emptyTagContext);
+    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
   }
 
   @Test
@@ -100,7 +100,7 @@ public class ScopedTagContextsTest {
 
   @Test
   public void setCurrentTagsWithBuilder() {
-    assertThat(tagContexts.getCurrentTagContext()).isSameAs(emptyTagContext);
+    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
     Scope scope = tagContexts.emptyBuilder().set(KEY_1, VALUE_1).buildScoped();
     try {
       assertThat(asList(tagContexts.getCurrentTagContext()))
@@ -108,7 +108,7 @@ public class ScopedTagContextsTest {
     } finally {
       scope.close();
     }
-    assertThat(tagContexts.getCurrentTagContext()).isSameAs(emptyTagContext);
+    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
   }
 
   @Test
