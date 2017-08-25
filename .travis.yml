@@ -1,5 +1,4 @@
 sudo: false
-dist: precise
 
 language: java
 
@@ -9,6 +8,7 @@ matrix:
   - jdk: oraclejdk7
     env: TASK=BUILD
     os: linux
+    dist: precise
 
   - jdk: oraclejdk8
     env: TASK=BUILD
