@@ -49,7 +49,8 @@ public final class ZPageHandlers {
    * <p>It prints a summary table which contains one row for each span name and data about number of
    * active and sampled spans.
    *
-   * <p>To
+   * <p>If no sampled spans based on latency and error codes are available for a given name, make
+   * sure that the span name is registered to the {@code SampledSpanStore}.
    */
   public static ZPageHandler getTracezZPageHandler() {
     return tracezZPageHandler;

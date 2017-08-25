@@ -39,4 +39,9 @@ public abstract class ZPageHandler {
    * @param outputStream the output {@code OutputStream}.
    */
   public abstract void emitHtml(Map<String, String> queryMap, OutputStream outputStream);
+
+  /**
+   * Package protected constructor to disallow users to extend this class.
+   */
+  ZPageHandler() {}
 }

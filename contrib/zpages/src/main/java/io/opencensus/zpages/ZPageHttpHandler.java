@@ -38,7 +38,7 @@ final class ZPageHttpHandler implements HttpHandler {
   private final ZPageHandler zpageHandler;
   private final String httpServerSpanName;
 
-  /** Constructs a new {@code TracezHttpHandler}. */
+  /** Constructs a new {@code ZPageHttpHandler}. */
   ZPageHttpHandler(ZPageHandler zpageHandler) {
     this.zpageHandler = zpageHandler;
     this.httpServerSpanName = HTTP_SERVER + zpageHandler.getUrlPath();
