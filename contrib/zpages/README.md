@@ -38,7 +38,8 @@ public class MyMainClass {
 
 ### FAQ
 
-1. Sampled spans based on latency and error codes are available only for registered span names. 
+#### Why do I not see sampled spans based on latency and error codes for a given span name?
+Sampled spans based on latency and error codes are available only for registered span names. 
 For more details see [SampledSpanStore][sampledspanstore-url].
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
