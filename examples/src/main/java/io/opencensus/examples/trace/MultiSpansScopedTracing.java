@@ -20,7 +20,7 @@ import io.opencensus.common.Scope;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.export.LoggingExportHandler;
+import io.opencensus.trace.export.LoggingExporter;
 
 /**
  * Example showing how to create a child {@link Span} using scoped Spans, install it in the current
@@ -53,7 +53,7 @@ public final class MultiSpansScopedTracing {
    * @param args the main arguments.
    */
   public static void main(String[] args) {
-    LoggingExportHandler.register(Tracing.getExportComponent().getSpanExporter());
+    LoggingExporter.register();
     try (Scope ss = tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startScopedSpan()) {
       doWork();
     }

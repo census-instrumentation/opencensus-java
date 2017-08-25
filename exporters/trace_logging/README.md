@@ -1,0 +1,38 @@
+# OpenCensus Logging Trace Exporter
+[![Build Status][travis-image]][travis-url] [![Build status][appveyor-image]][appveyor-url] [![Maven Central][maven-image]][maven-url]
+
+The *OpenCensus Logging trace exporter* is a trace exporter that logs all data to the system log.
+
+## Download
+
+For Maven add to your `pom.xml`:
+```xml
+<dependency>
+  <groupId>io.opencensus</groupId>
+  <artifactId>opencensus-exporter-trace-logging</artifactId>
+  <version>0.6.0</version>
+</dependency>
+```
+
+For Gradle add to your dependencies:
+```gradle
+compile 'io.opencensus:opencensus-exporter-trace-logging:0.6.0'
+```
+
+## How to register the exporter?
+
+```java
+public class MyMainClass {
+  public static void main(String[] args) throws Exception {
+    LoggingExporter.register();
+    // ...
+  }
+}
+```
+
+[travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
+[travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
+[appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master
+[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-exporter-trace-logging/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-exporter-trace-logging
