@@ -56,7 +56,7 @@ public class ExecutorInstrumentationIT {
     executor.shutdown();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void execute() throws Exception {
     final Thread callerThread = Thread.currentThread();
     final Context context = Context.current().withValue(KEY, "myvalue");
@@ -85,7 +85,7 @@ public class ExecutorInstrumentationIT {
     assertThat(tested.get()).isTrue();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void submit_Callable() throws Exception {
     final Thread callerThread = Thread.currentThread();
     final Context context = Context.current().withValue(KEY, "myvalue");
@@ -108,7 +108,7 @@ public class ExecutorInstrumentationIT {
     assertThat(tested.get()).isTrue();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void submit_Runnable() throws Exception {
     final Thread callerThread = Thread.currentThread();
     final Context context = Context.current().withValue(KEY, "myvalue");
@@ -129,7 +129,7 @@ public class ExecutorInstrumentationIT {
     assertThat(tested.get()).isTrue();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void submit_RunnableWithResult() throws Exception {
     final Thread callerThread = Thread.currentThread();
     final Context context = Context.current().withValue(KEY, "myvalue");
@@ -153,7 +153,7 @@ public class ExecutorInstrumentationIT {
     assertThat(tested.get()).isTrue();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void currentContextExecutor() throws Exception {
     final Thread callerThread = Thread.currentThread();
     final Context context = Context.current().withValue(KEY, "myvalue");

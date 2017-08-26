@@ -45,7 +45,7 @@ public class ThreadInstrumentationIT {
     Context.current().detach(previousContext);
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void start_Runnable() throws Exception {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
@@ -67,7 +67,7 @@ public class ThreadInstrumentationIT {
     assertThat(tested.get()).isTrue();
   }
 
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void start_Subclass() throws Exception {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
@@ -96,7 +96,7 @@ public class ThreadInstrumentationIT {
    * Tests that the automatic context propagation added by {@link ThreadInstrumentation} does not
    * interfere with the automatically propagated context from Executor#execute.
    */
-  @Test(timeout = 5000)
+  @Test(timeout = 60000)
   public void start_automaticallyWrappedRunnable() throws Exception {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
