@@ -16,6 +16,7 @@
 
 package io.opencensus.tags;
 
+import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;

@@ -23,19 +23,22 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue;
+import io.opencensus.tags.TagValue.TagValueBoolean;
+import io.opencensus.tags.TagValue.TagValueLong;
+import io.opencensus.tags.TagValue.TagValueString;
 import java.util.HashMap;
 import java.util.Map;
 
 final class TagContextBuilderImpl extends TagContextBuilder {
-  private final Map<TagKey, Object> tags;
+  private final Map<TagKey, TagValue> tags;
 
-  TagContextBuilderImpl(Map<TagKey, Object> tags) {
-    this.tags = new HashMap<TagKey, Object>(tags);
+  TagContextBuilderImpl(Map<TagKey, TagValue> tags) {
+    this.tags = new HashMap<TagKey, TagValue>(tags);
   }
 
   TagContextBuilderImpl() {
-    this.tags = new HashMap<TagKey, Object>();
+    this.tags = new HashMap<TagKey, TagValue>();
   }
 
   @Override
@@ -44,16 +47,16 @@ final class TagContextBuilderImpl extends TagContextBuilder {
   }
 
   @Override
-  public TagContextBuilderImpl set(TagKeyLong key, long value) {
+  public TagContextBuilderImpl set(TagKeyLong key, TagValueLong value) {
     return setInternal(key, value);
   }
 
   @Override
-  public TagContextBuilderImpl set(TagKeyBoolean key, boolean value) {
+  public TagContextBuilderImpl set(TagKeyBoolean key, TagValueBoolean value) {
     return setInternal(key, value);
   }
 
-  private TagContextBuilderImpl setInternal(TagKey key, Object value) {
+  private TagContextBuilderImpl setInternal(TagKey key, TagValue value) {
     tags.put(checkNotNull(key), value);
     return this;
   }

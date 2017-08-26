@@ -20,7 +20,7 @@ import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-
+import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,8 +45,7 @@ public abstract class ViewData {
    * The {@link AggregationData}s grouped by combination of tag values, associated with this
    * {@link ViewData}.
    */
-  // TODO(sebright): Create a TagValue class.
-  public abstract Map<List<Object>, List<AggregationData>> getAggregationMap();
+  public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
 
   /**
    * Returns the {@link WindowData} associated with this {@link ViewData}.
@@ -58,7 +57,7 @@ public abstract class ViewData {
   /** Constructs a new {@link ViewData}. */
   public static ViewData create(
       View view,
-      Map<? extends List<? extends Object>, List<AggregationData>> map,
+      Map<? extends List<? extends TagValue>, List<AggregationData>> map,
       final WindowData windowData) {
     view.getWindow()
         .match(
@@ -92,11 +91,11 @@ public abstract class ViewData {
             },
             Functions.<Void>throwIllegalArgumentException());
 
-    Map<List<Object>, List<AggregationData>> deepCopy =
-        new HashMap<List<Object>, List<AggregationData>>();
-    for (Entry<? extends List<? extends Object>, List<AggregationData>> entry : map.entrySet()) {
+    Map<List<TagValue>, List<AggregationData>> deepCopy =
+        new HashMap<List<TagValue>, List<AggregationData>>();
+    for (Entry<? extends List<? extends TagValue>, List<AggregationData>> entry : map.entrySet()) {
       deepCopy.put(
-          Collections.unmodifiableList(new ArrayList<Object>(entry.getKey())),
+          Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())),
           Collections.unmodifiableList(new ArrayList<AggregationData>(entry.getValue())));
     }
 

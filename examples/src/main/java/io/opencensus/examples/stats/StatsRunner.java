@@ -19,7 +19,7 @@ package io.opencensus.examples.stats;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tags;
 
 /** Simple program that uses Stats contexts. */

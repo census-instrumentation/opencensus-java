@@ -23,7 +23,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueString;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import org.junit.Test;

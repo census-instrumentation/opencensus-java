@@ -26,6 +26,9 @@ import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagValue.TagValueBoolean;
+import io.opencensus.tags.TagValue.TagValueLong;
+import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -151,12 +154,12 @@ public class ScopedTagContextsTest {
     }
 
     @Override
-    public TagContextBuilder set(TagKeyLong key, long value) {
+    public TagContextBuilder set(TagKeyLong key, TagValueLong value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public TagContextBuilder set(TagKeyBoolean key, boolean value) {
+    public TagContextBuilder set(TagKeyBoolean key, TagValueBoolean value) {
       throw new UnsupportedOperationException();
     }
 

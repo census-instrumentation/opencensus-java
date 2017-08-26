@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
 import io.opencensus.internal.StringUtil;
+import io.opencensus.tags.TagValue.TagValueString;
 import javax.annotation.concurrent.Immutable;
 
 /**

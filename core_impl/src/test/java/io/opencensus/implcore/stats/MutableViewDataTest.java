@@ -38,7 +38,7 @@ import io.opencensus.stats.AggregationData.SumData;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueString;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

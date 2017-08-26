@@ -28,7 +28,9 @@ import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueBoolean;
+import io.opencensus.tags.TagValue.TagValueLong;
+import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import java.util.Collections;
 import java.util.Iterator;
@@ -48,8 +50,10 @@ public class TagContextsImplTest {
   private static final TagKeyLong KL = UnreleasedApiAccessor.createTagKeyLong("kl");
   private static final TagKeyBoolean KB = UnreleasedApiAccessor.createTagKeyBoolean("kb");
 
-  private static final TagValueString V1 = TagValueString.create("v1");
-  private static final TagValueString V2 = TagValueString.create("v2");
+  private static final TagValueString VS1 = TagValueString.create("v1");
+  private static final TagValueString VS2 = TagValueString.create("v2");
+  private static final TagValueLong VL = TagValueLong.create(10L);
+  private static final TagValueBoolean VB = TagValueBoolean.create(false);
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -65,9 +69,9 @@ public class TagContextsImplTest {
 
   @Test
   public void toBuilder_ConvertUnknownTagContextToTagContextImpl() {
-    Tag tag1 = TagString.create(KS, V1);
-    Tag tag2 = TagLong.create(KL, 10L);
-    Tag tag3 = TagBoolean.create(KB, false);
+    Tag tag1 = TagString.create(KS, VS1);
+    Tag tag2 = TagLong.create(KL, VL);
+    Tag tag3 = TagBoolean.create(KB, VB);
     TagContext unknownTagContext = new SimpleTagContext(tag1, tag2, tag3);
     TagContext newTagContext = tagContexts.toBuilder(unknownTagContext).build();
     assertThat(asList(newTagContext)).containsExactly(tag1, tag2, tag3);
@@ -76,8 +80,8 @@ public class TagContextsImplTest {
 
   @Test
   public void toBuilder_RemoveDuplicatesFromUnknownTagContext() {
-    Tag tag1 = TagString.create(KS, V1);
-    Tag tag2 = TagString.create(KS, V2);
+    Tag tag1 = TagString.create(KS, VS1);
+    Tag tag2 = TagString.create(KS, VS2);
     TagContext unknownTagContext = new SimpleTagContext(tag1, tag2);
     TagContext newTagContext = tagContexts.toBuilder(unknownTagContext).build();
     assertThat(asList(newTagContext)).containsExactly(tag2);
@@ -86,7 +90,7 @@ public class TagContextsImplTest {
   @Test
   public void toBuilder_HandleNullTag() {
     TagContext unknownTagContext =
-        new SimpleTagContext(TagString.create(KS, V2), null, TagLong.create(KL, 5L));
+        new SimpleTagContext(TagString.create(KS, VS2), null, TagLong.create(KL, VL));
     thrown.expect(NullPointerException.class);
     tagContexts.toBuilder(unknownTagContext).build();
   }

@@ -25,7 +25,7 @@ import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.unsafe.ContextUtils;
 import java.util.Collections;
 import java.util.Iterator;

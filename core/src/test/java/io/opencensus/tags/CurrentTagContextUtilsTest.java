@@ -24,6 +24,7 @@ import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.unsafe.ContextUtils;
 import java.util.Iterator;
 import java.util.List;
