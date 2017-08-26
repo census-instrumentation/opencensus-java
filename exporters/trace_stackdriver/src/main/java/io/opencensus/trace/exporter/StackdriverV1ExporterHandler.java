@@ -18,17 +18,15 @@ package io.opencensus.trace.exporter;
 
 import static com.google.api.client.util.Preconditions.checkNotNull;
 
+import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
+import com.google.cloud.trace.v1.TraceServiceClient;
+import com.google.cloud.trace.v1.TraceServiceSettings;
 import com.google.common.io.BaseEncoding;
 import com.google.devtools.cloudtrace.v1.PatchTracesRequest;
 import com.google.devtools.cloudtrace.v1.Trace;
-import com.google.devtools.cloudtrace.v1.TraceServiceGrpc;
-import com.google.devtools.cloudtrace.v1.TraceServiceGrpc.TraceServiceBlockingStub;
 import com.google.devtools.cloudtrace.v1.TraceSpan;
 import com.google.devtools.cloudtrace.v1.Traces;
-import io.grpc.Channel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.auth.MoreCallCredentials;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -37,30 +35,43 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.export.SpanData;
-import io.opencensus.trace.export.SpanExporter.Handler;
+import io.opencensus.trace.export.SpanExporter;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * A class that contains helper methods to convert {@link SpanData} to Stackdriver Trace API v1
- * trace messages.
+ * Exporter to Stackdriver Trace API v1.
+ *
+ * <p>It contains helper methods to convert {@link SpanData} to Stackdriver Trace API v1 trace
+ * messages.
  */
-final class StackdriverV1ExporterHandler extends Handler {
-  private static final String API_HOST = "cloudtrace.googleapis.com";
+final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
   private static final String STATUS_CODE = "g.co/status/code";
   private static final String STATUS_DESCRIPTION = "g.co/status/description";
 
   private final String projectId;
-  private final TraceServiceBlockingStub traceServiceBlockingStub;
+  private final TraceServiceClient traceServiceClient;
 
-  StackdriverV1ExporterHandler(Credentials credentials, String projectId) {
-    checkNotNull(credentials, "credentials");
+  private StackdriverV1ExporterHandler(String projectId, TraceServiceClient traceServiceClient) {
     this.projectId = checkNotNull(projectId, "projectId");
-    Channel channel = ManagedChannelBuilder.forTarget(API_HOST).build();
-    traceServiceBlockingStub =
-        TraceServiceGrpc.newBlockingStub(channel)
-            .withCallCredentials(MoreCallCredentials.from(credentials));
+    this.traceServiceClient = traceServiceClient;
+  }
+
+  static StackdriverV1ExporterHandler createWithCredentials(
+      Credentials credentials, String projectId) throws IOException {
+    checkNotNull(credentials, "credentials");
+    TraceServiceSettings traceServiceSettings =
+        TraceServiceSettings.defaultBuilder()
+            .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
+            .build();
+    return new StackdriverV1ExporterHandler(
+        projectId, TraceServiceClient.create(traceServiceSettings));
+  }
+
+  static StackdriverV1ExporterHandler create(String projectId) throws IOException {
+    return new StackdriverV1ExporterHandler(projectId, TraceServiceClient.create());
   }
 
   Trace generateTrace(SpanData spanData) {
@@ -155,7 +166,7 @@ final class StackdriverV1ExporterHandler extends Handler {
     for (SpanData spanData : spanDataList) {
       tracesBuilder.addTraces(generateTrace(spanData));
     }
-    traceServiceBlockingStub.patchTraces(
+    traceServiceClient.patchTraces(
         PatchTracesRequest.newBuilder()
             .setProjectId(projectId)
             .setTraces(tracesBuilder.build())

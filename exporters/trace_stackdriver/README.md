@@ -2,14 +2,19 @@
 [![Build Status][travis-image]][travis-url] [![Build status][appveyor-image]][appveyor-url] [![Maven Central][maven-image]][maven-url]
 
 The *OpenCensus Stackdriver Trace Exporter* is a trace exporter that exports data to 
-[Stackdriver Trace][stackdriver-url].
+Stackdriver Trace. [Stackdriver Trace][stackdriver-trace] is a distributed 
+tracing system that collects latency data from your applications and displays it in the Google 
+Cloud Platform Console. You can track how requests propagate through your application and receive
+detailed near real-time performance insights.
 
-## Prerequisites
+## Quickstart
+
+### Prerequisites
 
 To use this exporter, you must have an application that you'd like to trace. The app can be on 
 Google Cloud Platform, on-premise, or another cloud platform.
 
-In order to be able to push your traces to [Stackdriver Trace][stackdriver-url], you must:
+In order to be able to push your traces to [Stackdriver Trace][stackdriver-trace], you must:
 
 1. [Create a Cloud project](https://support.google.com/cloud/answer/6251787?hl=en).
 2. [Enable billing](https://support.google.com/cloud/answer/6288653#new-billing).
@@ -17,21 +22,31 @@ In order to be able to push your traces to [Stackdriver Trace][stackdriver-url],
 
 These steps enable the API but don't require that your app is hosted on Google Cloud Platform.
 
-## Hello "Stackdriver Trace"
+### Authentication
 
-### Add the dependencies to your project.
+This exporter uses [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java),
+for details see [Authentication](https://github.com/GoogleCloudPlatform/google-cloud-java#authentication)
+section in the base directory's README.
+
+### Java Versions
+
+Java 7 or above is required for using this exporter.
+
+### Hello "Stackdriver Trace"
+
+#### Add the dependencies to your project.
 
 For Maven add to your `pom.xml`:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>io.netty</groupId>
-    <artifactId>netty-tcnative-boringssl-static</artifactId>
-    <version>2.0.3.Final</version>
+    <groupId>io.opencensus</groupId>
+    <artifactId>opencensus-exporter-trace-stackdriver</artifactId>
+    <version>0.6.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-exporter-trace-stackdriver</artifactId>
+    <artifactId>opencensus-impl</artifactId>
     <version>0.6.0</version>
   </dependency>
 </dependencies>
@@ -39,12 +54,12 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.netty:netty-tcnative-boringssl-static:2.0.3.Final'
 compile 'io.opencensus:opencensus-exporter-trace-stackdriver:0.6.0'
+compile 'io.opencensus:opencensus-impl:0.6.0'
 
 ```
 
-### Register the exporter
+#### Register the exporter
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
@@ -65,5 +80,5 @@ NetworkEvents will be dropped. Soon a v2 API will be available.
 [appveyor-url]: https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master
 [maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-exporter-trace-stackdriver/badge.svg
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-exporter-trace-stackdriver
-[stackdriver-url]: https://cloud.google.com/trace/
+[stackdriver-trace]: https://cloud.google.com/trace/
 [stackdriver-v1-api-url]: https://cloud.google.com/trace/docs/reference/v1/rpc/google.devtools.cloudtrace.v1#google.devtools.cloudtrace.v1.TraceSpan

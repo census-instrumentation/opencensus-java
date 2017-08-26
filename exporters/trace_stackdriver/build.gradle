@@ -1,18 +1,16 @@
 description = 'OpenCensus Trace Stackdriver Exporter'
 
-dependencies {
-    def withoutGrpc = { exclude group: 'io.grpc', module: 'grpc-all' }
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.7
+    it.targetCompatibility = 1.7
+}
 
+dependencies {
     compile project(':opencensus-api'),
             libraries.google_auth,
-            libraries.google_oauth2,
-            libraries.grpc_all
-
-    // Remove io.grpc:grpc-all dependencies from the
-    // com.google.api.grpc:grpc-google-devtools-cloudtrace-v1 because it is very old.
-    compile libraries.stackdriver_trace, withoutGrpc
+            libraries.google_cloud_trace
 
     testCompile project(':opencensus-api')
 
-    signature "org.codehaus.mojo.signature:java16:+@signature"
+    signature "org.codehaus.mojo.signature:java17:+@signature"
 }

@@ -16,6 +16,8 @@
 
 package io.opencensus.trace.exporter;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.annotations.VisibleForTesting;
@@ -49,33 +51,39 @@ public final class StackdriverExporter {
   private static Handler handler = null;
 
   /**
-   * Creates and registers the Stackdriver Trace exporter to the OpenCensus library.
+   * Creates and registers the Stackdriver Trace exporter to the OpenCensus library. Only one
+   * Stackdriver exporter can be registered at any point.
    *
    * @param credentials a credentials used to authenticate API calls.
    * @param projectId the cloud project id.
+   * @throws IllegalStateException if a Stackdriver exporter already registered.
    */
-  public static void createAndRegisterWithCredentials(Credentials credentials, String projectId) {
+  public static void createAndRegisterWithCredentials(Credentials credentials, String projectId)
+      throws IOException {
     synchronized (monitor) {
-      if (handler == null) {
-        handler = new StackdriverV1ExporterHandler(credentials, projectId);
-      }
+      checkState(handler == null, "exporter already registered");
+      handler = StackdriverV1ExporterHandler.createWithCredentials(credentials, projectId);
       register(Tracing.getExportComponent().getSpanExporter(), handler);
     }
   }
 
   /**
-   * Creates and registers the Stackdriver Trace exporter to the OpenCensus library.
+   * Creates and registers the Stackdriver Trace exporter to the OpenCensus library. Only one
+   * Stackdriver exporter can be registered at any point.
    *
    * <p>This uses the default application credentials see {@link
    * GoogleCredentials#getApplicationDefault()}. If you do not have default application credentials
    * configured use {@link #createAndRegisterWithCredentials(Credentials, String)}.
    *
    * @param projectId the cloud project id.
+   * @throws IllegalStateException if a Stackdriver exporter already registered.
    */
   public static void createAndRegister(String projectId) throws IOException {
-    createAndRegisterWithCredentials(
-        GoogleCredentials.getApplicationDefault().createScoped(STACKDRIVER_TRACE_WRITER_SCOPE),
-        projectId);
+    synchronized (monitor) {
+      checkState(handler == null, "exporter already registered");
+      handler = StackdriverV1ExporterHandler.create(projectId);
+      register(Tracing.getExportComponent().getSpanExporter(), handler);
+    }
   }
 
   /**
@@ -88,9 +96,17 @@ public final class StackdriverExporter {
     spanExporter.registerHandler(REGISTER_NAME, handler);
   }
 
-  /** Unregisters the Stackdriver Trace exporter from the OpenCensus library. */
+  /**
+   * Unregisters the Stackdriver Trace exporter from the OpenCensus library.
+   *
+   * @throws IllegalStateException if a Stackdriver exporter not registered.
+   */
   public static void unregister() {
-    unregister(Tracing.getExportComponent().getSpanExporter());
+    synchronized (monitor) {
+      checkState(handler != null, "exporter not registered");
+      unregister(Tracing.getExportComponent().getSpanExporter());
+      handler = null;
+    }
   }
 
   /**

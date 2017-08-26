@@ -115,15 +115,10 @@ subprojects {
                 errorprone: 'com.google.errorprone:error_prone_annotations:2.0.19',
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
                 google_auth       : 'com.google.auth:google-auth-library-credentials:0.7.0',
-                google_oauth2     : 'com.google.auth:google-auth-library-oauth2-http:0.7.0',
-                grpc_all: "io.grpc:grpc-all:${grpcContextVersion}",
-                grpc_auth: "io.grpc:grpc-auth:${grpcContextVersion}",
+                google_cloud_trace: 'com.google.cloud:google-cloud-trace:0.22.0-alpha',
                 grpc_context: "io.grpc:grpc-context:${grpcContextVersion}",
-                grpc_core: "io.grpc:grpc-core:${grpcContextVersion}",
-                grpc_netty: "io.grpc:grpc-netty:${grpcContextVersion}",
                 guava: "com.google.guava:guava:${guavaVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
-                stackdriver_trace: 'com.google.api.grpc:grpc-google-devtools-cloudtrace-v1:0.1.1',
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
