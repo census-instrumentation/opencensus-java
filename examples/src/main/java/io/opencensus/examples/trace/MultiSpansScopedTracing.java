@@ -17,10 +17,10 @@
 package io.opencensus.examples.trace;
 
 import io.opencensus.common.Scope;
+import io.opencensus.exporter.trace.logging.LoggingExporter;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.export.LoggingExporter;
 
 /**
  * Example showing how to create a child {@link Span} using scoped Spans, install it in the current

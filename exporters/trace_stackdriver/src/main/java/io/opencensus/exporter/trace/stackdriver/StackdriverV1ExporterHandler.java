@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.exporter;
+package io.opencensus.exporter.trace.stackdriver;
 
 import static com.google.api.client.util.Preconditions.checkNotNull;
 

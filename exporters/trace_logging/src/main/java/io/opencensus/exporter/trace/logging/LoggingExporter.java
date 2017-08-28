@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.export;
+package io.opencensus.exporter.trace.logging;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.export.SpanData;
+import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import java.util.Collection;
 import java.util.logging.Level;
