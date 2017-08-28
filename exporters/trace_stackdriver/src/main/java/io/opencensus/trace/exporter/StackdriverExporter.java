@@ -56,12 +56,12 @@ public final class StackdriverExporter {
    *
    * @param credentials a credentials used to authenticate API calls.
    * @param projectId the cloud project id.
-   * @throws IllegalStateException if a Stackdriver exporter already registered.
+   * @throws IllegalStateException if a Stackdriver exporter is already registered.
    */
   public static void createAndRegisterWithCredentials(Credentials credentials, String projectId)
       throws IOException {
     synchronized (monitor) {
-      checkState(handler == null, "exporter already registered");
+      checkState(handler == null, "Stackdriver exporter is already registered.");
       handler = StackdriverV1ExporterHandler.createWithCredentials(credentials, projectId);
       register(Tracing.getExportComponent().getSpanExporter(), handler);
     }
@@ -76,11 +76,11 @@ public final class StackdriverExporter {
    * configured use {@link #createAndRegisterWithCredentials(Credentials, String)}.
    *
    * @param projectId the cloud project id.
-   * @throws IllegalStateException if a Stackdriver exporter already registered.
+   * @throws IllegalStateException if a Stackdriver exporter is already registered.
    */
   public static void createAndRegister(String projectId) throws IOException {
     synchronized (monitor) {
-      checkState(handler == null, "exporter already registered");
+      checkState(handler == null, "Stackdriver exporter is already registered.");
       handler = StackdriverV1ExporterHandler.create(projectId);
       register(Tracing.getExportComponent().getSpanExporter(), handler);
     }
@@ -99,11 +99,11 @@ public final class StackdriverExporter {
   /**
    * Unregisters the Stackdriver Trace exporter from the OpenCensus library.
    *
-   * @throws IllegalStateException if a Stackdriver exporter not registered.
+   * @throws IllegalStateException if a Stackdriver exporter is not registered.
    */
   public static void unregister() {
     synchronized (monitor) {
-      checkState(handler != null, "exporter not registered");
+      checkState(handler != null, "Stackdriver exporter is not registered.");
       unregister(Tracing.getExportComponent().getSpanExporter());
       handler = null;
     }

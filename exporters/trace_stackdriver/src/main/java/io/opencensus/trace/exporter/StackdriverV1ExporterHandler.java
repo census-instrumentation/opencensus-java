@@ -74,18 +74,19 @@ final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
     return new StackdriverV1ExporterHandler(projectId, TraceServiceClient.create());
   }
 
-  Trace generateTrace(SpanData spanData) {
+  // TODO(bdrutu): Add tests for this.
+  private Trace generateTrace(SpanData spanData) {
     SpanContext context = spanData.getContext();
     TraceSpan.Builder spanBuilder =
         TraceSpan.newBuilder()
-            .setSpanId(toSpanIdProto(context.getSpanId()))
+            .setSpanId(encodeSpanId(context.getSpanId()))
             .setKind(toSpanKindProto(spanData))
             .setName(spanData.getName())
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
             .setEndTime(toTimestampProto(spanData.getEndTimestamp()));
 
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
-      spanBuilder.setParentSpanId(toSpanIdProto(spanData.getParentSpanId()));
+      spanBuilder.setParentSpanId(encodeSpanId(spanData.getParentSpanId()));
     }
 
     for (Map.Entry<String, AttributeValue> label :
@@ -102,17 +103,17 @@ final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
     Trace.Builder traceBuilder =
         Trace.newBuilder()
             .setProjectId(projectId)
-            .setTraceId(toTraceIdProto(context.getTraceId()))
+            .setTraceId(encodeTraceId(context.getTraceId()))
             .addSpans(spanBuilder.build());
 
     return traceBuilder.build();
   }
 
-  private static long toSpanIdProto(SpanId spanId) {
+  private static long encodeSpanId(SpanId spanId) {
     return ByteBuffer.wrap(spanId.getBytes()).getLong();
   }
 
-  private static String toTraceIdProto(TraceId traceId) {
+  private static String encodeTraceId(TraceId traceId) {
     return BaseEncoding.base16().lowerCase().encode(traceId.getBytes());
   }
 
