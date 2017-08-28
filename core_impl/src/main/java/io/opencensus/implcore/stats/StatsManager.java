@@ -43,6 +43,9 @@ final class StatsManager {
   }
 
   void registerView(View view) {
+    if (view.getWindow() instanceof View.Window.Interval) {
+      throw new UnsupportedOperationException("IntervalView not supported yet.");
+    }
     measureToViewMap.registerView(view, clock);
   }
 

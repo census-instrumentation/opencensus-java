@@ -236,10 +236,10 @@ abstract class MutableViewData {
 
   // Covert a mapping from TagValues to MutableAggregation, to a mapping from TagValues to
   // AggregationData.
-  private static Map<List<TagValue>, List<AggregationData>> createAggregationMap(
-      Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap) {
-    Map<List<TagValue>, List<AggregationData>> map = Maps.newHashMap();
-    for (Entry<List<TagValue>, List<MutableAggregation>> entry :
+  private static <T> Map<T, List<AggregationData>> createAggregationMap(
+      Map<T, List<MutableAggregation>> tagValueAggregationMap) {
+    Map<T, List<AggregationData>> map = Maps.newHashMap();
+    for (Entry<T, List<MutableAggregation>> entry :
         tagValueAggregationMap.entrySet()) {
       map.put(entry.getKey(), createAggregationDatas(entry.getValue()));
     }
