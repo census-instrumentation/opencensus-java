@@ -25,8 +25,7 @@ These steps enable the API but don't require that your app is hosted on Google C
 ### Authentication
 
 This exporter uses [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java),
-for details see [Authentication](https://github.com/GoogleCloudPlatform/google-cloud-java#authentication)
-section in the base directory's README.
+for details see [here](https://github.com/GoogleCloudPlatform/google-cloud-java#authentication).
 
 ### Java Versions
 
@@ -57,7 +56,6 @@ For Gradle add to your dependencies:
 ```gradle
 compile 'io.opencensus:opencensus-exporter-trace-stackdriver:0.6.0'
 runtime 'io.opencensus:opencensus-impl:0.6.0'
-
 ```
 
 #### Register the exporter
@@ -71,6 +69,7 @@ public class MyMainClass {
 ```
 
 ## FAQ
+### Why do I not see some trace events in Stackdriver?
 The current Stackdriver Trace exporter is implemented using the [v1 API][stackdriver-v1-api-url]
 which is not fully compatible with the OpenCensus data model. Trace events like Annotations and 
 NetworkEvents will be dropped. Soon a v2 API will be available.
