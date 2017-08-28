@@ -60,7 +60,7 @@ public abstract class TagValue {
   @AutoValue
   public abstract static class TagValueString extends TagValue {
     /** The maximum length for a {@code String} tag value. The value is {@value #MAX_LENGTH}. */
-    public static final int MAX_LENGTH = 255;
+    public static final int MAX_LENGTH = 256;
 
     TagValueString() {}
 
