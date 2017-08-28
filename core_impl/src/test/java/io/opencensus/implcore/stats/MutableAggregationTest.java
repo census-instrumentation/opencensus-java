@@ -212,19 +212,26 @@ public class MutableAggregationTest {
     List<Double> valueList1 = Arrays.asList(-1.0, -5.0);
     List<Double> valueList2 = Arrays.asList(10.0, 50.0);
 
-    for (int i = 0; i < valueList1.size(); i++) {
+    for (double val : valueList1) {
       for (MutableAggregation aggregation : aggregations1) {
-        aggregation.add(valueList1.get(i));
+        aggregation.add(val);
       }
+    }
+    for (double val : valueList2) {
       for (MutableAggregation aggregation : aggregations2) {
-        aggregation.add(valueList2.get(i));
+        aggregation.add(val);
       }
     }
 
-    List<MutableAggregation> combined = Lists.newArrayList();
-    double fraction = 0.6;
-    for (int i = 0; i < aggregations1.size(); i++) {
-      combined.add(aggregations1.get(i).combine(aggregations2.get(i), fraction));
+    List<MutableAggregation> combined = Arrays.asList(
+        MutableSum.create(),
+        MutableCount.create(),
+        MutableHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0))));
+    double fraction1 = 1.0;
+    double fraction2 = 0.6;
+    for (int i = 0; i < combined.size(); i++) {
+      combined.get(i).combine(aggregations1.get(i), fraction1);
+      combined.get(i).combine(aggregations2.get(i), fraction2);
     }
 
     assertThat(((MutableSum) combined.get(0)).getSum()).isWithin(TOLERANCE).of(30);
