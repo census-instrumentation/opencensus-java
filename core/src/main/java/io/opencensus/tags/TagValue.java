@@ -48,7 +48,7 @@ public abstract class TagValue {
       Function<? super TagValueString, T> stringFunction,
       Function<? super TagValueLong, T> longFunction,
       Function<? super TagValueBoolean, T> booleanFunction,
-      Function<? super Tag, T> defaultFunction);
+      Function<? super TagValue, T> defaultFunction);
 
   /**
    * A validated tag value associated with a {@link TagKeyString}.
@@ -86,7 +86,7 @@ public abstract class TagValue {
         Function<? super TagValueString, T> stringFunction,
         Function<? super TagValueLong, T> longFunction,
         Function<? super TagValueBoolean, T> booleanFunction,
-        Function<? super Tag, T> defaultFunction) {
+        Function<? super TagValue, T> defaultFunction) {
       return stringFunction.apply(this);
     }
 
@@ -129,7 +129,7 @@ public abstract class TagValue {
         Function<? super TagValueString, T> stringFunction,
         Function<? super TagValueLong, T> longFunction,
         Function<? super TagValueBoolean, T> booleanFunction,
-        Function<? super Tag, T> defaultFunction) {
+        Function<? super TagValue, T> defaultFunction) {
       return longFunction.apply(this);
     }
 
@@ -168,7 +168,7 @@ public abstract class TagValue {
         Function<? super TagValueString, T> stringFunction,
         Function<? super TagValueLong, T> longFunction,
         Function<? super TagValueBoolean, T> booleanFunction,
-        Function<? super Tag, T> defaultFunction) {
+        Function<? super TagValue, T> defaultFunction) {
       return booleanFunction.apply(this);
     }
 
