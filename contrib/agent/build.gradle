@@ -175,7 +175,6 @@ task integrationTest(type: Test) {
 check.dependsOn integrationTest
 integrationTest.dependsOn shadowJar
 integrationTest.mustRunAfter test
-integrationTest.enabled = false
 
 // JMH benchmarks
 
