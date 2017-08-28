@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.zpages;
+package io.opencensus.contrib.zpages;
 
 import static com.google.common.html.HtmlEscapers.htmlEscaper;
 

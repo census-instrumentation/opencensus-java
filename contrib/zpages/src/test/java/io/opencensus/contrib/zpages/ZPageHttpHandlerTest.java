@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package io.opencensus.zpages;
+package io.opencensus.contrib.zpages;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link ZPageHandlers}. */
+/** Unit tests for {@link ZPageHttpHandler}. */
 @RunWith(JUnit4.class)
-public class ZPageHandlersTest {
+public class ZPageHttpHandlerTest {
+  @Test
+  public void parseUndefinedQuery() throws URISyntaxException {
+    URI uri = new URI("http://localhost:8000/tracez");
+    assertThat(ZPageHttpHandler.uriQueryToMap(uri)).isEmpty();
+  }
 
   @Test
-  public void implementationOfTracez() {
-    assertThat(ZPageHandlers.getTracezZPageHandler()).isInstanceOf(TracezZPageHandler.class);
+  public void parseQuery() throws URISyntaxException {
+    URI uri = new URI("http://localhost:8000/tracez?ztype=1&zsubtype&zname=Test");
+    assertThat(ZPageHttpHandler.uriQueryToMap(uri))
+        .containsExactly("ztype", "1", "zsubtype", "", "zname", "Test");
   }
 }
