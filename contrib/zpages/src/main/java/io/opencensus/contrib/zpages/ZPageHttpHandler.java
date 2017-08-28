@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.zpages;
+package io.opencensus.contrib.zpages;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
