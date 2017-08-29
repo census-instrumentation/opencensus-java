@@ -18,7 +18,6 @@ package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.Lists;
 import io.opencensus.common.Function;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableHistogram;
