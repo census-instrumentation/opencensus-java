@@ -44,7 +44,8 @@ import io.opencensus.stats.ViewData.WindowData;
 import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.stats.ViewData.WindowData.IntervalData;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue;
+import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -119,7 +120,7 @@ public final class ViewDataTest {
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
-                intervalView, Collections.<List<Object>, List<AggregationData>>emptyMap(),
+                intervalView, Collections.<List<TagValue>, List<AggregationData>>emptyMap(),
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .testEquals();
   }

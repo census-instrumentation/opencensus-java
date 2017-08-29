@@ -21,6 +21,9 @@ import io.opencensus.common.Function;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagValue.TagValueBoolean;
+import io.opencensus.tags.TagValue.TagValueLong;
+import io.opencensus.tags.TagValue.TagValueString;
 import javax.annotation.concurrent.Immutable;
 
 /** {@link TagKey} paired with a value. */
@@ -33,6 +36,15 @@ public abstract class Tag {
    * @return the tag's key.
    */
   public abstract TagKey getKey();
+
+  /**
+   * Returns the associated tag value.
+   *
+   * @return the associated tag value.
+   */
+  public abstract TagValue getValue();
+
+  Tag() {}
 
   /**
    * Applies a function to the tag's key and value. The function that is called depends on the type
@@ -115,11 +127,7 @@ public abstract class Tag {
     @Override
     public abstract TagKeyString getKey();
 
-    /**
-     * Returns the associated tag value.
-     *
-     * @return the associated tag value.
-     */
+    @Override
     public abstract TagValueString getValue();
 
     @Override
@@ -145,19 +153,15 @@ public abstract class Tag {
      * @param value the tag value.
      * @return a {@code TagLong} with the given key and value.
      */
-    public static TagLong create(TagKeyLong key, long value) {
+    public static TagLong create(TagKeyLong key, TagValueLong value) {
       return new AutoValue_Tag_TagLong(key, value);
     }
 
     @Override
     public abstract TagKeyLong getKey();
 
-    /**
-     * Returns the associated tag value.
-     *
-     * @return the associated tag value.
-     */
-    public abstract long getValue();
+    @Override
+    public abstract TagValueLong getValue();
 
     @Override
     public final <T> T match(
@@ -182,19 +186,15 @@ public abstract class Tag {
      * @param value the tag value.
      * @return a {@code TagBoolean} with the given key and value.
      */
-    public static TagBoolean create(TagKeyBoolean key, boolean value) {
+    public static TagBoolean create(TagKeyBoolean key, TagValueBoolean value) {
       return new AutoValue_Tag_TagBoolean(key, value);
     }
 
     @Override
     public abstract TagKeyBoolean getKey();
 
-    /**
-     * Returns the associated tag value.
-     *
-     * @return the associated tag value.
-     */
-    public abstract boolean getValue();
+    @Override
+    public abstract TagValueBoolean getValue();
 
     @Override
     public final <T> T match(

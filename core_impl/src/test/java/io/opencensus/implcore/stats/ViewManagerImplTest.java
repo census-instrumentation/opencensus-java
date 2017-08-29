@@ -43,7 +43,7 @@ import io.opencensus.stats.ViewData.WindowData.CumulativeData;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import java.util.Collections;

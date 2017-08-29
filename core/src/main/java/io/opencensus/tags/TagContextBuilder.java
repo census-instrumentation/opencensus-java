@@ -20,6 +20,9 @@ import io.opencensus.common.Scope;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagValue.TagValueBoolean;
+import io.opencensus.tags.TagValue.TagValueLong;
+import io.opencensus.tags.TagValue.TagValueString;
 import javax.annotation.concurrent.Immutable;
 
 /** Builder for the {@link TagContext} class. */
@@ -44,7 +47,7 @@ public abstract class TagContextBuilder {
    * @param value the value to set for the given key.
    * @return this
    */
-  public abstract TagContextBuilder set(TagKeyLong key, long value);
+  public abstract TagContextBuilder set(TagKeyLong key, TagValueLong value);
 
   /**
    * Adds the key/value pair regardless of whether the key is present.
@@ -53,7 +56,7 @@ public abstract class TagContextBuilder {
    * @param value the value to set for the given key.
    * @return this
    */
-  public abstract TagContextBuilder set(TagKeyBoolean key, boolean value);
+  public abstract TagContextBuilder set(TagKeyBoolean key, TagValueBoolean value);
 
   /**
    * Removes the key if it exists.
@@ -100,12 +103,12 @@ public abstract class TagContextBuilder {
     }
 
     @Override
-    public TagContextBuilder set(TagKeyLong key, long value) {
+    public TagContextBuilder set(TagKeyLong key, TagValueLong value) {
       return this;
     }
 
     @Override
-    public TagContextBuilder set(TagKeyBoolean key, boolean value) {
+    public TagContextBuilder set(TagKeyBoolean key, TagValueBoolean value) {
       return this;
     }
 

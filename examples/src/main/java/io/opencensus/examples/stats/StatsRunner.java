@@ -24,7 +24,7 @@ import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tags;
 
 /** Simple program that uses Stats contexts. */

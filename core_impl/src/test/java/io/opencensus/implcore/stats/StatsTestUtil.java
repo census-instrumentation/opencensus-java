@@ -29,6 +29,7 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,11 +69,11 @@ final class StatsTestUtil {
    * @param tolerance the tolerance used for {@code double} comparison.
    */
   static void assertAggregationMapEquals(
-      Map<? extends List<? extends Object>, List<AggregationData>> actual,
-      Map<? extends List<? extends Object>, List<AggregationData>> expected,
+      Map<? extends List<? extends TagValue>, List<AggregationData>> actual,
+      Map<? extends List<? extends TagValue>, List<AggregationData>> expected,
       double tolerance) {
     assertThat(actual.keySet()).containsExactlyElementsIn(expected.keySet());
-    for (List<? extends Object> tagValues : actual.keySet()) {
+    for (List<? extends TagValue> tagValues : actual.keySet()) {
       assertAggregationDataListEquals(expected.get(tagValues), actual.get(tagValues), tolerance);
     }
   }

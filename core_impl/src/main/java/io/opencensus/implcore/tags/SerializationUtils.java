@@ -28,7 +28,8 @@ import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue;
+import io.opencensus.tags.TagValue.TagValueString;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -137,7 +138,7 @@ final class SerializationUtils {
   static TagContextImpl deserializeBinary(InputStream input) throws IOException {
     try {
       byte[] bytes = ByteStreams.toByteArray(input);
-      HashMap<TagKey, Object> tags = new HashMap<TagKey, Object>();
+      HashMap<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
         throw new IOException("Input byte stream can not be empty.");

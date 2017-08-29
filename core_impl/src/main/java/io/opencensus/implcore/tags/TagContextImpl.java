@@ -27,7 +27,10 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue;
+import io.opencensus.tags.TagValue.TagValueBoolean;
+import io.opencensus.tags.TagValue.TagValueLong;
+import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,16 +41,16 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class TagContextImpl extends TagContext {
 
-  static final TagContextImpl EMPTY = new TagContextImpl(Collections.<TagKey, Object>emptyMap());
+  static final TagContextImpl EMPTY = new TagContextImpl(Collections.<TagKey, TagValue>emptyMap());
 
   // The types of the TagKey and value must match for each entry.
-  private final Map<TagKey, Object> tags;
+  private final Map<TagKey, TagValue> tags;
 
-  TagContextImpl(Map<? extends TagKey, ?> tags) {
-    this.tags = Collections.unmodifiableMap(new HashMap<TagKey, Object>(tags));
+  TagContextImpl(Map<? extends TagKey, ? extends TagValue> tags) {
+    this.tags = Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags));
   }
 
-  public Map<TagKey, Object> getTags() {
+  public Map<TagKey, TagValue> getTags() {
     return tags;
   }
 
@@ -57,9 +60,9 @@ public final class TagContextImpl extends TagContext {
   }
 
   private static final class TagIterator implements Iterator<Tag> {
-    Iterator<Map.Entry<TagKey, Object>> iterator;
+    Iterator<Map.Entry<TagKey, TagValue>> iterator;
 
-    TagIterator(Map<TagKey, Object> tags) {
+    TagIterator(Map<TagKey, TagValue> tags) {
       iterator = tags.entrySet().iterator();
     }
 
@@ -70,8 +73,8 @@ public final class TagContextImpl extends TagContext {
 
     @Override
     public Tag next() {
-      final Entry<TagKey, Object> next = iterator.next();
-      Object value = next.getValue();
+      final Entry<TagKey, TagValue> next = iterator.next();
+      TagValue value = next.getValue();
       return next.getKey()
           .match(
               new NewTagString(value),
@@ -86,9 +89,9 @@ public final class TagContextImpl extends TagContext {
     }
 
     private static class NewTagString implements Function<TagKeyString, Tag> {
-      private final Object value;
+      private final TagValue value;
 
-      NewTagString(Object value) {
+      NewTagString(TagValue value) {
         this.value = value;
       }
 
@@ -99,28 +102,28 @@ public final class TagContextImpl extends TagContext {
     }
 
     private static class NewTagLong implements Function<TagKeyLong, Tag> {
-      private final Object value;
+      private final TagValue value;
 
-      NewTagLong(Object value) {
+      NewTagLong(TagValue value) {
         this.value = value;
       }
 
       @Override
       public Tag apply(TagKeyLong key) {
-        return TagLong.create(key, (Long) value);
+        return TagLong.create(key, (TagValueLong) value);
       }
     }
 
     private static class NewTagBoolean implements Function<TagKeyBoolean, Tag> {
-      private final Object value;
+      private final TagValue value;
 
-      NewTagBoolean(Object value) {
+      NewTagBoolean(TagValue value) {
         this.value = value;
       }
 
       @Override
       public Tag apply(TagKeyBoolean key) {
-        return TagBoolean.create(key, (Boolean) value);
+        return TagBoolean.create(key, (TagValueBoolean) value);
       }
     }
   }

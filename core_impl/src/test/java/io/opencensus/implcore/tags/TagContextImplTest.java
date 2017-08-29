@@ -30,7 +30,9 @@ import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValueString;
+import io.opencensus.tags.TagValue.TagValueBoolean;
+import io.opencensus.tags.TagValue.TagValueLong;
+import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -66,13 +68,13 @@ public class TagContextImplTest {
                 tagContexts
                     .emptyBuilder()
                     .set(stringKey, TagValueString.create("value"))
-                    .set(longKey, 123)
-                    .set(boolKey, true)
+                    .set(longKey, TagValueLong.create(123))
+                    .set(boolKey, TagValueBoolean.create(true))
                     .build()))
         .containsExactly(
             TagString.create(stringKey, TagValueString.create("value")),
-            TagLong.create(longKey, 123L),
-            TagBoolean.create(boolKey, true));
+            TagLong.create(longKey, TagValueLong.create(123L)),
+            TagBoolean.create(boolKey, TagValueBoolean.create(true)));
   }
 
   @Test
