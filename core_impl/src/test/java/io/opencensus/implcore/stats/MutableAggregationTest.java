@@ -196,4 +196,46 @@ public class MutableAggregationTest {
     assertThat(actual)
         .isEqualTo(Arrays.asList("SUM", "COUNT", "HISTOGRAM", "RANGE", "MEAN", "STDDEV"));
   }
+
+  @Test
+  public void testCombine() {
+    List<MutableAggregation> aggregations1 = Arrays.asList(
+        MutableSum.create(),
+        MutableCount.create(),
+        MutableHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0))));
+    List<MutableAggregation> aggregations2 = Arrays.asList(
+        MutableSum.create(),
+        MutableCount.create(),
+        MutableHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0))));
+
+    List<Double> valueList1 = Arrays.asList(-1.0, -5.0);
+    List<Double> valueList2 = Arrays.asList(10.0, 50.0);
+
+    for (double val : valueList1) {
+      for (MutableAggregation aggregation : aggregations1) {
+        aggregation.add(val);
+      }
+    }
+    for (double val : valueList2) {
+      for (MutableAggregation aggregation : aggregations2) {
+        aggregation.add(val);
+      }
+    }
+
+    List<MutableAggregation> combined = Arrays.asList(
+        MutableSum.create(),
+        MutableCount.create(),
+        MutableHistogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0))));
+    double fraction1 = 1.0;
+    double fraction2 = 0.6;
+    for (int i = 0; i < combined.size(); i++) {
+      combined.get(i).combine(aggregations1.get(i), fraction1);
+      combined.get(i).combine(aggregations2.get(i), fraction2);
+    }
+
+    assertThat(((MutableSum) combined.get(0)).getSum()).isWithin(TOLERANCE).of(30);
+    assertThat(((MutableCount) combined.get(1)).getCount()).isEqualTo(3);
+    assertThat(((MutableHistogram) combined.get(2)).getBucketCounts()).isEqualTo(
+        new long[]{0, 2, 0, 1}); // 2 * 0.6 = 1.2, rounded down to 1
+  }
 }
