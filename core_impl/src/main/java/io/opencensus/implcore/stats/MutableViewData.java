@@ -20,6 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.opencensus.common.Clock;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -67,6 +68,9 @@ import javax.annotation.Nullable;
  * A mutable version of {@link ViewData}, used for recording stats and start/end time.
  */
 final class MutableViewData {
+
+  private static final long MILLIS_PER_SECOND = 1000L;
+  private static final long NANOS_PER_MILLI = 1000 * 1000;
 
   private static final Function<TagString, TagValue> GET_STRING_TAG_VALUE =
       new Function<TagString, TagValue>() {
@@ -222,6 +226,11 @@ final class MutableViewData {
       }
     }
     return tagValues;
+  }
+
+  // Returns the milliseconds representation of a Duration.
+  static long toMillis(Duration duration) {
+    return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
   }
 
   /**
