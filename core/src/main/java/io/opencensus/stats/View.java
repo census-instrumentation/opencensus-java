@@ -73,11 +73,11 @@ public abstract class View {
   public abstract List<TagKey> getColumns();
 
   /**
-   * Returns the time {@link Window} for this {@code View}.
+   * Returns the time {@link AggregationWindow} for this {@code View}.
    *
-   * @return the time {@link Window}.
+   * @return the time {@link AggregationWindow}.
    */
-  public abstract Window getWindow();
+  public abstract AggregationWindow getWindow();
 
   /**
    * Constructs a new {@link View}.
@@ -89,7 +89,7 @@ public abstract class View {
    *     list should not contain duplicates.
    * @param columns the {@link TagKey}s that this view will aggregate on. Columns should not contain
    *     duplicates.
-   * @param window the {@link Window} of view.
+   * @param window the {@link AggregationWindow} of view.
    * @return a new {@link View}.
    */
   public static View create(
@@ -98,7 +98,7 @@ public abstract class View {
       Measure measure,
       List<Aggregation> aggregations,
       List<? extends TagKey> columns,
-      Window window) {
+      AggregationWindow window) {
     checkArgument(new HashSet<Aggregation>(aggregations).size() == aggregations.size(),
         "Aggregations have duplicate.");
     checkArgument(new HashSet<TagKey>(columns).size() == columns.size(),
@@ -148,9 +148,9 @@ public abstract class View {
 
   /** The time window for a {@code View}. */
   @Immutable
-  public abstract static class Window {
+  public abstract static class AggregationWindow {
 
-    private Window() {}
+    private AggregationWindow() {}
 
     /**
      * Applies the given match function to the underlying data type.
@@ -158,22 +158,24 @@ public abstract class View {
     public abstract <T> T match(
         Function<? super Cumulative, T> p0,
         Function<? super Interval, T> p1,
-        Function<? super Window, T> defaultFunction);
+        Function<? super AggregationWindow, T> defaultFunction);
 
-    /** Cumulative (infinite interval) time {@code Window}. */
+    /** Cumulative (infinite interval) time {@code AggregationWindow}. */
     @Immutable
     @AutoValue
-    public abstract static class Cumulative extends Window {
+    public abstract static class Cumulative extends AggregationWindow {
 
-      private static final Cumulative CUMULATIVE = new AutoValue_View_Window_Cumulative();
+      private static final Cumulative CUMULATIVE =
+          new AutoValue_View_AggregationWindow_Cumulative();
 
       Cumulative() {}
 
       /**
-       * Constructs a cumulative {@code Window} that does not have an explicit {@code Duration}.
-       * Instead, cumulative {@code Window} always has an interval of infinite {@code Duration}.
+       * Constructs a cumulative {@code AggregationWindow} that does not have an explicit {@code
+       * Duration}. Instead, cumulative {@code AggregationWindow} always has an interval of infinite
+       * {@code Duration}.
        *
-       * @return a cumulative {@code Window}.
+       * @return a cumulative {@code AggregationWindow}.
        */
       public static Cumulative create() {
         return CUMULATIVE;
@@ -183,15 +185,15 @@ public abstract class View {
       public final <T> T match(
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
-          Function<? super Window, T> defaultFunction) {
+          Function<? super AggregationWindow, T> defaultFunction) {
         return  p0.apply(this);
       }
     }
 
-    /** Interval (finite interval) time {@code Window.} */
+    /** Interval (finite interval) time {@code AggregationWindow.} */
     @Immutable
     @AutoValue
-    public abstract static class Interval extends Window {
+    public abstract static class Interval extends AggregationWindow {
 
       Interval() {}
 
@@ -204,22 +206,23 @@ public abstract class View {
 
 
       /**
-       * Constructs an interval {@code Window} that has a finite explicit {@code Duration}.
+       * Constructs an interval {@code AggregationWindow} that has a finite explicit {@code
+       * Duration}.
        *
        * <p>The {@code Duration} should be able to round to milliseconds. Currently interval window
        * cannot have smaller {@code Duration} such as microseconds or nanoseconds.
        *
-       * @return an interval {@code Window}.
+       * @return an interval {@code AggregationWindow}.
        */
       public static Interval create(Duration duration) {
-        return new AutoValue_View_Window_Interval(duration);
+        return new AutoValue_View_AggregationWindow_Interval(duration);
       }
 
       @Override
       public final <T> T match(
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
-          Function<? super Window, T> defaultFunction) {
+          Function<? super AggregationWindow, T> defaultFunction) {
         return  p1.apply(this);
       }
     }
