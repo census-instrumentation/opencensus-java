@@ -17,7 +17,6 @@
 package io.opencensus.contrib.zpages;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.opencensus.common.Scope;
@@ -56,12 +55,9 @@ final class ZPageHttpHandler implements HttpHandler {
             .startScopedSpan()) {
       tracer
           .getCurrentSpan()
-          .addAttributes(
-              ImmutableMap.<String, AttributeValue>builder()
-                  .put(
-                      "RequestMethod",
-                      AttributeValue.stringAttributeValue(httpExchange.getRequestMethod()))
-                  .build());
+          .putAttribute(
+              "/http/method ",
+              AttributeValue.stringAttributeValue(httpExchange.getRequestMethod()));
       httpExchange.sendResponseHeaders(200, 0);
       zpageHandler.emitHtml(
           uriQueryToMap(httpExchange.getRequestURI()), httpExchange.getResponseBody());

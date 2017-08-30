@@ -18,7 +18,6 @@ package io.opencensus.trace;
 
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.samplers.Samplers;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -58,10 +57,8 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span addAttributes() {
-    HashMap<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-    attributes.put(ATTRIBUTE_KEY, AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE));
-    span.addAttributes(attributes);
+  public Span putAttribute() {
+    span.putAttribute(ATTRIBUTE_KEY, AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE));
     return span;
   }
 

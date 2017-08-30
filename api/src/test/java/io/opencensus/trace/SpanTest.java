@@ -17,9 +17,11 @@
 package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
@@ -79,6 +81,16 @@ public class SpanTest {
     Span span = new NoopSpan(spanContext, spanOptions);
     assertThat(span.getContext()).isEqualTo(spanContext);
     assertThat(span.getOptions()).isEqualTo(spanOptions);
+  }
+
+  @Test
+  public void addAttributeCallsAddAttributesByDefault() {
+    Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
+    span.putAttribute("MyKey", AttributeValue.booleanAttributeValue(true));
+    span.end();
+    verify(span)
+        .addAttributes(
+            eq(Collections.singletonMap("MyKey", AttributeValue.booleanAttributeValue(true))));
   }
 
   @Test
