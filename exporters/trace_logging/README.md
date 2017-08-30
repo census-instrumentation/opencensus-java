@@ -3,23 +3,34 @@
 
 The *OpenCensus Logging trace exporter* is a trace exporter that logs all data to the system log.
 
-## Download
+## Quickstart
+
+### Add the dependencies to your project
 
 For Maven add to your `pom.xml`:
 ```xml
-<dependency>
-  <groupId>io.opencensus</groupId>
-  <artifactId>opencensus-exporter-trace-logging</artifactId>
-  <version>0.6.0</version>
-</dependency>
+<dependencies>
+  <dependency>
+    <groupId>io.opencensus</groupId>
+    <artifactId>opencensus-exporter-trace-logging</artifactId>
+    <version>0.6.0</version>
+  </dependency>
+  <dependency>
+    <groupId>io.opencensus</groupId>
+    <artifactId>opencensus-impl</artifactId>
+    <version>0.6.0</version>
+    <scope>runtime</scope>
+  </dependency>
+</dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```gradle
 compile 'io.opencensus:opencensus-exporter-trace-logging:0.6.0'
+runtime 'io.opencensus:opencensus-impl:0.6.0'
 ```
 
-## How to register the exporter?
+### Register the exporter
 
 ```java
 public class MyMainClass {

@@ -33,7 +33,7 @@ Java 7 or above is required for using this exporter.
 
 ### Hello "Stackdriver Trace"
 
-#### Add the dependencies to your project.
+#### Add the dependencies to your project
 
 For Maven add to your `pom.xml`:
 ```xml

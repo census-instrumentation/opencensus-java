@@ -4,7 +4,7 @@
 The *OpenCensus Z-Pages for Java* is a collection of HTML pages to display stats and trace data and
 allows library configuration control.
 
-## Hello "Z-Pages"
+## Quickstart
 
 ### Add the dependencies to your project
 
