@@ -126,7 +126,7 @@ public class SpanImplTest {
     // Check that adding trace events after Span#end() does not throw any exception and are not
     // recorded.
     span.addAttributes(attributes);
-    span.addAttribute(
+    span.putAttribute(
         "MySingleStringAttributeKey",
         AttributeValue.stringAttributeValue("MySingleStringAttributeValue"));
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
@@ -158,7 +158,7 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
-    span.addAttribute(
+    span.putAttribute(
         "MySingleStringAttributeKey",
         AttributeValue.stringAttributeValue("MySingleStringAttributeValue"));
     span.addAttributes(attributes);
@@ -217,7 +217,7 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
-    span.addAttribute(
+    span.putAttribute(
         "MySingleStringAttributeKey",
         AttributeValue.stringAttributeValue("MySingleStringAttributeValue"));
     span.addAttributes(attributes);

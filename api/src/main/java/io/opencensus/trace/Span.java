@@ -77,12 +77,13 @@ public abstract class Span {
   }
 
   /**
-   * Adds an attribute to the {@code Span}.
+   * Sets an attribute to the {@code Span}. If the {@code Span} previously contained a mapping
+   * for the key, the old value is replaced by the specified value.
    *
    * @param key the key for this attribute.
    * @param value the value for this attribute.
    */
-  public void addAttribute(String key, AttributeValue value) {
+  public void putAttribute(String key, AttributeValue value) {
     // Not final because for performance reasons we want to override this in the implementation.
     // Also a default implementation is needed to not break the compatibility (users may extend this
     // for testing).
@@ -90,10 +91,24 @@ public abstract class Span {
   }
 
   /**
-   * Adds a set of attributes to the {@code Span}.
+   * Sets a set of attributes to the {@code Span}. The effect of this call is equivalent to that of
+   * calling {@link #putAttribute(String, AttributeValue)} once for each element in the specified
+   * map.
    *
    * @param attributes the attributes that will be added and associated with the {@code Span}.
    */
+  public void putAttributes(Map<String, AttributeValue> attributes) {
+    // Not final because we want to start overriding this method from the beginning, this will
+    // allow us to remove the addAttributes faster.
+    addAttributes(attributes);
+  }
+
+
+  /**
+   * @deprecated Use {@link #putAttributes(Map)}
+   * @param attributes the attributes that will be added and associated with the {@code Span}.
+   */
+  @Deprecated
   public abstract void addAttributes(Map<String, AttributeValue> attributes);
 
   /**

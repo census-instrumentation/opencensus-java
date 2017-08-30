@@ -241,30 +241,36 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
-  public void addAttribute(String key, AttributeValue value) {
+  public void putAttribute(String key, AttributeValue value) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling addAttributes() on an ended Span.");
+        logger.log(Level.FINE, "Calling putAttributes() on an ended Span.");
         return;
       }
-      getInitializedAttributes().addAttribute(key, value);
+      getInitializedAttributes().putAttribute(key, value);
     }
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void addAttributes(Map<String, AttributeValue> attributes) {
+    putAttributes(attributes);
+  }
+
+  @Override
+  public void putAttributes(Map<String, AttributeValue> attributes) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling addAttributes() on an ended Span.");
+        logger.log(Level.FINE, "Calling putAttributes() on an ended Span.");
         return;
       }
-      getInitializedAttributes().addAttributes(attributes);
+      getInitializedAttributes().putAttributes(attributes);
     }
   }
 
@@ -453,14 +459,14 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
     // Users must call this method instead of put to keep count of the total number of entries
     // inserted.
-    private void addAttribute(String key, AttributeValue value) {
+    private void putAttribute(String key, AttributeValue value) {
       totalRecordedAttributes += 1;
       put(key, value);
     }
 
     // Users must call this method instead of putAll to keep count of the total number of entries
     // inserted.
-    private void addAttributes(Map<String, AttributeValue> attributes) {
+    private void putAttributes(Map<String, AttributeValue> attributes) {
       totalRecordedAttributes += attributes.size();
       putAll(attributes);
     }

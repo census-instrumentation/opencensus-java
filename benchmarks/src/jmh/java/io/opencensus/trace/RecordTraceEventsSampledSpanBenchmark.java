@@ -58,10 +58,8 @@ public class RecordTraceEventsSampledSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span addAttributes() {
-    HashMap<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-    attributes.put(ATTRIBUTE_KEY, AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE));
-    span.addAttributes(attributes);
+  public Span putAttribute() {
+    span.putAttribute(ATTRIBUTE_KEY, AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE));
     return span;
   }
 

@@ -34,12 +34,13 @@ public final class BlankSpan extends Span {
     super(SpanContext.INVALID, null);
   }
 
-  /** No-op implementation of the {@link Span#addAttribute(String, AttributeValue)} method. */
+  /** No-op implementation of the {@link Span#putAttribute(String, AttributeValue)} method. */
   @Override
-  public void addAttribute(String key, AttributeValue value) {}
+  public void putAttribute(String key, AttributeValue value) {}
 
   /** No-op implementation of the {@link Span#addAttributes(Map)} method. */
   @Override
+  @SuppressWarnings("deprecation")
   public void addAttributes(Map<String, AttributeValue> attributes) {}
 
   /** No-op implementation of the {@link Span#addAnnotation(String, Map)} method. */
