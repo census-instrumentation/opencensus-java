@@ -1,13 +1,17 @@
 # OpenCensus - A stats collection and distributed tracing framework
 [![Build Status][travis-image]][travis-url] [![Build status][appveyor-image]][appveyor-url] [![Maven Central][maven-image]][maven-url]
 
-OpenCensus provides a framework to define and collect stats against metrics and to break those 
-stats down across user-defined dimensions. The library is in alpha stage and the API is subject 
-to change.
+OpenCensus is a toolkit for collecting application performance and behavior data. It currently 
+includes 3 apis: stats, tracing and tags.
 
-## Quickstart for Third Party Libraries
+The library is in alpha stage and the API is subject to change.
 
-In general third party libraries only need to record tracing/stats events and propagate the context.
+Please join [gitter](https://gitter.im/census-instrumentation/Lobby) for help or feedback on this
+project.
+
+## Instrumentation Quickstart
+
+Integrating OpenCensus with a new library means recording stats or traces and propagating context.
 
 ### Add the dependencies to your project
 
@@ -28,6 +32,10 @@ compile 'io.opencensus:opencensus-api:0.6.0'
 ```
 
 ### Hello "OpenCensus" trace events
+
+Here's an example of creating a Span and record some trace annotations. Notice that recording the
+annotations is possible because we propagate scope. 3rd parties libraries like SLF4J can integrate
+the same way.
 
 ```java
 public final class MyClassWithTracing {
@@ -61,7 +69,7 @@ TODO
 ## Quickstart for Applications
 
 Besides recording tracing/stats events the application also need to link the implementation, 
-setup exporters, and debugging Z-Pages.
+setup exporters, and debugging [Z-Pages](https://github.com/census-instrumentation/opencensus-java/tree/master/contrib/zpages).
 
 ### Add the dependencies to your project
 
