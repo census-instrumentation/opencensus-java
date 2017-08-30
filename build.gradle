@@ -104,7 +104,7 @@ subprojects {
     ext {
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
-        grpcContextVersion = '1.4.0'
+        grpcContextVersion = '1.6.0'
         guavaVersion = '19.0'
 
         libraries = [
