@@ -77,6 +77,19 @@ public abstract class Span {
   }
 
   /**
+   * Adds an attribute to the {@code Span}.
+   *
+   * @param key the key for this attribute.
+   * @param value the value for this attribute.
+   */
+  public void addAttribute(String key, AttributeValue value) {
+    // Not final because for performance reasons we want to override this in the implementation.
+    // Also a default implementation is needed to not break the compatibility (users may extend this
+    // for testing).
+    addAttributes(Collections.singletonMap(key, value));
+  }
+
+  /**
    * Adds a set of attributes to the {@code Span}.
    *
    * @param attributes the attributes that will be added and associated with the {@code Span}.
@@ -97,7 +110,7 @@ public abstract class Span {
    *
    * @param description the description of the annotation time event.
    * @param attributes the attributes that will be added; these are associated with this annotation,
-   *     not the {@code Span} as for {@link #addAttributes}.
+   *     not the {@code Span} as for {@link #addAttributes(Map)}.
    */
   public abstract void addAnnotation(String description, Map<String, AttributeValue> attributes);
 

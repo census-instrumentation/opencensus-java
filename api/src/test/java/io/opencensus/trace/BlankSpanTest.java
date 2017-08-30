@@ -44,6 +44,8 @@ public class BlankSpanTest {
     multipleAttributes.put("MyBooleanAttributeKey", AttributeValue.booleanAttributeValue(true));
     multipleAttributes.put("MyLongAttributeKey", AttributeValue.longAttributeValue(123));
     // Tests only that all the methods are not crashing/throwing errors.
+    BlankSpan.INSTANCE.addAttribute(
+        "MyStringAttributeKey2", AttributeValue.stringAttributeValue("MyStringAttributeValue2"));
     BlankSpan.INSTANCE.addAttributes(attributes);
     BlankSpan.INSTANCE.addAttributes(multipleAttributes);
     BlankSpan.INSTANCE.addAnnotation("MyAnnotation");
