@@ -18,7 +18,6 @@ package io.opencensus.trace;
 
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.samplers.Samplers;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;

@@ -98,7 +98,7 @@ public class SpanImplTest {
             timestampConverter,
             testClock);
     // Check that adding trace events after Span#end() does not throw any exception.
-    span.addAttributes(attributes);
+    span.putAttributes(attributes);
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
     span.addNetworkEvent(
@@ -125,7 +125,7 @@ public class SpanImplTest {
     span.end();
     // Check that adding trace events after Span#end() does not throw any exception and are not
     // recorded.
-    span.addAttributes(attributes);
+    span.putAttributes(attributes);
     span.putAttribute(
         "MySingleStringAttributeKey",
         AttributeValue.stringAttributeValue("MySingleStringAttributeValue"));
@@ -145,6 +145,25 @@ public class SpanImplTest {
   }
 
   @Test
+  public void deprecatedAddAttributesStillWorks() {
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            parentSpanId,
+            false,
+            TraceParams.DEFAULT,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    span.addAttributes(attributes);
+    span.end();
+    SpanData spanData = span.toSpanData();
+    assertThat(spanData.getAttributes().getAttributeMap()).isEqualTo(attributes);
+  }
+
+  @Test
   public void toSpanData_ActiveSpan() {
     SpanImpl span =
         SpanImpl.startSpan(
@@ -161,7 +180,7 @@ public class SpanImplTest {
     span.putAttribute(
         "MySingleStringAttributeKey",
         AttributeValue.stringAttributeValue("MySingleStringAttributeValue"));
-    span.addAttributes(attributes);
+    span.putAttributes(attributes);
     testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     testClock.advanceTime(Duration.create(0, 100));
@@ -220,7 +239,7 @@ public class SpanImplTest {
     span.putAttribute(
         "MySingleStringAttributeKey",
         AttributeValue.stringAttributeValue("MySingleStringAttributeValue"));
-    span.addAttributes(attributes);
+    span.putAttributes(attributes);
     testClock.advanceTime(Duration.create(0, 100));
     span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
     testClock.advanceTime(Duration.create(0, 100));
@@ -283,7 +302,7 @@ public class SpanImplTest {
     for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
       attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
-      span.addAttributes(attributes);
+      span.putAttributes(attributes);
     }
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getAttributes().getDroppedAttributesCount())
@@ -331,7 +350,7 @@ public class SpanImplTest {
     for (int i = 0; i < 2 * maxNumberOfAttributes; i++) {
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
       attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
-      span.addAttributes(attributes);
+      span.putAttributes(attributes);
     }
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getAttributes().getDroppedAttributesCount())
@@ -348,7 +367,7 @@ public class SpanImplTest {
     for (int i = 0; i < maxNumberOfAttributes / 2; i++) {
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
       attributes.put("MyStringAttributeKey" + i, AttributeValue.longAttributeValue(i));
-      span.addAttributes(attributes);
+      span.putAttributes(attributes);
     }
     spanData = span.toSpanData();
     assertThat(spanData.getAttributes().getDroppedAttributesCount())
