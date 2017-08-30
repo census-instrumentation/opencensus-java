@@ -16,23 +16,14 @@
 
 package io.opencensus.examples.zpages;
 
-import com.sun.net.httpserver.HttpServer;
 import io.opencensus.contrib.zpages.ZPageHandlers;
-import java.net.InetSocketAddress;
-import java.util.logging.Logger;
 
 /**
  * Testing only class for the UI.
  */
 public class ZPagesTester {
-  private static final Logger logger = Logger.getLogger(ZPagesTester.class.getName());
-
   /** Main method. */
   public static void main(String[] args) throws Exception {
-    HttpServer server = HttpServer.create(new InetSocketAddress(8000), 10);
-    ZPageHandlers.registerAllToHttpServer(server);
-    server.start();
-    logger.info(server.getAddress().toString());
+    ZPageHandlers.startHttpServerAndRegisterAll(8080);
   }
-
 }

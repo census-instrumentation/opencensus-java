@@ -10,16 +10,25 @@ allows library configuration control.
 
 For Maven add to your `pom.xml`:
 ```xml
-<dependency>
-  <groupId>io.opencensus</groupId>
-  <artifactId>opencensus-contrib-zpages</artifactId>
-  <version>0.6.0</version>
-</dependency>
+<dependencies>
+  <dependency>
+    <groupId>io.opencensus</groupId>
+    <artifactId>opencensus-contrib-zpages</artifactId>
+    <version>0.6.0</version>
+  </dependency>
+  <dependency>
+    <groupId>io.opencensus</groupId>
+    <artifactId>opencensus-impl</artifactId>
+    <version>0.6.0</version>
+    <scope>runtime</scope>
+  </dependency>
+</dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```gradle
 compile 'io.opencensus:opencensus-contrib-zpages:0.6.0'
+runtime 'io.opencensus:opencensus-impl:0.6.0'
 ```
 
 ### Register the Z-Pages
@@ -27,11 +36,8 @@ compile 'io.opencensus:opencensus-contrib-zpages:0.6.0'
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
-    // ...
-    HttpServer server = HttpServer.create(new InetSocketAddress(8000), 10);
-    ZPageHandlers.registerAllToHttpServer(server);
-    server.start();
-    // ...
+    ZPageHandlers.startHttpServerAndRegisterAll(8080);
+    // ... do work
   }
 }
 ```
