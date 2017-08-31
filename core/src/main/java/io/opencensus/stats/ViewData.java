@@ -48,42 +48,42 @@ public abstract class ViewData {
   public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
 
   /**
-   * Returns the {@link WindowData} associated with this {@link ViewData}.
+   * Returns the {@link AggregationWindowData} associated with this {@link ViewData}.
    *
-   * @return the {@code WindowData}.
+   * @return the {@code AggregationWindowData}.
    */
-  public abstract WindowData getWindowData();
+  public abstract AggregationWindowData getWindowData();
 
   /** Constructs a new {@link ViewData}. */
   public static ViewData create(
       View view,
       Map<? extends List<? extends TagValue>, List<AggregationData>> map,
-      final WindowData windowData) {
+      final AggregationWindowData windowData) {
     view.getWindow()
         .match(
-            new Function<View.Window.Cumulative, Void>() {
+            new Function<View.AggregationWindow.Cumulative, Void>() {
               @Override
-              public Void apply(View.Window.Cumulative arg) {
-                if (!(windowData instanceof WindowData.CumulativeData)) {
+              public Void apply(View.AggregationWindow.Cumulative arg) {
+                if (!(windowData instanceof AggregationWindowData.CumulativeData)) {
                   throw new IllegalArgumentException(
-                      "Window and WindowData types mismatch. "
-                          + "Window: "
+                      "AggregationWindow and AggregationWindowData types mismatch. "
+                          + "AggregationWindow: "
                           + arg
-                          + " WindowData: "
+                          + " AggregationWindowData: "
                           + windowData);
                 }
                 return null;
               }
             },
-            new Function<View.Window.Interval, Void>() {
+            new Function<View.AggregationWindow.Interval, Void>() {
               @Override
-              public Void apply(View.Window.Interval arg) {
-                if (!(windowData instanceof WindowData.IntervalData)) {
+              public Void apply(View.AggregationWindow.Interval arg) {
+                if (!(windowData instanceof AggregationWindowData.IntervalData)) {
                   throw new IllegalArgumentException(
-                      "Window and WindowData types mismatch. "
-                          + "Window: "
+                      "AggregationWindow and AggregationWindowData types mismatch. "
+                          + "AggregationWindow: "
                           + arg
-                          + " WindowData: "
+                          + " AggregationWindowData: "
                           + windowData);
                 }
                 return null;
@@ -102,22 +102,22 @@ public abstract class ViewData {
     return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), windowData);
   }
 
-  /** The {@code WindowData} for a {@link ViewData}. */
+  /** The {@code AggregationWindowData} for a {@link ViewData}. */
   @Immutable
-  public abstract static class WindowData {
+  public abstract static class AggregationWindowData {
 
-    private WindowData() {}
+    private AggregationWindowData() {}
 
     /** Applies the given match function to the underlying data type. */
     public abstract <T> T match(
         Function<? super CumulativeData, T> p0,
         Function<? super IntervalData, T> p1,
-        Function<? super WindowData, T> defaultFunction);
+        Function<? super AggregationWindowData, T> defaultFunction);
 
-    /** Cumulative {@code WindowData.} */
+    /** Cumulative {@code AggregationWindowData.} */
     @Immutable
     @AutoValue
-    public abstract static class CumulativeData extends WindowData {
+    public abstract static class CumulativeData extends AggregationWindowData {
 
       CumulativeData() {}
 
@@ -139,7 +139,7 @@ public abstract class ViewData {
       public final <T> T match(
           Function<? super CumulativeData, T> p0,
           Function<? super IntervalData, T> p1,
-          Function<? super WindowData, T> defaultFunction) {
+          Function<? super AggregationWindowData, T> defaultFunction) {
         return p0.apply(this);
       }
 
@@ -148,14 +148,14 @@ public abstract class ViewData {
         if (start.compareTo(end) > 0) {
           throw new IllegalArgumentException("Start time is later than end time.");
         }
-        return new AutoValue_ViewData_WindowData_CumulativeData(start, end);
+        return new AutoValue_ViewData_AggregationWindowData_CumulativeData(start, end);
       }
     }
 
-    /** Interval {@code WindowData.} */
+    /** Interval {@code AggregationWindowData.} */
     @Immutable
     @AutoValue
-    public abstract static class IntervalData extends WindowData {
+    public abstract static class IntervalData extends AggregationWindowData {
 
       IntervalData() {}
 
@@ -170,13 +170,13 @@ public abstract class ViewData {
       public final <T> T match(
           Function<? super CumulativeData, T> p0,
           Function<? super IntervalData, T> p1,
-          Function<? super WindowData, T> defaultFunction) {
+          Function<? super AggregationWindowData, T> defaultFunction) {
         return p1.apply(this);
       }
 
       /** Constructs a new {@link IntervalData}. */
       public static IntervalData create(Timestamp end) {
-        return new AutoValue_ViewData_WindowData_IntervalData(end);
+        return new AutoValue_ViewData_AggregationWindowData_IntervalData(end);
       }
     }
   }

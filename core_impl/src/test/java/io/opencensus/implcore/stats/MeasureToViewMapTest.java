@@ -23,9 +23,10 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.stats.View;
+import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewData.WindowData.CumulativeData;
+import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public class MeasureToViewMapTest {
       Aggregation.Sum.create(), Aggregation.Count.create(), UnreleasedApiAccessor.createRange(),
       UnreleasedApiAccessor.createMean(), UnreleasedApiAccessor.createStdDev());
 
-  private static final View.Window.Cumulative CUMULATIVE = View.Window.Cumulative.create();
+  private static final Cumulative CUMULATIVE = Cumulative.create();
 
   private static final View VIEW =
       View.create(VIEW_NAME, "view description", MEASURE, AGGREGATIONS_NO_HISTOGRAM,

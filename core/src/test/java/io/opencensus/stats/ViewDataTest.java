@@ -37,12 +37,12 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.RangeData;
 import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
-import io.opencensus.stats.View.Window;
-import io.opencensus.stats.View.Window.Cumulative;
-import io.opencensus.stats.View.Window.Interval;
-import io.opencensus.stats.ViewData.WindowData;
-import io.opencensus.stats.ViewData.WindowData.CumulativeData;
-import io.opencensus.stats.ViewData.WindowData.IntervalData;
+import io.opencensus.stats.View.AggregationWindow;
+import io.opencensus.stats.View.AggregationWindow.Cumulative;
+import io.opencensus.stats.View.AggregationWindow.Interval;
+import io.opencensus.stats.ViewData.AggregationWindowData;
+import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
+import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TagValue.TagValueString;
@@ -68,7 +68,7 @@ public final class ViewDataTest {
         View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
     Timestamp start = Timestamp.fromMillis(1000);
     Timestamp end = Timestamp.fromMillis(2000);
-    WindowData windowData = CumulativeData.create(start, end);
+    AggregationWindowData windowData = CumulativeData.create(start, end);
     ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
@@ -80,7 +80,7 @@ public final class ViewDataTest {
     View view = View.create(
         name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
     Timestamp end = Timestamp.fromMillis(2000);
-    WindowData windowData = IntervalData.create(end);
+    AggregationWindowData windowData = IntervalData.create(end);
     ViewData viewData = ViewData.create(view, ENTRIES, windowData);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEqualTo(ENTRIES);
@@ -126,11 +126,11 @@ public final class ViewDataTest {
   }
 
   @Test
-  public void testWindowDataMatch() {
+  public void testAggregationWindowDataMatch() {
     final Timestamp start = Timestamp.fromMillis(1000);
     final Timestamp end = Timestamp.fromMillis(2000);
-    final WindowData windowData1 = CumulativeData.create(start, end);
-    final WindowData windowData2 = IntervalData.create(end);
+    final AggregationWindowData windowData1 = CumulativeData.create(start, end);
+    final AggregationWindowData windowData2 = IntervalData.create(end);
     windowData1.match(
         new Function<CumulativeData, Void>() {
           @Override
@@ -167,7 +167,7 @@ public final class ViewDataTest {
   }
 
   @Test
-  public void preventWindowAndWindowDataMismatch() {
+  public void preventWindowAndAggregationWindowDataMismatch() {
     thrown.expect(IllegalArgumentException.class);
     ViewData.create(
         View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR),
@@ -177,7 +177,7 @@ public final class ViewDataTest {
   }
 
   @Test
-  public void preventWindowAndWindowDataMismatch2() {
+  public void preventWindowAndAggregationWindowDataMismatch2() {
     thrown.expect(IllegalArgumentException.class);
     ViewData.create(
         View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE),
@@ -202,8 +202,8 @@ public final class ViewDataTest {
   private static final TagValueString V10 = TagValueString.create("v10");
   private static final TagValueString V20 = TagValueString.create("v20");
 
-  private static final Window CUMULATIVE = Cumulative.create();
-  private static final Window INTERVAL_HOUR = Interval.create(Duration.create(3600, 0));
+  private static final AggregationWindow CUMULATIVE = Cumulative.create();
+  private static final AggregationWindow INTERVAL_HOUR = Interval.create(Duration.create(3600, 0));
 
   private static final BucketBoundaries BUCKET_BOUNDARIES = BucketBoundaries.create(
       Arrays.asList(10.0, 20.0, 30.0, 40.0));

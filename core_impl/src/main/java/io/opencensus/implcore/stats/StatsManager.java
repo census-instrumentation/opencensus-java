@@ -43,7 +43,7 @@ final class StatsManager {
   }
 
   void registerView(View view) {
-    if (view.getWindow() instanceof View.Window.Interval) {
+    if (view.getWindow() instanceof View.AggregationWindow.Interval) {
       throw new UnsupportedOperationException("IntervalView not supported yet.");
     }
     measureToViewMap.registerView(view, clock);
