@@ -16,6 +16,8 @@
 
 package io.opencensus.implcore.stats;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
@@ -25,6 +27,7 @@ public final class StatsRecorderImpl extends StatsRecorder {
   private final StatsManager statsManager;
 
   StatsRecorderImpl(StatsManager statsManager) {
+    checkNotNull(statsManager, "StatsManager");
     this.statsManager = statsManager;
   }
 

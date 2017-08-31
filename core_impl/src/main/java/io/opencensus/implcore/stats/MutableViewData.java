@@ -62,12 +62,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 
-/**
- * A mutable version of {@link ViewData}, used for recording stats and start/end time.
- */
-final class MutableViewData {
+/** A mutable version of {@link ViewData}, used for recording stats and start/end time. */
+abstract class MutableViewData {
 
   private static final long MILLIS_PER_SECOND = 1000L;
   private static final long NANOS_PER_MILLI = 1000 * 1000;
@@ -96,43 +93,27 @@ final class MutableViewData {
         }
       };
 
-  // TODO(sebright): Change this field to type TagValue once we have a TagValue class.
   @VisibleForTesting
   static final TagValue UNKNOWN_TAG_VALUE = null;
 
   private final View view;
-  private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
-      Maps.newHashMap();
-  @Nullable private final Timestamp start;
 
-  private MutableViewData(View view, @Nullable Timestamp start) {
+  private MutableViewData(View view) {
     this.view = view;
-    this.start = start;
   }
 
   /**
    * Constructs a new {@link MutableViewData}.
    *
    * @param view the {@code View} linked with this {@code MutableViewData}.
-   * @param start the start {@code Timestamp}. Not needed for {@code Interval} based {@code View}s.
+   * @param start the start {@code Timestamp}.
    * @return a {@code MutableViewData}.
    */
-  static MutableViewData create(final View view, @Nullable final Timestamp start) {
+  static MutableViewData create(final View view, final Timestamp start) {
     return view.getWindow().match(
-        new Function<Cumulative, MutableViewData>() {
-          @Override
-          public MutableViewData apply(Cumulative arg) {
-            return new MutableViewData(view, start);
-          }
-        },
-        new Function<Interval, MutableViewData>() {
-          @Override
-          public MutableViewData apply(Interval arg) {
-            // TODO(songya): support IntervalView.
-            throw new UnsupportedOperationException("Interval views not supported yet.");
-          }
-        },
-        Functions.<MutableViewData>throwIllegalArgumentException());
+        new CreateCumulative(view, start),
+        new CreateInterval(),
+        Functions.<MutableViewData>throwAssertionError());
   }
 
   /**
@@ -145,27 +126,17 @@ final class MutableViewData {
   /**
    * Record double stats with the given tags.
    */
-  void record(TagContext context, double value) {
-    List<TagValue> tagValues = getTagValues(getTagMap(context), view.getColumns());
-    if (!tagValueAggregationMap.containsKey(tagValues)) {
-      List<MutableAggregation> aggregations = Lists.newArrayList();
-      for (Aggregation aggregation : view.getAggregations()) {
-        aggregations.add(createMutableAggregation(aggregation));
-      }
-      tagValueAggregationMap.put(tagValues, aggregations);
-    }
-    for (MutableAggregation aggregation : tagValueAggregationMap.get(tagValues)) {
-      aggregation.add(value);
-    }
-  }
+  abstract void record(TagContext context, double value, Timestamp timestamp);
 
   /**
    * Record long stats with the given tags.
    */
-  void record(TagContext tags, long value) {
-    // TODO(songya): modify MutableDistribution to support long values.
-    throw new UnsupportedOperationException("Not implemented.");
-  }
+  abstract void record(TagContext tags, long value, Timestamp timestamp);
+
+  /**
+   * Convert this {@link MutableViewData} to {@link ViewData}.
+   */
+  abstract ViewData toViewData(Clock clock);
 
   private static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
     if (ctx instanceof TagContextImpl) {
@@ -184,30 +155,6 @@ final class MutableViewData {
       }
       return tags;
     }
-  }
-
-  /**
-   * Convert this {@link MutableViewData} to {@link ViewData}.
-   */
-  ViewData toViewData(Clock clock) {
-    Map<List<TagValue>, List<AggregationData>> map = Maps.newHashMap();
-    for (Entry<List<TagValue>, List<MutableAggregation>> entry :
-        tagValueAggregationMap.entrySet()) {
-      List<AggregationData> aggregates = Lists.newArrayList();
-      for (MutableAggregation aggregation : entry.getValue()) {
-        aggregates.add(createAggregationData(aggregation));
-      }
-      map.put(entry.getKey(), aggregates);
-    }
-    return ViewData.create(view, map, CumulativeData.create(start, clock.now()));
-  }
-
-  /**
-   * Returns start timestamp for this aggregation.
-   */
-  @Nullable
-  Timestamp getStart() {
-    return start;
   }
 
   @VisibleForTesting
@@ -231,6 +178,25 @@ final class MutableViewData {
   // Returns the milliseconds representation of a Duration.
   static long toMillis(Duration duration) {
     return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
+  }
+
+  /* Convert a list of Aggregations to a list of empty MutableAggregations. */
+  static List<MutableAggregation> createMutableAggregations(List<Aggregation> aggregations) {
+    List<MutableAggregation> mutableAggregations = Lists.newArrayList();
+    for (Aggregation aggregation : aggregations) {
+      mutableAggregations.add(createMutableAggregation(aggregation));
+    }
+    return mutableAggregations;
+  }
+
+  /* Convert a list of MutableAggregations to a list of AggregationData. */
+  static List<AggregationData> createAggregationDatas(
+      List<MutableAggregation> mutableAggregations) {
+    List<AggregationData> aggregationDatas = Lists.newArrayList();
+    for (MutableAggregation mutableAggregation : mutableAggregations) {
+      aggregationDatas.add(createAggregationData(mutableAggregation));
+    }
+    return aggregationDatas;
   }
 
   /**
@@ -267,15 +233,64 @@ final class MutableViewData {
         CreateMeanData.INSTANCE,
         CreateStdDevData.INSTANCE);
   }
-  
+
+  // Covert a mapping from TagValues to MutableAggregation, to a mapping from TagValues to
+  // AggregationData.
+  private static <T> Map<T, List<AggregationData>> createAggregationMap(
+      Map<T, List<MutableAggregation>> tagValueAggregationMap) {
+    Map<T, List<AggregationData>> map = Maps.newHashMap();
+    for (Entry<T, List<MutableAggregation>> entry :
+        tagValueAggregationMap.entrySet()) {
+      map.put(entry.getKey(), createAggregationDatas(entry.getValue()));
+    }
+    return map;
+  }
+
+  private static final class CumulativeMutableViewData extends MutableViewData {
+
+    private final Timestamp start;
+    private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
+        Maps.newHashMap();
+
+    private CumulativeMutableViewData(View view, Timestamp start) {
+      super(view);
+      this.start = start;
+    }
+
+    @Override
+    void record(TagContext context, double value, Timestamp timestamp) {
+      List<TagValue> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
+      if (!tagValueAggregationMap.containsKey(tagValues)) {
+        tagValueAggregationMap.put(
+            tagValues, createMutableAggregations(super.view.getAggregations()));
+      }
+      for (MutableAggregation aggregation : tagValueAggregationMap.get(tagValues)) {
+        aggregation.add(value);
+      }
+    }
+
+    @Override
+    void record(TagContext tags, long value, Timestamp timestamp) {
+      // TODO(songya): implement this.
+      throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    @Override
+    ViewData toViewData(Clock clock) {
+      return ViewData.create(
+          super.view, createAggregationMap(tagValueAggregationMap),
+          CumulativeData.create(start, clock.now()));
+    }
+  }
+
   // static inner Function classes
-  
+
   private static final class CreateMutableSum implements Function<Sum, MutableAggregation> {
     @Override
     public MutableAggregation apply(Sum arg) {
       return MutableSum.create();
     }
-    
+
     private static final CreateMutableSum INSTANCE = new CreateMutableSum();
   }
 
@@ -288,7 +303,7 @@ final class MutableViewData {
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
 
-  private static final class CreateMutableHistogram 
+  private static final class CreateMutableHistogram
       implements Function<Histogram, MutableAggregation> {
     @Override
     public MutableAggregation apply(Histogram arg) {
@@ -379,5 +394,27 @@ final class MutableViewData {
     }
 
     private static final CreateStdDevData INSTANCE = new CreateStdDevData();
+  }
+
+  private static final class CreateCumulative implements Function<Cumulative, MutableViewData> {
+    @Override
+    public MutableViewData apply(Cumulative arg) {
+      return new CumulativeMutableViewData(view, start);
+    }
+
+    private final View view;
+    private final Timestamp start;
+
+    private CreateCumulative(View view, Timestamp start) {
+      this.view = view;
+      this.start = start;
+    }
+  }
+
+  private static final class CreateInterval implements Function<Interval, MutableViewData> {
+    @Override
+    public MutableViewData apply(Interval arg) {
+      throw new UnsupportedOperationException("Not implemented.");
+    }
   }
 }
