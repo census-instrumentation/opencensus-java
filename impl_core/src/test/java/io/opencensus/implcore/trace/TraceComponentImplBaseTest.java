@@ -20,12 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.common.MillisClock;
 import io.opencensus.implcore.internal.SimpleEventQueue;
-import io.opencensus.implcore.trace.TraceComponentImplBase;
-import io.opencensus.implcore.trace.TracerImpl;
 import io.opencensus.implcore.trace.export.ExportComponentImpl;
 import io.opencensus.implcore.trace.internal.RandomHandler.SecureRandomHandler;
 import io.opencensus.implcore.trace.propagation.PropagationComponentImpl;
-import io.opencensus.trace.TraceComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -33,28 +30,28 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TraceComponentImplBase}. */
 @RunWith(JUnit4.class)
 public class TraceComponentImplBaseTest {
-  private final TraceComponent traceComponent =
+  private final TraceComponentImplBase traceComponentImplBase =
       new TraceComponentImplBase(
           MillisClock.getInstance(), new SecureRandomHandler(), new SimpleEventQueue());
 
   @Test
   public void implementationOfTracer() {
-    assertThat(traceComponent.getTracer()).isInstanceOf(TracerImpl.class);
+    assertThat(traceComponentImplBase.getTracer()).isInstanceOf(TracerImpl.class);
   }
 
   @Test
   public void implementationOfBinaryPropagationHandler() {
-    assertThat(traceComponent.getPropagationComponent())
+    assertThat(traceComponentImplBase.getPropagationComponent())
         .isInstanceOf(PropagationComponentImpl.class);
   }
 
   @Test
   public void implementationOfClock() {
-    assertThat(traceComponent.getClock()).isInstanceOf(MillisClock.class);
+    assertThat(traceComponentImplBase.getClock()).isInstanceOf(MillisClock.class);
   }
 
   @Test
   public void implementationOfTraceExporter() {
-    assertThat(traceComponent.getExportComponent()).isInstanceOf(ExportComponentImpl.class);
+    assertThat(traceComponentImplBase.getExportComponent()).isInstanceOf(ExportComponentImpl.class);
   }
 }
