@@ -30,8 +30,14 @@ import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.propagation.PropagationComponent;
 
-/** Base implementation of the {@link TraceComponent}. */
-public class TraceComponentImplBase extends TraceComponent {
+/**
+ * Helper class to allow sharing the code for all the {@link TraceComponent} implementations. This
+ * class cannot use inheritance because in version 0.5.* the constructor of the {@code
+ * TraceComponent} is package protected.
+ *
+ * <p>This can be changed back to inheritance when version 0.5.* is no longer supported.
+ */
+public final class TraceComponentImplBase {
   private final ExportComponentImpl exportComponent;
   private final PropagationComponent propagationComponent = new PropagationComponentImpl();
   private final Clock clock;
@@ -63,27 +69,22 @@ public class TraceComponentImplBase extends TraceComponent {
     tracer = new TracerImpl(randomHandler, startEndHandler, clock, traceConfig);
   }
 
-  @Override
   public Tracer getTracer() {
     return tracer;
   }
 
-  @Override
   public PropagationComponent getPropagationComponent() {
     return propagationComponent;
   }
 
-  @Override
   public final Clock getClock() {
     return clock;
   }
 
-  @Override
   public ExportComponent getExportComponent() {
     return exportComponent;
   }
 
-  @Override
   public TraceConfig getTraceConfig() {
     return traceConfig;
   }
