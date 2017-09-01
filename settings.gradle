@@ -7,8 +7,6 @@ include ":opencensus-impl"
 include ":opencensus-testing"
 include ":opencensus-exporter-trace-logging"
 include ":opencensus-exporter-trace-stackdriver"
-include ":opencensus-agent"
-include ":all"
 include ":core"
 include ":core_impl"
 include ":core_impl_java"
@@ -26,9 +24,11 @@ project(':opencensus-exporter-trace-stackdriver').projectDir = "$rootDir/exporte
 
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {
+    include ":opencensus-all"
     include ":examples"
     include ":benchmarks"
     include ":opencensus-contrib-zpages"
 
+    project(':opencensus-all').projectDir = "$rootDir/all" as File
     project(':opencensus-contrib-zpages').projectDir = "$rootDir/contrib/zpages" as File
 }
