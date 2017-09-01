@@ -48,7 +48,7 @@ script:
         ./gradlew clean assemble --stacktrace ;
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
-            ./gradlew check :all:jacocoTestReport ;;
+            ./gradlew check :opencensus-all:jacocoTestReport ;;
           "oraclejdk7")
             ./gradlew check ;;
         esac ;;
@@ -59,7 +59,7 @@ script:
 
 after_success:
   - if \[ "$TASK" == "BUILD" \] && \[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" \] && \[ "$TRAVIS_OS_NAME" = linux \]; then
-      ./gradlew :all:coveralls --stacktrace ;
+      ./gradlew :opencensus-all:coveralls --stacktrace ;
       bash <(curl -s https://codecov.io/bash) ;
     fi
 

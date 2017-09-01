@@ -20,6 +20,21 @@ def subprojects = [
         project(':core_impl_java'),
         project(':opencensus-impl'),
         project(':opencensus-impl-lite'),
+        project(':opencensus-testing'),
+        project(':opencensus-contrib-agent'),
+        project(':opencensus-contrib-zpages'),
+        project(':opencensus-exporter-trace-logging'),
+        project(':opencensus-exporter-trace-stackdriver'),
+]
+
+// A subset of subprojects for which we want to publish javadoc.
+def subprojects_javadoc = [
+        project(':opencensus-api'),
+        project(':opencensus-testing'),
+        project(':opencensus-contrib-agent'),
+        project(':opencensus-contrib-zpages'),
+        project(':opencensus-exporter-trace-logging'),
+        project(':opencensus-exporter-trace-stackdriver'),
 ]
 
 for (subproject in rootProject.subprojects) {
@@ -34,10 +49,10 @@ dependencies {
 }
 
 javadoc {
-    classpath = files(subprojects.collect { subproject ->
+    classpath = files(subprojects_javadoc.collect { subproject ->
         subproject.javadoc.classpath
     })
-    for (subproject in subprojects) {
+    for (subproject in subprojects_javadoc) {
         if (subproject == project) {
             continue;
         }
@@ -45,7 +60,6 @@ javadoc {
         options.links subproject.javadoc.options.links.toArray(new String[0])
     }
     exclude 'io/opencensus/internal/**'
-    exclude 'io/opencensus/trace/internal/**'
 }
 
 task jacocoMerge(type: JacocoMerge) {
