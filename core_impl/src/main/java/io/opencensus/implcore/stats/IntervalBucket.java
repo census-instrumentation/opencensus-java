@@ -38,7 +38,7 @@ final class IntervalBucket {
       Maps.newHashMap();
 
   IntervalBucket(Timestamp start, Duration duration, List<Aggregation> aggregations) {
-    checkNotNull(start, "Timestamp");
+    checkNotNull(start, "Start");
     checkNotNull(duration, "Duration");
     checkNotNull(aggregations, "Aggregations");
     this.start = start;
