@@ -22,6 +22,7 @@ def subprojects = [
         project(':opencensus-impl-lite'),
         project(':opencensus-testing'),
         project(':opencensus-contrib-agent'),
+        project(':opencensus-contrib-grpc-util'),
         project(':opencensus-contrib-zpages'),
         project(':opencensus-exporter-trace-logging'),
         project(':opencensus-exporter-trace-stackdriver'),
@@ -31,7 +32,7 @@ def subprojects = [
 def subprojects_javadoc = [
         project(':opencensus-api'),
         project(':opencensus-testing'),
-        project(':opencensus-contrib-agent'),
+        project(':opencensus-contrib-grpc-util'),
         project(':opencensus-contrib-zpages'),
         project(':opencensus-exporter-trace-logging'),
         project(':opencensus-exporter-trace-stackdriver'),

@@ -104,7 +104,7 @@ subprojects {
     ext {
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
-        grpcContextVersion = '1.6.0'
+        grpcVersion = '1.6.1'
         guavaVersion = '19.0'
 
         libraries = [
@@ -114,9 +114,10 @@ subprojects {
                 disruptor: 'com.lmax:disruptor:3.3.6',
                 errorprone: 'com.google.errorprone:error_prone_annotations:2.0.19',
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
-                google_auth       : 'com.google.auth:google-auth-library-credentials:0.7.0',
+                google_auth: 'com.google.auth:google-auth-library-credentials:0.7.0',
                 google_cloud_trace: 'com.google.cloud:google-cloud-trace:0.22.0-alpha',
-                grpc_context: "io.grpc:grpc-context:${grpcContextVersion}",
+                grpc_context: "io.grpc:grpc-context:${grpcVersion}",
+                grpc_core: "io.grpc:grpc-core:${grpcVersion}",
                 guava: "com.google.guava:guava:${guavaVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
 
