@@ -18,7 +18,6 @@ package io.opencensus.implcore.trace.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList;
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
 import org.junit.Rule;
 import org.junit.Test;

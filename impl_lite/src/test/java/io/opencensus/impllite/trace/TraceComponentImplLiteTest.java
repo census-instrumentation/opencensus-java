@@ -22,7 +22,6 @@ import io.opencensus.implcore.common.MillisClock;
 import io.opencensus.implcore.trace.TracerImpl;
 import io.opencensus.implcore.trace.export.ExportComponentImpl;
 import io.opencensus.implcore.trace.propagation.PropagationComponentImpl;
-import io.opencensus.impllite.trace.TraceComponentImplLite;
 import io.opencensus.trace.Tracing;
 import org.junit.Test;
 import org.junit.runner.RunWith;
