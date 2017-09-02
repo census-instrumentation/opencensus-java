@@ -18,7 +18,6 @@ package io.opencensus.impl.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.impl.internal.DisruptorEventQueue;
 import io.opencensus.implcore.internal.EventQueue;
 import org.junit.Test;
 import org.junit.runner.RunWith;

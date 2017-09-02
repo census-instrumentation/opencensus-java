@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
-import io.opencensus.implcore.internal.TimestampConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
