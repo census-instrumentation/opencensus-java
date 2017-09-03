@@ -16,13 +16,19 @@
 
 package io.opencensus.implcore.tags;
 
+import io.opencensus.common.Scope;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagContexts;
 import java.util.Iterator;
 
 public final class TagContextsImpl extends TagContexts {
+  // All methods in this class use TagContextImpl and TagContextBuilderImpl. For example,
+  // withTagContext(...) always puts a TagContextImpl into scope, even if the argument is another
+  // TagContext subclass.
+  //
+  // TODO(sebright): Consider treating an unknown TagContext as empty.  That would allow us to
+  // remove TagContext.unsafeGetIterator().
 
   @Override
   public TagContextImpl empty() {
@@ -30,22 +36,55 @@ public final class TagContextsImpl extends TagContexts {
   }
 
   @Override
-  public TagContextBuilder emptyBuilder() {
+  public TagContextImpl getCurrentTagContext() {
+    return toTagContextImpl(super.getCurrentTagContext());
+  }
+
+  @Override
+  public TagContextBuilderImpl emptyBuilder() {
     return new TagContextBuilderImpl();
   }
 
   @Override
-  public TagContextBuilder toBuilder(TagContext tags) {
-    // TODO(sebright): Consider treating an unknown TagContext as empty.  That would allow us to
-    // remove TagContext.unsafeGetIterator().
+  public TagContextBuilderImpl toBuilder(TagContext tags) {
+    return toTagContextBuilderImpl(tags);
+  }
 
+  @Override
+  public Scope withTagContext(TagContext tags) {
+    return super.withTagContext(toTagContextImpl(tags));
+  }
+
+  private static TagContextImpl toTagContextImpl(TagContext tags) {
+    if (tags instanceof TagContextImpl) {
+      return (TagContextImpl) tags;
+    } else {
+      Iterator<Tag> i = tags.unsafeGetIterator();
+      if (!i.hasNext()) {
+        return TagContextImpl.EMPTY;
+      }
+      TagContextBuilderImpl builder = new TagContextBuilderImpl();
+      while (i.hasNext()) {
+        Tag tag = i.next();
+        if (tag != null) {
+          TagContextUtils.addTagToBuilder(tag, builder);
+        }
+      }
+      return builder.build();
+    }
+  }
+
+  private static TagContextBuilderImpl toTagContextBuilderImpl(TagContext tags) {
     // Copy the tags more efficiently in the expected case, when the TagContext is a TagContextImpl.
     if (tags instanceof TagContextImpl) {
       return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
     } else {
       TagContextBuilderImpl builder = new TagContextBuilderImpl();
       for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
-        TagContextUtils.addTagToBuilder(i.next(), builder);
+        Tag tag = i.next();
+        if (tag != null) {
+          TagContextUtils.addTagToBuilder(tag, builder);
+        }
       }
       return builder;
     }

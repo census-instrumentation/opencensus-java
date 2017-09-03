@@ -40,10 +40,8 @@ public abstract class TagContexts {
    *
    * @return the current {@code TagContext}.
    */
-  // TODO(sebright): Should we let the implementation override this method?
-  public final TagContext getCurrentTagContext() {
-    TagContext tags = CurrentTagContextUtils.getCurrentTagContext();
-    return tags == null ? empty() : tags;
+  public TagContext getCurrentTagContext() {
+    return CurrentTagContextUtils.getCurrentTagContext();
   }
 
   /**
@@ -68,7 +66,7 @@ public abstract class TagContexts {
    * @return a new builder created from the current {@code TagContext}.
    */
   public final TagContextBuilder currentBuilder() {
-    return toBuilder(getCurrentTagContext());
+    return toBuilder(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   /**
@@ -80,7 +78,7 @@ public abstract class TagContexts {
    * @return an object that defines a scope where the given {@code TagContext} is set to the current
    *     context.
    */
-  public final Scope withTagContext(TagContext tags) {
+  public Scope withTagContext(TagContext tags) {
     return CurrentTagContextUtils.withTagContext(tags);
   }
 
