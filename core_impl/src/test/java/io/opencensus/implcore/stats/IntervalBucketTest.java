@@ -19,8 +19,6 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableHistogram;
