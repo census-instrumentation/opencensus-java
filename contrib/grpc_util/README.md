@@ -13,7 +13,7 @@ For Maven add to your `pom.xml`:
 <dependencies>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-grpc-util</artifactId>
+    <artifactId>opencensus-contrib-grpc-util</artifactId>
     <version>0.6.0</version>
   </dependency>
 </dependencies>
@@ -21,13 +21,13 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-contrib-zpages:0.6.0'
+compile 'io.opencensus:opencensus-contrib-grpc-util:0.6.0'
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master
-[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-zpages/badge.svg
-[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-zpages
+[maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-grpc-util/badge.svg
+[maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-grpc-util
 [grpc-url]: https://github.com/grpc/grpc-java

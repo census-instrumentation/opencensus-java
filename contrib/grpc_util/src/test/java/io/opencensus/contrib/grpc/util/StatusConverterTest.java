@@ -22,15 +22,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link StatusConverter}. */
+/**
+ * Unit tests for {@link StatusConverter}.
+ */
 @RunWith(JUnit4.class)
 public class StatusConverterTest {
 
   @Test
+  public void convertFromGrpcCanonicalCode() {
+    for (io.grpc.Status.Code grpcCanonicalCode : io.grpc.Status.Code.values()) {
+      io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode = StatusConverter
+          .fromGrpcCanonicalCode(grpcCanonicalCode);
+      assertThat(opencensusCanonicalCode.toString()).isEqualTo(grpcCanonicalCode.toString());
+    }
+  }
+
+  @Test
   public void convertFromGrpcStatus() {
     // Without description
-    for (io.grpc.Status.Code grpcCode : io.grpc.Status.Code.values()) {
-      io.grpc.Status grpcStatus = io.grpc.Status.fromCode(grpcCode);
+    for (io.grpc.Status.Code grpcCanonicalCode : io.grpc.Status.Code.values()) {
+      io.grpc.Status grpcStatus = io.grpc.Status.fromCode(grpcCanonicalCode);
       io.opencensus.trace.Status opencensusStatus = StatusConverter.fromGrpcStatus(grpcStatus);
       assertThat(opencensusStatus.getCanonicalCode().toString())
           .isEqualTo(grpcStatus.getCode().toString());
@@ -38,9 +49,9 @@ public class StatusConverterTest {
     }
 
     // With description
-    for (io.grpc.Status.Code grpcCode : io.grpc.Status.Code.values()) {
+    for (io.grpc.Status.Code grpcCanonicalCode : io.grpc.Status.Code.values()) {
       io.grpc.Status grpcStatus =
-          io.grpc.Status.fromCode(grpcCode).withDescription("This is my description");
+          io.grpc.Status.fromCode(grpcCanonicalCode).withDescription("This is my description");
       io.opencensus.trace.Status opencensusStatus = StatusConverter.fromGrpcStatus(grpcStatus);
       assertThat(opencensusStatus.getCanonicalCode().toString())
           .isEqualTo(grpcStatus.getCode().toString());
@@ -49,11 +60,21 @@ public class StatusConverterTest {
   }
 
   @Test
+  public void convertToGrpcCanonicalCode() {
+    for (io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode :
+        io.opencensus.trace.Status.CanonicalCode.values()) {
+      io.grpc.Status.Code grpcCanonicalCode = StatusConverter
+          .toGrpcCanonicalCode(opencensusCanonicalCode);
+      assertThat(grpcCanonicalCode.toString()).isEqualTo(opencensusCanonicalCode.toString());
+    }
+  }
+
+  @Test
   public void convertToGrpcStatus() {
     // Without description
-    for (io.opencensus.trace.Status.CanonicalCode opencensusCode :
+    for (io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode :
         io.opencensus.trace.Status.CanonicalCode.values()) {
-      io.opencensus.trace.Status opencensusStatus = opencensusCode.toStatus();
+      io.opencensus.trace.Status opencensusStatus = opencensusCanonicalCode.toStatus();
       io.grpc.Status grpcStatus = StatusConverter.toGrpcStatus(opencensusStatus);
       assertThat(grpcStatus.getCode().toString())
           .isEqualTo(opencensusStatus.getCanonicalCode().toString());
@@ -61,10 +82,10 @@ public class StatusConverterTest {
     }
 
     // With description
-    for (io.opencensus.trace.Status.CanonicalCode opencensusCode :
+    for (io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode :
         io.opencensus.trace.Status.CanonicalCode.values()) {
       io.opencensus.trace.Status opencensusStatus =
-          opencensusCode.toStatus().withDescription("This is my description");
+          opencensusCanonicalCode.toStatus().withDescription("This is my description");
       io.grpc.Status grpcStatus = StatusConverter.toGrpcStatus(opencensusStatus);
       assertThat(grpcStatus.getCode().toString())
           .isEqualTo(opencensusStatus.getCanonicalCode().toString());
