@@ -25,10 +25,9 @@ import javax.annotation.concurrent.Immutable;
  * <p>This class returns {@link TagContextBuilder builders} that can be used to create the
  * implementation-dependent {@link TagContext}s.
  *
- * <p>Implementations may have different constraints and are free to require their own subtypes of
- * {@linkplain TagContext}. This means callers cannot assume the {@link #getCurrentTagContext()
- * current context} is the same instance as the one {@link #withTagContext(TagContext) placed into
- * scope}
+ * <p>Implementations may have different constraints and are free to convert tag contexts to their
+ * own subtypes. This means callers cannot assume the {@link #getCurrentTagContext() current
+ * context} is the same instance as the one {@link #withTagContext(TagContext) placed into scope}.
  */
 public abstract class TagContexts {
   private static final TagContexts NOOP_TAG_CONTEXTS = new NoopTagContexts();
