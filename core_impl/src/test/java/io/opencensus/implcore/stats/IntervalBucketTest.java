@@ -75,7 +75,7 @@ public class IntervalBucketTest {
   }
   
   @Test
-  public void testGetTagValueAggregationMap() {
+  public void testGetTagValueAggregationMap_empty() {
     assertThat(new IntervalBucket(START, MINUTE, AGGREGATIONS_V1).getTagValueAggregationMap())
         .isEmpty();
   }
@@ -88,37 +88,29 @@ public class IntervalBucketTest {
   @Test
   public void testRecord() {
     IntervalBucket bucket = new IntervalBucket(START, MINUTE, AGGREGATIONS_V1);
-    List<TagValue> tagValues = Arrays.<TagValue>asList(TagValueString.create("VALUE"));
-    bucket.record(tagValues, 5.0);
-    bucket.record(tagValues, 15.0);
-    assertThat(bucket.getTagValueAggregationMap()).containsKey(tagValues);
-    for (MutableAggregation aggregation : bucket.getTagValueAggregationMap().get(tagValues)) {
-      aggregation.match(
-          new Function<MutableSum, Void>() {
-            @Override
-            public Void apply(MutableSum arg) {
-              assertThat(arg.getSum()).isWithin(TOLERANCE).of(20.0);
-              return null;
-            }
-          },
-          new Function<MutableCount, Void>() {
-            @Override
-            public Void apply(MutableCount arg) {
-              assertThat(arg.getCount()).isEqualTo(2);
-              return null;
-            }
-          },
-          new Function<MutableHistogram, Void>() {
-            @Override
-            public Void apply(MutableHistogram arg) {
-              assertThat(arg.getBucketCounts()).isEqualTo(new long[]{0, 0, 1, 1});
-              return null;
-            }
-          },
-          Functions.<Void>throwAssertionError(),
-          Functions.<Void>throwAssertionError(),
-          Functions.<Void>throwAssertionError());
-    }
+    List<TagValue> tagValues1 = Arrays.<TagValue>asList(TagValueString.create("VALUE1"));
+    List<TagValue> tagValues2 = Arrays.<TagValue>asList(TagValueString.create("VALUE2"));
+    bucket.record(tagValues1, 5.0);
+    bucket.record(tagValues1, 15.0);
+    bucket.record(tagValues2, 10.0);
+    assertThat(bucket.getTagValueAggregationMap()).containsKey(tagValues1);
+    verifyMutableAggregations(bucket.getTagValueAggregationMap().get(tagValues1),
+        20.0, 2, new long[]{0, 0, 1, 1}, TOLERANCE);
+    assertThat(bucket.getTagValueAggregationMap()).containsKey(tagValues2);
+    verifyMutableAggregations(bucket.getTagValueAggregationMap().get(tagValues2),
+        10.0, 1, new long[]{0, 0, 0, 1}, TOLERANCE);
+  }
+
+  private static void verifyMutableAggregations(
+      List<MutableAggregation> aggregations, double sum, long count, long[] bucketCounts,
+      double tolerance) {
+    assertThat(aggregations).hasSize(3);
+    assertThat(aggregations.get(0)).isInstanceOf(MutableSum.class);
+    assertThat(((MutableSum) aggregations.get(0)).getSum()).isWithin(tolerance).of(sum);
+    assertThat(aggregations.get(1)).isInstanceOf(MutableCount.class);
+    assertThat(((MutableCount) aggregations.get(1)).getCount()).isEqualTo(count);
+    assertThat(aggregations.get(2)).isInstanceOf(MutableHistogram.class);
+    assertThat(((MutableHistogram) aggregations.get(2)).getBucketCounts()).isEqualTo(bucketCounts);
   }
 
   @Test
@@ -135,5 +127,13 @@ public class IntervalBucketTest {
     Timestamp twoMinutesAfterStart = Timestamp.create(180, 0);
     thrown.expect(IllegalArgumentException.class);
     bucket.getFraction(twoMinutesAfterStart);
+  }
+
+  @Test
+  public void preventCallingGetFractionOnFutureBuckets() {
+    IntervalBucket bucket = new IntervalBucket(START, MINUTE, AGGREGATIONS_V1);
+    Timestamp thirtySecondsBeforeStart = Timestamp.create(30, 0);
+    thrown.expect(IllegalArgumentException.class);
+    bucket.getFraction(thirtySecondsBeforeStart);
   }
 }

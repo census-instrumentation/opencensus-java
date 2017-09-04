@@ -31,6 +31,7 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
+// TODO(songya): implements Comparable<Duration>
 public abstract class Duration {
   private static final Duration ZERO = create(0, 0);
 
