@@ -20,7 +20,6 @@ import static io.opencensus.common.TimeUtil.MAX_NANOS;
 import static io.opencensus.common.TimeUtil.MAX_SECONDS;
 import static io.opencensus.common.TimeUtil.MILLIS_PER_SECOND;
 import static io.opencensus.common.TimeUtil.NANOS_PER_MILLI;
-import static io.opencensus.common.TimeUtil.compareLong;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.primitives.Longs;

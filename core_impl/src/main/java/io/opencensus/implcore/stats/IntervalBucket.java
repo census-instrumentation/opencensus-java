@@ -37,8 +37,6 @@ final class IntervalBucket {
   private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
       Maps.newHashMap();
 
-  private static final Duration ZERO = Duration.create(0, 0);
-
   IntervalBucket(Timestamp start, Duration duration, List<Aggregation> aggregations) {
     checkNotNull(start, "Start");
     checkNotNull(duration, "Duration");
@@ -77,7 +75,7 @@ final class IntervalBucket {
    */
   double getFraction(Timestamp now) {
     Duration elapsedTime = now.subtractTimestamp(start);
-    checkArgument(elapsedTime.compareLength(ZERO) >= 0 && elapsedTime.compareLength(duration) < 0,
+    checkArgument(now.compareTo(start) >= 0 && elapsedTime.compareLength(duration) < 0,
         "This bucket must be current.");
     return ((double) toMillis(elapsedTime)) / toMillis(duration);
   }
