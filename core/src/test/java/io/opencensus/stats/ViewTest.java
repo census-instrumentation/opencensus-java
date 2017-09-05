@@ -140,6 +140,11 @@ public final class ViewTest {
     View.Name.create(null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void preventNegativeIntervalDuration() {
+    Interval.create(negativeTenSeconds);
+  }
+
   @Test
   public void testViewNameEquals() {
     new EqualsTester()
@@ -159,4 +164,5 @@ public final class ViewTest {
   private final List<Aggregation> aggregations = Arrays.asList(Sum.create(), Count.create());
   private final Duration minute = Duration.create(60, 0);
   private final Duration twoMinutes = Duration.create(120, 0);
+  private final Duration negativeTenSeconds = Duration.create(-10, 0);
 }

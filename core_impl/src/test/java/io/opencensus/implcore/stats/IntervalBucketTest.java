@@ -47,6 +47,7 @@ public class IntervalBucketTest {
 
   private static final double TOLERANCE = 1e-6;
   private static final Duration MINUTE = Duration.create(60, 0);
+  private static final Duration NEGATIVE_TEN_SEC = Duration.create(-10, 0);
   private static final Timestamp START = Timestamp.create(60, 0);
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0));
@@ -64,6 +65,12 @@ public class IntervalBucketTest {
   public void preventNullDuration() {
     thrown.expect(NullPointerException.class);
     new IntervalBucket(START, null, AGGREGATIONS_V1);
+  }
+
+  @Test
+  public void preventNegativeDuration() {
+    thrown.expect(IllegalArgumentException.class);
+    new IntervalBucket(START, NEGATIVE_TEN_SEC, AGGREGATIONS_V1);
   }
 
   @Test

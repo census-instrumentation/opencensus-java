@@ -31,6 +31,8 @@ import java.util.Map;
 /** The bucket with aggregated {@code MeasureValue}s used for {@code IntervalViewData}. */
 final class IntervalBucket {
 
+  private static final Duration ZERO = Duration.create(0, 0);
+
   private final Timestamp start;
   private final Duration duration;
   private final List<Aggregation> aggregations;
@@ -40,6 +42,7 @@ final class IntervalBucket {
   IntervalBucket(Timestamp start, Duration duration, List<Aggregation> aggregations) {
     checkNotNull(start, "Start");
     checkNotNull(duration, "Duration");
+    checkArgument(duration.compareTo(ZERO) > 0, "Duration must be positive");
     checkNotNull(aggregations, "Aggregations");
     this.start = start;
     this.duration = duration;
@@ -75,7 +78,7 @@ final class IntervalBucket {
    */
   double getFraction(Timestamp now) {
     Duration elapsedTime = now.subtractTimestamp(start);
-    checkArgument(now.compareTo(start) >= 0 && elapsedTime.compareLength(duration) < 0,
+    checkArgument(elapsedTime.compareTo(ZERO) >= 0 && elapsedTime.compareTo(duration) < 0,
         "This bucket must be current.");
     return ((double) toMillis(elapsedTime)) / toMillis(duration);
   }
