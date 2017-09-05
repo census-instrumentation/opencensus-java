@@ -24,6 +24,7 @@ import static io.opencensus.common.TimeUtil.NANOS_PER_SECOND;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.math.LongMath;
+import com.google.common.primitives.Longs;
 import java.math.RoundingMode;
 import javax.annotation.concurrent.Immutable;
 
@@ -143,15 +144,11 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    */
   @Override
   public int compareTo(Timestamp otherTimestamp) {
-    int cmp = compareLong(getSeconds(), otherTimestamp.getSeconds());
+    int cmp = Longs.compare(getSeconds(), otherTimestamp.getSeconds());
     if (cmp != 0) {
       return cmp;
     }
-    return compareLong(getNanos(), otherTimestamp.getNanos());
-  }
-
-  private static int compareLong(long x, long y) {
-    return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    return Longs.compare(getNanos(), otherTimestamp.getNanos());
   }
 
   // Returns a Timestamp with the specified duration added.

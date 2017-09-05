@@ -195,6 +195,8 @@ public abstract class View {
     @AutoValue
     public abstract static class Interval extends AggregationWindow {
 
+      private static final Duration ZERO = Duration.create(0, 0);
+
       Interval() {}
 
       /**
@@ -215,6 +217,7 @@ public abstract class View {
        * @return an interval {@code AggregationWindow}.
        */
       public static Interval create(Duration duration) {
+        checkArgument(duration.compareTo(ZERO) > 0, "Duration must be positive");
         return new AutoValue_View_AggregationWindow_Interval(duration);
       }
 

@@ -16,7 +16,7 @@
 
 package io.opencensus.common;
 
-/** Created by bdrutu on 6/14/17. */
+/** Util class for {@link Timestamp} and {@link Duration}. */
 final class TimeUtil {
   static final long MAX_SECONDS = 315576000000L;
   static final int MAX_NANOS = 999999999;
