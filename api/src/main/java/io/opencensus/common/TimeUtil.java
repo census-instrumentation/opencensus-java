@@ -16,11 +16,15 @@
 
 package io.opencensus.common;
 
-/** Created by bdrutu on 6/14/17. */
+/** Util class for {@link Timestamp} and {@link Duration}. */
 final class TimeUtil {
   static final long MAX_SECONDS = 315576000000L;
   static final int MAX_NANOS = 999999999;
   static final long MILLIS_PER_SECOND = 1000L;
   static final long NANOS_PER_MILLI = 1000 * 1000;
   static final long NANOS_PER_SECOND = NANOS_PER_MILLI * MILLIS_PER_SECOND;
+
+  static int compareLong(long x, long y) {
+    return (x < y) ? -1 : ((x == y) ? 0 : 1);
+  }
 }

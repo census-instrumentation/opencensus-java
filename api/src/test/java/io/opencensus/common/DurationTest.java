@@ -63,6 +63,25 @@ public class DurationTest {
   }
 
   @Test
+  public void duration_CompareLength() {
+    assertThat(Duration.create(0, 0).compareLength(Duration.create(0, 0))).isEqualTo(0);
+    assertThat(Duration.create(24, 42).compareLength(Duration.create(24, 42))).isEqualTo(0);
+    assertThat(Duration.create(-24, 42).compareLength(Duration.create(-24, 42))).isEqualTo(0);
+    assertThat(Duration.create(25, 42).compareLength(Duration.create(24, 42))).isEqualTo(1);
+    assertThat(Duration.create(24, 45).compareLength(Duration.create(24, 42))).isEqualTo(1);
+    assertThat(Duration.create(24, 42).compareLength(Duration.create(25, 42))).isEqualTo(-1);
+    assertThat(Duration.create(24, 42).compareLength(Duration.create(24, 45))).isEqualTo(-1);
+    assertThat(Duration.create(-25, 42).compareLength(Duration.create(-24, 42))).isEqualTo(0);
+    assertThat(Duration.create(-24, -45).compareLength(Duration.create(-24, -42))).isEqualTo(1);
+    assertThat(Duration.create(-24, -42).compareLength(Duration.create(-25, -42))).isEqualTo(-1);
+    assertThat(Duration.create(-24, -42).compareLength(Duration.create(-24, -45))).isEqualTo(-1);
+    assertThat(Duration.create(24, 42).compareLength(Duration.create(-24, -42))).isEqualTo(0);
+    assertThat(Duration.create(24, 42).compareLength(Duration.create(-25, -42))).isEqualTo(-1);
+    assertThat(Duration.create(-24, -42).compareLength(Duration.create(24, 45))).isEqualTo(-1);
+
+  }
+
+  @Test
   public void testDurationEqual() {
     // Positive tests.
     assertThat(Duration.create(0, 0)).isEqualTo(Duration.create(0, 0));

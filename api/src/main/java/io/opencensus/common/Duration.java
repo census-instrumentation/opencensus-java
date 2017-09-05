@@ -20,6 +20,7 @@ import static io.opencensus.common.TimeUtil.MAX_NANOS;
 import static io.opencensus.common.TimeUtil.MAX_SECONDS;
 import static io.opencensus.common.TimeUtil.MILLIS_PER_SECOND;
 import static io.opencensus.common.TimeUtil.NANOS_PER_MILLI;
+import static io.opencensus.common.TimeUtil.compareLong;
 
 import com.google.auto.value.AutoValue;
 import javax.annotation.concurrent.Immutable;
@@ -31,7 +32,6 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
-// TODO(songya): implements Comparable<Duration>
 public abstract class Duration {
   private static final Duration ZERO = create(0, 0);
 
@@ -87,6 +87,22 @@ public abstract class Duration {
    * @return the number of nanoseconds in the {@code Duration}.
    */
   public abstract int getNanos();
+
+  /**
+   * Compares the length of this {@code Duration} to the specified {@code Duration}.
+   *
+   * @param otherDuration the other {@code Duration} to compare to, not {@code null}.
+   * @return the comparator value: zero if equal, negative if this duration is shorter
+   *     than otherDuration, positive if larger.
+   * @throws NullPointerException if otherDuration is {@code null}.
+   */
+  public int compareLength(Duration otherDuration) {
+    int cmp = compareLong(Math.abs(getSeconds()), Math.abs(otherDuration.getSeconds()));
+    if (cmp != 0) {
+      return cmp;
+    }
+    return compareLong(Math.abs(getNanos()), Math.abs(otherDuration.getNanos()));
+  }
 
   Duration() {}
 }

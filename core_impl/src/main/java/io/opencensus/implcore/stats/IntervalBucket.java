@@ -75,7 +75,7 @@ final class IntervalBucket {
    */
   double getFraction(Timestamp now) {
     Duration elapsedTime = now.subtractTimestamp(start);
-    checkArgument(toMillis(elapsedTime) >= 0 && toMillis(elapsedTime) < toMillis(duration),
+    checkArgument(toMillis(elapsedTime) >= 0 && elapsedTime.compareLength(duration) < 0,
         "This bucket must be current.");
     return ((double) toMillis(elapsedTime)) / toMillis(duration);
   }

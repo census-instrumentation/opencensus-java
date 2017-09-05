@@ -21,6 +21,7 @@ import static io.opencensus.common.TimeUtil.MAX_SECONDS;
 import static io.opencensus.common.TimeUtil.MILLIS_PER_SECOND;
 import static io.opencensus.common.TimeUtil.NANOS_PER_MILLI;
 import static io.opencensus.common.TimeUtil.NANOS_PER_SECOND;
+import static io.opencensus.common.TimeUtil.compareLong;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.math.LongMath;
@@ -148,10 +149,6 @@ public abstract class Timestamp implements Comparable<Timestamp> {
       return cmp;
     }
     return compareLong(getNanos(), otherTimestamp.getNanos());
-  }
-
-  private static int compareLong(long x, long y) {
-    return (x < y) ? -1 : ((x == y) ? 0 : 1);
   }
 
   // Returns a Timestamp with the specified duration added.
