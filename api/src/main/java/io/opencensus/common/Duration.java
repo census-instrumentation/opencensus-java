@@ -23,6 +23,7 @@ import static io.opencensus.common.TimeUtil.NANOS_PER_MILLI;
 import static io.opencensus.common.TimeUtil.compareLong;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.primitives.Longs;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -97,11 +98,11 @@ public abstract class Duration {
    * @throws NullPointerException if otherDuration is {@code null}.
    */
   public int compareLength(Duration otherDuration) {
-    int cmp = compareLong(Math.abs(getSeconds()), Math.abs(otherDuration.getSeconds()));
+    int cmp = Longs.compare(Math.abs(getSeconds()), Math.abs(otherDuration.getSeconds()));
     if (cmp != 0) {
       return cmp;
     }
-    return compareLong(Math.abs(getNanos()), Math.abs(otherDuration.getNanos()));
+    return Longs.compare(Math.abs(getNanos()), Math.abs(otherDuration.getNanos()));
   }
 
   Duration() {}

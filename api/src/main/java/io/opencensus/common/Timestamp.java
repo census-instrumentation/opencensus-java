@@ -21,10 +21,10 @@ import static io.opencensus.common.TimeUtil.MAX_SECONDS;
 import static io.opencensus.common.TimeUtil.MILLIS_PER_SECOND;
 import static io.opencensus.common.TimeUtil.NANOS_PER_MILLI;
 import static io.opencensus.common.TimeUtil.NANOS_PER_SECOND;
-import static io.opencensus.common.TimeUtil.compareLong;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.math.LongMath;
+import com.google.common.primitives.Longs;
 import java.math.RoundingMode;
 import javax.annotation.concurrent.Immutable;
 
@@ -144,11 +144,11 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    */
   @Override
   public int compareTo(Timestamp otherTimestamp) {
-    int cmp = compareLong(getSeconds(), otherTimestamp.getSeconds());
+    int cmp = Longs.compare(getSeconds(), otherTimestamp.getSeconds());
     if (cmp != 0) {
       return cmp;
     }
-    return compareLong(getNanos(), otherTimestamp.getNanos());
+    return Longs.compare(getNanos(), otherTimestamp.getNanos());
   }
 
   // Returns a Timestamp with the specified duration added.
