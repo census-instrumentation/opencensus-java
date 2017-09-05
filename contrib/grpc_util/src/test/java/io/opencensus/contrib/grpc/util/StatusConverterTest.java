@@ -29,10 +29,10 @@ import org.junit.runners.JUnit4;
 public class StatusConverterTest {
 
   @Test
-  public void convertFromGrpcCanonicalCode() {
+  public void convertFromGrpcCode() {
     for (io.grpc.Status.Code grpcCanonicalCode : io.grpc.Status.Code.values()) {
       io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode = StatusConverter
-          .fromGrpcCanonicalCode(grpcCanonicalCode);
+          .fromGrpcCode(grpcCanonicalCode);
       assertThat(opencensusCanonicalCode.toString()).isEqualTo(grpcCanonicalCode.toString());
     }
   }
@@ -60,11 +60,11 @@ public class StatusConverterTest {
   }
 
   @Test
-  public void convertToGrpcCanonicalCode() {
+  public void convertToGrpcCode() {
     for (io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode :
         io.opencensus.trace.Status.CanonicalCode.values()) {
       io.grpc.Status.Code grpcCanonicalCode = StatusConverter
-          .toGrpcCanonicalCode(opencensusCanonicalCode);
+          .toGrpcCode(opencensusCanonicalCode);
       assertThat(grpcCanonicalCode.toString()).isEqualTo(opencensusCanonicalCode.toString());
     }
   }

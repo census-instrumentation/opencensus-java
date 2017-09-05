@@ -24,18 +24,18 @@ public final class StatusConverter {
   /**
    * Returns a {@link io.opencensus.trace.Status.CanonicalCode} from a {@link io.grpc.Status.Code}.
    *
-   * @param grpcCanonicalCode the given gRPC CanonicalCode.
+   * @param grpcCode the given {@code io.grpc.Status.Code}.
    * @return a {@code io.opencensus.trace.Status.CanonicalCode} from a {@code io.grpc.Status.Code}.
    */
-  public static io.opencensus.trace.Status.CanonicalCode fromGrpcCanonicalCode(
-      io.grpc.Status.Code grpcCanonicalCode) {
-    return opencensusStatusFromGrpcCode(grpcCanonicalCode).getCanonicalCode();
+  public static io.opencensus.trace.Status.CanonicalCode fromGrpcCode(
+      io.grpc.Status.Code grpcCode) {
+    return opencensusStatusFromGrpcCode(grpcCode).getCanonicalCode();
   }
 
   /**
    * Returns a {@link io.opencensus.trace.Status} from a {@link io.grpc.Status}.
    *
-   * @param grpcStatus the given gRPC Status.
+   * @param grpcStatus the given {@code io.grpc.Status}.
    * @return a {@code io.opencensus.trace.Status} from a {@code io.grpc.Status}.
    */
   public static io.opencensus.trace.Status fromGrpcStatus(io.grpc.Status grpcStatus) {
@@ -49,10 +49,10 @@ public final class StatusConverter {
   /**
    * Returns a {@link io.grpc.Status.Code} from a {@link io.opencensus.trace.Status.CanonicalCode}.
    *
-   * @param opencensusCanonicalCode the given OpenCensus CanonicalCode.
+   * @param opencensusCanonicalCode the given {@code io.opencensus.trace.Status.CanonicalCode}.
    * @return a {@code io.grpc.Status.Code} from a {@code io.opencensus.trace.Status.CanonicalCode}.
    */
-  public static io.grpc.Status.Code toGrpcCanonicalCode(io.opencensus.trace.Status.CanonicalCode
+  public static io.grpc.Status.Code toGrpcCode(io.opencensus.trace.Status.CanonicalCode
       opencensusCanonicalCode) {
     return grpcStatusFromOpencensusCanonicalCode(opencensusCanonicalCode).getCode();
   }
@@ -60,7 +60,7 @@ public final class StatusConverter {
   /**
    * Returns a {@link io.grpc.Status} from a {@link io.opencensus.trace.Status}.
    *
-   * @param opencensusStatus the given OpenCensus Status.
+   * @param opencensusStatus the given {@code io.opencensus.trace.Status}.
    * @return a {@code io.grpc.Status} from a {@code io.opencensus.trace.Status}.
    */
   public static io.grpc.Status toGrpcStatus(io.opencensus.trace.Status opencensusStatus) {
