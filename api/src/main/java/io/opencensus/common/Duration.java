@@ -32,7 +32,7 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
-public abstract class Duration {
+public abstract class Duration implements Comparable<Duration> {
   private static final Duration ZERO = create(0, 0);
 
   /**
@@ -89,19 +89,20 @@ public abstract class Duration {
   public abstract int getNanos();
 
   /**
-   * Compares the length of this {@code Duration} to the specified {@code Duration}.
+   * Compares this {@code Duration} to the specified {@code Duration}.
    *
    * @param otherDuration the other {@code Duration} to compare to, not {@code null}.
-   * @return the comparator value: zero if equal, negative if this duration is shorter
+   * @return the comparator value: zero if equal, negative if this duration is smaller
    *     than otherDuration, positive if larger.
    * @throws NullPointerException if otherDuration is {@code null}.
    */
-  public int compareLength(Duration otherDuration) {
-    int cmp = Longs.compare(Math.abs(getSeconds()), Math.abs(otherDuration.getSeconds()));
+  @Override
+  public int compareTo(Duration otherDuration) {
+    int cmp = Longs.compare(getSeconds(), otherDuration.getSeconds());
     if (cmp != 0) {
       return cmp;
     }
-    return Longs.compare(Math.abs(getNanos()), Math.abs(otherDuration.getNanos()));
+    return Longs.compare(getNanos(), otherDuration.getNanos());
   }
 
   Duration() {}
