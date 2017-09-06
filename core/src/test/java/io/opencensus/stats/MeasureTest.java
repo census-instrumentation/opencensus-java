@@ -18,8 +18,14 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
+import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -113,6 +119,32 @@ public final class MeasureTest {
                 "description 2",
                 "bit/s"))
         .testEquals();
+  }
+
+  @Test
+  public void testMatch() {
+    List<Measure> measures = Arrays.asList(
+        MeasureDouble.create("measure1", "description", "1"),
+        MeasureLong.create("measure2", "description", "1"));
+    List<String> outputs = Lists.newArrayList();
+    for (Measure measure : measures) {
+      outputs.add(
+          measure.match(
+              new Function<MeasureDouble, String>() {
+                @Override
+                public String apply(MeasureDouble arg) {
+                  return "double";
+                }
+              },
+              new Function<MeasureLong, String>() {
+                @Override
+                public String apply(MeasureLong arg) {
+                  return "long";
+                }
+              },
+              Functions.<String>throwAssertionError()));
+    }
+    assertThat(outputs).containsExactly("double", "long").inOrder();
   }
 
   @Test

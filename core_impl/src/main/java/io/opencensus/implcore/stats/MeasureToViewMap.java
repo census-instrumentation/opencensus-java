@@ -20,6 +20,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Measurement;
@@ -101,7 +102,8 @@ final class MeasureToViewMap {
       for (MutableViewData view : views) {
         measurement.match(
             new RecordDoubleValueFunc(tags, view, timestamp),
-            new RecordLongValueFunc(tags, view, timestamp));
+            new RecordLongValueFunc(tags, view, timestamp),
+            Functions.<Void>throwAssertionError());
       }
     }
   }

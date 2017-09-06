@@ -37,7 +37,8 @@ public abstract class Measure {
    */
   public abstract <T> T match(
       Function<? super MeasureDouble, T> p0,
-      Function<? super MeasureLong, T> p1);
+      Function<? super MeasureLong, T> p1,
+      Function<? super Measure, T> defaultFunction);
 
   /**
    * Name of measure, as a {@code String}. Should be a ASCII string with a length no greater than
@@ -91,7 +92,10 @@ public abstract class Measure {
     }
 
     @Override
-    public <T> T match(Function<? super MeasureDouble, T> p0, Function<? super MeasureLong, T> p1) {
+    public <T> T match(
+        Function<? super MeasureDouble, T> p0,
+        Function<? super MeasureLong, T> p1,
+        Function<? super Measure, T> defaultFunction) {
       return p0.apply(this);
     }
 
@@ -127,7 +131,10 @@ public abstract class Measure {
     }
 
     @Override
-    public <T> T match(Function<? super MeasureDouble, T> p0, Function<? super MeasureLong, T> p1) {
+    public <T> T match(
+        Function<? super MeasureDouble, T> p0,
+        Function<? super MeasureLong, T> p1,
+        Function<? super Measure, T> defaultFunction) {
       return p1.apply(this);
     }
 
