@@ -30,7 +30,9 @@ public abstract class Measurement {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<? super MeasurementDouble, T> p0, Function<? super MeasurementLong, T> p1);
+      Function<? super MeasurementDouble, T> p0,
+      Function<? super MeasurementLong, T> p1,
+      Function<? super Measurement, T> defaultFunction);
 
   /**
    * Extracts the measured {@link Measure}.
@@ -60,7 +62,9 @@ public abstract class Measurement {
 
     @Override
     public <T> T match(
-        Function<? super MeasurementDouble, T> p0, Function<? super MeasurementLong, T> p1) {
+        Function<? super MeasurementDouble, T> p0,
+        Function<? super MeasurementLong, T> p1,
+        Function<? super Measurement, T> defaultFunction) {
       return p0.apply(this);
     }
   }
@@ -84,7 +88,9 @@ public abstract class Measurement {
 
     @Override
     public <T> T match(
-        Function<? super MeasurementDouble, T> p0, Function<? super MeasurementLong, T> p1) {
+        Function<? super MeasurementDouble, T> p0,
+        Function<? super MeasurementLong, T> p1,
+        Function<? super Measurement, T> defaultFunction) {
       return p1.apply(this);
     }
   }
