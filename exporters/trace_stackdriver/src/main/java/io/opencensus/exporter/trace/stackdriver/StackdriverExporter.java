@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.ServiceOptions;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
@@ -36,7 +37,7 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre><code>
  *   public static void main(String[] args) {
- *     StackdriverExporter.createAndRegister("MyStackdriverProjectId");
+ *     StackdriverExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
  *     ... // Do work.
  *   }
  * </code></pre>
@@ -72,16 +73,37 @@ public final class StackdriverExporter {
    * Stackdriver exporter can be registered at any point.
    *
    * <p>This uses the default application credentials see {@link
-   * GoogleCredentials#getApplicationDefault()}. If you do not have default application credentials
+   * GoogleCredentials#getApplicationDefault}. If you do not have default application credentials
    * configured use {@link #createAndRegisterWithCredentials(Credentials, String)}.
    *
    * @param projectId the cloud project id.
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
    */
-  public static void createAndRegister(String projectId) throws IOException {
+  public static void createAndRegisterWithProjectId(String projectId) throws IOException {
     synchronized (monitor) {
       checkState(handler == null, "Stackdriver exporter is already registered.");
       handler = StackdriverV1ExporterHandler.create(projectId);
+      register(Tracing.getExportComponent().getSpanExporter(), handler);
+    }
+  }
+
+  /**
+   * Creates and registers the Stackdriver Trace exporter to the OpenCensus library. Only one
+   * Stackdriver exporter can be registered at any point.
+   *
+   * <p>This uses the default application credentials see {@link
+   * GoogleCredentials#getApplicationDefault}. If you do not have default application credentials
+   * configured use {@link #createAndRegisterWithCredentials(Credentials, String)}.
+   *
+   * <p>This uses the default project ID configured see {@link ServiceOptions#getDefaultProjectId}.
+   * If you do not have the project id configured use {@link #createAndRegisterWithProjectId}.
+   *
+   * @throws IllegalStateException if a Stackdriver exporter is already registered.
+   */
+  public static void createAndRegister() throws IOException {
+    synchronized (monitor) {
+      checkState(handler == null, "Stackdriver exporter is already registered.");
+      handler = StackdriverV1ExporterHandler.create(ServiceOptions.getDefaultProjectId());
       register(Tracing.getExportComponent().getSpanExporter(), handler);
     }
   }

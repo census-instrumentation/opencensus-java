@@ -22,15 +22,6 @@ In order to be able to push your traces to [Stackdriver Trace][stackdriver-trace
 
 These steps enable the API but don't require that your app is hosted on Google Cloud Platform.
 
-### Authentication
-
-This exporter uses [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java),
-for details see [here](https://github.com/GoogleCloudPlatform/google-cloud-java#authentication).
-
-### Java Versions
-
-Java 7 or above is required for using this exporter.
-
 ### Hello "Stackdriver Trace"
 
 #### Add the dependencies to your project
@@ -53,20 +44,49 @@ For Maven add to your `pom.xml`:
 ```
 
 For Gradle add to your dependencies:
-```gradle
+```groovy
 compile 'io.opencensus:opencensus-exporter-trace-stackdriver:0.6.0'
 runtime 'io.opencensus:opencensus-impl:0.6.0'
 ```
 
 #### Register the exporter
+
+This uses the default configuration for authentication and project ID.
+
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
-    StackdriverExporter.createAndRegister("MyStackdriverProjectId");
+    StackdriverExporter.createAndRegister();
     // ...
   }
 }
 ```
+
+#### Authentication
+
+This exporter uses [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java),
+for details about how to configure the authentication see [here](https://github.com/GoogleCloudPlatform/google-cloud-java#authentication).
+
+If you prefer to manually set the credentials use:
+```
+StackdriverExporter.createAndRegisterWithCredentials(
+    new GoogleCredentials(new AccessToken(accessToken, expirationTime)),
+    "MyStackdriverProjectId");
+```
+
+#### Specifying a Project ID
+
+This exporter uses [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java),
+for details about how to configure the project ID see [here](https://github.com/GoogleCloudPlatform/google-cloud-java#specifying-a-project-id).
+
+If you prefer to manually set the project ID use:
+```
+StackdriverExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
+```
+
+#### Java Versions
+
+Java 7 or above is required for using this exporter.
 
 ## FAQ
 ### Why do I not see some trace events in Stackdriver?
