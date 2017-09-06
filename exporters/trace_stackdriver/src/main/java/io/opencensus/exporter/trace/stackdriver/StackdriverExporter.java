@@ -26,8 +26,6 @@ import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
@@ -45,8 +43,6 @@ import javax.annotation.concurrent.GuardedBy;
 public final class StackdriverExporter {
 
   private static final String REGISTER_NAME = StackdriverExporter.class.getName();
-  private static final List<String> STACKDRIVER_TRACE_WRITER_SCOPE =
-      Collections.singletonList("https://www.googleapis.com/auth/trace.append");
   private static final Object monitor = new Object();
 
   @GuardedBy("monitor")
@@ -82,7 +78,7 @@ public final class StackdriverExporter {
    *
    * <pre>{@code
    * StackdriverExporter.createAndRegisterWithCredentialsAndProjectId(
-   *     GoogleCredentials.getApplicationDefault(), ServiceOptions.getDefaultProjectId());
+   *     GoogleCredentials.getApplicationDefault(), projectId);
    * }</pre>
    *
    * @param projectId the cloud project id.
