@@ -69,7 +69,7 @@ for details about how to configure the authentication see [here](https://github.
 
 If you prefer to manually set the credentials use:
 ```
-StackdriverExporter.createAndRegisterWithCredentials(
+StackdriverExporter.createAndRegisterWithCredentialsAndProjectId(
     new GoogleCredentials(new AccessToken(accessToken, expirationTime)),
     "MyStackdriverProjectId");
 ```

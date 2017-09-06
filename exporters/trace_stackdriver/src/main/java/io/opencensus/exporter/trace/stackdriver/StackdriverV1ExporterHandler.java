@@ -48,6 +48,7 @@ import java.util.Map;
  * messages.
  */
 final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
+
   private static final String STATUS_CODE = "g.co/status/code";
   private static final String STATUS_DESCRIPTION = "g.co/status/description";
 
