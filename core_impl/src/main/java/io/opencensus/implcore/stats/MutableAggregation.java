@@ -135,7 +135,7 @@ abstract class MutableAggregation {
     @Override
     void combine(MutableAggregation other, double fraction) {
       checkArgument(other instanceof MutableCount, "MutableCount expected.");
-      this.count += (long) (fraction * ((MutableCount) other).getCount());
+      this.count += Math.round(fraction * ((MutableCount) other).getCount());
     }
 
     /**
@@ -198,7 +198,7 @@ abstract class MutableAggregation {
           "Bucket boundaries should match.");
       long[] bucketCounts = ((MutableHistogram) other).getBucketCounts();
       for (int i = 0; i < bucketCounts.length; i++) {
-        this.bucketCounts[i] += (long) (bucketCounts[i] * fraction);
+        this.bucketCounts[i] += Math.round(bucketCounts[i] * fraction);
       }
     }
 

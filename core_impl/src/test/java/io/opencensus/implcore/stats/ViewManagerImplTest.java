@@ -254,8 +254,8 @@ public class ViewManagerImplTest {
             Arrays.asList(VALUE),
             Arrays.asList(
                 SumData.create(19 * 0.6 + 1),
-                CountData.create(4),
-                HistogramData.create(1, 0, 0, 0, 1, 0, 0, 0, 1))),
+                CountData.create(4), // First bucket: 2 * 0.6 = 1.2, round to 1
+                HistogramData.create(2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1))),
         EPSILON);
 
     clock.setTime(Timestamp.fromMillis(startTimeMillis + 12 * MILLIS_PER_SECOND));
