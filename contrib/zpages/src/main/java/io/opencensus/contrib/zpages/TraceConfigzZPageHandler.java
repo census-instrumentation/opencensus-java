@@ -28,8 +28,8 @@ import java.util.Map;
 
 // TODO(bdrutu): Add tests.
 /**
- * HTML page formatter for tracing config. The page displays information the current active
- * tracing configuration and allows users to change it.
+ * HTML page formatter for tracing config. The page displays information the current active tracing
+ * configuration and allows users to change it.
  */
 final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACE_CONFIGZ_URL = "/traceconfigz";
@@ -53,7 +53,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           +
           // Permanently change.
           "<p>\n"
-          + "<input type=radio name=" + CHANGE + " value=%s id=%s> \n"
+          + "<input type=radio name="
+          + CHANGE
+          + " value=%s id=%s> \n"
           + "Permanently change:"
           + "<br> SamplingProbability to <input type=text size=10 name=%s value=\"%f\" %s>\n"
           + "<br> MaxNumberOfAttributes to <input type=text size=10 name=%s value=\"%d\" %s>\n"
@@ -95,7 +97,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         PERMANENT_CHANGE,
         PERMANENT_CHANGE,
         QUERY_COMPONENT_SAMPLING_PROBABILITY,
-        0.0001,
+        0.0001, // TODO(bdrutu): Get this from the current sampler (if possible).
         CHANGE_ON_INPUT_PERMANENT,
         QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES,
         currentParams.getMaxNumberOfAttributes(),
@@ -120,28 +122,27 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     if (queryMap.containsKey(CHANGE) && queryMap.get(CHANGE).equals(PERMANENT_CHANGE)) {
       TraceParams.Builder traceParamsBuilder = traceConfig.getActiveTraceParams().toBuilder();
       if (queryMap.containsKey(QUERY_COMPONENT_SAMPLING_PROBABILITY)) {
-        double samplingProbability = Double.parseDouble(queryMap.get
-            (QUERY_COMPONENT_SAMPLING_PROBABILITY));
+        double samplingProbability =
+            Double.parseDouble(queryMap.get(QUERY_COMPONENT_SAMPLING_PROBABILITY));
         traceParamsBuilder.setSampler(Samplers.probabilitySampler(samplingProbability));
       }
       if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES)) {
-        int maxNumberOfAttributes = Integer.parseInt(queryMap.get
-            (QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES));
+        int maxNumberOfAttributes =
+            Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES));
         traceParamsBuilder.setMaxNumberOfAttributes(maxNumberOfAttributes);
       }
       if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS)) {
-        int maxNumberOfAnnotations = Integer.parseInt(queryMap.get
-            (QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS));
+        int maxNumberOfAnnotations =
+            Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS));
         traceParamsBuilder.setMaxNumberOfAnnotations(maxNumberOfAnnotations);
       }
       if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS)) {
-        int maxNumberOfNetworkEvents = Integer.parseInt(queryMap.get
-            (QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS));
+        int maxNumberOfNetworkEvents =
+            Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS));
         traceParamsBuilder.setMaxNumberOfNetworkEvents(maxNumberOfNetworkEvents);
       }
       if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS)) {
-        int maxNumberOfLinks = Integer.parseInt(queryMap.get
-            (QUERY_COMPONENT_MAX_NUMBER_OF_LINKS));
+        int maxNumberOfLinks = Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS));
         traceParamsBuilder.setMaxNumberOfLinks(maxNumberOfLinks);
       }
       traceConfig.updateActiveTraceParams(traceParamsBuilder.build());
