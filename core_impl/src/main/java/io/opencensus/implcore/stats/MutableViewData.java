@@ -103,11 +103,9 @@ abstract class MutableViewData {
   static final TagValue UNKNOWN_TAG_VALUE = null;
 
   private final View view;
-  private final Timestamp start;
 
-  private MutableViewData(View view, Timestamp start) {
+  private MutableViewData(View view) {
     this.view = view;
-    this.start = start;
   }
 
   /**
@@ -256,11 +254,13 @@ abstract class MutableViewData {
 
   private static final class CumulativeMutableViewData extends MutableViewData {
 
+    private final Timestamp start;
     private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
         Maps.newHashMap();
 
     private CumulativeMutableViewData(View view, Timestamp start) {
-      super(view, start);
+      super(view);
+      this.start = start;
     }
 
     @Override
@@ -285,7 +285,7 @@ abstract class MutableViewData {
     ViewData toViewData(Clock clock) {
       return ViewData.create(
           super.view, createAggregationMap(tagValueAggregationMap),
-          CumulativeData.create(super.start, clock.now()));
+          CumulativeData.create(start, clock.now()));
     }
   }
 
@@ -331,7 +331,7 @@ abstract class MutableViewData {
     private final Duration bucketDuration; // Duration of a single bucket (totalDuration / N)
 
     private IntervalMutableViewData(View view, Timestamp start) {
-      super(view, start);
+      super(view);
       Duration totalDuration = ((Interval) view.getWindow()).getDuration();
       bucketDuration = Duration.fromMillis(toMillis(totalDuration) / N);
 
@@ -387,16 +387,13 @@ abstract class MutableViewData {
         startOfNewBucket = buckets.peekLast().getStart().addDuration(bucketDuration);
       } else {
         // Initialize bucket list. Should only enter this block once.
-        // TODO(songya): add a Timestamp.subtractDuration() method and use that instead.
-        startOfNewBucket = now.addDuration(
-            Duration.create(-totalDuration.getSeconds(), -totalDuration.getNanos()));
+        startOfNewBucket = subtractDuration(now, totalDuration);
       }
 
       if (numOfPadBuckets > N + 1) {
         // All current buckets expired, need to add N + 1 new buckets. The start time of the latest
         // bucket will be current time.
-        startOfNewBucket = now.addDuration(
-            Duration.create(-totalDuration.getSeconds(), -totalDuration.getNanos()));
+        startOfNewBucket = subtractDuration(now, totalDuration);
         numOfPadBuckets = N + 1;
       }
 
@@ -491,6 +488,11 @@ abstract class MutableViewData {
         map.put(tagValues, combinedAggregations);
       }
       return map;
+    }
+
+    // Subtract a Duration from a Timestamp, and return a new Timestamp.
+    private static Timestamp subtractDuration(Timestamp timestamp, Duration duration) {
+      return timestamp.addDuration(Duration.create(-duration.getSeconds(), -duration.getNanos()));
     }
   }
 
