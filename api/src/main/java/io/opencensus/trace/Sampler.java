@@ -30,7 +30,7 @@ public abstract class Sampler {
    *     is a root span.
    * @param traceId the {@link TraceId} for the new {@code Span}. This will be identical to that in
    *     the parentContext, unless this is a root span.
-   * @param spanId the span ID for the new {@code Span}.
+   * @param spanId the {@link SpanId} for the new {@code Span}.
    * @param name the name of the new {@code Span}.
    * @param parentLinks the parentLinks associated with the new {@code Span}.
    * @return {@code true} if the {@code Span} is sampled.
@@ -42,4 +42,14 @@ public abstract class Sampler {
       SpanId spanId,
       String name,
       List<Span> parentLinks);
+
+  /**
+   * Returns the description of this {@code Sampler}. This may be displayed on debug pages or in
+   * the logs.
+   *
+   * <p>Example: "ProbabilitySampler{0.000100}"
+   *
+   * @return the description of this {@code Sampler}.
+   */
+  public abstract String getDescription();
 }

@@ -94,7 +94,7 @@ abstract class ProbabilitySampler extends Sampler {
   }
 
   @Override
-  public final String toString() {
-    return String.format("ProbabilitySampler{probability=%g}", getProbability());
+  public final String getDescription() {
+    return String.format("ProbabilitySampler{%.6f}", getProbability());
   }
 }

@@ -28,8 +28,8 @@ import java.util.Map;
 
 // TODO(bdrutu): Add tests.
 /**
- * HTML page formatter for tracing config. The page displays information the current active tracing
- * configuration and allows users to change it.
+ * HTML page formatter for tracing config. The page displays information about the current active
+ * tracing configuration and allows users to change it.
  */
 final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACE_CONFIGZ_URL = "/traceconfigz";
@@ -37,8 +37,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
 
   private static final String CHANGE = "change";
   private static final String PERMANENT_CHANGE = "permanently";
-  private static final String CHANGE_ON_INPUT_PERMANENT =
-      "oninput=\"document.getElementById('" + PERMANENT_CHANGE + "').checked = true\"";
+  private static final String RESTORE_DEFAULT_CHANGE = "restore_default";
   private static final String QUERY_COMPONENT_SAMPLING_PROBABILITY = "samplingprobability";
   private static final String QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES = "maxnumberofattributes";
   private static final String QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS = "maxnumberofannotations";
@@ -50,21 +49,32 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   // TODO(bdrutu): Refactor this to not use a big "printf".
   private static final String TRACECONFIGZ_FORM_BODY =
       "<form action=/traceconfigz method=get>%n"
-          +
-          // Permanently change.
-          "<p>%n"
-          + "<input type=radio name="
-          + CHANGE
-          + " value=%s id=%s> %n"
-          + "Permanently change:"
-          + "<br> SamplingProbability to <input type=text size=10 name=%s value=\"%f\" %s>%n"
-          + "<br> MaxNumberOfAttributes to <input type=text size=10 name=%s value=\"%d\" %s>%n"
-          + "<br> MaxNumberOfAnnotations to <input type=text size=10 name=%s value=\"%d\" %s>%n"
-          + "<br> MaxNumberOfNetworkEvents to <input type=text size=10 name=%s value=\"%d\" %s>%n"
-          + "<br> MaxNumberOfLinks to <input type=text size=10 name=%s value=\"%d\" %s>%n"
-          +
+          // Permanently changes table.
+          + "<table>%n"
+          + "<td colspan=\"3\"><b>Permanently change</b> "
+          + "<input type=\"hidden\" name=\"%s\" value=\"%s\"></td>%n"
+          + "<tr><td>SamplingProbability to</td> "
+          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%s)</td>%n"
+          + "<tr><td>MaxNumberOfAttributes to</td> "
+          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "<tr><td>MaxNumberOfAnnotations to</td>"
+          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "<tr><td>MaxNumberOfNetworkEvents to</td> "
+          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "<tr><td>MaxNumberOfLinks to</td>"
+          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "</table>%n"
           // Submit button.
-          "<p>%n"
+          + "<input type=submit value=Start>%n"
+          + "</form>";
+
+  private static final String RESTORE_DEFAULT_FORM_BODY =
+      "<form action=/traceconfigz method=get>%n"
+          // Permanently changes table.
+          + "<b>Restore default</b> %n"
+          + "<input type=\"hidden\" name=\"%s\" value=\"%s\"></td>%n"
+          + "</br>%n"
+          // Submit button.
           + "<input type=submit value=Start>%n"
           + "</form>";
 
@@ -88,80 +98,86 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
     out.write("</head>\n");
     out.write("<body>\n");
-    if (!queryMap.isEmpty()) {
+    try {
+      // Work that can throw exceptions.
       maybeApplyChanges(queryMap);
+    } finally {
+      // TODO(bdrutu): Maybe display to the page if an exception happened.
+      // Display the page in any case.
+      TraceParams currentParams = traceConfig.getActiveTraceParams();
+      out.printf(
+          TRACECONFIGZ_FORM_BODY,
+          CHANGE,
+          PERMANENT_CHANGE,
+          QUERY_COMPONENT_SAMPLING_PROBABILITY,
+          "0.0001", // TODO(bdrutu): Get this from the default sampler (if possible).
+          QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES,
+          TraceParams.DEFAULT.getMaxNumberOfAttributes(),
+          QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS,
+          TraceParams.DEFAULT.getMaxNumberOfAnnotations(),
+          QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS,
+          TraceParams.DEFAULT.getMaxNumberOfNetworkEvents(),
+          QUERY_COMPONENT_MAX_NUMBER_OF_LINKS,
+          TraceParams.DEFAULT.getMaxNumberOfLinks());
+      out.write("<br>\n");
+      out.printf(RESTORE_DEFAULT_FORM_BODY, CHANGE, RESTORE_DEFAULT_CHANGE);
+      out.write("<br>\n");
+      emitTraceParamsTable(currentParams, out);
+      out.write("</body>\n");
+      out.write("</html>\n");
+      out.close();
     }
-    TraceParams currentParams = traceConfig.getActiveTraceParams();
-    out.printf(
-        TRACECONFIGZ_FORM_BODY,
-        PERMANENT_CHANGE,
-        PERMANENT_CHANGE,
-        QUERY_COMPONENT_SAMPLING_PROBABILITY,
-        0.0001, // TODO(bdrutu): Get this from the current sampler (if possible).
-        CHANGE_ON_INPUT_PERMANENT,
-        QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES,
-        currentParams.getMaxNumberOfAttributes(),
-        CHANGE_ON_INPUT_PERMANENT,
-        QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS,
-        currentParams.getMaxNumberOfAnnotations(),
-        CHANGE_ON_INPUT_PERMANENT,
-        QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS,
-        currentParams.getMaxNumberOfNetworkEvents(),
-        CHANGE_ON_INPUT_PERMANENT,
-        QUERY_COMPONENT_MAX_NUMBER_OF_LINKS,
-        currentParams.getMaxNumberOfLinks(),
-        CHANGE_ON_INPUT_PERMANENT);
-    emitTraceParamsTable(currentParams, out);
-    out.write("</body>\n");
-    out.write("</html>\n");
-    out.close();
   }
 
   // If this is a supported change (currently only permanent changes are supported) apply it.
   private void maybeApplyChanges(Map<String, String> queryMap) {
-    if (queryMap.containsKey(CHANGE) && queryMap.get(CHANGE).equals(PERMANENT_CHANGE)) {
+    String changeStr = queryMap.get(CHANGE);
+    if (PERMANENT_CHANGE.equals(changeStr)) {
       TraceParams.Builder traceParamsBuilder = traceConfig.getActiveTraceParams().toBuilder();
-      if (queryMap.containsKey(QUERY_COMPONENT_SAMPLING_PROBABILITY)) {
-        double samplingProbability =
-            Double.parseDouble(queryMap.get(QUERY_COMPONENT_SAMPLING_PROBABILITY));
+      String samplingProbabilityStr = queryMap.get(QUERY_COMPONENT_SAMPLING_PROBABILITY);
+      if (samplingProbabilityStr != null && !samplingProbabilityStr.isEmpty()) {
+        double samplingProbability = Double.parseDouble(samplingProbabilityStr);
         traceParamsBuilder.setSampler(Samplers.probabilitySampler(samplingProbability));
       }
-      if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES)) {
-        int maxNumberOfAttributes =
-            Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES));
+      String maxNumberOfAttributesStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES);
+      if (maxNumberOfAttributesStr != null && !maxNumberOfAttributesStr.isEmpty()) {
+        int maxNumberOfAttributes = Integer.parseInt(maxNumberOfAttributesStr);
         traceParamsBuilder.setMaxNumberOfAttributes(maxNumberOfAttributes);
       }
-      if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS)) {
-        int maxNumberOfAnnotations =
-            Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS));
+      String maxNumberOfAnnotationsStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS);
+      if (maxNumberOfAnnotationsStr != null && !maxNumberOfAnnotationsStr.isEmpty()) {
+        int maxNumberOfAnnotations = Integer.parseInt(maxNumberOfAnnotationsStr);
         traceParamsBuilder.setMaxNumberOfAnnotations(maxNumberOfAnnotations);
       }
-      if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS)) {
-        int maxNumberOfNetworkEvents =
-            Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS));
+      String maxNumberOfNetworkEventsStr =
+          queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS);
+      if (maxNumberOfNetworkEventsStr != null && !maxNumberOfNetworkEventsStr.isEmpty()) {
+        int maxNumberOfNetworkEvents = Integer.parseInt(maxNumberOfNetworkEventsStr);
         traceParamsBuilder.setMaxNumberOfNetworkEvents(maxNumberOfNetworkEvents);
       }
-      if (queryMap.containsKey(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS)) {
-        int maxNumberOfLinks = Integer.parseInt(queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS));
+      String maxNumverOfLinksStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS);
+      if (maxNumverOfLinksStr != null && !maxNumverOfLinksStr.isEmpty()) {
+        int maxNumberOfLinks = Integer.parseInt(maxNumverOfLinksStr);
         traceParamsBuilder.setMaxNumberOfLinks(maxNumberOfLinks);
       }
       traceConfig.updateActiveTraceParams(traceParamsBuilder.build());
+    } else if (RESTORE_DEFAULT_CHANGE.equals(changeStr)) {
+      traceConfig.updateActiveTraceParams(TraceParams.DEFAULT);
     }
   }
 
   // Prints a table to a PrintWriter that shows existing trace parameters.
   private static void emitTraceParamsTable(TraceParams params, PrintWriter out) {
     out.write(
-        "<p>\n"
-            + "<b>Active tracing parameters:</b><br>\n"
-            + "<blockquote>\n"
+        "<b>Active tracing parameters:</b><br>\n"
             + "<table rules=\"all\" frame=\"border\">\n"
             + "  <tr style=\"background: #eee\">\n"
-            + "    <td>Name</td>\n"
-            + "    <td>Value</td>\n"
+            + "    <td><b>Name</b></td>\n"
+            + "    <td><b>Value</b></td>\n"
             + "  </tr>\n");
     out.printf(
-        "  <tr>%n    <td>Sampler</td>%n    <td>%s</td>%n  </tr>%n", params.getSampler().toString());
+        "  <tr>%n    <td>Sampler</td>%n    <td>%s</td>%n  </tr>%n",
+        params.getSampler().getDescription());
     out.printf(
         "  <tr>%n    <td>MaxNumberOfAttributes</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfAttributes());
@@ -175,7 +191,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         "  <tr>%n    <td>MaxNumberOfLinks</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfLinks());
 
-    out.write("</table>\n" + "</blockquote>\n");
+    out.write("</table>\n");
   }
 
   private TraceConfigzZPageHandler(TraceConfig traceConfig) {
