@@ -65,8 +65,11 @@ public final class ZPageHandlers {
       TracezZPageHandler.create(
           Tracing.getExportComponent().getRunningSpanStore(),
           Tracing.getExportComponent().getSampledSpanStore());
+  private static final ZPageHandler traceConfigzZPageHandler =
+      TraceConfigzZPageHandler.create(Tracing.getTraceConfig());
 
   private static final Object monitor = new Object();
+
   @GuardedBy("monitor")
   private static HttpServer server;
 
@@ -87,12 +90,24 @@ public final class ZPageHandlers {
   }
 
   /**
+   * Returns a {@code ZPageHandler} for tracing config. The page displays information about all
+   * active configuration and allow changing the active configuration.
+   *
+   * @return a {@code ZPageHandler} for tracing config.
+   */
+  public static ZPageHandler getTraceConfigzZPageHandler() {
+    return traceConfigzZPageHandler;
+  }
+
+  /**
    * Registers all pages to the given {@code HttpServer}.
    *
    * @param server the server that exports the tracez page.
    */
   public static void registerAllToHttpServer(HttpServer server) {
     server.createContext(tracezZPageHandler.getUrlPath(), new ZPageHttpHandler(tracezZPageHandler));
+    server.createContext(
+        traceConfigzZPageHandler.getUrlPath(), new ZPageHttpHandler(traceConfigzZPageHandler));
   }
 
   /**
@@ -124,7 +139,7 @@ public final class ZPageHandlers {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
                 logger.fine("*** Shutting down gRPC server (JVM shutting down)");
                 ZPageHandlers.stop();
-                logger.fine("*** server shut down");
+                logger.fine("*** Server shut down");
               }
             });
   }
