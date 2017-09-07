@@ -49,23 +49,23 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   // TODO(bdrutu): Use post.
   // TODO(bdrutu): Refactor this to not use a big "printf".
   private static final String TRACECONFIGZ_FORM_BODY =
-      "<form action=/traceconfigz method=get>\n"
+      "<form action=/traceconfigz method=get>%n"
           +
           // Permanently change.
-          "<p>\n"
+          "<p>%n"
           + "<input type=radio name="
           + CHANGE
-          + " value=%s id=%s> \n"
+          + " value=%s id=%s> %n"
           + "Permanently change:"
-          + "<br> SamplingProbability to <input type=text size=10 name=%s value=\"%f\" %s>\n"
-          + "<br> MaxNumberOfAttributes to <input type=text size=10 name=%s value=\"%d\" %s>\n"
-          + "<br> MaxNumberOfAnnotations to <input type=text size=10 name=%s value=\"%d\" %s> \n"
-          + "<br> MaxNumberOfNetworkEvents to <input type=text size=10 name=%s value=\"%d\" %s> \n"
-          + "<br> MaxNumberOfLinks to <input type=text size=10 name=%s value=\"%d\" %s> \n"
+          + "<br> SamplingProbability to <input type=text size=10 name=%s value=\"%f\" %s>%n"
+          + "<br> MaxNumberOfAttributes to <input type=text size=10 name=%s value=\"%d\" %s>%n"
+          + "<br> MaxNumberOfAnnotations to <input type=text size=10 name=%s value=\"%d\" %s>%n"
+          + "<br> MaxNumberOfNetworkEvents to <input type=text size=10 name=%s value=\"%d\" %s>%n"
+          + "<br> MaxNumberOfLinks to <input type=text size=10 name=%s value=\"%d\" %s>%n"
           +
           // Submit button.
-          "<p>\n"
-          + "<input type=submit value=Start>\n"
+          "<p>%n"
+          + "<input type=submit value=Start>%n"
           + "</form>";
 
   static TraceConfigzZPageHandler create(TraceConfig traceConfig) {
@@ -161,18 +161,18 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
             + "    <td>Value</td>\n"
             + "  </tr>\n");
     out.printf(
-        "  <tr>\n    <td>Sampler</td>\n    <td>%s</td>\n  </tr>\n", params.getSampler().toString());
+        "  <tr>%n    <td>Sampler</td>%n    <td>%s</td>%n  </tr>%n", params.getSampler().toString());
     out.printf(
-        "  <tr>\n    <td>MaxNumberOfAttributes</td>\n    <td>%d</td>\n  </tr>\n",
+        "  <tr>%n    <td>MaxNumberOfAttributes</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfAttributes());
     out.printf(
-        "  <tr>\n    <td>MaxNumberOfAnnotations</td>\n    <td>%d</td>\n  </tr>\n",
+        "  <tr>%n    <td>MaxNumberOfAnnotations</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfAnnotations());
     out.printf(
-        "  <tr>\n    <td>MaxNumberOfNetworkEvents</td>\n    <td>%d</td>\n  </tr>\n",
+        "  <tr>%n    <td>MaxNumberOfNetworkEvents</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfNetworkEvents());
     out.printf(
-        "  <tr>\n    <td>MaxNumberOfLinks</td>\n    <td>%d</td>\n  </tr>\n",
+        "  <tr>%n    <td>MaxNumberOfLinks</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfLinks());
 
     out.write("</table>\n" + "</blockquote>\n");
