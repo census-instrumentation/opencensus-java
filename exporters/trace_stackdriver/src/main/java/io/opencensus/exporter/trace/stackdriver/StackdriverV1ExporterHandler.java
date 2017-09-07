@@ -104,10 +104,10 @@ final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
 
     // Add Annotations as labels in the v1 API
     int seq = 0;
-    for (TimedEvent<Annotation> annotations : spanData.getAnnotations().getEvents()) {
+    for (TimedEvent<Annotation> annotation : spanData.getAnnotations().getEvents()) {
       spanBuilder.putLabels(
           ANNOTATION_LABEL + String.format("%03d", seq++),
-          renderAnnotation(annotations, spanData.getStartTimestamp()));
+          renderAnnotation(annotation, spanData.getStartTimestamp()));
     }
 
     // Add NetworkEvents as labels in the v1 API
@@ -205,15 +205,12 @@ final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
     for (Map.Entry<String, AttributeValue> entry : attributes.entrySet()) {
       if (first) {
         first = false;
-        stringBuilder.append(entry.getKey());
-        stringBuilder.append("=");
-        stringBuilder.append(attributeValueToString(entry.getValue()));
       } else {
         stringBuilder.append(", ");
-        stringBuilder.append(entry.getKey());
-        stringBuilder.append("=");
-        stringBuilder.append(attributeValueToString(entry.getValue()));
       }
+      stringBuilder.append(entry.getKey());
+      stringBuilder.append("=");
+      stringBuilder.append(attributeValueToString(entry.getValue()));
     }
     stringBuilder.append("}");
     return stringBuilder.toString();
