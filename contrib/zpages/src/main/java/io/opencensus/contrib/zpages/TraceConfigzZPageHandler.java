@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.zpages;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import com.google.common.base.Charsets;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
@@ -65,17 +67,17 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "</table>%n"
           // Submit button.
-          + "<input type=submit value=Start>%n"
+          + "<input type=submit value=Submit>%n"
           + "</form>";
 
   private static final String RESTORE_DEFAULT_FORM_BODY =
       "<form action=/traceconfigz method=get>%n"
-          // Permanently changes table.
+          // Restore to default.
           + "<b>Restore default</b> %n"
           + "<input type=\"hidden\" name=\"%s\" value=\"%s\"></td>%n"
           + "</br>%n"
-          // Submit button.
-          + "<input type=submit value=Start>%n"
+          // Reset button.
+          + "<input type=submit value=Reset>%n"
           + "</form>";
 
   static TraceConfigzZPageHandler create(TraceConfig traceConfig) {
@@ -104,7 +106,6 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     } finally {
       // TODO(bdrutu): Maybe display to the page if an exception happened.
       // Display the page in any case.
-      TraceParams currentParams = traceConfig.getActiveTraceParams();
       out.printf(
           TRACECONFIGZ_FORM_BODY,
           CHANGE,
@@ -122,7 +123,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       out.write("<br>\n");
       out.printf(RESTORE_DEFAULT_FORM_BODY, CHANGE, RESTORE_DEFAULT_CHANGE);
       out.write("<br>\n");
-      emitTraceParamsTable(currentParams, out);
+      emitTraceParamsTable(traceConfig.getActiveTraceParams(), out);
       out.write("</body>\n");
       out.write("</html>\n");
       out.close();
@@ -135,28 +136,28 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     if (PERMANENT_CHANGE.equals(changeStr)) {
       TraceParams.Builder traceParamsBuilder = traceConfig.getActiveTraceParams().toBuilder();
       String samplingProbabilityStr = queryMap.get(QUERY_COMPONENT_SAMPLING_PROBABILITY);
-      if (samplingProbabilityStr != null && !samplingProbabilityStr.isEmpty()) {
+      if (!isNullOrEmpty(samplingProbabilityStr)) {
         double samplingProbability = Double.parseDouble(samplingProbabilityStr);
         traceParamsBuilder.setSampler(Samplers.probabilitySampler(samplingProbability));
       }
       String maxNumberOfAttributesStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ATTRIBUTES);
-      if (maxNumberOfAttributesStr != null && !maxNumberOfAttributesStr.isEmpty()) {
+      if (!isNullOrEmpty(maxNumberOfAttributesStr)) {
         int maxNumberOfAttributes = Integer.parseInt(maxNumberOfAttributesStr);
         traceParamsBuilder.setMaxNumberOfAttributes(maxNumberOfAttributes);
       }
       String maxNumberOfAnnotationsStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS);
-      if (maxNumberOfAnnotationsStr != null && !maxNumberOfAnnotationsStr.isEmpty()) {
+      if (!isNullOrEmpty(maxNumberOfAnnotationsStr)) {
         int maxNumberOfAnnotations = Integer.parseInt(maxNumberOfAnnotationsStr);
         traceParamsBuilder.setMaxNumberOfAnnotations(maxNumberOfAnnotations);
       }
       String maxNumberOfNetworkEventsStr =
           queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS);
-      if (maxNumberOfNetworkEventsStr != null && !maxNumberOfNetworkEventsStr.isEmpty()) {
+      if (!isNullOrEmpty(maxNumberOfNetworkEventsStr)) {
         int maxNumberOfNetworkEvents = Integer.parseInt(maxNumberOfNetworkEventsStr);
         traceParamsBuilder.setMaxNumberOfNetworkEvents(maxNumberOfNetworkEvents);
       }
       String maxNumverOfLinksStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS);
-      if (maxNumverOfLinksStr != null && !maxNumverOfLinksStr.isEmpty()) {
+      if (!isNullOrEmpty(maxNumverOfLinksStr)) {
         int maxNumberOfLinks = Integer.parseInt(maxNumverOfLinksStr);
         traceParamsBuilder.setMaxNumberOfLinks(maxNumberOfLinks);
       }
