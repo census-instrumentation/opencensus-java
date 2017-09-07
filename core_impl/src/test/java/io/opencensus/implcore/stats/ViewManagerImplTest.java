@@ -276,7 +276,20 @@ public class ViewManagerImplTest {
         EPSILON);
 
     clock.setTime(Timestamp.fromMillis(60 * MILLIS_PER_SECOND));
-    // 60s, all values should have expired
+    // 60s, all previous values should have expired, add a new value 30.0
+    statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 30.0).build());
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            Arrays.asList(
+                SumData.create(30.0),
+                CountData.create(1),
+                HistogramData.create(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1))),
+        EPSILON);
+
+    clock.setTime(Timestamp.fromMillis(100 * MILLIS_PER_SECOND));
+    // 100s, all values should have expired
     assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();
   }
 
@@ -381,6 +394,11 @@ public class ViewManagerImplTest {
             Arrays.asList(VALUE_2),
             StatsTestUtil.createAggregationData(AGGREGATIONS_V1, 30.0, 50.0)),
         EPSILON);
+
+    // get ViewData at 40s, all stats should have expired.
+    clock.setTime(Timestamp.fromMillis(40 * MILLIS_PER_SECOND));
+    ViewData viewData3 = viewManager.getView(VIEW_NAME);
+    assertThat(viewData3.getAggregationMap()).isEmpty();
   }
   
   // This test checks that StatsRecorder.record(...) does not throw an exception when no views are

@@ -103,9 +103,11 @@ abstract class MutableViewData {
   static final TagValue UNKNOWN_TAG_VALUE = null;
 
   private final View view;
+  private final Timestamp start;
 
-  private MutableViewData(View view) {
+  private MutableViewData(View view, Timestamp start) {
     this.view = view;
+    this.start = start;
   }
 
   /**
@@ -254,13 +256,11 @@ abstract class MutableViewData {
 
   private static final class CumulativeMutableViewData extends MutableViewData {
 
-    private final Timestamp start;
     private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
         Maps.newHashMap();
 
     private CumulativeMutableViewData(View view, Timestamp start) {
-      super(view);
-      this.start = start;
+      super(view, start);
     }
 
     @Override
@@ -285,37 +285,65 @@ abstract class MutableViewData {
     ViewData toViewData(Clock clock) {
       return ViewData.create(
           super.view, createAggregationMap(tagValueAggregationMap),
-          CumulativeData.create(start, clock.now()));
+          CumulativeData.create(super.start, clock.now()));
     }
   }
 
+  /*
+   * For each IntervalView, we always keep a queue of N + 1 buckets (by default N is 4).
+   * Each bucket has a duration which is interval duration / N.
+   * Ideally:
+   * 1. the buckets should always be up-to-date,
+   * 2. current time should always be within the latest bucket, currently recorded stats should fall
+   *    into the latest bucket,
+   * 3. there are always N buckets before the current one, which holds the stats in the past
+   *    interval duration.
+   *
+   * When getView() is called, we will extract and combine the stats from the current and past
+   * buckets (part of the stats from the oldest bucket could have expired).
+   *
+   * However, in reality, we couldn't track the status of buckets all the time (keep monitoring and
+   * updating the bucket queue will be expensive). When we call record() or getView(), some or all
+   * of the buckets might be outdated, and we will need to "pad" new buckets to the queue and remove
+   * outdated ones. After refreshing buckets, the bucket queue will able to maintain the three
+   * invariants in the ideal situation.
+   *
+   * For example:
+   * 1. We have an IntervalView which has a duration of 8 seconds, we register this view at 10s.
+   * 2. Initially there will be 5 buckets: [2.0, 4.0), [4.0, 6.0), ..., [10.0, 12.0).
+   * 3. If users don't call record() or getView(), bucket queue will remain as it is, and some
+   *    buckets could expire.
+   * 4. Suppose record() is called at 15s, now we need to refresh the bucket queue. We need to add
+   *    two new buckets [12.0, 14.0) and [14.0, 16.0), and remove two expired buckets [2.0, 4.0)
+   *    and [4.0, 6.0)
+   * 5. Suppose record() is called again at 30s, all the current buckets should have expired. We add
+   *    5 new buckets [22.0, 24.0) ... [30.0, 32.0) and remove all the previous buckets.
+   * 6. Suppose users call getView() at 35s, again we need to add two new buckets and remove two
+   *    expired one, so that bucket queue is up-to-date. Now we combine stats from all buckets and
+   *    return the combined IntervalViewData.
+   */
   private static final class IntervalMutableViewData extends MutableViewData {
 
     // TODO(songya): allow customizable bucket size in the future.
-    private static final int MAX_BUCKET_SIZE = 5; // N + 1 buckets
+    private static final int N = 4; // IntervalView has N + 1 buckets
 
     private final LinkedList<IntervalBucket> buckets = new LinkedList<IntervalBucket>();
-    private final Duration totalDuration;  // Duration of the Interval window
     private final Duration bucketDuration; // Duration of a single bucket (totalDuration / N)
 
-    private Timestamp startOfBuckets; // Start timestamp of the eldest bucket of all current buckets
-
     private IntervalMutableViewData(View view, Timestamp start) {
-      super(view);
-      totalDuration = ((Interval) view.getWindow()).getDuration();
-      bucketDuration = Duration.fromMillis(toMillis(totalDuration) / (MAX_BUCKET_SIZE - 1));
+      super(view, start);
+      Duration totalDuration = ((Interval) view.getWindow()).getDuration();
+      bucketDuration = Duration.fromMillis(toMillis(totalDuration) / N);
 
       // When initializing. add N empty buckets prior to the start timestamp of this
       // IntervalMutableViewData, so that the last bucket will be the current one in effect.
-      startOfBuckets = start.addDuration(
-          Duration.create(-totalDuration.getSeconds(), -totalDuration.getNanos()));
-      refreshBucketList(MAX_BUCKET_SIZE);
+      shiftBucketList(N + 1, start);
     }
 
     @Override
     void record(TagContext context, double value, Timestamp timestamp) {
       List<TagValue> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
-      padBuckets(timestamp);
+      refreshBucketList(timestamp);
       // It is always the last bucket that does the recording.
       buckets.peekLast().record(tagValues, value);
     }
@@ -329,40 +357,47 @@ abstract class MutableViewData {
     @Override
     ViewData toViewData(Clock clock) {
       Timestamp now = clock.now();
-      padBuckets(now);
+      refreshBucketList(now);
       return ViewData.create(
           super.view, combineBucketsAndGetAggregationMap(now), IntervalData.create(now));
     }
 
     // Add new buckets and remove expired buckets by comparing the current timestamp with
     // timestamp of the last bucket.
-    private void padBuckets(Timestamp now) {
-      checkArgument(buckets.size() == MAX_BUCKET_SIZE,
-          "Invariant 1: bucket list must have exactly " + MAX_BUCKET_SIZE + " buckets.");
+    private void refreshBucketList(Timestamp now) {
+      if (buckets.size() != N + 1) {
+        throw new AssertionError("Bucket list must have exactly " + (N + 1) + " buckets.");
+      }
       Timestamp startOfLastBucket = buckets.peekLast().getStart();
+      // TODO(songya): decide what to do when time goes backwards
       checkArgument(now.compareTo(startOfLastBucket) >= 0,
-          "Invariant 2: current time must be within or after the last bucket.");
+          "Current time must be within or after the last bucket.");
       long elapsedTimeMillis = toMillis(now.subtractTimestamp(startOfLastBucket));
       long numOfPadBuckets = elapsedTimeMillis / toMillis(bucketDuration);
 
-      refreshBucketList(numOfPadBuckets);
+      shiftBucketList(numOfPadBuckets, now);
     }
 
     // Add specified number of new buckets, and remove expired buckets
-    private void refreshBucketList(long numOfPadBuckets) {
+    private void shiftBucketList(long numOfPadBuckets, Timestamp now) {
       Timestamp startOfNewBucket;
+      Duration totalDuration = Duration.fromMillis(N * toMillis(bucketDuration));
+
       if (!buckets.isEmpty()) {
         startOfNewBucket = buckets.peekLast().getStart().addDuration(bucketDuration);
       } else {
         // Initialize bucket list. Should only enter this block once.
-        startOfNewBucket = startOfBuckets;
+        // TODO(songya): add a Timestamp.subtractDuration() method and use that instead.
+        startOfNewBucket = now.addDuration(
+            Duration.create(-totalDuration.getSeconds(), -totalDuration.getNanos()));
       }
 
-      if (numOfPadBuckets > MAX_BUCKET_SIZE) {
-        // All current buckets expired, need to add N + 1 new buckets, and update startOfNewBucket.
-        startOfNewBucket = startOfNewBucket.addDuration(
-            Duration.fromMillis((numOfPadBuckets - MAX_BUCKET_SIZE) * toMillis(bucketDuration)));
-        numOfPadBuckets = MAX_BUCKET_SIZE;
+      if (numOfPadBuckets > N + 1) {
+        // All current buckets expired, need to add N + 1 new buckets. The start time of the latest
+        // bucket will be current time.
+        startOfNewBucket = now.addDuration(
+            Duration.create(-totalDuration.getSeconds(), -totalDuration.getNanos()));
+        numOfPadBuckets = N + 1;
       }
 
       for (int i = 0; i < numOfPadBuckets; i++) {
@@ -372,10 +407,9 @@ abstract class MutableViewData {
       }
 
       // removed expired buckets
-      while (buckets.size() > MAX_BUCKET_SIZE) {
+      while (buckets.size() > N + 1) {
         buckets.pollFirst();
       }
-      startOfBuckets = buckets.peekFirst().getStart();
     }
 
     // Combine stats within each bucket, aggregate stats by tag values, and return the mapping from
@@ -384,30 +418,38 @@ abstract class MutableViewData {
         Timestamp now) {
       Multimap<List<TagValue>, List<MutableAggregation>> multimap = HashMultimap.create();
       LinkedList<IntervalBucket> shallowCopy = new LinkedList<IntervalBucket>(buckets);
-      putBucketsIntoMultiMap(shallowCopy, multimap, now);
+      List<Aggregation> aggregations = super.view.getAggregations();
+      putBucketsIntoMultiMap(shallowCopy, multimap, aggregations, now);
       Map<List<TagValue>, List<MutableAggregation>> singleMap =
-          aggregateOnEachTagValueList(multimap);
+          aggregateOnEachTagValueList(multimap, aggregations);
       return createAggregationMap(singleMap);
     }
 
     // Put stats within each bucket to a multimap. Each tag value list (map key) could have multiple
     // mutable aggregation lists (map value) from different buckets.
-    private void putBucketsIntoMultiMap(
+    private static void putBucketsIntoMultiMap(
         LinkedList<IntervalBucket> buckets,
         Multimap<List<TagValue>, List<MutableAggregation>> multimap,
+        List<Aggregation> aggregations,
         Timestamp now) {
       // Put fractional stats of the head (oldest) bucket.
-      IntervalBucket head = buckets.pollFirst();
+      IntervalBucket head = buckets.peekFirst();
       IntervalBucket tail = buckets.peekLast();
       double fractionTail = tail.getFraction(now);
+      // TODO(songya): decide what to do when time goes backwards
       checkArgument(0.0 <= fractionTail && fractionTail <= 1.0,
           "Fraction " + fractionTail + " should be within [0.0, 1.0].");
       double fractionHead = 1.0 - fractionTail;
       putFractionalMutableAggregationsToMultiMap(
-          head.getTagValueAggregationMap(), multimap, fractionHead);
+          head.getTagValueAggregationMap(), multimap, aggregations, fractionHead);
 
       // Put whole data of other buckets.
+      int i = 0;
       for (IntervalBucket bucket : buckets) {
+        i++;
+        if (i == 1) {
+          continue; // skip the first bucket
+        }
         for (Entry<List<TagValue>, List<MutableAggregation>> entry :
             bucket.getTagValueAggregationMap().entrySet()) {
           multimap.put(entry.getKey(), entry.getValue());
@@ -416,14 +458,15 @@ abstract class MutableViewData {
     }
 
     // Put stats within one bucket into multimap, multiplied by a given fraction.
-    private void putFractionalMutableAggregationsToMultiMap(
-        Map<List<TagValue>, List<MutableAggregation>> mutableAggrMap,
-        Multimap<List<TagValue>, List<MutableAggregation>> multimap,
+    private static <T> void putFractionalMutableAggregationsToMultiMap(
+        Map<T, List<MutableAggregation>> mutableAggrMap,
+        Multimap<T, List<MutableAggregation>> multimap,
+        List<Aggregation> aggregations,
         double fraction) {
-      for (Entry<List<TagValue>, List<MutableAggregation>> entry :
+      for (Entry<T, List<MutableAggregation>> entry :
           mutableAggrMap.entrySet()) {
-        List<MutableAggregation> fractionalMutableAggs = createMutableAggregations(
-            super.view.getAggregations()); // Initially empty MutableAggregations.
+        // Initially empty MutableAggregations.
+        List<MutableAggregation> fractionalMutableAggs = createMutableAggregations(aggregations);
         for (int i = 0; i < fractionalMutableAggs.size(); i++) {
           fractionalMutableAggs.get(i).combine(entry.getValue().get(i), fraction);
         }
@@ -433,12 +476,13 @@ abstract class MutableViewData {
 
     // For each tag value list (key of AggregationMap), combine mutable aggregation lists into one
     // list, thus convert the multimap into a single map.
-    private Map<List<TagValue>, List<MutableAggregation>> aggregateOnEachTagValueList(
-        Multimap<List<TagValue>, List<MutableAggregation>> multimap) {
-      Map<List<TagValue>, List<MutableAggregation>> map = Maps.newHashMap();
-      for (List<TagValue> tagValues : multimap.keySet()) {
-        List<MutableAggregation> combinedAggregations = createMutableAggregations(
-            super.view.getAggregations()); // Initially empty MutableAggregations.
+    private static <T> Map<T, List<MutableAggregation>> aggregateOnEachTagValueList(
+        Multimap<T, List<MutableAggregation>> multimap,
+        List<Aggregation> aggregations) {
+      Map<T, List<MutableAggregation>> map = Maps.newHashMap();
+      for (T tagValues : multimap.keySet()) {
+        // Initially empty MutableAggregations.
+        List<MutableAggregation> combinedAggregations = createMutableAggregations(aggregations);
         for (List<MutableAggregation> mutableAggregations : multimap.get(tagValues)) {
           for (int i = 0; i < mutableAggregations.size(); i++) {
             combinedAggregations.get(i).combine(mutableAggregations.get(i), 1.0);
