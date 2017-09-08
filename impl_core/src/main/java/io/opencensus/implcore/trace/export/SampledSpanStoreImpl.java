@@ -51,25 +51,44 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
 
   private static final class Bucket {
 
-    private final EvictingQueue<SpanImpl> queue;
-    private long lastSampleNanoTime;
+    private final EvictingQueue<SpanImpl> sampledSpansQueue;
+    private final EvictingQueue<SpanImpl> notSampledSpansQueue;
+    private long lastSampledNanoTime;
+    private long lastNotSampledNanoTime;
 
     private Bucket(int numSamples) {
-      queue = EvictingQueue.create(numSamples);
+      sampledSpansQueue = EvictingQueue.create(numSamples);
+      notSampledSpansQueue = EvictingQueue.create(numSamples);
     }
 
     private void considerForSampling(SpanImpl span) {
       long spanEndNanoTime = span.getEndNanoTime();
-      // Need to compare by doing the subtraction all the time because in case of an overflow,
-      // this may never sample again (at least for the next ~200 years). No real chance to
-      // overflow two times because that means the process runs for ~200 years.
-      if (spanEndNanoTime - lastSampleNanoTime > TIME_BETWEEN_SAMPLES) {
-        queue.add(span);
-        lastSampleNanoTime = spanEndNanoTime;
+      if (span.getContext().getTraceOptions().isSampled()) {
+        // Need to compare by doing the subtraction all the time because in case of an overflow,
+        // this may never sample again (at least for the next ~200 years). No real chance to
+        // overflow two times because that means the process runs for ~200 years.
+        if (spanEndNanoTime - lastSampledNanoTime > TIME_BETWEEN_SAMPLES) {
+          sampledSpansQueue.add(span);
+          lastSampledNanoTime = spanEndNanoTime;
+        }
+      } else {
+        // Need to compare by doing the subtraction all the time because in case of an overflow,
+        // this may never sample again (at least for the next ~200 years). No real chance to
+        // overflow two times because that means the process runs for ~200 years.
+        if (spanEndNanoTime - lastNotSampledNanoTime > TIME_BETWEEN_SAMPLES) {
+          notSampledSpansQueue.add(span);
+          lastNotSampledNanoTime = spanEndNanoTime;
+        }
       }
     }
 
     private void getSamples(int maxSpansToReturn, List<SpanImpl> output) {
+      getSamples(sampledSpansQueue, maxSpansToReturn, output);
+      getSamples(notSampledSpansQueue, maxSpansToReturn, output);
+    }
+
+    private static void getSamples(EvictingQueue<SpanImpl> queue, int maxSpansToReturn,
+        List<SpanImpl> output) {
       for (SpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
           break;
@@ -79,6 +98,14 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     }
 
     private void getSamplesFilteredByLatency(
+        long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn, List<SpanImpl> output) {
+      getSamplesFilteredByLatency(sampledSpansQueue, latencyLowerNs, latencyUpperNs,
+          maxSpansToReturn, output);
+      getSamplesFilteredByLatency(notSampledSpansQueue, latencyLowerNs, latencyUpperNs,
+          maxSpansToReturn, output);
+    }
+
+    private static void getSamplesFilteredByLatency(EvictingQueue<SpanImpl> queue,
         long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn, List<SpanImpl> output) {
       for (SpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
@@ -92,7 +119,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     }
 
     private int getNumSamples() {
-      return queue.size();
+      return sampledSpansQueue.size() + notSampledSpansQueue.size();
     }
   }
 

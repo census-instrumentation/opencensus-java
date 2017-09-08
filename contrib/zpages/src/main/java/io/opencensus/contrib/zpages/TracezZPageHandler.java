@@ -29,6 +29,7 @@ import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.NetworkEvent.Type;
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
@@ -107,6 +108,10 @@ final class TracezZPageHandler extends ZPageHandler {
   private static final Tracer tracer = Tracing.getTracer();
   // Color to use for zebra-striping.
   private static final String ZEBRA_STRIPE_COLOR = "#eee";
+  // Color for sampled traceIds.
+  private static final String SAMPLED_TRACE_ID_COLOR = "blue";
+  // Color for not sampled traceIds
+  private static final String NOT_SAMPLED_TRACE_ID_COLOR = "black";
   // The header for span name.
   private static final String HEADER_SPAN_NAME = "zspanname";
   // The header for type (running = 0, latency = 1, error = 2) to display.
@@ -233,6 +238,7 @@ final class TracezZPageHandler extends ZPageHandler {
 
         if (spans != null) {
           emitSpans(out, formatter, spans);
+          emitLegend(out);
         }
       }
     }
@@ -286,9 +292,10 @@ final class TracezZPageHandler extends ZPageHandler {
                     * 1.0e-9)
             : String.format("%13s", " ");
 
+    SpanContext spanContext = span.getContext();
     formatter.format(
-        "<b>%04d/%02d/%02d-%02d:%02d:%02d.%06d %s     TraceId: %s SpanId: %s "
-            + "ParentSpanId: %s</b>%n",
+        "<b>%04d/%02d/%02d-%02d:%02d:%02d.%06d %s     TraceId: <b style=\"color:%s;\">%s</b> "
+            + "SpanId: %s ParentSpanId: %s</b>%n",
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH) + 1,
         calendar.get(Calendar.DAY_OF_MONTH),
@@ -297,8 +304,11 @@ final class TracezZPageHandler extends ZPageHandler {
         calendar.get(Calendar.SECOND),
         microsField,
         elapsedSecondsStr,
-        BaseEncoding.base16().lowerCase().encode(span.getContext().getTraceId().getBytes()),
-        BaseEncoding.base16().lowerCase().encode(span.getContext().getSpanId().getBytes()),
+        spanContext.getTraceOptions().isSampled()
+            ? SAMPLED_TRACE_ID_COLOR
+            : NOT_SAMPLED_TRACE_ID_COLOR,
+        BaseEncoding.base16().lowerCase().encode(spanContext.getTraceId().getBytes()),
+        BaseEncoding.base16().lowerCase().encode(spanContext.getSpanId().getBytes()),
         BaseEncoding.base16()
             .lowerCase()
             .encode(
@@ -509,6 +519,14 @@ final class TracezZPageHandler extends ZPageHandler {
     } else {
       out.write("<td align=\"center\">0</td>\n");
     }
+  }
+
+  private static void emitLegend(PrintWriter out) {
+    out.write("<br>\n");
+    out.printf("<p><b style=\"color:%s;\">TraceId</b> means sampled request. "
+            + "<b style=\"color:%s;\">TraceId</b> means not sampled request.</p>%n",
+        SAMPLED_TRACE_ID_COLOR,
+        NOT_SAMPLED_TRACE_ID_COLOR);
   }
 
   private static Map<LatencyBucketBoundaries, String> buildLatencyBucketBoundariesStringMap() {
