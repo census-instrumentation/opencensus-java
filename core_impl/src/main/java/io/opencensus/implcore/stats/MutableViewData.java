@@ -63,7 +63,6 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -149,8 +148,7 @@ abstract class MutableViewData {
       return ((TagContextImpl) ctx).getTags();
     } else {
       Map<TagKey, TagValue> tags = Maps.newHashMap();
-      for (Iterator<Tag> i = ctx.unsafeGetIterator(); i.hasNext(); ) {
-        Tag tag = i.next();
+      for (Tag tag : ctx) {
         tags.put(
             tag.getKey(),
             tag.match(

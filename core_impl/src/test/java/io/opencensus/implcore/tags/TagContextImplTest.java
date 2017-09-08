@@ -36,7 +36,6 @@ import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,7 +63,7 @@ public class TagContextImplTest {
     TagKeyLong longKey = UnreleasedApiAccessor.createTagKeyLong("key");
     TagKeyBoolean boolKey = UnreleasedApiAccessor.createTagKeyBoolean("key");
     assertThat(
-            asList(
+            Lists.newArrayList(
                 tagContexts
                     .emptyBuilder()
                     .set(stringKey, TagValueString.create("value"))
@@ -80,24 +79,24 @@ public class TagContextImplTest {
   @Test
   public void testSet() {
     TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).build();
-    assertThat(asList(tagContexts.toBuilder(tags).set(KS1, V2).build()))
+    assertThat(Lists.newArrayList(tagContexts.toBuilder(tags).set(KS1, V2).build()))
         .containsExactly(TagString.create(KS1, V2));
-    assertThat(asList(tagContexts.toBuilder(tags).set(KS2, V2).build()))
+    assertThat(Lists.newArrayList(tagContexts.toBuilder(tags).set(KS2, V2).build()))
         .containsExactly(TagString.create(KS1, V1), TagString.create(KS2, V2));
   }
 
   @Test
   public void testClear() {
     TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).build();
-    assertThat(asList(tagContexts.toBuilder(tags).clear(KS1).build())).isEmpty();
-    assertThat(asList(tagContexts.toBuilder(tags).clear(KS2).build()))
+    assertThat(Lists.newArrayList(tagContexts.toBuilder(tags).clear(KS1).build())).isEmpty();
+    assertThat(Lists.newArrayList(tagContexts.toBuilder(tags).clear(KS2).build()))
         .containsExactly(TagString.create(KS1, V1));
   }
 
   @Test
   public void testIterator() {
     TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
-    Iterator<Tag> i = tags.unsafeGetIterator();
+    Iterator<Tag> i = tags.iterator();
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
     assertTrue(i.hasNext());
@@ -112,13 +111,9 @@ public class TagContextImplTest {
   @Test
   public void disallowCallingRemoveOnIterator() {
     TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
-    Iterator<Tag> i = tags.unsafeGetIterator();
+    Iterator<Tag> i = tags.iterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);
     i.remove();
-  }
-
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 }

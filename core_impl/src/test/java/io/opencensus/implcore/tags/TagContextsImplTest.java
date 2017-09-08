@@ -63,7 +63,7 @@ public class TagContextsImplTest {
 
   @Test
   public void empty() {
-    assertThat(asList(tagContexts.empty())).isEmpty();
+    assertThat(Lists.newArrayList(tagContexts.empty())).isEmpty();
     assertThat(tagContexts.empty()).isInstanceOf(TagContextImpl.class);
   }
 
@@ -71,14 +71,14 @@ public class TagContextsImplTest {
   public void emptyBuilder() {
     TagContextBuilder builder = tagContexts.emptyBuilder();
     assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
-    assertThat(asList(builder.build())).isEmpty();
+    assertThat(Lists.newArrayList(builder.build())).isEmpty();
   }
 
   @Test
   public void toBuilder_ConvertUnknownTagContextToTagContextImpl() {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
     TagContext newTagContext = tagContexts.toBuilder(unknownTagContext).build();
-    assertThat(asList(newTagContext)).containsExactly(TAG1, TAG2, TAG3);
+    assertThat(Lists.newArrayList(newTagContext)).containsExactly(TAG1, TAG2, TAG3);
     assertThat(newTagContext).isInstanceOf(TagContextImpl.class);
   }
 
@@ -88,20 +88,20 @@ public class TagContextsImplTest {
     Tag tag2 = TagString.create(KS, VS2);
     TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
     TagContext newTagContext = tagContexts.toBuilder(tagContextWithDuplicateTags).build();
-    assertThat(asList(newTagContext)).containsExactly(tag2);
+    assertThat(Lists.newArrayList(newTagContext)).containsExactly(tag2);
   }
 
   @Test
   public void toBuilder_SkipNullTag() {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext newTagContext = tagContexts.toBuilder(tagContextWithNullTag).build();
-    assertThat(asList(newTagContext)).containsExactly(TAG1, TAG2);
+    assertThat(Lists.newArrayList(newTagContext)).containsExactly(TAG1, TAG2);
   }
 
   @Test
   public void getCurrentTagContext_DefaultIsEmptyTagContextImpl() {
     TagContext currentTagContext = tagContexts.getCurrentTagContext();
-    assertThat(asList(currentTagContext)).isEmpty();
+    assertThat(Lists.newArrayList(currentTagContext)).isEmpty();
     assertThat(currentTagContext).isInstanceOf(TagContextImpl.class);
   }
 
@@ -110,7 +110,7 @@ public class TagContextsImplTest {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
     TagContext result = getResultOfGetCurrentTagContext(unknownTagContext);
     assertThat(result).isInstanceOf(TagContextImpl.class);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2, TAG3);
+    assertThat(Lists.newArrayList(result)).containsExactly(TAG1, TAG2, TAG3);
   }
 
   @Test
@@ -119,14 +119,14 @@ public class TagContextsImplTest {
     Tag tag2 = TagString.create(KS, VS2);
     TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
     TagContext result = getResultOfGetCurrentTagContext(tagContextWithDuplicateTags);
-    assertThat(asList(result)).containsExactly(tag2);
+    assertThat(Lists.newArrayList(result)).containsExactly(tag2);
   }
 
   @Test
   public void getCurrentTagContext_SkipNullTag() {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext result = getResultOfGetCurrentTagContext(tagContextWithNullTag);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2);
+    assertThat(Lists.newArrayList(result)).containsExactly(TAG1, TAG2);
   }
 
   private TagContext getResultOfGetCurrentTagContext(TagContext tagsToSet) {
@@ -143,7 +143,7 @@ public class TagContextsImplTest {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
     TagContext result = getResultOfWithTagContext(unknownTagContext);
     assertThat(result).isInstanceOf(TagContextImpl.class);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2, TAG3);
+    assertThat(Lists.newArrayList(result)).containsExactly(TAG1, TAG2, TAG3);
   }
 
   @Test
@@ -152,14 +152,14 @@ public class TagContextsImplTest {
     Tag tag2 = TagString.create(KS, VS2);
     TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
     TagContext result = getResultOfWithTagContext(tagContextWithDuplicateTags);
-    assertThat(asList(result)).containsExactly(tag2);
+    assertThat(Lists.newArrayList(result)).containsExactly(tag2);
   }
 
   @Test
   public void withTagContext_SkipNullTag() {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext result = getResultOfWithTagContext(tagContextWithNullTag);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2);
+    assertThat(Lists.newArrayList(result)).containsExactly(TAG1, TAG2);
   }
 
   private TagContext getResultOfWithTagContext(TagContext tagsToSet) {
@@ -171,10 +171,6 @@ public class TagContextsImplTest {
     }
   }
 
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
-  }
-
   private static final class SimpleTagContext extends TagContext {
     private final List<Tag> tags;
 
@@ -183,7 +179,7 @@ public class TagContextsImplTest {
     }
 
     @Override
-    public Iterator<Tag> unsafeGetIterator() {
+    public Iterator<Tag> iterator() {
       return tags.iterator();
     }
   }

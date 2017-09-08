@@ -51,7 +51,7 @@ public final class TagContextTest {
     }
 
     @Override
-    public Iterator<Tag> unsafeGetIterator() {
+    public Iterator<Tag> iterator() {
       return tags.iterator();
     }
   }

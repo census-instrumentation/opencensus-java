@@ -37,7 +37,6 @@ import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Methods for serializing and deserializing {@link TagContext}s.
@@ -96,8 +95,7 @@ final class SerializationUtils {
     byteArrayOutputStream.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
-    for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
-      Tag tag = i.next();
+    for (Tag tag : tags) {
 
       // TODO(sebright): Is there a better way to handle checked exceptions in function objects?
       IOException ex =
