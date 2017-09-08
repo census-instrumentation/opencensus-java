@@ -44,6 +44,11 @@ final class AlwaysSampleSampler extends Sampler {
   }
 
   @Override
+  public String getDescription() {
+    return toString();
+  }
+
+  @Override
   public String toString() {
     return "AlwaysSampleSampler";
   }

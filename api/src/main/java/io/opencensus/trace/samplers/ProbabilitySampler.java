@@ -92,4 +92,9 @@ abstract class ProbabilitySampler extends Sampler {
     // code is executed in-line for every Span creation).
     return Math.abs(traceId.getLowerLong()) < getIdUpperBound();
   }
+
+  @Override
+  public final String getDescription() {
+    return String.format("ProbabilitySampler{%.6f}", getProbability());
+  }
 }

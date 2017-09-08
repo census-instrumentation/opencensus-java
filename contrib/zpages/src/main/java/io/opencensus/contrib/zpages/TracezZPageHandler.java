@@ -134,7 +134,7 @@ final class TracezZPageHandler extends ZPageHandler {
    * @param sampledSpanStore the instance of the {@code SampledSpanStore} to be used.
    * @return a new {@code TracezZPageHandler}.
    */
-  public static TracezZPageHandler create(
+  static TracezZPageHandler create(
       @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
     return new TracezZPageHandler(runningSpanStore, sampledSpanStore);
   }
