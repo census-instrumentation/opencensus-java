@@ -17,6 +17,8 @@
 package io.opencensus.implcore.tags;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
+import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -30,10 +32,7 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TagValue.TagValueString;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -91,57 +90,47 @@ final class SerializationUtils {
 
   // Serializes a TagContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
-  static void serializeBinary(TagContext tags, OutputStream output) throws IOException {
-    final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    byteArrayOutputStream.write(VERSION_ID);
+  static byte[] serializeBinary(TagContext tags) {
+    // Use a ByteArrayDataOutput to avoid needing to handle IOExceptions.
+    final ByteArrayDataOutput byteArrayDataOutput = ByteStreams.newDataOutput();
+    byteArrayDataOutput.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
     for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
       Tag tag = i.next();
-
-      // TODO(sebright): Is there a better way to handle checked exceptions in function objects?
-      IOException ex =
-          tag.match(
-              new Function<TagString, IOException>() {
-                @Override
-                public IOException apply(TagString arg) {
-                  try {
-                    encodeStringTag(arg, byteArrayOutputStream);
-                    return null;
-                  } catch (IOException e) {
-                    return e;
-                  }
-                }
-              },
-              new Function<TagLong, IOException>() {
-                @Override
-                public IOException apply(TagLong arg) {
-                  throw new IllegalArgumentException("long tags are not supported.");
-                }
-              },
-              new Function<TagBoolean, IOException>() {
-                @Override
-                public IOException apply(TagBoolean arg) {
-                  throw new IllegalArgumentException("boolean tags are not supported.");
-                }
-              },
-              Functions.<IOException>throwAssertionError());
-      if (ex != null) {
-        throw ex;
-      }
+      tag.match(
+          new Function<TagString, Void>() {
+            @Override
+            public Void apply(TagString arg) {
+              encodeStringTag(arg, byteArrayDataOutput);
+              return null;
+            }
+          },
+          new Function<TagLong, Void>() {
+            @Override
+            public Void apply(TagLong arg) {
+              throw new IllegalArgumentException("long tags are not supported.");
+            }
+          },
+          new Function<TagBoolean, Void>() {
+            @Override
+            public Void apply(TagBoolean arg) {
+              throw new IllegalArgumentException("boolean tags are not supported.");
+            }
+          },
+          Functions.<Void>throwAssertionError());
     }
-    byteArrayOutputStream.writeTo(output);
+    return byteArrayDataOutput.toByteArray();
   }
 
   // Deserializes input to TagContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static TagContextImpl deserializeBinary(InputStream input) throws IOException {
+  static TagContextImpl deserializeBinary(byte[] bytes) throws IOException {
     try {
-      byte[] bytes = ByteStreams.toByteArray(input);
       HashMap<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
-        throw new IOException("Input byte stream can not be empty.");
+        throw new IOException("Input byte[] can not be empty.");
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
@@ -176,16 +165,21 @@ final class SerializationUtils {
 
   //  TODO(songya): Currently we only support encoding on string type.
   private static final void encodeStringTag(
-      TagString tag, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
-    byteArrayOutputStream.write(VALUE_TYPE_STRING);
-    encodeString(tag.getKey().getName(), byteArrayOutputStream);
-    encodeString(tag.getValue().asString(), byteArrayOutputStream);
+      TagString tag, ByteArrayDataOutput byteArrayDataOutput) {
+    byteArrayDataOutput.write(VALUE_TYPE_STRING);
+    encodeString(tag.getKey().getName(), byteArrayDataOutput);
+    encodeString(tag.getValue().asString(), byteArrayDataOutput);
   }
 
-  private static final void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
-      throws IOException {
-    VarInt.putVarInt(input.length(), byteArrayOutputStream);
-    byteArrayOutputStream.write(input.getBytes("UTF-8"));
+  private static final void encodeString(String input, ByteArrayDataOutput byteArrayDataOutput) {
+    putVarInt(input.length(), byteArrayDataOutput);
+    byteArrayDataOutput.write(input.getBytes(Charsets.UTF_8));
+  }
+
+  private static final void putVarInt(int input, ByteArrayDataOutput byteArrayDataOutput) {
+    byte[] output = new byte[VarInt.varIntSize(input)];
+    VarInt.putVarInt(input, output, 0);
+    byteArrayDataOutput.write(output);
   }
 
   private static final String decodeString(ByteBuffer buffer) {

@@ -25,10 +25,8 @@ import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -62,16 +60,13 @@ public class TagContextDeserializationTest {
     TagContext expected = tagContexts.empty();
     TagContext actual =
         testDeserialize(
-            new ByteArrayInputStream(
-                new byte[] {
-                  SerializationUtils.VERSION_ID
-                })); // One byte that represents Version ID.
+            new byte[] {SerializationUtils.VERSION_ID}); // One byte that represents Version ID.
     assertTagContextsEqual(actual, expected);
   }
 
   @Test(expected = IOException.class)
   public void testDeserializeEmptyByteArrayThrowException() throws Exception {
-    testDeserialize(new ByteArrayInputStream(new byte[0]));
+    testDeserialize(new byte[0]);
   }
 
   @Test
@@ -97,7 +92,7 @@ public class TagContextDeserializationTest {
     encodeString("Key2", byteArrayOutputStream);
     encodeString("String2", byteArrayOutputStream);
     TagContext actual =
-        testDeserialize(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+        testDeserialize(byteArrayOutputStream.toByteArray());
     TagContext expected =
         tagContexts
             .emptyBuilder()
@@ -136,17 +131,16 @@ public class TagContextDeserializationTest {
   @Test(expected = IOException.class)
   public void testDeserializeWrongFormat() throws Exception {
     // encoded tags should follow the format <version_id>(<tag_field_id><tag_encoding>)*
-    testDeserialize(new ByteArrayInputStream(new byte[3]));
+    testDeserialize(new byte[3]);
   }
 
   @Test(expected = IOException.class)
   public void testDeserializeWrongVersionId() throws Exception {
-    testDeserialize(
-        new ByteArrayInputStream(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)}));
+    testDeserialize(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
   }
 
-  private TagContext testDeserialize(InputStream inputStream) throws IOException {
-    return serializer.deserialize(inputStream);
+  private TagContext testDeserialize(byte[] bytes) throws IOException {
+    return serializer.fromByteArray(bytes);
   }
 
   /*
@@ -157,22 +151,22 @@ public class TagContextDeserializationTest {
    * remove this method and use StatsContext.serialize() instead.
    * Currently StatsContext.serialize() can only serialize strings.
    */
-  private static InputStream constructSingleTypeTagInputStream(int valueType) throws IOException {
+  private static byte[] constructSingleTypeTagInputStream(int valueType) throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(SerializationUtils.VERSION_ID);
     encodeSingleTypeTagToOutputStream(valueType, byteArrayOutputStream);
-    return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+    return byteArrayOutputStream.toByteArray();
   }
 
   // Construct an InputStream with all 4 types of tags.
-  private static InputStream constructMultiTypeTagInputStream() throws IOException {
+  private static byte[] constructMultiTypeTagInputStream() throws IOException {
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     byteArrayOutputStream.write(SerializationUtils.VERSION_ID);
     encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_STRING, byteArrayOutputStream);
     encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_INTEGER, byteArrayOutputStream);
     encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_TRUE, byteArrayOutputStream);
     encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_FALSE, byteArrayOutputStream);
-    return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+    return byteArrayOutputStream.toByteArray();
   }
 
   private static void encodeSingleTypeTagToOutputStream(

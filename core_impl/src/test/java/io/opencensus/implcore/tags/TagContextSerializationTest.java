@@ -18,6 +18,7 @@ package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Collections2;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.tags.Tag.TagString;
@@ -86,8 +87,7 @@ public class TagContextSerializationTest {
       builder.set(tag.getKey(), tag.getValue());
     }
 
-    ByteArrayOutputStream actual = new ByteArrayOutputStream();
-    serializer.serialize(builder.build(), actual);
+    byte[] actual = serializer.toByteArray(builder.build());
 
     Collection<List<TagString>> tagPermutation = Collections2.permutations(Arrays.asList(tags));
     Set<String> possibleOutputs = new HashSet<String>();
@@ -102,7 +102,7 @@ public class TagContextSerializationTest {
       possibleOutputs.add(expected.toString());
     }
 
-    assertThat(possibleOutputs).contains(actual.toString());
+    assertThat(possibleOutputs).contains(new String(actual, Charsets.UTF_8));
   }
 
   private static void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)

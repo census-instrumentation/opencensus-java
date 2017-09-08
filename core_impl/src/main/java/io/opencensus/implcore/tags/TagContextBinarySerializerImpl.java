@@ -19,17 +19,15 @@ package io.opencensus.implcore.tags;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   @Override
-  public void serialize(TagContext tags, OutputStream output) throws IOException {
-    SerializationUtils.serializeBinary(tags, output);
+  public byte[] toByteArray(TagContext tags) {
+    return SerializationUtils.serializeBinary(tags);
   }
 
   @Override
-  public TagContext deserialize(InputStream input) throws IOException {
-    return SerializationUtils.deserializeBinary(input);
+  public TagContext fromByteArray(byte[] bytes) throws IOException {
+    return SerializationUtils.deserializeBinary(bytes);
   }
 }

@@ -24,8 +24,6 @@ import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -59,10 +57,8 @@ public class TagContextRoundtripTest {
   }
 
   private void testRoundtripSerialization(TagContext expected) throws Exception {
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    serializer.serialize(expected, output);
-    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-    TagContext actual = serializer.deserialize(input);
+    byte[] bytes = serializer.toByteArray(expected);
+    TagContext actual = serializer.fromByteArray(bytes);
     assertThat(Lists.newArrayList(actual.unsafeGetIterator()))
         .containsExactlyElementsIn(Lists.newArrayList(expected.unsafeGetIterator()));
   }
