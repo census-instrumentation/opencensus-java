@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
+import com.google.common.testing.EqualsTester;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
@@ -116,6 +117,25 @@ public class TagContextImplTest {
     i.next();
     thrown.expect(UnsupportedOperationException.class);
     i.remove();
+  }
+
+  @Test
+  public void testEquals() {
+    new EqualsTester()
+        .addEqualityGroup(
+            tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build(),
+            tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build(),
+            tagContexts.emptyBuilder().set(KS2, V2).set(KS1, V1).build(),
+            new TagContext() {
+              @Override
+              public Iterator<Tag> unsafeGetIterator() {
+                return Lists.<Tag>newArrayList(TagString.create(KS1, V1), TagString.create(KS2, V2))
+                    .iterator();
+              }
+            })
+        .addEqualityGroup(tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V1).build())
+        .addEqualityGroup(tagContexts.emptyBuilder().set(KS1, V2).set(KS2, V1).build())
+        .testEquals();
   }
 
   private static List<Tag> asList(TagContext tags) {

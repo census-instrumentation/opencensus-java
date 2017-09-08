@@ -16,6 +16,8 @@
 
 package io.opencensus.tags;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Lists;
 import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,7 +33,6 @@ import javax.annotation.concurrent.Immutable;
  * <p>Keys have type {@link TagKey}. Values have type {@link TagValueString}, though the library
  * will support more types in the future, including {@code long} and {@code boolean}.
  */
-// TODO(sebright): Implement equals and hashCode.
 @Immutable
 public abstract class TagContext {
   private static final TagContext NOOP_TAG_CONTEXT = new NoopTagContext();
@@ -43,6 +44,38 @@ public abstract class TagContext {
   @Override
   public String toString() {
     return "TagContext";
+  }
+
+  /**
+   * Returns true iff the other object is an instance of {@code TagContext} and contains the same
+   * key-value pairs. Implementations are free to override this method to provide better
+   * performance.
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (!(other instanceof TagContext)) {
+      return false;
+    }
+    HashMultiset<Tag> tags1 = HashMultiset.create(Lists.newArrayList(unsafeGetIterator()));
+    HashMultiset<Tag> tags2 =
+        HashMultiset.create(Lists.newArrayList(((TagContext) other).unsafeGetIterator()));
+    return tags1.equals(tags2);
+  }
+
+  /**
+   * Returns the sum of the hash codes of all tags in this {@code TagContext}, ignoring nulls.
+   * Implementations are free to override this method to provide better performance.
+   */
+  @Override
+  public int hashCode() {
+    int hashCode = 0;
+    for (Iterator<Tag> i = unsafeGetIterator(); i.hasNext(); ) {
+      Tag tag = i.next();
+      if (tag != null) {
+        hashCode += tag.hashCode();
+      }
+    }
+    return hashCode;
   }
 
   /**

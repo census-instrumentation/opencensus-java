@@ -19,6 +19,7 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
+import com.google.common.testing.EqualsTester;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
@@ -36,6 +37,54 @@ public final class TagContextTest {
       TagString.create(TagKeyString.create("key"), TagValueString.create("val"));
   private static final Tag TAG2 =
       TagString.create(TagKeyString.create("key2"), TagValueString.create("val"));
+
+  @Test
+  public void equals_IgnoresTagOrderAndTagContextClass() {
+    new EqualsTester()
+        .addEqualityGroup(
+            new SimpleTagContext(TAG1, TAG2),
+            new SimpleTagContext(TAG1, TAG2),
+            new SimpleTagContext(TAG2, TAG1),
+            new TagContext() {
+              @Override
+              public Iterator<Tag> unsafeGetIterator() {
+                return Lists.newArrayList(TAG1, TAG2).iterator();
+              }
+            })
+        .testEquals();
+  }
+
+  @Test
+  public void equals_DoesNotIgnoreNullTags() {
+    new EqualsTester()
+        .addEqualityGroup(new SimpleTagContext(TAG1))
+        .addEqualityGroup(new SimpleTagContext(TAG1, null), new SimpleTagContext(null, TAG1))
+        .addEqualityGroup(new SimpleTagContext(TAG1, null, null))
+        .testEquals();
+  }
+
+  @Test
+  public void equals_DoesNotIgnoreDuplicateTags() {
+    new EqualsTester()
+        .addEqualityGroup(new SimpleTagContext(TAG1))
+        .addEqualityGroup(new SimpleTagContext(TAG1, TAG1))
+        .testEquals();
+  }
+
+  @Test
+  public void hashCode_SumsTagHashCodes() {
+    assertThat(new SimpleTagContext().hashCode()).isEqualTo(0);
+    assertThat(new SimpleTagContext(TAG1, TAG2).hashCode())
+        .isEqualTo(TAG1.hashCode() + TAG2.hashCode());
+    assertThat(new SimpleTagContext(TAG1, TAG2, TAG2).hashCode())
+        .isEqualTo(TAG1.hashCode() + 2 * TAG2.hashCode());
+  }
+
+  @Test
+  public void hashCode_IgnoresNullTags() {
+    assertThat(new SimpleTagContext(TAG1, TAG1, TAG2, null).hashCode())
+        .isEqualTo(2 * TAG1.hashCode() + TAG2.hashCode());
+  }
 
   @Test
   public void testToString() {
