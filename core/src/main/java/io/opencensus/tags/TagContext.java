@@ -40,6 +40,11 @@ public abstract class TagContext {
   // support fast access to tags.
   public abstract Iterator<Tag> unsafeGetIterator();
 
+  @Override
+  public String toString() {
+    return "TagContext";
+  }
+
   /**
    * Returns a {@code TagContext} that does not contain any tags.
    *
