@@ -30,15 +30,14 @@ public final class Stats {
       loadStatsComponent(StatsComponent.class.getClassLoader());
 
   /** Returns the default {@link StatsRecorder}. */
-  @Nullable
   public static StatsRecorder getStatsRecorder() {
-    return statsComponent == null ? null : statsComponent.getStatsRecorder();
+    return statsComponent.getStatsRecorder();
   }
 
   /** Returns the default {@link ViewManager}. */
   @Nullable
   public static ViewManager getViewManager() {
-    return statsComponent == null ? null : statsComponent.getViewManager();
+    return statsComponent.getViewManager();
   }
 
   // Any provider that may be used for StatsComponent can be added here.
