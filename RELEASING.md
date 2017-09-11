@@ -81,11 +81,11 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
       - `Require status checks to pass before merging`
       - `Include administrators`
 
-      Uncheck `Require branches to be up to date before merging`.
       Enable the following required status checks:
       - `cla/google`
       - `continuous-integration/appveyor/pr`
       - `continuous-integration/travis-ci`
+    - Uncheck everything else.
     - Click "Save changes".
 
 3.  For `master` branch:
