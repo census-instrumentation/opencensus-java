@@ -23,9 +23,9 @@ import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContextParseException;
-import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.Tagger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class TagContextDeserializationTest {
   private static final int VALUE_INT = 10;
 
   private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
-  private final TagContexts tagContexts = new TagContextsImpl();
+  private final Tagger tagger = new TaggerImpl();
 
   @Test
   public void testVersionAndValueTypeConstants() {
@@ -58,7 +58,7 @@ public class TagContextDeserializationTest {
 
   @Test
   public void testDeserializeNoTags() throws Exception {
-    TagContext expected = tagContexts.empty();
+    TagContext expected = tagger.empty();
     TagContext actual =
         testDeserialize(
             new byte[] {SerializationUtils.VERSION_ID}); // One byte that represents Version ID.
@@ -75,7 +75,7 @@ public class TagContextDeserializationTest {
     TagContext actual =
         testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_STRING));
     TagContext expected =
-        tagContexts
+        tagger
             .emptyBuilder()
             .put(
                 TagKeyString.create(KEY + SerializationUtils.VALUE_TYPE_STRING),
@@ -95,7 +95,7 @@ public class TagContextDeserializationTest {
     TagContext actual =
         testDeserialize(byteArrayOutputStream.toByteArray());
     TagContext expected =
-        tagContexts
+        tagger
             .emptyBuilder()
             .put(
                 TagKeyString.create(KEY + SerializationUtils.VALUE_TYPE_STRING),

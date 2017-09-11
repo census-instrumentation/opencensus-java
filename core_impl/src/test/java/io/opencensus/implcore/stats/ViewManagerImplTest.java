@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.SimpleEventQueue;
-import io.opencensus.implcore.tags.TagContextsImpl;
+import io.opencensus.implcore.tags.TaggerImpl;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
@@ -45,9 +45,9 @@ import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.Tagger;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -115,7 +115,7 @@ public class ViewManagerImplTest {
   private final StatsComponentImplBase statsComponent =
       new StatsComponentImplBase(new SimpleEventQueue(), clock);
 
-  private final TagContexts tagContexts = new TagContextsImpl();
+  private final Tagger tagger = new TaggerImpl();
   private final ViewManagerImpl viewManager = statsComponent.getViewManager();
   private final StatsRecorderImpl statsRecorder = statsComponent.getStatsRecorder();
 
@@ -195,7 +195,7 @@ public class ViewManagerImplTest {
     View view = createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 2));
     viewManager.registerView(view);
-    TagContext tags = tagContexts.emptyBuilder().put(KEY, VALUE).build();
+    TagContext tags = tagger.emptyBuilder().put(KEY, VALUE).build();
     double[] values = {10.0, 20.0, 30.0, 40.0};
     for (double val : values) {
       statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, val).build());
@@ -223,7 +223,7 @@ public class ViewManagerImplTest {
     clock.setTime(Timestamp.fromMillis(startTimeMillis));
     viewManager.registerView(view);
 
-    TagContext tags = tagContexts.emptyBuilder().put(KEY, VALUE).build();
+    TagContext tags = tagger.emptyBuilder().put(KEY, VALUE).build();
 
     double[] values = {20.0, -1.0, 1.0, -5.0, 5.0};
     for (int i = 1; i <= 5; i++) {
@@ -298,7 +298,7 @@ public class ViewManagerImplTest {
     View view = createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(10, 0));
     viewManager.registerView(view);
-    TagContext tags = tagContexts.emptyBuilder().put(KEY, VALUE).build();
+    TagContext tags = tagger.emptyBuilder().put(KEY, VALUE).build();
     statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 0.1).build());
     clock.setTime(Timestamp.create(11, 0));
     ViewData viewData1 = viewManager.getView(VIEW_NAME);
@@ -330,13 +330,13 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY)));
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().set(MEASURE, 10.0).build());
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE_2).build(),
+        tagger.emptyBuilder().put(KEY, VALUE_2).build(),
         MeasureMap.builder().set(MEASURE, 30.0).build());
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE_2).build(),
+        tagger.emptyBuilder().put(KEY, VALUE_2).build(),
         MeasureMap.builder().set(MEASURE, 50.0).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertAggregationMapEquals(
@@ -361,16 +361,16 @@ public class ViewManagerImplTest {
     // record for TagValue1 at 11s
     clock.setTime(Timestamp.fromMillis(11 * MILLIS_PER_SECOND));
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().set(MEASURE, 10.0).build());
 
     // record for TagValue2 at 15s
     clock.setTime(Timestamp.fromMillis(15 * MILLIS_PER_SECOND));
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE_2).build(),
+        tagger.emptyBuilder().put(KEY, VALUE_2).build(),
         MeasureMap.builder().set(MEASURE, 30.0).build());
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE_2).build(),
+        tagger.emptyBuilder().put(KEY, VALUE_2).build(),
         MeasureMap.builder().set(MEASURE, 50.0).build());
 
     // get ViewData at 19s, no stats should have expired.
@@ -406,7 +406,7 @@ public class ViewManagerImplTest {
   @Test
   public void allowRecordingWithoutRegisteringMatchingViewData() {
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().set(MEASURE, 10).build());
   }
 
@@ -415,7 +415,7 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY)));
     // DEFAULT doesn't have tags, but the view has tag key "KEY".
-    statsRecorder.record(tagContexts.empty(), MeasureMap.builder().set(MEASURE, 10.0).build());
+    statsRecorder.record(tagger.empty(), MeasureMap.builder().set(MEASURE, 10.0).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
@@ -438,7 +438,7 @@ public class ViewManagerImplTest {
             Arrays.asList(KEY)));
     MeasureDouble measure2 = Measure.MeasureDouble.create(MEASURE_NAME_2, "measure", MEASURE_UNIT);
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().set(measure2, 10.0).build());
     ViewData view = viewManager.getView(VIEW_NAME);
     assertThat(view.getAggregationMap()).isEmpty();
@@ -449,10 +449,10 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY)));
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(TagKeyString.create("wrong key"), VALUE).build(),
+        tagger.emptyBuilder().put(TagKeyString.create("wrong key"), VALUE).build(),
         MeasureMap.builder().set(MEASURE, 10.0).build());
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(TagKeyString.create("another wrong key"), VALUE).build(),
+        tagger.emptyBuilder().put(TagKeyString.create("another wrong key"), VALUE).build(),
         MeasureMap.builder().set(MEASURE, 50.0).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertAggregationMapEquals(
@@ -473,28 +473,28 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(key1, key2)));
     statsRecorder.record(
-        tagContexts
+        tagger
             .emptyBuilder()
             .put(key1, TagValueString.create("v1"))
             .put(key2, TagValueString.create("v10"))
             .build(),
         MeasureMap.builder().set(MEASURE, 1.1).build());
     statsRecorder.record(
-        tagContexts
+        tagger
             .emptyBuilder()
             .put(key1, TagValueString.create("v1"))
             .put(key2, TagValueString.create("v20"))
             .build(),
         MeasureMap.builder().set(MEASURE, 2.2).build());
     statsRecorder.record(
-        tagContexts
+        tagger
             .emptyBuilder()
             .put(key1, TagValueString.create("v2"))
             .put(key2, TagValueString.create("v10"))
             .build(),
         MeasureMap.builder().set(MEASURE, 3.3).build());
     statsRecorder.record(
-        tagContexts
+        tagger
             .emptyBuilder()
             .put(key1, TagValueString.create("v1"))
             .put(key2, TagValueString.create("v10"))
@@ -522,7 +522,7 @@ public class ViewManagerImplTest {
     clock.setTime(Timestamp.create(2, 2));
     viewManager.registerView(view2);
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().set(MEASURE, 5.0).build());
     clock.setTime(Timestamp.create(3, 3));
     ViewData viewData1 = viewManager.getView(VIEW_NAME);
@@ -558,7 +558,7 @@ public class ViewManagerImplTest {
     clock.setTime(Timestamp.create(2, 0));
     viewManager.registerView(view2);
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().set(measure1, 1.1).set(measure2, 2.2).build());
     clock.setTime(Timestamp.create(3, 0));
     ViewData viewData1 = viewManager.getView(VIEW_NAME);
@@ -590,7 +590,7 @@ public class ViewManagerImplTest {
     clock.setTime(Timestamp.create(1, 0));
     viewManager.registerView(view);
     statsRecorder.record(
-        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().set(MEASURE, 1.1).build());
     clock.setTime(Timestamp.create(3, 0));
     ViewData viewData = viewManager.getView(VIEW_NAME);

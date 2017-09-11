@@ -24,9 +24,9 @@ import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.Tagger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class TagContextSerializationTest {
   private static final TagString T4 = TagString.create(K4, V4);
 
   private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
-  private final TagContexts tagContexts = new TagContextsImpl();
+  private final Tagger tagger = new TaggerImpl();
 
   @Test
   public void testSerializeDefault() throws Exception {
@@ -82,7 +82,7 @@ public class TagContextSerializationTest {
   }
 
   private void testSerialize(TagString... tags) throws IOException {
-    TagContextBuilder builder = tagContexts.emptyBuilder();
+    TagContextBuilder builder = tagger.emptyBuilder();
     for (TagString tag : tags) {
       builder.put(tag.getKey(), tag.getValue());
     }

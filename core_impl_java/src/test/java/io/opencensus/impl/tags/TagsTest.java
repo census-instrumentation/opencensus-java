@@ -18,8 +18,8 @@ package io.opencensus.impl.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.implcore.tags.TagContextsImpl;
 import io.opencensus.implcore.tags.TagPropagationComponentImpl;
+import io.opencensus.implcore.tags.TaggerImpl;
 import io.opencensus.tags.Tags;
 import io.opencensus.tags.TagsComponent;
 import org.junit.Test;
@@ -30,8 +30,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class TagsTest {
   @Test
-  public void getTagContexts() {
-    assertThat(Tags.getTagContexts()).isInstanceOf(TagContextsImpl.class);
+  public void getTagger() {
+    assertThat(Tags.getTagger()).isInstanceOf(TaggerImpl.class);
   }
 
   @Test

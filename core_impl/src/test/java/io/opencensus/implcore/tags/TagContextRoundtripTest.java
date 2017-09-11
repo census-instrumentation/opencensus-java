@@ -20,9 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
-import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.Tagger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -42,17 +42,16 @@ public class TagContextRoundtripTest {
   private static final TagValueString V3 = TagValueString.create("v3");
 
   private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
-  private final TagContexts tagContexts = new TagContextsImpl();
+  private final Tagger tagger = new TaggerImpl();
 
   @Test
   public void testRoundtripSerialization() throws Exception {
-    testRoundtripSerialization(tagContexts.empty());
-    testRoundtripSerialization(tagContexts.emptyBuilder().put(K1, V1).build());
-    testRoundtripSerialization(
-        tagContexts.emptyBuilder().put(K1, V1).put(K2, V2).put(K3, V3).build());
-    testRoundtripSerialization(tagContexts.emptyBuilder().put(K1, V_EMPTY).build());
-    testRoundtripSerialization(tagContexts.emptyBuilder().put(K_EMPTY, V1).build());
-    testRoundtripSerialization(tagContexts.emptyBuilder().put(K_EMPTY, V_EMPTY).build());
+    testRoundtripSerialization(tagger.empty());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).build());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).put(K2, V2).put(K3, V3).build());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K1, V_EMPTY).build());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K_EMPTY, V1).build());
+    testRoundtripSerialization(tagger.emptyBuilder().put(K_EMPTY, V_EMPTY).build());
   }
 
   private void testRoundtripSerialization(TagContext expected) throws Exception {
