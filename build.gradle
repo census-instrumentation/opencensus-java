@@ -102,7 +102,7 @@ subprojects {
     }
 
     ext {
-        autoValueVersion = '1.4'
+        autoValueVersion = '1.5'
         findBugsVersion = '3.0.1'
         grpcVersion = '1.6.1'
         guavaVersion = '19.0'
