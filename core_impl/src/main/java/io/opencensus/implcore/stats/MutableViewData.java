@@ -328,12 +328,14 @@ abstract class MutableViewData {
     private static final int N = 4; // IntervalView has N + 1 buckets
 
     private final LinkedList<IntervalBucket> buckets = new LinkedList<IntervalBucket>();
+    private final Duration totalDuration;  // Duration of the whole interval.
     private final Duration bucketDuration; // Duration of a single bucket (totalDuration / N)
 
     private IntervalMutableViewData(View view, Timestamp start) {
       super(view);
       Duration totalDuration = ((Interval) view.getWindow()).getDuration();
-      bucketDuration = Duration.fromMillis(toMillis(totalDuration) / N);
+      this.totalDuration = totalDuration;
+      this.bucketDuration = Duration.fromMillis(toMillis(totalDuration) / N);
 
       // When initializing. add N empty buckets prior to the start timestamp of this
       // IntervalMutableViewData, so that the last bucket will be the current one in effect.
@@ -381,7 +383,6 @@ abstract class MutableViewData {
     // Add specified number of new buckets, and remove expired buckets
     private void shiftBucketList(long numOfPadBuckets, Timestamp now) {
       Timestamp startOfNewBucket;
-      Duration totalDuration = Duration.fromMillis(N * toMillis(bucketDuration));
 
       if (!buckets.isEmpty()) {
         startOfNewBucket = buckets.peekLast().getStart().addDuration(bucketDuration);
@@ -441,10 +442,10 @@ abstract class MutableViewData {
           head.getTagValueAggregationMap(), multimap, aggregations, fractionHead);
 
       // Put whole data of other buckets.
-      int i = 0;
+      boolean shouldSkipFirst = true;
       for (IntervalBucket bucket : buckets) {
-        i++;
-        if (i == 1) {
+        if (shouldSkipFirst) {
+          shouldSkipFirst = false;
           continue; // skip the first bucket
         }
         for (Entry<List<TagValue>, List<MutableAggregation>> entry :
