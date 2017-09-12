@@ -68,12 +68,6 @@ public final class TagContextImpl extends TagContext {
     return super.equals(other);
   }
 
-  @Override
-  public int hashCode() {
-    // implemented in TagContext
-    return super.hashCode();
-  }
-
   private static final class TagIterator implements Iterator<Tag> {
     Iterator<Map.Entry<TagKey, TagValue>> iterator;
 

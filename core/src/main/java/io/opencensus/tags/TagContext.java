@@ -62,12 +62,8 @@ public abstract class TagContext {
     return tags1.equals(tags2);
   }
 
-  /**
-   * Returns the sum of the hash codes of all tags in this {@code TagContext}, ignoring nulls.
-   * Implementations are free to override this method to provide better performance.
-   */
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     int hashCode = 0;
     for (Iterator<Tag> i = unsafeGetIterator(); i.hasNext(); ) {
       Tag tag = i.next();
