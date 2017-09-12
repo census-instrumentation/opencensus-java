@@ -29,6 +29,9 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Histogram;
 import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.AggregationData.CountData;
+import io.opencensus.stats.AggregationData.HistogramData;
+import io.opencensus.stats.AggregationData.SumData;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -40,6 +43,7 @@ import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
+import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -84,6 +88,8 @@ public class ViewManagerImplTest {
   private static final Cumulative CUMULATIVE = Cumulative.create();
 
   private static final double EPSILON = 1e-7;
+  private static final int MILLIS_PER_SECOND = 1000;
+  private static final Duration TEN_SECONDS = Duration.create(10, 0);
 
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(
@@ -99,6 +105,10 @@ public class ViewManagerImplTest {
               Histogram.create(BUCKET_BOUNDARIES),
               UnreleasedApiAccessor.createMean(),
               UnreleasedApiAccessor.createStdDev()));
+
+  private static final List<Aggregation> AGGREGATIONS_V1 =
+      Collections.unmodifiableList(Arrays.asList(
+          Sum.create(), Count.create(), Histogram.create(BUCKET_BOUNDARIES)));
 
   private final TestClock clock = TestClock.create();
 
@@ -123,10 +133,12 @@ public class ViewManagerImplTest {
     View view = createCumulativeView();
     viewManager.registerView(view);
     assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view);
+    assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();
+    assertThat(viewManager.getView(VIEW_NAME).getWindowData()).isInstanceOf(CumulativeData.class);
   }
 
   @Test
-  public void preventRegisteringIntervalView() {
+  public void testRegisterAndGetIntervalView() {
     View intervalView =
         View.create(
             VIEW_NAME,
@@ -135,8 +147,10 @@ public class ViewManagerImplTest {
             AGGREGATIONS,
             Arrays.asList(KEY),
             Interval.create(Duration.create(60, 0)));
-    thrown.expect(UnsupportedOperationException.class);
     viewManager.registerView(intervalView);
+    assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(intervalView);
+    assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();
+    assertThat(viewManager.getView(VIEW_NAME).getWindowData()).isInstanceOf(IntervalData.class);
   }
 
   @Test
@@ -177,7 +191,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testRecord() {
+  public void testRecordCumulative() {
     View view = createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 2));
     viewManager.registerView(view);
@@ -196,6 +210,87 @@ public class ViewManagerImplTest {
         ImmutableMap.of(
             Arrays.asList(VALUE), StatsTestUtil.createAggregationData(AGGREGATIONS, values)),
         EPSILON);
+  }
+
+  @Test
+  public void testRecordInterval() {
+    // The interval is 10 seconds, i.e. values should expire after 10 seconds.
+    // Each bucket has a duration of 2.5 seconds.
+    View view = View.create(
+        VIEW_NAME, VIEW_DESCRIPTION, MEASURE, AGGREGATIONS_V1, Arrays.asList(KEY),
+        Interval.create(TEN_SECONDS));
+    long startTimeMillis = 30 * MILLIS_PER_SECOND; // start at 30s
+    clock.setTime(Timestamp.fromMillis(startTimeMillis));
+    viewManager.registerView(view);
+
+    TagContext tags = tagContexts.emptyBuilder().set(KEY, VALUE).build();
+
+    double[] values = {20.0, -1.0, 1.0, -5.0, 5.0};
+    for (int i = 1; i <= 5; i++) {
+      /*
+       * Add each value in sequence, at 31s, 32s, 33s, etc.
+       * 20.0 and -1.0 should fall into the first bucket [30.0, 32.5),
+       * 1.0 and -5.0 should fall into the second bucket [32.5, 35.0),
+       * 5.0 should fall into the third bucket [35.0, 37.5).
+       */
+      clock.setTime(Timestamp.fromMillis(startTimeMillis + i * MILLIS_PER_SECOND));
+      statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, values[i - 1]).build());
+    }
+
+    clock.setTime(Timestamp.fromMillis(startTimeMillis + 8 * MILLIS_PER_SECOND));
+    // 38s, no values should have expired
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS_V1, values)),
+        EPSILON);
+
+    clock.setTime(Timestamp.fromMillis(startTimeMillis + 11 * MILLIS_PER_SECOND));
+    // 41s, 40% of the values in the first bucket should have expired (1 / 2.5 = 0.4).
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            Arrays.asList(
+                SumData.create(19 * 0.6 + 1),
+                CountData.create(4), // First bucket: 2 * 0.6 = 1.2, round to 1
+                HistogramData.create(2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1))),
+        EPSILON);
+
+    clock.setTime(Timestamp.fromMillis(startTimeMillis + 12 * MILLIS_PER_SECOND));
+    // 42s, add a new value 9.0, should fall into bucket [40.0, 42.5)
+    statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 9.0).build());
+
+    clock.setTime(Timestamp.fromMillis(startTimeMillis + 17 * MILLIS_PER_SECOND));
+    // 47s, values in the first and second bucket should have expired, and 80% of values in the
+    // third bucket should have expired. The new value should persist.
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            Arrays.asList(
+                SumData.create(0.2 * 5 + 9),
+                CountData.create(1),
+                HistogramData.create(0, 0, 0, 0, 0, 0, 0, 0, 0, 1))),
+        EPSILON);
+
+    clock.setTime(Timestamp.fromMillis(60 * MILLIS_PER_SECOND));
+    // 60s, all previous values should have expired, add a new value 30.0
+    statsRecorder.record(tags, MeasureMap.builder().set(MEASURE, 30.0).build());
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            Arrays.asList(
+                SumData.create(30.0),
+                CountData.create(1),
+                HistogramData.create(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1))),
+        EPSILON);
+
+    clock.setTime(Timestamp.fromMillis(100 * MILLIS_PER_SECOND));
+    // 100s, all values should have expired
+    assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();
   }
 
   @Test
@@ -231,7 +326,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testRecordMultipleTagValues() {
+  public void testRecordCumulativeMultipleTagValues() {
     viewManager.registerView(
         createCumulativeView(VIEW_NAME, MEASURE, AGGREGATIONS, Arrays.asList(KEY)));
     statsRecorder.record(
@@ -254,6 +349,58 @@ public class ViewManagerImplTest {
         EPSILON);
   }
 
+  @Test
+  public void testRecordIntervalMultipleTagValues() {
+    // The interval is 10 seconds, i.e. values should expire after 10 seconds.
+    View view = View.create(
+        VIEW_NAME, VIEW_DESCRIPTION, MEASURE, AGGREGATIONS_V1, Arrays.asList(KEY),
+        Interval.create(TEN_SECONDS));
+    clock.setTime(Timestamp.create(10, 0)); // Start at 10s
+    viewManager.registerView(view);
+
+    // record for TagValue1 at 11s
+    clock.setTime(Timestamp.fromMillis(11 * MILLIS_PER_SECOND));
+    statsRecorder.record(
+        tagContexts.emptyBuilder().set(KEY, VALUE).build(),
+        MeasureMap.builder().set(MEASURE, 10.0).build());
+
+    // record for TagValue2 at 15s
+    clock.setTime(Timestamp.fromMillis(15 * MILLIS_PER_SECOND));
+    statsRecorder.record(
+        tagContexts.emptyBuilder().set(KEY, VALUE_2).build(),
+        MeasureMap.builder().set(MEASURE, 30.0).build());
+    statsRecorder.record(
+        tagContexts.emptyBuilder().set(KEY, VALUE_2).build(),
+        MeasureMap.builder().set(MEASURE, 50.0).build());
+
+    // get ViewData at 19s, no stats should have expired.
+    clock.setTime(Timestamp.fromMillis(19 * MILLIS_PER_SECOND));
+    ViewData viewData1 = viewManager.getView(VIEW_NAME);
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData1.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(AGGREGATIONS_V1, 10.0),
+            Arrays.asList(VALUE_2),
+            StatsTestUtil.createAggregationData(AGGREGATIONS_V1, 30.0, 50.0)),
+        EPSILON);
+
+    // get ViewData at 25s, stats for TagValue1 should have expired.
+    clock.setTime(Timestamp.fromMillis(25 * MILLIS_PER_SECOND));
+    ViewData viewData2 = viewManager.getView(VIEW_NAME);
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData2.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE_2),
+            StatsTestUtil.createAggregationData(AGGREGATIONS_V1, 30.0, 50.0)),
+        EPSILON);
+
+    // get ViewData at 40s, all stats should have expired.
+    clock.setTime(Timestamp.fromMillis(40 * MILLIS_PER_SECOND));
+    ViewData viewData3 = viewManager.getView(VIEW_NAME);
+    assertThat(viewData3.getAggregationMap()).isEmpty();
+  }
+  
   // This test checks that StatsRecorder.record(...) does not throw an exception when no views are
   // registered.
   @Test
