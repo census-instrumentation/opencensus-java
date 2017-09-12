@@ -61,8 +61,11 @@ final class Resources {
 
     file.deleteOnExit();
 
-    try (InputStream is = getResourceAsStream(resourceName)) {
+    InputStream is = getResourceAsStream(resourceName);
+    try {
       ByteStreams.copy(is, outputStream);
+    } finally {
+      is.close();
     }
   }
 
