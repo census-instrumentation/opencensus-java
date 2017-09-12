@@ -126,10 +126,10 @@ public abstract class Timestamp implements Comparable<Timestamp> {
     int durationNanos = getNanos() - timestamp.getNanos();
     if (durationSeconds < 0 && durationNanos > 0) {
       durationSeconds += 1;
-      durationNanos -= NANOS_PER_SECOND;
+      durationNanos = (int) (durationNanos - NANOS_PER_SECOND);
     } else if (durationSeconds > 0 && durationNanos < 0) {
       durationSeconds -= 1;
-      durationNanos += NANOS_PER_SECOND;
+      durationNanos = (int) (durationNanos + NANOS_PER_SECOND);
     }
     return Duration.create(durationSeconds, durationNanos);
   }
