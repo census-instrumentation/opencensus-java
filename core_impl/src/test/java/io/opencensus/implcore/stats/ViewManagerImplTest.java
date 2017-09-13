@@ -26,6 +26,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.tags.TaggerImpl;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.MeanData;
@@ -34,7 +35,6 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
-import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
@@ -95,8 +95,9 @@ public class ViewManagerImplTest {
       BucketBoundaries.create(
           Arrays.asList(
               0.0, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0, 40.0, 50.0));
-
-  private static final Mean MEAN = UnreleasedApiAccessor.createMean();
+  
+  private static final Mean MEAN = Mean.create();
+  private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
 
   private final TestClock clock = TestClock.create();
 
@@ -108,7 +109,7 @@ public class ViewManagerImplTest {
   private final StatsRecorderImpl statsRecorder = statsComponent.getStatsRecorder();
 
   private static View createCumulativeView() {
-    return createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    return createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
   }
 
   private static View createCumulativeView(

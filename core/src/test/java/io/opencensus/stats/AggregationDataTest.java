@@ -46,7 +46,7 @@ public class AggregationDataTest {
   @Test
   public void testCreateDistributionData() {
     DistributionData distributionData = DistributionData.create(1, 1, 1, 1, 0, 0, 1, 0);
-    assertThat(distributionData.getSum()).isWithin(TOLERANCE).of(1);
+    assertThat(distributionData.getMean()).isWithin(TOLERANCE).of(1);
     assertThat(distributionData.getCount()).isEqualTo(1);
     assertThat(distributionData.getMean()).isWithin(TOLERANCE).of(1);
     assertThat(distributionData.getMin()).isWithin(TOLERANCE).of(1);

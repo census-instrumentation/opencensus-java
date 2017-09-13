@@ -24,6 +24,7 @@ import io.opencensus.common.Functions;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
+import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumData;
 import io.opencensus.tags.TagValue;
@@ -80,7 +81,6 @@ final class StatsTestUtil {
    */
   static void assertAggregationDataEquals(
       AggregationData expected, final AggregationData actual, final double tolerance) {
-
     expected.match(
         new Function<SumData, Void>() {
           @Override
@@ -98,8 +98,6 @@ final class StatsTestUtil {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException(),
-        Functions.<Void>throwIllegalArgumentException(),
         new Function<MeanData, Void>() {
           @Override
           public Void apply(MeanData arg) {
@@ -108,8 +106,37 @@ final class StatsTestUtil {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException(),
+        new Function<DistributionData, Void>() {
+          @Override
+          public Void apply(DistributionData arg) {
+            assertThat(actual).isInstanceOf(DistributionData.class);
+            assertDistributionDataEquals(arg, (DistributionData) actual, tolerance);
+            return null;
+          }
+        },
         Functions.<Void>throwIllegalArgumentException());
+  }
+
+  // Compare the expected and actual DistributionData within the given tolerance.
+  private static void assertDistributionDataEquals(
+      DistributionData expected, DistributionData actual, double tolerance) {
+    assertThat(actual.getMean()).isWithin(tolerance).of(expected.getMean());
+    assertThat(actual.getCount()).isEqualTo(expected.getCount());
+    assertThat(actual.getMean()).isWithin(tolerance).of(expected.getMean());
+    assertThat(actual.getSumOfSquaredDeviations()).isWithin(tolerance).of(
+        expected.getSumOfSquaredDeviations());
+
+    if (expected.getMax() == Double.NEGATIVE_INFINITY
+        && expected.getMin() == Double.POSITIVE_INFINITY) {
+      assertThat(actual.getMax()).isNegativeInfinity();
+      assertThat(actual.getMin()).isPositiveInfinity();
+    } else {
+      assertThat(actual.getMax()).isWithin(tolerance).of(expected.getMax());
+      assertThat(actual.getMin()).isWithin(tolerance).of(expected.getMin());
+    }
+
+    assertThat(removeTrailingZeros((actual).getBucketCounts()))
+        .isEqualTo(removeTrailingZeros(expected.getBucketCounts()));
   }
 
   private static List<Long> removeTrailingZeros(List<Long> longs) {

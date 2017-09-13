@@ -22,23 +22,19 @@ import static io.opencensus.implcore.stats.MutableViewData.toMillis;
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
-import io.opencensus.implcore.stats.MutableAggregation.MutableHistogram;
+import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
-import io.opencensus.implcore.stats.MutableAggregation.MutableRange;
-import io.opencensus.implcore.stats.MutableAggregation.MutableStdDev;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.Aggregation.Count;
-import io.opencensus.stats.Aggregation.Histogram;
+import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.HistogramData;
+import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
-import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
 import io.opencensus.stats.BucketBoundaries;
-import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import java.util.ArrayList;
@@ -88,25 +84,16 @@ public class MutableViewDataTest {
         ((MutableCount) MutableViewData.createMutableAggregation(Count.create())).getCount())
         .isEqualTo(0L);
     assertThat(
-        ((MutableHistogram) MutableViewData.createMutableAggregation(
-            Histogram.create(bucketBoundaries))).getBucketCounts())
-        .isEqualTo(new long[]{0, 0, 0, 0});
-    assertThat(
-        ((MutableRange) MutableViewData
-            .createMutableAggregation(UnreleasedApiAccessor.createRange())).getMin())
-        .isPositiveInfinity();
-    assertThat(
-        ((MutableRange) MutableViewData
-            .createMutableAggregation(UnreleasedApiAccessor.createRange())).getMax())
-        .isNegativeInfinity();
-    assertThat(
-        ((MutableMean) MutableViewData.createMutableAggregation(UnreleasedApiAccessor.createMean()))
+        ((MutableMean) MutableViewData.createMutableAggregation(Mean.create()))
             .getMean())
         .isWithin(EPSILON).of(0D);
-    assertThat(
-        ((MutableStdDev) MutableViewData
-            .createMutableAggregation(UnreleasedApiAccessor.createStdDev())).getStdDev())
-        .isWithin(EPSILON).of(0D);
+
+    MutableDistribution mutableDistribution = (MutableDistribution) MutableViewData
+        .createMutableAggregation(Distribution.create(bucketBoundaries));
+    assertThat(mutableDistribution.getMin()).isPositiveInfinity();
+    assertThat(mutableDistribution.getMax()).isNegativeInfinity();
+    assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(EPSILON).of(0);
+    assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[4]);
   }
 
   @Test
@@ -115,10 +102,8 @@ public class MutableViewDataTest {
     List<MutableAggregation> mutableAggregations = Arrays.asList(
         MutableSum.create(),
         MutableCount.create(),
-        MutableHistogram.create(bucketBoundaries),
-        MutableRange.create(),
         MutableMean.create(),
-        MutableStdDev.create());
+        MutableDistribution.create(bucketBoundaries));
     List<AggregationData> aggregates = new ArrayList<AggregationData>();
     for (MutableAggregation mutableAggregation : mutableAggregations) {
       aggregates.add(MutableViewData.createAggregationData(mutableAggregation));
@@ -126,10 +111,9 @@ public class MutableViewDataTest {
     assertThat(aggregates).containsExactly(
         SumData.create(0),
         CountData.create(0),
-        HistogramData.create(0, 0, 0, 0),
-        RangeData.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY),
         MeanData.create(0, 0),
-        StdDevData.create(0))
+        DistributionData.create(
+            0, 0, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, new long[4]))
         .inOrder();
   }
 
