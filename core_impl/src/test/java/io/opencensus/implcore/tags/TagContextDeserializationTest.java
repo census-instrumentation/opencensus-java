@@ -221,7 +221,6 @@ public class TagContextDeserializationTest {
   }
 
   private static void assertTagContextsEqual(TagContext actual, TagContext expected) {
-    assertThat(Lists.newArrayList(actual.unsafeGetIterator()))
-        .containsExactlyElementsIn(Lists.newArrayList(expected.unsafeGetIterator()));
+    assertThat(Lists.newArrayList(actual)).containsExactlyElementsIn(Lists.newArrayList(expected));
   }
 }

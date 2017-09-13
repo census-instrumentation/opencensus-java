@@ -45,7 +45,7 @@ public final class ContextUtils {
   private static final class EmptyTagContext extends TagContext {
 
     @Override
-    public Iterator<Tag> unsafeGetIterator() {
+    public Iterator<Tag> iterator() {
       return Collections.<Tag>emptySet().iterator();
     }
   }

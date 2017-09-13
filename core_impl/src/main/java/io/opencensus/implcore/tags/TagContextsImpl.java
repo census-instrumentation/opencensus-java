@@ -59,7 +59,7 @@ public final class TagContextsImpl extends TagContexts {
     if (tags instanceof TagContextImpl) {
       return (TagContextImpl) tags;
     } else {
-      Iterator<Tag> i = tags.unsafeGetIterator();
+      Iterator<Tag> i = tags.iterator();
       if (!i.hasNext()) {
         return TagContextImpl.EMPTY;
       }
@@ -80,8 +80,7 @@ public final class TagContextsImpl extends TagContexts {
       return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
     } else {
       TagContextBuilderImpl builder = new TagContextBuilderImpl();
-      for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
-        Tag tag = i.next();
+      for (Tag tag : tags) {
         if (tag != null) {
           TagContextUtils.addTagToBuilder(tag, builder);
         }

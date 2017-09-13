@@ -34,7 +34,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -71,12 +70,12 @@ public class ScopedTagContextsTest {
 
   @Test
   public void defaultTagContext() {
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(Lists.newArrayList(tagContexts.getCurrentTagContext())).isEmpty();
   }
 
   @Test
   public void withTagContext() {
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(Lists.newArrayList(tagContexts.getCurrentTagContext())).isEmpty();
     TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
     Scope scope = tagContexts.withTagContext(scopedTags);
     try {
@@ -84,7 +83,7 @@ public class ScopedTagContextsTest {
     } finally {
       scope.close();
     }
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(Lists.newArrayList(tagContexts.getCurrentTagContext())).isEmpty();
   }
 
   @Test
@@ -93,7 +92,7 @@ public class ScopedTagContextsTest {
     Scope scope = tagContexts.withTagContext(scopedTags);
     try {
       TagContext newTags = tagContexts.currentBuilder().set(KEY_2, VALUE_2).build();
-      assertThat(asList(newTags))
+      assertThat(Lists.newArrayList(newTags))
           .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
       assertThat(tagContexts.getCurrentTagContext()).isSameAs(scopedTags);
     } finally {
@@ -103,15 +102,15 @@ public class ScopedTagContextsTest {
 
   @Test
   public void setCurrentTagsWithBuilder() {
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(Lists.newArrayList(tagContexts.getCurrentTagContext())).isEmpty();
     Scope scope = tagContexts.emptyBuilder().set(KEY_1, VALUE_1).buildScoped();
     try {
-      assertThat(asList(tagContexts.getCurrentTagContext()))
+      assertThat(Lists.newArrayList(tagContexts.getCurrentTagContext()))
           .containsExactly(TagString.create(KEY_1, VALUE_1));
     } finally {
       scope.close();
     }
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(Lists.newArrayList(tagContexts.getCurrentTagContext())).isEmpty();
   }
 
   @Test
@@ -121,7 +120,7 @@ public class ScopedTagContextsTest {
     try {
       Scope scope2 = tagContexts.currentBuilder().set(KEY_2, VALUE_2).buildScoped();
       try {
-        assertThat(asList(tagContexts.getCurrentTagContext()))
+        assertThat(Lists.newArrayList(tagContexts.getCurrentTagContext()))
             .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
       } finally {
         scope2.close();
@@ -130,10 +129,6 @@ public class ScopedTagContextsTest {
     } finally {
       scope1.close();
     }
-  }
-
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 
   private static final class SimpleTagContextBuilder extends TagContextBuilder {
@@ -190,7 +185,7 @@ public class ScopedTagContextsTest {
     }
 
     @Override
-    public Iterator<Tag> unsafeGetIterator() {
+    public Iterator<Tag> iterator() {
       return Iterators.<TagString, Tag>transform(
           tags.iterator(), com.google.common.base.Functions.<TagString>identity());
     }

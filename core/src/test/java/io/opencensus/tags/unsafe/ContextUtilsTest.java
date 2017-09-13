@@ -20,9 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import io.grpc.Context;
-import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -40,7 +38,7 @@ public final class ContextUtilsTest {
   public void testGetCurrentTagContext_DefaultContext() {
     TagContext tags = ContextUtils.TAG_CONTEXT_KEY.get();
     assertThat(tags).isNotNull();
-    assertThat(asList(tags)).isEmpty();
+    assertThat(Lists.newArrayList(tags)).isEmpty();
   }
 
   @Test
@@ -49,13 +47,9 @@ public final class ContextUtilsTest {
     try {
       TagContext tags = ContextUtils.TAG_CONTEXT_KEY.get();
       assertThat(tags).isNotNull();
-      assertThat(asList(tags)).isEmpty();
+      assertThat(Lists.newArrayList(tags)).isEmpty();
     } finally {
       Context.current().detach(orig);
     }
-  }
-
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 }

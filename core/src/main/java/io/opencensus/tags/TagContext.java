@@ -33,12 +33,8 @@ import javax.annotation.concurrent.Immutable;
  */
 // TODO(sebright): Implement equals and hashCode.
 @Immutable
-public abstract class TagContext {
+public abstract class TagContext implements Iterable<Tag> {
   private static final TagContext NOOP_TAG_CONTEXT = new NoopTagContext();
-
-  // TODO(sebright): Consider removing TagContext.unsafeGetIterator() so that we don't need to
-  // support fast access to tags.
-  public abstract Iterator<Tag> unsafeGetIterator();
 
   @Override
   public String toString() {
@@ -59,7 +55,7 @@ public abstract class TagContext {
 
     // TODO(sebright): Is there any way to let the user know that their tags were ignored?
     @Override
-    public Iterator<Tag> unsafeGetIterator() {
+    public Iterator<Tag> iterator() {
       return Collections.<Tag>emptySet().iterator();
     }
   }

@@ -63,7 +63,6 @@ public class TagContextRoundtripTest {
     serializer.serialize(expected, output);
     ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
     TagContext actual = serializer.deserialize(input);
-    assertThat(Lists.newArrayList(actual.unsafeGetIterator()))
-        .containsExactlyElementsIn(Lists.newArrayList(expected.unsafeGetIterator()));
+    assertThat(Lists.newArrayList(actual)).containsExactlyElementsIn(Lists.newArrayList(expected));
   }
 }
