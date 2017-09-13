@@ -104,12 +104,12 @@ public abstract class SampledSpanStore {
   public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
 
   /**
-   * Returns the list of unique span names registered to the library. For this set of span names the
+   * Returns the set of unique span names registered to the library. For this set of span names the
    * library will collect latency based sampled spans and error based sampled spans.
    *
-   * @return the list of unique span names registered to the library.
+   * @return the set of unique span names registered to the library.
    */
-  public abstract Set<String> listRegisteredSpanNamesForCollection();
+  public abstract Set<String> getRegisteredSpanNamesForCollection();
 
   /** The summary of all available data. */
   @AutoValue

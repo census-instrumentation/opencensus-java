@@ -278,9 +278,9 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   @Override
-  public Set<String> listRegisteredSpanNamesForCollection() {
+  public Set<String> getRegisteredSpanNamesForCollection() {
     synchronized (samples) {
-      return new HashSet<String>(samples.keySet());
+      return Collections.unmodifiableSet(new HashSet<String>(samples.keySet()));
     }
   }
 
