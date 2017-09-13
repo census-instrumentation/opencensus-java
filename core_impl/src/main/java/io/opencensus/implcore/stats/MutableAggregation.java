@@ -295,7 +295,7 @@ abstract class MutableAggregation {
   /** Calculate mean on aggregated {@code MeasureValue}s. */
   static final class MutableMean extends MutableAggregation {
 
-    private double mean = 0.0;
+    private double sum = 0.0;
     private long count = 0;
 
     private MutableMean() {
@@ -313,13 +313,15 @@ abstract class MutableAggregation {
     @Override
     void add(double value) {
       count++;
-      double deltaFromMean = value - mean;
-      mean += deltaFromMean / count;
+      sum += value;
     }
 
     @Override
     void combine(MutableAggregation other, double fraction) {
-      throw new UnsupportedOperationException("Not supported in v0.1.");
+      checkArgument(other instanceof MutableMean, "MutableMean expected.");
+      MutableMean mutableMean = (MutableMean) other;
+      this.count += Math.round(mutableMean.count * fraction);
+      this.sum += mutableMean.sum * fraction;
     }
 
     /**
@@ -328,7 +330,25 @@ abstract class MutableAggregation {
      * @return the aggregated mean.
      */
     double getMean() {
-      return mean;
+      return getCount() == 0 ? 0 : getSum() / getCount();
+    }
+
+    /**
+     * Returns the aggregated count.
+     *
+     * @return the aggregated count.
+     */
+    long getCount() {
+      return count;
+    }
+
+    /**
+     * Returns the aggregated sum.
+     *
+     * @return the aggregated sum.
+     */
+    double getSum() {
+      return sum;
     }
 
     @Override

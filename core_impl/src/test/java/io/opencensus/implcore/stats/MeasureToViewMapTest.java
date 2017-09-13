@@ -19,7 +19,6 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.stats.View;
@@ -30,7 +29,6 @@ import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -47,14 +45,10 @@ public class MeasureToViewMapTest {
 
   private static final Name VIEW_NAME = View.Name.create("my view");
 
-  private static final List<Aggregation> AGGREGATIONS_NO_HISTOGRAM = Arrays.asList(
-      Aggregation.Sum.create(), Aggregation.Count.create(), UnreleasedApiAccessor.createRange(),
-      UnreleasedApiAccessor.createMean(), UnreleasedApiAccessor.createStdDev());
-
   private static final Cumulative CUMULATIVE = Cumulative.create();
 
   private static final View VIEW =
-      View.create(VIEW_NAME, "view description", MEASURE, AGGREGATIONS_NO_HISTOGRAM,
+      View.create(VIEW_NAME, "view description", MEASURE, UnreleasedApiAccessor.createMean(),
           Arrays.asList(TagKeyString.create("my key")), CUMULATIVE);
 
   @Test

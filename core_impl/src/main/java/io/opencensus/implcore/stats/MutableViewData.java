@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
@@ -186,25 +185,6 @@ abstract class MutableViewData {
     return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
   }
 
-  /* Convert a list of Aggregations to a list of empty MutableAggregations. */
-  static List<MutableAggregation> createMutableAggregations(List<Aggregation> aggregations) {
-    List<MutableAggregation> mutableAggregations = Lists.newArrayList();
-    for (Aggregation aggregation : aggregations) {
-      mutableAggregations.add(createMutableAggregation(aggregation));
-    }
-    return mutableAggregations;
-  }
-
-  /* Convert a list of MutableAggregations to a list of AggregationData. */
-  static List<AggregationData> createAggregationDatas(
-      List<MutableAggregation> mutableAggregations) {
-    List<AggregationData> aggregationDatas = Lists.newArrayList();
-    for (MutableAggregation mutableAggregation : mutableAggregations) {
-      aggregationDatas.add(createAggregationData(mutableAggregation));
-    }
-    return aggregationDatas;
-  }
-
   /**
    * Create an empty {@link MutableAggregation} based on the given {@link Aggregation}.
    *
@@ -242,12 +222,12 @@ abstract class MutableViewData {
 
   // Covert a mapping from TagValues to MutableAggregation, to a mapping from TagValues to
   // AggregationData.
-  private static <T> Map<T, List<AggregationData>> createAggregationMap(
-      Map<T, List<MutableAggregation>> tagValueAggregationMap) {
-    Map<T, List<AggregationData>> map = Maps.newHashMap();
-    for (Entry<T, List<MutableAggregation>> entry :
+  private static <T> Map<T, AggregationData> createAggregationMap(
+      Map<T, MutableAggregation> tagValueAggregationMap) {
+    Map<T, AggregationData> map = Maps.newHashMap();
+    for (Entry<T, MutableAggregation> entry :
         tagValueAggregationMap.entrySet()) {
-      map.put(entry.getKey(), createAggregationDatas(entry.getValue()));
+      map.put(entry.getKey(), createAggregationData(entry.getValue()));
     }
     return map;
   }
@@ -255,7 +235,7 @@ abstract class MutableViewData {
   private static final class CumulativeMutableViewData extends MutableViewData {
 
     private final Timestamp start;
-    private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
+    private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap =
         Maps.newHashMap();
 
     private CumulativeMutableViewData(View view, Timestamp start) {
@@ -268,11 +248,9 @@ abstract class MutableViewData {
       List<TagValue> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
       if (!tagValueAggregationMap.containsKey(tagValues)) {
         tagValueAggregationMap.put(
-            tagValues, createMutableAggregations(super.view.getAggregations()));
+            tagValues, createMutableAggregation(super.view.getAggregation()));
       }
-      for (MutableAggregation aggregation : tagValueAggregationMap.get(tagValues)) {
-        aggregation.add(value);
-      }
+      tagValueAggregationMap.get(tagValues).add(value);
     }
 
     @Override
@@ -400,7 +378,7 @@ abstract class MutableViewData {
 
       for (int i = 0; i < numOfPadBuckets; i++) {
         buckets.add(
-            new IntervalBucket(startOfNewBucket, bucketDuration, super.view.getAggregations()));
+            new IntervalBucket(startOfNewBucket, bucketDuration, super.view.getAggregation()));
         startOfNewBucket = startOfNewBucket.addDuration(bucketDuration);
       }
 
@@ -412,23 +390,23 @@ abstract class MutableViewData {
 
     // Combine stats within each bucket, aggregate stats by tag values, and return the mapping from
     // tag values to aggregation data.
-    private Map<List<TagValue>, List<AggregationData>> combineBucketsAndGetAggregationMap(
+    private Map<List<TagValue>, AggregationData> combineBucketsAndGetAggregationMap(
         Timestamp now) {
-      Multimap<List<TagValue>, List<MutableAggregation>> multimap = HashMultimap.create();
+      Multimap<List<TagValue>, MutableAggregation> multimap = HashMultimap.create();
       LinkedList<IntervalBucket> shallowCopy = new LinkedList<IntervalBucket>(buckets);
-      List<Aggregation> aggregations = super.view.getAggregations();
-      putBucketsIntoMultiMap(shallowCopy, multimap, aggregations, now);
-      Map<List<TagValue>, List<MutableAggregation>> singleMap =
-          aggregateOnEachTagValueList(multimap, aggregations);
+      Aggregation aggregation = super.view.getAggregation();
+      putBucketsIntoMultiMap(shallowCopy, multimap, aggregation, now);
+      Map<List<TagValue>, MutableAggregation> singleMap =
+          aggregateOnEachTagValueList(multimap, aggregation);
       return createAggregationMap(singleMap);
     }
 
     // Put stats within each bucket to a multimap. Each tag value list (map key) could have multiple
-    // mutable aggregation lists (map value) from different buckets.
+    // mutable aggregations (map value) from different buckets.
     private static void putBucketsIntoMultiMap(
         LinkedList<IntervalBucket> buckets,
-        Multimap<List<TagValue>, List<MutableAggregation>> multimap,
-        List<Aggregation> aggregations,
+        Multimap<List<TagValue>, MutableAggregation> multimap,
+        Aggregation aggregation,
         Timestamp now) {
       // Put fractional stats of the head (oldest) bucket.
       IntervalBucket head = buckets.peekFirst();
@@ -439,7 +417,7 @@ abstract class MutableViewData {
           "Fraction " + fractionTail + " should be within [0.0, 1.0].");
       double fractionHead = 1.0 - fractionTail;
       putFractionalMutableAggregationsToMultiMap(
-          head.getTagValueAggregationMap(), multimap, aggregations, fractionHead);
+          head.getTagValueAggregationMap(), multimap, aggregation, fractionHead);
 
       // Put whole data of other buckets.
       boolean shouldSkipFirst = true;
@@ -448,7 +426,7 @@ abstract class MutableViewData {
           shouldSkipFirst = false;
           continue; // skip the first bucket
         }
-        for (Entry<List<TagValue>, List<MutableAggregation>> entry :
+        for (Entry<List<TagValue>, MutableAggregation> entry :
             bucket.getTagValueAggregationMap().entrySet()) {
           multimap.put(entry.getKey(), entry.getValue());
         }
@@ -457,36 +435,31 @@ abstract class MutableViewData {
 
     // Put stats within one bucket into multimap, multiplied by a given fraction.
     private static <T> void putFractionalMutableAggregationsToMultiMap(
-        Map<T, List<MutableAggregation>> mutableAggrMap,
-        Multimap<T, List<MutableAggregation>> multimap,
-        List<Aggregation> aggregations,
+        Map<T, MutableAggregation> mutableAggrMap,
+        Multimap<T, MutableAggregation> multimap,
+        Aggregation aggregation,
         double fraction) {
-      for (Entry<T, List<MutableAggregation>> entry :
-          mutableAggrMap.entrySet()) {
+      for (Entry<T, MutableAggregation> entry : mutableAggrMap.entrySet()) {
         // Initially empty MutableAggregations.
-        List<MutableAggregation> fractionalMutableAggs = createMutableAggregations(aggregations);
-        for (int i = 0; i < fractionalMutableAggs.size(); i++) {
-          fractionalMutableAggs.get(i).combine(entry.getValue().get(i), fraction);
-        }
-        multimap.put(entry.getKey(), fractionalMutableAggs);
+        MutableAggregation fractionalMutableAgg = createMutableAggregation(aggregation);
+        fractionalMutableAgg.combine(entry.getValue(), fraction);
+        multimap.put(entry.getKey(), fractionalMutableAgg);
       }
     }
 
-    // For each tag value list (key of AggregationMap), combine mutable aggregation lists into one
-    // list, thus convert the multimap into a single map.
-    private static <T> Map<T, List<MutableAggregation>> aggregateOnEachTagValueList(
-        Multimap<T, List<MutableAggregation>> multimap,
-        List<Aggregation> aggregations) {
-      Map<T, List<MutableAggregation>> map = Maps.newHashMap();
+    // For each tag value list (key of AggregationMap), combine mutable aggregations into one
+    // mutable aggregation, thus convert the multimap into a single map.
+    private static <T> Map<T, MutableAggregation> aggregateOnEachTagValueList(
+        Multimap<T, MutableAggregation> multimap,
+        Aggregation aggregation) {
+      Map<T, MutableAggregation> map = Maps.newHashMap();
       for (T tagValues : multimap.keySet()) {
         // Initially empty MutableAggregations.
-        List<MutableAggregation> combinedAggregations = createMutableAggregations(aggregations);
-        for (List<MutableAggregation> mutableAggregations : multimap.get(tagValues)) {
-          for (int i = 0; i < mutableAggregations.size(); i++) {
-            combinedAggregations.get(i).combine(mutableAggregations.get(i), 1.0);
-          }
+        MutableAggregation combinedAggregation = createMutableAggregation(aggregation);
+        for (MutableAggregation mutableAggregation : multimap.get(tagValues)) {
+          combinedAggregation.combine(mutableAggregation, 1.0);
         }
-        map.put(tagValues, combinedAggregations);
+        map.put(tagValues, combinedAggregation);
       }
       return map;
     }
@@ -595,7 +568,7 @@ abstract class MutableViewData {
   private static final class CreateMeanData implements Function<MutableMean, AggregationData> {
     @Override
     public AggregationData apply(MutableMean arg) {
-      return MeanData.create(arg.getMean());
+      return MeanData.create(arg.getSum(), arg.getCount());
     }
 
     private static final CreateMeanData INSTANCE = new CreateMeanData();

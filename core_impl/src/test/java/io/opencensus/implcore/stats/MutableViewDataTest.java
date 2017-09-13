@@ -128,7 +128,7 @@ public class MutableViewDataTest {
         CountData.create(0),
         HistogramData.create(0, 0, 0, 0),
         RangeData.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY),
-        MeanData.create(0),
+        MeanData.create(0, 0),
         StdDevData.create(0))
         .inOrder();
   }

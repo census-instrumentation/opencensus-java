@@ -35,21 +35,21 @@ final class IntervalBucket {
 
   private final Timestamp start;
   private final Duration duration;
-  private final List<Aggregation> aggregations;
-  private final Map<List<TagValue>, List<MutableAggregation>> tagValueAggregationMap =
+  private final Aggregation aggregation;
+  private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap =
       Maps.newHashMap();
 
-  IntervalBucket(Timestamp start, Duration duration, List<Aggregation> aggregations) {
+  IntervalBucket(Timestamp start, Duration duration, Aggregation aggregation) {
     checkNotNull(start, "Start");
     checkNotNull(duration, "Duration");
     checkArgument(duration.compareTo(ZERO) > 0, "Duration must be positive");
-    checkNotNull(aggregations, "Aggregations");
+    checkNotNull(aggregation, "Aggregation");
     this.start = start;
     this.duration = duration;
-    this.aggregations = aggregations;
+    this.aggregation = aggregation;
   }
 
-  Map<List<TagValue>, List<MutableAggregation>> getTagValueAggregationMap() {
+  Map<List<TagValue>, MutableAggregation> getTagValueAggregationMap() {
     return tagValueAggregationMap;
   }
 
@@ -61,11 +61,9 @@ final class IntervalBucket {
   void record(List<TagValue> tagValues, double value) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       tagValueAggregationMap.put(
-          tagValues, MutableViewData.createMutableAggregations(aggregations));
+          tagValues, MutableViewData.createMutableAggregation(aggregation));
     }
-    for (MutableAggregation aggregation : tagValueAggregationMap.get(tagValues)) {
-      aggregation.add(value);
-    }
+    tagValueAggregationMap.get(tagValues).add(value);
   }
   
   /*
