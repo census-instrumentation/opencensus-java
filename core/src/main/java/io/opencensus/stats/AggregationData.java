@@ -242,19 +242,36 @@ public abstract class AggregationData {
     /**
      * Creates a {@code MeanData}.
      *
-     * @param mean the aggregated mean.
+     * @param sum the aggregated sum.
+     * @param count the aggregated count.
      * @return a {@code MeanData}.
      */
-    public static MeanData create(double mean) {
-      return new AutoValue_AggregationData_MeanData(mean);
+    public static MeanData create(double sum, long count) {
+      return new AutoValue_AggregationData_MeanData(sum, count);
     }
+
+    /**
+     * Returns the aggregated sum.
+     *
+     * @return the aggregated sum.
+     */
+    public abstract double getSum();
+
+    /**
+     * Returns the aggregated count.
+     *
+     * @return the aggregated count.
+     */
+    public abstract long getCount();
 
     /**
      * Returns the aggregated mean.
      *
      * @return the aggregated mean.
      */
-    public abstract double getMean();
+    public double getMean() {
+      return getCount() == 0 ? 0 : getSum() / getCount();
+    }
 
     @Override
     public final <T> T match(
