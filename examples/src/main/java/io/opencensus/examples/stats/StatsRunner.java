@@ -56,12 +56,12 @@ public class StatsRunner {
     System.out.println("Hello Stats World");
     System.out.println("Default Tags: " + tagContexts.empty());
     System.out.println("Current Tags: " + tagContexts.getCurrentTagContext());
-    TagContext tags1 = tagContexts.emptyBuilder().set(K1, V1).set(K2, V2).build();
+    TagContext tags1 = tagContexts.emptyBuilder().put(K1, V1).put(K2, V2).build();
     try (Scope scopedTagCtx1 = tagContexts.withTagContext(tags1)) {
       System.out.println("  Current Tags: " + tagContexts.getCurrentTagContext());
       System.out.println(
           "  Current == Default + tags1: " + tagContexts.getCurrentTagContext().equals(tags1));
-      TagContext tags2 = tagContexts.toBuilder(tags1).set(K3, V3).set(K4, V4).build();
+      TagContext tags2 = tagContexts.toBuilder(tags1).put(K3, V3).put(K4, V4).build();
       try (Scope scopedTagCtx2 = tagContexts.withTagContext(tags2)) {
         System.out.println("    Current Tags: " + tagContexts.getCurrentTagContext());
         System.out.println(

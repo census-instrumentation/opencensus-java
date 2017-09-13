@@ -48,12 +48,12 @@ public class TagContextRoundtripTest {
   @Test
   public void testRoundtripSerialization() throws Exception {
     testRoundtripSerialization(tagContexts.empty());
-    testRoundtripSerialization(tagContexts.emptyBuilder().set(K1, V1).build());
+    testRoundtripSerialization(tagContexts.emptyBuilder().put(K1, V1).build());
     testRoundtripSerialization(
-        tagContexts.emptyBuilder().set(K1, V1).set(K2, V2).set(K3, V3).build());
-    testRoundtripSerialization(tagContexts.emptyBuilder().set(K1, V_EMPTY).build());
-    testRoundtripSerialization(tagContexts.emptyBuilder().set(K_EMPTY, V1).build());
-    testRoundtripSerialization(tagContexts.emptyBuilder().set(K_EMPTY, V_EMPTY).build());
+        tagContexts.emptyBuilder().put(K1, V1).put(K2, V2).put(K3, V3).build());
+    testRoundtripSerialization(tagContexts.emptyBuilder().put(K1, V_EMPTY).build());
+    testRoundtripSerialization(tagContexts.emptyBuilder().put(K_EMPTY, V1).build());
+    testRoundtripSerialization(tagContexts.emptyBuilder().put(K_EMPTY, V_EMPTY).build());
   }
 
   private void testRoundtripSerialization(TagContext expected) throws Exception {

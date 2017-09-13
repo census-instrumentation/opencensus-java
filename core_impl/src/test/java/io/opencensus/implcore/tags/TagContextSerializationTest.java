@@ -84,7 +84,7 @@ public class TagContextSerializationTest {
   private void testSerialize(TagString... tags) throws IOException {
     TagContextBuilder builder = tagContexts.emptyBuilder();
     for (TagString tag : tags) {
-      builder.set(tag.getKey(), tag.getValue());
+      builder.put(tag.getKey(), tag.getValue());
     }
 
     byte[] actual = serializer.toByteArray(builder.build());

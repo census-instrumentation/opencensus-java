@@ -26,7 +26,7 @@ import io.opencensus.tags.TagValue.TagValueString;
 import javax.annotation.concurrent.Immutable;
 
 /** Builder for the {@link TagContext} class. */
-// TODO(sebright): Decide what to do when 'set' is called with a key that has the same name as an
+// TODO(sebright): Decide what to do when 'put' is called with a key that has the same name as an
 // existing key, but a different type.  We currently keep both keys.
 public abstract class TagContextBuilder {
   private static final TagContextBuilder NOOP_TAG_CONTEXT_BUILDER = new NoopTagContextBuilder();
@@ -38,7 +38,7 @@ public abstract class TagContextBuilder {
    * @param value the value to set for the given key.
    * @return this
    */
-  public abstract TagContextBuilder set(TagKeyString key, TagValueString value);
+  public abstract TagContextBuilder put(TagKeyString key, TagValueString value);
 
   /**
    * Adds the key/value pair regardless of whether the key is present.
@@ -47,7 +47,7 @@ public abstract class TagContextBuilder {
    * @param value the value to set for the given key.
    * @return this
    */
-  public abstract TagContextBuilder set(TagKeyLong key, TagValueLong value);
+  public abstract TagContextBuilder put(TagKeyLong key, TagValueLong value);
 
   /**
    * Adds the key/value pair regardless of whether the key is present.
@@ -56,7 +56,7 @@ public abstract class TagContextBuilder {
    * @param value the value to set for the given key.
    * @return this
    */
-  public abstract TagContextBuilder set(TagKeyBoolean key, TagValueBoolean value);
+  public abstract TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value);
 
   /**
    * Removes the key if it exists.
@@ -86,9 +86,9 @@ public abstract class TagContextBuilder {
   }
 
   /**
-   * Returns a {@code TagContextBuilder} that ignores all calls to {@link #set}.
+   * Returns a {@code TagContextBuilder} that ignores all calls to {@link #put}.
    *
-   * @return a {@code TagContextBuilder} that ignores all calls to {@link #set}.
+   * @return a {@code TagContextBuilder} that ignores all calls to {@link #put}.
    */
   static TagContextBuilder getNoopTagContextBuilder() {
     return NOOP_TAG_CONTEXT_BUILDER;
@@ -98,17 +98,17 @@ public abstract class TagContextBuilder {
   private static final class NoopTagContextBuilder extends TagContextBuilder {
 
     @Override
-    public TagContextBuilder set(TagKeyString key, TagValueString value) {
+    public TagContextBuilder put(TagKeyString key, TagValueString value) {
       return this;
     }
 
     @Override
-    public TagContextBuilder set(TagKeyLong key, TagValueLong value) {
+    public TagContextBuilder put(TagKeyLong key, TagValueLong value) {
       return this;
     }
 
     @Override
-    public TagContextBuilder set(TagKeyBoolean key, TagValueBoolean value) {
+    public TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value) {
       return this;
     }
 

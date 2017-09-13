@@ -49,7 +49,7 @@ final class TagContextUtils {
 
     @Override
     public Void apply(TagString tag) {
-      builder.set(tag.getKey(), tag.getValue());
+      builder.put(tag.getKey(), tag.getValue());
       return null;
     }
   }
@@ -63,7 +63,7 @@ final class TagContextUtils {
 
     @Override
     public Void apply(TagLong tag) {
-      builder.set(tag.getKey(), tag.getValue());
+      builder.put(tag.getKey(), tag.getValue());
       return null;
     }
   }
@@ -77,7 +77,7 @@ final class TagContextUtils {
 
     @Override
     public Void apply(TagBoolean tag) {
-      builder.set(tag.getKey(), tag.getValue());
+      builder.put(tag.getKey(), tag.getValue());
       return null;
     }
   }
