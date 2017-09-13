@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -101,6 +102,14 @@ public abstract class SampledSpanStore {
    * @param spanNames list of span names for which the library will no longer collect samples.
    */
   public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
+
+  /**
+   * Returns the set of unique span names registered to the library. For this set of span names the
+   * library will collect latency based sampled spans and error based sampled spans.
+   *
+   * @return the set of unique span names registered to the library.
+   */
+  public abstract Set<String> getRegisteredSpanNamesForCollection();
 
   /** The summary of all available data. */
   @AutoValue

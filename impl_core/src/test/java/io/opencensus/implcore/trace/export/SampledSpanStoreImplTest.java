@@ -63,9 +63,7 @@ public class SampledSpanStoreImplTest {
           TraceOptions.builder().setIsSampled().build());
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
-          TraceId.generateRandomId(random),
-          SpanId.generateRandomId(random),
-          TraceOptions.DEFAULT);
+          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final TestClock testClock = TestClock.create(Timestamp.create(12345, 54321));
@@ -171,20 +169,15 @@ public class SampledSpanStoreImplTest {
   }
 
   @Test
-  public void registerAndUnregisterSpanNames() {
-    addSpanNameToAllLatencyBuckets(NOT_REGISTERED_SPAN_NAME);
-    assertThat(
-            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
-        .isFalse();
+  public void registerUnregisterAndListSpanNames() {
+    assertThat(sampleStore.getRegisteredSpanNamesForCollection())
+        .containsExactly(REGISTERED_SPAN_NAME);
     sampleStore.registerSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
-    addSpanNameToAllLatencyBuckets(NOT_REGISTERED_SPAN_NAME);
-    assertThat(
-            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
-        .isTrue();
+    assertThat(sampleStore.getRegisteredSpanNamesForCollection())
+        .containsExactly(REGISTERED_SPAN_NAME, NOT_REGISTERED_SPAN_NAME);
     sampleStore.unregisterSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
-    assertThat(
-            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
-        .isFalse();
+    assertThat(sampleStore.getRegisteredSpanNamesForCollection())
+        .containsExactly(REGISTERED_SPAN_NAME);
   }
 
   @Test
@@ -363,12 +356,7 @@ public class SampledSpanStoreImplTest {
     span.end();
     Collection<SpanData> samples =
         sampleStore.getLatencySampledSpans(
-            LatencyFilter.create(
-                REGISTERED_SPAN_NAME,
-                0,
-                Long.MAX_VALUE,
-                0));
+            LatencyFilter.create(REGISTERED_SPAN_NAME, 0, Long.MAX_VALUE, 0));
     assertThat(samples.size()).isEqualTo(0);
   }
-
 }
