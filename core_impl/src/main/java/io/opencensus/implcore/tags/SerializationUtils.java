@@ -88,6 +88,10 @@ final class SerializationUtils {
   @VisibleForTesting static final int VALUE_TYPE_TRUE = 2;
   @VisibleForTesting static final int VALUE_TYPE_FALSE = 3;
 
+  private static final Function<TagLong, Void> ENCODE_TAG_LONG = new EncodeTagLong();
+  private static final Function<TagBoolean, Void> ENCODE_TAG_BOOLEAN =
+      new EncodeTagBoolean();
+
   // Serializes a TagContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
   static byte[] serializeBinary(TagContext tags) {
@@ -99,25 +103,9 @@ final class SerializationUtils {
     for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
       Tag tag = i.next();
       tag.match(
-          new Function<TagString, Void>() {
-            @Override
-            public Void apply(TagString arg) {
-              encodeStringTag(arg, byteArrayDataOutput);
-              return null;
-            }
-          },
-          new Function<TagLong, Void>() {
-            @Override
-            public Void apply(TagLong arg) {
-              throw new IllegalArgumentException("long tags are not supported.");
-            }
-          },
-          new Function<TagBoolean, Void>() {
-            @Override
-            public Void apply(TagBoolean arg) {
-              throw new IllegalArgumentException("boolean tags are not supported.");
-            }
-          },
+          new EncodeTagString(byteArrayDataOutput),
+          ENCODE_TAG_LONG,
+          ENCODE_TAG_BOOLEAN,
           Functions.<Void>throwAssertionError());
     }
     return byteArrayDataOutput.toByteArray();
@@ -189,5 +177,33 @@ final class SerializationUtils {
       builder.append((char) buffer.get());
     }
     return builder.toString();
+  }
+
+  private static final class EncodeTagString implements Function<TagString, Void> {
+    private final ByteArrayDataOutput output;
+
+    EncodeTagString(ByteArrayDataOutput output) {
+      this.output = output;
+    }
+
+    @Override
+    public Void apply(TagString tag) {
+      encodeStringTag(tag, output);
+      return null;
+    }
+  }
+
+  private static final class EncodeTagLong implements Function<TagLong, Void> {
+    @Override
+    public Void apply(TagLong tag) {
+      throw new IllegalArgumentException("long tags are not supported.");
+    }
+  }
+
+  private static final class EncodeTagBoolean implements Function<TagBoolean, Void> {
+    @Override
+    public Void apply(TagBoolean tag) {
+      throw new IllegalArgumentException("boolean tags are not supported.");
+    }
   }
 }
