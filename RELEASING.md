@@ -69,7 +69,26 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     $ git push upstream v$MAJOR.$MINOR.x
     ```
 
-2.  For `master` branch:
+2. Enable branch protection for the new branch, if you have admin access.
+   Otherwise, let someone with admin access know that there is a new release
+   branch.
+
+    - Open the branch protection settings for the new branch, by following
+      [Github's instructions](https://help.github.com/articles/configuring-protected-branches/).
+    - Copy the settings from a previous branch, i.e., check
+      - `Protect this branch`
+      - `Require pull request reviews before merging`
+      - `Require status checks to pass before merging`
+      - `Include administrators`
+
+      Enable the following required status checks:
+      - `cla/google`
+      - `continuous-integration/appveyor/pr`
+      - `continuous-integration/travis-ci`
+    - Uncheck everything else.
+    - Click "Save changes".
+
+3.  For `master` branch:
 
     -   Change root build files to the next minor snapshot (e.g.
         `0.5.0-SNAPSHOT`).
@@ -91,7 +110,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     $ git push upstream master
     ```
 
-3.  For `vMajor.Minor.x` branch:
+4.  For `vMajor.Minor.x` branch:
 
     -   Change root build files to remove "-SNAPSHOT" for the next release
         version (e.g. `0.4.0`). Commit the result and make a tag:
