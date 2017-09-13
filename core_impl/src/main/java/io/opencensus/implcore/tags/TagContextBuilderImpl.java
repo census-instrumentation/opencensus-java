@@ -62,7 +62,7 @@ final class TagContextBuilderImpl extends TagContextBuilder {
   }
 
   @Override
-  public TagContextBuilderImpl clear(TagKey key) {
+  public TagContextBuilderImpl remove(TagKey key) {
     tags.remove(key);
     return this;
   }

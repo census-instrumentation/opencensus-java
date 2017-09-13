@@ -89,8 +89,8 @@ public class TagContextImplTest {
   @Test
   public void testClear() {
     TagContext tags = tagContexts.emptyBuilder().put(KS1, V1).build();
-    assertThat(asList(tagContexts.toBuilder(tags).clear(KS1).build())).isEmpty();
-    assertThat(asList(tagContexts.toBuilder(tags).clear(KS2).build()))
+    assertThat(asList(tagContexts.toBuilder(tags).remove(KS1).build())).isEmpty();
+    assertThat(asList(tagContexts.toBuilder(tags).remove(KS2).build()))
         .containsExactly(TagString.create(KS1, V1));
   }
 

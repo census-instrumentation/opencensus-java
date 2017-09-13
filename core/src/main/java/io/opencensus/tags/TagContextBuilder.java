@@ -61,10 +61,10 @@ public abstract class TagContextBuilder {
   /**
    * Removes the key if it exists.
    *
-   * @param key the {@code TagKey} which will be cleared.
+   * @param key the {@code TagKey} which will be removed.
    * @return this
    */
-  public abstract TagContextBuilder clear(TagKey key);
+  public abstract TagContextBuilder remove(TagKey key);
 
   /**
    * Creates a {@code TagContext} from this builder.
@@ -113,7 +113,7 @@ public abstract class TagContextBuilder {
     }
 
     @Override
-    public TagContextBuilder clear(TagKey key) {
+    public TagContextBuilder remove(TagKey key) {
       return this;
     }
 

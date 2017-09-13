@@ -164,7 +164,7 @@ public class ScopedTagContextsTest {
     }
 
     @Override
-    public TagContextBuilder clear(TagKey key) {
+    public TagContextBuilder remove(TagKey key) {
       throw new UnsupportedOperationException();
     }
 
