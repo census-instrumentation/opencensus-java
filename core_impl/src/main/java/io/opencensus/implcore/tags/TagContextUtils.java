@@ -40,7 +40,7 @@ final class TagContextUtils {
         Functions.<Void>throwAssertionError());
   }
 
-  private static class AddTagString implements Function<TagString, Void> {
+  private static final class AddTagString implements Function<TagString, Void> {
     private final TagContextBuilderImpl builder;
 
     AddTagString(TagContextBuilderImpl builder) {
@@ -54,7 +54,7 @@ final class TagContextUtils {
     }
   }
 
-  private static class AddTagLong implements Function<TagLong, Void> {
+  private static final class AddTagLong implements Function<TagLong, Void> {
     private final TagContextBuilderImpl builder;
 
     AddTagLong(TagContextBuilderImpl builder) {
@@ -68,7 +68,7 @@ final class TagContextUtils {
     }
   }
 
-  private static class AddTagBoolean implements Function<TagBoolean, Void> {
+  private static final class AddTagBoolean implements Function<TagBoolean, Void> {
     private final TagContextBuilderImpl builder;
 
     AddTagBoolean(TagContextBuilderImpl builder) {

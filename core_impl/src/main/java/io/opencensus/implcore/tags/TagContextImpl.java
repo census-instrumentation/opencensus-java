@@ -88,7 +88,7 @@ public final class TagContextImpl extends TagContext {
       throw new UnsupportedOperationException("TagIterator.remove()");
     }
 
-    private static class NewTagString implements Function<TagKeyString, Tag> {
+    private static final class NewTagString implements Function<TagKeyString, Tag> {
       private final TagValue value;
 
       NewTagString(TagValue value) {
@@ -101,7 +101,7 @@ public final class TagContextImpl extends TagContext {
       }
     }
 
-    private static class NewTagLong implements Function<TagKeyLong, Tag> {
+    private static final class NewTagLong implements Function<TagKeyLong, Tag> {
       private final TagValue value;
 
       NewTagLong(TagValue value) {
@@ -114,7 +114,7 @@ public final class TagContextImpl extends TagContext {
       }
     }
 
-    private static class NewTagBoolean implements Function<TagKeyBoolean, Tag> {
+    private static final class NewTagBoolean implements Function<TagKeyBoolean, Tag> {
       private final TagValue value;
 
       NewTagBoolean(TagValue value) {
