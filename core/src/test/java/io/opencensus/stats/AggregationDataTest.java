@@ -22,10 +22,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.HistogramData;
+import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
-import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,27 +38,35 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class AggregationDataTest {
 
+  private static final double TOLERANCE = 1e-6;
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testCreateHistogramData() {
-    HistogramData histogram = HistogramData.create(0, 0, 0);
-    assertThat(histogram.getBucketCounts()).containsExactly(0L, 0L, 0L).inOrder();
+  public void testCreateDistributionData() {
+    DistributionData distributionData = DistributionData.create(1, 1, 1, 1, 0, 0, 1, 0);
+    assertThat(distributionData.getSum()).isWithin(TOLERANCE).of(1);
+    assertThat(distributionData.getCount()).isEqualTo(1);
+    assertThat(distributionData.getMean()).isWithin(TOLERANCE).of(1);
+    assertThat(distributionData.getMin()).isWithin(TOLERANCE).of(1);
+    assertThat(distributionData.getMax()).isWithin(TOLERANCE).of(1);
+    assertThat(distributionData.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(0);
+    assertThat(distributionData.getBucketCounts()).containsExactly(0L, 1L, 0L).inOrder();
   }
 
   @Test
-  public void testNullBucketCountData() {
+  public void preventNullBucketCountData() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket counts should not be null.");
-    HistogramData.create(null);
+    DistributionData.create(1, 1, 1, 1, 0, null);
   }
 
   @Test
-  public void testRangeDataMinIsGreaterThanMax() {
+  public void preventMinIsGreaterThanMax() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("max should be greater or equal to min.");
-    RangeData.create(10.0, 0.0);
+    DistributionData.create(1, 1, 10, 1, 0, 0, 1, 0);
   }
 
   @Test
@@ -79,29 +85,16 @@ public class AggregationDataTest {
             CountData.create(80),
             CountData.create(80))
         .addEqualityGroup(
-            HistogramData.create(new long[]{0, 10, 0}),
-            HistogramData.create(new long[]{0, 10, 0}))
+            DistributionData.create(10, 10, 1, 1, 0,0, 10, 0),
+            DistributionData.create(10, 10, 1, 1, 0,0, 10, 0))
         .addEqualityGroup(
-            HistogramData.create(new long[]{0, 10, 100}),
-            HistogramData.create(new long[]{0, 10, 100}))
-        .addEqualityGroup(
-            RangeData.create(-1.0, 1.0),
-            RangeData.create(-1.0, 1.0))
-        .addEqualityGroup(
-            RangeData.create(-5.0, 1.0),
-            RangeData.create(-5.0, 1.0))
+            DistributionData.create(110, 110, 1, 1, 0,0, 10, 100))
         .addEqualityGroup(
             MeanData.create(5.0, 1),
             MeanData.create(5.0, 1))
         .addEqualityGroup(
             MeanData.create(-5.0, 1),
             MeanData.create(-5.0, 1))
-        .addEqualityGroup(
-            StdDevData.create(23.3),
-            StdDevData.create(23.3))
-        .addEqualityGroup(
-            StdDevData.create(-23.3),
-            StdDevData.create(-23.3))
         .testEquals();
   }
 
@@ -110,10 +103,8 @@ public class AggregationDataTest {
     List<AggregationData> aggregations = Arrays.asList(
         SumData.create(10.0),
         CountData.create(40),
-        HistogramData.create(new long[]{0, 10, 0}),
-        RangeData.create(-1.0, 1.0),
         MeanData.create(5.0, 1),
-        StdDevData.create(23.3));
+        DistributionData.create(1, 1, 1, 1, 0, 0, 10, 0));
 
     final List<Object> actual = new ArrayList<Object>();
     for (AggregationData aggregation : aggregations) {
@@ -132,21 +123,6 @@ public class AggregationDataTest {
               return null;
             }
           },
-          new Function<HistogramData, Void>() {
-            @Override
-            public Void apply(HistogramData arg) {
-              actual.add(arg.getBucketCounts());
-              return null;
-            }
-          },
-          new Function<RangeData, Void>() {
-            @Override
-            public Void apply(RangeData arg) {
-              actual.add(arg.getMin());
-              actual.add(arg.getMax());
-              return null;
-            }
-          },
           new Function<MeanData, Void>() {
             @Override
             public Void apply(MeanData arg) {
@@ -154,10 +130,10 @@ public class AggregationDataTest {
               return null;
             }
           },
-          new Function<StdDevData, Void>() {
+          new Function<DistributionData, Void>() {
             @Override
-            public Void apply(StdDevData arg) {
-              actual.add(arg.getStdDev());
+            public Void apply(DistributionData arg) {
+              actual.add(arg.getBucketCounts());
               return null;
             }
           },
@@ -165,6 +141,6 @@ public class AggregationDataTest {
     }
 
     assertThat(actual).isEqualTo(
-        Arrays.asList(10.0, 40L, Arrays.asList(0L, 10L, 0L), -1.0, 1.0, 5.0, 23.3));
+        Arrays.asList(10.0, 40L, 5.0, Arrays.asList(0L, 10L, 0L)));
   }
 }
