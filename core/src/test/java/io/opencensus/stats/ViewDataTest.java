@@ -25,18 +25,8 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.stats.Aggregation.Count;
-import io.opencensus.stats.Aggregation.Histogram;
 import io.opencensus.stats.Aggregation.Mean;
-import io.opencensus.stats.Aggregation.Range;
-import io.opencensus.stats.Aggregation.StdDev;
-import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.HistogramData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
-import io.opencensus.stats.AggregationData.StdDevData;
-import io.opencensus.stats.AggregationData.SumData;
 import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
@@ -65,7 +55,7 @@ public final class ViewDataTest {
   @Test
   public void testDistributionViewData() {
     View view =
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
+        View.create(name, description, measure, MEAN, tagKeys, CUMULATIVE);
     Timestamp start = Timestamp.fromMillis(1000);
     Timestamp end = Timestamp.fromMillis(2000);
     AggregationWindowData windowData = CumulativeData.create(start, end);
@@ -78,7 +68,7 @@ public final class ViewDataTest {
   @Test
   public void testIntervalViewData() {
     View view = View.create(
-        name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
+        name, description, measure, MEAN, tagKeys, INTERVAL_HOUR);
     Timestamp end = Timestamp.fromMillis(2000);
     AggregationWindowData windowData = IntervalData.create(end);
     ViewData viewData = ViewData.create(view, ENTRIES, windowData);
@@ -90,9 +80,9 @@ public final class ViewDataTest {
   @Test
   public void testViewDataEquals() {
     View cumulativeView =
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE);
+        View.create(name, description, measure, MEAN, tagKeys, CUMULATIVE);
     View intervalView =
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR);
+        View.create(name, description, measure, MEAN, tagKeys, INTERVAL_HOUR);
 
     new EqualsTester()
         .addEqualityGroup(
@@ -120,7 +110,7 @@ public final class ViewDataTest {
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
-                intervalView, Collections.<List<TagValue>, List<AggregationData>>emptyMap(),
+                intervalView, Collections.<List<TagValue>, AggregationData>emptyMap(),
                 IntervalData.create(Timestamp.fromMillis(2000))))
         .testEquals();
   }
@@ -170,7 +160,7 @@ public final class ViewDataTest {
   public void preventWindowAndAggregationWindowDataMismatch() {
     thrown.expect(IllegalArgumentException.class);
     ViewData.create(
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, INTERVAL_HOUR),
+        View.create(name, description, measure, MEAN, tagKeys, INTERVAL_HOUR),
         ENTRIES,
         CumulativeData.create(
             Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
@@ -180,7 +170,7 @@ public final class ViewDataTest {
   public void preventWindowAndAggregationWindowDataMismatch2() {
     thrown.expect(IllegalArgumentException.class);
     ViewData.create(
-        View.create(name, description, measure, AGGREGATIONS, tagKeys, CUMULATIVE),
+        View.create(name, description, measure, MEAN, tagKeys, CUMULATIVE),
         ENTRIES,
         IntervalData.create(Timestamp.fromMillis(1000)));
   }
@@ -208,28 +198,14 @@ public final class ViewDataTest {
   private static final BucketBoundaries BUCKET_BOUNDARIES = BucketBoundaries.create(
       Arrays.asList(10.0, 20.0, 30.0, 40.0));
   
-  private static final List<Aggregation> AGGREGATIONS = Collections.unmodifiableList(Arrays.asList(
-      Sum.create(), Count.create(), Range.create(), Histogram.create(BUCKET_BOUNDARIES),
-      Mean.create(), StdDev.create()));
+  private static final Mean MEAN = Mean.create();
 
-  private static final ImmutableMap<List<TagValueString>, List<AggregationData>> ENTRIES =
+  private static final ImmutableMap<List<TagValueString>, ? extends AggregationData> ENTRIES =
       ImmutableMap.of(
           Arrays.asList(V1, V2),
-          Arrays.asList(
-              SumData.create(0),
-              CountData.create(1),
-              HistogramData.create(1, 0, 0, 0, 0),
-              RangeData.create(0, 0),
-              MeanData.create(0),
-              StdDevData.create(0)),
+          MeanData.create(0, 1),
           Arrays.asList(V10, V20),
-          Arrays.asList(
-              SumData.create(50),
-              CountData.create(2),
-              HistogramData.create(0, 0, 2, 0, 0),
-              RangeData.create(25, 25),
-              MeanData.create(25),
-              StdDevData.create(0)));
+          MeanData.create(50, 2));
 
   // name
   private final View.Name name = View.Name.create("test-view");

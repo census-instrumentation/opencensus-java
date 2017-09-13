@@ -59,10 +59,9 @@ public abstract class View {
   public abstract Measure getMeasure();
 
   /**
-   * The {@link Aggregation}s associated with this {@link View}. {@link Aggregation}s should be
-   * unique within one view.
+   * The {@link Aggregation} associated with this {@link View}.
    */
-  public abstract List<Aggregation> getAggregations();
+  public abstract Aggregation getAggregation();
 
   /**
    * Columns (a.k.a Tag Keys) to match with the associated {@link Measure}.
@@ -85,8 +84,7 @@ public abstract class View {
    * @param name the {@link Name} of view. Must be unique.
    * @param description the description of view.
    * @param measure the {@link Measure} to be aggregated by this view.
-   * @param aggregations basic {@link Aggregation}s that this view will support. The aggregation
-   *     list should not contain duplicates.
+   * @param aggregation the basic {@link Aggregation} that this view will support.
    * @param columns the {@link TagKey}s that this view will aggregate on. Columns should not contain
    *     duplicates.
    * @param window the {@link AggregationWindow} of view.
@@ -96,11 +94,9 @@ public abstract class View {
       Name name,
       String description,
       Measure measure,
-      List<Aggregation> aggregations,
+      Aggregation aggregation,
       List<? extends TagKey> columns,
       AggregationWindow window) {
-    checkArgument(new HashSet<Aggregation>(aggregations).size() == aggregations.size(),
-        "Aggregations have duplicate.");
     checkArgument(new HashSet<TagKey>(columns).size() == columns.size(),
         "Columns have duplicate.");
 
@@ -108,7 +104,7 @@ public abstract class View {
         name,
         description,
         measure,
-        Collections.unmodifiableList(new ArrayList<Aggregation>(aggregations)),
+        aggregation,
         Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
         window);
   }
