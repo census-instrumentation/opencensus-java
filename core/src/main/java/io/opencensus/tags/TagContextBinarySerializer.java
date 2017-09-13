@@ -17,8 +17,6 @@
 package io.opencensus.tags;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import javax.annotation.concurrent.Immutable;
 
 /** Object for serializing and deserializing {@link TagContext}s with the binary format. */
@@ -29,25 +27,24 @@ public abstract class TagContextBinarySerializer {
   /**
    * Serializes the {@code TagContext} into the on-the-wire representation.
    *
-   * <p>This method should be the inverse of {@link #deserialize}.
+   * <p>This method should be the inverse of {@link #fromByteArray}.
    *
    * @param tags the {@code TagContext} to serialize.
-   * @param output the {@link OutputStream} to write the serialized tags to.
-   * @throws IOException if there is an {@code IOException} while writing to {@code output}.
+   * @return the on-the-wire representation of a {@code TagContext}.
    */
-  public abstract void serialize(TagContext tags, OutputStream output) throws IOException;
+  public abstract byte[] toByteArray(TagContext tags);
 
   /**
    * Creates a {@code TagContext} from the given on-the-wire encoded representation.
    *
-   * <p>This method should be the inverse of {@link #serialize}.
+   * <p>This method should be the inverse of {@link #toByteArray}.
    *
-   * @param input on-the-wire representation of a {@code TagContext}.
-   * @return a {@code TagContext} deserialized from {@code input}.
-   * @throws IOException if there is a parse error or an {@code IOException} while reading from
-   *     {@code input}.
+   * @param bytes on-the-wire representation of a {@code TagContext}.
+   * @return a {@code TagContext} deserialized from {@code bytes}.
+   * @throws IOException if there is a parse error.
    */
-  public abstract TagContext deserialize(InputStream input) throws IOException;
+  // TODO(sebright): Use a more appropriate exception type, since this method doesn't do IO.
+  public abstract TagContext fromByteArray(byte[] bytes) throws IOException;
 
   /**
    * Returns a {@code TagContextBinarySerializer} that serializes all {@code TagContext}s to zero
@@ -59,12 +56,15 @@ public abstract class TagContextBinarySerializer {
 
   @Immutable
   private static final class NoopTagContextBinarySerializer extends TagContextBinarySerializer {
+    private static final byte[] EMPTY_BYTE_ARRAY = {};
 
     @Override
-    public void serialize(TagContext tags, OutputStream output) throws IOException {}
+    public byte[] toByteArray(TagContext tags) {
+      return EMPTY_BYTE_ARRAY;
+    }
 
     @Override
-    public TagContext deserialize(InputStream input) throws IOException {
+    public TagContext fromByteArray(byte[] bytes) throws IOException {
       return TagContext.getNoopTagContext();
     }
   }
