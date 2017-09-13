@@ -27,8 +27,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -272,6 +274,13 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   public void unregisterSpanNamesForCollection(Collection<String> spanNames) {
     synchronized (samples) {
       samples.keySet().removeAll(spanNames);
+    }
+  }
+
+  @Override
+  public Set<String> listRegisteredSpanNamesForCollection() {
+    synchronized (samples) {
+      return new HashSet<String>(samples.keySet());
     }
   }
 

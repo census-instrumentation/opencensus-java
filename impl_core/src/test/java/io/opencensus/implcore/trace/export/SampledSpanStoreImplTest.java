@@ -171,19 +171,20 @@ public class SampledSpanStoreImplTest {
   }
 
   @Test
-  public void registerAndUnregisterSpanNames() {
-    addSpanNameToAllLatencyBuckets(NOT_REGISTERED_SPAN_NAME);
+  public void registerUnregisterAndListSpanNames() {
     assertThat(
-            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
+        sampleStore.listRegisteredSpanNamesForCollection().contains(REGISTERED_SPAN_NAME))
+        .isTrue();
+    assertThat(
+        sampleStore.listRegisteredSpanNamesForCollection().contains(NOT_REGISTERED_SPAN_NAME))
         .isFalse();
     sampleStore.registerSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
-    addSpanNameToAllLatencyBuckets(NOT_REGISTERED_SPAN_NAME);
     assertThat(
-            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
+            sampleStore.listRegisteredSpanNamesForCollection().contains(NOT_REGISTERED_SPAN_NAME))
         .isTrue();
     sampleStore.unregisterSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
     assertThat(
-            sampleStore.getSummary().getPerSpanNameSummary().containsKey(NOT_REGISTERED_SPAN_NAME))
+            sampleStore.listRegisteredSpanNamesForCollection().contains(NOT_REGISTERED_SPAN_NAME))
         .isFalse();
   }
 
