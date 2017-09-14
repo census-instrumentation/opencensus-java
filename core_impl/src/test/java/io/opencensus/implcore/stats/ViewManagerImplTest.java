@@ -235,7 +235,7 @@ public class ViewManagerImplTest {
         viewManager.getView(VIEW_NAME).getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(VALUE),
-            MeanData.create(19 * 0.6 + 1, 4)),
+            MeanData.create((19 * 0.6 + 1) / 4, 4)),
         EPSILON);
 
     clock.setTime(Timestamp.fromMillis(startTimeMillis + 12 * MILLIS_PER_SECOND));

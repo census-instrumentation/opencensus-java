@@ -568,7 +568,7 @@ abstract class MutableViewData {
   private static final class CreateMeanData implements Function<MutableMean, AggregationData> {
     @Override
     public AggregationData apply(MutableMean arg) {
-      return MeanData.create(arg.getSum(), arg.getCount());
+      return MeanData.create(arg.getMean(), arg.getCount());
     }
 
     private static final CreateMeanData INSTANCE = new CreateMeanData();
