@@ -59,6 +59,15 @@ public final class TagContextImpl extends TagContext {
     return new TagIterator(tags);
   }
 
+  @Override
+  public boolean equals(Object other) {
+    // Directly compare the tags when both objects are TagContextImpls, for efficiency.
+    if (other instanceof TagContextImpl) {
+      return getTags().equals(((TagContextImpl) other).getTags());
+    }
+    return super.equals(other);
+  }
+
   private static final class TagIterator implements Iterator<Tag> {
     Iterator<Map.Entry<TagKey, TagValue>> iterator;
 

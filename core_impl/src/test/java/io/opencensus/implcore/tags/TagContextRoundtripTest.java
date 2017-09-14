@@ -18,7 +18,6 @@ package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.Lists;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContexts;
@@ -59,7 +58,6 @@ public class TagContextRoundtripTest {
   private void testRoundtripSerialization(TagContext expected) throws Exception {
     byte[] bytes = serializer.toByteArray(expected);
     TagContext actual = serializer.fromByteArray(bytes);
-    assertThat(Lists.newArrayList(actual.unsafeGetIterator()))
-        .containsExactlyElementsIn(Lists.newArrayList(expected.unsafeGetIterator()));
+    assertThat(actual).isEqualTo(expected);
   }
 }

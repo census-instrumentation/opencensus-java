@@ -71,7 +71,7 @@ public class CurrentTagContextUtilsTest {
     assertThat(asList(CurrentTagContextUtils.getCurrentTagContext())).isEmpty();
     Scope scopedTags = CurrentTagContextUtils.withTagContext(tagContext);
     try {
-      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(tagContext);
+      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isSameAs(tagContext);
     } finally {
       scopedTags.close();
     }
@@ -83,7 +83,7 @@ public class CurrentTagContextUtilsTest {
     Runnable runnable;
     Scope scopedTags = CurrentTagContextUtils.withTagContext(tagContext);
     try {
-      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isEqualTo(tagContext);
+      assertThat(CurrentTagContextUtils.getCurrentTagContext()).isSameAs(tagContext);
       runnable =
           Context.current()
               .wrap(
@@ -91,7 +91,7 @@ public class CurrentTagContextUtilsTest {
                     @Override
                     public void run() {
                       assertThat(CurrentTagContextUtils.getCurrentTagContext())
-                          .isEqualTo(tagContext);
+                          .isSameAs(tagContext);
                     }
                   });
     } finally {
