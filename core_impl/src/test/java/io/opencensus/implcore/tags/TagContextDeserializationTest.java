@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
+import io.opencensus.tags.TagContextParseException;
 import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
@@ -64,7 +65,7 @@ public class TagContextDeserializationTest {
     assertTagContextsEqual(actual, expected);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TagContextParseException.class)
   public void testDeserializeEmptyByteArrayThrowException() throws Exception {
     testDeserialize(new byte[0]);
   }
@@ -104,42 +105,42 @@ public class TagContextDeserializationTest {
     assertTagContextsEqual(actual, expected);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeInteger() throws Exception {
     // TODO(songya): test should pass after we add support for type integer
     testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_INTEGER));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeTrue() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
     testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_TRUE));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeFalse() throws Exception {
     // TODO(songya): test should pass after we add support for type boolean
     testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_FALSE));
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TagContextParseException.class)
   public void testDeserializeMultipleValueType() throws Exception {
     // TODO(songya): test should pass after we add support for type integer and boolean
     testDeserialize(constructMultiTypeTagInputStream());
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TagContextParseException.class)
   public void testDeserializeWrongFormat() throws Exception {
     // encoded tags should follow the format <version_id>(<tag_field_id><tag_encoding>)*
     testDeserialize(new byte[3]);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = TagContextParseException.class)
   public void testDeserializeWrongVersionId() throws Exception {
     testDeserialize(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
   }
 
-  private TagContext testDeserialize(byte[] bytes) throws IOException {
+  private TagContext testDeserialize(byte[] bytes) throws TagContextParseException {
     return serializer.fromByteArray(bytes);
   }
 
