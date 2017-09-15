@@ -16,6 +16,8 @@
 
 package io.opencensus.tags;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.opencensus.common.Scope;
 import javax.annotation.concurrent.Immutable;
 
@@ -42,10 +44,12 @@ public abstract class TagContexts {
   /**
    * Returns the current {@code TagContext}.
    *
+   * <p>This implementation calls {@link #transformTagContext} on its result.
+   *
    * @return the current {@code TagContext}.
    */
-  public TagContext getCurrentTagContext() {
-    return CurrentTagContextUtils.getCurrentTagContext();
+  public final TagContext getCurrentTagContext() {
+    return transformTagContext(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   /**
@@ -53,9 +57,7 @@ public abstract class TagContexts {
    *
    * @return a new empty {@code Builder}.
    */
-  public TagContextBuilder emptyBuilder() {
-    return toBuilder(empty());
-  }
+  public abstract TagContextBuilder emptyBuilder();
 
   /**
    * Returns a builder based on this {@code TagContext}.
@@ -66,6 +68,8 @@ public abstract class TagContexts {
 
   /**
    * Returns a new builder created from the current {@code TagContext}.
+   *
+   * <p>This implementation calls {@link #toBuilder} on the current {@code TagContext}.
    *
    * @return a new builder created from the current {@code TagContext}.
    */
@@ -78,12 +82,29 @@ public abstract class TagContexts {
    * returns an object that represents that scope. The scope is exited when the returned object is
    * closed.
    *
+   * <p>This implementation calls {@link #transformTagContext} on its input.
+   *
    * @param tags the {@code TagContext} to be set to the current context.
    * @return an object that defines a scope where the given {@code TagContext} is set to the current
    *     context.
    */
-  public Scope withTagContext(TagContext tags) {
-    return CurrentTagContextUtils.withTagContext(tags);
+  public final Scope withTagContext(TagContext tags) {
+    return CurrentTagContextUtils.withTagContext(transformTagContext(tags));
+  }
+
+  /**
+   * Hook for transforming {@link TagContext}s that are processed by this {@link TagContexts}. For
+   * example, if the implementation supports disabling tagging, this method could return a no-op
+   * {@code TagContext} whenever tagging is disabled. The default implementation returns its input
+   * unchanged.
+   *
+   * <p>See {@link #getCurrentTagContext} and {@link #withTagContext}.
+   *
+   * @param tags the tags to transform.
+   * @return tags optionally transformed using the current state of this {@code TagContexts}.
+   */
+  protected TagContext transformTagContext(TagContext tags) {
+    return checkNotNull(tags);
   }
 
   /**
@@ -104,8 +125,18 @@ public abstract class TagContexts {
     }
 
     @Override
+    public TagContextBuilder emptyBuilder() {
+      return TagContextBuilder.getNoopTagContextBuilder();
+    }
+
+    @Override
     public TagContextBuilder toBuilder(TagContext tags) {
       return TagContextBuilder.getNoopTagContextBuilder();
+    }
+
+    @Override
+    protected TagContext transformTagContext(TagContext tags) {
+      return TagContext.getNoopTagContext();
     }
   }
 }

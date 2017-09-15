@@ -78,6 +78,8 @@ public abstract class TagContextBuilder {
    * current context and returns an object that represents that scope. The scope is exited when the
    * returned object is closed.
    *
+   * <p>This implementation calls {@link #build} to create the {@code TagContext}.
+   *
    * @return an object that defines a scope where the {@code TagContext} created from this builder
    *     is set to the current context.
    */
