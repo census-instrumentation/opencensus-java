@@ -255,12 +255,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public void addAttributes(Map<String, AttributeValue> attributes) {
-    putAttributes(attributes);
-  }
-
-  @Override
   public void putAttributes(Map<String, AttributeValue> attributes) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;

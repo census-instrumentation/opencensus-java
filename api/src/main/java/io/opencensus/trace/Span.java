@@ -87,7 +87,7 @@ public abstract class Span {
     // Not final because for performance reasons we want to override this in the implementation.
     // Also a default implementation is needed to not break the compatibility (users may extend this
     // for testing).
-    addAttributes(Collections.singletonMap(key, value));
+    putAttributes(Collections.singletonMap(key, value));
   }
 
   /**
@@ -109,7 +109,9 @@ public abstract class Span {
    * @param attributes the attributes that will be added and associated with the {@code Span}.
    */
   @Deprecated
-  public abstract void addAttributes(Map<String, AttributeValue> attributes);
+  public void addAttributes(Map<String, AttributeValue> attributes) {
+    putAttributes(attributes);
+  }
 
   /**
    * Adds an annotation to the {@code Span}.
