@@ -99,7 +99,7 @@ public abstract class Span {
    */
   public void putAttributes(Map<String, AttributeValue> attributes) {
     // Not final because we want to start overriding this method from the beginning, this will
-    // allow us to remove the addAttributes faster.
+    // allow us to remove the addAttributes faster. All implementations MUST override this method.
     addAttributes(attributes);
   }
 

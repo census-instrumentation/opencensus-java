@@ -84,12 +84,12 @@ public class SpanTest {
   }
 
   @Test
-  public void addAttributeCallsAddAttributesByDefault() {
+  public void putAttributeCallsAddAttributesByDefault() {
     Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
     span.putAttribute("MyKey", AttributeValue.booleanAttributeValue(true));
     span.end();
     verify(span)
-        .addAttributes(
+        .putAttributes(
             eq(Collections.singletonMap("MyKey", AttributeValue.booleanAttributeValue(true))));
   }
 
