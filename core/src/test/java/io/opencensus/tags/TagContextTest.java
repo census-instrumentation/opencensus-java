@@ -55,6 +55,16 @@ public final class TagContextTest {
   }
 
   @Test
+  public void equals_HandlesNullIterator() {
+    new EqualsTester()
+        .addEqualityGroup(
+            new SimpleTagContext((List<Tag>) null),
+            new SimpleTagContext((List<Tag>) null),
+            new SimpleTagContext())
+        .testEquals();
+  }
+
+  @Test
   public void equals_DoesNotIgnoreNullTags() {
     new EqualsTester()
         .addEqualityGroup(new SimpleTagContext(TAG1))
@@ -81,12 +91,16 @@ public final class TagContextTest {
     private final List<Tag> tags;
 
     SimpleTagContext(Tag... tags) {
-      this.tags = Collections.unmodifiableList(Lists.newArrayList(tags));
+      this(Lists.newArrayList(tags));
+    }
+
+    SimpleTagContext(List<Tag> tags) {
+      this.tags = tags == null ? null : Collections.unmodifiableList(Lists.newArrayList(tags));
     }
 
     @Override
     public Iterator<Tag> unsafeGetIterator() {
-      return tags.iterator();
+      return tags == null ? null : tags.iterator();
     }
   }
 }
