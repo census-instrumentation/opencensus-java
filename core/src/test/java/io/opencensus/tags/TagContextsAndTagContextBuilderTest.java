@@ -43,11 +43,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Unit tests for the methods in {@link TagContexts} and {@link TagContextBuilder} that interact
- * with the current {@link TagContext}.
+ * Unit tests for {@link TagContexts} and {@link TagContextBuilder}.
  */
 @RunWith(JUnit4.class)
-public class ScopedTagContextsTest {
+public class TagContextsAndTagContextBuilderTest {
   private static final TagKeyString KEY_1 = TagKeyString.create("key 1");
   private static final TagKeyString KEY_2 = TagKeyString.create("key 2");
 
@@ -58,19 +57,36 @@ public class ScopedTagContextsTest {
 
   private final TagContexts tagContexts =
       new TagContexts() {
-        @Override
-        public TagContextBuilder toBuilder(TagContext tags) {
-          return new SimpleTagContextBuilder(((SimpleTagContext) tags).tags);
-        }
 
         @Override
         public TagContext empty() {
           return emptyTagContext;
         }
+
+        @Override
+        public TagContextBuilder emptyBuilder() {
+          return new SimpleTagContextBuilder(Collections.<TagString>emptySet());
+        }
+
+        @Override
+        public TagContextBuilder toBuilder(TagContext tags) {
+          return new SimpleTagContextBuilder(((SimpleTagContext) tags).tags);
+        }
       };
 
   @Test
-  public void defaultTagContext() {
+  public void transformTagContext() {
+    TagContext tags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
+    assertThat(tagContexts.transformTagContext(tags)).isSameAs(tags);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void transformTagContext_DisallowNull() {
+    tagContexts.transformTagContext(null);
+  }
+
+  @Test
+  public void defaultCurrentTagContext() {
     assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
   }
 

@@ -16,7 +16,6 @@
 
 package io.opencensus.implcore.tags;
 
-import io.opencensus.common.Scope;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContexts;
@@ -36,11 +35,6 @@ public final class TagContextsImpl extends TagContexts {
   }
 
   @Override
-  public TagContextImpl getCurrentTagContext() {
-    return toTagContextImpl(super.getCurrentTagContext());
-  }
-
-  @Override
   public TagContextBuilderImpl emptyBuilder() {
     return new TagContextBuilderImpl();
   }
@@ -51,8 +45,8 @@ public final class TagContextsImpl extends TagContexts {
   }
 
   @Override
-  public Scope withTagContext(TagContext tags) {
-    return super.withTagContext(toTagContextImpl(tags));
+  protected TagContext transformTagContext(TagContext tags) {
+    return toTagContextImpl(tags);
   }
 
   private static TagContextImpl toTagContextImpl(TagContext tags) {
