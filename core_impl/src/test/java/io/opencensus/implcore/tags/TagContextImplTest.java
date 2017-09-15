@@ -123,9 +123,9 @@ public class TagContextImplTest {
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build(),
-            tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build(),
-            tagContexts.emptyBuilder().set(KS2, V2).set(KS1, V1).build(),
+            tagContexts.emptyBuilder().put(KS1, V1).put(KS2, V2).build(),
+            tagContexts.emptyBuilder().put(KS1, V1).put(KS2, V2).build(),
+            tagContexts.emptyBuilder().put(KS2, V2).put(KS1, V1).build(),
             new TagContext() {
               @Override
               public Iterator<Tag> unsafeGetIterator() {
@@ -133,8 +133,8 @@ public class TagContextImplTest {
                     .iterator();
               }
             })
-        .addEqualityGroup(tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V1).build())
-        .addEqualityGroup(tagContexts.emptyBuilder().set(KS1, V2).set(KS2, V1).build())
+        .addEqualityGroup(tagContexts.emptyBuilder().put(KS1, V1).put(KS2, V1).build())
+        .addEqualityGroup(tagContexts.emptyBuilder().put(KS1, V2).put(KS2, V1).build())
         .testEquals();
   }
 
