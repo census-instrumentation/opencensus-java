@@ -72,21 +72,6 @@ public final class TagContextTest {
   }
 
   @Test
-  public void hashCode_SumsTagHashCodes() {
-    assertThat(new SimpleTagContext().hashCode()).isEqualTo(0);
-    assertThat(new SimpleTagContext(TAG1, TAG2).hashCode())
-        .isEqualTo(TAG1.hashCode() + TAG2.hashCode());
-    assertThat(new SimpleTagContext(TAG1, TAG2, TAG2).hashCode())
-        .isEqualTo(TAG1.hashCode() + 2 * TAG2.hashCode());
-  }
-
-  @Test
-  public void hashCode_IgnoresNullTags() {
-    assertThat(new SimpleTagContext(TAG1, TAG1, TAG2, null).hashCode())
-        .isEqualTo(2 * TAG1.hashCode() + TAG2.hashCode());
-  }
-
-  @Test
   public void testToString() {
     assertThat(new SimpleTagContext().toString()).isEqualTo("TagContext");
     assertThat(new SimpleTagContext(TAG1, TAG2).toString()).isEqualTo("TagContext");
