@@ -60,7 +60,7 @@ public final class MeasureMap {
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder set(MeasureDouble measure, double value) {
+    public Builder put(MeasureDouble measure, double value) {
       measurements.add(Measurement.MeasurementDouble.create(measure, value));
       return this;
     }
@@ -73,7 +73,7 @@ public final class MeasureMap {
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder set(MeasureLong measure, long value) {
+    public Builder put(MeasureLong measure, long value) {
       measurements.add(Measurement.MeasurementLong.create(measure, value));
       return this;
     }
