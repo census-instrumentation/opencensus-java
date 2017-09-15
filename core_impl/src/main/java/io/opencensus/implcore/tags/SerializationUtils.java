@@ -28,11 +28,11 @@ import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextParseException;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TagValue.TagValueString;
-import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -113,18 +113,18 @@ final class SerializationUtils {
 
   // Deserializes input to TagContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static TagContextImpl deserializeBinary(byte[] bytes) throws IOException {
+  static TagContextImpl deserializeBinary(byte[] bytes) throws TagContextParseException {
     try {
       HashMap<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
-        throw new IOException("Input byte[] can not be empty.");
+        throw new TagContextParseException("Input byte[] can not be empty.");
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
       int versionId = buffer.get();
       if (versionId != VERSION_ID) {
-        throw new IOException(
+        throw new TagContextParseException(
             "Wrong Version ID: " + versionId + ". Currently supported version is: " + VERSION_ID);
       }
 
@@ -142,12 +142,12 @@ final class SerializationUtils {
           case VALUE_TYPE_FALSE:
           default:
             // TODO(songya): add support for value types integer and boolean
-            throw new IOException("Unsupported tag value type.");
+            throw new TagContextParseException("Unsupported tag value type.");
         }
       }
       return new TagContextImpl(tags);
     } catch (BufferUnderflowException exn) {
-      throw new IOException(exn.toString()); // byte array format error.
+      throw new TagContextParseException(exn.toString()); // byte array format error.
     }
   }
 

@@ -16,7 +16,6 @@
 
 package io.opencensus.tags;
 
-import java.io.IOException;
 import javax.annotation.concurrent.Immutable;
 
 /** Object for serializing and deserializing {@link TagContext}s with the binary format. */
@@ -41,10 +40,10 @@ public abstract class TagContextBinarySerializer {
    *
    * @param bytes on-the-wire representation of a {@code TagContext}.
    * @return a {@code TagContext} deserialized from {@code bytes}.
-   * @throws IOException if there is a parse error.
+   * @throws TagContextParseException if there is a parse error.
    */
   // TODO(sebright): Use a more appropriate exception type, since this method doesn't do IO.
-  public abstract TagContext fromByteArray(byte[] bytes) throws IOException;
+  public abstract TagContext fromByteArray(byte[] bytes) throws TagContextParseException;
 
   /**
    * Returns a {@code TagContextBinarySerializer} that serializes all {@code TagContext}s to zero
@@ -64,7 +63,7 @@ public abstract class TagContextBinarySerializer {
     }
 
     @Override
-    public TagContext fromByteArray(byte[] bytes) throws IOException {
+    public TagContext fromByteArray(byte[] bytes) {
       return TagContext.getNoopTagContext();
     }
   }

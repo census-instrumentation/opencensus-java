@@ -18,7 +18,7 @@ package io.opencensus.implcore.tags;
 
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
-import java.io.IOException;
+import io.opencensus.tags.TagContextParseException;
 
 final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   @Override
@@ -27,7 +27,7 @@ final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   }
 
   @Override
-  public TagContext fromByteArray(byte[] bytes) throws IOException {
+  public TagContext fromByteArray(byte[] bytes) throws TagContextParseException {
     return SerializationUtils.deserializeBinary(bytes);
   }
 }
