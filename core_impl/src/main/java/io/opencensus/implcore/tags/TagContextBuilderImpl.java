@@ -42,17 +42,17 @@ final class TagContextBuilderImpl extends TagContextBuilder {
   }
 
   @Override
-  public TagContextBuilderImpl set(TagKeyString key, TagValueString value) {
+  public TagContextBuilderImpl put(TagKeyString key, TagValueString value) {
     return setInternal(key, checkNotNull(value, "value"));
   }
 
   @Override
-  public TagContextBuilderImpl set(TagKeyLong key, TagValueLong value) {
+  public TagContextBuilderImpl put(TagKeyLong key, TagValueLong value) {
     return setInternal(key, value);
   }
 
   @Override
-  public TagContextBuilderImpl set(TagKeyBoolean key, TagValueBoolean value) {
+  public TagContextBuilderImpl put(TagKeyBoolean key, TagValueBoolean value) {
     return setInternal(key, value);
   }
 
@@ -62,7 +62,7 @@ final class TagContextBuilderImpl extends TagContextBuilder {
   }
 
   @Override
-  public TagContextBuilderImpl clear(TagKey key) {
+  public TagContextBuilderImpl remove(TagKey key) {
     tags.remove(key);
     return this;
   }

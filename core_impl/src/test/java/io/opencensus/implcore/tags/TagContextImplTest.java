@@ -68,9 +68,9 @@ public class TagContextImplTest {
             asList(
                 tagContexts
                     .emptyBuilder()
-                    .set(stringKey, TagValueString.create("value"))
-                    .set(longKey, TagValueLong.create(123))
-                    .set(boolKey, TagValueBoolean.create(true))
+                    .put(stringKey, TagValueString.create("value"))
+                    .put(longKey, TagValueLong.create(123))
+                    .put(boolKey, TagValueBoolean.create(true))
                     .build()))
         .containsExactly(
             TagString.create(stringKey, TagValueString.create("value")),
@@ -80,24 +80,24 @@ public class TagContextImplTest {
 
   @Test
   public void testSet() {
-    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).build();
-    assertThat(asList(tagContexts.toBuilder(tags).set(KS1, V2).build()))
+    TagContext tags = tagContexts.emptyBuilder().put(KS1, V1).build();
+    assertThat(asList(tagContexts.toBuilder(tags).put(KS1, V2).build()))
         .containsExactly(TagString.create(KS1, V2));
-    assertThat(asList(tagContexts.toBuilder(tags).set(KS2, V2).build()))
+    assertThat(asList(tagContexts.toBuilder(tags).put(KS2, V2).build()))
         .containsExactly(TagString.create(KS1, V1), TagString.create(KS2, V2));
   }
 
   @Test
   public void testClear() {
-    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).build();
-    assertThat(asList(tagContexts.toBuilder(tags).clear(KS1).build())).isEmpty();
-    assertThat(asList(tagContexts.toBuilder(tags).clear(KS2).build()))
+    TagContext tags = tagContexts.emptyBuilder().put(KS1, V1).build();
+    assertThat(asList(tagContexts.toBuilder(tags).remove(KS1).build())).isEmpty();
+    assertThat(asList(tagContexts.toBuilder(tags).remove(KS2).build()))
         .containsExactly(TagString.create(KS1, V1));
   }
 
   @Test
   public void testIterator() {
-    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
+    TagContext tags = tagContexts.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
     Iterator<Tag> i = tags.unsafeGetIterator();
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
@@ -112,7 +112,7 @@ public class TagContextImplTest {
 
   @Test
   public void disallowCallingRemoveOnIterator() {
-    TagContext tags = tagContexts.emptyBuilder().set(KS1, V1).set(KS2, V2).build();
+    TagContext tags = tagContexts.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
     Iterator<Tag> i = tags.unsafeGetIterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);

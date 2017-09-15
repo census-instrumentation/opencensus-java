@@ -77,7 +77,7 @@ public class TagContextDeserializationTest {
     TagContext expected =
         tagContexts
             .emptyBuilder()
-            .set(
+            .put(
                 TagKeyString.create(KEY + SerializationUtils.VALUE_TYPE_STRING),
                 TagValueString.create(VALUE_STRING))
             .build();
@@ -97,10 +97,10 @@ public class TagContextDeserializationTest {
     TagContext expected =
         tagContexts
             .emptyBuilder()
-            .set(
+            .put(
                 TagKeyString.create(KEY + SerializationUtils.VALUE_TYPE_STRING),
                 TagValueString.create(VALUE_STRING))
-            .set(TagKeyString.create("Key2"), TagValueString.create("String2"))
+            .put(TagKeyString.create("Key2"), TagValueString.create("String2"))
             .build();
     assertTagContextsEqual(actual, expected);
   }

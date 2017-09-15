@@ -92,7 +92,7 @@ public class ScopedTagContextsTest {
     TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
     Scope scope = tagContexts.withTagContext(scopedTags);
     try {
-      TagContext newTags = tagContexts.currentBuilder().set(KEY_2, VALUE_2).build();
+      TagContext newTags = tagContexts.currentBuilder().put(KEY_2, VALUE_2).build();
       assertThat(asList(newTags))
           .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
       assertThat(tagContexts.getCurrentTagContext()).isSameAs(scopedTags);
@@ -104,7 +104,7 @@ public class ScopedTagContextsTest {
   @Test
   public void setCurrentTagsWithBuilder() {
     assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
-    Scope scope = tagContexts.emptyBuilder().set(KEY_1, VALUE_1).buildScoped();
+    Scope scope = tagContexts.emptyBuilder().put(KEY_1, VALUE_1).buildScoped();
     try {
       assertThat(asList(tagContexts.getCurrentTagContext()))
           .containsExactly(TagString.create(KEY_1, VALUE_1));
@@ -119,7 +119,7 @@ public class ScopedTagContextsTest {
     TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
     Scope scope1 = tagContexts.withTagContext(scopedTags);
     try {
-      Scope scope2 = tagContexts.currentBuilder().set(KEY_2, VALUE_2).buildScoped();
+      Scope scope2 = tagContexts.currentBuilder().put(KEY_2, VALUE_2).buildScoped();
       try {
         assertThat(asList(tagContexts.getCurrentTagContext()))
             .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
@@ -148,23 +148,23 @@ public class ScopedTagContextsTest {
     }
 
     @Override
-    public TagContextBuilder set(TagKeyString key, TagValueString value) {
+    public TagContextBuilder put(TagKeyString key, TagValueString value) {
       tagMap.put(key, value);
       return this;
     }
 
     @Override
-    public TagContextBuilder set(TagKeyLong key, TagValueLong value) {
+    public TagContextBuilder put(TagKeyLong key, TagValueLong value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public TagContextBuilder set(TagKeyBoolean key, TagValueBoolean value) {
+    public TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public TagContextBuilder clear(TagKey key) {
+    public TagContextBuilder remove(TagKey key) {
       throw new UnsupportedOperationException();
     }
 
