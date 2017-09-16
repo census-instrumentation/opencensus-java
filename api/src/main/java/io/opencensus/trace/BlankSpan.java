@@ -38,10 +38,9 @@ public final class BlankSpan extends Span {
   @Override
   public void putAttribute(String key, AttributeValue value) {}
 
-  /** No-op implementation of the {@link Span#addAttributes(Map)} method. */
+  /** No-op implementation of the {@link Span#putAttributes(Map)} method. */
   @Override
-  @SuppressWarnings("deprecation")
-  public void addAttributes(Map<String, AttributeValue> attributes) {}
+  public void putAttributes(Map<String, AttributeValue> attributes) {}
 
   /** No-op implementation of the {@link Span#addAnnotation(String, Map)} method. */
   @Override
