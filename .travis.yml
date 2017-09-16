@@ -5,10 +5,9 @@ language: java
 matrix:
   fast_finish: true
   include:
-  - jdk: oraclejdk7
+  - jdk: openjdk7
     env: TASK=BUILD
     os: linux
-    dist: precise
 
   - jdk: oraclejdk8
     env: TASK=BUILD
@@ -40,16 +39,23 @@ before_install:
 install: true
 
 script:
+  # "./gradlew classes testClasses" is a workaround for
+  # https://github.com/gradle/gradle/issues/2421.
+  # See https://github.com/gradle/gradle/issues/2421#issuecomment-319916874.
   - case "$TASK" in
       "CHECK_GIT_HISTORY")
         python check-git-history.py ;;
       "BUILD")
         export JAVA8_HOME=`jdk_switcher home oraclejdk8` ;
-        ./gradlew clean assemble --stacktrace ;
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
+            ./gradlew clean assemble --stacktrace ;
             ./gradlew check :opencensus-all:jacocoTestReport ;;
-          "oraclejdk7")
+          "openjdk7")
+            jdk_switcher use oraclejdk8 ;
+            ./gradlew classes testClasses ;
+            jdk_switcher use openjdk7 ;
+            ./gradlew clean assemble --stacktrace ;
             ./gradlew check ;;
         esac ;;
       *)
