@@ -17,7 +17,9 @@
 package io.opencensus.tags;
 
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multiset;
 import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Collections;
 import java.util.Iterator;
@@ -56,16 +58,28 @@ public abstract class TagContext {
     if (!(other instanceof TagContext)) {
       return false;
     }
-    HashMultiset<Tag> tags1 = HashMultiset.create(Lists.newArrayList(unsafeGetIterator()));
-    HashMultiset<Tag> tags2 =
-        HashMultiset.create(Lists.newArrayList(((TagContext) other).unsafeGetIterator()));
+    TagContext otherTags = (TagContext) other;
+    Iterator<Tag> iter1 = unsafeGetIterator();
+    Iterator<Tag> iter2 = otherTags.unsafeGetIterator();
+    Multiset<Tag> tags1 =
+        iter1 == null
+            ? ImmutableMultiset.<Tag>of()
+            : HashMultiset.create(Lists.newArrayList(iter1));
+    Multiset<Tag> tags2 =
+        iter2 == null
+            ? ImmutableMultiset.<Tag>of()
+            : HashMultiset.create(Lists.newArrayList(iter2));
     return tags1.equals(tags2);
   }
 
   @Override
   public final int hashCode() {
     int hashCode = 0;
-    for (Iterator<Tag> i = unsafeGetIterator(); i.hasNext(); ) {
+    Iterator<Tag> i = unsafeGetIterator();
+    if (i == null) {
+      return hashCode;
+    }
+    while (i.hasNext()) {
       Tag tag = i.next();
       if (tag != null) {
         hashCode += tag.hashCode();

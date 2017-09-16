@@ -55,6 +55,16 @@ public final class TagContextTest {
   }
 
   @Test
+  public void equals_HandlesNullIterator() {
+    new EqualsTester()
+        .addEqualityGroup(
+            new SimpleTagContext((List<Tag>) null),
+            new SimpleTagContext((List<Tag>) null),
+            new SimpleTagContext())
+        .testEquals();
+  }
+
+  @Test
   public void equals_DoesNotIgnoreNullTags() {
     new EqualsTester()
         .addEqualityGroup(new SimpleTagContext(TAG1))
@@ -72,21 +82,6 @@ public final class TagContextTest {
   }
 
   @Test
-  public void hashCode_SumsTagHashCodes() {
-    assertThat(new SimpleTagContext().hashCode()).isEqualTo(0);
-    assertThat(new SimpleTagContext(TAG1, TAG2).hashCode())
-        .isEqualTo(TAG1.hashCode() + TAG2.hashCode());
-    assertThat(new SimpleTagContext(TAG1, TAG2, TAG2).hashCode())
-        .isEqualTo(TAG1.hashCode() + 2 * TAG2.hashCode());
-  }
-
-  @Test
-  public void hashCode_IgnoresNullTags() {
-    assertThat(new SimpleTagContext(TAG1, TAG1, TAG2, null).hashCode())
-        .isEqualTo(2 * TAG1.hashCode() + TAG2.hashCode());
-  }
-
-  @Test
   public void testToString() {
     assertThat(new SimpleTagContext().toString()).isEqualTo("TagContext");
     assertThat(new SimpleTagContext(TAG1, TAG2).toString()).isEqualTo("TagContext");
@@ -96,12 +91,16 @@ public final class TagContextTest {
     private final List<Tag> tags;
 
     SimpleTagContext(Tag... tags) {
-      this.tags = Collections.unmodifiableList(Lists.newArrayList(tags));
+      this(Lists.newArrayList(tags));
+    }
+
+    SimpleTagContext(List<Tag> tags) {
+      this.tags = tags == null ? null : Collections.unmodifiableList(Lists.newArrayList(tags));
     }
 
     @Override
     public Iterator<Tag> unsafeGetIterator() {
-      return tags.iterator();
+      return tags == null ? null : tags.iterator();
     }
   }
 }
