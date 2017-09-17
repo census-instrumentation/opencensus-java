@@ -126,8 +126,9 @@ jar.finalizedBy shadowJar
 
 // TODO(stschmidt): Proguard-shrink the agent JAR.
 
-// Integration tests. The setup is mostly based on
+// Integration tests. The setup was initially based on
 // https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/.
+// The same suite of integration tests are run on different Java versions with the agent enabled.
 
 sourceSets {
   integrationTest {
@@ -155,21 +156,41 @@ checkstyleIntegrationTest.enabled = JavaVersion.current().isJava8Compatible()
 // Disable findbugs for integration tests, too.
 findbugsIntegrationTest.enabled = false
 
-// Run integration tests with the agent enabled.
-task integrationTest(type: Test) {
-  testLogging {
-    // Let Gradle output the stdout and stderr from tests, too. This is useful for investigating
-    // test failures on Travis, where we can't view Gradle's test reports.
-    showStandardStreams = true
+def javaExecutables = [ 'JAVA6_HOME', 'JAVA7_HOME', 'JAVA8_HOME' ]
+    .collect { System.getenv(it) }
+    .findAll { it != null }
+    .plus(System.getProperty('java.home'))
+    .collect { org.apache.tools.ant.taskdefs.condition.Os.isFamily(
+                   org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)
+                   ? "${it}/bin/java.exe"
+                   : "${it}/bin/java" }
+    .findAll { new File(it).canExecute() }
+    .unique()
 
-    // Include the exception message and full stacktrace for failed tests.
-    exceptionFormat 'full'
+assert javaExecutables.size > 0 :
+       'No Java executables found for running integration tests'
+
+task integrationTest
+
+javaExecutables.eachWithIndex { javaExecutable, index ->
+  def perVersionIntegrationTest = task("integrationTest_${index}", type: Test) {
+    testLogging {
+      // Let Gradle output the stdout and stderr from tests, too. This is useful for investigating
+      // test failures on Travis, where we can't view Gradle's test reports.
+      showStandardStreams = true
+
+      // Include the exception message and full stacktrace for failed tests.
+      exceptionFormat 'full'
+    }
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+
+    executable = javaExecutable
+    jvmArgs "-javaagent:${shadowJar.archivePath}"
   }
 
-  testClassesDirs = sourceSets.integrationTest.output.classesDirs
-  classpath = sourceSets.integrationTest.runtimeClasspath
-
-  jvmArgs "-javaagent:${shadowJar.archivePath}"
+  integrationTest.dependsOn perVersionIntegrationTest
 }
 
 check.dependsOn integrationTest
