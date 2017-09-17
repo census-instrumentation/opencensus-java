@@ -24,7 +24,7 @@ import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.propagation.BinaryFormat;
-import java.text.ParseException;
+import io.opencensus.trace.propagation.SpanContextParseException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -51,9 +51,9 @@ public class BinaryFormatImplTest {
   @Rule public ExpectedException expectedException = ExpectedException.none();
   private final BinaryFormat binaryFormat = new BinaryFormatImpl();
 
-  private void testSpanContextConversion(SpanContext spanContext) throws ParseException {
+  private void testSpanContextConversion(SpanContext spanContext) throws SpanContextParseException {
     SpanContext propagatedBinarySpanContext =
-        binaryFormat.fromBinaryValue(binaryFormat.toBinaryValue(spanContext));
+        binaryFormat.fromByteArray(binaryFormat.toByteArray(spanContext));
 
     assertWithMessage("BinaryFormat propagated context is not equal with the initial context.")
         .that(propagatedBinarySpanContext)
@@ -61,24 +61,24 @@ public class BinaryFormatImplTest {
   }
 
   @Test
-  public void propagate_SpanContextTracingEnabled() throws ParseException {
+  public void propagate_SpanContextTracingEnabled() throws SpanContextParseException {
     testSpanContextConversion(
         SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.builder().setIsSampled().build()));
   }
 
   @Test
-  public void propagate_SpanContextNoTracing() throws ParseException {
+  public void propagate_SpanContextNoTracing() throws SpanContextParseException {
     testSpanContextConversion(SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT));
   }
 
   @Test(expected = NullPointerException.class)
   public void toBinaryValue_NullSpanContext() {
-    binaryFormat.toBinaryValue(null);
+    binaryFormat.toByteArray(null);
   }
 
   @Test
   public void toBinaryValue_InvalidSpanContext() {
-    assertThat(binaryFormat.toBinaryValue(SpanContext.INVALID))
+    assertThat(binaryFormat.toByteArray(SpanContext.INVALID))
         .isEqualTo(
             new byte[] {
               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0
@@ -86,27 +86,27 @@ public class BinaryFormatImplTest {
   }
 
   @Test
-  public void fromBinaryValue_BinaryExampleValue() throws ParseException {
-    assertThat(binaryFormat.fromBinaryValue(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
+  public void fromBinaryValue_BinaryExampleValue() throws SpanContextParseException {
+    assertThat(binaryFormat.fromByteArray(EXAMPLE_BYTES)).isEqualTo(EXAMPLE_SPAN_CONTEXT);
   }
 
   @Test(expected = NullPointerException.class)
-  public void fromBinaryValue_NullInput() throws ParseException {
-    binaryFormat.fromBinaryValue(null);
+  public void fromBinaryValue_NullInput() throws SpanContextParseException {
+    binaryFormat.fromByteArray(null);
   }
 
   @Test
-  public void fromBinaryValue_EmptyInput() throws ParseException {
-    expectedException.expect(ParseException.class);
+  public void fromBinaryValue_EmptyInput() throws SpanContextParseException {
+    expectedException.expect(SpanContextParseException.class);
     expectedException.expectMessage("Unsupported version.");
-    binaryFormat.fromBinaryValue(new byte[0]);
+    binaryFormat.fromByteArray(new byte[0]);
   }
 
   @Test
-  public void fromBinaryValue_UnsupportedVersionId() throws ParseException {
-    expectedException.expect(ParseException.class);
+  public void fromBinaryValue_UnsupportedVersionId() throws SpanContextParseException {
+    expectedException.expect(SpanContextParseException.class);
     expectedException.expectMessage("Unsupported version.");
-    binaryFormat.fromBinaryValue(
+    binaryFormat.fromByteArray(
         new byte[] {
           66, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 97, 98, 99, 100, 101,
           102, 103, 104, 1
@@ -114,9 +114,9 @@ public class BinaryFormatImplTest {
   }
 
   @Test
-  public void fromBinaryValue_UnsupportedFieldIdFirst() throws ParseException {
+  public void fromBinaryValue_UnsupportedFieldIdFirst() throws SpanContextParseException {
     assertThat(
-            binaryFormat.fromBinaryValue(
+            binaryFormat.fromByteArray(
                 new byte[] {
                   0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -125,9 +125,9 @@ public class BinaryFormatImplTest {
   }
 
   @Test
-  public void fromBinaryValue_UnsupportedFieldIdSecond() throws ParseException {
+  public void fromBinaryValue_UnsupportedFieldIdSecond() throws SpanContextParseException {
     assertThat(
-            binaryFormat.fromBinaryValue(
+            binaryFormat.fromByteArray(
                 new byte[] {
                   0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 3, 97, 98,
                   99, 100, 101, 102, 103, 104, 2, 1
@@ -141,25 +141,25 @@ public class BinaryFormatImplTest {
   }
 
   @Test
-  public void fromBinaryValue_ShorterTraceId() throws ParseException {
-    expectedException.expect(ParseException.class);
-    expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
-    binaryFormat.fromBinaryValue(
+  public void fromBinaryValue_ShorterTraceId() throws SpanContextParseException {
+    expectedException.expect(SpanContextParseException.class);
+    expectedException.expectMessage("Invalid input.");
+    binaryFormat.fromByteArray(
         new byte[] {0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76});
   }
 
   @Test
-  public void fromBinaryValue_ShorterSpanId() throws ParseException {
-    expectedException.expect(ParseException.class);
-    expectedException.expectMessage("Invalid input: java.lang.ArrayIndexOutOfBoundsException");
-    binaryFormat.fromBinaryValue(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
+  public void fromBinaryValue_ShorterSpanId() throws SpanContextParseException {
+    expectedException.expect(SpanContextParseException.class);
+    expectedException.expectMessage("Invalid input.");
+    binaryFormat.fromByteArray(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
   }
 
   @Test
-  public void fromBinaryValue_ShorterTraceOptions() throws ParseException {
-    expectedException.expect(ParseException.class);
-    expectedException.expectMessage("Invalid input: java.lang.IndexOutOfBoundsException");
-    binaryFormat.fromBinaryValue(
+  public void fromBinaryValue_ShorterTraceOptions() throws SpanContextParseException {
+    expectedException.expect(SpanContextParseException.class);
+    expectedException.expectMessage("Invalid input.");
+    binaryFormat.fromByteArray(
         new byte[] {
           0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
           101, 102, 103, 104, 2

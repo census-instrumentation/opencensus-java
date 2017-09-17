@@ -27,8 +27,7 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link BinaryFormat}. */
 @RunWith(JUnit4.class)
 public class BinaryFormatTest {
-  private static final BinaryFormat binaryFormat =
-      BinaryFormat.getNoopBinaryFormat();
+  private static final BinaryFormat binaryFormat = BinaryFormat.getNoopBinaryFormat();
 
   @Test(expected = NullPointerException.class)
   public void toBinaryValue_NullSpanContext() {
@@ -41,6 +40,16 @@ public class BinaryFormatTest {
   }
 
   @Test(expected = NullPointerException.class)
+  public void toByteArray_NullSpanContext() {
+    binaryFormat.toByteArray(null);
+  }
+
+  @Test
+  public void toByteArray_NotNullSpanContext() {
+    assertThat(binaryFormat.toByteArray(SpanContext.INVALID)).isEqualTo(new byte[0]);
+  }
+
+  @Test(expected = NullPointerException.class)
   public void fromBinaryValue_NullInput() throws ParseException {
     binaryFormat.fromBinaryValue(null);
   }
@@ -48,5 +57,15 @@ public class BinaryFormatTest {
   @Test
   public void fromBinaryValue_NotNullInput() throws ParseException {
     assertThat(binaryFormat.fromBinaryValue(new byte[0])).isEqualTo(SpanContext.INVALID);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void fromByteArray_NullInput() throws SpanContextParseException {
+    binaryFormat.fromByteArray(null);
+  }
+
+  @Test
+  public void fromByteArray_NotNullInput() throws SpanContextParseException {
+    assertThat(binaryFormat.fromByteArray(new byte[0])).isEqualTo(SpanContext.INVALID);
   }
 }
