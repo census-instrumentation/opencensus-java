@@ -553,4 +553,26 @@ public class ViewManagerImplTest {
             Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, 2.2)),
         EPSILON);
   }
+
+  //  @Test
+  //  public void testGetCumulativeViewDataWithoutBucketBoundaries() {
+  //    Aggregation noHistogram = Distribution.create(null);
+  //    View view =
+  //        createCumulativeView(VIEW_NAME, MEASURE, noHistogram, Arrays.asList(KEY));
+  //    clock.setTime(Timestamp.create(1, 0));
+  //    viewManager.registerView(view);
+  //    statsRecorder.record(
+  //        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
+  //        MeasureMap.builder().set(MEASURE, 1.1).build());
+  //    clock.setTime(Timestamp.create(3, 0));
+  //    ViewData viewData = viewManager.getView(VIEW_NAME);
+  //    assertThat(viewData.getWindowData())
+  //        .isEqualTo(CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
+  //    StatsTestUtil.assertAggregationMapEquals(
+  //        viewData.getAggregationMap(),
+  //        ImmutableMap.of(
+  //            Arrays.asList(VALUE),
+  //            createAggregationData(noHistogram, 1.1)),
+  //        EPSILON);
+  //  }
 }

@@ -200,7 +200,7 @@ public final class ViewDataTest {
   
   private static final Mean MEAN = Mean.create();
 
-  private static final ImmutableMap<List<TagValueString>, ? extends AggregationData> ENTRIES =
+  private static final ImmutableMap<List<TagValueString>, MeanData> ENTRIES =
       ImmutableMap.of(
           Arrays.asList(V1, V2),
           MeanData.create(0, 1),
