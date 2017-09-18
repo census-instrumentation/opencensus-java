@@ -50,7 +50,7 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] toBinaryValueSpanContext() {
+  public byte[] toBinarySpanContext() {
     return BINARY_PROPAGATION.toByteArray(spanContext);
   }
 
@@ -61,7 +61,7 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext fromBinaryValueSpanContext() throws SpanContextParseException {
+  public SpanContext fromBinarySpanContext() throws SpanContextParseException {
     return BINARY_PROPAGATION.fromByteArray(spanContextBinary);
   }
 

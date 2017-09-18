@@ -17,7 +17,7 @@
 package io.opencensus.trace.propagation;
 
 /** Exception thrown when a {@link io.opencensus.trace.SpanContext} cannot be parsed. */
-public class SpanContextParseException extends Exception {
+public final class SpanContextParseException extends Exception {
   private static final long serialVersionUID = 0L;
 
   /**

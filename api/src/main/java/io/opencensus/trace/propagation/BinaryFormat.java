@@ -76,13 +76,14 @@ public abstract class BinaryFormat {
   }
 
   /**
-   * Serializes a {@link SpanContext} using the binary format into a byte array.
+   * Serializes a {@link SpanContext} into a byte array using the binary format.
    *
    * @param spanContext the {@code SpanContext} to serialize.
    * @return the serialized binary value.
    * @throws NullPointerException if the {@code spanContext} is {@code null}.
    */
   public byte[] toByteArray(SpanContext spanContext) {
+    // Implementation must override this method.
     return toBinaryValue(spanContext);
   }
 
@@ -103,7 +104,7 @@ public abstract class BinaryFormat {
   }
 
   /**
-   * Parses the {@link SpanContext} using the binary format from a byte array.
+   * Parses the {@link SpanContext} from a byte array using the binary format.
    *
    * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
    * @return the parsed {@code SpanContext}.
@@ -111,6 +112,7 @@ public abstract class BinaryFormat {
    * @throws SpanContextParseException if the version is not supported or the input is invalid
    */
   public SpanContext fromByteArray(byte[] bytes) throws SpanContextParseException {
+    // Implementation must override this method.
     try {
       return fromBinaryValue(bytes);
     } catch (ParseException e) {
@@ -135,7 +137,7 @@ public abstract class BinaryFormat {
     }
 
     @Override
-    public SpanContext fromByteArray(byte[] bytes) throws SpanContextParseException {
+    public SpanContext fromByteArray(byte[] bytes) {
       checkNotNull(bytes, "bytes");
       return SpanContext.INVALID;
     }
