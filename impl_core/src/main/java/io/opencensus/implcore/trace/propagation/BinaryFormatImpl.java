@@ -23,7 +23,7 @@ import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.propagation.BinaryFormat;
-import java.text.ParseException;
+import io.opencensus.trace.propagation.SpanContextParseException;
 
 /**
  * Implementation of the {@link BinaryFormat}.
@@ -77,7 +77,7 @@ public final class BinaryFormatImpl extends BinaryFormat {
       4 * ID_SIZE + TraceId.SIZE + SpanId.SIZE + TraceOptions.SIZE;
 
   @Override
-  public byte[] toBinaryValue(SpanContext spanContext) {
+  public byte[] toByteArray(SpanContext spanContext) {
     checkNotNull(spanContext, "spanContext");
     byte[] bytes = new byte[FORMAT_LENGTH];
     bytes[VERSION_ID_OFFSET] = VERSION_ID;
@@ -91,10 +91,10 @@ public final class BinaryFormatImpl extends BinaryFormat {
   }
 
   @Override
-  public SpanContext fromBinaryValue(byte[] bytes) throws ParseException {
+  public SpanContext fromByteArray(byte[] bytes) throws SpanContextParseException {
     checkNotNull(bytes, "bytes");
     if (bytes.length == 0 || bytes[0] != VERSION_ID) {
-      throw new ParseException("Unsupported version.", 0);
+      throw new SpanContextParseException("Unsupported version.");
     }
     TraceId traceId = TraceId.INVALID;
     SpanId spanId = SpanId.INVALID;
@@ -114,7 +114,7 @@ public final class BinaryFormatImpl extends BinaryFormat {
       }
       return SpanContext.create(traceId, spanId, traceOptions);
     } catch (IndexOutOfBoundsException e) {
-      throw new ParseException("Invalid input: " + e.toString(), pos);
+      throw new SpanContextParseException("Invalid input.", e);
     }
   }
 }

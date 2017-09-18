@@ -21,7 +21,6 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
-import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -42,7 +41,7 @@ public class BinaryPropagationImplBenchmark {
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
   private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
   private static final BinaryFormat BINARY_PROPAGATION = new BinaryFormatImpl();
-  private static final byte[] spanContextBinary = BINARY_PROPAGATION.toBinaryValue(spanContext);
+  private static final byte[] spanContextBinary = BINARY_PROPAGATION.toByteArray(spanContext);
 
   /**
    * This benchmark attempts to measure performance of {@link
@@ -51,8 +50,8 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] toBinaryValueSpanContext() {
-    return BINARY_PROPAGATION.toBinaryValue(spanContext);
+  public byte[] toBinarySpanContext() {
+    return BINARY_PROPAGATION.toByteArray(spanContext);
   }
 
   /**
@@ -62,8 +61,8 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext fromBinaryValueSpanContext() throws ParseException {
-    return BINARY_PROPAGATION.fromBinaryValue(spanContextBinary);
+  public SpanContext fromBinarySpanContext() throws SpanContextParseException {
+    return BINARY_PROPAGATION.fromByteArray(spanContextBinary);
   }
 
   /**
@@ -74,7 +73,7 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext toFromBinarySpanContext() throws ParseException {
-    return BINARY_PROPAGATION.fromBinaryValue(BINARY_PROPAGATION.toBinaryValue(spanContext));
+  public SpanContext toFromBinarySpanContext() throws SpanContextParseException {
+    return BINARY_PROPAGATION.fromByteArray(BINARY_PROPAGATION.toByteArray(spanContext));
   }
 }

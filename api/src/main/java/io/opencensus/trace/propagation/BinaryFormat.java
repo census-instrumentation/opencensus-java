@@ -32,7 +32,7 @@ import java.text.ParseException;
  *     Tracing.getPropagationComponent().getBinaryFormat();
  * void onSendRequest() {
  *   try (Scope ss = tracer.spanBuilder("Sent.MyRequest").startScopedSpan()) {
- *     byte[] binaryValue = binaryFormat.toBinaryValue(tracer.getCurrentContext().context());
+ *     byte[] binaryValue = binaryFormat.toByteArray(tracer.getCurrentContext().context());
  *     // Send the request including the binaryValue and wait for the response.
  *   }
  * }
@@ -49,9 +49,9 @@ import java.text.ParseException;
  *   SpanContext spanContext = SpanContext.INVALID;
  *   try {
  *     if (binaryValue != null) {
- *       spanContext = binaryFormat.fromBinaryValue(binaryValue);
+ *       spanContext = binaryFormat.fromByteArray(binaryValue);
  *     }
- *   } catch (ParseException e) {
+ *   } catch (SpanContextParseException e) {
  *     // Maybe log the exception.
  *   }
  *   try (Scope ss =
@@ -65,23 +65,60 @@ public abstract class BinaryFormat {
   static final NoopBinaryFormat NOOP_BINARY_FORMAT = new NoopBinaryFormat();
 
   /**
-   * Serializes a {@link SpanContext} using the binary format.
+   * @deprecated use {@link #toByteArray(SpanContext)}.
+   * @param spanContext the {@code SpanContext} to serialize.
+   * @return the serialized binary value.
+   * @throws NullPointerException if the {@code spanContext} is {@code null}.
+   */
+  @Deprecated
+  public byte[] toBinaryValue(SpanContext spanContext) {
+    return toByteArray(spanContext);
+  }
+
+  /**
+   * Serializes a {@link SpanContext} into a byte array using the binary format.
    *
    * @param spanContext the {@code SpanContext} to serialize.
    * @return the serialized binary value.
    * @throws NullPointerException if the {@code spanContext} is {@code null}.
    */
-  public abstract byte[] toBinaryValue(SpanContext spanContext);
+  public byte[] toByteArray(SpanContext spanContext) {
+    // Implementation must override this method.
+    return toBinaryValue(spanContext);
+  }
 
   /**
-   * Parses the {@link SpanContext} from the binary format.
-   *
+   * @deprecated use {@link #fromByteArray(byte[])}.
    * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
    * @return the parsed {@code SpanContext}.
    * @throws NullPointerException if the {@code input} is {@code null}.
    * @throws ParseException if the version is not supported or the input is invalid
    */
-  public abstract SpanContext fromBinaryValue(byte[] bytes) throws ParseException;
+  @Deprecated
+  public SpanContext fromBinaryValue(byte[] bytes) throws ParseException {
+    try {
+      return fromByteArray(bytes);
+    } catch (SpanContextParseException e) {
+      throw new ParseException(e.toString(), 0);
+    }
+  }
+
+  /**
+   * Parses the {@link SpanContext} from a byte array using the binary format.
+   *
+   * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
+   * @return the parsed {@code SpanContext}.
+   * @throws NullPointerException if the {@code input} is {@code null}.
+   * @throws SpanContextParseException if the version is not supported or the input is invalid
+   */
+  public SpanContext fromByteArray(byte[] bytes) throws SpanContextParseException {
+    // Implementation must override this method.
+    try {
+      return fromBinaryValue(bytes);
+    } catch (ParseException e) {
+      throw new SpanContextParseException("Error while parsing.", e);
+    }
+  }
 
   /**
    * Returns the no-op implementation of the {@code BinaryFormat}.
@@ -94,13 +131,13 @@ public abstract class BinaryFormat {
 
   private static final class NoopBinaryFormat extends BinaryFormat {
     @Override
-    public byte[] toBinaryValue(SpanContext spanContext) {
+    public byte[] toByteArray(SpanContext spanContext) {
       checkNotNull(spanContext, "spanContext");
       return new byte[0];
     }
 
     @Override
-    public SpanContext fromBinaryValue(byte[] bytes) throws ParseException {
+    public SpanContext fromByteArray(byte[] bytes) {
       checkNotNull(bytes, "bytes");
       return SpanContext.INVALID;
     }
