@@ -61,13 +61,15 @@ public abstract class Aggregation {
     Sum() {
     }
 
+    private static final Sum INSTANCE = new AutoValue_Aggregation_Sum();
+
     /**
      * Construct a {@code Sum}.
      *
      * @return a new {@code Sum}.
      */
     public static Sum create() {
-      return new AutoValue_Aggregation_Sum();
+      return INSTANCE;
     }
 
     @Override
@@ -89,13 +91,15 @@ public abstract class Aggregation {
     Count() {
     }
 
+    private static final Count INSTANCE = new AutoValue_Aggregation_Count();
+
     /**
      * Construct a {@code Count}.
      *
      * @return a new {@code Count}.
      */
     public static Count create() {
-      return new AutoValue_Aggregation_Count();
+      return INSTANCE;
     }
 
     @Override
@@ -117,13 +121,15 @@ public abstract class Aggregation {
     Mean() {
     }
 
+    private static final Mean INSTANCE = new AutoValue_Aggregation_Mean();
+
     /**
      * Construct a {@code Mean}.
      *
      * @return a new {@code Mean}.
      */
     public static Mean create() {
-      return new AutoValue_Aggregation_Mean();
+      return INSTANCE;
     }
 
     @Override
