@@ -19,6 +19,8 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
+import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
 import org.junit.Test;
@@ -43,6 +45,16 @@ public final class RpcViewConstantsTest {
     assertThat(RpcViewConstants.RPC_COUNT_BUCKET_BOUNDARIES).containsExactly(
         0.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0,
         4096.0, 8192.0, 16384.0, 32768.0, 65536.0).inOrder();
+
+    // Test Aggregations
+    assertThat(RpcViewConstants.MEAN).isEqualTo(Mean.create());
+    assertThat(RpcViewConstants.AGGREGATION_WITH_BYTES_HISTOGRAM).isEqualTo(
+        Distribution.create(BucketBoundaries.create(RpcViewConstants.RPC_BYTES_BUCKET_BOUNDARIES)));
+    assertThat(RpcViewConstants.AGGREGATION_WITH_MILLIS_HISTOGRAM).isEqualTo(
+        Distribution.create(
+            BucketBoundaries.create(RpcViewConstants.RPC_MILLIS_BUCKET_BOUNDARIES)));
+    assertThat(RpcViewConstants.AGGREGATION_WITH_COUNT_HISTOGRAM).isEqualTo(
+        Distribution.create(BucketBoundaries.create(RpcViewConstants.RPC_COUNT_BUCKET_BOUNDARIES)));
 
     // Test Duration and Window
     assertThat(RpcViewConstants.MINUTE).isEqualTo(Duration.create(60, 0));
