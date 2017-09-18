@@ -48,6 +48,7 @@ import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -133,7 +134,7 @@ public class ViewManagerImplTest {
             VIEW_NAME,
             VIEW_DESCRIPTION,
             MEASURE_DOUBLE,
-            MEAN,
+            DISTRIBUTION,
             Arrays.asList(KEY),
             Interval.create(Duration.create(60, 0)));
     viewManager.registerView(intervalView);
@@ -154,14 +155,14 @@ public class ViewManagerImplTest {
   public void preventRegisteringDifferentViewWithSameName() {
     View view1 =
         View.create(
-            VIEW_NAME, "View description.", MEASURE_DOUBLE, MEAN, Arrays.asList(KEY),
+            VIEW_NAME, "View description.", MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY),
             CUMULATIVE);
     View view2 =
         View.create(
             VIEW_NAME,
             "This is a different description.",
             MEASURE_DOUBLE,
-            MEAN,
+            DISTRIBUTION,
             Arrays.asList(KEY),
             CUMULATIVE);
     testFailedToRegisterView(view1, view2,
@@ -223,7 +224,7 @@ public class ViewManagerImplTest {
     StatsTestUtil.assertAggregationMapEquals(
         viewData.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, values)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(DISTRIBUTION, values)),
         EPSILON);
   }
 
@@ -324,7 +325,7 @@ public class ViewManagerImplTest {
 
   @Test
   public void getViewDoesNotClearStats() {
-    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(10, 0));
     viewManager.registerView(view);
     TagContext tags = tagger.emptyBuilder().put(KEY, VALUE).build();
@@ -336,7 +337,7 @@ public class ViewManagerImplTest {
     StatsTestUtil.assertAggregationMapEquals(
         viewData1.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, 0.1)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(DISTRIBUTION, 0.1)),
         EPSILON);
 
     statsRecorder.record(tags, MeasureMap.builder().put(MEASURE_DOUBLE, 0.2).build());
@@ -350,14 +351,14 @@ public class ViewManagerImplTest {
     StatsTestUtil.assertAggregationMapEquals(
         viewData2.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, 0.1, 0.2)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(DISTRIBUTION, 0.1, 0.2)),
         EPSILON);
   }
 
   @Test
   public void testRecordCumulativeMultipleTagValues() {
     viewManager.registerView(
-        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY)));
+        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY)));
     statsRecorder.record(
         tagger.emptyBuilder().put(KEY, VALUE).build(),
         MeasureMap.builder().put(MEASURE_DOUBLE, 10.0).build());
@@ -372,9 +373,9 @@ public class ViewManagerImplTest {
         viewData.getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(VALUE),
-            createAggregationData(MEAN, 10.0),
+            createAggregationData(DISTRIBUTION, 10.0),
             Arrays.asList(VALUE_2),
-            createAggregationData(MEAN, 30.0, 50.0)),
+            createAggregationData(DISTRIBUTION, 30.0, 50.0)),
         EPSILON);
   }
 
@@ -442,7 +443,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithEmptyStatsContext() {
     viewManager.registerView(
-        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY)));
+        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY)));
     // DEFAULT doesn't have tags, but the view has tag key "KEY".
     statsRecorder
         .record(tagger.empty(), MeasureMap.builder().put(MEASURE_DOUBLE, 10.0).build());
@@ -454,7 +455,7 @@ public class ViewManagerImplTest {
             // "unknown/not set".
             Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
             // Should record stats with default tag value: "KEY" : "unknown/not set".
-            createAggregationData(MEAN, 10.0)),
+            createAggregationData(DISTRIBUTION, 10.0)),
         EPSILON);
   }
 
@@ -491,7 +492,7 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordWithTagsThatDoNotMatchViewData() {
     viewManager.registerView(
-        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY)));
+        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY)));
     statsRecorder.record(
         tagger.emptyBuilder().put(TagKeyString.create("wrong key"), VALUE).build(),
         MeasureMap.builder().put(MEASURE_DOUBLE, 10.0).build());
@@ -506,7 +507,7 @@ public class ViewManagerImplTest {
             // tag value : "unknown/not set".
             Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
             // Should record stats with default tag value: "KEY" : "unknown/not set".
-            createAggregationData(MEAN, 10.0, 50.0)),
+            createAggregationData(DISTRIBUTION, 10.0, 50.0)),
         EPSILON);
   }
 
@@ -515,7 +516,7 @@ public class ViewManagerImplTest {
     TagKeyString key1 = TagKeyString.create("Key-1");
     TagKeyString key2 = TagKeyString.create("Key-2");
     viewManager.registerView(
-        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(key1, key2)));
+        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(key1, key2)));
     statsRecorder.record(
         tagger
             .emptyBuilder()
@@ -549,18 +550,20 @@ public class ViewManagerImplTest {
         viewData.getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(TagValueString.create("v1"), TagValueString.create("v10")),
-            StatsTestUtil.createAggregationData(MEAN, 1.1, 4.4),
+            StatsTestUtil.createAggregationData(DISTRIBUTION, 1.1, 4.4),
             Arrays.asList(TagValueString.create("v1"), TagValueString.create("v20")),
-            StatsTestUtil.createAggregationData(MEAN, 2.2),
+            StatsTestUtil.createAggregationData(DISTRIBUTION, 2.2),
             Arrays.asList(TagValueString.create("v2"), TagValueString.create("v10")),
-            StatsTestUtil.createAggregationData(MEAN, 3.3)),
+            StatsTestUtil.createAggregationData(DISTRIBUTION, 3.3)),
         EPSILON);
   }
 
   @Test
   public void testMultipleViewSameMeasure() {
-    final View view1 = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
-    final View view2 = createCumulativeView(VIEW_NAME_2, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    final View view1 =
+        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
+    final View view2 =
+        createCumulativeView(VIEW_NAME_2, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 1));
     viewManager.registerView(view1);
     clock.setTime(Timestamp.create(2, 2));
@@ -577,14 +580,14 @@ public class ViewManagerImplTest {
     StatsTestUtil.assertAggregationMapEquals(
         viewData1.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, 5.0)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(DISTRIBUTION, 5.0)),
         EPSILON);
     assertThat(viewData2.getWindowData())
         .isEqualTo(CumulativeData.create(Timestamp.create(2, 2), Timestamp.create(4, 4)));
     StatsTestUtil.assertAggregationMapEquals(
         viewData2.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, 5.0)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(DISTRIBUTION, 5.0)),
         EPSILON);
   }
 
@@ -609,9 +612,9 @@ public class ViewManagerImplTest {
   private void testMultipleViews_DifferentMeasures(
       Measure measure1, Measure measure2, double value1, double value2) {
     final View view1 =
-        createCumulativeView(VIEW_NAME, measure1, MEAN, Arrays.asList(KEY));
+        createCumulativeView(VIEW_NAME, measure1, DISTRIBUTION, Arrays.asList(KEY));
     final View view2 =
-        createCumulativeView(VIEW_NAME_2, measure2, MEAN, Arrays.asList(KEY));
+        createCumulativeView(VIEW_NAME_2, measure2, DISTRIBUTION, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
     viewManager.registerView(view1);
     clock.setTime(Timestamp.create(2, 0));
@@ -628,7 +631,7 @@ public class ViewManagerImplTest {
     StatsTestUtil.assertAggregationMapEquals(
         viewData1.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, value1)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(DISTRIBUTION, value1)),
         EPSILON);
     assertThat(viewData2.getWindowData())
         .isEqualTo(CumulativeData.create(Timestamp.create(2, 0), Timestamp.create(4, 0)));
@@ -639,27 +642,49 @@ public class ViewManagerImplTest {
         EPSILON);
   }
 
-  //  @Test
-  //  public void testGetCumulativeViewDataWithoutBucketBoundaries() {
-  //    Aggregation noHistogram = Distribution.create(null);
-  //    View view =
-  //        createCumulativeView(VIEW_NAME, MEASURE, noHistogram, Arrays.asList(KEY));
-  //    clock.setTime(Timestamp.create(1, 0));
-  //    viewManager.registerView(view);
-  //    statsRecorder.record(
-  //        tagContexts.emptyBuilder().put(KEY, VALUE).build(),
-  //        MeasureMap.builder().set(MEASURE, 1.1).build());
-  //    clock.setTime(Timestamp.create(3, 0));
-  //    ViewData viewData = viewManager.getView(VIEW_NAME);
-  //    assertThat(viewData.getWindowData())
-  //        .isEqualTo(CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
-  //    StatsTestUtil.assertAggregationMapEquals(
-  //        viewData.getAggregationMap(),
-  //        ImmutableMap.of(
-  //            Arrays.asList(VALUE),
-  //            createAggregationData(noHistogram, 1.1)),
-  //        EPSILON);
-  //  }
+  @Test
+  public void testGetCumulativeViewDataWithEmptyBucketBoundaries() {
+    Aggregation noHistogram = Distribution.create(
+        BucketBoundaries.create(Collections.<Double>emptyList()));
+    View view =
+        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, noHistogram, Arrays.asList(KEY));
+    clock.setTime(Timestamp.create(1, 0));
+    viewManager.registerView(view);
+    statsRecorder.record(
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
+        MeasureMap.builder().put(MEASURE_DOUBLE, 1.1).build());
+    clock.setTime(Timestamp.create(3, 0));
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+    assertThat(viewData.getWindowData())
+        .isEqualTo(CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            createAggregationData(noHistogram, 1.1)),
+        EPSILON);
+  }
+
+  @Test
+  public void testGetCumulativeViewDataWithoutBucketBoundaries() {
+    View view =
+        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    clock.setTime(Timestamp.create(1, 0));
+    viewManager.registerView(view);
+    statsRecorder.record(
+        tagger.emptyBuilder().put(KEY, VALUE).build(),
+        MeasureMap.builder().put(MEASURE_DOUBLE, 1.1).build());
+    clock.setTime(Timestamp.create(3, 0));
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+    assertThat(viewData.getWindowData())
+        .isEqualTo(CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            createAggregationData(MEAN, 1.1)),
+        EPSILON);
+  }
 
   private static MeasureMap buildMeasureMap(Measure measure, double value) {
     if (measure instanceof MeasureDouble) {
