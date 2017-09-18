@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.implcore.tags;
 
 import io.grpc.Context;
 import io.opencensus.common.Scope;
+import io.opencensus.tags.TagContext;
 import io.opencensus.tags.unsafe.ContextUtils;
 import javax.annotation.Nullable;
 

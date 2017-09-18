@@ -16,6 +16,8 @@
 
 package io.opencensus.tags;
 
+import io.opencensus.common.Scope;
+import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -105,8 +107,28 @@ final class NoopTags {
     }
 
     @Override
+    public TagContext getCurrentTagContext() {
+      return getNoopTagContext();
+    }
+
+    @Override
+    public TagContextBuilder emptyBuilder() {
+      return getNoopTagContextBuilder();
+    }
+
+    @Override
     public TagContextBuilder toBuilder(TagContext tags) {
       return getNoopTagContextBuilder();
+    }
+
+    @Override
+    public TagContextBuilder currentBuilder() {
+      return getNoopTagContextBuilder();
+    }
+
+    @Override
+    public Scope withTagContext(TagContext tags) {
+      return NoopScope.getInstance();
     }
   }
 
@@ -137,6 +159,11 @@ final class NoopTags {
     @Override
     public TagContext build() {
       return getNoopTagContext();
+    }
+
+    @Override
+    public Scope buildScoped() {
+      return NoopScope.getInstance();
     }
   }
 

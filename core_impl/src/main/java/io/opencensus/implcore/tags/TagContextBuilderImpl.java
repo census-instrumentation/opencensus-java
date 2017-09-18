@@ -18,6 +18,7 @@ package io.opencensus.implcore.tags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.common.Scope;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
@@ -70,5 +71,10 @@ final class TagContextBuilderImpl extends TagContextBuilder {
   @Override
   public TagContextImpl build() {
     return new TagContextImpl(tags);
+  }
+
+  @Override
+  public Scope buildScoped() {
+    return CurrentTagContextUtils.withTagContext(build());
   }
 }
