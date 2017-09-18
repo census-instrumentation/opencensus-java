@@ -91,11 +91,11 @@ public class AggregationDataTest {
             RangeData.create(-5.0, 1.0),
             RangeData.create(-5.0, 1.0))
         .addEqualityGroup(
-            MeanData.create(5.0),
-            MeanData.create(5.0))
+            MeanData.create(5.0, 1),
+            MeanData.create(5.0, 1))
         .addEqualityGroup(
-            MeanData.create(-5.0),
-            MeanData.create(-5.0))
+            MeanData.create(-5.0, 1),
+            MeanData.create(-5.0, 1))
         .addEqualityGroup(
             StdDevData.create(23.3),
             StdDevData.create(23.3))
@@ -112,7 +112,7 @@ public class AggregationDataTest {
         CountData.create(40),
         HistogramData.create(new long[]{0, 10, 0}),
         RangeData.create(-1.0, 1.0),
-        MeanData.create(5.0),
+        MeanData.create(5.0, 1),
         StdDevData.create(23.3));
 
     final List<Object> actual = new ArrayList<Object>();

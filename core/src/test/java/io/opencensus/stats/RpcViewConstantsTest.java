@@ -19,9 +19,6 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
-import io.opencensus.stats.Aggregation.Count;
-import io.opencensus.stats.Aggregation.Histogram;
-import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
 import org.junit.Test;
@@ -46,30 +43,6 @@ public final class RpcViewConstantsTest {
     assertThat(RpcViewConstants.RPC_COUNT_BUCKET_BOUNDARIES).containsExactly(
         0.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0,
         4096.0, 8192.0, 16384.0, 32768.0, 65536.0).inOrder();
-
-    // Test Aggregations
-    assertThat(RpcViewConstants.AGGREGATION_NO_HISTOGRAM)
-        .containsExactly(Sum.create(), Count.create())
-        .inOrder();
-    assertThat(RpcViewConstants.AGGREGATION_WITH_BYTES_HISTOGRAM)
-        .containsExactly(
-            Sum.create(),
-            Count.create(),
-            Histogram.create(BucketBoundaries.create(RpcViewConstants.RPC_BYTES_BUCKET_BOUNDARIES)))
-        .inOrder();
-    assertThat(RpcViewConstants.AGGREGATION_WITH_COUNT_HISTOGRAM)
-        .containsExactly(
-            Sum.create(),
-            Count.create(),
-            Histogram.create(BucketBoundaries.create(RpcViewConstants.RPC_COUNT_BUCKET_BOUNDARIES)))
-        .inOrder();
-    assertThat(RpcViewConstants.AGGREGATION_WITH_MILLIS_HISTOGRAM)
-        .containsExactly(
-            Sum.create(),
-            Count.create(),
-            Histogram.create(
-                BucketBoundaries.create(RpcViewConstants.RPC_MILLIS_BUCKET_BOUNDARIES)))
-        .inOrder();
 
     // Test Duration and Window
     assertThat(RpcViewConstants.MINUTE).isEqualTo(Duration.create(60, 0));

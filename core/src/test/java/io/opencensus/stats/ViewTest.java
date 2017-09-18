@@ -18,10 +18,10 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
-import io.opencensus.stats.Aggregation.Count;
-import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.tags.TagKey.TagKeyString;
@@ -47,11 +47,11 @@ public final class ViewTest {
   @Test
   public void testDistributionView() {
     final View view = View.create(
-        name, description, measure, aggregations, keys, Cumulative.create());
-    assertThat(view.getName()).isEqualTo(name);
-    assertThat(view.getDescription()).isEqualTo(description);
-    assertThat(view.getMeasure().getName()).isEqualTo(measure.getName());
-    assertThat(view.getAggregations()).isEqualTo(aggregations);
+        NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create());
+    assertThat(view.getName()).isEqualTo(NAME);
+    assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
+    assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
+    assertThat(view.getAggregation()).isEqualTo(MEAN);
     assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
     assertThat(view.getWindow()).isEqualTo(Cumulative.create());
@@ -60,15 +60,15 @@ public final class ViewTest {
   @Test
   public void testIntervalView() {
     final View view = View.create(
-        name, description, measure, aggregations, keys, Interval.create(minute));
-    assertThat(view.getName()).isEqualTo(name);
-    assertThat(view.getDescription()).isEqualTo(description);
+        NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE));
+    assertThat(view.getName()).isEqualTo(NAME);
+    assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(view.getMeasure().getName())
-        .isEqualTo(measure.getName());
-    assertThat(view.getAggregations()).isEqualTo(aggregations);
+        .isEqualTo(MEASURE.getName());
+    assertThat(view.getAggregation()).isEqualTo(MEAN);
     assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
-    assertThat(view.getWindow()).isEqualTo(Interval.create(minute));
+    assertThat(view.getWindow()).isEqualTo(Interval.create(MINUTE));
   }
 
   @Test
@@ -76,43 +76,37 @@ public final class ViewTest {
     new EqualsTester()
         .addEqualityGroup(
             View.create(
-                name, description, measure, aggregations, keys, Cumulative.create()),
+                NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()),
             View.create(
-                name, description, measure, aggregations, keys, Cumulative.create()))
+                NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()))
         .addEqualityGroup(
             View.create(
-                name, description + 2, measure, aggregations, keys, Cumulative.create()))
+                NAME, DESCRIPTION + 2, MEASURE, MEAN, keys, Cumulative.create()))
         .addEqualityGroup(
             View.create(
-                name, description, measure, aggregations, keys, Interval.create(minute)),
+                NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)),
             View.create(
-                name, description, measure, aggregations, keys, Interval.create(minute)))
+                NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)))
         .addEqualityGroup(
             View.create(
-                name, description, measure, aggregations, keys, Interval.create(twoMinutes)))
+                NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(TWO_MINUTES)))
         .testEquals();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void preventDuplicateAggregations() {
-    View.create(name, description, measure,
-        Arrays.asList(Sum.create(), Sum.create(), Count.create()), keys, Cumulative.create());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void preventDuplicateColumns() {
     View.create(
-        name,
-        description,
-        measure,
-        aggregations,
+        NAME,
+        DESCRIPTION,
+        MEASURE,
+        MEAN,
         Arrays.asList(TagKeyString.create("duplicate"), TagKeyString.create("duplicate")),
         Cumulative.create());
   }
 
   @Test(expected = NullPointerException.class)
   public void preventNullViewName() {
-    View.create(null, description, measure, aggregations, keys, Interval.create(minute));
+    View.create(null, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE));
   }
 
   @Test
@@ -129,7 +123,7 @@ public final class ViewTest {
     thrown.expect(IllegalArgumentException.class);
     View.Name.create("\2");
   }
-  
+
   @Test
   public void testViewName() {
     assertThat(View.Name.create("my name").asString()).isEqualTo("my name");
@@ -142,7 +136,7 @@ public final class ViewTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void preventNegativeIntervalDuration() {
-    Interval.create(negativeTenSeconds);
+    Interval.create(NEG_TEN_SECONDS);
   }
 
   @Test
@@ -154,15 +148,15 @@ public final class ViewTest {
         .testEquals();
   }
 
-  private final View.Name name = View.Name.create("test-view-name");
-  private final String description = "test-view-name description";
-  private final Measure measure = Measure.MeasureDouble.create(
+  private static final View.Name NAME = View.Name.create("test-view-name");
+  private static final String DESCRIPTION = "test-view-name description";
+  private static final Measure MEASURE = Measure.MeasureDouble.create(
       "measure", "measure description", "1");
   private static final TagKeyString FOO = TagKeyString.create("foo");
   private static final TagKeyString BAR = TagKeyString.create("bar");
-  private final List<TagKeyString> keys = Arrays.asList(FOO, BAR);
-  private final List<Aggregation> aggregations = Arrays.asList(Sum.create(), Count.create());
-  private final Duration minute = Duration.create(60, 0);
-  private final Duration twoMinutes = Duration.create(120, 0);
-  private final Duration negativeTenSeconds = Duration.create(-10, 0);
+  private static final List<TagKeyString> keys = ImmutableList.of(FOO, BAR);
+  private static final Mean MEAN = Mean.create();
+  private static final Duration MINUTE = Duration.create(60, 0);
+  private static final Duration TWO_MINUTES = Duration.create(120, 0);
+  private static final Duration NEG_TEN_SECONDS = Duration.create(-10, 0);
 }

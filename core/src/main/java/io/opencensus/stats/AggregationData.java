@@ -243,10 +243,11 @@ public abstract class AggregationData {
      * Creates a {@code MeanData}.
      *
      * @param mean the aggregated mean.
+     * @param count the aggregated count.
      * @return a {@code MeanData}.
      */
-    public static MeanData create(double mean) {
-      return new AutoValue_AggregationData_MeanData(mean);
+    public static MeanData create(double mean, long count) {
+      return new AutoValue_AggregationData_MeanData(mean, count);
     }
 
     /**
@@ -255,6 +256,13 @@ public abstract class AggregationData {
      * @return the aggregated mean.
      */
     public abstract double getMean();
+
+    /**
+     * Returns the aggregated count.
+     *
+     * @return the aggregated count.
+     */
+    public abstract long getCount();
 
     @Override
     public final <T> T match(

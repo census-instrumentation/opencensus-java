@@ -17,18 +17,17 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.Maps;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
-
 
 /** The aggregated data for a particular {@link View}. */
 @Immutable
@@ -42,10 +41,10 @@ public abstract class ViewData {
   public abstract View getView();
 
   /**
-   * The {@link AggregationData}s grouped by combination of tag values, associated with this
+   * The {@link AggregationData} grouped by combination of tag values, associated with this
    * {@link ViewData}.
    */
-  public abstract Map<List<TagValue>, List<AggregationData>> getAggregationMap();
+  public abstract Map<List<TagValue>, AggregationData> getAggregationMap();
 
   /**
    * Returns the {@link AggregationWindowData} associated with this {@link ViewData}.
@@ -57,7 +56,7 @@ public abstract class ViewData {
   /** Constructs a new {@link ViewData}. */
   public static ViewData create(
       View view,
-      Map<? extends List<? extends TagValue>, List<AggregationData>> map,
+      Map<? extends List<? extends TagValue>, ? extends AggregationData> map,
       final AggregationWindowData windowData) {
     view.getWindow()
         .match(
@@ -91,12 +90,12 @@ public abstract class ViewData {
             },
             Functions.<Void>throwIllegalArgumentException());
 
-    Map<List<TagValue>, List<AggregationData>> deepCopy =
-        new HashMap<List<TagValue>, List<AggregationData>>();
-    for (Entry<? extends List<? extends TagValue>, List<AggregationData>> entry : map.entrySet()) {
+    Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
+    for (Entry<? extends List<? extends TagValue>, ? extends AggregationData> entry : map
+        .entrySet()) {
       deepCopy.put(
           Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())),
-          Collections.unmodifiableList(new ArrayList<AggregationData>(entry.getValue())));
+          entry.getValue());
     }
 
     return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), windowData);
