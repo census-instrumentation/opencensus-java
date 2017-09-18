@@ -29,8 +29,8 @@ import javax.annotation.concurrent.Immutable;
  * own subtypes. This means callers cannot assume the {@link #getCurrentTagContext() current
  * context} is the same instance as the one {@link #withTagContext(TagContext) placed into scope}.
  */
-public abstract class TagContexts {
-  private static final TagContexts NOOP_TAG_CONTEXTS = new NoopTagContexts();
+public abstract class Tagger {
+  private static final Tagger NOOP_TAGGER = new NoopTagger();
 
   /**
    * Returns an empty {@code TagContext}.
@@ -87,16 +87,16 @@ public abstract class TagContexts {
   }
 
   /**
-   * Returns a {@code TagContexts} that only produces {@link TagContext}s with no tags.
+   * Returns a {@code Tagger} that only produces {@link TagContext}s with no tags.
    *
-   * @return a {@code TagContexts} that only produces {@code TagContext}s with no tags.
+   * @return a {@code Tagger} that only produces {@code TagContext}s with no tags.
    */
-  static TagContexts getNoopTagContexts() {
-    return NOOP_TAG_CONTEXTS;
+  static Tagger getNoopTagger() {
+    return NOOP_TAGGER;
   }
 
   @Immutable
-  private static final class NoopTagContexts extends TagContexts {
+  private static final class NoopTagger extends Tagger {
 
     @Override
     public TagContext empty() {

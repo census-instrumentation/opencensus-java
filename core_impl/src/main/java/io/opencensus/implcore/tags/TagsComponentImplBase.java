@@ -16,18 +16,18 @@
 
 package io.opencensus.implcore.tags;
 
-import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagPropagationComponent;
+import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
 
 /** Base implementation of {@link TagsComponent}. */
 public abstract class TagsComponentImplBase extends TagsComponent {
-  private final TagContexts tagContexts = new TagContextsImpl();
+  private final Tagger tagger = new TaggerImpl();
   private final TagPropagationComponent tagPropagationComponent = new TagPropagationComponentImpl();
 
   @Override
-  public TagContexts getTagContexts() {
-    return tagContexts;
+  public Tagger getTagger() {
+    return tagger;
   }
 
   @Override

@@ -19,10 +19,10 @@ package io.opencensus.implcore.tags;
 import io.opencensus.common.Scope;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContexts;
+import io.opencensus.tags.Tagger;
 import java.util.Iterator;
 
-public final class TagContextsImpl extends TagContexts {
+public final class TaggerImpl extends Tagger {
   // All methods in this class use TagContextImpl and TagContextBuilderImpl. For example,
   // withTagContext(...) always puts a TagContextImpl into scope, even if the argument is another
   // TagContext subclass.

@@ -27,13 +27,13 @@ import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagContexts;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
 import io.opencensus.tags.TagKey.TagKeyLong;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueBoolean;
 import io.opencensus.tags.TagValue.TagValueLong;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.Tagger;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import io.opencensus.tags.unsafe.ContextUtils;
 import java.util.Collections;
@@ -43,10 +43,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagContextsImpl}. */
+/** Tests for {@link TaggerImpl}. */
 @RunWith(JUnit4.class)
-public class TagContextsImplTest {
-  private final TagContexts tagContexts = new TagContextsImpl();
+public class TaggerImplTest {
+  private final Tagger tagger = new TaggerImpl();
 
   private static final TagKeyString KS = TagKeyString.create("ks");
   private static final TagKeyLong KL = UnreleasedApiAccessor.createTagKeyLong("kl");
@@ -63,13 +63,13 @@ public class TagContextsImplTest {
 
   @Test
   public void empty() {
-    assertThat(asList(tagContexts.empty())).isEmpty();
-    assertThat(tagContexts.empty()).isInstanceOf(TagContextImpl.class);
+    assertThat(asList(tagger.empty())).isEmpty();
+    assertThat(tagger.empty()).isInstanceOf(TagContextImpl.class);
   }
 
   @Test
   public void emptyBuilder() {
-    TagContextBuilder builder = tagContexts.emptyBuilder();
+    TagContextBuilder builder = tagger.emptyBuilder();
     assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
     assertThat(asList(builder.build())).isEmpty();
   }
@@ -77,7 +77,7 @@ public class TagContextsImplTest {
   @Test
   public void toBuilder_ConvertUnknownTagContextToTagContextImpl() {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
-    TagContext newTagContext = tagContexts.toBuilder(unknownTagContext).build();
+    TagContext newTagContext = tagger.toBuilder(unknownTagContext).build();
     assertThat(asList(newTagContext)).containsExactly(TAG1, TAG2, TAG3);
     assertThat(newTagContext).isInstanceOf(TagContextImpl.class);
   }
@@ -87,20 +87,20 @@ public class TagContextsImplTest {
     Tag tag1 = TagString.create(KS, VS1);
     Tag tag2 = TagString.create(KS, VS2);
     TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
-    TagContext newTagContext = tagContexts.toBuilder(tagContextWithDuplicateTags).build();
+    TagContext newTagContext = tagger.toBuilder(tagContextWithDuplicateTags).build();
     assertThat(asList(newTagContext)).containsExactly(tag2);
   }
 
   @Test
   public void toBuilder_SkipNullTag() {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
-    TagContext newTagContext = tagContexts.toBuilder(tagContextWithNullTag).build();
+    TagContext newTagContext = tagger.toBuilder(tagContextWithNullTag).build();
     assertThat(asList(newTagContext)).containsExactly(TAG1, TAG2);
   }
 
   @Test
   public void getCurrentTagContext_DefaultIsEmptyTagContextImpl() {
-    TagContext currentTagContext = tagContexts.getCurrentTagContext();
+    TagContext currentTagContext = tagger.getCurrentTagContext();
     assertThat(asList(currentTagContext)).isEmpty();
     assertThat(currentTagContext).isInstanceOf(TagContextImpl.class);
   }
@@ -132,7 +132,7 @@ public class TagContextsImplTest {
   private TagContext getResultOfGetCurrentTagContext(TagContext tagsToSet) {
     Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tagsToSet).attach();
     try {
-      return tagContexts.getCurrentTagContext();
+      return tagger.getCurrentTagContext();
     } finally {
       Context.current().detach(orig);
     }
@@ -163,7 +163,7 @@ public class TagContextsImplTest {
   }
 
   private TagContext getResultOfWithTagContext(TagContext tagsToSet) {
-    Scope scope = tagContexts.withTagContext(tagsToSet);
+    Scope scope = tagger.withTagContext(tagsToSet);
     try {
       return ContextUtils.TAG_CONTEXT_KEY.get();
     } finally {

@@ -43,8 +43,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Unit tests for the methods in {@link TagContexts} and {@link TagContextBuilder} that interact
- * with the current {@link TagContext}.
+ * Unit tests for the methods in {@link Tagger} and {@link TagContextBuilder} that interact with the
+ * current {@link TagContext}.
  */
 @RunWith(JUnit4.class)
 public class ScopedTagContextsTest {
@@ -56,8 +56,8 @@ public class ScopedTagContextsTest {
 
   private final TagContext emptyTagContext = new SimpleTagContext();
 
-  private final TagContexts tagContexts =
-      new TagContexts() {
+  private final Tagger tagger =
+      new Tagger() {
         @Override
         public TagContextBuilder toBuilder(TagContext tags) {
           return new SimpleTagContextBuilder(((SimpleTagContext) tags).tags);
@@ -71,31 +71,31 @@ public class ScopedTagContextsTest {
 
   @Test
   public void defaultTagContext() {
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
   }
 
   @Test
   public void withTagContext() {
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
     TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
-    Scope scope = tagContexts.withTagContext(scopedTags);
+    Scope scope = tagger.withTagContext(scopedTags);
     try {
-      assertThat(tagContexts.getCurrentTagContext()).isSameAs(scopedTags);
+      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
     } finally {
       scope.close();
     }
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
   }
 
   @Test
   public void createBuilderFromCurrentTags() {
     TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
-    Scope scope = tagContexts.withTagContext(scopedTags);
+    Scope scope = tagger.withTagContext(scopedTags);
     try {
-      TagContext newTags = tagContexts.currentBuilder().put(KEY_2, VALUE_2).build();
+      TagContext newTags = tagger.currentBuilder().put(KEY_2, VALUE_2).build();
       assertThat(asList(newTags))
           .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
-      assertThat(tagContexts.getCurrentTagContext()).isSameAs(scopedTags);
+      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
     } finally {
       scope.close();
     }
@@ -103,30 +103,30 @@ public class ScopedTagContextsTest {
 
   @Test
   public void setCurrentTagsWithBuilder() {
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
-    Scope scope = tagContexts.emptyBuilder().put(KEY_1, VALUE_1).buildScoped();
+    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
+    Scope scope = tagger.emptyBuilder().put(KEY_1, VALUE_1).buildScoped();
     try {
-      assertThat(asList(tagContexts.getCurrentTagContext()))
+      assertThat(asList(tagger.getCurrentTagContext()))
           .containsExactly(TagString.create(KEY_1, VALUE_1));
     } finally {
       scope.close();
     }
-    assertThat(asList(tagContexts.getCurrentTagContext())).isEmpty();
+    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
   }
 
   @Test
   public void addToCurrentTagsWithBuilder() {
     TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
-    Scope scope1 = tagContexts.withTagContext(scopedTags);
+    Scope scope1 = tagger.withTagContext(scopedTags);
     try {
-      Scope scope2 = tagContexts.currentBuilder().put(KEY_2, VALUE_2).buildScoped();
+      Scope scope2 = tagger.currentBuilder().put(KEY_2, VALUE_2).buildScoped();
       try {
-        assertThat(asList(tagContexts.getCurrentTagContext()))
+        assertThat(asList(tagger.getCurrentTagContext()))
             .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
       } finally {
         scope2.close();
       }
-      assertThat(tagContexts.getCurrentTagContext()).isSameAs(scopedTags);
+      assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
     } finally {
       scope1.close();
     }

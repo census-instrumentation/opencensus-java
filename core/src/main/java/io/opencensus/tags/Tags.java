@@ -31,12 +31,12 @@ public final class Tags {
   private Tags() {}
 
   /**
-   * Returns the default {@code TagContexts}.
+   * Returns the default {@code Tagger}.
    *
-   * @return the default {@code TagContexts}.
+   * @return the default {@code Tagger}.
    */
-  public static TagContexts getTagContexts() {
-    return tagsComponent.getTagContexts();
+  public static Tagger getTagger() {
+    return tagsComponent.getTagger();
   }
 
   /**
