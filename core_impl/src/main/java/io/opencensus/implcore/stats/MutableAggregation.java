@@ -223,10 +223,9 @@ abstract class MutableAggregation {
   /** Calculate distribution stats on aggregated {@code MeasureValue}s. */
   static final class MutableDistribution extends MutableAggregation {
 
-    private double sum = 0.0;
+    private double mean = 0.0;
     private long count = 0;
     private double sumOfSquaredDeviations = 0.0;
-    private double mean = 0.0;
 
     // Initial "impossible" values, that will get reset as soon as first value is added.
     private double min = Double.POSITIVE_INFINITY;
@@ -252,7 +251,6 @@ abstract class MutableAggregation {
 
     @Override
     void add(double value) {
-      sum += value;
       count++;
 
       /*
@@ -296,9 +294,9 @@ abstract class MutableAggregation {
       checkArgument(this.bucketBoundaries.equals(mutableDistribution.bucketBoundaries),
           "Bucket boundaries should match.");
 
-      this.sum += mutableDistribution.sum;
+      double sum = this.mean * this.count;
       this.count += mutableDistribution.count;
-      this.mean = this.sum / this.count;
+      this.mean = (sum + mutableDistribution.count * mutableDistribution.mean) / this.count;
       this.min = mutableDistribution.min < this.min ? mutableDistribution.min : this.min;
       this.max = mutableDistribution.max > this.max ? mutableDistribution.max : this.max;
       // TODO(songya): how to calculate combined sum of squared deviations?
@@ -309,8 +307,8 @@ abstract class MutableAggregation {
       }
     }
 
-    double getSum() {
-      return sum;
+    double getMean() {
+      return mean;
     }
 
     long getCount() {

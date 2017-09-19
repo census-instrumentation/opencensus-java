@@ -521,8 +521,7 @@ abstract class MutableViewData {
       implements Function<MutableDistribution, AggregationData> {
     @Override
     public AggregationData apply(MutableDistribution arg) {
-      double mean = arg.getCount() == 0 ? 0 : arg.getSum() / arg.getCount();
-      return DistributionData.create(mean, arg.getCount(), arg.getMin(), arg.getMax(),
+      return DistributionData.create(arg.getMean(), arg.getCount(), arg.getMin(), arg.getMax(),
           arg.getSumOfSquaredDeviations(), arg.getBucketCounts());
     }
 

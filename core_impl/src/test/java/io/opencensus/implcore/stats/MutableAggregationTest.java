@@ -50,7 +50,7 @@ public class MutableAggregationTest {
 
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(0.1, 2.2, 33.3));
     MutableDistribution mutableDistribution = MutableDistribution.create(bucketBoundaries);
-    assertThat(mutableDistribution.getSum()).isWithin(TOLERANCE).of(0);
+    assertThat(mutableDistribution.getMean()).isWithin(TOLERANCE).of(0);
     assertThat(mutableDistribution.getCount()).isEqualTo(0);
     assertThat(mutableDistribution.getMin()).isPositiveInfinity();
     assertThat(mutableDistribution.getMax()).isNegativeInfinity();
@@ -210,7 +210,7 @@ public class MutableAggregationTest {
     assertThat(((MutableMean) combined.get(2)).getMean()).isWithin(TOLERANCE).of(10);
 
     MutableDistribution mutableDistribution = (MutableDistribution) combined.get(3);
-    assertThat(mutableDistribution.getSum()).isWithin(TOLERANCE).of(-6);
+    assertThat(mutableDistribution.getMean()).isWithin(TOLERANCE).of(-3);
     assertThat(mutableDistribution.getCount()).isEqualTo(2);
     assertThat(mutableDistribution.getMin()).isWithin(TOLERANCE).of(-5);
     assertThat(mutableDistribution.getMax()).isWithin(TOLERANCE).of(-1);
