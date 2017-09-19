@@ -145,7 +145,7 @@ public abstract class Aggregation {
 
   /**
    * Calculate distribution stats on aggregated {@code MeasureValue}s. Distribution includes
-   * sum, count, histogram, min, max and sum of squared deviations.
+   * mean, count, histogram, min, max and sum of squared deviations.
    */
   @Immutable
   @AutoValue

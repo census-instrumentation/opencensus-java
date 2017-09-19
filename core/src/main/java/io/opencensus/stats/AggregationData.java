@@ -174,7 +174,7 @@ public abstract class AggregationData {
   }
 
   /**
-   * The distribution stats of aggregated {@code MeasureValue}s. Distribution stats include sum,
+   * The distribution stats of aggregated {@code MeasureValue}s. Distribution stats include mean,
    * count, histogram, min, max and sum of squared deviations.
    */
   @Immutable
