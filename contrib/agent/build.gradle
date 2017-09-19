@@ -128,7 +128,9 @@ jar.finalizedBy shadowJar
 
 // Integration tests. The setup was initially based on
 // https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/.
-// The same suite of integration tests are run on different Java versions with the agent enabled.
+// We run the same suite of integration tests on different Java versions with the agent enabled.
+// The JAVA_HOMES environment variable lists the home directories of the Java installations used
+// for integration testing.
 
 sourceSets {
   integrationTest {
@@ -156,15 +158,15 @@ checkstyleIntegrationTest.enabled = JavaVersion.current().isJava8Compatible()
 // Disable findbugs for integration tests, too.
 findbugsIntegrationTest.enabled = false
 
-def javaExecutables = [ 'JAVA6_HOME', 'JAVA7_HOME', 'JAVA8_HOME' ]
-    .collect { System.getenv(it) }
-    .findAll { it != null }
+def javaExecutables = (System.getenv('JAVA_HOMES') ?: '')
+    .tokenize(File.pathSeparator)
     .plus(System.getProperty('java.home'))
+    .findAll { new File(it).exists() }
     .collect { org.apache.tools.ant.taskdefs.condition.Os.isFamily(
                    org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)
                    ? "${it}/bin/java.exe"
                    : "${it}/bin/java" }
-    .findAll { new File(it).canExecute() }
+    .collect { new File(it).getCanonicalPath() }
     .unique()
 
 assert javaExecutables.size > 0 :
@@ -188,6 +190,8 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
 
     executable = javaExecutable
     jvmArgs "-javaagent:${shadowJar.archivePath}"
+
+    doFirst { logger.lifecycle("Running integrations tests using ${javaExecutable}.") }
   }
 
   integrationTest.dependsOn perVersionIntegrationTest
