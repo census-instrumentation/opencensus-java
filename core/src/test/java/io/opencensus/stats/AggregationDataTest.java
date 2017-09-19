@@ -24,7 +24,8 @@ import io.opencensus.common.Functions;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,11 +74,14 @@ public class AggregationDataTest {
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            SumData.create(10.0),
-            SumData.create(10.0))
+            SumDataDouble.create(10.0),
+            SumDataDouble.create(10.0))
         .addEqualityGroup(
-            SumData.create(20.0),
-            SumData.create(20.0))
+            SumDataDouble.create(20.0),
+            SumDataDouble.create(20.0))
+        .addEqualityGroup(
+            SumDataLong.create(20),
+            SumDataLong.create(20))
         .addEqualityGroup(
             CountData.create(40),
             CountData.create(40))
@@ -111,7 +115,8 @@ public class AggregationDataTest {
   @Test
   public void testMatchAndGet() {
     List<AggregationData> aggregations = Arrays.asList(
-        SumData.create(10.0),
+        SumDataDouble.create(10.0),
+        SumDataLong.create(100000000),
         CountData.create(40),
         MeanData.create(5.0, 1),
         DistributionData.create(1, 1, 1, 1, 0, new long[]{0, 10, 0}));
@@ -119,9 +124,16 @@ public class AggregationDataTest {
     final List<Object> actual = new ArrayList<Object>();
     for (AggregationData aggregation : aggregations) {
       aggregation.match(
-          new Function<SumData, Void>() {
+          new Function<SumDataDouble, Void>() {
             @Override
-            public Void apply(SumData arg) {
+            public Void apply(SumDataDouble arg) {
+              actual.add(arg.getSum());
+              return null;
+            }
+          },
+          new Function<SumDataLong, Void>() {
+            @Override
+            public Void apply(SumDataLong arg) {
               actual.add(arg.getSum());
               return null;
             }
@@ -151,6 +163,6 @@ public class AggregationDataTest {
     }
 
     assertThat(actual).isEqualTo(
-        Arrays.asList(10.0, 40L, 5.0, Arrays.asList(0L, 10L, 0L)));
+        Arrays.asList(10.0, 100000000L, 40L, 5.0, Arrays.asList(0L, 10L, 0L)));
   }
 }

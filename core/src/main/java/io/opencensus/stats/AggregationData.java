@@ -30,9 +30,10 @@ import javax.annotation.concurrent.Immutable;
  * {@link AggregationData} is the result of applying a given {@link Aggregation} to a set of
  * {@code MeasureValue}s.
  *
- * <p>{@link AggregationData} currently supports 4 types of basic aggregation values:
+ * <p>{@link AggregationData} currently supports 5 types of basic aggregation values:
  * <ul>
- *   <li>SumData
+ *   <li>SumDataDouble
+ *   <li>SumDataLong
  *   <li>CountData
  *   <li>MeanData
  *   <li>DistributionData
@@ -51,28 +52,29 @@ public abstract class AggregationData {
    * Applies the given match function to the underlying data type.
    */
   public abstract <T> T match(
-      Function<? super SumData, T> p0,
-      Function<? super CountData, T> p1,
-      Function<? super MeanData, T> p2,
-      Function<? super DistributionData, T> p3,
+      Function<? super SumDataDouble, T> p0,
+      Function<? super SumDataLong, T> p1,
+      Function<? super CountData, T> p2,
+      Function<? super MeanData, T> p3,
+      Function<? super DistributionData, T> p4,
       Function<? super AggregationData, T> defaultFunction);
 
-  /** The sum value of aggregated {@code MeasureValue}s. */
+  /** The sum value of aggregated {@code MeasureValueDouble}s. */
   @Immutable
   @AutoValue
-  public abstract static class SumData extends AggregationData {
+  public abstract static class SumDataDouble extends AggregationData {
 
-    SumData() {
+    SumDataDouble() {
     }
 
     /**
-     * Creates a {@code SumData}.
+     * Creates a {@code SumDataDouble}.
      *
      * @param sum the aggregated sum.
-     * @return a {@code SumData}.
+     * @return a {@code SumDataDouble}.
      */
-    public static SumData create(double sum) {
-      return new AutoValue_AggregationData_SumData(sum);
+    public static SumDataDouble create(double sum) {
+      return new AutoValue_AggregationData_SumDataDouble(sum);
     }
 
     /**
@@ -84,12 +86,50 @@ public abstract class AggregationData {
 
     @Override
     public final <T> T match(
-        Function<? super SumData, T> p0,
-        Function<? super CountData, T> p1,
-        Function<? super MeanData, T> p2,
-        Function<? super DistributionData, T> p3,
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super MeanData, T> p3,
+        Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
       return p0.apply(this);
+    }
+  }
+
+  /** The sum value of aggregated {@code MeasureValueLong}s. */
+  @Immutable
+  @AutoValue
+  public abstract static class SumDataLong extends AggregationData {
+
+    SumDataLong() {
+    }
+
+    /**
+     * Creates a {@code SumDataLong}.
+     *
+     * @param sum the aggregated sum.
+     * @return a {@code SumDataLong}.
+     */
+    public static SumDataLong create(long sum) {
+      return new AutoValue_AggregationData_SumDataLong(sum);
+    }
+
+    /**
+     * Returns the aggregated sum.
+     *
+     * @return the aggregated sum.
+     */
+    public abstract long getSum();
+
+    @Override
+    public final <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super MeanData, T> p3,
+        Function<? super DistributionData, T> p4,
+        Function<? super AggregationData, T> defaultFunction) {
+      return p1.apply(this);
     }
   }
 
@@ -120,12 +160,13 @@ public abstract class AggregationData {
 
     @Override
     public final <T> T match(
-        Function<? super SumData, T> p0,
-        Function<? super CountData, T> p1,
-        Function<? super MeanData, T> p2,
-        Function<? super DistributionData, T> p3,
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super MeanData, T> p3,
+        Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p1.apply(this);
+      return p2.apply(this);
     }
   }
 
@@ -164,12 +205,13 @@ public abstract class AggregationData {
 
     @Override
     public final <T> T match(
-        Function<? super SumData, T> p0,
-        Function<? super CountData, T> p1,
-        Function<? super MeanData, T> p2,
-        Function<? super DistributionData, T> p3,
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super MeanData, T> p3,
+        Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p2.apply(this);
+      return p3.apply(this);
     }
   }
 
@@ -258,12 +300,13 @@ public abstract class AggregationData {
 
     @Override
     public final <T> T match(
-        Function<? super SumData, T> p0,
-        Function<? super CountData, T> p1,
-        Function<? super MeanData, T> p2,
-        Function<? super DistributionData, T> p3,
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super MeanData, T> p3,
+        Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p3.apply(this);
+      return p4.apply(this);
     }
   }
 }

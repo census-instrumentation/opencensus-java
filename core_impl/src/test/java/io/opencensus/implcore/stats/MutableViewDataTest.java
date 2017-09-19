@@ -33,8 +33,11 @@ import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.BucketBoundaries;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import java.util.ArrayList;
@@ -56,6 +59,10 @@ public class MutableViewDataTest {
   private static final TagKeyString METHOD = TagKeyString.create("method");
   private static final TagValueString CALLER_V = TagValueString.create("some caller");
   private static final TagValueString METHOD_V = TagValueString.create("some method");
+  private static final MeasureDouble MEASURE_DOUBLE =
+      MeasureDouble.create("measure1", "description", "1");
+  private static final MeasureLong MEASURE_LONG =
+      MeasureLong.create("measure2", "description", "1");
 
   @Test
   public void testConstants() {
@@ -100,16 +107,20 @@ public class MutableViewDataTest {
   public void createAggregationData() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
     List<MutableAggregation> mutableAggregations = Arrays.asList(
-        MutableSum.create(),
         MutableCount.create(),
         MutableMean.create(),
         MutableDistribution.create(bucketBoundaries));
     List<AggregationData> aggregates = new ArrayList<AggregationData>();
+
+    aggregates.add(MutableViewData.createAggregationData(MutableSum.create(), MEASURE_DOUBLE));
+    aggregates.add(MutableViewData.createAggregationData(MutableSum.create(), MEASURE_LONG));
     for (MutableAggregation mutableAggregation : mutableAggregations) {
-      aggregates.add(MutableViewData.createAggregationData(mutableAggregation));
+      aggregates.add(MutableViewData.createAggregationData(mutableAggregation, MEASURE_DOUBLE));
     }
+
     assertThat(aggregates).containsExactly(
-        SumData.create(0),
+        SumDataDouble.create(0),
+        SumDataLong.create(0),
         CountData.create(0),
         MeanData.create(0, 0),
         DistributionData.create(
