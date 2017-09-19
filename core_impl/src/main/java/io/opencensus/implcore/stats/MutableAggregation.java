@@ -29,6 +29,9 @@ abstract class MutableAggregation {
   private MutableAggregation() {
   }
 
+  // Tolerance for double comparison.
+  private static final double TOLERANCE = 1e-6;
+
   /**
    * Put a new value into the MutableAggregation.
    *
@@ -286,7 +289,7 @@ abstract class MutableAggregation {
     @Override
     void combine(MutableAggregation other, double fraction) {
       checkArgument(other instanceof MutableDistribution, "MutableDistribution expected.");
-      if (fraction != 1) {
+      if (Math.abs(1.0 - fraction) > TOLERANCE) {
         return;
       }
 
@@ -297,8 +300,13 @@ abstract class MutableAggregation {
       double sum = this.mean * this.count;
       this.count += mutableDistribution.count;
       this.mean = (sum + mutableDistribution.count * mutableDistribution.mean) / this.count;
-      this.min = mutableDistribution.min < this.min ? mutableDistribution.min : this.min;
-      this.max = mutableDistribution.max > this.max ? mutableDistribution.max : this.max;
+
+      if (mutableDistribution.min < this.min) {
+        this.min = mutableDistribution.min;
+      }
+      if (mutableDistribution.max > this.max) {
+        this.max = mutableDistribution.max;
+      }
       // TODO(songya): how to calculate combined sum of squared deviations?
 
       long[] bucketCounts = mutableDistribution.getBucketCounts();

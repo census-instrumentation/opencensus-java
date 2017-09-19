@@ -379,6 +379,8 @@ public class ViewManagerImplTest {
         EPSILON);
   }
 
+  // TODO(songya): update this test to use DISTRIBUTION instead of MEAN, once we figure out how to
+  // support sum of squared deviations for sub-intervals.
   @Test
   public void testRecordIntervalMultipleTagValues() {
     // The interval is 10 seconds, i.e. values should expire after 10 seconds.

@@ -45,14 +45,14 @@ public class AggregationDataTest {
 
   @Test
   public void testCreateDistributionData() {
-    DistributionData distributionData = DistributionData.create(1, 1, 1, 1, 0, 0, 1, 0);
-    assertThat(distributionData.getMean()).isWithin(TOLERANCE).of(1);
-    assertThat(distributionData.getCount()).isEqualTo(1);
-    assertThat(distributionData.getMean()).isWithin(TOLERANCE).of(1);
-    assertThat(distributionData.getMin()).isWithin(TOLERANCE).of(1);
-    assertThat(distributionData.getMax()).isWithin(TOLERANCE).of(1);
-    assertThat(distributionData.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(0);
-    assertThat(distributionData.getBucketCounts()).containsExactly(0L, 1L, 0L).inOrder();
+    DistributionData distributionData = DistributionData.create(
+        7.7, 10, 1.1, 9.9, 32.2, new long[]{4, 1, 5});
+    assertThat(distributionData.getMean()).isWithin(TOLERANCE).of(7.7);
+    assertThat(distributionData.getCount()).isEqualTo(10);
+    assertThat(distributionData.getMin()).isWithin(TOLERANCE).of(1.1);
+    assertThat(distributionData.getMax()).isWithin(TOLERANCE).of(9.9);
+    assertThat(distributionData.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(32.2);
+    assertThat(distributionData.getBucketCounts()).containsExactly(4L, 1L, 5L).inOrder();
   }
 
   @Test
@@ -66,7 +66,7 @@ public class AggregationDataTest {
   public void preventMinIsGreaterThanMax() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("max should be greater or equal to min.");
-    DistributionData.create(1, 1, 10, 1, 0, 0, 1, 0);
+    DistributionData.create(1, 1, 10, 1, 0, new long[]{0, 1, 0});
   }
 
   @Test
@@ -85,10 +85,20 @@ public class AggregationDataTest {
             CountData.create(80),
             CountData.create(80))
         .addEqualityGroup(
-            DistributionData.create(10, 10, 1, 1, 0,0, 10, 0),
-            DistributionData.create(10, 10, 1, 1, 0,0, 10, 0))
+            DistributionData.create(10, 10, 1, 1, 0, new long[]{0, 10, 0}),
+            DistributionData.create(10, 10, 1, 1, 0, new long[]{0, 10, 0}))
         .addEqualityGroup(
-            DistributionData.create(110, 110, 1, 1, 0,0, 10, 100))
+            DistributionData.create(10, 10, 1, 1, 0, new long[]{0, 10, 100}))
+        .addEqualityGroup(
+            DistributionData.create(110, 10, 1, 1, 0, new long[]{0, 10, 0}))
+        .addEqualityGroup(
+            DistributionData.create(10, 110, 1, 1, 0, new long[]{0, 10, 0}))
+        .addEqualityGroup(
+            DistributionData.create(10, 10, -1, 1, 0, new long[]{0, 10, 0}))
+        .addEqualityGroup(
+            DistributionData.create(10, 10, 1, 5, 0, new long[]{0, 10, 0}))
+        .addEqualityGroup(
+            DistributionData.create(10, 10, 1, 1, 55.5, new long[]{0, 10, 0}))
         .addEqualityGroup(
             MeanData.create(5.0, 1),
             MeanData.create(5.0, 1))
@@ -104,7 +114,7 @@ public class AggregationDataTest {
         SumData.create(10.0),
         CountData.create(40),
         MeanData.create(5.0, 1),
-        DistributionData.create(1, 1, 1, 1, 0, 0, 10, 0));
+        DistributionData.create(1, 1, 1, 1, 0, new long[]{0, 10, 0}));
 
     final List<Object> actual = new ArrayList<Object>();
     for (AggregationData aggregation : aggregations) {

@@ -197,7 +197,7 @@ public abstract class AggregationData {
      */
     public static DistributionData create(
         double mean, long count, double min, double max, double sumOfSquaredDeviations,
-        long... bucketCounts) {
+        long[] bucketCounts) {
       if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
         checkArgument(min <= max, "max should be greater or equal to min.");
       }
