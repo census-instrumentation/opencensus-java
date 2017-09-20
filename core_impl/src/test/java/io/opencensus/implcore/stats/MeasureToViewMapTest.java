@@ -19,8 +19,8 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Measure;
-import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.Name;
@@ -48,7 +48,7 @@ public class MeasureToViewMapTest {
   private static final Cumulative CUMULATIVE = Cumulative.create();
 
   private static final View VIEW =
-      View.create(VIEW_NAME, "view description", MEASURE, UnreleasedApiAccessor.createMean(),
+      View.create(VIEW_NAME, "view description", MEASURE, Mean.create(),
           Arrays.asList(TagKeyString.create("my key")), CUMULATIVE);
 
   @Test

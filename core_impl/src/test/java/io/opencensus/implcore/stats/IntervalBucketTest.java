@@ -22,7 +22,6 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.stats.Aggregation.Mean;
-import io.opencensus.stats.UnreleasedApiAccessor;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Arrays;
@@ -43,7 +42,7 @@ public class IntervalBucketTest {
   private static final Duration MINUTE = Duration.create(60, 0);
   private static final Duration NEGATIVE_TEN_SEC = Duration.create(-10, 0);
   private static final Timestamp START = Timestamp.create(60, 0);
-  private static final Mean MEAN = UnreleasedApiAccessor.createMean();
+  private static final Mean MEAN = Mean.create();
 
   @Test
   public void preventNullStartTime() {

@@ -43,7 +43,7 @@ import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_RE
 import static io.opencensus.stats.RpcMeasureConstants.RPC_STATUS;
 
 import io.opencensus.common.Duration;
-import io.opencensus.stats.Aggregation.Histogram;
+import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
@@ -76,17 +76,14 @@ public final class RpcViewConstants {
   // Use Aggregation.Mean to record sum and count stats at the same time.
   static final Aggregation MEAN = Mean.create();
 
-  static final Aggregation AGGREGATION_WITH_BYTES_HISTOGRAM =
-      Histogram.create(BucketBoundaries.create(RPC_BYTES_BUCKET_BOUNDARIES));
-  //    Distribution.create(BucketBoundaries.create(RPC_BYTES_BUCKET_BOUNDARIES));
+  static final Aggregation AGGREGATION_WITH_BYTES_HISTOGRAM = 
+      Distribution.create(BucketBoundaries.create(RPC_BYTES_BUCKET_BOUNDARIES));
 
   static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
-      Histogram.create(BucketBoundaries.create(RPC_MILLIS_BUCKET_BOUNDARIES));
-  //    Distribution.create(BucketBoundaries.create(RPC_MILLIS_BUCKET_BOUNDARIES));
+      Distribution.create(BucketBoundaries.create(RPC_MILLIS_BUCKET_BOUNDARIES));
 
   static final Aggregation AGGREGATION_WITH_COUNT_HISTOGRAM =
-      Histogram.create(BucketBoundaries.create(RPC_COUNT_BUCKET_BOUNDARIES));
-  //    Distribution.create(BucketBoundaries.create(RPC_COUNT_BUCKET_BOUNDARIES));
+      Distribution.create(BucketBoundaries.create(RPC_COUNT_BUCKET_BOUNDARIES));
 
   static final Duration MINUTE = Duration.create(60, 0);
   static final Duration HOUR = Duration.create(60 * 60, 0);

@@ -22,10 +22,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.stats.Aggregation.Count;
-import io.opencensus.stats.Aggregation.Histogram;
+import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
-import io.opencensus.stats.Aggregation.Range;
-import io.opencensus.stats.Aggregation.StdDev;
 import io.opencensus.stats.Aggregation.Sum;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,17 +42,17 @@ public class AggregationTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testCreateHistogram() {
+  public void testCreateDistribution() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(0.1, 2.2, 33.3));
-    Histogram histogram = Histogram.create(bucketBoundaries);
-    assertThat(histogram.getBucketBoundaries()).isEqualTo(bucketBoundaries);
+    Distribution distribution = Distribution.create(bucketBoundaries);
+    assertThat(distribution.getBucketBoundaries()).isEqualTo(bucketBoundaries);
   }
 
   @Test
   public void testNullBucketBoundaries() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucketBoundaries should not be null.");
-    Histogram.create(null);
+    Distribution.create(null);
   }
 
   @Test
@@ -67,20 +65,14 @@ public class AggregationTest {
             Count.create(),
             Count.create())
         .addEqualityGroup(
-            Histogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
-            Histogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))))
+            Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
+            Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))))
         .addEqualityGroup(
-            Histogram.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))),
-            Histogram.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))))
-        .addEqualityGroup(
-            Range.create(),
-            Range.create())
+            Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))),
+            Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))))
         .addEqualityGroup(
             Mean.create(),
             Mean.create())
-        .addEqualityGroup(
-            StdDev.create(),
-            StdDev.create())
         .testEquals();
   }
 
@@ -89,10 +81,8 @@ public class AggregationTest {
     List<Aggregation> aggregations = Arrays.asList(
         Sum.create(),
         Count.create(),
-        Histogram.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
-        Range.create(),
         Mean.create(),
-        StdDev.create());
+        Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))));
 
     List<String> actual = new ArrayList<String>();
     for (Aggregation aggregation : aggregations) {
@@ -109,34 +99,21 @@ public class AggregationTest {
               return "COUNT";
             }
           },
-          new Function<Histogram, String>() {
-            @Override
-            public String apply(Histogram arg) {
-              return "HISTOGRAM";
-            }
-          },
-          new Function<Range, String>() {
-            @Override
-            public String apply(Range arg) {
-              return "RANGE";
-            }
-          },
           new Function<Mean, String>() {
             @Override
             public String apply(Mean arg) {
               return "MEAN";
             }
           },
-          new Function<StdDev, String>() {
+          new Function<Distribution, String>() {
             @Override
-            public String apply(StdDev arg) {
-              return "STDDEV";
+            public String apply(Distribution arg) {
+              return "DISTRIBUTION";
             }
           },
           Functions.<String>throwIllegalArgumentException()));
     }
 
-    assertThat(actual)
-        .isEqualTo(Arrays.asList("SUM", "COUNT", "HISTOGRAM", "RANGE", "MEAN", "STDDEV"));
+    assertThat(actual).isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION"));
   }
 }

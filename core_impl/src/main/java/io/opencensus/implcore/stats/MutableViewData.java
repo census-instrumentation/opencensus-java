@@ -28,25 +28,19 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
-import io.opencensus.implcore.stats.MutableAggregation.MutableHistogram;
+import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
-import io.opencensus.implcore.stats.MutableAggregation.MutableRange;
-import io.opencensus.implcore.stats.MutableAggregation.MutableStdDev;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
 import io.opencensus.implcore.tags.TagContextImpl;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
-import io.opencensus.stats.Aggregation.Histogram;
+import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
-import io.opencensus.stats.Aggregation.Range;
-import io.opencensus.stats.Aggregation.StdDev;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.HistogramData;
+import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.RangeData;
-import io.opencensus.stats.AggregationData.StdDevData;
 import io.opencensus.stats.AggregationData.SumData;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
@@ -199,10 +193,8 @@ abstract class MutableViewData {
     return aggregation.match(
         CreateMutableSum.INSTANCE,
         CreateMutableCount.INSTANCE,
-        CreateMutableHistogram.INSTANCE,
-        CreateMutableRange.INSTANCE,
         CreateMutableMean.INSTANCE,
-        CreateMutableStdDev.INSTANCE,
+        CreateMutableDistribution.INSTANCE,
         Functions.<MutableAggregation>throwIllegalArgumentException());
   }
 
@@ -217,10 +209,8 @@ abstract class MutableViewData {
     return aggregation.match(
         CreateSumData.INSTANCE,
         CreateCountData.INSTANCE,
-        CreateHistogramData.INSTANCE,
-        CreateRangeData.INSTANCE,
         CreateMeanData.INSTANCE,
-        CreateStdDevData.INSTANCE);
+        CreateDistributionData.INSTANCE);
   }
 
   // Covert a mapping from TagValues to MutableAggregation, to a mapping from TagValues to
@@ -481,25 +471,6 @@ abstract class MutableViewData {
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
 
-  private static final class CreateMutableHistogram
-      implements Function<Histogram, MutableAggregation> {
-    @Override
-    public MutableAggregation apply(Histogram arg) {
-      return MutableHistogram.create(arg.getBucketBoundaries());
-    }
-
-    private static final CreateMutableHistogram INSTANCE = new CreateMutableHistogram();
-  }
-
-  private static final class CreateMutableRange implements Function<Range, MutableAggregation> {
-    @Override
-    public MutableAggregation apply(Range arg) {
-      return MutableRange.create();
-    }
-
-    private static final CreateMutableRange INSTANCE = new CreateMutableRange();
-  }
-
   private static final class CreateMutableMean implements Function<Mean, MutableAggregation> {
     @Override
     public MutableAggregation apply(Mean arg) {
@@ -509,15 +480,15 @@ abstract class MutableViewData {
     private static final CreateMutableMean INSTANCE = new CreateMutableMean();
   }
 
-  private static final class CreateMutableStdDev implements Function<StdDev, MutableAggregation> {
+  private static final class CreateMutableDistribution
+      implements Function<Distribution, MutableAggregation> {
     @Override
-    public MutableAggregation apply(StdDev arg) {
-      return MutableStdDev.create();
+    public MutableAggregation apply(Distribution arg) {
+      return MutableDistribution.create(arg.getBucketBoundaries());
     }
 
-    private static final CreateMutableStdDev INSTANCE = new CreateMutableStdDev();
+    private static final CreateMutableDistribution INSTANCE = new CreateMutableDistribution();
   }
-
 
   private static final class CreateSumData implements Function<MutableSum, AggregationData> {
     @Override
@@ -537,25 +508,6 @@ abstract class MutableViewData {
     private static final CreateCountData INSTANCE = new CreateCountData();
   }
 
-  private static final class CreateHistogramData
-      implements Function<MutableHistogram, AggregationData> {
-    @Override
-    public AggregationData apply(MutableHistogram arg) {
-      return HistogramData.create(arg.getBucketCounts());
-    }
-
-    private static final CreateHistogramData INSTANCE = new CreateHistogramData();
-  }
-
-  private static final class CreateRangeData implements Function<MutableRange, AggregationData> {
-    @Override
-    public AggregationData apply(MutableRange arg) {
-      return RangeData.create(arg.getMin(), arg.getMax());
-    }
-
-    private static final CreateRangeData INSTANCE = new CreateRangeData();
-  }
-
   private static final class CreateMeanData implements Function<MutableMean, AggregationData> {
     @Override
     public AggregationData apply(MutableMean arg) {
@@ -565,13 +517,15 @@ abstract class MutableViewData {
     private static final CreateMeanData INSTANCE = new CreateMeanData();
   }
 
-  private static final class CreateStdDevData implements Function<MutableStdDev, AggregationData> {
+  private static final class CreateDistributionData
+      implements Function<MutableDistribution, AggregationData> {
     @Override
-    public AggregationData apply(MutableStdDev arg) {
-      return StdDevData.create(arg.getStdDev());
+    public AggregationData apply(MutableDistribution arg) {
+      return DistributionData.create(arg.getMean(), arg.getCount(), arg.getMin(), arg.getMax(),
+          arg.getSumOfSquaredDeviations(), arg.getBucketCounts());
     }
 
-    private static final CreateStdDevData INSTANCE = new CreateStdDevData();
+    private static final CreateDistributionData INSTANCE = new CreateDistributionData();
   }
 
   private static final class CreateCumulative implements Function<Cumulative, MutableViewData> {

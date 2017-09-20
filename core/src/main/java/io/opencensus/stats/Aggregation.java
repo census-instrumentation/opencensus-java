@@ -26,17 +26,15 @@ import javax.annotation.concurrent.Immutable;
  * {@link Aggregation} is the process of combining a certain set of {@code MeasureValue}s
  * for a given {@code Measure} into an {@link AggregationData}.
  *
- * <p>{@link Aggregation} currently supports 6 types of basic aggregation:
+ * <p>{@link Aggregation} currently supports 4 types of basic aggregation:
  * <ul>
  *   <li>Sum
  *   <li>Count
- *   <li>Histogram
- *   <li>Range
  *   <li>Mean
- *   <li>StdDev (standard deviation)
+ *   <li>Distribution
  * </ul>
  *
- * <p>When creating a {@link View}, one or more {@link Aggregation} needs to be specified as how to
+ * <p>When creating a {@link View}, one {@link Aggregation} needs to be specified as how to
  * aggregate {@code MeasureValue}s.
  */
 @Immutable
@@ -51,10 +49,8 @@ public abstract class Aggregation {
   public abstract <T> T match(
       Function<? super Sum, T> p0,
       Function<? super Count, T> p1,
-      Function<? super Histogram, T> p2,
-      Function<? super Range, T> p3,
-      Function<? super Mean, T> p4,
-      Function<? super StdDev, T> p5,
+      Function<? super Mean, T> p2,
+      Function<? super Distribution, T> p3,
       Function<? super Aggregation, T> defaultFunction);
 
   /** Calculate sum on aggregated {@code MeasureValue}s. */
@@ -65,23 +61,23 @@ public abstract class Aggregation {
     Sum() {
     }
 
+    private static final Sum INSTANCE = new AutoValue_Aggregation_Sum();
+
     /**
      * Construct a {@code Sum}.
      *
      * @return a new {@code Sum}.
      */
     public static Sum create() {
-      return new AutoValue_Aggregation_Sum();
+      return INSTANCE;
     }
 
     @Override
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
       return p0.apply(this);
     }
@@ -95,89 +91,25 @@ public abstract class Aggregation {
     Count() {
     }
 
+    private static final Count INSTANCE = new AutoValue_Aggregation_Count();
+
     /**
      * Construct a {@code Count}.
      *
      * @return a new {@code Count}.
      */
     public static Count create() {
-      return new AutoValue_Aggregation_Count();
+      return INSTANCE;
     }
 
     @Override
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
       return p1.apply(this);
-    }
-  }
-
-  /** Calculate histogram on aggregated {@code MeasureValue}s. */
-  @Immutable
-  @AutoValue
-  public abstract static class Histogram extends Aggregation {
-
-    Histogram() {
-    }
-
-    /**
-     * Construct a {@code Histogram}.
-     *
-     * @return a new {@code Histogram}.
-     */
-    public static Histogram create(BucketBoundaries bucketBoundaries) {
-      checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
-      return new AutoValue_Aggregation_Histogram(bucketBoundaries);
-    }
-
-    public abstract BucketBoundaries getBucketBoundaries();
-
-    @Override
-    public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
-        Function<? super Aggregation, T> defaultFunction) {
-      return p2.apply(this);
-    }
-  }
-
-  /** Calculate range on aggregated {@code MeasureValue}s. */
-  @Immutable
-  @AutoValue
-  public abstract static class Range extends Aggregation {
-
-    Range() {
-    }
-
-    /**
-     * Construct a {@code Range}.
-     *
-     * @return a new {@code Range}.
-     */
-    // TODO(songya): not v0.1, expose factory method later.
-    static Range create() {
-      return new AutoValue_Aggregation_Range();
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
-        Function<? super Aggregation, T> defaultFunction) {
-      return p3.apply(this);
     }
   }
 
@@ -189,59 +121,59 @@ public abstract class Aggregation {
     Mean() {
     }
 
+    private static final Mean INSTANCE = new AutoValue_Aggregation_Mean();
+
     /**
      * Construct a {@code Mean}.
      *
      * @return a new {@code Mean}.
      */
-    // TODO(songya): not v0.1, expose factory method later.
-    static Mean create() {
-      return new AutoValue_Aggregation_Mean();
+    public static Mean create() {
+      return INSTANCE;
     }
 
     @Override
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p4.apply(this);
+      return p2.apply(this);
     }
   }
 
-  /** Calculate standard deviation on aggregated {@code MeasureValue}s. */
+  /**
+   * Calculate distribution stats on aggregated {@code MeasureValue}s. Distribution includes
+   * mean, count, histogram, min, max and sum of squared deviations.
+   */
   @Immutable
   @AutoValue
-  // TODO(songya): StackDriver uses sumOfSquaredDeviation instead of standard deviation, do we want
-  // to change this aggregation to sumOfSquaredDeviation instead?
-  public abstract static class StdDev extends Aggregation {
+  public abstract static class Distribution extends Aggregation {
 
-    StdDev() {
+    Distribution() {
     }
 
     /**
-     * Construct a {@code StdDev}.
+     * Construct a {@code Distribution}.
      *
-     * @return a new {@code StdDev}.
+     * @return a new {@code Distribution}.
      */
-    // TODO(songya): not v0.1, expose factory method later.
-    static StdDev create() {
-      return new AutoValue_Aggregation_StdDev();
+    public static Distribution create(BucketBoundaries bucketBoundaries) {
+      checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
+      return new AutoValue_Aggregation_Distribution(bucketBoundaries);
     }
+
+    public abstract BucketBoundaries getBucketBoundaries();
 
     @Override
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Histogram, T> p2,
-        Function<? super Range, T> p3,
-        Function<? super Mean, T> p4,
-        Function<? super StdDev, T> p5,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p5.apply(this);
+      return p3.apply(this);
     }
   }
 }
