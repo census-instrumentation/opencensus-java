@@ -19,6 +19,7 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
+import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
@@ -51,9 +52,13 @@ public final class NoopTagsTest {
 
   @Test
   public void noopTagger() {
-    assertThat(NoopTags.getNoopTagger().empty()).isSameAs(NoopTags.getNoopTagContext());
-    assertThat(NoopTags.getNoopTagger().toBuilder(TAG_CONTEXT))
-        .isSameAs(NoopTags.getNoopTagContextBuilder());
+    Tagger noopTagger = NoopTags.getNoopTagger();
+    assertThat(noopTagger.empty()).isSameAs(NoopTags.getNoopTagContext());
+    assertThat(noopTagger.getCurrentTagContext()).isSameAs(NoopTags.getNoopTagContext());
+    assertThat(noopTagger.emptyBuilder()).isSameAs(NoopTags.getNoopTagContextBuilder());
+    assertThat(noopTagger.toBuilder(TAG_CONTEXT)).isSameAs(NoopTags.getNoopTagContextBuilder());
+    assertThat(noopTagger.currentBuilder()).isSameAs(NoopTags.getNoopTagContextBuilder());
+    assertThat(noopTagger.withTagContext(TAG_CONTEXT)).isSameAs(NoopScope.getInstance());
   }
 
   @Test
@@ -64,6 +69,12 @@ public final class NoopTagsTest {
                 .put(TagKeyString.create("key"), TagValueString.create("value"))
                 .build())
         .isSameAs(NoopTags.getNoopTagContext());
+    assertThat(NoopTags.getNoopTagContextBuilder().buildScoped()).isSameAs(NoopScope.getInstance());
+    assertThat(
+            NoopTags.getNoopTagContextBuilder()
+                .put(TagKeyString.create("key"), TagValueString.create("value"))
+                .buildScoped())
+        .isSameAs(NoopScope.getInstance());
   }
 
   @Test
