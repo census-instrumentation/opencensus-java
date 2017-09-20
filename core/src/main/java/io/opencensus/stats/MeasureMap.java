@@ -54,26 +54,26 @@ public final class MeasureMap {
   public static class Builder {
     /**
      * Associates the {@link MeasureDouble} with the given value. Subsequent updates to the
-     * same {@link MeasureDouble} are ignored.
+     * same {@link MeasureDouble} will overwrite the previous value.
      *
      * @param measure the {@link MeasureDouble}
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder set(MeasureDouble measure, double value) {
+    public Builder put(MeasureDouble measure, double value) {
       measurements.add(Measurement.MeasurementDouble.create(measure, value));
       return this;
     }
 
     /**
      * Associates the {@link MeasureLong} with the given value. Subsequent updates to the
-     * same {@link MeasureLong} are ignored.
+     * same {@link MeasureLong} will overwrite the previous value.
      *
      * @param measure the {@link MeasureLong}
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder set(MeasureLong measure, long value) {
+    public Builder put(MeasureLong measure, long value) {
       measurements.add(Measurement.MeasurementLong.create(measure, value));
       return this;
     }
@@ -85,8 +85,8 @@ public final class MeasureMap {
       // Note: this makes adding measurements quadratic but is fastest for the sizes of
       // MeasureMaps that we should see. We may want to go to a strategy of sort/eliminate
       // for larger MeasureMaps.
-      for (int i = 0; i < measurements.size(); i++) {
-        for (int j = i + 1; j < measurements.size(); j++) {
+      for (int i = measurements.size() - 1; i >= 0; i--) {
+        for (int j = i - 1; j >= 0; j--) {
           if (measurements.get(i).getMeasure() == measurements.get(j).getMeasure()) {
             measurements.remove(j);
             j--;

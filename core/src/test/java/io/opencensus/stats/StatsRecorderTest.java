@@ -62,7 +62,7 @@ public final class StatsRecorderTest {
 
   @Test
   public void record_CurrentContextNotSet() {
-    MeasureMap measures = MeasureMap.builder().set(MEASURE, 1.0).build();
+    MeasureMap measures = MeasureMap.builder().put(MEASURE, 1.0).build();
     statsRecorder.record(measures);
     verify(statsRecorder).record(same(ContextUtils.TAG_CONTEXT_KEY.get()), same(measures));
   }
@@ -71,7 +71,7 @@ public final class StatsRecorderTest {
   public void record_CurrentContextSet() {
     Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tagContext).attach();
     try {
-      MeasureMap measures = MeasureMap.builder().set(MEASURE, 2.0).build();
+      MeasureMap measures = MeasureMap.builder().put(MEASURE, 2.0).build();
       statsRecorder.record(measures);
       verify(statsRecorder).record(same(tagContext), same(measures));
     } finally {

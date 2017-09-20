@@ -54,19 +54,19 @@ public final class NoopStatsRecorderTest {
   @Test
   public void record() {
     StatsRecorder.getNoopStatsRecorder()
-        .record(tagContext, MeasureMap.builder().set(MEASURE, 5).build());
+        .record(tagContext, MeasureMap.builder().put(MEASURE, 5).build());
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
   public void recordWithCurrentContext() {
-    StatsRecorder.getNoopStatsRecorder().record(MeasureMap.builder().set(MEASURE, 6).build());
+    StatsRecorder.getNoopStatsRecorder().record(MeasureMap.builder().put(MEASURE, 6).build());
   }
 
   @Test
   public void record_DisallowNullTagContext() {
-    MeasureMap measures = MeasureMap.builder().set(MEASURE, 7).build();
+    MeasureMap measures = MeasureMap.builder().put(MEASURE, 7).build();
     thrown.expect(NullPointerException.class);
     StatsRecorder.getNoopStatsRecorder().record(null, measures);
   }

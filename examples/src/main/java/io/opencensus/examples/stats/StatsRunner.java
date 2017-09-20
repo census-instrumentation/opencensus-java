@@ -67,7 +67,7 @@ public class StatsRunner {
         System.out.println(
             "    Current == Default + tags1 + tags2: "
                 + tagger.getCurrentTagContext().equals(tags2));
-        statsRecorder.record(MeasureMap.builder().set(M1, 0.2).set(M2, 0.4).build());
+        statsRecorder.record(MeasureMap.builder().put(M1, 0.2).put(M2, 0.4).build());
       }
     }
     System.out.println(
