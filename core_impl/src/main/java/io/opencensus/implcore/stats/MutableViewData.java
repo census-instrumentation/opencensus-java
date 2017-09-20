@@ -136,7 +136,10 @@ abstract class MutableViewData {
   /**
    * Record long stats with the given tags.
    */
-  abstract void record(TagContext tags, long value, Timestamp timestamp);
+  void record(TagContext tags, long value, Timestamp timestamp) {
+    // TODO(songya): shall we check for precision loss here?
+    record(tags, (double) value, timestamp);
+  }
 
   /**
    * Convert this {@link MutableViewData} to {@link ViewData}.
@@ -254,12 +257,6 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(TagContext tags, long value, Timestamp timestamp) {
-      // TODO(songya): implement this.
-      throw new UnsupportedOperationException("Not implemented.");
-    }
-
-    @Override
     ViewData toViewData(Clock clock) {
       return ViewData.create(
           super.view, createAggregationMap(tagValueAggregationMap),
@@ -326,12 +323,6 @@ abstract class MutableViewData {
       refreshBucketList(timestamp);
       // It is always the last bucket that does the recording.
       buckets.peekLast().record(tagValues, value);
-    }
-
-    @Override
-    void record(TagContext tags, long value, Timestamp timestamp) {
-      // TODO(songya): implement this.
-      throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override
