@@ -174,9 +174,9 @@ public class ViewManagerImplTest {
     MeasureDouble measure1 = MeasureDouble.create("measure", "description", "1");
     MeasureLong measure2 = MeasureLong.create("measure", "description", "1");
     View view1 = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, measure1, MEAN, Arrays.asList(KEY), CUMULATIVE);
+        VIEW_NAME, VIEW_DESCRIPTION, measure1, DISTRIBUTION, Arrays.asList(KEY), CUMULATIVE);
     View view2 = View.create(
-        VIEW_NAME_2, VIEW_DESCRIPTION, measure2, MEAN, Arrays.asList(KEY), CUMULATIVE);
+        VIEW_NAME_2, VIEW_DESCRIPTION, measure2, DISTRIBUTION, Arrays.asList(KEY), CUMULATIVE);
     testFailedToRegisterView(view1, view2,
         "A different measure with the same name is already registered");
   }
@@ -209,7 +209,7 @@ public class ViewManagerImplTest {
   }
 
   private void testRecordCumulative(Measure measure, double... values) {
-    View view = createCumulativeView(VIEW_NAME, measure, MEAN, Arrays.asList(KEY));
+    View view = createCumulativeView(VIEW_NAME, measure, DISTRIBUTION, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 2));
     viewManager.registerView(view);
     TagContext tags = tagger.emptyBuilder().put(KEY, VALUE).build();
@@ -640,7 +640,7 @@ public class ViewManagerImplTest {
     StatsTestUtil.assertAggregationMapEquals(
         viewData2.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, value2)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(DISTRIBUTION, value2)),
         EPSILON);
   }
 
