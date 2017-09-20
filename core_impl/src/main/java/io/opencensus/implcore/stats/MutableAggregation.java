@@ -226,6 +226,7 @@ abstract class MutableAggregation {
   /** Calculate distribution stats on aggregated {@code MeasureValue}s. */
   static final class MutableDistribution extends MutableAggregation {
 
+    private double sum = 0.0;
     private double mean = 0.0;
     private long count = 0;
     private double sumOfSquaredDeviations = 0.0;
@@ -254,6 +255,7 @@ abstract class MutableAggregation {
 
     @Override
     void add(double value) {
+      sum += value;
       count++;
 
       /*
@@ -297,9 +299,8 @@ abstract class MutableAggregation {
       checkArgument(this.bucketBoundaries.equals(mutableDistribution.bucketBoundaries),
           "Bucket boundaries should match.");
 
-      double sum = this.mean * this.count;
       this.count += mutableDistribution.count;
-      this.mean = (sum + mutableDistribution.count * mutableDistribution.mean) / this.count;
+      this.mean = (sum + mutableDistribution.sum) / this.count;
 
       if (mutableDistribution.min < this.min) {
         this.min = mutableDistribution.min;
