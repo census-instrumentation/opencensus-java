@@ -53,17 +53,17 @@ public class TagsTest {
           }
         };
     assertThat(Tags.loadTagsComponent(classLoader).getClass().getName())
-        .isEqualTo("io.opencensus.tags.TagsComponent$NoopTagsComponent");
+        .isEqualTo("io.opencensus.tags.NoopTags$NoopTagsComponent");
   }
 
   @Test
   public void defaultTagger() {
-    assertThat(Tags.getTagger()).isEqualTo(Tagger.getNoopTagger());
+    assertThat(Tags.getTagger()).isEqualTo(NoopTags.getNoopTagger());
   }
 
   @Test
   public void defaultTagContextSerializer() {
     assertThat(Tags.getTagPropagationComponent())
-        .isEqualTo(TagPropagationComponent.getNoopTagPropagationComponent());
+        .isEqualTo(NoopTags.getNoopTagPropagationComponent());
   }
 }

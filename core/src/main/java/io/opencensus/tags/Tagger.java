@@ -17,7 +17,6 @@
 package io.opencensus.tags;
 
 import io.opencensus.common.Scope;
-import javax.annotation.concurrent.Immutable;
 
 /**
  * Object for creating new {@link TagContext}s and {@code TagContext}s based on the current context.
@@ -30,7 +29,6 @@ import javax.annotation.concurrent.Immutable;
  * context} is the same instance as the one {@link #withTagContext(TagContext) placed into scope}.
  */
 public abstract class Tagger {
-  private static final Tagger NOOP_TAGGER = new NoopTagger();
 
   /**
    * Returns an empty {@code TagContext}.
@@ -84,28 +82,5 @@ public abstract class Tagger {
    */
   public Scope withTagContext(TagContext tags) {
     return CurrentTagContextUtils.withTagContext(tags);
-  }
-
-  /**
-   * Returns a {@code Tagger} that only produces {@link TagContext}s with no tags.
-   *
-   * @return a {@code Tagger} that only produces {@code TagContext}s with no tags.
-   */
-  static Tagger getNoopTagger() {
-    return NOOP_TAGGER;
-  }
-
-  @Immutable
-  private static final class NoopTagger extends Tagger {
-
-    @Override
-    public TagContext empty() {
-      return TagContext.getNoopTagContext();
-    }
-
-    @Override
-    public TagContextBuilder toBuilder(TagContext tags) {
-      return TagContextBuilder.getNoopTagContextBuilder();
-    }
   }
 }

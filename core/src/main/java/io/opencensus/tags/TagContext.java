@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import io.opencensus.tags.TagValue.TagValueString;
-import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;
 
@@ -37,7 +36,6 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public abstract class TagContext {
-  private static final TagContext NOOP_TAG_CONTEXT = new NoopTagContext();
 
   // TODO(sebright): Consider removing TagContext.unsafeGetIterator() so that we don't need to
   // support fast access to tags.
@@ -86,24 +84,5 @@ public abstract class TagContext {
       }
     }
     return hashCode;
-  }
-
-  /**
-   * Returns a {@code TagContext} that does not contain any tags.
-   *
-   * @return a {@code TagContext} that does not contain any tags.
-   */
-  static TagContext getNoopTagContext() {
-    return NOOP_TAG_CONTEXT;
-  }
-
-  @Immutable
-  private static final class NoopTagContext extends TagContext {
-
-    // TODO(sebright): Is there any way to let the user know that their tags were ignored?
-    @Override
-    public Iterator<Tag> unsafeGetIterator() {
-      return Collections.<Tag>emptySet().iterator();
-    }
   }
 }

@@ -23,13 +23,11 @@ import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueBoolean;
 import io.opencensus.tags.TagValue.TagValueLong;
 import io.opencensus.tags.TagValue.TagValueString;
-import javax.annotation.concurrent.Immutable;
 
 /** Builder for the {@link TagContext} class. */
 // TODO(sebright): Decide what to do when 'put' is called with a key that has the same name as an
 // existing key, but a different type.  We currently keep both keys.
 public abstract class TagContextBuilder {
-  private static final TagContextBuilder NOOP_TAG_CONTEXT_BUILDER = new NoopTagContextBuilder();
 
   /**
    * Adds the key/value pair regardless of whether the key is present.
@@ -83,43 +81,5 @@ public abstract class TagContextBuilder {
    */
   public final Scope buildScoped() {
     return CurrentTagContextUtils.withTagContext(build());
-  }
-
-  /**
-   * Returns a {@code TagContextBuilder} that ignores all calls to {@link #put}.
-   *
-   * @return a {@code TagContextBuilder} that ignores all calls to {@link #put}.
-   */
-  static TagContextBuilder getNoopTagContextBuilder() {
-    return NOOP_TAG_CONTEXT_BUILDER;
-  }
-
-  @Immutable
-  private static final class NoopTagContextBuilder extends TagContextBuilder {
-
-    @Override
-    public TagContextBuilder put(TagKeyString key, TagValueString value) {
-      return this;
-    }
-
-    @Override
-    public TagContextBuilder put(TagKeyLong key, TagValueLong value) {
-      return this;
-    }
-
-    @Override
-    public TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value) {
-      return this;
-    }
-
-    @Override
-    public TagContextBuilder remove(TagKey key) {
-      return this;
-    }
-
-    @Override
-    public TagContext build() {
-      return TagContext.getNoopTagContext();
-    }
   }
 }
