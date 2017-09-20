@@ -17,6 +17,7 @@
 package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.implcore.tags.TagsTestUtil.tagContextToList;
 
 import com.google.common.collect.Lists;
 import io.grpc.Context;
@@ -63,7 +64,7 @@ public class TaggerImplTest {
 
   @Test
   public void empty() {
-    assertThat(asList(tagger.empty())).isEmpty();
+    assertThat(tagContextToList(tagger.empty())).isEmpty();
     assertThat(tagger.empty()).isInstanceOf(TagContextImpl.class);
   }
 
@@ -71,14 +72,14 @@ public class TaggerImplTest {
   public void emptyBuilder() {
     TagContextBuilder builder = tagger.emptyBuilder();
     assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
-    assertThat(asList(builder.build())).isEmpty();
+    assertThat(tagContextToList(builder.build())).isEmpty();
   }
 
   @Test
   public void toBuilder_ConvertUnknownTagContextToTagContextImpl() {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
     TagContext newTagContext = tagger.toBuilder(unknownTagContext).build();
-    assertThat(asList(newTagContext)).containsExactly(TAG1, TAG2, TAG3);
+    assertThat(tagContextToList(newTagContext)).containsExactly(TAG1, TAG2, TAG3);
     assertThat(newTagContext).isInstanceOf(TagContextImpl.class);
   }
 
@@ -88,20 +89,20 @@ public class TaggerImplTest {
     Tag tag2 = TagString.create(KS, VS2);
     TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
     TagContext newTagContext = tagger.toBuilder(tagContextWithDuplicateTags).build();
-    assertThat(asList(newTagContext)).containsExactly(tag2);
+    assertThat(tagContextToList(newTagContext)).containsExactly(tag2);
   }
 
   @Test
   public void toBuilder_SkipNullTag() {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext newTagContext = tagger.toBuilder(tagContextWithNullTag).build();
-    assertThat(asList(newTagContext)).containsExactly(TAG1, TAG2);
+    assertThat(tagContextToList(newTagContext)).containsExactly(TAG1, TAG2);
   }
 
   @Test
   public void getCurrentTagContext_DefaultIsEmptyTagContextImpl() {
     TagContext currentTagContext = tagger.getCurrentTagContext();
-    assertThat(asList(currentTagContext)).isEmpty();
+    assertThat(tagContextToList(currentTagContext)).isEmpty();
     assertThat(currentTagContext).isInstanceOf(TagContextImpl.class);
   }
 
@@ -110,7 +111,7 @@ public class TaggerImplTest {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
     TagContext result = getResultOfGetCurrentTagContext(unknownTagContext);
     assertThat(result).isInstanceOf(TagContextImpl.class);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2, TAG3);
+    assertThat(tagContextToList(result)).containsExactly(TAG1, TAG2, TAG3);
   }
 
   @Test
@@ -119,14 +120,14 @@ public class TaggerImplTest {
     Tag tag2 = TagString.create(KS, VS2);
     TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
     TagContext result = getResultOfGetCurrentTagContext(tagContextWithDuplicateTags);
-    assertThat(asList(result)).containsExactly(tag2);
+    assertThat(tagContextToList(result)).containsExactly(tag2);
   }
 
   @Test
   public void getCurrentTagContext_SkipNullTag() {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext result = getResultOfGetCurrentTagContext(tagContextWithNullTag);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2);
+    assertThat(tagContextToList(result)).containsExactly(TAG1, TAG2);
   }
 
   private TagContext getResultOfGetCurrentTagContext(TagContext tagsToSet) {
@@ -143,7 +144,7 @@ public class TaggerImplTest {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
     TagContext result = getResultOfWithTagContext(unknownTagContext);
     assertThat(result).isInstanceOf(TagContextImpl.class);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2, TAG3);
+    assertThat(tagContextToList(result)).containsExactly(TAG1, TAG2, TAG3);
   }
 
   @Test
@@ -152,14 +153,14 @@ public class TaggerImplTest {
     Tag tag2 = TagString.create(KS, VS2);
     TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
     TagContext result = getResultOfWithTagContext(tagContextWithDuplicateTags);
-    assertThat(asList(result)).containsExactly(tag2);
+    assertThat(tagContextToList(result)).containsExactly(tag2);
   }
 
   @Test
   public void withTagContext_SkipNullTag() {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext result = getResultOfWithTagContext(tagContextWithNullTag);
-    assertThat(asList(result)).containsExactly(TAG1, TAG2);
+    assertThat(tagContextToList(result)).containsExactly(TAG1, TAG2);
   }
 
   private TagContext getResultOfWithTagContext(TagContext tagsToSet) {
@@ -169,10 +170,6 @@ public class TaggerImplTest {
     } finally {
       scope.close();
     }
-  }
-
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 
   private static final class SimpleTagContext extends TagContext {

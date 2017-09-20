@@ -17,6 +17,7 @@
 package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.implcore.tags.TagsTestUtil.tagContextToList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -37,7 +38,6 @@ import io.opencensus.tags.Tagger;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public class TagContextImplTest {
     TagKeyLong longKey = UnreleasedApiAccessor.createTagKeyLong("key");
     TagKeyBoolean boolKey = UnreleasedApiAccessor.createTagKeyBoolean("key");
     assertThat(
-            asList(
+            tagContextToList(
                 tagger
                     .emptyBuilder()
                     .put(stringKey, TagValueString.create("value"))
@@ -81,17 +81,17 @@ public class TagContextImplTest {
   @Test
   public void testSet() {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).build();
-    assertThat(asList(tagger.toBuilder(tags).put(KS1, V2).build()))
+    assertThat(tagContextToList(tagger.toBuilder(tags).put(KS1, V2).build()))
         .containsExactly(TagString.create(KS1, V2));
-    assertThat(asList(tagger.toBuilder(tags).put(KS2, V2).build()))
+    assertThat(tagContextToList(tagger.toBuilder(tags).put(KS2, V2).build()))
         .containsExactly(TagString.create(KS1, V1), TagString.create(KS2, V2));
   }
 
   @Test
   public void testClear() {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).build();
-    assertThat(asList(tagger.toBuilder(tags).remove(KS1).build())).isEmpty();
-    assertThat(asList(tagger.toBuilder(tags).remove(KS2).build()))
+    assertThat(tagContextToList(tagger.toBuilder(tags).remove(KS1).build())).isEmpty();
+    assertThat(tagContextToList(tagger.toBuilder(tags).remove(KS2).build()))
         .containsExactly(TagString.create(KS1, V1));
   }
 
@@ -136,9 +136,5 @@ public class TagContextImplTest {
         .addEqualityGroup(tagger.emptyBuilder().put(KS1, V1).put(KS2, V1).build())
         .addEqualityGroup(tagger.emptyBuilder().put(KS1, V2).put(KS2, V1).build())
         .testEquals();
-  }
-
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 }
