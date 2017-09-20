@@ -19,7 +19,7 @@ package io.opencensus.internal;
 import io.opencensus.common.Scope;
 
 /**
- * A {@link Scope} that does nothing when it is closed.
+ * A {@link Scope} that does nothing when it is created or closed.
  */
 public final class NoopScope implements Scope {
   private static final Scope INSTANCE = new NoopScope();
