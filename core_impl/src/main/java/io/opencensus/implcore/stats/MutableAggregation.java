@@ -300,7 +300,8 @@ abstract class MutableAggregation {
           "Bucket boundaries should match.");
 
       this.count += mutableDistribution.count;
-      this.mean = (sum + mutableDistribution.sum) / this.count;
+      this.sum += mutableDistribution.sum;
+      this.mean = this.sum / this.count;
 
       if (mutableDistribution.min < this.min) {
         this.min = mutableDistribution.min;
