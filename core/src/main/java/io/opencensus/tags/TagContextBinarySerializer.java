@@ -16,12 +16,8 @@
 
 package io.opencensus.tags;
 
-import javax.annotation.concurrent.Immutable;
-
 /** Object for serializing and deserializing {@link TagContext}s with the binary format. */
 public abstract class TagContextBinarySerializer {
-  private static final TagContextBinarySerializer NOOP_TAG_CONTEXT_BINARY_SERIALIZER =
-      new NoopTagContextBinarySerializer();
 
   /**
    * Serializes the {@code TagContext} into the on-the-wire representation.
@@ -44,27 +40,4 @@ public abstract class TagContextBinarySerializer {
    */
   // TODO(sebright): Use a more appropriate exception type, since this method doesn't do IO.
   public abstract TagContext fromByteArray(byte[] bytes) throws TagContextParseException;
-
-  /**
-   * Returns a {@code TagContextBinarySerializer} that serializes all {@code TagContext}s to zero
-   * bytes and deserializes all inputs to empty {@code TagContext}s.
-   */
-  static TagContextBinarySerializer getNoopTagContextBinarySerializer() {
-    return NOOP_TAG_CONTEXT_BINARY_SERIALIZER;
-  }
-
-  @Immutable
-  private static final class NoopTagContextBinarySerializer extends TagContextBinarySerializer {
-    private static final byte[] EMPTY_BYTE_ARRAY = {};
-
-    @Override
-    public byte[] toByteArray(TagContext tags) {
-      return EMPTY_BYTE_ARRAY;
-    }
-
-    @Override
-    public TagContext fromByteArray(byte[] bytes) {
-      return TagContext.getNoopTagContext();
-    }
-  }
 }

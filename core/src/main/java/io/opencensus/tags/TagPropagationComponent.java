@@ -16,15 +16,11 @@
 
 package io.opencensus.tags;
 
-import javax.annotation.concurrent.Immutable;
-
 /** Object containing all supported {@link TagContext} propagation formats. */
 // TODO(sebright): Add a link to the specification for the cross-language OpenCensus tag context
 // serialization format.
 // TODO(sebright): Add an HTTP serializer.
 public abstract class TagPropagationComponent {
-  private static final TagPropagationComponent NOOP_TAG_PROPAGATION_COMPONENT =
-      new NoopTagPropagationComponent();
 
   /**
    * Returns the {@link TagContextBinarySerializer} for this implementation.
@@ -32,18 +28,4 @@ public abstract class TagPropagationComponent {
    * @return the {@code TagContextBinarySerializer} for this implementation.
    */
   public abstract TagContextBinarySerializer getBinarySerializer();
-
-  /** Returns a {@code TagPropagationComponent} that contains no-op serializers. */
-  static TagPropagationComponent getNoopTagPropagationComponent() {
-    return NOOP_TAG_PROPAGATION_COMPONENT;
-  }
-
-  @Immutable
-  private static final class NoopTagPropagationComponent extends TagPropagationComponent {
-
-    @Override
-    public TagContextBinarySerializer getBinarySerializer() {
-      return TagContextBinarySerializer.getNoopTagContextBinarySerializer();
-    }
-  }
 }

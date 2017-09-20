@@ -75,6 +75,6 @@ public final class Tags {
               + "default implementation for TagsComponent.",
           e);
     }
-    return TagsComponent.getNoopTagsComponent();
+    return NoopTags.getNoopTagsComponent();
   }
 }
