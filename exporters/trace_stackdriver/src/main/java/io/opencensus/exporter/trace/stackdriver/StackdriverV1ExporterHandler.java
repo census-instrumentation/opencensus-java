@@ -71,7 +71,7 @@ final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
       Credentials credentials, String projectId) throws IOException {
     checkNotNull(credentials, "credentials");
     TraceServiceSettings traceServiceSettings =
-        TraceServiceSettings.defaultBuilder()
+        TraceServiceSettings.newBuilder()
             .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
             .build();
     return new StackdriverV1ExporterHandler(

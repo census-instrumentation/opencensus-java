@@ -106,6 +106,8 @@ subprojects {
         findBugsVersion = '3.0.1'
         grpcVersion = '1.6.1'
         guavaVersion = '19.0'
+        googleAuthVersion = '0.8.0'
+        googleCloudVersion = '0.24.0-alpha'
 
         libraries = [
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
@@ -114,8 +116,8 @@ subprojects {
                 disruptor: 'com.lmax:disruptor:3.3.6',
                 errorprone: 'com.google.errorprone:error_prone_annotations:2.0.19',
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
-                google_auth: 'com.google.auth:google-auth-library-credentials:0.7.0',
-                google_cloud_trace: 'com.google.cloud:google-cloud-trace:0.22.0-alpha',
+                google_auth: "com.google.auth:google-auth-library-credentials:${googleAuthVersion}",
+                google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudVersion}",
                 grpc_context: "io.grpc:grpc-context:${grpcVersion}",
                 grpc_core: "io.grpc:grpc-core:${grpcVersion}",
                 guava: "com.google.guava:guava:${guavaVersion}",
