@@ -123,6 +123,7 @@ subprojects {
                 google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudVersion}",
                 zipkin_reporter: "io.zipkin.reporter2:zipkin-reporter:${zipkinReporterVersion}",
                 zipkin_urlconnection: "io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}",
+                google_cloud_monitoring: "com.google.cloud:google-cloud-monitoring:${googleCloudVersion}",
                 grpc_context: "io.grpc:grpc-context:${grpcVersion}",
                 grpc_core: "io.grpc:grpc-core:${grpcVersion}",
                 guava: "com.google.guava:guava:${guavaVersion}",

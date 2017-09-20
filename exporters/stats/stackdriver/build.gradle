@@ -1,0 +1,16 @@
+description = 'OpenCensus Stats Stackdriver Exporter'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.7
+    it.targetCompatibility = 1.7
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            libraries.google_auth,
+            libraries.google_cloud_monitoring
+
+    testCompile project(':opencensus-api')
+
+    signature "org.codehaus.mojo.signature:java17:+@signature"
+}
