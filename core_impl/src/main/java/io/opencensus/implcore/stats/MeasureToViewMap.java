@@ -17,11 +17,13 @@
 package io.opencensus.implcore.stats;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.Measurement.MeasurementDouble;
@@ -53,6 +55,10 @@ final class MeasureToViewMap {
   @GuardedBy("this")
   private final Map<View.Name, View> registeredViews =
       new HashMap<View.Name, View>();
+
+  // TODO(songya): consider adding a Measure.Name class
+  @GuardedBy("this")
+  private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
 
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
   synchronized ViewData getView(View.Name viewName, Clock clock) {
@@ -89,7 +95,16 @@ final class MeasureToViewMap {
             "A different view with the same name is already registered: " + existing);
       }
     }
+    Measure measure = view.getMeasure();
+    Measure registeredMeasure = registeredMeasures.get(measure.getName());
+    if (registeredMeasure != null && !registeredMeasure.equals(measure)) {
+      throw new IllegalArgumentException(
+          "A different measure with the same name is already registered: " + registeredMeasure);
+    }
     registeredViews.put(view.getName(), view);
+    if (registeredMeasure == null) {
+      registeredMeasures.put(measure.getName(), measure);
+    }
     mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
   }
 
@@ -98,7 +113,12 @@ final class MeasureToViewMap {
     Iterator<Measurement> iterator = stats.iterator();
     while (iterator.hasNext()) {
       Measurement measurement = iterator.next();
-      Collection<MutableViewData> views = mutableMap.get(measurement.getMeasure().getName());
+      Measure measure = measurement.getMeasure();
+      if (!measure.equals(registeredMeasures.get(measure.getName()))) {
+        // unregistered measures will be ignored.
+        return;
+      }
+      Collection<MutableViewData> views = mutableMap.get(measure.getName());
       for (MutableViewData view : views) {
         measurement.match(
             new RecordDoubleValueFunc(tags, view, timestamp),
