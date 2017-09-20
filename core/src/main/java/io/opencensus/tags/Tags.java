@@ -18,6 +18,7 @@ package io.opencensus.tags;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.internal.Provider;
+import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

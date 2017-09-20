@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.tags;
+package io.opencensus.implcore.tags.propagation;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
@@ -23,16 +23,17 @@ import com.google.common.io.ByteStreams;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.implcore.internal.VarInt;
+import io.opencensus.implcore.tags.TagContextImpl;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextParseException;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.propagation.TagContextParseException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;

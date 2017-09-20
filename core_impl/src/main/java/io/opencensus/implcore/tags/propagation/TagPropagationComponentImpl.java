@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.tags;
+package io.opencensus.implcore.tags.propagation;
 
-import io.opencensus.tags.TagContextBinarySerializer;
-import io.opencensus.tags.TagPropagationComponent;
+import io.opencensus.tags.propagation.TagContextBinarySerializer;
+import io.opencensus.tags.propagation.TagPropagationComponent;
 
 public final class TagPropagationComponentImpl extends TagPropagationComponent {
   private final TagContextBinarySerializer tagContextBinarySerializer =

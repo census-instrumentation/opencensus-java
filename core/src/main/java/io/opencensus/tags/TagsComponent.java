@@ -16,6 +16,8 @@
 
 package io.opencensus.tags;
 
+import io.opencensus.tags.propagation.TagPropagationComponent;
+
 /**
  * Class that holds the implementation for {@link Tagger}.
  *

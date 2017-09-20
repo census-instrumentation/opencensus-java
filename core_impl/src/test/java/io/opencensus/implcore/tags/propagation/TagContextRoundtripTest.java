@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.tags;
+package io.opencensus.implcore.tags.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.implcore.tags.TaggerImpl;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
+import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

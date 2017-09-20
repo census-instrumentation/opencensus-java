@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.tags.propagation;
+
+import io.opencensus.tags.TagContext;
 
 /** Exception thrown when a {@link TagContext} cannot be parsed. */
 public final class TagContextParseException extends Exception {

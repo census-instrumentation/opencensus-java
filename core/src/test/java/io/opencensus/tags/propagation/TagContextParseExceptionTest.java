@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.tags.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 

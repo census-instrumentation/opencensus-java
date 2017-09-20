@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.tags.propagation;
+
+import io.opencensus.tags.TagContext;
 
 /** Object containing all supported {@link TagContext} propagation formats. */
 // TODO(sebright): Add a link to the specification for the cross-language OpenCensus tag context

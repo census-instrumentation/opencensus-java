@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.tags;
+package io.opencensus.implcore.tags.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Collections2;
 import io.opencensus.implcore.internal.VarInt;
+import io.opencensus.implcore.tags.TaggerImpl;
 import io.opencensus.tags.Tag.TagString;
-import io.opencensus.tags.TagContextBinarySerializer;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
+import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;

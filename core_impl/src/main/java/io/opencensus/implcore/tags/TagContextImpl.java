@@ -46,7 +46,7 @@ public final class TagContextImpl extends TagContext {
   // The types of the TagKey and value must match for each entry.
   private final Map<TagKey, TagValue> tags;
 
-  TagContextImpl(Map<? extends TagKey, ? extends TagValue> tags) {
+  public TagContextImpl(Map<? extends TagKey, ? extends TagValue> tags) {
     this.tags = Collections.unmodifiableMap(new HashMap<TagKey, TagValue>(tags));
   }
 
