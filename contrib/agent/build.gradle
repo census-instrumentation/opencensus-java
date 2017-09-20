@@ -161,7 +161,6 @@ findbugsIntegrationTest.enabled = false
 def javaExecutables = (System.getenv('JAVA_HOMES') ?: '')
     .tokenize(File.pathSeparator)
     .plus(System.getProperty('java.home'))
-    .findAll { new File(it).exists() }
     .collect { org.apache.tools.ant.taskdefs.condition.Os.isFamily(
                    org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)
                    ? "${it}/bin/java.exe"
@@ -191,7 +190,7 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
     executable = javaExecutable
     jvmArgs "-javaagent:${shadowJar.archivePath}"
 
-    doFirst { logger.lifecycle("Running integrations tests using ${javaExecutable}.") }
+    doFirst { logger.lifecycle("Running integration tests using ${javaExecutable}.") }
   }
 
   integrationTest.dependsOn perVersionIntegrationTest

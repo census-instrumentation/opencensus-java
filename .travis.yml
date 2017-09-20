@@ -15,8 +15,9 @@ matrix:
     addons:
       apt:
         packages:
+          # Install the JREs that are used for integration tests in
+          # contrib/agent, but are not installed by default.
           - openjdk-6-jdk
-          - openjdk-7-jdk
 
   - env: TASK=CHECK_GIT_HISTORY
     os: linux
@@ -54,7 +55,7 @@ script:
         export JAVA8_HOME=`jdk_switcher home oraclejdk8` ;
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
-            export JAVA_HOMES="`jdk_switcher home openjdk6`/jre:`jdk_switcher home openjdk7`/jre:`jdk_switcher home oraclejdk8`/jre" ;
+            export JAVA_HOMES="$(jdk_switcher home openjdk6)/jre:$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre" ;
             ./gradlew clean assemble --stacktrace ;
             ./gradlew check :opencensus-all:jacocoTestReport ;;
           "openjdk7")
