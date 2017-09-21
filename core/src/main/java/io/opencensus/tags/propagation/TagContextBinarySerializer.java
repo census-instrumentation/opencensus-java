@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.tags.propagation;
+
+import io.opencensus.tags.TagContext;
 
 /** Object for serializing and deserializing {@link TagContext}s with the binary format. */
 public abstract class TagContextBinarySerializer {

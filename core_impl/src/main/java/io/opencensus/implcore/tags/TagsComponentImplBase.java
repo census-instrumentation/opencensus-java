@@ -16,9 +16,10 @@
 
 package io.opencensus.implcore.tags;
 
-import io.opencensus.tags.TagPropagationComponent;
+import io.opencensus.implcore.tags.propagation.TagPropagationComponentImpl;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
+import io.opencensus.tags.propagation.TagPropagationComponent;
 
 /** Base implementation of {@link TagsComponent}. */
 public abstract class TagsComponentImplBase extends TagsComponent {

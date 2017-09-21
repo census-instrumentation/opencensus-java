@@ -23,6 +23,7 @@ import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.propagation.TagContextParseException;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.junit.Test;

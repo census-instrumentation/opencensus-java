@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.tags;
+package io.opencensus.implcore.tags.propagation;
 
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBinarySerializer;
-import io.opencensus.tags.TagContextParseException;
+import io.opencensus.tags.propagation.TagContextBinarySerializer;
+import io.opencensus.tags.propagation.TagContextParseException;
 
 final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   @Override

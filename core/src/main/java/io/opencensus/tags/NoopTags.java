@@ -24,6 +24,8 @@ import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueBoolean;
 import io.opencensus.tags.TagValue.TagValueLong;
 import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.propagation.TagContextBinarySerializer;
+import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;
