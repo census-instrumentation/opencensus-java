@@ -46,7 +46,7 @@ public class SpanTest {
         SpanContext.create(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
-            TraceOptions.builder().setIsSampled().build());
+            TraceOptions.builder().setIsSampled(true).build());
     notSampledSpanContext =
         SpanContext.create(
             TraceId.generateRandomId(random),

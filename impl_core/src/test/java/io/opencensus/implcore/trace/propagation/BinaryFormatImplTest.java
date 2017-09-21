@@ -63,7 +63,7 @@ public class BinaryFormatImplTest {
   @Test
   public void propagate_SpanContextTracingEnabled() throws SpanContextParseException {
     testSpanContextConversion(
-        SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.builder().setIsSampled().build()));
+        SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.builder().setIsSampled(true).build()));
   }
 
   @Test

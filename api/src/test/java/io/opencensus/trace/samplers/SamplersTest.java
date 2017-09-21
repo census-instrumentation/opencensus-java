@@ -40,7 +40,7 @@ public class SamplersTest {
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final SpanId spanId = SpanId.generateRandomId(random);
   private final SpanContext sampledSpanContext =
-      SpanContext.create(traceId, parentSpanId, TraceOptions.builder().setIsSampled().build());
+      SpanContext.create(traceId, parentSpanId, TraceOptions.builder().setIsSampled(true).build());
   private final SpanContext notSampledSpanContext =
       SpanContext.create(traceId, parentSpanId, TraceOptions.DEFAULT);
 

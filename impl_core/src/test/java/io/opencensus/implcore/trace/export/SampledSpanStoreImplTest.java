@@ -60,7 +60,7 @@ public class SampledSpanStoreImplTest {
       SpanContext.create(
           TraceId.generateRandomId(random),
           SpanId.generateRandomId(random),
-          TraceOptions.builder().setIsSampled().build());
+          TraceOptions.builder().setIsSampled(true).build());
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);

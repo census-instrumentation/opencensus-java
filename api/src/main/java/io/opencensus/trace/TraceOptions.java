@@ -182,12 +182,26 @@ public final class TraceOptions {
     }
 
     /**
-     * Marks this trace as sampled.
-     *
+     * @deprecated Use {@code Builder.setIsSampled(true)}.
      * @return this.
      */
+    @Deprecated
     public Builder setIsSampled() {
-      options |= IS_SAMPLED;
+      return setIsSampled(true);
+    }
+
+    /**
+     * Sets the sampling bit in the options.
+     *
+     * @param isSampled the sampling bit.
+     * @return this.
+     */
+    public Builder setIsSampled(boolean isSampled) {
+      if (isSampled) {
+        options = (byte) (options | IS_SAMPLED);
+      } else {
+        options = (byte) (options & ~IS_SAMPLED);;
+      }
       return this;
     }
 
