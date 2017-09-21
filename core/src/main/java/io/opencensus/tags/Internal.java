@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.tags;
+package io.opencensus.tags;
 
-import com.google.common.collect.Lists;
-import io.opencensus.tags.Internal;
-import io.opencensus.tags.Tag;
-import io.opencensus.tags.TagContext;
-import java.util.Collection;
+import java.util.Iterator;
 
-/** Test utilities for tagging. */
-public class TagsTestUtil {
+/**
+ * Internal tagging utilities.
+ */
+@io.opencensus.common.Internal
+public final class Internal {
+  private Internal() {}
 
-  /** Returns a collection of all tags in a {@link TagContext}. */
-  public static Collection<Tag> tagContextToList(TagContext tags) {
-    return Lists.newArrayList(Internal.getTags(tags));
+  public static Iterator<Tag> getTags(TagContext tags) {
+    return tags.iterator();
   }
 }

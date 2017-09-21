@@ -44,7 +44,7 @@ public final class NoopStatsTest {
       new TagContext() {
 
         @Override
-        public Iterator<Tag> unsafeGetIterator() {
+        public Iterator<Tag> iterator() {
           return Collections.<Tag>singleton(TAG).iterator();
         }
       };

@@ -17,6 +17,7 @@
 package io.opencensus.implcore.tags;
 
 import io.opencensus.common.Scope;
+import io.opencensus.tags.Internal;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
@@ -65,7 +66,7 @@ public final class TaggerImpl extends Tagger {
     if (tags instanceof TagContextImpl) {
       return (TagContextImpl) tags;
     } else {
-      Iterator<Tag> i = tags.unsafeGetIterator();
+      Iterator<Tag> i = Internal.getTags(tags);
       if (!i.hasNext()) {
         return TagContextImpl.EMPTY;
       }
@@ -86,7 +87,7 @@ public final class TaggerImpl extends Tagger {
       return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
     } else {
       TagContextBuilderImpl builder = new TagContextBuilderImpl();
-      for (Iterator<Tag> i = tags.unsafeGetIterator(); i.hasNext(); ) {
+      for (Iterator<Tag> i = Internal.getTags(tags); i.hasNext(); ) {
         Tag tag = i.next();
         if (tag != null) {
           TagContextUtils.addTagToBuilder(tag, builder);

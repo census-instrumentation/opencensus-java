@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
+import io.opencensus.tags.Internal;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
@@ -98,7 +99,7 @@ public class TagContextImplTest {
   @Test
   public void testIterator() {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
-    Iterator<Tag> i = tags.unsafeGetIterator();
+    Iterator<Tag> i = Internal.getTags(tags);
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
     assertTrue(i.hasNext());
@@ -113,7 +114,7 @@ public class TagContextImplTest {
   @Test
   public void disallowCallingRemoveOnIterator() {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
-    Iterator<Tag> i = tags.unsafeGetIterator();
+    Iterator<Tag> i = Internal.getTags(tags);
     i.next();
     thrown.expect(UnsupportedOperationException.class);
     i.remove();
@@ -128,7 +129,7 @@ public class TagContextImplTest {
             tagger.emptyBuilder().put(KS2, V2).put(KS1, V1).build(),
             new TagContext() {
               @Override
-              public Iterator<Tag> unsafeGetIterator() {
+              public Iterator<Tag> iterator() {
                 return Lists.<Tag>newArrayList(TagString.create(KS1, V1), TagString.create(KS2, V2))
                     .iterator();
               }

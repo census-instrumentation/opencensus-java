@@ -37,9 +37,12 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class TagContext {
 
-  // TODO(sebright): Consider removing TagContext.unsafeGetIterator() so that we don't need to
-  // support fast access to tags.
-  public abstract Iterator<Tag> unsafeGetIterator();
+  /**
+   * Returns an iterator over the tags in this {@code TagContext}.
+   *
+   * @return an iterator over the tags in this {@code TagContext}.
+   */
+  protected abstract Iterator<Tag> iterator();
 
   @Override
   public String toString() {
@@ -57,8 +60,8 @@ public abstract class TagContext {
       return false;
     }
     TagContext otherTags = (TagContext) other;
-    Iterator<Tag> iter1 = unsafeGetIterator();
-    Iterator<Tag> iter2 = otherTags.unsafeGetIterator();
+    Iterator<Tag> iter1 = iterator();
+    Iterator<Tag> iter2 = otherTags.iterator();
     Multiset<Tag> tags1 =
         iter1 == null
             ? ImmutableMultiset.<Tag>of()
@@ -73,7 +76,7 @@ public abstract class TagContext {
   @Override
   public final int hashCode() {
     int hashCode = 0;
-    Iterator<Tag> i = unsafeGetIterator();
+    Iterator<Tag> i = iterator();
     if (i == null) {
       return hashCode;
     }
