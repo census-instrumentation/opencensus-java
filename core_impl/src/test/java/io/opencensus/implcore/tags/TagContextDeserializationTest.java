@@ -18,7 +18,6 @@ package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.Lists;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBinarySerializer;
@@ -62,7 +61,7 @@ public class TagContextDeserializationTest {
     TagContext actual =
         testDeserialize(
             new byte[] {SerializationUtils.VERSION_ID}); // One byte that represents Version ID.
-    assertTagContextsEqual(actual, expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test(expected = TagContextParseException.class)
@@ -81,7 +80,7 @@ public class TagContextDeserializationTest {
                 TagKeyString.create(KEY + SerializationUtils.VALUE_TYPE_STRING),
                 TagValueString.create(VALUE_STRING))
             .build();
-    assertTagContextsEqual(actual, expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
@@ -102,7 +101,7 @@ public class TagContextDeserializationTest {
                 TagValueString.create(VALUE_STRING))
             .put(TagKeyString.create("Key2"), TagValueString.create("String2"))
             .build();
-    assertTagContextsEqual(actual, expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test(expected = TagContextParseException.class)
@@ -213,10 +212,5 @@ public class TagContextDeserializationTest {
   //         <int_tag_value> == 8 bytes, little-endian integer
   private static void encodeInteger(int input, ByteArrayOutputStream byteArrayOutputStream) {
     byteArrayOutputStream.write((byte) input);
-  }
-
-  private static void assertTagContextsEqual(TagContext actual, TagContext expected) {
-    assertThat(Lists.newArrayList(actual.unsafeGetIterator()))
-        .containsExactlyElementsIn(Lists.newArrayList(expected.unsafeGetIterator()));
   }
 }
