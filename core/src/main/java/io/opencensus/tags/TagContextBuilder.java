@@ -79,7 +79,5 @@ public abstract class TagContextBuilder {
    * @return an object that defines a scope where the {@code TagContext} created from this builder
    *     is set to the current context.
    */
-  public final Scope buildScoped() {
-    return CurrentTagContextUtils.withTagContext(build());
-  }
+  public abstract Scope buildScoped();
 }

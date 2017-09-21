@@ -42,18 +42,14 @@ public abstract class Tagger {
    *
    * @return the current {@code TagContext}.
    */
-  public TagContext getCurrentTagContext() {
-    return CurrentTagContextUtils.getCurrentTagContext();
-  }
+  public abstract TagContext getCurrentTagContext();
 
   /**
    * Returns a new empty {@code Builder}.
    *
    * @return a new empty {@code Builder}.
    */
-  public TagContextBuilder emptyBuilder() {
-    return toBuilder(empty());
-  }
+  public abstract TagContextBuilder emptyBuilder();
 
   /**
    * Returns a builder based on this {@code TagContext}.
@@ -67,9 +63,7 @@ public abstract class Tagger {
    *
    * @return a new builder created from the current {@code TagContext}.
    */
-  public final TagContextBuilder currentBuilder() {
-    return toBuilder(CurrentTagContextUtils.getCurrentTagContext());
-  }
+  public abstract TagContextBuilder currentBuilder();
 
   /**
    * Enters the scope of code where the given {@code TagContext} is in the current context and
@@ -80,7 +74,5 @@ public abstract class Tagger {
    * @return an object that defines a scope where the given {@code TagContext} is set to the current
    *     context.
    */
-  public Scope withTagContext(TagContext tags) {
-    return CurrentTagContextUtils.withTagContext(tags);
-  }
+  public abstract Scope withTagContext(TagContext tags);
 }

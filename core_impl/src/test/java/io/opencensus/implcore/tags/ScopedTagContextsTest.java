@@ -14,37 +14,26 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.opencensus.common.Scope;
+import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
+import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
 import io.opencensus.tags.TagValue.TagValueString;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
+import io.opencensus.tags.Tagger;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Unit tests for the methods in {@link Tagger} and {@link TagContextBuilder} that interact with the
- * current {@link TagContext}.
+ * Unit tests for the methods in {@link TaggerImpl} and {@link TagContextBuilderImpl} that interact
+ * with the current {@link TagContext}.
  */
 @RunWith(JUnit4.class)
 public class ScopedTagContextsTest {
@@ -54,30 +43,19 @@ public class ScopedTagContextsTest {
   private static final TagValueString VALUE_1 = TagValueString.create("value 1");
   private static final TagValueString VALUE_2 = TagValueString.create("value 2");
 
-  private final TagContext emptyTagContext = new SimpleTagContext();
-
-  private final Tagger tagger =
-      new Tagger() {
-        @Override
-        public TagContextBuilder toBuilder(TagContext tags) {
-          return new SimpleTagContextBuilder(((SimpleTagContext) tags).tags);
-        }
-
-        @Override
-        public TagContext empty() {
-          return emptyTagContext;
-        }
-      };
+  private final Tagger tagger = new TaggerImpl();
 
   @Test
   public void defaultTagContext() {
-    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
+    TagContext defaultTagContext = tagger.getCurrentTagContext();
+    assertThat(asList(defaultTagContext)).isEmpty();
+    assertThat(defaultTagContext).isInstanceOf(TagContextImpl.class);
   }
 
   @Test
   public void withTagContext() {
     assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
-    TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
+    TagContext scopedTags = tagger.emptyBuilder().put(KEY_1, VALUE_1).build();
     Scope scope = tagger.withTagContext(scopedTags);
     try {
       assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
@@ -89,7 +67,7 @@ public class ScopedTagContextsTest {
 
   @Test
   public void createBuilderFromCurrentTags() {
-    TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
+    TagContext scopedTags = tagger.emptyBuilder().put(KEY_1, VALUE_1).build();
     Scope scope = tagger.withTagContext(scopedTags);
     try {
       TagContext newTags = tagger.currentBuilder().put(KEY_2, VALUE_2).build();
@@ -116,7 +94,7 @@ public class ScopedTagContextsTest {
 
   @Test
   public void addToCurrentTagsWithBuilder() {
-    TagContext scopedTags = new SimpleTagContext(TagString.create(KEY_1, VALUE_1));
+    TagContext scopedTags = tagger.emptyBuilder().put(KEY_1, VALUE_1).build();
     Scope scope1 = tagger.withTagContext(scopedTags);
     try {
       Scope scope2 = tagger.currentBuilder().put(KEY_2, VALUE_2).buildScoped();
@@ -134,65 +112,5 @@ public class ScopedTagContextsTest {
 
   private static List<Tag> asList(TagContext tags) {
     return Lists.newArrayList(tags.unsafeGetIterator());
-  }
-
-  private static final class SimpleTagContextBuilder extends TagContextBuilder {
-    private final Map<TagKeyString, TagValueString> tagMap;
-
-    SimpleTagContextBuilder(Set<TagString> tags) {
-      Map<TagKeyString, TagValueString> tagMap = Maps.newHashMap();
-      for (TagString tag : tags) {
-        tagMap.put(tag.getKey(), tag.getValue());
-      }
-      this.tagMap = Maps.newHashMap(tagMap);
-    }
-
-    @Override
-    public TagContextBuilder put(TagKeyString key, TagValueString value) {
-      tagMap.put(key, value);
-      return this;
-    }
-
-    @Override
-    public TagContextBuilder put(TagKeyLong key, TagValueLong value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public TagContextBuilder remove(TagKey key) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public TagContext build() {
-      Set<TagString> tags = new HashSet<TagString>();
-      for (Entry<TagKeyString, TagValueString> entry : tagMap.entrySet()) {
-        tags.add(TagString.create(entry.getKey(), entry.getValue()));
-      }
-      return new SimpleTagContext(tags);
-    }
-  }
-
-  private static final class SimpleTagContext extends TagContext {
-    private final Set<TagString> tags;
-
-    public SimpleTagContext(TagString... tags) {
-      this(Arrays.asList(tags));
-    }
-
-    public SimpleTagContext(Collection<TagString> tags) {
-      this.tags = Collections.unmodifiableSet(new HashSet<TagString>(tags));
-    }
-
-    @Override
-    public Iterator<Tag> unsafeGetIterator() {
-      return Iterators.<TagString, Tag>transform(
-          tags.iterator(), com.google.common.base.Functions.<TagString>identity());
-    }
   }
 }

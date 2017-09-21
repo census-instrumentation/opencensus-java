@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.tags;
+package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -22,7 +22,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.grpc.Context;
 import io.opencensus.common.Scope;
+import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
+import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.unsafe.ContextUtils;
