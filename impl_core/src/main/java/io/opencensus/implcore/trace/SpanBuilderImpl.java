@@ -75,10 +75,8 @@ final class SpanBuilderImpl extends SpanBuilder {
       parentSpanId = parent.getSpanId();
       traceOptionsBuilder = TraceOptions.builder(parent.getTraceOptions());
     }
-    if (sampler == null) {
-      sampler = activeTraceParams.getSampler();
-    }
-    if (sampler.shouldSample(parent, hasRemoteParent, traceId, spanId, name, parentLinks)) {
+    if (makeSamplingDecision(
+        parent, hasRemoteParent, name, sampler, parentLinks, traceId, spanId, activeTraceParams)) {
       traceOptionsBuilder.setIsSampled();
     }
     TraceOptions traceOptions = traceOptionsBuilder.build();
@@ -99,6 +97,30 @@ final class SpanBuilderImpl extends SpanBuilder {
             options.clock);
     linkSpans(span, parentLinks);
     return span;
+  }
+
+  private static boolean makeSamplingDecision(
+      @Nullable SpanContext parent,
+      @Nullable Boolean hasRemoteParent,
+      String name,
+      Sampler sampler,
+      List<Span> parentLinks,
+      TraceId traceId,
+      SpanId spanId,
+      TraceParams activeTraceParams) {
+    // If users set a specific sampler in the SpanBuilder, use it.
+    if (sampler != null) {
+      return sampler.shouldSample(parent, hasRemoteParent, traceId, spanId, name, parentLinks);
+    }
+    // Use the default sampler if this is a root Span or this is an entry point Span (has remote
+    // parent).
+    if (Boolean.TRUE.equals(hasRemoteParent) || parent == null || !parent.isValid()) {
+      return activeTraceParams
+          .getSampler()
+          .shouldSample(parent, hasRemoteParent, traceId, spanId, name, parentLinks);
+    }
+    // Parent is always different than null because otherwise we use the default sampler.
+    return parent.getTraceOptions().isSampled();
   }
 
   private static void linkSpans(Span span, List<Span> parentLinks) {
