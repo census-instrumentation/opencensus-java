@@ -31,6 +31,8 @@ import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.MeanData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -212,7 +214,7 @@ public class ViewManagerImplTest {
 
   @Test
   public void testRecordDouble_sum_cumulative() {
-    testRecordCumulative(MEASURE_DOUBLE, SUM, 10.0, 20.0, 30.0, 40.0);
+    testRecordCumulative(MEASURE_DOUBLE, SUM, 11.1, 22.2, 33.3, 44.4);
   }
 
   @Test
@@ -242,9 +244,10 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testRecordDouble_interval() {
+  public void testRecordDouble_mean_interval() {
     testRecordInterval(
         MEASURE_DOUBLE,
+        MEAN,
         new double[]{20.0, -1.0, 1.0, -5.0, 5.0},
         9.0,
         30.0,
@@ -254,9 +257,10 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void testRecordLong_interval() {
+  public void testRecordLong_mean_interval() {
     testRecordInterval(
         MEASURE_LONG,
+        MEAN,
         new double[]{1000, 2000, 3000, 4000, 5000},
         -5000,
         30,
@@ -265,8 +269,35 @@ public class ViewManagerImplTest {
         MeanData.create(30, 1));
   }
 
+  @Test
+  public void testRecordDouble_sum_interval() {
+    testRecordInterval(
+        MEASURE_DOUBLE,
+        SUM,
+        new double[]{20.0, -1.0, 1.0, -5.0, 5.0},
+        9.0,
+        30.0,
+        SumDataDouble.create(19 * 0.6 + 1),
+        SumDataDouble.create(0.2 * 5 + 9),
+        SumDataDouble.create(30.0));
+  }
+
+  @Test
+  public void testRecordLong_sum_interval() {
+    testRecordInterval(
+        MEASURE_LONG,
+        SUM,
+        new double[]{1000, 2000, 3000, 4000, 5000},
+        -5000,
+        30,
+        SumDataLong.create(Math.round(3000 * 0.6 + 12000)),
+        SumDataLong.create(-4000),
+        SumDataLong.create(30));
+  }
+
   private void testRecordInterval(
       Measure measure,
+      Aggregation aggregation,
       double[] initialValues, /* There are 5 initial values recorded before we call getView(). */
       double value6,
       double value7,
@@ -276,7 +307,7 @@ public class ViewManagerImplTest {
     // The interval is 10 seconds, i.e. values should expire after 10 seconds.
     // Each bucket has a duration of 2.5 seconds.
     View view = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, measure, MEAN, Arrays.asList(KEY),
+        VIEW_NAME, VIEW_DESCRIPTION, measure, aggregation, Arrays.asList(KEY),
         Interval.create(TEN_SECONDS));
     long startTimeMillis = 30 * MILLIS_PER_SECOND; // start at 30s
     clock.setTime(Timestamp.fromMillis(startTimeMillis));
@@ -301,7 +332,7 @@ public class ViewManagerImplTest {
         viewManager.getView(VIEW_NAME).getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(VALUE),
-            StatsTestUtil.createAggregationData(MEAN, MEASURE_LONG, initialValues)),
+            StatsTestUtil.createAggregationData(aggregation, measure, initialValues)),
         EPSILON);
 
     clock.setTime(Timestamp.fromMillis(startTimeMillis + 11 * MILLIS_PER_SECOND));

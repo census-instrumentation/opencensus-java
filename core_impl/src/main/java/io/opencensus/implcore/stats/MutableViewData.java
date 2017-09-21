@@ -44,8 +44,6 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
-import io.opencensus.stats.Measure.MeasureDouble;
-import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
@@ -506,39 +504,9 @@ abstract class MutableViewData {
     @Override
     public AggregationData apply(final MutableSum arg) {
       return measure.match(
-          new CreateSumDataDouble(arg),
-          new CreateSumDataLong(arg),
+          Functions.<AggregationData>returnConstant(SumDataDouble.create(arg.getSum())),
+          Functions.<AggregationData>returnConstant(SumDataLong.create(Math.round(arg.getSum()))),
           Functions.<AggregationData>throwAssertionError());
-    }
-
-    private static final class CreateSumDataDouble
-        implements Function<MeasureDouble, AggregationData> {
-
-      private final MutableSum mutableSum;
-
-      private CreateSumDataDouble(MutableSum mutableSum) {
-        this.mutableSum = mutableSum;
-      }
-
-      @Override
-      public AggregationData apply(MeasureDouble arg) {
-        return SumDataDouble.create(mutableSum.getSum());
-      }
-    }
-
-    private static final class CreateSumDataLong
-        implements Function<MeasureLong, AggregationData> {
-
-      private final MutableSum mutableSum;
-
-      private CreateSumDataLong(MutableSum mutableSum) {
-        this.mutableSum = mutableSum;
-      }
-
-      @Override
-      public AggregationData apply(MeasureLong arg) {
-        return SumDataLong.create(Math.round(mutableSum.getSum()));
-      }
     }
   }
 
