@@ -49,6 +49,24 @@ public final class Tags {
     return tagsComponent.getTagPropagationComponent();
   }
 
+  /**
+   * Returns the current {@code TaggingState}.
+   *
+   * @return the current {@code TaggingState}.
+   */
+  public static TaggingState getState() {
+    return tagsComponent.getState();
+  }
+
+  /**
+   * Sets the current {@code TaggingState}.
+   *
+   * @param state the new {@code TaggingState}.
+   */
+  public static void setState(TaggingState state) {
+    tagsComponent.setState(state);
+  }
+
   // Any provider that may be used for TagsComponent can be added here.
   @VisibleForTesting
   static TagsComponent loadTagsComponent(ClassLoader classLoader) {
