@@ -46,7 +46,7 @@ script:
       "CHECK_GIT_HISTORY")
         python check-git-history.py ;;
       "BUILD")
-        export JAVA8_HOME=`jdk_switcher home oraclejdk8` ;
+        export JAVA8_HOME="$(jdk_switcher home oraclejdk8)" ;
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
             ./gradlew clean assemble --stacktrace ;
