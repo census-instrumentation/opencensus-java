@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class SamplersTest {
   private static final String SPAN_NAME = "MySpanName";
-  private static final int NUM_SAMPLE_TRYES = 1000;
+  private static final int NUM_SAMPLE_TRIES = 1000;
   private final Random random = new Random(1234);
   private final TraceId traceId = TraceId.generateRandomId(random);
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
@@ -116,12 +116,12 @@ public class SamplersTest {
     Samplers.probabilitySampler(-0.00001);
   }
 
-  // Applies the given sampler to NUM_SAMPLE_TRYES random traceId/spanId pairs.
-  private static void applyProbabilitySampler(
+  // Applies the given sampler to NUM_SAMPLE_TRIES random traceId/spanId pairs.
+  private static void assertSamplerSamplesWithProbability(
       Sampler sampler, SpanContext parent, double probability) {
     Random random = new Random(1234);
     int count = 0; // Count of spans with sampling enabled
-    for (int i = 0; i < NUM_SAMPLE_TRYES; i++) {
+    for (int i = 0; i < NUM_SAMPLE_TRIES; i++) {
       if (sampler.shouldSample(
           parent,
           false,
@@ -132,38 +132,24 @@ public class SamplersTest {
         count++;
       }
     }
-    double proportionSampled = (double) count / NUM_SAMPLE_TRYES;
+    double proportionSampled = (double) count / NUM_SAMPLE_TRIES;
     // Allow for a large amount of slop (+/- 10%) in number of sampled traces, to avoid flakiness.
     assertThat(proportionSampled < probability + 0.1 && proportionSampled > probability - 0.1)
         .isTrue();
   }
 
   @Test
-  public void probabilitySampler_SamplesForUnsampledParent() {
+  public void probabilitySampler_differentProbabilities() {
     final Sampler neverSample = Samplers.probabilitySampler(0.0);
-    applyProbabilitySampler(neverSample, notSampledSpanContext, 0.0);
+    assertSamplerSamplesWithProbability(neverSample, sampledSpanContext, 0.0);
     final Sampler alwaysSample = Samplers.probabilitySampler(1.0);
-    applyProbabilitySampler(alwaysSample, notSampledSpanContext, 1.0);
+    assertSamplerSamplesWithProbability(alwaysSample, sampledSpanContext, 1.0);
     final Sampler fiftyPercentSample = Samplers.probabilitySampler(0.5);
-    applyProbabilitySampler(fiftyPercentSample, notSampledSpanContext, 0.5);
+    assertSamplerSamplesWithProbability(fiftyPercentSample, sampledSpanContext, 0.5);
     final Sampler twentyPercentSample = Samplers.probabilitySampler(0.2);
-    applyProbabilitySampler(twentyPercentSample, notSampledSpanContext, 0.2);
+    assertSamplerSamplesWithProbability(twentyPercentSample, sampledSpanContext, 0.2);
     final Sampler twoThirdsSample = Samplers.probabilitySampler(2.0 / 3.0);
-    applyProbabilitySampler(twoThirdsSample, notSampledSpanContext, 2.0 / 3.0);
-  }
-
-  @Test
-  public void probabilitySampler_SamplesForSampledParent() {
-    final Sampler neverSample = Samplers.probabilitySampler(0.0);
-    applyProbabilitySampler(neverSample, sampledSpanContext, 0.0);
-    final Sampler alwaysSample = Samplers.probabilitySampler(1.0);
-    applyProbabilitySampler(alwaysSample, sampledSpanContext, 1.0);
-    final Sampler fiftyPercentSample = Samplers.probabilitySampler(0.5);
-    applyProbabilitySampler(fiftyPercentSample, sampledSpanContext, 0.5);
-    final Sampler twentyPercentSample = Samplers.probabilitySampler(0.2);
-    applyProbabilitySampler(twentyPercentSample, sampledSpanContext, 0.2);
-    final Sampler twoThirdsSample = Samplers.probabilitySampler(2.0 / 3.0);
-    applyProbabilitySampler(twoThirdsSample, sampledSpanContext, 2.0 / 3.0);
+    assertSamplerSamplesWithProbability(twoThirdsSample, sampledSpanContext, 2.0 / 3.0);
   }
 
   @Test

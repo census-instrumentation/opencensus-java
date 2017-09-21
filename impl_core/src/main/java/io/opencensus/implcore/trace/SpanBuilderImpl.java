@@ -103,7 +103,7 @@ final class SpanBuilderImpl extends SpanBuilder {
       @Nullable SpanContext parent,
       @Nullable Boolean hasRemoteParent,
       String name,
-      Sampler sampler,
+      @Nullable Sampler sampler,
       List<Span> parentLinks,
       TraceId traceId,
       SpanId spanId,

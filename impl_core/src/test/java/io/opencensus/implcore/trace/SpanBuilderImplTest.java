@@ -186,10 +186,10 @@ public class SpanBuilderImplTest {
   public void startRemoteChildSpan_WithSpecifiedSampler() {
     Span rootSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
-            .setSampler(Samplers.neverSample())
+            .setSampler(Samplers.alwaysSample())
             .startSpan();
     assertThat(rootSpan.getContext().isValid()).isTrue();
-    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isFalse();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
     // Apply given sampler before default sampler for spans with remote parent.
     Span childSpan =
         SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, rootSpan.getContext(), spanBuilderOptions)
@@ -221,10 +221,10 @@ public class SpanBuilderImplTest {
   public void startChildSpan_WithSpecifiedSampler() {
     Span rootSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
-            .setSampler(Samplers.neverSample())
+            .setSampler(Samplers.alwaysSample())
             .startSpan();
     assertThat(rootSpan.getContext().isValid()).isTrue();
-    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isFalse();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
     // Apply the given sampler for child spans.
     Span childSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpan, spanBuilderOptions)
