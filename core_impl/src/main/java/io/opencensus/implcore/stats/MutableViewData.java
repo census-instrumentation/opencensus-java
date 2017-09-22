@@ -22,7 +22,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import io.opencensus.common.Clock;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -140,7 +139,7 @@ abstract class MutableViewData {
   /**
    * Convert this {@link MutableViewData} to {@link ViewData}.
    */
-  abstract ViewData toViewData(Clock clock);
+  abstract ViewData toViewData(Timestamp now);
 
   private static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
     if (ctx instanceof TagContextImpl) {
@@ -250,10 +249,10 @@ abstract class MutableViewData {
     }
 
     @Override
-    ViewData toViewData(Clock clock) {
+    ViewData toViewData(Timestamp now) {
       return ViewData.create(
           super.view, createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
-          CumulativeData.create(start, clock.now()));
+          CumulativeData.create(start, now));
     }
   }
 
@@ -319,8 +318,7 @@ abstract class MutableViewData {
     }
 
     @Override
-    ViewData toViewData(Clock clock) {
-      Timestamp now = clock.now();
+    ViewData toViewData(Timestamp now) {
       refreshBucketList(now);
       return ViewData.create(
           super.view, combineBucketsAndGetAggregationMap(now), IntervalData.create(now));
