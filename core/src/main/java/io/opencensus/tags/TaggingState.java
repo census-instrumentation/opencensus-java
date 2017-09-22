@@ -35,5 +35,6 @@ public enum TaggingState {
    * <p>The {@link TagsComponent} may not add tags to {@link TagContext}s, propagate {@code
    * TagContext}s in the current context, or serialize {@code TagContext}s.
    */
+  // TODO(sebright): Document how this interacts with stats collection.
   DISABLED
 }
