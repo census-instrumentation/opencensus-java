@@ -129,7 +129,7 @@ public class TagContextImplTest {
             tagger.emptyBuilder().put(KS2, V2).put(KS1, V1).build(),
             new TagContext() {
               @Override
-              protected Iterator<Tag> iterator() {
+              protected Iterator<Tag> getIterator() {
                 return Lists.<Tag>newArrayList(TagString.create(KS1, V1), TagString.create(KS2, V2))
                     .iterator();
               }

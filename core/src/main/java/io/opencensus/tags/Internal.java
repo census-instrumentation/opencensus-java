@@ -26,6 +26,6 @@ public final class Internal {
   private Internal() {}
 
   public static Iterator<Tag> getTags(TagContext tags) {
-    return tags.iterator();
+    return tags.getIterator();
   }
 }

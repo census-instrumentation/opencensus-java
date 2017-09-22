@@ -51,7 +51,7 @@ public final class NoopTagsTest {
       new TagContext() {
 
         @Override
-        protected Iterator<Tag> iterator() {
+        protected Iterator<Tag> getIterator() {
           return Arrays.<Tag>asList(TagString.create(KEY_STRING, VALUE_STRING)).iterator();
         }
       };
@@ -151,7 +151,7 @@ public final class NoopTagsTest {
 
   @Test
   public void noopTagContext() {
-    assertThat(Lists.newArrayList(NoopTags.getNoopTagContext().iterator())).isEmpty();
+    assertThat(Lists.newArrayList(NoopTags.getNoopTagContext().getIterator())).isEmpty();
   }
 
   @Test

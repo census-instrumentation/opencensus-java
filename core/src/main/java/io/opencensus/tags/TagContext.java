@@ -42,7 +42,7 @@ public abstract class TagContext {
    *
    * @return an iterator over the tags in this {@code TagContext}.
    */
-  protected abstract Iterator<Tag> iterator();
+  protected abstract Iterator<Tag> getIterator();
 
   @Override
   public String toString() {
@@ -60,8 +60,8 @@ public abstract class TagContext {
       return false;
     }
     TagContext otherTags = (TagContext) other;
-    Iterator<Tag> iter1 = iterator();
-    Iterator<Tag> iter2 = otherTags.iterator();
+    Iterator<Tag> iter1 = getIterator();
+    Iterator<Tag> iter2 = otherTags.getIterator();
     Multiset<Tag> tags1 =
         iter1 == null
             ? ImmutableMultiset.<Tag>of()
@@ -76,7 +76,7 @@ public abstract class TagContext {
   @Override
   public final int hashCode() {
     int hashCode = 0;
-    Iterator<Tag> i = iterator();
+    Iterator<Tag> i = getIterator();
     if (i == null) {
       return hashCode;
     }

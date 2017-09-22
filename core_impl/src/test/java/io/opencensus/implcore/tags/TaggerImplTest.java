@@ -180,7 +180,7 @@ public class TaggerImplTest {
     }
 
     @Override
-    protected Iterator<Tag> iterator() {
+    protected Iterator<Tag> getIterator() {
       return tags.iterator();
     }
   }

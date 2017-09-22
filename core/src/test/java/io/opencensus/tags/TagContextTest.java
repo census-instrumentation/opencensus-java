@@ -47,7 +47,7 @@ public final class TagContextTest {
             new SimpleTagContext(TAG2, TAG1),
             new TagContext() {
               @Override
-              protected Iterator<Tag> iterator() {
+              protected Iterator<Tag> getIterator() {
                 return Lists.newArrayList(TAG1, TAG2).iterator();
               }
             })
@@ -99,7 +99,7 @@ public final class TagContextTest {
     }
 
     @Override
-    protected Iterator<Tag> iterator() {
+    protected Iterator<Tag> getIterator() {
       return tags == null ? null : tags.iterator();
     }
   }

@@ -40,7 +40,7 @@ public final class InternalTest {
     TagContext ctx =
         new TagContext() {
           @Override
-          protected Iterator<Tag> iterator() {
+          protected Iterator<Tag> getIterator() {
             return iterator;
           }
         };
