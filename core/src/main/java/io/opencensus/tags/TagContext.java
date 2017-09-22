@@ -42,6 +42,14 @@ public abstract class TagContext {
    *
    * @return an iterator over the tags in this {@code TagContext}.
    */
+  // This method is protected to prevent client code from accessing the tags of any TagContext. We
+  // don't currently support efficient access to tags. However, every TagContext subclass needs to
+  // provide access to its tags to the stats and tagging implementations by implementing this
+  // method. If we decide to support access to tags in the future, we can add a public iterator()
+  // method and implement it for all subclasses by calling getIterator().
+  //
+  // The stats and tagging implementations can access any TagContext's tags through
+  // io.opencensus.tags.Internal.getTags, which calls this method.
   protected abstract Iterator<Tag> getIterator();
 
   @Override
