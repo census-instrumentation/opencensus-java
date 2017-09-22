@@ -33,7 +33,10 @@ public class TraceOptionsTest {
   @Test
   public void getOptions() {
     assertThat(TraceOptions.DEFAULT.getOptions()).isEqualTo(0);
-    assertThat(TraceOptions.builder().setIsSampled().build().getOptions()).isEqualTo(1);
+    assertThat(TraceOptions.builder().setIsSampled(false).build().getOptions()).isEqualTo(0);
+    assertThat(TraceOptions.builder().setIsSampled(true).build().getOptions()).isEqualTo(1);
+    assertThat(TraceOptions.builder().setIsSampled(true).setIsSampled(false).build().getOptions())
+        .isEqualTo(0);
     assertThat(TraceOptions.fromBytes(firstBytes).getOptions()).isEqualTo(-1);
     assertThat(TraceOptions.fromBytes(secondBytes).getOptions()).isEqualTo(1);
     assertThat(TraceOptions.fromBytes(thirdBytes).getOptions()).isEqualTo(6);
@@ -42,7 +45,7 @@ public class TraceOptionsTest {
   @Test
   public void isSampled() {
     assertThat(TraceOptions.DEFAULT.isSampled()).isFalse();
-    assertThat(TraceOptions.builder().setIsSampled().build().isSampled()).isTrue();
+    assertThat(TraceOptions.builder().setIsSampled(true).build().isSampled()).isTrue();
   }
 
   @Test
@@ -56,7 +59,7 @@ public class TraceOptionsTest {
   public void builder_FromOptions() {
     assertThat(
             TraceOptions.builder(TraceOptions.fromBytes(thirdBytes))
-                .setIsSampled()
+                .setIsSampled(true)
                 .build()
                 .getOptions())
         .isEqualTo(6 | 1);
@@ -67,7 +70,7 @@ public class TraceOptionsTest {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(TraceOptions.DEFAULT);
     tester.addEqualityGroup(
-        TraceOptions.fromBytes(secondBytes), TraceOptions.builder().setIsSampled().build());
+        TraceOptions.fromBytes(secondBytes), TraceOptions.builder().setIsSampled(true).build());
     tester.addEqualityGroup(TraceOptions.fromBytes(firstBytes));
     tester.testEquals();
   }
@@ -75,6 +78,7 @@ public class TraceOptionsTest {
   @Test
   public void traceOptions_ToString() {
     assertThat(TraceOptions.DEFAULT.toString()).contains("sampled=false");
-    assertThat(TraceOptions.builder().setIsSampled().build().toString()).contains("sampled=true");
+    assertThat(TraceOptions.builder().setIsSampled(true).build().toString())
+        .contains("sampled=true");
   }
 }

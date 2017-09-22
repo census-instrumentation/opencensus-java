@@ -79,10 +79,6 @@ abstract class ProbabilitySampler extends Sampler {
       SpanId spanId,
       String name,
       @Nullable List<Span> parentLinks) {
-    // Always enable sampling if parent was sampled.
-    if (parentContext != null && parentContext.getTraceOptions().isSampled()) {
-      return true;
-    }
     // Always sample if we are within probability range. This is true even for child spans (that
     // may have had a different sampling decision made) to allow for different sampling policies,
     // and dynamic increases to sampling probabilities for debugging purposes.

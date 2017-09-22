@@ -107,16 +107,14 @@ public class SpanBuilderImplTest {
     assertThat(rootSpan.getContext().isValid()).isTrue();
     assertThat(rootSpan.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
-    assertThat(((SpanImpl) rootSpan).toSpanData().getHasRemoteParent())
-        .isNull();
+    assertThat(((SpanImpl) rootSpan).toSpanData().getHasRemoteParent()).isNull();
     Span childSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpan, spanBuilderOptions).startSpan();
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
     assertThat(((SpanImpl) childSpan).toSpanData().getParentSpanId())
         .isEqualTo(rootSpan.getContext().getSpanId());
-    assertThat(((SpanImpl) childSpan).toSpanData().getHasRemoteParent())
-        .isFalse();
+    assertThat(((SpanImpl) childSpan).toSpanData().getHasRemoteParent()).isFalse();
     assertThat(((SpanImpl) childSpan).getTimestampConverter())
         .isEqualTo(((SpanImpl) rootSpan).getTimestampConverter());
   }
@@ -162,6 +160,95 @@ public class SpanBuilderImplTest {
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getParentSpanId()).isEqualTo(spanContext.getSpanId());
     assertThat(spanData.getHasRemoteParent()).isTrue();
+  }
+
+  @Test
+  public void startRootSpan_WithSpecifiedSampler() {
+    // Apply given sampler before default sampler for root spans.
+    Span rootSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
+    assertThat(rootSpan.getContext().isValid()).isTrue();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isFalse();
+  }
+
+  @Test
+  public void startRootSpan_WithoutSpecifiedSampler() {
+    // Apply default sampler (always true in the tests) for root spans.
+    Span rootSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
+    assertThat(rootSpan.getContext().isValid()).isTrue();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
+  }
+
+  @Test
+  public void startRemoteChildSpan_WithSpecifiedSampler() {
+    Span rootSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.alwaysSample())
+            .startSpan();
+    assertThat(rootSpan.getContext().isValid()).isTrue();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
+    // Apply given sampler before default sampler for spans with remote parent.
+    Span childSpan =
+        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, rootSpan.getContext(), spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isFalse();
+  }
+
+  @Test
+  public void startRemoteChildSpan_WithoutSpecifiedSampler() {
+    Span rootSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
+    assertThat(rootSpan.getContext().isValid()).isTrue();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isFalse();
+    // Apply default sampler (always true in the tests) for spans with remote parent.
+    Span childSpan =
+        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, rootSpan.getContext(), spanBuilderOptions)
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isTrue();
+  }
+
+  @Test
+  public void startChildSpan_WithSpecifiedSampler() {
+    Span rootSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.alwaysSample())
+            .startSpan();
+    assertThat(rootSpan.getContext().isValid()).isTrue();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
+    // Apply the given sampler for child spans.
+    Span childSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpan, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isFalse();
+  }
+
+  @Test
+  public void startChildSpan_WithoutSpecifiedSampler() {
+    Span rootSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
+    assertThat(rootSpan.getContext().isValid()).isTrue();
+    assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isFalse();
+    // Don't apply the default sampler (always true) for child spans.
+    Span childSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpan, spanBuilderOptions).startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isFalse();
   }
 
   private static final class FakeRandomHandler extends RandomHandler {
