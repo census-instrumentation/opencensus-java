@@ -18,7 +18,7 @@ package io.opencensus.trace.samplers;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.trace.FakeSpan;
+import io.opencensus.trace.NoopSpan;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
@@ -48,7 +48,7 @@ public class SamplersTest {
   private final SpanContext notSampledSpanContext =
       SpanContext.create(traceId, parentSpanId, TraceOptions.DEFAULT);
   private final Span sampledSpan =
-      new FakeSpan(sampledSpanContext, EnumSet.of(Span.Options.RECORD_EVENTS));
+      new NoopSpan(sampledSpanContext, EnumSet.of(Span.Options.RECORD_EVENTS));
 
   @Test
   public void alwaysSampleSampler_AlwaysReturnTrue() {
@@ -124,7 +124,7 @@ public class SamplersTest {
 
   // Applies the given sampler to NUM_SAMPLE_TRIES random traceId/spanId pairs.
   private static void assertSamplerSamplesWithProbability(
-      Sampler sampler, SpanContext parent, List<Span> parenLinks, double probability) {
+      Sampler sampler, SpanContext parent, List<Span> parentLinks, double probability) {
     Random random = new Random(1234);
     int count = 0; // Count of spans with sampling enabled
     for (int i = 0; i < NUM_SAMPLE_TRIES; i++) {
@@ -134,7 +134,7 @@ public class SamplersTest {
           TraceId.generateRandomId(random),
           SpanId.generateRandomId(random),
           SPAN_NAME,
-          parenLinks)) {
+          parentLinks)) {
         count++;
       }
     }
@@ -204,7 +204,8 @@ public class SamplersTest {
   @Test
   public void probabilitySampler_SampleBasedOnTraceId() {
     final Sampler defaultProbability = Samplers.probabilitySampler(0.0001);
-    // This traceId will not be sampled by the ProbabilitySampler
+    // This traceId will not be sampled by the ProbabilitySampler because the first 8 bytes as long
+    // is not less than probability * Long.MAX_VALUE;
     TraceId notSampledtraceId =
         TraceId.fromBytes(
             new byte[] {
@@ -234,36 +235,43 @@ public class SamplersTest {
                 SPAN_NAME,
                 Collections.<Span>emptyList()))
         .isFalse();
-    // This traceId will not be sampled by the ProbabilitySampler
+    // This traceId will be sampled by the ProbabilitySampler because the first 8 bytes as long
+    // is less than probability * Long.MAX_VALUE;
     TraceId sampledtraceId =
         TraceId.fromBytes(
             new byte[] {
-                (byte) 0x00,
-                (byte) 0x00,
-                (byte) 0xFF,
-                (byte) 0xFF,
-                (byte) 0xFF,
-                (byte) 0xFF,
-                (byte) 0xFF,
-                (byte) 0xFF,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0
+              (byte) 0x00,
+              (byte) 0x00,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
             });
     assertThat(
-        defaultProbability.shouldSample(
-            null,
-            false,
-            sampledtraceId,
-            SpanId.generateRandomId(random),
-            SPAN_NAME,
-            Collections.<Span>emptyList()))
+            defaultProbability.shouldSample(
+                null,
+                false,
+                sampledtraceId,
+                SpanId.generateRandomId(random),
+                SPAN_NAME,
+                Collections.<Span>emptyList()))
         .isTrue();
+  }
+
+  @Test
+  public void probabilitySampler_getDescription() {
+    assertThat((Samplers.probabilitySampler(0.5)).getDescription())
+        .isEqualTo("ProbabilitySampler{0.500000}");
   }
 
   @Test

@@ -56,35 +56,35 @@ public class SpanTest {
 
   @Test(expected = NullPointerException.class)
   public void newSpan_WithNullContext() {
-    new FakeSpan(null, null);
+    new NoopSpan(null, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void newSpan_SampledContextAndNullOptions() {
-    new FakeSpan(spanContext, null);
+    new NoopSpan(spanContext, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void newSpan_SampledContextAndEmptyOptions() {
-    new FakeSpan(spanContext, EnumSet.noneOf(Span.Options.class));
+    new NoopSpan(spanContext, EnumSet.noneOf(Span.Options.class));
   }
 
   @Test
   public void getOptions_WhenNullOptions() {
-    Span span = new FakeSpan(notSampledSpanContext, null);
+    Span span = new NoopSpan(notSampledSpanContext, null);
     assertThat(span.getOptions()).isEmpty();
   }
 
   @Test
   public void getContextAndOptions() {
-    Span span = new FakeSpan(spanContext, spanOptions);
+    Span span = new NoopSpan(spanContext, spanOptions);
     assertThat(span.getContext()).isEqualTo(spanContext);
     assertThat(span.getOptions()).isEqualTo(spanOptions);
   }
 
   @Test
   public void putAttributeCallsAddAttributesByDefault() {
-    Span span = Mockito.spy(new FakeSpan(spanContext, spanOptions));
+    Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
     span.putAttribute("MyKey", AttributeValue.booleanAttributeValue(true));
     span.end();
     verify(span)
@@ -94,7 +94,7 @@ public class SpanTest {
 
   @Test
   public void endCallsEndWithDefaultOptions() {
-    Span span = Mockito.spy(new FakeSpan(spanContext, spanOptions));
+    Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
     span.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }

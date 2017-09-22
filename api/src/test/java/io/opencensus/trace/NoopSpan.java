@@ -25,12 +25,10 @@ import javax.annotation.Nullable;
  *
  * <p>Not final to allow Mockito to "spy" this class.
  */
-public class FakeSpan extends Span {
+public class NoopSpan extends Span {
 
-  /**
-   * Creates a new {@code FakeSpan}.
-   */
-  public FakeSpan(SpanContext context, @Nullable EnumSet<Options> options) {
+  /** Creates a new {@code NoopSpan}. */
+  public NoopSpan(SpanContext context, @Nullable EnumSet<Options> options) {
     super(context, options);
   }
 

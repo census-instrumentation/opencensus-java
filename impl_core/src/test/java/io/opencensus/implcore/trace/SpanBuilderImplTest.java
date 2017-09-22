@@ -32,6 +32,7 @@ import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.samplers.Samplers;
+import java.util.Arrays;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -252,9 +253,33 @@ public class SpanBuilderImplTest {
   }
 
   @Test
+  public void startChildSpan_SampledLinkedParent() {
+    Span rootSpanUnsampled =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
+    assertThat(rootSpanUnsampled.getContext().getTraceOptions().isSampled()).isFalse();
+    Span rootSpanSampled =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.alwaysSample())
+            .startSpan();
+    assertThat(rootSpanSampled.getContext().getTraceOptions().isSampled()).isTrue();
+    // Sampled because the linked parent is sampled.
+    Span childSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpanUnsampled, spanBuilderOptions)
+            .setParentLinks(Arrays.asList(rootSpanSampled))
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId())
+        .isEqualTo(rootSpanUnsampled.getContext().getTraceId());
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isTrue();
+  }
+
+  @Test
   public void startRemoteChildSpan_WithProbabilitySamplerDefaultSampler() {
     when(traceConfig.getActiveTraceParams()).thenReturn(TraceParams.DEFAULT);
-    // This traceId will not be sampled by the ProbabilitySampler
+    // This traceId will not be sampled by the ProbabilitySampler because the first 8 bytes as long
+    // is not less than probability * Long.MAX_VALUE;
     TraceId traceId =
         TraceId.fromBytes(
             new byte[] {
