@@ -251,6 +251,64 @@ public class SpanBuilderImplTest {
     assertThat(childSpan.getContext().getTraceOptions().isSampled()).isFalse();
   }
 
+  @Test
+  public void startRemoteChildSpan_WithProbabilitySamplerDefaultSampler() {
+    when(traceConfig.getActiveTraceParams()).thenReturn(TraceParams.DEFAULT);
+    // This traceId will not be sampled by the ProbabilitySampler
+    TraceId traceId =
+        TraceId.fromBytes(
+            new byte[] {
+              (byte) 0x8F,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            });
+
+    // If parent is sampled then the remote child must be sampled.
+    Span childSpan =
+        SpanBuilderImpl.createWithRemoteParent(
+                SPAN_NAME,
+                SpanContext.create(
+                    traceId,
+                    SpanId.generateRandomId(randomHandler.current()),
+                    TraceOptions.builder().setIsSampled(true).build()),
+                spanBuilderOptions)
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(traceId);
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isTrue();
+    childSpan.end();
+
+    assertThat(traceConfig.getActiveTraceParams()).isEqualTo(TraceParams.DEFAULT);
+
+    // If parent is not sampled then the remote child must be not sampled.
+    childSpan =
+        SpanBuilderImpl.createWithRemoteParent(
+                SPAN_NAME,
+                SpanContext.create(
+                    traceId,
+                    SpanId.generateRandomId(randomHandler.current()),
+                    TraceOptions.DEFAULT),
+                spanBuilderOptions)
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(traceId);
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isFalse();
+    childSpan.end();
+  }
+
   private static final class FakeRandomHandler extends RandomHandler {
     private final Random random;
 

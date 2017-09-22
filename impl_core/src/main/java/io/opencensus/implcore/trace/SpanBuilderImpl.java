@@ -118,7 +118,16 @@ final class SpanBuilderImpl extends SpanBuilder {
           .shouldSample(parent, hasRemoteParent, traceId, spanId, name, parentLinks);
     }
     // Parent is always different than null because otherwise we use the default sampler.
-    return parent.getTraceOptions().isSampled();
+    return parent.getTraceOptions().isSampled() || isAnyParentLinkSampled(parentLinks);
+  }
+
+  private static boolean isAnyParentLinkSampled(List<Span> parentLinks) {
+    for (Span parentLink : parentLinks) {
+      if (parentLink.getContext().getTraceOptions().isSampled()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static void linkSpans(Span span, List<Span> parentLinks) {

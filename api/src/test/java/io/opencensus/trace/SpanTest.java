@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,35 +56,35 @@ public class SpanTest {
 
   @Test(expected = NullPointerException.class)
   public void newSpan_WithNullContext() {
-    new NoopSpan(null, null);
+    new FakeSpan(null, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void newSpan_SampledContextAndNullOptions() {
-    new NoopSpan(spanContext, null);
+    new FakeSpan(spanContext, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void newSpan_SampledContextAndEmptyOptions() {
-    new NoopSpan(spanContext, EnumSet.noneOf(Span.Options.class));
+    new FakeSpan(spanContext, EnumSet.noneOf(Span.Options.class));
   }
 
   @Test
   public void getOptions_WhenNullOptions() {
-    Span span = new NoopSpan(notSampledSpanContext, null);
+    Span span = new FakeSpan(notSampledSpanContext, null);
     assertThat(span.getOptions()).isEmpty();
   }
 
   @Test
   public void getContextAndOptions() {
-    Span span = new NoopSpan(spanContext, spanOptions);
+    Span span = new FakeSpan(spanContext, spanOptions);
     assertThat(span.getContext()).isEqualTo(spanContext);
     assertThat(span.getOptions()).isEqualTo(spanOptions);
   }
 
   @Test
   public void putAttributeCallsAddAttributesByDefault() {
-    Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
+    Span span = Mockito.spy(new FakeSpan(spanContext, spanOptions));
     span.putAttribute("MyKey", AttributeValue.booleanAttributeValue(true));
     span.end();
     verify(span)
@@ -95,33 +94,8 @@ public class SpanTest {
 
   @Test
   public void endCallsEndWithDefaultOptions() {
-    Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
+    Span span = Mockito.spy(new FakeSpan(spanContext, spanOptions));
     span.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
-  }
-
-  // No-op implementation of the Span for testing only.
-  private static class NoopSpan extends Span {
-    private NoopSpan(SpanContext context, EnumSet<Span.Options> options) {
-      super(context, options);
-    }
-
-    @Override
-    public void putAttributes(Map<String, AttributeValue> attributes) {}
-
-    @Override
-    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
-
-    @Override
-    public void addAnnotation(Annotation annotation) {}
-
-    @Override
-    public void addNetworkEvent(NetworkEvent networkEvent) {}
-
-    @Override
-    public void addLink(Link link) {}
-
-    @Override
-    public void end(EndSpanOptions options) {}
   }
 }

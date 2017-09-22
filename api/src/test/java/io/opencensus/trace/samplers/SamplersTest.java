@@ -18,13 +18,17 @@ package io.opencensus.trace.samplers;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.FakeSpan;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +47,8 @@ public class SamplersTest {
       SpanContext.create(traceId, parentSpanId, TraceOptions.builder().setIsSampled(true).build());
   private final SpanContext notSampledSpanContext =
       SpanContext.create(traceId, parentSpanId, TraceOptions.DEFAULT);
+  private final Span sampledSpan =
+      new FakeSpan(sampledSpanContext, EnumSet.of(Span.Options.RECORD_EVENTS));
 
   @Test
   public void alwaysSampleSampler_AlwaysReturnTrue() {
@@ -118,7 +124,7 @@ public class SamplersTest {
 
   // Applies the given sampler to NUM_SAMPLE_TRIES random traceId/spanId pairs.
   private static void assertSamplerSamplesWithProbability(
-      Sampler sampler, SpanContext parent, double probability) {
+      Sampler sampler, SpanContext parent, List<Span> parenLinks, double probability) {
     Random random = new Random(1234);
     int count = 0; // Count of spans with sampling enabled
     for (int i = 0; i < NUM_SAMPLE_TRIES; i++) {
@@ -128,7 +134,7 @@ public class SamplersTest {
           TraceId.generateRandomId(random),
           SpanId.generateRandomId(random),
           SPAN_NAME,
-          Collections.<Span>emptyList())) {
+          parenLinks)) {
         count++;
       }
     }
@@ -139,17 +145,125 @@ public class SamplersTest {
   }
 
   @Test
-  public void probabilitySampler_differentProbabilities() {
+  public void probabilitySampler_DifferentProbabilities_NotSampledParent() {
     final Sampler neverSample = Samplers.probabilitySampler(0.0);
-    assertSamplerSamplesWithProbability(neverSample, sampledSpanContext, 0.0);
+    assertSamplerSamplesWithProbability(
+        neverSample, notSampledSpanContext, Collections.<Span>emptyList(), 0.0);
     final Sampler alwaysSample = Samplers.probabilitySampler(1.0);
-    assertSamplerSamplesWithProbability(alwaysSample, sampledSpanContext, 1.0);
+    assertSamplerSamplesWithProbability(
+        alwaysSample, notSampledSpanContext, Collections.<Span>emptyList(), 1.0);
     final Sampler fiftyPercentSample = Samplers.probabilitySampler(0.5);
-    assertSamplerSamplesWithProbability(fiftyPercentSample, sampledSpanContext, 0.5);
+    assertSamplerSamplesWithProbability(
+        fiftyPercentSample, notSampledSpanContext, Collections.<Span>emptyList(), 0.5);
     final Sampler twentyPercentSample = Samplers.probabilitySampler(0.2);
-    assertSamplerSamplesWithProbability(twentyPercentSample, sampledSpanContext, 0.2);
+    assertSamplerSamplesWithProbability(
+        twentyPercentSample, notSampledSpanContext, Collections.<Span>emptyList(), 0.2);
     final Sampler twoThirdsSample = Samplers.probabilitySampler(2.0 / 3.0);
-    assertSamplerSamplesWithProbability(twoThirdsSample, sampledSpanContext, 2.0 / 3.0);
+    assertSamplerSamplesWithProbability(
+        twoThirdsSample, notSampledSpanContext, Collections.<Span>emptyList(), 2.0 / 3.0);
+  }
+
+  @Test
+  public void probabilitySampler_DifferentProbabilities_SampledParent() {
+    final Sampler neverSample = Samplers.probabilitySampler(0.0);
+    assertSamplerSamplesWithProbability(
+        neverSample, sampledSpanContext, Collections.<Span>emptyList(), 1.0);
+    final Sampler alwaysSample = Samplers.probabilitySampler(1.0);
+    assertSamplerSamplesWithProbability(
+        alwaysSample, sampledSpanContext, Collections.<Span>emptyList(), 1.0);
+    final Sampler fiftyPercentSample = Samplers.probabilitySampler(0.5);
+    assertSamplerSamplesWithProbability(
+        fiftyPercentSample, sampledSpanContext, Collections.<Span>emptyList(), 1.0);
+    final Sampler twentyPercentSample = Samplers.probabilitySampler(0.2);
+    assertSamplerSamplesWithProbability(
+        twentyPercentSample, sampledSpanContext, Collections.<Span>emptyList(), 1.0);
+    final Sampler twoThirdsSample = Samplers.probabilitySampler(2.0 / 3.0);
+    assertSamplerSamplesWithProbability(
+        twoThirdsSample, sampledSpanContext, Collections.<Span>emptyList(), 1.0);
+  }
+
+  @Test
+  public void probabilitySampler_DifferentProbabilities_SampledParentLink() {
+    final Sampler neverSample = Samplers.probabilitySampler(0.0);
+    assertSamplerSamplesWithProbability(
+        neverSample, notSampledSpanContext, Arrays.asList(sampledSpan), 1.0);
+    final Sampler alwaysSample = Samplers.probabilitySampler(1.0);
+    assertSamplerSamplesWithProbability(
+        alwaysSample, notSampledSpanContext, Arrays.asList(sampledSpan), 1.0);
+    final Sampler fiftyPercentSample = Samplers.probabilitySampler(0.5);
+    assertSamplerSamplesWithProbability(
+        fiftyPercentSample, notSampledSpanContext, Arrays.asList(sampledSpan), 1.0);
+    final Sampler twentyPercentSample = Samplers.probabilitySampler(0.2);
+    assertSamplerSamplesWithProbability(
+        twentyPercentSample, notSampledSpanContext, Arrays.asList(sampledSpan), 1.0);
+    final Sampler twoThirdsSample = Samplers.probabilitySampler(2.0 / 3.0);
+    assertSamplerSamplesWithProbability(
+        twoThirdsSample, notSampledSpanContext, Arrays.asList(sampledSpan), 1.0);
+  }
+
+  @Test
+  public void probabilitySampler_SampleBasedOnTraceId() {
+    final Sampler defaultProbability = Samplers.probabilitySampler(0.0001);
+    // This traceId will not be sampled by the ProbabilitySampler
+    TraceId notSampledtraceId =
+        TraceId.fromBytes(
+            new byte[] {
+              (byte) 0x8F,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            });
+    assertThat(
+            defaultProbability.shouldSample(
+                null,
+                false,
+                notSampledtraceId,
+                SpanId.generateRandomId(random),
+                SPAN_NAME,
+                Collections.<Span>emptyList()))
+        .isFalse();
+    // This traceId will not be sampled by the ProbabilitySampler
+    TraceId sampledtraceId =
+        TraceId.fromBytes(
+            new byte[] {
+                (byte) 0x00,
+                (byte) 0x00,
+                (byte) 0xFF,
+                (byte) 0xFF,
+                (byte) 0xFF,
+                (byte) 0xFF,
+                (byte) 0xFF,
+                (byte) 0xFF,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            });
+    assertThat(
+        defaultProbability.shouldSample(
+            null,
+            false,
+            sampledtraceId,
+            SpanId.generateRandomId(random),
+            SPAN_NAME,
+            Collections.<Span>emptyList()))
+        .isTrue();
   }
 
   @Test
