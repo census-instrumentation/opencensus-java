@@ -41,7 +41,9 @@ import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
@@ -202,12 +204,13 @@ abstract class MutableViewData {
    * Create an {@link AggregationData} snapshot based on the given {@link MutableAggregation}.
    *
    * @param aggregation {@code MutableAggregation}
+   * @param measure {@code Measure}
    * @return an {@code AggregationData} which is the snapshot of current summary statistics.
    */
   @VisibleForTesting
-  static AggregationData createAggregationData(MutableAggregation aggregation) {
+  static AggregationData createAggregationData(MutableAggregation aggregation, Measure measure) {
     return aggregation.match(
-        CreateSumData.INSTANCE,
+        new CreateSumData(measure),
         CreateCountData.INSTANCE,
         CreateMeanData.INSTANCE,
         CreateDistributionData.INSTANCE);
@@ -216,11 +219,11 @@ abstract class MutableViewData {
   // Covert a mapping from TagValues to MutableAggregation, to a mapping from TagValues to
   // AggregationData.
   private static <T> Map<T, AggregationData> createAggregationMap(
-      Map<T, MutableAggregation> tagValueAggregationMap) {
+      Map<T, MutableAggregation> tagValueAggregationMap, Measure measure) {
     Map<T, AggregationData> map = Maps.newHashMap();
     for (Entry<T, MutableAggregation> entry :
         tagValueAggregationMap.entrySet()) {
-      map.put(entry.getKey(), createAggregationData(entry.getValue()));
+      map.put(entry.getKey(), createAggregationData(entry.getValue(), measure));
     }
     return map;
   }
@@ -249,7 +252,7 @@ abstract class MutableViewData {
     @Override
     ViewData toViewData(Clock clock) {
       return ViewData.create(
-          super.view, createAggregationMap(tagValueAggregationMap),
+          super.view, createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
           CumulativeData.create(start, clock.now()));
     }
   }
@@ -379,7 +382,7 @@ abstract class MutableViewData {
       putBucketsIntoMultiMap(shallowCopy, multimap, aggregation, now);
       Map<List<TagValue>, MutableAggregation> singleMap =
           aggregateOnEachTagValueList(multimap, aggregation);
-      return createAggregationMap(singleMap);
+      return createAggregationMap(singleMap, super.getView().getMeasure());
     }
 
     // Put stats within each bucket to a multimap. Each tag value list (map key) could have multiple
@@ -491,12 +494,20 @@ abstract class MutableViewData {
   }
 
   private static final class CreateSumData implements Function<MutableSum, AggregationData> {
-    @Override
-    public AggregationData apply(MutableSum arg) {
-      return SumData.create(arg.getSum());
+
+    private final Measure measure;
+
+    private CreateSumData(Measure measure) {
+      this.measure = measure;
     }
 
-    private static final CreateSumData INSTANCE = new CreateSumData();
+    @Override
+    public AggregationData apply(final MutableSum arg) {
+      return measure.match(
+          Functions.<AggregationData>returnConstant(SumDataDouble.create(arg.getSum())),
+          Functions.<AggregationData>returnConstant(SumDataLong.create(Math.round(arg.getSum()))),
+          Functions.<AggregationData>throwAssertionError());
+    }
   }
 
   private static final class CreateCountData implements Function<MutableCount, AggregationData> {

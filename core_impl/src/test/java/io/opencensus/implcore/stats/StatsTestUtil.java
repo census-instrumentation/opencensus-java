@@ -26,7 +26,9 @@ import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
-import io.opencensus.stats.AggregationData.SumData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
+import io.opencensus.stats.Measure;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +48,12 @@ final class StatsTestUtil {
    * @return an {@code AggregationData}.
    */
   static AggregationData createAggregationData(
-      Aggregation aggregation, double... values) {
+      Aggregation aggregation, Measure measure, double... values) {
     MutableAggregation mutableAggregation = MutableViewData.createMutableAggregation(aggregation);
     for (double value : values) {
       mutableAggregation.add(value);
     }
-    return MutableViewData.createAggregationData(mutableAggregation);
+    return MutableViewData.createAggregationData(mutableAggregation, measure);
   }
 
   /**
@@ -82,11 +84,19 @@ final class StatsTestUtil {
   static void assertAggregationDataEquals(
       AggregationData expected, final AggregationData actual, final double tolerance) {
     expected.match(
-        new Function<SumData, Void>() {
+        new Function<SumDataDouble, Void>() {
           @Override
-          public Void apply(SumData arg) {
-            assertThat(actual).isInstanceOf(SumData.class);
-            assertThat(((SumData) actual).getSum()).isWithin(tolerance).of(arg.getSum());
+          public Void apply(SumDataDouble arg) {
+            assertThat(actual).isInstanceOf(SumDataDouble.class);
+            assertThat(((SumDataDouble) actual).getSum()).isWithin(tolerance).of(arg.getSum());
+            return null;
+          }
+        },
+        new Function<SumDataLong, Void>() {
+          @Override
+          public Void apply(SumDataLong arg) {
+            assertThat(actual).isInstanceOf(SumDataLong.class);
+            assertThat(((SumDataLong) actual).getSum()).isEqualTo(arg.getSum());
             return null;
           }
         },
