@@ -56,7 +56,7 @@ abstract class ProbabilitySampler extends Sampler {
   static ProbabilitySampler create(double probability) {
     checkArgument(
         probability >= 0.0 && probability <= 1.0, "probability must be in range [0.0, 1.0]");
-    long idUpperBound = 0;
+    long idUpperBound;
     // Special case the limits, to avoid any possible issues with lack of precision across
     // double/long boundaries. For probability == 0.0, we use Long.MIN_VALUE as this guarantees
     // that we will never sample a trace, even in the case where the id == Long.MIN_VALUE, since
@@ -79,6 +79,16 @@ abstract class ProbabilitySampler extends Sampler {
       SpanId spanId,
       String name,
       @Nullable List<Span> parentLinks) {
+    // If the parent is sampled keep the sampling decision.
+    if (parentContext != null && parentContext.getTraceOptions().isSampled()) {
+      return true;
+    }
+    // If any parent link is sampled keep the sampling decision.
+    for (Span parentLink : parentLinks) {
+      if (parentLink.getContext().getTraceOptions().isSampled()) {
+        return true;
+      }
+    }
     // Always sample if we are within probability range. This is true even for child spans (that
     // may have had a different sampling decision made) to allow for different sampling policies,
     // and dynamic increases to sampling probabilities for debugging purposes.

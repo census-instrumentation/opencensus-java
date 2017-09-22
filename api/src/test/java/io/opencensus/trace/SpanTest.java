@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,30 +97,5 @@ public class SpanTest {
     Span span = Mockito.spy(new NoopSpan(spanContext, spanOptions));
     span.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
-  }
-
-  // No-op implementation of the Span for testing only.
-  private static class NoopSpan extends Span {
-    private NoopSpan(SpanContext context, EnumSet<Span.Options> options) {
-      super(context, options);
-    }
-
-    @Override
-    public void putAttributes(Map<String, AttributeValue> attributes) {}
-
-    @Override
-    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
-
-    @Override
-    public void addAnnotation(Annotation annotation) {}
-
-    @Override
-    public void addNetworkEvent(NetworkEvent networkEvent) {}
-
-    @Override
-    public void addLink(Link link) {}
-
-    @Override
-    public void end(EndSpanOptions options) {}
   }
 }

@@ -32,6 +32,7 @@ import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.samplers.Samplers;
+import java.util.Arrays;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -249,6 +250,88 @@ public class SpanBuilderImplTest {
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
     assertThat(childSpan.getContext().getTraceOptions().isSampled()).isFalse();
+  }
+
+  @Test
+  public void startChildSpan_SampledLinkedParent() {
+    Span rootSpanUnsampled =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .startSpan();
+    assertThat(rootSpanUnsampled.getContext().getTraceOptions().isSampled()).isFalse();
+    Span rootSpanSampled =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.alwaysSample())
+            .startSpan();
+    assertThat(rootSpanSampled.getContext().getTraceOptions().isSampled()).isTrue();
+    // Sampled because the linked parent is sampled.
+    Span childSpan =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpanUnsampled, spanBuilderOptions)
+            .setParentLinks(Arrays.asList(rootSpanSampled))
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId())
+        .isEqualTo(rootSpanUnsampled.getContext().getTraceId());
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isTrue();
+  }
+
+  @Test
+  public void startRemoteChildSpan_WithProbabilitySamplerDefaultSampler() {
+    when(traceConfig.getActiveTraceParams()).thenReturn(TraceParams.DEFAULT);
+    // This traceId will not be sampled by the ProbabilitySampler because the first 8 bytes as long
+    // is not less than probability * Long.MAX_VALUE;
+    TraceId traceId =
+        TraceId.fromBytes(
+            new byte[] {
+              (byte) 0x8F,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              (byte) 0xFF,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            });
+
+    // If parent is sampled then the remote child must be sampled.
+    Span childSpan =
+        SpanBuilderImpl.createWithRemoteParent(
+                SPAN_NAME,
+                SpanContext.create(
+                    traceId,
+                    SpanId.generateRandomId(randomHandler.current()),
+                    TraceOptions.builder().setIsSampled(true).build()),
+                spanBuilderOptions)
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(traceId);
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isTrue();
+    childSpan.end();
+
+    assertThat(traceConfig.getActiveTraceParams()).isEqualTo(TraceParams.DEFAULT);
+
+    // If parent is not sampled then the remote child must be not sampled.
+    childSpan =
+        SpanBuilderImpl.createWithRemoteParent(
+                SPAN_NAME,
+                SpanContext.create(
+                    traceId,
+                    SpanId.generateRandomId(randomHandler.current()),
+                    TraceOptions.DEFAULT),
+                spanBuilderOptions)
+            .startSpan();
+    assertThat(childSpan.getContext().isValid()).isTrue();
+    assertThat(childSpan.getContext().getTraceId()).isEqualTo(traceId);
+    assertThat(childSpan.getContext().getTraceOptions().isSampled()).isFalse();
+    childSpan.end();
   }
 
   private static final class FakeRandomHandler extends RandomHandler {
