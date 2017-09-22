@@ -63,7 +63,7 @@ final class MeasureToViewMap {
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
   synchronized ViewData getView(View.Name viewName, Clock clock) {
     MutableViewData view = getMutableViewData(viewName);
-    return view == null ? null : view.toViewData(clock);
+    return view == null ? null : view.toViewData(clock.now());
   }
 
   @Nullable
