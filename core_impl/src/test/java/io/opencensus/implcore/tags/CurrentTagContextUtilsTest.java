@@ -43,7 +43,7 @@ public class CurrentTagContextUtilsTest {
       new TagContext() {
 
         @Override
-        public Iterator<Tag> iterator() {
+        protected Iterator<Tag> iterator() {
           return ImmutableSet.<Tag>of(TAG).iterator();
         }
       };

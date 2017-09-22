@@ -51,7 +51,7 @@ public final class NoopTagsTest {
       new TagContext() {
 
         @Override
-        public Iterator<Tag> iterator() {
+        protected Iterator<Tag> iterator() {
           return Arrays.<Tag>asList(TagString.create(KEY_STRING, VALUE_STRING)).iterator();
         }
       };
