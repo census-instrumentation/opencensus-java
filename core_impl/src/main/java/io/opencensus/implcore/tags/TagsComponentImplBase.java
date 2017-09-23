@@ -49,7 +49,7 @@ public class TagsComponentImplBase extends TagsComponent {
 
   @Override
   public void setState(TaggingState newState) {
-    state.set(checkNotNull(newState));
+    state.set(checkNotNull(newState, "newState"));
     // TODO(sebright): Avoid setting tags when tagging is disabled.
   }
 }

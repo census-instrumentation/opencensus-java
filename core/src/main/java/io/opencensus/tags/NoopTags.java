@@ -108,7 +108,7 @@ final class NoopTags {
 
     @Override
     public void setState(TaggingState state) {
-      Preconditions.checkNotNull(state);
+      Preconditions.checkNotNull(state, "state");
     }
   }
 
