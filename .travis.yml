@@ -55,7 +55,7 @@ script:
         export JAVA8_HOME="$(jdk_switcher home oraclejdk8)" ;
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
-            export JAVA_HOMES="$(jdk_switcher home openjdk6)/jre:$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre" ;
+            export JAVA_HOMES="$(jdk_switcher home openjdk6)/jre:$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)" ;
             ./gradlew clean assemble --stacktrace ;
             ./gradlew check :opencensus-all:jacocoTestReport ;;
           "openjdk7")
