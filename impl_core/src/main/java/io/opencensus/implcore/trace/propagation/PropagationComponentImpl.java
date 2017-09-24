@@ -18,13 +18,21 @@ package io.opencensus.implcore.trace.propagation;
 
 import io.opencensus.trace.propagation.BinaryFormat;
 import io.opencensus.trace.propagation.PropagationComponent;
+import io.opencensus.trace.propagation.TextFormat;
 
 /** Implementation of the {@link PropagationComponent}. */
 public class PropagationComponentImpl extends PropagationComponent {
+
   private final BinaryFormat binaryFormat = new BinaryFormatImpl();
+  private final TextFormat b3Format = new B3TextFormatImpl();
 
   @Override
   public BinaryFormat getBinaryFormat() {
     return binaryFormat;
+  }
+
+  @Override
+  public TextFormat getTextFormat() {
+    return b3Format;
   }
 }
