@@ -16,6 +16,8 @@
 
 package io.opencensus.tags;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.opencensus.common.Scope;
 import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
@@ -120,6 +122,7 @@ final class NoopTags {
 
     @Override
     public TagContextBuilder toBuilder(TagContext tags) {
+      checkNotNull(tags, "tags");
       return getNoopTagContextBuilder();
     }
 
@@ -130,6 +133,7 @@ final class NoopTags {
 
     @Override
     public Scope withTagContext(TagContext tags) {
+      checkNotNull(tags, "tags");
       return NoopScope.getInstance();
     }
   }
@@ -140,21 +144,28 @@ final class NoopTags {
 
     @Override
     public TagContextBuilder put(TagKeyString key, TagValueString value) {
+      checkNotNull(key, "key");
+      checkNotNull(value, "value");
       return this;
     }
 
     @Override
     public TagContextBuilder put(TagKeyLong key, TagValueLong value) {
+      checkNotNull(key, "key");
+      checkNotNull(value, "value");
       return this;
     }
 
     @Override
     public TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value) {
+      checkNotNull(key, "key");
+      checkNotNull(value, "value");
       return this;
     }
 
     @Override
     public TagContextBuilder remove(TagKey key) {
+      checkNotNull(key, "key");
       return this;
     }
 
@@ -197,11 +208,13 @@ final class NoopTags {
 
     @Override
     public byte[] toByteArray(TagContext tags) {
+      checkNotNull(tags, "tags");
       return EMPTY_BYTE_ARRAY;
     }
 
     @Override
     public TagContext fromByteArray(byte[] bytes) {
+      checkNotNull(bytes, "bytes");
       return getNoopTagContext();
     }
   }
