@@ -66,6 +66,13 @@ public final class NoopTagsTest {
   }
 
   @Test
+  public void noopTagsComponent_SetState_DisallowsNull() {
+    TagsComponent noopTagsComponent = NoopTags.getNoopTagsComponent();
+    thrown.expect(NullPointerException.class);
+    noopTagsComponent.setState(null);
+  }
+
+  @Test
   public void noopTagger() {
     Tagger noopTagger = NoopTags.getNoopTagger();
     assertThat(noopTagger.empty()).isSameAs(NoopTags.getNoopTagContext());
