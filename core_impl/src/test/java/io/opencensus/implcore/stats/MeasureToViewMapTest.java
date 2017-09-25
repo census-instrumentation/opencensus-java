@@ -26,9 +26,11 @@ import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
+import io.opencensus.stats.export.StatsExporter.Handler;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -55,7 +57,7 @@ public class MeasureToViewMapTest {
   public void testRegisterAndGetView() {
     MeasureToViewMap measureToViewMap = new MeasureToViewMap();
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
-    measureToViewMap.registerView(VIEW, clock);
+    measureToViewMap.registerView(VIEW, Collections.<Handler>emptyList(), clock);
     clock.setTime(Timestamp.create(30, 40));
     ViewData viewData = measureToViewMap.getView(VIEW_NAME, clock);
     assertThat(viewData.getView()).isEqualTo(VIEW);

@@ -14,33 +14,30 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.export;
+package io.opencensus.stats.export;
 
-import io.opencensus.trace.Span;
-import io.opencensus.trace.TraceOptions;
+import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
 import java.util.Collection;
 import javax.annotation.concurrent.ThreadSafe;
 
-/**
- * A service that is used by the library to export {@code SpanData} for all the spans that are part
- * of a distributed sampled trace (see {@link TraceOptions#isSampled()}).
- */
+/** A service that is used by the library to export {@code ViewData}. */
 @ThreadSafe
-public abstract class SpanExporter {
-  private static final SpanExporter NOOP_SPAN_EXPORTER = new NoopSpanExporter();
+public abstract class StatsExporter {
+
+  private static final NoopStatsExporter NOOP_STATS_EXPORTER = new NoopStatsExporter();
 
   /**
-   * Returns the no-op implementation of the {@code SpanExporter}.
+   * Returns the no-op implementation of the {@code StatsExporter}.
    *
-   * @return the no-op implementation of the {@code SpanExporter}.
+   * @return the no-op implementation of the {@code StatsExporter}.
    */
-  public static SpanExporter getNoopSpanExporter() {
-    return NOOP_SPAN_EXPORTER;
+  public static NoopStatsExporter getNoopStatsExporter() {
+    return NOOP_STATS_EXPORTER;
   }
 
   /**
-   * Registers a new service handler that is used by the library to export {@code SpanData} for
-   * sampled spans (see {@link TraceOptions#isSampled()}).
+   * Registers a new service handler that is used by the library to export {@code ViewData}.
    *
    * @param name the name of the service handler. Must be unique for each service.
    * @param handler the service handler that is called for each ended sampled span.
@@ -55,8 +52,7 @@ public abstract class SpanExporter {
   public abstract void unregisterHandler(String name);
 
   /**
-   * An abstract class that allows different tracing services to export recorded data for sampled
-   * spans in their own format.
+   * An abstract class that exports recorded {@code ViewData} in their own format.
    *
    * <p>To export data this MUST be register to to the ExportComponent using {@link
    * #registerHandler(String, Handler)}.
@@ -64,20 +60,28 @@ public abstract class SpanExporter {
   public abstract static class Handler {
 
     /**
-     * Exports a list of sampled (see {@link TraceOptions#isSampled()}) {@link Span}s using the
-     * immutable representation {@link SpanData}.
-     *
-     * <p>This may be called from a different thread than the one that called {@link Span#end()}.
+     * Register a {@code View}. Each {@code View} must be registered first, so that its stats can be
+     * exported appropriately.
      *
      * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
      * different thread if possible.
      *
-     * @param spanDataList a list of {@code SpanData} objects to be exported.
+     * @param view the {@code View} to be registered.
      */
-    public abstract void export(Collection<SpanData> spanDataList);
+    public abstract void registerView(View view);
+
+    /**
+     * Exports a list of {@code ViewData}.
+     *
+     * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
+     * different thread if possible.
+     *
+     * @param viewDataList a list of {@code ViewData} objects to be exported.
+     */
+    public abstract void export(Collection<ViewData> viewDataList);
   }
 
-  private static final class NoopSpanExporter extends SpanExporter {
+  private static final class NoopStatsExporter extends StatsExporter {
 
     @Override
     public void registerHandler(String name, Handler handler) {}

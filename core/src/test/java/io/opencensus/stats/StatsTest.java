@@ -18,6 +18,7 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.stats.export.ExportComponent;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -62,5 +63,6 @@ public final class StatsTest {
   public void defaultValues() {
     assertThat(Stats.getStatsRecorder()).isEqualTo(NoopStats.getNoopStatsRecorder());
     assertThat(Stats.getViewManager()).isInstanceOf(NoopStats.newNoopViewManager().getClass());
+    assertThat(Stats.getExportComponent()).isEqualTo(ExportComponent.getNoopExportComponent());
   }
 }

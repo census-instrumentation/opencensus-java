@@ -19,6 +19,9 @@ package io.opencensus.implcore.stats;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+import io.opencensus.stats.export.StatsExporter.Handler;
+import java.util.Collections;
+import java.util.List;
 
 /** Implementation of {@link ViewManager}. */
 public final class ViewManagerImpl extends ViewManager {
@@ -30,7 +33,12 @@ public final class ViewManagerImpl extends ViewManager {
 
   @Override
   public void registerView(View view) {
-    statsManager.registerView(view);
+    statsManager.registerView(view, Collections.<Handler>emptyList());
+  }
+
+  @Override
+  public void registerView(View view, List<Handler> handlers) {
+    statsManager.registerView(view, handlers);
   }
 
   // TODO(sebright): Expose this method.

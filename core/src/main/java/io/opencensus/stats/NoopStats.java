@@ -25,6 +25,8 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
+import io.opencensus.stats.export.ExportComponent;
+import io.opencensus.stats.export.StatsExporter.Handler;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
 import java.util.Collections;
@@ -81,6 +83,11 @@ final class NoopStats {
     public StatsRecorder getStatsRecorder() {
       return getNoopStatsRecorder();
     }
+
+    @Override
+    public ExportComponent getExportComponent() {
+      return ExportComponent.getNoopExportComponent();
+    }
   }
 
   @Immutable
@@ -113,6 +120,11 @@ final class NoopStats {
           views.put(newView.getName(), newView);
         }
       }
+    }
+
+    @Override
+    public void registerView(View newView, List<Handler> handlers) {
+      registerView(newView);
     }
 
     @Override

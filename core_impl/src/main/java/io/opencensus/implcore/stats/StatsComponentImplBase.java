@@ -19,6 +19,7 @@ package io.opencensus.implcore.stats;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.stats.StatsComponent;
+import io.opencensus.stats.export.ExportComponent;
 
 /** Base implementation of {@link StatsComponent}. */
 public class StatsComponentImplBase extends StatsComponent {
@@ -46,5 +47,11 @@ public class StatsComponentImplBase extends StatsComponent {
   @Override
   public StatsRecorderImpl getStatsRecorder() {
     return statsRecorder;
+  }
+
+  @Override
+  public ExportComponent getExportComponent() {
+    // TODO(songya): update to use ExportComponentImpl
+    return ExportComponent.getNoopExportComponent();
   }
 }
