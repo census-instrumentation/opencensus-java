@@ -19,7 +19,7 @@ package io.opencensus.tags;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 
 /**
- * Class that holds the implementation for {@link Tagger}.
+ * Class that holds the implementation for {@link Tagger} and {@link TagPropagationComponent}.
  *
  * <p>All objects returned by methods on {@code TagsComponent} are cacheable.
  */
