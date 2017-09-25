@@ -50,6 +50,17 @@ public final class Tags {
   }
 
   /**
+   * Returns {@code true} if a tagging implementation is available.
+   *
+   * <p>When tagging is not available, calling {@link #setState} has no effect.
+   *
+   * @return {@code true} if a tagging implementation is available.
+   */
+  public static boolean isTaggingAvailable() {
+    return tagsComponent.isTaggingAvailable();
+  }
+
+  /**
    * Returns the current {@code TaggingState}.
    *
    * @return the current {@code TaggingState}.

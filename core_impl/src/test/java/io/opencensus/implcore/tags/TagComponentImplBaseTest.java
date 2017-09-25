@@ -17,6 +17,7 @@
 package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
@@ -28,6 +29,11 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TagComponentImplBaseTest {
   private final TagsComponent tagsComponent = new TagsComponentImplBase();
+
+  @Test
+  public void isTaggingAvailable() {
+    assertTrue(tagsComponent.isTaggingAvailable());
+  }
 
   @Test
   public void defaultState() {

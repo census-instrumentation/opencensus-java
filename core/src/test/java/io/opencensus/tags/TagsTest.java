@@ -17,6 +17,7 @@
 package io.opencensus.tags;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,6 +55,11 @@ public class TagsTest {
         };
     assertThat(Tags.loadTagsComponent(classLoader).getClass().getName())
         .isEqualTo("io.opencensus.tags.NoopTags$NoopTagsComponent");
+  }
+
+  @Test
+  public void isTaggingAvailable() {
+    assertFalse(Tags.isTaggingAvailable());
   }
 
   @Test
