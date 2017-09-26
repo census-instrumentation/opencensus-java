@@ -102,7 +102,7 @@ final class NoopTags {
     }
 
     @Override
-    public boolean isTaggingAvailable() {
+    public boolean isImplementationAvailable() {
       return false;
     }
 

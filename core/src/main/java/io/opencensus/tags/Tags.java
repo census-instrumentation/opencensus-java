@@ -56,8 +56,8 @@ public final class Tags {
    *
    * @return {@code true} if a tagging implementation is available.
    */
-  public static boolean isTaggingAvailable() {
-    return tagsComponent.isTaggingAvailable();
+  public static boolean isImplementationAvailable() {
+    return tagsComponent.isImplementationAvailable();
   }
 
   /**

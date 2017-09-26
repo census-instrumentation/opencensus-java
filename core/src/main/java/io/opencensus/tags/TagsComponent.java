@@ -38,7 +38,7 @@ public abstract class TagsComponent {
    *
    * @return {@code true} if a tagging implementation is available.
    */
-  public abstract boolean isTaggingAvailable();
+  public abstract boolean isImplementationAvailable();
 
   /**
    * Returns the current {@code TaggingState}.

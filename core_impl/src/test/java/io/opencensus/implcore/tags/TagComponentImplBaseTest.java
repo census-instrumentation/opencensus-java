@@ -31,8 +31,8 @@ public class TagComponentImplBaseTest {
   private final TagsComponent tagsComponent = new TagsComponentImplBase();
 
   @Test
-  public void isTaggingAvailable() {
-    assertTrue(tagsComponent.isTaggingAvailable());
+  public void isImplementationAvailable() {
+    assertTrue(tagsComponent.isImplementationAvailable());
   }
 
   @Test

@@ -43,7 +43,7 @@ public class TagsComponentImplBase extends TagsComponent {
   }
 
   @Override
-  public boolean isTaggingAvailable() {
+  public boolean isImplementationAvailable() {
     return true;
   }
 

@@ -58,8 +58,8 @@ public class TagsTest {
   }
 
   @Test
-  public void isTaggingAvailable() {
-    assertFalse(Tags.isTaggingAvailable());
+  public void isImplementationAvailable() {
+    assertFalse(Tags.isImplementationAvailable());
   }
 
   @Test
