@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
+import io.opencensus.stats.Measurement;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
 import java.util.ArrayList;

@@ -23,6 +23,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
@@ -56,6 +58,15 @@ final class NoopStats {
    */
   static StatsRecorder getNoopStatsRecorder() {
     return NoopStatsRecorder.INSTANCE;
+  }
+
+  /**
+   * Returns a {@code StatsBuilder} that ignores all calls to {@link StatsBuilder#put}.
+   *
+   * @return a {@code StatsBuilder} that ignores all calls to {@code StatsBuilder#put}.
+   */
+  static StatsBuilder getNoopStatsBuilder() {
+    return NoopStatsBuilder.INSTANCE;
   }
 
   /**
@@ -99,10 +110,28 @@ final class NoopStats {
     static final StatsRecorder INSTANCE = new NoopStatsRecorder();
 
     @Override
-    public void record(TagContext tags, MeasureMap measureValues) {
+    public StatsBuilder builder(TagContext tags) {
       checkNotNull(tags, "tags");
-      checkNotNull(measureValues, "measureValues");
+      return getNoopStatsBuilder();
     }
+  }
+
+  @Immutable
+  private static final class NoopStatsBuilder extends StatsBuilder {
+    static final StatsBuilder INSTANCE = new NoopStatsBuilder();
+
+    @Override
+    public StatsBuilder put(MeasureDouble measure, double value) {
+      return this;
+    }
+
+    @Override
+    public StatsBuilder put(MeasureLong measure, long value) {
+      return this;
+    }
+
+    @Override
+    public void record() {}
   }
 
   @ThreadSafe

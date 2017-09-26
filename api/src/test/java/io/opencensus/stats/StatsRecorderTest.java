@@ -20,7 +20,6 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 
 import io.grpc.Context;
-import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
@@ -41,8 +40,6 @@ import org.mockito.MockitoAnnotations;
 public final class StatsRecorderTest {
   private static final TagString TAG =
       TagString.create(TagKeyString.create("key"), TagValueString.create("value"));
-  private static final MeasureDouble MEASURE =
-      Measure.MeasureDouble.create("my measure", "description", "bit/s");
 
   private final TagContext tagContext =
       new TagContext() {
@@ -62,18 +59,16 @@ public final class StatsRecorderTest {
 
   @Test
   public void record_CurrentContextNotSet() {
-    MeasureMap measures = MeasureMap.builder().put(MEASURE, 1.0).build();
-    statsRecorder.record(measures);
-    verify(statsRecorder).record(same(ContextUtils.TAG_CONTEXT_KEY.get()), same(measures));
+    statsRecorder.builder();
+    verify(statsRecorder).builder(same(ContextUtils.TAG_CONTEXT_KEY.get()));
   }
 
   @Test
   public void record_CurrentContextSet() {
     Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tagContext).attach();
     try {
-      MeasureMap measures = MeasureMap.builder().put(MEASURE, 2.0).build();
-      statsRecorder.record(measures);
-      verify(statsRecorder).record(same(tagContext), same(measures));
+      statsRecorder.builder();
+      verify(statsRecorder).builder(same(tagContext));
     } finally {
       Context.current().detach(orig);
     }
