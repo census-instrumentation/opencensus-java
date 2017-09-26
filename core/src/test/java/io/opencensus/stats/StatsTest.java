@@ -55,12 +55,12 @@ public final class StatsTest {
                   })
                 .getClass()
                 .getName())
-        .isEqualTo("io.opencensus.stats.StatsComponent$NoopStatsComponent");
+        .isEqualTo("io.opencensus.stats.NoopStats$NoopStatsComponent");
   }
 
   @Test
   public void defaultValues() {
-    assertThat(Stats.getStatsRecorder()).isEqualTo(StatsRecorder.getNoopStatsRecorder());
+    assertThat(Stats.getStatsRecorder()).isEqualTo(NoopStats.getNoopStatsRecorder());
     assertThat(Stats.getViewManager()).isNull();
   }
 }

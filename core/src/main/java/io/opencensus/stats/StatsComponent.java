@@ -17,7 +17,6 @@
 package io.opencensus.stats;
 
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
 /**
  * Class that holds the implementations for {@link ViewManager} and {@link StatsRecorder}.
@@ -25,7 +24,6 @@ import javax.annotation.concurrent.Immutable;
  * <p>All objects returned by methods on {@code StatsComponent} are cacheable.
  */
 public abstract class StatsComponent {
-  private static final StatsComponent NOOP_STATS_COMPONENT = new NoopStatsComponent();
 
   /** Returns the default {@link ViewManager}. */
   @Nullable
@@ -33,29 +31,4 @@ public abstract class StatsComponent {
 
   /** Returns the default {@link StatsRecorder}. */
   public abstract StatsRecorder getStatsRecorder();
-
-  /**
-   * Returns a {@code StatsComponent} that has a no-op implementation for the {@link StatsRecorder}.
-   *
-   * @return a {@code StatsComponent} that has a no-op implementation for the {@code StatsRecorder}.
-   */
-  static StatsComponent getNoopStatsComponent() {
-    return NOOP_STATS_COMPONENT;
-  }
-
-  @Immutable
-  private static final class NoopStatsComponent extends StatsComponent {
-
-    @Override
-    @Nullable
-    public ViewManager getViewManager() {
-      // TODO(sebright): Decide whether to also provide a no-op implementation for the ViewManager.
-      return null;
-    }
-
-    @Override
-    public StatsRecorder getStatsRecorder() {
-      return StatsRecorder.getNoopStatsRecorder();
-    }
-  }
 }

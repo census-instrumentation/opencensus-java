@@ -16,14 +16,11 @@
 
 package io.opencensus.stats;
 
-import com.google.common.base.Preconditions;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.unsafe.ContextUtils;
-import javax.annotation.concurrent.Immutable;
 
 /** Provides methods to record stats against tags. */
 public abstract class StatsRecorder {
-  private static final StatsRecorder NOOP_STATS_RECORDER = new NoopStatsRecorder();
 
   /**
    * Records a set of measurements with the tags in the current context.
@@ -42,23 +39,4 @@ public abstract class StatsRecorder {
    * @param measureValues the measurements to record.
    */
   public abstract void record(TagContext tags, MeasureMap measureValues);
-
-  /**
-   * Returns a {@code StatsRecorder} that does not record any data.
-   *
-   * @return a {@code StatsRecorder} that does not record any data.
-   */
-  static StatsRecorder getNoopStatsRecorder() {
-    return NOOP_STATS_RECORDER;
-  }
-
-  @Immutable
-  private static final class NoopStatsRecorder extends StatsRecorder {
-
-    @Override
-    public void record(TagContext tags, MeasureMap measureValues) {
-      Preconditions.checkNotNull(tags);
-      Preconditions.checkNotNull(measureValues);
-    }
-  }
 }

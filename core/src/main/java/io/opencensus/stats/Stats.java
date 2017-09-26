@@ -67,7 +67,7 @@ public final class Stats {
               + "default implementation for StatsComponent.",
           e);
     }
-    return StatsComponent.getNoopStatsComponent();
+    return NoopStats.getNoopStatsComponent();
   }
 
   private Stats() {}

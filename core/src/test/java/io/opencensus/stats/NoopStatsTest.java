@@ -16,6 +16,8 @@
 
 package io.opencensus.stats;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
@@ -30,9 +32,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link StatsRecorder#getNoopStatsRecorder}. */
+/** Unit tests for {@link NoopStats}. */
 @RunWith(JUnit4.class)
-public final class NoopStatsRecorderTest {
+public final class NoopStatsTest {
   private static final TagString TAG =
       TagString.create(TagKeyString.create("key"), TagValueString.create("value"));
   private static final MeasureDouble MEASURE =
@@ -49,37 +51,44 @@ public final class NoopStatsRecorderTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
+  @Test
+  public void noopStatsComponent() {
+    assertThat(NoopStats.getNoopStatsComponent().getStatsRecorder())
+        .isSameAs(NoopStats.getNoopStatsRecorder());
+    assertThat(NoopStats.getNoopStatsComponent().getViewManager()).isNull();
+  }
+
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
-  public void record() {
-    StatsRecorder.getNoopStatsRecorder()
+  public void noopStatsRecorder_Record() {
+    NoopStats.getNoopStatsRecorder()
         .record(tagContext, MeasureMap.builder().put(MEASURE, 5).build());
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
-  public void recordWithCurrentContext() {
-    StatsRecorder.getNoopStatsRecorder().record(MeasureMap.builder().put(MEASURE, 6).build());
+  public void noopStatsRecorder_RecordWithCurrentContext() {
+    NoopStats.getNoopStatsRecorder().record(MeasureMap.builder().put(MEASURE, 6).build());
   }
 
   @Test
-  public void record_DisallowNullTagContext() {
+  public void noopStatsRecorder_Record_DisallowNullTagContext() {
     MeasureMap measures = MeasureMap.builder().put(MEASURE, 7).build();
     thrown.expect(NullPointerException.class);
-    StatsRecorder.getNoopStatsRecorder().record(null, measures);
+    NoopStats.getNoopStatsRecorder().record(null, measures);
   }
 
   @Test
-  public void record_DisallowNullMeasureMap() {
+  public void noopStatsRecorder_Record_DisallowNullMeasureMap() {
     thrown.expect(NullPointerException.class);
-    StatsRecorder.getNoopStatsRecorder().record(tagContext, null);
+    NoopStats.getNoopStatsRecorder().record(tagContext, null);
   }
 
   @Test
-  public void recordWithCurrentContext_DisallowNullMeasureMap() {
+  public void noopStatsRecorder_RecordWithCurrentContext_DisallowNullMeasureMap() {
     thrown.expect(NullPointerException.class);
-    StatsRecorder.getNoopStatsRecorder().record(null);
+    NoopStats.getNoopStatsRecorder().record(null);
   }
 }
