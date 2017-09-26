@@ -34,7 +34,7 @@ public abstract class TagsComponent {
   /**
    * Returns {@code true} if a tagging implementation is available.
    *
-   * <p>When tagging is not available, calling {@link #setState} has no effect.
+   * <p>When an implementation is not available, calling {@link #setState} has no effect.
    *
    * @return {@code true} if a tagging implementation is available.
    */
@@ -43,12 +43,18 @@ public abstract class TagsComponent {
   /**
    * Returns the current {@code TaggingState}.
    *
+   * <p>When {@link #isImplementationAvailable} returns {@code false}, {@code getState} always
+   * returns {@link TaggingState#DISABLED}.
+   *
    * @return the current {@code TaggingState}.
    */
   public abstract TaggingState getState();
 
   /**
    * Sets the current {@code TaggingState}.
+   *
+   * <p>When {@link #isImplementationAvailable} returns {@code false}, {@code setState} has no
+   * effect.
    *
    * @param state the new {@code TaggingState}.
    */
