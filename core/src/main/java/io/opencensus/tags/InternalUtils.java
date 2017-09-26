@@ -22,8 +22,8 @@ import java.util.Iterator;
  * Internal tagging utilities.
  */
 @io.opencensus.common.Internal
-public final class Internal {
-  private Internal() {}
+public final class InternalUtils {
+  private InternalUtils() {}
 
   public static Iterator<Tag> getTags(TagContext tags) {
     return tags.getIterator();

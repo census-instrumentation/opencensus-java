@@ -49,7 +49,7 @@ import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
-import io.opencensus.tags.Internal;
+import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
@@ -147,7 +147,7 @@ abstract class MutableViewData {
       return ((TagContextImpl) ctx).getTags();
     } else {
       Map<TagKey, TagValue> tags = Maps.newHashMap();
-      for (Iterator<Tag> i = Internal.getTags(ctx); i.hasNext(); ) {
+      for (Iterator<Tag> i = InternalUtils.getTags(ctx); i.hasNext(); ) {
         Tag tag = i.next();
         tags.put(
             tag.getKey(),

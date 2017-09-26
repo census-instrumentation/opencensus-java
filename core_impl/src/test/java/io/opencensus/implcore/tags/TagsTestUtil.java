@@ -17,7 +17,7 @@
 package io.opencensus.implcore.tags;
 
 import com.google.common.collect.Lists;
-import io.opencensus.tags.Internal;
+import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import java.util.Collection;
@@ -27,6 +27,6 @@ public class TagsTestUtil {
 
   /** Returns a collection of all tags in a {@link TagContext}. */
   public static Collection<Tag> tagContextToList(TagContext tags) {
-    return Lists.newArrayList(Internal.getTags(tags));
+    return Lists.newArrayList(InternalUtils.getTags(tags));
   }
 }

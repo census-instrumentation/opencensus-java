@@ -24,7 +24,7 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagContextImpl;
-import io.opencensus.tags.Internal;
+import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
@@ -102,7 +102,7 @@ final class SerializationUtils {
     byteArrayDataOutput.write(VERSION_ID);
 
     // TODO(songya): add support for value types integer and boolean
-    for (Iterator<Tag> i = Internal.getTags(tags); i.hasNext(); ) {
+    for (Iterator<Tag> i = InternalUtils.getTags(tags); i.hasNext(); ) {
       Tag tag = i.next();
       tag.match(
           new EncodeTagString(byteArrayDataOutput),

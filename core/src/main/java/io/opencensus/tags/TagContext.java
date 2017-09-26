@@ -49,7 +49,7 @@ public abstract class TagContext {
   // method and implement it for all subclasses by calling getIterator().
   //
   // The stats and tagging implementations can access any TagContext's tags through
-  // io.opencensus.tags.Internal.getTags, which calls this method.
+  // io.opencensus.tags.InternalUtils.getTags, which calls this method.
   protected abstract Iterator<Tag> getIterator();
 
   @Override

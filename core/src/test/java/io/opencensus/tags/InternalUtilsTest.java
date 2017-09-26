@@ -27,9 +27,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link Internal}. */
+/** Unit tests for {@link InternalUtils}. */
 @RunWith(JUnit4.class)
-public final class InternalTest {
+public final class InternalUtilsTest {
 
   @Test
   public void getTags() {
@@ -44,6 +44,6 @@ public final class InternalTest {
             return iterator;
           }
         };
-    assertThat(Internal.getTags(ctx)).isSameAs(iterator);
+    assertThat(InternalUtils.getTags(ctx)).isSameAs(iterator);
   }
 }

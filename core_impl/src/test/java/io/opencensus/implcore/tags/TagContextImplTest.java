@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
-import io.opencensus.tags.Internal;
+import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
@@ -99,7 +99,7 @@ public class TagContextImplTest {
   @Test
   public void testIterator() {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
-    Iterator<Tag> i = Internal.getTags(tags);
+    Iterator<Tag> i = InternalUtils.getTags(tags);
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
     assertTrue(i.hasNext());
@@ -114,7 +114,7 @@ public class TagContextImplTest {
   @Test
   public void disallowCallingRemoveOnIterator() {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
-    Iterator<Tag> i = Internal.getTags(tags);
+    Iterator<Tag> i = InternalUtils.getTags(tags);
     i.next();
     thrown.expect(UnsupportedOperationException.class);
     i.remove();
