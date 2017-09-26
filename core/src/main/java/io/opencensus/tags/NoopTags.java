@@ -102,11 +102,6 @@ final class NoopTags {
     }
 
     @Override
-    public boolean isImplementationAvailable() {
-      return false;
-    }
-
-    @Override
     public TaggingState getState() {
       return TaggingState.DISABLED;
     }

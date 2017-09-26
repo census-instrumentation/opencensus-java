@@ -50,21 +50,10 @@ public final class Tags {
   }
 
   /**
-   * Returns {@code true} if a tagging implementation is available.
-   *
-   * <p>When an implementation is not available, calling {@link #setState} has no effect.
-   *
-   * @return {@code true} if a tagging implementation is available.
-   */
-  public static boolean isImplementationAvailable() {
-    return tagsComponent.isImplementationAvailable();
-  }
-
-  /**
    * Returns the current {@code TaggingState}.
    *
-   * <p>When {@link #isImplementationAvailable} returns {@code false}, {@code getState} always
-   * returns {@link TaggingState#DISABLED}.
+   * <p>When no implementation is available, {@code getState} always returns {@link
+   * TaggingState#DISABLED}.
    *
    * @return the current {@code TaggingState}.
    */
@@ -75,8 +64,7 @@ public final class Tags {
   /**
    * Sets the current {@code TaggingState}.
    *
-   * <p>When {@link #isImplementationAvailable} returns {@code false}, {@code setState} has no
-   * effect.
+   * <p>When no implementation is available, {@code setState} has no effect.
    *
    * @param state the new {@code TaggingState}.
    */

@@ -43,11 +43,6 @@ public class TagsComponentImplBase extends TagsComponent {
   }
 
   @Override
-  public boolean isImplementationAvailable() {
-    return true;
-  }
-
-  @Override
   public TaggingState getState() {
     return state.get();
   }
