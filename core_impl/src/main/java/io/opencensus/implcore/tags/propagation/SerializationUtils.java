@@ -90,8 +90,7 @@ final class SerializationUtils {
   @VisibleForTesting static final int VALUE_TYPE_FALSE = 3;
 
   private static final Function<TagLong, Void> ENCODE_TAG_LONG = new EncodeTagLong();
-  private static final Function<TagBoolean, Void> ENCODE_TAG_BOOLEAN =
-      new EncodeTagBoolean();
+  private static final Function<TagBoolean, Void> ENCODE_TAG_BOOLEAN = new EncodeTagBoolean();
 
   // Serializes a TagContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
@@ -134,8 +133,8 @@ final class SerializationUtils {
         int type = buffer.get();
         switch (type) {
           case VALUE_TYPE_STRING:
-            TagKeyString key = TagKeyString.create(decodeString(buffer));
-            TagValueString val = TagValueString.create(decodeString(buffer));
+            TagKeyString key = createTagKey(decodeString(buffer));
+            TagValueString val = createTagValue(decodeString(buffer));
             tags.put(key, val);
             break;
           case VALUE_TYPE_INTEGER:
@@ -149,6 +148,26 @@ final class SerializationUtils {
       return new TagContextImpl(tags);
     } catch (BufferUnderflowException exn) {
       throw new TagContextParseException(exn.toString()); // byte array format error.
+    }
+  }
+
+  // TODO(sebright): Consider exposing a TagKey name validation method to avoid needing to catch an
+  // IllegalArgumentException here.
+  private static final TagKeyString createTagKey(String name) throws TagContextParseException {
+    try {
+      return TagKeyString.create(name);
+    } catch (IllegalArgumentException e) {
+      throw new TagContextParseException("Invalid tag key: " + name, e);
+    }
+  }
+
+  // TODO(sebright): Consider exposing a TagValueString validation method to avoid needing to catch
+  // an IllegalArgumentException here.
+  private static final TagValueString createTagValue(String value) throws TagContextParseException {
+    try {
+      return TagValueString.create(value);
+    } catch (IllegalArgumentException e) {
+      throw new TagContextParseException("Invalid tag value: " + value, e);
     }
   }
 

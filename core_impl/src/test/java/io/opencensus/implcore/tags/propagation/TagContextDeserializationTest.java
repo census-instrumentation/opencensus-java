@@ -28,7 +28,9 @@ import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextParseException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -42,6 +44,8 @@ public class TagContextDeserializationTest {
   private static final String KEY = "Key";
   private static final String VALUE_STRING = "String";
   private static final int VALUE_INT = 10;
+
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
   private final Tagger tagger = new TaggerImpl();
@@ -68,6 +72,38 @@ public class TagContextDeserializationTest {
   @Test(expected = TagContextParseException.class)
   public void testDeserializeEmptyByteArrayThrowException() throws Exception {
     testDeserialize(new byte[0]);
+  }
+
+  @Test
+  public void testDeserializeInvalidTagKey() throws Exception {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    os.write(SerializationUtils.VERSION_ID);
+    os.write(SerializationUtils.VALUE_TYPE_STRING);
+
+    // Encode an invalid tag key and a valid tag value:
+    encodeString("\2key", os);
+    encodeString("value", os);
+    final byte[] bytes = os.toByteArray();
+
+    thrown.expect(TagContextParseException.class);
+    thrown.expectMessage("Invalid tag key: \2key");
+    serializer.fromByteArray(bytes);
+  }
+
+  @Test
+  public void testDeserializeInvalidTagValue() throws Exception {
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+    os.write(SerializationUtils.VERSION_ID);
+    os.write(SerializationUtils.VALUE_TYPE_STRING);
+
+    // Encode a valid tag key and an invalid tag value:
+    encodeString("key", os);
+    encodeString("val\3", os);
+    final byte[] bytes = os.toByteArray();
+
+    thrown.expect(TagContextParseException.class);
+    thrown.expectMessage("Invalid tag value: val\3");
+    serializer.fromByteArray(bytes);
   }
 
   @Test
