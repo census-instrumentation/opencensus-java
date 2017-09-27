@@ -97,12 +97,12 @@ public class TagContextDeserializationTest {
     os.write(SerializationUtils.VALUE_TYPE_STRING);
 
     // Encode a valid tag key and an invalid tag value:
-    encodeString("key", os);
+    encodeString("my key", os);
     encodeString("val\3", os);
     final byte[] bytes = os.toByteArray();
 
     thrown.expect(TagContextParseException.class);
-    thrown.expectMessage("Invalid tag value: val\3");
+    thrown.expectMessage("Invalid tag value for key TagKeyString{name=my key}: val\3");
     serializer.fromByteArray(bytes);
   }
 
