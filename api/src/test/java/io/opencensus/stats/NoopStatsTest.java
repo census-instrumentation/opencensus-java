@@ -86,20 +86,20 @@ public final class NoopStatsTest {
   // exception.
   @Test
   public void noopStatsRecorder_Record() {
-    NoopStats.getNoopStatsRecorder().builder(tagContext).put(MEASURE, 5).record();
+    NoopStats.getNoopStatsRecorder().newStatsBuilder(tagContext).put(MEASURE, 5).record();
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
   public void noopStatsRecorder_RecordWithCurrentContext() {
-    NoopStats.getNoopStatsRecorder().builder().put(MEASURE, 6).record();
+    NoopStats.getNoopStatsRecorder().newStatsBuilder().put(MEASURE, 6).record();
   }
 
   @Test
   public void noopStatsRecorder_Record_DisallowNullTagContext() {
     StatsRecorder noopStatsRecorder = NoopStats.getNoopStatsRecorder();
     thrown.expect(NullPointerException.class);
-    noopStatsRecorder.builder(null);
+    noopStatsRecorder.newStatsBuilder(null);
   }
 }

@@ -66,7 +66,7 @@ public class StatsRunner {
         System.out.println(
             "    Current == Default + tags1 + tags2: "
                 + tagger.getCurrentTagContext().equals(tags2));
-        statsRecorder.builder().put(M1, 0.2).put(M2, 0.4).record();
+        statsRecorder.newStatsBuilder().put(M1, 0.2).put(M2, 0.4).record();
       }
     }
     System.out.println(
