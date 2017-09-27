@@ -129,7 +129,6 @@ final class NoopStats {
               existing
                   .getWindow()
                   .match(
-                      // TODO(sebright): Should we use the zero timestamp or the current time?
                       Functions.<AggregationWindowData>returnConstant(
                           CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP)),
                       Functions.<AggregationWindowData>returnConstant(
