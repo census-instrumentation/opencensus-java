@@ -61,6 +61,6 @@ public final class StatsTest {
   @Test
   public void defaultValues() {
     assertThat(Stats.getStatsRecorder()).isEqualTo(NoopStats.getNoopStatsRecorder());
-    assertThat(Stats.getViewManager()).isNull();
+    assertThat(Stats.getViewManager()).isInstanceOf(NoopStats.newNoopViewManager().getClass());
   }
 }
