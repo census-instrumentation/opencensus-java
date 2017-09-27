@@ -32,7 +32,10 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link NoopStats}. */
+/**
+ * Unit tests for {@link NoopStats}. Tests for {@link NoopStats#newNoopViewManager} are in {@link
+ * NoopViewManagerTest}
+ */
 @RunWith(JUnit4.class)
 public final class NoopStatsTest {
   private static final TagString TAG =
@@ -53,9 +56,10 @@ public final class NoopStatsTest {
 
   @Test
   public void noopStatsComponent() {
-    assertThat(NoopStats.getNoopStatsComponent().getStatsRecorder())
+    assertThat(NoopStats.newNoopStatsComponent().getStatsRecorder())
         .isSameAs(NoopStats.getNoopStatsRecorder());
-    assertThat(NoopStats.getNoopStatsComponent().getViewManager()).isNull();
+    assertThat(NoopStats.newNoopStatsComponent().getViewManager())
+        .isInstanceOf(NoopStats.newNoopViewManager().getClass());
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
