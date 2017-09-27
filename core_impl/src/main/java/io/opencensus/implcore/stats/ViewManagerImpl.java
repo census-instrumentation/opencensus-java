@@ -33,14 +33,8 @@ public final class ViewManagerImpl extends ViewManager {
     statsManager.registerView(view);
   }
 
-  // TODO(sebright): Expose this method.
-  ViewData getView(View.Name viewName) {
-    return statsManager.getView(viewName);
-  }
-
-  // TODO(sebright): Replace this method with the View.Name version.
   @Override
-  public ViewData getView(View view) {
-    return statsManager.getView(view.getName());
+  public ViewData getView(View.Name viewName) {
+    return statsManager.getView(viewName);
   }
 }

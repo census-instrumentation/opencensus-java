@@ -116,18 +116,17 @@ final class NoopStats {
     }
 
     @Override
-    public ViewData getView(View view) {
-      checkNotNull(view, "view");
+    public ViewData getView(View.Name name) {
+      checkNotNull(name, "name");
       synchronized (views) {
-        View existing = views.get(view.getName());
-        if (existing == null) {
+        View view = views.get(name);
+        if (view == null) {
           throw new IllegalArgumentException("View is not registered.");
         } else {
           return ViewData.create(
-              existing,
+              view,
               Collections.<List<TagValue>, AggregationData>emptyMap(),
-              existing
-                  .getWindow()
+              view.getWindow()
                   .match(
                       Functions.<AggregationWindowData>returnConstant(
                           CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP)),
