@@ -134,7 +134,7 @@ final class SerializationUtils {
         switch (type) {
           case VALUE_TYPE_STRING:
             TagKeyString key = createTagKey(decodeString(buffer));
-            TagValueString val = createTagValue(decodeString(buffer));
+            TagValueString val = createTagValue(key, decodeString(buffer));
             tags.put(key, val);
             break;
           case VALUE_TYPE_INTEGER:
@@ -163,11 +163,12 @@ final class SerializationUtils {
 
   // TODO(sebright): Consider exposing a TagValueString validation method to avoid needing to catch
   // an IllegalArgumentException here.
-  private static final TagValueString createTagValue(String value) throws TagContextParseException {
+  private static final TagValueString createTagValue(TagKeyString key, String value)
+      throws TagContextParseException {
     try {
       return TagValueString.create(value);
     } catch (IllegalArgumentException e) {
-      throw new TagContextParseException("Invalid tag value: " + value, e);
+      throw new TagContextParseException("Invalid tag value for key " + key + ": " + value, e);
     }
   }
 

@@ -28,11 +28,13 @@ import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextParseException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.hamcrest.Matcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.internal.matchers.Matches;
 
 /**
  * Tests for deserializing tags with {@link SerializationUtils} and {@link
@@ -97,12 +99,17 @@ public class TagContextDeserializationTest {
     os.write(SerializationUtils.VALUE_TYPE_STRING);
 
     // Encode a valid tag key and an invalid tag value:
-    encodeString("key", os);
+    encodeString("my key", os);
     encodeString("val\3", os);
     final byte[] bytes = os.toByteArray();
 
+    // TODO(sebright): Is there a better way to match a regular expression? 'Matches' extends
+    // Matcher<Object>, but 'expectMessage' takes a Matcher<String>.
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    Matcher<String> matcher = (Matcher) new Matches("Invalid tag value for key .*my key.*: val\3");
+
+    thrown.expectMessage(matcher);
     thrown.expect(TagContextParseException.class);
-    thrown.expectMessage("Invalid tag value: val\3");
     serializer.fromByteArray(bytes);
   }
 
