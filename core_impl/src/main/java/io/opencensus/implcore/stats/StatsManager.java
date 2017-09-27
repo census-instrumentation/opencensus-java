@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.implcore.stats.export.StatsExporterImpl;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -35,13 +36,17 @@ final class StatsManager {
   // clock used throughout the stats implementation
   private final Clock clock;
 
+  private final StatsExporterImpl statsExporter;
+
   private final MeasureToViewMap measureToViewMap = new MeasureToViewMap();
 
-  StatsManager(EventQueue queue, Clock clock) {
+  StatsManager(EventQueue queue, Clock clock, StatsExporterImpl statsExporter) {
     checkNotNull(queue, "EventQueue");
     checkNotNull(clock, "Clock");
+    checkNotNull(statsExporter, "StatsExporter");
     this.queue = queue;
     this.clock = clock;
+    this.statsExporter = statsExporter;
   }
 
   void registerView(View view, List<Handler> handlers) {
@@ -77,7 +82,8 @@ final class StatsManager {
     @Override
     public void process() {
       // Add Timestamp to value after it went through the DisruptorQueue.
-      statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now());
+      statsManager.measureToViewMap.record(
+          tags, stats, statsManager.clock.now(), statsManager.statsExporter);
     }
   }
 }
