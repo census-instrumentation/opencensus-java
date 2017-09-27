@@ -16,8 +16,6 @@
 
 package io.opencensus.stats;
 
-import javax.annotation.Nullable;
-
 /**
  * Class that holds the implementations for {@link ViewManager} and {@link StatsRecorder}.
  *
@@ -26,7 +24,6 @@ import javax.annotation.Nullable;
 public abstract class StatsComponent {
 
   /** Returns the default {@link ViewManager}. */
-  @Nullable
   public abstract ViewManager getViewManager();
 
   /** Returns the default {@link StatsRecorder}. */
