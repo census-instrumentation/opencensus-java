@@ -20,7 +20,6 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.internal.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** Class for accessing the default {@link StatsComponent}. */
 public final class Stats {
@@ -35,7 +34,6 @@ public final class Stats {
   }
 
   /** Returns the default {@link ViewManager}. */
-  @Nullable
   public static ViewManager getViewManager() {
     return statsComponent.getViewManager();
   }
