@@ -18,6 +18,7 @@ package io.opencensus.tags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
 import io.opencensus.common.Scope;
 import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.TagKey.TagKeyBoolean;
@@ -98,6 +99,16 @@ final class NoopTags {
     @Override
     public TagPropagationComponent getTagPropagationComponent() {
       return getNoopTagPropagationComponent();
+    }
+
+    @Override
+    public TaggingState getState() {
+      return TaggingState.DISABLED;
+    }
+
+    @Override
+    public void setState(TaggingState state) {
+      Preconditions.checkNotNull(state, "state");
     }
   }
 

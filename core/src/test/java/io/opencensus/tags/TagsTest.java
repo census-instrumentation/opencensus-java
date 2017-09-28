@@ -57,6 +57,22 @@ public class TagsTest {
   }
 
   @Test
+  public void getState() {
+    assertThat(Tags.getState()).isEqualTo(TaggingState.DISABLED);
+  }
+
+  @Test
+  public void setState_IgnoresInput() {
+    Tags.setState(TaggingState.ENABLED);
+    assertThat(Tags.getState()).isEqualTo(TaggingState.DISABLED);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void setState_DisallowsNull() {
+    Tags.setState(null);
+  }
+
+  @Test
   public void defaultTagger() {
     assertThat(Tags.getTagger()).isEqualTo(NoopTags.getNoopTagger());
   }

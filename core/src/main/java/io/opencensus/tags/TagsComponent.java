@@ -30,4 +30,23 @@ public abstract class TagsComponent {
 
   /** Returns the {@link TagPropagationComponent} for this implementation. */
   public abstract TagPropagationComponent getTagPropagationComponent();
+
+  /**
+   * Returns the current {@code TaggingState}.
+   *
+   * <p>When no implementation is available, {@code getState} always returns {@link
+   * TaggingState#DISABLED}.
+   *
+   * @return the current {@code TaggingState}.
+   */
+  public abstract TaggingState getState();
+
+  /**
+   * Sets the current {@code TaggingState}.
+   *
+   * <p>When no implementation is available, {@code setState} has no effect.
+   *
+   * @param state the new {@code TaggingState}.
+   */
+  public abstract void setState(TaggingState state);
 }
