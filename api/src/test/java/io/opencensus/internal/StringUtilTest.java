@@ -16,9 +16,9 @@
 
 package io.opencensus.internal;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,23 +26,10 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link StringUtil}. */
 @RunWith(JUnit4.class)
 public final class StringUtilTest {
-  @Test
-  public void testMaxLength() {
-    char[] string = new char[StringUtil.MAX_LENGTH];
-    char[] truncString = new char[StringUtil.MAX_LENGTH + 10];
-    Arrays.fill(string, 'v');
-    Arrays.fill(truncString, 'v');
-    assertThat(StringUtil.sanitize(new String(truncString))).isEqualTo(new String(string));
-  }
 
   @Test
-  public void testBadChar() {
-    String string = "\2ab\3cd";
-    assertThat(StringUtil.sanitize(string)).isEqualTo("_ab_cd");
-  }
-
-  @Test(expected = AssertionError.class)
-  public void testConstructor() {
-    new StringUtil();
+  public void isPrintableString() {
+    assertTrue(StringUtil.isPrintableString("abcd"));
+    assertFalse(StringUtil.isPrintableString("\2ab\3cd"));
   }
 }
