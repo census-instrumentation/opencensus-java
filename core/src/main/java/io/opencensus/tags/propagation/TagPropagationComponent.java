@@ -19,8 +19,6 @@ package io.opencensus.tags.propagation;
 import io.opencensus.tags.TagContext;
 
 /** Object containing all supported {@link TagContext} propagation formats. */
-// TODO(sebright): Add a link to the specification for the cross-language OpenCensus tag context
-// serialization format.
 // TODO(sebright): Add an HTTP serializer.
 public abstract class TagPropagationComponent {
 

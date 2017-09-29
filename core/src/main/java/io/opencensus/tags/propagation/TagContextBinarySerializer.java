@@ -18,7 +18,13 @@ package io.opencensus.tags.propagation;
 
 import io.opencensus.tags.TagContext;
 
-/** Object for serializing and deserializing {@link TagContext}s with the binary format. */
+/**
+ * Object for serializing and deserializing {@link TagContext}s with the binary format.
+ *
+ * <p>See <a
+ * href="https://github.com/census-instrumentation/opencensus-specs/blob/master/encodings/BinaryEncoding.md#tag-context">opencensus-specs</a>
+ * for the specification of the cross-language binary serialization format.
+ */
 public abstract class TagContextBinarySerializer {
 
   /**
