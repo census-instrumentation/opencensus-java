@@ -76,6 +76,46 @@ public class TaggerImplTest {
   }
 
   @Test
+  public void currentBuilder() {
+    TagContext tags = new SimpleTagContext(TAG1, TAG2, TAG3);
+    TagContextBuilder result = getResultOfCurrentBuilder(tags);
+    assertThat(result).isInstanceOf(TagContextBuilderImpl.class);
+    assertThat(tagContextToList(result.build())).containsExactly(TAG1, TAG2, TAG3);
+  }
+
+  @Test
+  public void currentBuilder_DefaultIsEmpty() {
+    TagContextBuilder currentBuilder = tagger.currentBuilder();
+    assertThat(currentBuilder).isInstanceOf(TagContextBuilderImpl.class);
+    assertThat(tagContextToList(currentBuilder.build())).isEmpty();
+  }
+
+  @Test
+  public void currentBuilder_RemoveDuplicateTags() {
+    Tag tag1 = TagString.create(KS, VS1);
+    Tag tag2 = TagString.create(KS, VS2);
+    TagContext tagContextWithDuplicateTags = new SimpleTagContext(tag1, tag2);
+    TagContextBuilder result = getResultOfCurrentBuilder(tagContextWithDuplicateTags);
+    assertThat(tagContextToList(result.build())).containsExactly(tag2);
+  }
+
+  @Test
+  public void currentBuilder_SkipNullTag() {
+    TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
+    TagContextBuilder result = getResultOfCurrentBuilder(tagContextWithNullTag);
+    assertThat(tagContextToList(result.build())).containsExactly(TAG1, TAG2);
+  }
+
+  private TagContextBuilder getResultOfCurrentBuilder(TagContext tagsToSet) {
+    Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tagsToSet).attach();
+    try {
+      return tagger.currentBuilder();
+    } finally {
+      Context.current().detach(orig);
+    }
+  }
+
+  @Test
   public void toBuilder_ConvertUnknownTagContextToTagContextImpl() {
     TagContext unknownTagContext = new SimpleTagContext(TAG1, TAG2, TAG3);
     TagContext newTagContext = tagger.toBuilder(unknownTagContext).build();
