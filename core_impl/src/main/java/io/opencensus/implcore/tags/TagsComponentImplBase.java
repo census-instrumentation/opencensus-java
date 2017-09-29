@@ -29,8 +29,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TagsComponentImplBase extends TagsComponent {
   private final AtomicReference<TaggingState> state =
       new AtomicReference<TaggingState>(TaggingState.ENABLED);
-  private final Tagger tagger = new TaggerImpl();
-  private final TagPropagationComponent tagPropagationComponent = new TagPropagationComponentImpl();
+  private final Tagger tagger = new TaggerImpl(state);
+  private final TagPropagationComponent tagPropagationComponent =
+      new TagPropagationComponentImpl(state);
 
   @Override
   public Tagger getTagger() {
@@ -50,6 +51,5 @@ public class TagsComponentImplBase extends TagsComponent {
   @Override
   public void setState(TaggingState newState) {
     state.set(checkNotNull(newState, "newState"));
-    // TODO(sebright): Avoid setting tags when tagging is disabled.
   }
 }

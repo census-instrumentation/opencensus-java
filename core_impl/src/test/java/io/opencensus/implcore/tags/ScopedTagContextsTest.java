@@ -25,6 +25,8 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
+import io.opencensus.tags.TaggingState;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -41,7 +43,8 @@ public class ScopedTagContextsTest {
   private static final TagValueString VALUE_1 = TagValueString.create("value 1");
   private static final TagValueString VALUE_2 = TagValueString.create("value 2");
 
-  private final Tagger tagger = new TaggerImpl();
+  private final Tagger tagger =
+      new TaggerImpl(new AtomicReference<TaggingState>(TaggingState.ENABLED));
 
   @Test
   public void defaultTagContext() {

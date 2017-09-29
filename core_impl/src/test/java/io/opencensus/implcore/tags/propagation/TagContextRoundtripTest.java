@@ -18,11 +18,12 @@ package io.opencensus.implcore.tags.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.implcore.tags.TaggerImpl;
+import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
+import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,8 +43,10 @@ public class TagContextRoundtripTest {
   private static final TagValueString V2 = TagValueString.create("v2");
   private static final TagValueString V3 = TagValueString.create("v3");
 
-  private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
-  private final Tagger tagger = new TaggerImpl();
+  private final TagsComponent tagsComponent = new TagsComponentImplBase();
+  private final TagContextBinarySerializer serializer =
+      tagsComponent.getTagPropagationComponent().getBinarySerializer();
+  private final Tagger tagger = tagsComponent.getTagger();
 
   @Test
   public void testRoundtripSerialization() throws Exception {
