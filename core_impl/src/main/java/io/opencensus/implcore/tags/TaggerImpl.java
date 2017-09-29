@@ -17,6 +17,7 @@
 package io.opencensus.implcore.tags;
 
 import io.opencensus.common.Scope;
+import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
@@ -47,7 +48,9 @@ public final class TaggerImpl extends Tagger {
 
   @Override
   public TagContextImpl getCurrentTagContext() {
-    return toTagContextImpl(CurrentTagContextUtils.getCurrentTagContext(), state.get());
+    return state.get() == TaggingState.DISABLED
+        ? TagContextImpl.EMPTY
+        : toTagContextImpl(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   @Override
@@ -59,23 +62,26 @@ public final class TaggerImpl extends Tagger {
 
   @Override
   public TagContextBuilder currentBuilder() {
-    return toBuilder(CurrentTagContextUtils.getCurrentTagContext());
+    return state.get() == TaggingState.DISABLED
+        ? NoopTagContextBuilder.INSTANCE
+        : toBuilder(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   @Override
   public TagContextBuilder toBuilder(TagContext tags) {
-    return toTagContextBuilderImpl(tags, state.get());
+    return state.get() == TaggingState.DISABLED
+        ? NoopTagContextBuilder.INSTANCE
+        : toTagContextBuilderImpl(tags);
   }
 
   @Override
   public Scope withTagContext(TagContext tags) {
-    return CurrentTagContextUtils.withTagContext(toTagContextImpl(tags, state.get()));
+    return state.get() == TaggingState.DISABLED
+        ? NoopScope.getInstance()
+        : CurrentTagContextUtils.withTagContext(toTagContextImpl(tags));
   }
 
-  private static TagContextImpl toTagContextImpl(TagContext tags, TaggingState state) {
-    if (state == TaggingState.DISABLED) {
-      return TagContextImpl.EMPTY;
-    }
+  private static TagContextImpl toTagContextImpl(TagContext tags) {
     if (tags instanceof TagContextImpl) {
       return (TagContextImpl) tags;
     } else {
@@ -94,10 +100,7 @@ public final class TaggerImpl extends Tagger {
     }
   }
 
-  private static TagContextBuilder toTagContextBuilderImpl(TagContext tags, TaggingState state) {
-    if (state == TaggingState.DISABLED) {
-      return NoopTagContextBuilder.INSTANCE;
-    }
+  private static TagContextBuilderImpl toTagContextBuilderImpl(TagContext tags) {
     // Copy the tags more efficiently in the expected case, when the TagContext is a TagContextImpl.
     if (tags instanceof TagContextImpl) {
       return new TagContextBuilderImpl(((TagContextImpl) tags).getTags());
