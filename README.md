@@ -1,5 +1,10 @@
 # OpenCensus - A stats collection and distributed tracing framework
-[![Build Status][travis-image]][travis-url] [![Build status][appveyor-image]][appveyor-url] [![Maven Central][maven-image]][maven-url]
+[![Gitter chat][gitter-image]][gitter-url]
+[![Maven Central][maven-image]][maven-url]
+[![Build Status][travis-image]][travis-url]
+[![Windows Build Status][appveyor-image]][appveyor-url]
+[![Coverage Status][coverage-image]][coverage-url]
+
 
 OpenCensus is a toolkit for collecting application performance and behavior data. It currently 
 includes 3 apis: stats, tracing and tags.
@@ -116,3 +121,7 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [appveyor-url]: https://ci.appveyor.com/project/instrumentationjavateam/opencensus-java/branch/master
 [maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-api/badge.svg
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-api
+[coverage-image]: https://coveralls.io/repos/census-instrumentation/opencensus-java/badge.svg?branch=master&service=github
+[coverage-url]: https://coveralls.io/github/census-instrumentation/opencensus-java?branch=master
+[gitter-image]: https://badges.gitter.im/census-instrumentation/lobby.svg
+[gitter-url]: https://gitter.im/census-instrumentation/lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
