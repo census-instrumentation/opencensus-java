@@ -17,16 +17,14 @@
 package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.implcore.tags.TagsTestUtil.tagContextToList;
 
-import com.google.common.collect.Lists;
 import io.opencensus.common.Scope;
-import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -48,13 +46,13 @@ public class ScopedTagContextsTest {
   @Test
   public void defaultTagContext() {
     TagContext defaultTagContext = tagger.getCurrentTagContext();
-    assertThat(asList(defaultTagContext)).isEmpty();
+    assertThat(tagContextToList(defaultTagContext)).isEmpty();
     assertThat(defaultTagContext).isInstanceOf(TagContextImpl.class);
   }
 
   @Test
   public void withTagContext() {
-    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
+    assertThat(tagContextToList(tagger.getCurrentTagContext())).isEmpty();
     TagContext scopedTags = tagger.emptyBuilder().put(KEY_1, VALUE_1).build();
     Scope scope = tagger.withTagContext(scopedTags);
     try {
@@ -62,7 +60,7 @@ public class ScopedTagContextsTest {
     } finally {
       scope.close();
     }
-    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
+    assertThat(tagContextToList(tagger.getCurrentTagContext())).isEmpty();
   }
 
   @Test
@@ -71,7 +69,7 @@ public class ScopedTagContextsTest {
     Scope scope = tagger.withTagContext(scopedTags);
     try {
       TagContext newTags = tagger.currentBuilder().put(KEY_2, VALUE_2).build();
-      assertThat(asList(newTags))
+      assertThat(tagContextToList(newTags))
           .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
       assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
     } finally {
@@ -81,15 +79,15 @@ public class ScopedTagContextsTest {
 
   @Test
   public void setCurrentTagsWithBuilder() {
-    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
+    assertThat(tagContextToList(tagger.getCurrentTagContext())).isEmpty();
     Scope scope = tagger.emptyBuilder().put(KEY_1, VALUE_1).buildScoped();
     try {
-      assertThat(asList(tagger.getCurrentTagContext()))
+      assertThat(tagContextToList(tagger.getCurrentTagContext()))
           .containsExactly(TagString.create(KEY_1, VALUE_1));
     } finally {
       scope.close();
     }
-    assertThat(asList(tagger.getCurrentTagContext())).isEmpty();
+    assertThat(tagContextToList(tagger.getCurrentTagContext())).isEmpty();
   }
 
   @Test
@@ -99,7 +97,7 @@ public class ScopedTagContextsTest {
     try {
       Scope scope2 = tagger.currentBuilder().put(KEY_2, VALUE_2).buildScoped();
       try {
-        assertThat(asList(tagger.getCurrentTagContext()))
+        assertThat(tagContextToList(tagger.getCurrentTagContext()))
             .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
       } finally {
         scope2.close();
@@ -108,9 +106,5 @@ public class ScopedTagContextsTest {
     } finally {
       scope1.close();
     }
-  }
-
-  private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
   }
 }

@@ -37,9 +37,20 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class TagContext {
 
-  // TODO(sebright): Consider removing TagContext.unsafeGetIterator() so that we don't need to
-  // support fast access to tags.
-  public abstract Iterator<Tag> unsafeGetIterator();
+  /**
+   * Returns an iterator over the tags in this {@code TagContext}.
+   *
+   * @return an iterator over the tags in this {@code TagContext}.
+   */
+  // This method is protected to prevent client code from accessing the tags of any TagContext. We
+  // don't currently support efficient access to tags. However, every TagContext subclass needs to
+  // provide access to its tags to the stats and tagging implementations by implementing this
+  // method. If we decide to support access to tags in the future, we can add a public iterator()
+  // method and implement it for all subclasses by calling getIterator().
+  //
+  // The stats and tagging implementations can access any TagContext's tags through
+  // io.opencensus.tags.InternalUtils.getTags, which calls this method.
+  protected abstract Iterator<Tag> getIterator();
 
   @Override
   public String toString() {
@@ -57,8 +68,8 @@ public abstract class TagContext {
       return false;
     }
     TagContext otherTags = (TagContext) other;
-    Iterator<Tag> iter1 = unsafeGetIterator();
-    Iterator<Tag> iter2 = otherTags.unsafeGetIterator();
+    Iterator<Tag> iter1 = getIterator();
+    Iterator<Tag> iter2 = otherTags.getIterator();
     Multiset<Tag> tags1 =
         iter1 == null
             ? ImmutableMultiset.<Tag>of()
@@ -73,7 +84,7 @@ public abstract class TagContext {
   @Override
   public final int hashCode() {
     int hashCode = 0;
-    Iterator<Tag> i = unsafeGetIterator();
+    Iterator<Tag> i = getIterator();
     if (i == null) {
       return hashCode;
     }

@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import io.grpc.Context;
+import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import java.util.List;
@@ -56,6 +57,6 @@ public final class ContextUtilsTest {
   }
 
   private static List<Tag> asList(TagContext tags) {
-    return Lists.newArrayList(tags.unsafeGetIterator());
+    return Lists.newArrayList(InternalUtils.getTags(tags));
   }
 }

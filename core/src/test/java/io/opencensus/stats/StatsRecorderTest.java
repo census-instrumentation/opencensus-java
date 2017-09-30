@@ -48,7 +48,7 @@ public final class StatsRecorderTest {
       new TagContext() {
 
         @Override
-        public Iterator<Tag> unsafeGetIterator() {
+        protected Iterator<Tag> getIterator() {
           return Collections.<Tag>singleton(TAG).iterator();
         }
       };

@@ -220,7 +220,7 @@ public class TaggerImplTest {
     }
 
     @Override
-    public Iterator<Tag> unsafeGetIterator() {
+    protected Iterator<Tag> getIterator() {
       return tags.iterator();
     }
   }

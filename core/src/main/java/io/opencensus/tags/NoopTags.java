@@ -197,7 +197,7 @@ final class NoopTags {
 
     // TODO(sebright): Is there any way to let the user know that their tags were ignored?
     @Override
-    public Iterator<Tag> unsafeGetIterator() {
+    protected Iterator<Tag> getIterator() {
       return Collections.<Tag>emptySet().iterator();
     }
   }
