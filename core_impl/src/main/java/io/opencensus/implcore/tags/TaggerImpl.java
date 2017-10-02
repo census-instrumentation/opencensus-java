@@ -25,7 +25,6 @@ import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TaggingState;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicReference;
 
 public final class TaggerImpl extends Tagger {
   // All methods in this class use TagContextImpl and TagContextBuilderImpl. For example,
@@ -35,9 +34,9 @@ public final class TaggerImpl extends Tagger {
   // TODO(sebright): Consider treating an unknown TagContext as empty.  That would allow us to
   // remove TagContext.unsafeGetIterator().
 
-  private final AtomicReference<TaggingState> state;
+  private final CurrentTaggingState state;
 
-  TaggerImpl(AtomicReference<TaggingState> state) {
+  TaggerImpl(CurrentTaggingState state) {
     this.state = state;
   }
 

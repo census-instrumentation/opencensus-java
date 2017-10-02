@@ -16,15 +16,14 @@
 
 package io.opencensus.implcore.tags.propagation;
 
-import io.opencensus.tags.TaggingState;
+import io.opencensus.implcore.tags.CurrentTaggingState;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagPropagationComponent;
-import java.util.concurrent.atomic.AtomicReference;
 
 public final class TagPropagationComponentImpl extends TagPropagationComponent {
   private final TagContextBinarySerializer tagContextBinarySerializer;
 
-  public TagPropagationComponentImpl(AtomicReference<TaggingState> state) {
+  public TagPropagationComponentImpl(CurrentTaggingState state) {
     tagContextBinarySerializer = new TagContextBinarySerializerImpl(state);
   }
 

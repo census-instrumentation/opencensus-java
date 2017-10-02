@@ -36,12 +36,10 @@ import io.opencensus.tags.TagValue.TagValueBoolean;
 import io.opencensus.tags.TagValue.TagValueLong;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
-import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -52,8 +50,7 @@ import org.junit.runners.JUnit4;
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
 public class TagContextImplTest {
-  private final Tagger tagger =
-      new TaggerImpl(new AtomicReference<TaggingState>(TaggingState.ENABLED));
+  private final Tagger tagger = new TaggerImpl(new CurrentTaggingState());
 
   private static final TagKeyString KS1 = TagKeyString.create("k1");
   private static final TagKeyString KS2 = TagKeyString.create("k2");

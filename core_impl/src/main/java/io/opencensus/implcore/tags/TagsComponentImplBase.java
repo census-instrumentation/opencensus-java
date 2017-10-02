@@ -23,12 +23,13 @@ import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagPropagationComponent;
-import java.util.concurrent.atomic.AtomicReference;
 
 /** Base implementation of {@link TagsComponent}. */
 public class TagsComponentImplBase extends TagsComponent {
-  private final AtomicReference<TaggingState> state =
-      new AtomicReference<TaggingState>(TaggingState.ENABLED);
+
+  // The TaggingState shared between the TagsComponent, Tagger, and TagPropagationComponent
+  private final CurrentTaggingState state = new CurrentTaggingState();
+
   private final Tagger tagger = new TaggerImpl(state);
   private final TagPropagationComponent tagPropagationComponent =
       new TagPropagationComponentImpl(state);
