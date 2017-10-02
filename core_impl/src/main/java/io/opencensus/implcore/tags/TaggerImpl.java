@@ -28,9 +28,6 @@ public final class TaggerImpl extends Tagger {
   // All methods in this class use TagContextImpl and TagContextBuilderImpl. For example,
   // withTagContext(...) always puts a TagContextImpl into scope, even if the argument is another
   // TagContext subclass.
-  //
-  // TODO(sebright): Consider treating an unknown TagContext as empty.  That would allow us to
-  // remove TagContext.unsafeGetIterator().
 
   @Override
   public TagContextImpl empty() {
