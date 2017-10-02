@@ -48,22 +48,37 @@ script:
   # "./gradlew classes testClasses" is a workaround for
   # https://github.com/gradle/gradle/issues/2421.
   # See https://github.com/gradle/gradle/issues/2421#issuecomment-319916874.
+
+  # OS X is a separate case, because the JDK version is determined by the OS X image:
+  # https://docs.travis-ci.com/user/reference/osx/#JDK-and-OS-X
   - case "$TASK" in
       "CHECK_GIT_HISTORY")
         python check-git-history.py ;;
       "BUILD")
-        export JAVA8_HOME="$(jdk_switcher home oraclejdk8)" ;
-        case "$TRAVIS_JDK_VERSION" in
-          "oraclejdk8")
-            export JAVA_HOMES="$(jdk_switcher home openjdk6)/jre:$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)" ;
-            ./gradlew clean assemble --stacktrace ;
-            ./gradlew check :opencensus-all:jacocoTestReport ;;
-          "openjdk7")
-            jdk_switcher use oraclejdk8 ;
-            ./gradlew classes testClasses ;
-            jdk_switcher use openjdk7 ;
+        case "$TRAVIS_OS_NAME" in
+          "linux")
+            export JAVA8_HOME="$(jdk_switcher home oraclejdk8)" ;
+            case "$TRAVIS_JDK_VERSION" in
+              "oraclejdk8")
+                export JAVA_HOMES="$(jdk_switcher home openjdk6)/jre:$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)" ;
+                ./gradlew clean assemble --stacktrace ;
+                ./gradlew check :opencensus-all:jacocoTestReport ;;
+              "openjdk7")
+                jdk_switcher use oraclejdk8 ;
+                ./gradlew classes testClasses ;
+                jdk_switcher use openjdk7 ;
+                ./gradlew clean assemble --stacktrace ;
+                ./gradlew check ;;
+              *)
+                echo "Unknown JDK version $TRAVIS_JDK_VERSION" ;
+                exit 1 ;;
+            esac ;;
+          "osx")
             ./gradlew clean assemble --stacktrace ;
             ./gradlew check ;;
+          *)
+            echo "Unknown OS name $TRAVIS_OS_NAME" ;
+            exit 1 ;;
         esac ;;
       *)
         echo "Unknown task $TASK" ;
