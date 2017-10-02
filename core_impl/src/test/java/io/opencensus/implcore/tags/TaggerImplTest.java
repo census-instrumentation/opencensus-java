@@ -35,6 +35,8 @@ import io.opencensus.tags.TagValue.TagValueBoolean;
 import io.opencensus.tags.TagValue.TagValueLong;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
+import io.opencensus.tags.TaggingState;
+import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.UnreleasedApiAccessor;
 import io.opencensus.tags.unsafe.ContextUtils;
 import java.util.Collections;
@@ -47,7 +49,8 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link TaggerImpl}. */
 @RunWith(JUnit4.class)
 public class TaggerImplTest {
-  private final Tagger tagger = new TaggerImpl();
+  private final TagsComponent tagsComponent = new TagsComponentImplBase();
+  private final Tagger tagger = tagsComponent.getTagger();
 
   private static final TagKeyString KS = TagKeyString.create("ks");
   private static final TagKeyLong KL = UnreleasedApiAccessor.createTagKeyLong("kl");
@@ -69,10 +72,34 @@ public class TaggerImplTest {
   }
 
   @Test
+  public void empty_TaggingDisabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagContextToList(tagger.empty())).isEmpty();
+    assertThat(tagger.empty()).isInstanceOf(TagContextImpl.class);
+  }
+
+  @Test
   public void emptyBuilder() {
     TagContextBuilder builder = tagger.emptyBuilder();
     assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
     assertThat(tagContextToList(builder.build())).isEmpty();
+  }
+
+  @Test
+  public void emptyBuilder_TaggingDisabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagger.emptyBuilder()).isSameAs(NoopTagContextBuilder.INSTANCE);
+  }
+
+  @Test
+  public void emptyBuilder_TaggingReenabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagger.emptyBuilder()).isSameAs(NoopTagContextBuilder.INSTANCE);
+    tagsComponent.setState(TaggingState.ENABLED);
+    TagContextBuilder builder = tagger.emptyBuilder();
+    assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
+    assertThat(tagContextToList(builder.put(KS, VS1).build()))
+        .containsExactly(TagString.create(KS, VS1));
   }
 
   @Test
@@ -104,6 +131,24 @@ public class TaggerImplTest {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContextBuilder result = getResultOfCurrentBuilder(tagContextWithNullTag);
     assertThat(tagContextToList(result.build())).containsExactly(TAG1, TAG2);
+  }
+
+  @Test
+  public void currentBuilder_TaggingDisabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(getResultOfCurrentBuilder(new SimpleTagContext(TAG1)))
+        .isSameAs(NoopTagContextBuilder.INSTANCE);
+  }
+
+  @Test
+  public void currentBuilder_TaggingReenabled() {
+    TagContext tags = new SimpleTagContext(TAG1);
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(getResultOfCurrentBuilder(tags)).isSameAs(NoopTagContextBuilder.INSTANCE);
+    tagsComponent.setState(TaggingState.ENABLED);
+    TagContextBuilder builder = getResultOfCurrentBuilder(tags);
+    assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
+    assertThat(tagContextToList(builder.build())).containsExactly(TAG1);
   }
 
   private TagContextBuilder getResultOfCurrentBuilder(TagContext tagsToSet) {
@@ -140,6 +185,24 @@ public class TaggerImplTest {
   }
 
   @Test
+  public void toBuilder_TaggingDisabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagger.toBuilder(new SimpleTagContext(TAG1)))
+        .isSameAs(NoopTagContextBuilder.INSTANCE);
+  }
+
+  @Test
+  public void toBuilder_TaggingReenabled() {
+    TagContext tags = new SimpleTagContext(TAG1);
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagger.toBuilder(tags)).isSameAs(NoopTagContextBuilder.INSTANCE);
+    tagsComponent.setState(TaggingState.ENABLED);
+    TagContextBuilder builder = tagger.toBuilder(tags);
+    assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
+    assertThat(tagContextToList(builder.build())).containsExactly(TAG1);
+  }
+
+  @Test
   public void getCurrentTagContext_DefaultIsEmptyTagContextImpl() {
     TagContext currentTagContext = tagger.getCurrentTagContext();
     assertThat(tagContextToList(currentTagContext)).isEmpty();
@@ -168,6 +231,22 @@ public class TaggerImplTest {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext result = getResultOfGetCurrentTagContext(tagContextWithNullTag);
     assertThat(tagContextToList(result)).containsExactly(TAG1, TAG2);
+  }
+
+  @Test
+  public void getCurrentTagContext_TaggingDisabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagContextToList(getResultOfGetCurrentTagContext(new SimpleTagContext(TAG1))))
+        .isEmpty();
+  }
+
+  @Test
+  public void getCurrentTagContext_TaggingReenabled() {
+    TagContext tags = new SimpleTagContext(TAG1);
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagContextToList(getResultOfGetCurrentTagContext(tags))).isEmpty();
+    tagsComponent.setState(TaggingState.ENABLED);
+    assertThat(tagContextToList(getResultOfGetCurrentTagContext(tags))).containsExactly(TAG1);
   }
 
   private TagContext getResultOfGetCurrentTagContext(TagContext tagsToSet) {
@@ -201,6 +280,21 @@ public class TaggerImplTest {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext result = getResultOfWithTagContext(tagContextWithNullTag);
     assertThat(tagContextToList(result)).containsExactly(TAG1, TAG2);
+  }
+
+  @Test
+  public void withTagContext_TaggingDisabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagContextToList(getResultOfWithTagContext(new SimpleTagContext(TAG1)))).isEmpty();
+  }
+
+  @Test
+  public void withTagContext_TaggingReenabled() {
+    TagContext tags = new SimpleTagContext(TAG1);
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagContextToList(getResultOfWithTagContext(tags))).isEmpty();
+    tagsComponent.setState(TaggingState.ENABLED);
+    assertThat(tagContextToList(getResultOfWithTagContext(tags))).containsExactly(TAG1);
   }
 
   private TagContext getResultOfWithTagContext(TagContext tagsToSet) {

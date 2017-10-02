@@ -50,7 +50,7 @@ import org.junit.runners.JUnit4;
 // TODO(sebright): Add more tests once the API is finalized.
 @RunWith(JUnit4.class)
 public class TagContextImplTest {
-  private final Tagger tagger = new TaggerImpl();
+  private final Tagger tagger = new TaggerImpl(new CurrentTaggingState());
 
   private static final TagKeyString KS1 = TagKeyString.create("k1");
   private static final TagKeyString KS2 = TagKeyString.create("k2");

@@ -21,12 +21,13 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Collections2;
 import io.opencensus.implcore.internal.VarInt;
-import io.opencensus.implcore.tags.TaggerImpl;
+import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.Tagger;
+import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -64,8 +65,10 @@ public class TagContextSerializationTest {
   private static final TagString T3 = TagString.create(K3, V3);
   private static final TagString T4 = TagString.create(K4, V4);
 
-  private final TagContextBinarySerializer serializer = new TagContextBinarySerializerImpl();
-  private final Tagger tagger = new TaggerImpl();
+  private final TagsComponent tagsComponent = new TagsComponentImplBase();
+  private final TagContextBinarySerializer serializer =
+      tagsComponent.getTagPropagationComponent().getBinarySerializer();
+  private final Tagger tagger = tagsComponent.getTagger();
 
   @Test
   public void testSerializeDefault() throws Exception {

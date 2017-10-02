@@ -41,7 +41,7 @@ public class ScopedTagContextsTest {
   private static final TagValueString VALUE_1 = TagValueString.create("value 1");
   private static final TagValueString VALUE_2 = TagValueString.create("value 2");
 
-  private final Tagger tagger = new TaggerImpl();
+  private final Tagger tagger = new TaggerImpl(new CurrentTaggingState());
 
   @Test
   public void defaultTagContext() {
