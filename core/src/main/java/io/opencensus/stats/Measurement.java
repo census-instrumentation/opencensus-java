@@ -43,6 +43,7 @@ public abstract class Measurement {
   private Measurement() {
   }
 
+  /** {@code Double} typed {@link Measurement}. */
   @Immutable
   @AutoValue
   public abstract static class MeasurementDouble extends Measurement {
@@ -69,6 +70,7 @@ public abstract class Measurement {
     }
   }
 
+  /** {@code Long} typed {@link Measurement}. */
   @Immutable
   @AutoValue
   public abstract static class MeasurementLong extends Measurement {

@@ -24,9 +24,7 @@ import io.opencensus.common.Function;
 import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
-/**
- * Measure.
- */
+/** The definition of the {@link Measurement} that is taken by OpenCensus library. */
 @Immutable
 public abstract class Measure {
 
@@ -70,6 +68,7 @@ public abstract class Measure {
   private Measure() {
   }
 
+  /** {@link Measure} with {@code Double} typed values. */
   @Immutable
   @AutoValue
   public abstract static class MeasureDouble extends Measure {
@@ -109,6 +108,7 @@ public abstract class Measure {
     public abstract String getUnit();
   }
 
+  /** {@link Measure} with {@code Long} typed values. */
   @Immutable
   @AutoValue
   public abstract static class MeasureLong extends Measure {
