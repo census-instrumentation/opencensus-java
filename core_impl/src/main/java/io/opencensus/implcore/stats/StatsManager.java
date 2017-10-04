@@ -50,7 +50,7 @@ final class StatsManager {
   }
 
   void registerView(View view, List<Handler> handlers) {
-    measureToViewMap.registerView(view, handlers, clock);
+    measureToViewMap.registerView(view, handlers, clock, statsExporter);
   }
 
   ViewData getView(View.Name viewName) {

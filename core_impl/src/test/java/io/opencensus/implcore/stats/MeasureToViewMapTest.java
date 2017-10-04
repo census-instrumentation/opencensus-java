@@ -19,6 +19,8 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.stats.export.ExportComponentImpl;
+import io.opencensus.implcore.stats.export.StatsExporterImpl;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
@@ -53,11 +55,13 @@ public class MeasureToViewMapTest {
       View.create(VIEW_NAME, "view description", MEASURE, Mean.create(),
           Arrays.asList(TagKeyString.create("my key")), CUMULATIVE);
 
+  private final StatsExporterImpl statsExporter = ExportComponentImpl.create().getStatsExporter();
+
   @Test
   public void testRegisterAndGetView() {
     MeasureToViewMap measureToViewMap = new MeasureToViewMap();
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
-    measureToViewMap.registerView(VIEW, Collections.<Handler>emptyList(), clock);
+    measureToViewMap.registerView(VIEW, Collections.<Handler>emptyList(), clock, statsExporter);
     clock.setTime(Timestamp.create(30, 40));
     ViewData viewData = measureToViewMap.getView(VIEW_NAME, clock);
     assertThat(viewData.getView()).isEqualTo(VIEW);

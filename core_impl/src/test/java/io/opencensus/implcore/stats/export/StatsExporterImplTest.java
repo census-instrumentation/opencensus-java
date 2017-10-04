@@ -17,10 +17,12 @@
 package io.opencensus.implcore.stats.export;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -135,6 +137,31 @@ public class StatsExporterImplTest {
         tagger.emptyBuilder().put(TAG_KEY, TAG_VALUE_1).build(),
         MeasureMap.builder().put(MEASURE, 6.6).build());
     verify(mockServiceHandler, timeout(1000).times(1)).export(anyListOf(ViewData.class));
+  }
+
+  @Test
+  public void doNotExportForUnregisteredView() {
+    doNothing().when(mockServiceHandler).export(anyListOf(ViewData.class));
+    statsExporter.registerHandler(MOCK_SERVICE_NAME, mockServiceHandler);
+
+    MeasureDouble measure2 = MeasureDouble.create("Measure2", "description", "1");
+    View view2 = View.create(Name.create("view2"), "description", measure2, DISTRIBUTION,
+        Arrays.asList(TAG_KEY), CUMULATIVE);
+    clock.advanceTime(ONE_SECOND);
+    viewManager.registerView(view2);
+    viewManager.registerView(VIEW, Arrays.asList(mockServiceHandler));
+
+    clock.advanceTime(ONE_SECOND);
+    statsRecorder.record(
+        tagger.emptyBuilder().put(TAG_KEY, TAG_VALUE_1).build(),
+        MeasureMap.builder().put(measure2, 6.6).build());
+    verify(mockServiceHandler, never()).export(anyCollectionOf(ViewData.class));
+
+    clock.advanceTime(ONE_SECOND);
+    statsRecorder.record(
+        tagger.emptyBuilder().put(TAG_KEY, TAG_VALUE_1).build(),
+        MeasureMap.builder().put(MEASURE, 8.8).build());
+    verify(mockServiceHandler, timeout(1000).times(1)).export(anyCollectionOf(ViewData.class));
   }
 
   @Test

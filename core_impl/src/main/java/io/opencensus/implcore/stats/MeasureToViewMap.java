@@ -87,12 +87,14 @@ final class MeasureToViewMap {
   }
 
   /** Enable stats collection for the given {@link View}. */
-  synchronized void registerView(View view, List<Handler> handlers, Clock clock) {
+  synchronized void registerView(
+      View view, List<Handler> handlers, Clock clock, StatsExporterImpl statsExporter) {
     View existing = registeredViews.get(view.getName());
     if (existing != null) {
       if (existing.equals(view)) {
         for (Handler handler : handlers) {
           handler.registerView(view);
+          statsExporter.registerViewForHandler(handler, view.getName());
         }
         // Ignore views that are already registered.
         return;
@@ -114,6 +116,7 @@ final class MeasureToViewMap {
     mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
     for (Handler handler : handlers) {
       handler.registerView(view);
+      statsExporter.registerViewForHandler(handler, view.getName());
     }
   }
 

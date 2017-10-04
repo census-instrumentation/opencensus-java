@@ -17,13 +17,18 @@
 package io.opencensus.implcore.stats.export;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import io.opencensus.stats.View;
+import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.export.ExportComponent;
 import io.opencensus.stats.export.StatsExporter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,6 +55,16 @@ public final class StatsExporterImpl extends StatsExporter {
     WorkerThread workerThread = new WorkerThread(bufferSize, scheduleDelayMillis);
     workerThread.start();
     return new StatsExporterImpl(workerThread);
+  }
+
+  /**
+   * Registers a {@link View} on a {@link io.opencensus.stats.export.StatsExporter.Handler}.
+   *
+   * @param handler the {@code Handler}.
+   * @param viewName name of {@code View}.
+   */
+  public void registerViewForHandler(Handler handler, View.Name viewName) {
+    workerThread.registerViewForHandler(handler, viewName);
   }
 
   /**
@@ -96,8 +111,16 @@ public final class StatsExporterImpl extends StatsExporter {
     private final List<ViewData> viewDataList;
 
     private final Map<String, Handler> serviceHandlers = new ConcurrentHashMap<String, Handler>();
+    private final Map<Handler, Set<View.Name>> registeredViewsPerHandler =
+        new ConcurrentHashMap<Handler, Set<View.Name>>();
     private final int bufferSize;
     private final long scheduleDelayMillis;
+
+    private void registerViewForHandler(Handler handler, View.Name viewName) {
+      if (registeredViewsPerHandler.containsKey(handler)) {
+        registeredViewsPerHandler.get(handler).add(viewName);
+      }
+    }
 
     // See StatsExporterImpl#addViewData.
     private void addViewData(ViewData viewData) {
@@ -112,6 +135,7 @@ public final class StatsExporterImpl extends StatsExporter {
     // See ViewDataExporter#registerHandler.
     private void registerHandler(String name, Handler serviceHandler) {
       serviceHandlers.put(name, serviceHandler);
+      registeredViewsPerHandler.put(serviceHandler, new HashSet<Name>());
     }
 
     // See ViewDataExporter#unregisterHandler.
@@ -120,8 +144,6 @@ public final class StatsExporterImpl extends StatsExporter {
     }
 
     // Exports the list of ViewData to all the ServiceHandlers.
-    // Always export all ViewData to all Handlers. It's up to the Handlers how to deal with
-    // the unregistered ViewData.
     private void onBatchExport(List<ViewData> viewDataList) {
       // From the java documentation of the ConcurrentHashMap#entrySet():
       // The view's iterator is a "weakly consistent" iterator that will never throw
@@ -131,7 +153,15 @@ public final class StatsExporterImpl extends StatsExporter {
       for (Map.Entry<String, Handler> it : serviceHandlers.entrySet()) {
         // In case of any exception thrown by the service handlers continue to run.
         try {
-          it.getValue().export(viewDataList);
+          // Only export ViewData that has been registered against this Handler.
+          List<ViewData> registeredViewData = Lists.newArrayList();
+          Set<View.Name> registeredViews = registeredViewsPerHandler.get(it.getValue());
+          for (ViewData viewData : viewDataList) {
+            if (registeredViews.contains(viewData.getView().getName())) {
+              registeredViewData.add(viewData);
+            }
+          }
+          it.getValue().export(registeredViewData);
         } catch (Throwable e) {
           logger.log(Level.WARNING, "Exception thrown by the service export " + it.getKey(), e);
         }
