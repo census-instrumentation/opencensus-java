@@ -59,7 +59,7 @@ public abstract class Measurement {
     @Override
     public abstract MeasureDouble getMeasure();
 
-    public abstract Double getValue();
+    public abstract double getValue();
 
     @Override
     public <T> T match(
@@ -86,7 +86,7 @@ public abstract class Measurement {
     @Override
     public abstract MeasureLong getMeasure();
 
-    public abstract Long getValue();
+    public abstract long getValue();
 
     @Override
     public <T> T match(
