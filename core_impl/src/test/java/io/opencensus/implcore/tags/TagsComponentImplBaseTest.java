@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 
 /** Tests for {@link TagsComponentImplBase}. */
 @RunWith(JUnit4.class)
-public class TagComponentImplBaseTest {
+public class TagsComponentImplBaseTest {
   private final TagsComponent tagsComponent = new TagsComponentImplBase();
 
   @Test
