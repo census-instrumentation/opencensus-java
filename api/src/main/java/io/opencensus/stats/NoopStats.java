@@ -110,7 +110,7 @@ final class NoopStats {
     static final StatsRecorder INSTANCE = new NoopStatsRecorder();
 
     @Override
-    public StatsBuilder newStatsBuilder(TagContext tags) {
+    public StatsBuilder newStatsBuilderWithExplicitTagContext(TagContext tags) {
       checkNotNull(tags, "tags");
       return getNoopStatsBuilder();
     }

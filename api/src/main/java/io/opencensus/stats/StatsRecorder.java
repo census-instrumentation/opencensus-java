@@ -30,7 +30,7 @@ public abstract class StatsRecorder {
    */
   public final StatsBuilder newStatsBuilder() {
     // Use the context key directly, to avoid depending on the tags implementation.
-    return newStatsBuilder(ContextUtils.TAG_CONTEXT_KEY.get());
+    return newStatsBuilderWithExplicitTagContext(ContextUtils.TAG_CONTEXT_KEY.get());
   }
 
   /**
@@ -39,5 +39,5 @@ public abstract class StatsRecorder {
    * @param tags the tags associated with the measurements.
    * @return an object for recording multiple measures with a set of tags.
    */
-  public abstract StatsBuilder newStatsBuilder(TagContext tags);
+  public abstract StatsBuilder newStatsBuilderWithExplicitTagContext(TagContext tags);
 }

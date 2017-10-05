@@ -31,7 +31,7 @@ public final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  public StatsBuilderImpl newStatsBuilder(TagContext tags) {
+  public StatsBuilderImpl newStatsBuilderWithExplicitTagContext(TagContext tags) {
     checkNotNull(tags, "tags");
     return StatsBuilderImpl.create(statsManager, tags);
   }
