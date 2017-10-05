@@ -17,7 +17,7 @@
 package io.opencensus.implcore.tags;
 
 import io.opencensus.common.Scope;
-import io.opencensus.internal.NoopScope;
+import io.opencensus.implcore.internal.NoopScope;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
