@@ -22,6 +22,7 @@ import static io.opencensus.implcore.tags.TagsTestUtil.tagContextToList;
 import com.google.common.collect.Lists;
 import io.grpc.Context;
 import io.opencensus.common.Scope;
+import io.opencensus.implcore.internal.NoopScope;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagBoolean;
 import io.opencensus.tags.Tag.TagLong;
@@ -280,6 +281,12 @@ public class TaggerImplTest {
     TagContext tagContextWithNullTag = new SimpleTagContext(TAG1, null, TAG2);
     TagContext result = getResultOfWithTagContext(tagContextWithNullTag);
     assertThat(tagContextToList(result)).containsExactly(TAG1, TAG2);
+  }
+
+  @Test
+  public void withTagContext_ReturnsNoopScopeWhenTaggingIsDisabled() {
+    tagsComponent.setState(TaggingState.DISABLED);
+    assertThat(tagger.withTagContext(new SimpleTagContext(TAG1))).isSameAs(NoopScope.getInstance());
   }
 
   @Test
