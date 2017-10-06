@@ -18,6 +18,7 @@ package io.opencensus.implcore.tags.propagation;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.base.Charsets;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagContext;
@@ -242,7 +243,7 @@ public class TagContextDeserializationTest {
   private static void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
     VarInt.putVarInt(input.length(), byteArrayOutputStream);
-    byteArrayOutputStream.write(input.getBytes("UTF-8"));
+    byteArrayOutputStream.write(input.getBytes(Charsets.UTF_8));
   }
 
   //     <tag_encoding> (tag_field_id == 1) ==
