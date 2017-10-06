@@ -112,6 +112,6 @@ public class TagContextSerializationTest {
   private static void encodeString(String input, ByteArrayOutputStream byteArrayOutputStream)
       throws IOException {
     VarInt.putVarInt(input.length(), byteArrayOutputStream);
-    byteArrayOutputStream.write(input.getBytes("UTF-8"));
+    byteArrayOutputStream.write(input.getBytes(Charsets.UTF_8));
   }
 }
