@@ -113,8 +113,7 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeValueTypeString() throws TagContextParseException {
     TagContext actual =
-        serializer.fromByteArray(
-            constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_STRING));
+        serializer.fromByteArray(constructSingleTypeTagBytes(SerializationUtils.VALUE_TYPE_STRING));
     TagContext expected =
         tagger
             .emptyBuilder()
@@ -129,7 +128,7 @@ public class TagContextDeserializationTest {
   public void testDeserializeMultipleString() throws TagContextParseException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
-    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_STRING, output);
+    encodeSingleTypeTagToOutput(SerializationUtils.VALUE_TYPE_STRING, output);
     output.write(SerializationUtils.VALUE_TYPE_STRING);
     encodeString("Key2", output);
     encodeString("String2", output);
@@ -148,27 +147,25 @@ public class TagContextDeserializationTest {
   @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeInteger() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type integer
-    serializer.fromByteArray(
-        constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_INTEGER));
+    serializer.fromByteArray(constructSingleTypeTagBytes(SerializationUtils.VALUE_TYPE_INTEGER));
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeTrue() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type boolean
-    serializer.fromByteArray(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_TRUE));
+    serializer.fromByteArray(constructSingleTypeTagBytes(SerializationUtils.VALUE_TYPE_TRUE));
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeFalse() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type boolean
-    serializer.fromByteArray(
-        constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_FALSE));
+    serializer.fromByteArray(constructSingleTypeTagBytes(SerializationUtils.VALUE_TYPE_FALSE));
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeMultipleValueType() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type integer and boolean
-    serializer.fromByteArray(constructMultiTypeTagInputStream());
+    serializer.fromByteArray(constructMultiTypeTagBytes());
   }
 
   @Test(expected = TagContextParseException.class)
@@ -183,32 +180,32 @@ public class TagContextDeserializationTest {
   }
 
   /*
-   * Construct an InputStream with the given type of tag.
+   * Construct a byte[] with the given type of tag.
    * The input format is:
    *   <version_id><encoded_tags>, and <encoded_tags> == (<tag_field_id><tag_encoding>)*
    * TODO(songya): after supporting serialize integer and boolean,
    * remove this method and use StatsContext.serialize() instead.
    * Currently StatsContext.serialize() can only serialize strings.
    */
-  private static byte[] constructSingleTypeTagInputStream(int valueType) {
+  private static byte[] constructSingleTypeTagBytes(int valueType) {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
-    encodeSingleTypeTagToOutputStream(valueType, output);
+    encodeSingleTypeTagToOutput(valueType, output);
     return output.toByteArray();
   }
 
-  // Construct an InputStream with all 4 types of tags.
-  private static byte[] constructMultiTypeTagInputStream() {
+  // Construct a byte[] with all 4 types of tags.
+  private static byte[] constructMultiTypeTagBytes() {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
-    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_STRING, output);
-    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_INTEGER, output);
-    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_TRUE, output);
-    encodeSingleTypeTagToOutputStream(SerializationUtils.VALUE_TYPE_FALSE, output);
+    encodeSingleTypeTagToOutput(SerializationUtils.VALUE_TYPE_STRING, output);
+    encodeSingleTypeTagToOutput(SerializationUtils.VALUE_TYPE_INTEGER, output);
+    encodeSingleTypeTagToOutput(SerializationUtils.VALUE_TYPE_TRUE, output);
+    encodeSingleTypeTagToOutput(SerializationUtils.VALUE_TYPE_FALSE, output);
     return output.toByteArray();
   }
 
-  private static void encodeSingleTypeTagToOutputStream(int valueType, ByteArrayDataOutput output) {
+  private static void encodeSingleTypeTagToOutput(int valueType, ByteArrayDataOutput output) {
     output.write(valueType);
 
     // encode <tag_key_len><tag_key>, tag key is a string "KEY" appended by the field id here.
