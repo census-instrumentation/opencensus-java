@@ -68,14 +68,14 @@ public class TagContextDeserializationTest {
   public void testDeserializeNoTags() throws TagContextParseException {
     TagContext expected = tagger.empty();
     TagContext actual =
-        testDeserialize(
+        serializer.fromByteArray(
             new byte[] {SerializationUtils.VERSION_ID}); // One byte that represents Version ID.
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeEmptyByteArrayThrowException() throws TagContextParseException {
-    testDeserialize(new byte[0]);
+    serializer.fromByteArray(new byte[0]);
   }
 
   @Test
@@ -113,7 +113,8 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeValueTypeString() throws TagContextParseException {
     TagContext actual =
-        testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_STRING));
+        serializer.fromByteArray(
+            constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_STRING));
     TagContext expected =
         tagger
             .emptyBuilder()
@@ -132,7 +133,7 @@ public class TagContextDeserializationTest {
     output.write(SerializationUtils.VALUE_TYPE_STRING);
     encodeString("Key2", output);
     encodeString("String2", output);
-    TagContext actual = testDeserialize(output.toByteArray());
+    TagContext actual = serializer.fromByteArray(output.toByteArray());
     TagContext expected =
         tagger
             .emptyBuilder()
@@ -147,40 +148,38 @@ public class TagContextDeserializationTest {
   @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeInteger() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type integer
-    testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_INTEGER));
+    serializer.fromByteArray(
+        constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_INTEGER));
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeTrue() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_TRUE));
+    serializer.fromByteArray(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_TRUE));
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeValueTypeFalse() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type boolean
-    testDeserialize(constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_FALSE));
+    serializer.fromByteArray(
+        constructSingleTypeTagInputStream(SerializationUtils.VALUE_TYPE_FALSE));
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeMultipleValueType() throws TagContextParseException {
     // TODO(songya): test should pass after we add support for type integer and boolean
-    testDeserialize(constructMultiTypeTagInputStream());
+    serializer.fromByteArray(constructMultiTypeTagInputStream());
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeWrongFormat() throws TagContextParseException {
     // encoded tags should follow the format <version_id>(<tag_field_id><tag_encoding>)*
-    testDeserialize(new byte[3]);
+    serializer.fromByteArray(new byte[3]);
   }
 
   @Test(expected = TagContextParseException.class)
   public void testDeserializeWrongVersionId() throws TagContextParseException {
-    testDeserialize(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
-  }
-
-  private TagContext testDeserialize(byte[] bytes) throws TagContextParseException {
-    return serializer.fromByteArray(bytes);
+    serializer.fromByteArray(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
   }
 
   /*
