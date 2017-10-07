@@ -16,6 +16,10 @@
 
 package io.opencensus.stats;
 
+import io.opencensus.stats.export.StatsExporter.Handler;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Provides facilities to register {@link View}s for collecting stats and retrieving
  * stats data as a {@link ViewData}.
@@ -26,6 +30,13 @@ public abstract class ViewManager {
    * via {@link #getView(View)}.
    */
   public abstract void registerView(View view);
+
+  /**
+   * Push model for stats. Registers a {@link View} that will collect data to be accessed
+   * via {@link Handler#export(Collection)} of the passed-in {@link Handler}s. Though it's
+   * also possible to manually get stats data via {@link #getView(View)}.
+   */
+  public abstract void registerView(View view, List<Handler> handlers);
 
   /**
    * Returns the current stats data, {@link ViewData}, associated with the given

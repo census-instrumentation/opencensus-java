@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.SimpleEventQueue;
+import io.opencensus.implcore.stats.export.ExportComponentImpl;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Distribution;
@@ -108,7 +109,7 @@ public class ViewManagerImplTest {
   private final TestClock clock = TestClock.create();
 
   private final StatsComponentImplBase statsComponent =
-      new StatsComponentImplBase(new SimpleEventQueue(), clock);
+      new StatsComponentImplBase(new SimpleEventQueue(), clock, ExportComponentImpl.create());
   private final TagsComponent tagsComponent = new TagsComponentImplBase();
 
   private final Tagger tagger = tagsComponent.getTagger();

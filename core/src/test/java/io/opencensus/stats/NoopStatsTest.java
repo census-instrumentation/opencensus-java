@@ -19,6 +19,7 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.export.ExportComponent;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
@@ -60,6 +61,8 @@ public final class NoopStatsTest {
         .isSameAs(NoopStats.getNoopStatsRecorder());
     assertThat(NoopStats.newNoopStatsComponent().getViewManager())
         .isInstanceOf(NoopStats.newNoopViewManager().getClass());
+    assertThat(NoopStats.newNoopStatsComponent().getExportComponent())
+        .isSameAs(ExportComponent.getNoopExportComponent());
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an

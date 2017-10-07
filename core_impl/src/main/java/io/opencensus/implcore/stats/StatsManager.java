@@ -20,10 +20,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.implcore.stats.export.StatsExporterImpl;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
+import io.opencensus.stats.export.StatsExporter.Handler;
 import io.opencensus.tags.TagContext;
+import java.util.List;
 
 /** Object that stores all views and stats. */
 final class StatsManager {
@@ -33,17 +36,21 @@ final class StatsManager {
   // clock used throughout the stats implementation
   private final Clock clock;
 
+  private final StatsExporterImpl statsExporter;
+
   private final MeasureToViewMap measureToViewMap = new MeasureToViewMap();
 
-  StatsManager(EventQueue queue, Clock clock) {
+  StatsManager(EventQueue queue, Clock clock, StatsExporterImpl statsExporter) {
     checkNotNull(queue, "EventQueue");
     checkNotNull(clock, "Clock");
+    checkNotNull(statsExporter, "StatsExporter");
     this.queue = queue;
     this.clock = clock;
+    this.statsExporter = statsExporter;
   }
 
-  void registerView(View view) {
-    measureToViewMap.registerView(view, clock);
+  void registerView(View view, List<Handler> handlers) {
+    measureToViewMap.registerView(view, handlers, clock, statsExporter);
   }
 
   ViewData getView(View.Name viewName) {
@@ -75,7 +82,8 @@ final class StatsManager {
     @Override
     public void process() {
       // Add Timestamp to value after it went through the DisruptorQueue.
-      statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now());
+      statsManager.measureToViewMap.record(
+          tags, stats, statsManager.clock.now(), statsManager.statsExporter);
     }
   }
 }

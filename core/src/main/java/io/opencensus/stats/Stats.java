@@ -18,6 +18,7 @@ package io.opencensus.stats;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.internal.Provider;
+import io.opencensus.stats.export.ExportComponent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +37,15 @@ public final class Stats {
   /** Returns the default {@link ViewManager}. */
   public static ViewManager getViewManager() {
     return statsComponent.getViewManager();
+  }
+
+  /**
+   * Returns the global {@link ExportComponent}.
+   *
+   * @return the global {@code ExportComponent}.
+   */
+  public static ExportComponent getExportComponent() {
+    return statsComponent.getExportComponent();
   }
 
   // Any provider that may be used for StatsComponent can be added here.

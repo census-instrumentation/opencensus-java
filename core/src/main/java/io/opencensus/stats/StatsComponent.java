@@ -16,6 +16,8 @@
 
 package io.opencensus.stats;
 
+import io.opencensus.stats.export.ExportComponent;
+
 /**
  * Class that holds the implementations for {@link ViewManager} and {@link StatsRecorder}.
  *
@@ -28,4 +30,12 @@ public abstract class StatsComponent {
 
   /** Returns the default {@link StatsRecorder}. */
   public abstract StatsRecorder getStatsRecorder();
+
+  /**
+   * Returns the {@link ExportComponent} with the provided implementation. If no implementation is
+   * provided then no-op implementations will be used.
+   *
+   * @return the {@link ExportComponent} implementation.
+   */
+  public abstract ExportComponent getExportComponent();
 }

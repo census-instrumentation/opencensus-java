@@ -23,6 +23,7 @@ import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.stats.export.StatsExporterImpl;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Measurement;
@@ -30,10 +31,12 @@ import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
+import io.opencensus.stats.export.StatsExporter.Handler;
 import io.opencensus.tags.TagContext;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -84,10 +87,15 @@ final class MeasureToViewMap {
   }
 
   /** Enable stats collection for the given {@link View}. */
-  synchronized void registerView(View view, Clock clock) {
+  synchronized void registerView(
+      View view, List<Handler> handlers, Clock clock, StatsExporterImpl statsExporter) {
     View existing = registeredViews.get(view.getName());
     if (existing != null) {
       if (existing.equals(view)) {
+        for (Handler handler : handlers) {
+          handler.registerView(view);
+          statsExporter.registerViewForHandler(handler, view.getName());
+        }
         // Ignore views that are already registered.
         return;
       } else {
@@ -106,10 +114,15 @@ final class MeasureToViewMap {
       registeredMeasures.put(measure.getName(), measure);
     }
     mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
+    for (Handler handler : handlers) {
+      handler.registerView(view);
+      statsExporter.registerViewForHandler(handler, view.getName());
+    }
   }
 
   // Records stats with a set of tags.
-  synchronized void record(TagContext tags, MeasureMap stats, Timestamp timestamp) {
+  synchronized void record(
+      TagContext tags, MeasureMap stats, Timestamp timestamp, StatsExporterImpl statsExporter) {
     Iterator<Measurement> iterator = stats.iterator();
     while (iterator.hasNext()) {
       Measurement measurement = iterator.next();
@@ -124,6 +137,7 @@ final class MeasureToViewMap {
             new RecordDoubleValueFunc(tags, view, timestamp),
             new RecordLongValueFunc(tags, view, timestamp),
             Functions.<Void>throwAssertionError());
+        statsExporter.addViewData(view.toViewData(timestamp));
       }
     }
   }
