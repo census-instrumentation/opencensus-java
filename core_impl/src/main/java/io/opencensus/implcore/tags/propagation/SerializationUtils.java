@@ -143,7 +143,7 @@ final class SerializationUtils {
           case VALUE_TYPE_FALSE:
           default:
             // TODO(songya): add support for value types integer and boolean
-            throw new TagContextParseException("Unsupported tag value type.");
+            throw new TagContextParseException("Unsupported tag value type: " + type);
         }
       }
       return new TagContextImpl(tags);
