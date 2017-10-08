@@ -38,8 +38,8 @@ import io.opencensus.trace.export.SampledSpanStore.LatencyBucketBoundaries;
 import io.opencensus.trace.export.SampledSpanStore.LatencyFilter;
 import io.opencensus.trace.export.SampledSpanStore.PerSpanNameSummary;
 import io.opencensus.trace.export.SpanData;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
@@ -83,37 +83,49 @@ public class SampledSpanStoreImplTest {
 
   @Before
   public void setUp() {
-    sampleStore.registerSpanNamesForCollection(Arrays.asList(REGISTERED_SPAN_NAME));
+    sampleStore.registerSpanNamesForCollection(Collections.singletonList(REGISTERED_SPAN_NAME));
   }
 
-  SpanImpl createSampledSpan(String spanName) {
-    SpanImpl span =
-        SpanImpl.startSpan(
-            sampledSpanContext,
-            recordSpanOptions,
-            spanName,
-            parentSpanId,
-            false,
-            TraceParams.DEFAULT,
-            startEndHandler,
-            null,
-            testClock);
-    return span;
+  private SpanImpl createSampledSpan(String spanName) {
+    return SpanImpl.startSpan(
+        sampledSpanContext,
+        recordSpanOptions,
+        spanName,
+        parentSpanId,
+        false,
+        TraceParams.DEFAULT,
+        false,
+        startEndHandler,
+        null,
+        testClock);
   }
 
-  SpanImpl createNotSampledSpan(String spanName) {
-    SpanImpl span =
-        SpanImpl.startSpan(
-            notSampledSpanContext,
-            recordSpanOptions,
-            spanName,
-            parentSpanId,
-            false,
-            TraceParams.DEFAULT,
-            startEndHandler,
-            null,
-            testClock);
-    return span;
+  private SpanImpl createSampledSpanWithRegisterName(String spanName) {
+    return SpanImpl.startSpan(
+        sampledSpanContext,
+        recordSpanOptions,
+        spanName,
+        parentSpanId,
+        false,
+        TraceParams.DEFAULT,
+        true,
+        startEndHandler,
+        null,
+        testClock);
+  }
+
+  private SpanImpl createNotSampledSpan(String spanName) {
+    return SpanImpl.startSpan(
+        notSampledSpanContext,
+        recordSpanOptions,
+        spanName,
+        parentSpanId,
+        false,
+        TraceParams.DEFAULT,
+        false,
+        startEndHandler,
+        null,
+        testClock);
   }
 
   private void addSpanNameToAllLatencyBuckets(String spanName) {
@@ -172,12 +184,22 @@ public class SampledSpanStoreImplTest {
   public void registerUnregisterAndListSpanNames() {
     assertThat(sampleStore.getRegisteredSpanNamesForCollection())
         .containsExactly(REGISTERED_SPAN_NAME);
-    sampleStore.registerSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
+    sampleStore.registerSpanNamesForCollection(Collections.singletonList(NOT_REGISTERED_SPAN_NAME));
     assertThat(sampleStore.getRegisteredSpanNamesForCollection())
         .containsExactly(REGISTERED_SPAN_NAME, NOT_REGISTERED_SPAN_NAME);
-    sampleStore.unregisterSpanNamesForCollection(Arrays.asList(NOT_REGISTERED_SPAN_NAME));
+    sampleStore.unregisterSpanNamesForCollection(
+        Collections.singletonList(NOT_REGISTERED_SPAN_NAME));
     assertThat(sampleStore.getRegisteredSpanNamesForCollection())
         .containsExactly(REGISTERED_SPAN_NAME);
+  }
+
+  @Test
+  public void registerSpanNamesViaSpanBuilderOption() {
+    assertThat(sampleStore.getRegisteredSpanNamesForCollection())
+        .containsExactly(REGISTERED_SPAN_NAME);
+    createSampledSpanWithRegisterName(NOT_REGISTERED_SPAN_NAME).end();
+    assertThat(sampleStore.getRegisteredSpanNamesForCollection())
+        .containsExactly(REGISTERED_SPAN_NAME, NOT_REGISTERED_SPAN_NAME);
   }
 
   @Test

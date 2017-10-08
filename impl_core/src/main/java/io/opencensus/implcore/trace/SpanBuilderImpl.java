@@ -48,6 +48,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   private Sampler sampler;
   private List<Span> parentLinks = Collections.<Span>emptyList();
   private Boolean recordEvents;
+  private boolean registerNameForSampledSpanStore = false;
 
   private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
@@ -75,8 +76,16 @@ final class SpanBuilderImpl extends SpanBuilder {
       parentSpanId = parent.getSpanId();
       traceOptionsBuilder = TraceOptions.builder(parent.getTraceOptions());
     }
-    traceOptionsBuilder.setIsSampled(makeSamplingDecision(
-        parent, hasRemoteParent, name, sampler, parentLinks, traceId, spanId, activeTraceParams));
+    traceOptionsBuilder.setIsSampled(
+        makeSamplingDecision(
+            parent,
+            hasRemoteParent,
+            name,
+            sampler,
+            parentLinks,
+            traceId,
+            spanId,
+            activeTraceParams));
     TraceOptions traceOptions = traceOptionsBuilder.build();
     EnumSet<Span.Options> spanOptions = EnumSet.noneOf(Span.Options.class);
     if (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents)) {
@@ -90,6 +99,7 @@ final class SpanBuilderImpl extends SpanBuilder {
             parentSpanId,
             hasRemoteParent,
             activeTraceParams,
+            registerNameForSampledSpanStore,
             options.startEndHandler,
             timestampConverter,
             options.clock);
@@ -224,6 +234,13 @@ final class SpanBuilderImpl extends SpanBuilder {
   @Override
   public SpanBuilderImpl setRecordEvents(boolean recordEvents) {
     this.recordEvents = recordEvents;
+    return this;
+  }
+
+  @Override
+  public SpanBuilderImpl setRegisterNameForSampledSpanStore(
+      boolean registerNameForSampledSpanStore) {
+    this.registerNameForSampledSpanStore = registerNameForSampledSpanStore;
     return this;
   }
 }

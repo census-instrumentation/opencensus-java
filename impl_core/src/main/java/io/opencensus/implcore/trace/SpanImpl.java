@@ -72,6 +72,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
   // set, otherwise 0.
   private final long startNanoTime;
+  // True if the library should register this Span name to the SampledSpanStore.
+  private final boolean registerNameForSampledSpanStore;
   // Set of recorded attributes. DO NOT CALL any other method that changes the ordering of events.
   @GuardedBy("this")
   private AttributesWithCapacity attributes;
@@ -109,6 +111,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    * @param hasRemoteParent {@code true} if the parentContext is remote. {@code null} if this is a
    *     root span.
    * @param traceParams trace parameters like sampler and probability.
+   * @param registerNameForSampledSpanStore {@code }
    * @param startEndHandler handler called when the span starts and ends.
    * @param timestampConverter null if the span is a root span or the parent is not sampled. If the
    *     parent is sampled, we should use the same converter to ensure ordering between tracing
@@ -124,6 +127,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       @Nullable SpanId parentSpanId,
       @Nullable Boolean hasRemoteParent,
       TraceParams traceParams,
+      boolean registerNameForSampledSpanStore,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
@@ -135,6 +139,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
             parentSpanId,
             hasRemoteParent,
             traceParams,
+            registerNameForSampledSpanStore,
             startEndHandler,
             timestampConverter,
             clock);
@@ -188,6 +193,15 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     synchronized (this) {
       return hasBeenEnded ? endNanoTime - startNanoTime : clock.nowNanos() - startNanoTime;
     }
+  }
+
+  /**
+   * Returns if the name of this {@code Span} must be register to the {@code SampledSpanStore}.
+   *
+   * @return if the name of this {@code Span} must be register to the {@code SampledSpanStore}.
+   */
+  public boolean getRegisterNameForSampledSpanStore() {
+    return registerNameForSampledSpanStore;
   }
 
   /**
@@ -517,6 +531,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       @Nullable SpanId parentSpanId,
       @Nullable Boolean hasRemoteParent,
       TraceParams traceParams,
+      boolean registerNameForSampledSpanStore,
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
@@ -525,6 +540,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     this.hasRemoteParent = hasRemoteParent;
     this.name = name;
     this.traceParams = traceParams;
+    this.registerNameForSampledSpanStore = registerNameForSampledSpanStore;
     this.startEndHandler = startEndHandler;
     this.clock = clock;
     this.hasBeenEnded = false;

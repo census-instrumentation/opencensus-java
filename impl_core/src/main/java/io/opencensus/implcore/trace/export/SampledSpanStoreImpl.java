@@ -225,7 +225,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   /** Constructs a new {@code SampledSpanStoreImpl}. */
-  public SampledSpanStoreImpl() {
+  SampledSpanStoreImpl() {
     samples = new HashMap<String, PerSpanNameSamples>();
   }
 
@@ -252,7 +252,11 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
    */
   public void considerForSampling(SpanImpl span) {
     synchronized (samples) {
-      PerSpanNameSamples perSpanNameSamples = samples.get(span.getName());
+      String spanName = span.getName();
+      if (span.getRegisterNameForSampledSpanStore() && !samples.containsKey(spanName)) {
+        samples.put(spanName, new PerSpanNameSamples());
+      }
+      PerSpanNameSamples perSpanNameSamples = samples.get(spanName);
       if (perSpanNameSamples != null) {
         perSpanNameSamples.considerForSampling(span);
       }

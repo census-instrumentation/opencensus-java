@@ -32,7 +32,7 @@ import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.samplers.Samplers;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,6 +88,24 @@ public class SpanBuilderImplTest {
     SpanData spanData = span.toSpanData();
     assertThat(spanData.getParentSpanId()).isNull();
     assertThat(spanData.getHasRemoteParent()).isNull();
+  }
+
+  @Test
+  public void startSpanWithRegisterNameForSampledSpanStore() {
+    SpanImpl span =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .setRegisterNameForSampledSpanStore(true)
+            .startSpan();
+    assertThat(span.getContext().isValid()).isTrue();
+    assertThat(span.getRegisterNameForSampledSpanStore()).isTrue();
+    SpanImpl span2 =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSampler(Samplers.neverSample())
+            .setRegisterNameForSampledSpanStore(false)
+            .startSpan();
+    assertThat(span2.getContext().isValid()).isTrue();
+    assertThat(span2.getRegisterNameForSampledSpanStore()).isFalse();
   }
 
   @Test
@@ -267,7 +285,7 @@ public class SpanBuilderImplTest {
     // Sampled because the linked parent is sampled.
     Span childSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpanUnsampled, spanBuilderOptions)
-            .setParentLinks(Arrays.asList(rootSpanSampled))
+            .setParentLinks(Collections.singletonList(rootSpanSampled))
             .startSpan();
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId())
