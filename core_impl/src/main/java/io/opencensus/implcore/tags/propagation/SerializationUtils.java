@@ -39,6 +39,7 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Methods for serializing and deserializing {@link TagContext}s.
@@ -116,7 +117,6 @@ final class SerializationUtils {
   // The encoded tags are of the form: <version_id><encoded_tags>
   static TagContextImpl deserializeBinary(byte[] bytes) throws TagContextParseException {
     try {
-      HashMap<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
         throw new TagContextParseException("Input byte[] can not be empty.");
@@ -128,28 +128,40 @@ final class SerializationUtils {
         throw new TagContextParseException(
             "Wrong Version ID: " + versionId + ". Currently supported version is: " + VERSION_ID);
       }
-
-      int limit = buffer.limit();
-      while (buffer.position() < limit) {
-        int type = buffer.get();
-        switch (type) {
-          case VALUE_TYPE_STRING:
-            TagKeyString key = createTagKey(decodeString(buffer));
-            TagValueString val = createTagValue(key, decodeString(buffer));
-            tags.put(key, val);
-            break;
-          case VALUE_TYPE_INTEGER:
-          case VALUE_TYPE_TRUE:
-          case VALUE_TYPE_FALSE:
-          default:
-            // TODO(songya): add support for value types integer and boolean
-            throw new TagContextParseException("Unsupported tag value type: " + type);
-        }
-      }
-      return new TagContextImpl(tags);
+      return new TagContextImpl(parseTags(buffer));
     } catch (BufferUnderflowException exn) {
       throw new TagContextParseException(exn.toString()); // byte array format error.
     }
+  }
+
+  private static Map<TagKey, TagValue> parseTags(ByteBuffer buffer)
+      throws TagContextParseException {
+    Map<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
+    int limit = buffer.limit();
+    while (buffer.position() < limit) {
+      int type = buffer.get();
+      switch (type) {
+        case VALUE_TYPE_STRING:
+          TagKeyString key = createTagKey(decodeString(buffer));
+          TagValueString val = createTagValue(key, decodeString(buffer));
+          tags.put(key, val);
+          break;
+        case VALUE_TYPE_INTEGER:
+          // Skip integer tag, but create TagKey for validation
+          createTagKey(decodeString(buffer));
+          buffer.getLong();
+          break;
+        case VALUE_TYPE_TRUE:
+        case VALUE_TYPE_FALSE:
+          // Skip boolean tag, but create TagKey for validation
+          createTagKey(decodeString(buffer));
+          break;
+        default:
+          // Stop parsing at the first unknown tag type, since there is no way to know its length.
+          return tags;
+      }
+    }
+    return tags;
   }
 
   // TODO(sebright): Consider exposing a TagKey name validation method to avoid needing to catch an
