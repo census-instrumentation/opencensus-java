@@ -32,6 +32,7 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Methods for serializing and deserializing {@link TagContext}s.
@@ -84,7 +85,6 @@ final class SerializationUtils {
   // The encoded tags are of the form: <version_id><encoded_tags>
   static TagContextImpl deserializeBinary(byte[] bytes) throws TagContextParseException {
     try {
-      HashMap<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
       if (bytes.length == 0) {
         // Does not allow empty byte array.
         throw new TagContextParseException("Input byte[] can not be empty.");
@@ -96,25 +96,30 @@ final class SerializationUtils {
         throw new TagContextParseException(
             "Wrong Version ID: " + versionId + ". Currently supported version is: " + VERSION_ID);
       }
-
-      int limit = buffer.limit();
-      while (buffer.position() < limit) {
-        int fieldId = buffer.get();
-        switch (fieldId) {
-          case TAG_FIELD_ID:
-            TagKey key = createTagKey(decodeString(buffer));
-            TagValue val = createTagValue(key, decodeString(buffer));
-            tags.put(key, val);
-            break;
-          default:
-            // TODO(sebright): Skip unknown fields.
-            throw new TagContextParseException("Unsupported tag context field ID: " + fieldId);
-        }
-      }
-      return new TagContextImpl(tags);
+      return new TagContextImpl(parseTags(buffer));
     } catch (BufferUnderflowException exn) {
       throw new TagContextParseException(exn.toString()); // byte array format error.
     }
+  }
+
+  private static Map<TagKey, TagValue> parseTags(ByteBuffer buffer)
+      throws TagContextParseException {
+    Map<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
+    int limit = buffer.limit();
+    while (buffer.position() < limit) {
+      int type = buffer.get();
+      switch (type) {
+        case TAG_FIELD_ID:
+          TagKey key = createTagKey(decodeString(buffer));
+          TagValue val = createTagValue(key, decodeString(buffer));
+          tags.put(key, val);
+          break;
+        default:
+          // Stop parsing at the first unknown field ID, since there is no way to know its length.
+          return tags;
+      }
+    }
+    return tags;
   }
 
   // TODO(sebright): Consider exposing a TagKey name validation method to avoid needing to catch an

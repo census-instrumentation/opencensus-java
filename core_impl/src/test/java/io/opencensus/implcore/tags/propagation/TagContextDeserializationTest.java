@@ -106,13 +106,12 @@ public class TagContextDeserializationTest {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
     encodeTagToOutput("Key", "Value", output);
-    TagContext actual = serializer.fromByteArray(output.toByteArray());
     TagContext expected =
         tagger
             .emptyBuilder()
             .put(TagKey.create("Key"), TagValue.create("Value"))
             .build();
-    assertThat(actual).isEqualTo(expected);
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
 
   @Test
@@ -121,14 +120,49 @@ public class TagContextDeserializationTest {
     output.write(SerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
     encodeTagToOutput("Key2", "Value2", output);
-    TagContext actual = serializer.fromByteArray(output.toByteArray());
     TagContext expected =
         tagger
             .emptyBuilder()
             .put(TagKey.create("Key1"), TagValue.create("Value1"))
             .put(TagKey.create("Key2"), TagValue.create("Value2"))
             .build();
-    assertThat(actual).isEqualTo(expected);
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void stopParsingAtUnknownField() throws TagContextParseException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
+
+    // Write unknown field ID 1.
+    output.write(1);
+    output.write(new byte[] {1, 2, 3, 4});
+
+    encodeTagToOutput("Key3", "Value3", output);
+
+    // key 3 should not be included
+    TagContext expected =
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key1"), TagValue.create("Value1"))
+            .put(TagKey.create("Key2"), TagValue.create("Value2"))
+            .build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void stopParsingAtUnknownTagAtStart() throws TagContextParseException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+
+    // Write unknown field ID 1.
+    output.write(1);
+    output.write(new byte[] {1, 2, 3, 4});
+
+    encodeTagToOutput("Key", "Value", output);
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(tagger.empty());
   }
 
   @Test
