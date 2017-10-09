@@ -30,10 +30,12 @@ import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
+import io.opencensus.stats.ViewManager.Handler;
 import io.opencensus.tags.TagContext;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -84,10 +86,13 @@ final class MeasureToViewMap {
   }
 
   /** Enable stats collection for the given {@link View}. */
-  synchronized void registerView(View view, Clock clock) {
+  synchronized void registerView(View view, List<? extends Handler> handlers, Clock clock) {
     View existing = registeredViews.get(view.getName());
     if (existing != null) {
       if (existing.equals(view)) {
+        for (Handler handler : handlers) {
+          handler.registerView(view);
+        }
         // Ignore views that are already registered.
         return;
       } else {
@@ -106,6 +111,9 @@ final class MeasureToViewMap {
       registeredMeasures.put(measure.getName(), measure);
     }
     mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
+    for (Handler handler : handlers) {
+      handler.registerView(view);
+    }
   }
 
   // Records stats with a set of tags.

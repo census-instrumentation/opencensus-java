@@ -16,9 +16,12 @@
 
 package io.opencensus.implcore.stats;
 
+import io.opencensus.common.Duration;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+import java.util.Collections;
+import java.util.List;
 
 /** Implementation of {@link ViewManager}. */
 public final class ViewManagerImpl extends ViewManager {
@@ -30,7 +33,17 @@ public final class ViewManagerImpl extends ViewManager {
 
   @Override
   public void registerView(View view) {
-    statsManager.registerView(view);
+    statsManager.registerView(view, Collections.<Handler>emptyList());
+  }
+
+  @Override
+  public void registerView(View view, List<? extends Handler> handlers) {
+    statsManager.registerView(view, handlers);
+  }
+
+  @Override
+  public void setExportInterval(Duration duration) {
+    // TODO(songya): implement this
   }
 
   @Override
