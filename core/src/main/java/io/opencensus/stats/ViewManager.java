@@ -23,13 +23,12 @@ package io.opencensus.stats;
 public abstract class ViewManager {
   /**
    * Pull model for stats. Registers a {@link View} that will collect data to be accessed
-   * via {@link #getView(View)}.
+   * via {@link #getView(View.Name)}.
    */
   public abstract void registerView(View view);
 
   /**
-   * Returns the current stats data, {@link ViewData}, associated with the given
-   * {@link View}.
+   * Returns the current stats data, {@link ViewData}, associated with the given view name.
    */
-  public abstract ViewData getView(View view);
+  public abstract ViewData getView(View.Name view);
 }

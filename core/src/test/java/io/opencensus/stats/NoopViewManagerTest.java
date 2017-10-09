@@ -66,9 +66,7 @@ public final class NoopViewManagerTest {
       thrown.expectMessage("A different view with the same name already exists.");
       viewManager.registerView(view2);
     } finally {
-      // TODO(sebright): Test getting the view with a method that gets a view by name, once we
-      // support that.
-      assertThat(viewManager.getView(view2).getView()).isEqualTo(view1);
+      assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(view1);
     }
   }
 
@@ -91,14 +89,11 @@ public final class NoopViewManagerTest {
 
   @Test
   public void noopViewManager_GetView_DisallowGettingNonExistentView() {
-    View view =
-        View.create(
-            VIEW_NAME, VIEW_DESCRIPTION, MEASURE, AGGREGATION, Arrays.asList(KEY), CUMULATIVE);
     ViewManager viewManager = NoopStats.newNoopViewManager();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("View is not registered.");
-    viewManager.getView(view);
+    viewManager.getView(VIEW_NAME);
   }
 
   @Test
@@ -109,7 +104,7 @@ public final class NoopViewManagerTest {
     ViewManager viewManager = NoopStats.newNoopViewManager();
     viewManager.registerView(view);
 
-    ViewData viewData = viewManager.getView(view);
+    ViewData viewData = viewManager.getView(VIEW_NAME);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEmpty();
     assertThat(viewData.getWindowData())
@@ -124,7 +119,7 @@ public final class NoopViewManagerTest {
     ViewManager viewManager = NoopStats.newNoopViewManager();
     viewManager.registerView(view);
 
-    ViewData viewData = viewManager.getView(view);
+    ViewData viewData = viewManager.getView(VIEW_NAME);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEmpty();
     assertThat(viewData.getWindowData()).isEqualTo(IntervalData.create(Timestamp.create(0, 0)));
