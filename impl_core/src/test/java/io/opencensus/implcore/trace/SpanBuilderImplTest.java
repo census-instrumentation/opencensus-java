@@ -95,14 +95,14 @@ public class SpanBuilderImplTest {
     SpanImpl span =
         SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
             .setSampler(Samplers.neverSample())
-            .setRegisterNameForSampledSpanStore(true)
+            .setSampleToLocalSpanStore(true)
             .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getRegisterNameForSampledSpanStore()).isTrue();
     SpanImpl span2 =
         SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
             .setSampler(Samplers.neverSample())
-            .setRegisterNameForSampledSpanStore(false)
+            .setSampleToLocalSpanStore(false)
             .startSpan();
     assertThat(span2.getContext().isValid()).isTrue();
     assertThat(span2.getRegisterNameForSampledSpanStore()).isFalse();

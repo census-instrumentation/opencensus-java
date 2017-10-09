@@ -48,7 +48,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   private Sampler sampler;
   private List<Span> parentLinks = Collections.<Span>emptyList();
   private Boolean recordEvents;
-  private boolean registerNameForSampledSpanStore = false;
+  private boolean sampleToLocalSpanStore = false;
 
   private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
@@ -99,7 +99,7 @@ final class SpanBuilderImpl extends SpanBuilder {
             parentSpanId,
             hasRemoteParent,
             activeTraceParams,
-            registerNameForSampledSpanStore,
+            sampleToLocalSpanStore,
             options.startEndHandler,
             timestampConverter,
             options.clock);
@@ -238,9 +238,8 @@ final class SpanBuilderImpl extends SpanBuilder {
   }
 
   @Override
-  public SpanBuilderImpl setRegisterNameForSampledSpanStore(
-      boolean registerNameForSampledSpanStore) {
-    this.registerNameForSampledSpanStore = registerNameForSampledSpanStore;
+  public SpanBuilderImpl setSampleToLocalSpanStore(boolean sampleToLocalSpanStore) {
+    this.sampleToLocalSpanStore = sampleToLocalSpanStore;
     return this;
   }
 }

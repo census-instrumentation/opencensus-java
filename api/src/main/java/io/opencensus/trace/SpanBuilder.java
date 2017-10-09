@@ -151,8 +151,7 @@ public abstract class SpanBuilder {
    * @return this.
    */
   @ExperimentalApi
-  public abstract SpanBuilder setRegisterNameForSampledSpanStore(
-      boolean registerNameForSampledSpanStore);
+  public abstract SpanBuilder setSampleToLocalSpanStore(boolean sampleToLocalSpanStore);
 
   /**
    * Starts a new {@link Span}.
@@ -274,7 +273,7 @@ public abstract class SpanBuilder {
     }
 
     @Override
-    public SpanBuilder setRegisterNameForSampledSpanStore(boolean registerNameForSampledSpanStore) {
+    public SpanBuilder setSampleToLocalSpanStore(boolean sampleToLocalSpanStore) {
       return this;
     }
 
