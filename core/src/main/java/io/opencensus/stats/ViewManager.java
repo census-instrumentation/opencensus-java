@@ -49,7 +49,7 @@ public abstract class ViewManager {
 
   /**
    * Returns the current stats data, {@link ViewData}, associated with the given
-   * {@link View}.
+   * {@link View.Name}.
    */
   public abstract ViewData getView(View.Name view);
 
@@ -73,7 +73,7 @@ public abstract class ViewManager {
      * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
      * different thread if possible.
      *
-     * @param viewDataList a list of {@code ViewData} objects to be exported.
+     * @param viewDataList a collection of {@code ViewData} objects to be exported.
      */
     public abstract void export(Collection<ViewData> viewDataList);
   }
