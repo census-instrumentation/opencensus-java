@@ -129,7 +129,7 @@ public final class NoopViewManagerTest {
   @Test
   public void noopViewManager_SetExportInterval_DisallowNegativeDuration() {
     ViewManager viewManager = NoopStats.newNoopViewManager();
-    thrown.expectMessage("Duration cannot be negative.");
+    thrown.expectMessage("Duration must be positive.");
     thrown.expect(IllegalArgumentException.class);
     viewManager.setExportInterval(Duration.fromMillis(-1));
   }

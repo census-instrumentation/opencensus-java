@@ -126,7 +126,7 @@ final class NoopStats {
     @Override
     public void setExportInterval(Duration duration) {
       checkNotNull(duration, "duration");
-      checkArgument(duration.compareTo(ZERO_DURATION) > 0, "Duration cannot be negative.");
+      checkArgument(duration.compareTo(ZERO_DURATION) > 0, "Duration must be positive.");
     }
 
     @Override
