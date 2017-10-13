@@ -120,7 +120,7 @@ public final class DisruptorEventQueue implements EventQueue {
     }
   }
 
-  private static AtomicInteger threadIdGen = new AtomicInteger();
+  private static final AtomicInteger threadIdGen = new AtomicInteger();
   private static final ThreadFactory threadFactory = new ThreadFactory() {
       @Override
       public Thread newThread(Runnable r) {
