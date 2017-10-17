@@ -24,6 +24,8 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.EventQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -118,6 +120,16 @@ public final class DisruptorEventQueue implements EventQueue {
     }
   }
 
+  private static final AtomicInteger threadIdGen = new AtomicInteger();
+  private static final ThreadFactory threadFactory = new ThreadFactory() {
+      @Override
+      public Thread newThread(Runnable r) {
+        Thread thread = new Thread(r, "CensusDisruptor-" + threadIdGen.getAndIncrement());
+        thread.setDaemon(true);
+        return thread;
+      }
+    };
+
   // The single instance of the class.
   private static final DisruptorEventQueue eventQueue = new DisruptorEventQueue();
   // The event queue is built on this {@link Disruptor}.
@@ -141,7 +153,7 @@ public final class DisruptorEventQueue implements EventQueue {
         new Disruptor<InstrumentationEvent>(
             new InstrumentationEventFactory(),
             bufferSize,
-            Executors.newSingleThreadExecutor(),
+            Executors.newSingleThreadExecutor(threadFactory),
             ProducerType.MULTI,
             new SleepingWaitStrategy());
     disruptor.handleEventsWith(new InstrumentationEventHandler());
