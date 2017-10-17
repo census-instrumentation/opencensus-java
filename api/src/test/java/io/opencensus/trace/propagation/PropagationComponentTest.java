@@ -36,7 +36,7 @@ public class PropagationComponentTest {
 
   @Test
   public void implementationOfB3() {
-    assertThat(propagationComponent.getB3Format())
-        .isEqualTo(B3Format.getNoopB3Format());
+    assertThat(propagationComponent.getTextFormat())
+        .isEqualTo(TextFormat.getNoopTextFormat());
   }
 }

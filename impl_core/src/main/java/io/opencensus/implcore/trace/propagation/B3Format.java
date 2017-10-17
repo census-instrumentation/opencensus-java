@@ -23,37 +23,45 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
-import io.opencensus.trace.propagation.B3Format;
-import java.text.ParseException;
-import java.util.EnumMap;
-import java.util.Map;
+import io.opencensus.trace.propagation.SpanContextParseException;
+import io.opencensus.trace.propagation.TextFormat.Getter;
+import io.opencensus.trace.propagation.TextFormat.Setter;
 
-/** Implementation of the {@link B3Format}. */
-@VisibleForTesting
-public final class B3FormatImpl extends B3Format {
+/**
+ * Implementation of the B3 propagation protocol. See
+ * <a href=https://github.com/openzipkin/b3-propagation>b3-propagation</a>.
+ */
+final class B3Format {
+  @VisibleForTesting
+  static final String X_B3_TRACE_ID = "X─B3─TraceId";
+  @VisibleForTesting
+  static final String X_B3_SPAN_ID = "X─B3─SpanId";
+  @VisibleForTesting
+  static final String X_B3_PARENT_SPAN_ID = "X─B3─ParentSpanId";
+  @VisibleForTesting
+  static final String X_B3_SAMPLED = "X─B3─Sampled";
+  @VisibleForTesting
+  static final String X_B3_FLAGS = "X-B3-Flags";
   // Used as the upper 8-bytes of the traceId when a 8-bytes traceId is received.
   private static final String UPPER_TRACE_ID = "0000000000000000";
   private static final String SAMPLED_VALUE = "1";
   private static final String FLAGS_VALUE = "1";
 
-  @Override
-  public Map<HeaderName, String> toHeaders(SpanContext spanContext) {
+  <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
     checkNotNull(spanContext, "spanContext");
-    Map<HeaderName, String> headers = new EnumMap<HeaderName, String>(HeaderName.class);
-    headers.put(HeaderName.X_B3_TRACE_ID, spanContext.getTraceId().toLowerBase16());
-    headers.put(HeaderName.X_B3_SPAN_ID, spanContext.getSpanId().toLowerBase16());
+    checkNotNull(setter, "setter");
+    setter.put(carrier, X_B3_TRACE_ID, spanContext.getTraceId().toLowerBase16());
+    setter.put(carrier, X_B3_SPAN_ID, spanContext.getSpanId().toLowerBase16());
     if (spanContext.getTraceOptions().isSampled()) {
-      headers.put(HeaderName.X_B3_SAMPLED, SAMPLED_VALUE);
+      setter.put(carrier, X_B3_SAMPLED, SAMPLED_VALUE);
     }
-    return headers;
   }
 
-  @Override
-  public SpanContext fromHeaders(Map<HeaderName, String> headers) throws ParseException {
-    checkNotNull(headers, "headers");
+  <C> SpanContext extract(C carrier, Getter<C> getter) throws SpanContextParseException {
+    checkNotNull(getter, "getter");
     try {
       TraceId traceId = TraceId.INVALID;
-      String traceIdStr = headers.get(HeaderName.X_B3_TRACE_ID);
+      String traceIdStr = getter.get(carrier, X_B3_TRACE_ID);
       if (traceIdStr != null) {
         if (traceIdStr.length() == TraceId.SIZE) {
           // This is an 8-byte traceID.
@@ -63,18 +71,18 @@ public final class B3FormatImpl extends B3Format {
         }
       }
       SpanId spanId = SpanId.INVALID;
-      String spanIdStr = headers.get(HeaderName.X_B3_SPAN_ID);
+      String spanIdStr = getter.get(carrier, X_B3_SPAN_ID);
       if (spanIdStr != null) {
         spanId = SpanId.fromLowerBase16(spanIdStr);
       }
       TraceOptions traceOptions = TraceOptions.DEFAULT;
-      if (SAMPLED_VALUE.equals(headers.get(HeaderName.X_B3_SAMPLED))
-          || FLAGS_VALUE.equals(headers.get(HeaderName.X_B3_FLAGS))) {
-        traceOptions = TraceOptions.builder().setIsSampled().build();
+      if (SAMPLED_VALUE.equals(getter.get(carrier, X_B3_SAMPLED))
+          || FLAGS_VALUE.equals(getter.get(carrier, X_B3_FLAGS))) {
+        traceOptions = TraceOptions.builder().setIsSampled(true).build();
       }
       return SpanContext.create(traceId, spanId, traceOptions);
     } catch (IllegalArgumentException e) {
-      throw new ParseException("Invalid input: " + e.toString(), 0);
+      throw new SpanContextParseException("Invalid input.", e);
     }
   }
 }
