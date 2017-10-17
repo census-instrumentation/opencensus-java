@@ -19,9 +19,7 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.errorprone.annotations.MustBeClosed;
-import io.opencensus.common.ExperimentalApi;
 import io.opencensus.common.Scope;
-import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -135,23 +133,6 @@ public abstract class SpanBuilder {
    * @return this.
    */
   public abstract SpanBuilder setRecordEvents(boolean recordEvents);
-
-  /**
-   * If set to {@code true} this is equivalent with calling the {@link
-   * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} in
-   * advance for the given span name.
-   *
-   * <p>WARNING: setting this option to a randomly generated span name can OOM your process because
-   * the library will save samples for each name.
-   *
-   * <p>It is strongly recommended to use the {@link
-   * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} API
-   * instead.
-   *
-   * @return this.
-   */
-  @ExperimentalApi
-  public abstract SpanBuilder setSampleToLocalSpanStore(boolean sampleToLocalSpanStore);
 
   /**
    * Starts a new {@link Span}.
@@ -269,11 +250,6 @@ public abstract class SpanBuilder {
 
     @Override
     public SpanBuilder setRecordEvents(boolean recordEvents) {
-      return this;
-    }
-
-    @Override
-    public SpanBuilder setSampleToLocalSpanStore(boolean sampleToLocalSpanStore) {
       return this;
     }
 

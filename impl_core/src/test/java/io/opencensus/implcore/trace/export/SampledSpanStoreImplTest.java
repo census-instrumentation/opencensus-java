@@ -94,21 +94,6 @@ public class SampledSpanStoreImplTest {
         parentSpanId,
         false,
         TraceParams.DEFAULT,
-        false,
-        startEndHandler,
-        null,
-        testClock);
-  }
-
-  private SpanImpl createSampledSpanWithRegisterName(String spanName) {
-    return SpanImpl.startSpan(
-        sampledSpanContext,
-        recordSpanOptions,
-        spanName,
-        parentSpanId,
-        false,
-        TraceParams.DEFAULT,
-        true,
         startEndHandler,
         null,
         testClock);
@@ -122,7 +107,6 @@ public class SampledSpanStoreImplTest {
         parentSpanId,
         false,
         TraceParams.DEFAULT,
-        false,
         startEndHandler,
         null,
         testClock);
@@ -197,7 +181,8 @@ public class SampledSpanStoreImplTest {
   public void registerSpanNamesViaSpanBuilderOption() {
     assertThat(sampleStore.getRegisteredSpanNamesForCollection())
         .containsExactly(REGISTERED_SPAN_NAME);
-    createSampledSpanWithRegisterName(NOT_REGISTERED_SPAN_NAME).end();
+    createSampledSpan(NOT_REGISTERED_SPAN_NAME)
+        .end(EndSpanOptions.builder().setSampleToLocalSpanStore(true).build());
     assertThat(sampleStore.getRegisteredSpanNamesForCollection())
         .containsExactly(REGISTERED_SPAN_NAME, NOT_REGISTERED_SPAN_NAME);
   }

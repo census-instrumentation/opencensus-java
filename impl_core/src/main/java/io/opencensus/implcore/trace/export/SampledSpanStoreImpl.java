@@ -89,8 +89,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
       getSamples(notSampledSpansQueue, maxSpansToReturn, output);
     }
 
-    private static void getSamples(EvictingQueue<SpanImpl> queue, int maxSpansToReturn,
-        List<SpanImpl> output) {
+    private static void getSamples(
+        EvictingQueue<SpanImpl> queue, int maxSpansToReturn, List<SpanImpl> output) {
       for (SpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
           break;
@@ -101,14 +101,18 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
 
     private void getSamplesFilteredByLatency(
         long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn, List<SpanImpl> output) {
-      getSamplesFilteredByLatency(sampledSpansQueue, latencyLowerNs, latencyUpperNs,
-          maxSpansToReturn, output);
-      getSamplesFilteredByLatency(notSampledSpansQueue, latencyLowerNs, latencyUpperNs,
-          maxSpansToReturn, output);
+      getSamplesFilteredByLatency(
+          sampledSpansQueue, latencyLowerNs, latencyUpperNs, maxSpansToReturn, output);
+      getSamplesFilteredByLatency(
+          notSampledSpansQueue, latencyLowerNs, latencyUpperNs, maxSpansToReturn, output);
     }
 
-    private static void getSamplesFilteredByLatency(EvictingQueue<SpanImpl> queue,
-        long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn, List<SpanImpl> output) {
+    private static void getSamplesFilteredByLatency(
+        EvictingQueue<SpanImpl> queue,
+        long latencyLowerNs,
+        long latencyUpperNs,
+        int maxSpansToReturn,
+        List<SpanImpl> output) {
       for (SpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
           break;
@@ -253,7 +257,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   public void considerForSampling(SpanImpl span) {
     synchronized (samples) {
       String spanName = span.getName();
-      if (span.getRegisterNameForSampledSpanStore() && !samples.containsKey(spanName)) {
+      if (span.getSampleToLocalSpanStore() && !samples.containsKey(spanName)) {
         samples.put(spanName, new PerSpanNameSamples());
       }
       PerSpanNameSamples perSpanNameSamples = samples.get(spanName);

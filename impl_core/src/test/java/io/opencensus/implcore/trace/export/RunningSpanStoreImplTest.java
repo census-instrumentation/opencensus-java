@@ -63,7 +63,6 @@ public class RunningSpanStoreImplTest {
         SpanId.generateRandomId(random),
         false,
         TraceParams.DEFAULT,
-        false,
         startEndHandler,
         null,
         MillisClock.getInstance());

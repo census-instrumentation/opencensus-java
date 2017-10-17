@@ -94,7 +94,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             TraceParams.DEFAULT,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -120,7 +119,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             TraceParams.DEFAULT,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -156,7 +154,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             TraceParams.DEFAULT,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -176,7 +173,6 @@ public class SpanImplTest {
             parentSpanId,
             true,
             TraceParams.DEFAULT,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -236,7 +232,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             TraceParams.DEFAULT,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -301,7 +296,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             traceParams,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -350,7 +344,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             traceParams,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -409,7 +402,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             traceParams,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -453,7 +445,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             traceParams,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -497,7 +488,6 @@ public class SpanImplTest {
             parentSpanId,
             false,
             traceParams,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
@@ -521,7 +511,7 @@ public class SpanImplTest {
   }
 
   @Test
-  public void registerNameForSampledSpanStore() {
+  public void sampleToLocalSpanStore() {
     final int maxNumberOfLinks = 8;
     TraceParams traceParams =
         TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(maxNumberOfLinks).build();
@@ -533,14 +523,13 @@ public class SpanImplTest {
             parentSpanId,
             false,
             traceParams,
-            true,
             startEndHandler,
             timestampConverter,
             testClock);
-    assertThat(span.getRegisterNameForSampledSpanStore()).isTrue();
-    span.end();
+    assertThat(span.getSampleToLocalSpanStore()).isFalse();
+    span.end(EndSpanOptions.builder().setSampleToLocalSpanStore(true).build());
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
-    assertThat(span.getRegisterNameForSampledSpanStore()).isTrue();
+    assertThat(span.getSampleToLocalSpanStore()).isTrue();
     span =
         SpanImpl.startSpan(
             spanContext,
@@ -549,13 +538,12 @@ public class SpanImplTest {
             parentSpanId,
             false,
             traceParams,
-            false,
             startEndHandler,
             timestampConverter,
             testClock);
-    assertThat(span.getRegisterNameForSampledSpanStore()).isFalse();
+    assertThat(span.getSampleToLocalSpanStore()).isFalse();
     span.end();
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
-    assertThat(span.getRegisterNameForSampledSpanStore()).isFalse();
+    assertThat(span.getSampleToLocalSpanStore()).isFalse();
   }
 }

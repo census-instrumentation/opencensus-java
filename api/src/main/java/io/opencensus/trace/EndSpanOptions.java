@@ -19,6 +19,8 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.common.ExperimentalApi;
+import java.util.Collection;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -37,8 +39,24 @@ public abstract class EndSpanOptions {
    * @return a new {@code Builder} with default options.
    */
   public static Builder builder() {
-    return new AutoValue_EndSpanOptions.Builder().setStatus(Status.OK);
+    return new AutoValue_EndSpanOptions.Builder()
+        .setStatus(Status.OK)
+        .setSampleToLocalSpanStore(false);
   }
+
+  /**
+   * If {@code true} this is equivalent with calling the {@link
+   * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} in
+   * advance for this span name.
+   *
+   * <p>It is strongly recommended to use the {@link
+   * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} API
+   * instead.
+   *
+   * @return this.
+   */
+  @ExperimentalApi
+  public abstract boolean getSampleToLocalSpanStore();
 
   /**
    * Returns the status.
@@ -59,6 +77,23 @@ public abstract class EndSpanOptions {
      * @return this.
      */
     public abstract Builder setStatus(Status status);
+
+    /**
+     * If set to {@code true} this is equivalent with calling the {@link
+     * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} in
+     * advance for the given span name.
+     *
+     * <p>WARNING: setting this option to a randomly generated span name can OOM your process
+     * because the library will save samples for each name.
+     *
+     * <p>It is strongly recommended to use the {@link
+     * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} API
+     * instead.
+     *
+     * @return this.
+     */
+    @ExperimentalApi
+    public abstract Builder setSampleToLocalSpanStore(boolean sampleToLocalSpanStore);
 
     abstract EndSpanOptions autoBuild(); // not public
 
