@@ -25,7 +25,7 @@ public abstract class TagContextBuilder {
    * Adds the key/value pair regardless of whether the key is present.
    *
    * @param key the {@code TagKey} which will be set.
-   * @param value the value to set for the given key.
+   * @param value the {@code TagValue} to set for the given key.
    * @return this
    */
   public abstract TagContextBuilder put(TagKey key, TagValue value);
