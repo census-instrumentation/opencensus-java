@@ -19,8 +19,6 @@ package io.opencensus.tags;
 import io.opencensus.common.Scope;
 
 /** Builder for the {@link TagContext} class. */
-// TODO(sebright): Decide what to do when 'put' is called with a key that has the same name as an
-// existing key, but a different type.  We currently keep both keys.
 public abstract class TagContextBuilder {
 
   /**
