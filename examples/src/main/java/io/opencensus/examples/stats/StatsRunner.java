@@ -21,23 +21,23 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 
 /** Simple program that uses Stats contexts. */
 public class StatsRunner {
 
-  private static final TagKeyString K1 = TagKeyString.create("k1");
-  private static final TagKeyString K2 = TagKeyString.create("k2");
-  private static final TagKeyString K3 = TagKeyString.create("k3");
-  private static final TagKeyString K4 = TagKeyString.create("k4");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
+  private static final TagKey K3 = TagKey.create("k3");
+  private static final TagKey K4 = TagKey.create("k4");
 
-  private static final TagValueString V1 = TagValueString.create("v1");
-  private static final TagValueString V2 = TagValueString.create("v2");
-  private static final TagValueString V3 = TagValueString.create("v3");
-  private static final TagValueString V4 = TagValueString.create("v4");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
+  private static final TagValue V3 = TagValue.create("v3");
+  private static final TagValue V4 = TagValue.create("v4");
 
   private static final String UNIT = "1";
   private static final MeasureDouble M1 = MeasureDouble.create("m1", "1st test metric", UNIT);

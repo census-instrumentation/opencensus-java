@@ -21,12 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Preconditions;
 import io.opencensus.common.Scope;
 import io.opencensus.internal.NoopScope;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
@@ -154,21 +148,7 @@ final class NoopTags {
     static final TagContextBuilder INSTANCE = new NoopTagContextBuilder();
 
     @Override
-    public TagContextBuilder put(TagKeyString key, TagValueString value) {
-      checkNotNull(key, "key");
-      checkNotNull(value, "value");
-      return this;
-    }
-
-    @Override
-    public TagContextBuilder put(TagKeyLong key, TagValueLong value) {
-      checkNotNull(key, "key");
-      checkNotNull(value, "value");
-      return this;
-    }
-
-    @Override
-    public TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value) {
+    public TagContextBuilder put(TagKey key, TagValue value) {
       checkNotNull(key, "key");
       checkNotNull(value, "value");
       return this;

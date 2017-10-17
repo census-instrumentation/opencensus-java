@@ -56,7 +56,7 @@ public abstract class ViewData {
   /** Constructs a new {@link ViewData}. */
   public static ViewData create(
       View view,
-      Map<? extends List<? extends TagValue>, ? extends AggregationData> map,
+      Map<? extends List<TagValue>, ? extends AggregationData> map,
       final AggregationWindowData windowData) {
     view.getWindow()
         .match(
@@ -91,7 +91,7 @@ public abstract class ViewData {
             Functions.<Void>throwIllegalArgumentException());
 
     Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
-    for (Entry<? extends List<? extends TagValue>, ? extends AggregationData> entry : map
+    for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map
         .entrySet()) {
       deepCopy.put(
           Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())),

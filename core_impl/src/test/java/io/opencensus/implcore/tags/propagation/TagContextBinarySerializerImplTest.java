@@ -22,10 +22,9 @@ import com.google.common.collect.ImmutableSet;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.implcore.tags.TagsTestUtil;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
@@ -51,8 +50,7 @@ public final class TagContextBinarySerializerImplTest {
       new TagContext() {
         @Override
         public Iterator<Tag> getIterator() {
-          return ImmutableSet.<Tag>of(
-                  TagString.create(TagKeyString.create("key"), TagValueString.create("value")))
+          return ImmutableSet.<Tag>of(Tag.create(TagKey.create("key"), TagValue.create("value")))
               .iterator();
         }
       };

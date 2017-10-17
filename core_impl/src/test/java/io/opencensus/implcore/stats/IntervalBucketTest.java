@@ -23,7 +23,6 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
@@ -82,8 +81,8 @@ public class IntervalBucketTest {
   @Test
   public void testRecord() {
     IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN);
-    List<TagValue> tagValues1 = Arrays.<TagValue>asList(TagValueString.create("VALUE1"));
-    List<TagValue> tagValues2 = Arrays.<TagValue>asList(TagValueString.create("VALUE2"));
+    List<TagValue> tagValues1 = Arrays.<TagValue>asList(TagValue.create("VALUE1"));
+    List<TagValue> tagValues2 = Arrays.<TagValue>asList(TagValue.create("VALUE2"));
     bucket.record(tagValues1, 5.0);
     bucket.record(tagValues1, 15.0);
     bucket.record(tagValues2, 10.0);

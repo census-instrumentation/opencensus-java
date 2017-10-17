@@ -46,8 +46,8 @@ import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.testing.common.TestClock;
@@ -66,10 +66,10 @@ public class ViewManagerImplTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final TagKeyString KEY = TagKeyString.create("KEY");
+  private static final TagKey KEY = TagKey.create("KEY");
 
-  private static final TagValueString VALUE = TagValueString.create("VALUE");
-  private static final TagValueString VALUE_2 = TagValueString.create("VALUE_2");
+  private static final TagValue VALUE = TagValue.create("VALUE");
+  private static final TagValue VALUE_2 = TagValue.create("VALUE_2");
 
   private static final String MEASURE_NAME = "my measurement";
 
@@ -120,7 +120,7 @@ public class ViewManagerImplTest {
   }
 
   private static View createCumulativeView(
-      View.Name name, Measure measure, Aggregation aggregation, List<TagKeyString> keys) {
+      View.Name name, Measure measure, Aggregation aggregation, List<TagKey> keys) {
     return View.create(name, VIEW_DESCRIPTION, measure, aggregation, keys, CUMULATIVE);
   }
 
@@ -560,12 +560,12 @@ public class ViewManagerImplTest {
         .newRecord()
         .put(MEASURE_DOUBLE, 10.0)
         .record(
-            tagger.emptyBuilder().put(TagKeyString.create("wrong key"), VALUE).build());
+            tagger.emptyBuilder().put(TagKey.create("wrong key"), VALUE).build());
     statsRecorder
         .newRecord()
         .put(MEASURE_DOUBLE, 50.0)
         .record(
-            tagger.emptyBuilder().put(TagKeyString.create("another wrong key"), VALUE).build());
+            tagger.emptyBuilder().put(TagKey.create("another wrong key"), VALUE).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
@@ -580,8 +580,8 @@ public class ViewManagerImplTest {
 
   @Test
   public void testViewDataWithMultipleTagKeys() {
-    TagKeyString key1 = TagKeyString.create("Key-1");
-    TagKeyString key2 = TagKeyString.create("Key-2");
+    TagKey key1 = TagKey.create("Key-1");
+    TagKey key2 = TagKey.create("Key-2");
     viewManager.registerView(
         createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(key1, key2)));
     statsRecorder
@@ -590,8 +590,8 @@ public class ViewManagerImplTest {
         .record(
             tagger
                 .emptyBuilder()
-                .put(key1, TagValueString.create("v1"))
-                .put(key2, TagValueString.create("v10"))
+                .put(key1, TagValue.create("v1"))
+                .put(key2, TagValue.create("v10"))
                 .build());
     statsRecorder
         .newRecord()
@@ -599,8 +599,8 @@ public class ViewManagerImplTest {
         .record(
             tagger
                 .emptyBuilder()
-                .put(key1, TagValueString.create("v1"))
-                .put(key2, TagValueString.create("v20"))
+                .put(key1, TagValue.create("v1"))
+                .put(key2, TagValue.create("v20"))
                 .build());
     statsRecorder
         .newRecord()
@@ -608,8 +608,8 @@ public class ViewManagerImplTest {
         .record(
             tagger
                 .emptyBuilder()
-                .put(key1, TagValueString.create("v2"))
-                .put(key2, TagValueString.create("v10"))
+                .put(key1, TagValue.create("v2"))
+                .put(key2, TagValue.create("v10"))
                 .build());
     statsRecorder
         .newRecord()
@@ -617,18 +617,18 @@ public class ViewManagerImplTest {
         .record(
             tagger
                 .emptyBuilder()
-                .put(key1, TagValueString.create("v1"))
-                .put(key2, TagValueString.create("v10"))
+                .put(key1, TagValue.create("v1"))
+                .put(key2, TagValue.create("v10"))
                 .build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(TagValueString.create("v1"), TagValueString.create("v10")),
+            Arrays.asList(TagValue.create("v1"), TagValue.create("v10")),
             StatsTestUtil.createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 1.1, 4.4),
-            Arrays.asList(TagValueString.create("v1"), TagValueString.create("v20")),
+            Arrays.asList(TagValue.create("v1"), TagValue.create("v20")),
             StatsTestUtil.createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 2.2),
-            Arrays.asList(TagValueString.create("v2"), TagValueString.create("v10")),
+            Arrays.asList(TagValue.create("v2"), TagValue.create("v10")),
             StatsTestUtil.createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 3.3)),
         EPSILON);
   }

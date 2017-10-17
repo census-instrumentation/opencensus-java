@@ -16,12 +16,7 @@
 
 package io.opencensus.implcore.tags;
 
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagBoolean;
-import io.opencensus.tags.Tag.TagLong;
-import io.opencensus.tags.Tag.TagString;
 
 final class TagContextUtils {
   private TagContextUtils() {}
@@ -33,52 +28,6 @@ final class TagContextUtils {
    * @param builder the builder to update.
    */
   static void addTagToBuilder(Tag tag, TagContextBuilderImpl builder) {
-    tag.match(
-        new AddTagString(builder),
-        new AddTagLong(builder),
-        new AddTagBoolean(builder),
-        Functions.<Void>throwAssertionError());
-  }
-
-  private static final class AddTagString implements Function<TagString, Void> {
-    private final TagContextBuilderImpl builder;
-
-    AddTagString(TagContextBuilderImpl builder) {
-      this.builder = builder;
-    }
-
-    @Override
-    public Void apply(TagString tag) {
-      builder.put(tag.getKey(), tag.getValue());
-      return null;
-    }
-  }
-
-  private static final class AddTagLong implements Function<TagLong, Void> {
-    private final TagContextBuilderImpl builder;
-
-    AddTagLong(TagContextBuilderImpl builder) {
-      this.builder = builder;
-    }
-
-    @Override
-    public Void apply(TagLong tag) {
-      builder.put(tag.getKey(), tag.getValue());
-      return null;
-    }
-  }
-
-  private static final class AddTagBoolean implements Function<TagBoolean, Void> {
-    private final TagContextBuilderImpl builder;
-
-    AddTagBoolean(TagContextBuilderImpl builder) {
-      this.builder = builder;
-    }
-
-    @Override
-    public Void apply(TagBoolean tag) {
-      builder.put(tag.getKey(), tag.getValue());
-      return null;
-    }
+    builder.put(tag.getKey(), tag.getValue());
   }
 }

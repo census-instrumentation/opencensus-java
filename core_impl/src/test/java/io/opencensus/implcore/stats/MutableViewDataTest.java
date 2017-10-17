@@ -38,8 +38,8 @@ import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,11 +54,11 @@ public class MutableViewDataTest {
 
   private static final double EPSILON = 1e-7;
 
-  private static final TagKeyString ORIGINATOR = TagKeyString.create("originator");
-  private static final TagKeyString CALLER = TagKeyString.create("caller");
-  private static final TagKeyString METHOD = TagKeyString.create("method");
-  private static final TagValueString CALLER_V = TagValueString.create("some caller");
-  private static final TagValueString METHOD_V = TagValueString.create("some method");
+  private static final TagKey ORIGINATOR = TagKey.create("originator");
+  private static final TagKey CALLER = TagKey.create("caller");
+  private static final TagKey METHOD = TagKey.create("method");
+  private static final TagValue CALLER_V = TagValue.create("some caller");
+  private static final TagValue METHOD_V = TagValue.create("some method");
   private static final MeasureDouble MEASURE_DOUBLE =
       MeasureDouble.create("measure1", "description", "1");
   private static final MeasureLong MEASURE_LONG =
@@ -71,9 +71,8 @@ public class MutableViewDataTest {
 
   @Test
   public void testGetTagValues() {
-    List<TagKeyString> columns = Arrays.asList(CALLER, METHOD, ORIGINATOR);
-    Map<TagKeyString, TagValueString> tags =
-        ImmutableMap.of(CALLER, CALLER_V, METHOD, METHOD_V);
+    List<TagKey> columns = Arrays.asList(CALLER, METHOD, ORIGINATOR);
+    Map<TagKey, TagValue> tags = ImmutableMap.of(CALLER, CALLER_V, METHOD, METHOD_V);
 
     assertThat(MutableViewData.getTagValues(tags, columns))
         .containsExactly(CALLER_V, METHOD_V, MutableViewData.UNKNOWN_TAG_VALUE)

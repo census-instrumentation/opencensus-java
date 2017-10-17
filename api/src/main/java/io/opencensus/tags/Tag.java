@@ -17,18 +17,25 @@
 package io.opencensus.tags;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Function;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
 import javax.annotation.concurrent.Immutable;
 
-/** {@link TagKey} paired with a value. */
+/** {@link TagKey} paired with a {@link TagValue}. */
 @Immutable
+@AutoValue
 public abstract class Tag {
+
+  Tag() {}
+
+  /**
+   * Creates a {@code Tag} from the given key and value.
+   *
+   * @param key the tag key.
+   * @param value the tag value.
+   * @return a {@code Tag} with the given key and value.
+   */
+  public static Tag create(TagKey key, TagValue value) {
+    return new AutoValue_Tag(key, value);
+  }
 
   /**
    * Returns the tag's key.
@@ -38,171 +45,9 @@ public abstract class Tag {
   public abstract TagKey getKey();
 
   /**
-   * Returns the associated tag value.
+   * Returns the tag's value.
    *
-   * @return the associated tag value.
+   * @return the tag's value.
    */
   public abstract TagValue getValue();
-
-  Tag() {}
-
-  /**
-   * Applies a function to the tag's key and value. The function that is called depends on the type
-   * of the tag. This is similar to the visitor pattern. {@code match} also takes a function to
-   * handle the default case, for backwards compatibility when tag types are added. For example,
-   * this code serializes a {@code Tag} and tries to handle new tag types by calling {@code
-   * toString()}.
-   *
-   * <pre>{@code
-   * byte[] serializedValue =
-   *     tag.match(
-   *         stringTag -> serializeString(stringTag.getValue().asString()),
-   *         longTag -> serializeLong(longTag.getValue()),
-   *         booleanTag -> serializeBoolean(booleanTag.getValue()),
-   *         unknownTag -> serializeString(unknownTag.toString()));
-   * }</pre>
-   *
-   * <p>Without lambdas:
-   *
-   * <pre><code>
-   *   byte[] serializedValue =
-   *       tag.match(
-   *           new Function&lt;TagString, String&gt;() {
-   *            {@literal @}Override
-   *             public String apply(TagString stringTag) {
-   *               return serializeString(stringTag.getValue().asString());
-   *             }
-   *           },
-   *           new Function&lt;TagLong, String&gt;() {
-   *            {@literal @}Override
-   *             public String apply(TagLong longTag) {
-   *               serializeLong(longTag.getValue());
-   *             }
-   *           },
-   *           new Function&lt;TagBoolean, String&gt;() {
-   *            {@literal @}Override
-   *             public String apply(TagBoolean booleanTag) {
-   *               serializeBoolean(booleanTag.getValue());
-   *             }
-   *           },
-   *           new Function&lt;Tag, String&gt;() {
-   *            {@literal @}Override
-   *             public String apply(TagBoolean unknownTag) {
-   *               serializeString(unknownTag.toString());
-   *             }
-   *           });
-   * </code></pre>
-   *
-   * @param stringFunction the function to call when the tag has a {@code String} value.
-   * @param longFunction the function to call when the tag has a {@code long} value.
-   * @param booleanFunction the function to call when the tag has a {@code boolean} value.
-   * @param defaultFunction the function to call when the tag has a value other than {@code String},
-   *     {@code long}, or {@code boolean}.
-   * @param <T> The result type of the function.
-   * @return The result of calling the function that matches the tag's type.
-   */
-  public abstract <T> T match(
-      Function<? super TagString, T> stringFunction,
-      Function<? super TagLong, T> longFunction,
-      Function<? super TagBoolean, T> booleanFunction,
-      Function<? super Tag, T> defaultFunction);
-
-  /** A tag with a {@code String} key and value. */
-  @Immutable
-  @AutoValue
-  public abstract static class TagString extends Tag {
-    TagString() {}
-
-    /**
-     * Creates a {@code TagString} from the given {@code String} key and value.
-     *
-     * @param key the tag key.
-     * @param value the tag value.
-     * @return a {@code TagString} with the given key and value.
-     */
-    public static TagString create(TagKeyString key, TagValueString value) {
-      return new AutoValue_Tag_TagString(key, value);
-    }
-
-    @Override
-    public abstract TagKeyString getKey();
-
-    @Override
-    public abstract TagValueString getValue();
-
-    @Override
-    public final <T> T match(
-        Function<? super TagString, T> stringFunction,
-        Function<? super TagLong, T> longFunction,
-        Function<? super TagBoolean, T> booleanFunction,
-        Function<? super Tag, T> defaultFunction) {
-      return stringFunction.apply(this);
-    }
-  }
-
-  /** A tag with a {@code long} key and value. */
-  @Immutable
-  @AutoValue
-  public abstract static class TagLong extends Tag {
-    TagLong() {}
-
-    /**
-     * Creates a {@code TagLong} from the given {@code long} key and value.
-     *
-     * @param key the tag key.
-     * @param value the tag value.
-     * @return a {@code TagLong} with the given key and value.
-     */
-    public static TagLong create(TagKeyLong key, TagValueLong value) {
-      return new AutoValue_Tag_TagLong(key, value);
-    }
-
-    @Override
-    public abstract TagKeyLong getKey();
-
-    @Override
-    public abstract TagValueLong getValue();
-
-    @Override
-    public final <T> T match(
-        Function<? super TagString, T> stringFunction,
-        Function<? super TagLong, T> longFunction,
-        Function<? super TagBoolean, T> booleanFunction,
-        Function<? super Tag, T> defaultFunction) {
-      return longFunction.apply(this);
-    }
-  }
-
-  /** A tag with a {@code boolean} key and value. */
-  @Immutable
-  @AutoValue
-  public abstract static class TagBoolean extends Tag {
-    TagBoolean() {}
-
-    /**
-     * Creates a {@code TagBoolean} from the given {@code boolean} key and value.
-     *
-     * @param key the tag key.
-     * @param value the tag value.
-     * @return a {@code TagBoolean} with the given key and value.
-     */
-    public static TagBoolean create(TagKeyBoolean key, TagValueBoolean value) {
-      return new AutoValue_Tag_TagBoolean(key, value);
-    }
-
-    @Override
-    public abstract TagKeyBoolean getKey();
-
-    @Override
-    public abstract TagValueBoolean getValue();
-
-    @Override
-    public final <T> T match(
-        Function<? super TagString, T> stringFunction,
-        Function<? super TagLong, T> longFunction,
-        Function<? super TagBoolean, T> booleanFunction,
-        Function<? super Tag, T> defaultFunction) {
-      return booleanFunction.apply(this);
-    }
-  }
 }

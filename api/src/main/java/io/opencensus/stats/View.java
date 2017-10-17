@@ -95,7 +95,7 @@ public abstract class View {
       String description,
       Measure measure,
       Aggregation aggregation,
-      List<? extends TagKey> columns,
+      List<TagKey> columns,
       AggregationWindow window) {
     checkArgument(new HashSet<TagKey>(columns).size() == columns.size(),
         "Columns have duplicate.");

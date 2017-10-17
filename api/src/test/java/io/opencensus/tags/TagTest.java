@@ -19,17 +19,6 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
-import io.opencensus.tags.Tag.TagBoolean;
-import io.opencensus.tags.Tag.TagLong;
-import io.opencensus.tags.Tag.TagString;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,120 +28,21 @@ import org.junit.runners.JUnit4;
 public final class TagTest {
 
   @Test
-  public void testGetStringKey() {
-    assertThat(TagString.create(TagKeyString.create("k"), TagValueString.create("v")).getKey())
-        .isEqualTo(TagKeyString.create("k"));
-  }
-
-  @Test
-  public void testGetLongKey() {
-    assertThat(TagLong.create(TagKeyLong.create("k"), TagValueLong.create(2L)).getKey())
-        .isEqualTo(TagKeyLong.create("k"));
-  }
-
-  @Test
-  public void testGetBooleanKey() {
-    assertThat(TagBoolean.create(TagKeyBoolean.create("k"), TagValueBoolean.create(false)).getKey())
-        .isEqualTo(TagKeyBoolean.create("k"));
-  }
-
-  @Test
-  public void testMatchStringTag() {
-    assertThat(
-            TagString.create(TagKeyString.create("k1"), TagValueString.create("value"))
-                .match(
-                    new Function<TagString, String>() {
-                      @Override
-                      public String apply(TagString tag) {
-                        return tag.getValue().asString();
-                      }
-                    },
-                    new Function<TagLong, String>() {
-                      @Override
-                      public String apply(TagLong tag) {
-                        throw new AssertionError();
-                      }
-                    },
-                    new Function<TagBoolean, String>() {
-                      @Override
-                      public String apply(TagBoolean tag) {
-                        throw new AssertionError();
-                      }
-                    },
-                    Functions.<String>throwIllegalArgumentException()))
-        .isEqualTo("value");
-  }
-
-  @Test
-  public void testMatchLong() {
-    assertThat(
-            TagLong.create(TagKeyLong.create("k2"), TagValueLong.create(3L))
-                .match(
-                    new Function<TagString, Long>() {
-                      @Override
-                      public Long apply(TagString tag) {
-                        throw new AssertionError();
-                      }
-                    },
-                    new Function<TagLong, Long>() {
-                      @Override
-                      public Long apply(TagLong tag) {
-                        return tag.getValue().asLong();
-                      }
-                    },
-                    new Function<TagBoolean, Long>() {
-                      @Override
-                      public Long apply(TagBoolean tag) {
-                        throw new AssertionError();
-                      }
-                    },
-                    Functions.<Long>throwIllegalArgumentException()))
-        .isEqualTo(3L);
-  }
-
-  @Test
-  public void testMatchBoolean() {
-    assertThat(
-            TagBoolean.create(TagKeyBoolean.create("k3"), TagValueBoolean.create(false))
-                .match(
-                    new Function<TagString, Boolean>() {
-                      @Override
-                      public Boolean apply(TagString tag) {
-                        throw new AssertionError();
-                      }
-                    },
-                    new Function<TagLong, Boolean>() {
-                      @Override
-                      public Boolean apply(TagLong tag) {
-                        throw new AssertionError();
-                      }
-                    },
-                    new Function<TagBoolean, Boolean>() {
-                      @Override
-                      public Boolean apply(TagBoolean tag) {
-                        return tag.getValue().asBoolean();
-                      }
-                    },
-                    Functions.<Boolean>throwIllegalArgumentException()))
-        .isEqualTo(false);
+  public void testGetKey() {
+    assertThat(Tag.create(TagKey.create("k"), TagValue.create("v")).getKey())
+        .isEqualTo(TagKey.create("k"));
   }
 
   @Test
   public void testTagEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            TagString.create(TagKeyString.create("Key1"), TagValueString.create("foo")),
-            TagString.create(TagKeyString.create("Key1"), TagValueString.create("foo")))
+            Tag.create(TagKey.create("Key"), TagValue.create("foo")),
+            Tag.create(TagKey.create("Key"), TagValue.create("foo")))
         .addEqualityGroup(
-            TagLong.create(TagKeyLong.create("Key1"), TagValueLong.create(100L)),
-            TagLong.create(TagKeyLong.create("Key1"), TagValueLong.create(100L)))
+            Tag.create(TagKey.create("Key"), TagValue.create("bar")))
         .addEqualityGroup(
-            TagBoolean.create(TagKeyBoolean.create("Key1"), TagValueBoolean.create(true)),
-            TagBoolean.create(TagKeyBoolean.create("Key1"), TagValueBoolean.create(true)))
-        .addEqualityGroup(
-            TagBoolean.create(TagKeyBoolean.create("Key2"), TagValueBoolean.create(true)))
-        .addEqualityGroup(
-            TagBoolean.create(TagKeyBoolean.create("Key1"), TagValueBoolean.create(false)))
+            Tag.create(TagKey.create("Key2"), TagValue.create("foo")))
         .testEquals();
   }
 }

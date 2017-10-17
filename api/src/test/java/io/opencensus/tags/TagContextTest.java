@@ -20,9 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
-import io.opencensus.tags.Tag.TagString;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -34,9 +31,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class TagContextTest {
   private static final Tag TAG1 =
-      TagString.create(TagKeyString.create("key"), TagValueString.create("val"));
+      Tag.create(TagKey.create("key"), TagValue.create("val"));
   private static final Tag TAG2 =
-      TagString.create(TagKeyString.create("key2"), TagValueString.create("val"));
+      Tag.create(TagKey.create("key2"), TagValue.create("val"));
 
   @Test
   public void equals_IgnoresTagOrderAndTagContextClass() {

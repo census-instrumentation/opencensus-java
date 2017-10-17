@@ -24,7 +24,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
-import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagKey;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
@@ -100,7 +100,7 @@ public final class ViewTest {
         DESCRIPTION,
         MEASURE,
         MEAN,
-        Arrays.asList(TagKeyString.create("duplicate"), TagKeyString.create("duplicate")),
+        Arrays.asList(TagKey.create("duplicate"), TagKey.create("duplicate")),
         Cumulative.create());
   }
 
@@ -152,9 +152,9 @@ public final class ViewTest {
   private static final String DESCRIPTION = "test-view-name description";
   private static final Measure MEASURE = Measure.MeasureDouble.create(
       "measure", "measure description", "1");
-  private static final TagKeyString FOO = TagKeyString.create("foo");
-  private static final TagKeyString BAR = TagKeyString.create("bar");
-  private static final List<TagKeyString> keys = ImmutableList.of(FOO, BAR);
+  private static final TagKey FOO = TagKey.create("foo");
+  private static final TagKey BAR = TagKey.create("bar");
+  private static final List<TagKey> keys = ImmutableList.of(FOO, BAR);
   private static final Mean MEAN = Mean.create();
   private static final Duration MINUTE = Duration.create(60, 0);
   private static final Duration TWO_MINUTES = Duration.create(120, 0);

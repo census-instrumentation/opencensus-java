@@ -16,21 +16,10 @@
 
 package io.opencensus.implcore.tags;
 
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagBoolean;
-import io.opencensus.tags.Tag.TagLong;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,13 +73,7 @@ public final class TagContextImpl extends TagContext {
     @Override
     public Tag next() {
       final Entry<TagKey, TagValue> next = iterator.next();
-      TagValue value = next.getValue();
-      return next.getKey()
-          .match(
-              new NewTagString(value),
-              new NewTagLong(value),
-              new NewTagBoolean(value),
-              Functions.<Tag>throwAssertionError());
+      return Tag.create(next.getKey(), next.getValue());
     }
 
     @Override
@@ -98,43 +81,5 @@ public final class TagContextImpl extends TagContext {
       throw new UnsupportedOperationException("TagIterator.remove()");
     }
 
-    private static final class NewTagString implements Function<TagKeyString, Tag> {
-      private final TagValue value;
-
-      NewTagString(TagValue value) {
-        this.value = value;
-      }
-
-      @Override
-      public Tag apply(TagKeyString key) {
-        return TagString.create(key, (TagValueString) value);
-      }
-    }
-
-    private static final class NewTagLong implements Function<TagKeyLong, Tag> {
-      private final TagValue value;
-
-      NewTagLong(TagValue value) {
-        this.value = value;
-      }
-
-      @Override
-      public Tag apply(TagKeyLong key) {
-        return TagLong.create(key, (TagValueLong) value);
-      }
-    }
-
-    private static final class NewTagBoolean implements Function<TagKeyBoolean, Tag> {
-      private final TagValue value;
-
-      NewTagBoolean(TagValue value) {
-        this.value = value;
-      }
-
-      @Override
-      public Tag apply(TagKeyBoolean key) {
-        return TagBoolean.create(key, (TagValueBoolean) value);
-      }
-    }
   }
 }

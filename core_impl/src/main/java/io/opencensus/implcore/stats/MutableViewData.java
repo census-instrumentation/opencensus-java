@@ -51,9 +51,6 @@ import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagBoolean;
-import io.opencensus.tags.Tag.TagLong;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
@@ -69,30 +66,6 @@ abstract class MutableViewData {
 
   private static final long MILLIS_PER_SECOND = 1000L;
   private static final long NANOS_PER_MILLI = 1000 * 1000;
-
-  private static final Function<TagString, TagValue> GET_STRING_TAG_VALUE =
-      new Function<TagString, TagValue>() {
-        @Override
-        public TagValue apply(TagString tag) {
-          return tag.getValue();
-        }
-      };
-
-  private static final Function<TagLong, TagValue> GET_LONG_TAG_VALUE =
-      new Function<TagLong, TagValue>() {
-        @Override
-        public TagValue apply(TagLong tag) {
-          return tag.getValue();
-        }
-      };
-
-  private static final Function<TagBoolean, TagValue> GET_BOOLEAN_TAG_VALUE =
-      new Function<TagBoolean, TagValue>() {
-        @Override
-        public TagValue apply(TagBoolean tag) {
-          return tag.getValue();
-        }
-      };
 
   @VisibleForTesting
   static final TagValue UNKNOWN_TAG_VALUE = null;
@@ -149,13 +122,7 @@ abstract class MutableViewData {
       Map<TagKey, TagValue> tags = Maps.newHashMap();
       for (Iterator<Tag> i = InternalUtils.getTags(ctx); i.hasNext(); ) {
         Tag tag = i.next();
-        tags.put(
-            tag.getKey(),
-            tag.match(
-                GET_STRING_TAG_VALUE,
-                GET_LONG_TAG_VALUE,
-                GET_BOOLEAN_TAG_VALUE,
-                Functions.<TagValue>throwAssertionError()));
+        tags.put(tag.getKey(), tag.getValue());
       }
       return tags;
     }
