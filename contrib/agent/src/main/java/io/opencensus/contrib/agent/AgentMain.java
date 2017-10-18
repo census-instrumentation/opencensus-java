@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
-import io.opencensus.contrib.agent.bootstrap.ContextManager;
-import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
+import io.opencensus.contrib.agent.bootstrap.TraceStrategy;
+import io.opencensus.contrib.agent.bootstrap.TraceTrampoline;
 import io.opencensus.contrib.agent.instrumentation.Instrumenter;
 import java.lang.instrument.Instrumentation;
 import java.util.ServiceLoader;
@@ -65,14 +65,14 @@ public final class AgentMain {
 
     logger.fine("Initializing.");
 
-    // The classes in bootstrap.jar, such as ContextManger and ContextStrategy, will be referenced
+    // The classes in bootstrap.jar, such as TraceTrampoline and TraceStrategy, will be referenced
     // from classes loaded by the bootstrap classloader. Thus, these classes have to be loaded by
     // the bootstrap classloader, too.
     instrumentation.appendToBootstrapClassLoaderSearch(
             new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
-    checkLoadedByBootstrapClassloader(ContextManager.class);
-    checkLoadedByBootstrapClassloader(ContextStrategy.class);
+    checkLoadedByBootstrapClassloader(TraceTrampoline.class);
+    checkLoadedByBootstrapClassloader(TraceStrategy.class);
 
     AgentBuilder agentBuilder = new AgentBuilder.Default()
             .disableClassFormatChanges()

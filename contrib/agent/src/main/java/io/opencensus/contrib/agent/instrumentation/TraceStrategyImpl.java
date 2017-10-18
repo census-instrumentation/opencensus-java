@@ -19,14 +19,13 @@ package io.opencensus.contrib.agent.instrumentation;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.grpc.Context;
-import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
+import io.opencensus.contrib.agent.bootstrap.TraceStrategy;
 import java.lang.ref.WeakReference;
 
 /**
- * Implementation of {@link ContextStrategy} for accessing and manipulating the
- * {@link io.grpc.Context}.
+ * Implementation of {@link TraceStrategy} for tracing-related methods.
  */
-final class ContextStrategyImpl implements ContextStrategy {
+final class TraceStrategyImpl implements TraceStrategy {
 
   /**
    * Thread-safe mapping of {@link Thread}s to {@link Context}s, used for tunneling the caller's

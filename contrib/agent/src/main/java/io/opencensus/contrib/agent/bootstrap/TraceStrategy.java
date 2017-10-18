@@ -17,9 +17,9 @@
 package io.opencensus.contrib.agent.bootstrap;
 
 /**
- * Strategy interface for accessing and manipulating the context.
+ * Strategy interface for tracing-related methods.
  */
-public interface ContextStrategy {
+public interface TraceStrategy {
 
   /**
    * Wraps a {@link Runnable} so that it executes with the context that is associated with the

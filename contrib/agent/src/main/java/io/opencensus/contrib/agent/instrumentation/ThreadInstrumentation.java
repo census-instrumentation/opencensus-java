@@ -22,7 +22,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 import com.google.auto.service.AutoService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.opencensus.contrib.agent.bootstrap.ContextManager;
+import io.opencensus.contrib.agent.bootstrap.TraceTrampoline;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
@@ -76,7 +76,7 @@ public final class ThreadInstrumentation implements Instrumenter {
     @Advice.OnMethodEnter
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private static void enter(@Advice.This Thread thread) {
-      ContextManager.saveContextForThread(thread);
+      TraceTrampoline.saveContextForThread(thread);
     }
   }
 
@@ -93,7 +93,7 @@ public final class ThreadInstrumentation implements Instrumenter {
     @Advice.OnMethodEnter
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private static void enter(@Advice.This Thread thread) {
-      ContextManager.attachContextForThread(thread);
+      TraceTrampoline.attachContextForThread(thread);
     }
   }
 }
