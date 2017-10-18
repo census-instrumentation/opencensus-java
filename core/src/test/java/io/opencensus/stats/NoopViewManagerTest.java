@@ -27,8 +27,11 @@ import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
+import io.opencensus.stats.ViewManager.Handler;
 import io.opencensus.tags.TagKey.TagKeyString;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -81,10 +84,64 @@ public final class NoopViewManagerTest {
   }
 
   @Test
+  public void noopViewManager_RegisterViewWithHandler_AllowRegisteringSameHandlerTwice() {
+    View view =
+        View.create(
+            VIEW_NAME, VIEW_DESCRIPTION, MEASURE, AGGREGATION, Arrays.asList(KEY), CUMULATIVE);
+    Handler fakeHandler = new Handler() {
+      @Override
+      public void registerView(View view) {
+      }
+
+      @Override
+      public void export(Collection<ViewData> viewDataList) {
+      }
+    };
+    ViewManager viewManager = NoopStats.newNoopViewManager();
+    viewManager.registerView(view, Arrays.asList(fakeHandler));
+    viewManager.registerView(view, Arrays.asList(fakeHandler));
+  }
+
+  @Test
   public void noopViewManager_RegisterView_DisallowNull() {
     ViewManager viewManager = NoopStats.newNoopViewManager();
     thrown.expect(NullPointerException.class);
+    thrown.expectMessage("newView");
     viewManager.registerView(null);
+  }
+
+  @Test
+  public void noopViewManager_RegisterViewWithHandler_DisallowNull() {
+    ViewManager viewManager = NoopStats.newNoopViewManager();
+    thrown.expectMessage("newView");
+    thrown.expect(NullPointerException.class);
+    viewManager.registerView(null, Collections.<Handler>emptyList());
+  }
+
+  @Test
+  public void noopViewManager_SetExportInterval_DisallowNull() {
+    ViewManager viewManager = NoopStats.newNoopViewManager();
+    thrown.expectMessage("duration");
+    thrown.expect(NullPointerException.class);
+    viewManager.setExportInterval(null);
+  }
+
+  @Test
+  public void noopViewManager_SetExportInterval_DisallowNegativeDuration() {
+    ViewManager viewManager = NoopStats.newNoopViewManager();
+    thrown.expectMessage("Duration must be positive.");
+    thrown.expect(IllegalArgumentException.class);
+    viewManager.setExportInterval(Duration.fromMillis(-1));
+  }
+
+  @Test
+  public void noopViewManager_RegisterViewWithHandler_DisallowNullHandlerList() {
+    View view = View.create(
+        VIEW_NAME, VIEW_DESCRIPTION, MEASURE, AGGREGATION, Arrays.asList(KEY), CUMULATIVE);
+    ViewManager viewManager = NoopStats.newNoopViewManager();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("handlers");
+    viewManager.registerView(view, null);
   }
 
   @Test

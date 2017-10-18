@@ -30,9 +30,9 @@ public abstract class SpanExporter {
   private static final SpanExporter NOOP_SPAN_EXPORTER = new NoopSpanExporter();
 
   /**
-   * Returns the no-op implementation of the {@code ExportComponent}.
+   * Returns the no-op implementation of the {@code SpanExporter}.
    *
-   * @return the no-op implementation of the {@code ExportComponent}.
+   * @return the no-op implementation of the {@code SpanExporter}.
    */
   public static SpanExporter getNoopSpanExporter() {
     return NOOP_SPAN_EXPORTER;
