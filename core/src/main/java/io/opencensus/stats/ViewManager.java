@@ -68,13 +68,13 @@ public abstract class ViewManager {
     public abstract void registerView(View view);
 
     /**
-     * Exports a list of {@code ViewData}.
+     * Exports a collection of {@code ViewData}.
      *
      * <p>Implementation SHOULD not block the calling thread. It should execute the export on a
      * different thread if possible.
      *
-     * @param viewDataList a collection of {@code ViewData} objects to be exported.
+     * @param viewData a collection of {@code ViewData} objects to be exported.
      */
-    public abstract void export(Collection<ViewData> viewDataList);
+    public abstract void export(Collection<ViewData> viewData);
   }
 }
