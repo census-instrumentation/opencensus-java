@@ -23,7 +23,9 @@ import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
+import io.opencensus.stats.ViewManager.Handler;
 import io.opencensus.tags.TagContext;
+import java.util.List;
 
 /** Object that stores all views and stats. */
 final class StatsManager {
@@ -42,8 +44,8 @@ final class StatsManager {
     this.clock = clock;
   }
 
-  void registerView(View view) {
-    measureToViewMap.registerView(view, clock);
+  void registerView(View view, List<? extends Handler> handlers) {
+    measureToViewMap.registerView(view, handlers, clock);
   }
 
   ViewData getView(View.Name viewName) {

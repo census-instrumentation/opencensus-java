@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Maps;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.ViewData.AggregationWindowData;
@@ -97,6 +98,7 @@ final class NoopStats {
   @ThreadSafe
   private static final class NoopViewManager extends ViewManager {
     private static final Timestamp ZERO_TIMESTAMP = Timestamp.create(0, 0);
+    private static final Duration ZERO_DURATION = Duration.create(0, 0);
 
     @GuardedBy("views")
     private final Map<View.Name, View> views = Maps.newHashMap();
@@ -113,6 +115,18 @@ final class NoopStats {
           views.put(newView.getName(), newView);
         }
       }
+    }
+
+    @Override
+    public void registerView(View newView, List<? extends Handler> handlers) {
+      checkNotNull(handlers, "handlers");
+      registerView(newView);
+    }
+
+    @Override
+    public void setExportInterval(Duration duration) {
+      checkNotNull(duration, "duration");
+      checkArgument(duration.compareTo(ZERO_DURATION) > 0, "Duration must be positive.");
     }
 
     @Override
