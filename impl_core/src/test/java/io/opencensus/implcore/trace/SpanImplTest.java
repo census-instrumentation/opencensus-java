@@ -512,9 +512,6 @@ public class SpanImplTest {
 
   @Test
   public void sampleToLocalSpanStore() {
-    final int maxNumberOfLinks = 8;
-    TraceParams traceParams =
-        TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(maxNumberOfLinks).build();
     SpanImpl span =
         SpanImpl.startSpan(
             spanContext,
@@ -522,11 +519,10 @@ public class SpanImplTest {
             SPAN_NAME,
             parentSpanId,
             false,
-            traceParams,
+            TraceParams.DEFAULT,
             startEndHandler,
             timestampConverter,
             testClock);
-    assertThat(span.getSampleToLocalSpanStore()).isFalse();
     span.end(EndSpanOptions.builder().setSampleToLocalSpanStore(true).build());
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
     assertThat(span.getSampleToLocalSpanStore()).isTrue();
@@ -537,13 +533,30 @@ public class SpanImplTest {
             SPAN_NAME,
             parentSpanId,
             false,
-            traceParams,
+            TraceParams.DEFAULT,
             startEndHandler,
             timestampConverter,
             testClock);
-    assertThat(span.getSampleToLocalSpanStore()).isFalse();
     span.end();
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
     assertThat(span.getSampleToLocalSpanStore()).isFalse();
+  }
+
+  @Test
+  public void sampleToLocalSpanStore_RunningSpan() {
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            parentSpanId,
+            false,
+            TraceParams.DEFAULT,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Running span does not have the SampleToLocalSpanStore set.");
+    span.getSampleToLocalSpanStore();
   }
 }

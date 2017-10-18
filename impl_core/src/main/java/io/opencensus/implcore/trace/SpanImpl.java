@@ -200,6 +200,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    */
   public boolean getSampleToLocalSpanStore() {
     synchronized (this) {
+      checkState(hasBeenEnded, "Running span does not have the SampleToLocalSpanStore set.");
       return sampleToLocalSpanStore;
     }
   }
