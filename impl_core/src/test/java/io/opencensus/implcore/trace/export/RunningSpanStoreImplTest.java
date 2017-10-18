@@ -50,7 +50,7 @@ public class RunningSpanStoreImplTest {
           sampledSpansServiceExporter, activeSpansExporter, null, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
 
-  private final SpanImpl createSpan(String spanName) {
+  private SpanImpl createSpan(String spanName) {
     final SpanContext spanContext =
         SpanContext.create(
             TraceId.generateRandomId(random),

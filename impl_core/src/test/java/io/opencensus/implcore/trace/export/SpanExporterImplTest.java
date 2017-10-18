@@ -76,7 +76,7 @@ public class SpanExporterImplTest {
     spanExporter.registerHandler("test.service", serviceHandler);
   }
 
-  private final SpanImpl createSampledEndedSpan(String spanName) {
+  private SpanImpl createSampledEndedSpan(String spanName) {
     SpanImpl span =
         SpanImpl.startSpan(
             sampledSpanContext,
@@ -92,7 +92,7 @@ public class SpanExporterImplTest {
     return span;
   }
 
-  private final SpanImpl createNotSampledEndedSpan(String spanName) {
+  private SpanImpl createNotSampledEndedSpan(String spanName) {
     SpanImpl span =
         SpanImpl.startSpan(
             notSampledSpanContext,
@@ -113,9 +113,7 @@ public class SpanExporterImplTest {
     SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
     List<SpanData> exported = serviceHandler.waitForExport(2);
-    assertThat(exported.size()).isEqualTo(2);
-    assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
-    assertThat(exported.get(1)).isEqualTo(span2.toSpanData());
+    assertThat(exported).containsExactly(span1.toSpanData(), span2.toSpanData());
   }
 
   @Test
@@ -127,13 +125,14 @@ public class SpanExporterImplTest {
     SpanImpl span5 = createSampledEndedSpan(SPAN_NAME_1);
     SpanImpl span6 = createSampledEndedSpan(SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(6);
-    assertThat(exported.size()).isEqualTo(6);
-    assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
-    assertThat(exported.get(1)).isEqualTo(span2.toSpanData());
-    assertThat(exported.get(2)).isEqualTo(span3.toSpanData());
-    assertThat(exported.get(3)).isEqualTo(span4.toSpanData());
-    assertThat(exported.get(4)).isEqualTo(span5.toSpanData());
-    assertThat(exported.get(5)).isEqualTo(span6.toSpanData());
+    assertThat(exported)
+        .containsExactly(
+            span1.toSpanData(),
+            span2.toSpanData(),
+            span3.toSpanData(),
+            span4.toSpanData(),
+            span5.toSpanData(),
+            span6.toSpanData());
   }
 
   @Test
@@ -152,13 +151,11 @@ public class SpanExporterImplTest {
     spanExporter.registerHandler("mock.service", mockServiceHandler);
     SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(1);
-    assertThat(exported.size()).isEqualTo(1);
-    assertThat(exported.get(0)).isEqualTo(span1.toSpanData());
+    assertThat(exported).containsExactly(span1.toSpanData());
     // Continue to export after the exception was received.
     SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_1);
     exported = serviceHandler.waitForExport(1);
-    assertThat(exported.size()).isEqualTo(1);
-    assertThat(exported.get(0)).isEqualTo(span2.toSpanData());
+    assertThat(exported).containsExactly(span2.toSpanData());
   }
 
   @Test
@@ -169,12 +166,8 @@ public class SpanExporterImplTest {
     SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
     List<SpanData> exported1 = serviceHandler.waitForExport(2);
     List<SpanData> exported2 = serviceHandler2.waitForExport(2);
-    assertThat(exported1.size()).isEqualTo(2);
-    assertThat(exported2.size()).isEqualTo(2);
-    assertThat(exported1.get(0)).isEqualTo(span1.toSpanData());
-    assertThat(exported2.get(0)).isEqualTo(span1.toSpanData());
-    assertThat(exported1.get(1)).isEqualTo(span2.toSpanData());
-    assertThat(exported2.get(1)).isEqualTo(span2.toSpanData());
+    assertThat(exported1).containsExactly(span1.toSpanData(), span2.toSpanData());
+    assertThat(exported2).containsExactly(span1.toSpanData(), span2.toSpanData());
   }
 
   @Test
@@ -186,9 +179,10 @@ public class SpanExporterImplTest {
     // and checking that the first exported span is the sampled span (the non sampled did not get
     // exported).
     List<SpanData> exported = serviceHandler.waitForExport(1);
-    assertThat(exported.size()).isEqualTo(1);
-    assertThat(exported.get(0)).isNotEqualTo(span1.toSpanData());
-    assertThat(exported.get(0)).isEqualTo(span2.toSpanData());
+    // Need to check this because otherwise the variable span1 is unused, other option is to not
+    // have a span1 variable.
+    assertThat(exported).doesNotContain(span1.toSpanData());
+    assertThat(exported).containsExactly(span2.toSpanData());
   }
 
   /** Fake {@link Handler} for testing only. */

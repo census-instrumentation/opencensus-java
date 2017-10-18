@@ -34,6 +34,7 @@ public class EndSpanOptionsTest {
   @Test
   public void endSpanOptions_DefaultOptions() {
     assertThat(EndSpanOptions.DEFAULT.getStatus()).isEqualTo(Status.OK);
+    assertThat(EndSpanOptions.DEFAULT.getSampleToLocalSpanStore()).isFalse();
   }
 
   @Test
@@ -44,6 +45,13 @@ public class EndSpanOptionsTest {
             .build();
     assertThat(endSpanOptions.getStatus())
         .isEqualTo(Status.CANCELLED.withDescription("ThisIsAnError"));
+  }
+
+  @Test
+  public void setSampleToLocalSpanStore() {
+    EndSpanOptions endSpanOptions =
+        EndSpanOptions.builder().setSampleToLocalSpanStore(true).build();
+    assertThat(endSpanOptions.getSampleToLocalSpanStore()).isTrue();
   }
 
   @Test

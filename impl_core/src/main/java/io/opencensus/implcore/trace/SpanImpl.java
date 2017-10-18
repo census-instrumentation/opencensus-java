@@ -95,6 +95,9 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   @GuardedBy("this")
   private boolean hasBeenEnded;
 
+  @GuardedBy("this")
+  private boolean sampleToLocalSpanStore;
+
   // Pointers for the ConcurrentIntrusiveList$Element. Guarded by the ConcurrentIntrusiveList.
   private SpanImpl next = null;
   private SpanImpl prev = null;
@@ -191,6 +194,18 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   /**
+   * Returns if the name of this {@code Span} must be register to the {@code SampledSpanStore}.
+   *
+   * @return if the name of this {@code Span} must be register to the {@code SampledSpanStore}.
+   */
+  public boolean getSampleToLocalSpanStore() {
+    synchronized (this) {
+      checkState(hasBeenEnded, "Running span does not have the SampleToLocalSpanStore set.");
+      return sampleToLocalSpanStore;
+    }
+  }
+
+  /**
    * Returns the {@code TimestampConverter} used by this {@code Span}.
    *
    * @return the {@code TimestampConverter} used by this {@code Span}.
@@ -234,7 +249,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           annotationsSpanData,
           networkEventsSpanData,
           linksSpanData,
-          null,  // Not supported yet.
+          null, // Not supported yet.
           hasBeenEnded ? status : null,
           hasBeenEnded ? timestampConverter.convertNanoTime(endNanoTime) : null);
     }
@@ -345,6 +360,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
         return;
       }
       status = options.getStatus();
+      sampleToLocalSpanStore = options.getSampleToLocalSpanStore();
       endNanoTime = clock.nowNanos();
       hasBeenEnded = true;
     }
@@ -528,6 +544,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     this.startEndHandler = startEndHandler;
     this.clock = clock;
     this.hasBeenEnded = false;
+    this.sampleToLocalSpanStore = false;
     if (getOptions().contains(Options.RECORD_EVENTS)) {
       this.timestampConverter =
           timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);

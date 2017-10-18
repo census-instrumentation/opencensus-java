@@ -75,8 +75,16 @@ final class SpanBuilderImpl extends SpanBuilder {
       parentSpanId = parent.getSpanId();
       traceOptionsBuilder = TraceOptions.builder(parent.getTraceOptions());
     }
-    traceOptionsBuilder.setIsSampled(makeSamplingDecision(
-        parent, hasRemoteParent, name, sampler, parentLinks, traceId, spanId, activeTraceParams));
+    traceOptionsBuilder.setIsSampled(
+        makeSamplingDecision(
+            parent,
+            hasRemoteParent,
+            name,
+            sampler,
+            parentLinks,
+            traceId,
+            spanId,
+            activeTraceParams));
     TraceOptions traceOptions = traceOptionsBuilder.build();
     EnumSet<Span.Options> spanOptions = EnumSet.noneOf(Span.Options.class);
     if (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents)) {

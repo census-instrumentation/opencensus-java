@@ -32,7 +32,7 @@ import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.samplers.Samplers;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -267,7 +267,7 @@ public class SpanBuilderImplTest {
     // Sampled because the linked parent is sampled.
     Span childSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpanUnsampled, spanBuilderOptions)
-            .setParentLinks(Arrays.asList(rootSpanSampled))
+            .setParentLinks(Collections.singletonList(rootSpanSampled))
             .startSpan();
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId())
