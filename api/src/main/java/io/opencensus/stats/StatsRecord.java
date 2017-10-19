@@ -19,8 +19,8 @@ package io.opencensus.stats;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 
-/** A builder for a map from {@link Measure}s to measured values. */
-public abstract class StatsBuilder {
+/** A map from {@link Measure}s to measured values to be recorded at the same time. */
+public abstract class StatsRecord {
 
   /**
    * Associates the {@link MeasureDouble} with the given value. Subsequent updates to the same
@@ -30,7 +30,7 @@ public abstract class StatsBuilder {
    * @param value the value to be associated with {@code measure}
    * @return this
    */
-  public abstract StatsBuilder put(MeasureDouble measure, double value);
+  public abstract StatsRecord put(MeasureDouble measure, double value);
 
   /**
    * Associates the {@link MeasureLong} with the given value. Subsequent updates to the same {@link
@@ -40,8 +40,8 @@ public abstract class StatsBuilder {
    * @param value the value to be associated with {@code measure}
    * @return this
    */
-  public abstract StatsBuilder put(MeasureLong measure, long value);
+  public abstract StatsRecord put(MeasureLong measure, long value);
 
-  /** Records all of the measures, using the same timestamp. */
+  /** Records all of the measures at the same time. */
   public abstract void record();
 }

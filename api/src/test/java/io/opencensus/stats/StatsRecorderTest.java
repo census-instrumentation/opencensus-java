@@ -59,17 +59,17 @@ public final class StatsRecorderTest {
 
   @Test
   public void record_CurrentContextNotSet() {
-    statsRecorder.newStatsBuilder();
+    statsRecorder.newRecord();
     verify(statsRecorder)
-        .newStatsBuilderWithExplicitTagContext(same(ContextUtils.TAG_CONTEXT_KEY.get()));
+        .newRecordWithExplicitTagContext(same(ContextUtils.TAG_CONTEXT_KEY.get()));
   }
 
   @Test
   public void record_CurrentContextSet() {
     Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tagContext).attach();
     try {
-      statsRecorder.newStatsBuilder();
-      verify(statsRecorder).newStatsBuilderWithExplicitTagContext(same(tagContext));
+      statsRecorder.newRecord();
+      verify(statsRecorder).newRecordWithExplicitTagContext(same(tagContext));
     } finally {
       Context.current().detach(orig);
     }

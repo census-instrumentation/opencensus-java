@@ -61,12 +61,12 @@ final class NoopStats {
   }
 
   /**
-   * Returns a {@code StatsBuilder} that ignores all calls to {@link StatsBuilder#put}.
+   * Returns a {@code StatsRecord} that ignores all calls to {@link StatsRecord#put}.
    *
-   * @return a {@code StatsBuilder} that ignores all calls to {@code StatsBuilder#put}.
+   * @return a {@code StatsRecord} that ignores all calls to {@code StatsRecord#put}.
    */
-  static StatsBuilder getNoopStatsBuilder() {
-    return NoopStatsBuilder.INSTANCE;
+  static StatsRecord getNoopStatsRecord() {
+    return NoopStatsRecord.INSTANCE;
   }
 
   /**
@@ -110,23 +110,23 @@ final class NoopStats {
     static final StatsRecorder INSTANCE = new NoopStatsRecorder();
 
     @Override
-    public StatsBuilder newStatsBuilderWithExplicitTagContext(TagContext tags) {
+    public StatsRecord newRecordWithExplicitTagContext(TagContext tags) {
       checkNotNull(tags, "tags");
-      return getNoopStatsBuilder();
+      return getNoopStatsRecord();
     }
   }
 
   @Immutable
-  private static final class NoopStatsBuilder extends StatsBuilder {
-    static final StatsBuilder INSTANCE = new NoopStatsBuilder();
+  private static final class NoopStatsRecord extends StatsRecord {
+    static final StatsRecord INSTANCE = new NoopStatsRecord();
 
     @Override
-    public StatsBuilder put(MeasureDouble measure, double value) {
+    public StatsRecord put(MeasureDouble measure, double value) {
       return this;
     }
 
     @Override
-    public StatsBuilder put(MeasureLong measure, long value) {
+    public StatsRecord put(MeasureLong measure, long value) {
       return this;
     }
 

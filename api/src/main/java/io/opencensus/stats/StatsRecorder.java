@@ -24,20 +24,20 @@ public abstract class StatsRecorder {
   // TODO(sebright): Should we provide convenience methods for only recording one measure?
 
   /**
-   * Returns an object for recording multiple measures with the tags in the current context.
+   * Returns an object for recording multiple measurements with the tags in the current context.
    *
-   * @return an object for recording multiple measures with the tags in the current context.
+   * @return an object for recording multiple measurements with the tags in the current context.
    */
-  public final StatsBuilder newStatsBuilder() {
+  public final StatsRecord newRecord() {
     // Use the context key directly, to avoid depending on the tags implementation.
-    return newStatsBuilderWithExplicitTagContext(ContextUtils.TAG_CONTEXT_KEY.get());
+    return newRecordWithExplicitTagContext(ContextUtils.TAG_CONTEXT_KEY.get());
   }
 
   /**
-   * Returns an object for recording multiple measures with a set of tags.
+   * Returns an object for recording multiple measurements with a set of tags.
    *
    * @param tags the tags associated with the measurements.
-   * @return an object for recording multiple measures with a set of tags.
+   * @return an object for recording multiple measurements with a set of tags.
    */
-  public abstract StatsBuilder newStatsBuilderWithExplicitTagContext(TagContext tags);
+  public abstract StatsRecord newRecordWithExplicitTagContext(TagContext tags);
 }
