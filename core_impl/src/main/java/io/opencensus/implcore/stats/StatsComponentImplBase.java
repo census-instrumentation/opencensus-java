@@ -16,8 +16,10 @@
 
 package io.opencensus.implcore.stats;
 
+import com.google.common.base.Preconditions;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
 
 /** Base implementation of {@link StatsComponent}. */
@@ -25,6 +27,9 @@ public class StatsComponentImplBase extends StatsComponent {
 
   private final ViewManagerImpl viewManager;
   private final StatsRecorderImpl statsRecorder;
+
+  // TODO(sebright): Implement stats collection state.
+  private volatile StatsCollectionState state = StatsCollectionState.ENABLED;
 
   /**
    * Creates a new {@code StatsComponentImplBase}.
@@ -46,5 +51,15 @@ public class StatsComponentImplBase extends StatsComponent {
   @Override
   public StatsRecorderImpl getStatsRecorder() {
     return statsRecorder;
+  }
+
+  @Override
+  public StatsCollectionState getState() {
+    return state;
+  }
+
+  @Override
+  public void setState(StatsCollectionState newState) {
+    state = Preconditions.checkNotNull(newState, "newState");
   }
 }

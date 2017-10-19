@@ -28,4 +28,23 @@ public abstract class StatsComponent {
 
   /** Returns the default {@link StatsRecorder}. */
   public abstract StatsRecorder getStatsRecorder();
+
+  /**
+   * Returns the current {@code StatsCollectionState}.
+   *
+   * <p>When no implementation is available, {@code getState} always returns {@link
+   * StatsCollectionState#DISABLED}.
+   *
+   * @return the current {@code StatsCollectionState}.
+   */
+  public abstract StatsCollectionState getState();
+
+  /**
+   * Sets the current {@code StatsCollectionState}.
+   *
+   * <p>When no implementation is available, {@code setState} has no effect.
+   *
+   * @param state the new {@code StatsCollectionState}.
+   */
+  public abstract void setState(StatsCollectionState state);
 }

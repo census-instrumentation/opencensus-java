@@ -62,6 +62,26 @@ public final class NoopStatsTest {
         .isInstanceOf(NoopStats.newNoopViewManager().getClass());
   }
 
+  @Test
+  public void noopStatsComponent_GetState() {
+    assertThat(NoopStats.newNoopStatsComponent().getState())
+        .isEqualTo(StatsCollectionState.DISABLED);
+  }
+
+  @Test
+  public void noopStatsComponent_SetState_IgnoresInput() {
+    StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
+    noopStatsComponent.setState(StatsCollectionState.ENABLED);
+    assertThat(noopStatsComponent.getState()).isEqualTo(StatsCollectionState.DISABLED);
+  }
+
+  @Test
+  public void noopStatsComponent_SetState_DisallowsNull() {
+    StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
+    thrown.expect(NullPointerException.class);
+    noopStatsComponent.setState(null);
+  }
+
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
