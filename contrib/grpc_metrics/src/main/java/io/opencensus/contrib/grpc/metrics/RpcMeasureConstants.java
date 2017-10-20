@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.contrib.grpc.metrics;
 
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey.TagKeyString;

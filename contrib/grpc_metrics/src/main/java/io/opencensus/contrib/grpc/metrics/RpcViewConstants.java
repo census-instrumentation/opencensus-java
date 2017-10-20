@@ -14,37 +14,40 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.contrib.grpc.metrics;
 
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_METHOD;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_REQUEST_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_REQUEST_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_RESPONSE_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_RESPONSE_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_ROUNDTRIP_LATENCY;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_SERVER_ELAPSED_TIME;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_STARTED_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_ERROR_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_FINISHED_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_METHOD;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_REQUEST_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_REQUEST_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_RESPONSE_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_RESPONSE_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_SERVER_ELAPSED_TIME;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_SERVER_LATENCY;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_STARTED_COUNT;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES;
-import static io.opencensus.stats.RpcMeasureConstants.RPC_STATUS;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_METHOD;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_REQUEST_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_REQUEST_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_RESPONSE_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_RESPONSE_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_ROUNDTRIP_LATENCY;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_SERVER_ELAPSED_TIME;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_STARTED_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_ERROR_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_FINISHED_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_METHOD;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_REQUEST_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_REQUEST_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_RESPONSE_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_RESPONSE_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_SERVER_ELAPSED_TIME;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_SERVER_LATENCY;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_STARTED_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_STATUS;
 
 import io.opencensus.common.Duration;
+import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.BucketBoundaries;
+import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
