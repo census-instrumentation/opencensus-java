@@ -19,6 +19,7 @@ package io.opencensus.stats;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -80,6 +81,16 @@ final class NoopStats {
     @Override
     public StatsRecorder getStatsRecorder() {
       return getNoopStatsRecorder();
+    }
+
+    @Override
+    public StatsCollectionState getState() {
+      return StatsCollectionState.DISABLED;
+    }
+
+    @Override
+    public void setState(StatsCollectionState state) {
+      Preconditions.checkNotNull(state, "state");
     }
   }
 

@@ -38,6 +38,29 @@ public final class Stats {
     return statsComponent.getViewManager();
   }
 
+  /**
+   * Returns the current {@code StatsCollectionState}.
+   *
+   * <p>When no implementation is available, {@code getState} always returns {@link
+   * StatsCollectionState#DISABLED}.
+   *
+   * @return the current {@code StatsCollectionState}.
+   */
+  public static StatsCollectionState getState() {
+    return statsComponent.getState();
+  }
+
+  /**
+   * Sets the current {@code StatsCollectionState}.
+   *
+   * <p>When no implementation is available, {@code setState} has no effect.
+   *
+   * @param state the new {@code StatsCollectionState}.
+   */
+  public static void setState(StatsCollectionState state) {
+    statsComponent.setState(state);
+  }
+
   // Any provider that may be used for StatsComponent can be added here.
   @VisibleForTesting
   static StatsComponent loadStatsComponent(ClassLoader classLoader) {

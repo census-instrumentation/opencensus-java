@@ -63,4 +63,20 @@ public final class StatsTest {
     assertThat(Stats.getStatsRecorder()).isEqualTo(NoopStats.getNoopStatsRecorder());
     assertThat(Stats.getViewManager()).isInstanceOf(NoopStats.newNoopViewManager().getClass());
   }
+
+  @Test
+  public void getState() {
+    assertThat(Stats.getState()).isEqualTo(StatsCollectionState.DISABLED);
+  }
+
+  @Test
+  public void setState_IgnoresInput() {
+    Stats.setState(StatsCollectionState.ENABLED);
+    assertThat(Stats.getState()).isEqualTo(StatsCollectionState.DISABLED);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void setState_DisallowsNull() {
+    Stats.setState(null);
+  }
 }
