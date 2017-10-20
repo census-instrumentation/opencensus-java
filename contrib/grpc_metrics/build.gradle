@@ -1,4 +1,4 @@
-description = 'OpenCensus gRPC RPC Constants'
+description = 'OpenCensus gRPC Metrics'
 
 apply plugin: 'java'
 

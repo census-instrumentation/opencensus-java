@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.grpc.rpcconstants;
+package io.opencensus.contrib.grpc.metrics;
 
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
