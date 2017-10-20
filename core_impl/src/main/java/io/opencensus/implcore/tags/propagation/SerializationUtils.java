@@ -116,6 +116,7 @@ final class SerializationUtils {
           break;
         default:
           // Stop parsing at the first unknown field ID, since there is no way to know its length.
+          // TODO(sebright): Consider storing the rest of the byte array in the TagContext.
           return tags;
       }
     }
