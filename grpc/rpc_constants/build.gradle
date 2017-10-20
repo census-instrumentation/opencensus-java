@@ -1,0 +1,15 @@
+description = 'OpenCensus gRPC RPC Constants'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            project(':core')
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}

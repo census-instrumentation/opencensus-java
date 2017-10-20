@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.grpc.rpcconstants;
 
 import static com.google.common.truth.Truth.assertThat;
 

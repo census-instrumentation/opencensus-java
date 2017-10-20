@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.grpc.rpcconstants;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
 import org.junit.Test;

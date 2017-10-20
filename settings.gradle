@@ -14,6 +14,7 @@ include ":core_impl_java"
 include ":core_impl_android"
 include ":opencensus-contrib-agent"
 include ":opencensus-contrib-grpc-util"
+include ":opencensus-grpc-rpc-constants"
 
 project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
@@ -22,6 +23,7 @@ project(':opencensus-impl').projectDir = "$rootDir/impl" as File
 project(':opencensus-testing').projectDir = "$rootDir/testing" as File
 project(':opencensus-contrib-agent').projectDir = "$rootDir/contrib/agent" as File
 project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_util" as File
+project(':opencensus-grpc-rpc-constants').projectDir = "$rootDir/grpc/rpc_constants" as File
 project(':opencensus-exporter-trace-logging').projectDir = "$rootDir/exporters/trace_logging" as File
 project(':opencensus-exporter-trace-stackdriver').projectDir = "$rootDir/exporters/trace_stackdriver" as File
 project(':opencensus-exporter-trace-zipkin').projectDir = "$rootDir/exporters/trace_zipkin" as File
