@@ -200,6 +200,18 @@ check.dependsOn integrationTest
 integrationTest.dependsOn shadowJar
 integrationTest.mustRunAfter test
 
+task jacocoMerge(type: JacocoMerge) {
+  tasks.withType(Test).each { testTask ->
+    dependsOn testTask
+    executionData testTask.jacoco.destinationFile
+  }
+  doLast {
+    destinationFile.renameTo test.jacoco.destinationFile
+  }
+}
+
+jacocoTestReport.dependsOn jacocoMerge
+
 // JMH benchmarks
 
 dependencies {
