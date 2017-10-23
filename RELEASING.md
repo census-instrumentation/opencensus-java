@@ -64,6 +64,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     $ MAJOR=0 MINOR=4 PATCH=0 # Set appropriately for new release
     $ VERSION_FILES=(
       build.gradle
+      api/src/main/java/io/opencensus/common/OpenCensusLibraryInformation.java
       )
     $ git checkout -b v$MAJOR.$MINOR.x master
     $ git push upstream v$MAJOR.$MINOR.x
