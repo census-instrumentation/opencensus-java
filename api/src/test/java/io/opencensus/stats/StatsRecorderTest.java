@@ -18,6 +18,7 @@ package io.opencensus.stats;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.grpc.Context;
 import io.opencensus.tags.Tag;
@@ -51,25 +52,28 @@ public final class StatsRecorderTest {
       };
 
   @Mock private StatsRecorder statsRecorder;
+  @Mock private StatsRecord statsRecord;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
+    when(statsRecorder.newRecord()).thenReturn(statsRecord);
   }
 
   @Test
   public void record_CurrentContextNotSet() {
-    statsRecorder.newRecord();
-    verify(statsRecorder)
-        .newRecordWithExplicitTagContext(same(ContextUtils.TAG_CONTEXT_KEY.get()));
+    StatsRecord record = statsRecorder.newRecord();
+    record.record();
+    verify(record).recordWithExplicitTagContext(same(ContextUtils.TAG_CONTEXT_KEY.get()));
   }
 
   @Test
   public void record_CurrentContextSet() {
     Context orig = Context.current().withValue(ContextUtils.TAG_CONTEXT_KEY, tagContext).attach();
     try {
-      statsRecorder.newRecord();
-      verify(statsRecorder).newRecordWithExplicitTagContext(same(tagContext));
+      StatsRecord record = statsRecorder.newRecord();
+      record.record();
+      verify(record).recordWithExplicitTagContext(same(tagContext));
     } finally {
       Context.current().detach(orig);
     }

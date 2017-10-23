@@ -18,6 +18,8 @@ package io.opencensus.stats;
 
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
+import io.opencensus.tags.TagContext;
+import io.opencensus.tags.unsafe.ContextUtils;
 
 /** A map from {@link Measure}s to measured values to be recorded at the same time. */
 public abstract class StatsRecord {
@@ -43,5 +45,15 @@ public abstract class StatsRecord {
   public abstract StatsRecord put(MeasureLong measure, long value);
 
   /** Records all of the measures at the same time. */
-  public abstract void record();
+  public final void record() {
+    // Use the context key directly, to avoid depending on the tags implementation.
+    recordWithExplicitTagContext(ContextUtils.TAG_CONTEXT_KEY.get());
+  }
+
+  /**
+   * Records all of the measures at the same time, with an explicit {@link TagContext}.
+   *
+   * @param tags the tags associated with the measurements.
+   */
+  public abstract void recordWithExplicitTagContext(TagContext tags);
 }

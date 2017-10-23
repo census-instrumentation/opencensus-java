@@ -24,16 +24,14 @@ import io.opencensus.tags.TagContext;
 /** Implementation of {@link StatsRecord}. */
 final class StatsRecordImpl extends StatsRecord {
   private final StatsManager statsManager;
-  private final TagContext tags;
   private final MeasureMap.Builder builder = MeasureMap.builder();
 
-  static StatsRecordImpl create(StatsManager statsManager, TagContext tags) {
-    return new StatsRecordImpl(statsManager, tags);
+  static StatsRecordImpl create(StatsManager statsManager) {
+    return new StatsRecordImpl(statsManager);
   }
 
-  private StatsRecordImpl(StatsManager statsManager, TagContext tags) {
+  private StatsRecordImpl(StatsManager statsManager) {
     this.statsManager = statsManager;
-    this.tags = tags;
   }
 
   @Override
@@ -49,7 +47,7 @@ final class StatsRecordImpl extends StatsRecord {
   }
 
   @Override
-  public void record() {
+  public void recordWithExplicitTagContext(TagContext tags) {
     statsManager.record(tags, builder.build());
   }
 }

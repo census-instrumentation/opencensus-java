@@ -110,8 +110,7 @@ final class NoopStats {
     static final StatsRecorder INSTANCE = new NoopStatsRecorder();
 
     @Override
-    public StatsRecord newRecordWithExplicitTagContext(TagContext tags) {
-      checkNotNull(tags, "tags");
+    public StatsRecord newRecord() {
       return getNoopStatsRecord();
     }
   }
@@ -131,7 +130,9 @@ final class NoopStats {
     }
 
     @Override
-    public void record() {}
+    public void recordWithExplicitTagContext(TagContext tags) {
+      checkNotNull(tags, "tags");
+    }
   }
 
   @ThreadSafe

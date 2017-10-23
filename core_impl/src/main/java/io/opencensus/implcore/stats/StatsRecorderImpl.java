@@ -19,7 +19,6 @@ package io.opencensus.implcore.stats;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.stats.StatsRecorder;
-import io.opencensus.tags.TagContext;
 
 /** Implementation of {@link StatsRecorder}. */
 public final class StatsRecorderImpl extends StatsRecorder {
@@ -31,8 +30,7 @@ public final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  public StatsRecordImpl newRecordWithExplicitTagContext(TagContext tags) {
-    checkNotNull(tags, "tags");
-    return StatsRecordImpl.create(statsManager, tags);
+  public StatsRecordImpl newRecord() {
+    return StatsRecordImpl.create(statsManager);
   }
 }

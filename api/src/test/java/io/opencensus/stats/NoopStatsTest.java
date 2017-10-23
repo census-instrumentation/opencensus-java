@@ -87,9 +87,9 @@ public final class NoopStatsTest {
   @Test
   public void noopStatsRecorder_Record() {
     NoopStats.getNoopStatsRecorder()
-        .newRecordWithExplicitTagContext(tagContext)
+        .newRecord()
         .put(MEASURE, 5)
-        .record();
+        .recordWithExplicitTagContext(tagContext);
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
@@ -101,8 +101,8 @@ public final class NoopStatsTest {
 
   @Test
   public void noopStatsRecorder_Record_DisallowNullTagContext() {
-    StatsRecorder noopStatsRecorder = NoopStats.getNoopStatsRecorder();
+    StatsRecord record = NoopStats.getNoopStatsRecorder().newRecord();
     thrown.expect(NullPointerException.class);
-    noopStatsRecorder.newRecordWithExplicitTagContext(null);
+    record.recordWithExplicitTagContext(null);
   }
 }
