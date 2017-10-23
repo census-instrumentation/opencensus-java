@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
+package io.opencensus.common.internal;
+
+import io.opencensus.common.Internal;
 
 /**
  * Class holder for all common constants for the OpenCensus Java library.
  */
+@Internal
 public final class Constants {
 
   /**

@@ -27,11 +27,11 @@ import com.google.devtools.cloudtrace.v1.PatchTracesRequest;
 import com.google.devtools.cloudtrace.v1.Trace;
 import com.google.devtools.cloudtrace.v1.TraceSpan;
 import com.google.devtools.cloudtrace.v1.Traces;
-import io.opencensus.common.Constants;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.common.internal.Constants;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.NetworkEvent;
@@ -59,8 +59,8 @@ final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
   private static final String STATUS_DESCRIPTION = "g.co/status/description";
   private static final String ANNOTATION_LABEL = "ANNOTATION-";
   private static final String NETWORK_EVENT_LABEL = "NETWORK-";
-  private static final String agentLabelKey = "g.co/agent";
-  private static final String agentLabelValue = "opencensus-java [" + Constants.VERSION + "]";
+  private static final String AGENT_LABEL_KEY = "g.co/agent";
+  private static final String AGENT_LABEL_VALUE = "opencensus-java [" + Constants.VERSION + "]";
 
   private final String projectId;
   private final TraceServiceClient traceServiceClient;
@@ -127,7 +127,7 @@ final class StackdriverV1ExporterHandler extends SpanExporter.Handler {
       spanBuilder.putLabels(STATUS_DESCRIPTION, spanData.getStatus().getDescription());
     }
 
-    spanBuilder.putLabels(agentLabelKey, agentLabelValue);
+    spanBuilder.putLabels(AGENT_LABEL_KEY, AGENT_LABEL_VALUE);
 
     Trace.Builder traceBuilder =
         Trace.newBuilder()
