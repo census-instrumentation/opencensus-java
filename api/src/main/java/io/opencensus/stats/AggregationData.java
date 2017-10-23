@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.Lists;
 import io.opencensus.common.Function;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
@@ -239,20 +239,19 @@ public abstract class AggregationData {
      */
     public static DistributionData create(
         double mean, long count, double min, double max, double sumOfSquaredDeviations,
-        long[] bucketCounts) {
+        List<Long> bucketCounts) {
       if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
         checkArgument(min <= max, "max should be greater or equal to min.");
       }
 
       checkNotNull(bucketCounts, "bucket counts should not be null.");
-      List<Long> boxedBucketCounts = new ArrayList<Long>();
-      for (long bucketCount : bucketCounts) {
-        boxedBucketCounts.add(bucketCount);
+      List<Long> bucketCountsCopy = Collections.unmodifiableList(Lists.newArrayList(bucketCounts));
+      for (Long bucket : bucketCountsCopy) {
+        checkNotNull(bucket, "bucket should not be null.");
       }
 
       return new AutoValue_AggregationData_DistributionData(
-          mean, count, min, max, sumOfSquaredDeviations,
-          Collections.unmodifiableList(boxedBucketCounts));
+          mean, count, min, max, sumOfSquaredDeviations, bucketCountsCopy);
     }
 
     /**

@@ -531,8 +531,12 @@ abstract class MutableViewData {
       implements Function<MutableDistribution, AggregationData> {
     @Override
     public AggregationData apply(MutableDistribution arg) {
+      List<Long> boxedBucketCounts = new ArrayList<Long>();
+      for (long bucketCount : arg.getBucketCounts()) {
+        boxedBucketCounts.add(bucketCount);
+      }
       return DistributionData.create(arg.getMean(), arg.getCount(), arg.getMin(), arg.getMax(),
-          arg.getSumOfSquaredDeviations(), arg.getBucketCounts());
+          arg.getSumOfSquaredDeviations(), boxedBucketCounts);
     }
 
     private static final CreateDistributionData INSTANCE = new CreateDistributionData();
