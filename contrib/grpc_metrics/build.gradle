@@ -8,8 +8,7 @@ apply plugin: 'java'
 }
 
 dependencies {
-    compile project(':opencensus-api'),
-            project(':core')
+    compile project(':opencensus-api')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }

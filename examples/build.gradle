@@ -6,8 +6,7 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    compile project(':core'),
-            project(':opencensus-api'),
+    compile project(':opencensus-api'),
             project(':opencensus-contrib-zpages'),
             project(':opencensus-exporter-trace-logging')
 

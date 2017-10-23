@@ -8,12 +8,10 @@ apply plugin: 'java'
 }
 
 dependencies {
-    compile project(':core'),
-            project(':core_impl'),
+    compile project(':core_impl'),
             project(':opencensus-impl')
 
-    testCompile project(':core'),
-            project(':core_impl'),
+    testCompile project(':core_impl'),
             project(':opencensus-api'),
             project(':opencensus-impl-core'),
             project(':opencensus-impl')
