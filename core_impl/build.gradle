@@ -1,13 +1,11 @@
 description = 'OpenCensus Core Impl'
 
 dependencies {
-    compile project(':core'),
-            project(':opencensus-api'),
+    compile project(':opencensus-api'),
             project(':opencensus-impl-core'),
             libraries.guava
 
-    testCompile project(':core'),
-            project(':opencensus-api'),
+    testCompile project(':opencensus-api'),
             project(':opencensus-impl-core'),
             project(':opencensus-testing')
 

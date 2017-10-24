@@ -13,7 +13,6 @@ buildscript {
 
 def subprojects = [
         project(':opencensus-api'),
-        project(':core'),
         project(':opencensus-impl-core'),
         project(':core_impl'),
         project(':core_impl_android'),
