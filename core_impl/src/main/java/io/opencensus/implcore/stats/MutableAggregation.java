@@ -301,12 +301,10 @@ abstract class MutableAggregation {
 
       // Algorithm for calculating the combination of sum of squared deviations:
       // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm.
-      double delta = mutableDistribution.mean - this.mean;
-      double ma = this.sumOfSquaredDeviations * (this.count - 1);
-      double mb = mutableDistribution.sumOfSquaredDeviations * (mutableDistribution.count - 1);
-      this.sumOfSquaredDeviations = 0;
       if (this.count + mutableDistribution.count > 0) {
-        this.sumOfSquaredDeviations = ma + mb
+        double delta = mutableDistribution.mean - this.mean;
+        this.sumOfSquaredDeviations = this.sumOfSquaredDeviations
+            + mutableDistribution.sumOfSquaredDeviations
             + delta * delta * this.count * mutableDistribution.count
             / (this.count + mutableDistribution.count);
       }

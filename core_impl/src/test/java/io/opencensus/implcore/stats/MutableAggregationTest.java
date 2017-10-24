@@ -210,12 +210,16 @@ public class MutableAggregationTest {
     // combine() for Mutable Distribution will ignore fractional stats
     MutableDistribution distribution1 = MutableDistribution.create(BUCKET_BOUNDARIES);
     MutableDistribution distribution2 = MutableDistribution.create(BUCKET_BOUNDARIES);
+    MutableDistribution distribution3 = MutableDistribution.create(BUCKET_BOUNDARIES);
 
     for (double val : Arrays.asList(5.0, -5.0)) {
       distribution1.add(val);
     }
     for (double val : Arrays.asList(10.0, 20.0)) {
       distribution2.add(val);
+    }
+    for (double val : Arrays.asList(-10.0, 15.0, -15.0, -20.0)) {
+      distribution3.add(val);
     }
 
     MutableDistribution combined = MutableDistribution.create(BUCKET_BOUNDARIES);
@@ -225,6 +229,9 @@ public class MutableAggregationTest {
 
     combined.combine(distribution2, 1.0); // distribution2 will be combined
     verifyMutableDistribution(combined, 7.5, 4, -5, 20, 325.0, new long[]{0, 1, 1, 2}, TOLERANCE);
+
+    combined.combine(distribution3, 1.0); // distribution3 will be combined
+    verifyMutableDistribution(combined, 0, 8, -20, 20, 1500.0, new long[]{2, 2, 1, 3}, TOLERANCE);
   }
 
   private static void verifyMutableDistribution(MutableDistribution mutableDistribution,
