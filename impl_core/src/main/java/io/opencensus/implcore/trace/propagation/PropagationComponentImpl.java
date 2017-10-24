@@ -18,6 +18,7 @@ package io.opencensus.implcore.trace.propagation;
 
 import io.opencensus.trace.propagation.BinaryFormat;
 import io.opencensus.trace.propagation.PropagationComponent;
+import io.opencensus.trace.propagation.TextFormat;
 
 /** Implementation of the {@link PropagationComponent}. */
 public class PropagationComponentImpl extends PropagationComponent {
@@ -26,5 +27,10 @@ public class PropagationComponentImpl extends PropagationComponent {
   @Override
   public BinaryFormat getBinaryFormat() {
     return binaryFormat;
+  }
+
+  @Override
+  public TextFormat getTextFormat() {
+    return PropagationComponent.getNoopPropagationComponent().getTextFormat();
   }
 }

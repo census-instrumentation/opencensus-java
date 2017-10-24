@@ -29,8 +29,14 @@ public class PropagationComponentTest {
       PropagationComponent.getNoopPropagationComponent();
 
   @Test
-  public void implementationOfBinary() {
+  public void implementationOfBinaryFormat() {
     assertThat(propagationComponent.getBinaryFormat())
         .isEqualTo(BinaryFormat.getNoopBinaryFormat());
+  }
+
+  @Test
+  public void implementationOfTextFormat() {
+    assertThat(propagationComponent.getTextFormat())
+        .isEqualTo(TextFormat.getNoopTextFormat());
   }
 }
