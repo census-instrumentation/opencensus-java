@@ -19,7 +19,6 @@ package io.opencensus.stats;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.unsafe.ContextUtils;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /** A map from {@link Measure}s to measured values to be recorded at the same time. */
@@ -51,10 +50,7 @@ public abstract class StatsRecord {
    *
    * <p>This method records all of the stats in the {@code StatsRecord} every time it is called.
    */
-  public final void record() {
-    // Use the context key directly, to avoid depending on the tags implementation.
-    recordWithExplicitTagContext(ContextUtils.TAG_CONTEXT_KEY.get());
-  }
+  public abstract void record();
 
   /**
    * Records all of the measures at the same time, with an explicit {@link TagContext}.

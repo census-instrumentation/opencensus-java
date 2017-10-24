@@ -20,6 +20,7 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.StatsRecord;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.unsafe.ContextUtils;
 
 /** Implementation of {@link StatsRecord}. */
 final class StatsRecordImpl extends StatsRecord {
@@ -44,6 +45,12 @@ final class StatsRecordImpl extends StatsRecord {
   public StatsRecordImpl put(MeasureLong measure, long value) {
     builder.put(measure, value);
     return this;
+  }
+
+  @Override
+  public void record() {
+    // Use the context key directly, to avoid depending on the tags implementation.
+    recordWithExplicitTagContext(ContextUtils.TAG_CONTEXT_KEY.get());
   }
 
   @Override
