@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.stats;
+package io.opencensus.implcore.stats;
 
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
+import io.opencensus.stats.Measurement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -25,12 +27,12 @@ import java.util.NoSuchElementException;
 /**
  * A map from {@link Measure}'s to measured values.
  */
-public final class MeasureMap {
+final class MeasureMap {
 
   /**
    * Returns a {@link Builder} for the {@link MeasureMap} class.
    */
-  public static Builder builder() {
+  static Builder builder() {
     return new Builder();
   }
 
@@ -38,7 +40,7 @@ public final class MeasureMap {
    * Returns an {@link Iterator} over the measure/value mappings in this {@link MeasureMap}.
    * The {@code Iterator} does not support {@link Iterator#remove()}.
    */
-  public Iterator<Measurement> iterator() {
+  Iterator<Measurement> iterator() {
     return new MeasureMapIterator();
   }
 
@@ -51,7 +53,7 @@ public final class MeasureMap {
   /**
    * Builder for the {@link MeasureMap} class.
    */
-  public static class Builder {
+  static class Builder {
     /**
      * Associates the {@link MeasureDouble} with the given value. Subsequent updates to the
      * same {@link MeasureDouble} will overwrite the previous value.
@@ -60,7 +62,7 @@ public final class MeasureMap {
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder put(MeasureDouble measure, double value) {
+    Builder put(MeasureDouble measure, double value) {
       measurements.add(Measurement.MeasurementDouble.create(measure, value));
       return this;
     }
@@ -73,7 +75,7 @@ public final class MeasureMap {
      * @param value the value to be associated with {@code measure}
      * @return this
      */
-    public Builder put(MeasureLong measure, long value) {
+    Builder put(MeasureLong measure, long value) {
       measurements.add(Measurement.MeasurementLong.create(measure, value));
       return this;
     }
@@ -81,7 +83,7 @@ public final class MeasureMap {
     /**
      * Constructs a {@link MeasureMap} from the current measurements.
      */
-    public MeasureMap build() {
+    MeasureMap build() {
       // Note: this makes adding measurements quadratic but is fastest for the sizes of
       // MeasureMaps that we should see. We may want to go to a strategy of sort/eliminate
       // for larger MeasureMaps.

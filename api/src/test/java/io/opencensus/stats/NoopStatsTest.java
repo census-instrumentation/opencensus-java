@@ -87,32 +87,22 @@ public final class NoopStatsTest {
   @Test
   public void noopStatsRecorder_Record() {
     NoopStats.getNoopStatsRecorder()
-        .record(tagContext, MeasureMap.builder().put(MEASURE, 5).build());
+        .newRecord()
+        .put(MEASURE, 5)
+        .recordWithExplicitTagContext(tagContext);
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
   public void noopStatsRecorder_RecordWithCurrentContext() {
-    NoopStats.getNoopStatsRecorder().record(MeasureMap.builder().put(MEASURE, 6).build());
+    NoopStats.getNoopStatsRecorder().newRecord().put(MEASURE, 6).record();
   }
 
   @Test
   public void noopStatsRecorder_Record_DisallowNullTagContext() {
-    MeasureMap measures = MeasureMap.builder().put(MEASURE, 7).build();
+    StatsRecord record = NoopStats.getNoopStatsRecorder().newRecord();
     thrown.expect(NullPointerException.class);
-    NoopStats.getNoopStatsRecorder().record(null, measures);
-  }
-
-  @Test
-  public void noopStatsRecorder_Record_DisallowNullMeasureMap() {
-    thrown.expect(NullPointerException.class);
-    NoopStats.getNoopStatsRecorder().record(tagContext, null);
-  }
-
-  @Test
-  public void noopStatsRecorder_RecordWithCurrentContext_DisallowNullMeasureMap() {
-    thrown.expect(NullPointerException.class);
-    NoopStats.getNoopStatsRecorder().record(null);
+    record.recordWithExplicitTagContext(null);
   }
 }

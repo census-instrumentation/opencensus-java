@@ -16,27 +16,14 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.tags.TagContext;
-import io.opencensus.tags.unsafe.ContextUtils;
-
 /** Provides methods to record stats against tags. */
 public abstract class StatsRecorder {
+  // TODO(sebright): Should we provide convenience methods for only recording one measure?
 
   /**
-   * Records a set of measurements with the tags in the current context.
+   * Returns an object for recording multiple measurements.
    *
-   * @param measureValues the measurements to record.
+   * @return an object for recording multiple measurements.
    */
-  public final void record(MeasureMap measureValues) {
-    // Use the context key directly, to avoid depending on the tags implementation.
-    record(ContextUtils.TAG_CONTEXT_KEY.get(), measureValues);
-  }
-
-  /**
-   * Records a set of measurements with a set of tags.
-   *
-   * @param tags the tags associated with the measurements.
-   * @param measureValues the measurements to record.
-   */
-  public abstract void record(TagContext tags, MeasureMap measureValues);
+  public abstract StatsRecord newRecord();
 }

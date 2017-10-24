@@ -18,7 +18,6 @@ package io.opencensus.examples.stats;
 
 import io.opencensus.common.Scope;
 import io.opencensus.stats.Measure.MeasureDouble;
-import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
@@ -67,7 +66,7 @@ public class StatsRunner {
         System.out.println(
             "    Current == Default + tags1 + tags2: "
                 + tagger.getCurrentTagContext().equals(tags2));
-        statsRecorder.record(MeasureMap.builder().put(M1, 0.2).put(M2, 0.4).build());
+        statsRecorder.newRecord().put(M1, 0.2).put(M2, 0.4).record();
       }
     }
     System.out.println(

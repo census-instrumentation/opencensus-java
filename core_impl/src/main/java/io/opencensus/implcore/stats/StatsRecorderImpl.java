@@ -18,9 +18,7 @@ package io.opencensus.implcore.stats;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
-import io.opencensus.tags.TagContext;
 
 /** Implementation of {@link StatsRecorder}. */
 public final class StatsRecorderImpl extends StatsRecorder {
@@ -32,7 +30,7 @@ public final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  public void record(TagContext tags, MeasureMap measurementValues) {
-    statsManager.record(tags, measurementValues);
+  public StatsRecordImpl newRecord() {
+    return StatsRecordImpl.create(statsManager);
   }
 }
