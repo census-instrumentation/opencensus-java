@@ -434,13 +434,11 @@ public class ViewManagerImplTest {
         EPSILON);
   }
 
-  // TODO(songya): update this test to use DISTRIBUTION instead of MEAN, once we figure out how to
-  // support sum of squared deviations for sub-intervals.
   @Test
   public void testRecordIntervalMultipleTagValues() {
     // The interval is 10 seconds, i.e. values should expire after 10 seconds.
     View view = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY),
+        VIEW_NAME, VIEW_DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY),
         Interval.create(TEN_SECONDS));
     clock.setTime(Timestamp.create(10, 0)); // Start at 10s
     viewManager.registerView(view);
@@ -470,10 +468,17 @@ public class ViewManagerImplTest {
         viewData1.getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(VALUE),
-            StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 10.0),
+            StatsTestUtil.createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 10.0),
             Arrays.asList(VALUE_2),
-            StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 30.0, 50.0)),
+            StatsTestUtil.createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 30.0, 50.0)),
         EPSILON);
+
+    // record for TagValue2 again at 20s
+    clock.setTime(Timestamp.fromMillis(20 * MILLIS_PER_SECOND));
+    statsRecorder
+        .newRecord()
+        .put(MEASURE_DOUBLE, 40.0)
+        .recordWithExplicitTagContext(tagger.emptyBuilder().put(KEY, VALUE_2).build());
 
     // get ViewData at 25s, stats for TagValue1 should have expired.
     clock.setTime(Timestamp.fromMillis(25 * MILLIS_PER_SECOND));
@@ -482,13 +487,23 @@ public class ViewManagerImplTest {
         viewData2.getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(VALUE_2),
-            StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 30.0, 50.0)),
+            StatsTestUtil.createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 30.0, 50.0, 40.0)),
+        EPSILON);
+
+    // get ViewData at 30s, the first two values for TagValue2 should have expired.
+    clock.setTime(Timestamp.fromMillis(30 * MILLIS_PER_SECOND));
+    ViewData viewData3 = viewManager.getView(VIEW_NAME);
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData3.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE_2),
+            StatsTestUtil.createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 40.0)),
         EPSILON);
 
     // get ViewData at 40s, all stats should have expired.
     clock.setTime(Timestamp.fromMillis(40 * MILLIS_PER_SECOND));
-    ViewData viewData3 = viewManager.getView(VIEW_NAME);
-    assertThat(viewData3.getAggregationMap()).isEmpty();
+    ViewData viewData4 = viewManager.getView(VIEW_NAME);
+    assertThat(viewData4.getAggregationMap()).isEmpty();
   }
 
   // This test checks that StatsRecorder.record(...) does not throw an exception when no views are
