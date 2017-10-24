@@ -21,9 +21,9 @@ public abstract class StatsRecorder {
   // TODO(sebright): Should we provide convenience methods for only recording one measure?
 
   /**
-   * Returns an object for recording multiple measurements with the tags in the current context.
+   * Returns an object for recording multiple measurements.
    *
-   * @return an object for recording multiple measurements with the tags in the current context.
+   * @return an object for recording multiple measurements.
    */
   public abstract StatsRecord newRecord();
 }
