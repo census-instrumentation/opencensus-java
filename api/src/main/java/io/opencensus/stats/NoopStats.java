@@ -133,7 +133,7 @@ final class NoopStats {
     public void record() {}
 
     @Override
-    public void recordWithExplicitTagContext(TagContext tags) {
+    public void record(TagContext tags) {
       checkNotNull(tags, "tags");
     }
   }

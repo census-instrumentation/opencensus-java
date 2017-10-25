@@ -50,11 +50,11 @@ final class StatsRecordImpl extends StatsRecord {
   @Override
   public void record() {
     // Use the context key directly, to avoid depending on the tags implementation.
-    recordWithExplicitTagContext(ContextUtils.TAG_CONTEXT_KEY.get());
+    record(ContextUtils.TAG_CONTEXT_KEY.get());
   }
 
   @Override
-  public void recordWithExplicitTagContext(TagContext tags) {
+  public void record(TagContext tags) {
     statsManager.record(tags, builder.build());
   }
 }
