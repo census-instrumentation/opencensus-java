@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
@@ -109,6 +110,7 @@ public abstract class SampledSpanStore {
    *
    * @return the set of unique span names registered to the library.
    */
+  @VisibleForTesting
   public abstract Set<String> getRegisteredSpanNamesForCollection();
 
   /** The summary of all available data. */
