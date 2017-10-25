@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
 import io.opencensus.testing.common.TestClock;
@@ -67,7 +68,7 @@ public class SampledSpanStoreImplTest {
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final TestClock testClock = TestClock.create(Timestamp.create(12345, 54321));
-  private final SampledSpanStoreImpl sampleStore = new SampledSpanStoreImpl();
+  private final SampledSpanStoreImpl sampleStore = new SampledSpanStoreImpl(new SimpleEventQueue());
   private final StartEndHandler startEndHandler =
       new StartEndHandler() {
         @Override

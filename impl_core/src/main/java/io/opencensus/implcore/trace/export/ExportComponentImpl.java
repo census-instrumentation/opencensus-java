@@ -16,6 +16,7 @@
 
 package io.opencensus.implcore.trace.export;
 
+import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.export.RunningSpanStore;
 import io.opencensus.trace.export.SampledSpanStore;
@@ -54,8 +55,8 @@ public final class ExportComponentImpl extends ExportComponent {
    *
    * @return a new {@code ExportComponentImpl}.
    */
-  public static ExportComponentImpl createWithInProcessStores() {
-    return new ExportComponentImpl(true);
+  public static ExportComponentImpl createWithInProcessStores(EventQueue eventQueue) {
+    return new ExportComponentImpl(true, eventQueue);
   }
 
   /**
@@ -64,8 +65,8 @@ public final class ExportComponentImpl extends ExportComponent {
    *
    * @return a new {@code ExportComponentImpl}.
    */
-  public static ExportComponentImpl createWithoutInProcessStores() {
-    return new ExportComponentImpl(false);
+  public static ExportComponentImpl createWithoutInProcessStores(EventQueue eventQueue) {
+    return new ExportComponentImpl(false, eventQueue);
   }
 
   /**
@@ -74,9 +75,9 @@ public final class ExportComponentImpl extends ExportComponent {
    * @param supportInProcessStores {@code true} to instantiate {@link RunningSpanStore} and {@link
    *     SampledSpanStore}.
    */
-  private ExportComponentImpl(boolean supportInProcessStores) {
+  private ExportComponentImpl(boolean supportInProcessStores, EventQueue eventQueue) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
     this.runningSpanStore = supportInProcessStores ? new RunningSpanStoreImpl() : null;
-    this.sampledSpanStore = supportInProcessStores ? new SampledSpanStoreImpl() : null;
+    this.sampledSpanStore = supportInProcessStores ? new SampledSpanStoreImpl(eventQueue) : null;
   }
 }

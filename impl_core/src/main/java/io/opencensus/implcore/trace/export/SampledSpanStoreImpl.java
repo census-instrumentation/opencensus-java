@@ -17,6 +17,7 @@
 package io.opencensus.implcore.trace.export;
 
 import com.google.common.collect.EvictingQueue;
+import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
@@ -47,6 +48,10 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   private static final int MAX_PER_SPAN_NAME_SAMPLES =
       NUM_SAMPLES_PER_LATENCY_BUCKET * NUM_LATENCY_BUCKETS
           + NUM_SAMPLES_PER_ERROR_BUCKET * NUM_ERROR_BUCKETS;
+
+  // Used to stream the register/unregister events to the implementation to avoid lock contention
+  // between the main threads and the worker thread.
+  private final EventQueue eventQueue;
 
   @GuardedBy("samples")
   private final Map<String, PerSpanNameSamples> samples;
@@ -229,8 +234,9 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   /** Constructs a new {@code SampledSpanStoreImpl}. */
-  SampledSpanStoreImpl() {
+  SampledSpanStoreImpl(EventQueue eventQueue) {
     samples = new HashMap<String, PerSpanNameSamples>();
+    this.eventQueue = eventQueue;
   }
 
   @Override
@@ -269,6 +275,10 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
 
   @Override
   public void registerSpanNamesForCollection(Collection<String> spanNames) {
+    eventQueue.enqueue(new RegisterSpanNameEvent(this, spanNames));
+  }
+
+  private void internaltRegisterSpanNamesForCollection(Collection<String> spanNames) {
     synchronized (samples) {
       for (String spanName : spanNames) {
         if (!samples.containsKey(spanName)) {
@@ -278,10 +288,46 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     }
   }
 
+  private static final class RegisterSpanNameEvent implements EventQueue.Entry {
+    private final SampledSpanStoreImpl sampledSpanStore;
+    private final Collection<String> spanNames;
+
+    private RegisterSpanNameEvent(
+        SampledSpanStoreImpl sampledSpanStore, Collection<String> spanNames) {
+      this.sampledSpanStore = sampledSpanStore;
+      this.spanNames = new ArrayList<String>(spanNames);
+    }
+
+    @Override
+    public void process() {
+      sampledSpanStore.internaltRegisterSpanNamesForCollection(spanNames);
+    }
+  }
+
   @Override
   public void unregisterSpanNamesForCollection(Collection<String> spanNames) {
+    eventQueue.enqueue(new UnregisterSpanNameEvent(this, spanNames));
+  }
+
+  private void internalUnregisterSpanNamesForCollection(Collection<String> spanNames) {
     synchronized (samples) {
       samples.keySet().removeAll(spanNames);
+    }
+  }
+
+  private static final class UnregisterSpanNameEvent implements EventQueue.Entry {
+    private final SampledSpanStoreImpl sampledSpanStore;
+    private final Collection<String> spanNames;
+
+    private UnregisterSpanNameEvent(
+        SampledSpanStoreImpl sampledSpanStore, Collection<String> spanNames) {
+      this.sampledSpanStore = sampledSpanStore;
+      this.spanNames = new ArrayList<String>(spanNames);
+    }
+
+    @Override
+    public void process() {
+      sampledSpanStore.internalUnregisterSpanNamesForCollection(spanNames);
     }
   }
 
