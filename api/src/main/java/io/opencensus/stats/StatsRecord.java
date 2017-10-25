@@ -59,5 +59,5 @@ public abstract class StatsRecord {
    *
    * @param tags the tags associated with the measurements.
    */
-  public abstract void recordWithExplicitTagContext(TagContext tags);
+  public abstract void record(TagContext tags);
 }

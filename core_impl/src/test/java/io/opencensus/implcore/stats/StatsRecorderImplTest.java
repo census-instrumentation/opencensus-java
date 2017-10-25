@@ -121,8 +121,8 @@ public final class StatsRecorderImplTest {
             Cumulative.create());
     viewManager.registerView(view);
     StatsRecord statsRecord = statsRecorder.newRecord().put(MEASURE_DOUBLE, 1.0);
-    statsRecord.recordWithExplicitTagContext(new SimpleTagContext(TagString.create(KEY, VALUE)));
-    statsRecord.recordWithExplicitTagContext(new SimpleTagContext(TagString.create(KEY, VALUE_2)));
+    statsRecord.record(new SimpleTagContext(TagString.create(KEY, VALUE)));
+    statsRecord.record(new SimpleTagContext(TagString.create(KEY, VALUE_2)));
     ViewData viewData = viewManager.getView(VIEW_NAME);
 
     // There should be two entries.
