@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
  * private static final Tracer tracer = Tracing.getTracer();
  * private static final TextFormat textFormat = Tracing.getPropagationComponent().getTextFormat();
  * private static final TextFormat.Setter setter = new TextFormat.Setter<HttpURLConnection>() {
- *   public void put(HttpURLConnection carrier, String key, String value, Encodings.B3_FORMAT) {
+ *   public void put(HttpURLConnection carrier, String key, String value) {
  *     carrier.setRequestProperty(field, value);
  *   }
  * }
@@ -65,7 +65,7 @@ import javax.annotation.Nullable;
  * private static final TextFormat.Getter getter = ...;
  *
  * void onRequestReceived() {
- *   SpanContext spanContext = textFormat.extract(carrier, getter, Encodings.ALL);
+ *   SpanContext spanContext = textFormat.extract(carrier, getter);
  *   Span span = tracer.spanBuilderWithRemoteParent("Recv.MyRequest", spanContext).startSpan();
  *   try (Scope s = tracer.withSpan(span)) {
  *     // Handle request and send response back.
@@ -78,21 +78,9 @@ import javax.annotation.Nullable;
 public abstract class TextFormat {
   private static final NoopTextFormat NOOP_TEXT_FORMAT = new NoopTextFormat();
 
-  public enum Encoding {
-    /**
-     * If used in the {@link #extract(Object, Getter, Encoding)} API the implementation will try to
-     * extract the headers from the carrier in the following order: TBD. If used in the
-     * {@link #inject(SpanContext, Object, Setter, Encoding)} then all available
-     * encodings will be used.
-     */
-    ALL,
-
-    // TODO(bdrutu): Add all the supported encodings here.
-  }
-
   /**
    * The propagation fields defined. If your carrier is reused, you should delete the fields here
-   * before calling {@link #inject(SpanContext, Object, Setter, Encoding)}.
+   * before calling {@link #inject(SpanContext, Object, Setter)}.
    *
    * <p>For example, if the carrier is a single-use or immutable request object, you don't need to
    * clear fields as they couldn't have been set before. If it is a mutable, retryable object,
@@ -109,10 +97,8 @@ public abstract class TextFormat {
    * @param spanContext possibly not sampled.
    * @param carrier holds propagation fields. For example, an outgoing message or http request.
    * @param setter invoked for each propagation key to add or remove.
-   * @param encoding the encoding to be used to inject the {@code SpanContext} to the carrier.
    */
-  public abstract <C> void inject(
-      SpanContext spanContext, C carrier, Setter<C> setter, Encoding encoding);
+  public abstract <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter);
 
   /**
    * Class that allows to be saved as a constant to avoid runtime allocations.
@@ -136,16 +122,15 @@ public abstract class TextFormat {
 
   /**
    * Extracts the span context from upstream. For example, as http headers.
-   * 
-   * <p>If no particular format is known to be always received on from the wire it is recommended
-   * to use {@code Encoding.ALL}.
+   *
+   * <p>If no particular format is known to be always received on from the wire it is recommended to
+   * use {@code Encoding.ALL}.
    *
    * @param carrier holds propagation fields. For example, an outgoing message or http request.
    * @param getter invoked for each propagation key to get.
-   * @param encoding the encoding to be used to extract the {@code SpanContext} from the carrier.
    * @throws SpanContextParseException if the input is invalid
    */
-  public abstract <C> SpanContext extract(C carrier, Getter<C> getter, Encoding encoding)
+  public abstract <C> SpanContext extract(C carrier, Getter<C> getter)
       throws SpanContextParseException;
 
   /**
@@ -185,17 +170,14 @@ public abstract class TextFormat {
     }
 
     @Override
-    public <C> void inject(
-        SpanContext spanContext, C carrier, Setter<C> setter, Encoding encoding) {
+    public <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
       checkNotNull(spanContext, "spanContext");
       checkNotNull(setter, "setter");
-      checkNotNull(encoding, "encoding");
     }
 
     @Override
-    public <C> SpanContext extract(C carrier, Getter<C> getter, Encoding encoding) {
+    public <C> SpanContext extract(C carrier, Getter<C> getter) {
       checkNotNull(getter, "getter");
-      checkNotNull(encoding, "encoding");
       return SpanContext.INVALID;
     }
   }

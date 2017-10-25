@@ -19,7 +19,6 @@ package io.opencensus.trace.propagation;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.propagation.TextFormat.Encoding;
 import io.opencensus.trace.propagation.TextFormat.Getter;
 import io.opencensus.trace.propagation.TextFormat.Setter;
 import javax.annotation.Nullable;
@@ -40,20 +39,7 @@ public class TextFormatTest {
         new Setter<Object>() {
           @Override
           public void put(Object carrier, String key, String value) {}
-        },
-        Encoding.ALL);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void inject_NullEncoding() {
-    textFormat.inject(
-        SpanContext.INVALID,
-        new Object(),
-        new Setter<Object>() {
-          @Override
-          public void put(Object carrier, String key, String value) {}
-        },
-        null);
+        });
   }
 
   @Test
@@ -64,27 +50,12 @@ public class TextFormatTest {
         new Setter<Object>() {
           @Override
           public void put(Object carrier, String key, String value) {}
-        },
-        Encoding.ALL);
+        });
   }
 
   @Test(expected = NullPointerException.class)
   public void fromHeaders_NullGetter() throws SpanContextParseException {
-    textFormat.extract(new Object(), null, Encoding.ALL);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void fromHeaders_NullEncoding() throws SpanContextParseException {
-    textFormat.extract(
-        new Object(),
-        new Getter<Object>() {
-          @Nullable
-          @Override
-          public String get(Object carrier, String key) {
-            return null;
-          }
-        },
-        null);
+    textFormat.extract(new Object(), null);
   }
 
   @Test
@@ -98,8 +69,7 @@ public class TextFormatTest {
                   public String get(Object carrier, String key) {
                     return null;
                   }
-                },
-                Encoding.ALL))
+                }))
         .isSameAs(SpanContext.INVALID);
   }
 }
