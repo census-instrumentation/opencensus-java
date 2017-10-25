@@ -18,6 +18,7 @@ package io.opencensus.implcore.trace.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.trace.export.ExportComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +28,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ExportComponentImplTest {
   private final ExportComponent exportComponentWithInProcess =
-      ExportComponentImpl.createWithInProcessStores();
+      ExportComponentImpl.createWithInProcessStores(new SimpleEventQueue());
   private final ExportComponent exportComponentWithoutInProcess =
-      ExportComponentImpl.createWithoutInProcessStores();
+      ExportComponentImpl.createWithoutInProcessStores(new SimpleEventQueue());
 
   @Test
   public void implementationOfSpanExporter() {

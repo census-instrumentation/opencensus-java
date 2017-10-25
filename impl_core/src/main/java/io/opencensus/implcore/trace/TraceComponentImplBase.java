@@ -41,7 +41,6 @@ public final class TraceComponentImplBase {
   private final ExportComponentImpl exportComponent;
   private final PropagationComponent propagationComponent = new PropagationComponentImpl();
   private final Clock clock;
-  private final StartEndHandler startEndHandler;
   private final TraceConfig traceConfig = new TraceConfigImpl();
   private final Tracer tracer;
 
@@ -56,11 +55,11 @@ public final class TraceComponentImplBase {
     this.clock = clock;
     // TODO(bdrutu): Add a config/argument for supportInProcessStores.
     if (eventQueue instanceof SimpleEventQueue) {
-      exportComponent = ExportComponentImpl.createWithoutInProcessStores();
+      exportComponent = ExportComponentImpl.createWithoutInProcessStores(eventQueue);
     } else {
-      exportComponent = ExportComponentImpl.createWithInProcessStores();
+      exportComponent = ExportComponentImpl.createWithInProcessStores(eventQueue);
     }
-    startEndHandler =
+    StartEndHandler startEndHandler =
         new StartEndHandlerImpl(
             exportComponent.getSpanExporter(),
             exportComponent.getRunningSpanStore(),
