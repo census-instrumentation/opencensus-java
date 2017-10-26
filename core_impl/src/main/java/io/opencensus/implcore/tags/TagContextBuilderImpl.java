@@ -21,13 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.opencensus.common.Scope;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,18 +37,8 @@ final class TagContextBuilderImpl extends TagContextBuilder {
   }
 
   @Override
-  public TagContextBuilderImpl put(TagKeyString key, TagValueString value) {
+  public TagContextBuilderImpl put(TagKey key, TagValue value) {
     return setInternal(key, checkNotNull(value, "value"));
-  }
-
-  @Override
-  public TagContextBuilderImpl put(TagKeyLong key, TagValueLong value) {
-    return setInternal(key, value);
-  }
-
-  @Override
-  public TagContextBuilderImpl put(TagKeyBoolean key, TagValueBoolean value) {
-    return setInternal(key, value);
   }
 
   private TagContextBuilderImpl setInternal(TagKey key, TagValue value) {

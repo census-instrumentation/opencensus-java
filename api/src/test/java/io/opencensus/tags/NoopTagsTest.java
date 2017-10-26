@@ -20,13 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
 import io.opencensus.internal.NoopScope;
-import io.opencensus.tags.Tag.TagString;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextParseException;
 import java.util.Arrays;
@@ -40,19 +33,15 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link NoopTags}. */
 @RunWith(JUnit4.class)
 public final class NoopTagsTest {
-  private static final TagKeyString KEY_STRING = TagKeyString.create("key");
-  private static final TagValueString VALUE_STRING = TagValueString.create("value");
-  private static final TagKeyLong KEY_LONG = TagKeyLong.create("key");
-  private static final TagValueLong VALUE_LONG = TagValueLong.create(1L);
-  private static final TagKeyBoolean KEY_BOOLEAN = TagKeyBoolean.create("key");
-  private static final TagValueBoolean VALUE_BOOLEAN = TagValueBoolean.create(true);
+  private static final TagKey KEY = TagKey.create("key");
+  private static final TagValue VALUE = TagValue.create("value");
 
   private static final TagContext TAG_CONTEXT =
       new TagContext() {
 
         @Override
         protected Iterator<Tag> getIterator() {
-          return Arrays.<Tag>asList(TagString.create(KEY_STRING, VALUE_STRING)).iterator();
+          return Arrays.<Tag>asList(Tag.create(KEY, VALUE)).iterator();
         }
       };
 
@@ -100,53 +89,25 @@ public final class NoopTagsTest {
   @Test
   public void noopTagContextBuilder() {
     assertThat(NoopTags.getNoopTagContextBuilder().build()).isSameAs(NoopTags.getNoopTagContext());
-    assertThat(NoopTags.getNoopTagContextBuilder().put(KEY_STRING, VALUE_STRING).build())
+    assertThat(NoopTags.getNoopTagContextBuilder().put(KEY, VALUE).build())
         .isSameAs(NoopTags.getNoopTagContext());
     assertThat(NoopTags.getNoopTagContextBuilder().buildScoped()).isSameAs(NoopScope.getInstance());
-    assertThat(NoopTags.getNoopTagContextBuilder().put(KEY_STRING, VALUE_STRING).buildScoped())
+    assertThat(NoopTags.getNoopTagContextBuilder().put(KEY, VALUE).buildScoped())
         .isSameAs(NoopScope.getInstance());
   }
 
   @Test
-  public void noopTagContextBuilder_PutString_DisallowsNullKey() {
+  public void noopTagContextBuilder_Put_DisallowsNullKey() {
     TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
     thrown.expect(NullPointerException.class);
-    noopBuilder.put(null, VALUE_STRING);
+    noopBuilder.put(null, VALUE);
   }
 
   @Test
-  public void noopTagContextBuilder_PutString_DisallowsNullValue() {
+  public void noopTagContextBuilder_Put_DisallowsNullValue() {
     TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
     thrown.expect(NullPointerException.class);
-    noopBuilder.put(KEY_STRING, null);
-  }
-
-  @Test
-  public void noopTagContextBuilder_PutLong_DisallowsNullKey() {
-    TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
-    thrown.expect(NullPointerException.class);
-    noopBuilder.put(null, VALUE_LONG);
-  }
-
-  @Test
-  public void noopTagContextBuilder_PutLong_DisallowsNullValue() {
-    TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
-    thrown.expect(NullPointerException.class);
-    noopBuilder.put(KEY_LONG, null);
-  }
-
-  @Test
-  public void noopTagContextBuilder_PutBoolean_DisallowsNullKey() {
-    TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
-    thrown.expect(NullPointerException.class);
-    noopBuilder.put(null, VALUE_BOOLEAN);
-  }
-
-  @Test
-  public void noopTagContextBuilder_PutBoolean_DisallowsNullValue() {
-    TagContextBuilder noopBuilder = NoopTags.getNoopTagContextBuilder();
-    thrown.expect(NullPointerException.class);
-    noopBuilder.put(KEY_BOOLEAN, null);
+    noopBuilder.put(KEY, null);
   }
 
   @Test

@@ -20,10 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import java.util.Collections;
 import java.util.Iterator;
 import org.junit.Rule;
@@ -38,8 +37,7 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public final class NoopStatsTest {
-  private static final TagString TAG =
-      TagString.create(TagKeyString.create("key"), TagValueString.create("value"));
+  private static final Tag TAG = Tag.create(TagKey.create("key"), TagValue.create("value"));
   private static final MeasureDouble MEASURE =
       Measure.MeasureDouble.create("my measure", "description", "s");
 

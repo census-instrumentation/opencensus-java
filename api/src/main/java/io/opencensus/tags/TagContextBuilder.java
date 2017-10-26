@@ -17,44 +17,18 @@
 package io.opencensus.tags;
 
 import io.opencensus.common.Scope;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
 
 /** Builder for the {@link TagContext} class. */
-// TODO(sebright): Decide what to do when 'put' is called with a key that has the same name as an
-// existing key, but a different type.  We currently keep both keys.
 public abstract class TagContextBuilder {
 
   /**
    * Adds the key/value pair regardless of whether the key is present.
    *
    * @param key the {@code TagKey} which will be set.
-   * @param value the value to set for the given key.
+   * @param value the {@code TagValue} to set for the given key.
    * @return this
    */
-  public abstract TagContextBuilder put(TagKeyString key, TagValueString value);
-
-  /**
-   * Adds the key/value pair regardless of whether the key is present.
-   *
-   * @param key the {@code TagKey} which will be set.
-   * @param value the value to set for the given key.
-   * @return this
-   */
-  public abstract TagContextBuilder put(TagKeyLong key, TagValueLong value);
-
-  /**
-   * Adds the key/value pair regardless of whether the key is present.
-   *
-   * @param key the {@code TagKey} which will be set.
-   * @param value the value to set for the given key.
-   * @return this
-   */
-  public abstract TagContextBuilder put(TagKeyBoolean key, TagValueBoolean value);
+  public abstract TagContextBuilder put(TagKey key, TagValue value);
 
   /**
    * Removes the key if it exists.

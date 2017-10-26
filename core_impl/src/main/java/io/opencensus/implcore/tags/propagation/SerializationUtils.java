@@ -20,20 +20,13 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagContextImpl;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagBoolean;
-import io.opencensus.tags.Tag.TagLong;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.propagation.TagContextParseException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -54,27 +47,15 @@ import java.util.Iterator;
  *   <li>{@code <version_id> == a single byte, value 0}
  *   <li>{@code <encoded_tags> == (<tag_field_id><tag_encoding>)*}
  *       <ul>
- *         <li>{@code <tag_field_id>} == a single byte, value 0 (string tag), 1 (int tag), 2 (true
- *             bool tag), 3 (false bool tag)
+ *         <li>{@code <tag_field_id>} == a single byte, value 0
  *         <li>{@code <tag_encoding>}:
  *             <ul>
- *               <li>{@code (tag_field_id == 0) == <tag_key_len><tag_key><tag_val_len><tag_val>}
+ *               <li>{@code <tag_key_len><tag_key><tag_val_len><tag_val>}
  *                   <ul>
  *                     <li>{@code <tag_key_len>} == varint encoded integer
  *                     <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
  *                     <li>{@code <tag_val_len>} == varint encoded integer
  *                     <li>{@code <tag_val>} == tag_val_len bytes comprising UTF-8 string
- *                   </ul>
- *               <li>{@code (tag_field_id == 1) == <tag_key_len><tag_key><int_tag_val>}
- *                   <ul>
- *                     <li>{@code <tag_key_len>} == varint encoded integer
- *                     <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
- *                     <li>{@code <int_tag_value>} == 8 bytes, little-endian integer
- *                   </ul>
- *               <li>{@code (tag_field_id == 2 || tag_field_id == 3) == <tag_key_len><tag_key>}
- *                   <ul>
- *                     <li>{@code <tag_key_len>} == varint encoded integer
- *                     <li>{@code <tag_key>} == tag_key_len bytes comprising tag key name
  *                   </ul>
  *             </ul>
  *       </ul>
@@ -83,15 +64,8 @@ import java.util.Iterator;
 final class SerializationUtils {
   private SerializationUtils() {}
 
-  // TODO(songya): Currently we only support encoding on string type.
   @VisibleForTesting static final int VERSION_ID = 0;
-  @VisibleForTesting static final int VALUE_TYPE_STRING = 0;
-  @VisibleForTesting static final int VALUE_TYPE_INTEGER = 1;
-  @VisibleForTesting static final int VALUE_TYPE_TRUE = 2;
-  @VisibleForTesting static final int VALUE_TYPE_FALSE = 3;
-
-  private static final Function<TagLong, Void> ENCODE_TAG_LONG = new EncodeTagLong();
-  private static final Function<TagBoolean, Void> ENCODE_TAG_BOOLEAN = new EncodeTagBoolean();
+  @VisibleForTesting static final int TAG_FIELD_ID = 0;
 
   // Serializes a TagContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
@@ -99,15 +73,9 @@ final class SerializationUtils {
     // Use a ByteArrayDataOutput to avoid needing to handle IOExceptions.
     final ByteArrayDataOutput byteArrayDataOutput = ByteStreams.newDataOutput();
     byteArrayDataOutput.write(VERSION_ID);
-
-    // TODO(songya): add support for value types integer and boolean
     for (Iterator<Tag> i = InternalUtils.getTags(tags); i.hasNext(); ) {
       Tag tag = i.next();
-      tag.match(
-          new EncodeTagString(byteArrayDataOutput),
-          ENCODE_TAG_LONG,
-          ENCODE_TAG_BOOLEAN,
-          Functions.<Void>throwAssertionError());
+      encodeTag(tag, byteArrayDataOutput);
     }
     return byteArrayDataOutput.toByteArray();
   }
@@ -131,19 +99,16 @@ final class SerializationUtils {
 
       int limit = buffer.limit();
       while (buffer.position() < limit) {
-        int type = buffer.get();
-        switch (type) {
-          case VALUE_TYPE_STRING:
-            TagKeyString key = createTagKey(decodeString(buffer));
-            TagValueString val = createTagValue(key, decodeString(buffer));
+        int fieldId = buffer.get();
+        switch (fieldId) {
+          case TAG_FIELD_ID:
+            TagKey key = createTagKey(decodeString(buffer));
+            TagValue val = createTagValue(key, decodeString(buffer));
             tags.put(key, val);
             break;
-          case VALUE_TYPE_INTEGER:
-          case VALUE_TYPE_TRUE:
-          case VALUE_TYPE_FALSE:
           default:
-            // TODO(songya): add support for value types integer and boolean
-            throw new TagContextParseException("Unsupported tag value type: " + type);
+            // TODO(sebright): Skip unknown fields.
+            throw new TagContextParseException("Unsupported tag context field ID: " + fieldId);
         }
       }
       return new TagContextImpl(tags);
@@ -154,29 +119,28 @@ final class SerializationUtils {
 
   // TODO(sebright): Consider exposing a TagKey name validation method to avoid needing to catch an
   // IllegalArgumentException here.
-  private static final TagKeyString createTagKey(String name) throws TagContextParseException {
+  private static final TagKey createTagKey(String name) throws TagContextParseException {
     try {
-      return TagKeyString.create(name);
+      return TagKey.create(name);
     } catch (IllegalArgumentException e) {
       throw new TagContextParseException("Invalid tag key: " + name, e);
     }
   }
 
-  // TODO(sebright): Consider exposing a TagValueString validation method to avoid needing to catch
+  // TODO(sebright): Consider exposing a TagValue validation method to avoid needing to catch
   // an IllegalArgumentException here.
-  private static final TagValueString createTagValue(TagKeyString key, String value)
+  private static final TagValue createTagValue(TagKey key, String value)
       throws TagContextParseException {
     try {
-      return TagValueString.create(value);
+      return TagValue.create(value);
     } catch (IllegalArgumentException e) {
       throw new TagContextParseException("Invalid tag value for key " + key + ": " + value, e);
     }
   }
 
-  //  TODO(songya): Currently we only support encoding on string type.
-  private static final void encodeStringTag(
-      TagString tag, ByteArrayDataOutput byteArrayDataOutput) {
-    byteArrayDataOutput.write(VALUE_TYPE_STRING);
+  private static final void encodeTag(
+      Tag tag, ByteArrayDataOutput byteArrayDataOutput) {
+    byteArrayDataOutput.write(TAG_FIELD_ID);
     encodeString(tag.getKey().getName(), byteArrayDataOutput);
     encodeString(tag.getValue().asString(), byteArrayDataOutput);
   }
@@ -199,33 +163,5 @@ final class SerializationUtils {
       builder.append((char) buffer.get());
     }
     return builder.toString();
-  }
-
-  private static final class EncodeTagString implements Function<TagString, Void> {
-    private final ByteArrayDataOutput output;
-
-    EncodeTagString(ByteArrayDataOutput output) {
-      this.output = output;
-    }
-
-    @Override
-    public Void apply(TagString tag) {
-      encodeStringTag(tag, output);
-      return null;
-    }
-  }
-
-  private static final class EncodeTagLong implements Function<TagLong, Void> {
-    @Override
-    public Void apply(TagLong tag) {
-      throw new IllegalArgumentException("long tags are not supported.");
-    }
-  }
-
-  private static final class EncodeTagBoolean implements Function<TagBoolean, Void> {
-    @Override
-    public Void apply(TagBoolean tag) {
-      throw new IllegalArgumentException("boolean tags are not supported.");
-    }
   }
 }

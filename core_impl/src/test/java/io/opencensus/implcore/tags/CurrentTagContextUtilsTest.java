@@ -23,10 +23,9 @@ import com.google.common.collect.ImmutableSet;
 import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.unsafe.ContextUtils;
 import java.util.Iterator;
 import org.junit.Test;
@@ -36,8 +35,7 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link CurrentTagContextUtils}. */
 @RunWith(JUnit4.class)
 public class CurrentTagContextUtilsTest {
-  private static final TagString TAG =
-      TagString.create(TagKeyString.create("key"), TagValueString.create("value"));
+  private static final Tag TAG = Tag.create(TagKey.create("key"), TagValue.create("value"));
 
   private final TagContext tagContext =
       new TagContext() {

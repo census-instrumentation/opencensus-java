@@ -26,7 +26,7 @@ import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
-import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagKey;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class MeasureToViewMapTest {
 
   private static final View VIEW =
       View.create(VIEW_NAME, "view description", MEASURE, Mean.create(),
-          Arrays.asList(TagKeyString.create("my key")), CUMULATIVE);
+          Arrays.asList(TagKey.create("my key")), CUMULATIVE);
 
   @Test
   public void testRegisterAndGetView() {

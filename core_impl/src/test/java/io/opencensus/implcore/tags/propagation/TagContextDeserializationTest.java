@@ -24,8 +24,8 @@ import com.google.common.io.ByteStreams;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
@@ -54,10 +54,7 @@ public class TagContextDeserializationTest {
   public void testVersionAndValueTypeConstants() {
     // Refer to the JavaDoc on SerializationUtils for the definitions on these constants.
     assertThat(SerializationUtils.VERSION_ID).isEqualTo(0);
-    assertThat(SerializationUtils.VALUE_TYPE_STRING).isEqualTo(0);
-    assertThat(SerializationUtils.VALUE_TYPE_INTEGER).isEqualTo(1);
-    assertThat(SerializationUtils.VALUE_TYPE_TRUE).isEqualTo(2);
-    assertThat(SerializationUtils.VALUE_TYPE_FALSE).isEqualTo(3);
+    assertThat(SerializationUtils.TAG_FIELD_ID).isEqualTo(0);
   }
 
   @Test
@@ -82,7 +79,7 @@ public class TagContextDeserializationTest {
     output.write(SerializationUtils.VERSION_ID);
 
     // Encode an invalid tag key and a valid tag value:
-    encodeStringTagToOutput("\2key", "value", output);
+    encodeTagToOutput("\2key", "value", output);
     final byte[] bytes = output.toByteArray();
 
     thrown.expect(TagContextParseException.class);
@@ -96,97 +93,42 @@ public class TagContextDeserializationTest {
     output.write(SerializationUtils.VERSION_ID);
 
     // Encode a valid tag key and an invalid tag value:
-    encodeStringTagToOutput("my key", "val\3", output);
+    encodeTagToOutput("my key", "val\3", output);
     final byte[] bytes = output.toByteArray();
 
     thrown.expect(TagContextParseException.class);
-    thrown.expectMessage("Invalid tag value for key TagKeyString{name=my key}: val\3");
+    thrown.expectMessage("Invalid tag value for key TagKey{name=my key}: val\3");
     serializer.fromByteArray(bytes);
   }
 
   @Test
-  public void testDeserializeValueTypeString() throws TagContextParseException {
+  public void testDeserializeOneTag() throws TagContextParseException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
-    encodeStringTagToOutput("Key", "Value", output);
+    encodeTagToOutput("Key", "Value", output);
     TagContext actual = serializer.fromByteArray(output.toByteArray());
     TagContext expected =
         tagger
             .emptyBuilder()
-            .put(TagKeyString.create("Key"), TagValueString.create("Value"))
+            .put(TagKey.create("Key"), TagValue.create("Value"))
             .build();
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  public void testDeserializeMultipleString() throws TagContextParseException {
+  public void testDeserializeMultipleTags() throws TagContextParseException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
-    encodeStringTagToOutput("Key1", "String1", output);
-    encodeStringTagToOutput("Key2", "String2", output);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
     TagContext actual = serializer.fromByteArray(output.toByteArray());
     TagContext expected =
         tagger
             .emptyBuilder()
-            .put(TagKeyString.create("Key1"), TagValueString.create("String1"))
-            .put(TagKeyString.create("Key2"), TagValueString.create("String2"))
+            .put(TagKey.create("Key1"), TagValue.create("Value1"))
+            .put(TagKey.create("Key2"), TagValue.create("Value2"))
             .build();
     assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  public void testDeserializeValueTypeInteger() throws TagContextParseException {
-    // TODO(songya): test should pass after we add support for type integer
-    ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
-    encodeLongTagToOutput("Key", 1L, output);
-    byte[] bytes = output.toByteArray();
-
-    thrown.expect(TagContextParseException.class);
-    thrown.expectMessage("Unsupported tag value type: 1");
-    serializer.fromByteArray(bytes);
-  }
-
-  @Test
-  public void testDeserializeValueTypeTrue() throws TagContextParseException {
-    // TODO(songya): test should pass after we add support for type boolean
-    ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
-    encodeTrueTagToOutput("Key", output);
-    byte[] bytes = output.toByteArray();
-
-    thrown.expect(TagContextParseException.class);
-    thrown.expectMessage("Unsupported tag value type: 2");
-    serializer.fromByteArray(bytes);
-  }
-
-  @Test
-  public void testDeserializeValueTypeFalse() throws TagContextParseException {
-    // TODO(songya): test should pass after we add support for type boolean
-    ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
-    encodeFalseTagToOutput("Key", output);
-    byte[] bytes = output.toByteArray();
-
-    thrown.expect(TagContextParseException.class);
-    thrown.expectMessage("Unsupported tag value type: 3");
-    serializer.fromByteArray(bytes);
-  }
-
-  @Test
-  public void testDeserializeMultipleValueType() throws TagContextParseException {
-    // TODO(songya): test should pass after we add support for type integer and boolean
-    ByteArrayDataOutput output = ByteStreams.newDataOutput();
-    output.write(SerializationUtils.VERSION_ID);
-    encodeStringTagToOutput("Key1", "String", output);
-    encodeLongTagToOutput("Key2", 10L, output);
-    encodeTrueTagToOutput("Key3", output);
-    encodeFalseTagToOutput("Key4", output);
-    byte[] bytes = output.toByteArray();
-
-    thrown.expect(TagContextParseException.class);
-    thrown.expectMessage("Unsupported tag value type: 1");
-    serializer.fromByteArray(bytes);
   }
 
   @Test
@@ -203,57 +145,24 @@ public class TagContextDeserializationTest {
     serializer.fromByteArray(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
   }
 
-  private static void encodeStringTagToOutput(
-      String key, String value, ByteArrayDataOutput output) {
-    output.write(SerializationUtils.VALUE_TYPE_STRING);
-
-    // String encoded format: <tag_key_len><tag_key><tag_val_len><tag_val>.
-    encodeString(key, output);
-    encodeString(value, output);
-  }
-
-  private static void encodeLongTagToOutput(String key, long value, ByteArrayDataOutput output) {
-    output.write(SerializationUtils.VALUE_TYPE_INTEGER);
-
-    // Integer encoded format: <tag_key_len><tag_key><int_tag_val>.
-    encodeString(key, output);
-    encodeLong(value, output);
-  }
-
-  private static void encodeTrueTagToOutput(String key, ByteArrayDataOutput output) {
-    output.write(SerializationUtils.VALUE_TYPE_TRUE);
-
-    // Boolean encoded format: <tag_key_len><tag_key>. No tag_value is needed
-    encodeString(key, output);
-  }
-
-  private static void encodeFalseTagToOutput(String key, ByteArrayDataOutput output) {
-    output.write(SerializationUtils.VALUE_TYPE_FALSE);
-
-    // Boolean encoded format: <tag_key_len><tag_key>. No tag_value is needed
-    encodeString(key, output);
-  }
-
-  //     <tag_encoding> (tag_field_id == 0) ==
+  //     <tag_encoding> ==
   //       <tag_key_len><tag_key><tag_val_len><tag_val>
   //         <tag_key_len> == varint encoded integer
   //         <tag_key> == tag_key_len bytes comprising tag key name
   //         <tag_val_len> == varint encoded integer
   //         <tag_val> == tag_val_len bytes comprising UTF-8 string
+  private static void encodeTagToOutput(
+      String key, String value, ByteArrayDataOutput output) {
+    output.write(SerializationUtils.TAG_FIELD_ID);
+    encodeString(key, output);
+    encodeString(value, output);
+  }
+
   private static void encodeString(String input, ByteArrayDataOutput output) {
     int length = input.length();
     byte[] bytes = new byte[VarInt.varIntSize(length)];
     VarInt.putVarInt(length, bytes, 0);
     output.write(bytes);
     output.write(input.getBytes(Charsets.UTF_8));
-  }
-
-  //     <tag_encoding> (tag_field_id == 1) ==
-  //       <tag_key_len><tag_key><int_tag_val>
-  //         <tag_key_len> == varint encoded integer
-  //         <tag_key> == tag_key_len bytes comprising tag key name
-  //         <int_tag_value> == 8 bytes, little-endian integer
-  private static void encodeLong(long input, ByteArrayDataOutput output) {
-    output.writeLong(input);
   }
 }

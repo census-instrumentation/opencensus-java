@@ -22,10 +22,10 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Collections2;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
-import io.opencensus.tags.Tag.TagString;
+import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
@@ -48,22 +48,22 @@ import org.junit.runners.JUnit4;
 public class TagContextSerializationTest {
 
   private static final int VERSION_ID = 0;
-  private static final int VALUE_TYPE_STRING = 0;
+  private static final int TAG_FIELD_ID = 0;
 
-  private static final TagKeyString K1 = TagKeyString.create("k1");
-  private static final TagKeyString K2 = TagKeyString.create("k2");
-  private static final TagKeyString K3 = TagKeyString.create("k3");
-  private static final TagKeyString K4 = TagKeyString.create("k4");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
+  private static final TagKey K3 = TagKey.create("k3");
+  private static final TagKey K4 = TagKey.create("k4");
 
-  private static final TagValueString V1 = TagValueString.create("v1");
-  private static final TagValueString V2 = TagValueString.create("v2");
-  private static final TagValueString V3 = TagValueString.create("v3");
-  private static final TagValueString V4 = TagValueString.create("v4");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
+  private static final TagValue V3 = TagValue.create("v3");
+  private static final TagValue V4 = TagValue.create("v4");
 
-  private static final TagString T1 = TagString.create(K1, V1);
-  private static final TagString T2 = TagString.create(K2, V2);
-  private static final TagString T3 = TagString.create(K3, V3);
-  private static final TagString T4 = TagString.create(K4, V4);
+  private static final Tag T1 = Tag.create(K1, V1);
+  private static final Tag T2 = Tag.create(K2, V2);
+  private static final Tag T3 = Tag.create(K3, V3);
+  private static final Tag T4 = Tag.create(K4, V4);
 
   private final TagsComponent tagsComponent = new TagsComponentImplBase();
   private final TagContextBinarySerializer serializer =
@@ -76,30 +76,30 @@ public class TagContextSerializationTest {
   }
 
   @Test
-  public void testSerializeWithOneStringTag() throws Exception {
+  public void testSerializeWithOneTag() throws Exception {
     testSerialize(T1);
   }
 
   @Test
-  public void testSerializeWithMultiStringTags() throws Exception {
+  public void testSerializeWithMultipleTags() throws Exception {
     testSerialize(T1, T2, T3, T4);
   }
 
-  private void testSerialize(TagString... tags) throws IOException {
+  private void testSerialize(Tag... tags) throws IOException {
     TagContextBuilder builder = tagger.emptyBuilder();
-    for (TagString tag : tags) {
+    for (Tag tag : tags) {
       builder.put(tag.getKey(), tag.getValue());
     }
 
     byte[] actual = serializer.toByteArray(builder.build());
 
-    Collection<List<TagString>> tagPermutation = Collections2.permutations(Arrays.asList(tags));
+    Collection<List<Tag>> tagPermutation = Collections2.permutations(Arrays.asList(tags));
     Set<String> possibleOutputs = new HashSet<String>();
-    for (List<TagString> list : tagPermutation) {
+    for (List<Tag> list : tagPermutation) {
       ByteArrayOutputStream expected = new ByteArrayOutputStream();
       expected.write(VERSION_ID);
-      for (TagString tag : list) {
-        expected.write(VALUE_TYPE_STRING);
+      for (Tag tag : list) {
+        expected.write(TAG_FIELD_ID);
         encodeString(tag.getKey().getName(), expected);
         encodeString(tag.getValue().asString(), expected);
       }

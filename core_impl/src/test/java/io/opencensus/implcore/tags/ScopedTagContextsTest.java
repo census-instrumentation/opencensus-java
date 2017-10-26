@@ -20,10 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.implcore.tags.TagsTestUtil.tagContextToList;
 
 import io.opencensus.common.Scope;
-import io.opencensus.tags.Tag.TagString;
+import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,11 +35,11 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class ScopedTagContextsTest {
-  private static final TagKeyString KEY_1 = TagKeyString.create("key 1");
-  private static final TagKeyString KEY_2 = TagKeyString.create("key 2");
+  private static final TagKey KEY_1 = TagKey.create("key 1");
+  private static final TagKey KEY_2 = TagKey.create("key 2");
 
-  private static final TagValueString VALUE_1 = TagValueString.create("value 1");
-  private static final TagValueString VALUE_2 = TagValueString.create("value 2");
+  private static final TagValue VALUE_1 = TagValue.create("value 1");
+  private static final TagValue VALUE_2 = TagValue.create("value 2");
 
   private final Tagger tagger = new TaggerImpl(new CurrentTaggingState());
 
@@ -70,7 +70,7 @@ public class ScopedTagContextsTest {
     try {
       TagContext newTags = tagger.currentBuilder().put(KEY_2, VALUE_2).build();
       assertThat(tagContextToList(newTags))
-          .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
+          .containsExactly(Tag.create(KEY_1, VALUE_1), Tag.create(KEY_2, VALUE_2));
       assertThat(tagger.getCurrentTagContext()).isSameAs(scopedTags);
     } finally {
       scope.close();
@@ -83,7 +83,7 @@ public class ScopedTagContextsTest {
     Scope scope = tagger.emptyBuilder().put(KEY_1, VALUE_1).buildScoped();
     try {
       assertThat(tagContextToList(tagger.getCurrentTagContext()))
-          .containsExactly(TagString.create(KEY_1, VALUE_1));
+          .containsExactly(Tag.create(KEY_1, VALUE_1));
     } finally {
       scope.close();
     }
@@ -98,7 +98,7 @@ public class ScopedTagContextsTest {
       Scope scope2 = tagger.currentBuilder().put(KEY_2, VALUE_2).buildScoped();
       try {
         assertThat(tagContextToList(tagger.getCurrentTagContext()))
-            .containsExactly(TagString.create(KEY_1, VALUE_1), TagString.create(KEY_2, VALUE_2));
+            .containsExactly(Tag.create(KEY_1, VALUE_1), Tag.create(KEY_2, VALUE_2));
       } finally {
         scope2.close();
       }

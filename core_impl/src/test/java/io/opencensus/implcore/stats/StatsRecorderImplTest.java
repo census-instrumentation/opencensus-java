@@ -32,11 +32,9 @@ import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.TagValue.TagValueString;
 import io.opencensus.tags.unsafe.ContextUtils;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
@@ -50,9 +48,9 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link StatsRecorderImpl}. */
 @RunWith(JUnit4.class)
 public final class StatsRecorderImplTest {
-  private static final TagKeyString KEY = TagKeyString.create("KEY");
-  private static final TagValueString VALUE = TagValueString.create("VALUE");
-  private static final TagValueString VALUE_2 = TagValueString.create("VALUE_2");
+  private static final TagKey KEY = TagKey.create("KEY");
+  private static final TagValue VALUE = TagValue.create("VALUE");
+  private static final TagValue VALUE_2 = TagValue.create("VALUE_2");
   private static final MeasureDouble MEASURE_DOUBLE =
       MeasureDouble.create("my measurement", "description", "us");
   private static final View.Name VIEW_NAME = View.Name.create("my view");
@@ -96,7 +94,7 @@ public final class StatsRecorderImplTest {
     Context orig =
         Context.current()
             .withValue(
-                ContextUtils.TAG_CONTEXT_KEY, new SimpleTagContext(TagString.create(KEY, VALUE)))
+                ContextUtils.TAG_CONTEXT_KEY, new SimpleTagContext(Tag.create(KEY, VALUE)))
             .attach();
     try {
       statsRecorder.newRecord().put(MEASURE_DOUBLE, 1.0).record();
@@ -121,8 +119,8 @@ public final class StatsRecorderImplTest {
             Cumulative.create());
     viewManager.registerView(view);
     StatsRecord statsRecord = statsRecorder.newRecord().put(MEASURE_DOUBLE, 1.0);
-    statsRecord.record(new SimpleTagContext(TagString.create(KEY, VALUE)));
-    statsRecord.record(new SimpleTagContext(TagString.create(KEY, VALUE_2)));
+    statsRecord.record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    statsRecord.record(new SimpleTagContext(Tag.create(KEY, VALUE_2)));
     ViewData viewData = viewManager.getView(VIEW_NAME);
 
     // There should be two entries.

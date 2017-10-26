@@ -25,18 +25,10 @@ import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
-import io.opencensus.tags.Tag.TagBoolean;
-import io.opencensus.tags.Tag.TagLong;
-import io.opencensus.tags.Tag.TagString;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyBoolean;
-import io.opencensus.tags.TagKey.TagKeyLong;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueBoolean;
-import io.opencensus.tags.TagValue.TagValueLong;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
-import io.opencensus.tags.UnreleasedApiAccessor;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -52,40 +44,21 @@ import org.junit.runners.JUnit4;
 public class TagContextImplTest {
   private final Tagger tagger = new TaggerImpl(new CurrentTaggingState());
 
-  private static final TagKeyString KS1 = TagKeyString.create("k1");
-  private static final TagKeyString KS2 = TagKeyString.create("k2");
+  private static final TagKey KS1 = TagKey.create("k1");
+  private static final TagKey KS2 = TagKey.create("k2");
 
-  private static final TagValueString V1 = TagValueString.create("v1");
-  private static final TagValueString V2 = TagValueString.create("v2");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
-
-  @Test
-  public void allowMutlipleKeysWithSameNameButDifferentTypes() {
-    TagKeyString stringKey = TagKeyString.create("key");
-    TagKeyLong longKey = UnreleasedApiAccessor.createTagKeyLong("key");
-    TagKeyBoolean boolKey = UnreleasedApiAccessor.createTagKeyBoolean("key");
-    assertThat(
-            tagContextToList(
-                tagger
-                    .emptyBuilder()
-                    .put(stringKey, TagValueString.create("value"))
-                    .put(longKey, TagValueLong.create(123))
-                    .put(boolKey, TagValueBoolean.create(true))
-                    .build()))
-        .containsExactly(
-            TagString.create(stringKey, TagValueString.create("value")),
-            TagLong.create(longKey, TagValueLong.create(123L)),
-            TagBoolean.create(boolKey, TagValueBoolean.create(true)));
-  }
 
   @Test
   public void testSet() {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).build();
     assertThat(tagContextToList(tagger.toBuilder(tags).put(KS1, V2).build()))
-        .containsExactly(TagString.create(KS1, V2));
+        .containsExactly(Tag.create(KS1, V2));
     assertThat(tagContextToList(tagger.toBuilder(tags).put(KS2, V2).build()))
-        .containsExactly(TagString.create(KS1, V1), TagString.create(KS2, V2));
+        .containsExactly(Tag.create(KS1, V1), Tag.create(KS2, V2));
   }
 
   @Test
@@ -93,7 +66,7 @@ public class TagContextImplTest {
     TagContext tags = tagger.emptyBuilder().put(KS1, V1).build();
     assertThat(tagContextToList(tagger.toBuilder(tags).remove(KS1).build())).isEmpty();
     assertThat(tagContextToList(tagger.toBuilder(tags).remove(KS2).build()))
-        .containsExactly(TagString.create(KS1, V1));
+        .containsExactly(Tag.create(KS1, V1));
   }
 
   @Test
@@ -105,8 +78,7 @@ public class TagContextImplTest {
     assertTrue(i.hasNext());
     Tag tag2 = i.next();
     assertFalse(i.hasNext());
-    assertThat(Arrays.asList(tag1, tag2))
-        .containsExactly(TagString.create(KS1, V1), TagString.create(KS2, V2));
+    assertThat(Arrays.asList(tag1, tag2)).containsExactly(Tag.create(KS1, V1), Tag.create(KS2, V2));
     thrown.expect(NoSuchElementException.class);
     i.next();
   }
@@ -130,8 +102,7 @@ public class TagContextImplTest {
             new TagContext() {
               @Override
               protected Iterator<Tag> getIterator() {
-                return Lists.<Tag>newArrayList(TagString.create(KS1, V1), TagString.create(KS2, V2))
-                    .iterator();
+                return Lists.<Tag>newArrayList(Tag.create(KS1, V1), Tag.create(KS2, V2)).iterator();
               }
             })
         .addEqualityGroup(tagger.emptyBuilder().put(KS1, V1).put(KS2, V1).build())

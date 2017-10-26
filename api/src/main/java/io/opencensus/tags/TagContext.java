@@ -20,19 +20,15 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A map from keys to values that can be used to label anything that is associated with a specific
- * operation.
+ * A map from {@link TagKey} to {@link TagValue} that can be used to label anything that is
+ * associated with a specific operation.
  *
  * <p>For example, {@code TagContext}s can be used to label stats, log messages, or debugging
  * information.
- *
- * <p>Keys have type {@link TagKey}. Values have type {@link TagValueString}, though the library
- * will support more types in the future, including {@code long} and {@code boolean}.
  */
 @Immutable
 public abstract class TagContext {

@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
@@ -33,15 +33,15 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TagContextRoundtripTest {
 
-  private static final TagKeyString K_EMPTY = TagKeyString.create("");
-  private static final TagKeyString K1 = TagKeyString.create("k1");
-  private static final TagKeyString K2 = TagKeyString.create("k2");
-  private static final TagKeyString K3 = TagKeyString.create("k3");
+  private static final TagKey K_EMPTY = TagKey.create("");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
+  private static final TagKey K3 = TagKey.create("k3");
 
-  private static final TagValueString V_EMPTY = TagValueString.create("");
-  private static final TagValueString V1 = TagValueString.create("v1");
-  private static final TagValueString V2 = TagValueString.create("v2");
-  private static final TagValueString V3 = TagValueString.create("v3");
+  private static final TagValue V_EMPTY = TagValue.create("");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
+  private static final TagValue V3 = TagValue.create("v3");
 
   private final TagsComponent tagsComponent = new TagsComponentImplBase();
   private final TagContextBinarySerializer serializer =

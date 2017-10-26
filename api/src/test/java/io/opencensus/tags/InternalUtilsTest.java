@@ -19,9 +19,6 @@ package io.opencensus.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.Lists;
-import io.opencensus.tags.Tag.TagString;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +32,7 @@ public final class InternalUtilsTest {
   public void getTags() {
     final Iterator<Tag> iterator =
         Lists.<Tag>newArrayList(
-                TagString.create(TagKeyString.create("k"), TagValueString.create("v")))
+                Tag.create(TagKey.create("k"), TagValue.create("v")))
             .iterator();
     TagContext ctx =
         new TagContext() {

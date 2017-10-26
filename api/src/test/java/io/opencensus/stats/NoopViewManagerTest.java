@@ -27,7 +27,7 @@ import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
-import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagKey;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +40,7 @@ import org.junit.runners.JUnit4;
 public final class NoopViewManagerTest {
   private static final MeasureDouble MEASURE =
       Measure.MeasureDouble.create("my measure", "description", "s");
-  private static final TagKeyString KEY = TagKeyString.create("KEY");
+  private static final TagKey KEY = TagKey.create("KEY");
   private static final Name VIEW_NAME = Name.create("my view");
   private static final String VIEW_DESCRIPTION = "view description";
   private static final Sum AGGREGATION = Sum.create();

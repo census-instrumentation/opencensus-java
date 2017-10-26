@@ -33,9 +33,8 @@ import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
-import io.opencensus.tags.TagKey.TagKeyString;
+import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -184,15 +183,15 @@ public final class ViewDataTest {
   }
 
   // tag keys
-  private static final TagKeyString K1 = TagKeyString.create("k1");
-  private static final TagKeyString K2 = TagKeyString.create("k2");
-  private final List<TagKeyString> tagKeys = Arrays.asList(K1, K2);
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
+  private final List<TagKey> tagKeys = Arrays.asList(K1, K2);
 
   // tag values
-  private static final TagValueString V1 = TagValueString.create("v1");
-  private static final TagValueString V2 = TagValueString.create("v2");
-  private static final TagValueString V10 = TagValueString.create("v10");
-  private static final TagValueString V20 = TagValueString.create("v20");
+  private static final TagValue V1 = TagValue.create("v1");
+  private static final TagValue V2 = TagValue.create("v2");
+  private static final TagValue V10 = TagValue.create("v10");
+  private static final TagValue V20 = TagValue.create("v20");
 
   private static final AggregationWindow CUMULATIVE = Cumulative.create();
   private static final AggregationWindow INTERVAL_HOUR = Interval.create(Duration.create(3600, 0));
@@ -202,7 +201,7 @@ public final class ViewDataTest {
 
   private static final Aggregation DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
   
-  private static final ImmutableMap<List<TagValueString>, DistributionData> ENTRIES =
+  private static final ImmutableMap<List<TagValue>, DistributionData> ENTRIES =
       ImmutableMap.of(
           Arrays.asList(V1, V2),
           DistributionData.create(1, 1, 1, 1, 0, new long[]{0, 1, 0}),
