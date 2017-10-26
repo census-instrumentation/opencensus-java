@@ -117,13 +117,19 @@ public class MutableViewDataTest {
       aggregates.add(MutableViewData.createAggregationData(mutableAggregation, MEASURE_DOUBLE));
     }
 
-    assertThat(aggregates).containsExactly(
-        SumDataDouble.create(0),
-        SumDataLong.create(0),
-        CountData.create(0),
-        MeanData.create(0, 0),
-        DistributionData.create(
-            0, 0, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, new long[4]))
+    assertThat(aggregates)
+        .containsExactly(
+            SumDataDouble.create(0),
+            SumDataLong.create(0),
+            CountData.create(0),
+            MeanData.create(0, 0),
+            DistributionData.create(
+                0,
+                0,
+                Double.POSITIVE_INFINITY,
+                Double.NEGATIVE_INFINITY,
+                0,
+                Arrays.asList(new Long[] {0L, 0L, 0L, 0L})))
         .inOrder();
   }
 

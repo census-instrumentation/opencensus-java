@@ -204,9 +204,9 @@ public final class ViewDataTest {
   private static final ImmutableMap<List<TagValue>, DistributionData> ENTRIES =
       ImmutableMap.of(
           Arrays.asList(V1, V2),
-          DistributionData.create(1, 1, 1, 1, 0, new long[]{0, 1, 0}),
+          DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 0L)),
           Arrays.asList(V10, V20),
-          DistributionData.create(-5, 6, -20, 5, 100.1, new long[]{5, 0, 1}));
+          DistributionData.create(-5, 6, -20, 5, 100.1, Arrays.asList(5L, 0L, 1L)));
 
   // name
   private static final View.Name NAME = View.Name.create("test-view");
