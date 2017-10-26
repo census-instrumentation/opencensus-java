@@ -104,7 +104,7 @@ subprojects {
     ext {
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
-        grpcVersion = '1.6.1'
+        grpcVersion = '1.7.0'
         guavaVersion = '19.0'
         googleAuthVersion = '0.8.0'
         googleCloudVersion = '0.24.0-alpha'
@@ -128,7 +128,7 @@ subprojects {
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
-                junit: 'junit:junit:4.11',
+                junit: 'junit:junit:4.12',
                 mockito: 'org.mockito:mockito-core:1.9.5',
                 truth: 'com.google.truth:truth:0.30',
         ]
