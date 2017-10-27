@@ -107,7 +107,7 @@ subprojects {
         grpcVersion = '1.7.0'
         guavaVersion = '19.0'
         googleAuthVersion = '0.8.0'
-        googleCloudVersion = '0.24.0-alpha'
+        googleCloudVersion = '0.26.0-alpha'
         zipkinReporterVersion = '2.0.0'
 
         libraries = [
@@ -239,7 +239,7 @@ subprojects {
                         developer {
                             id 'io.opencensus'
                             name 'OpenCensus Contributors'
-                            email 'opencensus-io@googlegroups.com'
+                            email 'census-developers@googlegroups.com'
                             url 'opencensus.io'
                             // https://issues.gradle.org/browse/GRADLE-2719
                             organization = 'Google, Inc.'
