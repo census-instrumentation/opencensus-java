@@ -305,7 +305,7 @@ abstract class MutableAggregation {
         double delta = mutableDistribution.mean - this.mean;
         this.sumOfSquaredDeviations = this.sumOfSquaredDeviations
             + mutableDistribution.sumOfSquaredDeviations
-            + delta * delta * this.count * mutableDistribution.count
+            + Math.pow(delta, 2) * this.count * mutableDistribution.count
             / (this.count + mutableDistribution.count);
       }
 
