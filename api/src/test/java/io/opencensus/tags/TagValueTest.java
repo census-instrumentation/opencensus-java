@@ -32,6 +32,11 @@ public final class TagValueTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
+  public void testMaxLength() {
+    assertThat(TagValue.MAX_LENGTH).isEqualTo(255);
+  }
+
+  @Test
   public void allowTagValueWithMaxLength() {
     char[] chars = new char[TagValue.MAX_LENGTH];
     Arrays.fill(chars, 'v');

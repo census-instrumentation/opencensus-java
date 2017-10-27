@@ -33,6 +33,11 @@ public final class TagKeyTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
+  public void testMaxLength() {
+    assertThat(TagKey.MAX_LENGTH).isEqualTo(255);
+  }
+
+  @Test
   public void testGetName() {
     assertThat(TagKey.create("foo").getName()).isEqualTo("foo");
   }

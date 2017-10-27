@@ -31,7 +31,7 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 public abstract class TagValue {
   /** The maximum length for a tag value. The value is {@value #MAX_LENGTH}. */
-  public static final int MAX_LENGTH = 256;
+  public static final int MAX_LENGTH = 255;
 
   TagValue() {}
 
