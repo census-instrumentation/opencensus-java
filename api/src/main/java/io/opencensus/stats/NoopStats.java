@@ -165,7 +165,7 @@ final class NoopStats {
       synchronized (views) {
         View view = views.get(name);
         if (view == null) {
-          throw new IllegalArgumentException("View is not registered.");
+          return null;
         } else {
           return ViewData.create(
               view,

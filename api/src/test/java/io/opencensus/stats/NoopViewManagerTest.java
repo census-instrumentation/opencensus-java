@@ -88,12 +88,9 @@ public final class NoopViewManagerTest {
   }
 
   @Test
-  public void noopViewManager_GetView_DisallowGettingNonExistentView() {
+  public void noopViewManager_GetView_GettingNonExistentViewReturnsNull() {
     ViewManager viewManager = NoopStats.newNoopViewManager();
-
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("View is not registered.");
-    viewManager.getView(VIEW_NAME);
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
   }
 
   @Test
