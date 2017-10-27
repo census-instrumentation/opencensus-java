@@ -478,7 +478,7 @@ public class ViewManagerImplTest {
     statsRecorder
         .newRecord()
         .put(MEASURE_DOUBLE, 40.0)
-        .recordWithExplicitTagContext(tagger.emptyBuilder().put(KEY, VALUE_2).build());
+        .record(tagger.emptyBuilder().put(KEY, VALUE_2).build());
 
     // get ViewData at 25s, stats for TagValue1 should have expired.
     clock.setTime(Timestamp.fromMillis(25 * MILLIS_PER_SECOND));
