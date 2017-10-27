@@ -37,7 +37,12 @@ public final class TagValueTest {
   }
 
   @Test
-  public void allowTagValueWithMaxLength() {
+  public void testAsString() {
+    assertThat(TagValue.create("foo").asString()).isEqualTo("foo");
+  }
+
+  @Test
+  public void create_AllowTagValueWithMaxLength() {
     char[] chars = new char[TagValue.MAX_LENGTH];
     Arrays.fill(chars, 'v');
     String value = new String(chars);
@@ -45,7 +50,7 @@ public final class TagValueTest {
   }
 
   @Test
-  public void disallowTagValueOverMaxLength() {
+  public void create_DisallowTagValueOverMaxLength() {
     char[] chars = new char[TagValue.MAX_LENGTH + 1];
     Arrays.fill(chars, 'v');
     String value = new String(chars);

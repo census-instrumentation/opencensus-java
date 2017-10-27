@@ -29,7 +29,6 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link TagKey}. */
 @RunWith(JUnit4.class)
 public final class TagKeyTest {
-
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
@@ -44,17 +43,19 @@ public final class TagKeyTest {
 
   @Test
   public void create_AllowTagKeyNameWithMaxLength() {
-    char[] key = new char[TagKey.MAX_LENGTH];
-    Arrays.fill(key, 'k');
-    TagKey.create(new String(key));
+    char[] chars = new char[TagKey.MAX_LENGTH];
+    Arrays.fill(chars, 'k');
+    String key = new String(chars);
+    assertThat(TagKey.create(key).getName()).isEqualTo(key);
   }
 
   @Test
   public void create_DisallowTagKeyNameOverMaxLength() {
-    char[] key = new char[TagKey.MAX_LENGTH + 1];
-    Arrays.fill(key, 'k');
+    char[] chars = new char[TagKey.MAX_LENGTH + 1];
+    Arrays.fill(chars, 'k');
+    String key = new String(chars);
     thrown.expect(IllegalArgumentException.class);
-    TagKey.create(new String(key));
+    TagKey.create(key);
   }
 
   @Test
