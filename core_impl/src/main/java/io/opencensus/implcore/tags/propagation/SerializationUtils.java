@@ -108,16 +108,14 @@ final class SerializationUtils {
     int limit = buffer.limit();
     while (buffer.position() < limit) {
       int type = buffer.get();
-      switch (type) {
-        case TAG_FIELD_ID:
-          TagKey key = createTagKey(decodeString(buffer));
-          TagValue val = createTagValue(key, decodeString(buffer));
-          tags.put(key, val);
-          break;
-        default:
-          // Stop parsing at the first unknown field ID, since there is no way to know its length.
-          // TODO(sebright): Consider storing the rest of the byte array in the TagContext.
-          return tags;
+      if (type == TAG_FIELD_ID) {
+        TagKey key = createTagKey(decodeString(buffer));
+        TagValue val = createTagValue(key, decodeString(buffer));
+        tags.put(key, val);
+      } else {
+        // Stop parsing at the first unknown field ID, since there is no way to know its length.
+        // TODO(sebright): Consider storing the rest of the byte array in the TagContext.
+        return tags;
       }
     }
     return tags;
