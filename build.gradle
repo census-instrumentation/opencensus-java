@@ -254,6 +254,7 @@ subprojects {
     uploadArchives.onlyIf {
         name in ['opencensus-api',
                  'opencensus-contrib-agent',
+                 'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-trace-logging',
