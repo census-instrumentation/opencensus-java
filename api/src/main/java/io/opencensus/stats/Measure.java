@@ -86,7 +86,8 @@ public abstract class Measure {
      */
     public static MeasureDouble create(String name, String description, String unit) {
       checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than 255 characters.");
+          "Name should be a ASCII string with a length no greater than "
+              + NAME_MAX_LENGTH + " characters.");
       return new AutoValue_Measure_MeasureDouble(name, description, unit);
     }
 
@@ -126,7 +127,8 @@ public abstract class Measure {
      */
     public static MeasureLong create(String name, String description, String unit) {
       checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than 255 characters.");
+          "Name should be a ASCII string with a length no greater than "
+              + NAME_MAX_LENGTH + " characters.");
       return new AutoValue_Measure_MeasureLong(name, description, unit);
     }
 
