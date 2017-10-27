@@ -73,6 +73,6 @@ public abstract class TagKey {
    * @return whether the name is valid.
    */
   private static boolean isValid(String name) {
-    return name.length() <= MAX_LENGTH && StringUtil.isPrintableString(name);
+    return !name.isEmpty() && name.length() <= MAX_LENGTH && StringUtil.isPrintableString(name);
   }
 }

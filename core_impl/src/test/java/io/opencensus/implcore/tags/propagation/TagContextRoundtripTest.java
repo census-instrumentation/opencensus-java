@@ -33,7 +33,6 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TagContextRoundtripTest {
 
-  private static final TagKey K_EMPTY = TagKey.create("");
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
   private static final TagKey K3 = TagKey.create("k3");
@@ -54,8 +53,6 @@ public class TagContextRoundtripTest {
     testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).build());
     testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).put(K2, V2).put(K3, V3).build());
     testRoundtripSerialization(tagger.emptyBuilder().put(K1, V_EMPTY).build());
-    testRoundtripSerialization(tagger.emptyBuilder().put(K_EMPTY, V1).build());
-    testRoundtripSerialization(tagger.emptyBuilder().put(K_EMPTY, V_EMPTY).build());
   }
 
   private void testRoundtripSerialization(TagContext expected) throws Exception {
