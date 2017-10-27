@@ -299,6 +299,16 @@ abstract class MutableAggregation {
       checkArgument(this.bucketBoundaries.equals(mutableDistribution.bucketBoundaries),
           "Bucket boundaries should match.");
 
+      // Algorithm for calculating the combination of sum of squared deviations:
+      // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm.
+      if (this.count + mutableDistribution.count > 0) {
+        double delta = mutableDistribution.mean - this.mean;
+        this.sumOfSquaredDeviations = this.sumOfSquaredDeviations
+            + mutableDistribution.sumOfSquaredDeviations
+            + Math.pow(delta, 2) * this.count * mutableDistribution.count
+            / (this.count + mutableDistribution.count);
+      }
+
       this.count += mutableDistribution.count;
       this.sum += mutableDistribution.sum;
       this.mean = this.sum / this.count;
@@ -309,7 +319,6 @@ abstract class MutableAggregation {
       if (mutableDistribution.max > this.max) {
         this.max = mutableDistribution.max;
       }
-      // TODO(songya): how to calculate combined sum of squared deviations?
 
       long[] bucketCounts = mutableDistribution.getBucketCounts();
       for (int i = 0; i < bucketCounts.length; i++) {
