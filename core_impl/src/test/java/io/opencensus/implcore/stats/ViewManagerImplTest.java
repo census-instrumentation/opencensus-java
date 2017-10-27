@@ -199,9 +199,8 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void disallowGettingNonexistentViewData() {
-    thrown.expect(IllegalArgumentException.class);
-    viewManager.getView(VIEW_NAME);
+  public void returnNullWhenGettingNonexistentViewData() {
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
   }
 
   @Test

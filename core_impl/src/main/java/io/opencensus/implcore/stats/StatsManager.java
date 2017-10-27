@@ -46,13 +46,7 @@ final class StatsManager {
   }
 
   ViewData getView(View.Name viewName) {
-    ViewData view = measureToViewMap.getView(viewName, clock);
-    if (view == null) {
-      throw new IllegalArgumentException(
-          "ViewData for view " + viewName + " not found.");
-    } else {
-      return view;
-    }
+    return measureToViewMap.getView(viewName, clock);
   }
 
   void record(TagContext tags, MeasureMap measurementValues) {

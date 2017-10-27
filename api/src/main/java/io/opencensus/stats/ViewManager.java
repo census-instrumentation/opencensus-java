@@ -16,6 +16,8 @@
 
 package io.opencensus.stats;
 
+import javax.annotation.Nullable;
+
 /**
  * Provides facilities to register {@link View}s for collecting stats and retrieving
  * stats data as a {@link ViewData}.
@@ -29,6 +31,9 @@ public abstract class ViewManager {
 
   /**
    * Returns the current stats data, {@link ViewData}, associated with the given view name.
+   *
+   * <p>Returns {@code null} if the {@code View} is not registered.
    */
+  @Nullable
   public abstract ViewData getView(View.Name view);
 }
