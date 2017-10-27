@@ -41,7 +41,7 @@ public final class MeasureTest {
 
   @Test
   public void testConstants() {
-    assertThat(Measure.NAME_MAX_LENGTH).isEqualTo(256);
+    assertThat(Measure.NAME_MAX_LENGTH).isEqualTo(255);
   }
 
   @Test

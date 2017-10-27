@@ -28,7 +28,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class Measure {
 
-  @VisibleForTesting static final int NAME_MAX_LENGTH = 256;
+  @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
 
   /**
    * Applies the given match function to the underlying data type.
@@ -40,7 +40,7 @@ public abstract class Measure {
 
   /**
    * Name of measure, as a {@code String}. Should be a ASCII string with a length no greater than
-   * 256 characters.
+   * 255 characters.
    *
    * <p>Suggested format for name: {@code <web_host>/<path>}.
    */
@@ -86,7 +86,8 @@ public abstract class Measure {
      */
     public static MeasureDouble create(String name, String description, String unit) {
       checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than 256 characters.");
+          "Name should be a ASCII string with a length no greater than "
+              + NAME_MAX_LENGTH + " characters.");
       return new AutoValue_Measure_MeasureDouble(name, description, unit);
     }
 
@@ -126,7 +127,8 @@ public abstract class Measure {
      */
     public static MeasureLong create(String name, String description, String unit) {
       checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than 256 characters.");
+          "Name should be a ASCII string with a length no greater than "
+              + NAME_MAX_LENGTH + " characters.");
       return new AutoValue_Measure_MeasureLong(name, description, unit);
     }
 
