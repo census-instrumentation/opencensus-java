@@ -26,17 +26,20 @@ def subprojects = [
         project(':opencensus-contrib-zpages'),
         project(':opencensus-exporter-trace-logging'),
         project(':opencensus-exporter-trace-stackdriver'),
+        project(':opencensus-exporter-trace-zipkin'),
 ]
 
 // A subset of subprojects for which we want to publish javadoc.
 def subprojects_javadoc = [
         project(':opencensus-api'),
         project(':opencensus-testing'),
+        project(':opencensus-contrib-agent'),
         project(':opencensus-contrib-grpc-util'),
         project(':opencensus-contrib-grpc-metrics'),
         project(':opencensus-contrib-zpages'),
         project(':opencensus-exporter-trace-logging'),
         project(':opencensus-exporter-trace-stackdriver'),
+        project(':opencensus-exporter-trace-zipkin'),
 ]
 
 for (subproject in rootProject.subprojects) {
