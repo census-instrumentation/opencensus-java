@@ -200,6 +200,7 @@ check.dependsOn integrationTest
 integrationTest.dependsOn shadowJar
 integrationTest.mustRunAfter test
 
+// Merge JaCoCo's execution data from all tests into the main test's execution data file.
 task jacocoMerge(type: JacocoMerge) {
   tasks.withType(Test).each { testTask ->
     dependsOn testTask
