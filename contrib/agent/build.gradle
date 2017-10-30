@@ -1,6 +1,6 @@
 plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.1'
-  id 'me.tatarka.retrolambda' version '3.6.0'
+  id 'me.tatarka.retrolambda' version '3.7.0' 
   id 'me.champeau.gradle.jmh' version '0.4.4'
   id 'io.morethan.jmhreport' version '0.6.2.1'
 }
