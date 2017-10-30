@@ -27,16 +27,16 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * Unit tests for {@link ContextManager}.
+ * Unit tests for {@link ContextTrampoline}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ContextManagerTest {
+public class ContextTrampolineTest {
 
   private static final ContextStrategy mockContextStrategy;
 
   static {
     mockContextStrategy = mock(ContextStrategy.class);
-    ContextManager.setContextStrategy(mockContextStrategy);
+    ContextTrampoline.setContextStrategy(mockContextStrategy);
   }
 
   @Rule
@@ -52,26 +52,26 @@ public class ContextManagerTest {
   public void setContextStrategy_already_initialized() {
     exception.expect(IllegalStateException.class);
 
-    ContextManager.setContextStrategy(mockContextStrategy);
+    ContextTrampoline.setContextStrategy(mockContextStrategy);
   }
 
   @Test
   public void wrapInCurrentContext() {
-    ContextManager.wrapInCurrentContext(runnable);
+    ContextTrampoline.wrapInCurrentContext(runnable);
 
     Mockito.verify(mockContextStrategy).wrapInCurrentContext(runnable);
   }
 
   @Test
   public void saveContextForThread() {
-    ContextManager.saveContextForThread(thread);
+    ContextTrampoline.saveContextForThread(thread);
 
     Mockito.verify(mockContextStrategy).saveContextForThread(thread);
   }
 
   @Test
   public void attachContextForThread() {
-    ContextManager.attachContextForThread(thread);
+    ContextTrampoline.attachContextForThread(thread);
 
     Mockito.verify(mockContextStrategy).attachContextForThread(thread);
   }
