@@ -188,7 +188,15 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
     classpath = sourceSets.integrationTest.runtimeClasspath
 
     executable = javaExecutable
-    jvmArgs "-javaagent:${shadowJar.archivePath}"
+
+    // The JaCoCo agent must be specified first so that it can instrument our agent.
+    // This is a work around for the issue that the JaCoCo agent is added last, cf.
+    // https://discuss.gradle.org/t/jacoco-gradle-adds-the-agent-last-to-jvm-args/7124.
+    doFirst {
+      jvmArgs jacoco.asJvmArg  // JaCoCo agent first.
+      jvmArgs "-javaagent:${shadowJar.archivePath}"  // Our agent second.
+      jacoco.enabled = false  // Don't add the JaCoCo agent again.
+    }
 
     doFirst { logger.lifecycle("Running integration tests using ${javaExecutable}.") }
   }
