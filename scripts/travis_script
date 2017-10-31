@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# Travis build script, cf.
+# https://docs.travis-ci.com/user/customizing-the-build/#Implementing-Complex-Build-Steps.
+
+set -o errexit
+set -o xtrace
+
+case "$TASK" in
+  "CHECK_GIT_HISTORY")
+    python "$(dirname "$0")"/check-git-history.py
+    ;;
+  "BUILD")
+    case "$TRAVIS_OS_NAME" in
+      "linux")
+        source /opt/jdk_switcher/jdk_switcher.sh
+        export JAVA8_HOME="$(jdk_switcher home oraclejdk8)"
+        case "$TRAVIS_JDK_VERSION" in
+          "oraclejdk8")
+            export JAVA_HOMES="$(jdk_switcher home openjdk6)/jre:$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)"
+            ./gradlew clean assemble --stacktrace
+            ./gradlew check :opencensus-all:jacocoTestReport
+            ;;
+          "openjdk7")
+            # "./gradlew classes testClasses" is a workaround for
+            # https://github.com/gradle/gradle/issues/2421.
+            # See https://github.com/gradle/gradle/issues/2421#issuecomment-319916874.
+            JAVA_HOME="$(jdk_switcher home openjdk8)" ./gradlew classes testClasses
+            ./gradlew clean assemble --stacktrace
+            ./gradlew check
+            ;;
+          *)
+            echo "Unknown JDK version $TRAVIS_JDK_VERSION"
+            exit 1
+            ;;
+        esac
+        ;;
+      "osx")
+        # OS X is a separate case, because the JDK version is determined by the OS X image:
+        # https://docs.travis-ci.com/user/reference/osx/#JDK-and-OS-X
+        ./gradlew clean assemble --stacktrace
+        ./gradlew check
+        ;;
+      *)
+        echo "Unknown OS name $TRAVIS_OS_NAME"
+        exit 1
+        ;;
+    esac
+    ;;
+  *)
+    echo "Unknown task $TASK"
+    exit 1
+    ;;
+esac
