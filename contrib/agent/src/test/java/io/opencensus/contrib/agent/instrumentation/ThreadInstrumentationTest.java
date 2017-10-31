@@ -35,7 +35,7 @@ public class ThreadInstrumentationTest {
   @Mock
   private Config config;
 
-  private static ThreadInstrumentation instrumentation = new ThreadInstrumentation();
+  private final ThreadInstrumentation instrumentation = new ThreadInstrumentation();
 
   private final AgentBuilder agentBuilder = new AgentBuilder.Default();
 
