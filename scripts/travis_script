@@ -4,7 +4,7 @@
 # https://docs.travis-ci.com/user/customizing-the-build/#Implementing-Complex-Build-Steps.
 
 set -o errexit
-set -o verbose
+set -o xtrace
 
 source /opt/jdk_switcher/jdk_switcher.sh
 
@@ -23,12 +23,10 @@ case "$TASK" in
             ./gradlew check :opencensus-all:jacocoTestReport
             ;;
           "openjdk7")
-            jdk_switcher use oraclejdk8
             # "./gradlew classes testClasses" is a workaround for
             # https://github.com/gradle/gradle/issues/2421.
             # See https://github.com/gradle/gradle/issues/2421#issuecomment-319916874.
-            ./gradlew classes testClasses
-            jdk_switcher use openjdk7
+            JAVA_HOME="$(jdk_switcher home openjdk8)" ./gradlew classes testClasses
             ./gradlew clean assemble --stacktrace
             ./gradlew check
             ;;
