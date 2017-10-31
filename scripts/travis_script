@@ -6,8 +6,6 @@
 set -o errexit
 set -o xtrace
 
-source /opt/jdk_switcher/jdk_switcher.sh
-
 case "$TASK" in
   "CHECK_GIT_HISTORY")
     python "$(dirname "$0")"/check-git-history.py
@@ -15,6 +13,7 @@ case "$TASK" in
   "BUILD")
     case "$TRAVIS_OS_NAME" in
       "linux")
+        source /opt/jdk_switcher/jdk_switcher.sh
         export JAVA8_HOME="$(jdk_switcher home oraclejdk8)"
         case "$TRAVIS_JDK_VERSION" in
           "oraclejdk8")
