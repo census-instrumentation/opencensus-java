@@ -62,13 +62,14 @@ java -javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar ...
 ## Configuration
 
 The *OpenCensus Agent for Java* uses [Typesafe's configuration
-library](https://github.com/lightbend/config) for all user-configurable settings. Please refer to
+library](https://lightbend.github.io/config/) for all user-configurable settings. Please refer to
 [reference.conf](src/main/resources/reference.conf) for the available configuration knobs and their
 defaults.
 
 You can override the default configuration in [different
-ways](https://github.com/lightbend/config#standard-behavior). For example, to disable the automatic
-context propagation for Executors, add a system property as follows:
+ways](https://github.com/lightbend/config/blob/7cae92d3ae3ff9d06f1db43800232d2f73c6fe44/README.md#standard-behavior).
+For example, to disable the automatic context propagation for Executors, add a system property as
+follows:
 
 ```shell
 java -javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar \
