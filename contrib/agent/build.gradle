@@ -41,6 +41,12 @@ dependencies {
   signature 'org.codehaus.mojo.signature:java16:+@signature'
 }
 
+// Don't bother about Java 1.6 for test classes. Let Animalsniffer check main sources only,
+// cf. https://github.com/xvik/gradle-animalsniffer-plugin#scope.
+animalsniffer {
+  sourceSets = [ sourceSets.main ]
+}
+
 jar {
   manifest {
     // Set the required manifest attributes for the Java agent, cf.

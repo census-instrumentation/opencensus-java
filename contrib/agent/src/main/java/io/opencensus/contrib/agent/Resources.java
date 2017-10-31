@@ -55,10 +55,6 @@ final class Resources {
   @VisibleForTesting
   static void getResourceAsTempFile(String resourceName, File file, OutputStream outputStream)
           throws IOException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
-    checkNotNull(file, "file");
-    checkNotNull(outputStream, "outputStream");
-
     file.deleteOnExit();
 
     InputStream is = getResourceAsStream(resourceName);
@@ -70,8 +66,6 @@ final class Resources {
   }
 
   private static InputStream getResourceAsStream(String resourceName) throws FileNotFoundException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
-
     InputStream is = Resources.class.getResourceAsStream(resourceName);
     if (is == null) {
       throw new FileNotFoundException(
