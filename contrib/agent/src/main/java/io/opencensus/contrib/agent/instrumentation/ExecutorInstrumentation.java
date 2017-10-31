@@ -25,6 +25,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 import com.google.auto.service.AutoService;
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.agent.bootstrap.ContextManager;
 import java.util.concurrent.Executor;
@@ -44,13 +45,18 @@ import net.bytebuddy.utility.JavaModule;
 public final class ExecutorInstrumentation implements Instrumenter {
 
   @Override
-  public AgentBuilder instrument(AgentBuilder agentBuilder) {
+  public AgentBuilder instrument(AgentBuilder agentBuilder, Config config) {
     checkNotNull(agentBuilder, "agentBuilder");
+    checkNotNull(config, "config");
 
     // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
 
     // Initialize the ContextManager with the concrete ContextStrategy.
     ContextManager.setContextStrategy(new ContextStrategyImpl());
+
+    if (!config.getBoolean("context-propagation.executor")) {
+      return agentBuilder;
+    }
 
     return agentBuilder
             .type(createMatcher())

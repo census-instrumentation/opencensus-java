@@ -21,6 +21,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isSubTypeOf;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 import com.google.auto.service.AutoService;
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.agent.bootstrap.ContextManager;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -42,8 +43,13 @@ import net.bytebuddy.utility.JavaModule;
 public final class ThreadInstrumentation implements Instrumenter {
 
   @Override
-  public AgentBuilder instrument(AgentBuilder agentBuilder) {
+  public AgentBuilder instrument(AgentBuilder agentBuilder, Config config) {
     checkNotNull(agentBuilder, "agentBuilder");
+    checkNotNull(config, "config");
+
+    if (!config.getBoolean("context-propagation.thread")) {
+      return agentBuilder;
+    }
 
     return agentBuilder
             .type(isSubTypeOf(Thread.class))
