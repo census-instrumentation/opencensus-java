@@ -31,8 +31,7 @@ public class RpcMeasureConstantsTest {
   @Test
   public void testConstants() {
     assertThat(RpcMeasureConstants.RPC_STATUS).isNotNull();
-    assertThat(RpcMeasureConstants.RPC_CLIENT_METHOD).isNotNull();
-    assertThat(RpcMeasureConstants.RPC_SERVER_METHOD).isNotNull();
+    assertThat(RpcMeasureConstants.RPC_METHOD).isNotNull();
 
     // Test client measurement descriptors.
     assertThat(RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT).isNotNull();

@@ -28,8 +28,7 @@ public final class RpcMeasureConstants {
 
   // Rpc tag keys.
   public static final TagKey RPC_STATUS = TagKey.create("canonical_status");
-  public static final TagKey RPC_CLIENT_METHOD = TagKey.create("method");
-  public static final TagKey RPC_SERVER_METHOD = TagKey.create("method");
+  public static final TagKey RPC_METHOD = TagKey.create("method");
 
   // Constants used to define the following Measures.
   private static final String BYTE = "By";
