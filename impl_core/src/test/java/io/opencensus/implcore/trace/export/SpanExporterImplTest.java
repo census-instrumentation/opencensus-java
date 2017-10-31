@@ -17,7 +17,7 @@
 package io.opencensus.implcore.trace.export;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.Mockito.doThrow;
 
 import io.opencensus.implcore.common.MillisClock;

@@ -16,8 +16,8 @@
 
 package io.opencensus.exporter.trace.stackdriver;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
 
 import io.opencensus.trace.export.SpanExporter;
