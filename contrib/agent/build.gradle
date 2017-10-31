@@ -34,9 +34,10 @@ def agentRepackaged = "${agentPackage}.deps"
 dependencies {
   compileOnly libraries.auto_service
   compileOnly libraries.grpc_context
+  compile libraries.byte_buddy
+  compile libraries.config
   compile libraries.findbugs_annotations
   compile libraries.guava
-  compile libraries.byte_buddy
 
   signature 'org.codehaus.mojo.signature:java16:+@signature'
 }
@@ -81,6 +82,7 @@ shadowJar {
   // Include only the following dependencies (excluding transitive dependencies).
   dependencies {
     include(dependency(libraries.byte_buddy))
+    include(dependency(libraries.config))
     include(dependency(libraries.guava))
   }
 
@@ -92,6 +94,8 @@ shadowJar {
   // classes, which are loaded by the same classloader (the system classloader).
   // Byte Buddy:
   relocate 'net.bytebuddy', agentRepackaged + '.bytebuddy'
+  // Config:
+  relocate 'com.typesafe.config', agentRepackaged + '.config'
   // Guava:
   relocate 'com.google.common', agentRepackaged + '.guava'
   relocate 'com.google.thirdparty.publicsuffix', agentRepackaged + '.publicsuffix'
@@ -119,7 +123,8 @@ shadowJar {
                // ... except for the expected entries.
                [ agentPackageDir,
                  'META-INF/MANIFEST.MF',
-                 'META-INF/services/io.opencensus.contrib.agent.instrumentation.Instrumenter'
+                 'META-INF/services/io.opencensus.contrib.agent.instrumentation.Instrumenter',
+                 'reference.conf',
                ].any { entry.isDirectory() ? it.startsWith(entry.name) : it == entry.name }
         // Also, should not have the bootstrap classes.
         assert !entry.name.startsWith(agentBootstrapPackageDir)

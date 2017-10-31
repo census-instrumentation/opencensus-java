@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.agent.instrumentation;
 
+import com.typesafe.config.Config;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
 /**
@@ -28,7 +29,8 @@ public interface Instrumenter {
    *
    * @param agentBuilder an {@link AgentBuilder} object to which the additional instrumentation is
    *                     added
+   * @param config the configuration settings
    * @return an {@link AgentBuilder} object having the additional instrumentation
    */
-  AgentBuilder instrument(AgentBuilder agentBuilder);
+  AgentBuilder instrument(AgentBuilder agentBuilder, Config config);
 }
