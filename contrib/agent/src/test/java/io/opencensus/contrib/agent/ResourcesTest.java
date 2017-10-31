@@ -45,21 +45,32 @@ public class ResourcesTest {
   private File mockFile;
 
   @Test
-  public void getResourceAsTempFile() throws IOException {
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-
-    Resources.getResourceAsTempFile("some_resource.txt", mockFile, bytes);
+  public void getResourceAsTempFile_deleteOnExit() throws IOException {
+    Resources.getResourceAsTempFile("some_resource.txt", mockFile, new ByteArrayOutputStream());
 
     verify(mockFile).deleteOnExit();
-    assertThat(bytes.toString(Charsets.UTF_8.name())).isEqualTo("A resource!");
+  }
+
+  @Test
+  public void getResourceAsTempFile_contents() throws IOException {
+    File file = Resources.getResourceAsTempFile("some_resource.txt");
+
+    assertThat(new String(java.nio.file.Files.readAllBytes(file.toPath()), Charsets.UTF_8))
+                   .isEqualTo("A resource!");
+  }
+
+  @Test
+  public void getResourceAsTempFile_empty() throws IOException {
+    exception.expect(IllegalArgumentException.class);
+
+    Resources.getResourceAsTempFile("");
   }
 
   @Test
   public void getResourceAsTempFile_Missing() throws IOException {
     exception.expect(FileNotFoundException.class);
 
-    Resources.getResourceAsTempFile("missing_resource.txt",
-            mockFile, new ByteArrayOutputStream());
+    Resources.getResourceAsTempFile("missing_resource.txt");
   }
 
   @Test

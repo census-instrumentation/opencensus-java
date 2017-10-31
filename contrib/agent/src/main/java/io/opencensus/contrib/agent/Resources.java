@@ -17,7 +17,6 @@
 package io.opencensus.contrib.agent;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -55,10 +54,6 @@ final class Resources {
   @VisibleForTesting
   static void getResourceAsTempFile(String resourceName, File file, OutputStream outputStream)
           throws IOException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
-    checkNotNull(file, "file");
-    checkNotNull(outputStream, "outputStream");
-
     file.deleteOnExit();
 
     InputStream is = getResourceAsStream(resourceName);
@@ -70,8 +65,6 @@ final class Resources {
   }
 
   private static InputStream getResourceAsStream(String resourceName) throws FileNotFoundException {
-    checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
-
     InputStream is = Resources.class.getResourceAsStream(resourceName);
     if (is == null) {
       throw new FileNotFoundException(
