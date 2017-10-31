@@ -20,6 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
 import io.opencensus.contrib.agent.bootstrap.ContextTrampoline;
 import io.opencensus.contrib.agent.instrumentation.Instrumenter;
@@ -73,6 +75,7 @@ public final class AgentMain {
     checkLoadedByBootstrapClassloader(ContextTrampoline.class);
     checkLoadedByBootstrapClassloader(ContextStrategy.class);
 
+    Config config = readConfig();
     AgentBuilder agentBuilder =
         new AgentBuilder.Default()
             .disableClassFormatChanges()
@@ -80,7 +83,7 @@ public final class AgentMain {
             .with(new AgentBuilderListener())
             .ignore(none());
     for (Instrumenter instrumenter : ServiceLoader.load(Instrumenter.class)) {
-      agentBuilder = instrumenter.instrument(agentBuilder);
+      agentBuilder = instrumenter.instrument(agentBuilder, config);
     }
     agentBuilder.installOn(instrumentation);
 
@@ -90,5 +93,13 @@ public final class AgentMain {
   private static void checkLoadedByBootstrapClassloader(Class<?> clazz) {
     checkState(
         clazz.getClassLoader() == null, "%s must be loaded by the bootstrap classloader", clazz);
+  }
+
+  private static Config readConfig() {
+    final String configPath = "opencensus.contrib.agent";
+    Config config = ConfigFactory.load();
+    config.checkValid(ConfigFactory.defaultReference(), configPath);
+
+    return config.getConfig(configPath);
   }
 }
