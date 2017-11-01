@@ -18,7 +18,6 @@ package io.opencensus.contrib.grpc.metrics;
 
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_REQUEST_BYTES;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_REQUEST_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_RESPONSE_BYTES;
@@ -28,9 +27,9 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_STARTED_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_ERROR_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_FINISHED_COUNT;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_REQUEST_BYTES;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_REQUEST_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_RESPONSE_BYTES;
@@ -99,7 +98,7 @@ public final class RpcViewConstants {
           "RPC Errors",
           RPC_CLIENT_ERROR_COUNT,
           MEAN,
-          Arrays.asList(RPC_STATUS, RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_STATUS, RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW =
       View.create(
@@ -107,7 +106,7 @@ public final class RpcViewConstants {
           "Latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW =
       View.create(
@@ -115,7 +114,7 @@ public final class RpcViewConstants {
           "Server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_REQUEST_BYTES_VIEW =
       View.create(
@@ -123,7 +122,7 @@ public final class RpcViewConstants {
           "Request bytes",
           RPC_CLIENT_REQUEST_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_RESPONSE_BYTES_VIEW =
       View.create(
@@ -131,7 +130,7 @@ public final class RpcViewConstants {
           "Response bytes",
           RPC_CLIENT_RESPONSE_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       View.create(
@@ -139,7 +138,7 @@ public final class RpcViewConstants {
           "Uncompressed Request bytes",
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       View.create(
@@ -147,7 +146,7 @@ public final class RpcViewConstants {
           "Uncompressed Response bytes",
           RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_REQUEST_COUNT_VIEW =
       View.create(
@@ -155,7 +154,7 @@ public final class RpcViewConstants {
           "Count of request messages per client RPC",
           RPC_CLIENT_REQUEST_COUNT,
           AGGREGATION_WITH_COUNT_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_CLIENT_RESPONSE_COUNT_VIEW =
       View.create(
@@ -163,7 +162,7 @@ public final class RpcViewConstants {
           "Count of response messages per client RPC",
           RPC_CLIENT_RESPONSE_COUNT,
           AGGREGATION_WITH_COUNT_HISTOGRAM,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
 
@@ -174,7 +173,7 @@ public final class RpcViewConstants {
           "RPC Errors",
           RPC_SERVER_ERROR_COUNT,
           MEAN,
-          Arrays.asList(RPC_STATUS, RPC_SERVER_METHOD),
+          Arrays.asList(RPC_STATUS, RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_SERVER_LATENCY_VIEW =
       View.create(
@@ -182,7 +181,7 @@ public final class RpcViewConstants {
           "Latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
       View.create(
@@ -190,7 +189,7 @@ public final class RpcViewConstants {
           "Server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_REQUEST_BYTES_VIEW =
       View.create(
@@ -198,7 +197,7 @@ public final class RpcViewConstants {
           "Request bytes",
           RPC_SERVER_REQUEST_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_RESPONSE_BYTES_VIEW =
       View.create(
@@ -206,7 +205,7 @@ public final class RpcViewConstants {
           "Response bytes",
           RPC_SERVER_RESPONSE_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       View.create(
@@ -214,7 +213,7 @@ public final class RpcViewConstants {
           "Uncompressed Request bytes",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       View.create(
@@ -222,7 +221,7 @@ public final class RpcViewConstants {
           "Uncompressed Response bytes",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_REQUEST_COUNT_VIEW =
       View.create(
@@ -230,7 +229,7 @@ public final class RpcViewConstants {
           "Count of request messages per server RPC",
           RPC_SERVER_REQUEST_COUNT,
           AGGREGATION_WITH_COUNT_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
   public static final View RPC_SERVER_RESPONSE_COUNT_VIEW =
       View.create(
@@ -238,7 +237,7 @@ public final class RpcViewConstants {
           "Count of response messages per server RPC",
           RPC_SERVER_RESPONSE_COUNT,
           AGGREGATION_WITH_COUNT_HISTOGRAM,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
   // Interval Stats
@@ -250,7 +249,7 @@ public final class RpcViewConstants {
           "Minute stats for latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_REQUEST_BYTES_MINUTE_VIEW =
@@ -259,7 +258,7 @@ public final class RpcViewConstants {
           "Minute stats for request size in bytes",
           RPC_CLIENT_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_RESPONSE_BYTES_MINUTE_VIEW =
@@ -268,7 +267,7 @@ public final class RpcViewConstants {
           "Minute stats for response size in bytes",
           RPC_CLIENT_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_ERROR_COUNT_MINUTE_VIEW =
@@ -277,7 +276,7 @@ public final class RpcViewConstants {
           "Minute stats for rpc errors",
           RPC_CLIENT_ERROR_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW =
@@ -286,7 +285,7 @@ public final class RpcViewConstants {
           "Minute stats for uncompressed request size in bytes",
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW =
@@ -295,7 +294,7 @@ public final class RpcViewConstants {
           "Minute stats for uncompressed response size in bytes",
           RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_MINUTE_VIEW =
@@ -304,7 +303,7 @@ public final class RpcViewConstants {
           "Minute stats for server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW =
@@ -313,7 +312,7 @@ public final class RpcViewConstants {
           "Minute stats on the number of client RPCs started",
           RPC_CLIENT_STARTED_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_FINISHED_COUNT_MINUTE_VIEW =
@@ -322,7 +321,7 @@ public final class RpcViewConstants {
           "Minute stats on the number of client RPCs finished",
           RPC_CLIENT_FINISHED_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_REQUEST_COUNT_MINUTE_VIEW =
@@ -331,7 +330,7 @@ public final class RpcViewConstants {
           "Minute stats on the count of request messages per client RPC",
           RPC_CLIENT_REQUEST_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_RESPONSE_COUNT_MINUTE_VIEW =
@@ -340,7 +339,7 @@ public final class RpcViewConstants {
           "Minute stats on the count of response messages per client RPC",
           RPC_CLIENT_RESPONSE_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_CLIENT_ROUNDTRIP_LATENCY_HOUR_VIEW =
@@ -349,7 +348,7 @@ public final class RpcViewConstants {
           "Hour stats for latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_REQUEST_BYTES_HOUR_VIEW =
@@ -358,7 +357,7 @@ public final class RpcViewConstants {
           "Hour stats for request size in bytes",
           RPC_CLIENT_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_RESPONSE_BYTES_HOUR_VIEW =
@@ -367,7 +366,7 @@ public final class RpcViewConstants {
           "Hour stats for response size in bytes",
           RPC_CLIENT_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_ERROR_COUNT_HOUR_VIEW =
@@ -376,7 +375,7 @@ public final class RpcViewConstants {
           "Hour stats for rpc errors",
           RPC_CLIENT_ERROR_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW =
@@ -385,7 +384,7 @@ public final class RpcViewConstants {
           "Hour stats for uncompressed request size in bytes",
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW =
@@ -394,7 +393,7 @@ public final class RpcViewConstants {
           "Hour stats for uncompressed response size in bytes",
           RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_HOUR_VIEW =
@@ -403,7 +402,7 @@ public final class RpcViewConstants {
           "Hour stats for server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_STARTED_COUNT_HOUR_VIEW =
@@ -412,7 +411,7 @@ public final class RpcViewConstants {
           "Hour stats on the number of client RPCs started",
           RPC_CLIENT_STARTED_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_FINISHED_COUNT_HOUR_VIEW =
@@ -421,7 +420,7 @@ public final class RpcViewConstants {
           "Hour stats on the number of client RPCs finished",
           RPC_CLIENT_FINISHED_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_REQUEST_COUNT_HOUR_VIEW =
@@ -430,7 +429,7 @@ public final class RpcViewConstants {
           "Hour stats on the count of request messages per client RPC",
           RPC_CLIENT_REQUEST_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_CLIENT_RESPONSE_COUNT_HOUR_VIEW =
@@ -439,7 +438,7 @@ public final class RpcViewConstants {
           "Hour stats on the count of response messages per client RPC",
           RPC_CLIENT_RESPONSE_COUNT,
           MEAN,
-          Arrays.asList(RPC_CLIENT_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   // RPC server interval views.
@@ -449,7 +448,7 @@ public final class RpcViewConstants {
           "Minute stats for server latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_REQUEST_BYTES_MINUTE_VIEW =
@@ -458,7 +457,7 @@ public final class RpcViewConstants {
           "Minute stats for request size in bytes",
           RPC_SERVER_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_RESPONSE_BYTES_MINUTE_VIEW =
@@ -467,7 +466,7 @@ public final class RpcViewConstants {
           "Minute stats for response size in bytes",
           RPC_SERVER_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_ERROR_COUNT_MINUTE_VIEW =
@@ -476,7 +475,7 @@ public final class RpcViewConstants {
           "Minute stats for rpc errors",
           RPC_SERVER_ERROR_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW =
@@ -485,7 +484,7 @@ public final class RpcViewConstants {
           "Minute stats for uncompressed request size in bytes",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW =
@@ -494,7 +493,7 @@ public final class RpcViewConstants {
           "Minute stats for uncompressed response size in bytes",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_MINUTE_VIEW =
@@ -503,7 +502,7 @@ public final class RpcViewConstants {
           "Minute stats for server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_STARTED_COUNT_MINUTE_VIEW =
@@ -512,7 +511,7 @@ public final class RpcViewConstants {
           "Minute stats on the number of server RPCs started",
           RPC_SERVER_STARTED_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_FINISHED_COUNT_MINUTE_VIEW =
@@ -521,7 +520,7 @@ public final class RpcViewConstants {
           "Minute stats on the number of server RPCs finished",
           RPC_SERVER_FINISHED_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_REQUEST_COUNT_MINUTE_VIEW =
@@ -530,7 +529,7 @@ public final class RpcViewConstants {
           "Minute stats on the count of request messages per server RPC",
           RPC_SERVER_REQUEST_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_RESPONSE_COUNT_MINUTE_VIEW =
@@ -539,7 +538,7 @@ public final class RpcViewConstants {
           "Minute stats on the count of response messages per server RPC",
           RPC_SERVER_RESPONSE_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
   public static final View RPC_SERVER_SERVER_LATENCY_HOUR_VIEW =
@@ -548,7 +547,7 @@ public final class RpcViewConstants {
           "Hour stats for server latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_REQUEST_BYTES_HOUR_VIEW =
@@ -557,7 +556,7 @@ public final class RpcViewConstants {
           "Hour stats for request size in bytes",
           RPC_SERVER_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_RESPONSE_BYTES_HOUR_VIEW =
@@ -566,7 +565,7 @@ public final class RpcViewConstants {
           "Hour stats for response size in bytes",
           RPC_SERVER_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_ERROR_COUNT_HOUR_VIEW =
@@ -575,7 +574,7 @@ public final class RpcViewConstants {
           "Hour stats for rpc errors",
           RPC_SERVER_ERROR_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW =
@@ -584,7 +583,7 @@ public final class RpcViewConstants {
           "Hour stats for uncompressed request size in bytes",
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW =
@@ -593,7 +592,7 @@ public final class RpcViewConstants {
           "Hour stats for uncompressed response size in bytes",
           RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_HOUR_VIEW =
@@ -602,7 +601,7 @@ public final class RpcViewConstants {
           "Hour stats for server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_STARTED_COUNT_HOUR_VIEW =
@@ -611,7 +610,7 @@ public final class RpcViewConstants {
           "Hour stats on the number of server RPCs started",
           RPC_SERVER_STARTED_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_FINISHED_COUNT_HOUR_VIEW =
@@ -620,7 +619,7 @@ public final class RpcViewConstants {
           "Hour stats on the number of server RPCs finished",
           RPC_SERVER_FINISHED_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_REQUEST_COUNT_HOUR_VIEW =
@@ -629,7 +628,7 @@ public final class RpcViewConstants {
           "Hour stats on the count of request messages per server RPC",
           RPC_SERVER_REQUEST_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   public static final View RPC_SERVER_RESPONSE_COUNT_HOUR_VIEW =
@@ -638,7 +637,7 @@ public final class RpcViewConstants {
           "Hour stats on the count of response messages per server RPC",
           RPC_SERVER_RESPONSE_COUNT,
           MEAN,
-          Arrays.asList(RPC_SERVER_METHOD),
+          Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
   // Visible for testing.
