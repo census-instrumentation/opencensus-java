@@ -45,8 +45,8 @@ import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -65,8 +65,8 @@ public class StackdriverStatsExporterTest {
 
   private static final String PROJECT_ID = "projectId";
   private static final Duration ONE_SECOND = Duration.create(1, 0);
-  private static final TagKeyString KEY = TagKeyString.create("KEY");
-  private static final TagValueString VALUE = TagValueString.create("VALUE");
+  private static final TagKey KEY = TagKey.create("KEY");
+  private static final TagValue VALUE = TagValue.create("VALUE");
   private static final String MEASURE_NAME = "my measurement";
   private static final String MEASURE_UNIT = "us";
   private static final String MEASURE_DESCRIPTION = "measure description";

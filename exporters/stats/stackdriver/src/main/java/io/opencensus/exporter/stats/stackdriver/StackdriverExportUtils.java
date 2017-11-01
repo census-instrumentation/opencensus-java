@@ -55,9 +55,7 @@ import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagKey.TagKeyString;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.TagValue.TagValueString;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -100,12 +98,8 @@ final class StackdriverExportUtils {
     LabelDescriptor.Builder builder = LabelDescriptor.newBuilder();
     builder.setKey(tagKey.getName());
     builder.setDescription(LABEL_DESCRIPTION);
-    LabelDescriptor.ValueType valueType = tagKey.match(
-        Functions.returnConstant(ValueType.STRING),
-        Functions.returnConstant(ValueType.INT64),
-        Functions.returnConstant(ValueType.BOOL),
-        Functions.returnConstant(ValueType.UNRECOGNIZED));
-    builder.setValueType(valueType);
+    // Now we only support String tags
+    builder.setValueType(ValueType.STRING);
     return builder.build();
   }
 
@@ -177,10 +171,7 @@ final class StackdriverExportUtils {
     for (int i = 0; i < tagValues.size(); i++) {
       TagKey key = columns.get(i);
       TagValue value = tagValues.get(i);
-      // Only String Tag will be added
-      if (key instanceof TagKeyString && value instanceof TagValueString) {
-        stringTagMap.put(key.getName(), ((TagValueString) value).asString());
-      }  // TODO(songya): decide how to deal with other types of tags and key-value type mismatch.
+      stringTagMap.put(key.getName(), value.asString());
     }
     builder.putAllLabels(stringTagMap);
     return builder.build();

@@ -52,12 +52,11 @@ import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
-import io.opencensus.tags.TagKey.TagKeyString;
-import io.opencensus.tags.TagValue.TagValueString;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -71,9 +70,9 @@ public class StackdriverExportUtilsTest {
   @Rule
   public final ExpectedException thrown = ExpectedException.none();
 
-  private static final TagKeyString KEY = TagKeyString.create("KEY");
-  private static final TagValueString VALUE_1 = TagValueString.create("VALUE1");
-  private static final TagValueString VALUE_2 = TagValueString.create("VALUE2");
+  private static final TagKey KEY = TagKey.create("KEY");
+  private static final TagValue VALUE_1 = TagValue.create("VALUE1");
+  private static final TagValue VALUE_2 = TagValue.create("VALUE2");
   private static final String MEASURE_UNIT = "us";
   private static final String MEASURE_DESCRIPTION = "measure description";
   private static final MeasureDouble MEASURE_DOUBLE =
@@ -100,7 +99,7 @@ public class StackdriverExportUtilsTest {
 
   @Test
   public void createLabelDescriptor() {
-    assertThat(StackdriverExportUtils.createLabelDescriptor(TagKeyString.create("string")))
+    assertThat(StackdriverExportUtils.createLabelDescriptor(TagKey.create("string")))
         .isEqualTo(
             LabelDescriptor.newBuilder()
                 .setKey("string")
@@ -198,7 +197,7 @@ public class StackdriverExportUtilsTest {
   @Test
   public void createDistribution() {
     DistributionData distributionData = DistributionData.create(
-        2, 3, 0, 5, 14, new long[]{0, 1, 1, 0, 1});
+        2, 3, 0, 5, 14, Arrays.asList(0L, 1L, 1L, 0L, 1L));
     assertThat(StackdriverExportUtils.createDistribution(distributionData, BUCKET_BOUNDARIES))
         .isEqualTo(
             com.google.api.Distribution
@@ -224,7 +223,7 @@ public class StackdriverExportUtilsTest {
     assertThat(StackdriverExportUtils.createTypedValue(MEAN, MeanData.create(7.7, 8))).isEqualTo(
         TypedValue.newBuilder().setDoubleValue(7.7).build());
     DistributionData distributionData = DistributionData.create(
-        2, 3, 0, 5, 14, new long[]{0, 1, 1, 0, 1});
+        2, 3, 0, 5, 14, Arrays.asList(0L, 1L, 1L, 0L, 1L));
     assertThat(StackdriverExportUtils.createTypedValue(DISTRIBUTION, distributionData))
         .isEqualTo(
             TypedValue.newBuilder()
@@ -291,10 +290,10 @@ public class StackdriverExportUtilsTest {
     View view = View.create(Name.create(VIEW_NAME), VIEW_DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION,
         Arrays.asList(KEY), CUMULATIVE);
     DistributionData distributionData1 = DistributionData.create(
-        2, 3, 0, 5, 14, new long[]{0, 1, 1, 0, 1});
+        2, 3, 0, 5, 14, Arrays.asList(0L, 1L, 1L, 0L, 1L));
     DistributionData distributionData2 = DistributionData.create(
-        -1, 1, -1, -1, 0, new long[]{1, 0, 0, 0, 0});
-    Map<List<TagValueString>, DistributionData> aggregationMap = ImmutableMap.of(
+        -1, 1, -1, -1, 0, Arrays.asList(1L, 0L, 0L, 0L, 0L));
+    Map<List<TagValue>, DistributionData> aggregationMap = ImmutableMap.of(
         Arrays.asList(VALUE_1), distributionData1, Arrays.asList(VALUE_2), distributionData2);
     CumulativeData cumulativeData = CumulativeData.create(
         Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
@@ -327,11 +326,11 @@ public class StackdriverExportUtilsTest {
   public void createTimeSeriesList_interval() {
     View view = View.create(Name.create(VIEW_NAME), VIEW_DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION,
         Arrays.asList(KEY), INTERVAL);
-    Map<List<TagValueString>, DistributionData> aggregationMap = ImmutableMap.of(
+    Map<List<TagValue>, DistributionData> aggregationMap = ImmutableMap.of(
         Arrays.asList(VALUE_1),
-        DistributionData.create(2, 3, 0, 5, 14, new long[]{0, 1, 1, 0, 1}),
+        DistributionData.create(2, 3, 0, 5, 14, Arrays.asList(0L, 1L, 1L, 0L, 1L)),
         Arrays.asList(VALUE_2),
-        DistributionData.create(-1, 1, -1, -1, 0, new long[]{1, 0, 0, 0, 0}));
+        DistributionData.create(-1, 1, -1, -1, 0, Arrays.asList(1L, 0L, 0L, 0L, 0L)));
     ViewData viewData = ViewData.create(
         view,
         aggregationMap,
