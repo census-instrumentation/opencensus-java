@@ -207,6 +207,19 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
 check.dependsOn integrationTest
 integrationTest.mustRunAfter test
 
+// Merge JaCoCo's execution data from all tests into the main test's execution data file.
+task jacocoMerge(type: JacocoMerge) {
+  tasks.withType(Test).each { testTask ->
+    dependsOn testTask
+    executionData testTask.jacoco.destinationFile
+  }
+  doLast {
+    destinationFile.renameTo test.jacoco.destinationFile
+  }
+}
+
+jacocoTestReport.dependsOn jacocoMerge
+
 // JMH benchmarks
 
 dependencies {
