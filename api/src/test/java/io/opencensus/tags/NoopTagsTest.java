@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import io.opencensus.internal.NoopScope;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextParseException;
+import io.opencensus.tags.propagation.TagContextSerializationException;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.junit.Rule;
@@ -129,7 +130,8 @@ public final class NoopTagsTest {
   }
 
   @Test
-  public void noopTagContextBinarySerializer() throws TagContextParseException {
+  public void noopTagContextBinarySerializer()
+      throws TagContextParseException, TagContextSerializationException {
     assertThat(NoopTags.getNoopTagContextBinarySerializer().toByteArray(TAG_CONTEXT))
         .isEqualTo(new byte[0]);
     assertThat(NoopTags.getNoopTagContextBinarySerializer().fromByteArray(new byte[5]))
@@ -137,7 +139,8 @@ public final class NoopTagsTest {
   }
 
   @Test
-  public void noopTagContextBinarySerializer_ToByteArray_DisallowsNull() {
+  public void noopTagContextBinarySerializer_ToByteArray_DisallowsNull()
+      throws TagContextSerializationException {
     TagContextBinarySerializer noopSerializer = NoopTags.getNoopTagContextBinarySerializer();
     thrown.expect(NullPointerException.class);
     noopSerializer.toByteArray(null);

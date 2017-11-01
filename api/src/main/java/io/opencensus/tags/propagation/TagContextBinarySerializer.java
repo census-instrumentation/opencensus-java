@@ -34,8 +34,9 @@ public abstract class TagContextBinarySerializer {
    *
    * @param tags the {@code TagContext} to serialize.
    * @return the on-the-wire representation of a {@code TagContext}.
+   * @throws TagContextSerializationException if the {@code TagContext} is too large to serialize.
    */
-  public abstract byte[] toByteArray(TagContext tags);
+  public abstract byte[] toByteArray(TagContext tags) throws TagContextSerializationException;
 
   /**
    * Creates a {@code TagContext} from the given on-the-wire encoded representation.

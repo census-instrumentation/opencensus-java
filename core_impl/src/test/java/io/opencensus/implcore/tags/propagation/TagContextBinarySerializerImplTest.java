@@ -29,6 +29,7 @@ import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextParseException;
+import io.opencensus.tags.propagation.TagContextSerializationException;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,13 +57,13 @@ public final class TagContextBinarySerializerImplTest {
       };
 
   @Test
-  public void toByteArray_TaggingDisabled() {
+  public void toByteArray_TaggingDisabled() throws TagContextSerializationException {
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(serializer.toByteArray(tagContext)).isEmpty();
   }
 
   @Test
-  public void toByteArray_TaggingReenabled() {
+  public void toByteArray_TaggingReenabled() throws TagContextSerializationException {
     final byte[] serialized = serializer.toByteArray(tagContext);
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(serializer.toByteArray(tagContext)).isEmpty();
@@ -71,14 +72,16 @@ public final class TagContextBinarySerializerImplTest {
   }
 
   @Test
-  public void fromByteArray_TaggingDisabled() throws TagContextParseException {
+  public void fromByteArray_TaggingDisabled()
+      throws TagContextParseException, TagContextSerializationException {
     byte[] serialized = serializer.toByteArray(tagContext);
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(TagsTestUtil.tagContextToList(serializer.fromByteArray(serialized))).isEmpty();
   }
 
   @Test
-  public void fromByteArray_TaggingReenabled() throws TagContextParseException {
+  public void fromByteArray_TaggingReenabled()
+      throws TagContextParseException, TagContextSerializationException {
     byte[] serialized = serializer.toByteArray(tagContext);
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(TagsTestUtil.tagContextToList(serializer.fromByteArray(serialized))).isEmpty();
