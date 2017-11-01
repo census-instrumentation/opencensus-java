@@ -165,7 +165,7 @@ public abstract class SpanBuilder {
   public abstract Span startSpan();
 
   /**
-   * Starts a new new span and sets it as the {@link Tracer#getCurrentSpan current span}.
+   * Starts a new span and sets it as the {@link Tracer#getCurrentSpan current span}.
    *
    * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
    * returns an object that represents that scope. The scope is exited when the returned object is
