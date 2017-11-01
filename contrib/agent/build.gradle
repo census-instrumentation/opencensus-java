@@ -190,6 +190,8 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
       exceptionFormat 'full'
     }
 
+    dependsOn shadowJar
+
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 
@@ -203,7 +205,6 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
 }
 
 check.dependsOn integrationTest
-integrationTest.dependsOn shadowJar
 integrationTest.mustRunAfter test
 
 // JMH benchmarks
