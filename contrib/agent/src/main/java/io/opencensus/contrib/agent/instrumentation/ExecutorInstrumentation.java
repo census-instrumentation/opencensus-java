@@ -47,11 +47,6 @@ public final class ExecutorInstrumentation implements Instrumenter {
   public AgentBuilder instrument(AgentBuilder agentBuilder) {
     checkNotNull(agentBuilder, "agentBuilder");
 
-    // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
-
-    // Initialize the ContextTrampoline with the concrete ContextStrategy.
-    ContextTrampoline.setContextStrategy(new ContextStrategyImpl());
-
     return agentBuilder
             .type(createMatcher())
             .transform(new Transformer());
