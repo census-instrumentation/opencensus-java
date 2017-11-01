@@ -104,8 +104,9 @@ runtime 'io.opencensus:opencensus-impl:0.8.0'
 ### How to setup exporters?
 
 #### Trace exporters
-* [Logging](https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace_logging#quickstart)
-* [Stackdriver Trace](https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace_stackdriver#quickstart)
+* [Logging][TraceExporterLogging]
+* [Stackdriver][TraceExporterStackdriver]
+* [Zipkin][TraceExporterZipkin]
 
 #### Stats exporters
 * TODO
@@ -125,3 +126,6 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [coverage-url]: https://coveralls.io/github/census-instrumentation/opencensus-java?branch=master
 [gitter-image]: https://badges.gitter.im/census-instrumentation/lobby.svg
 [gitter-url]: https://gitter.im/census-instrumentation/lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[TraceExporterLogging]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/logging#quickstart
+[TraceExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/stackdriver#quickstart
+[TraceExporterZipkin]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/zipkin#quickstart
