@@ -190,6 +190,8 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
       exceptionFormat 'full'
     }
 
+    dependsOn shadowJar
+
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
 
