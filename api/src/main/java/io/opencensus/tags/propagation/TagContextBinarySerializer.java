@@ -45,8 +45,8 @@ public abstract class TagContextBinarySerializer {
    *
    * @param bytes on-the-wire representation of a {@code TagContext}.
    * @return a {@code TagContext} deserialized from {@code bytes}.
-   * @throws TagContextParseException if there is a parse error or the serialized {@code TagContext}
-   *     contains invalid tags.
+   * @throws TagContextDeserializationException if there is a parse error or the serialized {@code
+   *     TagContext} contains invalid tags.
    */
-  public abstract TagContext fromByteArray(byte[] bytes) throws TagContextParseException;
+  public abstract TagContext fromByteArray(byte[] bytes) throws TagContextDeserializationException;
 }

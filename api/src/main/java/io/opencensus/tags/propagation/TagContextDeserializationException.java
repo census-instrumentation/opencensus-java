@@ -19,7 +19,7 @@ package io.opencensus.tags.propagation;
 import io.opencensus.tags.TagContext;
 
 /** Exception thrown when a {@link TagContext} cannot be parsed. */
-public final class TagContextParseException extends Exception {
+public final class TagContextDeserializationException extends Exception {
   private static final long serialVersionUID = 0L;
 
   /**
@@ -27,7 +27,7 @@ public final class TagContextParseException extends Exception {
    *
    * @param message a message describing the parse error.
    */
-  public TagContextParseException(String message) {
+  public TagContextDeserializationException(String message) {
     super(message);
   }
 
@@ -37,7 +37,7 @@ public final class TagContextParseException extends Exception {
    * @param message a message describing the parse error.
    * @param cause the cause of the parse error.
    */
-  public TagContextParseException(String message, Throwable cause) {
+  public TagContextDeserializationException(String message, Throwable cause) {
     super(message, cause);
   }
 }
