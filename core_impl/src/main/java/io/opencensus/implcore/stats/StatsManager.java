@@ -49,17 +49,17 @@ final class StatsManager {
     return measureToViewMap.getView(viewName, clock);
   }
 
-  void record(TagContext tags, MeasureMap measurementValues) {
+  void record(TagContext tags, MeasureMapInternal measurementValues) {
     queue.enqueue(new StatsEvent(this, tags, measurementValues));
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
   private static final class StatsEvent implements EventQueue.Entry {
     private final TagContext tags;
-    private final MeasureMap stats;
+    private final MeasureMapInternal stats;
     private final StatsManager statsManager;
 
-    StatsEvent(StatsManager statsManager, TagContext tags, MeasureMap stats) {
+    StatsEvent(StatsManager statsManager, TagContext tags, MeasureMapInternal stats) {
       this.statsManager = statsManager;
       this.tags = tags;
       this.stats = stats;

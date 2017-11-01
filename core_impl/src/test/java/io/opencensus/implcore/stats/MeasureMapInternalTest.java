@@ -30,19 +30,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link MeasureMap}. */
+/** Tests for {@link MeasureMapInternal}. */
 @RunWith(JUnit4.class)
-public class MeasureMapTest {
+public class MeasureMapInternalTest {
 
   @Test
   public void testPutDouble() {
-    MeasureMap metrics = MeasureMap.builder().put(M1, 44.4).build();
+    MeasureMapInternal metrics = MeasureMapInternal.builder().put(M1, 44.4).build();
     assertContains(metrics, MeasurementDouble.create(M1, 44.4));
   }
 
   @Test
   public void testPutLong() {
-    MeasureMap metrics = MeasureMap.builder().put(M3, 9999L).put(M4, 8888L).build();
+    MeasureMapInternal metrics = MeasureMapInternal.builder().put(M3, 9999L).put(M4, 8888L).build();
     assertContains(metrics,
         MeasurementLong.create(M3, 9999L),
         MeasurementLong.create(M4, 8888L));
@@ -50,8 +50,9 @@ public class MeasureMapTest {
 
   @Test
   public void testCombination() {
-    MeasureMap metrics =
-        MeasureMap.builder().put(M1, 44.4).put(M2, 66.6).put(M3, 9999L).put(M4, 8888L).build();
+    MeasureMapInternal metrics =
+        MeasureMapInternal.builder().put(M1, 44.4).put(M2, 66.6).put(M3, 9999L).put(M4, 8888L)
+            .build();
     assertContains(metrics,
         MeasurementDouble.create(M1, 44.4),
         MeasurementDouble.create(M2, 66.6),
@@ -61,14 +62,14 @@ public class MeasureMapTest {
 
   @Test
   public void testBuilderEmpty() {
-    MeasureMap metrics = MeasureMap.builder().build();
+    MeasureMapInternal metrics = MeasureMapInternal.builder().build();
     assertContains(metrics);
   }
 
   @Test
   public void testBuilder() {
     ArrayList<Measurement> expected = new ArrayList<Measurement>(10);
-    MeasureMap.Builder builder = MeasureMap.builder();
+    MeasureMapInternal.Builder builder = MeasureMapInternal.builder();
     for (int i = 1; i <= 10; i++) {
       expected
           .add(MeasurementDouble.create(makeSimpleMeasureDouble("m" + i), i * 11.1));
@@ -79,38 +80,38 @@ public class MeasureMapTest {
 
   @Test
   public void testDuplicateMeasureDoubles() {
-    assertContains(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).build(),
+    assertContains(MeasureMapInternal.builder().put(M1, 1.0).put(M1, 2.0).build(),
         MeasurementDouble.create(M1, 2.0));
-    assertContains(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M1, 3.0).build(),
+    assertContains(MeasureMapInternal.builder().put(M1, 1.0).put(M1, 2.0).put(M1, 3.0).build(),
         MeasurementDouble.create(M1, 3.0));
-    assertContains(MeasureMap.builder().put(M1, 1.0).put(M2, 2.0).put(M1, 3.0).build(),
+    assertContains(MeasureMapInternal.builder().put(M1, 1.0).put(M2, 2.0).put(M1, 3.0).build(),
         MeasurementDouble.create(M1, 3.0),
         MeasurementDouble.create(M2, 2.0));
-    assertContains(MeasureMap.builder().put(M1, 1.0).put(M1, 2.0).put(M2, 2.0).build(),
+    assertContains(MeasureMapInternal.builder().put(M1, 1.0).put(M1, 2.0).put(M2, 2.0).build(),
         MeasurementDouble.create(M1, 2.0),
         MeasurementDouble.create(M2, 2.0));
   }
 
   @Test
   public void testDuplicateMeasureLongs() {
-    assertContains(MeasureMap.builder().put(M3, 100L).put(M3, 100L).build(),
+    assertContains(MeasureMapInternal.builder().put(M3, 100L).put(M3, 100L).build(),
         MeasurementLong.create(M3, 100L));
-    assertContains(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M3, 300L).build(),
+    assertContains(MeasureMapInternal.builder().put(M3, 100L).put(M3, 200L).put(M3, 300L).build(),
         MeasurementLong.create(M3, 300L));
-    assertContains(MeasureMap.builder().put(M3, 100L).put(M4, 200L).put(M3, 300L).build(),
+    assertContains(MeasureMapInternal.builder().put(M3, 100L).put(M4, 200L).put(M3, 300L).build(),
         MeasurementLong.create(M3, 300L),
         MeasurementLong.create(M4, 200L));
-    assertContains(MeasureMap.builder().put(M3, 100L).put(M3, 200L).put(M4, 200L).build(),
+    assertContains(MeasureMapInternal.builder().put(M3, 100L).put(M3, 200L).put(M4, 200L).build(),
         MeasurementLong.create(M3, 200L),
         MeasurementLong.create(M4, 200L));
   }
 
   @Test
   public void testDuplicateMeasures() {
-    assertContains(MeasureMap.builder().put(M3, 100L).put(M1, 1.0).put(M3, 300L).build(),
+    assertContains(MeasureMapInternal.builder().put(M3, 100L).put(M1, 1.0).put(M3, 300L).build(),
         MeasurementLong.create(M3, 300L),
         MeasurementDouble.create(M1, 1.0));
-    assertContains(MeasureMap.builder().put(M2, 2.0).put(M3, 100L).put(M2, 3.0).build(),
+    assertContains(MeasureMapInternal.builder().put(M2, 2.0).put(M3, 100L).put(M2, 3.0).build(),
         MeasurementDouble.create(M2, 3.0),
         MeasurementLong.create(M3, 100L));
   }
@@ -128,7 +129,7 @@ public class MeasureMapTest {
     return Measure.MeasureLong.create(measure, measure + " description", "1");
   }
 
-  private static void assertContains(MeasureMap metrics, Measurement... measurements) {
+  private static void assertContains(MeasureMapInternal metrics, Measurement... measurements) {
     assertThat(Lists.newArrayList(metrics.iterator())).containsExactly((Object[]) measurements);
   }
 }

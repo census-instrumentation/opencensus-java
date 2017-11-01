@@ -24,8 +24,8 @@ import io.grpc.Context;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsComponent;
-import io.opencensus.stats.StatsRecord;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
@@ -72,7 +72,7 @@ public final class StatsRecorderImplTest {
             Arrays.asList(KEY),
             Cumulative.create());
     viewManager.registerView(view);
-    statsRecorder.newRecord().put(MEASURE_DOUBLE, 1.0).record();
+    statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 1.0).record();
     ViewData viewData = viewManager.getView(VIEW_NAME);
 
     // record() should have used the default TagContext, so the tag value should be null.
@@ -97,7 +97,7 @@ public final class StatsRecorderImplTest {
                 ContextUtils.TAG_CONTEXT_KEY, new SimpleTagContext(Tag.create(KEY, VALUE)))
             .attach();
     try {
-      statsRecorder.newRecord().put(MEASURE_DOUBLE, 1.0).record();
+      statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 1.0).record();
     } finally {
       Context.current().detach(orig);
     }
@@ -118,7 +118,7 @@ public final class StatsRecorderImplTest {
             Arrays.asList(KEY),
             Cumulative.create());
     viewManager.registerView(view);
-    StatsRecord statsRecord = statsRecorder.newRecord().put(MEASURE_DOUBLE, 1.0);
+    MeasureMap statsRecord = statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 1.0);
     statsRecord.record(new SimpleTagContext(Tag.create(KEY, VALUE)));
     statsRecord.record(new SimpleTagContext(Tag.create(KEY, VALUE_2)));
     ViewData viewData = viewManager.getView(VIEW_NAME);

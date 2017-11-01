@@ -23,7 +23,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 /** A map from {@link Measure}s to measured values to be recorded at the same time. */
 @NotThreadSafe
-public abstract class StatsRecord {
+public abstract class MeasureMap {
 
   /**
    * Associates the {@link MeasureDouble} with the given value. Subsequent updates to the same
@@ -33,7 +33,7 @@ public abstract class StatsRecord {
    * @param value the value to be associated with {@code measure}
    * @return this
    */
-  public abstract StatsRecord put(MeasureDouble measure, double value);
+  public abstract MeasureMap put(MeasureDouble measure, double value);
 
   /**
    * Associates the {@link MeasureLong} with the given value. Subsequent updates to the same {@link
@@ -43,19 +43,19 @@ public abstract class StatsRecord {
    * @param value the value to be associated with {@code measure}
    * @return this
    */
-  public abstract StatsRecord put(MeasureLong measure, long value);
+  public abstract MeasureMap put(MeasureLong measure, long value);
 
   /**
    * Records all of the measures at the same time, with the current {@link TagContext}.
    *
-   * <p>This method records all of the stats in the {@code StatsRecord} every time it is called.
+   * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
    */
   public abstract void record();
 
   /**
    * Records all of the measures at the same time, with an explicit {@link TagContext}.
    *
-   * <p>This method records all of the stats in the {@code StatsRecord} every time it is called.
+   * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
    *
    * @param tags the tags associated with the measurements.
    */

@@ -18,31 +18,31 @@ package io.opencensus.implcore.stats;
 
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.stats.StatsRecord;
+import io.opencensus.stats.MeasureMap;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.unsafe.ContextUtils;
 
-/** Implementation of {@link StatsRecord}. */
-final class StatsRecordImpl extends StatsRecord {
+/** Implementation of {@link MeasureMap}. */
+final class MeasureMapImpl extends MeasureMap {
   private final StatsManager statsManager;
-  private final MeasureMap.Builder builder = MeasureMap.builder();
+  private final MeasureMapInternal.Builder builder = MeasureMapInternal.builder();
 
-  static StatsRecordImpl create(StatsManager statsManager) {
-    return new StatsRecordImpl(statsManager);
+  static MeasureMapImpl create(StatsManager statsManager) {
+    return new MeasureMapImpl(statsManager);
   }
 
-  private StatsRecordImpl(StatsManager statsManager) {
+  private MeasureMapImpl(StatsManager statsManager) {
     this.statsManager = statsManager;
   }
 
   @Override
-  public StatsRecordImpl put(MeasureDouble measure, double value) {
+  public MeasureMapImpl put(MeasureDouble measure, double value) {
     builder.put(measure, value);
     return this;
   }
 
   @Override
-  public StatsRecordImpl put(MeasureLong measure, long value) {
+  public MeasureMapImpl put(MeasureLong measure, long value) {
     builder.put(measure, value);
     return this;
   }

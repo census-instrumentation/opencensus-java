@@ -61,12 +61,12 @@ final class NoopStats {
   }
 
   /**
-   * Returns a {@code StatsRecord} that ignores all calls to {@link StatsRecord#put}.
+   * Returns a {@code MeasureMap} that ignores all calls to {@link MeasureMap#put}.
    *
-   * @return a {@code StatsRecord} that ignores all calls to {@code StatsRecord#put}.
+   * @return a {@code MeasureMap} that ignores all calls to {@code MeasureMap#put}.
    */
-  static StatsRecord getNoopStatsRecord() {
-    return NoopStatsRecord.INSTANCE;
+  static MeasureMap getNoopMeasureMap() {
+    return NoopMeasureMap.INSTANCE;
   }
 
   /**
@@ -110,22 +110,22 @@ final class NoopStats {
     static final StatsRecorder INSTANCE = new NoopStatsRecorder();
 
     @Override
-    public StatsRecord newRecord() {
-      return getNoopStatsRecord();
+    public MeasureMap newMeasureMap() {
+      return getNoopMeasureMap();
     }
   }
 
   @Immutable
-  private static final class NoopStatsRecord extends StatsRecord {
-    static final StatsRecord INSTANCE = new NoopStatsRecord();
+  private static final class NoopMeasureMap extends MeasureMap {
+    static final MeasureMap INSTANCE = new NoopMeasureMap();
 
     @Override
-    public StatsRecord put(MeasureDouble measure, double value) {
+    public MeasureMap put(MeasureDouble measure, double value) {
       return this;
     }
 
     @Override
-    public StatsRecord put(MeasureLong measure, long value) {
+    public MeasureMap put(MeasureLong measure, long value) {
       return this;
     }
 

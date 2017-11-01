@@ -30,7 +30,7 @@ public final class StatsRecorderImpl extends StatsRecorder {
   }
 
   @Override
-  public StatsRecordImpl newRecord() {
-    return StatsRecordImpl.create(statsManager);
+  public MeasureMapImpl newMeasureMap() {
+    return MeasureMapImpl.create(statsManager);
   }
 }
