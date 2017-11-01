@@ -205,7 +205,6 @@ javaExecutables.eachWithIndex { javaExecutable, index ->
 }
 
 check.dependsOn integrationTest
-integrationTest.dependsOn shadowJar
 integrationTest.mustRunAfter test
 
 // JMH benchmarks
