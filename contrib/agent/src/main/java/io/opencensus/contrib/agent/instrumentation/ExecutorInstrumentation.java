@@ -26,7 +26,7 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 import com.google.auto.service.AutoService;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.opencensus.contrib.agent.bootstrap.ContextManager;
+import io.opencensus.contrib.agent.bootstrap.ContextTrampoline;
 import java.util.concurrent.Executor;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
@@ -49,8 +49,8 @@ public final class ExecutorInstrumentation implements Instrumenter {
 
     // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime.
 
-    // Initialize the ContextManager with the concrete ContextStrategy.
-    ContextManager.setContextStrategy(new ContextStrategyImpl());
+    // Initialize the ContextTrampoline with the concrete ContextStrategy.
+    ContextTrampoline.setContextStrategy(new ContextStrategyImpl());
 
     return agentBuilder
             .type(createMatcher())
@@ -95,7 +95,7 @@ public final class ExecutorInstrumentation implements Instrumenter {
     @SuppressWarnings(value = "UnusedAssignment")
     @SuppressFBWarnings(value = {"DLS_DEAD_LOCAL_STORE", "UPM_UNCALLED_PRIVATE_METHOD",})
     private static void enter(@Advice.Argument(value = 0, readOnly = false) Runnable runnable) {
-      runnable = ContextManager.wrapInCurrentContext(runnable);
+      runnable = ContextTrampoline.wrapInCurrentContext(runnable);
     }
   }
 }

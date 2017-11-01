@@ -17,28 +17,28 @@
 package io.opencensus.contrib.agent.bootstrap;
 
 /**
- * {@code ContextManager} provides methods for accessing and manipulating the context from
+ * {@code ContextTrampoline} provides methods for accessing and manipulating the context from
  * instrumented bytecode.
  *
- * <p>{@code ContextManager} avoids tight coupling with the concrete implementation of the context
- * by accessing and manipulating the context through the {@link ContextStrategy} interface.
+ * <p>{@code ContextTrampoline} avoids tight coupling with the concrete implementation of the
+ * context by accessing and manipulating the context through the {@link ContextStrategy} interface.
  *
- * <p>Both {@link ContextManager} and {@link ContextStrategy} are loaded by the bootstrap
+ * <p>Both {@link ContextTrampoline} and {@link ContextStrategy} are loaded by the bootstrap
  * classloader so that they can be used from classes loaded by the bootstrap classloader.
  * A concrete implementation of {@link ContextStrategy} will be loaded by the system classloader.
  * This allows for using the same context implementation as the instrumented application.
  *
- * <p>{@code ContextManager} is implemented as a static class to allow for easy and fast use from
+ * <p>{@code ContextTrampoline} is implemented as a static class to allow for easy and fast use from
  * instrumented bytecode. We cannot use dependency injection for the instrumented bytecode.
  */
-public final class ContextManager {
+public final class ContextTrampoline {
 
   // Not synchronized to avoid any synchronization costs after initialization.
   // The agent is responsible for initializing this once (through #setContextStrategy) before any
   // other method of this class is called.
   private static ContextStrategy contextStrategy;
 
-  private ContextManager() {
+  private ContextTrampoline() {
   }
 
   /**
@@ -50,7 +50,7 @@ public final class ContextManager {
    * @param contextStrategy the concrete strategy for accessing and manipulating the context
    */
   public static void setContextStrategy(ContextStrategy contextStrategy) {
-    if (ContextManager.contextStrategy != null) {
+    if (ContextTrampoline.contextStrategy != null) {
       throw new IllegalStateException("contextStrategy was already set");
     }
 
@@ -58,7 +58,7 @@ public final class ContextManager {
       throw new NullPointerException("contextStrategy");
     }
 
-    ContextManager.contextStrategy = contextStrategy;
+    ContextTrampoline.contextStrategy = contextStrategy;
   }
 
   /**

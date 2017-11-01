@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static net.bytebuddy.matcher.ElementMatchers.none;
 
-import io.opencensus.contrib.agent.bootstrap.ContextManager;
 import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
+import io.opencensus.contrib.agent.bootstrap.ContextTrampoline;
 import io.opencensus.contrib.agent.instrumentation.Instrumenter;
 import java.lang.instrument.Instrumentation;
 import java.util.ServiceLoader;
@@ -71,7 +71,7 @@ public final class AgentMain {
     instrumentation.appendToBootstrapClassLoaderSearch(
             new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
-    checkLoadedByBootstrapClassloader(ContextManager.class);
+    checkLoadedByBootstrapClassloader(ContextTrampoline.class);
     checkLoadedByBootstrapClassloader(ContextStrategy.class);
 
     AgentBuilder agentBuilder = new AgentBuilder.Default()
