@@ -34,6 +34,7 @@ def agentRepackaged = "${agentPackage}.deps"
 dependencies {
   compileOnly libraries.auto_service
   compileOnly libraries.grpc_context
+  compileOnly project(':opencensus-api')
   compile libraries.findbugs_annotations
   compile libraries.guava
   compile libraries.byte_buddy
