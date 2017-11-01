@@ -24,34 +24,35 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+// TODO(songya): consider combining MeasureMapImpl and this class.
 /**
  * A map from {@link Measure}'s to measured values.
  */
-final class MeasureMap {
+final class MeasureMapInternal {
 
   /**
-   * Returns a {@link Builder} for the {@link MeasureMap} class.
+   * Returns a {@link Builder} for the {@link MeasureMapInternal} class.
    */
   static Builder builder() {
     return new Builder();
   }
 
   /**
-   * Returns an {@link Iterator} over the measure/value mappings in this {@link MeasureMap}.
+   * Returns an {@link Iterator} over the measure/value mappings in this {@link MeasureMapInternal}.
    * The {@code Iterator} does not support {@link Iterator#remove()}.
    */
   Iterator<Measurement> iterator() {
-    return new MeasureMapIterator();
+    return new MeasureMapInternalIterator();
   }
 
   private final ArrayList<Measurement> measurements;
 
-  private MeasureMap(ArrayList<Measurement> measurements) {
+  private MeasureMapInternal(ArrayList<Measurement> measurements) {
     this.measurements = measurements;
   }
 
   /**
-   * Builder for the {@link MeasureMap} class.
+   * Builder for the {@link MeasureMapInternal} class.
    */
   static class Builder {
     /**
@@ -81,12 +82,12 @@ final class MeasureMap {
     }
 
     /**
-     * Constructs a {@link MeasureMap} from the current measurements.
+     * Constructs a {@link MeasureMapInternal} from the current measurements.
      */
-    MeasureMap build() {
+    MeasureMapInternal build() {
       // Note: this makes adding measurements quadratic but is fastest for the sizes of
-      // MeasureMaps that we should see. We may want to go to a strategy of sort/eliminate
-      // for larger MeasureMaps.
+      // MeasureMapInternals that we should see. We may want to go to a strategy of sort/eliminate
+      // for larger MeasureMapInternals.
       for (int i = measurements.size() - 1; i >= 0; i--) {
         for (int j = i - 1; j >= 0; j--) {
           if (measurements.get(i).getMeasure() == measurements.get(j).getMeasure()) {
@@ -95,7 +96,7 @@ final class MeasureMap {
           }
         }
       }
-      return new MeasureMap(measurements);
+      return new MeasureMapInternal(measurements);
     }
 
     private final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
@@ -105,7 +106,7 @@ final class MeasureMap {
   }
 
   // Provides an unmodifiable Iterator over this instance's measurements.
-  private final class MeasureMapIterator implements Iterator<Measurement> {
+  private final class MeasureMapInternalIterator implements Iterator<Measurement> {
     @Override
     public boolean hasNext() {
       return position < length;

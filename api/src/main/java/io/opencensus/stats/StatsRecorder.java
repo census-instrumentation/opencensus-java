@@ -25,5 +25,5 @@ public abstract class StatsRecorder {
    *
    * @return an object for recording multiple measurements.
    */
-  public abstract StatsRecord newRecord();
+  public abstract MeasureMap newMeasureMap();
 }
