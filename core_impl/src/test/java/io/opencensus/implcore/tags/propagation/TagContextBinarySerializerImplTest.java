@@ -28,7 +28,7 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
-import io.opencensus.tags.propagation.TagContextParseException;
+import io.opencensus.tags.propagation.TagContextDeserializationException;
 import io.opencensus.tags.propagation.TagContextSerializationException;
 import java.util.Iterator;
 import org.junit.Test;
@@ -73,7 +73,7 @@ public final class TagContextBinarySerializerImplTest {
 
   @Test
   public void fromByteArray_TaggingDisabled()
-      throws TagContextParseException, TagContextSerializationException {
+      throws TagContextDeserializationException, TagContextSerializationException {
     byte[] serialized = serializer.toByteArray(tagContext);
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(TagsTestUtil.tagContextToList(serializer.fromByteArray(serialized))).isEmpty();
@@ -81,7 +81,7 @@ public final class TagContextBinarySerializerImplTest {
 
   @Test
   public void fromByteArray_TaggingReenabled()
-      throws TagContextParseException, TagContextSerializationException {
+      throws TagContextDeserializationException, TagContextSerializationException {
     byte[] serialized = serializer.toByteArray(tagContext);
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(TagsTestUtil.tagContextToList(serializer.fromByteArray(serialized))).isEmpty();

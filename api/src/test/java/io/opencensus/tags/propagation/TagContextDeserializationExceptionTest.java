@@ -23,20 +23,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TagContextParseException}. */
+/** Unit tests for {@link TagContextDeserializationException}. */
 @RunWith(JUnit4.class)
-public final class TagContextParseExceptionTest {
+public final class TagContextDeserializationExceptionTest {
 
   @Test
   public void createWithMessage() {
-    assertThat(new TagContextParseException("my message").getMessage()).isEqualTo("my message");
+    assertThat(new TagContextDeserializationException("my message").getMessage())
+        .isEqualTo("my message");
   }
 
   @Test
   public void createWithMessageAndCause() {
     IOException cause = new IOException();
-    TagContextParseException parseException = new TagContextParseException("my message", cause);
-    assertThat(parseException.getMessage()).isEqualTo("my message");
-    assertThat(parseException.getCause()).isEqualTo(cause);
+    TagContextDeserializationException exception =
+        new TagContextDeserializationException("my message", cause);
+    assertThat(exception.getMessage()).isEqualTo("my message");
+    assertThat(exception.getCause()).isEqualTo(cause);
   }
 }

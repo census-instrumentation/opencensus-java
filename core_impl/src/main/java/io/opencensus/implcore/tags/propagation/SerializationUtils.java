@@ -27,7 +27,7 @@ import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
-import io.opencensus.tags.propagation.TagContextParseException;
+import io.opencensus.tags.propagation.TagContextDeserializationException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -83,27 +83,27 @@ final class SerializationUtils {
 
   // Deserializes input to TagContext based on the binary format standard.
   // The encoded tags are of the form: <version_id><encoded_tags>
-  static TagContextImpl deserializeBinary(byte[] bytes) throws TagContextParseException {
+  static TagContextImpl deserializeBinary(byte[] bytes) throws TagContextDeserializationException {
     try {
       if (bytes.length == 0) {
         // Does not allow empty byte array.
-        throw new TagContextParseException("Input byte[] can not be empty.");
+        throw new TagContextDeserializationException("Input byte[] can not be empty.");
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
       int versionId = buffer.get();
       if (versionId != VERSION_ID) {
-        throw new TagContextParseException(
+        throw new TagContextDeserializationException(
             "Wrong Version ID: " + versionId + ". Currently supported version is: " + VERSION_ID);
       }
       return new TagContextImpl(parseTags(buffer));
     } catch (BufferUnderflowException exn) {
-      throw new TagContextParseException(exn.toString()); // byte array format error.
+      throw new TagContextDeserializationException(exn.toString()); // byte array format error.
     }
   }
 
   private static Map<TagKey, TagValue> parseTags(ByteBuffer buffer)
-      throws TagContextParseException {
+      throws TagContextDeserializationException {
     Map<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
     int limit = buffer.limit();
     while (buffer.position() < limit) {
@@ -123,22 +123,23 @@ final class SerializationUtils {
 
   // TODO(sebright): Consider exposing a TagKey name validation method to avoid needing to catch an
   // IllegalArgumentException here.
-  private static final TagKey createTagKey(String name) throws TagContextParseException {
+  private static final TagKey createTagKey(String name) throws TagContextDeserializationException {
     try {
       return TagKey.create(name);
     } catch (IllegalArgumentException e) {
-      throw new TagContextParseException("Invalid tag key: " + name, e);
+      throw new TagContextDeserializationException("Invalid tag key: " + name, e);
     }
   }
 
   // TODO(sebright): Consider exposing a TagValue validation method to avoid needing to catch
   // an IllegalArgumentException here.
   private static final TagValue createTagValue(TagKey key, String value)
-      throws TagContextParseException {
+      throws TagContextDeserializationException {
     try {
       return TagValue.create(value);
     } catch (IllegalArgumentException e) {
-      throw new TagContextParseException("Invalid tag value for key " + key + ": " + value, e);
+      throw new TagContextDeserializationException(
+          "Invalid tag value for key " + key + ": " + value, e);
     }
   }
 

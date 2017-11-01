@@ -29,7 +29,7 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TagsComponent;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
-import io.opencensus.tags.propagation.TagContextParseException;
+import io.opencensus.tags.propagation.TagContextDeserializationException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -58,7 +58,7 @@ public class TagContextDeserializationTest {
   }
 
   @Test
-  public void testDeserializeNoTags() throws TagContextParseException {
+  public void testDeserializeNoTags() throws TagContextDeserializationException {
     TagContext expected = tagger.empty();
     TagContext actual =
         serializer.fromByteArray(
@@ -67,14 +67,15 @@ public class TagContextDeserializationTest {
   }
 
   @Test
-  public void testDeserializeEmptyByteArrayThrowException() throws TagContextParseException {
-    thrown.expect(TagContextParseException.class);
+  public void testDeserializeEmptyByteArrayThrowException()
+      throws TagContextDeserializationException {
+    thrown.expect(TagContextDeserializationException.class);
     thrown.expectMessage("Input byte[] can not be empty.");
     serializer.fromByteArray(new byte[0]);
   }
 
   @Test
-  public void testDeserializeInvalidTagKey() throws TagContextParseException {
+  public void testDeserializeInvalidTagKey() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
 
@@ -82,13 +83,13 @@ public class TagContextDeserializationTest {
     encodeTagToOutput("\2key", "value", output);
     final byte[] bytes = output.toByteArray();
 
-    thrown.expect(TagContextParseException.class);
+    thrown.expect(TagContextDeserializationException.class);
     thrown.expectMessage("Invalid tag key: \2key");
     serializer.fromByteArray(bytes);
   }
 
   @Test
-  public void testDeserializeInvalidTagValue() throws TagContextParseException {
+  public void testDeserializeInvalidTagValue() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
 
@@ -96,13 +97,13 @@ public class TagContextDeserializationTest {
     encodeTagToOutput("my key", "val\3", output);
     final byte[] bytes = output.toByteArray();
 
-    thrown.expect(TagContextParseException.class);
+    thrown.expect(TagContextDeserializationException.class);
     thrown.expectMessage("Invalid tag value for key TagKey{name=my key}: val\3");
     serializer.fromByteArray(bytes);
   }
 
   @Test
-  public void testDeserializeOneTag() throws TagContextParseException {
+  public void testDeserializeOneTag() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
     encodeTagToOutput("Key", "Value", output);
@@ -115,7 +116,7 @@ public class TagContextDeserializationTest {
   }
 
   @Test
-  public void testDeserializeMultipleTags() throws TagContextParseException {
+  public void testDeserializeMultipleTags() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
@@ -130,7 +131,7 @@ public class TagContextDeserializationTest {
   }
 
   @Test
-  public void stopParsingAtUnknownField() throws TagContextParseException {
+  public void stopParsingAtUnknownField() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
     encodeTagToOutput("Key1", "Value1", output);
@@ -153,7 +154,7 @@ public class TagContextDeserializationTest {
   }
 
   @Test
-  public void stopParsingAtUnknownTagAtStart() throws TagContextParseException {
+  public void stopParsingAtUnknownTagAtStart() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
 
@@ -166,15 +167,15 @@ public class TagContextDeserializationTest {
   }
 
   @Test
-  public void testDeserializeWrongFormat() throws TagContextParseException {
+  public void testDeserializeWrongFormat() throws TagContextDeserializationException {
     // encoded tags should follow the format <version_id>(<tag_field_id><tag_encoding>)*
-    thrown.expect(TagContextParseException.class);
+    thrown.expect(TagContextDeserializationException.class);
     serializer.fromByteArray(new byte[3]);
   }
 
   @Test
-  public void testDeserializeWrongVersionId() throws TagContextParseException {
-    thrown.expect(TagContextParseException.class);
+  public void testDeserializeWrongVersionId() throws TagContextDeserializationException {
+    thrown.expect(TagContextDeserializationException.class);
     thrown.expectMessage("Wrong Version ID: 1. Currently supported version is: 0");
     serializer.fromByteArray(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
   }
