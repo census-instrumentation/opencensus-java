@@ -25,7 +25,7 @@ public final class TagContextDeserializationException extends Exception {
   /**
    * Constructs a new {@code TagContextParseException} with the given message.
    *
-   * @param message a message describing the parse error.
+   * @param message a message describing the error.
    */
   public TagContextDeserializationException(String message) {
     super(message);
@@ -34,8 +34,8 @@ public final class TagContextDeserializationException extends Exception {
   /**
    * Constructs a new {@code TagContextParseException} with the given message and cause.
    *
-   * @param message a message describing the parse error.
-   * @param cause the cause of the parse error.
+   * @param message a message describing the error.
+   * @param cause the cause of the error.
    */
   public TagContextDeserializationException(String message, Throwable cause) {
     super(message, cause);
