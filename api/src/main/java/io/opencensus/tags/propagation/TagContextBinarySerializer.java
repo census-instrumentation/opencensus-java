@@ -34,7 +34,8 @@ public abstract class TagContextBinarySerializer {
    *
    * @param tags the {@code TagContext} to serialize.
    * @return the on-the-wire representation of a {@code TagContext}.
-   * @throws TagContextSerializationException if the result would be larger than 8192 bytes.
+   * @throws TagContextSerializationException if the result would be larger than the maximum allowed
+   *     serialized size.
    */
   public abstract byte[] toByteArray(TagContext tags) throws TagContextSerializationException;
 
@@ -46,7 +47,7 @@ public abstract class TagContextBinarySerializer {
    * @param bytes on-the-wire representation of a {@code TagContext}.
    * @return a {@code TagContext} deserialized from {@code bytes}.
    * @throws TagContextDeserializationException if there is a parse error, the input contains
-   *     invalid tags, or the input is larger than 8192 bytes.
+   *     invalid tags, or the input is larger than the maximum allowed serialized size.
    */
   public abstract TagContext fromByteArray(byte[] bytes) throws TagContextDeserializationException;
 }
