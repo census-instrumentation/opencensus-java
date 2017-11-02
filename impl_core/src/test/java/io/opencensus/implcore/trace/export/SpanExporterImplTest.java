@@ -25,6 +25,7 @@ import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.StartEndHandlerImpl;
+import io.opencensus.testing.export.TestHandler;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -33,13 +34,9 @@ import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter.Handler;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import javax.annotation.concurrent.GuardedBy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +63,7 @@ public class SpanExporterImplTest {
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
   private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
-  private final FakeServiceHandler serviceHandler = new FakeServiceHandler();
+  private final TestHandler serviceHandler = new TestHandler();
   @Mock private Handler mockServiceHandler;
 
   @Before
@@ -160,7 +157,7 @@ public class SpanExporterImplTest {
 
   @Test
   public void exportSpansToMultipleServices() {
-    FakeServiceHandler serviceHandler2 = new FakeServiceHandler();
+    TestHandler serviceHandler2 = new TestHandler();
     spanExporter.registerHandler("test.service2", serviceHandler2);
     SpanImpl span1 = createSampledEndedSpan(SPAN_NAME_1);
     SpanImpl span2 = createSampledEndedSpan(SPAN_NAME_2);
@@ -183,47 +180,5 @@ public class SpanExporterImplTest {
     // have a span1 variable.
     assertThat(exported).doesNotContain(span1.toSpanData());
     assertThat(exported).containsExactly(span2.toSpanData());
-  }
-
-  /** Fake {@link Handler} for testing only. */
-  private static final class FakeServiceHandler extends Handler {
-    private final Object monitor = new Object();
-
-    @GuardedBy("monitor")
-    private final List<SpanData> spanDataList = new LinkedList<SpanData>();
-
-    @Override
-    public void export(Collection<SpanData> spanDataList) {
-      synchronized (monitor) {
-        this.spanDataList.addAll(spanDataList);
-        monitor.notifyAll();
-      }
-    }
-
-    /**
-     * Waits until we received numberOfSpans spans to export. Returns the list of exported {@link
-     * SpanData} objects, otherwise {@code null} if the current thread is interrupted.
-     *
-     * @param numberOfSpans the number of minimum spans to be collected.
-     * @return the list of exported {@link SpanData} objects, otherwise {@code null} if the current
-     *     thread is interrupted.
-     */
-    private List<SpanData> waitForExport(int numberOfSpans) {
-      List<SpanData> ret;
-      synchronized (monitor) {
-        while (spanDataList.size() < numberOfSpans) {
-          try {
-            monitor.wait();
-          } catch (InterruptedException e) {
-            // Preserve the interruption status as per guidance.
-            Thread.currentThread().interrupt();
-            return null;
-          }
-        }
-        ret = new ArrayList<SpanData>(spanDataList);
-        spanDataList.clear();
-      }
-      return ret;
-    }
   }
 }
