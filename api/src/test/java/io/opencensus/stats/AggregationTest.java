@@ -38,8 +38,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class AggregationTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testCreateDistribution() {
@@ -58,60 +57,56 @@ public class AggregationTest {
   @Test
   public void testEquals() {
     new EqualsTester()
-        .addEqualityGroup(
-            Sum.create(),
-            Sum.create())
-        .addEqualityGroup(
-            Count.create(),
-            Count.create())
+        .addEqualityGroup(Sum.create(), Sum.create())
+        .addEqualityGroup(Count.create(), Count.create())
         .addEqualityGroup(
             Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
             Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))))
         .addEqualityGroup(
             Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))),
             Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))))
-        .addEqualityGroup(
-            Mean.create(),
-            Mean.create())
+        .addEqualityGroup(Mean.create(), Mean.create())
         .testEquals();
   }
 
   @Test
   public void testMatch() {
-    List<Aggregation> aggregations = Arrays.asList(
-        Sum.create(),
-        Count.create(),
-        Mean.create(),
-        Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))));
+    List<Aggregation> aggregations =
+        Arrays.asList(
+            Sum.create(),
+            Count.create(),
+            Mean.create(),
+            Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))));
 
     List<String> actual = new ArrayList<String>();
     for (Aggregation aggregation : aggregations) {
-      actual.add(aggregation.match(
-          new Function<Sum, String>() {
-            @Override
-            public String apply(Sum arg) {
-              return "SUM";
-            }
-          },
-          new Function<Count, String>() {
-            @Override
-            public String apply(Count arg) {
-              return "COUNT";
-            }
-          },
-          new Function<Mean, String>() {
-            @Override
-            public String apply(Mean arg) {
-              return "MEAN";
-            }
-          },
-          new Function<Distribution, String>() {
-            @Override
-            public String apply(Distribution arg) {
-              return "DISTRIBUTION";
-            }
-          },
-          Functions.<String>throwIllegalArgumentException()));
+      actual.add(
+          aggregation.match(
+              new Function<Sum, String>() {
+                @Override
+                public String apply(Sum arg) {
+                  return "SUM";
+                }
+              },
+              new Function<Count, String>() {
+                @Override
+                public String apply(Count arg) {
+                  return "COUNT";
+                }
+              },
+              new Function<Mean, String>() {
+                @Override
+                public String apply(Mean arg) {
+                  return "MEAN";
+                }
+              },
+              new Function<Distribution, String>() {
+                @Override
+                public String apply(Distribution arg) {
+                  return "DISTRIBUTION";
+                }
+              },
+              Functions.<String>throwIllegalArgumentException()));
     }
 
     assertThat(actual).isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION"));

@@ -28,9 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Helper methods for working with resources.
- */
+/** Helper methods for working with resources. */
 final class Resources {
 
   /**
@@ -53,7 +51,7 @@ final class Resources {
 
   @VisibleForTesting
   static void getResourceAsTempFile(String resourceName, File file, OutputStream outputStream)
-          throws IOException {
+      throws IOException {
     file.deleteOnExit();
 
     InputStream is = getResourceAsStream(resourceName);
@@ -68,7 +66,7 @@ final class Resources {
     InputStream is = Resources.class.getResourceAsStream(resourceName);
     if (is == null) {
       throw new FileNotFoundException(
-              "Cannot find resource '" + resourceName + "' on the class path.");
+          "Cannot find resource '" + resourceName + "' on the class path.");
     }
     return is;
   }

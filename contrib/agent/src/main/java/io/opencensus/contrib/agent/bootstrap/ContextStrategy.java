@@ -16,9 +16,7 @@
 
 package io.opencensus.contrib.agent.bootstrap;
 
-/**
- * Strategy interface for accessing and manipulating the context.
- */
+/** Strategy interface for accessing and manipulating the context. */
 public interface ContextStrategy {
 
   /**

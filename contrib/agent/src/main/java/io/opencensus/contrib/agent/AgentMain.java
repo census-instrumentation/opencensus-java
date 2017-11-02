@@ -30,34 +30,33 @@ import java.util.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
 /**
- * The <b>OpenCensus Agent for Java</b> collects and sends latency data about your Java
- * process to OpenCensus backends such as Stackdriver Trace for analysis and visualization.
+ * The <b>OpenCensus Agent for Java</b> collects and sends latency data about your Java process to
+ * OpenCensus backends such as Stackdriver Trace for analysis and visualization.
  *
- * <p>To enable the *OpenCensus Agent for Java* for your application, add the option
- * <code>-javaagent:path/to/opencensus-contrib-agent.jar</code> to the invocation of the
- * <code>java</code> executable as shown in the following example:
+ * <p>To enable the *OpenCensus Agent for Java* for your application, add the option <code>
+ * -javaagent:path/to/opencensus-contrib-agent.jar</code> to the invocation of the <code>java</code>
+ * executable as shown in the following example:
  *
  * <pre>
  * java -javaagent:path/to/opencensus-contrib-agent.jar ...
  * </pre>
  *
- * @see <a href="https://github.com/census-instrumentation/instrumentation-java/tree/master/agent">https://github.com/census-instrumentation/instrumentation-java/tree/master/agent</a>
+ * @see <a
+ *     href="https://github.com/census-instrumentation/instrumentation-java/tree/master/agent">https://github.com/census-instrumentation/instrumentation-java/tree/master/agent</a>
  */
 public final class AgentMain {
 
   private static final Logger logger = Logger.getLogger(AgentMain.class.getName());
 
-  private AgentMain() {
-  }
+  private AgentMain() {}
 
   /**
    * Initializes the OpenCensus Agent for Java.
    *
    * @param agentArgs agent options, passed as a single string by the JVM
-   * @param instrumentation the {@link Instrumentation} object provided by the JVM for
-   *                  instrumenting Java programming language code
+   * @param instrumentation the {@link Instrumentation} object provided by the JVM for instrumenting
+   *     Java programming language code
    * @throws Exception if initialization of the agent fails
-   *
    * @see java.lang.instrument
    */
   public static void premain(String agentArgs, Instrumentation instrumentation) throws Exception {
@@ -69,12 +68,13 @@ public final class AgentMain {
     // from classes loaded by the bootstrap classloader. Thus, these classes have to be loaded by
     // the bootstrap classloader, too.
     instrumentation.appendToBootstrapClassLoaderSearch(
-            new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
+        new JarFile(Resources.getResourceAsTempFile("bootstrap.jar")));
 
     checkLoadedByBootstrapClassloader(ContextTrampoline.class);
     checkLoadedByBootstrapClassloader(ContextStrategy.class);
 
-    AgentBuilder agentBuilder = new AgentBuilder.Default()
+    AgentBuilder agentBuilder =
+        new AgentBuilder.Default()
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(new AgentBuilderListener())
@@ -88,8 +88,7 @@ public final class AgentMain {
   }
 
   private static void checkLoadedByBootstrapClassloader(Class<?> clazz) {
-    checkState(clazz.getClassLoader() == null,
-            "%s must be loaded by the bootstrap classloader",
-            clazz);
+    checkState(
+        clazz.getClassLoader() == null, "%s must be loaded by the bootstrap classloader", clazz);
   }
 }

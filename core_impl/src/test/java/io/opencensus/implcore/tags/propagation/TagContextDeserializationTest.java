@@ -108,10 +108,7 @@ public class TagContextDeserializationTest {
     output.write(SerializationUtils.VERSION_ID);
     encodeTagToOutput("Key", "Value", output);
     TagContext expected =
-        tagger
-            .emptyBuilder()
-            .put(TagKey.create("Key"), TagValue.create("Value"))
-            .build();
+        tagger.emptyBuilder().put(TagKey.create("Key"), TagValue.create("Value")).build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }
 
@@ -186,8 +183,7 @@ public class TagContextDeserializationTest {
   //         <tag_key> == tag_key_len bytes comprising tag key name
   //         <tag_val_len> == varint encoded integer
   //         <tag_val> == tag_val_len bytes comprising UTF-8 string
-  private static void encodeTagToOutput(
-      String key, String value, ByteArrayDataOutput output) {
+  private static void encodeTagToOutput(String key, String value, ByteArrayDataOutput output) {
     output.write(SerializationUtils.TAG_FIELD_ID);
     encodeString(key, output);
     encodeString(value, output);

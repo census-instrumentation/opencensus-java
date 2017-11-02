@@ -26,9 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Test for accessing the {@link StatsComponent} through the {@link Stats} class.
- */
+/** Test for accessing the {@link StatsComponent} through the {@link Stats} class. */
 @RunWith(JUnit4.class)
 public final class StatsTest {
   @Test

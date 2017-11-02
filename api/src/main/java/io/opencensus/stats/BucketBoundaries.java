@@ -38,7 +38,7 @@ public abstract class BucketBoundaries {
    */
   public static final BucketBoundaries create(List<Double> bucketBoundaries) {
     checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
-    List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries);  // Deep copy.
+    List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries); // Deep copy.
     // Check if sorted.
     if (bucketBoundariesCopy.size() > 1) {
       double lower = bucketBoundariesCopy.get(0);
@@ -51,8 +51,6 @@ public abstract class BucketBoundaries {
     return new AutoValue_BucketBoundaries(Collections.unmodifiableList(bucketBoundariesCopy));
   }
 
-  /**
-   * @return a list of histogram bucket boundaries.
-   */
+  /** @return a list of histogram bucket boundaries. */
   public abstract List<Double> getBoundaries();
 }

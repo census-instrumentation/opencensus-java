@@ -25,14 +25,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 // TODO(songya): consider combining MeasureMapImpl and this class.
-/**
- * A map from {@link Measure}'s to measured values.
- */
+/** A map from {@link Measure}'s to measured values. */
 final class MeasureMapInternal {
 
-  /**
-   * Returns a {@link Builder} for the {@link MeasureMapInternal} class.
-   */
+  /** Returns a {@link Builder} for the {@link MeasureMapInternal} class. */
   static Builder builder() {
     return new Builder();
   }
@@ -51,13 +47,11 @@ final class MeasureMapInternal {
     this.measurements = measurements;
   }
 
-  /**
-   * Builder for the {@link MeasureMapInternal} class.
-   */
+  /** Builder for the {@link MeasureMapInternal} class. */
   static class Builder {
     /**
-     * Associates the {@link MeasureDouble} with the given value. Subsequent updates to the
-     * same {@link MeasureDouble} will overwrite the previous value.
+     * Associates the {@link MeasureDouble} with the given value. Subsequent updates to the same
+     * {@link MeasureDouble} will overwrite the previous value.
      *
      * @param measure the {@link MeasureDouble}
      * @param value the value to be associated with {@code measure}
@@ -69,8 +63,8 @@ final class MeasureMapInternal {
     }
 
     /**
-     * Associates the {@link MeasureLong} with the given value. Subsequent updates to the
-     * same {@link MeasureLong} will overwrite the previous value.
+     * Associates the {@link MeasureLong} with the given value. Subsequent updates to the same
+     * {@link MeasureLong} will overwrite the previous value.
      *
      * @param measure the {@link MeasureLong}
      * @param value the value to be associated with {@code measure}
@@ -81,9 +75,7 @@ final class MeasureMapInternal {
       return this;
     }
 
-    /**
-     * Constructs a {@link MeasureMapInternal} from the current measurements.
-     */
+    /** Constructs a {@link MeasureMapInternal} from the current measurements. */
     MeasureMapInternal build() {
       // Note: this makes adding measurements quadratic but is fastest for the sizes of
       // MeasureMapInternals that we should see. We may want to go to a strategy of sort/eliminate
@@ -101,8 +93,7 @@ final class MeasureMapInternal {
 
     private final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
 
-    private Builder() {
-    }
+    private Builder() {}
   }
 
   // Provides an unmodifiable Iterator over this instance's measurements.

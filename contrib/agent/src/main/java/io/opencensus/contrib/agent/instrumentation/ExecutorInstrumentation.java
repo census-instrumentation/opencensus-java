@@ -36,8 +36,8 @@ import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.utility.JavaModule;
 
 /**
- * Propagates the context of the caller of {@link Executor#execute} to the submitted
- * {@link Runnable}, just like the Microsoft .Net Framework propagates the <a
+ * Propagates the context of the caller of {@link Executor#execute} to the submitted {@link
+ * Runnable}, just like the Microsoft .Net Framework propagates the <a
  * href="https://msdn.microsoft.com/en-us/library/system.threading.executioncontext(v=vs.110).aspx">System.Threading.ExecutionContext</a>.
  */
 @AutoService(Instrumenter.class)
@@ -47,16 +47,17 @@ public final class ExecutorInstrumentation implements Instrumenter {
   public AgentBuilder instrument(AgentBuilder agentBuilder) {
     checkNotNull(agentBuilder, "agentBuilder");
 
-    return agentBuilder
-            .type(createMatcher())
-            .transform(new Transformer());
+    return agentBuilder.type(createMatcher()).transform(new Transformer());
   }
 
   private static class Transformer implements AgentBuilder.Transformer {
 
     @Override
-    public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder,
-            TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
+    public DynamicType.Builder<?> transform(
+        DynamicType.Builder<?> builder,
+        TypeDescription typeDescription,
+        ClassLoader classLoader,
+        JavaModule module) {
       return builder.visit(Advice.to(Execute.class).on(named("execute")));
     }
   }
@@ -69,9 +70,12 @@ public final class ExecutorInstrumentation implements Instrumenter {
     // turned into a no-op to avoid another unneeded context propagation. Likewise, when using
     // FixedContextExecutor, the automatic context propagation added by the agent is unneeded.
     return isSubTypeOf(Executor.class)
-            .and(not(isAbstract()))
-            .and(not(nameStartsWith("io.grpc.Context$")
-                    .and(nameEndsWith("CurrentContextExecutor")
+        .and(not(isAbstract()))
+        .and(
+            not(
+                nameStartsWith("io.grpc.Context$")
+                    .and(
+                        nameEndsWith("CurrentContextExecutor")
                             .or(nameEndsWith("FixedContextExecutor")))));
   }
 
@@ -88,7 +92,12 @@ public final class ExecutorInstrumentation implements Instrumenter {
      */
     @Advice.OnMethodEnter
     @SuppressWarnings(value = "UnusedAssignment")
-    @SuppressFBWarnings(value = {"DLS_DEAD_LOCAL_STORE", "UPM_UNCALLED_PRIVATE_METHOD",})
+    @SuppressFBWarnings(
+      value = {
+        "DLS_DEAD_LOCAL_STORE",
+        "UPM_UNCALLED_PRIVATE_METHOD",
+      }
+    )
     private static void enter(@Advice.Argument(value = 0, readOnly = false) Runnable runnable) {
       runnable = ContextTrampoline.wrapInCurrentContext(runnable);
     }

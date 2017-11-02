@@ -18,6 +18,6 @@ package io.opencensus.contrib.agent.deps;
 
 /**
  * Contains third party packages, such as Byte Buddy, Guava, etc., relocated here by the build
- * process to avoid any conflicts of the agent's classes with the app's classes, which are loaded
- * by the same classloader (the system classloader).
+ * process to avoid any conflicts of the agent's classes with the app's classes, which are loaded by
+ * the same classloader (the system classloader).
  */

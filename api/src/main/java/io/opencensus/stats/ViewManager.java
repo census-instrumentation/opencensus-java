@@ -19,13 +19,13 @@ package io.opencensus.stats;
 import javax.annotation.Nullable;
 
 /**
- * Provides facilities to register {@link View}s for collecting stats and retrieving
- * stats data as a {@link ViewData}.
+ * Provides facilities to register {@link View}s for collecting stats and retrieving stats data as a
+ * {@link ViewData}.
  */
 public abstract class ViewManager {
   /**
-   * Pull model for stats. Registers a {@link View} that will collect data to be accessed
-   * via {@link #getView(View.Name)}.
+   * Pull model for stats. Registers a {@link View} that will collect data to be accessed via {@link
+   * #getView(View.Name)}.
    *
    * @param view the {@code View} to be registered.
    */

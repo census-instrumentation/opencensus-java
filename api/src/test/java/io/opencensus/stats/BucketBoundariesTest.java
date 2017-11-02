@@ -28,14 +28,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Unit tests for {@link io.opencensus.stats.BucketBoundaries}.
- */
+/** Unit tests for {@link io.opencensus.stats.BucketBoundaries}. */
 @RunWith(JUnit4.class)
 public class BucketBoundariesTest {
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testConstructBoundaries() {

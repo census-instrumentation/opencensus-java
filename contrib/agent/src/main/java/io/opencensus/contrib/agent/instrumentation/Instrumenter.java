@@ -18,16 +18,14 @@ package io.opencensus.contrib.agent.instrumentation;
 
 import net.bytebuddy.agent.builder.AgentBuilder;
 
-/**
- * Interface for plug-ins that add bytecode instrumentation.
- */
+/** Interface for plug-ins that add bytecode instrumentation. */
 public interface Instrumenter {
 
   /**
    * Adds bytecode instrumentation to the given {@link AgentBuilder}.
    *
    * @param agentBuilder an {@link AgentBuilder} object to which the additional instrumentation is
-   *                     added
+   *     added
    * @return an {@link AgentBuilder} object having the additional instrumentation
    */
   AgentBuilder instrument(AgentBuilder agentBuilder);

@@ -20,9 +20,7 @@ import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.unsafe.ContextUtils;
 
-/**
- * Util methods/functionality to interact with the {@link Span} in the {@link io.grpc.Context}.
- */
+/** Util methods/functionality to interact with the {@link Span} in the {@link io.grpc.Context}. */
 final class CurrentSpanUtils {
   // No instance of this class.
   private CurrentSpanUtils() {}

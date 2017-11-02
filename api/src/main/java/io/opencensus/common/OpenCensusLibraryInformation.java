@@ -16,14 +16,10 @@
 
 package io.opencensus.common;
 
-/**
- * Class holder for all common constants (such as the version) for the OpenCensus Java library.
- */
+/** Class holder for all common constants (such as the version) for the OpenCensus Java library. */
 @ExperimentalApi
 public final class OpenCensusLibraryInformation {
 
-  /**
-   * The current version of the OpenCensus Java library.
-   */
-  public static final String VERSION = "0.9.0-SNAPSHOT";  // CURRENT_OPENCENSUS_VERSION
+  /** The current version of the OpenCensus Java library. */
+  public static final String VERSION = "0.9.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
 }

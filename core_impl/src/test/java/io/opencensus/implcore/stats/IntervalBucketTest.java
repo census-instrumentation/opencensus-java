@@ -66,11 +66,10 @@ public class IntervalBucketTest {
     thrown.expect(NullPointerException.class);
     new IntervalBucket(START, MINUTE, null);
   }
-  
+
   @Test
   public void testGetTagValueAggregationMap_empty() {
-    assertThat(new IntervalBucket(START, MINUTE, MEAN).getTagValueAggregationMap())
-        .isEmpty();
+    assertThat(new IntervalBucket(START, MINUTE, MEAN).getTagValueAggregationMap()).isEmpty();
   }
 
   @Test
@@ -98,9 +97,9 @@ public class IntervalBucketTest {
   @Test
   public void testGetFraction() {
     Timestamp thirtySecondsAfterStart = Timestamp.create(90, 0);
-    assertThat(
-        new IntervalBucket(START, MINUTE, MEAN).getFraction(thirtySecondsAfterStart))
-        .isWithin(TOLERANCE).of(0.5);
+    assertThat(new IntervalBucket(START, MINUTE, MEAN).getFraction(thirtySecondsAfterStart))
+        .isWithin(TOLERANCE)
+        .of(0.5);
   }
 
   @Test

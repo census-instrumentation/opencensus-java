@@ -67,8 +67,7 @@ abstract class MutableViewData {
   private static final long MILLIS_PER_SECOND = 1000L;
   private static final long NANOS_PER_MILLI = 1000 * 1000;
 
-  @VisibleForTesting
-  static final TagValue UNKNOWN_TAG_VALUE = null;
+  @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
 
   private final View view;
 
@@ -84,35 +83,28 @@ abstract class MutableViewData {
    * @return a {@code MutableViewData}.
    */
   static MutableViewData create(final View view, final Timestamp start) {
-    return view.getWindow().match(
-        new CreateCumulative(view, start),
-        new CreateInterval(view, start),
-        Functions.<MutableViewData>throwAssertionError());
+    return view.getWindow()
+        .match(
+            new CreateCumulative(view, start),
+            new CreateInterval(view, start),
+            Functions.<MutableViewData>throwAssertionError());
   }
 
-  /**
-   * The {@link View} associated with this {@link ViewData}.
-   */
+  /** The {@link View} associated with this {@link ViewData}. */
   View getView() {
     return view;
   }
 
-  /**
-   * Record double stats with the given tags.
-   */
+  /** Record double stats with the given tags. */
   abstract void record(TagContext context, double value, Timestamp timestamp);
 
-  /**
-   * Record long stats with the given tags.
-   */
+  /** Record long stats with the given tags. */
   void record(TagContext tags, long value, Timestamp timestamp) {
     // TODO(songya): shall we check for precision loss here?
     record(tags, (double) value, timestamp);
   }
 
-  /**
-   * Convert this {@link MutableViewData} to {@link ViewData}.
-   */
+  /** Convert this {@link MutableViewData} to {@link ViewData}. */
   abstract ViewData toViewData(Timestamp now);
 
   private static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
@@ -188,8 +180,7 @@ abstract class MutableViewData {
   private static <T> Map<T, AggregationData> createAggregationMap(
       Map<T, MutableAggregation> tagValueAggregationMap, Measure measure) {
     Map<T, AggregationData> map = Maps.newHashMap();
-    for (Entry<T, MutableAggregation> entry :
-        tagValueAggregationMap.entrySet()) {
+    for (Entry<T, MutableAggregation> entry : tagValueAggregationMap.entrySet()) {
       map.put(entry.getKey(), createAggregationData(entry.getValue(), measure));
     }
     return map;
@@ -219,7 +210,8 @@ abstract class MutableViewData {
     @Override
     ViewData toViewData(Timestamp now) {
       return ViewData.create(
-          super.view, createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
+          super.view,
+          createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
           CumulativeData.create(start, now));
     }
   }
@@ -263,7 +255,7 @@ abstract class MutableViewData {
     private static final int N = 4; // IntervalView has N + 1 buckets
 
     private final LinkedList<IntervalBucket> buckets = new LinkedList<IntervalBucket>();
-    private final Duration totalDuration;  // Duration of the whole interval.
+    private final Duration totalDuration; // Duration of the whole interval.
     private final Duration bucketDuration; // Duration of a single bucket (totalDuration / N)
 
     private IntervalMutableViewData(View view, Timestamp start) {
@@ -300,7 +292,8 @@ abstract class MutableViewData {
       }
       Timestamp startOfLastBucket = buckets.peekLast().getStart();
       // TODO(songya): decide what to do when time goes backwards
-      checkArgument(now.compareTo(startOfLastBucket) >= 0,
+      checkArgument(
+          now.compareTo(startOfLastBucket) >= 0,
           "Current time must be within or after the last bucket.");
       long elapsedTimeMillis = toMillis(now.subtractTimestamp(startOfLastBucket));
       long numOfPadBuckets = elapsedTimeMillis / toMillis(bucketDuration);
@@ -340,8 +333,7 @@ abstract class MutableViewData {
 
     // Combine stats within each bucket, aggregate stats by tag values, and return the mapping from
     // tag values to aggregation data.
-    private Map<List<TagValue>, AggregationData> combineBucketsAndGetAggregationMap(
-        Timestamp now) {
+    private Map<List<TagValue>, AggregationData> combineBucketsAndGetAggregationMap(Timestamp now) {
       Multimap<List<TagValue>, MutableAggregation> multimap = HashMultimap.create();
       LinkedList<IntervalBucket> shallowCopy = new LinkedList<IntervalBucket>(buckets);
       Aggregation aggregation = super.view.getAggregation();
@@ -363,7 +355,8 @@ abstract class MutableViewData {
       IntervalBucket tail = buckets.peekLast();
       double fractionTail = tail.getFraction(now);
       // TODO(songya): decide what to do when time goes backwards
-      checkArgument(0.0 <= fractionTail && fractionTail <= 1.0,
+      checkArgument(
+          0.0 <= fractionTail && fractionTail <= 1.0,
           "Fraction " + fractionTail + " should be within [0.0, 1.0].");
       double fractionHead = 1.0 - fractionTail;
       putFractionalMutableAggregationsToMultiMap(
@@ -400,8 +393,7 @@ abstract class MutableViewData {
     // For each tag value list (key of AggregationMap), combine mutable aggregations into one
     // mutable aggregation, thus convert the multimap into a single map.
     private static <T> Map<T, MutableAggregation> aggregateOnEachTagValueList(
-        Multimap<T, MutableAggregation> multimap,
-        Aggregation aggregation) {
+        Multimap<T, MutableAggregation> multimap, Aggregation aggregation) {
       Map<T, MutableAggregation> map = Maps.newHashMap();
       for (T tagValues : multimap.keySet()) {
         // Initially empty MutableAggregations.
@@ -502,8 +494,13 @@ abstract class MutableViewData {
       for (long bucketCount : arg.getBucketCounts()) {
         boxedBucketCounts.add(bucketCount);
       }
-      return DistributionData.create(arg.getMean(), arg.getCount(), arg.getMin(), arg.getMax(),
-          arg.getSumOfSquaredDeviations(), boxedBucketCounts);
+      return DistributionData.create(
+          arg.getMean(),
+          arg.getCount(),
+          arg.getMin(),
+          arg.getMax(),
+          arg.getSumOfSquaredDeviations(),
+          boxedBucketCounts);
     }
 
     private static final CreateDistributionData INSTANCE = new CreateDistributionData();

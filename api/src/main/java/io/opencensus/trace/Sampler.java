@@ -44,8 +44,8 @@ public abstract class Sampler {
       List<Span> parentLinks);
 
   /**
-   * Returns the description of this {@code Sampler}. This may be displayed on debug pages or in
-   * the logs.
+   * Returns the description of this {@code Sampler}. This may be displayed on debug pages or in the
+   * logs.
    *
    * <p>Example: "ProbabilitySampler{0.000100}"
    *

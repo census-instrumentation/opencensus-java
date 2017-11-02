@@ -21,9 +21,7 @@ import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.stats.StatsComponentImplBase;
 import io.opencensus.stats.StatsComponent;
 
-/**
- * Android-compatible implementation of {@link StatsComponent}.
- */
+/** Android-compatible implementation of {@link StatsComponent}. */
 public final class StatsComponentImplLite extends StatsComponentImplBase {
 
   public StatsComponentImplLite() {

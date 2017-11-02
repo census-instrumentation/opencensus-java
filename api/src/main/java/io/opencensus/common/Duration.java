@@ -92,8 +92,8 @@ public abstract class Duration implements Comparable<Duration> {
    * Compares this {@code Duration} to the specified {@code Duration}.
    *
    * @param otherDuration the other {@code Duration} to compare to, not {@code null}.
-   * @return the comparator value: zero if equal, negative if this duration is smaller
-   *     than otherDuration, positive if larger.
+   * @return the comparator value: zero if equal, negative if this duration is smaller than
+   *     otherDuration, positive if larger.
    * @throws NullPointerException if otherDuration is {@code null}.
    */
   @Override

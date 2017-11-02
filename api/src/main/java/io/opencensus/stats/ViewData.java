@@ -41,8 +41,8 @@ public abstract class ViewData {
   public abstract View getView();
 
   /**
-   * The {@link AggregationData} grouped by combination of tag values, associated with this
-   * {@link ViewData}.
+   * The {@link AggregationData} grouped by combination of tag values, associated with this {@link
+   * ViewData}.
    */
   public abstract Map<List<TagValue>, AggregationData> getAggregationMap();
 
@@ -91,11 +91,9 @@ public abstract class ViewData {
             Functions.<Void>throwIllegalArgumentException());
 
     Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
-    for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map
-        .entrySet()) {
+    for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map.entrySet()) {
       deepCopy.put(
-          Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())),
-          entry.getValue());
+          Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())), entry.getValue());
     }
 
     return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), windowData);

@@ -31,8 +31,8 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A View specifies an aggregation and a set of tag keys. The aggregation will be broken
- * down by the unique set of matching tag values for each measure.
+ * A View specifies an aggregation and a set of tag keys. The aggregation will be broken down by the
+ * unique set of matching tag values for each measure.
  */
 @Immutable
 @AutoValue
@@ -40,27 +40,18 @@ public abstract class View {
 
   @VisibleForTesting static final int NAME_MAX_LENGTH = 256;
 
-  View() {
-  }
+  View() {}
 
-  /**
-   * Name of view. Must be unique.
-   */
+  /** Name of view. Must be unique. */
   public abstract Name getName();
 
-  /**
-   * More detailed description, for documentation purposes.
-   */
+  /** More detailed description, for documentation purposes. */
   public abstract String getDescription();
 
-  /**
-   * Measure type of this view.
-   */
+  /** Measure type of this view. */
   public abstract Measure getMeasure();
 
-  /**
-   * The {@link Aggregation} associated with this {@link View}.
-   */
+  /** The {@link Aggregation} associated with this {@link View}. */
   public abstract Aggregation getAggregation();
 
   /**
@@ -97,8 +88,7 @@ public abstract class View {
       Aggregation aggregation,
       List<TagKey> columns,
       AggregationWindow window) {
-    checkArgument(new HashSet<TagKey>(columns).size() == columns.size(),
-        "Columns have duplicate.");
+    checkArgument(new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
 
     return new AutoValue_View(
         name,
@@ -109,9 +99,7 @@ public abstract class View {
         window);
   }
 
-  /**
-   * The name of a {@code View}.
-   */
+  /** The name of a {@code View}. */
   // This type should be used as the key when associating data with Views.
   @Immutable
   @AutoValue
@@ -127,8 +115,8 @@ public abstract class View {
     public abstract String asString();
 
     /**
-     * Creates a {@code View.Name} from a {@code String}. Should be a ASCII string with a length
-     * no greater than 256 characters.
+     * Creates a {@code View.Name} from a {@code String}. Should be a ASCII string with a length no
+     * greater than 256 characters.
      *
      * <p>Suggested format for name: {@code <web_host>/<path>}.
      *
@@ -136,7 +124,8 @@ public abstract class View {
      * @return a {@code View.Name} with the given name {@code String}.
      */
     public static Name create(String name) {
-      checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+      checkArgument(
+          StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
           "Name should be a ASCII string with a length no greater than 256 characters.");
       return new AutoValue_View_Name(name);
     }
@@ -148,9 +137,7 @@ public abstract class View {
 
     private AggregationWindow() {}
 
-    /**
-     * Applies the given match function to the underlying data type.
-     */
+    /** Applies the given match function to the underlying data type. */
     public abstract <T> T match(
         Function<? super Cumulative, T> p0,
         Function<? super Interval, T> p1,
@@ -182,7 +169,7 @@ public abstract class View {
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
           Function<? super AggregationWindow, T> defaultFunction) {
-        return  p0.apply(this);
+        return p0.apply(this);
       }
     }
 
@@ -201,7 +188,6 @@ public abstract class View {
        * @return a {@code Duration}.
        */
       public abstract Duration getDuration();
-
 
       /**
        * Constructs an interval {@code AggregationWindow} that has a finite explicit {@code
@@ -222,7 +208,7 @@ public abstract class View {
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
           Function<? super AggregationWindow, T> defaultFunction) {
-        return  p1.apply(this);
+        return p1.apply(this);
       }
     }
   }

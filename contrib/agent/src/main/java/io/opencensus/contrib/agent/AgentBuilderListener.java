@@ -33,44 +33,36 @@ final class AgentBuilderListener implements AgentBuilder.Listener {
 
   @Override
   public void onTransformation(
-          TypeDescription typeDescription,
-          ClassLoader classLoader,
-          JavaModule module,
-          boolean loaded,
-          DynamicType dynamicType) {
+      TypeDescription typeDescription,
+      ClassLoader classLoader,
+      JavaModule module,
+      boolean loaded,
+      DynamicType dynamicType) {
     logger.log(Level.FINE, "{0}", typeDescription);
   }
 
   @Override
   public void onIgnored(
-          TypeDescription typeDescription,
-          ClassLoader classLoader,
-          JavaModule module,
-          boolean loaded) {
-  }
+      TypeDescription typeDescription,
+      ClassLoader classLoader,
+      JavaModule module,
+      boolean loaded) {}
 
   @Override
   public void onError(
-          String typeName,
-          ClassLoader classLoader,
-          JavaModule module,
-          boolean loaded,
-          Throwable throwable) {
+      String typeName,
+      ClassLoader classLoader,
+      JavaModule module,
+      boolean loaded,
+      Throwable throwable) {
     logger.log(Level.WARNING, "Failed to handle " + typeName, throwable);
   }
 
   @Override
   public void onComplete(
-          String typeName,
-          ClassLoader classLoader,
-          JavaModule module,
-          boolean loaded) {
-  }
+      String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {}
 
   @Override
-  public void onDiscovery(String typeName,
-          ClassLoader classLoader,
-          JavaModule module,
-          boolean loaded) {
-  }
+  public void onDiscovery(
+      String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {}
 }

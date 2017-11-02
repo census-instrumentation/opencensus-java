@@ -77,8 +77,8 @@ public abstract class Span {
   }
 
   /**
-   * Sets an attribute to the {@code Span}. If the {@code Span} previously contained a mapping
-   * for the key, the old value is replaced by the specified value.
+   * Sets an attribute to the {@code Span}. If the {@code Span} previously contained a mapping for
+   * the key, the old value is replaced by the specified value.
    *
    * @param key the key for this attribute.
    * @param value the value for this attribute.
@@ -102,7 +102,6 @@ public abstract class Span {
     // allow us to remove the addAttributes faster. All implementations MUST override this method.
     addAttributes(attributes);
   }
-
 
   /**
    * @deprecated Use {@link #putAttributes(Map)}

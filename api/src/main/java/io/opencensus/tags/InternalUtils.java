@@ -18,9 +18,7 @@ package io.opencensus.tags;
 
 import java.util.Iterator;
 
-/**
- * Internal tagging utilities.
- */
+/** Internal tagging utilities. */
 @io.opencensus.common.Internal
 public final class InternalUtils {
   private InternalUtils() {}

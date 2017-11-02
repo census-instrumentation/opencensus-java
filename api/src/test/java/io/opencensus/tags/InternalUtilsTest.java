@@ -31,9 +31,7 @@ public final class InternalUtilsTest {
   @Test
   public void getTags() {
     final Iterator<Tag> iterator =
-        Lists.<Tag>newArrayList(
-                Tag.create(TagKey.create("k"), TagValue.create("v")))
-            .iterator();
+        Lists.<Tag>newArrayList(Tag.create(TagKey.create("k"), TagValue.create("v"))).iterator();
     TagContext ctx =
         new TagContext() {
           @Override

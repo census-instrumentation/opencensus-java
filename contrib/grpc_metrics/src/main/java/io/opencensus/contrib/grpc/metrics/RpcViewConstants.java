@@ -58,25 +58,43 @@ import java.util.List;
 public final class RpcViewConstants {
 
   // Common histogram bucket boundaries for bytes received/sets Views.
-  static final List<Double> RPC_BYTES_BUCKET_BOUNDARIES = Collections.unmodifiableList(
-      Arrays.asList(0.0, 1024.0, 2048.0, 4096.0, 16384.0, 65536.0, 262144.0, 1048576.0, 4194304.0,
-          16777216.0, 67108864.0, 268435456.0, 1073741824.0, 4294967296.0));
+  static final List<Double> RPC_BYTES_BUCKET_BOUNDARIES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              0.0,
+              1024.0,
+              2048.0,
+              4096.0,
+              16384.0,
+              65536.0,
+              262144.0,
+              1048576.0,
+              4194304.0,
+              16777216.0,
+              67108864.0,
+              268435456.0,
+              1073741824.0,
+              4294967296.0));
 
   // Common histogram bucket boundaries for latency and elapsed-time Views.
-  static final List<Double> RPC_MILLIS_BUCKET_BOUNDARIES = Collections.unmodifiableList(
-      Arrays.asList(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0,
-          40.0, 50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
-          800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0));
+  static final List<Double> RPC_MILLIS_BUCKET_BOUNDARIES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0,
+              50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
+              800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0));
 
   // Common histogram bucket boundaries for request/response count Views.
-  static final List<Double> RPC_COUNT_BUCKET_BOUNDARIES = Collections.unmodifiableList(
-      Arrays.asList(0.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0,
-          4096.0, 8192.0, 16384.0, 32768.0, 65536.0));
+  static final List<Double> RPC_COUNT_BUCKET_BOUNDARIES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              0.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0,
+              4096.0, 8192.0, 16384.0, 32768.0, 65536.0));
 
   // Use Aggregation.Mean to record sum and count stats at the same time.
   static final Aggregation MEAN = Mean.create();
 
-  static final Aggregation AGGREGATION_WITH_BYTES_HISTOGRAM = 
+  static final Aggregation AGGREGATION_WITH_BYTES_HISTOGRAM =
       Distribution.create(BucketBoundaries.create(RPC_BYTES_BUCKET_BOUNDARIES));
 
   static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
@@ -164,7 +182,6 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_COUNT_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
-
 
   // Rpc server cumulative views.
   public static final View RPC_SERVER_ERROR_COUNT_VIEW =

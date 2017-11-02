@@ -57,9 +57,8 @@ public final class StackdriverExporter {
    * @param projectId the cloud project id.
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
    */
-  public static void createAndRegisterWithCredentialsAndProjectId(Credentials credentials,
-      String projectId)
-      throws IOException {
+  public static void createAndRegisterWithCredentialsAndProjectId(
+      Credentials credentials, String projectId) throws IOException {
     synchronized (monitor) {
       checkState(handler == null, "Stackdriver exporter is already registered.");
       handler = StackdriverV1ExporterHandler.createWithCredentials(credentials, projectId);

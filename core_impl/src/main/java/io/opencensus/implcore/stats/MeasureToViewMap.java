@@ -37,10 +37,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
-/**
- * A class that stores a singleton map from {@code MeasureName}s to {@link
- * MutableViewData}s.
- */
+/** A class that stores a singleton map from {@code MeasureName}s to {@link MutableViewData}s. */
 final class MeasureToViewMap {
 
   /*
@@ -52,8 +49,7 @@ final class MeasureToViewMap {
       HashMultimap.<String, MutableViewData>create();
 
   @GuardedBy("this")
-  private final Map<View.Name, View> registeredViews =
-      new HashMap<View.Name, View>();
+  private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   // TODO(songya): consider adding a Measure.Name class
   @GuardedBy("this")
@@ -71,15 +67,19 @@ final class MeasureToViewMap {
     if (view == null) {
       return null;
     }
-    Collection<MutableViewData> views =
-        mutableMap.get(view.getMeasure().getName());
+    Collection<MutableViewData> views = mutableMap.get(view.getMeasure().getName());
     for (MutableViewData viewData : views) {
       if (viewData.getView().getName().equals(viewName)) {
         return viewData;
       }
     }
-    throw new AssertionError("Internal error: Not recording stats for view: \"" + viewName
-        + "\" registeredViews=" + registeredViews + ", mutableMap=" + mutableMap);
+    throw new AssertionError(
+        "Internal error: Not recording stats for view: \""
+            + viewName
+            + "\" registeredViews="
+            + registeredViews
+            + ", mutableMap="
+            + mutableMap);
   }
 
   /** Enable stats collection for the given {@link View}. */

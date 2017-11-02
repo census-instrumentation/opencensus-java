@@ -23,10 +23,11 @@ import io.opencensus.common.Function;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * {@link Aggregation} is the process of combining a certain set of {@code MeasureValue}s
- * for a given {@code Measure} into an {@link AggregationData}.
+ * {@link Aggregation} is the process of combining a certain set of {@code MeasureValue}s for a
+ * given {@code Measure} into an {@link AggregationData}.
  *
  * <p>{@link Aggregation} currently supports 4 types of basic aggregation:
+ *
  * <ul>
  *   <li>Sum
  *   <li>Count
@@ -40,12 +41,9 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class Aggregation {
 
-  private Aggregation() {
-  }
+  private Aggregation() {}
 
-  /**
-   * Applies the given match function to the underlying data type.
-   */
+  /** Applies the given match function to the underlying data type. */
   public abstract <T> T match(
       Function<? super Sum, T> p0,
       Function<? super Count, T> p1,
@@ -58,8 +56,7 @@ public abstract class Aggregation {
   @AutoValue
   public abstract static class Sum extends Aggregation {
 
-    Sum() {
-    }
+    Sum() {}
 
     private static final Sum INSTANCE = new AutoValue_Aggregation_Sum();
 
@@ -88,8 +85,7 @@ public abstract class Aggregation {
   @AutoValue
   public abstract static class Count extends Aggregation {
 
-    Count() {
-    }
+    Count() {}
 
     private static final Count INSTANCE = new AutoValue_Aggregation_Count();
 
@@ -118,8 +114,7 @@ public abstract class Aggregation {
   @AutoValue
   public abstract static class Mean extends Aggregation {
 
-    Mean() {
-    }
+    Mean() {}
 
     private static final Mean INSTANCE = new AutoValue_Aggregation_Mean();
 
@@ -144,15 +139,14 @@ public abstract class Aggregation {
   }
 
   /**
-   * Calculate distribution stats on aggregated {@code MeasureValue}s. Distribution includes
-   * mean, count, histogram, min, max and sum of squared deviations.
+   * Calculate distribution stats on aggregated {@code MeasureValue}s. Distribution includes mean,
+   * count, histogram, min, max and sum of squared deviations.
    */
   @Immutable
   @AutoValue
   public abstract static class Distribution extends Aggregation {
 
-    Distribution() {
-    }
+    Distribution() {}
 
     /**
      * Construct a {@code Distribution}.

@@ -36,8 +36,7 @@ final class IntervalBucket {
   private final Timestamp start;
   private final Duration duration;
   private final Aggregation aggregation;
-  private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap =
-      Maps.newHashMap();
+  private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap = Maps.newHashMap();
 
   IntervalBucket(Timestamp start, Duration duration, Aggregation aggregation) {
     checkNotNull(start, "Start");
@@ -60,12 +59,11 @@ final class IntervalBucket {
   // Puts a new value into the internal MutableAggregations, based on the TagValues.
   void record(List<TagValue> tagValues, double value) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
-      tagValueAggregationMap.put(
-          tagValues, MutableViewData.createMutableAggregation(aggregation));
+      tagValueAggregationMap.put(tagValues, MutableViewData.createMutableAggregation(aggregation));
     }
     tagValueAggregationMap.get(tagValues).add(value);
   }
-  
+
   /*
    * Returns how much fraction of duration has passed in this IntervalBucket. For example, if this
    * bucket starts at 10s and has a duration of 20s, and now is 15s, then getFraction() should
@@ -76,7 +74,8 @@ final class IntervalBucket {
    */
   double getFraction(Timestamp now) {
     Duration elapsedTime = now.subtractTimestamp(start);
-    checkArgument(elapsedTime.compareTo(ZERO) >= 0 && elapsedTime.compareTo(duration) < 0,
+    checkArgument(
+        elapsedTime.compareTo(ZERO) >= 0 && elapsedTime.compareTo(duration) < 0,
         "This bucket must be current.");
     return ((double) toMillis(elapsedTime)) / toMillis(duration);
   }

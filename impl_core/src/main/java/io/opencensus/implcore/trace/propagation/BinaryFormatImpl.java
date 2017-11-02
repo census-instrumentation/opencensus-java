@@ -57,6 +57,7 @@ import io.opencensus.trace.propagation.SpanContextParseException;
  *               <li>trace_options = {1};
  *             </ul>
  *       </ul>
+ *
  * </ul>
  */
 public final class BinaryFormatImpl extends BinaryFormat {

@@ -225,8 +225,9 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
         LatencyBucketBoundaries boundaries = LatencyBucketBoundaries.values()[i];
         if (latencyUpperNs >= boundaries.getLatencyLowerNs()
             && latencyLowerNs < boundaries.getLatencyUpperNs()) {
-          latencyBuckets[i].getSamplesFilteredByLatency(
-              latencyLowerNs, latencyUpperNs, maxSpansToReturn, output);
+          latencyBuckets[i]
+              .getSamplesFilteredByLatency(
+                  latencyLowerNs, latencyUpperNs, maxSpansToReturn, output);
         }
       }
       return output;

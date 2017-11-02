@@ -36,7 +36,6 @@ public final class TagsTest {
 
   @Test
   public void getTagContextSerializer() {
-    assertThat(Tags.getTagPropagationComponent())
-        .isInstanceOf(TagPropagationComponentImpl.class);
+    assertThat(Tags.getTagPropagationComponent()).isInstanceOf(TagPropagationComponentImpl.class);
   }
 }

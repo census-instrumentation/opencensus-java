@@ -18,9 +18,7 @@ package io.opencensus.examples.zpages;
 
 import io.opencensus.contrib.zpages.ZPageHandlers;
 
-/**
- * Testing only class for the UI.
- */
+/** Testing only class for the UI. */
 public class ZPagesTester {
   /** Main method. */
   public static void main(String[] args) throws Exception {
