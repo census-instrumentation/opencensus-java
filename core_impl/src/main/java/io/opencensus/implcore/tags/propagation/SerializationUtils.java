@@ -60,7 +60,6 @@ import java.util.Map;
  *                   </ul>
  *             </ul>
  *       </ul>
- *
  * </ul>
  */
 final class SerializationUtils {

@@ -186,7 +186,7 @@ subprojects {
 
     // Google formatter
     googleJavaFormat {
-        toolVersion '1.1'
+        toolVersion '1.5'
     }
 
     tasks.googleJavaFormat {
