@@ -74,7 +74,6 @@ public class DurationTest {
     assertThat(Duration.create(-24, -45).compareTo(Duration.create(-24, -42))).isEqualTo(-1);
     assertThat(Duration.create(-24, -42).compareTo(Duration.create(-25, -42))).isEqualTo(1);
     assertThat(Duration.create(24, 42).compareTo(Duration.create(-24, -42))).isEqualTo(1);
-
   }
 
   @Test

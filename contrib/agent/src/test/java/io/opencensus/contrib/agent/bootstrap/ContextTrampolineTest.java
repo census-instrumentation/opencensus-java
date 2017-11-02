@@ -26,9 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * Unit tests for {@link ContextTrampoline}.
- */
+/** Unit tests for {@link ContextTrampoline}. */
 @RunWith(MockitoJUnitRunner.class)
 public class ContextTrampolineTest {
 
@@ -39,14 +37,11 @@ public class ContextTrampolineTest {
     ContextTrampoline.setContextStrategy(mockContextStrategy);
   }
 
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
+  @Rule public final ExpectedException exception = ExpectedException.none();
 
-  @Mock
-  private Runnable runnable;
+  @Mock private Runnable runnable;
 
-  @Mock
-  private Thread thread;
+  @Mock private Thread thread;
 
   @Test
   public void setContextStrategy_already_initialized() {

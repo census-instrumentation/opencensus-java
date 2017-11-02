@@ -80,6 +80,5 @@ public final class TagContextImpl extends TagContext {
     public void remove() {
       throw new UnsupportedOperationException("TagIterator.remove()");
     }
-
   }
 }

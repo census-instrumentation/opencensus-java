@@ -53,7 +53,8 @@ public class AttributeValueTest {
             fail("Expected a String");
             return null;
           }
-        }, Functions.throwIllegalArgumentException());
+        },
+        Functions.throwIllegalArgumentException());
   }
 
   @Test
@@ -80,7 +81,8 @@ public class AttributeValueTest {
             fail("Expected a Boolean");
             return null;
           }
-        }, Functions.throwIllegalArgumentException());
+        },
+        Functions.throwIllegalArgumentException());
   }
 
   @Test
@@ -107,7 +109,8 @@ public class AttributeValueTest {
             assertThat(longValue).isEqualTo(123456L);
             return null;
           }
-        }, Functions.throwIllegalArgumentException());
+        },
+        Functions.throwIllegalArgumentException());
   }
 
   @Test

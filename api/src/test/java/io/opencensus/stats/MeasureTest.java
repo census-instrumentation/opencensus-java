@@ -36,8 +36,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class MeasureTest {
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testConstants() {
@@ -61,10 +60,7 @@ public final class MeasureTest {
 
   @Test
   public void testMeasureDoubleComponents() {
-    Measure measurement = Measure.MeasureDouble.create(
-        "Foo",
-        "The description of Foo",
-        "Mbit/s");
+    Measure measurement = Measure.MeasureDouble.create("Foo", "The description of Foo", "Mbit/s");
     assertThat(measurement.getName()).isEqualTo("Foo");
     assertThat(measurement.getDescription()).isEqualTo("The description of Foo");
     assertThat(measurement.getUnit()).isEqualTo("Mbit/s");
@@ -72,10 +68,7 @@ public final class MeasureTest {
 
   @Test
   public void testMeasureLongComponents() {
-    Measure measurement = Measure.MeasureLong.create(
-        "Bar",
-        "The description of Bar",
-        "1");
+    Measure measurement = Measure.MeasureLong.create("Bar", "The description of Bar", "1");
     assertThat(measurement.getName()).isEqualTo("Bar");
     assertThat(measurement.getDescription()).isEqualTo("The description of Bar");
     assertThat(measurement.getUnit()).isEqualTo("1");
@@ -85,19 +78,9 @@ public final class MeasureTest {
   public void testMeasureDoubleEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            Measure.MeasureDouble.create(
-                "name",
-                "description",
-                "bit/s"),
-            Measure.MeasureDouble.create(
-                "name",
-                "description",
-                "bit/s"))
-        .addEqualityGroup(
-            Measure.MeasureDouble.create(
-                "name",
-                "description 2",
-                "bit/s"))
+            Measure.MeasureDouble.create("name", "description", "bit/s"),
+            Measure.MeasureDouble.create("name", "description", "bit/s"))
+        .addEqualityGroup(Measure.MeasureDouble.create("name", "description 2", "bit/s"))
         .testEquals();
   }
 
@@ -105,27 +88,18 @@ public final class MeasureTest {
   public void testMeasureLongEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            Measure.MeasureLong.create(
-                "name",
-                "description",
-                "bit/s"),
-            Measure.MeasureLong.create(
-                "name",
-                "description",
-                "bit/s"))
-        .addEqualityGroup(
-            Measure.MeasureLong.create(
-                "name",
-                "description 2",
-                "bit/s"))
+            Measure.MeasureLong.create("name", "description", "bit/s"),
+            Measure.MeasureLong.create("name", "description", "bit/s"))
+        .addEqualityGroup(Measure.MeasureLong.create("name", "description 2", "bit/s"))
         .testEquals();
   }
 
   @Test
   public void testMatch() {
-    List<Measure> measures = Arrays.asList(
-        MeasureDouble.create("measure1", "description", "1"),
-        MeasureLong.create("measure2", "description", "1"));
+    List<Measure> measures =
+        Arrays.asList(
+            MeasureDouble.create("measure1", "description", "1"),
+            MeasureLong.create("measure2", "description", "1"));
     List<String> outputs = Lists.newArrayList();
     for (Measure measure : measures) {
       outputs.add(

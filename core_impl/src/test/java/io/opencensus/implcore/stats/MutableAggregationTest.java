@@ -37,8 +37,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class MutableAggregationTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
   private static final double TOLERANCE = 1e-6;
   private static final BucketBoundaries BUCKET_BOUNDARIES =
@@ -70,19 +69,19 @@ public class MutableAggregationTest {
   @Test
   public void testNoBoundaries() {
     List<Double> buckets = Arrays.asList();
-    MutableDistribution noBoundaries =
-        MutableDistribution.create(BucketBoundaries.create(buckets));
+    MutableDistribution noBoundaries = MutableDistribution.create(BucketBoundaries.create(buckets));
     assertThat(noBoundaries.getBucketCounts().length).isEqualTo(1);
     assertThat(noBoundaries.getBucketCounts()[0]).isEqualTo(0);
   }
 
   @Test
   public void testAdd() {
-    List<MutableAggregation> aggregations = Arrays.asList(
-        MutableSum.create(),
-        MutableCount.create(),
-        MutableMean.create(),
-        MutableDistribution.create(BUCKET_BOUNDARIES));
+    List<MutableAggregation> aggregations =
+        Arrays.asList(
+            MutableSum.create(),
+            MutableCount.create(),
+            MutableMean.create(),
+            MutableDistribution.create(BUCKET_BOUNDARIES));
 
     List<Double> values = Arrays.asList(-1.0, 1.0, -5.0, 20.0, 5.0);
 
@@ -118,7 +117,7 @@ public class MutableAggregationTest {
           new Function<MutableDistribution, Void>() {
             @Override
             public Void apply(MutableDistribution arg) {
-              assertThat(arg.getBucketCounts()).isEqualTo(new long[]{0, 2, 2, 1});
+              assertThat(arg.getBucketCounts()).isEqualTo(new long[] {0, 2, 2, 1});
               return null;
             }
           });
@@ -127,56 +126,53 @@ public class MutableAggregationTest {
 
   @Test
   public void testMatch() {
-    List<MutableAggregation> aggregations = Arrays.asList(
-        MutableSum.create(),
-        MutableCount.create(),
-        MutableMean.create(),
-        MutableDistribution.create(BUCKET_BOUNDARIES));
+    List<MutableAggregation> aggregations =
+        Arrays.asList(
+            MutableSum.create(),
+            MutableCount.create(),
+            MutableMean.create(),
+            MutableDistribution.create(BUCKET_BOUNDARIES));
 
     List<String> actual = new ArrayList<String>();
     for (MutableAggregation aggregation : aggregations) {
-      actual.add(aggregation.match(
-          new Function<MutableSum, String>() {
-            @Override
-            public String apply(MutableSum arg) {
-              return "SUM";
-            }
-          },
-          new Function<MutableCount, String>() {
-            @Override
-            public String apply(MutableCount arg) {
-              return "COUNT";
-            }
-          },
-          new Function<MutableMean, String>() {
-            @Override
-            public String apply(MutableMean arg) {
-              return "MEAN";
-            }
-          },
-          new Function<MutableDistribution, String>() {
-            @Override
-            public String apply(MutableDistribution arg) {
-              return "DISTRIBUTION";
-            }
-          }));
+      actual.add(
+          aggregation.match(
+              new Function<MutableSum, String>() {
+                @Override
+                public String apply(MutableSum arg) {
+                  return "SUM";
+                }
+              },
+              new Function<MutableCount, String>() {
+                @Override
+                public String apply(MutableCount arg) {
+                  return "COUNT";
+                }
+              },
+              new Function<MutableMean, String>() {
+                @Override
+                public String apply(MutableMean arg) {
+                  return "MEAN";
+                }
+              },
+              new Function<MutableDistribution, String>() {
+                @Override
+                public String apply(MutableDistribution arg) {
+                  return "DISTRIBUTION";
+                }
+              }));
     }
 
-    assertThat(actual)
-        .isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION"));
+    assertThat(actual).isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION"));
   }
 
   @Test
   public void testCombine_SumCountMean() {
     // combine() for Mutable Sum, Count and Mean will pick up fractional stats
-    List<MutableAggregation> aggregations1 = Arrays.asList(
-        MutableSum.create(),
-        MutableCount.create(),
-        MutableMean.create());
-    List<MutableAggregation> aggregations2 = Arrays.asList(
-        MutableSum.create(),
-        MutableCount.create(),
-        MutableMean.create());
+    List<MutableAggregation> aggregations1 =
+        Arrays.asList(MutableSum.create(), MutableCount.create(), MutableMean.create());
+    List<MutableAggregation> aggregations2 =
+        Arrays.asList(MutableSum.create(), MutableCount.create(), MutableMean.create());
 
     for (double val : Arrays.asList(-1.0, -5.0)) {
       for (MutableAggregation aggregation : aggregations1) {
@@ -189,10 +185,8 @@ public class MutableAggregationTest {
       }
     }
 
-    List<MutableAggregation> combined = Arrays.asList(
-        MutableSum.create(),
-        MutableCount.create(),
-        MutableMean.create());
+    List<MutableAggregation> combined =
+        Arrays.asList(MutableSum.create(), MutableCount.create(), MutableMean.create());
     double fraction1 = 1.0;
     double fraction2 = 0.6;
     for (int i = 0; i < combined.size(); i++) {
@@ -225,24 +219,31 @@ public class MutableAggregationTest {
     MutableDistribution combined = MutableDistribution.create(BUCKET_BOUNDARIES);
     combined.combine(distribution1, 1.0); // distribution1 will be combined
     combined.combine(distribution2, 0.6); // distribution2 will be ignored
-    verifyMutableDistribution(combined, 0, 2, -5, 5, 50.0, new long[]{0, 1, 1, 0}, TOLERANCE);
+    verifyMutableDistribution(combined, 0, 2, -5, 5, 50.0, new long[] {0, 1, 1, 0}, TOLERANCE);
 
     combined.combine(distribution2, 1.0); // distribution2 will be combined
-    verifyMutableDistribution(combined, 7.5, 4, -5, 20, 325.0, new long[]{0, 1, 1, 2}, TOLERANCE);
+    verifyMutableDistribution(combined, 7.5, 4, -5, 20, 325.0, new long[] {0, 1, 1, 2}, TOLERANCE);
 
     combined.combine(distribution3, 1.0); // distribution3 will be combined
-    verifyMutableDistribution(combined, 0, 8, -20, 20, 1500.0, new long[]{2, 2, 1, 3}, TOLERANCE);
+    verifyMutableDistribution(combined, 0, 8, -20, 20, 1500.0, new long[] {2, 2, 1, 3}, TOLERANCE);
   }
 
-  private static void verifyMutableDistribution(MutableDistribution mutableDistribution,
-      double mean, long count, double min, double max, double sumOfSquaredDeviations,
-      long[] bucketCounts, double tolerance) {
+  private static void verifyMutableDistribution(
+      MutableDistribution mutableDistribution,
+      double mean,
+      long count,
+      double min,
+      double max,
+      double sumOfSquaredDeviations,
+      long[] bucketCounts,
+      double tolerance) {
     assertThat(mutableDistribution.getMean()).isWithin(tolerance).of(mean);
     assertThat(mutableDistribution.getCount()).isEqualTo(count);
     assertThat(mutableDistribution.getMin()).isWithin(tolerance).of(min);
     assertThat(mutableDistribution.getMax()).isWithin(tolerance).of(max);
-    assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(tolerance).of(
-        sumOfSquaredDeviations);
+    assertThat(mutableDistribution.getSumOfSquaredDeviations())
+        .isWithin(tolerance)
+        .of(sumOfSquaredDeviations);
     assertThat(mutableDistribution.getBucketCounts()).isEqualTo(bucketCounts);
   }
 }

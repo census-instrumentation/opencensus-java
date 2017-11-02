@@ -25,9 +25,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ThreadLocalRandomHandler extends RandomHandler {
 
-  /**
-   * Constructs a new {@code ThreadLocalRandomHandler}.
-   */
+  /** Constructs a new {@code ThreadLocalRandomHandler}. */
   public ThreadLocalRandomHandler() {}
 
   @Override

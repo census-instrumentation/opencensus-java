@@ -22,17 +22,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Unit tests for {@link StatusConverter}.
- */
+/** Unit tests for {@link StatusConverter}. */
 @RunWith(JUnit4.class)
 public class StatusConverterTest {
 
   @Test
   public void convertFromGrpcCode() {
     for (io.grpc.Status.Code grpcCanonicalCode : io.grpc.Status.Code.values()) {
-      io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode = StatusConverter
-          .fromGrpcCode(grpcCanonicalCode);
+      io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode =
+          StatusConverter.fromGrpcCode(grpcCanonicalCode);
       assertThat(opencensusCanonicalCode.toString()).isEqualTo(grpcCanonicalCode.toString());
     }
   }
@@ -63,8 +61,7 @@ public class StatusConverterTest {
   public void convertToGrpcCode() {
     for (io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode :
         io.opencensus.trace.Status.CanonicalCode.values()) {
-      io.grpc.Status.Code grpcCanonicalCode = StatusConverter
-          .toGrpcCode(opencensusCanonicalCode);
+      io.grpc.Status.Code grpcCanonicalCode = StatusConverter.toGrpcCode(opencensusCanonicalCode);
       assertThat(grpcCanonicalCode.toString()).isEqualTo(opencensusCanonicalCode.toString());
     }
   }

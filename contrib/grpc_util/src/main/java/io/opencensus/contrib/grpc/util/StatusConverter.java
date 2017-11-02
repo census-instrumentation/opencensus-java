@@ -52,8 +52,8 @@ public final class StatusConverter {
    * @param opencensusCanonicalCode the given {@code io.opencensus.trace.Status.CanonicalCode}.
    * @return a {@code io.grpc.Status.Code} from a {@code io.opencensus.trace.Status.CanonicalCode}.
    */
-  public static io.grpc.Status.Code toGrpcCode(io.opencensus.trace.Status.CanonicalCode
-      opencensusCanonicalCode) {
+  public static io.grpc.Status.Code toGrpcCode(
+      io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode) {
     return grpcStatusFromOpencensusCanonicalCode(opencensusCanonicalCode).getCode();
   }
 
@@ -64,16 +64,16 @@ public final class StatusConverter {
    * @return a {@code io.grpc.Status} from a {@code io.opencensus.trace.Status}.
    */
   public static io.grpc.Status toGrpcStatus(io.opencensus.trace.Status opencensusStatus) {
-    io.grpc.Status status = grpcStatusFromOpencensusCanonicalCode(opencensusStatus
-        .getCanonicalCode());
+    io.grpc.Status status =
+        grpcStatusFromOpencensusCanonicalCode(opencensusStatus.getCanonicalCode());
     if (opencensusStatus.getDescription() != null) {
       status = status.withDescription(opencensusStatus.getDescription());
     }
     return status;
   }
 
-  private static io.opencensus.trace.Status opencensusStatusFromGrpcCode(io.grpc.Status.Code
-      grpcCanonicaleCode) {
+  private static io.opencensus.trace.Status opencensusStatusFromGrpcCode(
+      io.grpc.Status.Code grpcCanonicaleCode) {
     switch (grpcCanonicaleCode) {
       case OK:
         return io.opencensus.trace.Status.OK;
@@ -113,8 +113,8 @@ public final class StatusConverter {
     throw new AssertionError("Unhandled status code " + grpcCanonicaleCode);
   }
 
-  private static io.grpc.Status grpcStatusFromOpencensusCanonicalCode(io.opencensus.trace.Status
-      .CanonicalCode opencensusCanonicalCode) {
+  private static io.grpc.Status grpcStatusFromOpencensusCanonicalCode(
+      io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode) {
     switch (opencensusCanonicalCode) {
       case OK:
         return io.grpc.Status.OK;
@@ -154,6 +154,5 @@ public final class StatusConverter {
     throw new AssertionError("Unhandled status code " + opencensusCanonicalCode);
   }
 
-  private StatusConverter() {
-  }
+  private StatusConverter() {}
 }

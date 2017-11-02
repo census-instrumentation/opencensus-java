@@ -45,16 +45,15 @@ public final class StatsTest {
 
   @Test
   public void loadStatsManager_IgnoresMissingClasses() {
-    assertThat(
-            Stats.loadStatsComponent(
-                  new ClassLoader() {
-                    @Override
-                    public Class<?> loadClass(String name) throws ClassNotFoundException {
-                      throw new ClassNotFoundException();
-                    }
-                  })
-                .getClass()
-                .getName())
+    ClassLoader classLoader =
+        new ClassLoader() {
+          @Override
+          public Class<?> loadClass(String name) throws ClassNotFoundException {
+            throw new ClassNotFoundException();
+          }
+        };
+
+    assertThat(Stats.loadStatsComponent(classLoader).getClass().getName())
         .isEqualTo("io.opencensus.stats.NoopStats$NoopStatsComponent");
   }
 

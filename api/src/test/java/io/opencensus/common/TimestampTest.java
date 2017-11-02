@@ -83,7 +83,7 @@ public class TimestampTest {
     assertThat(timestamp.addNanos(Long.MIN_VALUE))
         .isEqualTo(Timestamp.create(1234L - 9223372036L - 1, 223 + 145224192));
   }
-  
+
   @Test
   public void timestampAddDuration() {
     Timestamp timestamp = Timestamp.create(1234, 223);

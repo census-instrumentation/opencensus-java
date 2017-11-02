@@ -48,8 +48,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class ViewDataTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testCumulativeViewData() {
@@ -86,28 +85,19 @@ public final class ViewDataTest {
             ViewData.create(
                 cumulativeView,
                 ENTRIES,
-                CumulativeData.create(
-                    Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))),
+                CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))),
             ViewData.create(
                 cumulativeView,
                 ENTRIES,
-                CumulativeData.create(
-                    Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))))
+                CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
                 cumulativeView,
                 ENTRIES,
-                CumulativeData.create(
-                    Timestamp.fromMillis(1000), Timestamp.fromMillis(3000))))
+                CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(3000))))
         .addEqualityGroup(
-            ViewData.create(
-                intervalView,
-                ENTRIES,
-                IntervalData.create(Timestamp.fromMillis(2000))),
-            ViewData.create(
-                intervalView,
-                ENTRIES,
-                IntervalData.create(Timestamp.fromMillis(2000))))
+            ViewData.create(intervalView, ENTRIES, IntervalData.create(Timestamp.fromMillis(2000))),
+            ViewData.create(intervalView, ENTRIES, IntervalData.create(Timestamp.fromMillis(2000))))
         .addEqualityGroup(
             ViewData.create(
                 intervalView,
@@ -163,8 +153,7 @@ public final class ViewDataTest {
     ViewData.create(
         View.create(NAME, DESCRIPTION, MEASURE, DISTRIBUTION, tagKeys, INTERVAL_HOUR),
         ENTRIES,
-        CumulativeData.create(
-            Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
+        CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
   }
 
   @Test
@@ -196,11 +185,11 @@ public final class ViewDataTest {
   private static final AggregationWindow CUMULATIVE = Cumulative.create();
   private static final AggregationWindow INTERVAL_HOUR = Interval.create(Duration.create(3600, 0));
 
-  private static final BucketBoundaries BUCKET_BOUNDARIES = BucketBoundaries.create(
-      Arrays.asList(10.0, 20.0, 30.0, 40.0));
+  private static final BucketBoundaries BUCKET_BOUNDARIES =
+      BucketBoundaries.create(Arrays.asList(10.0, 20.0, 30.0, 40.0));
 
   private static final Aggregation DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
-  
+
   private static final ImmutableMap<List<TagValue>, DistributionData> ENTRIES =
       ImmutableMap.of(
           Arrays.asList(V1, V2),
@@ -213,8 +202,6 @@ public final class ViewDataTest {
   // description
   private static final String DESCRIPTION = "test-view-descriptor description";
   // measure
-  private static final Measure MEASURE = Measure.MeasureDouble.create(
-      "measure",
-      "measure description",
-      "1");
+  private static final Measure MEASURE =
+      Measure.MeasureDouble.create("measure", "measure description", "1");
 }

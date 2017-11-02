@@ -17,16 +17,16 @@
 package io.opencensus.trace.propagation;
 
 /**
- * Container class for all the supported propagation formats. Currently supports only Binary
- * format see {@link BinaryFormat} but more formats will be added.
+ * Container class for all the supported propagation formats. Currently supports only Binary format
+ * see {@link BinaryFormat} but more formats will be added.
  */
 public abstract class PropagationComponent {
   private static final PropagationComponent NOOP_PROPAGATION_COMPONENT =
       new NoopPropagationComponent();
 
   /**
-   * Returns the {@link BinaryFormat} with the provided implementations. If no implementation
-   * is provided then no-op implementation will be used.
+   * Returns the {@link BinaryFormat} with the provided implementations. If no implementation is
+   * provided then no-op implementation will be used.
    *
    * @return the {@code BinaryFormat} implementation.
    */

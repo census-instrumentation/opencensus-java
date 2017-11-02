@@ -37,8 +37,7 @@ public class TraceComponentImplLiteTest {
 
   @Test
   public void implementationOfBinaryPropagationHandler() {
-    assertThat(Tracing.getPropagationComponent())
-        .isInstanceOf(PropagationComponentImpl.class);
+    assertThat(Tracing.getPropagationComponent()).isInstanceOf(PropagationComponentImpl.class);
   }
 
   @Test

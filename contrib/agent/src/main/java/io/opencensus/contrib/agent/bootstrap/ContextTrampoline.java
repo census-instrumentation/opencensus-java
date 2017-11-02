@@ -24,9 +24,9 @@ package io.opencensus.contrib.agent.bootstrap;
  * context by accessing and manipulating the context through the {@link ContextStrategy} interface.
  *
  * <p>Both {@link ContextTrampoline} and {@link ContextStrategy} are loaded by the bootstrap
- * classloader so that they can be used from classes loaded by the bootstrap classloader.
- * A concrete implementation of {@link ContextStrategy} will be loaded by the system classloader.
- * This allows for using the same context implementation as the instrumented application.
+ * classloader so that they can be used from classes loaded by the bootstrap classloader. A concrete
+ * implementation of {@link ContextStrategy} will be loaded by the system classloader. This allows
+ * for using the same context implementation as the instrumented application.
  *
  * <p>{@code ContextTrampoline} is implemented as a static class to allow for easy and fast use from
  * instrumented bytecode. We cannot use dependency injection for the instrumented bytecode.
@@ -38,8 +38,7 @@ public final class ContextTrampoline {
   // other method of this class is called.
   private static ContextStrategy contextStrategy;
 
-  private ContextTrampoline() {
-  }
+  private ContextTrampoline() {}
 
   /**
    * Sets the concrete strategy for accessing and manipulating the context.
@@ -67,7 +66,6 @@ public final class ContextTrampoline {
    *
    * @param runnable a {@link Runnable} object
    * @return the wrapped {@link Runnable} object
-   *
    * @see ContextStrategy#wrapInCurrentContext
    */
   public static Runnable wrapInCurrentContext(Runnable runnable) {

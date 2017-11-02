@@ -32,17 +32,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * Unit tests for {@link Resources}.
- */
+/** Unit tests for {@link Resources}. */
 @RunWith(MockitoJUnitRunner.class)
 public class ResourcesTest {
 
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
-  
-  @Mock
-  private File mockFile;
+  @Rule public final ExpectedException exception = ExpectedException.none();
+
+  @Mock private File mockFile;
 
   @Test
   public void getResourceAsTempFile_deleteOnExit() throws IOException {
@@ -56,7 +52,7 @@ public class ResourcesTest {
     File file = Resources.getResourceAsTempFile("some_resource.txt");
 
     assertThat(new String(java.nio.file.Files.readAllBytes(file.toPath()), Charsets.UTF_8))
-                   .isEqualTo("A resource!");
+        .isEqualTo("A resource!");
   }
 
   @Test
@@ -75,12 +71,13 @@ public class ResourcesTest {
 
   @Test
   public void getResourceAsTempFile_WriteFailure() throws IOException {
-    OutputStream badOutputStream = new OutputStream() {
-      @Override
-      public void write(int b) throws IOException {
-        throw new IOException("denied");
-      }
-    };
+    OutputStream badOutputStream =
+        new OutputStream() {
+          @Override
+          public void write(int b) throws IOException {
+            throw new IOException("denied");
+          }
+        };
 
     exception.expect(IOException.class);
     exception.expectMessage("denied");

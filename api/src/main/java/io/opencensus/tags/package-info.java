@@ -22,8 +22,8 @@
  * io.opencensus.stats} package labels all stats with the current tags.
  *
  * <p>{@link io.opencensus.tags.Tag Tags} are key-value pairs. The {@link io.opencensus.tags.TagKey
- * keys} and {@link io.opencensus.tags.TagValue values} are wrapped {@code String}s. They are
- * stored as a map in a {@link io.opencensus.tags.TagContext}.
+ * keys} and {@link io.opencensus.tags.TagValue values} are wrapped {@code String}s. They are stored
+ * as a map in a {@link io.opencensus.tags.TagContext}.
  *
  * <p>Note that tags are independent of the tracing data that is propagated in the {@code
  * io.grpc.Context}, such as trace ID.

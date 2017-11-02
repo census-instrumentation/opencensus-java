@@ -67,12 +67,12 @@ public final class ZipkinExporter {
    * exporter can be registered at any point.
    *
    * @param encoder Usually {@link SpanBytesEncoder#JSON_V2}
-   * @param sender  Often, but not necessarily an http sender. This could be Kafka or SQS.
+   * @param sender Often, but not necessarily an http sender. This could be Kafka or SQS.
    * @param serviceName the {@link Span#localServiceName() local service name} of the process.
    * @throws IllegalStateException if a Zipkin exporter is already registered.
    */
-  public static void createAndRegister(SpanBytesEncoder encoder, Sender sender,
-      String serviceName) {
+  public static void createAndRegister(
+      SpanBytesEncoder encoder, Sender sender, String serviceName) {
     synchronized (monitor) {
       checkState(handler == null, "Zipkin exporter is already registered.");
       handler = new ZipkinExporterHandler(encoder, sender, serviceName);
@@ -107,7 +107,7 @@ public final class ZipkinExporter {
    * Unregisters the {@code ZipkinExporter}.
    *
    * @param spanExporter the instance of the {@code SpanExporter} from where this service is
-   *                     unregistered.
+   *     unregistered.
    */
   @VisibleForTesting
   static void unregister(SpanExporter spanExporter) {

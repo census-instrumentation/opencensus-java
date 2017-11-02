@@ -83,19 +83,18 @@ public class MutableViewDataTest {
   public void createMutableAggregation() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
 
-    assertThat(
-        ((MutableSum) MutableViewData.createMutableAggregation(Sum.create())).getSum())
-        .isWithin(EPSILON).of(0.0);
-    assertThat(
-        ((MutableCount) MutableViewData.createMutableAggregation(Count.create())).getCount())
+    assertThat(((MutableSum) MutableViewData.createMutableAggregation(Sum.create())).getSum())
+        .isWithin(EPSILON)
+        .of(0.0);
+    assertThat(((MutableCount) MutableViewData.createMutableAggregation(Count.create())).getCount())
         .isEqualTo(0L);
-    assertThat(
-        ((MutableMean) MutableViewData.createMutableAggregation(Mean.create()))
-            .getMean())
-        .isWithin(EPSILON).of(0D);
+    assertThat(((MutableMean) MutableViewData.createMutableAggregation(Mean.create())).getMean())
+        .isWithin(EPSILON)
+        .of(0D);
 
-    MutableDistribution mutableDistribution = (MutableDistribution) MutableViewData
-        .createMutableAggregation(Distribution.create(bucketBoundaries));
+    MutableDistribution mutableDistribution =
+        (MutableDistribution)
+            MutableViewData.createMutableAggregation(Distribution.create(bucketBoundaries));
     assertThat(mutableDistribution.getMin()).isPositiveInfinity();
     assertThat(mutableDistribution.getMax()).isNegativeInfinity();
     assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(EPSILON).of(0);
@@ -105,10 +104,11 @@ public class MutableViewDataTest {
   @Test
   public void createAggregationData() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
-    List<MutableAggregation> mutableAggregations = Arrays.asList(
-        MutableCount.create(),
-        MutableMean.create(),
-        MutableDistribution.create(bucketBoundaries));
+    List<MutableAggregation> mutableAggregations =
+        Arrays.asList(
+            MutableCount.create(),
+            MutableMean.create(),
+            MutableDistribution.create(bucketBoundaries));
     List<AggregationData> aggregates = new ArrayList<AggregationData>();
 
     aggregates.add(MutableViewData.createAggregationData(MutableSum.create(), MEASURE_DOUBLE));

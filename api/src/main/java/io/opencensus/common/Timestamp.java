@@ -138,8 +138,8 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * Compares this {@code Timestamp} to the specified {@code Timestamp}.
    *
    * @param otherTimestamp the other {@code Timestamp} to compare to, not {@code null}.
-   * @return the comparator value: zero if equal, negative if this timestamp happens
-   *     before otherTimestamp, positive if after.
+   * @return the comparator value: zero if equal, negative if this timestamp happens before
+   *     otherTimestamp, positive if after.
    * @throws NullPointerException if otherTimestamp is {@code null}.
    */
   @Override

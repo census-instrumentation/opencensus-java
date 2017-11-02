@@ -26,8 +26,7 @@ import io.opencensus.stats.BucketBoundaries;
 /** Mutable version of {@link Aggregation} that supports adding values. */
 abstract class MutableAggregation {
 
-  private MutableAggregation() {
-  }
+  private MutableAggregation() {}
 
   // Tolerance for double comparison.
   private static final double TOLERANCE = 1e-6;
@@ -43,7 +42,7 @@ abstract class MutableAggregation {
    * Combine the internal values of this MutableAggregation and value of the given
    * MutableAggregation, with the given fraction. Then set the internal value of this
    * MutableAggregation to the combined value.
-   * 
+   *
    * @param other the other {@code MutableAggregation}. The type of this and other {@code
    *     MutableAggregation} must match.
    * @param fraction the fraction that the value in other {@code MutableAggregation} should
@@ -51,9 +50,7 @@ abstract class MutableAggregation {
    */
   abstract void combine(MutableAggregation other, double fraction);
 
-  /**
-   * Applies the given match function to the underlying data type.
-   */
+  /** Applies the given match function to the underlying data type. */
   abstract <T> T match(
       Function<? super MutableSum, T> p0,
       Function<? super MutableCount, T> p1,
@@ -65,8 +62,7 @@ abstract class MutableAggregation {
 
     private double sum = 0.0;
 
-    private MutableSum() {
-    }
+    private MutableSum() {}
 
     /**
      * Construct a {@code MutableSum}.
@@ -112,8 +108,7 @@ abstract class MutableAggregation {
 
     private long count = 0;
 
-    private MutableCount() {
-    }
+    private MutableCount() {}
 
     /**
      * Construct a {@code MutableCount}.
@@ -160,8 +155,7 @@ abstract class MutableAggregation {
     private double sum = 0.0;
     private long count = 0;
 
-    private MutableMean() {
-    }
+    private MutableMean() {}
 
     /**
      * Construct a {@code MutableMean}.
@@ -296,17 +290,21 @@ abstract class MutableAggregation {
       }
 
       MutableDistribution mutableDistribution = (MutableDistribution) other;
-      checkArgument(this.bucketBoundaries.equals(mutableDistribution.bucketBoundaries),
+      checkArgument(
+          this.bucketBoundaries.equals(mutableDistribution.bucketBoundaries),
           "Bucket boundaries should match.");
 
       // Algorithm for calculating the combination of sum of squared deviations:
       // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm.
       if (this.count + mutableDistribution.count > 0) {
         double delta = mutableDistribution.mean - this.mean;
-        this.sumOfSquaredDeviations = this.sumOfSquaredDeviations
-            + mutableDistribution.sumOfSquaredDeviations
-            + Math.pow(delta, 2) * this.count * mutableDistribution.count
-            / (this.count + mutableDistribution.count);
+        this.sumOfSquaredDeviations =
+            this.sumOfSquaredDeviations
+                + mutableDistribution.sumOfSquaredDeviations
+                + Math.pow(delta, 2)
+                    * this.count
+                    * mutableDistribution.count
+                    / (this.count + mutableDistribution.count);
       }
 
       this.count += mutableDistribution.count;

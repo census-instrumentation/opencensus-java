@@ -22,9 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Test for {@link RpcMeasureConstants}.
- */
+/** Test for {@link RpcMeasureConstants}. */
 @RunWith(JUnit4.class)
 public class RpcMeasureConstantsTest {
 

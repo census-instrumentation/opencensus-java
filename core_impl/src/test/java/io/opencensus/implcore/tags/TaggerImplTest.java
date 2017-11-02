@@ -90,8 +90,7 @@ public class TaggerImplTest {
     tagsComponent.setState(TaggingState.ENABLED);
     TagContextBuilder builder = tagger.emptyBuilder();
     assertThat(builder).isInstanceOf(TagContextBuilderImpl.class);
-    assertThat(tagContextToList(builder.put(K1, V1).build()))
-        .containsExactly(Tag.create(K1, V1));
+    assertThat(tagContextToList(builder.put(K1, V1).build())).containsExactly(Tag.create(K1, V1));
   }
 
   @Test

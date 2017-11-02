@@ -20,8 +20,8 @@ import io.opencensus.trace.TraceOptions;
 import javax.annotation.Nullable;
 
 /**
- * Class that holds the implementation instances for {@link SpanExporter}, {@link
- * RunningSpanStore} and {@link SampledSpanStore}.
+ * Class that holds the implementation instances for {@link SpanExporter}, {@link RunningSpanStore}
+ * and {@link SampledSpanStore}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -48,8 +48,8 @@ public abstract class ExportComponent {
   public abstract SpanExporter getSpanExporter();
 
   /**
-   * Returns the {@link RunningSpanStore} that can be used to get useful debugging information
-   * about all the current active spans.
+   * Returns the {@link RunningSpanStore} that can be used to get useful debugging information about
+   * all the current active spans.
    *
    * @return the {@code RunningSpanStore} or {@code null} if not supported.
    */

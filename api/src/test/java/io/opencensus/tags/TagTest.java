@@ -39,10 +39,8 @@ public final class TagTest {
         .addEqualityGroup(
             Tag.create(TagKey.create("Key"), TagValue.create("foo")),
             Tag.create(TagKey.create("Key"), TagValue.create("foo")))
-        .addEqualityGroup(
-            Tag.create(TagKey.create("Key"), TagValue.create("bar")))
-        .addEqualityGroup(
-            Tag.create(TagKey.create("Key2"), TagValue.create("foo")))
+        .addEqualityGroup(Tag.create(TagKey.create("Key"), TagValue.create("bar")))
+        .addEqualityGroup(Tag.create(TagKey.create("Key2"), TagValue.create("foo")))
         .testEquals();
   }
 }

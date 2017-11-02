@@ -41,13 +41,12 @@ public class AggregationDataTest {
 
   private static final double TOLERANCE = 1e-6;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void testCreateDistributionData() {
-    DistributionData distributionData = DistributionData.create(
-        7.7, 10, 1.1, 9.9, 32.2, Arrays.asList(4L, 1L, 5L));
+    DistributionData distributionData =
+        DistributionData.create(7.7, 10, 1.1, 9.9, 32.2, Arrays.asList(4L, 1L, 5L));
     assertThat(distributionData.getMean()).isWithin(TOLERANCE).of(7.7);
     assertThat(distributionData.getCount()).isEqualTo(10);
     assertThat(distributionData.getMin()).isWithin(TOLERANCE).of(1.1);
@@ -80,53 +79,34 @@ public class AggregationDataTest {
   @Test
   public void testEquals() {
     new EqualsTester()
-        .addEqualityGroup(
-            SumDataDouble.create(10.0),
-            SumDataDouble.create(10.0))
-        .addEqualityGroup(
-            SumDataDouble.create(20.0),
-            SumDataDouble.create(20.0))
-        .addEqualityGroup(
-            SumDataLong.create(20),
-            SumDataLong.create(20))
-        .addEqualityGroup(
-            CountData.create(40),
-            CountData.create(40))
-        .addEqualityGroup(
-            CountData.create(80),
-            CountData.create(80))
+        .addEqualityGroup(SumDataDouble.create(10.0), SumDataDouble.create(10.0))
+        .addEqualityGroup(SumDataDouble.create(20.0), SumDataDouble.create(20.0))
+        .addEqualityGroup(SumDataLong.create(20), SumDataLong.create(20))
+        .addEqualityGroup(CountData.create(40), CountData.create(40))
+        .addEqualityGroup(CountData.create(80), CountData.create(80))
         .addEqualityGroup(
             DistributionData.create(10, 10, 1, 1, 0, Arrays.asList(0L, 10L, 0L)),
             DistributionData.create(10, 10, 1, 1, 0, Arrays.asList(0L, 10L, 0L)))
-        .addEqualityGroup(
-            DistributionData.create(10, 10, 1, 1, 0, Arrays.asList(0L, 10L, 100L)))
-        .addEqualityGroup(
-            DistributionData.create(110, 10, 1, 1, 0, Arrays.asList(0L, 10L, 0L)))
-        .addEqualityGroup(
-            DistributionData.create(10, 110, 1, 1, 0, Arrays.asList(0L, 10L, 0L)))
-        .addEqualityGroup(
-            DistributionData.create(10, 10, -1, 1, 0, Arrays.asList(0L, 10L, 0L)))
-        .addEqualityGroup(
-            DistributionData.create(10, 10, 1, 5, 0, Arrays.asList(0L, 10L, 0L)))
-        .addEqualityGroup(
-            DistributionData.create(10, 10, 1, 1, 55.5, Arrays.asList(0L, 10L, 0L)))
-        .addEqualityGroup(
-            MeanData.create(5.0, 1),
-            MeanData.create(5.0, 1))
-        .addEqualityGroup(
-            MeanData.create(-5.0, 1),
-            MeanData.create(-5.0, 1))
+        .addEqualityGroup(DistributionData.create(10, 10, 1, 1, 0, Arrays.asList(0L, 10L, 100L)))
+        .addEqualityGroup(DistributionData.create(110, 10, 1, 1, 0, Arrays.asList(0L, 10L, 0L)))
+        .addEqualityGroup(DistributionData.create(10, 110, 1, 1, 0, Arrays.asList(0L, 10L, 0L)))
+        .addEqualityGroup(DistributionData.create(10, 10, -1, 1, 0, Arrays.asList(0L, 10L, 0L)))
+        .addEqualityGroup(DistributionData.create(10, 10, 1, 5, 0, Arrays.asList(0L, 10L, 0L)))
+        .addEqualityGroup(DistributionData.create(10, 10, 1, 1, 55.5, Arrays.asList(0L, 10L, 0L)))
+        .addEqualityGroup(MeanData.create(5.0, 1), MeanData.create(5.0, 1))
+        .addEqualityGroup(MeanData.create(-5.0, 1), MeanData.create(-5.0, 1))
         .testEquals();
   }
 
   @Test
   public void testMatchAndGet() {
-    List<AggregationData> aggregations = Arrays.asList(
-        SumDataDouble.create(10.0),
-        SumDataLong.create(100000000),
-        CountData.create(40),
-        MeanData.create(5.0, 1),
-        DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 10L, 0L)));
+    List<AggregationData> aggregations =
+        Arrays.asList(
+            SumDataDouble.create(10.0),
+            SumDataLong.create(100000000),
+            CountData.create(40),
+            MeanData.create(5.0, 1),
+            DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 10L, 0L)));
 
     final List<Object> actual = new ArrayList<Object>();
     for (AggregationData aggregation : aggregations) {
@@ -169,7 +149,7 @@ public class AggregationDataTest {
           Functions.<Void>throwIllegalArgumentException());
     }
 
-    assertThat(actual).isEqualTo(
-        Arrays.asList(10.0, 100000000L, 40L, 5.0, Arrays.asList(0L, 10L, 0L)));
+    assertThat(actual)
+        .isEqualTo(Arrays.asList(10.0, 100000000L, 40L, 5.0, Arrays.asList(0L, 10L, 0L)));
   }
 }

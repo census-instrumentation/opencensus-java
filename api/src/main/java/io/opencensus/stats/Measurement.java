@@ -26,22 +26,17 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class Measurement {
 
-  /**
-   * Applies the given match function to the underlying data type.
-   */
+  /** Applies the given match function to the underlying data type. */
   public abstract <T> T match(
       Function<? super MeasurementDouble, T> p0,
       Function<? super MeasurementLong, T> p1,
       Function<? super Measurement, T> defaultFunction);
 
-  /**
-   * Extracts the measured {@link Measure}.
-   */
+  /** Extracts the measured {@link Measure}. */
   public abstract Measure getMeasure();
 
   // Prevents this class from being subclassed anywhere else.
-  private Measurement() {
-  }
+  private Measurement() {}
 
   /** {@code Double} typed {@link Measurement}. */
   @Immutable
@@ -49,9 +44,7 @@ public abstract class Measurement {
   public abstract static class MeasurementDouble extends Measurement {
     MeasurementDouble() {}
 
-    /**
-     * Constructs a new {@link MeasurementDouble}.
-     */
+    /** Constructs a new {@link MeasurementDouble}. */
     public static MeasurementDouble create(MeasureDouble measure, double value) {
       return new AutoValue_Measurement_MeasurementDouble(measure, value);
     }
@@ -76,9 +69,7 @@ public abstract class Measurement {
   public abstract static class MeasurementLong extends Measurement {
     MeasurementLong() {}
 
-    /**
-     * Constructs a new {@link MeasurementLong}.
-     */
+    /** Constructs a new {@link MeasurementLong}. */
     public static MeasurementLong create(MeasureLong measure, long value) {
       return new AutoValue_Measurement_MeasurementLong(measure, value);
     }

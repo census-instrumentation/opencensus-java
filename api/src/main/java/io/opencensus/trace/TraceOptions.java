@@ -200,7 +200,8 @@ public final class TraceOptions {
       if (isSampled) {
         options = (byte) (options | IS_SAMPLED);
       } else {
-        options = (byte) (options & ~IS_SAMPLED);;
+        options = (byte) (options & ~IS_SAMPLED);
+        ;
       }
       return this;
     }

@@ -70,9 +70,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     this.localEndpoint = produceLocalEndpoint(serviceName);
   }
 
-  /**
-   * Logic borrowed from brave.internal.Platform.produceLocalEndpoint
-   */
+  /** Logic borrowed from brave.internal.Platform.produceLocalEndpoint */
   static Endpoint produceLocalEndpoint(String serviceName) {
     Endpoint.Builder builder = Endpoint.newBuilder().serviceName(serviceName);
     try {
@@ -104,14 +102,15 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     SpanContext context = spanData.getContext();
     long startTimestamp = toEpochMicros(spanData.getStartTimestamp());
     long endTimestamp = toEpochMicros(spanData.getEndTimestamp());
-    Span.Builder spanBuilder = Span.newBuilder()
-        .traceId(encodeTraceId(context.getTraceId()))
-        .id(encodeSpanId(context.getSpanId()))
-        .kind(toSpanKind(spanData))
-        .name(spanData.getName())
-        .timestamp(toEpochMicros(spanData.getStartTimestamp()))
-        .duration(endTimestamp - startTimestamp)
-        .localEndpoint(localEndpoint);
+    Span.Builder spanBuilder =
+        Span.newBuilder()
+            .traceId(encodeTraceId(context.getTraceId()))
+            .id(encodeSpanId(context.getSpanId()))
+            .kind(toSpanKind(spanData))
+            .name(spanData.getName())
+            .timestamp(toEpochMicros(spanData.getStartTimestamp()))
+            .duration(endTimestamp - startTimestamp)
+            .localEndpoint(localEndpoint);
 
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
       spanBuilder.parentId(encodeSpanId(spanData.getParentSpanId()));
@@ -128,16 +127,12 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
 
     for (TimedEvent<Annotation> annotation : spanData.getAnnotations().getEvents()) {
       spanBuilder.addAnnotation(
-          toEpochMicros(annotation.getTimestamp()),
-          annotation.getEvent().getDescription()
-      );
+          toEpochMicros(annotation.getTimestamp()), annotation.getEvent().getDescription());
     }
 
     for (TimedEvent<NetworkEvent> networkEvent : spanData.getNetworkEvents().getEvents()) {
       spanBuilder.addAnnotation(
-          toEpochMicros(networkEvent.getTimestamp()),
-          networkEvent.getEvent().getType().name()
-      );
+          toEpochMicros(networkEvent.getTimestamp()), networkEvent.getEvent().getType().name());
     }
 
     return spanBuilder.build();

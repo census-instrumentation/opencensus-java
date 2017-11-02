@@ -46,8 +46,7 @@ public final class ViewTest {
 
   @Test
   public void testDistributionView() {
-    final View view = View.create(
-        NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create());
+    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create());
     assertThat(view.getName()).isEqualTo(NAME);
     assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
@@ -59,12 +58,10 @@ public final class ViewTest {
 
   @Test
   public void testIntervalView() {
-    final View view = View.create(
-        NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE));
+    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE));
     assertThat(view.getName()).isEqualTo(NAME);
     assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
-    assertThat(view.getMeasure().getName())
-        .isEqualTo(MEASURE.getName());
+    assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
     assertThat(view.getAggregation()).isEqualTo(MEAN);
     assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
@@ -75,21 +72,15 @@ public final class ViewTest {
   public void testViewEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            View.create(
-                NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()),
-            View.create(
-                NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()))
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()),
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()))
         .addEqualityGroup(
-            View.create(
-                NAME, DESCRIPTION + 2, MEASURE, MEAN, keys, Cumulative.create()))
+            View.create(NAME, DESCRIPTION + 2, MEASURE, MEAN, keys, Cumulative.create()))
         .addEqualityGroup(
-            View.create(
-                NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)),
-            View.create(
-                NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)))
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)),
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)))
         .addEqualityGroup(
-            View.create(
-                NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(TWO_MINUTES)))
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(TWO_MINUTES)))
         .testEquals();
   }
 
@@ -142,16 +133,15 @@ public final class ViewTest {
   @Test
   public void testViewNameEquals() {
     new EqualsTester()
-        .addEqualityGroup(
-            View.Name.create("view-1"), View.Name.create("view-1"))
+        .addEqualityGroup(View.Name.create("view-1"), View.Name.create("view-1"))
         .addEqualityGroup(View.Name.create("view-2"))
         .testEquals();
   }
 
   private static final View.Name NAME = View.Name.create("test-view-name");
   private static final String DESCRIPTION = "test-view-name description";
-  private static final Measure MEASURE = Measure.MeasureDouble.create(
-      "measure", "measure description", "1");
+  private static final Measure MEASURE =
+      Measure.MeasureDouble.create("measure", "measure description", "1");
   private static final TagKey FOO = TagKey.create("foo");
   private static final TagKey BAR = TagKey.create("bar");
   private static final List<TagKey> keys = ImmutableList.of(FOO, BAR);

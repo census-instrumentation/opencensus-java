@@ -60,8 +60,7 @@ final class StatsTestUtil {
    * Compare the actual and expected AggregationMap within the given tolerance.
    *
    * @param expected the expected map.
-   * @param actual the actual mapping from {@code List<TagValue>} to
-   *     {@code AggregationData}.
+   * @param actual the actual mapping from {@code List<TagValue>} to {@code AggregationData}.
    * @param tolerance the tolerance used for {@code double} comparison.
    */
   static void assertAggregationMapEquals(
@@ -133,8 +132,9 @@ final class StatsTestUtil {
     assertThat(actual.getMean()).isWithin(tolerance).of(expected.getMean());
     assertThat(actual.getCount()).isEqualTo(expected.getCount());
     assertThat(actual.getMean()).isWithin(tolerance).of(expected.getMean());
-    assertThat(actual.getSumOfSquaredDeviations()).isWithin(tolerance).of(
-        expected.getSumOfSquaredDeviations());
+    assertThat(actual.getSumOfSquaredDeviations())
+        .isWithin(tolerance)
+        .of(expected.getSumOfSquaredDeviations());
 
     if (expected.getMax() == Double.NEGATIVE_INFINITY
         && expected.getMin() == Double.POSITIVE_INFINITY) {

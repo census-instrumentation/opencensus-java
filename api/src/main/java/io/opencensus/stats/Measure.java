@@ -30,9 +30,7 @@ public abstract class Measure {
 
   @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
 
-  /**
-   * Applies the given match function to the underlying data type.
-   */
+  /** Applies the given match function to the underlying data type. */
   public abstract <T> T match(
       Function<? super MeasureDouble, T> p0,
       Function<? super MeasureLong, T> p1,
@@ -46,35 +44,35 @@ public abstract class Measure {
    */
   public abstract String getName();
 
-  /**
-   * Detailed description of the measure, used in documentation.
-   */
+  /** Detailed description of the measure, used in documentation. */
   public abstract String getDescription();
 
   /**
    * The units in which {@link Measure} values are measured.
    *
    * <p>The suggested grammar for a unit is as follows:
-   * Expression = Component { "." Component } { "/" Component } ;
-   * Component = [ PREFIX ] UNIT [ Annotation ] | Annotation | "1" ;
-   * Annotation = "{" NAME "}" ;
-   * For example, string “MBy{transmitted}/ms” stands for megabytes per milliseconds, and the
+   *
+   * <ul>
+   *   <li>Expression = Component { "." Component } {"/" Component };
+   *   <li>Component = [ PREFIX ] UNIT [ Annotation ] | Annotation | "1";
+   *   <li>Annotation = "{" NAME "}" ;
+   * </ul>
+   *
+   * <p>For example, string “MBy{transmitted}/ms” stands for megabytes per milliseconds, and the
    * annotation transmitted inside {} is just a comment of the unit.
    */
   // TODO(songya): determine whether we want to check the grammar on string unit.
   public abstract String getUnit();
 
   // Prevents this class from being subclassed anywhere else.
-  private Measure() {
-  }
+  private Measure() {}
 
   /** {@link Measure} with {@code Double} typed values. */
   @Immutable
   @AutoValue
   public abstract static class MeasureDouble extends Measure {
 
-    MeasureDouble() {
-    }
+    MeasureDouble() {}
 
     /**
      * Constructs a new {@link MeasureDouble}.
@@ -85,9 +83,11 @@ public abstract class Measure {
      * @return a {@code MeasureDouble}.
      */
     public static MeasureDouble create(String name, String description, String unit) {
-      checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+      checkArgument(
+          StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
           "Name should be a ASCII string with a length no greater than "
-              + NAME_MAX_LENGTH + " characters.");
+              + NAME_MAX_LENGTH
+              + " characters.");
       return new AutoValue_Measure_MeasureDouble(name, description, unit);
     }
 
@@ -114,8 +114,7 @@ public abstract class Measure {
   @AutoValue
   public abstract static class MeasureLong extends Measure {
 
-    MeasureLong() {
-    }
+    MeasureLong() {}
 
     /**
      * Constructs a new {@link MeasureLong}.
@@ -126,9 +125,11 @@ public abstract class Measure {
      * @return a {@code MeasureLong}.
      */
     public static MeasureLong create(String name, String description, String unit) {
-      checkArgument(StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+      checkArgument(
+          StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
           "Name should be a ASCII string with a length no greater than "
-              + NAME_MAX_LENGTH + " characters.");
+              + NAME_MAX_LENGTH
+              + " characters.");
       return new AutoValue_Measure_MeasureLong(name, description, unit);
     }
 

@@ -27,10 +27,11 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * {@link AggregationData} is the result of applying a given {@link Aggregation} to a set of
- * {@code MeasureValue}s.
+ * {@link AggregationData} is the result of applying a given {@link Aggregation} to a set of {@code
+ * MeasureValue}s.
  *
  * <p>{@link AggregationData} currently supports 5 types of basic aggregation values:
+ *
  * <ul>
  *   <li>SumDataDouble
  *   <li>SumDataLong
@@ -39,18 +40,15 @@ import javax.annotation.concurrent.Immutable;
  *   <li>DistributionData
  * </ul>
  *
- * <p>{@link ViewData} will contain one {@link AggregationData}, corresponding to its
- * {@link Aggregation} definition in {@link View}.
+ * <p>{@link ViewData} will contain one {@link AggregationData}, corresponding to its {@link
+ * Aggregation} definition in {@link View}.
  */
 @Immutable
 public abstract class AggregationData {
 
-  private AggregationData() {
-  }
+  private AggregationData() {}
 
-  /**
-   * Applies the given match function to the underlying data type.
-   */
+  /** Applies the given match function to the underlying data type. */
   public abstract <T> T match(
       Function<? super SumDataDouble, T> p0,
       Function<? super SumDataLong, T> p1,
@@ -64,8 +62,7 @@ public abstract class AggregationData {
   @AutoValue
   public abstract static class SumDataDouble extends AggregationData {
 
-    SumDataDouble() {
-    }
+    SumDataDouble() {}
 
     /**
      * Creates a {@code SumDataDouble}.
@@ -101,8 +98,7 @@ public abstract class AggregationData {
   @AutoValue
   public abstract static class SumDataLong extends AggregationData {
 
-    SumDataLong() {
-    }
+    SumDataLong() {}
 
     /**
      * Creates a {@code SumDataLong}.
@@ -138,8 +134,7 @@ public abstract class AggregationData {
   @AutoValue
   public abstract static class CountData extends AggregationData {
 
-    CountData() {
-    }
+    CountData() {}
 
     /**
      * Creates a {@code CountData}.
@@ -175,8 +170,7 @@ public abstract class AggregationData {
   @AutoValue
   public abstract static class MeanData extends AggregationData {
 
-    MeanData() {
-    }
+    MeanData() {}
 
     /**
      * Creates a {@code MeanData}.
@@ -223,8 +217,7 @@ public abstract class AggregationData {
   @AutoValue
   public abstract static class DistributionData extends AggregationData {
 
-    DistributionData() {
-    }
+    DistributionData() {}
 
     /**
      * Creates a {@code DistributionData}.
@@ -238,7 +231,11 @@ public abstract class AggregationData {
      * @return a {@code DistributionData}.
      */
     public static DistributionData create(
-        double mean, long count, double min, double max, double sumOfSquaredDeviations,
+        double mean,
+        long count,
+        double min,
+        double max,
+        double sumOfSquaredDeviations,
         List<Long> bucketCounts) {
       if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
         checkArgument(min <= max, "max should be greater or equal to min.");

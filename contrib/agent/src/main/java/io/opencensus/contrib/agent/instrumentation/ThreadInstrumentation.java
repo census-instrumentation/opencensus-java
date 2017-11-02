@@ -45,19 +45,20 @@ public final class ThreadInstrumentation implements Instrumenter {
   public AgentBuilder instrument(AgentBuilder agentBuilder) {
     checkNotNull(agentBuilder, "agentBuilder");
 
-    return agentBuilder
-            .type(isSubTypeOf(Thread.class))
-            .transform(new Transformer());
+    return agentBuilder.type(isSubTypeOf(Thread.class)).transform(new Transformer());
   }
 
   private static class Transformer implements AgentBuilder.Transformer {
 
     @Override
-    public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder,
-            TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
+    public DynamicType.Builder<?> transform(
+        DynamicType.Builder<?> builder,
+        TypeDescription typeDescription,
+        ClassLoader classLoader,
+        JavaModule module) {
       return builder
-              .visit(Advice.to(Start.class).on(named("start")))
-              .visit(Advice.to(Run.class).on(named("run")));
+          .visit(Advice.to(Start.class).on(named("start")))
+          .visit(Advice.to(Run.class).on(named("run")));
     }
   }
 

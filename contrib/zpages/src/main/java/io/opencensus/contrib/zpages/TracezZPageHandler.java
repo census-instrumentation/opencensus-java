@@ -523,10 +523,10 @@ final class TracezZPageHandler extends ZPageHandler {
 
   private static void emitLegend(PrintWriter out) {
     out.write("<br>\n");
-    out.printf("<p><b style=\"color:%s;\">TraceId</b> means sampled request. "
+    out.printf(
+        "<p><b style=\"color:%s;\">TraceId</b> means sampled request. "
             + "<b style=\"color:%s;\">TraceId</b> means not sampled request.</p>%n",
-        SAMPLED_TRACE_ID_COLOR,
-        NOT_SAMPLED_TRACE_ID_COLOR);
+        SAMPLED_TRACE_ID_COLOR, NOT_SAMPLED_TRACE_ID_COLOR);
   }
 
   private static Map<LatencyBucketBoundaries, String> buildLatencyBucketBoundariesStringMap() {

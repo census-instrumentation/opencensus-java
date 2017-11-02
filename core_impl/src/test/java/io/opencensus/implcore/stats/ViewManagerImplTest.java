@@ -100,7 +100,7 @@ public class ViewManagerImplTest {
       BucketBoundaries.create(
           Arrays.asList(
               0.0, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0, 40.0, 50.0));
-  
+
   private static final Sum SUM = Sum.create();
   private static final Mean MEAN = Mean.create();
   private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
@@ -161,7 +161,11 @@ public class ViewManagerImplTest {
   public void preventRegisteringDifferentViewWithSameName() {
     View view1 =
         View.create(
-            VIEW_NAME, "View description.", MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY),
+            VIEW_NAME,
+            "View description.",
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
             CUMULATIVE);
     View view2 =
         View.create(
@@ -171,20 +175,22 @@ public class ViewManagerImplTest {
             DISTRIBUTION,
             Arrays.asList(KEY),
             CUMULATIVE);
-    testFailedToRegisterView(view1, view2,
-        "A different view with the same name is already registered");
+    testFailedToRegisterView(
+        view1, view2, "A different view with the same name is already registered");
   }
 
   @Test
   public void preventRegisteringDifferentMeasureWithSameName() {
     MeasureDouble measure1 = MeasureDouble.create("measure", "description", "1");
     MeasureLong measure2 = MeasureLong.create("measure", "description", "1");
-    View view1 = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, measure1, DISTRIBUTION, Arrays.asList(KEY), CUMULATIVE);
-    View view2 = View.create(
-        VIEW_NAME_2, VIEW_DESCRIPTION, measure2, DISTRIBUTION, Arrays.asList(KEY), CUMULATIVE);
-    testFailedToRegisterView(view1, view2,
-        "A different measure with the same name is already registered");
+    View view1 =
+        View.create(
+            VIEW_NAME, VIEW_DESCRIPTION, measure1, DISTRIBUTION, Arrays.asList(KEY), CUMULATIVE);
+    View view2 =
+        View.create(
+            VIEW_NAME_2, VIEW_DESCRIPTION, measure2, DISTRIBUTION, Arrays.asList(KEY), CUMULATIVE);
+    testFailedToRegisterView(
+        view1, view2, "A different measure with the same name is already registered");
   }
 
   private void testFailedToRegisterView(View view1, View view2, String message) {
@@ -229,8 +235,7 @@ public class ViewManagerImplTest {
     viewManager.registerView(view);
     TagContext tags = tagger.emptyBuilder().put(KEY, VALUE).build();
     for (double val : values) {
-      putToMeasureMap(statsRecorder.newMeasureMap(), measure, val)
-          .record(tags);
+      putToMeasureMap(statsRecorder.newMeasureMap(), measure, val).record(tags);
     }
     clock.setTime(Timestamp.create(3, 4));
     ViewData viewData = viewManager.getView(VIEW_NAME);
@@ -250,7 +255,7 @@ public class ViewManagerImplTest {
     testRecordInterval(
         MEASURE_DOUBLE,
         MEAN,
-        new double[]{20.0, -1.0, 1.0, -5.0, 5.0},
+        new double[] {20.0, -1.0, 1.0, -5.0, 5.0},
         9.0,
         30.0,
         MeanData.create((19 * 0.6 + 1) / 4, 4),
@@ -263,7 +268,7 @@ public class ViewManagerImplTest {
     testRecordInterval(
         MEASURE_LONG,
         MEAN,
-        new double[]{1000, 2000, 3000, 4000, 5000},
+        new double[] {1000, 2000, 3000, 4000, 5000},
         -5000,
         30,
         MeanData.create((3000 * 0.6 + 12000) / 4, 4),
@@ -276,7 +281,7 @@ public class ViewManagerImplTest {
     testRecordInterval(
         MEASURE_DOUBLE,
         SUM,
-        new double[]{20.0, -1.0, 1.0, -5.0, 5.0},
+        new double[] {20.0, -1.0, 1.0, -5.0, 5.0},
         9.0,
         30.0,
         SumDataDouble.create(19 * 0.6 + 1),
@@ -289,7 +294,7 @@ public class ViewManagerImplTest {
     testRecordInterval(
         MEASURE_LONG,
         SUM,
-        new double[]{1000, 2000, 3000, 4000, 5000},
+        new double[] {1000, 2000, 3000, 4000, 5000},
         -5000,
         30,
         SumDataLong.create(Math.round(3000 * 0.6 + 12000)),
@@ -308,9 +313,14 @@ public class ViewManagerImplTest {
       AggregationData expectedValues3) {
     // The interval is 10 seconds, i.e. values should expire after 10 seconds.
     // Each bucket has a duration of 2.5 seconds.
-    View view = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, measure, aggregation, Arrays.asList(KEY),
-        Interval.create(TEN_SECONDS));
+    View view =
+        View.create(
+            VIEW_NAME,
+            VIEW_DESCRIPTION,
+            measure,
+            aggregation,
+            Arrays.asList(KEY),
+            Interval.create(TEN_SECONDS));
     long startTimeMillis = 30 * MILLIS_PER_SECOND; // start at 30s
     clock.setTime(Timestamp.fromMillis(startTimeMillis));
     viewManager.registerView(view);
@@ -325,8 +335,7 @@ public class ViewManagerImplTest {
        * 5th value should fall into the third bucket [35.0, 37.5).
        */
       clock.setTime(Timestamp.fromMillis(startTimeMillis + i * MILLIS_PER_SECOND));
-      putToMeasureMap(statsRecorder.newMeasureMap(), measure, initialValues[i - 1])
-          .record(tags);
+      putToMeasureMap(statsRecorder.newMeasureMap(), measure, initialValues[i - 1]).record(tags);
     }
 
     clock.setTime(Timestamp.fromMillis(startTimeMillis + 8 * MILLIS_PER_SECOND));
@@ -347,8 +356,7 @@ public class ViewManagerImplTest {
 
     clock.setTime(Timestamp.fromMillis(startTimeMillis + 12 * MILLIS_PER_SECOND));
     // 42s, add a new value value1, should fall into bucket [40.0, 42.5)
-    putToMeasureMap(statsRecorder.newMeasureMap(), measure, value6)
-        .record(tags);
+    putToMeasureMap(statsRecorder.newMeasureMap(), measure, value6).record(tags);
 
     clock.setTime(Timestamp.fromMillis(startTimeMillis + 17 * MILLIS_PER_SECOND));
     // 47s, values in the first and second bucket should have expired, and 80% of values in the
@@ -360,8 +368,7 @@ public class ViewManagerImplTest {
 
     clock.setTime(Timestamp.fromMillis(60 * MILLIS_PER_SECOND));
     // 60s, all previous values should have expired, add another value value2
-    putToMeasureMap(statsRecorder.newMeasureMap(), measure, value7)
-        .record(tags);
+    putToMeasureMap(statsRecorder.newMeasureMap(), measure, value7).record(tags);
     StatsTestUtil.assertAggregationMapEquals(
         viewManager.getView(VIEW_NAME).getAggregationMap(),
         ImmutableMap.of(Arrays.asList(VALUE), expectedValues3),
@@ -436,9 +443,14 @@ public class ViewManagerImplTest {
   @Test
   public void testRecordIntervalMultipleTagValues() {
     // The interval is 10 seconds, i.e. values should expire after 10 seconds.
-    View view = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY),
-        Interval.create(TEN_SECONDS));
+    View view =
+        View.create(
+            VIEW_NAME,
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            Interval.create(TEN_SECONDS));
     clock.setTime(Timestamp.create(10, 0)); // Start at 10s
     viewManager.registerView(view);
 
@@ -520,10 +532,7 @@ public class ViewManagerImplTest {
     viewManager.registerView(
         createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY)));
     // DEFAULT doesn't have tags, but the view has tag key "KEY".
-    statsRecorder
-        .newMeasureMap()
-        .put(MEASURE_DOUBLE, 10.0)
-        .record(tagger.empty());
+    statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 10.0).record(tagger.empty());
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
@@ -553,15 +562,9 @@ public class ViewManagerImplTest {
   }
 
   private void testRecord_MeasureNotMatch(Measure measure1, Measure measure2, double value) {
-    viewManager.registerView(
-        createCumulativeView(
-            VIEW_NAME,
-            measure1,
-            MEAN,
-            Arrays.asList(KEY)));
+    viewManager.registerView(createCumulativeView(VIEW_NAME, measure1, MEAN, Arrays.asList(KEY)));
     TagContext tags = tagger.emptyBuilder().put(KEY, VALUE).build();
-    putToMeasureMap(statsRecorder.newMeasureMap(), measure2, value)
-        .record(tags);
+    putToMeasureMap(statsRecorder.newMeasureMap(), measure2, value).record(tags);
     ViewData view = viewManager.getView(VIEW_NAME);
     assertThat(view.getAggregationMap()).isEmpty();
   }
@@ -573,13 +576,11 @@ public class ViewManagerImplTest {
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, 10.0)
-        .record(
-            tagger.emptyBuilder().put(TagKey.create("wrong key"), VALUE).build());
+        .record(tagger.emptyBuilder().put(TagKey.create("wrong key"), VALUE).build());
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, 50.0)
-        .record(
-            tagger.emptyBuilder().put(TagKey.create("another wrong key"), VALUE).build());
+        .record(tagger.emptyBuilder().put(TagKey.create("another wrong key"), VALUE).build());
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
@@ -703,8 +704,7 @@ public class ViewManagerImplTest {
 
   private void testMultipleViews_DifferentMeasures(
       Measure measure1, Measure measure2, double value1, double value2) {
-    final View view1 =
-        createCumulativeView(VIEW_NAME, measure1, DISTRIBUTION, Arrays.asList(KEY));
+    final View view1 = createCumulativeView(VIEW_NAME, measure1, DISTRIBUTION, Arrays.asList(KEY));
     final View view2 =
         createCumulativeView(VIEW_NAME_2, measure2, DISTRIBUTION, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
@@ -740,10 +740,9 @@ public class ViewManagerImplTest {
 
   @Test
   public void testGetCumulativeViewDataWithEmptyBucketBoundaries() {
-    Aggregation noHistogram = Distribution.create(
-        BucketBoundaries.create(Collections.<Double>emptyList()));
-    View view =
-        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, noHistogram, Arrays.asList(KEY));
+    Aggregation noHistogram =
+        Distribution.create(BucketBoundaries.create(Collections.<Double>emptyList()));
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, noHistogram, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
     viewManager.registerView(view);
     statsRecorder
@@ -764,8 +763,7 @@ public class ViewManagerImplTest {
 
   @Test
   public void testGetCumulativeViewDataWithoutBucketBoundaries() {
-    View view =
-        createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 0));
     viewManager.registerView(view);
     statsRecorder
@@ -779,13 +777,11 @@ public class ViewManagerImplTest {
     StatsTestUtil.assertAggregationMapEquals(
         viewData.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
         EPSILON);
   }
 
-  private static MeasureMap putToMeasureMap(
-      MeasureMap measureMap, Measure measure, double value) {
+  private static MeasureMap putToMeasureMap(MeasureMap measureMap, Measure measure, double value) {
     if (measure instanceof MeasureDouble) {
       return measureMap.put((MeasureDouble) measure, value);
     } else if (measure instanceof MeasureLong) {

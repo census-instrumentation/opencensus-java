@@ -23,8 +23,8 @@ import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.propagation.PropagationComponent;
 
 /**
- * Class that holds the implementation instances for {@link Tracer}, {@link
- * PropagationComponent}, {@link Clock}, {@link ExportComponent} and {@link TraceConfig}.
+ * Class that holds the implementation instances for {@link Tracer}, {@link PropagationComponent},
+ * {@link Clock}, {@link ExportComponent} and {@link TraceConfig}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
@@ -40,8 +40,8 @@ public abstract class TraceComponent {
   public abstract Tracer getTracer();
 
   /**
-   * Returns the {@link PropagationComponent} with the provided implementation. If no
-   * implementation is provided then no-op implementation will be used.
+   * Returns the {@link PropagationComponent} with the provided implementation. If no implementation
+   * is provided then no-op implementation will be used.
    *
    * @return the {@code PropagationComponent} implementation.
    */

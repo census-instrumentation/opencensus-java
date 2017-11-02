@@ -93,8 +93,7 @@ public final class StatsRecorderImplTest {
     viewManager.registerView(view);
     Context orig =
         Context.current()
-            .withValue(
-                ContextUtils.TAG_CONTEXT_KEY, new SimpleTagContext(Tag.create(KEY, VALUE)))
+            .withValue(ContextUtils.TAG_CONTEXT_KEY, new SimpleTagContext(Tag.create(KEY, VALUE)))
             .attach();
     try {
       statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 1.0).record();

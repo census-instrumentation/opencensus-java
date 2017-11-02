@@ -23,8 +23,8 @@ import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
 import java.lang.ref.WeakReference;
 
 /**
- * Implementation of {@link ContextStrategy} for accessing and manipulating the
- * {@link io.grpc.Context}.
+ * Implementation of {@link ContextStrategy} for accessing and manipulating the {@link
+ * io.grpc.Context}.
  */
 final class ContextStrategyImpl implements ContextStrategy {
 
@@ -49,8 +49,7 @@ final class ContextStrategyImpl implements ContextStrategy {
    * <p>NB: Using thread IDs as keys was considered: It's unclear how to safely detect and cleanup
    * otherwise unreferenced threads IDs from the map.
    */
-  private final Cache<Thread, Context> savedContexts
-          = CacheBuilder.newBuilder().weakKeys().build();
+  private final Cache<Thread, Context> savedContexts = CacheBuilder.newBuilder().weakKeys().build();
 
   @Override
   public Runnable wrapInCurrentContext(Runnable runnable) {

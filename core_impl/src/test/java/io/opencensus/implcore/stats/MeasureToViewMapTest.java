@@ -38,18 +38,20 @@ import org.junit.runners.JUnit4;
 public class MeasureToViewMapTest {
 
   private static final Measure MEASURE =
-      Measure.MeasureDouble.create(
-          "my measurement",
-          "measurement description",
-          "By");
+      Measure.MeasureDouble.create("my measurement", "measurement description", "By");
 
   private static final Name VIEW_NAME = View.Name.create("my view");
 
   private static final Cumulative CUMULATIVE = Cumulative.create();
 
   private static final View VIEW =
-      View.create(VIEW_NAME, "view description", MEASURE, Mean.create(),
-          Arrays.asList(TagKey.create("my key")), CUMULATIVE);
+      View.create(
+          VIEW_NAME,
+          "view description",
+          MEASURE,
+          Mean.create(),
+          Arrays.asList(TagKey.create("my key")),
+          CUMULATIVE);
 
   @Test
   public void testRegisterAndGetView() {
@@ -59,8 +61,8 @@ public class MeasureToViewMapTest {
     clock.setTime(Timestamp.create(30, 40));
     ViewData viewData = measureToViewMap.getView(VIEW_NAME, clock);
     assertThat(viewData.getView()).isEqualTo(VIEW);
-    assertThat(viewData.getWindowData()).isEqualTo(
-        CumulativeData.create(Timestamp.create(10, 20), Timestamp.create(30, 40)));
+    assertThat(viewData.getWindowData())
+        .isEqualTo(CumulativeData.create(Timestamp.create(10, 20), Timestamp.create(30, 40)));
     assertThat(viewData.getAggregationMap()).isEmpty();
   }
 }
