@@ -50,10 +50,16 @@ public abstract class Measure {
   /**
    * The units in which {@link Measure} values are measured.
    *
-   * <p>The suggested grammar for a unit is as follows: Expression = Component { "." Component } {
-   * "/" Component } ; Component = [ PREFIX ] UNIT [ Annotation ] | Annotation | "1" ; Annotation =
-   * "{" NAME "}" ; For example, string “MBy{transmitted}/ms” stands for megabytes per milliseconds,
-   * and the annotation transmitted inside {} is just a comment of the unit.
+   * <p>The suggested grammar for a unit is as follows:
+   *
+   * <ul>
+   *   <li>Expression = Component { "." Component } {"/" Component };
+   *   <li>Component = [ PREFIX ] UNIT [ Annotation ] | Annotation | "1";
+   *   <li>Annotation = "{" NAME "}" ;
+   * </ul>
+   *
+   * <p>For example, string “MBy{transmitted}/ms” stands for megabytes per milliseconds, and the
+   * annotation transmitted inside {} is just a comment of the unit.
    */
   // TODO(songya): determine whether we want to check the grammar on string unit.
   public abstract String getUnit();

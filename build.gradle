@@ -30,10 +30,10 @@ subprojects {
     apply plugin: 'ru.vyarus.animalsniffer'
     apply plugin: 'findbugs'
     apply plugin: 'net.ltgt.apt'
-    apply plugin: 'com.github.sherter.google-java-format'
     // Plugins that require java8
     if (JavaVersion.current().isJava8Compatible()) {
         apply plugin: "net.ltgt.errorprone"
+        apply plugin: 'com.github.sherter.google-java-format'
     }
 
     group = "io.opencensus"
@@ -189,14 +189,16 @@ subprojects {
         toolVersion '1.5'
     }
 
-    tasks.googleJavaFormat {
-        source = sourceSets*.allJava
-        include '**/*.java'
-    }
+    if (JavaVersion.current().isJava8Compatible()) {
+        tasks.googleJavaFormat {
+            source = sourceSets*.allJava
+            include '**/*.java'
+        }
 
-    tasks.verifyGoogleJavaFormat {
-        source = sourceSets*.allJava
-        include '**/*.java'
+        tasks.verifyGoogleJavaFormat {
+            source = sourceSets*.allJava
+            include '**/*.java'
+        }
     }
 
     signing {
