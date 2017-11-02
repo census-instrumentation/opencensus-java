@@ -51,6 +51,10 @@ public abstract class BucketBoundaries {
     return new AutoValue_BucketBoundaries(Collections.unmodifiableList(bucketBoundariesCopy));
   }
 
-  /** @return a list of histogram bucket boundaries. */
+  /**
+   * Returns a list of histogram bucket boundaries.
+   *
+   * @return a list of histogram bucket boundaries.
+   */
   public abstract List<Double> getBoundaries();
 }
