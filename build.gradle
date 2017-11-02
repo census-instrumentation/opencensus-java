@@ -184,12 +184,12 @@ subprojects {
     checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
     checkstyleTest.enabled = JavaVersion.current().isJava8Compatible()
 
-    // Google formatter
-    googleJavaFormat {
-        toolVersion '1.5'
-    }
-
+    // Google formatter works only on java8.
     if (JavaVersion.current().isJava8Compatible()) {
+        googleJavaFormat {
+            toolVersion '1.5'
+        }
+
         tasks.googleJavaFormat {
             source = sourceSets*.allJava
             include '**/*.java'
