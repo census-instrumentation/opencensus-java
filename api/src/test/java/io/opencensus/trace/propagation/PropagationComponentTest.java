@@ -36,7 +36,6 @@ public class PropagationComponentTest {
 
   @Test
   public void implementationOfTextFormat() {
-    assertThat(propagationComponent.getTextFormat())
-        .isEqualTo(TextFormat.getNoopTextFormat());
+    assertThat(propagationComponent.getTextFormat()).isEqualTo(TextFormat.getNoopTextFormat());
   }
 }
