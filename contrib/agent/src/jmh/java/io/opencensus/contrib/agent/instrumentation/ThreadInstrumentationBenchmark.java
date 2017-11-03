@@ -25,7 +25,7 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.infra.Blackhole;
 
-/** Naive benchmarks for automatic context propagation added by {@link ThreadInstrumentation}.*/
+/** Naive benchmarks for automatic context propagation added by {@link ThreadInstrumentation}. */
 public class ThreadInstrumentationBenchmark {
 
   private static final class MyRunnable implements Runnable {

@@ -29,8 +29,8 @@ import org.junit.runners.JUnit4;
 /**
  * Integration tests for {@link ThreadInstrumentation}.
  *
- * <p>The integration tests are executed in a separate JVM that has the OpenCensus agent enabled
- * via the {@code -javaagent} command line option.
+ * <p>The integration tests are executed in a separate JVM that has the OpenCensus agent enabled via
+ * the {@code -javaagent} command line option.
  */
 @RunWith(JUnit4.class)
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
@@ -52,14 +52,16 @@ public class ThreadInstrumentationIT {
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    Thread thread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        assertThat(Context.current()).isSameAs(context);
-        assertThat(KEY.get()).isEqualTo("myvalue");
-        tested.set(true);
-      }
-    });
+    Thread thread =
+        new Thread(
+            new Runnable() {
+              @Override
+              public void run() {
+                assertThat(Context.current()).isSameAs(context);
+                assertThat(KEY.get()).isEqualTo("myvalue");
+                tested.set(true);
+              }
+            });
 
     thread.start();
     thread.join();
@@ -103,36 +105,41 @@ public class ThreadInstrumentationIT {
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    Executor newThreadExecutor = new Executor() {
-      @Override
-      public void execute(Runnable command) {
-        // Attach a new context before starting a new thread. This new context will be propagated to
-        // the new thread as in #start_Runnable. However, since the Runnable has been wrapped in a
-        // different context (by automatic instrumentation of Executor#execute), that context will
-        // be attached when executing the Runnable.
-        Context context2 = Context.current().withValue(KEY, "wrong context");
-        context2.attach();
-        Thread thread = new Thread(command);
-        thread.start();
-        try {
-          thread.join();
-        } catch (InterruptedException ex) {
-          Thread.currentThread().interrupt();
-        }
-        context2.detach(context);
-      }
-    };
+    Executor newThreadExecutor =
+        new Executor() {
+          @Override
+          public void execute(Runnable command) {
+            // Attach a new context before starting a new thread. This new context will be
+            // propagated to
+            // the new thread as in #start_Runnable. However, since the Runnable has been wrapped in
+            // a
+            // different context (by automatic instrumentation of Executor#execute), that context
+            // will
+            // be attached when executing the Runnable.
+            Context context2 = Context.current().withValue(KEY, "wrong context");
+            context2.attach();
+            Thread thread = new Thread(command);
+            thread.start();
+            try {
+              thread.join();
+            } catch (InterruptedException ex) {
+              Thread.currentThread().interrupt();
+            }
+            context2.detach(context);
+          }
+        };
 
-    newThreadExecutor.execute(new Runnable() {
-      @Override
-      public void run() {
-        // Assert that the automatic context propagation added by ThreadInstrumentation did not
-        // interfere with the automatically propagated context from Executor#execute.
-        assertThat(Context.current()).isSameAs(context);
-        assertThat(KEY.get()).isEqualTo("myvalue");
-        tested.set(true);
-      }
-    });
+    newThreadExecutor.execute(
+        new Runnable() {
+          @Override
+          public void run() {
+            // Assert that the automatic context propagation added by ThreadInstrumentation did not
+            // interfere with the automatically propagated context from Executor#execute.
+            assertThat(Context.current()).isSameAs(context);
+            assertThat(KEY.get()).isEqualTo("myvalue");
+            tested.set(true);
+          }
+        });
 
     assertThat(tested.get()).isTrue();
   }

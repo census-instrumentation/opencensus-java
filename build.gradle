@@ -190,14 +190,16 @@ subprojects {
             toolVersion '1.5'
         }
 
-        tasks.googleJavaFormat {
-            source = sourceSets*.allJava
-            include '**/*.java'
-        }
+        afterEvaluate {  // Allow subproject to add more source sets.
+            tasks.googleJavaFormat {
+                source = sourceSets*.allJava
+                include '**/*.java'
+            }
 
-        tasks.verifyGoogleJavaFormat {
-            source = sourceSets*.allJava
-            include '**/*.java'
+            tasks.verifyGoogleJavaFormat {
+                source = sourceSets*.allJava
+                include '**/*.java'
+            }
         }
     }
 
