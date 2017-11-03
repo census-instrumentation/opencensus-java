@@ -73,8 +73,8 @@ public final class StackdriverStatsExporter {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
     this.projectId = projectId;
     this.metricServiceClient = metricServiceClient;
-    this.workerThread = new WorkerThread(
-        projectId, metricServiceClient, exportInterval, viewManager);
+    this.workerThread =
+        new WorkerThread(projectId, metricServiceClient, exportInterval, viewManager);
   }
 
   /**
@@ -114,8 +114,8 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
-  public static void createWithProjectId(
-      String projectId, Duration exportInterval) throws IOException {
+  public static void createWithProjectId(String projectId, Duration exportInterval)
+      throws IOException {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     createInternal(null, projectId, exportInterval);
@@ -146,9 +146,7 @@ public final class StackdriverStatsExporter {
   }
 
   private static void createInternal(
-      @Nullable Credentials credentials,
-      String projectId,
-      Duration exportInterval)
+      @Nullable Credentials credentials, String projectId, Duration exportInterval)
       throws IOException {
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
@@ -156,13 +154,15 @@ public final class StackdriverStatsExporter {
       if (credentials == null) {
         metricServiceClient = MetricServiceClient.create();
       } else {
-        metricServiceClient = MetricServiceClient.create(
-            MetricServiceSettings.newBuilder()
-                .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-                .build());
+        metricServiceClient =
+            MetricServiceClient.create(
+                MetricServiceSettings.newBuilder()
+                    .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
+                    .build());
       }
-      exporter = new StackdriverStatsExporter(
-          projectId, metricServiceClient, exportInterval, Stats.getViewManager());
+      exporter =
+          new StackdriverStatsExporter(
+              projectId, metricServiceClient, exportInterval, Stats.getViewManager());
       exporter.workerThread.start();
     }
   }
@@ -195,8 +195,7 @@ public final class StackdriverStatsExporter {
           StackdriverExportUtils.createMetricDescriptor(view, exporter.projectId);
       if (metricDescriptor != null) {
         exporter.metricServiceClient.createMetricDescriptor(
-            CreateMetricDescriptorRequest
-                .newBuilder()
+            CreateMetricDescriptorRequest.newBuilder()
                 .setMetricDescriptor(metricDescriptor)
                 .build());
         exporter.workerThread.registerView(view);

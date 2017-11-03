@@ -77,21 +77,17 @@ public class StackdriverStatsExporterTest {
   private static final Cumulative CUMULATIVE = Cumulative.create();
   private static final Sum SUM = Sum.create();
 
-  @Mock
-  private ViewManager mockViewManager;
+  @Mock private ViewManager mockViewManager;
+
+  @Mock private MetricServiceStub mockStub;
 
   @Mock
-  private MetricServiceStub mockStub;
-  
-  @Mock
-  private UnaryCallable<CreateMetricDescriptorRequest, MetricDescriptor> 
+  private UnaryCallable<CreateMetricDescriptorRequest, MetricDescriptor>
       mockCreateMetricDescriptorCallable;
-  
-  @Mock
-  private UnaryCallable<CreateTimeSeriesRequest, Empty> mockCreateTimeSeriesCallable;
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @Mock private UnaryCallable<CreateTimeSeriesRequest, Empty> mockCreateTimeSeriesCallable;
+
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -99,10 +95,10 @@ public class StackdriverStatsExporterTest {
 
     doReturn(mockCreateMetricDescriptorCallable).when(mockStub).createMetricDescriptorCallable();
     doReturn(mockCreateTimeSeriesCallable).when(mockStub).createTimeSeriesCallable();
-    doReturn(null).when(mockCreateMetricDescriptorCallable)
+    doReturn(null)
+        .when(mockCreateMetricDescriptorCallable)
         .call(any(CreateMetricDescriptorRequest.class));
-    doReturn(null).when(mockCreateTimeSeriesCallable)
-        .call(any(CreateTimeSeriesRequest.class));
+    doReturn(null).when(mockCreateTimeSeriesCallable).call(any(CreateTimeSeriesRequest.class));
   }
 
   @Test
@@ -152,12 +148,13 @@ public class StackdriverStatsExporterTest {
 
   @Test
   public void registerViewAndExport() throws IOException {
-    View view = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    ViewData viewData = ViewData.create(
-        view,
-        ImmutableMap.of(Arrays.asList(VALUE), SumDataLong.create(1)),
-        CumulativeData.create(Timestamp.fromMillis(100), Timestamp.fromMillis(200)));
+    View view =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    ViewData viewData =
+        ViewData.create(
+            view,
+            ImmutableMap.of(Arrays.asList(VALUE), SumDataLong.create(1)),
+            CumulativeData.create(Timestamp.fromMillis(100), Timestamp.fromMillis(200)));
     doNothing().when(mockViewManager).registerView(view);
     doReturn(viewData).when(mockViewManager).getView(VIEW_NAME);
 
@@ -171,14 +168,17 @@ public class StackdriverStatsExporterTest {
       // The timeout for verifying createTimeSeries needs to match the export interval of exporter.
       verify(mockStub, timeout(1000).times(1)).createTimeSeriesCallable();
 
-      MetricDescriptor descriptor =
-          StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+      MetricDescriptor descriptor = StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
       List<TimeSeries> timeSeries =
           StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID);
-      verify(mockCreateMetricDescriptorCallable, times(1)).call(
-          eq(CreateMetricDescriptorRequest.newBuilder().setMetricDescriptor(descriptor).build()));
-      verify(mockCreateTimeSeriesCallable, times(1)).call(
-          eq(CreateTimeSeriesRequest.newBuilder().addAllTimeSeries(timeSeries).build()));
+      verify(mockCreateMetricDescriptorCallable, times(1))
+          .call(
+              eq(
+                  CreateMetricDescriptorRequest.newBuilder()
+                      .setMetricDescriptor(descriptor)
+                      .build()));
+      verify(mockCreateTimeSeriesCallable, times(1))
+          .call(eq(CreateTimeSeriesRequest.newBuilder().addAllTimeSeries(timeSeries).build()));
     } finally {
       StackdriverStatsExporter.setExporter(null);
     }
@@ -186,8 +186,8 @@ public class StackdriverStatsExporterTest {
 
   @Test
   public void preventRegisterViewBeforeCreateExporter() throws IOException {
-    View view1 = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    View view1 =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Stackdriver stats exporter has not been created.");
     StackdriverStatsExporter.registerView(view1);
@@ -199,8 +199,8 @@ public class StackdriverStatsExporterTest {
     StackdriverStatsExporter.setExporter(
         new StackdriverStatsExporter(
             PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager));
-    View view1 = View.create(
-        VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    View view1 =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     StackdriverStatsExporter.registerView(view1);
     View view2 =
         View.create(

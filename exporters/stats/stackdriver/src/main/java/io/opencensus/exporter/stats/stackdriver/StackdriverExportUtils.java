@@ -107,9 +107,9 @@ final class StackdriverExportUtils {
   @VisibleForTesting
   static MetricKind createMetricKind(AggregationWindow window) {
     return window.match(
-        Functions.returnConstant(MetricKind.CUMULATIVE),               // Cumulative
+        Functions.returnConstant(MetricKind.CUMULATIVE), // Cumulative
         // TODO(songya): We don't support exporting Interval stats to StackDriver in this version.
-        Functions.returnConstant(MetricKind.UNRECOGNIZED),             // Interval
+        Functions.returnConstant(MetricKind.UNRECOGNIZED), // Interval
         Functions.returnConstant(MetricKind.UNRECOGNIZED));
   }
 
@@ -120,12 +120,12 @@ final class StackdriverExportUtils {
     return aggregation.match(
         Functions.returnConstant(
             measure.match(
-                Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE),  // Sum Double
-                Functions.returnConstant(MetricDescriptor.ValueType.INT64),   // Sum Long
+                Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE), // Sum Double
+                Functions.returnConstant(MetricDescriptor.ValueType.INT64), // Sum Long
                 Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED))),
-        Functions.returnConstant(MetricDescriptor.ValueType.INT64),           // Count
-        Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE),          // Mean
-        Functions.returnConstant(MetricDescriptor.ValueType.DISTRIBUTION),    // Distribution
+        Functions.returnConstant(MetricDescriptor.ValueType.INT64), // Count
+        Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE), // Mean
+        Functions.returnConstant(MetricDescriptor.ValueType.DISTRIBUTION), // Distribution
         Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED));
   }
 
@@ -166,8 +166,8 @@ final class StackdriverExportUtils {
         String.format("custom.googleapis.com/opencensus/%s", view.getName().asString()));
     Map<String, String> stringTagMap = Maps.newHashMap();
     List<TagKey> columns = view.getColumns();
-    checkArgument(tagValues.size() == columns.size(),
-        "TagKeys and TagValues don't have same size.");
+    checkArgument(
+        tagValues.size() == columns.size(), "TagKeys and TagValues don't have same size.");
     for (int i = 0; i < tagValues.size(); i++) {
       TagKey key = columns.get(i);
       TagValue value = tagValues.get(i);
@@ -249,7 +249,8 @@ final class StackdriverExportUtils {
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
-            checkArgument(aggregation instanceof Aggregation.Distribution,
+            checkArgument(
+                aggregation instanceof Aggregation.Distribution,
                 "Aggregation and AggregationData mismatch.");
             builder.setDistributionValue(
                 createDistribution(
@@ -265,8 +266,7 @@ final class StackdriverExportUtils {
   @VisibleForTesting
   static Distribution createDistribution(
       DistributionData distributionData, BucketBoundaries bucketBoundaries) {
-    return Distribution
-        .newBuilder()
+    return Distribution.newBuilder()
         .setBucketOptions(createBucketOptions(bucketBoundaries))
         .addAllBucketCounts(distributionData.getBucketCounts())
         .setCount(distributionData.getCount())
@@ -283,23 +283,19 @@ final class StackdriverExportUtils {
   // Create BucketOptions from BucketBoundaries
   @VisibleForTesting
   static BucketOptions createBucketOptions(BucketBoundaries bucketBoundaries) {
-    return BucketOptions
-        .newBuilder()
-        .setExplicitBuckets(
-            Explicit.newBuilder().addAllBounds(bucketBoundaries.getBoundaries()))
+    return BucketOptions.newBuilder()
+        .setExplicitBuckets(Explicit.newBuilder().addAllBounds(bucketBoundaries.getBoundaries()))
         .build();
   }
 
   // Convert a Census Timestamp to a StackDriver Timestamp
   @VisibleForTesting
   static Timestamp convertTimestamp(io.opencensus.common.Timestamp censusTimestamp) {
-    return Timestamp
-        .newBuilder()
+    return Timestamp.newBuilder()
         .setSeconds(censusTimestamp.getSeconds())
         .setNanos(censusTimestamp.getNanos())
         .build();
   }
 
-  private StackdriverExportUtils() {
-  }
+  private StackdriverExportUtils() {}
 }
