@@ -156,7 +156,9 @@ configurations {
 }
 
 dependencies {
-  integrationTestCompile libraries.grpc_context
+  integrationTestCompile project(':opencensus-api')
+  integrationTestRuntime libraries.grpc_context
+  integrationTestRuntime project(':opencensus-impl')
 }
 
 // Disable checkstyle for integration tests if not java8.
