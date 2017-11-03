@@ -33,9 +33,9 @@ import net.bytebuddy.agent.builder.AgentBuilder;
  * The <b>OpenCensus Agent for Java</b> collects and sends latency data about your Java process to
  * OpenCensus backends such as Stackdriver Trace for analysis and visualization.
  *
- * <p>To enable the *OpenCensus Agent for Java* for your application, add the option <code>
- * -javaagent:path/to/opencensus-contrib-agent.jar</code> to the invocation of the <code>java</code>
- * executable as shown in the following example:
+ * <p>To enable the *OpenCensus Agent for Java* for your application, add the option {@code
+ * -javaagent:path/to/opencensus-contrib-agent.jar} to the invocation of the {@code java} executable
+ * as shown in the following example:
  *
  * <pre>
  * java -javaagent:path/to/opencensus-contrib-agent.jar ...

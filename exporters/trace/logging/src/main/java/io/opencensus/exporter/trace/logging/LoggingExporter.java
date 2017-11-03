@@ -31,12 +31,12 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <p>Example of usage:
  *
- * <pre><code>
- *   public static void main(String[] args) {
- *     LoggingExporter.register();
- *     ... // Do work.
- *   }
- * </code></pre>
+ * <pre>{@code
+ * public static void main(String[] args) {
+ *   LoggingExporter.register();
+ *   ... // Do work.
+ * }
+ * }</pre>
  */
 @ThreadSafe
 public final class LoggingExporter {
