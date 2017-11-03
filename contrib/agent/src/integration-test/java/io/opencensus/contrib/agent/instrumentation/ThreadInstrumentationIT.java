@@ -110,12 +110,9 @@ public class ThreadInstrumentationIT {
           @Override
           public void execute(Runnable command) {
             // Attach a new context before starting a new thread. This new context will be
-            // propagated to
-            // the new thread as in #start_Runnable. However, since the Runnable has been wrapped in
-            // a
-            // different context (by automatic instrumentation of Executor#execute), that context
-            // will
-            // be attached when executing the Runnable.
+            // propagated to the new thread as in #start_Runnable. However, since the Runnable has
+            // been wrapped in a different context (by automatic instrumentation of
+            // Executor#execute), that context will be attached when executing the Runnable.
             Context context2 = Context.current().withValue(KEY, "wrong context");
             context2.attach();
             Thread thread = new Thread(command);
