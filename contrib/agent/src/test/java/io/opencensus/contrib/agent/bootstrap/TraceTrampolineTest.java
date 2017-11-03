@@ -16,9 +16,9 @@
 
 package io.opencensus.contrib.agent.bootstrap;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.truth.Truth;
 import java.io.Closeable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,9 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * Unit tests for {@link TraceTrampoline}.
- */
+/** Unit tests for {@link TraceTrampoline}. */
 @RunWith(MockitoJUnitRunner.class)
 public class TraceTrampolineTest {
 
@@ -39,8 +37,7 @@ public class TraceTrampolineTest {
     TraceTrampoline.setTraceStrategy(mockTraceStrategy);
   }
 
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
+  @Rule public final ExpectedException exception = ExpectedException.none();
 
   @Test
   public void setTraceStrategy_already_initialized() {
@@ -58,6 +55,6 @@ public class TraceTrampolineTest {
     Closeable closeable = TraceTrampoline.startScopedSpan("test");
 
     Mockito.verify(mockTraceStrategy).startScopedSpan("test");
-    Truth.assertThat(closeable).isSameAs(mockCloseable);
+    assertThat(closeable).isSameAs(mockCloseable);
   }
 }

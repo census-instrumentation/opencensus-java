@@ -26,13 +26,13 @@ import java.io.Closeable;
  * {@code TraceTrampoline} provides methods for creating and manipulating trace spans from
  * instrumented bytecode.
  *
- * <p>{@code TraceTrampoline} avoids tight coupling with the concrete trace API through the
- * {@link TraceStrategy} interface.
+ * <p>{@code TraceTrampoline} avoids tight coupling with the concrete trace API through the {@link
+ * TraceStrategy} interface.
  *
- * <p>Both {@link TraceTrampoline} and {@link TraceStrategy} are loaded by the bootstrap
- * classloader so that they can be used from classes loaded by the bootstrap classloader.
- * A concrete implementation of {@link TraceStrategy} will be loaded by the system classloader.
- * This allows for using the same trace API as the instrumented application.
+ * <p>Both {@link TraceTrampoline} and {@link TraceStrategy} are loaded by the bootstrap classloader
+ * so that they can be used from classes loaded by the bootstrap classloader. A concrete
+ * implementation of {@link TraceStrategy} will be loaded by the system classloader. This allows for
+ * using the same trace API as the instrumented application.
  *
  * <p>{@code TraceTrampoline} is implemented as a static class to allow for easy and fast use from
  * instrumented bytecode. We cannot use dependency injection for the instrumented bytecode.
@@ -44,14 +44,13 @@ public final class TraceTrampoline {
   // other method of this class is called.
   private static TraceStrategy traceStrategy;
 
-  private TraceTrampoline() {
-  }
+  private TraceTrampoline() {}
 
   /**
    * Sets the concrete strategy for creating and manipulating trace spans.
    *
-   * <p>NB: The agent is responsible for setting the trace strategy once before any other method
-   * of this class is called.
+   * <p>NB: The agent is responsible for setting the trace strategy once before any other method of
+   * this class is called.
    *
    * @param traceStrategy the concrete strategy for creating and manipulating trace spans
    */
@@ -73,7 +72,6 @@ public final class TraceTrampoline {
    * @param spanName the name of the returned {@link Span}
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context
-   *
    * @see Tracer#spanBuilder(java.lang.String)
    * @see SpanBuilder#startScopedSpan()
    */

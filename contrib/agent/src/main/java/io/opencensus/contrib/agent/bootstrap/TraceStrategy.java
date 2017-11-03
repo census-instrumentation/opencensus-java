@@ -22,9 +22,7 @@ import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Tracer;
 import java.io.Closeable;
 
-/**
- * Strategy interface for creating and manipulating trace spans.
- */
+/** Strategy interface for creating and manipulating trace spans. */
 public interface TraceStrategy {
 
   /**
@@ -33,7 +31,6 @@ public interface TraceStrategy {
    * @param spanName the name of the returned {@link Span}
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context
-   *
    * @see Tracer#spanBuilder(java.lang.String)
    * @see SpanBuilder#startScopedSpan()
    */
