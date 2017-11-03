@@ -33,8 +33,8 @@ import org.junit.runners.JUnit4;
 /**
  * Integration tests for {@link ExecutorInstrumentation}.
  *
- * <p>The integration tests are executed in a separate JVM that has the OpenCensus agent enabled
- * via the {@code -javaagent} command line option.
+ * <p>The integration tests are executed in a separate JVM that has the OpenCensus agent enabled via
+ * the {@code -javaagent} command line option.
  */
 @RunWith(JUnit4.class)
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
@@ -64,19 +64,20 @@ public class ExecutorInstrumentationIT {
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    executor.execute(new Runnable() {
-      @Override
-      public void run() {
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-        assertThat(Context.current()).isSameAs(context);
-        assertThat(KEY.get()).isEqualTo("myvalue");
-        tested.set(true);
+    executor.execute(
+        new Runnable() {
+          @Override
+          public void run() {
+            assertThat(Thread.currentThread()).isNotSameAs(callerThread);
+            assertThat(Context.current()).isSameAs(context);
+            assertThat(KEY.get()).isEqualTo("myvalue");
+            tested.set(true);
 
-        synchronized (tested) {
-          tested.notify();
-        }
-      }
-    });
+            synchronized (tested) {
+              tested.notify();
+            }
+          }
+        });
 
     synchronized (tested) {
       tested.wait();
@@ -93,17 +94,20 @@ public class ExecutorInstrumentationIT {
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    executor.submit(new Callable<Void>() {
-      @Override
-      public Void call() throws Exception {
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-        assertThat(Context.current()).isSameAs(context);
-        assertThat(KEY.get()).isEqualTo("myvalue");
-        tested.set(true);
+    executor
+        .submit(
+            new Callable<Void>() {
+              @Override
+              public Void call() throws Exception {
+                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
+                assertThat(Context.current()).isSameAs(context);
+                assertThat(KEY.get()).isEqualTo("myvalue");
+                tested.set(true);
 
-        return null;
-      }
-    }).get();
+                return null;
+              }
+            })
+        .get();
 
     assertThat(tested.get()).isTrue();
   }
@@ -116,15 +120,18 @@ public class ExecutorInstrumentationIT {
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    executor.submit(new Runnable() {
-      @Override
-      public void run() {
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-        assertThat(Context.current()).isSameAs(context);
-        assertThat(KEY.get()).isEqualTo("myvalue");
-        tested.set(true);
-      }
-    }).get();
+    executor
+        .submit(
+            new Runnable() {
+              @Override
+              public void run() {
+                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
+                assertThat(Context.current()).isSameAs(context);
+                assertThat(KEY.get()).isEqualTo("myvalue");
+                tested.set(true);
+              }
+            })
+        .get();
 
     assertThat(tested.get()).isTrue();
   }
@@ -138,16 +145,19 @@ public class ExecutorInstrumentationIT {
     final AtomicBoolean tested = new AtomicBoolean(false);
     Object result = new Object();
 
-    Future<Object> future = executor.submit(new Runnable() {
-      @Override
-      public void run() {
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-        assertThat(Context.current()).isNotSameAs(Context.ROOT);
-        assertThat(Context.current()).isSameAs(context);
-        assertThat(KEY.get()).isEqualTo("myvalue");
-        tested.set(true);
-      }
-    }, result);
+    Future<Object> future =
+        executor.submit(
+            new Runnable() {
+              @Override
+              public void run() {
+                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
+                assertThat(Context.current()).isNotSameAs(Context.ROOT);
+                assertThat(Context.current()).isSameAs(context);
+                assertThat(KEY.get()).isEqualTo("myvalue");
+                tested.set(true);
+              }
+            },
+            result);
 
     assertThat(future.get()).isSameAs(result);
     assertThat(tested.get()).isTrue();
@@ -161,32 +171,34 @@ public class ExecutorInstrumentationIT {
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    Context.currentContextExecutor(executor).execute(new Runnable() {
-      @Override
-      public void run() {
-        StackTraceElement[] ste = new Exception().fillInStackTrace().getStackTrace();
-        assertThat(ste[0].getClassName()).doesNotContain("Context");
-        assertThat(ste[1].getClassName()).startsWith("io.grpc.Context$");
-        // NB: Actually, we want the Runnable to be wrapped only once, but currently it is still
-        // wrapped twice. The two places where the Runnable is wrapped are: (1) the executor
-        // implementation itself, e.g. ThreadPoolExecutor, to which the Agent added automatic
-        // context propagation, (2) CurrentContextExecutor.
-        // ExecutorInstrumentation already avoids adding the automatic context propagation to
-        // CurrentContextExecutor, but does not make it a no-op yet. Also see
-        // ExecutorInstrumentation#createMatcher.
-        assertThat(ste[2].getClassName()).startsWith("io.grpc.Context$");
-        assertThat(ste[3].getClassName()).doesNotContain("Context");
+    Context.currentContextExecutor(executor)
+        .execute(
+            new Runnable() {
+              @Override
+              public void run() {
+                StackTraceElement[] ste = new Exception().fillInStackTrace().getStackTrace();
+                assertThat(ste[0].getClassName()).doesNotContain("Context");
+                assertThat(ste[1].getClassName()).startsWith("io.grpc.Context$");
+                // NB: Actually, we want the Runnable to be wrapped only once, but currently it is
+                // still wrapped twice. The two places where the Runnable is wrapped are: (1) the
+                // executor implementation itself, e.g. ThreadPoolExecutor, to which the Agent added
+                // automatic context propagation, (2) CurrentContextExecutor.
+                // ExecutorInstrumentation already avoids adding the automatic context propagation
+                // to CurrentContextExecutor, but does not make it a no-op yet. Also see
+                // ExecutorInstrumentation#createMatcher.
+                assertThat(ste[2].getClassName()).startsWith("io.grpc.Context$");
+                assertThat(ste[3].getClassName()).doesNotContain("Context");
 
-        assertThat(Thread.currentThread()).isNotSameAs(callerThread);
-        assertThat(Context.current()).isSameAs(context);
-        assertThat(KEY.get()).isEqualTo("myvalue");
-        tested.set(true);
+                assertThat(Thread.currentThread()).isNotSameAs(callerThread);
+                assertThat(Context.current()).isSameAs(context);
+                assertThat(KEY.get()).isEqualTo("myvalue");
+                tested.set(true);
 
-        synchronized (tested) {
-          tested.notify();
-        }
-      }
-    });
+                synchronized (tested) {
+                  tested.notify();
+                }
+              }
+            });
 
     synchronized (tested) {
       tested.wait();
