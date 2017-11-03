@@ -26,14 +26,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * Unit tests for {@link ThreadInstrumentation}.
- */
+/** Unit tests for {@link ThreadInstrumentation}. */
 @RunWith(MockitoJUnitRunner.class)
 public class ThreadInstrumentationTest {
 
-  @Mock
-  private Config config;
+  @Mock private Config config;
 
   private final ThreadInstrumentation instrumentation = new ThreadInstrumentation();
 

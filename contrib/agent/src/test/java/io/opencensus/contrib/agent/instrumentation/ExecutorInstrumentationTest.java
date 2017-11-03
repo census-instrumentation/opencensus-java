@@ -26,14 +26,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * Unit tests for {@link ExecutorInstrumentation}.
- */
+/** Unit tests for {@link ExecutorInstrumentation}. */
 @RunWith(MockitoJUnitRunner.class)
 public class ExecutorInstrumentationTest {
 
-  @Mock
-  private Config config;
+  @Mock private Config config;
 
   private final ExecutorInstrumentation instrumentation = new ExecutorInstrumentation();
 
