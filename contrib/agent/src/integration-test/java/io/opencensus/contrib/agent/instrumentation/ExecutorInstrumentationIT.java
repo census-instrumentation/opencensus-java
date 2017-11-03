@@ -180,14 +180,11 @@ public class ExecutorInstrumentationIT {
                 assertThat(ste[0].getClassName()).doesNotContain("Context");
                 assertThat(ste[1].getClassName()).startsWith("io.grpc.Context$");
                 // NB: Actually, we want the Runnable to be wrapped only once, but currently it is
-                // still
-                // wrapped twice. The two places where the Runnable is wrapped are: (1) the executor
-                // implementation itself, e.g. ThreadPoolExecutor, to which the Agent added
-                // automatic
-                // context propagation, (2) CurrentContextExecutor.
+                // still wrapped twice. The two places where the Runnable is wrapped are: (1) the
+                // executor implementation itself, e.g. ThreadPoolExecutor, to which the Agent added
+                // automatic context propagation, (2) CurrentContextExecutor.
                 // ExecutorInstrumentation already avoids adding the automatic context propagation
-                // to
-                // CurrentContextExecutor, but does not make it a no-op yet. Also see
+                // to CurrentContextExecutor, but does not make it a no-op yet. Also see
                 // ExecutorInstrumentation#createMatcher.
                 assertThat(ste[2].getClassName()).startsWith("io.grpc.Context$");
                 assertThat(ste[3].getClassName()).doesNotContain("Context");
