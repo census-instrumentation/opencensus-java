@@ -52,16 +52,16 @@ public class ThreadInstrumentationIT {
 
     final AtomicBoolean tested = new AtomicBoolean(false);
 
-    Thread thread =
-        new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                assertThat(Context.current()).isSameAs(context);
-                assertThat(KEY.get()).isEqualTo("myvalue");
-                tested.set(true);
-              }
-            });
+    Runnable runnable =
+        new Runnable() {
+          @Override
+          public void run() {
+            assertThat(Context.current()).isSameAs(context);
+            assertThat(KEY.get()).isEqualTo("myvalue");
+            tested.set(true);
+          }
+        };
+    Thread thread = new Thread(runnable);
 
     thread.start();
     thread.join();
