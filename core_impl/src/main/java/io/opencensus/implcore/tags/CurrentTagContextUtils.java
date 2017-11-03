@@ -36,7 +36,7 @@ final class CurrentTagContextUtils {
    */
   @Nullable
   static TagContext getCurrentTagContext() {
-    return ContextUtils.TAG_CONTEXT_KEY.get(Context.current());
+    return ContextUtils.TAG_CONTEXT_KEY.get();
   }
 
   /**
