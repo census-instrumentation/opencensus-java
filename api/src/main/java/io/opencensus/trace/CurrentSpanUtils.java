@@ -31,7 +31,7 @@ final class CurrentSpanUtils {
    * @return The {@code Span} from the current context.
    */
   static Span getCurrentSpan() {
-    return ContextUtils.CONTEXT_SPAN_KEY.get(Context.current());
+    return ContextUtils.CONTEXT_SPAN_KEY.get();
   }
 
   /**
