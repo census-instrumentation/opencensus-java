@@ -26,19 +26,20 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link EndSpanOptions}. */
 @RunWith(JUnit4.class)
 public class EndSpanOptionsTest {
-  @Test(expected = NullPointerException.class)
-  public void setNullStatus() {
-    EndSpanOptions.builder().setStatus(null).build();
-  }
-
   @Test
   public void endSpanOptions_DefaultOptions() {
-    assertThat(EndSpanOptions.DEFAULT.getStatus()).isEqualTo(Status.OK);
+    assertThat(EndSpanOptions.DEFAULT.getStatus()).isNull();
     assertThat(EndSpanOptions.DEFAULT.getSampleToLocalSpanStore()).isFalse();
   }
 
   @Test
-  public void setStatus() {
+  public void setStatus_Ok() {
+    EndSpanOptions endSpanOptions = EndSpanOptions.builder().setStatus(Status.OK).build();
+    assertThat(endSpanOptions.getStatus()).isEqualTo(Status.OK);
+  }
+
+  @Test
+  public void setStatus_Error() {
     EndSpanOptions endSpanOptions =
         EndSpanOptions.builder()
             .setStatus(Status.CANCELLED.withDescription("ThisIsAnError"))
