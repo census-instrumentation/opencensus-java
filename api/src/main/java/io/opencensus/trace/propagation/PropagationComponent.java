@@ -33,14 +33,6 @@ public abstract class PropagationComponent {
   public abstract BinaryFormat getBinaryFormat();
 
   /**
-   * Returns the {@link TextFormat} with the provided implementations. If no implementation is
-   * provided then no-op implementation will be used.
-   *
-   * @return the {@code TextFormat} implementation.
-   */
-  public abstract TextFormat getTextFormat();
-
-  /**
    * Returns an instance that contains no-op implementations for all the instances.
    *
    * @return an instance that contains no-op implementations for all the instances.
@@ -53,11 +45,6 @@ public abstract class PropagationComponent {
     @Override
     public BinaryFormat getBinaryFormat() {
       return BinaryFormat.getNoopBinaryFormat();
-    }
-
-    @Override
-    public TextFormat getTextFormat() {
-      return TextFormat.getNoopTextFormat();
     }
   }
 }

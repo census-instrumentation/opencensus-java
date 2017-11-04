@@ -33,9 +33,4 @@ public class PropagationComponentTest {
     assertThat(propagationComponent.getBinaryFormat())
         .isEqualTo(BinaryFormat.getNoopBinaryFormat());
   }
-
-  @Test
-  public void implementationOfTextFormat() {
-    assertThat(propagationComponent.getTextFormat()).isEqualTo(TextFormat.getNoopTextFormat());
-  }
 }
