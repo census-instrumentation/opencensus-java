@@ -26,6 +26,19 @@ public interface TraceStrategy {
   /**
    * Starts a new span and sets it as the current span.
    *
+   * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
+   * returns an object that represents that scope. When the returned object is closed, the scope is
+   * exited, the previous Context is restored, and the newly created {@code Span} is ended using
+   * {@link io.opencensus.trace.Span#end}.
+   *
+   * <p>Callers must eventually close the returned object to avoid leaking the Context.
+   *
+   * <p>Supports the try-with-resource idiom.
+   *
+   * <p>NB: The return type of this method is intentionally {@link Closeable} and not the more
+   * specific {@link io.opencensus.common.Scope} because the latter would not be visible from
+   * classes loaded by the bootstrap classloader.
+   *
    * @param spanName the name of the returned {@link io.opencensus.trace.Span}
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context
