@@ -34,6 +34,7 @@ def agentRepackaged = "${agentPackage}.deps"
 dependencies {
   compileOnly libraries.auto_service
   compileOnly libraries.grpc_context
+  compileOnly project(':opencensus-api')
   compile libraries.findbugs_annotations
   compile libraries.guava
   compile libraries.byte_buddy
@@ -155,7 +156,9 @@ configurations {
 }
 
 dependencies {
-  integrationTestCompile libraries.grpc_context
+  integrationTestCompile project(':opencensus-api')
+  integrationTestRuntime libraries.grpc_context
+  integrationTestRuntime project(':opencensus-impl')
 }
 
 // Disable checkstyle for integration tests if not java8.
