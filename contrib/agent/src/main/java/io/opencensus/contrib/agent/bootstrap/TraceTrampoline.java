@@ -89,4 +89,15 @@ public final class TraceTrampoline {
   public static Closeable startScopedSpan(String spanName) {
     return traceStrategy.startScopedSpan(spanName);
   }
+
+  /**
+   * Ends the current span with a status derived from the given (optional) Throwable, and closes the
+   * given scope.
+   *
+   * @param scope an object representing the scope
+   * @param throwable an optional Throwable
+   */
+  public static void endScope(Closeable scope, Throwable throwable) {
+    traceStrategy.endScope(scope, throwable);
+  }
 }

@@ -81,7 +81,7 @@ public class UrlInstrumentationIT {
     } catch (IOException e) {
       SpanData span = testHandler.waitForExport(1).get(0);
       assertThat(span.getName()).isEqualTo("java.net.URL#getContent");
-      assertThat(span.getStatus().isOk()).isTrue();
+      assertThat(span.getStatus().isOk()).isFalse();
     }
   }
 }

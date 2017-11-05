@@ -33,4 +33,13 @@ public interface TraceStrategy {
    */
   @MustBeClosed
   Closeable startScopedSpan(String spanName);
+
+  /**
+   * Ends the current span with a status derived from the given (optional) Throwable, and closes the
+   * given scope.
+   *
+   * @param scope an object representing the scope
+   * @param throwable an optional Throwable
+   */
+  void endScope(Closeable scope, Throwable throwable);
 }

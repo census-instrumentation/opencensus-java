@@ -20,9 +20,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.contrib.agent.bootstrap.TraceStrategy;
+import io.opencensus.trace.EndSpanOptions;
+import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.Closeable;
+import java.io.IOException;
 
 /** Implementation of {@link TraceStrategy} for creating and manipulating trace spans. */
 final class TraceStrategyImpl implements TraceStrategy {
@@ -37,5 +40,20 @@ final class TraceStrategyImpl implements TraceStrategy {
         .setSampler(Samplers.alwaysSample())
         .setRecordEvents(true)
         .startScopedSpan();
+  }
+
+  @Override
+  public void endScope(Closeable scope, Throwable throwable) {
+    if (throwable != null) {
+      Tracing.getTracer()
+          .getCurrentSpan()
+          .end(EndSpanOptions.builder().setStatus(Status.UNKNOWN).build());
+    }
+
+    try {
+      scope.close();
+    } catch (IOException ex) {
+      // Ignore.
+    }
   }
 }
