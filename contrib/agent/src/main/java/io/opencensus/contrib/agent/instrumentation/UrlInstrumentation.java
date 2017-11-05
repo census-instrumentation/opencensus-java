@@ -64,6 +64,10 @@ public final class UrlInstrumentation implements Instrumenter {
     /**
      * Starts a new span and sets it as the current span when entering the method.
      *
+     * <p>The name of the new span is constructed from the name of the instrumented class and
+     * method. For example, in case of {@link java.net.URL#getContent()} the span name is {@code
+     * java.net.URL#getContent}.
+     *
      * <p>NB: This method is never called as is. Instead, Byte Buddy copies the method's bytecode
      * into Executor#execute.
      *
