@@ -157,6 +157,7 @@ configurations {
 
 dependencies {
   integrationTestCompile project(':opencensus-api')
+  integrationTestCompile project(':opencensus-testing')
   integrationTestRuntime libraries.grpc_context
   integrationTestRuntime project(':opencensus-impl')
 }
