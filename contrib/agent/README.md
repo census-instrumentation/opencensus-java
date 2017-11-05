@@ -26,6 +26,13 @@ The context of the caller of [Thread#start](https://docs.oracle.com/javase/8/doc
 is automatically propagated to the new thread.
 
 
+### Preliminary support for tracing
+
+As a proof-of-concept, the agent wraps the execution of
+[URL#getContent](https://docs.oracle.com/javase/8/docs/api/java/net/URL.html#getContent--) in a new
+trace span.
+
+
 ## Design Ideas
 
 We see tracing as a cross-cutting concern which the *OpenCensus Agent for Java* weaves into
