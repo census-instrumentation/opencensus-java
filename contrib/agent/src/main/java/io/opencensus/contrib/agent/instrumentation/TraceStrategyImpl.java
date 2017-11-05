@@ -50,7 +50,10 @@ final class TraceStrategyImpl implements TraceStrategy {
     if (throwable != null) {
       Tracing.getTracer()
           .getCurrentSpan()
-          .end(EndSpanOptions.builder().setStatus(Status.UNKNOWN).build());
+          .end(
+              EndSpanOptions.builder()
+                  .setStatus(Status.UNKNOWN.withDescription(throwable.getMessage()))
+                  .build());
     }
 
     try {
