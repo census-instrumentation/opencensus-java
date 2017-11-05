@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.agent.instrumentation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.contrib.agent.bootstrap.TraceStrategy;
 import io.opencensus.trace.Tracing;
@@ -28,6 +30,8 @@ final class TraceStrategyImpl implements TraceStrategy {
   @MustBeClosed
   @Override
   public Closeable startScopedSpan(String spanName) {
+    checkNotNull(spanName, "spanName");
+
     return Tracing.getTracer()
         .spanBuilder(spanName)
         .setSampler(Samplers.alwaysSample())
