@@ -24,7 +24,6 @@ import com.google.errorprone.annotations.MustBeClosed;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.agent.bootstrap.TraceTrampoline;
 import java.io.Closeable;
-import java.io.IOException;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
@@ -81,7 +80,7 @@ public final class UrlInstrumentation implements Instrumenter {
     }
 
     /**
-     * Closes the current span when exiting the method.
+     * Closes the current span and scope when exiting the method.
      *
      * <p>NB: This method is never called as is. Instead, Byte Buddy copies the method's bytecode
      * into Executor#execute.
@@ -93,8 +92,8 @@ public final class UrlInstrumentation implements Instrumenter {
      */
     @Advice.OnMethodExit(onThrowable = Throwable.class)
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
-    private static void exit(@Advice.Enter Closeable scopedSpanHandle) throws IOException {
-      scopedSpanHandle.close();
+    private static void exit(@Advice.Enter Closeable scope, @Advice.Thrown Throwable throwable) {
+      TraceTrampoline.endScope(scope, throwable);
     }
   }
 }
