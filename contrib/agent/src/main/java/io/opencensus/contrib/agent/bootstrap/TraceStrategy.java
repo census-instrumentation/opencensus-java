@@ -17,9 +17,6 @@
 package io.opencensus.contrib.agent.bootstrap;
 
 import com.google.errorprone.annotations.MustBeClosed;
-import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanBuilder;
-import io.opencensus.trace.Tracer;
 import java.io.Closeable;
 
 /** Strategy interface for creating and manipulating trace spans. */
@@ -28,11 +25,11 @@ public interface TraceStrategy {
   /**
    * Starts a new span and sets it as the current span.
    *
-   * @param spanName the name of the returned {@link Span}
+   * @param spanName the name of the returned {@link io.opencensus.trace.Span}
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context
-   * @see Tracer#spanBuilder(java.lang.String)
-   * @see SpanBuilder#startScopedSpan()
+   * @see io.opencensus.trace.Tracer#spanBuilder(java.lang.String)
+   * @see io.opencensus.trace.SpanBuilder#startScopedSpan()
    */
   @MustBeClosed
   Closeable startScopedSpan(String spanName);
