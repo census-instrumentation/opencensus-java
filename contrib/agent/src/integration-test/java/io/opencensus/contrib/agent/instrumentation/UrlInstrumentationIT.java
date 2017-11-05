@@ -17,15 +17,20 @@
 package io.opencensus.contrib.agent.instrumentation;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import io.opencensus.testing.export.TestHandler;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -40,11 +45,20 @@ import org.junit.runners.JUnit4;
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public class UrlInstrumentationIT {
 
+  private static final TestHandler testHandler = new TestHandler();
+
+  @BeforeClass
+  public static void beforeClass() {
+    Tracing.getExportComponent().getSpanExporter().registerHandler("test", testHandler);
+  }
+
+  @AfterClass
+  public static void afterClass() {
+    Tracing.getExportComponent().getSpanExporter().unregisterHandler("test");
+  }
+
   @Test(timeout = 60000)
   public void getContent() throws Exception {
-    TestHandler testHandler = new TestHandler();
-    Tracing.getExportComponent().getSpanExporter().registerHandler("test", testHandler);
-
     URL url = getClass().getResource("some_resource.txt").toURI().toURL();
     Object content = url.getContent();
 
@@ -55,5 +69,19 @@ public class UrlInstrumentationIT {
     SpanData span = testHandler.waitForExport(1).get(0);
     assertThat(span.getName()).isEqualTo("java.net.URL#getContent");
     assertThat(span.getStatus().isOk()).isTrue();
+  }
+
+  @Test(timeout = 60000)
+  public void getContent_fails() throws MalformedURLException {
+    URL url = new URL("file:///nonexistent");
+
+    try {
+      url.getContent();
+      fail();
+    } catch (IOException e) {
+      SpanData span = testHandler.waitForExport(1).get(0);
+      assertThat(span.getName()).isEqualTo("java.net.URL#getContent");
+      assertThat(span.getStatus().isOk()).isTrue();
+    }
   }
 }
