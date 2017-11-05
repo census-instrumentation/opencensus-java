@@ -26,6 +26,7 @@ import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.Closeable;
 import java.io.IOException;
+import javax.annotation.Nullable;
 
 /** Implementation of {@link TraceStrategy} for creating and manipulating trace spans. */
 final class TraceStrategyImpl implements TraceStrategy {
@@ -43,7 +44,9 @@ final class TraceStrategyImpl implements TraceStrategy {
   }
 
   @Override
-  public void endScope(Closeable scope, Throwable throwable) {
+  public void endScope(Closeable scope, @Nullable Throwable throwable) {
+    checkNotNull(scope, "scope");
+
     if (throwable != null) {
       Tracing.getTracer()
           .getCurrentSpan()

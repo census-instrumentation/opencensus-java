@@ -18,6 +18,7 @@ package io.opencensus.contrib.agent.bootstrap;
 
 import com.google.errorprone.annotations.MustBeClosed;
 import java.io.Closeable;
+import javax.annotation.Nullable;
 
 /** Strategy interface for creating and manipulating trace spans. */
 public interface TraceStrategy {
@@ -41,5 +42,5 @@ public interface TraceStrategy {
    * @param scope an object representing the scope
    * @param throwable an optional Throwable
    */
-  void endScope(Closeable scope, Throwable throwable);
+  void endScope(Closeable scope, @Nullable Throwable throwable);
 }

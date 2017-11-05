@@ -18,6 +18,7 @@ package io.opencensus.contrib.agent.bootstrap;
 
 import com.google.errorprone.annotations.MustBeClosed;
 import java.io.Closeable;
+import javax.annotation.Nullable;
 
 /**
  * {@code TraceTrampoline} provides methods for creating and manipulating trace spans from
@@ -97,7 +98,7 @@ public final class TraceTrampoline {
    * @param scope an object representing the scope
    * @param throwable an optional Throwable
    */
-  public static void endScope(Closeable scope, Throwable throwable) {
+  public static void endScope(Closeable scope, @Nullable Throwable throwable) {
     traceStrategy.endScope(scope, throwable);
   }
 }
