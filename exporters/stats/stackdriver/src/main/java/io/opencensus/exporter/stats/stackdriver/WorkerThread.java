@@ -28,7 +28,11 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 
-/** Worker {@code Thread} that polls ViewData from Stats library and batch export to StackDriver. */
+/**
+ * Worker {@code Thread} that polls ViewData from Stats library and batch export to StackDriver.
+ *
+ * <p>{@code WorkerThread} is a daemon {@code Thread}.
+ */
 final class WorkerThread extends Thread {
 
   private static final Object monitor = new Object();

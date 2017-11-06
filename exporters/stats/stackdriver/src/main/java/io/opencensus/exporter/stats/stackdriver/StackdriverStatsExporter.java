@@ -145,12 +145,14 @@ public final class StackdriverStatsExporter {
     createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval);
   }
 
+  // Use createInternal() (instead of constructor) to enforce singleton.
   private static void createInternal(
       @Nullable Credentials credentials, String projectId, Duration exportInterval)
       throws IOException {
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
       MetricServiceClient metricServiceClient;
+      // Initialize MetricServiceClient inside lock to avoid creating multiple clients.
       if (credentials == null) {
         metricServiceClient = MetricServiceClient.create();
       } else {
