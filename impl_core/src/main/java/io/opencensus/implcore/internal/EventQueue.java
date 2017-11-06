@@ -24,7 +24,7 @@ public interface EventQueue {
    * Base interface to be used for all entries in {@link EventQueue}. For example usage, see {@code
    * DisruptorEventQueue}.
    */
-  public interface Entry {
+  interface Entry {
     /**
      * Process the event associated with this entry. This will be called for every event in the
      * associated {@link EventQueue}.

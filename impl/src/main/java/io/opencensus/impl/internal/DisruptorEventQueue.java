@@ -22,10 +22,9 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -86,78 +85,34 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class DisruptorEventQueue implements EventQueue {
-  // An event in the {@link EventQueue}. Just holds a reference to an EventQueueEntry.
-  private static final class InstrumentationEvent {
-    private Entry entry = null;
-
-    // Sets the EventQueueEntry associated with this InstrumentationEvent.
-    void setEntry(Entry entry) {
-      this.entry = entry;
-    }
-
-    // Returns the EventQueueEntry associated with this InstrumentationEvent.
-    Entry getEntry() {
-      return entry;
-    }
-  }
-
-  // Factory for InstrumentationEvent.
-  private static final class InstrumentationEventFactory
-      implements EventFactory<InstrumentationEvent> {
-    @Override
-    public InstrumentationEvent newInstance() {
-      return new InstrumentationEvent();
-    }
-  }
-
-  // Every event that gets added to {@link EventQueue} will get processed here. Just calls the
-  // underlying process() method.
-  private static final class InstrumentationEventHandler
-      implements EventHandler<InstrumentationEvent> {
-    @Override
-    public void onEvent(InstrumentationEvent event, long sequence, boolean endOfBatch) {
-      event.getEntry().process();
-    }
-  }
-
-  private static final AtomicInteger threadIdGen = new AtomicInteger();
-  private static final ThreadFactory threadFactory =
-      new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-          Thread thread = new Thread(r, "CensusDisruptor-" + threadIdGen.getAndIncrement());
-          thread.setDaemon(true);
-          return thread;
-        }
-      };
-
+  // Number of events that can be enqueued at any one time. If more than this are enqueued,
+  // then subsequent attempts to enqueue new entries will block.
+  // TODO(aveitch): consider making this a parameter to the constructor, so the queue can be
+  // configured to a size appropriate to the system (smaller/less busy systems will not need as
+  // large a queue.
+  private static final int DISRUPTOR_BUFFER_SIZE = 8192;
   // The single instance of the class.
   private static final DisruptorEventQueue eventQueue = new DisruptorEventQueue();
+
   // The event queue is built on this {@link Disruptor}.
-  private final Disruptor<InstrumentationEvent> disruptor;
+  private final Disruptor<DisruptorEvent> disruptor;
   // Ring Buffer for the {@link Disruptor} that underlies the queue.
-  private final RingBuffer<InstrumentationEvent> ringBuffer;
+  private final RingBuffer<DisruptorEvent> ringBuffer;
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
   // Suppress warnings for disruptor.handleEventsWith and Disruptor constructor
   @SuppressWarnings({"deprecation", "unchecked", "varargs"})
   private DisruptorEventQueue() {
-    // Number of events that can be enqueued at any one time. If more than this are enqueued,
-    // then subsequent attempts to enqueue new entries will block.
-    // TODO(aveitch): consider making this a parameter to the constructor, so the queue can be
-    // configured to a size appropriate to the system (smaller/less busy systems will not need as
-    // large a queue.
-    final int bufferSize = 8192;
     // Create new Disruptor for processing. Note that this uses a single thread for processing; this
     // ensures that the event handler can take unsynchronized actions whenever possible.
     disruptor =
-        new Disruptor<InstrumentationEvent>(
-            new InstrumentationEventFactory(),
-            bufferSize,
-            Executors.newSingleThreadExecutor(threadFactory),
+        new Disruptor<DisruptorEvent>(
+            new DisruptorEventFactory(),
+            DISRUPTOR_BUFFER_SIZE,
+            Executors.newSingleThreadExecutor(new DaemonThreadFactory("OpenCensus.Disruptor")),
             ProducerType.MULTI,
             new SleepingWaitStrategy());
-    disruptor.handleEventsWith(new InstrumentationEventHandler());
+    disruptor.handleEventsWith(new DisruptorEventHandler());
     disruptor.start();
     ringBuffer = disruptor.getRingBuffer();
   }
@@ -180,10 +135,44 @@ public final class DisruptorEventQueue implements EventQueue {
   public void enqueue(Entry entry) {
     long sequence = ringBuffer.next();
     try {
-      InstrumentationEvent event = ringBuffer.get(sequence);
+      DisruptorEvent event = ringBuffer.get(sequence);
       event.setEntry(entry);
     } finally {
       ringBuffer.publish(sequence);
+    }
+  }
+
+  // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.
+  private static final class DisruptorEvent {
+    private Entry entry = null;
+
+    // Sets the EventQueueEntry associated with this DisruptorEvent.
+    void setEntry(Entry entry) {
+      this.entry = entry;
+    }
+
+    // Returns the EventQueueEntry associated with this DisruptorEvent.
+    Entry getEntry() {
+      return entry;
+    }
+  }
+
+  // Factory for DisruptorEvent.
+  private static final class DisruptorEventFactory implements EventFactory<DisruptorEvent> {
+    @Override
+    public DisruptorEvent newInstance() {
+      return new DisruptorEvent();
+    }
+  }
+
+  /**
+   * Every event that gets added to {@link EventQueue} will get processed here. Just calls the
+   * underlying process() method.
+   */
+  private static final class DisruptorEventHandler implements EventHandler<DisruptorEvent> {
+    @Override
+    public void onEvent(DisruptorEvent event, long sequence, boolean endOfBatch) {
+      event.getEntry().process();
     }
   }
 }
