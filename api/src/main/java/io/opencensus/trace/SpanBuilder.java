@@ -168,8 +168,8 @@ public abstract class SpanBuilder {
    * Starts a new span and sets it as the {@link Tracer#getCurrentSpan current span}.
    *
    * <p>Enters the scope of code where the newly created {@code Span} is in the current Context, and
-   * returns an object that represents that scope. The scope is exited when the returned object is
-   * closed then the previous Context is restored and the newly created {@code Span} is ended using
+   * returns an object that represents that scope. When the returned object is closed, the scope is
+   * exited, the previous Context is restored, and the newly created {@code Span} is ended using
    * {@link Span#end}.
    *
    * <p>Supports try-with-resource idiom.
