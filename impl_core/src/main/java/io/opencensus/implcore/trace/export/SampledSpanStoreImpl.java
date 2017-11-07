@@ -173,13 +173,17 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
 
     private void considerForSampling(SpanImpl span) {
       Status status = span.getStatus();
-      Bucket bucket =
-          status.isOk()
-              ? getLatencyBucket(span.getLatencyNs())
-              : getErrorBucket(status.getCanonicalCode());
-      // If unable to find the bucket, ignore this Span.
-      if (bucket != null) {
-        bucket.considerForSampling(span);
+      // Null status means running Span, this should not happen in production, but the library
+      // should not crash because of this.
+      if (status != null) {
+        Bucket bucket =
+            status.isOk()
+                ? getLatencyBucket(span.getLatencyNs())
+                : getErrorBucket(status.getCanonicalCode());
+        // If unable to find the bucket, ignore this Span.
+        if (bucket != null) {
+          bucket.considerForSampling(span);
+        }
       }
     }
 

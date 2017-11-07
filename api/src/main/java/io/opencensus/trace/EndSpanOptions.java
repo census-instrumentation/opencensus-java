@@ -38,7 +38,7 @@ public abstract class EndSpanOptions {
    * @return a new {@code Builder} with default options.
    */
   public static Builder builder() {
-    return new AutoValue_EndSpanOptions.Builder().setStatus(null).setSampleToLocalSpanStore(false);
+    return new AutoValue_EndSpanOptions.Builder().setSampleToLocalSpanStore(false);
   }
 
   /**
@@ -75,7 +75,7 @@ public abstract class EndSpanOptions {
      * @param status the status.
      * @return this.
      */
-    public abstract Builder setStatus(@Nullable Status status);
+    public abstract Builder setStatus(Status status);
 
     /**
      * If set to {@code true} this is equivalent with calling the {@link
