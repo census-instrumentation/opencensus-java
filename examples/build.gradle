@@ -10,8 +10,7 @@ dependencies {
             project(':opencensus-contrib-zpages'),
             project(':opencensus-exporter-trace-logging')
 
-    runtime project(':core_impl_java'),
-            project(':opencensus-impl')
+    runtime project(':opencensus-impl')
 }
 
 // Provide convenience executables for trying out the examples.
