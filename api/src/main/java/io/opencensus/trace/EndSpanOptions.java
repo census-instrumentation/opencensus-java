@@ -59,7 +59,10 @@ public abstract class EndSpanOptions {
   /**
    * Returns the status.
    *
-   * @return the status or {@code null} if not set.
+   * <p>If {@code null} then the {@link Span} will record the {@link Status} set via {@link
+   * Span#setStatus(Status)} or the default {@link Status#OK} if no status was set.
+   *
+   * @return the status.
    */
   @Nullable
   public abstract Status getStatus();
