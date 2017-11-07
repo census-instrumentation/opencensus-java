@@ -247,9 +247,7 @@ public class ViewManagerImplTest {
         .isEqualTo(CumulativeData.create(Timestamp.create(1, 2), Timestamp.create(3, 4)));
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(aggregation, measure, values)),
+        ImmutableMap.of(Arrays.asList(VALUE), createAggregationData(aggregation, measure, values)),
         EPSILON);
   }
 
@@ -346,8 +344,7 @@ public class ViewManagerImplTest {
     assertAggregationMapEquals(
         viewManager.getView(VIEW_NAME).getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(aggregation, measure, initialValues)),
+            Arrays.asList(VALUE), createAggregationData(aggregation, measure, initialValues)),
         EPSILON);
 
     clock.setTime(Timestamp.fromMillis(startTimeMillis + 11 * MILLIS_PER_SECOND));
@@ -396,8 +393,7 @@ public class ViewManagerImplTest {
     assertAggregationMapEquals(
         viewData1.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 0.1)),
+            Arrays.asList(VALUE), createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 0.1)),
         EPSILON);
 
     statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 0.2).record(tags);
@@ -411,8 +407,7 @@ public class ViewManagerImplTest {
     assertAggregationMapEquals(
         viewData2.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 0.1, 0.2)),
+            Arrays.asList(VALUE), createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 0.1, 0.2)),
         EPSILON);
   }
 
@@ -510,8 +505,7 @@ public class ViewManagerImplTest {
     assertAggregationMapEquals(
         viewData3.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE_2),
-            createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 40.0)),
+            Arrays.asList(VALUE_2), createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 40.0)),
         EPSILON);
 
     // get ViewData at 40s, all stats should have expired.
@@ -674,16 +668,14 @@ public class ViewManagerImplTest {
     assertAggregationMapEquals(
         viewData1.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 5.0)),
+            Arrays.asList(VALUE), createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 5.0)),
         EPSILON);
     assertThat(viewData2.getWindowData())
         .isEqualTo(CumulativeData.create(Timestamp.create(2, 2), Timestamp.create(4, 4)));
     assertAggregationMapEquals(
         viewData2.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 5.0)),
+            Arrays.asList(VALUE), createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 5.0)),
         EPSILON);
   }
 
@@ -728,16 +720,14 @@ public class ViewManagerImplTest {
     assertAggregationMapEquals(
         viewData1.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(DISTRIBUTION, measure1, value1)),
+            Arrays.asList(VALUE), createAggregationData(DISTRIBUTION, measure1, value1)),
         EPSILON);
     assertThat(viewData2.getWindowData())
         .isEqualTo(CumulativeData.create(Timestamp.create(2, 0), Timestamp.create(4, 0)));
     assertAggregationMapEquals(
         viewData2.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(DISTRIBUTION, measure2, value2)),
+            Arrays.asList(VALUE), createAggregationData(DISTRIBUTION, measure2, value2)),
         EPSILON);
   }
 
@@ -759,8 +749,7 @@ public class ViewManagerImplTest {
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
         ImmutableMap.of(
-            Arrays.asList(VALUE),
-            createAggregationData(noHistogram, MEASURE_DOUBLE, 1.1)),
+            Arrays.asList(VALUE), createAggregationData(noHistogram, MEASURE_DOUBLE, 1.1)),
         EPSILON);
   }
 
@@ -779,8 +768,7 @@ public class ViewManagerImplTest {
         .isEqualTo(CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
     assertAggregationMapEquals(
         viewData.getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(VALUE), createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
+        ImmutableMap.of(Arrays.asList(VALUE), createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
         EPSILON);
   }
 
