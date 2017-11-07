@@ -80,7 +80,7 @@ follows:
 
 ```shell
 java -javaagent:path/to/opencensus-contrib-agent-X.Y.Z.jar \
-     -Dopencensus.contrib.agent.context-propagation.executor=false \
+     -Dopencensus.contrib.agent.context-propagation.executor.enabled=false \
      ...
 ```
 
