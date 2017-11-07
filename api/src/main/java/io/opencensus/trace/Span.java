@@ -163,8 +163,8 @@ public abstract class Span {
    * <p>If used, this will override the default {@code Span} status. Default is {@link Status#OK}.
    *
    * <p>Only the value of the last call will be recorded, and implementations are free to ignore
-   * previous calls. If the status is set via {@link EndSpanOptions.Builder#setStatus(Status)}
-   * that will always be the last call.
+   * previous calls. If the status is set via {@link EndSpanOptions.Builder#setStatus(Status)} that
+   * will always be the last call.
    *
    * @param status the {@link Status} to set.
    */
