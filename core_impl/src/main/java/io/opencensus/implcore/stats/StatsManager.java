@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
@@ -32,25 +33,34 @@ final class StatsManager {
   // clock used throughout the stats implementation
   private final Clock clock;
 
+  private final CurrentStatsState state;
   private final MeasureToViewMap measureToViewMap = new MeasureToViewMap();
 
-  StatsManager(EventQueue queue, Clock clock) {
+  StatsManager(EventQueue queue, Clock clock, CurrentStatsState state) {
     checkNotNull(queue, "EventQueue");
     checkNotNull(clock, "Clock");
+    checkNotNull(state, "state");
     this.queue = queue;
     this.clock = clock;
+    this.state = state;
   }
 
   void registerView(View view) {
-    measureToViewMap.registerView(view, clock);
+    if (state.get() == StatsCollectionState.ENABLED) {
+      measureToViewMap.registerView(view, clock);
+    }
   }
 
   ViewData getView(View.Name viewName) {
-    return measureToViewMap.getView(viewName, clock);
+    return state.get() == StatsCollectionState.ENABLED
+        ? measureToViewMap.getView(viewName, clock)
+        : null;
   }
 
   void record(TagContext tags, MeasureMapInternal measurementValues) {
-    queue.enqueue(new StatsEvent(this, tags, measurementValues));
+    if (state.get() == StatsCollectionState.ENABLED) {
+      queue.enqueue(new StatsEvent(this, tags, measurementValues));
+    }
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).

@@ -38,6 +38,7 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
@@ -776,6 +777,82 @@ public class ViewManagerImplTest {
         .isEqualTo(CumulativeData.create(Timestamp.create(1, 0), Timestamp.create(3, 0)));
     StatsTestUtil.assertAggregationMapEquals(
         viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
+        EPSILON);
+  }
+
+  @Test
+  public void registerRecordAndGetView_StatsDisabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+  }
+
+  @Test
+  public void registerRecordAndGetView_StatsReenabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
+        EPSILON);
+  }
+
+  @Test
+  public void registerViewWithStatsDisabled_RecordAndGetViewWithStatsEnabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view);
+
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+  }
+
+  @Test
+  public void registerDifferentViewWithSameNameWithStatsDisabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    View view1 = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    View view2 = createCumulativeView(VIEW_NAME_2, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view1);
+    viewManager.registerView(view2);
+
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+    assertThat(viewManager.getView(VIEW_NAME_2)).isNull();
+  }
+
+  @Test
+  public void registerAndRecordWhenEnabled_GetViewWhenDisabledAndThenReenabled() {
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
         ImmutableMap.of(
             Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
         EPSILON);

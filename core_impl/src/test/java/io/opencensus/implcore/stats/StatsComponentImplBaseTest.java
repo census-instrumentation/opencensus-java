@@ -22,13 +22,18 @@ import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
 import io.opencensus.testing.common.TestClock;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Tests for {@link StatsComponentImplBase}. */
 @RunWith(JUnit4.class)
 public final class StatsComponentImplBaseTest {
+
+  @Rule public final ExpectedException thrown = ExpectedException.none();
+
   private final StatsComponent statsComponent =
       new StatsComponentImplBase(new SimpleEventQueue(), TestClock.create());
 
@@ -45,8 +50,10 @@ public final class StatsComponentImplBaseTest {
     assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.ENABLED);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void setState_DisallowsNull() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("newState");
     statsComponent.setState(null);
   }
 }

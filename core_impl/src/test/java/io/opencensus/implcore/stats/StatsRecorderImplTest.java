@@ -25,6 +25,7 @@ import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
@@ -130,6 +131,59 @@ public final class StatsRecorderImplTest {
             StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 1.0),
             Arrays.asList(VALUE_2),
             StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 1.0)),
+        1e-6);
+  }
+
+  @Test
+  public void record_StatsDisabled() {
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            Sum.create(),
+            Arrays.asList(KEY),
+            Cumulative.create());
+
+    viewManager.registerView(view);
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+  }
+
+  @Test
+  public void record_StatsReenabled() {
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            Sum.create(),
+            Arrays.asList(KEY),
+            Cumulative.create());
+    viewManager.registerView(view);
+
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 4.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 4.0)),
         1e-6);
   }
 
