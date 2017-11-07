@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.contrib.agent.bootstrap.TraceStrategy;
-import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
@@ -50,10 +49,7 @@ final class TraceStrategyImpl implements TraceStrategy {
     if (throwable != null) {
       Tracing.getTracer()
           .getCurrentSpan()
-          .end(
-              EndSpanOptions.builder()
-                  .setStatus(Status.UNKNOWN.withDescription(throwable.getMessage()))
-                  .build());
+          .setStatus(Status.UNKNOWN.withDescription(throwable.getMessage()));
     }
 
     try {
