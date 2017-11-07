@@ -16,11 +16,10 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
 import java.util.Collection;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -39,9 +38,7 @@ public abstract class EndSpanOptions {
    * @return a new {@code Builder} with default options.
    */
   public static Builder builder() {
-    return new AutoValue_EndSpanOptions.Builder()
-        .setStatus(Status.OK)
-        .setSampleToLocalSpanStore(false);
+    return new AutoValue_EndSpanOptions.Builder().setSampleToLocalSpanStore(false);
   }
 
   /**
@@ -53,7 +50,8 @@ public abstract class EndSpanOptions {
    * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} API
    * instead.
    *
-   * @return this.
+   * @return {@code true} if the name of the {@code Span} should be registered to the {@code
+   *     io.opencensus.trace.export.SampledSpanStore}.
    */
   @ExperimentalApi
   public abstract boolean getSampleToLocalSpanStore();
@@ -61,8 +59,12 @@ public abstract class EndSpanOptions {
   /**
    * Returns the status.
    *
+   * <p>If {@code null} then the {@link Span} will record the {@link Status} set via {@link
+   * Span#setStatus(Status)} or the default {@link Status#OK} if no status was set.
+   *
    * @return the status.
    */
+  @Nullable
   public abstract Status getStatus();
 
   /** Builder class for {@link EndSpanOptions}. */
@@ -71,7 +73,7 @@ public abstract class EndSpanOptions {
     /**
      * Sets the status for the {@link Span}.
      *
-     * <p>If set, this will override the default {@code Span} status. Default is {@link Status#OK}.
+     * <p>If set, this will override the status set via {@link Span#setStatus(Status)}.
      *
      * @param status the status.
      * @return this.
@@ -95,19 +97,12 @@ public abstract class EndSpanOptions {
     @ExperimentalApi
     public abstract Builder setSampleToLocalSpanStore(boolean sampleToLocalSpanStore);
 
-    abstract EndSpanOptions autoBuild(); // not public
-
     /**
      * Builds and returns a {@code EndSpanOptions} with the desired settings.
      *
      * @return a {@code EndSpanOptions} with the desired settings.
-     * @throws NullPointerException if {@code status} is {@code null}.
      */
-    public EndSpanOptions build() {
-      EndSpanOptions endSpanOptions = autoBuild();
-      checkNotNull(endSpanOptions.getStatus(), "status");
-      return endSpanOptions;
-    }
+    public abstract EndSpanOptions build();
 
     Builder() {}
   }

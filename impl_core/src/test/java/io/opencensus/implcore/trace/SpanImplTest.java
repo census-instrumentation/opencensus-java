@@ -284,6 +284,50 @@ public class SpanImplTest {
   }
 
   @Test
+  public void status_ViaSetStatus() {
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            parentSpanId,
+            false,
+            TraceParams.DEFAULT,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
+    testClock.advanceTime(Duration.create(0, 100));
+    assertThat(span.getStatus()).isEqualTo(Status.OK);
+    span.setStatus(Status.CANCELLED);
+    assertThat(span.getStatus()).isEqualTo(Status.CANCELLED);
+    span.end();
+    assertThat(span.getStatus()).isEqualTo(Status.CANCELLED);
+  }
+
+  @Test
+  public void status_ViaEndSpanOptions() {
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            parentSpanId,
+            false,
+            TraceParams.DEFAULT,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    Mockito.verify(startEndHandler, Mockito.times(1)).onStart(span);
+    testClock.advanceTime(Duration.create(0, 100));
+    assertThat(span.getStatus()).isEqualTo(Status.OK);
+    span.setStatus(Status.CANCELLED);
+    assertThat(span.getStatus()).isEqualTo(Status.CANCELLED);
+    span.end(EndSpanOptions.builder().setStatus(Status.ABORTED).build());
+    assertThat(span.getStatus()).isEqualTo(Status.ABORTED);
+  }
+
+  @Test
   public void droppingAttributes() {
     final int maxNumberOfAttributes = 8;
     TraceParams traceParams =

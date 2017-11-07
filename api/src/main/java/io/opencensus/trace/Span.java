@@ -126,7 +126,7 @@ public abstract class Span {
    *
    * @param description the description of the annotation time event.
    * @param attributes the attributes that will be added; these are associated with this annotation,
-   *     not the {@code Span} as for {@link #addAttributes(Map)}.
+   *     not the {@code Span} as for {@link #putAttributes(Map)}.
    */
   public abstract void addAnnotation(String description, Map<String, AttributeValue> attributes);
 
@@ -156,6 +156,22 @@ public abstract class Span {
    * @param link the link to add.
    */
   public abstract void addLink(Link link);
+
+  /**
+   * Sets the {@link Status} to the {@code Span}.
+   *
+   * <p>If used, this will override the default {@code Span} status. Default is {@link Status#OK}.
+   *
+   * <p>Only the value of the last call will be recorded, and implementations are free to ignore
+   * previous calls. If the status is set via {@link EndSpanOptions.Builder#setStatus(Status)} that
+   * will always be the last call.
+   *
+   * @param status the {@link Status} to set.
+   */
+  public void setStatus(Status status) {
+    // Implemented as no-op for backwards compatibility (for example gRPC extends Span in tests).
+    // Implementation must override this method.
+  }
 
   /**
    * Marks the end of {@code Span} execution with the given options.

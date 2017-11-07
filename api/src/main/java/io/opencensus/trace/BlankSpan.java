@@ -58,6 +58,9 @@ public final class BlankSpan extends Span {
   @Override
   public void addLink(Link link) {}
 
+  @Override
+  public void setStatus(Status status) {}
+
   /** No-op implementation of the {@link Span#end(EndSpanOptions)} method. */
   @Override
   public void end(EndSpanOptions options) {}

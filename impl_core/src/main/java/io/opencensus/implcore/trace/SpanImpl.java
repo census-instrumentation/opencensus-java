@@ -165,7 +165,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    */
   public Status getStatus() {
     synchronized (this) {
-      return status;
+      return getStatusWithDefault();
     }
   }
 
@@ -250,7 +250,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           networkEventsSpanData,
           linksSpanData,
           null, // Not supported yet.
-          hasBeenEnded ? status : null,
+          hasBeenEnded ? getStatusWithDefault() : null,
           hasBeenEnded ? timestampConverter.convertNanoTime(endNanoTime) : null);
     }
   }
@@ -350,6 +350,20 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
+  public void setStatus(Status status) {
+    if (!getOptions().contains(Options.RECORD_EVENTS)) {
+      return;
+    }
+    synchronized (this) {
+      if (hasBeenEnded) {
+        logger.log(Level.FINE, "Calling setStatus() on an ended Span.");
+        return;
+      }
+      this.status = status;
+    }
+  }
+
+  @Override
   public void end(EndSpanOptions options) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
@@ -359,7 +373,9 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
         logger.log(Level.FINE, "Calling end() on an ended Span.");
         return;
       }
-      status = options.getStatus();
+      if (options.getStatus() != null) {
+        status = options.getStatus();
+      }
       sampleToLocalSpanStore = options.getSampleToLocalSpanStore();
       endNanoTime = clock.nowNanos();
       hasBeenEnded = true;
@@ -400,6 +416,11 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       links = new TraceEvents<Link>(traceParams.getMaxNumberOfLinks());
     }
     return links;
+  }
+
+  @GuardedBy("this")
+  private Status getStatusWithDefault() {
+    return status == null ? Status.OK : status;
   }
 
   private static <T> SpanData.TimedEvents<T> createTimedEvents(
