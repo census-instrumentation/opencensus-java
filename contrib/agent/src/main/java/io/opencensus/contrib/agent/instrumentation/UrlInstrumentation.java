@@ -45,7 +45,7 @@ public final class UrlInstrumentation implements Instrumenter {
     checkNotNull(agentBuilder, "agentBuilder");
     checkNotNull(config, "config");
 
-    if (!config.getBoolean("tracing.url.getContent")) {
+    if (!config.getBoolean("trace.java.net.URL.getContent.enabled")) {
       return agentBuilder;
     }
 

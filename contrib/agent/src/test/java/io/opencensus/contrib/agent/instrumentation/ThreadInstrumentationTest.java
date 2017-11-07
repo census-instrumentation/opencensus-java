@@ -38,7 +38,7 @@ public class ThreadInstrumentationTest {
 
   @Test
   public void instrument_disabled() {
-    when(config.getBoolean("context-propagation.thread")).thenReturn(false);
+    when(config.getBoolean("context-propagation.thread.enabled")).thenReturn(false);
 
     AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, config);
 
@@ -47,7 +47,7 @@ public class ThreadInstrumentationTest {
 
   @Test
   public void instrument_enabled() {
-    when(config.getBoolean("context-propagation.thread")).thenReturn(true);
+    when(config.getBoolean("context-propagation.thread.enabled")).thenReturn(true);
 
     AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, config);
 

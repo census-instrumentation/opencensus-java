@@ -47,7 +47,7 @@ public final class ThreadInstrumentation implements Instrumenter {
     checkNotNull(agentBuilder, "agentBuilder");
     checkNotNull(config, "config");
 
-    if (!config.getBoolean("context-propagation.thread")) {
+    if (!config.getBoolean("context-propagation.thread.enabled")) {
       return agentBuilder;
     }
 

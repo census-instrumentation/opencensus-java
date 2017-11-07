@@ -38,7 +38,7 @@ public class UrlInstrumentationTest {
 
   @Test
   public void instrument_disabled() {
-    when(config.getBoolean("tracing.url.getContent")).thenReturn(false);
+    when(config.getBoolean("trace.java.net.URL.getContent.enabled")).thenReturn(false);
 
     AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, config);
 
@@ -47,7 +47,7 @@ public class UrlInstrumentationTest {
 
   @Test
   public void instrument_enabled() {
-    when(config.getBoolean("tracing.url.getContent")).thenReturn(true);
+    when(config.getBoolean("trace.java.net.URL.getContent.enabled")).thenReturn(true);
 
     AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, config);
 

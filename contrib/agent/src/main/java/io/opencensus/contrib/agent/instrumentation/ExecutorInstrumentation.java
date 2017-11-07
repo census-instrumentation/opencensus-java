@@ -49,7 +49,7 @@ public final class ExecutorInstrumentation implements Instrumenter {
     checkNotNull(agentBuilder, "agentBuilder");
     checkNotNull(config, "config");
 
-    if (!config.getBoolean("context-propagation.executor")) {
+    if (!config.getBoolean("context-propagation.executor.enabled")) {
       return agentBuilder;
     }
 
