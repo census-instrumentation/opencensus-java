@@ -43,12 +43,14 @@ public final class StatsComponentImplBaseTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void setState_Disabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.DISABLED);
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void setState_Enabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     statsComponent.setState(StatsCollectionState.ENABLED);
@@ -56,6 +58,7 @@ public final class StatsComponentImplBaseTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void setState_DisallowsNull() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("newState");
@@ -63,6 +66,7 @@ public final class StatsComponentImplBaseTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void preventSettingStateAfterGettingState() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     statsComponent.getState();

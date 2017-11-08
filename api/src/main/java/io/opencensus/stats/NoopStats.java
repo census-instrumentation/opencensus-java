@@ -103,6 +103,7 @@ final class NoopStats {
     }
 
     @Override
+    @Deprecated
     public void setState(StatsCollectionState state) {
       Preconditions.checkNotNull(state, "state");
       checkState(!isRead, "State was already read, cannot set state.");

@@ -69,12 +69,14 @@ public final class StatsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void setState_IgnoresInput() {
     Stats.setState(StatsCollectionState.ENABLED);
     assertThat(Stats.getState()).isEqualTo(StatsCollectionState.DISABLED);
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void setState_DisallowsNull() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("state");
@@ -82,6 +84,7 @@ public final class StatsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void disallowSetStateAfterGetState() {
     Stats.getState();
     thrown.expect(IllegalStateException.class);

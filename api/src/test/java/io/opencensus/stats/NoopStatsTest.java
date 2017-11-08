@@ -67,6 +67,7 @@ public final class NoopStatsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void noopStatsComponent_SetState_IgnoresInput() {
     StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
     noopStatsComponent.setState(StatsCollectionState.ENABLED);
@@ -74,6 +75,7 @@ public final class NoopStatsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void noopStatsComponent_SetState_DisallowsNull() {
     StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
     thrown.expect(NullPointerException.class);
@@ -81,6 +83,7 @@ public final class NoopStatsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void noopStatsComponent_DisallowsSetStateAfterGetState() {
     StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
     noopStatsComponent.setState(StatsCollectionState.DISABLED);

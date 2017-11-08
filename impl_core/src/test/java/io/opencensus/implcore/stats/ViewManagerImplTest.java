@@ -785,6 +785,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void registerRecordAndGetView_StatsDisabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
@@ -797,6 +798,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void registerRecordAndGetView_StatsReenabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     statsComponent.setState(StatsCollectionState.ENABLED);
@@ -814,6 +816,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void registerViewWithStatsDisabled_RecordAndGetViewWithStatsEnabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
@@ -832,6 +835,7 @@ public class ViewManagerImplTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void registerDifferentViewWithSameNameWithStatsDisabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     View view1 =
@@ -873,6 +877,7 @@ public class ViewManagerImplTest {
     settingStateToDisabledWillClearStats(intervalView);
   }
 
+  @SuppressWarnings("deprecation")
   private void settingStateToDisabledWillClearStats(View view) {
     Timestamp timestamp1 = Timestamp.create(1, 0);
     clock.setTime(timestamp1);
