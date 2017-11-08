@@ -56,4 +56,13 @@ public final class StatsComponentImplBaseTest {
     thrown.expectMessage("newState");
     statsComponent.setState(null);
   }
+
+  @Test
+  public void preventSettingStateAfterGettingState() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    statsComponent.getState();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    statsComponent.setState(StatsCollectionState.ENABLED);
+  }
 }

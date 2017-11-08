@@ -52,4 +52,13 @@ public final class CurrentStatsStateTest {
     thrown.expectMessage("state");
     state.set(null);
   }
+
+  @Test
+  public void preventSettingStateAfterReadingState() {
+    CurrentStatsState state = new CurrentStatsState();
+    state.setRead();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    state.set(StatsCollectionState.DISABLED);
+  }
 }

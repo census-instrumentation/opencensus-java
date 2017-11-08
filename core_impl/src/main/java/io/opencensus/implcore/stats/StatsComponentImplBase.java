@@ -55,6 +55,7 @@ public class StatsComponentImplBase extends StatsComponent {
 
   @Override
   public StatsCollectionState getState() {
+    state.setRead();
     return state.get();
   }
 

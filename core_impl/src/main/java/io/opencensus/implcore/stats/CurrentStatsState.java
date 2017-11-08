@@ -17,6 +17,7 @@
 package io.opencensus.implcore.stats;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
@@ -30,12 +31,18 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class CurrentStatsState {
   private volatile StatsCollectionState currentState = StatsCollectionState.ENABLED;
+  private volatile boolean isRead;
 
   public StatsCollectionState get() {
     return currentState;
   }
 
+  void setRead() {
+    isRead = true;
+  }
+
   void set(StatsCollectionState state) {
+    checkState(!isRead, "State was already read, cannot set state.");
     currentState = checkNotNull(state, "state");
   }
 }
