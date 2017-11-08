@@ -39,10 +39,11 @@ public final class CurrentStatsStateTest {
   @Test
   public void setState() {
     CurrentStatsState state = new CurrentStatsState();
-    state.set(StatsCollectionState.DISABLED);
+    assertThat(state.set(StatsCollectionState.DISABLED)).isTrue();
     assertThat(state.getInternal()).isEqualTo(StatsCollectionState.DISABLED);
-    state.set(StatsCollectionState.ENABLED);
+    assertThat(state.set(StatsCollectionState.ENABLED)).isTrue();
     assertThat(state.getInternal()).isEqualTo(StatsCollectionState.ENABLED);
+    assertThat(state.set(StatsCollectionState.ENABLED)).isFalse();
   }
 
   @Test

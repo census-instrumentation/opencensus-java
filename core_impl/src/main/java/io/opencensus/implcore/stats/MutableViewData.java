@@ -329,6 +329,8 @@ abstract class MutableViewData {
 
     @Override
     void resumeStatsCollection(Timestamp now) {
+      // Refresh bucket list to be ready for stats recording, so that if record() is called right
+      // after stats state is turned back on, record() will be faster.
       refreshBucketList(now);
     }
 

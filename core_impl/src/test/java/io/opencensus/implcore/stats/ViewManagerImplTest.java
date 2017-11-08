@@ -903,7 +903,6 @@ public class ViewManagerImplTest {
     // non-zero TimeStamps.
     ViewData viewData = viewManager.getView(view.getName());
     assertThat(viewData.getAggregationMap()).isEmpty();
-    assertThat(viewData).isNotEqualTo(createEmptyViewData(view));
     AggregationWindowData windowData = viewData.getWindowData();
     if (windowData instanceof CumulativeData) {
       assertThat(windowData).isEqualTo(CumulativeData.create(timestamp3, timestamp4));

@@ -47,8 +47,15 @@ public final class CurrentStatsState {
     return currentState;
   }
 
-  synchronized void set(StatsCollectionState state) {
+  // Sets current state to the given state. Returns true if the current state is changed, false
+  // otherwise.
+  synchronized boolean set(StatsCollectionState state) {
     checkState(!isRead, "State was already read, cannot set state.");
-    currentState = checkNotNull(state, "state");
+    if (state == currentState) {
+      return false;
+    } else {
+      currentState = checkNotNull(state, "state");
+      return true;
+    }
   }
 }

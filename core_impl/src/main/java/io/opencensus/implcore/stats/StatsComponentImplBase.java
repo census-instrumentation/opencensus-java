@@ -60,15 +60,13 @@ public class StatsComponentImplBase extends StatsComponent {
 
   @Override
   public void setState(StatsCollectionState newState) {
-    StatsCollectionState oldState = state.getInternal();
-    if (newState == oldState) {
-      return;
-    }
-    state.set(Preconditions.checkNotNull(newState, "newState"));
-    if (newState == StatsCollectionState.DISABLED) {
-      viewManager.clearStats();
-    } else {
-      viewManager.resumeStatsCollection();
+    boolean stateChanged = state.set(Preconditions.checkNotNull(newState, "newState"));
+    if (stateChanged) {
+      if (newState == StatsCollectionState.DISABLED) {
+        viewManager.clearStats();
+      } else {
+        viewManager.resumeStatsCollection();
+      }
     }
   }
 }
