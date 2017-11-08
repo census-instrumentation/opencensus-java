@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Measure;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.Name;
@@ -59,7 +60,7 @@ public class MeasureToViewMapTest {
     TestClock clock = TestClock.create(Timestamp.create(10, 20));
     measureToViewMap.registerView(VIEW, clock);
     clock.setTime(Timestamp.create(30, 40));
-    ViewData viewData = measureToViewMap.getView(VIEW_NAME, clock);
+    ViewData viewData = measureToViewMap.getView(VIEW_NAME, clock, StatsCollectionState.ENABLED);
     assertThat(viewData.getView()).isEqualTo(VIEW);
     assertThat(viewData.getWindowData())
         .isEqualTo(CumulativeData.create(Timestamp.create(10, 20), Timestamp.create(30, 40)));

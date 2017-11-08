@@ -21,6 +21,7 @@ import static io.opencensus.implcore.stats.MutableViewData.toMillis;
 
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
+import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
@@ -67,6 +68,7 @@ public class MutableViewDataTest {
   @Test
   public void testConstants() {
     assertThat(MutableViewData.UNKNOWN_TAG_VALUE).isNull();
+    assertThat(MutableViewData.ZERO_TIMESTAMP).isEqualTo(Timestamp.create(0, 0));
   }
 
   @Test

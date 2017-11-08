@@ -35,6 +35,9 @@ public abstract class StatsComponent {
    * <p>When no implementation is available, {@code getState} always returns {@link
    * StatsCollectionState#DISABLED}.
    *
+   * <p>Once {@link #getState()} is called, subsequent calls to {@link
+   * #setState(StatsCollectionState)} will throw an {@code IllegalStateException}.
+   *
    * @return the current {@code StatsCollectionState}.
    */
   public abstract StatsCollectionState getState();
@@ -43,6 +46,9 @@ public abstract class StatsComponent {
    * Sets the current {@code StatsCollectionState}.
    *
    * <p>When no implementation is available, {@code setState} has no effect.
+   *
+   * <p>If state is set to {@link StatsCollectionState#DISABLED}, all stats that are previously
+   * recorded will be cleared.
    *
    * @param state the new {@code StatsCollectionState}.
    */

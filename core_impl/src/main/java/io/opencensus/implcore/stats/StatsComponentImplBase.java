@@ -25,11 +25,11 @@ import io.opencensus.stats.StatsComponent;
 /** Base implementation of {@link StatsComponent}. */
 public class StatsComponentImplBase extends StatsComponent {
 
+  // The StatsCollectionState shared between the StatsComponent, StatsRecorder and ViewManager.
+  private final CurrentStatsState state = new CurrentStatsState();
+
   private final ViewManagerImpl viewManager;
   private final StatsRecorderImpl statsRecorder;
-
-  // TODO(sebright): Implement stats collection state.
-  private volatile StatsCollectionState state = StatsCollectionState.ENABLED;
 
   /**
    * Creates a new {@code StatsComponentImplBase}.
@@ -38,7 +38,7 @@ public class StatsComponentImplBase extends StatsComponent {
    * @param clock the clock to use when recording stats.
    */
   public StatsComponentImplBase(EventQueue queue, Clock clock) {
-    StatsManager statsManager = new StatsManager(queue, clock);
+    StatsManager statsManager = new StatsManager(queue, clock, state);
     this.viewManager = new ViewManagerImpl(statsManager);
     this.statsRecorder = new StatsRecorderImpl(statsManager);
   }
@@ -55,11 +55,18 @@ public class StatsComponentImplBase extends StatsComponent {
 
   @Override
   public StatsCollectionState getState() {
-    return state;
+    return state.get();
   }
 
   @Override
   public void setState(StatsCollectionState newState) {
-    state = Preconditions.checkNotNull(newState, "newState");
+    boolean stateChanged = state.set(Preconditions.checkNotNull(newState, "newState"));
+    if (stateChanged) {
+      if (newState == StatsCollectionState.DISABLED) {
+        viewManager.clearStats();
+      } else {
+        viewManager.resumeStatsCollection();
+      }
+    }
   }
 }

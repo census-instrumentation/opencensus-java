@@ -27,6 +27,7 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
@@ -34,6 +35,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -56,9 +58,9 @@ final class MeasureToViewMap {
   private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
 
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
-  synchronized ViewData getView(View.Name viewName, Clock clock) {
+  synchronized ViewData getView(View.Name viewName, Clock clock, StatsCollectionState state) {
     MutableViewData view = getMutableViewData(viewName);
-    return view == null ? null : view.toViewData(clock.now());
+    return view == null ? null : view.toViewData(clock.now(), state);
   }
 
   @Nullable
@@ -123,6 +125,24 @@ final class MeasureToViewMap {
             new RecordDoubleValueFunc(tags, view, timestamp),
             new RecordLongValueFunc(tags, view, timestamp),
             Functions.<Void>throwAssertionError());
+      }
+    }
+  }
+
+  // Clear stats for all the current MutableViewData
+  synchronized void clearStats() {
+    for (Entry<String, Collection<MutableViewData>> entry : mutableMap.asMap().entrySet()) {
+      for (MutableViewData mutableViewData : entry.getValue()) {
+        mutableViewData.clearStats();
+      }
+    }
+  }
+
+  // Resume stats collection for all MutableViewData.
+  synchronized void resumeStatsCollection(Timestamp now) {
+    for (Entry<String, Collection<MutableViewData>> entry : mutableMap.asMap().entrySet()) {
+      for (MutableViewData mutableViewData : entry.getValue()) {
+        mutableViewData.resumeStatsCollection(now);
       }
     }
   }

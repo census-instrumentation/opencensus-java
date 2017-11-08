@@ -43,6 +43,7 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
@@ -55,6 +56,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,6 +70,7 @@ abstract class MutableViewData {
   private static final long NANOS_PER_MILLI = 1000 * 1000;
 
   @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
+  @VisibleForTesting static final Timestamp ZERO_TIMESTAMP = Timestamp.create(0, 0);
 
   private final View view;
 
@@ -105,7 +108,14 @@ abstract class MutableViewData {
   }
 
   /** Convert this {@link MutableViewData} to {@link ViewData}. */
-  abstract ViewData toViewData(Timestamp now);
+  abstract ViewData toViewData(Timestamp now, StatsCollectionState state);
+
+  // Clear recorded stats.
+  abstract void clearStats();
+
+  // Resume stats collection, and reset Start Timestamp (for CumulativeMutableViewData), or refresh
+  // bucket list (for InternalMutableViewData).
+  abstract void resumeStatsCollection(Timestamp now);
 
   private static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
     if (ctx instanceof TagContextImpl) {
@@ -188,7 +198,7 @@ abstract class MutableViewData {
 
   private static final class CumulativeMutableViewData extends MutableViewData {
 
-    private final Timestamp start;
+    private Timestamp start;
     private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap =
         Maps.newHashMap();
 
@@ -208,11 +218,29 @@ abstract class MutableViewData {
     }
 
     @Override
-    ViewData toViewData(Timestamp now) {
-      return ViewData.create(
-          super.view,
-          createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
-          CumulativeData.create(start, now));
+    ViewData toViewData(Timestamp now, StatsCollectionState state) {
+      if (state == StatsCollectionState.ENABLED) {
+        return ViewData.create(
+            super.view,
+            createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
+            CumulativeData.create(start, now));
+      } else {
+        // If Stats state is DISABLED, return an empty ViewData.
+        return ViewData.create(
+            super.view,
+            Collections.<List<TagValue>, AggregationData>emptyMap(),
+            CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
+      }
+    }
+
+    @Override
+    void clearStats() {
+      tagValueAggregationMap.clear();
+    }
+
+    @Override
+    void resumeStatsCollection(Timestamp now) {
+      start = now;
     }
   }
 
@@ -278,10 +306,32 @@ abstract class MutableViewData {
     }
 
     @Override
-    ViewData toViewData(Timestamp now) {
+    ViewData toViewData(Timestamp now, StatsCollectionState state) {
       refreshBucketList(now);
-      return ViewData.create(
-          super.view, combineBucketsAndGetAggregationMap(now), IntervalData.create(now));
+      if (state == StatsCollectionState.ENABLED) {
+        return ViewData.create(
+            super.view, combineBucketsAndGetAggregationMap(now), IntervalData.create(now));
+      } else {
+        // If Stats state is DISABLED, return an empty ViewData.
+        return ViewData.create(
+            super.view,
+            Collections.<List<TagValue>, AggregationData>emptyMap(),
+            IntervalData.create(ZERO_TIMESTAMP));
+      }
+    }
+
+    @Override
+    void clearStats() {
+      for (IntervalBucket bucket : buckets) {
+        bucket.clearStats();
+      }
+    }
+
+    @Override
+    void resumeStatsCollection(Timestamp now) {
+      // Refresh bucket list to be ready for stats recording, so that if record() is called right
+      // after stats state is turned back on, record() will be faster.
+      refreshBucketList(now);
     }
 
     // Add new buckets and remove expired buckets by comparing the current timestamp with

@@ -18,56 +18,48 @@ package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.stats.StatsCollectionState;
-import io.opencensus.stats.StatsComponent;
-import io.opencensus.testing.common.TestClock;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link StatsComponentImplBase}. */
+/** Tests for {@link CurrentStatsState}. */
 @RunWith(JUnit4.class)
-public final class StatsComponentImplBaseTest {
+public final class CurrentStatsStateTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private final StatsComponent statsComponent =
-      new StatsComponentImplBase(new SimpleEventQueue(), TestClock.create());
-
   @Test
   public void defaultState() {
-    assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.ENABLED);
+    assertThat(new CurrentStatsState().get()).isEqualTo(StatsCollectionState.ENABLED);
   }
 
   @Test
-  public void setState_Disabled() {
-    statsComponent.setState(StatsCollectionState.DISABLED);
-    assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.DISABLED);
+  public void setState() {
+    CurrentStatsState state = new CurrentStatsState();
+    assertThat(state.set(StatsCollectionState.DISABLED)).isTrue();
+    assertThat(state.getInternal()).isEqualTo(StatsCollectionState.DISABLED);
+    assertThat(state.set(StatsCollectionState.ENABLED)).isTrue();
+    assertThat(state.getInternal()).isEqualTo(StatsCollectionState.ENABLED);
+    assertThat(state.set(StatsCollectionState.ENABLED)).isFalse();
   }
 
   @Test
-  public void setState_Enabled() {
-    statsComponent.setState(StatsCollectionState.DISABLED);
-    statsComponent.setState(StatsCollectionState.ENABLED);
-    assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.ENABLED);
-  }
-
-  @Test
-  public void setState_DisallowsNull() {
+  public void preventNull() {
+    CurrentStatsState state = new CurrentStatsState();
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("newState");
-    statsComponent.setState(null);
+    thrown.expectMessage("state");
+    state.set(null);
   }
 
   @Test
-  public void preventSettingStateAfterGettingState() {
-    statsComponent.setState(StatsCollectionState.DISABLED);
-    statsComponent.getState();
+  public void preventSettingStateAfterReadingState() {
+    CurrentStatsState state = new CurrentStatsState();
+    state.get();
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("State was already read, cannot set state.");
-    statsComponent.setState(StatsCollectionState.ENABLED);
+    state.set(StatsCollectionState.DISABLED);
   }
 }

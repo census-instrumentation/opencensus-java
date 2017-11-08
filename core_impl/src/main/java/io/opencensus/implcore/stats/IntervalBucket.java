@@ -79,4 +79,8 @@ final class IntervalBucket {
         "This bucket must be current.");
     return ((double) toMillis(elapsedTime)) / toMillis(duration);
   }
+
+  void clearStats() {
+    tagValueAggregationMap.clear();
+  }
 }

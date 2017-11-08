@@ -19,6 +19,7 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.implcore.stats.StatsTestUtil.assertAggregationMapEquals;
 import static io.opencensus.implcore.stats.StatsTestUtil.createAggregationData;
+import static io.opencensus.implcore.stats.StatsTestUtil.createEmptyViewData;
 
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
@@ -38,11 +39,13 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
+import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagContext;
@@ -779,6 +782,133 @@ public class ViewManagerImplTest {
         ImmutableMap.of(
             Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
         EPSILON);
+  }
+
+  @Test
+  public void registerRecordAndGetView_StatsDisabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+    assertThat(viewManager.getView(VIEW_NAME)).isEqualTo(createEmptyViewData(view));
+  }
+
+  @Test
+  public void registerRecordAndGetView_StatsReenabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
+        EPSILON);
+  }
+
+  @Test
+  public void registerViewWithStatsDisabled_RecordAndGetViewWithStatsEnabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    viewManager.registerView(view); // view will still be registered.
+
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
+        EPSILON);
+  }
+
+  @Test
+  public void registerDifferentViewWithSameNameWithStatsDisabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    View view1 =
+        View.create(
+            VIEW_NAME,
+            "View description.",
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    View view2 =
+        View.create(
+            VIEW_NAME,
+            "This is a different description.",
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    testFailedToRegisterView(
+        view1, view2, "A different view with the same name is already registered");
+  }
+
+  @Test
+  public void settingStateToDisabledWillClearStats_Cumulative() {
+    View cumulativeView = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    settingStateToDisabledWillClearStats(cumulativeView);
+  }
+
+  @Test
+  public void settingStateToDisabledWillClearStats_Interval() {
+    View intervalView =
+        View.create(
+            VIEW_NAME_2,
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            MEAN,
+            Arrays.asList(KEY),
+            Interval.create(Duration.create(60, 0)));
+    settingStateToDisabledWillClearStats(intervalView);
+  }
+
+  private void settingStateToDisabledWillClearStats(View view) {
+    Timestamp timestamp1 = Timestamp.create(1, 0);
+    clock.setTime(timestamp1);
+    viewManager.registerView(view);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.1)
+        .record(tagger.emptyBuilder().put(KEY, VALUE).build());
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(view.getName()).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(view.getAggregation(), view.getMeasure(), 1.1)),
+        EPSILON);
+
+    Timestamp timestamp2 = Timestamp.create(2, 0);
+    clock.setTime(timestamp2);
+    statsComponent.setState(StatsCollectionState.DISABLED); // This will clear stats.
+    assertThat(viewManager.getView(view.getName())).isEqualTo(createEmptyViewData(view));
+
+    Timestamp timestamp3 = Timestamp.create(3, 0);
+    clock.setTime(timestamp3);
+    statsComponent.setState(StatsCollectionState.ENABLED);
+
+    Timestamp timestamp4 = Timestamp.create(4, 0);
+    clock.setTime(timestamp4);
+    // This ViewData does not have any stats, but it should not be an empty ViewData, since it has
+    // non-zero TimeStamps.
+    ViewData viewData = viewManager.getView(view.getName());
+    assertThat(viewData.getAggregationMap()).isEmpty();
+    AggregationWindowData windowData = viewData.getWindowData();
+    if (windowData instanceof CumulativeData) {
+      assertThat(windowData).isEqualTo(CumulativeData.create(timestamp3, timestamp4));
+    } else {
+      assertThat(windowData).isEqualTo(IntervalData.create(timestamp4));
+    }
   }
 
   private static MeasureMap putToMeasureMap(MeasureMap measureMap, Measure measure, double value) {

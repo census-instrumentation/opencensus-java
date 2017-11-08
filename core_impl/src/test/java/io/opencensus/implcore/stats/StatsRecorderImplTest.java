@@ -17,6 +17,8 @@
 package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.implcore.stats.MutableViewData.ZERO_TIMESTAMP;
+import static io.opencensus.implcore.stats.StatsTestUtil.createEmptyViewData;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -25,11 +27,13 @@ import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.MeasureMap;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.ViewData;
+import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
@@ -130,6 +134,61 @@ public final class StatsRecorderImplTest {
             StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 1.0),
             Arrays.asList(VALUE_2),
             StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 1.0)),
+        1e-6);
+  }
+
+  @Test
+  public void record_StatsDisabled() {
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            Sum.create(),
+            Arrays.asList(KEY),
+            Cumulative.create());
+
+    viewManager.registerView(view);
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    assertThat(viewManager.getView(VIEW_NAME)).isEqualTo(createEmptyViewData(view));
+  }
+
+  @Test
+  public void record_StatsReenabled() {
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            Sum.create(),
+            Arrays.asList(KEY),
+            Cumulative.create());
+    viewManager.registerView(view);
+
+    statsComponent.setState(StatsCollectionState.DISABLED);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    assertThat(viewManager.getView(VIEW_NAME)).isEqualTo(createEmptyViewData(view));
+
+    statsComponent.setState(StatsCollectionState.ENABLED);
+    assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();
+    assertThat(viewManager.getView(VIEW_NAME).getWindowData())
+        .isNotEqualTo(CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 4.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 4.0)),
         1e-6);
   }
 

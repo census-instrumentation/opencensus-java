@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
@@ -32,13 +33,16 @@ final class StatsManager {
   // clock used throughout the stats implementation
   private final Clock clock;
 
+  private final CurrentStatsState state;
   private final MeasureToViewMap measureToViewMap = new MeasureToViewMap();
 
-  StatsManager(EventQueue queue, Clock clock) {
+  StatsManager(EventQueue queue, Clock clock, CurrentStatsState state) {
     checkNotNull(queue, "EventQueue");
     checkNotNull(clock, "Clock");
+    checkNotNull(state, "state");
     this.queue = queue;
     this.clock = clock;
+    this.state = state;
   }
 
   void registerView(View view) {
@@ -46,11 +50,23 @@ final class StatsManager {
   }
 
   ViewData getView(View.Name viewName) {
-    return measureToViewMap.getView(viewName, clock);
+    return measureToViewMap.getView(viewName, clock, state.getInternal());
   }
 
   void record(TagContext tags, MeasureMapInternal measurementValues) {
-    queue.enqueue(new StatsEvent(this, tags, measurementValues));
+    // TODO(songya): consider exposing No-op MeasureMap and use it when stats state is DISABLED, so
+    // that we don't need to create actual MeasureMapImpl.
+    if (state.getInternal() == StatsCollectionState.ENABLED) {
+      queue.enqueue(new StatsEvent(this, tags, measurementValues));
+    }
+  }
+
+  void clearStats() {
+    measureToViewMap.clearStats();
+  }
+
+  void resumeStatsCollection() {
+    measureToViewMap.resumeStatsCollection(clock.now());
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
