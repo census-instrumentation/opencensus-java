@@ -82,13 +82,4 @@ public final class StatsTest {
     thrown.expectMessage("state");
     Stats.setState(null);
   }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void disallowSetStateAfterGetState() {
-    Stats.getState();
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("State was already read, cannot set state.");
-    Stats.setState(StatsCollectionState.DISABLED);
-  }
 }
