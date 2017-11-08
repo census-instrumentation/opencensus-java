@@ -74,8 +74,18 @@ public final class StatsTest {
     assertThat(Stats.getState()).isEqualTo(StatsCollectionState.DISABLED);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void setState_DisallowsNull() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("state");
     Stats.setState(null);
+  }
+
+  @Test
+  public void disallowSetStateAfterGetState() {
+    Stats.getState();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    Stats.setState(StatsCollectionState.DISABLED);
   }
 }

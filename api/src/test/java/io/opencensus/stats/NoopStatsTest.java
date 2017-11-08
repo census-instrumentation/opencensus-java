@@ -80,6 +80,16 @@ public final class NoopStatsTest {
     noopStatsComponent.setState(null);
   }
 
+  @Test
+  public void noopStatsComponent_DisallowsSetStateAfterGetState() {
+    StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
+    noopStatsComponent.setState(StatsCollectionState.DISABLED);
+    noopStatsComponent.getState();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    noopStatsComponent.setState(StatsCollectionState.ENABLED);
+  }
+
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
