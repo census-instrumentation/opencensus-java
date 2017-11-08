@@ -56,6 +56,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -111,6 +112,10 @@ abstract class MutableViewData {
 
   // Clear recorded stats.
   abstract void clearStats();
+
+  // Resume stats collection, and reset Start Timestamp (for CumulativeMutableViewData), or refresh
+  // bucket list (for InternalMutableViewData).
+  abstract void resumeStatsCollection(Timestamp now);
 
   private static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
     if (ctx instanceof TagContextImpl) {
@@ -193,7 +198,7 @@ abstract class MutableViewData {
 
   private static final class CumulativeMutableViewData extends MutableViewData {
 
-    private final Timestamp start;
+    private Timestamp start;
     private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap =
         Maps.newHashMap();
 
@@ -223,7 +228,7 @@ abstract class MutableViewData {
         // If Stats state is DISABLED, return an empty ViewData.
         return ViewData.create(
             super.view,
-            Maps.<List<TagValue>, AggregationData>newHashMap(),
+            Collections.<List<TagValue>, AggregationData>emptyMap(),
             CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
       }
     }
@@ -231,6 +236,11 @@ abstract class MutableViewData {
     @Override
     void clearStats() {
       tagValueAggregationMap.clear();
+    }
+
+    @Override
+    void resumeStatsCollection(Timestamp now) {
+      start = now;
     }
   }
 
@@ -305,7 +315,7 @@ abstract class MutableViewData {
         // If Stats state is DISABLED, return an empty ViewData.
         return ViewData.create(
             super.view,
-            Maps.<List<TagValue>, AggregationData>newHashMap(),
+            Collections.<List<TagValue>, AggregationData>emptyMap(),
             IntervalData.create(ZERO_TIMESTAMP));
       }
     }
@@ -315,6 +325,11 @@ abstract class MutableViewData {
       for (IntervalBucket bucket : buckets) {
         bucket.clearStats();
       }
+    }
+
+    @Override
+    void resumeStatsCollection(Timestamp now) {
+      refreshBucketList(now);
     }
 
     // Add new buckets and remove expired buckets by comparing the current timestamp with

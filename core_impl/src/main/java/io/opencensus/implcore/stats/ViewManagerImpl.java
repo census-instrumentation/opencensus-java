@@ -41,4 +41,8 @@ public final class ViewManagerImpl extends ViewManager {
   void clearStats() {
     statsManager.clearStats();
   }
+
+  void resumeStatsCollection() {
+    statsManager.resumeStatsCollection();
+  }
 }

@@ -40,9 +40,9 @@ public final class CurrentStatsStateTest {
   public void setState() {
     CurrentStatsState state = new CurrentStatsState();
     state.set(StatsCollectionState.DISABLED);
-    assertThat(state.get()).isEqualTo(StatsCollectionState.DISABLED);
+    assertThat(state.getInternal()).isEqualTo(StatsCollectionState.DISABLED);
     state.set(StatsCollectionState.ENABLED);
-    assertThat(state.get()).isEqualTo(StatsCollectionState.ENABLED);
+    assertThat(state.getInternal()).isEqualTo(StatsCollectionState.ENABLED);
   }
 
   @Test
@@ -56,7 +56,7 @@ public final class CurrentStatsStateTest {
   @Test
   public void preventSettingStateAfterReadingState() {
     CurrentStatsState state = new CurrentStatsState();
-    state.setRead();
+    state.get();
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("State was already read, cannot set state.");
     state.set(StatsCollectionState.DISABLED);

@@ -138,6 +138,15 @@ final class MeasureToViewMap {
     }
   }
 
+  // Resume stats collection for all MutableViewData.
+  synchronized void resumeStatsCollection(Timestamp now) {
+    for (Entry<String, Collection<MutableViewData>> entry : mutableMap.asMap().entrySet()) {
+      for (MutableViewData mutableViewData : entry.getValue()) {
+        mutableViewData.resumeStatsCollection(now);
+      }
+    }
+  }
+
   private static final class RecordDoubleValueFunc implements Function<MeasurementDouble, Void> {
     @Override
     public Void apply(MeasurementDouble arg) {

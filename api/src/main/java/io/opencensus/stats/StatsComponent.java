@@ -35,6 +35,9 @@ public abstract class StatsComponent {
    * <p>When no implementation is available, {@code getState} always returns {@link
    * StatsCollectionState#DISABLED}.
    *
+   * <p>Once {@link #getState()} is called, subsequent calls to {@link
+   * #setState(StatsCollectionState)} will throw an {@code IllegalStateException}.
+   *
    * @return the current {@code StatsCollectionState}.
    */
   public abstract StatsCollectionState getState();

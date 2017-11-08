@@ -50,17 +50,23 @@ final class StatsManager {
   }
 
   ViewData getView(View.Name viewName) {
-    return measureToViewMap.getView(viewName, clock, state.get());
+    return measureToViewMap.getView(viewName, clock, state.getInternal());
   }
 
   void record(TagContext tags, MeasureMapInternal measurementValues) {
-    if (state.get() == StatsCollectionState.ENABLED) {
+    // TODO(songya): consider exposing No-op MeasureMap and use it when stats state is DISABLED, so
+    // that we don't need to create actual MeasureMapImpl.
+    if (state.getInternal() == StatsCollectionState.ENABLED) {
       queue.enqueue(new StatsEvent(this, tags, measurementValues));
     }
   }
 
   void clearStats() {
     measureToViewMap.clearStats();
+  }
+
+  void resumeStatsCollection() {
+    measureToViewMap.resumeStatsCollection(clock.now());
   }
 
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).

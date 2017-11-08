@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -30,18 +31,23 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class CurrentStatsState {
-  private volatile StatsCollectionState currentState = StatsCollectionState.ENABLED;
-  private volatile boolean isRead;
 
-  public StatsCollectionState get() {
+  @GuardedBy("this")
+  private StatsCollectionState currentState = StatsCollectionState.ENABLED;
+
+  @GuardedBy("this")
+  private boolean isRead;
+
+  public synchronized StatsCollectionState get() {
+    isRead = true;
+    return getInternal();
+  }
+
+  synchronized StatsCollectionState getInternal() {
     return currentState;
   }
 
-  void setRead() {
-    isRead = true;
-  }
-
-  void set(StatsCollectionState state) {
+  synchronized void set(StatsCollectionState state) {
     checkState(!isRead, "State was already read, cannot set state.");
     currentState = checkNotNull(state, "state");
   }
