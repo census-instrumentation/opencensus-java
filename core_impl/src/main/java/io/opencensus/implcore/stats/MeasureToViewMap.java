@@ -27,6 +27,7 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
+import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
@@ -56,9 +57,9 @@ final class MeasureToViewMap {
   private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
 
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
-  synchronized ViewData getView(View.Name viewName, Clock clock) {
+  synchronized ViewData getView(View.Name viewName, Clock clock, StatsCollectionState state) {
     MutableViewData view = getMutableViewData(viewName);
-    return view == null ? null : view.toViewData(clock.now());
+    return view == null ? null : view.toViewData(clock.now(), state);
   }
 
   @Nullable

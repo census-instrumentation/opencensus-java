@@ -17,6 +17,7 @@
 package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.implcore.stats.MutableViewData.ZERO_TIMESTAMP;
 
 import com.google.common.collect.Iterables;
 import io.opencensus.common.Function;
@@ -29,8 +30,14 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
+import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
+import io.opencensus.stats.ViewData.AggregationWindowData;
+import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
+import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -124,6 +131,20 @@ final class StatsTestUtil {
           }
         },
         Functions.<Void>throwIllegalArgumentException());
+  }
+
+  // Create an empty ViewData with the given View.
+  static ViewData createEmptyViewData(View view) {
+    return ViewData.create(
+        view,
+        Collections.<List<TagValue>, AggregationData>emptyMap(),
+        view.getWindow()
+            .match(
+                Functions.<AggregationWindowData>returnConstant(
+                    CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP)),
+                Functions.<AggregationWindowData>returnConstant(
+                    IntervalData.create(ZERO_TIMESTAMP)),
+                Functions.<AggregationWindowData>throwAssertionError()));
   }
 
   // Compare the expected and actual DistributionData within the given tolerance.

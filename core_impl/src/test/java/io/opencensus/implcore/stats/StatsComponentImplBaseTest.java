@@ -43,9 +43,14 @@ public final class StatsComponentImplBaseTest {
   }
 
   @Test
-  public void setState() {
+  public void setState_Disabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.DISABLED);
+  }
+
+  @Test
+  public void setState_Enabled() {
+    statsComponent.setState(StatsCollectionState.DISABLED);
     statsComponent.setState(StatsCollectionState.ENABLED);
     assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.ENABLED);
   }

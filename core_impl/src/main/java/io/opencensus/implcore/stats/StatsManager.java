@@ -46,15 +46,11 @@ final class StatsManager {
   }
 
   void registerView(View view) {
-    if (state.get() == StatsCollectionState.ENABLED) {
-      measureToViewMap.registerView(view, clock);
-    }
+    measureToViewMap.registerView(view, clock);
   }
 
   ViewData getView(View.Name viewName) {
-    return state.get() == StatsCollectionState.ENABLED
-        ? measureToViewMap.getView(viewName, clock)
-        : null;
+    return measureToViewMap.getView(viewName, clock, state.get());
   }
 
   void record(TagContext tags, MeasureMapInternal measurementValues) {

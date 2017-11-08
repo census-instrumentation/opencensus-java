@@ -19,6 +19,7 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.implcore.stats.StatsTestUtil.assertAggregationMapEquals;
 import static io.opencensus.implcore.stats.StatsTestUtil.createAggregationData;
+import static io.opencensus.implcore.stats.StatsTestUtil.createEmptyViewData;
 
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
@@ -791,7 +792,7 @@ public class ViewManagerImplTest {
         .newMeasureMap()
         .put(MEASURE_DOUBLE, 1.1)
         .record(tagger.emptyBuilder().put(KEY, VALUE).build());
-    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+    assertThat(viewManager.getView(VIEW_NAME)).isEqualTo(createEmptyViewData(view));
   }
 
   @Test
@@ -815,27 +816,41 @@ public class ViewManagerImplTest {
   public void registerViewWithStatsDisabled_RecordAndGetViewWithStatsEnabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
     View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
-    viewManager.registerView(view);
+    viewManager.registerView(view); // view will still be registered.
 
     statsComponent.setState(StatsCollectionState.ENABLED);
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, 1.1)
         .record(tagger.emptyBuilder().put(KEY, VALUE).build());
-    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+    StatsTestUtil.assertAggregationMapEquals(
+        viewManager.getView(VIEW_NAME).getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
+        EPSILON);
   }
 
   @Test
   public void registerDifferentViewWithSameNameWithStatsDisabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
-    View view1 = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
-    View view2 = createCumulativeView(VIEW_NAME_2, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
-    viewManager.registerView(view1);
-    viewManager.registerView(view2);
-
-    statsComponent.setState(StatsCollectionState.ENABLED);
-    assertThat(viewManager.getView(VIEW_NAME)).isNull();
-    assertThat(viewManager.getView(VIEW_NAME_2)).isNull();
+    View view1 =
+        View.create(
+            VIEW_NAME,
+            "View description.",
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    View view2 =
+        View.create(
+            VIEW_NAME,
+            "This is a different description.",
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    testFailedToRegisterView(
+        view1, view2, "A different view with the same name is already registered");
   }
 
   @Test
@@ -848,7 +863,7 @@ public class ViewManagerImplTest {
         .record(tagger.emptyBuilder().put(KEY, VALUE).build());
 
     statsComponent.setState(StatsCollectionState.DISABLED);
-    assertThat(viewManager.getView(VIEW_NAME)).isNull();
+    assertThat(viewManager.getView(VIEW_NAME)).isEqualTo(createEmptyViewData(view));
 
     statsComponent.setState(StatsCollectionState.ENABLED);
     StatsTestUtil.assertAggregationMapEquals(
