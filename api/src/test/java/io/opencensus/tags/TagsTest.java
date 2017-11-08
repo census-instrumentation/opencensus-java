@@ -62,12 +62,14 @@ public class TagsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void setState_IgnoresInput() {
     Tags.setState(TaggingState.ENABLED);
     assertThat(Tags.getState()).isEqualTo(TaggingState.DISABLED);
   }
 
   @Test(expected = NullPointerException.class)
+  @SuppressWarnings("deprecation")
   public void setState_DisallowsNull() {
     Tags.setState(null);
   }

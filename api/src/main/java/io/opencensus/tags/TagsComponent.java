@@ -37,6 +37,9 @@ public abstract class TagsComponent {
    * <p>When no implementation is available, {@code getState} always returns {@link
    * TaggingState#DISABLED}.
    *
+   * <p>Once {@link #getState()} is called, subsequent calls to {@link #setState(TaggingState)} will
+   * throw an {@code IllegalStateException}.
+   *
    * @return the current {@code TaggingState}.
    */
   public abstract TaggingState getState();
@@ -44,9 +47,15 @@ public abstract class TagsComponent {
   /**
    * Sets the current {@code TaggingState}.
    *
-   * <p>When no implementation is available, {@code setState} has no effect.
+   * <p>When no implementation is available, {@code setState} does not change the state.
    *
    * @param state the new {@code TaggingState}.
+   * @throws IllegalStateException if {@link #getState()} was previously called.
+   * @deprecated This method is deprecated because other libraries could cache the result of {@link
+   *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
+   *     initialization. This method throws {@link IllegalStateException} after {@code getState()}
+   *     has been called, in order to prevent the result of {@code getState()} from changing.
    */
+  @Deprecated
   public abstract void setState(TaggingState state);
 }

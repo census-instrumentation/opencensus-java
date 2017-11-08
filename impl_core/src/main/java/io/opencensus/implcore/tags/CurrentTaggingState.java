@@ -18,8 +18,10 @@ package io.opencensus.implcore.tags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.TagsComponent;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -29,13 +31,25 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class CurrentTaggingState {
-  private volatile TaggingState currentState = TaggingState.ENABLED;
 
-  public TaggingState get() {
+  @GuardedBy("this")
+  private TaggingState currentState = TaggingState.ENABLED;
+
+  @GuardedBy("this")
+  private boolean isRead;
+
+  public synchronized TaggingState get() {
+    isRead = true;
+    return getInternal();
+  }
+
+  public synchronized TaggingState getInternal() {
     return currentState;
   }
 
-  void set(TaggingState state) {
+  // Sets current state to the given state.
+  synchronized void set(TaggingState state) {
+    Preconditions.checkState(!isRead, "State was already read, cannot set state.");
     currentState = checkNotNull(state, "state");
   }
 }
