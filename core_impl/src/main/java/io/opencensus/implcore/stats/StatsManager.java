@@ -59,6 +59,10 @@ final class StatsManager {
     }
   }
 
+  void clearStats() {
+    measureToViewMap.clearStats();
+  }
+
   // An EventQueue entry that records the stats from one call to StatsManager.record(...).
   private static final class StatsEvent implements EventQueue.Entry {
     private final TagContext tags;

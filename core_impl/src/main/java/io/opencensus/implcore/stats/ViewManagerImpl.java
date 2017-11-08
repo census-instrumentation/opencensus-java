@@ -37,4 +37,8 @@ public final class ViewManagerImpl extends ViewManager {
   public ViewData getView(View.Name viewName) {
     return statsManager.getView(viewName);
   }
+
+  void clearStats() {
+    statsManager.clearStats();
+  }
 }

@@ -109,6 +109,9 @@ abstract class MutableViewData {
   /** Convert this {@link MutableViewData} to {@link ViewData}. */
   abstract ViewData toViewData(Timestamp now, StatsCollectionState state);
 
+  // Clear recorded stats.
+  abstract void clearStats();
+
   private static Map<TagKey, TagValue> getTagMap(TagContext ctx) {
     if (ctx instanceof TagContextImpl) {
       return ((TagContextImpl) ctx).getTags();
@@ -224,6 +227,11 @@ abstract class MutableViewData {
             CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
       }
     }
+
+    @Override
+    void clearStats() {
+      tagValueAggregationMap.clear();
+    }
   }
 
   /*
@@ -299,6 +307,13 @@ abstract class MutableViewData {
             super.view,
             Maps.<List<TagValue>, AggregationData>newHashMap(),
             IntervalData.create(ZERO_TIMESTAMP));
+      }
+    }
+
+    @Override
+    void clearStats() {
+      for (IntervalBucket bucket : buckets) {
+        bucket.clearStats();
       }
     }
 

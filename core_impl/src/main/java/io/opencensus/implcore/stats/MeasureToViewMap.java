@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -124,6 +125,15 @@ final class MeasureToViewMap {
             new RecordDoubleValueFunc(tags, view, timestamp),
             new RecordLongValueFunc(tags, view, timestamp),
             Functions.<Void>throwAssertionError());
+      }
+    }
+  }
+
+  // Clear stats for all the current MutableViewData
+  synchronized void clearStats() {
+    for (Entry<String, Collection<MutableViewData>> entry : mutableMap.asMap().entrySet()) {
+      for (MutableViewData mutableViewData : entry.getValue()) {
+        mutableViewData.clearStats();
       }
     }
   }

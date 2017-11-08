@@ -62,5 +62,8 @@ public class StatsComponentImplBase extends StatsComponent {
   @Override
   public void setState(StatsCollectionState newState) {
     state.set(Preconditions.checkNotNull(newState, "newState"));
+    if (newState == StatsCollectionState.DISABLED) {
+      viewManager.clearStats();
+    }
   }
 }

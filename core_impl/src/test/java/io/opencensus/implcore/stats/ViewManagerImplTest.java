@@ -854,23 +854,32 @@ public class ViewManagerImplTest {
   }
 
   @Test
-  public void registerAndRecordWhenEnabled_GetViewWhenDisabledAndThenReenabled() {
-    View view = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
-    viewManager.registerView(view);
+  public void settingStateToDisabledWillClearStats() {
+    View view1 = createCumulativeView(VIEW_NAME, MEASURE_DOUBLE, MEAN, Arrays.asList(KEY));
+    View view2 =
+        View.create(
+            VIEW_NAME_2,
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            MEAN,
+            Arrays.asList(KEY),
+            Interval.create(Duration.create(60, 0)));
+    viewManager.registerView(view1);
+    viewManager.registerView(view2);
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, 1.1)
         .record(tagger.emptyBuilder().put(KEY, VALUE).build());
 
-    statsComponent.setState(StatsCollectionState.DISABLED);
-    assertThat(viewManager.getView(VIEW_NAME)).isEqualTo(createEmptyViewData(view));
+    statsComponent.setState(StatsCollectionState.DISABLED); // This will clear stats.
+    assertThat(viewManager.getView(VIEW_NAME)).isEqualTo(createEmptyViewData(view1));
+    assertThat(viewManager.getView(VIEW_NAME_2)).isEqualTo(createEmptyViewData(view2));
 
     statsComponent.setState(StatsCollectionState.ENABLED);
-    StatsTestUtil.assertAggregationMapEquals(
-        viewManager.getView(VIEW_NAME).getAggregationMap(),
-        ImmutableMap.of(
-            Arrays.asList(VALUE), StatsTestUtil.createAggregationData(MEAN, MEASURE_DOUBLE, 1.1)),
-        EPSILON);
+    assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();
+    assertThat(viewManager.getView(VIEW_NAME)).isNotEqualTo(createEmptyViewData(view1));
+    assertThat(viewManager.getView(VIEW_NAME_2).getAggregationMap()).isEmpty();
+    assertThat(viewManager.getView(VIEW_NAME_2)).isNotEqualTo(createEmptyViewData(view2));
   }
 
   private static MeasureMap putToMeasureMap(MeasureMap measureMap, Measure measure, double value) {
