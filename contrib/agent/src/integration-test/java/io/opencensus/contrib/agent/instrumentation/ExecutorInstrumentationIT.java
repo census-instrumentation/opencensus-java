@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
@@ -62,7 +63,7 @@ public class ExecutorInstrumentationIT {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
 
-    final AtomicBoolean tested = new AtomicBoolean(false);
+    final Semaphore tested = new Semaphore(0);
 
     executor.execute(
         new Runnable() {
@@ -71,19 +72,11 @@ public class ExecutorInstrumentationIT {
             assertThat(Thread.currentThread()).isNotSameAs(callerThread);
             assertThat(Context.current()).isSameAs(context);
             assertThat(KEY.get()).isEqualTo("myvalue");
-            tested.set(true);
-
-            synchronized (tested) {
-              tested.notify();
-            }
+            tested.release();
           }
         });
 
-    synchronized (tested) {
-      tested.wait();
-    }
-
-    assertThat(tested.get()).isTrue();
+    tested.acquire();
   }
 
   @Test(timeout = 60000)
@@ -169,7 +162,7 @@ public class ExecutorInstrumentationIT {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
 
-    final AtomicBoolean tested = new AtomicBoolean(false);
+    final Semaphore tested = new Semaphore(0);
 
     Context.currentContextExecutor(executor)
         .execute(
@@ -192,18 +185,11 @@ public class ExecutorInstrumentationIT {
                 assertThat(Thread.currentThread()).isNotSameAs(callerThread);
                 assertThat(Context.current()).isSameAs(context);
                 assertThat(KEY.get()).isEqualTo("myvalue");
-                tested.set(true);
 
-                synchronized (tested) {
-                  tested.notify();
-                }
+                tested.release();
               }
             });
 
-    synchronized (tested) {
-      tested.wait();
-    }
-
-    assertThat(tested.get()).isTrue();
+    tested.acquire();
   }
 }
