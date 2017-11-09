@@ -169,6 +169,7 @@ public class StackdriverStatsExporterTest {
       // createTimeSeriesCallable() should be called once per second. This test uses a timeout that
       // is longer than the export interval in order to decrease the chance of failures due to
       // timing.
+      // TODO(songya): consider how to avoid blocking the thread and making this test deterministic
       verify(mockStub, timeout(2000).atLeast(1)).createTimeSeriesCallable();
 
       MetricDescriptor descriptor = StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
