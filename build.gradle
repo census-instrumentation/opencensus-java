@@ -280,6 +280,7 @@ subprojects {
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-zpages',
+                 'opencensus-exporter-stats-stackdriver',
                  'opencensus-exporter-trace-logging',
                  'opencensus-exporter-trace-stackdriver',
                  'opencensus-exporter-trace-zipkin',
