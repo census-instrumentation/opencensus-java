@@ -165,8 +165,9 @@ public class StackdriverStatsExporterTest {
       StackdriverStatsExporter.registerView(view);
 
       verify(mockStub, times(1)).createMetricDescriptorCallable();
-      // The timeout for verifying createTimeSeries needs to match the export interval of exporter.
-      verify(mockStub, timeout(1000).times(1)).createTimeSeriesCallable();
+      // This verification is slower on some machine. Relax the timeout be greater than the export
+      // interval to make this more steady.
+      verify(mockStub, timeout(2000).times(1)).createTimeSeriesCallable();
 
       MetricDescriptor descriptor = StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
       List<TimeSeries> timeSeries =
