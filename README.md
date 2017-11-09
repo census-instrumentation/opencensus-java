@@ -109,7 +109,7 @@ runtime 'io.opencensus:opencensus-impl:0.8.0'
 * [Zipkin][TraceExporterZipkin]
 
 #### Stats exporters
-* TODO
+* [Stackdriver][StatsExporterStackdriver]
 
 ### How to setup debugging Z-Pages?
 
@@ -129,3 +129,4 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [TraceExporterLogging]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/logging#quickstart
 [TraceExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/stackdriver#quickstart
 [TraceExporterZipkin]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/zipkin#quickstart
+[StatsExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/stats/stackdriver#quickstart
