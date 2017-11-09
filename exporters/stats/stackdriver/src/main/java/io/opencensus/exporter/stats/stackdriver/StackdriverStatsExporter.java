@@ -187,6 +187,9 @@ public final class StackdriverStatsExporter {
    * @param view the {@code View} to be registered.
    * @throws IllegalStateException if a Stackdriver stats exporter has not been created yet.
    */
+  // TODO(songya): remove this API and have exporter polls stats using getAllExportedView(). Views
+  // should not be registered against exporter, since in the future we'll probably switch to a push
+  // model.
   public static void registerView(View view) {
     synchronized (monitor) {
       checkState(exporter != null, "Stackdriver stats exporter has not been created.");
