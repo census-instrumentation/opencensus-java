@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.timeout;
@@ -165,8 +166,11 @@ public class StackdriverStatsExporterTest {
       StackdriverStatsExporter.registerView(view);
 
       verify(mockStub, times(1)).createMetricDescriptorCallable();
-      // The timeout for verifying createTimeSeries needs to match the export interval of exporter.
-      verify(mockStub, timeout(1000).times(1)).createTimeSeriesCallable();
+      // createTimeSeriesCallable() should be called once per second. This test uses a timeout that
+      // is longer than the export interval in order to decrease the chance of failures due to
+      // timing.
+      // TODO(songya): consider how to avoid blocking the thread and making this test deterministic
+      verify(mockStub, timeout(2000).atLeast(1)).createTimeSeriesCallable();
 
       MetricDescriptor descriptor = StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
       List<TimeSeries> timeSeries =
@@ -177,7 +181,7 @@ public class StackdriverStatsExporterTest {
                   CreateMetricDescriptorRequest.newBuilder()
                       .setMetricDescriptor(descriptor)
                       .build()));
-      verify(mockCreateTimeSeriesCallable, times(1))
+      verify(mockCreateTimeSeriesCallable, atLeast(1))
           .call(eq(CreateTimeSeriesRequest.newBuilder().addAllTimeSeries(timeSeries).build()));
     } finally {
       StackdriverStatsExporter.unsafeSetExporter(null);
