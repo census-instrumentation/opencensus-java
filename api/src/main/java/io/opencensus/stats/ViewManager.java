@@ -16,6 +16,7 @@
 
 package io.opencensus.stats;
 
+import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
@@ -42,4 +43,15 @@ public abstract class ViewManager {
    */
   @Nullable
   public abstract ViewData getView(View.Name view);
+
+  /**
+   * Returns all registered views that should be exported.
+   *
+   * <p>This method should be used by any stats exporter that automatically exports data for views
+   * registered with the {@link ViewManager}.
+   *
+   * @return all registered views that should be exported.
+   * @since 0.9
+   */
+  public abstract Set<View> getAllExportedViews();
 }

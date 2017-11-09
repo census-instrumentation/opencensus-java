@@ -22,10 +22,12 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
+import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
@@ -34,6 +36,7 @@ import io.opencensus.tags.TagValue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
@@ -185,6 +188,19 @@ final class NoopStats {
                           IntervalData.create(ZERO_TIMESTAMP)),
                       Functions.<AggregationWindowData>throwAssertionError()));
         }
+      }
+    }
+
+    @Override
+    public Set<View> getAllExportedViews() {
+      synchronized (views) {
+        Set<View> exportedViews = Sets.newHashSet();
+        for (View view : views.values()) {
+          if (view.getWindow() instanceof AggregationWindow.Cumulative) {
+            exportedViews.add(view);
+          }
+        }
+        return Collections.unmodifiableSet(exportedViews);
       }
     }
   }

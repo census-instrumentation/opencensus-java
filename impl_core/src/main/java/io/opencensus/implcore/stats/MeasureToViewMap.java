@@ -19,6 +19,7 @@ package io.opencensus.implcore.stats;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -62,6 +63,10 @@ final class MeasureToViewMap {
   synchronized ViewData getView(View.Name viewName, Clock clock, StatsCollectionState state) {
     MutableViewData view = getMutableViewData(viewName);
     return view == null ? null : view.toViewData(clock.now(), state);
+  }
+
+  synchronized Collection<View> getAllViews() {
+    return Sets.newHashSet(registeredViews.values());
   }
 
   @Nullable
