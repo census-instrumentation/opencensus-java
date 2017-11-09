@@ -142,7 +142,7 @@ public class StackdriverStatsExporterTest {
       StackdriverStatsExporter.createWithCredentialsAndProjectId(
           GoogleCredentials.newBuilder().build(), PROJECT_ID, ONE_SECOND);
     } finally {
-      StackdriverStatsExporter.setExporter(null);
+      StackdriverStatsExporter.unsafeSetExporter(null);
     }
   }
 
@@ -159,7 +159,7 @@ public class StackdriverStatsExporterTest {
     doReturn(viewData).when(mockViewManager).getView(VIEW_NAME);
 
     try {
-      StackdriverStatsExporter.setExporter(
+      StackdriverStatsExporter.unsafeSetExporter(
           new StackdriverStatsExporter(
               PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager));
       StackdriverStatsExporter.registerView(view);
@@ -180,7 +180,7 @@ public class StackdriverStatsExporterTest {
       verify(mockCreateTimeSeriesCallable, times(1))
           .call(eq(CreateTimeSeriesRequest.newBuilder().addAllTimeSeries(timeSeries).build()));
     } finally {
-      StackdriverStatsExporter.setExporter(null);
+      StackdriverStatsExporter.unsafeSetExporter(null);
     }
   }
 
@@ -196,7 +196,7 @@ public class StackdriverStatsExporterTest {
   @Test
   public void preventRegisteringDifferentViewWithSameName() throws IOException {
     doNothing().when(mockViewManager).registerView(any(View.class));
-    StackdriverStatsExporter.setExporter(
+    StackdriverStatsExporter.unsafeSetExporter(
         new StackdriverStatsExporter(
             PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager));
     View view1 =
@@ -215,7 +215,7 @@ public class StackdriverStatsExporterTest {
       thrown.expectMessage("A different view with the same name is already registered: ");
       StackdriverStatsExporter.registerView(view2);
     } finally {
-      StackdriverStatsExporter.setExporter(null);
+      StackdriverStatsExporter.unsafeSetExporter(null);
     }
   }
 

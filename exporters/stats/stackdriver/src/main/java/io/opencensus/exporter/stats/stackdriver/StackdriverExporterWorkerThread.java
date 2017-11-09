@@ -31,9 +31,9 @@ import javax.annotation.concurrent.GuardedBy;
 /**
  * Worker {@code Thread} that polls ViewData from Stats library and batch export to StackDriver.
  *
- * <p>{@code WorkerThread} is a daemon {@code Thread}.
+ * <p>{@code StackdriverExporterWorkerThread} is a daemon {@code Thread}.
  */
-final class WorkerThread extends Thread {
+final class StackdriverExporterWorkerThread extends Thread {
 
   private static final Object monitor = new Object();
 
@@ -47,7 +47,7 @@ final class WorkerThread extends Thread {
   @GuardedBy("monitor")
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
-  WorkerThread(
+  StackdriverExporterWorkerThread(
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,

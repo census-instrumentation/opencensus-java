@@ -57,7 +57,7 @@ public final class StackdriverStatsExporter {
 
   private final String projectId;
   private final MetricServiceClient metricServiceClient;
-  private final WorkerThread workerThread;
+  private final StackdriverExporterWorkerThread workerThread;
 
   @GuardedBy("monitor")
   private static StackdriverStatsExporter exporter = null;
@@ -74,7 +74,8 @@ public final class StackdriverStatsExporter {
     this.projectId = projectId;
     this.metricServiceClient = metricServiceClient;
     this.workerThread =
-        new WorkerThread(projectId, metricServiceClient, exportInterval, viewManager);
+        new StackdriverExporterWorkerThread(
+            projectId, metricServiceClient, exportInterval, viewManager);
   }
 
   /**
@@ -171,7 +172,7 @@ public final class StackdriverStatsExporter {
 
   // Method for setting exporter to a fake exporter or null (reset) for unit tests.
   @VisibleForTesting
-  static void setExporter(StackdriverStatsExporter exporter) {
+  static void unsafeSetExporter(StackdriverStatsExporter exporter) {
     synchronized (monitor) {
       StackdriverStatsExporter.exporter = exporter;
       if (exporter != null) {
