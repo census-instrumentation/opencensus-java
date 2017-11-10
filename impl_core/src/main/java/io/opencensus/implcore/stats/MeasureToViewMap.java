@@ -69,27 +69,6 @@ final class MeasureToViewMap {
     return Sets.newHashSet(registeredViews.values());
   }
 
-  @Nullable
-  private synchronized MutableViewData getMutableViewData(View.Name viewName) {
-    View view = registeredViews.get(viewName);
-    if (view == null) {
-      return null;
-    }
-    Collection<MutableViewData> views = mutableMap.get(view.getMeasure().getName());
-    for (MutableViewData viewData : views) {
-      if (viewData.getView().getName().equals(viewName)) {
-        return viewData;
-      }
-    }
-    throw new AssertionError(
-        "Internal error: Not recording stats for view: \""
-            + viewName
-            + "\" registeredViews="
-            + registeredViews
-            + ", mutableMap="
-            + mutableMap);
-  }
-
   /** Enable stats collection for the given {@link View}. */
   synchronized void registerView(View view, Clock clock) {
     View existing = registeredViews.get(view.getName());
@@ -113,6 +92,27 @@ final class MeasureToViewMap {
       registeredMeasures.put(measure.getName(), measure);
     }
     mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
+  }
+
+  @Nullable
+  private synchronized MutableViewData getMutableViewData(View.Name viewName) {
+    View view = registeredViews.get(viewName);
+    if (view == null) {
+      return null;
+    }
+    Collection<MutableViewData> views = mutableMap.get(view.getMeasure().getName());
+    for (MutableViewData viewData : views) {
+      if (viewData.getView().getName().equals(viewName)) {
+        return viewData;
+      }
+    }
+    throw new AssertionError(
+        "Internal error: Not recording stats for view: \""
+            + viewName
+            + "\" registeredViews="
+            + registeredViews
+            + ", mutableMap="
+            + mutableMap);
   }
 
   // Records stats with a set of tags.
