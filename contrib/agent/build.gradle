@@ -1,21 +1,10 @@
 plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.1'
-  id 'me.tatarka.retrolambda' version '3.7.0' 
   id 'me.champeau.gradle.jmh' version '0.4.4'
   id 'io.morethan.jmhreport' version '0.6.2.1'
 }
 
 description = 'OpenCensus Agent'
-
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
-// Experimental support for legacy Java 1.6 JVMs. Animalsniffer (applied by the root project) is
-// used to check for unexpected references to later APIs. Also see dependencies/signature.
-// Retrolambda itself requires JDK 8, which it finds at $JAVA8_HOME.
-retrolambda {
-  javaVersion JavaVersion.VERSION_1_6
-}
 
 def agentPackage = 'io.opencensus.contrib.agent'
 def agentMainClass = "${agentPackage}.AgentMain"
@@ -42,22 +31,12 @@ dependencies {
   signature 'org.codehaus.mojo.signature:java16:+@signature'
 }
 
-// Don't bother about Java 1.6 for test classes. Let Animalsniffer check main sources only,
-// cf. https://github.com/xvik/gradle-animalsniffer-plugin#scope.
-animalsniffer {
-  sourceSets = [ sourceSets.main ]
-}
-
 jar {
   manifest {
     // Set the required manifest attributes for the Java agent, cf.
     // https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/package-summary.html.
     attributes 'Premain-Class': agentMainClass
     attributes 'Can-Retransform-Classes': true
-
-    // Let the java plugin use the overridden values instead of the root project's values.
-    attributes 'Source-Compatibility': JavaVersion.VERSION_1_6
-    attributes 'Target-Compatibility': JavaVersion.VERSION_1_6
   }
 }
 
