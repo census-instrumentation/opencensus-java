@@ -74,7 +74,7 @@ public final class Tags {
    * @deprecated This method is deprecated because other libraries could cache the result of {@link
    *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
    *     initialization. This method throws {@link IllegalStateException} after {@link #getState()}
-   *     has been called, in order to prevent the result of {@code getState()} from changing.
+   *     has been called, in order to limit changes to the result of {@code getState()}.
    */
   @Deprecated
   public static void setState(TaggingState state) {
