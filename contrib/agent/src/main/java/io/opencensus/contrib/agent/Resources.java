@@ -43,9 +43,12 @@ final class Resources {
     checkArgument(!Strings.isNullOrEmpty(resourceName), "resourceName");
 
     File file = File.createTempFile(resourceName, ".tmp");
-    try (OutputStream os = new FileOutputStream(file)) {
+    OutputStream os = new FileOutputStream(file);
+    try {
       getResourceAsTempFile(resourceName, file, os);
       return file;
+    } finally {
+      os.close();
     }
   }
 
