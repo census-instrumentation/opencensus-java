@@ -54,11 +54,8 @@ final class Resources {
       throws IOException {
     file.deleteOnExit();
 
-    InputStream is = getResourceAsStream(resourceName);
-    try {
+    try (InputStream is = getResourceAsStream(resourceName)) {
       ByteStreams.copy(is, outputStream);
-    } finally {
-      is.close();
     }
   }
 
