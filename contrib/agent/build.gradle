@@ -6,9 +6,6 @@ plugins {
 
 description = 'OpenCensus Agent'
 
-sourceCompatibility = JavaVersion.VERSION_1_6
-targetCompatibility = JavaVersion.VERSION_1_6
-
 def agentPackage = 'io.opencensus.contrib.agent'
 def agentMainClass = "${agentPackage}.AgentMain"
 
@@ -32,12 +29,6 @@ dependencies {
   compile libraries.byte_buddy
 
   signature 'org.codehaus.mojo.signature:java16:+@signature'
-}
-
-// Don't bother about Java 1.6 for test classes. Let Animalsniffer check main sources only,
-// cf. https://github.com/xvik/gradle-animalsniffer-plugin#scope.
-animalsniffer {
-  sourceSets = [ sourceSets.main ]
 }
 
 jar {

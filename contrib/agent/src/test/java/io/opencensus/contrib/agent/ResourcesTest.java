@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,8 +52,7 @@ public class ResourcesTest {
   public void getResourceAsTempFile_contents() throws IOException {
     File file = Resources.getResourceAsTempFile("some_resource.txt");
 
-    assertThat(new String(java.nio.file.Files.readAllBytes(file.toPath()), Charsets.UTF_8))
-        .isEqualTo("A resource!");
+    assertThat(Files.toString(file, Charsets.UTF_8)).isEqualTo("A resource!");
   }
 
   @Test
