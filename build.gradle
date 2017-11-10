@@ -132,7 +132,7 @@ subprojects {
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
                 junit: 'junit:junit:4.12',
-                mockito: 'org.mockito:mockito-core:2.11.0',
+                mockito: 'org.mockito:mockito-core:1.9.5',
                 truth: 'com.google.truth:truth:0.30',
         ]
     }
