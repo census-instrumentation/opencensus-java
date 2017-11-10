@@ -30,13 +30,16 @@ import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
+import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -58,6 +61,10 @@ final class MeasureToViewMap {
   @GuardedBy("this")
   private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
 
+  // Cached set of exported views. It must be set to null whenever a view is registered or
+  // unregistered.
+  @Nullable private volatile Set<View> exportedViews;
+
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
   @Nullable
   synchronized ViewData getView(View.Name viewName, Clock clock, StatsCollectionState state) {
@@ -65,12 +72,30 @@ final class MeasureToViewMap {
     return view == null ? null : view.toViewData(clock.now(), state);
   }
 
-  synchronized Collection<View> getAllViews() {
-    return Sets.newHashSet(registeredViews.values());
+  Set<View> getExportedViews() {
+    Set<View> views = exportedViews;
+    if (views == null) {
+      synchronized (this) {
+        exportedViews = views = filterExportedViews(registeredViews.values());
+      }
+    }
+    return views;
+  }
+
+  // Returns the subset of the given views that should be exported
+  private static Set<View> filterExportedViews(Collection<View> allViews) {
+    Set<View> views = Sets.newHashSet();
+    for (View view : allViews) {
+      if (view.getWindow() instanceof AggregationWindow.Cumulative) {
+        views.add(view);
+      }
+    }
+    return Collections.unmodifiableSet(views);
   }
 
   /** Enable stats collection for the given {@link View}. */
   synchronized void registerView(View view, Clock clock) {
+    exportedViews = null;
     View existing = registeredViews.get(view.getName());
     if (existing != null) {
       if (existing.equals(view)) {

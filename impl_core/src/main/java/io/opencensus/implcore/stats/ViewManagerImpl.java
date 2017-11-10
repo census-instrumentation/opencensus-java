@@ -16,12 +16,9 @@
 
 package io.opencensus.implcore.stats;
 
-import com.google.common.collect.Sets;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
-import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -46,13 +43,7 @@ public final class ViewManagerImpl extends ViewManager {
 
   @Override
   public Set<View> getAllExportedViews() {
-    Set<View> exportedViews = Sets.newHashSet();
-    for (View view : statsManager.getAllViews()) {
-      if (view.getWindow() instanceof AggregationWindow.Cumulative) {
-        exportedViews.add(view);
-      }
-    }
-    return Collections.unmodifiableSet(exportedViews);
+    return statsManager.getExportedViews();
   }
 
   void clearStats() {
