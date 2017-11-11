@@ -68,11 +68,21 @@ public class SpanDataTest {
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final Map<String, AttributeValue> attributesMap = new HashMap<String, AttributeValue>();
+
+  // TODO: Decide whether to use a different class instead of LinkedList.
+  @SuppressWarnings("JdkObsolete")
   private final List<TimedEvent<Annotation>> annotationsList =
       new LinkedList<TimedEvent<Annotation>>();
+
+  // TODO: Decide whether to use a different class instead of LinkedList.
+  @SuppressWarnings("JdkObsolete")
   private final List<TimedEvent<NetworkEvent>> networkEventsList =
       new LinkedList<SpanData.TimedEvent<NetworkEvent>>();
+
+  // TODO: Decide whether to use a different class instead of LinkedList.
+  @SuppressWarnings("JdkObsolete")
   private final List<Link> linksList = new LinkedList<Link>();
+
   private Attributes attributes;
   private TimedEvents<Annotation> annotations;
   private TimedEvents<NetworkEvent> networkEvents;

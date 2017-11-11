@@ -1,5 +1,4 @@
 errorProneExperimentalWarnings = \
--Xep:ArgumentParameterMismatch:OFF,\
 -Xep:AssertFalse:ERROR,\
 -Xep:AssistedInjectAndInjectOnConstructors:ERROR,\
 -Xep:BigDecimalLiteralDouble:ERROR,\
