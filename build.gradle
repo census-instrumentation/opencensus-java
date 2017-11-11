@@ -52,6 +52,7 @@ subprojects {
         // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
         if (JavaVersion.current().isJava8Compatible()) {
+            it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
             // TODO(bdrutu): Read files directly instead of reading from properties.
             if (rootProject.hasProperty("errorProneWarnings")) {
                 it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
