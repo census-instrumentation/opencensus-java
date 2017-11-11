@@ -34,9 +34,9 @@ import io.opencensus.trace.export.SpanData.Attributes;
 import io.opencensus.trace.export.SpanData.Links;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -68,20 +68,11 @@ public class SpanDataTest {
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final Map<String, AttributeValue> attributesMap = new HashMap<String, AttributeValue>();
-
-  // TODO: Decide whether to use a different class instead of LinkedList.
-  @SuppressWarnings("JdkObsolete")
   private final List<TimedEvent<Annotation>> annotationsList =
-      new LinkedList<TimedEvent<Annotation>>();
-
-  // TODO: Decide whether to use a different class instead of LinkedList.
-  @SuppressWarnings("JdkObsolete")
+      new ArrayList<TimedEvent<Annotation>>();
   private final List<TimedEvent<NetworkEvent>> networkEventsList =
-      new LinkedList<SpanData.TimedEvent<NetworkEvent>>();
-
-  // TODO: Decide whether to use a different class instead of LinkedList.
-  @SuppressWarnings("JdkObsolete")
-  private final List<Link> linksList = new LinkedList<Link>();
+      new ArrayList<SpanData.TimedEvent<NetworkEvent>>();
+  private final List<Link> linksList = new ArrayList<Link>();
 
   private Attributes attributes;
   private TimedEvents<Annotation> annotations;
