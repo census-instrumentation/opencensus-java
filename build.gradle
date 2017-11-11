@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.4.2'
-        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.11'
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
         classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.6"
