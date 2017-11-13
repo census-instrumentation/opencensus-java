@@ -20,7 +20,6 @@ import static com.google.api.client.util.Preconditions.checkArgument;
 import static com.google.api.client.util.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.api.MetricDescriptor;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -28,10 +27,8 @@ import com.google.cloud.ServiceOptions;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Stats;
-import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 import java.io.IOException;
 import javax.annotation.Nullable;
@@ -46,7 +43,6 @@ import javax.annotation.concurrent.GuardedBy;
  *   public static void main(String[] args) {
  *     StackdriverStatsExporter.createWithProjectId(
  *         "MyStackdriverProjectId", Duration.fromMillis(100000));
- *     StackdriverStatsExporter.registerView(myView);
  *     ... // Do work.
  *   }
  * </code></pre>
@@ -55,8 +51,6 @@ public final class StackdriverStatsExporter {
 
   private static final Object monitor = new Object();
 
-  private final String projectId;
-  private final MetricServiceClient metricServiceClient;
   private final StackdriverExporterWorkerThread workerThread;
 
   @GuardedBy("monitor")
@@ -71,8 +65,6 @@ public final class StackdriverStatsExporter {
       Duration exportInterval,
       ViewManager viewManager) {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
-    this.projectId = projectId;
-    this.metricServiceClient = metricServiceClient;
     this.workerThread =
         new StackdriverExporterWorkerThread(
             projectId, metricServiceClient, exportInterval, viewManager);
@@ -177,34 +169,6 @@ public final class StackdriverStatsExporter {
       StackdriverStatsExporter.exporter = exporter;
       if (exporter != null) {
         exporter.workerThread.start();
-      }
-    }
-  }
-
-  /**
-   * Register a {@link View} against this exporter, and upload it as a {@link MetricDescriptor} to
-   * StackDriver.
-   *
-   * @param view the {@code View} to be registered.
-   * @throws IllegalStateException if a Stackdriver stats exporter has not been created yet.
-   */
-  // TODO(songya): remove this API and have exporter polls stats using getAllExportedView(). Views
-  // should not be registered against exporter, since in the future we'll probably switch to a push
-  // model.
-  public static void registerView(View view) {
-    synchronized (monitor) {
-      checkState(exporter != null, "Stackdriver stats exporter has not been created.");
-      // TODO(songya): don't need to create MetricDescriptor for RpcViewConstants once we defined
-      // canonical metrics. Registration is required only for custom view definitions. Canonical
-      // views should be pre-registered.
-      MetricDescriptor metricDescriptor =
-          StackdriverExportUtils.createMetricDescriptor(view, exporter.projectId);
-      if (metricDescriptor != null) {
-        exporter.metricServiceClient.createMetricDescriptor(
-            CreateMetricDescriptorRequest.newBuilder()
-                .setMetricDescriptor(metricDescriptor)
-                .build());
-        exporter.workerThread.registerView(view);
       }
     }
   }

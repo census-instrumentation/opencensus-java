@@ -37,7 +37,6 @@ public class MyMainClass {
   public static void main(String[] args) {
     // Exporter will export to Stackdriver every 10 seconds.
     StackdriverStatsExporter.createWithProjectId("MyStackdriverProjectId", Duration.create(10, 0));
-    StackdriverStatsExporter.registerView(myView);
   }
 }
 ```
