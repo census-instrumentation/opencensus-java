@@ -1,5 +1,4 @@
 errorProneExperimentalErrors = \
--Xep:ArgumentParameterSwap:ERROR,\
 -Xep:AssistedInjectAndInjectOnSameConstructor:ERROR,\
 -Xep:AutoFactoryAtInject:ERROR,\
 -Xep:ClassName:ERROR,\
@@ -22,6 +21,5 @@ errorProneExperimentalErrors = \
 -Xep:NumericEquality:ERROR,\
 -Xep:ParameterPackage:OFF,\
 -Xep:ProtoStringFieldReferenceEquality:ERROR,\
--Xep:QualifierOnMethodWithoutProvides:ERROR,\
 -Xep:StaticOrDefaultInterfaceMethod:ERROR,\
 -Xep:UnlockMethod:ERROR

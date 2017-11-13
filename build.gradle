@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.4.2'
-        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.11'
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
         classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.6"
@@ -52,6 +52,7 @@ subprojects {
         // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
         if (JavaVersion.current().isJava8Compatible()) {
+            it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
             // TODO(bdrutu): Read files directly instead of reading from properties.
             if (rootProject.hasProperty("errorProneWarnings")) {
                 it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
@@ -106,6 +107,7 @@ subprojects {
     ext {
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
+        errorProneVersion = '2.1.2'
         grpcVersion = '1.7.0'
         guavaVersion = '19.0'
         googleAuthVersion = '0.8.0'
@@ -117,7 +119,7 @@ subprojects {
                 auto_service: 'com.google.auto.service:auto-service:1.0-rc3',
                 byte_buddy: 'net.bytebuddy:byte-buddy:1.7.8',
                 disruptor: 'com.lmax:disruptor:3.3.6',
-                errorprone: 'com.google.errorprone:error_prone_annotations:2.0.19',
+                errorprone: "com.google.errorprone:error_prone_annotations:${errorProneVersion}",
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
                 google_auth: "com.google.auth:google-auth-library-credentials:${googleAuthVersion}",
                 google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudVersion}",
@@ -149,7 +151,7 @@ subprojects {
         if (JavaVersion.current().isJava8Compatible()) {
             // The ErrorProne plugin defaults to the latest, which would break our
             // build if error prone releases a new version with a new check
-            errorprone 'com.google.errorprone:error_prone_core:2.0.19'
+            errorprone "com.google.errorprone:error_prone_core:${errorProneVersion}"
         }
     }
 

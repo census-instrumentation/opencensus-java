@@ -29,7 +29,9 @@ public final class TestHandler extends SpanExporter.Handler {
 
   private final Object monitor = new Object();
 
+  // TODO: Decide whether to use a different class instead of LinkedList.
   @GuardedBy("monitor")
+  @SuppressWarnings("JdkObsolete")
   private final List<SpanData> spanDataList = new LinkedList<SpanData>();
 
   @Override

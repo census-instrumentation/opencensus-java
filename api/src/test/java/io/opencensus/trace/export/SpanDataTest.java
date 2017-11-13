@@ -34,9 +34,9 @@ import io.opencensus.trace.export.SpanData.Attributes;
 import io.opencensus.trace.export.SpanData.Links;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -69,10 +69,11 @@ public class SpanDataTest {
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final Map<String, AttributeValue> attributesMap = new HashMap<String, AttributeValue>();
   private final List<TimedEvent<Annotation>> annotationsList =
-      new LinkedList<TimedEvent<Annotation>>();
+      new ArrayList<TimedEvent<Annotation>>();
   private final List<TimedEvent<NetworkEvent>> networkEventsList =
-      new LinkedList<SpanData.TimedEvent<NetworkEvent>>();
-  private final List<Link> linksList = new LinkedList<Link>();
+      new ArrayList<SpanData.TimedEvent<NetworkEvent>>();
+  private final List<Link> linksList = new ArrayList<Link>();
+
   private Attributes attributes;
   private TimedEvents<Annotation> annotations;
   private TimedEvents<NetworkEvent> networkEvents;

@@ -8,7 +8,6 @@ errorProneWarnings = \
 -Xep:ClassNewInstance:ERROR,\
 -Xep:DefaultCharset:ERROR,\
 -Xep:DoubleCheckedLocking:ERROR,\
--Xep:ElementsCountedInLoop:ERROR,\
 -Xep:EqualsHashCode:ERROR,\
 -Xep:EqualsIncompatibleType:ERROR,\
 -Xep:Finally:ERROR,-Xep:FloatingPointLiteralPrecision:ERROR,\
@@ -25,11 +24,9 @@ errorProneWarnings = \
 -Xep:IterableAndIterator:ERROR,\
 -Xep:JUnit3FloatingPointComparisonWithoutDelta:ERROR,\
 -Xep:JUnitAmbiguousTestClass:ERROR,\
--Xep:LiteralClassName:ERROR,\
 -Xep:MissingFail:ERROR,\
 -Xep:MissingOverride:ERROR,\
 -Xep:MutableConstantField:ERROR,\
--Xep:NarrowingCompoundAssignment:ERROR,\
 -Xep:NonAtomicVolatileUpdate:ERROR,\
 -Xep:NonOverridingEquals:ERROR,\
 -Xep:NullableConstructor:ERROR,\
