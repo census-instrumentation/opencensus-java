@@ -35,10 +35,12 @@ import com.google.protobuf.Empty;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
+import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
@@ -47,6 +49,7 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -73,6 +76,7 @@ public class StackdriverExporterWorkerThreadTest {
   private static final Name VIEW_NAME = Name.create("my view");
   private static final String VIEW_DESCRIPTION = "view description";
   private static final Cumulative CUMULATIVE = Cumulative.create();
+  private static final Interval INTERVAL = Interval.create(ONE_SECOND);
   private static final Sum SUM = Sum.create();
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
@@ -129,6 +133,27 @@ public class StackdriverExporterWorkerThreadTest {
   }
 
   @Test
+  public void doNotExportForEmptyViewData() {
+    View view =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    ViewData empty =
+        ViewData.create(
+            view,
+            Collections.<List<TagValue>, AggregationData>emptyMap(),
+            CumulativeData.create(Timestamp.fromMillis(100), Timestamp.fromMillis(200)));
+    doReturn(ImmutableSet.of(view)).when(mockViewManager).getAllExportedViews();
+    doReturn(empty).when(mockViewManager).getView(VIEW_NAME);
+
+    StackdriverExporterWorkerThread workerThread =
+        new StackdriverExporterWorkerThread(
+            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+
+    workerThread.export();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+    verify(mockStub, times(0)).createTimeSeriesCallable();
+  }
+
+  @Test
   public void preventRegisteringDifferentViewWithSameName() throws IOException {
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
@@ -148,6 +173,31 @@ public class StackdriverExporterWorkerThreadTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("A different view with the same name is already registered: ");
     workerThread.registerView(view2);
+  }
+
+  @Test
+  public void doNotCreateMetricDescriptorForRegisteredView() {
+    StackdriverExporterWorkerThread workerThread =
+        new StackdriverExporterWorkerThread(
+            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+    View view =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    workerThread.registerView(view);
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+
+    workerThread.registerView(view);
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+  }
+
+  @Test
+  public void doNotCreateMetricDescriptorForIntervalView() {
+    StackdriverExporterWorkerThread workerThread =
+        new StackdriverExporterWorkerThread(
+            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+    View view =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), INTERVAL);
+    workerThread.registerView(view);
+    verify(mockStub, times(0)).createMetricDescriptorCallable();
   }
 
   /*
