@@ -28,6 +28,7 @@ import java.util.ServiceConfigurationError;
  * }</pre>
  */
 public final class Provider {
+  private Provider() {}
 
   /**
    * Tries to create an instance of the given rawClass as a subclass of the given superclass.

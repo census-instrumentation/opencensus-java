@@ -46,6 +46,8 @@ public class StatsRunner {
   private static final Tagger tagger = Tags.getTagger();
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
+  private StatsRunner() {}
+
   /**
    * Main method.
    *

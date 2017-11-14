@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -35,6 +36,7 @@ public class AttributeValueTest {
     attribute.match(
         new Function<String, Object>() {
           @Override
+          @Nullable
           public Object apply(String stringValue) {
             assertThat(stringValue).isEqualTo("MyStringAttributeValue");
             return null;
@@ -42,6 +44,7 @@ public class AttributeValueTest {
         },
         new Function<Boolean, Object>() {
           @Override
+          @Nullable
           public Object apply(Boolean booleanValue) {
             fail("Expected a String");
             return null;
@@ -49,6 +52,7 @@ public class AttributeValueTest {
         },
         new Function<Long, Object>() {
           @Override
+          @Nullable
           public Object apply(Long longValue) {
             fail("Expected a String");
             return null;
@@ -63,6 +67,7 @@ public class AttributeValueTest {
     attribute.match(
         new Function<String, Object>() {
           @Override
+          @Nullable
           public Object apply(String stringValue) {
             fail("Expected a Boolean");
             return null;
@@ -70,6 +75,7 @@ public class AttributeValueTest {
         },
         new Function<Boolean, Object>() {
           @Override
+          @Nullable
           public Object apply(Boolean booleanValue) {
             assertThat(booleanValue).isTrue();
             return null;
@@ -77,6 +83,7 @@ public class AttributeValueTest {
         },
         new Function<Long, Object>() {
           @Override
+          @Nullable
           public Object apply(Long longValue) {
             fail("Expected a Boolean");
             return null;
@@ -91,6 +98,7 @@ public class AttributeValueTest {
     attribute.match(
         new Function<String, Object>() {
           @Override
+          @Nullable
           public Object apply(String stringValue) {
             fail("Expected a Long");
             return null;
@@ -98,6 +106,7 @@ public class AttributeValueTest {
         },
         new Function<Boolean, Object>() {
           @Override
+          @Nullable
           public Object apply(Boolean booleanValue) {
             fail("Expected a Long");
             return null;
@@ -105,6 +114,7 @@ public class AttributeValueTest {
         },
         new Function<Long, Object>() {
           @Override
+          @Nullable
           public Object apply(Long longValue) {
             assertThat(longValue).isEqualTo(123456L);
             return null;

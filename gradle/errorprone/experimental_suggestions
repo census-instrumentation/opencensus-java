@@ -1,15 +1,25 @@
+# FieldMissingNullable is turned off due to
+# https://github.com/google/error-prone/issues/823.
+
 errorProneExperimentalSuggestions = \
 -Xep:ConstantField:ERROR,\
 -Xep:EmptySetMultibindingContributions:ERROR,\
+-Xep:FieldMissingNullable:OFF,\
 -Xep:MethodCanBeStatic:ERROR,\
 -Xep:MixedArrayDimensions:ERROR,\
 -Xep:MultiVariableDeclaration:ERROR,\
 -Xep:MultipleTopLevelClasses:ERROR,\
+-Xep:MultipleUnaryOperatorsInMethodCall:ERROR,\
 -Xep:PackageLocation:ERROR,\
+-Xep:ParameterComment:ERROR,\
+-Xep:ParameterNotNullable:ERROR,\
 -Xep:PrivateConstructorForNoninstantiableModuleTest:ERROR,\
--Xep:PrivateConstructorForUtilityClass:OFF,\
+-Xep:PrivateConstructorForUtilityClass:ERROR,\
 -Xep:RemoveUnusedImports:ERROR,\
+-Xep:ReturnMissingNullable:ERROR,\
 -Xep:ThrowsUncheckedException:ERROR,\
+-Xep:UngroupedOverloads:ERROR,\
+-Xep:UnnecessarySetDefault:ERROR,\
 -Xep:UnnecessaryStaticImport:ERROR,\
 -Xep:UseBinds:ERROR,\
 -Xep:WildcardImport:ERROR

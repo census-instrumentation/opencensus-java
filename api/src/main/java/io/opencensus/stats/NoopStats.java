@@ -34,6 +34,7 @@ import io.opencensus.tags.TagValue;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -165,6 +166,7 @@ final class NoopStats {
     }
 
     @Override
+    @Nullable
     public ViewData getView(View.Name name) {
       checkNotNull(name, "name");
       synchronized (views) {

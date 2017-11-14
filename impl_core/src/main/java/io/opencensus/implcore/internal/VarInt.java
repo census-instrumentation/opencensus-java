@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 
 /** Common methods to encode and decode varints and varlongs into ByteBuffers and arrays. */
 // CHECKSTYLE:OFF
+@SuppressWarnings("UngroupedOverloads")
 public class VarInt {
 
   /** Maximum encoded size of 32-bit positive integers (in bytes) */
