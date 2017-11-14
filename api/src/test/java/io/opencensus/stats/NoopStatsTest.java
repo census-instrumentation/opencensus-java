@@ -67,6 +67,7 @@ public final class NoopStatsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void noopStatsComponent_SetState_IgnoresInput() {
     StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
     noopStatsComponent.setState(StatsCollectionState.ENABLED);
@@ -74,10 +75,22 @@ public final class NoopStatsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void noopStatsComponent_SetState_DisallowsNull() {
     StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
     thrown.expect(NullPointerException.class);
     noopStatsComponent.setState(null);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void noopStatsComponent_DisallowsSetStateAfterGetState() {
+    StatsComponent noopStatsComponent = NoopStats.newNoopStatsComponent();
+    noopStatsComponent.setState(StatsCollectionState.DISABLED);
+    noopStatsComponent.getState();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    noopStatsComponent.setState(StatsCollectionState.ENABLED);
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an

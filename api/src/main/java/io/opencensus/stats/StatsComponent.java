@@ -45,12 +45,18 @@ public abstract class StatsComponent {
   /**
    * Sets the current {@code StatsCollectionState}.
    *
-   * <p>When no implementation is available, {@code setState} has no effect.
+   * <p>When no implementation is available, {@code setState} does not change the state.
    *
    * <p>If state is set to {@link StatsCollectionState#DISABLED}, all stats that are previously
    * recorded will be cleared.
    *
    * @param state the new {@code StatsCollectionState}.
+   * @throws IllegalStateException if {@link #getState()} was previously called.
+   * @deprecated This method is deprecated because other libraries could cache the result of {@link
+   *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
+   *     initialization. This method throws {@link IllegalStateException} after {@code getState()}
+   *     has been called, in order to prevent the result of {@code getState()} from changing.
    */
+  @Deprecated
   public abstract void setState(StatsCollectionState state);
 }

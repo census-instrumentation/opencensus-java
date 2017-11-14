@@ -138,6 +138,7 @@ public final class StatsRecorderImplTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void record_StatsDisabled() {
     View view =
         View.create(
@@ -158,6 +159,7 @@ public final class StatsRecorderImplTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void record_StatsReenabled() {
     View view =
         View.create(

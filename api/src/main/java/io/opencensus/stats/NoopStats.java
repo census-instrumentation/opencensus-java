@@ -18,6 +18,7 @@ package io.opencensus.stats;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -83,6 +84,7 @@ final class NoopStats {
   @ThreadSafe
   private static final class NoopStatsComponent extends StatsComponent {
     private final ViewManager viewManager = newNoopViewManager();
+    private volatile boolean isRead;
 
     @Override
     public ViewManager getViewManager() {
@@ -96,12 +98,15 @@ final class NoopStats {
 
     @Override
     public StatsCollectionState getState() {
+      isRead = true;
       return StatsCollectionState.DISABLED;
     }
 
     @Override
+    @Deprecated
     public void setState(StatsCollectionState state) {
       Preconditions.checkNotNull(state, "state");
+      checkState(!isRead, "State was already read, cannot set state.");
     }
   }
 
