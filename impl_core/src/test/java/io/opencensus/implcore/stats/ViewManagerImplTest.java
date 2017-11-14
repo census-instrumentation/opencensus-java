@@ -57,6 +57,7 @@ import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -98,6 +99,7 @@ public class ViewManagerImplTest {
   private static final double EPSILON = 1e-7;
   private static final int MILLIS_PER_SECOND = 1000;
   private static final Duration TEN_SECONDS = Duration.create(10, 0);
+  private static final Interval INTERVAL = Interval.create(TEN_SECONDS);
 
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(
@@ -137,6 +139,56 @@ public class ViewManagerImplTest {
   }
 
   @Test
+  public void testGetAllExportedViews() {
+    assertThat(viewManager.getAllExportedViews()).isEmpty();
+    View cumulativeView1 =
+        createCumulativeView(
+            View.Name.create("View 1"), MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
+    View cumulativeView2 =
+        createCumulativeView(
+            View.Name.create("View 2"), MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
+    View intervalView =
+        View.create(
+            View.Name.create("View 3"),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            INTERVAL);
+    viewManager.registerView(cumulativeView1);
+    viewManager.registerView(cumulativeView2);
+    viewManager.registerView(intervalView);
+
+    // Only cumulative views should be exported.
+    assertThat(viewManager.getAllExportedViews()).containsExactly(cumulativeView1, cumulativeView2);
+  }
+
+  @Test
+  public void getAllExportedViewsResultIsUnmodifiable() {
+    View view1 =
+        View.create(
+            View.Name.create("View 1"),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    viewManager.registerView(view1);
+    Set<View> exported = viewManager.getAllExportedViews();
+
+    View view2 =
+        View.create(
+            View.Name.create("View 2"),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    thrown.expect(UnsupportedOperationException.class);
+    exported.add(view2);
+  }
+
+  @Test
   public void testRegisterAndGetIntervalView() {
     View intervalView =
         View.create(
@@ -145,7 +197,7 @@ public class ViewManagerImplTest {
             MEASURE_DOUBLE,
             DISTRIBUTION,
             Arrays.asList(KEY),
-            Interval.create(Duration.create(60, 0)));
+            INTERVAL);
     viewManager.registerView(intervalView);
     assertThat(viewManager.getView(VIEW_NAME).getView()).isEqualTo(intervalView);
     assertThat(viewManager.getView(VIEW_NAME).getAggregationMap()).isEmpty();

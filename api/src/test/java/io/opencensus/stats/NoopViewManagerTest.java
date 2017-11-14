@@ -29,6 +29,7 @@ import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey;
 import java.util.Arrays;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -127,5 +128,67 @@ public final class NoopViewManagerTest {
     ViewManager viewManager = NoopStats.newNoopViewManager();
     thrown.expect(NullPointerException.class);
     viewManager.getView(null);
+  }
+
+  @Test
+  public void getAllExportedViews() {
+    ViewManager viewManager = NoopStats.newNoopViewManager();
+    assertThat(viewManager.getAllExportedViews()).isEmpty();
+    View cumulativeView1 =
+        View.create(
+            View.Name.create("View 1"),
+            VIEW_DESCRIPTION,
+            MEASURE,
+            AGGREGATION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    View cumulativeView2 =
+        View.create(
+            View.Name.create("View 2"),
+            VIEW_DESCRIPTION,
+            MEASURE,
+            AGGREGATION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    View intervalView =
+        View.create(
+            View.Name.create("View 3"),
+            VIEW_DESCRIPTION,
+            MEASURE,
+            AGGREGATION,
+            Arrays.asList(KEY),
+            INTERVAL);
+    viewManager.registerView(cumulativeView1);
+    viewManager.registerView(cumulativeView2);
+    viewManager.registerView(intervalView);
+
+    // Only cumulative views should be exported.
+    assertThat(viewManager.getAllExportedViews()).containsExactly(cumulativeView1, cumulativeView2);
+  }
+
+  @Test
+  public void getAllExportedViews_ResultIsUnmodifiable() {
+    ViewManager viewManager = NoopStats.newNoopViewManager();
+    View view1 =
+        View.create(
+            View.Name.create("View 1"),
+            VIEW_DESCRIPTION,
+            MEASURE,
+            AGGREGATION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    viewManager.registerView(view1);
+    Set<View> exported = viewManager.getAllExportedViews();
+
+    View view2 =
+        View.create(
+            View.Name.create("View 2"),
+            VIEW_DESCRIPTION,
+            MEASURE,
+            AGGREGATION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    thrown.expect(UnsupportedOperationException.class);
+    exported.add(view2);
   }
 }

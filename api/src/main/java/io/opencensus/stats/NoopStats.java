@@ -22,18 +22,22 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
+import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
@@ -148,19 +152,24 @@ final class NoopStats {
   private static final class NoopViewManager extends ViewManager {
     private static final Timestamp ZERO_TIMESTAMP = Timestamp.create(0, 0);
 
-    @GuardedBy("views")
-    private final Map<View.Name, View> views = Maps.newHashMap();
+    @GuardedBy("registeredViews")
+    private final Map<View.Name, View> registeredViews = Maps.newHashMap();
+
+    // Cached set of exported views. It must be set to null whenever a view is registered or
+    // unregistered.
+    @Nullable private volatile Set<View> exportedViews;
 
     @Override
     public void registerView(View newView) {
       checkNotNull(newView, "newView");
-      synchronized (views) {
-        View existing = views.get(newView.getName());
+      synchronized (registeredViews) {
+        exportedViews = null;
+        View existing = registeredViews.get(newView.getName());
         checkArgument(
             existing == null || newView.equals(existing),
             "A different view with the same name already exists.");
         if (existing == null) {
-          views.put(newView.getName(), newView);
+          registeredViews.put(newView.getName(), newView);
         }
       }
     }
@@ -169,8 +178,8 @@ final class NoopStats {
     @Nullable
     public ViewData getView(View.Name name) {
       checkNotNull(name, "name");
-      synchronized (views) {
-        View view = views.get(name);
+      synchronized (registeredViews) {
+        View view = registeredViews.get(name);
         if (view == null) {
           return null;
         } else {
@@ -186,6 +195,28 @@ final class NoopStats {
                       Functions.<AggregationWindowData>throwAssertionError()));
         }
       }
+    }
+
+    @Override
+    public Set<View> getAllExportedViews() {
+      Set<View> views = exportedViews;
+      if (views == null) {
+        synchronized (registeredViews) {
+          exportedViews = views = filterExportedViews(registeredViews.values());
+        }
+      }
+      return views;
+    }
+
+    // Returns the subset of the given views that should be exported
+    private static Set<View> filterExportedViews(Collection<View> allViews) {
+      Set<View> views = Sets.newHashSet();
+      for (View view : allViews) {
+        if (view.getWindow() instanceof AggregationWindow.Cumulative) {
+          views.add(view);
+        }
+      }
+      return Collections.unmodifiableSet(views);
     }
   }
 }

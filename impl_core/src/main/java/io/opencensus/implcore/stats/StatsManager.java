@@ -24,6 +24,7 @@ import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 /** Object that stores all views and stats. */
@@ -53,6 +54,10 @@ final class StatsManager {
   @Nullable
   ViewData getView(View.Name viewName) {
     return measureToViewMap.getView(viewName, clock, state.getInternal());
+  }
+
+  Set<View> getExportedViews() {
+    return measureToViewMap.getExportedViews();
   }
 
   void record(TagContext tags, MeasureMapInternal measurementValues) {

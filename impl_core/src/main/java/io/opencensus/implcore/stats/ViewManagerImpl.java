@@ -19,6 +19,7 @@ package io.opencensus.implcore.stats;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 /** Implementation of {@link ViewManager}. */
@@ -38,6 +39,11 @@ public final class ViewManagerImpl extends ViewManager {
   @Nullable
   public ViewData getView(View.Name viewName) {
     return statsManager.getView(viewName);
+  }
+
+  @Override
+  public Set<View> getAllExportedViews() {
+    return statsManager.getExportedViews();
   }
 
   void clearStats() {
