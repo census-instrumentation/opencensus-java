@@ -86,6 +86,9 @@ public final class TagContextTest {
   private static final class SimpleTagContext extends TagContext {
     private final List<Tag> tags;
 
+    // This Error Prone warning doesn't seem correct, because the constructor is just calling
+    // another constructor.
+    @SuppressWarnings("ConstructorLeaksThis")
     SimpleTagContext(Tag... tags) {
       this(Lists.newArrayList(tags));
     }
