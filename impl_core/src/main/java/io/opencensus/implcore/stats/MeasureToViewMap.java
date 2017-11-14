@@ -58,6 +58,7 @@ final class MeasureToViewMap {
   private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
 
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
+  @Nullable
   synchronized ViewData getView(View.Name viewName, Clock clock, StatsCollectionState state) {
     MutableViewData view = getMutableViewData(viewName);
     return view == null ? null : view.toViewData(clock.now(), state);

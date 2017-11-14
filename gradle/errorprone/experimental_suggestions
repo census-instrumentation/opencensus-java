@@ -9,6 +9,7 @@ errorProneExperimentalSuggestions = \
 -Xep:PrivateConstructorForNoninstantiableModuleTest:ERROR,\
 -Xep:PrivateConstructorForUtilityClass:ERROR,\
 -Xep:RemoveUnusedImports:ERROR,\
+-Xep:ReturnMissingNullable:ERROR,\
 -Xep:ThrowsUncheckedException:ERROR,\
 -Xep:UnnecessaryStaticImport:ERROR,\
 -Xep:UseBinds:ERROR,\

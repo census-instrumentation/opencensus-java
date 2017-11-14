@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -154,6 +155,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
       }
     }
 
+    @Nullable
     private Bucket getLatencyBucket(long latencyNs) {
       for (int i = 0; i < NUM_LATENCY_BUCKETS; i++) {
         LatencyBucketBoundaries boundaries = LatencyBucketBoundaries.values()[i];

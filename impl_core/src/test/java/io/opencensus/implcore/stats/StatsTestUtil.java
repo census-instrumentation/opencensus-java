@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /** Stats test utilities. */
 final class StatsTestUtil {
@@ -170,6 +171,7 @@ final class StatsTestUtil {
         .isEqualTo(removeTrailingZeros(expected.getBucketCounts()));
   }
 
+  @Nullable
   private static List<Long> removeTrailingZeros(List<Long> longs) {
     if (longs == null) {
       return null;

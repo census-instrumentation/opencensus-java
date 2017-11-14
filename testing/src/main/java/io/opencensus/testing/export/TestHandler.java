@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 /** A {@link SpanExporter.Handler} for testing only. */
@@ -50,6 +51,7 @@ public final class TestHandler extends SpanExporter.Handler {
    * @return the list of exported {@link SpanData} objects, otherwise {@code null} if the current
    *     thread is interrupted.
    */
+  @Nullable
   public List<SpanData> waitForExport(int numberOfSpans) {
     List<SpanData> ret;
     synchronized (monitor) {

@@ -23,6 +23,7 @@ import com.google.common.testing.EqualsTester;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -94,6 +95,7 @@ public final class TagContextTest {
     }
 
     @Override
+    @Nullable
     protected Iterator<Tag> getIterator() {
       return tags == null ? null : tags.iterator();
     }
