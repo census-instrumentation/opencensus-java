@@ -6,6 +6,7 @@ errorProneExperimentalWarnings = \
 -Xep:EmptyTopLevelDeclaration:ERROR,\
 -Xep:ExpectedExceptionChecker:ERROR,\
 -Xep:HardCodedSdCardPath:ERROR,\
+-Xep:InconsistentOverloads:ERROR,\
 -Xep:MissingDefault:OFF,\
 -Xep:NonCanonicalStaticMemberImport:ERROR,\
 -Xep:PrimitiveArrayPassedToVarargsMethod:ERROR,\
