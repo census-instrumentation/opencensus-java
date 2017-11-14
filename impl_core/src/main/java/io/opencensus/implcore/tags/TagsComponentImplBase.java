@@ -50,6 +50,7 @@ public class TagsComponentImplBase extends TagsComponent {
   }
 
   @Override
+  @Deprecated
   public void setState(TaggingState newState) {
     state.set(checkNotNull(newState, "newState"));
   }

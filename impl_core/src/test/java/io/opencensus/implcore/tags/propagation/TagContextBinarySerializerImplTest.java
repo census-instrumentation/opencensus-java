@@ -57,12 +57,14 @@ public final class TagContextBinarySerializerImplTest {
       };
 
   @Test
+  @SuppressWarnings("deprecation")
   public void toByteArray_TaggingDisabled() throws TagContextSerializationException {
     tagsComponent.setState(TaggingState.DISABLED);
     assertThat(serializer.toByteArray(tagContext)).isEmpty();
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void toByteArray_TaggingReenabled() throws TagContextSerializationException {
     final byte[] serialized = serializer.toByteArray(tagContext);
     tagsComponent.setState(TaggingState.DISABLED);
@@ -72,6 +74,7 @@ public final class TagContextBinarySerializerImplTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void fromByteArray_TaggingDisabled()
       throws TagContextDeserializationException, TagContextSerializationException {
     byte[] serialized = serializer.toByteArray(tagContext);

@@ -26,6 +26,7 @@ import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
 import java.util.Iterator;
 import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 /** No-op implementations of tagging classes. */
 final class NoopTags {
@@ -37,8 +38,8 @@ final class NoopTags {
    *
    * @return a {@code TagsComponent} that has a no-op implementation for {@code Tagger}.
    */
-  static TagsComponent getNoopTagsComponent() {
-    return NoopTagsComponent.INSTANCE;
+  static TagsComponent newNoopTagsComponent() {
+    return new NoopTagsComponent();
   }
 
   /**
@@ -81,9 +82,9 @@ final class NoopTags {
     return NoopTagContextBinarySerializer.INSTANCE;
   }
 
-  @Immutable
+  @ThreadSafe
   private static final class NoopTagsComponent extends TagsComponent {
-    static final TagsComponent INSTANCE = new NoopTagsComponent();
+    private volatile boolean isRead;
 
     @Override
     public Tagger getTagger() {
@@ -97,12 +98,15 @@ final class NoopTags {
 
     @Override
     public TaggingState getState() {
+      isRead = true;
       return TaggingState.DISABLED;
     }
 
     @Override
+    @Deprecated
     public void setState(TaggingState state) {
       Preconditions.checkNotNull(state, "state");
+      Preconditions.checkState(!isRead, "State was already read, cannot set state.");
     }
   }
 

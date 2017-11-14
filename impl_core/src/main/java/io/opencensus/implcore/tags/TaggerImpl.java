@@ -44,35 +44,35 @@ public final class TaggerImpl extends Tagger {
 
   @Override
   public TagContextImpl getCurrentTagContext() {
-    return state.get() == TaggingState.DISABLED
+    return state.getInternal() == TaggingState.DISABLED
         ? TagContextImpl.EMPTY
         : toTagContextImpl(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   @Override
   public TagContextBuilder emptyBuilder() {
-    return state.get() == TaggingState.DISABLED
+    return state.getInternal() == TaggingState.DISABLED
         ? NoopTagContextBuilder.INSTANCE
         : new TagContextBuilderImpl();
   }
 
   @Override
   public TagContextBuilder currentBuilder() {
-    return state.get() == TaggingState.DISABLED
+    return state.getInternal() == TaggingState.DISABLED
         ? NoopTagContextBuilder.INSTANCE
         : toBuilder(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   @Override
   public TagContextBuilder toBuilder(TagContext tags) {
-    return state.get() == TaggingState.DISABLED
+    return state.getInternal() == TaggingState.DISABLED
         ? NoopTagContextBuilder.INSTANCE
         : toTagContextBuilderImpl(tags);
   }
 
   @Override
   public Scope withTagContext(TagContext tags) {
-    return state.get() == TaggingState.DISABLED
+    return state.getInternal() == TaggingState.DISABLED
         ? NoopScope.getInstance()
         : CurrentTagContextUtils.withTagContext(toTagContextImpl(tags));
   }

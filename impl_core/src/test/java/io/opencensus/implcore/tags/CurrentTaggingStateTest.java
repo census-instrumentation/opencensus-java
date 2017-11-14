@@ -19,13 +19,17 @@ package io.opencensus.implcore.tags;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.tags.TaggingState;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Tests for {@link CurrentTaggingState}. */
 @RunWith(JUnit4.class)
 public final class CurrentTaggingStateTest {
+
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void defaultState() {
@@ -36,8 +40,25 @@ public final class CurrentTaggingStateTest {
   public void setState() {
     CurrentTaggingState state = new CurrentTaggingState();
     state.set(TaggingState.DISABLED);
-    assertThat(state.get()).isEqualTo(TaggingState.DISABLED);
+    assertThat(state.getInternal()).isEqualTo(TaggingState.DISABLED);
     state.set(TaggingState.ENABLED);
-    assertThat(state.get()).isEqualTo(TaggingState.ENABLED);
+    assertThat(state.getInternal()).isEqualTo(TaggingState.ENABLED);
+  }
+
+  @Test
+  public void preventNull() {
+    CurrentTaggingState state = new CurrentTaggingState();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("state");
+    state.set(null);
+  }
+
+  @Test
+  public void preventSettingStateAfterReadingState() {
+    CurrentTaggingState state = new CurrentTaggingState();
+    state.get();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    state.set(TaggingState.DISABLED);
   }
 }
