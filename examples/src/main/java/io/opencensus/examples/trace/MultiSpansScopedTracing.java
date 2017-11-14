@@ -30,6 +30,8 @@ public final class MultiSpansScopedTracing {
   // Per class Tracer.
   private static final Tracer tracer = Tracing.getTracer();
 
+  private MultiSpansScopedTracing() {}
+
   private static void doSomeOtherWork() {
     tracer.getCurrentSpan().addAnnotation("Annotation to the child Span");
   }

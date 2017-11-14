@@ -7,7 +7,7 @@ errorProneExperimentalSuggestions = \
 -Xep:MultipleTopLevelClasses:ERROR,\
 -Xep:PackageLocation:ERROR,\
 -Xep:PrivateConstructorForNoninstantiableModuleTest:ERROR,\
--Xep:PrivateConstructorForUtilityClass:OFF,\
+-Xep:PrivateConstructorForUtilityClass:ERROR,\
 -Xep:RemoveUnusedImports:ERROR,\
 -Xep:ThrowsUncheckedException:ERROR,\
 -Xep:UnnecessaryStaticImport:ERROR,\

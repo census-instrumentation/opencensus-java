@@ -30,6 +30,7 @@ import java.io.OutputStream;
 
 /** Helper methods for working with resources. */
 final class Resources {
+  private Resources() {}
 
   /**
    * Returns a resource of the given name as a temporary file.
