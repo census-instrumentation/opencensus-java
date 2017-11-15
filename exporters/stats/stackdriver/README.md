@@ -48,7 +48,7 @@ for details about how to configure the authentication see [here](https://github.
 
 If you prefer to manually set the credentials use:
 ```
-StackdriverStatsExporter.createWithCredentialsAndProjectId(
+StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
     new GoogleCredentials(new AccessToken(accessToken, expirationTime)), 
     "MyStackdriverProjectId",
     Duration.create(10, 0));
@@ -61,7 +61,7 @@ for details about how to configure the project ID see [here](https://github.com/
 
 If you prefer to manually set the project ID use:
 ```
-StackdriverStatsExporter.createWithProjectId("MyStackdriverProjectId", Duration.create(10, 0));
+StackdriverStatsExporter.createAndRegisterWithProjectId("MyStackdriverProjectId", Duration.create(10, 0));
 ```
 
 #### Java Versions

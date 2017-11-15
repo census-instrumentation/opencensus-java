@@ -38,14 +38,15 @@ public class StackdriverStatsExporterTest {
   public void createWithNullCredentials() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("credentials");
-    StackdriverStatsExporter.createWithCredentialsAndProjectId(null, PROJECT_ID, ONE_SECOND);
+    StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
+        null, PROJECT_ID, ONE_SECOND);
   }
 
   @Test
   public void createWithNullProjectId() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("projectId");
-    StackdriverStatsExporter.createWithCredentialsAndProjectId(
+    StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
         GoogleCredentials.newBuilder().build(), null, ONE_SECOND);
   }
 
@@ -53,7 +54,7 @@ public class StackdriverStatsExporterTest {
   public void createWithNullDuration() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("exportInterval");
-    StackdriverStatsExporter.createWithCredentialsAndProjectId(
+    StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
         GoogleCredentials.newBuilder().build(), PROJECT_ID, null);
   }
 
@@ -61,21 +62,21 @@ public class StackdriverStatsExporterTest {
   public void createWithNegativeDuration() throws IOException {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Duration must be positive");
-    StackdriverStatsExporter.createWithCredentialsAndProjectId(
+    StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
         GoogleCredentials.newBuilder().build(), PROJECT_ID, Duration.create(-1, 0));
   }
 
   @Test
   public void createExporterTwice() throws IOException {
-    StackdriverStatsExporter.createWithCredentialsAndProjectId(
+    StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
         GoogleCredentials.newBuilder().build(), PROJECT_ID, ONE_SECOND);
     try {
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Stackdriver stats exporter is already created.");
-      StackdriverStatsExporter.createWithCredentialsAndProjectId(
+      StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
           GoogleCredentials.newBuilder().build(), PROJECT_ID, ONE_SECOND);
     } finally {
-      StackdriverStatsExporter.unsafeSetExporter(null);
+      StackdriverStatsExporter.unsafeResetExporter();
     }
   }
 }

@@ -29,12 +29,17 @@ import io.opencensus.stats.ViewManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Worker {@code Thread} that polls ViewData from Stats library and batch export to StackDriver.
  *
  * <p>{@code StackdriverExporterWorkerThread} is a daemon {@code Thread}.
+ *
+ * <p>The state of this class should only be accessed from the {@link
+ * StackdriverExporterWorkerThread} thread.
  */
+@NotThreadSafe
 final class StackdriverExporterWorkerThread extends Thread {
 
   private final long scheduleDelayMillis;
@@ -67,8 +72,8 @@ final class StackdriverExporterWorkerThread extends Thread {
         // Ignore views that are already registered.
         return;
       } else {
-        // TODO(songya): Do we still need to check this? Or can we assume that
-        // ViewManager.getAllExportedViews() will always return correct results?
+        // If we upload a view that has the same name with a registered view but with different
+        // attributes, Stackdriver client will throw an exception.
         throw new IllegalArgumentException(
             "A different view with the same name is already registered: " + existing);
       }

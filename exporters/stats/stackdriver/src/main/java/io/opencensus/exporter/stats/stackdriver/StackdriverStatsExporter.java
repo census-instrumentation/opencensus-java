@@ -41,7 +41,7 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre><code>
  *   public static void main(String[] args) {
- *     StackdriverStatsExporter.createWithProjectId(
+ *     StackdriverStatsExporter.createAndRegisterWithProjectId(
  *         "MyStackdriverProjectId", Duration.fromMillis(100000));
  *     ... // Do work.
  *   }
@@ -80,7 +80,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter already exists.
    */
-  public static void createWithCredentialsAndProjectId(
+  public static void createAndRegisterWithCredentialsAndProjectId(
       Credentials credentials, String projectId, Duration exportInterval) throws IOException {
     checkNotNull(credentials, "credentials");
     checkNotNull(projectId, "projectId");
@@ -107,7 +107,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
-  public static void createWithProjectId(String projectId, Duration exportInterval)
+  public static void createAndRegisterWithProjectId(String projectId, Duration exportInterval)
       throws IOException {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
@@ -133,7 +133,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
-  public static void create(Duration exportInterval) throws IOException {
+  public static void createAndRegister(Duration exportInterval) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
     createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval);
   }
@@ -162,14 +162,11 @@ public final class StackdriverStatsExporter {
     }
   }
 
-  // Method for setting exporter to a fake exporter or null (reset) for unit tests.
+  // Resets exporter to null. Used only for unit tests.
   @VisibleForTesting
-  static void unsafeSetExporter(StackdriverStatsExporter exporter) {
+  static void unsafeResetExporter() {
     synchronized (monitor) {
-      StackdriverStatsExporter.exporter = exporter;
-      if (exporter != null) {
-        exporter.workerThread.start();
-      }
+      StackdriverStatsExporter.exporter = null;
     }
   }
 }
