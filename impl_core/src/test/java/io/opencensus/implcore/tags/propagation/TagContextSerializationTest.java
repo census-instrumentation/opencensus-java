@@ -37,7 +37,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -48,8 +50,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TagContextSerializationTest {
 
-  private static final int VERSION_ID = 0;
-  private static final int TAG_FIELD_ID = 0;
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
@@ -86,6 +87,17 @@ public class TagContextSerializationTest {
     testSerialize(T1, T2, T3, T4);
   }
 
+  @Test
+  public void testSerializeTooLargeTagContext() throws TagContextSerializationException {
+    TagContextBuilder builder = tagger.emptyBuilder();
+    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT; i++) {
+      builder.put(TagKey.create("k" + i), TagValue.create("v" + i));
+    }
+    thrown.expect(TagContextSerializationException.class);
+    thrown.expectMessage("Size of serialized TagContext exceeds the maximum serialized size ");
+    serializer.toByteArray(builder.build());
+  }
+
   private void testSerialize(Tag... tags) throws IOException, TagContextSerializationException {
     TagContextBuilder builder = tagger.emptyBuilder();
     for (Tag tag : tags) {
@@ -98,9 +110,9 @@ public class TagContextSerializationTest {
     Set<String> possibleOutputs = new HashSet<String>();
     for (List<Tag> list : tagPermutation) {
       ByteArrayOutputStream expected = new ByteArrayOutputStream();
-      expected.write(VERSION_ID);
+      expected.write(SerializationUtils.VERSION_ID);
       for (Tag tag : list) {
-        expected.write(TAG_FIELD_ID);
+        expected.write(SerializationUtils.TAG_FIELD_ID);
         encodeString(tag.getKey().getName(), expected);
         encodeString(tag.getValue().asString(), expected);
       }
