@@ -18,8 +18,8 @@ apply plugin: "io.morethan.jmhreport"
 
 jmh {
     jmhVersion = '1.19'
-    warmupIterations = 5
-    iterations = 5
+    warmupIterations = 10
+    iterations = 10
     fork = 1
     failOnError = true
     resultFormat = 'JSON'
