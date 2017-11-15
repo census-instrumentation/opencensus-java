@@ -58,8 +58,7 @@ public class BinaryPropagationImplBenchmark {
   }
 
   /**
-   * This benchmark attempts to measure performance of {@link
-   * BinaryFormat#fromBinaryValue(byte[])}.
+   * This benchmark attempts to measure performance of {@link BinaryFormat#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
@@ -70,8 +69,7 @@ public class BinaryPropagationImplBenchmark {
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * BinaryFormat#toBinaryValue(SpanContext)} then {@link
-   * BinaryFormat#fromBinaryValue(byte[])}.
+   * BinaryFormat#toBinaryValue(SpanContext)} then {@link BinaryFormat#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
