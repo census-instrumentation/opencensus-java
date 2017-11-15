@@ -29,6 +29,8 @@ import io.opencensus.stats.ViewManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -41,6 +43,9 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 final class StackdriverExporterWorkerThread extends Thread {
+
+  private static final Logger logger =
+      Logger.getLogger(StackdriverExporterWorkerThread.class.getName());
 
   private final long scheduleDelayMillis;
   private final String projectId;
@@ -74,8 +79,10 @@ final class StackdriverExporterWorkerThread extends Thread {
       } else {
         // If we upload a view that has the same name with a registered view but with different
         // attributes, Stackdriver client will throw an exception.
-        throw new IllegalArgumentException(
+        logger.log(
+            Level.WARNING,
             "A different view with the same name is already registered: " + existing);
+        return;
       }
     }
     registeredViews.put(view.getName(), view);

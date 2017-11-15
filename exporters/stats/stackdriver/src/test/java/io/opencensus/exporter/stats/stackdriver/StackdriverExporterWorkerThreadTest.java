@@ -154,13 +154,15 @@ public class StackdriverExporterWorkerThreadTest {
   }
 
   @Test
-  public void preventRegisteringDifferentViewWithSameName() throws IOException {
+  public void skipDifferentViewWithSameName() throws IOException {
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
             PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
     View view1 =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     workerThread.registerView(view1);
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+
     View view2 =
         View.create(
             VIEW_NAME,
@@ -169,10 +171,8 @@ public class StackdriverExporterWorkerThreadTest {
             SUM,
             Arrays.asList(KEY),
             CUMULATIVE);
-
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("A different view with the same name is already registered: ");
     workerThread.registerView(view2);
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
   @Test
