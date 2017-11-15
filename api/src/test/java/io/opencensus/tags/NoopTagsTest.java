@@ -50,16 +50,39 @@ public final class NoopTagsTest {
 
   @Test
   public void noopTagsComponent() {
-    assertThat(NoopTags.getNoopTagsComponent().getTagger()).isSameAs(NoopTags.getNoopTagger());
-    assertThat(NoopTags.getNoopTagsComponent().getTagPropagationComponent())
+    assertThat(NoopTags.newNoopTagsComponent().getTagger()).isSameAs(NoopTags.getNoopTagger());
+    assertThat(NoopTags.newNoopTagsComponent().getTagPropagationComponent())
         .isSameAs(NoopTags.getNoopTagPropagationComponent());
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void noopTagsComponent_SetState_DisallowsNull() {
-    TagsComponent noopTagsComponent = NoopTags.getNoopTagsComponent();
+    TagsComponent noopTagsComponent = NoopTags.newNoopTagsComponent();
     thrown.expect(NullPointerException.class);
     noopTagsComponent.setState(null);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void preventSettingStateAfterGettingState_DifferentState() {
+    TagsComponent noopTagsComponent = NoopTags.newNoopTagsComponent();
+    noopTagsComponent.setState(TaggingState.DISABLED);
+    noopTagsComponent.getState();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    noopTagsComponent.setState(TaggingState.ENABLED);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void preventSettingStateAfterGettingState_SameState() {
+    TagsComponent noopTagsComponent = NoopTags.newNoopTagsComponent();
+    noopTagsComponent.setState(TaggingState.DISABLED);
+    noopTagsComponent.getState();
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    noopTagsComponent.setState(TaggingState.DISABLED);
   }
 
   @Test

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -90,12 +91,12 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     }
 
     private void getSamples(int maxSpansToReturn, List<SpanImpl> output) {
-      getSamples(sampledSpansQueue, maxSpansToReturn, output);
-      getSamples(notSampledSpansQueue, maxSpansToReturn, output);
+      getSamples(maxSpansToReturn, output, sampledSpansQueue);
+      getSamples(maxSpansToReturn, output, notSampledSpansQueue);
     }
 
     private static void getSamples(
-        EvictingQueue<SpanImpl> queue, int maxSpansToReturn, List<SpanImpl> output) {
+        int maxSpansToReturn, List<SpanImpl> output, EvictingQueue<SpanImpl> queue) {
       for (SpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
           break;
@@ -107,17 +108,17 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     private void getSamplesFilteredByLatency(
         long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn, List<SpanImpl> output) {
       getSamplesFilteredByLatency(
-          sampledSpansQueue, latencyLowerNs, latencyUpperNs, maxSpansToReturn, output);
+          latencyLowerNs, latencyUpperNs, maxSpansToReturn, output, sampledSpansQueue);
       getSamplesFilteredByLatency(
-          notSampledSpansQueue, latencyLowerNs, latencyUpperNs, maxSpansToReturn, output);
+          latencyLowerNs, latencyUpperNs, maxSpansToReturn, output, notSampledSpansQueue);
     }
 
     private static void getSamplesFilteredByLatency(
-        EvictingQueue<SpanImpl> queue,
         long latencyLowerNs,
         long latencyUpperNs,
         int maxSpansToReturn,
-        List<SpanImpl> output) {
+        List<SpanImpl> output,
+        EvictingQueue<SpanImpl> queue) {
       for (SpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
           break;
@@ -154,6 +155,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
       }
     }
 
+    @Nullable
     private Bucket getLatencyBucket(long latencyNs) {
       for (int i = 0; i < NUM_LATENCY_BUCKETS; i++) {
         LatencyBucketBoundaries boundaries = LatencyBucketBoundaries.values()[i];

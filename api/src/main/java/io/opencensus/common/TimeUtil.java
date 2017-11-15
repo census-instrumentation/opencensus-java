@@ -23,4 +23,6 @@ final class TimeUtil {
   static final long MILLIS_PER_SECOND = 1000L;
   static final long NANOS_PER_MILLI = 1000 * 1000;
   static final long NANOS_PER_SECOND = NANOS_PER_MILLI * MILLIS_PER_SECOND;
+
+  private TimeUtil() {}
 }

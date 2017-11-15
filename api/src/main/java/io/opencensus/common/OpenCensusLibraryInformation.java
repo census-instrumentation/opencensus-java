@@ -22,4 +22,6 @@ public final class OpenCensusLibraryInformation {
 
   /** The current version of the OpenCensus Java library. */
   public static final String VERSION = "0.9.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
+
+  private OpenCensusLibraryInformation() {}
 }

@@ -29,6 +29,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <p>This class allows different stats classes to share the state in a thread-safe way.
  */
+// TODO(sebright): Remove the locking from this class, since it is used as global state.
 @ThreadSafe
 public final class CurrentStatsState {
 

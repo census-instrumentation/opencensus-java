@@ -56,20 +56,20 @@ public class TagsTest {
         .isEqualTo("io.opencensus.tags.NoopTags$NoopTagsComponent");
   }
 
+  // There is only one test that modifies tagging state in the Tags class, since the state is
+  // global, and it could affect other tests. NoopTagsTest has more thorough tests for tagging
+  // state.
   @Test
-  public void getState() {
-    assertThat(Tags.getState()).isEqualTo(TaggingState.DISABLED);
-  }
-
-  @Test
-  public void setState_IgnoresInput() {
+  @SuppressWarnings("deprecation")
+  public void testState() {
+    // Test that setState ignores its input.
     Tags.setState(TaggingState.ENABLED);
     assertThat(Tags.getState()).isEqualTo(TaggingState.DISABLED);
-  }
 
-  @Test(expected = NullPointerException.class)
-  public void setState_DisallowsNull() {
-    Tags.setState(null);
+    // Test that setState cannot be called after getState.
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("State was already read, cannot set state.");
+    Tags.setState(TaggingState.ENABLED);
   }
 
   @Test

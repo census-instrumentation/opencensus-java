@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
@@ -146,6 +147,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     return BaseEncoding.base16().lowerCase().encode(spanId.getBytes());
   }
 
+  @Nullable
   private static Span.Kind toSpanKind(SpanData spanData) {
     if (Boolean.TRUE.equals(spanData.getHasRemoteParent())) {
       return Span.Kind.SERVER;

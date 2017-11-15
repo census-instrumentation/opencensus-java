@@ -282,7 +282,10 @@ abstract class MutableViewData {
     // TODO(songya): allow customizable bucket size in the future.
     private static final int N = 4; // IntervalView has N + 1 buckets
 
+    // TODO(sebright): Decide whether to use a different class instead of LinkedList.
+    @SuppressWarnings("JdkObsolete")
     private final LinkedList<IntervalBucket> buckets = new LinkedList<IntervalBucket>();
+
     private final Duration totalDuration; // Duration of the whole interval.
     private final Duration bucketDuration; // Duration of a single bucket (totalDuration / N)
 
@@ -385,7 +388,11 @@ abstract class MutableViewData {
     // tag values to aggregation data.
     private Map<List<TagValue>, AggregationData> combineBucketsAndGetAggregationMap(Timestamp now) {
       Multimap<List<TagValue>, MutableAggregation> multimap = HashMultimap.create();
+
+      // TODO(sebright): Decide whether to use a different class instead of LinkedList.
+      @SuppressWarnings("JdkObsolete")
       LinkedList<IntervalBucket> shallowCopy = new LinkedList<IntervalBucket>(buckets);
+
       Aggregation aggregation = super.view.getAggregation();
       putBucketsIntoMultiMap(shallowCopy, multimap, aggregation, now);
       Map<List<TagValue>, MutableAggregation> singleMap =

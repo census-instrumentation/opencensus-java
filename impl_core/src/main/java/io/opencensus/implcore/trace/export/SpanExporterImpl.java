@@ -138,6 +138,8 @@ public final class SpanExporterImpl extends SpanExporter {
       }
     }
 
+    // TODO: Decide whether to use a different class instead of LinkedList.
+    @SuppressWarnings("JdkObsolete")
     private WorkerThread(int bufferSize, long scheduleDelayMillis) {
       spans = new LinkedList<SpanImpl>();
       this.bufferSize = bufferSize;

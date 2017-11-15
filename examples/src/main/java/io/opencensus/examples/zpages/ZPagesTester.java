@@ -20,6 +20,8 @@ import io.opencensus.contrib.zpages.ZPageHandlers;
 
 /** Testing only class for the UI. */
 public class ZPagesTester {
+  private ZPagesTester() {}
+
   /** Main method. */
   public static void main(String[] args) throws Exception {
     ZPageHandlers.startHttpServerAndRegisterAll(8080);

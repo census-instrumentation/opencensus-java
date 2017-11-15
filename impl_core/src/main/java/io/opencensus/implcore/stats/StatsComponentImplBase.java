@@ -59,6 +59,7 @@ public class StatsComponentImplBase extends StatsComponent {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void setState(StatsCollectionState newState) {
     boolean stateChanged = state.set(Preconditions.checkNotNull(newState, "newState"));
     if (stateChanged) {

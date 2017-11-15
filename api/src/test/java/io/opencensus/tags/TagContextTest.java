@@ -23,6 +23,7 @@ import com.google.common.testing.EqualsTester;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -85,6 +86,9 @@ public final class TagContextTest {
   private static final class SimpleTagContext extends TagContext {
     private final List<Tag> tags;
 
+    // This Error Prone warning doesn't seem correct, because the constructor is just calling
+    // another constructor.
+    @SuppressWarnings("ConstructorLeaksThis")
     SimpleTagContext(Tag... tags) {
       this(Lists.newArrayList(tags));
     }
@@ -94,6 +98,7 @@ public final class TagContextTest {
     }
 
     @Override
+    @Nullable
     protected Iterator<Tag> getIterator() {
       return tags == null ? null : tags.iterator();
     }

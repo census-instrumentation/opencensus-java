@@ -24,6 +24,7 @@ import java.util.Collection;
 
 /** Test utilities for tagging. */
 public class TagsTestUtil {
+  private TagsTestUtil() {}
 
   /** Returns a collection of all tags in a {@link TagContext}. */
   public static Collection<Tag> tagContextToList(TagContext tags) {
