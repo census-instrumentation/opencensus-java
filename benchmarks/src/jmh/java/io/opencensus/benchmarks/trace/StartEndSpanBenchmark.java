@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.benchmarks.trace;
 
-import io.opencensus.implcore.trace.SpanImpl;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -27,7 +29,7 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
-/** Benchmarks for {@link SpanBuilderImpl} and {@link SpanImpl}. */
+/** Benchmarks for {@link io.opencensus.trace.SpanBuilder} and {@link Span}. */
 @State(Scope.Benchmark)
 public class StartEndSpanBenchmark {
   private static final Tracer tracer = Tracing.getTracer();
