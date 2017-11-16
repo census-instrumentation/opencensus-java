@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.benchmarks.trace;
 
-import io.opencensus.implcore.trace.SpanImpl;
+import io.opencensus.trace.AttributeValue;
+import io.opencensus.trace.Link;
+import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -27,9 +32,9 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
-/** Benchmarks for {@link SpanImpl} to record trace events. */
+/** Benchmarks for {@link Span} to record trace events. */
 @State(Scope.Benchmark)
-public class RecordTraceEventsNonSampledSpanBenchmark {
+public class RecordTraceEventsSampledSpanBenchmark {
   private static final Tracer tracer = Tracing.getTracer();
   private static final String SPAN_NAME = "MySpanName";
   private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
@@ -38,12 +43,12 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   private final Span linkedSpan =
       tracer
           .spanBuilderWithExplicitParent(SPAN_NAME, null)
-          .setSampler(Samplers.neverSample())
+          .setSampler(Samplers.alwaysSample())
           .startSpan();
   private final Span span =
       tracer
           .spanBuilderWithExplicitParent(SPAN_NAME, null)
-          .setSampler(Samplers.neverSample())
+          .setSampler(Samplers.alwaysSample())
           .startSpan();
 
   /** TearDown method. */
