@@ -51,10 +51,11 @@ public class TagContextDeserializationTest {
   private final Tagger tagger = tagsComponent.getTagger();
 
   @Test
-  public void testVersionAndValueTypeConstants() {
+  public void testConstants() {
     // Refer to the JavaDoc on SerializationUtils for the definitions on these constants.
     assertThat(SerializationUtils.VERSION_ID).isEqualTo(0);
     assertThat(SerializationUtils.TAG_FIELD_ID).isEqualTo(0);
+    assertThat(SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT).isEqualTo(8192);
   }
 
   @Test
@@ -72,6 +73,14 @@ public class TagContextDeserializationTest {
     thrown.expect(TagContextDeserializationException.class);
     thrown.expectMessage("Input byte[] can not be empty.");
     serializer.fromByteArray(new byte[0]);
+  }
+
+  @Test
+  public void testDeserializeTooLargeByteArrayThrowException()
+      throws TagContextDeserializationException {
+    thrown.expect(TagContextDeserializationException.class);
+    thrown.expectMessage("Size of input byte[] exceeds the maximum serialized size ");
+    serializer.fromByteArray(new byte[SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT + 1]);
   }
 
   @Test

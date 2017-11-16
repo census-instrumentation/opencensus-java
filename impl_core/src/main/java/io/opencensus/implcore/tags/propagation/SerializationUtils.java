@@ -28,6 +28,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
+import io.opencensus.tags.propagation.TagContextSerializationException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -67,10 +68,11 @@ final class SerializationUtils {
 
   @VisibleForTesting static final int VERSION_ID = 0;
   @VisibleForTesting static final int TAG_FIELD_ID = 0;
+  @VisibleForTesting static final int TAGCONTEXT_SERIALIZED_SIZE_LIMIT = 8192;
 
   // Serializes a TagContext to the on-the-wire format.
   // Encoded tags are of the form: <version_id><encoded_tags>
-  static byte[] serializeBinary(TagContext tags) {
+  static byte[] serializeBinary(TagContext tags) throws TagContextSerializationException {
     // Use a ByteArrayDataOutput to avoid needing to handle IOExceptions.
     final ByteArrayDataOutput byteArrayDataOutput = ByteStreams.newDataOutput();
     byteArrayDataOutput.write(VERSION_ID);
@@ -78,7 +80,13 @@ final class SerializationUtils {
       Tag tag = i.next();
       encodeTag(tag, byteArrayDataOutput);
     }
-    return byteArrayDataOutput.toByteArray();
+    byte[] bytes = byteArrayDataOutput.toByteArray();
+    if (bytes.length > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
+      throw new TagContextSerializationException(
+          "Size of serialized TagContext exceeds the maximum serialized size "
+              + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
+    }
+    return bytes;
   }
 
   // Deserializes input to TagContext based on the binary format standard.
@@ -88,6 +96,10 @@ final class SerializationUtils {
       if (bytes.length == 0) {
         // Does not allow empty byte array.
         throw new TagContextDeserializationException("Input byte[] can not be empty.");
+      } else if (bytes.length > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
+        throw new TagContextDeserializationException(
+            "Size of input byte[] exceeds the maximum serialized size "
+                + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();

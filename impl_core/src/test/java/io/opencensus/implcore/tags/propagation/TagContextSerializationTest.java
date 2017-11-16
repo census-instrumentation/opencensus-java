@@ -23,6 +23,7 @@ import com.google.common.collect.Collections2;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.Tag;
+import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
@@ -37,7 +38,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -48,8 +51,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TagContextSerializationTest {
 
-  private static final int VERSION_ID = 0;
-  private static final int TAG_FIELD_ID = 0;
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
@@ -86,6 +88,29 @@ public class TagContextSerializationTest {
     testSerialize(T1, T2, T3, T4);
   }
 
+  @Test
+  public void testSerializeTooLargeTagContext() throws TagContextSerializationException {
+    TagContextBuilder builder = tagger.emptyBuilder();
+    int i = 0;
+
+    // This loop should fill in tags that have a total size of 8185
+    while (serializer.toByteArray(builder.build()).length
+        < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT - 8) {
+      TagKey key = TagKey.create("k" + i);
+      TagValue value = TagValue.create("v" + i);
+      builder.put(key, value);
+      i++;
+    }
+    // The last tag has size 8, after putting it, the size of TagContext (8193) should just exceed
+    // the limit
+    builder.put(TagKey.create("last"), TagValue.create("1"));
+
+    TagContext tagContext = builder.build();
+    thrown.expect(TagContextSerializationException.class);
+    thrown.expectMessage("Size of serialized TagContext exceeds the maximum serialized size ");
+    serializer.toByteArray(tagContext);
+  }
+
   private void testSerialize(Tag... tags) throws IOException, TagContextSerializationException {
     TagContextBuilder builder = tagger.emptyBuilder();
     for (Tag tag : tags) {
@@ -98,9 +123,9 @@ public class TagContextSerializationTest {
     Set<String> possibleOutputs = new HashSet<String>();
     for (List<Tag> list : tagPermutation) {
       ByteArrayOutputStream expected = new ByteArrayOutputStream();
-      expected.write(VERSION_ID);
+      expected.write(SerializationUtils.VERSION_ID);
       for (Tag tag : list) {
-        expected.write(TAG_FIELD_ID);
+        expected.write(SerializationUtils.TAG_FIELD_ID);
         encodeString(tag.getKey().getName(), expected);
         encodeString(tag.getValue().asString(), expected);
       }

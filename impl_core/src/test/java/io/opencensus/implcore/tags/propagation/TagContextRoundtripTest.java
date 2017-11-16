@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
@@ -48,11 +49,33 @@ public class TagContextRoundtripTest {
   private final Tagger tagger = tagsComponent.getTagger();
 
   @Test
-  public void testRoundtripSerialization() throws Exception {
+  public void testRoundtripSerialization_NormalTagContext() throws Exception {
     testRoundtripSerialization(tagger.empty());
     testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).build());
     testRoundtripSerialization(tagger.emptyBuilder().put(K1, V1).put(K2, V2).put(K3, V3).build());
     testRoundtripSerialization(tagger.emptyBuilder().put(K1, V_EMPTY).build());
+  }
+
+  @Test
+  public void testRoundtrip_TagContextWithMaximumSize() throws Exception {
+    TagContextBuilder builder = tagger.emptyBuilder();
+    int i = 0;
+
+    // This loop should fill in tags that have a total size of 8185
+    while (serializer.toByteArray(builder.build()).length
+        < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT - 8) {
+      TagKey key = TagKey.create("k" + i);
+      TagValue value = TagValue.create("v" + i);
+      builder.put(key, value);
+      i++;
+    }
+    // The last tag has size 7, after putting it, the size of TagContext should just meet the limit
+    builder.put(TagKey.create("last"), TagValue.create(""));
+
+    TagContext expected = builder.build();
+    assertThat(serializer.toByteArray(expected).length)
+        .isEqualTo(SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
+    testRoundtripSerialization(expected);
   }
 
   private void testRoundtripSerialization(TagContext expected) throws Exception {
