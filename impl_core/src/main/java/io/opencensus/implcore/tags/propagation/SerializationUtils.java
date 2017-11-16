@@ -155,8 +155,7 @@ final class SerializationUtils {
     }
   }
 
-  @VisibleForTesting
-  static final void encodeTag(Tag tag, ByteArrayDataOutput byteArrayDataOutput) {
+  private static final void encodeTag(Tag tag, ByteArrayDataOutput byteArrayDataOutput) {
     byteArrayDataOutput.write(TAG_FIELD_ID);
     encodeString(tag.getKey().getName(), byteArrayDataOutput);
     encodeString(tag.getValue().asString(), byteArrayDataOutput);
