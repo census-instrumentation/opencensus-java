@@ -23,6 +23,7 @@ import com.google.common.collect.Collections2;
 import io.opencensus.implcore.internal.VarInt;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.tags.Tag;
+import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
@@ -93,9 +94,10 @@ public class TagContextSerializationTest {
     for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT; i++) {
       builder.put(TagKey.create("k" + i), TagValue.create("v" + i));
     }
+    TagContext tagContext = builder.build();
     thrown.expect(TagContextSerializationException.class);
     thrown.expectMessage("Size of serialized TagContext exceeds the maximum serialized size ");
-    serializer.toByteArray(builder.build());
+    serializer.toByteArray(tagContext);
   }
 
   private void testSerialize(Tag... tags) throws IOException, TagContextSerializationException {
