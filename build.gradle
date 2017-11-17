@@ -111,7 +111,7 @@ subprojects {
         grpcVersion = '1.7.0'
         guavaVersion = '19.0'
         googleAuthVersion = '0.8.0'
-        googleCloudVersion = '0.26.0-alpha'
+        googleCloudVersion = '0.30.0-beta'
         zipkinReporterVersion = '2.0.0'
 
         libraries = [
