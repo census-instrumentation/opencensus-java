@@ -104,6 +104,37 @@ public class TagContextDeserializationTest {
     serializer.fromByteArray(bytes);
   }
 
+  // Deserializing this input should cause an error, even though it represents a relatively small
+  // TagContext.
+  @Test
+  public void testDeserializeTooLargeByteArrayThrowException_WithDuplicateTagKeys()
+      throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
+      // Each tag will be with format {key : "key_", value : "0123"}, so the length of it is 8.
+      String str;
+      if (i < 10) {
+        str = "000" + i;
+      } else if (i < 100) {
+        str = "00" + i;
+      } else if (i < 1000) {
+        str = "0" + i;
+      } else {
+        str = String.valueOf(i);
+      }
+      encodeTagToOutput("key_", str, output);
+    }
+    // The last tag will be of size 9, so the total size of the TagContext (8193) will be one byte
+    // more than limit.
+    encodeTagToOutput("key_", "last1", output);
+
+    byte[] bytes = output.toByteArray();
+    thrown.expect(TagContextDeserializationException.class);
+    thrown.expectMessage("Size of TagContext exceeds the maximum serialized size ");
+    serializer.fromByteArray(bytes);
+  }
+
   @Test
   public void testDeserializeInvalidTagKey() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
