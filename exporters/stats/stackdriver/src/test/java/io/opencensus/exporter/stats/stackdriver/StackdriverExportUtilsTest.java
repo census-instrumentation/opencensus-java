@@ -105,7 +105,6 @@ public class StackdriverExportUtilsTest {
                 .setDescription(StackdriverExportUtils.LABEL_DESCRIPTION)
                 .setValueType(ValueType.STRING)
                 .build());
-    // TODO(songya): test TagKeyLong and TagKeyBoolean once they are exposed
   }
 
   @Test
