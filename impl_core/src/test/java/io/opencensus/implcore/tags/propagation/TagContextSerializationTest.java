@@ -91,23 +91,27 @@ public class TagContextSerializationTest {
   @Test
   public void testSerializeTooLargeTagContext() throws TagContextSerializationException {
     TagContextBuilder builder = tagger.emptyBuilder();
-    int i = 0;
-
-    // This loop should fill in tags that have a total size of 8185
-    while (serializer.toByteArray(builder.build()).length
-        < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT - 8) {
-      TagKey key = TagKey.create("k" + i);
-      TagValue value = TagValue.create("v" + i);
-      builder.put(key, value);
-      i++;
+    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
+      // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
+      String str;
+      if (i < 10) {
+        str = "000" + i;
+      } else if (i < 100) {
+        str = "00" + i;
+      } else if (i < 1000) {
+        str = "0" + i;
+      } else {
+        str = String.valueOf(i);
+      }
+      builder.put(TagKey.create(str), TagValue.create(str));
     }
-    // The last tag has size 8, after putting it, the size of TagContext (8193) should just exceed
-    // the limit
-    builder.put(TagKey.create("last"), TagValue.create("1"));
+    // The last tag will be of size 9, so the total size of the TagContext (8193) will be one byte
+    // more than limit.
+    builder.put(TagKey.create("last"), TagValue.create("last1"));
 
     TagContext tagContext = builder.build();
     thrown.expect(TagContextSerializationException.class);
-    thrown.expectMessage("Size of serialized TagContext exceeds the maximum serialized size ");
+    thrown.expectMessage("Size of TagContext exceeds the maximum serialized size ");
     serializer.toByteArray(tagContext);
   }
 

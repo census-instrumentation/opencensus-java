@@ -68,6 +68,7 @@ final class SerializationUtils {
 
   @VisibleForTesting static final int VERSION_ID = 0;
   @VisibleForTesting static final int TAG_FIELD_ID = 0;
+  // This size limit only applies to the bytes representing tag keys and values.
   @VisibleForTesting static final int TAGCONTEXT_SERIALIZED_SIZE_LIMIT = 8192;
 
   // Serializes a TagContext to the on-the-wire format.
@@ -76,17 +77,19 @@ final class SerializationUtils {
     // Use a ByteArrayDataOutput to avoid needing to handle IOExceptions.
     final ByteArrayDataOutput byteArrayDataOutput = ByteStreams.newDataOutput();
     byteArrayDataOutput.write(VERSION_ID);
+    int totalChars = 0; // Here chars are equivalent to bytes, since we're using ascii chars.
     for (Iterator<Tag> i = InternalUtils.getTags(tags); i.hasNext(); ) {
       Tag tag = i.next();
+      totalChars += tag.getKey().getName().length();
+      totalChars += tag.getValue().asString().length();
       encodeTag(tag, byteArrayDataOutput);
     }
-    byte[] bytes = byteArrayDataOutput.toByteArray();
-    if (bytes.length > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
+    if (totalChars > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
       throw new TagContextSerializationException(
-          "Size of serialized TagContext exceeds the maximum serialized size "
+          "Size of TagContext exceeds the maximum serialized size "
               + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
     }
-    return bytes;
+    return byteArrayDataOutput.toByteArray();
   }
 
   // Deserializes input to TagContext based on the binary format standard.
@@ -96,10 +99,6 @@ final class SerializationUtils {
       if (bytes.length == 0) {
         // Does not allow empty byte array.
         throw new TagContextDeserializationException("Input byte[] can not be empty.");
-      } else if (bytes.length > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
-        throw new TagContextDeserializationException(
-            "Size of input byte[] exceeds the maximum serialized size "
-                + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
@@ -118,17 +117,25 @@ final class SerializationUtils {
       throws TagContextDeserializationException {
     Map<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
     int limit = buffer.limit();
+    int totalChars = 0; // Here chars are equivalent to bytes, since we're using ascii chars.
     while (buffer.position() < limit) {
       int type = buffer.get();
       if (type == TAG_FIELD_ID) {
         TagKey key = createTagKey(decodeString(buffer));
         TagValue val = createTagValue(key, decodeString(buffer));
+        totalChars += key.getName().length();
+        totalChars += val.asString().length();
         tags.put(key, val);
       } else {
         // Stop parsing at the first unknown field ID, since there is no way to know its length.
         // TODO(sebright): Consider storing the rest of the byte array in the TagContext.
-        return tags;
+        break;
       }
+    }
+    if (totalChars > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
+      throw new TagContextDeserializationException(
+          "Size of TagContext exceeds the maximum serialized size "
+              + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
     }
     return tags;
   }
