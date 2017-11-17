@@ -77,7 +77,7 @@ final class SerializationUtils {
     // Use a ByteArrayDataOutput to avoid needing to handle IOExceptions.
     final ByteArrayDataOutput byteArrayDataOutput = ByteStreams.newDataOutput();
     byteArrayDataOutput.write(VERSION_ID);
-    int totalChars = 0;
+    int totalChars = 0; // Here chars are equivalent to bytes, since we're using ascii chars.
     for (Iterator<Tag> i = InternalUtils.getTags(tags); i.hasNext(); ) {
       Tag tag = i.next();
       totalChars += tag.getKey().getName().length();
@@ -117,7 +117,7 @@ final class SerializationUtils {
       throws TagContextDeserializationException {
     Map<TagKey, TagValue> tags = new HashMap<TagKey, TagValue>();
     int limit = buffer.limit();
-    int totalChars = 0;
+    int totalChars = 0; // Here chars are equivalent to bytes, since we're using ascii chars.
     while (buffer.position() < limit) {
       int type = buffer.get();
       if (type == TAG_FIELD_ID) {
