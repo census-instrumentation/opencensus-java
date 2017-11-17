@@ -86,7 +86,7 @@ final class SerializationUtils {
     }
     if (totalChars > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
       throw new TagContextSerializationException(
-          "Size of serialized TagContext exceeds the maximum serialized size "
+          "Size of TagContext exceeds the maximum serialized size "
               + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
     }
     return byteArrayDataOutput.toByteArray();
@@ -134,7 +134,7 @@ final class SerializationUtils {
     }
     if (totalChars > TAGCONTEXT_SERIALIZED_SIZE_LIMIT) {
       throw new TagContextDeserializationException(
-          "Size of input byte[] exceeds the maximum serialized size "
+          "Size of TagContext exceeds the maximum serialized size "
               + TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
     }
     return tags;

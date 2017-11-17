@@ -100,7 +100,7 @@ public class TagContextDeserializationTest {
 
     byte[] bytes = output.toByteArray();
     thrown.expect(TagContextDeserializationException.class);
-    thrown.expectMessage("Size of input byte[] exceeds the maximum serialized size ");
+    thrown.expectMessage("Size of TagContext exceeds the maximum serialized size ");
     serializer.fromByteArray(bytes);
   }
 

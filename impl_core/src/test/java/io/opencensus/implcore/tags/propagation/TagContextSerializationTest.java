@@ -111,7 +111,7 @@ public class TagContextSerializationTest {
 
     TagContext tagContext = builder.build();
     thrown.expect(TagContextSerializationException.class);
-    thrown.expectMessage("Size of serialized TagContext exceeds the maximum serialized size ");
+    thrown.expectMessage("Size of TagContext exceeds the maximum serialized size ");
     serializer.toByteArray(tagContext);
   }
 
