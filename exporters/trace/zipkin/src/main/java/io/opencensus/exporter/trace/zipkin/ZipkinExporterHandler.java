@@ -22,16 +22,22 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
+import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanExporter;
+import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -49,7 +55,8 @@ import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.Sender;
 
 final class ZipkinExporterHandler extends SpanExporter.Handler {
-
+  private static final Tracer tracer = Tracing.getTracer();
+  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
   static final Logger logger = Logger.getLogger(ZipkinExporterHandler.class.getName());
 
   private static final String STATUS_CODE = "census.status_code";
@@ -173,14 +180,27 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
 
   @Override
   public void export(Collection<SpanData> spanDataList) {
-    List<byte[]> encodedSpans = new ArrayList<byte[]>(spanDataList.size());
-    for (SpanData spanData : spanDataList) {
-      encodedSpans.add(encoder.encode(generateSpan(spanData, localEndpoint)));
-    }
+    // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
+    // sets the default sampler to always sample and we get the gRPC span of the stackdriver
+    // export call always sampled and go to an infinite loop.
+    Scope scope =
+        tracer
+            .spanBuilder("ExportStackdriverTraces")
+            .setSampler(probabilitySpampler)
+            .startScopedSpan();
     try {
-      sender.sendSpans(encodedSpans).execute();
-    } catch (IOException e) {
-      throw new RuntimeException(e); // TODO: should we instead do drop metrics?
+      List<byte[]> encodedSpans = new ArrayList<byte[]>(spanDataList.size());
+      for (SpanData spanData : spanDataList) {
+        encodedSpans.add(encoder.encode(generateSpan(spanData, localEndpoint)));
+      }
+      try {
+        sender.sendSpans(encodedSpans).execute();
+      } catch (IOException e) {
+        tracer.getCurrentSpan().setStatus(Status.UNKNOWN.withDescription(e.getMessage()));
+        throw new RuntimeException(e); // TODO: should we instead do drop metrics?
+      }
+    } finally {
+      scope.close();
     }
   }
 }

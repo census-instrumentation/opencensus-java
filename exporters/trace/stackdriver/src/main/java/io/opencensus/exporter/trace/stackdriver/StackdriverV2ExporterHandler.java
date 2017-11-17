@@ -35,17 +35,22 @@ import com.google.rpc.Status;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.OpenCensusLibraryInformation;
+import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.NetworkEvent.Type;
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
 import io.opencensus.trace.export.SpanExporter;
+import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +59,8 @@ import java.util.Map;
 
 /** Exporter to Stackdriver Trace API v2. */
 final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
+  private static final Tracer tracer = Tracing.getTracer();
+  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
   private static final String AGENT_LABEL_KEY = "g.co/agent";
   private static final String AGENT_LABEL_VALUE_STRING =
       "opencensus-java [" + OpenCensusLibraryInformation.VERSION + "]";
@@ -240,10 +247,21 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   @Override
   public void export(Collection<SpanData> spanDataList) {
-    List<Span> spans = new ArrayList<>(spanDataList.size());
-    for (SpanData spanData : spanDataList) {
-      spans.add(generateSpan(spanData));
+    // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
+    // sets the default sampler to always sample and we get the gRPC span of the stackdriver
+    // export call always sampled and go to an infinite loop.
+    try (Scope scope =
+        tracer
+            .spanBuilder("ExportStackdriverTraces")
+            .setSampler(probabilitySpampler)
+            .startScopedSpan()) {
+      List<Span> spans = new ArrayList<>(spanDataList.size());
+      for (SpanData spanData : spanDataList) {
+        spans.add(generateSpan(spanData));
+      }
+      // Sync call because it is already called for a batch of data, and on a separate thread.
+      // TODO(bdrutu): Consider to make this async in the future.
+      traceServiceClient.batchWriteSpans(projectName, spans);
     }
-    traceServiceClient.batchWriteSpans(projectName, spans);
   }
 }
