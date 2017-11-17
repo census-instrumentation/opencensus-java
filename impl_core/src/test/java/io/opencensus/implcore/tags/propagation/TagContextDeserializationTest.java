@@ -137,6 +137,68 @@ public class TagContextDeserializationTest {
   }
 
   @Test
+  public void testDeserializeDuplicateKeys() throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key1", "Value2", output);
+    TagContext expected =
+        tagger.emptyBuilder().put(TagKey.create("Key1"), TagValue.create("Value2")).build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDeserializeNonConsecutiveDuplicateKeys()
+      throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
+    encodeTagToOutput("Key3", "Value3", output);
+    encodeTagToOutput("Key1", "Value4", output);
+    encodeTagToOutput("Key2", "Value5", output);
+    TagContext expected =
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key1"), TagValue.create("Value4"))
+            .put(TagKey.create("Key2"), TagValue.create("Value5"))
+            .put(TagKey.create("Key3"), TagValue.create("Value3"))
+            .build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDeserializeDuplicateTags() throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key1", "Value1", output);
+    TagContext expected =
+        tagger.emptyBuilder().put(TagKey.create("Key1"), TagValue.create("Value1")).build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDeserializeNonConsecutiveDuplicateTags()
+      throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
+    encodeTagToOutput("Key3", "Value3", output);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
+    TagContext expected =
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key1"), TagValue.create("Value1"))
+            .put(TagKey.create("Key2"), TagValue.create("Value2"))
+            .put(TagKey.create("Key3"), TagValue.create("Value3"))
+            .build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
   public void stopParsingAtUnknownField() throws TagContextDeserializationException {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     output.write(SerializationUtils.VERSION_ID);
