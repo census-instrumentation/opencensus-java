@@ -61,7 +61,7 @@ public final class StackdriverExporter {
       Credentials credentials, String projectId) throws IOException {
     synchronized (monitor) {
       checkState(handler == null, "Stackdriver exporter is already registered.");
-      handler = StackdriverV1ExporterHandler.createWithCredentials(credentials, projectId);
+      handler = StackdriverV2ExporterHandler.createWithCredentials(credentials, projectId);
       register(Tracing.getExportComponent().getSpanExporter(), handler);
     }
   }
@@ -86,7 +86,7 @@ public final class StackdriverExporter {
   public static void createAndRegisterWithProjectId(String projectId) throws IOException {
     synchronized (monitor) {
       checkState(handler == null, "Stackdriver exporter is already registered.");
-      handler = StackdriverV1ExporterHandler.create(projectId);
+      handler = StackdriverV2ExporterHandler.create(projectId);
       register(Tracing.getExportComponent().getSpanExporter(), handler);
     }
   }
@@ -111,7 +111,7 @@ public final class StackdriverExporter {
   public static void createAndRegister() throws IOException {
     synchronized (monitor) {
       checkState(handler == null, "Stackdriver exporter is already registered.");
-      handler = StackdriverV1ExporterHandler.create(ServiceOptions.getDefaultProjectId());
+      handler = StackdriverV2ExporterHandler.create(ServiceOptions.getDefaultProjectId());
       register(Tracing.getExportComponent().getSpanExporter(), handler);
     }
   }
