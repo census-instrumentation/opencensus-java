@@ -96,9 +96,9 @@ Java 7 or above is required for using this exporter.
 
 ## FAQ
 ### Why do I not see some trace events in Stackdriver?
-The current Stackdriver Trace exporter is implemented using the [v1 API][stackdriver-v1-api-url]
-which is not fully compatible with the OpenCensus data model. Trace events like Annotations and 
-NetworkEvents will be dropped. Soon a v2 API will be available.
+In all the versions before '0.9.0' the Stackdriver Trace exporter was implemented using the [v1 
+API][stackdriver-v1-api-url] which is not fully compatible with the OpenCensus data model. Trace 
+events like Annotations and NetworkEvents will be dropped.
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
