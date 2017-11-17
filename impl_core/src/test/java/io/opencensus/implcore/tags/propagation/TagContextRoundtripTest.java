@@ -59,23 +59,22 @@ public class TagContextRoundtripTest {
   @Test
   public void testRoundtrip_TagContextWithMaximumSize() throws Exception {
     TagContextBuilder builder = tagger.emptyBuilder();
-    int i = 0;
-
-    // This loop should fill in tags that have a total size of 8185
-    while (serializer.toByteArray(builder.build()).length
-        < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT - 8) {
-      TagKey key = TagKey.create("k" + i);
-      TagValue value = TagValue.create("v" + i);
-      builder.put(key, value);
-      i++;
+    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8; i++) {
+      // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
+      // Add 1024 tags, the total size should just be 8192.
+      String str;
+      if (i < 10) {
+        str = "000" + i;
+      } else if (i < 100) {
+        str = "00" + i;
+      } else if (i < 1000) {
+        str = "0" + i;
+      } else {
+        str = "" + i;
+      }
+      builder.put(TagKey.create(str), TagValue.create(str));
     }
-    // The last tag has size 7, after putting it, the size of TagContext should just meet the limit
-    builder.put(TagKey.create("last"), TagValue.create(""));
-
-    TagContext expected = builder.build();
-    assertThat(serializer.toByteArray(expected).length)
-        .isEqualTo(SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT);
-    testRoundtripSerialization(expected);
+    testRoundtripSerialization(builder.build());
   }
 
   private void testRoundtripSerialization(TagContext expected) throws Exception {
