@@ -37,7 +37,7 @@ subprojects {
     }
 
     group = "io.opencensus"
-    version = "0.9.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+    version = "0.10.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
@@ -111,13 +111,14 @@ subprojects {
         grpcVersion = '1.7.0'
         guavaVersion = '19.0'
         googleAuthVersion = '0.8.0'
-        googleCloudVersion = '0.26.0-alpha'
+        googleCloudVersion = '0.30.0-beta'
         zipkinReporterVersion = '2.0.0'
 
         libraries = [
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
                 auto_service: 'com.google.auto.service:auto-service:1.0-rc3',
                 byte_buddy: 'net.bytebuddy:byte-buddy:1.7.8',
+                config: 'com.typesafe:config:1.2.1',
                 disruptor: 'com.lmax:disruptor:3.3.6',
                 errorprone: "com.google.errorprone:error_prone_annotations:${errorProneVersion}",
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
@@ -282,6 +283,7 @@ subprojects {
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-zpages',
+                 'opencensus-exporter-stats-stackdriver',
                  'opencensus-exporter-trace-logging',
                  'opencensus-exporter-trace-stackdriver',
                  'opencensus-exporter-trace-zipkin',

@@ -51,10 +51,11 @@ public class TagContextDeserializationTest {
   private final Tagger tagger = tagsComponent.getTagger();
 
   @Test
-  public void testVersionAndValueTypeConstants() {
+  public void testConstants() {
     // Refer to the JavaDoc on SerializationUtils for the definitions on these constants.
     assertThat(SerializationUtils.VERSION_ID).isEqualTo(0);
     assertThat(SerializationUtils.TAG_FIELD_ID).isEqualTo(0);
+    assertThat(SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT).isEqualTo(8192);
   }
 
   @Test
@@ -72,6 +73,66 @@ public class TagContextDeserializationTest {
     thrown.expect(TagContextDeserializationException.class);
     thrown.expectMessage("Input byte[] can not be empty.");
     serializer.fromByteArray(new byte[0]);
+  }
+
+  @Test
+  public void testDeserializeTooLargeByteArrayThrowException()
+      throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
+      // Each tag will be with format {key : "0123", value : "0123"}, so the length of it is 8.
+      String str;
+      if (i < 10) {
+        str = "000" + i;
+      } else if (i < 100) {
+        str = "00" + i;
+      } else if (i < 1000) {
+        str = "0" + i;
+      } else {
+        str = String.valueOf(i);
+      }
+      encodeTagToOutput(str, str, output);
+    }
+    // The last tag will be of size 9, so the total size of the TagContext (8193) will be one byte
+    // more than limit.
+    encodeTagToOutput("last", "last1", output);
+
+    byte[] bytes = output.toByteArray();
+    thrown.expect(TagContextDeserializationException.class);
+    thrown.expectMessage("Size of TagContext exceeds the maximum serialized size ");
+    serializer.fromByteArray(bytes);
+  }
+
+  // Deserializing this input should cause an error, even though it represents a relatively small
+  // TagContext.
+  @Test
+  public void testDeserializeTooLargeByteArrayThrowException_WithDuplicateTagKeys()
+      throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    for (int i = 0; i < SerializationUtils.TAGCONTEXT_SERIALIZED_SIZE_LIMIT / 8 - 1; i++) {
+      // Each tag will be with format {key : "key_", value : "0123"}, so the length of it is 8.
+      String str;
+      if (i < 10) {
+        str = "000" + i;
+      } else if (i < 100) {
+        str = "00" + i;
+      } else if (i < 1000) {
+        str = "0" + i;
+      } else {
+        str = String.valueOf(i);
+      }
+      encodeTagToOutput("key_", str, output);
+    }
+    // The last tag will be of size 9, so the total size of the TagContext (8193) will be one byte
+    // more than limit.
+    encodeTagToOutput("key_", "last1", output);
+
+    byte[] bytes = output.toByteArray();
+    thrown.expect(TagContextDeserializationException.class);
+    thrown.expectMessage("Size of TagContext exceeds the maximum serialized size ");
+    serializer.fromByteArray(bytes);
   }
 
   @Test
@@ -123,6 +184,68 @@ public class TagContextDeserializationTest {
             .emptyBuilder()
             .put(TagKey.create("Key1"), TagValue.create("Value1"))
             .put(TagKey.create("Key2"), TagValue.create("Value2"))
+            .build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDeserializeDuplicateKeys() throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key1", "Value2", output);
+    TagContext expected =
+        tagger.emptyBuilder().put(TagKey.create("Key1"), TagValue.create("Value2")).build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDeserializeNonConsecutiveDuplicateKeys()
+      throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
+    encodeTagToOutput("Key3", "Value3", output);
+    encodeTagToOutput("Key1", "Value4", output);
+    encodeTagToOutput("Key2", "Value5", output);
+    TagContext expected =
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key1"), TagValue.create("Value4"))
+            .put(TagKey.create("Key2"), TagValue.create("Value5"))
+            .put(TagKey.create("Key3"), TagValue.create("Value3"))
+            .build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDeserializeDuplicateTags() throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key1", "Value1", output);
+    TagContext expected =
+        tagger.emptyBuilder().put(TagKey.create("Key1"), TagValue.create("Value1")).build();
+    assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
+  }
+
+  @Test
+  public void testDeserializeNonConsecutiveDuplicateTags()
+      throws TagContextDeserializationException {
+    ByteArrayDataOutput output = ByteStreams.newDataOutput();
+    output.write(SerializationUtils.VERSION_ID);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
+    encodeTagToOutput("Key3", "Value3", output);
+    encodeTagToOutput("Key1", "Value1", output);
+    encodeTagToOutput("Key2", "Value2", output);
+    TagContext expected =
+        tagger
+            .emptyBuilder()
+            .put(TagKey.create("Key1"), TagValue.create("Value1"))
+            .put(TagKey.create("Key2"), TagValue.create("Value2"))
+            .put(TagKey.create("Key3"), TagValue.create("Value3"))
             .build();
     assertThat(serializer.fromByteArray(output.toByteArray())).isEqualTo(expected);
   }

@@ -9,29 +9,31 @@ buildscript {
     }
     dependencies {
         classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.4"
+        classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.7.0"
     }
 }
 
 apply plugin: "me.champeau.gradle.jmh"
+apply plugin: "io.morethan.jmhreport"
 
 jmh {
     jmhVersion = '1.19'
     warmupIterations = 10
     iterations = 10
     fork = 1
-    jvmArgs = "-server -Xms2g -Xmx2g"
+    failOnError = true
+    resultFormat = 'JSON'
 }
 
 dependencies {
     compile project(':opencensus-api'),
-            project(':opencensus-impl-core')
+            project(':opencensus-impl-core'),
             project(':opencensus-impl')
 }
 
 compileJmhJava {
     options.compilerArgs = compileJava.options.compilerArgs
 }
-
 
 // Generate html report for findbugsJmh.
 findbugsJmh {
@@ -40,6 +42,13 @@ findbugsJmh {
         html.enabled = true
     }
 }
+
+jmhReport {
+    jmhResultPath = project.file("${project.buildDir}/reports/jmh/results.json")
+    jmhReportOutput = project.file("${project.buildDir}/reports/jmh")
+}
+
+tasks.jmh.finalizedBy tasks.jmhReport
 
 // Disable checkstyle if not java8.
 checkstyleJmh.enabled = JavaVersion.current().isJava8Compatible()

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.propagation;
+package io.opencensus.benchmarks.trace.propagation;
 
-import io.opencensus.implcore.trace.propagation.BinaryFormatImpl;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.BinaryFormat;
+import io.opencensus.trace.propagation.SpanContextParseException;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -29,7 +31,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 
-/** Benchmarks for {@link BinaryFormatImpl}. */
+/** Benchmarks for {@link BinaryFormat}. */
 @State(Scope.Benchmark)
 public class BinaryPropagationImplBenchmark {
   private static final byte[] traceIdBytes =
@@ -40,40 +42,39 @@ public class BinaryPropagationImplBenchmark {
   private static final byte[] traceOptionsBytes = new byte[] {1};
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
   private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
-  private static final BinaryFormat BINARY_PROPAGATION = new BinaryFormatImpl();
-  private static final byte[] spanContextBinary = BINARY_PROPAGATION.toByteArray(spanContext);
+  private static final BinaryFormat binaryFormat =
+      Tracing.getPropagationComponent().getBinaryFormat();
+  private static final byte[] spanContextBinary = binaryFormat.toByteArray(spanContext);
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * BinaryFormatImpl#toBinaryValue(SpanContext)}.
+   * BinaryFormat#toBinaryValue(SpanContext)}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public byte[] toBinarySpanContext() {
-    return BINARY_PROPAGATION.toByteArray(spanContext);
+    return binaryFormat.toByteArray(spanContext);
   }
 
   /**
-   * This benchmark attempts to measure performance of {@link
-   * BinaryFormatImpl#fromBinaryValue(byte[])}.
+   * This benchmark attempts to measure performance of {@link BinaryFormat#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public SpanContext fromBinarySpanContext() throws SpanContextParseException {
-    return BINARY_PROPAGATION.fromByteArray(spanContextBinary);
+    return binaryFormat.fromByteArray(spanContextBinary);
   }
 
   /**
    * This benchmark attempts to measure performance of {@link
-   * BinaryFormatImpl#toBinaryValue(SpanContext)} then {@link
-   * BinaryFormatImpl#fromBinaryValue(byte[])}.
+   * BinaryFormat#toBinaryValue(SpanContext)} then {@link BinaryFormat#fromBinaryValue(byte[])}.
    */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
   public SpanContext toFromBinarySpanContext() throws SpanContextParseException {
-    return BINARY_PROPAGATION.fromByteArray(BINARY_PROPAGATION.toByteArray(spanContext));
+    return binaryFormat.fromByteArray(binaryFormat.toByteArray(spanContext));
   }
 }

@@ -22,6 +22,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
+import io.opencensus.tags.propagation.TagContextSerializationException;
 
 final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   private static final byte[] EMPTY_BYTE_ARRAY = {};
@@ -33,7 +34,7 @@ final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   }
 
   @Override
-  public byte[] toByteArray(TagContext tags) {
+  public byte[] toByteArray(TagContext tags) throws TagContextSerializationException {
     return state.getInternal() == TaggingState.DISABLED
         ? EMPTY_BYTE_ARRAY
         : SerializationUtils.serializeBinary(tags);

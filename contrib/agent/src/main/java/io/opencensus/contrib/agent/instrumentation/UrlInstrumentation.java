@@ -21,6 +21,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 import com.google.auto.service.AutoService;
 import com.google.errorprone.annotations.MustBeClosed;
+import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.opencensus.contrib.agent.bootstrap.TraceTrampoline;
 import java.io.Closeable;
@@ -40,8 +41,13 @@ import net.bytebuddy.utility.JavaModule;
 public final class UrlInstrumentation implements Instrumenter {
 
   @Override
-  public AgentBuilder instrument(AgentBuilder agentBuilder) {
+  public AgentBuilder instrument(AgentBuilder agentBuilder, Config config) {
     checkNotNull(agentBuilder, "agentBuilder");
+    checkNotNull(config, "config");
+
+    if (!config.getBoolean("trace.java.net.URL.getContent.enabled")) {
+      return agentBuilder;
+    }
 
     return agentBuilder.type(named("java.net.URL")).transform(new Transformer());
   }
