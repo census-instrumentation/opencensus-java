@@ -103,7 +103,7 @@ public final class Tracing {
               + "default implementation for TraceComponent.",
           e);
     }
-    return TraceComponent.getNoopTraceComponent();
+    return TraceComponent.newNoopTraceComponent();
   }
 
   // No instance of this class.
