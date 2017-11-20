@@ -24,7 +24,7 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /** Unit tests for {@link ExecutorInstrumentation}. */
 @RunWith(MockitoJUnitRunner.class)
