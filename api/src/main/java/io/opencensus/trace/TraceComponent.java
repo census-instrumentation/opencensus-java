@@ -29,7 +29,6 @@ import io.opencensus.trace.propagation.PropagationComponent;
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  */
 public abstract class TraceComponent {
-  private static final NoopTraceComponent noopTraceComponent = new NoopTraceComponent();
 
   /**
    * Returns the {@link Tracer} with the provided implementations. If no implementation is provided
@@ -75,8 +74,8 @@ public abstract class TraceComponent {
    *
    * @return an instance that contains no-op implementations for all the instances.
    */
-  static TraceComponent getNoopTraceComponent() {
-    return noopTraceComponent;
+  static TraceComponent newNoopTraceComponent() {
+    return new NoopTraceComponent();
   }
 
   private static final class NoopTraceComponent extends TraceComponent {
@@ -97,7 +96,7 @@ public abstract class TraceComponent {
 
     @Override
     public ExportComponent getExportComponent() {
-      return ExportComponent.getNoopExportComponent();
+      return ExportComponent.newNoopExportComponent();
     }
 
     @Override

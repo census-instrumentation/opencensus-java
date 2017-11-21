@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link ExportComponent}. */
 @RunWith(JUnit4.class)
 public class ExportComponentTest {
-  private final ExportComponent exportComponent = ExportComponent.getNoopExportComponent();
+  private final ExportComponent exportComponent = ExportComponent.newNoopExportComponent();
 
   @Test
   public void implementationOfSpanExporter() {
@@ -34,11 +34,13 @@ public class ExportComponentTest {
 
   @Test
   public void implementationOfActiveSpans() {
-    assertThat(exportComponent.getRunningSpanStore()).isNull();
+    assertThat(exportComponent.getRunningSpanStore())
+        .isEqualTo(RunningSpanStore.getNoopRunningSpanStore());
   }
 
   @Test
   public void implementationOfSampledSpanStore() {
-    assertThat(exportComponent.getSampledSpanStore()).isNull();
+    assertThat(exportComponent.getSampledSpanStore())
+        .isInstanceOf(SampledSpanStore.newNoopSampledSpanStore().getClass());
   }
 }

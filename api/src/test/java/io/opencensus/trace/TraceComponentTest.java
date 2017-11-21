@@ -31,29 +31,29 @@ import org.junit.runners.JUnit4;
 public class TraceComponentTest {
   @Test
   public void defaultTracer() {
-    assertThat(TraceComponent.getNoopTraceComponent().getTracer()).isSameAs(Tracer.getNoopTracer());
+    assertThat(TraceComponent.newNoopTraceComponent().getTracer()).isSameAs(Tracer.getNoopTracer());
   }
 
   @Test
   public void defaultBinaryPropagationHandler() {
-    assertThat(TraceComponent.getNoopTraceComponent().getPropagationComponent())
+    assertThat(TraceComponent.newNoopTraceComponent().getPropagationComponent())
         .isSameAs(PropagationComponent.getNoopPropagationComponent());
   }
 
   @Test
   public void defaultClock() {
-    assertThat(TraceComponent.getNoopTraceComponent().getClock()).isInstanceOf(ZeroTimeClock.class);
+    assertThat(TraceComponent.newNoopTraceComponent().getClock()).isInstanceOf(ZeroTimeClock.class);
   }
 
   @Test
   public void defaultTraceExporter() {
-    assertThat(TraceComponent.getNoopTraceComponent().getExportComponent())
-        .isSameAs(ExportComponent.getNoopExportComponent());
+    assertThat(TraceComponent.newNoopTraceComponent().getExportComponent())
+        .isInstanceOf(ExportComponent.newNoopExportComponent().getClass());
   }
 
   @Test
   public void defaultTraceConfig() {
-    assertThat(TraceComponent.getNoopTraceComponent().getTraceConfig())
+    assertThat(TraceComponent.newNoopTraceComponent().getTraceConfig())
         .isSameAs(TraceConfig.getNoopTraceConfig());
   }
 }

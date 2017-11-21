@@ -72,7 +72,8 @@ public class TracingTest {
 
   @Test
   public void defaultTraceExporter() {
-    assertThat(Tracing.getExportComponent()).isSameAs(ExportComponent.getNoopExportComponent());
+    assertThat(Tracing.getExportComponent())
+        .isInstanceOf(ExportComponent.newNoopExportComponent().getClass());
   }
 
   @Test

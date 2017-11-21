@@ -17,7 +17,6 @@
 package io.opencensus.trace.export;
 
 import io.opencensus.trace.TraceOptions;
-import javax.annotation.Nullable;
 
 /**
  * Class that holds the implementation instances for {@link SpanExporter}, {@link RunningSpanStore}
@@ -27,15 +26,13 @@ import javax.annotation.Nullable;
  */
 public abstract class ExportComponent {
 
-  private static final NoopExportComponent NOOP_EXPORT_COMPONENT = new NoopExportComponent();
-
   /**
    * Returns the no-op implementation of the {@code ExportComponent}.
    *
    * @return the no-op implementation of the {@code ExportComponent}.
    */
-  public static ExportComponent getNoopExportComponent() {
-    return NOOP_EXPORT_COMPONENT;
+  public static ExportComponent newNoopExportComponent() {
+    return new NoopExportComponent();
   }
 
   /**
@@ -53,7 +50,6 @@ public abstract class ExportComponent {
    *
    * @return the {@code RunningSpanStore} or {@code null} if not supported.
    */
-  @Nullable
   public abstract RunningSpanStore getRunningSpanStore();
 
   /**
@@ -62,7 +58,6 @@ public abstract class ExportComponent {
    *
    * @return the {@code SampledSpanStore} or {@code null} if not supported.
    */
-  @Nullable
   public abstract SampledSpanStore getSampledSpanStore();
 
   private static final class NoopExportComponent extends ExportComponent {
@@ -71,16 +66,14 @@ public abstract class ExportComponent {
       return SpanExporter.getNoopSpanExporter();
     }
 
-    @Nullable
     @Override
     public RunningSpanStore getRunningSpanStore() {
-      return null;
+      return RunningSpanStore.getNoopRunningSpanStore();
     }
 
-    @Nullable
     @Override
     public SampledSpanStore getSampledSpanStore() {
-      return null;
+      return SampledSpanStore.newNoopSampledSpanStore();
     }
   }
 }

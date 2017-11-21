@@ -21,6 +21,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
@@ -31,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -47,6 +50,17 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class SampledSpanStore {
 
   protected SampledSpanStore() {}
+
+  /**
+   * Returns a {@code SampledSpanStore} that maintains a map of span names, but always returns an
+   * empty list of {@link SpanData}.
+   *
+   * @return a {@code SampledSpanStore} that maintains a map of span names, but always returns an
+   *     empty list of {@code SpanData}.
+   */
+  static SampledSpanStore newNoopSampledSpanStore() {
+    return new NoopSampledSpanStore();
+  }
 
   /**
    * Returns the summary of all available data, such as number of sampled spans in the latency based
@@ -369,5 +383,60 @@ public abstract class SampledSpanStore {
      * @return the maximum number of spans to be returned.
      */
     public abstract int getMaxSpansToReturn();
+  }
+
+  @ThreadSafe
+  private static final class NoopSampledSpanStore extends SampledSpanStore {
+
+    @GuardedBy("registeredSpanNames")
+    private final Set<String> registeredSpanNames = Sets.newHashSet();
+
+    @Override
+    public Summary getSummary() {
+      Map<String, PerSpanNameSummary> result = Maps.newHashMap();
+      synchronized (registeredSpanNames) {
+        for (String registeredSpanName : registeredSpanNames) {
+          result.put(
+              registeredSpanName,
+              PerSpanNameSummary.create(
+                  Collections.<SampledSpanStore.LatencyBucketBoundaries, Integer>emptyMap(),
+                  Collections.<CanonicalCode, Integer>emptyMap()));
+        }
+      }
+      return Summary.create(result);
+    }
+
+    @Override
+    public Collection<SpanData> getLatencySampledSpans(LatencyFilter filter) {
+      return Collections.<SpanData>emptyList();
+    }
+
+    @Override
+    public Collection<SpanData> getErrorSampledSpans(ErrorFilter filter) {
+      return Collections.<SpanData>emptyList();
+    }
+
+    @Override
+    public void registerSpanNamesForCollection(Collection<String> spanNames) {
+      checkNotNull(spanNames);
+      synchronized (registeredSpanNames) {
+        registeredSpanNames.addAll(spanNames);
+      }
+    }
+
+    @Override
+    public void unregisterSpanNamesForCollection(Collection<String> spanNames) {
+      checkNotNull(spanNames);
+      synchronized (registeredSpanNames) {
+        registeredSpanNames.removeAll(spanNames);
+      }
+    }
+
+    @Override
+    public Set<String> getRegisteredSpanNamesForCollection() {
+      synchronized (registeredSpanNames) {
+        return registeredSpanNames;
+      }
+    }
   }
 }
