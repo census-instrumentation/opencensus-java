@@ -41,7 +41,7 @@ public final class ViewTest {
 
   @Test
   public void testConstants() {
-    assertThat(View.NAME_MAX_LENGTH).isEqualTo(256);
+    assertThat(View.NAME_MAX_LENGTH).isEqualTo(255);
   }
 
   @Test
