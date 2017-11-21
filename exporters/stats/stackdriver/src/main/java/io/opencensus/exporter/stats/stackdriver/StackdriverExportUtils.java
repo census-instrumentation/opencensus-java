@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.api.Distribution;
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
-import com.google.api.Distribution.Range;
 import com.google.api.LabelDescriptor;
 import com.google.api.LabelDescriptor.ValueType;
 import com.google.api.Metric;
@@ -278,11 +277,12 @@ final class StackdriverExportUtils {
         .addAllBucketCounts(distributionData.getBucketCounts())
         .setCount(distributionData.getCount())
         .setMean(distributionData.getMean())
-        .setRange(
-            Range.newBuilder()
-                .setMax(distributionData.getMax())
-                .setMin(distributionData.getMin())
-                .build())
+        // TODO(songya): uncomment this once Stackdriver supports setting max and min.
+        // .setRange(
+        //    Range.newBuilder()
+        //        .setMax(distributionData.getMax())
+        //        .setMin(distributionData.getMin())
+        //        .build())
         .setSumOfSquaredDeviation(distributionData.getSumOfSquaredDeviations())
         .build();
   }
