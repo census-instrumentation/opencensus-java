@@ -127,9 +127,18 @@ public class StackdriverExporterWorkerThreadTest {
     List<TimeSeries> timeSeries = StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
-            eq(CreateMetricDescriptorRequest.newBuilder().setMetricDescriptor(descriptor).build()));
+            eq(
+                CreateMetricDescriptorRequest.newBuilder()
+                    .setName("projects/" + PROJECT_ID)
+                    .setMetricDescriptor(descriptor)
+                    .build()));
     verify(mockCreateTimeSeriesCallable, times(1))
-        .call(eq(CreateTimeSeriesRequest.newBuilder().addAllTimeSeries(timeSeries).build()));
+        .call(
+            eq(
+                CreateTimeSeriesRequest.newBuilder()
+                    .setName("projects/" + PROJECT_ID)
+                    .addAllTimeSeries(timeSeries)
+                    .build()));
   }
 
   @Test
