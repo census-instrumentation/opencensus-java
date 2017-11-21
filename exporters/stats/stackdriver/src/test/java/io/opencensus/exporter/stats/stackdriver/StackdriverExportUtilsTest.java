@@ -276,7 +276,7 @@ public class StackdriverExportUtilsTest {
         .isEqualTo(
             "projects/"
                 + PROJECT_ID
-                + "/metricDescriptors/custom.googleapis.com%2Fopencensus%2F"
+                + "/metricDescriptors/custom.googleapis.com/opencensus/"
                 + VIEW_NAME);
     assertThat(metricDescriptor.getDescription()).isEqualTo(VIEW_DESCRIPTION);
     assertThat(metricDescriptor.getDisplayName()).isEqualTo("OpenCensus/" + VIEW_NAME);

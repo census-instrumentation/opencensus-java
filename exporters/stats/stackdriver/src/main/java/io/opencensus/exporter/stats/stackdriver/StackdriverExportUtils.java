@@ -67,6 +67,9 @@ final class StackdriverExportUtils {
   // TODO(songya): do we want these constants to be customizable?
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
 
+  private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
+  private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
+
   // Construct a MetricDescriptor using a View.
   @Nullable
   static MetricDescriptor createMetricDescriptor(View view, String projectId) {
@@ -77,13 +80,11 @@ final class StackdriverExportUtils {
 
     MetricDescriptor.Builder builder = MetricDescriptor.newBuilder();
     String viewName = view.getName().asString();
+    String type = generateType(viewName);
     // Name format refers to
     // cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/create
-    builder.setName(
-        String.format(
-            "projects/%s/metricDescriptors/custom.googleapis.com%%2Fopencensus%%2F%s",
-            projectId, viewName.replace("/", "%2F")));
-    builder.setType(String.format("custom.googleapis.com/opencensus/%s", viewName));
+    builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
+    builder.setType(type);
     builder.setDescription(view.getDescription());
     builder.setUnit(view.getMeasure().getUnit());
     builder.setDisplayName("OpenCensus/" + viewName);
@@ -93,6 +94,10 @@ final class StackdriverExportUtils {
     builder.setMetricKind(createMetricKind(view.getWindow()));
     builder.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
     return builder.build();
+  }
+
+  private static String generateType(String viewName) {
+    return CUSTOM_OPENCENSUS_DOMAIN + viewName;
   }
 
   // Construct a LabelDescriptor from a TagKey
@@ -165,8 +170,7 @@ final class StackdriverExportUtils {
   static Metric createMetric(View view, List<? extends TagValue> tagValues) {
     Metric.Builder builder = Metric.newBuilder();
     // TODO(songya): use pre-defined metrics for canonical views
-    builder.setType(
-        String.format("custom.googleapis.com/opencensus/%s", view.getName().asString()));
+    builder.setType(generateType(view.getName().asString()));
     Map<String, String> stringTagMap = Maps.newHashMap();
     List<TagKey> columns = view.getColumns();
     checkArgument(
