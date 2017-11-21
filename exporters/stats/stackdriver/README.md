@@ -102,7 +102,4 @@ requires a [Premium tier Stackdriver account](https://cloud.google.com/monitorin
 Please note that by default all new Stackdrvier accounts are Basic tier. To upgrade to a Premium 
 tier Stackdriver account, follow the instructions [here](https://cloud.google.com/monitoring/accounts/tiers#start-premium).
 
-In addition, if you've enabled Premium tier but still don't have access to custom metrics, please 
-try using a [Service Account](https://github.com/GoogleCloudPlatform/java-docs-samples/tree/tasks-pr/monitoring/v3#using-a-service-account).
-
 [stackdriver-monitoring]: https://cloud.google.com/monitoring/
