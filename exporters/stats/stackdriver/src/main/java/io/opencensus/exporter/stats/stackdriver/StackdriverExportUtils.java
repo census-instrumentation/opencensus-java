@@ -79,7 +79,11 @@ final class StackdriverExportUtils {
     String viewName = view.getName().asString();
     // Name format refers to
     // cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/create
-    builder.setName(String.format("projects/%s", projectId));
+    builder.setName(
+        // DO_NOT_SUBMIT: Should this also be "custom.googleapis.com/opencensus/%s"
+        String.format(
+            "projects/%s/metricDescriptors/%s",
+            projectId, viewName.replace("/", "%2F")));
     builder.setType(String.format("custom.googleapis.com/opencensus/%s", viewName));
     builder.setDescription(view.getDescription());
     builder.setUnit(view.getMeasure().getUnit());

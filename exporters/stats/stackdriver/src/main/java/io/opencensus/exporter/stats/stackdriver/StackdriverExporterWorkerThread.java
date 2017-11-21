@@ -20,8 +20,10 @@ import com.google.api.MetricDescriptor;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
+import com.google.monitoring.v3.ProjectName;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -29,6 +31,7 @@ import io.opencensus.stats.ViewManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -49,6 +52,7 @@ final class StackdriverExporterWorkerThread extends Thread {
 
   private final long scheduleDelayMillis;
   private final String projectId;
+  private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final ViewManager viewManager;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
@@ -60,6 +64,7 @@ final class StackdriverExporterWorkerThread extends Thread {
       ViewManager viewManager) {
     this.scheduleDelayMillis = toMillis(exportInterval);
     this.projectId = projectId;
+    projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
     setDaemon(true);
@@ -94,7 +99,10 @@ final class StackdriverExporterWorkerThread extends Thread {
         StackdriverExportUtils.createMetricDescriptor(view, projectId);
     if (metricDescriptor != null) {
       metricServiceClient.createMetricDescriptor(
-          CreateMetricDescriptorRequest.newBuilder().setMetricDescriptor(metricDescriptor).build());
+          CreateMetricDescriptorRequest.newBuilder()
+              .setNameWithProjectName(projectName)
+              .setMetricDescriptor(metricDescriptor)
+              .build());
     }
   }
 
@@ -107,7 +115,8 @@ final class StackdriverExporterWorkerThread extends Thread {
       registerView(view);
       viewDataList.add(viewManager.getView(view.getName()));
     }
-    CreateTimeSeriesRequest.Builder builder = CreateTimeSeriesRequest.newBuilder();
+    CreateTimeSeriesRequest.Builder builder =
+        CreateTimeSeriesRequest.newBuilder().setNameWithProjectName(projectName);
     for (ViewData viewData : viewDataList) {
       builder.addAllTimeSeries(StackdriverExportUtils.createTimeSeriesList(viewData, projectId));
     }
@@ -118,15 +127,13 @@ final class StackdriverExporterWorkerThread extends Thread {
 
   @Override
   public void run() {
-    while (true) {
+    while (!Thread.currentThread().isInterrupted()) {
       try {
         export();
-        Thread.sleep(scheduleDelayMillis);
-      } catch (InterruptedException ie) {
-        // Preserve the interruption status as per guidance and stop doing any work.
-        Thread.currentThread().interrupt();
-        return;
+      } catch (Throwable e) {
+        logger.log(Level.WARNING, "Exception thrown by the Stackdriver stats exporter.", e);
       }
+      Uninterruptibles.sleepUninterruptibly(scheduleDelayMillis, TimeUnit.MILLISECONDS);
     }
   }
 
