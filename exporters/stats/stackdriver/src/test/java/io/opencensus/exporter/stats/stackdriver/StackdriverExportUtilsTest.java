@@ -338,8 +338,7 @@ public class StackdriverExportUtilsTest {
             .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
             .setResource(
                 MonitoredResource.newBuilder()
-                    .setType("global")
-                    .putLabels("project_id", PROJECT_ID))
+                    .setType("global"))
             .addPoints(
                 StackdriverExportUtils.createPoint(distributionData1, cumulativeData, DISTRIBUTION))
             .build();
@@ -350,8 +349,7 @@ public class StackdriverExportUtilsTest {
             .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_2)))
             .setResource(
                 MonitoredResource.newBuilder()
-                    .setType("global")
-                    .putLabels("project_id", PROJECT_ID))
+                    .setType("global"))
             .addPoints(
                 StackdriverExportUtils.createPoint(distributionData2, cumulativeData, DISTRIBUTION))
             .build();
