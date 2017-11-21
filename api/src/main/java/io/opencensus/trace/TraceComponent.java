@@ -79,6 +79,8 @@ public abstract class TraceComponent {
   }
 
   private static final class NoopTraceComponent extends TraceComponent {
+    private final ExportComponent noopExportComponent = ExportComponent.newNoopExportComponent();
+
     @Override
     public Tracer getTracer() {
       return Tracer.getNoopTracer();
@@ -96,7 +98,7 @@ public abstract class TraceComponent {
 
     @Override
     public ExportComponent getExportComponent() {
-      return ExportComponent.newNoopExportComponent();
+      return noopExportComponent;
     }
 
     @Override

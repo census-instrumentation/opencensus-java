@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4;
 public final class NoopSampledSpanStoreTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
-  private final SampledSpanStore.PerSpanNameSummary emptyPerSpanNameSummary =
+  private static final SampledSpanStore.PerSpanNameSummary EMPTY_PER_SPAN_NAME_SUMMARY =
       SampledSpanStore.PerSpanNameSummary.create(
           Collections.<SampledSpanStore.LatencyBucketBoundaries, Integer>emptyMap(),
           Collections.<CanonicalCode, Integer>emptyMap());
@@ -53,16 +53,16 @@ public final class NoopSampledSpanStoreTest {
     summary = sampledSpanStore.getSummary();
     assertThat(summary.getPerSpanNameSummary())
         .containsExactly(
-            "TestSpan1", emptyPerSpanNameSummary,
-            "TestSpan2", emptyPerSpanNameSummary,
-            "TestSpan3", emptyPerSpanNameSummary);
+            "TestSpan1", EMPTY_PER_SPAN_NAME_SUMMARY,
+            "TestSpan2", EMPTY_PER_SPAN_NAME_SUMMARY,
+            "TestSpan3", EMPTY_PER_SPAN_NAME_SUMMARY);
 
     // should unregister specific spanNames
     sampledSpanStore.unregisterSpanNamesForCollection(
         Collections.unmodifiableList(Lists.newArrayList("TestSpan1", "TestSpan3")));
     summary = sampledSpanStore.getSummary();
     assertThat(summary.getPerSpanNameSummary())
-        .containsExactly("TestSpan2", emptyPerSpanNameSummary);
+        .containsExactly("TestSpan2", EMPTY_PER_SPAN_NAME_SUMMARY);
   }
 
   @Test

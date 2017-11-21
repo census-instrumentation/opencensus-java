@@ -46,7 +46,7 @@ public abstract class RunningSpanStore {
    *
    * @return the no-op implementation of the {@code RunningSpanStore}.
    */
-  public static RunningSpanStore getNoopRunningSpanStore() {
+  static RunningSpanStore getNoopRunningSpanStore() {
     return NOOP_RUNNING_SPAN_STORE;
   }
 
@@ -165,9 +165,12 @@ public abstract class RunningSpanStore {
 
   private static final class NoopRunningSpanStore extends RunningSpanStore {
 
+    private static final Summary EMPTY_SUMMARY =
+        Summary.create(Collections.<String, PerSpanNameSummary>emptyMap());
+
     @Override
     public Summary getSummary() {
-      return Summary.create(Collections.<String, PerSpanNameSummary>emptyMap());
+      return EMPTY_SUMMARY;
     }
 
     @Override

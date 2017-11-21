@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.opencensus.trace.Span;
@@ -387,6 +388,10 @@ public abstract class SampledSpanStore {
 
   @ThreadSafe
   private static final class NoopSampledSpanStore extends SampledSpanStore {
+    private static final PerSpanNameSummary EMPTY_PER_SPAN_NAME_SUMMARY =
+        PerSpanNameSummary.create(
+            Collections.<SampledSpanStore.LatencyBucketBoundaries, Integer>emptyMap(),
+            Collections.<CanonicalCode, Integer>emptyMap());
 
     @GuardedBy("registeredSpanNames")
     private final Set<String> registeredSpanNames = Sets.newHashSet();
@@ -396,11 +401,7 @@ public abstract class SampledSpanStore {
       Map<String, PerSpanNameSummary> result = Maps.newHashMap();
       synchronized (registeredSpanNames) {
         for (String registeredSpanName : registeredSpanNames) {
-          result.put(
-              registeredSpanName,
-              PerSpanNameSummary.create(
-                  Collections.<SampledSpanStore.LatencyBucketBoundaries, Integer>emptyMap(),
-                  Collections.<CanonicalCode, Integer>emptyMap()));
+          result.put(registeredSpanName, EMPTY_PER_SPAN_NAME_SUMMARY);
         }
       }
       return Summary.create(result);
@@ -408,17 +409,19 @@ public abstract class SampledSpanStore {
 
     @Override
     public Collection<SpanData> getLatencySampledSpans(LatencyFilter filter) {
+      checkNotNull(filter, "latencyFilter");
       return Collections.<SpanData>emptyList();
     }
 
     @Override
     public Collection<SpanData> getErrorSampledSpans(ErrorFilter filter) {
+      checkNotNull(filter, "errorFilter");
       return Collections.<SpanData>emptyList();
     }
 
     @Override
     public void registerSpanNamesForCollection(Collection<String> spanNames) {
-      checkNotNull(spanNames);
+      checkNotNull(spanNames, "spanNames");
       synchronized (registeredSpanNames) {
         registeredSpanNames.addAll(spanNames);
       }
@@ -435,7 +438,7 @@ public abstract class SampledSpanStore {
     @Override
     public Set<String> getRegisteredSpanNamesForCollection() {
       synchronized (registeredSpanNames) {
-        return registeredSpanNames;
+        return ImmutableSet.copyOf(registeredSpanNames);
       }
     }
   }

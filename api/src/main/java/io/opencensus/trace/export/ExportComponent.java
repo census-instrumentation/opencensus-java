@@ -48,7 +48,7 @@ public abstract class ExportComponent {
    * Returns the {@link RunningSpanStore} that can be used to get useful debugging information about
    * all the current active spans.
    *
-   * @return the {@code RunningSpanStore} or {@code null} if not supported.
+   * @return the {@code RunningSpanStore}.
    */
   public abstract RunningSpanStore getRunningSpanStore();
 
@@ -56,11 +56,14 @@ public abstract class ExportComponent {
    * Returns the {@link SampledSpanStore} that can be used to get useful debugging information, such
    * as latency based sampled spans, error based sampled spans.
    *
-   * @return the {@code SampledSpanStore} or {@code null} if not supported.
+   * @return the {@code SampledSpanStore}.
    */
   public abstract SampledSpanStore getSampledSpanStore();
 
   private static final class NoopExportComponent extends ExportComponent {
+    private final SampledSpanStore noopSampledSpanStore =
+        SampledSpanStore.newNoopSampledSpanStore();
+
     @Override
     public SpanExporter getSpanExporter() {
       return SpanExporter.getNoopSpanExporter();
@@ -73,7 +76,7 @@ public abstract class ExportComponent {
 
     @Override
     public SampledSpanStore getSampledSpanStore() {
-      return SampledSpanStore.newNoopSampledSpanStore();
+      return noopSampledSpanStore;
     }
   }
 }
