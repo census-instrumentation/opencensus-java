@@ -272,7 +272,12 @@ public class StackdriverExportUtilsTest {
             CUMULATIVE);
     MetricDescriptor metricDescriptor =
         StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
-    assertThat(metricDescriptor.getName()).isEqualTo("projects/" + PROJECT_ID);
+    assertThat(metricDescriptor.getName())
+        .isEqualTo(
+            "projects/"
+                + PROJECT_ID
+                + "/metricDescriptors/custom.googleapis.com%2Fopencensus%2F"
+                + VIEW_NAME);
     assertThat(metricDescriptor.getDescription()).isEqualTo(VIEW_DESCRIPTION);
     assertThat(metricDescriptor.getDisplayName()).isEqualTo("OpenCensus/" + VIEW_NAME);
     assertThat(metricDescriptor.getType())
