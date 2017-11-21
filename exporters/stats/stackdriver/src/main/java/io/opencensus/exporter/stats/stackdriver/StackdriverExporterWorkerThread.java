@@ -20,7 +20,6 @@ import com.google.api.MetricDescriptor;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -31,7 +30,6 @@ import io.opencensus.stats.ViewManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -127,13 +125,17 @@ final class StackdriverExporterWorkerThread extends Thread {
 
   @Override
   public void run() {
-    while (!Thread.currentThread().isInterrupted()) {
+    while (true) {
       try {
         export();
+        Thread.sleep(scheduleDelayMillis);
+      } catch (InterruptedException ie) {
+        // Preserve the interruption status as per guidance and stop doing any work.
+        Thread.currentThread().interrupt();
+        return;
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown by the Stackdriver stats exporter.", e);
       }
-      Uninterruptibles.sleepUninterruptibly(scheduleDelayMillis, TimeUnit.MILLISECONDS);
     }
   }
 
