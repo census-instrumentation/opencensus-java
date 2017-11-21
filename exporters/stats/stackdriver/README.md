@@ -17,6 +17,7 @@ In order to be able to push your stats to [Stackdriver Monitoring][stackdriver-m
 1. [Create a Cloud project](https://support.google.com/cloud/answer/6251787?hl=en).
 2. [Enable billing](https://support.google.com/cloud/answer/6288653#new-billing).
 3. [Enable the Stackdriver Monitoring API](https://app.google.stackdriver.com/).
+4. [Make sure you have a Premium Stackdiver account](https://cloud.google.com/monitoring/accounts/tiers).
 
 These steps enable the API but don't require that your app is hosted on Google Cloud Platform.
 
@@ -69,5 +70,11 @@ StackdriverStatsExporter.createAndRegisterWithProjectId("MyStackdriverProjectId"
 Java 7 or above is required for using this exporter.
 
 ## FAQ
+### Why did I get a PERMISSION_DENIED error from Stackdriver when using this exporter?
+To use our Stackdriver Stats exporter, your Stackdriver account needs to have permission to [create
+custom metrics](https://cloud.google.com/monitoring/custom-metrics/creating-metrics), and that 
+requires a [Premium tier Stackdriver account](https://cloud.google.com/monitoring/accounts/tiers#this_request_is_only_available_in_the_premium_tier). 
+Please note that by default all new Stackdrvier accounts are Basic tier. To upgrade to a Premium 
+tier Stackdriver account, follow the instructions [here](https://cloud.google.com/monitoring/accounts/tiers#start-premium).
 
 [stackdriver-monitoring]: https://cloud.google.com/monitoring/
