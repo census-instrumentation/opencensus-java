@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.opencensus.trace.Span;
@@ -53,10 +52,10 @@ public abstract class SampledSpanStore {
   protected SampledSpanStore() {}
 
   /**
-   * Returns a {@code SampledSpanStore} that maintains a map of span names, but always returns an
+   * Returns a {@code SampledSpanStore} that maintains a set of span names, but always returns an
    * empty list of {@link SpanData}.
    *
-   * @return a {@code SampledSpanStore} that maintains a map of span names, but always returns an
+   * @return a {@code SampledSpanStore} that maintains a set of span names, but always returns an
    *     empty list of {@code SpanData}.
    */
   static SampledSpanStore newNoopSampledSpanStore() {
@@ -438,7 +437,7 @@ public abstract class SampledSpanStore {
     @Override
     public Set<String> getRegisteredSpanNamesForCollection() {
       synchronized (registeredSpanNames) {
-        return ImmutableSet.copyOf(registeredSpanNames);
+        return Collections.<String>unmodifiableSet(Sets.newHashSet(registeredSpanNames));
       }
     }
   }
