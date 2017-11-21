@@ -38,7 +38,7 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 public abstract class View {
 
-  @VisibleForTesting static final int NAME_MAX_LENGTH = 256;
+  @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
 
   View() {}
 
@@ -116,7 +116,7 @@ public abstract class View {
 
     /**
      * Creates a {@code View.Name} from a {@code String}. Should be a ASCII string with a length no
-     * greater than 256 characters.
+     * greater than 255 characters.
      *
      * <p>Suggested format for name: {@code <web_host>/<path>}.
      *
@@ -126,7 +126,7 @@ public abstract class View {
     public static Name create(String name) {
       checkArgument(
           StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than 256 characters.");
+          "Name should be a ASCII string with a length no greater than 255 characters.");
       return new AutoValue_View_Name(name);
     }
   }
