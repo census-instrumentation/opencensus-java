@@ -336,9 +336,7 @@ public class StackdriverExportUtilsTest {
             .setMetricKind(MetricKind.CUMULATIVE)
             .setValueType(MetricDescriptor.ValueType.DISTRIBUTION)
             .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
-            .setResource(
-                MonitoredResource.newBuilder()
-                    .setType("global"))
+            .setResource(MonitoredResource.newBuilder().setType("global"))
             .addPoints(
                 StackdriverExportUtils.createPoint(distributionData1, cumulativeData, DISTRIBUTION))
             .build();
@@ -347,9 +345,7 @@ public class StackdriverExportUtilsTest {
             .setMetricKind(MetricKind.CUMULATIVE)
             .setValueType(MetricDescriptor.ValueType.DISTRIBUTION)
             .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_2)))
-            .setResource(
-                MonitoredResource.newBuilder()
-                    .setType("global"))
+            .setResource(MonitoredResource.newBuilder().setType("global"))
             .addPoints(
                 StackdriverExportUtils.createPoint(distributionData2, cumulativeData, DISTRIBUTION))
             .build();
