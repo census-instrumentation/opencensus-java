@@ -208,6 +208,7 @@ public class StackdriverExportUtilsTest {
             com.google.api.Distribution.newBuilder()
                 .setMean(2)
                 .setCount(3)
+                // TODO(songya): uncomment this once Stackdriver supports setting max and min.
                 // .setRange(
                 //     com.google.api.Distribution.Range.newBuilder().setMin(0).setMax(5).build())
                 .setBucketOptions(StackdriverExportUtils.createBucketOptions(BUCKET_BOUNDARIES))
