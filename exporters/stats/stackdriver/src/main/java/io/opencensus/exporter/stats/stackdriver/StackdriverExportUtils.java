@@ -148,8 +148,8 @@ final class StackdriverExportUtils {
     // Shared fields for all TimeSeries generated from the same ViewData
     TimeSeries.Builder shared = TimeSeries.newBuilder();
     shared.setMetricKind(createMetricKind(view.getWindow()));
-    shared.setResource(
-        MonitoredResource.newBuilder().setType("global").putLabels("project_id", projectId));
+    // TODO(songya): add support for custom resource labels.
+    shared.setResource(MonitoredResource.newBuilder().setType("global"));
     shared.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
 
     // Each entry in AggregationMap will be converted into an independent TimeSeries object
