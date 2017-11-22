@@ -74,7 +74,7 @@ Java 7 or above is required for using this exporter.
 To use our Stackdriver Stats exporter, your Stackdriver account needs to have permission to [create
 custom metrics](https://cloud.google.com/monitoring/custom-metrics/creating-metrics), and that 
 requires a [Premium tier Stackdriver account](https://cloud.google.com/monitoring/accounts/tiers#this_request_is_only_available_in_the_premium_tier). 
-Please note that by default all new Stackdrvier accounts are Basic tier. To upgrade to a Premium 
+Please note that by default all new Stackdriver accounts are Basic tier. To upgrade to a Premium 
 tier Stackdriver account, follow the instructions [here](https://cloud.google.com/monitoring/accounts/tiers#start-premium).
 
 [stackdriver-monitoring]: https://cloud.google.com/monitoring/
