@@ -16,7 +16,7 @@
 
 package io.opencensus.contrib.agent.instrumentation;
 
-import com.typesafe.config.Config;
+import io.opencensus.contrib.agent.Settings;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
 /** Interface for plug-ins that add bytecode instrumentation. */
@@ -27,8 +27,8 @@ public interface Instrumenter {
    *
    * @param agentBuilder an {@link AgentBuilder} object to which the additional instrumentation is
    *     added
-   * @param config the configuration settings
+   * @param settings the configuration settings
    * @return an {@link AgentBuilder} object having the additional instrumentation
    */
-  AgentBuilder instrument(AgentBuilder agentBuilder, Config config);
+  AgentBuilder instrument(AgentBuilder agentBuilder, Settings settings);
 }
