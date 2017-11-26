@@ -17,7 +17,7 @@
 package io.opencensus.contrib.agent.instrumentation;
 
 import com.google.auto.service.AutoService;
-import com.typesafe.config.Config;
+import io.opencensus.contrib.agent.Settings;
 import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
 import io.opencensus.contrib.agent.bootstrap.ContextTrampoline;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -27,7 +27,7 @@ import net.bytebuddy.agent.builder.AgentBuilder;
 public final class ContextTrampolineInitializer implements Instrumenter {
 
   @Override
-  public AgentBuilder instrument(AgentBuilder agentBuilder, Config config) {
+  public AgentBuilder instrument(AgentBuilder agentBuilder, Settings settings) {
     // TODO(stschmidt): Gracefully handle the case of missing io.grpc.Context at runtime,
     // maybe load the missing classes from a JAR that comes with the agent JAR.
     ContextTrampoline.setContextStrategy(new ContextStrategyImpl());

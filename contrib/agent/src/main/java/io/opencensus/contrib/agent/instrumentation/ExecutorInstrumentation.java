@@ -25,8 +25,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 import com.google.auto.service.AutoService;
-import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.opencensus.contrib.agent.Settings;
 import io.opencensus.contrib.agent.bootstrap.ContextTrampoline;
 import java.util.concurrent.Executor;
 import net.bytebuddy.agent.builder.AgentBuilder;
@@ -45,11 +45,11 @@ import net.bytebuddy.utility.JavaModule;
 public final class ExecutorInstrumentation implements Instrumenter {
 
   @Override
-  public AgentBuilder instrument(AgentBuilder agentBuilder, Config config) {
+  public AgentBuilder instrument(AgentBuilder agentBuilder, Settings settings) {
     checkNotNull(agentBuilder, "agentBuilder");
-    checkNotNull(config, "config");
+    checkNotNull(settings, "settings");
 
-    if (!config.getBoolean("context-propagation.executor.enabled")) {
+    if (!settings.isEnabled("context-propagation.executor")) {
       return agentBuilder;
     }
 

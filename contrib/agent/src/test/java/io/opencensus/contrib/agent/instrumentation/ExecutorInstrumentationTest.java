@@ -17,39 +17,38 @@
 package io.opencensus.contrib.agent.instrumentation;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.when;
 
-import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import io.opencensus.contrib.agent.Settings;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /** Unit tests for {@link ExecutorInstrumentation}. */
 @RunWith(MockitoJUnitRunner.class)
 public class ExecutorInstrumentationTest {
 
-  @Mock private Config config;
-
   private final ExecutorInstrumentation instrumentation = new ExecutorInstrumentation();
 
   private final AgentBuilder agentBuilder = new AgentBuilder.Default();
 
+  private static final String FEATURE = "context-propagation.executor";
+
   @Test
   public void instrument_disabled() {
-    when(config.getBoolean("context-propagation.executor.enabled")).thenReturn(false);
+    Settings settings = new Settings(ConfigFactory.parseString(FEATURE + ".enabled = false"));
 
-    AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, config);
+    AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, settings);
 
     assertThat(agentBuilder2).isSameAs(agentBuilder);
   }
 
   @Test
   public void instrument_enabled() {
-    when(config.getBoolean("context-propagation.executor.enabled")).thenReturn(true);
+    Settings settings = new Settings(ConfigFactory.parseString(FEATURE + ".enabled = true"));
 
-    AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, config);
+    AgentBuilder agentBuilder2 = instrumentation.instrument(agentBuilder, settings);
 
     assertThat(agentBuilder2).isNotSameAs(agentBuilder);
   }
