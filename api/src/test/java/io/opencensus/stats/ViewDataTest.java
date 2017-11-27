@@ -184,11 +184,11 @@ public final class ViewDataTest {
   @Test
   public void preventAggregationAndAggregationDataMismatch() {
     aggregationAndAggregationDataMismatch(
-        createView(MEASURE_DOUBLE, Sum.create()),
+        createView(Sum.create(), MEASURE_DOUBLE),
         ImmutableMap.<List<TagValue>, AggregationData>of(
             Arrays.asList(V1, V2), SumDataLong.create(100)));
     aggregationAndAggregationDataMismatch(
-        createView(MEASURE_LONG, Sum.create()),
+        createView(Sum.create(), MEASURE_LONG),
         ImmutableMap.<List<TagValue>, AggregationData>of(
             Arrays.asList(V1, V2), SumDataDouble.create(100)));
     aggregationAndAggregationDataMismatch(createView(Count.create()), ENTRIES);
@@ -203,10 +203,10 @@ public final class ViewDataTest {
   }
 
   private static View createView(Aggregation aggregation) {
-    return createView(MEASURE_DOUBLE, aggregation);
+    return createView(aggregation, MEASURE_DOUBLE);
   }
 
-  private static View createView(Measure measure, Aggregation aggregation) {
+  private static View createView(Aggregation aggregation, Measure measure) {
     return View.create(NAME, DESCRIPTION, measure, aggregation, tagKeys, CUMULATIVE);
   }
 

@@ -132,25 +132,25 @@ public abstract class ViewData {
           @Override
           public Void apply(Sum arg) {
             measure.match(
-                new Function<MeasureDouble, Object>() {
+                new Function<MeasureDouble, Void>() {
                   @Override
-                  public Object apply(MeasureDouble arg) {
+                  public Void apply(MeasureDouble arg) {
                     checkArgument(
                         aggregationData instanceof SumDataDouble,
                         createErrorMessageForAggregation(aggregation, aggregationData));
                     return null;
                   }
                 },
-                new Function<MeasureLong, Object>() {
+                new Function<MeasureLong, Void>() {
                   @Override
-                  public Object apply(MeasureLong arg) {
+                  public Void apply(MeasureLong arg) {
                     checkArgument(
                         aggregationData instanceof SumDataLong,
                         createErrorMessageForAggregation(aggregation, aggregationData));
                     return null;
                   }
                 },
-                Functions.throwIllegalArgumentException());
+                Functions.<Void>throwIllegalArgumentException());
             return null;
           }
         },
