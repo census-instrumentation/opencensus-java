@@ -121,17 +121,18 @@ final class StackdriverExporterWorkerThread extends Thread {
       timeSeriesList.addAll(StackdriverExportUtils.createTimeSeriesList(viewData, projectId));
     }
 
-    for (int i = 0; i < timeSeriesList.size(); i += MAX_BATCH_EXPORT_SIZE) {
+    for (List<TimeSeries> batchedTimeSeries :
+        Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {
       // Batch export 3 TimeSeries at one call, to avoid exceeding RPC header size limit.
       CreateTimeSeriesRequest.Builder builder =
           CreateTimeSeriesRequest.newBuilder().setNameWithProjectName(projectName);
-      for (int j = i; j < i + MAX_BATCH_EXPORT_SIZE && j < timeSeriesList.size(); j++) {
-        builder.addTimeSeries(timeSeriesList.get(j));
+      for (TimeSeries timeSeries : batchedTimeSeries) {
+        builder.addTimeSeries(timeSeries);
       }
       try {
         metricServiceClient.createTimeSeries(builder.build());
       } catch (Throwable e) {
-        logger.log(Level.WARNING, "Exception thrown when exporting.", e);
+        logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
       }
     }
   }
