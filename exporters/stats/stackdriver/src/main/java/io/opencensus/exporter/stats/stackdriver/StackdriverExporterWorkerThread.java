@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
+import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -47,6 +48,8 @@ final class StackdriverExporterWorkerThread extends Thread {
 
   private static final Logger logger =
       Logger.getLogger(StackdriverExporterWorkerThread.class.getName());
+
+  @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 3;
 
   private final long scheduleDelayMillis;
   private final String projectId;
@@ -113,13 +116,24 @@ final class StackdriverExporterWorkerThread extends Thread {
       registerView(view);
       viewDataList.add(viewManager.getView(view.getName()));
     }
-    CreateTimeSeriesRequest.Builder builder =
-        CreateTimeSeriesRequest.newBuilder().setNameWithProjectName(projectName);
+    List<TimeSeries> timeSeriesList = Lists.newArrayList();
     for (ViewData viewData : viewDataList) {
-      builder.addAllTimeSeries(StackdriverExportUtils.createTimeSeriesList(viewData, projectId));
+      timeSeriesList.addAll(StackdriverExportUtils.createTimeSeriesList(viewData, projectId));
     }
-    if (!builder.getTimeSeriesList().isEmpty()) {
-      metricServiceClient.createTimeSeries(builder.build());
+
+    for (List<TimeSeries> batchedTimeSeries :
+        Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {
+      // Batch export 3 TimeSeries at one call, to avoid exceeding RPC header size limit.
+      CreateTimeSeriesRequest.Builder builder =
+          CreateTimeSeriesRequest.newBuilder().setNameWithProjectName(projectName);
+      for (TimeSeries timeSeries : batchedTimeSeries) {
+        builder.addTimeSeries(timeSeries);
+      }
+      try {
+        metricServiceClient.createTimeSeries(builder.build());
+      } catch (Throwable e) {
+        logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
+      }
     }
   }
 
