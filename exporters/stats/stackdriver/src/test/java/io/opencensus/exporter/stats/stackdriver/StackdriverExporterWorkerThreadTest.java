@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -101,6 +102,11 @@ public class StackdriverExporterWorkerThreadTest {
         .when(mockCreateMetricDescriptorCallable)
         .call(any(CreateMetricDescriptorRequest.class));
     doReturn(null).when(mockCreateTimeSeriesCallable).call(any(CreateTimeSeriesRequest.class));
+  }
+
+  @Test
+  public void testConstants() {
+    assertThat(StackdriverExporterWorkerThread.MAX_BATCH_EXPORT_SIZE).isEqualTo(3);
   }
 
   @Test
