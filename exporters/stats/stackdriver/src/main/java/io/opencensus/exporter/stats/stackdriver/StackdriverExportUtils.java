@@ -139,6 +139,9 @@ final class StackdriverExportUtils {
   // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
   static List<TimeSeries> createTimeSeriesList(ViewData viewData, String projectId) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
+    if (viewData == null) {
+      return timeSeriesList;
+    }
     View view = viewData.getView();
     if (!(view.getWindow() instanceof Cumulative)) {
       // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
