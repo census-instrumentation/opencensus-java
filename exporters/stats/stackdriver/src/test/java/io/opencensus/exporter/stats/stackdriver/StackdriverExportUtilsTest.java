@@ -70,6 +70,8 @@ public class StackdriverExportUtilsTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final TagKey KEY = TagKey.create("KEY");
+  private static final TagKey KEY_2 = TagKey.create("KEY2");
+  private static final TagKey KEY_3 = TagKey.create("KEY3");
   private static final TagValue VALUE_1 = TagValue.create("VALUE1");
   private static final TagValue VALUE_2 = TagValue.create("VALUE2");
   private static final String MEASURE_UNIT = "us";
@@ -151,6 +153,41 @@ public class StackdriverExportUtilsTest {
                 .setType("custom.googleapis.com/opencensus/" + VIEW_NAME)
                 .putLabels("KEY", "VALUE1")
                 .build());
+  }
+
+  @Test
+  public void createMetric_skipNullTagValue() {
+    View view =
+        View.create(
+            Name.create(VIEW_NAME),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY, KEY_2, KEY_3),
+            CUMULATIVE);
+    assertThat(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1, null, VALUE_2)))
+        .isEqualTo(
+            Metric.newBuilder()
+                .setType("custom.googleapis.com/opencensus/" + VIEW_NAME)
+                .putLabels("KEY", "VALUE1")
+                .putLabels("KEY3", "VALUE2")
+                .build());
+  }
+
+  @Test
+  public void createMetric_throwWhenTagKeysAndValuesHaveDifferentSize() {
+    View view =
+        View.create(
+            Name.create(VIEW_NAME),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY, KEY_2, KEY_3),
+            CUMULATIVE);
+    List<TagValue> tagValues = Arrays.asList(VALUE_1, null);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("TagKeys and TagValues don't have same size.");
+    StackdriverExportUtils.createMetric(view, tagValues);
   }
 
   @Test

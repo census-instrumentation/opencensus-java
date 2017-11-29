@@ -139,7 +139,7 @@ abstract class MutableViewData {
     for (int i = 0; i < columns.size(); ++i) {
       TagKey tagKey = columns.get(i);
       if (!tags.containsKey(tagKey)) {
-        // replace not found key values by “unknown/not set”.
+        // replace not found key values by null.
         tagValues.add(UNKNOWN_TAG_VALUE);
       } else {
         tagValues.add(tags.get(tagKey));
