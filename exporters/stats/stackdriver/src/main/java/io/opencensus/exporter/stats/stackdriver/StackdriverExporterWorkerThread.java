@@ -122,8 +122,7 @@ final class StackdriverExporterWorkerThread extends Thread {
   void export() {
     List<ViewData> viewDataList = Lists.newArrayList();
     for (View view : viewManager.getAllExportedViews()) {
-      boolean isValidView = registerView(view);
-      if (isValidView) {
+      if (registerView(view)) {
         // Only upload stats for valid views.
         viewDataList.add(viewManager.getView(view.getName()));
       }
