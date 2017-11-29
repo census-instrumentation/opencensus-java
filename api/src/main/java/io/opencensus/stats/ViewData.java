@@ -150,7 +150,7 @@ public abstract class ViewData {
                     return null;
                   }
                 },
-                Functions.<Void>throwIllegalArgumentException());
+                Functions.<Void>throwAssertionError());
             return null;
           }
         },
@@ -181,7 +181,7 @@ public abstract class ViewData {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException());
+        Functions.<Void>throwAssertionError());
   }
 
   private static String createErrorMessageForAggregation(

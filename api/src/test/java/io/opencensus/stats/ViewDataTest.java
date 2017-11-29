@@ -59,7 +59,7 @@ public final class ViewDataTest {
 
   @Test
   public void testCumulativeViewData() {
-    View view = View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, tagKeys, CUMULATIVE);
+    View view = View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, CUMULATIVE);
     Timestamp start = Timestamp.fromMillis(1000);
     Timestamp end = Timestamp.fromMillis(2000);
     AggregationWindowData windowData = CumulativeData.create(start, end);
@@ -72,7 +72,7 @@ public final class ViewDataTest {
   @Test
   public void testIntervalViewData() {
     View view =
-        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, tagKeys, INTERVAL_HOUR);
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, INTERVAL_HOUR);
     Timestamp end = Timestamp.fromMillis(2000);
     AggregationWindowData windowData = IntervalData.create(end);
     ViewData viewData = ViewData.create(view, ENTRIES, windowData);
@@ -84,9 +84,9 @@ public final class ViewDataTest {
   @Test
   public void testViewDataEquals() {
     View cumulativeView =
-        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, tagKeys, CUMULATIVE);
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, CUMULATIVE);
     View intervalView =
-        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, tagKeys, INTERVAL_HOUR);
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, INTERVAL_HOUR);
 
     new EqualsTester()
         .addEqualityGroup(
@@ -160,7 +160,7 @@ public final class ViewDataTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("AggregationWindow and AggregationWindowData types mismatch. ");
     ViewData.create(
-        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, tagKeys, INTERVAL_HOUR),
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, INTERVAL_HOUR),
         ENTRIES,
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
   }
@@ -170,7 +170,7 @@ public final class ViewDataTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("AggregationWindow and AggregationWindowData types mismatch. ");
     ViewData.create(
-        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, tagKeys, CUMULATIVE),
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, CUMULATIVE),
         ENTRIES,
         IntervalData.create(Timestamp.fromMillis(1000)));
   }
@@ -182,17 +182,33 @@ public final class ViewDataTest {
   }
 
   @Test
-  public void preventAggregationAndAggregationDataMismatch() {
+  public void preventAggregationAndAggregationDataMismatch_SumDouble_SumLong() {
     aggregationAndAggregationDataMismatch(
         createView(Sum.create(), MEASURE_DOUBLE),
         ImmutableMap.<List<TagValue>, AggregationData>of(
             Arrays.asList(V1, V2), SumDataLong.create(100)));
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_SumLong_SumDouble() {
     aggregationAndAggregationDataMismatch(
         createView(Sum.create(), MEASURE_LONG),
         ImmutableMap.<List<TagValue>, AggregationData>of(
             Arrays.asList(V1, V2), SumDataDouble.create(100)));
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_Count_Distribution() {
     aggregationAndAggregationDataMismatch(createView(Count.create()), ENTRIES);
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_Mean_Distribution() {
     aggregationAndAggregationDataMismatch(createView(Mean.create()), ENTRIES);
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_Distribution_Count() {
     aggregationAndAggregationDataMismatch(
         createView(DISTRIBUTION),
         ImmutableMap.of(
@@ -207,7 +223,7 @@ public final class ViewDataTest {
   }
 
   private static View createView(Aggregation aggregation, Measure measure) {
-    return View.create(NAME, DESCRIPTION, measure, aggregation, tagKeys, CUMULATIVE);
+    return View.create(NAME, DESCRIPTION, measure, aggregation, TAG_KEYS, CUMULATIVE);
   }
 
   private void aggregationAndAggregationDataMismatch(
@@ -222,7 +238,7 @@ public final class ViewDataTest {
   // tag keys
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
-  private static final List<TagKey> tagKeys = Arrays.asList(K1, K2);
+  private static final List<TagKey> TAG_KEYS = Arrays.asList(K1, K2);
 
   // tag values
   private static final TagValue V1 = TagValue.create("v1");
