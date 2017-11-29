@@ -177,6 +177,9 @@ final class StackdriverExportUtils {
     for (int i = 0; i < tagValues.size(); i++) {
       TagKey key = columns.get(i);
       TagValue value = tagValues.get(i);
+      if (value == null) {
+        continue;
+      }
       stringTagMap.put(key.getName(), value.asString());
     }
     builder.putAllLabels(stringTagMap);
