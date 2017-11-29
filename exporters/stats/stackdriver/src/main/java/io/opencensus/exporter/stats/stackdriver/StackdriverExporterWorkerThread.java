@@ -72,23 +72,22 @@ final class StackdriverExporterWorkerThread extends Thread {
     setName("ExportWorkerThread");
   }
 
-  // Registers the given view to Stackdriver Monitoring if the view is not registered yet, otherwise
-  // does nothing. Throws IllegalArgumentException if the given view is a different view that has a
-  // same name with a registered view.
+  // Returns true if the given view is successfully registered to Stackdriver Monitoring, or the
+  // exact same view has already been registered. Returns false otherwise.
   @VisibleForTesting
-  void registerView(View view) {
+  boolean registerView(View view) {
     View existing = registeredViews.get(view.getName());
     if (existing != null) {
       if (existing.equals(view)) {
         // Ignore views that are already registered.
-        return;
+        return true;
       } else {
         // If we upload a view that has the same name with a registered view but with different
         // attributes, Stackdriver client will throw an exception.
         logger.log(
             Level.WARNING,
             "A different view with the same name is already registered: " + existing);
-        return;
+        return false;
       }
     }
     registeredViews.put(view.getName(), view);
@@ -98,12 +97,22 @@ final class StackdriverExporterWorkerThread extends Thread {
     // views should be pre-registered.
     MetricDescriptor metricDescriptor =
         StackdriverExportUtils.createMetricDescriptor(view, projectId);
-    if (metricDescriptor != null) {
-      metricServiceClient.createMetricDescriptor(
-          CreateMetricDescriptorRequest.newBuilder()
-              .setNameWithProjectName(projectName)
-              .setMetricDescriptor(metricDescriptor)
-              .build());
+    if (metricDescriptor == null) {
+      // Don't register interval views in this version.
+      return false;
+    }
+
+    CreateMetricDescriptorRequest request =
+        CreateMetricDescriptorRequest.newBuilder()
+            .setNameWithProjectName(projectName)
+            .setMetricDescriptor(metricDescriptor)
+            .build();
+    try {
+      metricServiceClient.createMetricDescriptor(request);
+      return true;
+    } catch (Throwable e) {
+      logger.log(Level.WARNING, "Exception thrown when registering MetricDescriptor.", e);
+      return false;
     }
   }
 
@@ -113,8 +122,10 @@ final class StackdriverExporterWorkerThread extends Thread {
   void export() {
     List<ViewData> viewDataList = Lists.newArrayList();
     for (View view : viewManager.getAllExportedViews()) {
-      registerView(view);
-      viewDataList.add(viewManager.getView(view.getName()));
+      if (registerView(view)) {
+        // Only upload stats for valid views.
+        viewDataList.add(viewManager.getView(view.getName()));
+      }
     }
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     for (ViewData viewData : viewDataList) {
@@ -124,13 +135,13 @@ final class StackdriverExporterWorkerThread extends Thread {
     for (List<TimeSeries> batchedTimeSeries :
         Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {
       // Batch export 3 TimeSeries at one call, to avoid exceeding RPC header size limit.
-      CreateTimeSeriesRequest.Builder builder =
-          CreateTimeSeriesRequest.newBuilder().setNameWithProjectName(projectName);
-      for (TimeSeries timeSeries : batchedTimeSeries) {
-        builder.addTimeSeries(timeSeries);
-      }
+      CreateTimeSeriesRequest request =
+          CreateTimeSeriesRequest.newBuilder()
+              .setNameWithProjectName(projectName)
+              .addAllTimeSeries(batchedTimeSeries)
+              .build();
       try {
-        metricServiceClient.createTimeSeries(builder.build());
+        metricServiceClient.createTimeSeries(request);
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
       }
