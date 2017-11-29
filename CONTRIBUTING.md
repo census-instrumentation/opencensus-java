@@ -9,7 +9,7 @@ We commonly need to know what platform you are on:
 
 # How to contribute
 
-We definitely welcome patches and contributions to Instrumentation! Here are
+We definitely welcome patches and contributions to OpenCensus! Here are
 some guidelines and information about how to do so.
 
 ## Before getting started
@@ -54,7 +54,7 @@ We also follow these project-specific guidelines:
   constructors to all AutoValue classes to prevent classes in other packages
   from extending them.
 
-## Building instrumentation-java
+## Building opencensus-java
 
 Run `./gradlew clean assemble check` on OS X or Linux, or run
 `gradlew.bat clean assemble check` on Windows. This command performs the same
@@ -65,4 +65,4 @@ checks as the continuous integration build.
 Create a Pull Request with your changes. The continuous integration build will
 run the tests and static analysis. It will also check that the pull request
 branch has no merge commits. When the changes are accepted, they will be merged
-or cherry-picked by an Instrumentation core developer.
+or cherry-picked by an OpenCensus core developer.
