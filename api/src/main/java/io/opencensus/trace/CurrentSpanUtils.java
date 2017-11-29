@@ -41,31 +41,38 @@ final class CurrentSpanUtils {
    * <p>Supports try-with-resource idiom.
    *
    * @param span The {@code Span} to be set to the current context.
+   * @param endSpan if {@code true} the returned {@code Scope} will close the {@code Span}.
    * @return An object that defines a scope where the given {@code Span} is set to the current
    *     context.
    */
-  static Scope withSpan(Span span) {
-    return new WithSpan(span, ContextUtils.CONTEXT_SPAN_KEY);
+  static Scope withSpan(Span span, boolean endSpan) {
+    return new ScopeInSpan(span, endSpan);
   }
 
   // Defines an arbitrary scope of code as a traceable operation. Supports try-with-resources idiom.
-  private static final class WithSpan implements Scope {
+  // Not final because
+  private static final class ScopeInSpan implements Scope {
     private final Context origContext;
+    private final Span span;
+    private boolean endSpan;
 
     /**
-     * Constructs a new {@link WithSpan}.
+     * Constructs a new {@link ScopeInSpan}.
      *
      * @param span is the {@code Span} to be added to the current {@code io.grpc.Context}.
-     * @param contextKey is the {@code Context.Key} used to set/get {@code Span} from the {@code
-     *     Context}.
      */
-    WithSpan(Span span, Context.Key<Span> contextKey) {
-      origContext = Context.current().withValue(contextKey, span).attach();
+    ScopeInSpan(Span span, boolean endSpan) {
+      this.span = span;
+      this.endSpan = endSpan;
+      origContext = Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, span).attach();
     }
 
     @Override
     public void close() {
       Context.current().detach(origContext);
+      if (endSpan) {
+        span.end();
+      }
     }
   }
 }
