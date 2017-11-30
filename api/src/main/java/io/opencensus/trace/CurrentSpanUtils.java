@@ -50,7 +50,6 @@ final class CurrentSpanUtils {
   }
 
   // Defines an arbitrary scope of code as a traceable operation. Supports try-with-resources idiom.
-  // Not final because
   private static final class ScopeInSpan implements Scope {
     private final Context origContext;
     private final Span span;
