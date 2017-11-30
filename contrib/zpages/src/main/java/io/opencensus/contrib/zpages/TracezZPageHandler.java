@@ -569,20 +569,18 @@ final class TracezZPageHandler extends ZPageHandler {
   private static String renderNetworkEvents(NetworkEvent networkEvent) {
     StringBuilder stringBuilder = new StringBuilder();
     if (networkEvent.getType() == Type.RECV) {
-      stringBuilder.append("Received");
+      stringBuilder.append("Received message");
     } else if (networkEvent.getType() == Type.SENT) {
-      stringBuilder.append("Sent");
+      stringBuilder.append("Sent message");
     } else {
       stringBuilder.append("Unknown");
     }
-    stringBuilder.append(" message_id=");
+    stringBuilder.append(" id=");
     stringBuilder.append(networkEvent.getMessageId());
-    stringBuilder.append(" message_size=");
+    stringBuilder.append(" uncompressed_size=");
     stringBuilder.append(networkEvent.getUncompressedMessageSize());
-    if (networkEvent.getKernelTimestamp() != null) {
-      stringBuilder.append(" kernel_timestamp=");
-      stringBuilder.append(networkEvent.getKernelTimestamp().toString());
-    }
+    stringBuilder.append(" compressed_size=");
+    stringBuilder.append(networkEvent.getCompressedMessageSize());
     return stringBuilder.toString();
   }
 
