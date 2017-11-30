@@ -220,7 +220,7 @@ public abstract class SpanBuilder {
    */
   @MustBeClosed
   public final Scope startScopedSpan() {
-    return new ScopedSpanHandle(startSpan());
+    return CurrentSpanUtils.withSpan(startSpan(), true);
   }
 
   static final class NoopSpanBuilder extends SpanBuilder {

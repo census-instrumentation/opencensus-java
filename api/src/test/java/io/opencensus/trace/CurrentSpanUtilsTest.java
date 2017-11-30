@@ -17,6 +17,9 @@
 package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import io.grpc.Context;
 import io.opencensus.common.Scope;
@@ -57,21 +60,35 @@ public class CurrentSpanUtilsTest {
   }
 
   @Test
-  public void withSpan() {
+  public void withSpan_CloseDetaches() {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
-    Scope ws = CurrentSpanUtils.withSpan(span);
+    Scope ws = CurrentSpanUtils.withSpan(span, false);
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
       ws.close();
     }
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    verifyZeroInteractions(span);
+  }
+
+  @Test
+  public void withSpan_CloseDetachesAndEndsSpan() {
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    Scope ss = CurrentSpanUtils.withSpan(span, true);
+    try {
+      assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
+    } finally {
+      ss.close();
+    }
+    assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
+    verify(span).end(same(EndSpanOptions.DEFAULT));
   }
 
   @Test
   public void propagationViaRunnable() {
     Runnable runnable = null;
-    Scope ws = CurrentSpanUtils.withSpan(span);
+    Scope ws = CurrentSpanUtils.withSpan(span, false);
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
       runnable =
