@@ -70,14 +70,12 @@ public class CurrentSpanUtilsTest {
     }
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     verifyZeroInteractions(span);
-    ;
   }
 
   @Test
   public void withSpan_CloseDetachesAndEndsSpan() {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Scope ss = CurrentSpanUtils.withSpan(span, true);
-    ;
     try {
       assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
     } finally {
