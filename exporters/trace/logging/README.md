@@ -13,17 +13,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-exporter-trace-logging</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -31,9 +31,9 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-api:0.9.0'
-compile 'io.opencensus:opencensus-exporter-trace-logging:0.9.0'
-runtime 'io.opencensus:opencensus-impl:0.9.0'
+compile 'io.opencensus:opencensus-api:0.9.1'
+compile 'io.opencensus:opencensus-exporter-trace-logging:0.9.1'
+runtime 'io.opencensus:opencensus-impl:0.9.1'
 ```
 
 ### Register the exporter
