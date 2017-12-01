@@ -28,6 +28,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
@@ -45,6 +46,7 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnit4.class)
 public class SpanBuilderImplTest {
   private static final String SPAN_NAME = "MySpanName";
+  private static final String REGISTERED_SPAN_NAME = "MyRegisteredSpanName";
   private SpanBuilderImpl.Options spanBuilderOptions;
   private TraceParams alwaysSampleTraceParams =
       TraceParams.DEFAULT.toBuilder().setSampler(Samplers.alwaysSample()).build();
@@ -99,6 +101,25 @@ public class SpanBuilderImplTest {
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isFalse();
     assertThat(span.getContext().getTraceOptions().isSampled()).isFalse();
+  }
+
+  @Test
+  public void startSpanNullParentWithRegisterNameForSampledSpanStore() throws InterruptedException {
+    SpanBuilderImpl.createWithParent(REGISTERED_SPAN_NAME, null, spanBuilderOptions)
+        .setRegisterNameForSampledSpanStore()
+        .startSpan();
+    SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
+    // Sleep briefly, to allow background disruptor operations to complete.
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+    assertThat(
+            Tracing.getExportComponent()
+                .getSampledSpanStore()
+                .getRegisteredSpanNamesForCollection())
+        .containsExactly(REGISTERED_SPAN_NAME);
   }
 
   @Test

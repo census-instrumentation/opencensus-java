@@ -135,6 +135,16 @@ public abstract class SpanBuilder {
   public abstract SpanBuilder setRecordEvents(boolean recordEvents);
 
   /**
+   * Sets the newly created {@code Span} to be registered in {@code SampledSpanStore} for data
+   * collection. See {@link
+   * io.opencensus.trace.export.SampledSpanStore#registerSpanNamesForCollection(Collection)} for
+   * detailed behavior.
+   *
+   * @return this.
+   */
+  public abstract SpanBuilder setRegisterNameForSampledSpanStore();
+
+  /**
    * Starts a new {@link Span}.
    *
    * <p>Users <b>must</b> manually call {@link Span#end()} or {@link Span#end(EndSpanOptions)} to
@@ -250,6 +260,11 @@ public abstract class SpanBuilder {
 
     @Override
     public SpanBuilder setRecordEvents(boolean recordEvents) {
+      return this;
+    }
+
+    @Override
+    public SpanBuilder setRegisterNameForSampledSpanStore() {
       return this;
     }
 
