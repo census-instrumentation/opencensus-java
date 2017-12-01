@@ -30,6 +30,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import java.util.Collections;
@@ -48,6 +49,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   private Sampler sampler;
   private List<Span> parentLinks = Collections.<Span>emptyList();
   private Boolean recordEvents;
+  private Boolean registerNameForSampledSpanStore;
 
   private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
@@ -89,6 +91,11 @@ final class SpanBuilderImpl extends SpanBuilder {
     EnumSet<Span.Options> spanOptions = EnumSet.noneOf(Span.Options.class);
     if (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents)) {
       spanOptions.add(Span.Options.RECORD_EVENTS);
+    }
+    if (Boolean.TRUE.equals(registerNameForSampledSpanStore)) {
+      Tracing.getExportComponent()
+          .getSampledSpanStore()
+          .registerSpanNamesForCollection(Collections.<String>singletonList(name));
     }
     SpanImpl span =
         SpanImpl.startSpan(
@@ -232,6 +239,12 @@ final class SpanBuilderImpl extends SpanBuilder {
   @Override
   public SpanBuilderImpl setRecordEvents(boolean recordEvents) {
     this.recordEvents = recordEvents;
+    return this;
+  }
+
+  @Override
+  public SpanBuilderImpl setRegisterNameForSampledSpanStore() {
+    this.registerNameForSampledSpanStore = true;
     return this;
   }
 }
