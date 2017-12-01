@@ -1,6 +1,7 @@
 # OpenCensus - A stats collection and distributed tracing framework
 [![Gitter chat][gitter-image]][gitter-url]
 [![Maven Central][maven-image]][maven-url]
+[![Javadocs][javadoc-image]][javadoc-url]
 [![Build Status][travis-image]][travis-url]
 [![Windows Build Status][appveyor-image]][appveyor-url]
 [![Coverage Status][coverage-image]][coverage-url]
@@ -120,6 +121,8 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/opencensusjavateam/opencensus-java/branch/master
+[javadoc-image]: https://www.javadoc.io/badge/io.opencensus/opencensus-api.svg
+[javadoc-url]: https://www.javadoc.io/doc/io.opencensus/opencensus-api
 [maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-api/badge.svg
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-api
 [coverage-image]: https://coveralls.io/repos/census-instrumentation/opencensus-java/badge.svg?branch=master&service=github
