@@ -208,6 +208,8 @@ $ git merge --ff-only update-javadoc
 $ git push upstream gh-pages
 ```
 
+Check that the javadoc is updated [here](http://opencensus.io/opencensus-java).
+
 ## Known Issues
 
 ### Deployment for tag v0.5.0
