@@ -280,7 +280,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     eventQueue.enqueue(new RegisterSpanNameEvent(this, spanNames));
   }
 
-  private void internaltRegisterSpanNamesForCollection(Collection<String> spanNames) {
+  private void internalRegisterSpanNamesForCollection(Collection<String> spanNames) {
     synchronized (samples) {
       for (String spanName : spanNames) {
         if (!samples.containsKey(spanName)) {
@@ -302,7 +302,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
 
     @Override
     public void process() {
-      sampledSpanStore.internaltRegisterSpanNamesForCollection(spanNames);
+      sampledSpanStore.internalRegisterSpanNamesForCollection(spanNames);
     }
   }
 
