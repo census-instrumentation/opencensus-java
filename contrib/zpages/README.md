@@ -1,5 +1,7 @@
 # OpenCensus Z-Pages
-[![Build Status][travis-image]][travis-url] [![Build status][appveyor-image]][appveyor-url] [![Maven Central][maven-image]][maven-url]
+[![Build Status][travis-image]][travis-url]
+[![Windows Build Status][appveyor-image]][appveyor-url]
+[![Maven Central][maven-image]][maven-url]
 
 The *OpenCensus Z-Pages for Java* is a collection of HTML pages to display stats and trace data and
 allows library configuration control.
