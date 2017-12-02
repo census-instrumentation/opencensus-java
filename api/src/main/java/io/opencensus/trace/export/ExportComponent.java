@@ -17,7 +17,6 @@
 package io.opencensus.trace.export;
 
 import io.opencensus.trace.TraceOptions;
-import javax.annotation.Nullable;
 
 /**
  * Class that holds the implementation instances for {@link SpanExporter}, {@link RunningSpanStore}
@@ -27,15 +26,13 @@ import javax.annotation.Nullable;
  */
 public abstract class ExportComponent {
 
-  private static final NoopExportComponent NOOP_EXPORT_COMPONENT = new NoopExportComponent();
-
   /**
    * Returns the no-op implementation of the {@code ExportComponent}.
    *
    * @return the no-op implementation of the {@code ExportComponent}.
    */
-  public static ExportComponent getNoopExportComponent() {
-    return NOOP_EXPORT_COMPONENT;
+  public static ExportComponent newNoopExportComponent() {
+    return new NoopExportComponent();
   }
 
   /**
@@ -51,36 +48,35 @@ public abstract class ExportComponent {
    * Returns the {@link RunningSpanStore} that can be used to get useful debugging information about
    * all the current active spans.
    *
-   * @return the {@code RunningSpanStore} or {@code null} if not supported.
+   * @return the {@code RunningSpanStore}.
    */
-  @Nullable
   public abstract RunningSpanStore getRunningSpanStore();
 
   /**
    * Returns the {@link SampledSpanStore} that can be used to get useful debugging information, such
    * as latency based sampled spans, error based sampled spans.
    *
-   * @return the {@code SampledSpanStore} or {@code null} if not supported.
+   * @return the {@code SampledSpanStore}.
    */
-  @Nullable
   public abstract SampledSpanStore getSampledSpanStore();
 
   private static final class NoopExportComponent extends ExportComponent {
+    private final SampledSpanStore noopSampledSpanStore =
+        SampledSpanStore.newNoopSampledSpanStore();
+
     @Override
     public SpanExporter getSpanExporter() {
       return SpanExporter.getNoopSpanExporter();
     }
 
-    @Nullable
     @Override
     public RunningSpanStore getRunningSpanStore() {
-      return null;
+      return RunningSpanStore.getNoopRunningSpanStore();
     }
 
-    @Nullable
     @Override
     public SampledSpanStore getSampledSpanStore() {
-      return null;
+      return noopSampledSpanStore;
     }
   }
 }

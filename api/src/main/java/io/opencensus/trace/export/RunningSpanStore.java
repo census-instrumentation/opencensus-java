@@ -37,7 +37,18 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class RunningSpanStore {
 
+  private static final RunningSpanStore NOOP_RUNNING_SPAN_STORE = new NoopRunningSpanStore();
+
   protected RunningSpanStore() {}
+
+  /**
+   * Returns the no-op implementation of the {@code RunningSpanStore}.
+   *
+   * @return the no-op implementation of the {@code RunningSpanStore}.
+   */
+  static RunningSpanStore getNoopRunningSpanStore() {
+    return NOOP_RUNNING_SPAN_STORE;
+  }
 
   /**
    * Returns the summary of all available data such, as number of running spans.
@@ -150,5 +161,22 @@ public abstract class RunningSpanStore {
      * @return the maximum number of spans to be returned.
      */
     public abstract int getMaxSpansToReturn();
+  }
+
+  private static final class NoopRunningSpanStore extends RunningSpanStore {
+
+    private static final Summary EMPTY_SUMMARY =
+        Summary.create(Collections.<String, PerSpanNameSummary>emptyMap());
+
+    @Override
+    public Summary getSummary() {
+      return EMPTY_SUMMARY;
+    }
+
+    @Override
+    public Collection<SpanData> getRunningSpans(Filter filter) {
+      checkNotNull(filter, "filter");
+      return Collections.<SpanData>emptyList();
+    }
   }
 }
