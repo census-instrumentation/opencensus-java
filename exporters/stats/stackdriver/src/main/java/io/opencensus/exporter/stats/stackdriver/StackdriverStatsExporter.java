@@ -20,6 +20,7 @@ import static com.google.api.client.util.Preconditions.checkArgument;
 import static com.google.api.client.util.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.api.MonitoredResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -168,5 +169,26 @@ public final class StackdriverStatsExporter {
     synchronized (monitor) {
       StackdriverStatsExporter.exporter = null;
     }
+  }
+
+  /**
+   * Sets {@link MonitoredResource} for this {@link StackdriverStatsExporter}.
+   *
+   * <p>If not set, this exporter will use a default {@code MonitoredResource} with type global and
+   * no resource labels. In this case, it will be error-prone to have more than one {@code
+   * StackdriverStatsExporter}s exporting stats for the same set of {@code View}s.
+   *
+   * <p>If you have multiple {@code StackdriverStatsExporter} running at the same time, please make
+   * sure each {@code StackdriverStatsExporter} has a unique {@code MonitoredResource}.
+   *
+   * <p>If {@link #setMonitoredResource(MonitoredResource)} is called after {@code
+   * StackdriverStatsExporter} is created, all the previous stats that were uploaded won't be
+   * affected, all the future stats will be associated with the given {@code MonitoredResource}.
+   *
+   * @param monitoredResource the {@code MonitoredResource} used by this exporter.
+   * @throws NullPointerException if the given {@code MonitoredResource} is null.
+   */
+  public static void setMonitoredResource(MonitoredResource monitoredResource) {
+    StackdriverStatsMonitoredResource.setMonitoredResource(monitoredResource);
   }
 }
