@@ -67,6 +67,26 @@ public class MyMainClass {
 }
 ```
 
+#### Set Monitored Resource for exporter
+
+By default, the Stackdriver Stats Exporter uses [a global Stackdriver monitored resource with no 
+labels](https://cloud.google.com/monitoring/api/resources#tag_global). If you want to use a custom Monitored Resource, do:
+
+```java
+public class MyMainClass {
+  public static void main(String[] args) {
+    // Set a custom MonitoredResource. Please make sure each Stackdriver Stats Exporter has a 
+    // unique MonitoredResource.
+    StackdriverStatsExporter.setMonitoredResource(myResource);
+      
+    StackdriverStatsExporter.createWithProjectId("MyStackdriverProjectId", Duration.create(10, 0));
+  }
+}
+```
+
+For a complete list of available Stackdriver monitored resources, please refer to [Stackdriver 
+Documentation](https://cloud.google.com/monitoring/api/resources).
+
 #### Authentication
 
 This exporter uses [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java),

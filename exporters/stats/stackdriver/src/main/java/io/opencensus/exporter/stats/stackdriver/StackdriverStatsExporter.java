@@ -42,6 +42,7 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre><code>
  *   public static void main(String[] args) {
+ *     StackdriverStatsExporter.setMonitoredResource(myResource);
  *     StackdriverStatsExporter.createAndRegisterWithProjectId(
  *         "MyStackdriverProjectId", Duration.fromMillis(100000));
  *     ... // Do work.
