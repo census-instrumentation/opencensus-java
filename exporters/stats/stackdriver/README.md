@@ -70,7 +70,10 @@ public class MyMainClass {
 #### Set Monitored Resource for exporter
 
 By default, the Stackdriver Stats Exporter uses [a global Stackdriver monitored resource with no 
-labels](https://cloud.google.com/monitoring/api/resources#tag_global). If you want to use a custom Monitored Resource, do:
+labels](https://cloud.google.com/monitoring/api/resources#tag_global), and this works fine when you 
+have only one exporter running. However, if you want to have multiple binaries exporting stats for 
+the same metric concurrently, using the default monitored resource for all exporters will not work. 
+In this case you need to associate a unique monitored resource with each exporter:
 
 ```java
 public class MyMainClass {
