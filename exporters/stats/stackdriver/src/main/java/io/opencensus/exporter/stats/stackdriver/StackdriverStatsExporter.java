@@ -210,9 +210,6 @@ public final class StackdriverStatsExporter {
       }
       if (monitoredResource == null) {
         monitoredResource = defaultResource;
-      } else {
-        // Make a deep copy of monitoredResource
-        monitoredResource = monitoredResource.toBuilder().build();
       }
       exporter =
           new StackdriverStatsExporter(
