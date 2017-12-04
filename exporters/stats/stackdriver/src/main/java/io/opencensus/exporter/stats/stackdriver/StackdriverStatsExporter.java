@@ -16,8 +16,8 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
-import static com.google.api.client.util.Preconditions.checkArgument;
-import static com.google.api.client.util.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.api.MonitoredResource;
