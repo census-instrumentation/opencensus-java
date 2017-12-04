@@ -78,6 +78,14 @@ In this case you need to associate a unique monitored resource with each exporte
 ```java
 public class MyMainClass {
   public static void main(String[] args) {
+    // A sample AWS EC2 monitored resource.
+    MonitoredResource myResource = MonitoredResource.newBuilder()
+                                               .setType("aws_ec2_instance")
+                                               .putLabels("instance_id", "instance")
+                                               .putLabels("aws_account", "account")
+                                               .putLabels("region", "aws:us-west-2")
+                                               .build();
+    
     // Set a custom MonitoredResource. Please make sure each Stackdriver Stats Exporter has a 
     // unique MonitoredResource.      
     StackdriverStatsExporter.createAndRegisterWithProjectIdAndMonitoredResource("MyStackdriverProjectId", Duration.create(10, 0), myResource);
@@ -85,8 +93,11 @@ public class MyMainClass {
 }
 ```
 
-For a complete list of available Stackdriver monitored resources, please refer to [Stackdriver 
-Documentation](https://cloud.google.com/monitoring/api/resources).
+For a complete list of valid Stackdriver monitored resources, please refer to [Stackdriver 
+Documentation](https://cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource).
+Please also note that although there are a lot of monitored resources available on [Stackdriver](https://cloud.google.com/monitoring/api/resources), 
+only [a small subset of them](https://cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource) 
+are compatible with the Opencensus Stackdriver Stats Exporter.
 
 #### Authentication
 
