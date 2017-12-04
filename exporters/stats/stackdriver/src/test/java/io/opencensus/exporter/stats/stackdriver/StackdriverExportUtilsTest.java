@@ -409,4 +409,41 @@ public class StackdriverExportUtilsTest {
         ViewData.create(view, aggregationMap, IntervalData.create(Timestamp.fromMillis(2000)));
     assertThat(StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID)).isEmpty();
   }
+
+  @Test
+  public void createTimeSeriesList_withCustomMonitoredResource() {
+    MonitoredResource resource =
+        MonitoredResource.newBuilder().setType("global").putLabels("key", "value").build();
+    StackdriverStatsMonitoredResource.setMonitoredResource(resource);
+    View view =
+        View.create(
+            Name.create(VIEW_NAME),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            SUM,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    SumDataDouble sumData = SumDataDouble.create(55.5);
+    Map<List<TagValue>, SumDataDouble> aggregationMap =
+        ImmutableMap.of(Arrays.asList(VALUE_1), sumData);
+    CumulativeData cumulativeData =
+        CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
+    ViewData viewData = ViewData.create(view, aggregationMap, cumulativeData);
+    List<TimeSeries> timeSeriesList =
+        StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID);
+    try {
+      assertThat(timeSeriesList)
+          .containsExactly(
+              TimeSeries.newBuilder()
+                  .setMetricKind(MetricKind.CUMULATIVE)
+                  .setValueType(MetricDescriptor.ValueType.DOUBLE)
+                  .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
+                  .setResource(resource)
+                  .addPoints(StackdriverExportUtils.createPoint(sumData, cumulativeData, SUM))
+                  .build());
+    } finally {
+      StackdriverStatsMonitoredResource.setMonitoredResource(
+          MonitoredResource.newBuilder().setType("global").build());
+    }
+  }
 }

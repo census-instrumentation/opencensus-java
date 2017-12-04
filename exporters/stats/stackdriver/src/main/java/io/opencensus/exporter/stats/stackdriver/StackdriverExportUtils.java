@@ -26,7 +26,6 @@ import com.google.api.LabelDescriptor.ValueType;
 import com.google.api.Metric;
 import com.google.api.MetricDescriptor;
 import com.google.api.MetricDescriptor.MetricKind;
-import com.google.api.MonitoredResource;
 import com.google.api.client.util.Maps;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -151,8 +150,7 @@ final class StackdriverExportUtils {
     // Shared fields for all TimeSeries generated from the same ViewData
     TimeSeries.Builder shared = TimeSeries.newBuilder();
     shared.setMetricKind(createMetricKind(view.getWindow()));
-    // TODO(songya): add support for custom resource labels.
-    shared.setResource(MonitoredResource.newBuilder().setType("global"));
+    shared.setResource(StackdriverStatsMonitoredResource.getMonitoredResource());
     shared.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
 
     // Each entry in AggregationMap will be converted into an independent TimeSeries object

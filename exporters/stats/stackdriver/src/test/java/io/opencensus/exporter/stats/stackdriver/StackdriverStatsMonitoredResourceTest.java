@@ -45,7 +45,12 @@ public class StackdriverStatsMonitoredResourceTest {
             .putLabels("instance-id", "some-instance")
             .build();
     StackdriverStatsMonitoredResource.setMonitoredResource(resource);
-    assertThat(StackdriverStatsMonitoredResource.getMonitoredResource()).isEqualTo(resource);
+    try {
+      assertThat(StackdriverStatsMonitoredResource.getMonitoredResource()).isEqualTo(resource);
+    } finally {
+      StackdriverStatsMonitoredResource.setMonitoredResource(
+          MonitoredResource.newBuilder().setType("global").build());
+    }
   }
 
   @Test
