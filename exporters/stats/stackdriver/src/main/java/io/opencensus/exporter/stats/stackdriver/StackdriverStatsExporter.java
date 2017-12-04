@@ -16,10 +16,11 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
-import static com.google.api.client.util.Preconditions.checkArgument;
-import static com.google.api.client.util.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.api.MonitoredResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -57,21 +58,25 @@ public final class StackdriverStatsExporter {
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);
+  private static final MonitoredResource DEFAULT_RESOURCE =
+      MonitoredResource.newBuilder().setType("global").build();
 
   @VisibleForTesting
   StackdriverStatsExporter(
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
-      ViewManager viewManager) {
+      ViewManager viewManager,
+      MonitoredResource monitoredResource) {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
     this.workerThread =
         new StackdriverExporterWorkerThread(
-            projectId, metricServiceClient, exportInterval, viewManager);
+            projectId, metricServiceClient, exportInterval, viewManager, monitoredResource);
   }
 
   /**
-   * Creates a StackdriverStatsExporter for an explicit project ID and using explicit credentials.
+   * Creates a StackdriverStatsExporter for an explicit project ID and using explicit credentials,
+   * with default Monitored Resource.
    *
    * <p>Only one Stackdriver exporter can be created.
    *
@@ -85,11 +90,12 @@ public final class StackdriverStatsExporter {
     checkNotNull(credentials, "credentials");
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(credentials, projectId, exportInterval);
+    createInternal(credentials, projectId, exportInterval, null);
   }
 
   /**
-   * Creates a Stackdriver Stats exporter for an explicit project ID.
+   * Creates a Stackdriver Stats exporter for an explicit project ID, with default Monitored
+   * Resource.
    *
    * <p>Only one Stackdriver exporter can be created.
    *
@@ -111,11 +117,11 @@ public final class StackdriverStatsExporter {
       throws IOException {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, projectId, exportInterval);
+    createInternal(null, projectId, exportInterval, null);
   }
 
   /**
-   * Creates a Stackdriver Stats exporter.
+   * Creates a Stackdriver Stats exporter with default Monitored Resource.
    *
    * <p>Only one Stackdriver exporter can be created.
    *
@@ -135,12 +141,65 @@ public final class StackdriverStatsExporter {
    */
   public static void createAndRegister(Duration exportInterval) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval);
+    createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval, null);
+  }
+
+  /**
+   * Creates a Stackdriver Stats exporter with an explicit project ID and a custom Monitored
+   * Resource.
+   *
+   * <p>Only one Stackdriver exporter can be created.
+   *
+   * <p>Please refer to cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource
+   * for a list of valid {@code MonitoredResource}s.
+   *
+   * <p>This uses the default application credentials. See {@link
+   * GoogleCredentials#getApplicationDefault}.
+   *
+   * @param projectId the cloud project id.
+   * @param exportInterval the interval between pushing stats to StackDriver.
+   * @param monitoredResource the Monitored Resource used by exporter.
+   * @throws IllegalStateException if a Stackdriver exporter is already created.
+   */
+  public static void createAndRegisterWithProjectIdAndMonitoredResource(
+      String projectId, Duration exportInterval, MonitoredResource monitoredResource)
+      throws IOException {
+    checkNotNull(projectId, "projectId");
+    checkNotNull(exportInterval, "exportInterval");
+    checkNotNull(monitoredResource, "monitoredResource");
+    createInternal(null, projectId, exportInterval, monitoredResource);
+  }
+
+  /**
+   * Creates a Stackdriver Stats exporter with a custom Monitored Resource.
+   *
+   * <p>Only one Stackdriver exporter can be created.
+   *
+   * <p>Please refer to cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource
+   * for a list of valid {@code MonitoredResource}s.
+   *
+   * <p>This uses the default application credentials. See {@link
+   * GoogleCredentials#getApplicationDefault}.
+   *
+   * <p>This uses the default project ID configured see {@link ServiceOptions#getDefaultProjectId}.
+   *
+   * @param exportInterval the interval between pushing stats to StackDriver.
+   * @param monitoredResource the Monitored Resource used by exporter.
+   * @throws IllegalStateException if a Stackdriver exporter is already created.
+   */
+  public static void createAndRegisterWithMonitoredResource(
+      Duration exportInterval, MonitoredResource monitoredResource) throws IOException {
+    checkNotNull(exportInterval, "exportInterval");
+    checkNotNull(monitoredResource, "monitoredResource");
+    createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval, monitoredResource);
   }
 
   // Use createInternal() (instead of constructor) to enforce singleton.
   private static void createInternal(
-      @Nullable Credentials credentials, String projectId, Duration exportInterval)
+      @Nullable Credentials credentials,
+      String projectId,
+      Duration exportInterval,
+      @Nullable MonitoredResource monitoredResource)
       throws IOException {
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
@@ -155,9 +214,16 @@ public final class StackdriverStatsExporter {
                     .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
                     .build());
       }
+      if (monitoredResource == null) {
+        monitoredResource = DEFAULT_RESOURCE;
+      }
       exporter =
           new StackdriverStatsExporter(
-              projectId, metricServiceClient, exportInterval, Stats.getViewManager());
+              projectId,
+              metricServiceClient,
+              exportInterval,
+              Stats.getViewManager(),
+              monitoredResource);
       exporter.workerThread.start();
     }
   }

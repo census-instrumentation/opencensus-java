@@ -25,6 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.api.MetricDescriptor;
+import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
@@ -80,6 +81,8 @@ public class StackdriverExporterWorkerThreadTest {
   private static final Cumulative CUMULATIVE = Cumulative.create();
   private static final Interval INTERVAL = Interval.create(ONE_SECOND);
   private static final Sum SUM = Sum.create();
+  private static final MonitoredResource DEFAULT_RESOURCE =
+      MonitoredResource.newBuilder().setType("global").build();
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -124,14 +127,19 @@ public class StackdriverExporterWorkerThreadTest {
 
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE);
     workerThread.export();
 
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(1)).createTimeSeriesCallable();
 
     MetricDescriptor descriptor = StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
-    List<TimeSeries> timeSeries = StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID);
+    List<TimeSeries> timeSeries =
+        StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
             eq(
@@ -162,7 +170,11 @@ public class StackdriverExporterWorkerThreadTest {
 
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE);
 
     workerThread.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
@@ -177,7 +189,11 @@ public class StackdriverExporterWorkerThreadTest {
     doThrow(new IllegalArgumentException()).when(mockStub).createMetricDescriptorCallable();
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE);
 
     assertThat(workerThread.registerView(view)).isFalse();
     workerThread.export();
@@ -189,7 +205,11 @@ public class StackdriverExporterWorkerThreadTest {
   public void skipDifferentViewWithSameName() throws IOException {
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE);
     View view1 =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(workerThread.registerView(view1)).isTrue();
@@ -211,7 +231,11 @@ public class StackdriverExporterWorkerThreadTest {
   public void doNotCreateMetricDescriptorForRegisteredView() {
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(workerThread.registerView(view)).isTrue();
@@ -225,7 +249,11 @@ public class StackdriverExporterWorkerThreadTest {
   public void doNotCreateMetricDescriptorForIntervalView() {
     StackdriverExporterWorkerThread workerThread =
         new StackdriverExporterWorkerThread(
-            PROJECT_ID, new FakeMetricServiceClient(mockStub), ONE_SECOND, mockViewManager);
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), INTERVAL);
     assertThat(workerThread.registerView(view)).isFalse();

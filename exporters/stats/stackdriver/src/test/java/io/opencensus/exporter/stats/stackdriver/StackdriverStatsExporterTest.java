@@ -79,4 +79,11 @@ public class StackdriverStatsExporterTest {
       StackdriverStatsExporter.unsafeResetExporter();
     }
   }
+
+  @Test
+  public void createWithNullMonitoredResource() throws IOException {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("monitoredResource");
+    StackdriverStatsExporter.createAndRegisterWithMonitoredResource(ONE_SECOND, null);
+  }
 }
