@@ -92,7 +92,7 @@ public class StackdriverExportUtilsTest {
   private static final Mean MEAN = Mean.create();
   private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
   private static final String PROJECT_ID = "id";
-  private static final MonitoredResource defaultResource =
+  private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
 
   @Test
@@ -368,7 +368,7 @@ public class StackdriverExportUtilsTest {
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
     ViewData viewData = ViewData.create(view, aggregationMap, cumulativeData);
     List<TimeSeries> timeSeriesList =
-        StackdriverExportUtils.createTimeSeriesList(viewData, defaultResource);
+        StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE);
     assertThat(timeSeriesList).hasSize(2);
     TimeSeries expected1 =
         TimeSeries.newBuilder()
@@ -409,7 +409,7 @@ public class StackdriverExportUtilsTest {
             DistributionData.create(-1, 1, -1, -1, 0, Arrays.asList(1L, 0L, 0L, 0L, 0L)));
     ViewData viewData =
         ViewData.create(view, aggregationMap, IntervalData.create(Timestamp.fromMillis(2000)));
-    assertThat(StackdriverExportUtils.createTimeSeriesList(viewData, defaultResource)).isEmpty();
+    assertThat(StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE)).isEmpty();
   }
 
   @Test

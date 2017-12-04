@@ -58,7 +58,7 @@ public final class StackdriverStatsExporter {
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);
-  private static final MonitoredResource defaultResource =
+  private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
 
   @VisibleForTesting
@@ -209,7 +209,7 @@ public final class StackdriverStatsExporter {
                     .build());
       }
       if (monitoredResource == null) {
-        monitoredResource = defaultResource;
+        monitoredResource = DEFAULT_RESOURCE;
       }
       exporter =
           new StackdriverStatsExporter(
