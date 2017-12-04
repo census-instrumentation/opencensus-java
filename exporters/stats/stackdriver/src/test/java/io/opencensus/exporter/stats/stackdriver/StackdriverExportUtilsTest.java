@@ -92,6 +92,8 @@ public class StackdriverExportUtilsTest {
   private static final Mean MEAN = Mean.create();
   private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
   private static final String PROJECT_ID = "id";
+  private static final MonitoredResource defaultResource =
+      MonitoredResource.newBuilder().setType("global").build();
 
   @Test
   public void testConstant() {
@@ -366,7 +368,7 @@ public class StackdriverExportUtilsTest {
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
     ViewData viewData = ViewData.create(view, aggregationMap, cumulativeData);
     List<TimeSeries> timeSeriesList =
-        StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID);
+        StackdriverExportUtils.createTimeSeriesList(viewData, defaultResource);
     assertThat(timeSeriesList).hasSize(2);
     TimeSeries expected1 =
         TimeSeries.newBuilder()
@@ -407,14 +409,13 @@ public class StackdriverExportUtilsTest {
             DistributionData.create(-1, 1, -1, -1, 0, Arrays.asList(1L, 0L, 0L, 0L, 0L)));
     ViewData viewData =
         ViewData.create(view, aggregationMap, IntervalData.create(Timestamp.fromMillis(2000)));
-    assertThat(StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID)).isEmpty();
+    assertThat(StackdriverExportUtils.createTimeSeriesList(viewData, defaultResource)).isEmpty();
   }
 
   @Test
   public void createTimeSeriesList_withCustomMonitoredResource() {
     MonitoredResource resource =
         MonitoredResource.newBuilder().setType("global").putLabels("key", "value").build();
-    StackdriverStatsMonitoredResource.setMonitoredResource(resource);
     View view =
         View.create(
             Name.create(VIEW_NAME),
@@ -430,20 +431,15 @@ public class StackdriverExportUtilsTest {
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
     ViewData viewData = ViewData.create(view, aggregationMap, cumulativeData);
     List<TimeSeries> timeSeriesList =
-        StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID);
-    try {
-      assertThat(timeSeriesList)
-          .containsExactly(
-              TimeSeries.newBuilder()
-                  .setMetricKind(MetricKind.CUMULATIVE)
-                  .setValueType(MetricDescriptor.ValueType.DOUBLE)
-                  .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
-                  .setResource(resource)
-                  .addPoints(StackdriverExportUtils.createPoint(sumData, cumulativeData, SUM))
-                  .build());
-    } finally {
-      StackdriverStatsMonitoredResource.setMonitoredResource(
-          MonitoredResource.newBuilder().setType("global").build());
-    }
+        StackdriverExportUtils.createTimeSeriesList(viewData, resource);
+    assertThat(timeSeriesList)
+        .containsExactly(
+            TimeSeries.newBuilder()
+                .setMetricKind(MetricKind.CUMULATIVE)
+                .setValueType(MetricDescriptor.ValueType.DOUBLE)
+                .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
+                .setResource(resource)
+                .addPoints(StackdriverExportUtils.createPoint(sumData, cumulativeData, SUM))
+                .build());
   }
 }

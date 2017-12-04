@@ -32,7 +32,7 @@ final class StackdriverStatsMonitoredResource {
       MonitoredResource.newBuilder().setType("global").build();
 
   static void setMonitoredResource(MonitoredResource monitoredResource) {
-    checkNotNull(monitoredResource);
+    checkNotNull(monitoredResource, "monitoredResource");
     // Make a deep copy of monitoredResource
     StackdriverStatsMonitoredResource.monitoredResource = monitoredResource.toBuilder().build();
   }

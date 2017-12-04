@@ -25,6 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.api.MetricDescriptor;
+import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
@@ -80,6 +81,8 @@ public class StackdriverExporterWorkerThreadTest {
   private static final Cumulative CUMULATIVE = Cumulative.create();
   private static final Interval INTERVAL = Interval.create(ONE_SECOND);
   private static final Sum SUM = Sum.create();
+  private static final MonitoredResource defaultResource =
+      MonitoredResource.newBuilder().setType("global").build();
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -131,7 +134,8 @@ public class StackdriverExporterWorkerThreadTest {
     verify(mockStub, times(1)).createTimeSeriesCallable();
 
     MetricDescriptor descriptor = StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
-    List<TimeSeries> timeSeries = StackdriverExportUtils.createTimeSeriesList(viewData, PROJECT_ID);
+    List<TimeSeries> timeSeries =
+        StackdriverExportUtils.createTimeSeriesList(viewData, defaultResource);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
             eq(

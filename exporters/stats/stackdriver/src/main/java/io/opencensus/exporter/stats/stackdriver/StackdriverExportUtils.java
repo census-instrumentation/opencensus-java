@@ -26,6 +26,7 @@ import com.google.api.LabelDescriptor.ValueType;
 import com.google.api.Metric;
 import com.google.api.MetricDescriptor;
 import com.google.api.MetricDescriptor.MetricKind;
+import com.google.api.MonitoredResource;
 import com.google.api.client.util.Maps;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -136,7 +137,8 @@ final class StackdriverExportUtils {
   }
 
   // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
-  static List<TimeSeries> createTimeSeriesList(ViewData viewData, String projectId) {
+  static List<TimeSeries> createTimeSeriesList(
+      ViewData viewData, MonitoredResource monitoredResource) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     if (viewData == null) {
       return timeSeriesList;
@@ -150,7 +152,7 @@ final class StackdriverExportUtils {
     // Shared fields for all TimeSeries generated from the same ViewData
     TimeSeries.Builder shared = TimeSeries.newBuilder();
     shared.setMetricKind(createMetricKind(view.getWindow()));
-    shared.setResource(StackdriverStatsMonitoredResource.getMonitoredResource());
+    shared.setResource(monitoredResource);
     shared.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
 
     // Each entry in AggregationMap will be converted into an independent TimeSeries object

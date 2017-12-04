@@ -56,6 +56,7 @@ public class StackdriverStatsMonitoredResourceTest {
   @Test
   public void preventSettingNull() {
     thrown.expect(NullPointerException.class);
+    thrown.expectMessage("monitoredResource");
     StackdriverStatsMonitoredResource.setMonitoredResource(null);
   }
 }

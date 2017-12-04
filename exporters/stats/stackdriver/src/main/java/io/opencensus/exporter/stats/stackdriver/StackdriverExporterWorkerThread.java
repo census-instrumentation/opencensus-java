@@ -129,7 +129,9 @@ final class StackdriverExporterWorkerThread extends Thread {
     }
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     for (ViewData viewData : viewDataList) {
-      timeSeriesList.addAll(StackdriverExportUtils.createTimeSeriesList(viewData, projectId));
+      timeSeriesList.addAll(
+          StackdriverExportUtils.createTimeSeriesList(
+              viewData, StackdriverStatsMonitoredResource.getMonitoredResource()));
     }
 
     for (List<TimeSeries> batchedTimeSeries :
