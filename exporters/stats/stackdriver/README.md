@@ -67,6 +67,43 @@ public class MyMainClass {
 }
 ```
 
+#### Set Monitored Resource for exporter
+
+By default, the Stackdriver Stats Exporter uses [a global Stackdriver monitored resource with no 
+labels](https://cloud.google.com/monitoring/api/resources#tag_global), and this works fine when you 
+have only one exporter running. However, if you want to have multiple processes exporting stats for 
+the same metric concurrently, using the default monitored resource for all exporters will not work. 
+In this case you need to associate a unique monitored resource with each exporter:
+
+```java
+public class MyMainClass {
+  public static void main(String[] args) {
+    // A sample AWS EC2 monitored resource.
+    // This will only work if each EC2 has one process that records stats. If there are multiple 
+    // processes, you'll need an extra label such as pid.
+    MonitoredResource myResource = MonitoredResource.newBuilder()
+                                               .setType("aws_ec2_instance")
+                                               .putLabels("instance_id", "instance")
+                                               .putLabels("aws_account", "account")
+                                               .putLabels("region", "aws:us-west-2")
+                                               .build();
+    
+    // Set a custom MonitoredResource. Please make sure each Stackdriver Stats Exporter has a 
+    // unique MonitoredResource.      
+    StackdriverStatsExporter.createAndRegisterWithProjectIdAndMonitoredResource(
+        "MyStackdriverProjectId", 
+        Duration.create(10, 0), 
+        myResource);
+  }
+}
+```
+
+For a complete list of valid Stackdriver monitored resources, please refer to [Stackdriver 
+Documentation](https://cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource).
+Please also note that although there are a lot of monitored resources available on [Stackdriver](https://cloud.google.com/monitoring/api/resources), 
+only [a small subset of them](https://cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource) 
+are compatible with the Opencensus Stackdriver Stats Exporter.
+
 #### Authentication
 
 This exporter uses [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java),
