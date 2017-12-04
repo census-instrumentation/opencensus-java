@@ -17,6 +17,7 @@
 package io.opencensus.implcore.trace.export;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.export.SpanData;
@@ -35,7 +36,8 @@ import javax.annotation.concurrent.GuardedBy;
 public final class SpanExporterImpl extends SpanExporter {
   private static final Logger logger = Logger.getLogger(ExportComponent.class.getName());
 
-  private final WorkerThread workerThread;
+  private final Worker worker;
+  private final Thread workerThread;
 
   /**
    * Constructs a {@code SpanExporterImpl} that exports the {@link SpanData} asynchronously.
@@ -49,9 +51,8 @@ public final class SpanExporterImpl extends SpanExporter {
    */
   static SpanExporterImpl create(int bufferSize, long scheduleDelayMillis) {
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
-    WorkerThread workerThread = new WorkerThread(bufferSize, scheduleDelayMillis);
-    workerThread.start();
-    return new SpanExporterImpl(workerThread);
+    Worker worker = new Worker(bufferSize, scheduleDelayMillis);
+    return new SpanExporterImpl(worker);
   }
 
   /**
@@ -60,21 +61,24 @@ public final class SpanExporterImpl extends SpanExporter {
    * @param span the {@code Span} to be added.
    */
   public void addSpan(SpanImpl span) {
-    workerThread.addSpan(span);
+    worker.addSpan(span);
   }
 
   @Override
   public void registerHandler(String name, Handler handler) {
-    workerThread.registerHandler(name, handler);
+    worker.registerHandler(name, handler);
   }
 
   @Override
   public void unregisterHandler(String name) {
-    workerThread.unregisterHandler(name);
+    worker.unregisterHandler(name);
   }
 
-  private SpanExporterImpl(WorkerThread workerThread) {
-    this.workerThread = workerThread;
+  private SpanExporterImpl(Worker worker) {
+    this.workerThread =
+        new DaemonThreadFactory("ExportComponent.ServiceExporterThread").newThread(worker);
+    this.workerThread.start();
+    this.worker = worker;
   }
 
   @VisibleForTesting
@@ -82,7 +86,7 @@ public final class SpanExporterImpl extends SpanExporter {
     return workerThread;
   }
 
-  // Worker thread that batches multiple span data and calls the registered services to export
+  // Worker in a thread that batches multiple span data and calls the registered services to export
   // that data.
   //
   // The map of registered handlers is implemented using ConcurrentHashMap ensuring full
@@ -91,7 +95,7 @@ public final class SpanExporterImpl extends SpanExporter {
   //
   // The list of batched data is protected by an explicit monitor object which ensures full
   // concurrency.
-  private static final class WorkerThread extends Thread {
+  private static final class Worker implements Runnable {
     private final Object monitor = new Object();
 
     @GuardedBy("monitor")
@@ -140,12 +144,10 @@ public final class SpanExporterImpl extends SpanExporter {
 
     // TODO: Decide whether to use a different class instead of LinkedList.
     @SuppressWarnings("JdkObsolete")
-    private WorkerThread(int bufferSize, long scheduleDelayMillis) {
+    private Worker(int bufferSize, long scheduleDelayMillis) {
       spans = new LinkedList<SpanImpl>();
       this.bufferSize = bufferSize;
       this.scheduleDelayMillis = scheduleDelayMillis;
-      setDaemon(true);
-      setName("ExportComponent.ServiceExporterThread");
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered
