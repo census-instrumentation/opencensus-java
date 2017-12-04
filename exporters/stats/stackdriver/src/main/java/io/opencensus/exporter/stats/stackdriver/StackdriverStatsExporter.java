@@ -150,6 +150,9 @@ public final class StackdriverStatsExporter {
    *
    * <p>Only one Stackdriver exporter can be created.
    *
+   * <p>Please refer to cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource
+   * for a list of valid {@code MonitoredResource}s.
+   *
    * <p>This uses the default application credentials. See {@link
    * GoogleCredentials#getApplicationDefault}.
    *
@@ -171,6 +174,9 @@ public final class StackdriverStatsExporter {
    * Creates a Stackdriver Stats exporter with a custom Monitored Resource.
    *
    * <p>Only one Stackdriver exporter can be created.
+   *
+   * <p>Please refer to cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource
+   * for a list of valid {@code MonitoredResource}s.
    *
    * <p>This uses the default application credentials. See {@link
    * GoogleCredentials#getApplicationDefault}.
