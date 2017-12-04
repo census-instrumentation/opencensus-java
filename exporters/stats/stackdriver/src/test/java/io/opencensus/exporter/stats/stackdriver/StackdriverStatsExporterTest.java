@@ -81,8 +81,9 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
-  public void setNullMonitoredResource() {
+  public void createWithNullMonitoredResource() throws IOException {
     thrown.expect(NullPointerException.class);
-    StackdriverStatsExporter.setMonitoredResource(null);
+    thrown.expectMessage("monitoredResource");
+    StackdriverStatsExporter.createAndRegisterWithMonitoredResource(ONE_SECOND, null);
   }
 }

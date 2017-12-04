@@ -17,6 +17,7 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import com.google.api.MetricDescriptor;
+import com.google.api.MonitoredResource;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -56,18 +57,21 @@ final class StackdriverExporterWorkerThread extends Thread {
   private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final ViewManager viewManager;
+  private final MonitoredResource monitoredResource;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   StackdriverExporterWorkerThread(
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
-      ViewManager viewManager) {
+      ViewManager viewManager,
+      MonitoredResource monitoredResource) {
     this.scheduleDelayMillis = toMillis(exportInterval);
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
+    this.monitoredResource = monitoredResource;
     setDaemon(true);
     setName("ExportWorkerThread");
   }
@@ -130,8 +134,7 @@ final class StackdriverExporterWorkerThread extends Thread {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     for (ViewData viewData : viewDataList) {
       timeSeriesList.addAll(
-          StackdriverExportUtils.createTimeSeriesList(
-              viewData, StackdriverStatsMonitoredResource.getMonitoredResource()));
+          StackdriverExportUtils.createTimeSeriesList(viewData, monitoredResource));
     }
 
     for (List<TimeSeries> batchedTimeSeries :

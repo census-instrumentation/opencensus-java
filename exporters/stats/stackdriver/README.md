@@ -76,10 +76,8 @@ labels](https://cloud.google.com/monitoring/api/resources#tag_global). If you wa
 public class MyMainClass {
   public static void main(String[] args) {
     // Set a custom MonitoredResource. Please make sure each Stackdriver Stats Exporter has a 
-    // unique MonitoredResource.
-    StackdriverStatsExporter.setMonitoredResource(myResource);
-      
-    StackdriverStatsExporter.createWithProjectId("MyStackdriverProjectId", Duration.create(10, 0));
+    // unique MonitoredResource.      
+    StackdriverStatsExporter.createAndRegisterWithProjectIdAndMonitoredResource("MyStackdriverProjectId", Duration.create(10, 0), myResource);
   }
 }
 ```
