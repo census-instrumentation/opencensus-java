@@ -19,7 +19,6 @@ package io.opencensus.exporter.stats.stackdriver;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.api.MonitoredResource;
-import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -29,23 +28,17 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 final class StackdriverStatsMonitoredResource {
 
-  private static final Object monitor = new Object();
-
-  @GuardedBy("monitor")
-  private static MonitoredResource monitoredResource =
+  private static volatile MonitoredResource monitoredResource =
       MonitoredResource.newBuilder().setType("global").build();
 
   static void setMonitoredResource(MonitoredResource monitoredResource) {
     checkNotNull(monitoredResource);
-    synchronized (monitor) {
-      StackdriverStatsMonitoredResource.monitoredResource = monitoredResource;
-    }
+    // Make a deep copy of monitoredResource
+    StackdriverStatsMonitoredResource.monitoredResource = monitoredResource.toBuilder().build();
   }
 
   static MonitoredResource getMonitoredResource() {
-    synchronized (monitor) {
-      return monitoredResource;
-    }
+    return monitoredResource;
   }
 
   private StackdriverStatsMonitoredResource() {}
