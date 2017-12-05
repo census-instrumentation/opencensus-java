@@ -125,24 +125,21 @@ public final class StatsRecorderImplTest {
             Arrays.asList(KEY),
             Cumulative.create());
     viewManager.registerView(view);
-    Context orig =
-        Context.current()
-            .withValue(ContextUtils.TAG_CONTEXT_KEY, new SimpleTagContext(Tag.create(KEY, VALUE)))
-            .attach();
-    try {
-      statsRecorder
-          .newMeasureMap()
-          .put(MEASURE_DOUBLE_NO_VIEW_1, 1.0)
-          .put(MEASURE_DOUBLE, 1.0)
-          .put(MEASURE_DOUBLE_NO_VIEW_2, 1.0)
-          .record();
-    } finally {
-      Context.current().detach(orig);
-    }
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE_NO_VIEW_1, 1.0)
+        .put(MEASURE_DOUBLE, 2.0)
+        .put(MEASURE_DOUBLE_NO_VIEW_2, 3.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
     ViewData viewData = viewManager.getView(VIEW_NAME);
 
-    // record() should have used the given TagContext.
-    assertThat(viewData.getAggregationMap().keySet()).containsExactly(Arrays.asList(VALUE));
+    // There should be one entry.
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 2.0)),
+        1e-6);
   }
 
   @Test
