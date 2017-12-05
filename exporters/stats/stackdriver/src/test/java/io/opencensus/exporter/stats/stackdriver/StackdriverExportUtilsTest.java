@@ -54,6 +54,7 @@ import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,8 @@ public class StackdriverExportUtilsTest {
   private static final String PROJECT_ID = "id";
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
+  private static final String DEFAULT_TASK_VALUE =
+      "java-" + ManagementFactory.getRuntimeMXBean().getName();
 
   @Test
   public void testConstant() {
@@ -154,6 +157,7 @@ public class StackdriverExportUtilsTest {
             Metric.newBuilder()
                 .setType("custom.googleapis.com/opencensus/" + VIEW_NAME)
                 .putLabels("KEY", "VALUE1")
+                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
                 .build());
   }
 
@@ -173,6 +177,7 @@ public class StackdriverExportUtilsTest {
                 .setType("custom.googleapis.com/opencensus/" + VIEW_NAME)
                 .putLabels("KEY", "VALUE1")
                 .putLabels("KEY3", "VALUE2")
+                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
                 .build());
   }
 
@@ -330,6 +335,11 @@ public class StackdriverExportUtilsTest {
             LabelDescriptor.newBuilder()
                 .setKey(KEY.getName())
                 .setDescription(StackdriverExportUtils.LABEL_DESCRIPTION)
+                .setValueType(ValueType.STRING)
+                .build(),
+            LabelDescriptor.newBuilder()
+                .setKey(StackdriverExportUtils.OPENCENSUS_TASK)
+                .setDescription(StackdriverExportUtils.OPENCENSUS_TASK_DESCRIPTION)
                 .setValueType(ValueType.STRING)
                 .build());
   }
