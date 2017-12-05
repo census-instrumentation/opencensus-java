@@ -57,6 +57,10 @@ public final class StatsRecorderImplTest {
   private static final TagValue VALUE_2 = TagValue.create("VALUE_2");
   private static final MeasureDouble MEASURE_DOUBLE =
       MeasureDouble.create("my measurement", "description", "us");
+  private static final MeasureDouble MEASURE_DOUBLE_NO_VIEW_1 =
+      MeasureDouble.create("my measurement no view 1", "description", "us");
+  private static final MeasureDouble MEASURE_DOUBLE_NO_VIEW_2 =
+      MeasureDouble.create("my measurement no view 2", "description", "us");
   private static final View.Name VIEW_NAME = View.Name.create("my view");
 
   private final StatsComponent statsComponent =
@@ -108,6 +112,34 @@ public final class StatsRecorderImplTest {
 
     // record() should have used the given TagContext.
     assertThat(viewData.getAggregationMap().keySet()).containsExactly(Arrays.asList(VALUE));
+  }
+
+  @Test
+  public void record_UnregisteredMeasure() {
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            Sum.create(),
+            Arrays.asList(KEY),
+            Cumulative.create());
+    viewManager.registerView(view);
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE_NO_VIEW_1, 1.0)
+        .put(MEASURE_DOUBLE, 2.0)
+        .put(MEASURE_DOUBLE_NO_VIEW_2, 3.0)
+        .record(new SimpleTagContext(Tag.create(KEY, VALUE)));
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+
+    // There should be one entry.
+    StatsTestUtil.assertAggregationMapEquals(
+        viewData.getAggregationMap(),
+        ImmutableMap.of(
+            Arrays.asList(VALUE),
+            StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 2.0)),
+        1e-6);
   }
 
   @Test
