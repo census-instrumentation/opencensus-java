@@ -148,7 +148,7 @@ final class MeasureToViewMap {
       Measure measure = measurement.getMeasure();
       if (!measure.equals(registeredMeasures.get(measure.getName()))) {
         // unregistered measures will be ignored.
-        return;
+        continue;
       }
       Collection<MutableViewData> views = mutableMap.get(measure.getName());
       for (MutableViewData view : views) {

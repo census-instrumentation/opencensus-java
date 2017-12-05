@@ -57,6 +57,10 @@ public final class StatsRecorderImplTest {
   private static final TagValue VALUE_2 = TagValue.create("VALUE_2");
   private static final MeasureDouble MEASURE_DOUBLE =
       MeasureDouble.create("my measurement", "description", "us");
+  private static final MeasureDouble MEASURE_DOUBLE_NO_VIEW_1 =
+      MeasureDouble.create("my measurement no view 1", "description", "us");
+  private static final MeasureDouble MEASURE_DOUBLE_NO_VIEW_2 =
+      MeasureDouble.create("my measurement no view 2", "description", "us");
   private static final View.Name VIEW_NAME = View.Name.create("my view");
 
   private final StatsComponent statsComponent =
@@ -101,6 +105,37 @@ public final class StatsRecorderImplTest {
             .attach();
     try {
       statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, 1.0).record();
+    } finally {
+      Context.current().detach(orig);
+    }
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+
+    // record() should have used the given TagContext.
+    assertThat(viewData.getAggregationMap().keySet()).containsExactly(Arrays.asList(VALUE));
+  }
+
+  @Test
+  public void record_UnregisteredMeasure() {
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            Sum.create(),
+            Arrays.asList(KEY),
+            Cumulative.create());
+    viewManager.registerView(view);
+    Context orig =
+        Context.current()
+            .withValue(ContextUtils.TAG_CONTEXT_KEY, new SimpleTagContext(Tag.create(KEY, VALUE)))
+            .attach();
+    try {
+      statsRecorder
+          .newMeasureMap()
+          .put(MEASURE_DOUBLE_NO_VIEW_1, 1.0)
+          .put(MEASURE_DOUBLE, 1.0)
+          .put(MEASURE_DOUBLE_NO_VIEW_2, 1.0)
+          .record();
     } finally {
       Context.current().detach(orig);
     }
