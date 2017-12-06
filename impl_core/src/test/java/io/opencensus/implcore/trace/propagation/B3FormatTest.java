@@ -52,6 +52,9 @@ public class B3FormatTest {
   private static final SpanId SPAN_ID = SpanId.fromLowerBase16(SPAN_ID_BASE16);
   private static final byte[] TRACE_OPTIONS_BYTES = new byte[] {1};
   private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromBytes(TRACE_OPTIONS_BYTES);
+  private static final byte[] NOT_SAMPLED_TRACE_OPTIONS_BYTES = new byte[] {0};
+  private static final TraceOptions NOT_SAMPLED_TRACE_OPTIONS =
+      TraceOptions.fromBytes(NOT_SAMPLED_TRACE_OPTIONS_BYTES);
   private static final SpanContext SPAN_CONTEXT =
       SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS);
   private static final Map<String, String> headers = new HashMap<String, String>();
@@ -93,12 +96,52 @@ public class B3FormatTest {
   }
 
   @Test
-  public void parseNotSampledSpanContext() throws SpanContextParseException {
+  public void parseMissingSampledAndMissingFlag() throws SpanContextParseException {
     Map<String, String> headersNotSampled = new HashMap<String, String>();
     headersNotSampled.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
     headersNotSampled.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
-    SpanContext spanContextEightBytes = SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT);
-    assertThat(b3Format.extract(headersNotSampled, getter)).isEqualTo(spanContextEightBytes);
+    SpanContext spanContext = SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT);
+    assertThat(b3Format.extract(headersNotSampled, getter)).isEqualTo(spanContext);
+  }
+
+  @Test
+  public void parseSampled() throws SpanContextParseException {
+    Map<String, String> headersSampled = new HashMap<String, String>();
+    headersSampled.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
+    headersSampled.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
+    headersSampled.put(X_B3_SAMPLED, "1");
+    assertThat(b3Format.extract(headersSampled, getter))
+        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS));
+  }
+
+  @Test
+  public void parseZeroSampled() throws SpanContextParseException {
+    Map<String, String> headersNotSampled = new HashMap<String, String>();
+    headersNotSampled.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
+    headersNotSampled.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
+    headersNotSampled.put(X_B3_SAMPLED, "0");
+    assertThat(b3Format.extract(headersNotSampled, getter))
+        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, NOT_SAMPLED_TRACE_OPTIONS));
+  }
+
+  @Test
+  public void parseFlag() throws SpanContextParseException {
+    Map<String, String> headersFlagSampled = new HashMap<String, String>();
+    headersFlagSampled.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
+    headersFlagSampled.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
+    headersFlagSampled.put(X_B3_FLAGS, "1");
+    assertThat(b3Format.extract(headersFlagSampled, getter))
+        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS));
+  }
+
+  @Test
+  public void parseZeroFlag() throws SpanContextParseException {
+    Map<String, String> headersFlagNotSampled = new HashMap<String, String>();
+    headersFlagNotSampled.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
+    headersFlagNotSampled.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
+    headersFlagNotSampled.put(X_B3_FLAGS, "0");
+    assertThat(b3Format.extract(headersFlagNotSampled, getter))
+        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, NOT_SAMPLED_TRACE_OPTIONS));
   }
 
   @Test
@@ -107,9 +150,8 @@ public class B3FormatTest {
     headersEightBytes.put(X_B3_TRACE_ID, TRACE_ID_BASE16_EIGHT_BYTES);
     headersEightBytes.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     headersEightBytes.put(X_B3_SAMPLED, "1");
-    SpanContext spanContextEightBytes =
-        SpanContext.create(TRACE_ID_EIGHT_BYTES, SPAN_ID, TRACE_OPTIONS);
-    assertThat(b3Format.extract(headersEightBytes, getter)).isEqualTo(spanContextEightBytes);
+    assertThat(b3Format.extract(headersEightBytes, getter))
+        .isEqualTo(SpanContext.create(TRACE_ID_EIGHT_BYTES, SPAN_ID, TRACE_OPTIONS));
   }
 
   @Test
@@ -117,9 +159,8 @@ public class B3FormatTest {
     Map<String, String> headersEightBytes = new HashMap<String, String>();
     headersEightBytes.put(X_B3_TRACE_ID, TRACE_ID_BASE16_EIGHT_BYTES);
     headersEightBytes.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
-    SpanContext spanContextEightBytes =
-        SpanContext.create(TRACE_ID_EIGHT_BYTES, SPAN_ID, TraceOptions.DEFAULT);
-    assertThat(b3Format.extract(headersEightBytes, getter)).isEqualTo(spanContextEightBytes);
+    assertThat(b3Format.extract(headersEightBytes, getter))
+        .isEqualTo(SpanContext.create(TRACE_ID_EIGHT_BYTES, SPAN_ID, TraceOptions.DEFAULT));
   }
 
   @Test
@@ -128,7 +169,8 @@ public class B3FormatTest {
     invalidHeaders.put(X_B3_TRACE_ID, "abcdefghijklmnop");
     invalidHeaders.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     thrown.expect(SpanContextParseException.class);
-    assertThat(b3Format.extract(invalidHeaders, getter)).isEqualTo(SpanContext.INVALID);
+    thrown.expectMessage("Invalid input.");
+    b3Format.extract(invalidHeaders, getter);
   }
 
   @Test
@@ -137,7 +179,17 @@ public class B3FormatTest {
     invalidHeaders.put(X_B3_TRACE_ID, "0123456789abcdef00");
     invalidHeaders.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     thrown.expect(SpanContextParseException.class);
-    assertThat(b3Format.extract(invalidHeaders, getter)).isEqualTo(SpanContext.INVALID);
+    thrown.expectMessage("Invalid input.");
+    b3Format.extract(invalidHeaders, getter);
+  }
+
+  @Test
+  public void parseMissingTraceId() throws SpanContextParseException {
+    Map<String, String> invalidHeaders = new HashMap<String, String>();
+    invalidHeaders.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
+    thrown.expect(SpanContextParseException.class);
+    thrown.expectMessage("Missing X_B3_TRACE_ID.");
+    b3Format.extract(invalidHeaders, getter);
   }
 
   @Test
@@ -146,7 +198,8 @@ public class B3FormatTest {
     invalidHeaders.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
     invalidHeaders.put(X_B3_SPAN_ID, "abcdefghijklmnop");
     thrown.expect(SpanContextParseException.class);
-    assertThat(b3Format.extract(invalidHeaders, getter)).isEqualTo(SpanContext.INVALID);
+    thrown.expectMessage("Invalid input.");
+    b3Format.extract(invalidHeaders, getter);
   }
 
   @Test
@@ -155,7 +208,17 @@ public class B3FormatTest {
     invalidHeaders.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
     invalidHeaders.put(X_B3_SPAN_ID, "0123456789abcdef00");
     thrown.expect(SpanContextParseException.class);
-    assertThat(b3Format.extract(invalidHeaders, getter)).isEqualTo(SpanContext.INVALID);
+    thrown.expectMessage("Invalid input.");
+    b3Format.extract(invalidHeaders, getter);
+  }
+
+  @Test
+  public void parseMissingSpanId() throws SpanContextParseException {
+    Map<String, String> invalidHeaders = new HashMap<String, String>();
+    invalidHeaders.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
+    thrown.expect(SpanContextParseException.class);
+    thrown.expectMessage("Missing X_B3_SPAN_ID.");
+    b3Format.extract(invalidHeaders, getter);
   }
 
   @Test
