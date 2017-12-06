@@ -139,4 +139,11 @@ requires a [Premium tier Stackdriver account](https://cloud.google.com/monitorin
 Please note that by default all new Stackdriver accounts are Basic tier. To upgrade to a Premium 
 tier Stackdriver account, follow the instructions [here](https://cloud.google.com/monitoring/accounts/tiers#start-premium).
 
+### What is "opencensus-task" metric label ?
+Stackdriver requires that each Timeseries to be updated only by one task at a time. A
+`Timeseries` is uniquely identified by the `MonitoredResource` and the `Metric`'s labels.
+Stackdriver exporter adds a new `Metric` label for each custom `Metric` to ensure the uniqueness
+of the `Timeseries`. The format of the label is: `{LANGUAGE}-{PID}@{HOSTNAME}`, if `{PID}` is not
+available a random number will be used.
+
 [stackdriver-monitoring]: https://cloud.google.com/monitoring/
