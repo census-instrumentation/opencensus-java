@@ -55,19 +55,45 @@ import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
+import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /** Util methods to convert OpenCensus Stats data models to StackDriver monitoring data models. */
 final class StackdriverExportUtils {
-
   // TODO(songya): do we want these constants to be customizable?
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
+  @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
+  @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
 
+  private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
   private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
+  private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
+
+  private static String generateDefaultTaskValue() {
+    // Something like '<pid>@<hostname>', at least in Oracle and OpenJdk JVMs
+    final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+    // If not the expected format then generate a random number.
+    if (jvmName.indexOf('@') < 1) {
+      String hostname = "localhost";
+      try {
+        hostname = InetAddress.getLocalHost().getHostName();
+      } catch (UnknownHostException e) {
+        logger.log(Level.INFO, "Unable to get the hostname.", e);
+      }
+      // Generate a random number and use the same format "random_number@hostname".
+      return "java-" + new SecureRandom().nextInt() + "@" + hostname;
+    }
+    return "java-" + jvmName;
+  }
 
   // Construct a MetricDescriptor using a View.
   @Nullable
@@ -90,6 +116,12 @@ final class StackdriverExportUtils {
     for (TagKey tagKey : view.getColumns()) {
       builder.addLabels(createLabelDescriptor(tagKey));
     }
+    builder.addLabels(
+        LabelDescriptor.newBuilder()
+            .setKey(OPENCENSUS_TASK)
+            .setDescription(OPENCENSUS_TASK_DESCRIPTION)
+            .setValueType(ValueType.STRING)
+            .build());
     builder.setMetricKind(createMetricKind(view.getWindow()));
     builder.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
     return builder.build();
@@ -185,6 +217,7 @@ final class StackdriverExportUtils {
       }
       stringTagMap.put(key.getName(), value.asString());
     }
+    stringTagMap.put(OPENCENSUS_TASK, OPENCENSUS_TASK_VALUE_DEFAULT);
     builder.putAllLabels(stringTagMap);
     return builder.build();
   }
