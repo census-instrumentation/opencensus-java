@@ -110,7 +110,7 @@ subprojects {
         errorProneVersion = '2.1.2'
         grpcVersion = '1.8.0'
         guavaVersion = '19.0'
-        googleAuthVersion = '0.8.0'
+        googleAuthVersion = '0.9.0'
         googleCloudVersion = '0.30.0-beta'
         zipkinReporterVersion = '2.0.0'
 
