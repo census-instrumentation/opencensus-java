@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
  *   }
  * }
  *
- * void makeHttpRequest(HttpURLConnection connection) {
+ * void makeHttpRequest() {
  *   Span span = tracer.spanBuilder("Sent.MyRequest").startSpan();
  *   try (Scope s = tracer.withSpan(span)) {
  *     HttpURLConnection connection =
@@ -101,7 +101,10 @@ public abstract class TextFormat {
   public abstract <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter);
 
   /**
-   * {@code Setter} is stateless and allows to be saved as a constant to avoid runtime allocations.
+   * Class that allows a {@code TextFormat} to set propagated fields into a carrier.
+   *
+   * <p>{@code Setter} is stateless and allows to be saved as a constant to avoid runtime
+   * allocations.
    *
    * @param <C> carrier of propagation fields, such as an http request
    */
@@ -131,7 +134,10 @@ public abstract class TextFormat {
       throws SpanContextParseException;
 
   /**
-   * {@code Getter} is stateless and allows to be saved as a constant to avoid runtime allocations.
+   * Class that allows a {@code TextFormat} to read propagated fields from a carrier.
+   *
+   * <p>{@code Getter} is stateless and allows to be saved as a constant to avoid runtime
+   * allocations.
    *
    * @param <C> carrier of propagation fields, such as an http request
    */
