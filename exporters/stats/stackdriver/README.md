@@ -72,7 +72,11 @@ public class MyMainClass {
 By default, the Stackdriver Stats Exporter uses [a global Stackdriver monitored resource with no 
 labels](https://cloud.google.com/monitoring/api/resources#tag_global), and this works fine when you 
 have only one exporter running. If you want to have multiple processes exporting stats for the same 
-metric concurrently, please associate a unique monitored resource with each exporter if possible:
+metric concurrently, please associate a unique monitored resource with each exporter if possible. 
+Please note that there is also an "opencensus-task" metric label that uniquely identifies the 
+uploaded stats.
+
+To set a custom MonitoredResource:
 
 ```java
 public class MyMainClass {
