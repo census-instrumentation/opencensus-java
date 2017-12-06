@@ -23,9 +23,7 @@ import static org.mockito.Mockito.when;
 import io.grpc.Context;
 import io.opencensus.common.Scope;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
@@ -38,7 +36,6 @@ import org.mockito.MockitoAnnotations;
 public class TracerTest {
   private static final Tracer noopTracer = Tracer.getNoopTracer();
   private static final String SPAN_NAME = "MySpanName";
-  @Rule public ExpectedException thrown = ExpectedException.none();
   @Mock private Tracer tracer;
   @Mock private SpanBuilder spanBuilder;
   @Mock private Span span;

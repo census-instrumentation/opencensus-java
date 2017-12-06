@@ -19,6 +19,7 @@ package io.opencensus.implcore.trace.propagation;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.trace.propagation.PropagationComponent;
+import io.opencensus.trace.propagation.TextFormat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -31,5 +32,10 @@ public class PropagationComponentImplTest {
   @Test
   public void implementationOfBinary() {
     assertThat(propagationComponent.getBinaryFormat()).isInstanceOf(BinaryFormatImpl.class);
+  }
+
+  @Test
+  public void implementationOfB3() {
+    assertThat(propagationComponent.getTextFormat()).isInstanceOf(TextFormatImpl.class);
   }
 }

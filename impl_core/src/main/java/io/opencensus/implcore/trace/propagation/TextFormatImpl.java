@@ -16,22 +16,26 @@
 
 package io.opencensus.implcore.trace.propagation;
 
-import io.opencensus.trace.propagation.BinaryFormat;
-import io.opencensus.trace.propagation.PropagationComponent;
+import io.opencensus.trace.SpanContext;
+import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
+import java.util.List;
 
-/** Implementation of the {@link PropagationComponent}. */
-public class PropagationComponentImpl extends PropagationComponent {
-  private final BinaryFormat binaryFormat = new BinaryFormatImpl();
-  private final TextFormat textFormat = new TextFormatImpl();
+public class TextFormatImpl extends TextFormat {
+  private final B3Format b3Format = new B3Format();
 
   @Override
-  public BinaryFormat getBinaryFormat() {
-    return binaryFormat;
+  public List<String> fields() {
+    return null;
   }
 
   @Override
-  public TextFormat getTextFormat() {
-    return textFormat;
+  public <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
+    // TODO(bdrutu): Decide how to implement this.
+  }
+
+  @Override
+  public <C> SpanContext extract(C carrier, Getter<C> getter) throws SpanContextParseException {
+    return b3Format.extract(carrier, getter);
   }
 }
