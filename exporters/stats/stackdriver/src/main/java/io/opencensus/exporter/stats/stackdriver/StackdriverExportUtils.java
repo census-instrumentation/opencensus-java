@@ -83,7 +83,7 @@ final class StackdriverExportUtils {
     final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
     // If not the expected format then generate a random number.
     if (jvmName.indexOf('@') < 1) {
-      String hostname = "unknown";
+      String hostname = "localhost";
       try {
         hostname = InetAddress.getLocalHost().getHostName();
       } catch (UnknownHostException e) {
