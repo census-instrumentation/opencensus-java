@@ -33,7 +33,6 @@ import io.opencensus.trace.propagation.TextFormat.Setter;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -55,9 +54,6 @@ public class B3FormatTest {
   private static final byte[] NOT_SAMPLED_TRACE_OPTIONS_BYTES = new byte[] {0};
   private static final TraceOptions NOT_SAMPLED_TRACE_OPTIONS =
       TraceOptions.fromBytes(NOT_SAMPLED_TRACE_OPTIONS_BYTES);
-  private static final SpanContext SPAN_CONTEXT =
-      SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS);
-  private static final Map<String, String> headers = new HashMap<String, String>();
   private final B3Format b3Format = new B3Format();
   @Rule public ExpectedException thrown = ExpectedException.none();
   private final Setter<Map<String, String>> setter =
@@ -76,23 +72,36 @@ public class B3FormatTest {
         }
       };
 
-  @Before
-  public void setUp() {
+  @Test
+  public void serialize_SampledContext() {
+    Map<String, String> headers = new HashMap<String, String>();
     headers.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
     headers.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     headers.put(X_B3_SAMPLED, "1");
+    Map<String, String> carrier = new HashMap<String, String>();
+    b3Format.inject(SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS), carrier, setter);
+    assertThat(carrier).isEqualTo(headers);
   }
 
   @Test
-  public void serializeValidContext() {
+  public void serialize_NotSampledContext() {
+    Map<String, String> headers = new HashMap<String, String>();
+    headers.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
+    headers.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     Map<String, String> carrier = new HashMap<String, String>();
-    b3Format.inject(SPAN_CONTEXT, carrier, setter);
+    b3Format.inject(
+        SpanContext.create(TRACE_ID, SPAN_ID, NOT_SAMPLED_TRACE_OPTIONS), carrier, setter);
     assertThat(carrier).isEqualTo(headers);
   }
 
   @Test
   public void parseValidHeaders() throws SpanContextParseException {
-    assertThat(b3Format.extract(headers, getter)).isEqualTo(SPAN_CONTEXT);
+    Map<String, String> headers = new HashMap<String, String>();
+    headers.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
+    headers.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
+    headers.put(X_B3_SAMPLED, "1");
+    assertThat(b3Format.extract(headers, getter))
+        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS));
   }
 
   @Test
