@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
  *   }
  * }
  *
- * void makeHttpRequest() {
+ * void makeHttpRequest(HttpURLConnection connection) {
  *   Span span = tracer.spanBuilder("Sent.MyRequest").startSpan();
  *   try (Scope s = tracer.withSpan(span)) {
  *     HttpURLConnection connection =
@@ -62,10 +62,10 @@ import javax.annotation.Nullable;
  * <pre>{@code
  * private static final Tracer tracer = Tracing.getTracer();
  * private static final TextFormat textFormat = Tracing.getPropagationComponent().getTextFormat();
- * private static final TextFormat.Getter getter = ...;
+ * private static final TextFormat.Getter<HttpRequest> getter = ...;
  *
- * void onRequestReceived() {
- *   SpanContext spanContext = textFormat.extract(carrier, getter);
+ * void onRequestReceived(HttpRequest request) {
+ *   SpanContext spanContext = textFormat.extract(request, getter);
  *   Span span = tracer.spanBuilderWithRemoteParent("Recv.MyRequest", spanContext).startSpan();
  *   try (Scope s = tracer.withSpan(span)) {
  *     // Handle request and send response back.
@@ -101,7 +101,7 @@ public abstract class TextFormat {
   public abstract <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter);
 
   /**
-   * Class that allows to be saved as a constant to avoid runtime allocations.
+   * {@code Setter} is stateless and allows to be saved as a constant to avoid runtime allocations.
    *
    * @param <C> carrier of propagation fields, such as an http request
    */
@@ -123,9 +123,6 @@ public abstract class TextFormat {
   /**
    * Extracts the span context from upstream. For example, as http headers.
    *
-   * <p>If no particular format is known to be always received on from the wire it is recommended to
-   * use {@code Encoding.ALL}.
-   *
    * @param carrier holds propagation fields. For example, an outgoing message or http request.
    * @param getter invoked for each propagation key to get.
    * @throws SpanContextParseException if the input is invalid
@@ -134,7 +131,7 @@ public abstract class TextFormat {
       throws SpanContextParseException;
 
   /**
-   * Class that allows to be saved as a constant to avoid runtime allocations.
+   * {@code Getter} is stateless and allows to be saved as a constant to avoid runtime allocations.
    *
    * @param <C> carrier of propagation fields, such as an http request
    */
@@ -172,11 +169,13 @@ public abstract class TextFormat {
     @Override
     public <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
       checkNotNull(spanContext, "spanContext");
+      checkNotNull(carrier, "carrier");
       checkNotNull(setter, "setter");
     }
 
     @Override
     public <C> SpanContext extract(C carrier, Getter<C> getter) {
+      checkNotNull(carrier, "carrier");
       checkNotNull(getter, "getter");
       return SpanContext.INVALID;
     }
