@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class SpanIdTest {
   private static final byte[] firstBytes = new byte[] {0, 0, 0, 0, 0, 0, 0, 'a'};
-  private static final byte[] secondBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 0};
+  private static final byte[] secondBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 'A'};
   private static final SpanId first = SpanId.fromBytes(firstBytes);
   private static final SpanId second = SpanId.fromBytes(secondBytes);
 
@@ -42,6 +42,20 @@ public class SpanIdTest {
     assertThat(SpanId.INVALID.isValid()).isFalse();
     assertThat(first.isValid()).isTrue();
     assertThat(second.isValid()).isTrue();
+  }
+
+  @Test
+  public void fromLowerBase16() {
+    assertThat(SpanId.fromLowerBase16("0000000000000000")).isEqualTo(SpanId.INVALID);
+    assertThat(SpanId.fromLowerBase16("0000000000000061")).isEqualTo(first);
+    assertThat(SpanId.fromLowerBase16("ff00000000000041")).isEqualTo(second);
+  }
+
+  @Test
+  public void toLowerBase16() {
+    assertThat(SpanId.INVALID.toLowerBase16()).isEqualTo("0000000000000000");
+    assertThat(first.toLowerBase16()).isEqualTo("0000000000000061");
+    assertThat(second.toLowerBase16()).isEqualTo("ff00000000000041");
   }
 
   @Test
@@ -71,6 +85,6 @@ public class SpanIdTest {
   public void traceId_ToString() {
     assertThat(SpanId.INVALID.toString()).contains("0000000000000000");
     assertThat(first.toString()).contains("0000000000000061");
-    assertThat(second.toString()).contains("ff00000000000000");
+    assertThat(second.toString()).contains("ff00000000000041");
   }
 }
