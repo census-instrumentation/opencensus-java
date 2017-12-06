@@ -71,16 +71,13 @@ public class MyMainClass {
 
 By default, the Stackdriver Stats Exporter uses [a global Stackdriver monitored resource with no 
 labels](https://cloud.google.com/monitoring/api/resources#tag_global), and this works fine when you 
-have only one exporter running. However, if you want to have multiple processes exporting stats for 
-the same metric concurrently, using the default monitored resource for all exporters will not work. 
-In this case you need to associate a unique monitored resource with each exporter:
+have only one exporter running. If you want to have multiple processes exporting stats for the same 
+metric concurrently, please associate a unique monitored resource with each exporter if possible:
 
 ```java
 public class MyMainClass {
   public static void main(String[] args) {
     // A sample AWS EC2 monitored resource.
-    // This will only work if each EC2 has one process that records stats. If there are multiple 
-    // processes, you'll need an extra label such as pid.
     MonitoredResource myResource = MonitoredResource.newBuilder()
                                                .setType("aws_ec2_instance")
                                                .putLabels("instance_id", "instance")
