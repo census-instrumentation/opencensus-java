@@ -42,7 +42,7 @@ import javax.annotation.concurrent.NotThreadSafe;
  * <p>{@code StackdriverExporterWorker} will be started in a daemon {@code Thread}.
  *
  * <p>The state of this class should only be accessed from the thread which {@link
- * StackdriverExporterWorker} resides in. thread.
+ * StackdriverExporterWorker} resides in.
  */
 @NotThreadSafe
 final class StackdriverExporterWorker implements Runnable {
