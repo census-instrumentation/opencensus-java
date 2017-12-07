@@ -6,7 +6,12 @@
 $ ./gradlew installDist
 ```
 
-* Remember to change `opencensusVersion` in `build.gradle` to a released version you want to use.
+Note: If you are building a SNAPSHOT instead of a release, please install the opencensus-java main project to your local repo first:
+
+```
+$ cd .. && gradlew install
+```
+
 ## To run "StatsRunner" example use
 
 ```

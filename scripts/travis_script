@@ -21,6 +21,7 @@ case "$TASK" in
             ./gradlew clean assemble --stacktrace
             ./gradlew check :opencensus-all:jacocoTestReport
             ./gradlew verGJF
+            pushd examples && ./gradlew clean assemble verGJF --stacktrace && popd
             ;;
           "openjdk7")
             # "./gradlew classes testClasses" is a workaround for
@@ -29,6 +30,7 @@ case "$TASK" in
             JAVA_HOME="$(jdk_switcher home openjdk8)" ./gradlew classes testClasses
             ./gradlew clean assemble --stacktrace
             ./gradlew check
+            pushd examples && ./gradlew clean assemble check --stacktrace && popd
             ;;
           *)
             echo "Unknown JDK version $TRAVIS_JDK_VERSION"
@@ -41,6 +43,7 @@ case "$TASK" in
         # https://docs.travis-ci.com/user/reference/osx/#JDK-and-OS-X
         ./gradlew clean assemble --stacktrace
         ./gradlew check
+        pushd examples && ./gradlew clean assemble check --stacktrace && popd
         ;;
       *)
         echo "Unknown OS name $TRAVIS_OS_NAME"
