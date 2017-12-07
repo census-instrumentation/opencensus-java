@@ -37,18 +37,17 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Worker {@code Thread} that polls ViewData from Stats library and batch export to StackDriver.
+ * Worker {@code Runnable} that polls ViewData from Stats library and batch export to StackDriver.
  *
- * <p>{@code StackdriverExporterWorkerThread} is a daemon {@code Thread}.
+ * <p>{@code StackdriverExporterWorker} will be started in a daemon {@code Thread}.
  *
- * <p>The state of this class should only be accessed from the {@link
- * StackdriverExporterWorkerThread} thread.
+ * <p>The state of this class should only be accessed from the thread which {@link
+ * StackdriverExporterWorker} resides in.
  */
 @NotThreadSafe
-final class StackdriverExporterWorkerThread extends Thread {
+final class StackdriverExporterWorker implements Runnable {
 
-  private static final Logger logger =
-      Logger.getLogger(StackdriverExporterWorkerThread.class.getName());
+  private static final Logger logger = Logger.getLogger(StackdriverExporterWorker.class.getName());
 
   @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 3;
 
@@ -60,7 +59,7 @@ final class StackdriverExporterWorkerThread extends Thread {
   private final MonitoredResource monitoredResource;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
-  StackdriverExporterWorkerThread(
+  StackdriverExporterWorker(
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
@@ -72,8 +71,6 @@ final class StackdriverExporterWorkerThread extends Thread {
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
     this.monitoredResource = monitoredResource;
-    setDaemon(true);
-    setName("ExportWorkerThread");
   }
 
   // Returns true if the given view is successfully registered to Stackdriver Monitoring, or the

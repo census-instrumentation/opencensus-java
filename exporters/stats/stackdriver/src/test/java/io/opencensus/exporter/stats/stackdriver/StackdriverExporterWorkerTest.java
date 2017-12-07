@@ -63,9 +63,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link StackdriverExporterWorkerThread}. */
+/** Unit tests for {@link StackdriverExporterWorker}. */
 @RunWith(JUnit4.class)
-public class StackdriverExporterWorkerThreadTest {
+public class StackdriverExporterWorkerTest {
 
   private static final String PROJECT_ID = "projectId";
   private static final Duration ONE_SECOND = Duration.create(1, 0);
@@ -110,7 +110,7 @@ public class StackdriverExporterWorkerThreadTest {
 
   @Test
   public void testConstants() {
-    assertThat(StackdriverExporterWorkerThread.MAX_BATCH_EXPORT_SIZE).isEqualTo(3);
+    assertThat(StackdriverExporterWorker.MAX_BATCH_EXPORT_SIZE).isEqualTo(3);
   }
 
   @Test
@@ -125,14 +125,14 @@ public class StackdriverExporterWorkerThreadTest {
     doReturn(ImmutableSet.of(view)).when(mockViewManager).getAllExportedViews();
     doReturn(viewData).when(mockViewManager).getView(VIEW_NAME);
 
-    StackdriverExporterWorkerThread workerThread =
-        new StackdriverExporterWorkerThread(
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE);
-    workerThread.export();
+    worker.export();
 
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(1)).createTimeSeriesCallable();
@@ -168,15 +168,15 @@ public class StackdriverExporterWorkerThreadTest {
     doReturn(ImmutableSet.of(view)).when(mockViewManager).getAllExportedViews();
     doReturn(empty).when(mockViewManager).getView(VIEW_NAME);
 
-    StackdriverExporterWorkerThread workerThread =
-        new StackdriverExporterWorkerThread(
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE);
 
-    workerThread.export();
+    worker.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(0)).createTimeSeriesCallable();
   }
@@ -187,24 +187,24 @@ public class StackdriverExporterWorkerThreadTest {
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     doReturn(ImmutableSet.of(view)).when(mockViewManager).getAllExportedViews();
     doThrow(new IllegalArgumentException()).when(mockStub).createMetricDescriptorCallable();
-    StackdriverExporterWorkerThread workerThread =
-        new StackdriverExporterWorkerThread(
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE);
 
-    assertThat(workerThread.registerView(view)).isFalse();
-    workerThread.export();
+    assertThat(worker.registerView(view)).isFalse();
+    worker.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(0)).createTimeSeriesCallable();
   }
 
   @Test
   public void skipDifferentViewWithSameName() throws IOException {
-    StackdriverExporterWorkerThread workerThread =
-        new StackdriverExporterWorkerThread(
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
@@ -212,7 +212,7 @@ public class StackdriverExporterWorkerThreadTest {
             DEFAULT_RESOURCE);
     View view1 =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    assertThat(workerThread.registerView(view1)).isTrue();
+    assertThat(worker.registerView(view1)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
 
     View view2 =
@@ -223,14 +223,14 @@ public class StackdriverExporterWorkerThreadTest {
             SUM,
             Arrays.asList(KEY),
             CUMULATIVE);
-    assertThat(workerThread.registerView(view2)).isFalse();
+    assertThat(worker.registerView(view2)).isFalse();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
   @Test
   public void doNotCreateMetricDescriptorForRegisteredView() {
-    StackdriverExporterWorkerThread workerThread =
-        new StackdriverExporterWorkerThread(
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
@@ -238,17 +238,17 @@ public class StackdriverExporterWorkerThreadTest {
             DEFAULT_RESOURCE);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
-    assertThat(workerThread.registerView(view)).isTrue();
+    assertThat(worker.registerView(view)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
 
-    assertThat(workerThread.registerView(view)).isTrue();
+    assertThat(worker.registerView(view)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
   @Test
   public void doNotCreateMetricDescriptorForIntervalView() {
-    StackdriverExporterWorkerThread workerThread =
-        new StackdriverExporterWorkerThread(
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
@@ -256,7 +256,7 @@ public class StackdriverExporterWorkerThreadTest {
             DEFAULT_RESOURCE);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), INTERVAL);
-    assertThat(workerThread.registerView(view)).isFalse();
+    assertThat(worker.registerView(view)).isFalse();
     verify(mockStub, times(0)).createMetricDescriptorCallable();
   }
 

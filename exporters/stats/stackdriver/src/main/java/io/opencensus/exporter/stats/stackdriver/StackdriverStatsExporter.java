@@ -28,10 +28,12 @@ import com.google.cloud.ServiceOptions;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.ViewManager;
 import java.io.IOException;
+import java.util.concurrent.ThreadFactory;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -52,7 +54,7 @@ public final class StackdriverStatsExporter {
 
   private static final Object monitor = new Object();
 
-  private final StackdriverExporterWorkerThread workerThread;
+  private final Thread workerThread;
 
   @GuardedBy("monitor")
   private static StackdriverStatsExporter exporter = null;
@@ -69,9 +71,10 @@ public final class StackdriverStatsExporter {
       ViewManager viewManager,
       MonitoredResource monitoredResource) {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
-    this.workerThread =
-        new StackdriverExporterWorkerThread(
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
             projectId, metricServiceClient, exportInterval, viewManager, monitoredResource);
+    this.workerThread = new DaemonThreadFactory().newThread(worker);
   }
 
   /**
@@ -233,6 +236,27 @@ public final class StackdriverStatsExporter {
   static void unsafeResetExporter() {
     synchronized (monitor) {
       StackdriverStatsExporter.exporter = null;
+    }
+  }
+
+  /** A lightweight {@link ThreadFactory} to spawn threads in a GAE-Java7-compatible way. */
+  // TODO(Hailong): Remove this once we use a callback to implement the exporter.
+  static final class DaemonThreadFactory implements ThreadFactory {
+    // AppEngine runtimes have constraints on threading and socket handling
+    // that need to be accommodated.
+    public static final boolean IS_RESTRICTED_APPENGINE =
+        System.getProperty("com.google.appengine.runtime.environment") != null
+            && "1.7".equals(System.getProperty("java.specification.version"));
+    private static final ThreadFactory threadFactory = MoreExecutors.platformThreadFactory();
+
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread thread = threadFactory.newThread(r);
+      if (!IS_RESTRICTED_APPENGINE) {
+        thread.setName("ExportWorkerThread");
+        thread.setDaemon(true);
+      }
+      return thread;
     }
   }
 }
