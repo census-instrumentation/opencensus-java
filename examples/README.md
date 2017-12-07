@@ -5,6 +5,8 @@
 ```
 $ ./gradlew installDist
 ```
+
+* Remember to change `opencensusVersion` in `build.gradle` to a released version you want to use.
 ## To run "StatsRunner" example use
 
 ```

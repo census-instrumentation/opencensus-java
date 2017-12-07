@@ -31,7 +31,6 @@ project(':opencensus-exporter-stats-stackdriver').projectDir = "$rootDir/exporte
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {
     include ":opencensus-all"
-    include ":examples"
     include ":benchmarks"
     include ":opencensus-contrib-zpages"
 

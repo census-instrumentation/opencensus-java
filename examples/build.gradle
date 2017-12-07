@@ -1,16 +1,193 @@
 description = 'OpenCensus Examples'
 
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.4.2'
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.15.0'
+        classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.6"
+    }
+}
+
+// Display the version report using: ./gradlew dependencyUpdates
+// Also see https://github.com/ben-manes/gradle-versions-plugin.
+apply plugin: 'com.github.ben-manes.versions'
+apply plugin: "checkstyle"
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: "signing"
+apply plugin: "jacoco"
+// The plugin only has an effect if a signature is specified
+apply plugin: 'ru.vyarus.animalsniffer'
+apply plugin: 'findbugs'
+apply plugin: 'net.ltgt.apt'
+// Plugins that require java8
+if (JavaVersion.current().isJava8Compatible()) {
+    apply plugin: "net.ltgt.errorprone"
+    apply plugin: 'com.github.sherter.google-java-format'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+group = "io.opencensus"
+version = "0.11.0-SNAPSHOT"
+
+// change to the version you want to use.
+def opencensusVersion = "0.11.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+
+[compileJava, compileTestJava].each() {
+    // We suppress the "processing" warning as suggested in
+    // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
+    it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
+    if (JavaVersion.current().isJava8Compatible()) {
+        it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
+        // TODO(bdrutu): Read files directly instead of reading from properties.
+        if (rootProject.hasProperty("errorProneWarnings")) {
+            it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
+                it as String
+            }
+        }
+        if (rootProject.hasProperty("errorProneExperimentalErrors")) {
+            it.options.compilerArgs += rootProject.properties["errorProneExperimentalErrors"].split(',').collect {
+                it as String
+            }
+        }
+        if (rootProject.hasProperty("errorProneExperimentalWarnings")) {
+            it.options.compilerArgs += rootProject.properties["errorProneExperimentalWarnings"].split(',').collect {
+                it as String
+            }
+        }
+        if (rootProject.hasProperty("errorProneExperimentalSuggestions")) {
+            it.options.compilerArgs += rootProject.properties["errorProneExperimentalSuggestions"].split(',').collect {
+                it as String
+            }
+        }
+    }
+    it.options.encoding = "UTF-8"
+    // TODO(bdrutu): Enable when fix the issue with configuring bootstrap class.
+    // [options] bootstrap class path not set in conjunction with -source 1.6
+    if (JavaVersion.current().isJava8Compatible()) {
+        it.options.compilerArgs += ["-Werror"]
+    }
+}
+
+compileTestJava {
+    // serialVersionUID is basically guaranteed to be useless in tests
+    options.compilerArgs += ["-Xlint:-serial"]
+    // It undeprecates DoubleSubject.isEqualTo(Double).
+    options.compilerArgs += ["-Xlint:-deprecation"]
+}
+
+jar.manifest {
+    attributes('Implementation-Title': name,
+            'Implementation-Version': version,
+            'Built-By': System.getProperty('user.name'),
+            'Built-JDK': System.getProperty('java.version'),
+            'Source-Compatibility': sourceCompatibility,
+            'Target-Compatibility': targetCompatibility)
+}
+
+javadoc.options {
+    encoding = 'UTF-8'
+    links 'https://docs.oracle.com/javase/8/docs/api/'
+}
+
+ext {
+    findBugsVersion = '3.0.1'
+}
+
+findbugs {
+    toolVersion = findBugsVersion
+    ignoreFailures = false   // bug free or it doesn't ship!
+    effort = 'max'
+    reportLevel = 'low'      // low = sensitive to even minor mistakes
+    omitVisitors = []        // bugs that we want to ignore
+}
+// Generate html report for findbugs.
+findbugsMain {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+// Disable findbugs for tests.
+findbugsTest.enabled = false
+
+checkstyle {
+    configFile = file("$rootDir/buildscripts/checkstyle.xml")
+    toolVersion = "8.0"
+    ignoreFailures = false
+    if (rootProject.hasProperty("checkstyle.ignoreFailures")) {
+        ignoreFailures = rootProject.properties["checkstyle.ignoreFailures"].toBoolean()
+    }
+    configProperties["rootDir"] = rootDir
+}
+
+// Disable checkstyle if no java8.
+checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
+checkstyleTest.enabled = JavaVersion.current().isJava8Compatible()
+
+// Google formatter works only on java8.
+if (JavaVersion.current().isJava8Compatible()) {
+    googleJavaFormat {
+        toolVersion '1.5'
+    }
+}
+
+signing {
+    required false
+    sign configurations.archives
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+// At a test failure, log the stack trace to the console so that we don't
+// have to open the HTML in a browser.
+test {
+    testLogging {
+        exceptionFormat = 'full'
+        showExceptions true
+        showCauses true
+        showStackTraces true
+    }
+    maxHeapSize = '1500m'
+}
+
 tasks.withType(JavaCompile) {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
 }
 
 dependencies {
-    compile project(':opencensus-api'),
-            project(':opencensus-contrib-zpages'),
-            project(':opencensus-exporter-trace-logging')
+    compile "io.opencensus:opencensus-api:${opencensusVersion}",
+            "io.opencensus:opencensus-contrib-zpages:${opencensusVersion}",
+            "io.opencensus:opencensus-exporter-trace-logging:${opencensusVersion}"
 
-    runtime project(':opencensus-impl')
+    runtime "io.opencensus:opencensus-impl:${opencensusVersion}"
 }
 
 // Provide convenience executables for trying out the examples.
