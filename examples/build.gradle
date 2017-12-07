@@ -9,7 +9,6 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
         classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.6"
     }
 }
@@ -17,10 +16,8 @@ buildscript {
 apply plugin: "checkstyle"
 apply plugin: 'idea'
 apply plugin: 'java'
-apply plugin: 'findbugs'
 // Plugins that require java8
 if (JavaVersion.current().isJava8Compatible()) {
-    apply plugin: "net.ltgt.errorprone"
     apply plugin: 'com.github.sherter.google-java-format'
 }
 
@@ -32,62 +29,7 @@ repositories {
 group = "io.opencensus"
 version = "0.11.0-SNAPSHOT"
 
-compileJava {
-    // We suppress the "processing" warning as suggested in
-    // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
-    it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
-    if (JavaVersion.current().isJava8Compatible()) {
-        it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
-        // TODO(bdrutu): Read files directly instead of reading from properties.
-        if (rootProject.hasProperty("errorProneWarnings")) {
-            it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
-                it as String
-            }
-        }
-        if (rootProject.hasProperty("errorProneExperimentalErrors")) {
-            it.options.compilerArgs += rootProject.properties["errorProneExperimentalErrors"].split(',').collect {
-                it as String
-            }
-        }
-        if (rootProject.hasProperty("errorProneExperimentalWarnings")) {
-            it.options.compilerArgs += rootProject.properties["errorProneExperimentalWarnings"].split(',').collect {
-                it as String
-            }
-        }
-        if (rootProject.hasProperty("errorProneExperimentalSuggestions")) {
-            it.options.compilerArgs += rootProject.properties["errorProneExperimentalSuggestions"].split(',').collect {
-                it as String
-            }
-        }
-    }
-    it.options.encoding = "UTF-8"
-    // TODO(bdrutu): Enable when fix the issue with configuring bootstrap class.
-    // [options] bootstrap class path not set in conjunction with -source 1.6
-    if (JavaVersion.current().isJava8Compatible()) {
-        it.options.compilerArgs += ["-Werror"]
-    }
-}
-
-ext {
-    findBugsVersion = '3.0.1'
-}
-
-findbugs {
-    toolVersion = findBugsVersion
-    ignoreFailures = false   // bug free or it doesn't ship!
-    effort = 'max'
-    reportLevel = 'low'      // low = sensitive to even minor mistakes
-    omitVisitors = []        // bugs that we want to ignore
-}
-// Generate html report for findbugs.
-findbugsMain {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
-}
-// Disable findbugs for tests.
-findbugsTest.enabled = false
+def opencensusVersion = "0.10.1" // LATEST_OPENCENSUS_RELEASE_VERSION
 
 checkstyle {
     configFile = file("$rootDir/../buildscripts/checkstyle.xml")
@@ -116,11 +58,11 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    compile "io.opencensus:opencensus-api:${version}",
-            "io.opencensus:opencensus-contrib-zpages:${version}",
-            "io.opencensus:opencensus-exporter-trace-logging:${version}"
+    compile "io.opencensus:opencensus-api:${opencensusVersion}",
+            "io.opencensus:opencensus-contrib-zpages:${opencensusVersion}",
+            "io.opencensus:opencensus-exporter-trace-logging:${opencensusVersion}"
 
-    runtime "io.opencensus:opencensus-impl:${version}"
+    runtime "io.opencensus:opencensus-impl:${opencensusVersion}"
 }
 
 // Provide convenience executables for trying out the examples.
