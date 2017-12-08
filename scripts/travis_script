@@ -21,7 +21,7 @@ case "$TASK" in
             ./gradlew clean assemble --stacktrace
             ./gradlew check :opencensus-all:jacocoTestReport
             ./gradlew verGJF
-            pushd examples && ./gradlew clean assemble verGJF --stacktrace && popd
+            pushd examples && ./gradlew clean assemble --stacktrace && popd
             ;;
           "openjdk7")
             # "./gradlew classes testClasses" is a workaround for
