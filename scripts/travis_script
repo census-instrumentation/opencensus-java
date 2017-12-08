@@ -42,10 +42,7 @@ case "$TASK" in
         # https://docs.travis-ci.com/user/reference/osx/#JDK-and-OS-X
         ./gradlew clean assemble --stacktrace
         ./gradlew check
-        java_version=`java -version 2>&1 | awk -F '"' '/version/ {print $2}'`
-        if [[ ! "$java_version" < "1.8" ]]; then
-          pushd examples && ./gradlew clean assemble check --stacktrace && popd
-        fi
+        pushd examples && ./gradlew clean assemble check --stacktrace && popd
         ;;
       *)
         echo "Unknown OS name $TRAVIS_OS_NAME"
