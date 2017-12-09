@@ -1,0 +1,61 @@
+load("//:opencensus_workspace.bzl", "opencensus_java_libraries")
+opencensus_java_libraries()
+
+java_library(
+    name = "examples",
+    srcs = glob(
+        ["src/main/java/**/*.java"]
+    ),
+    deps = [
+        "@io_opencensus_opencensus_api//jar",
+        "@io_opencensus_opencensus_contrib_zpages//jar",
+        "@io_opencensus_opencensus_exporter_trace_logging//jar",
+    ],
+    runtime_deps = [
+        "@com_google_guava_guava//jar",
+        "@com_lmax_disruptor//jar",
+        "@io_grpc_grpc_context//jar",
+        "@io_opencensus_opencensus_impl//jar",
+        "@io_opencensus_opencensus_impl_core//jar",
+    ],
+)
+
+java_binary(
+    name = "StatsRunner",
+    main_class = "io.opencensus.examples.stats.StatsRunner",
+    runtime_deps = [
+        ":examples",
+    ],
+)
+
+java_binary(
+    name = "MultiSpansTracing",
+    main_class = "io.opencensus.examples.trace.MultiSpansTracing",
+    runtime_deps = [
+        ":examples",
+    ],
+)
+
+java_binary(
+    name = "MultiSpansScopedTracing",
+    main_class = "io.opencensus.examples.trace.MultiSpansScopedTracing",
+    runtime_deps = [
+        ":examples",
+    ],
+)
+
+java_binary(
+    name = "MultiSpansContextTracing",
+    main_class = "io.opencensus.examples.trace.MultiSpansContextTracing",
+    runtime_deps = [
+        ":examples",
+    ],
+)
+
+java_binary(
+    name = "ZPagesTester",
+    main_class = "io.opencensus.examples.zpages.ZPagesTester",
+    runtime_deps = [
+        ":examples",
+    ],
+)
