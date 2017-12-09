@@ -117,7 +117,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS,
           TraceParams.DEFAULT.getMaxNumberOfAnnotations(),
           QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS,
-          TraceParams.DEFAULT.getMaxNumberOfNetworkEvents(),
+          TraceParams.DEFAULT.getMaxNumberOfMessageEvents(),
           QUERY_COMPONENT_MAX_NUMBER_OF_LINKS,
           TraceParams.DEFAULT.getMaxNumberOfLinks());
       out.write("<br>\n");
@@ -154,7 +154,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS);
       if (!isNullOrEmpty(maxNumberOfNetworkEventsStr)) {
         int maxNumberOfNetworkEvents = Integer.parseInt(maxNumberOfNetworkEventsStr);
-        traceParamsBuilder.setMaxNumberOfNetworkEvents(maxNumberOfNetworkEvents);
+        traceParamsBuilder.setMaxNumberOfMessageEvents(maxNumberOfNetworkEvents);
       }
       String maxNumverOfLinksStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS);
       if (!isNullOrEmpty(maxNumverOfLinksStr)) {
@@ -187,7 +187,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         params.getMaxNumberOfAnnotations());
     out.printf(
         "  <tr>%n    <td>MaxNumberOfNetworkEvents</td>%n    <td>%d</td>%n  </tr>%n",
-        params.getMaxNumberOfNetworkEvents());
+        params.getMaxNumberOfMessageEvents());
     out.printf(
         "  <tr>%n    <td>MaxNumberOfLinks</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfLinks());

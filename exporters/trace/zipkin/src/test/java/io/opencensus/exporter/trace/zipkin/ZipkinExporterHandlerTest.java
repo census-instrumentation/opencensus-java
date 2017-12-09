@@ -24,8 +24,8 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
-import io.opencensus.trace.NetworkEvent.Type;
+import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -58,14 +58,14 @@ public class ZipkinExporterHandlerTest {
     String parentId = "8b03ab423da481c5";
     Map<String, AttributeValue> attributes = Collections.emptyMap();
     List<TimedEvent<Annotation>> annotations = Collections.emptyList();
-    List<TimedEvent<NetworkEvent>> networkEvents =
+    List<TimedEvent<MessageEvent>> networkEvents =
         ImmutableList.of(
             TimedEvent.create(
                 Timestamp.create(1505855799, 433901068),
-                NetworkEvent.builder(Type.RECV, 0).setCompressedMessageSize(7).build()),
+                MessageEvent.builder(Type.RECEIVED, 0).setCompressedMessageSize(7).build()),
             TimedEvent.create(
                 Timestamp.create(1505855799, 459486280),
-                NetworkEvent.builder(Type.SENT, 0).setCompressedMessageSize(13).build()));
+                MessageEvent.builder(Type.SENT, 0).setCompressedMessageSize(13).build()));
     SpanData data =
         SpanData.create(
             SpanContext.create(
@@ -100,7 +100,7 @@ public class ZipkinExporterHandlerTest {
                     (1505855799000000L + 465726528L / 1000)
                         - (1505855794000000L + 194009601L / 1000))
                 .localEndpoint(localEndpoint)
-                .addAnnotation(1505855799000000L + 433901068L / 1000, "RECV")
+                .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
                 .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
                 .putTag("census.status_code", "OK")
                 .build());

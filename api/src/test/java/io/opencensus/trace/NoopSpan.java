@@ -45,6 +45,9 @@ public class NoopSpan extends Span {
   public void addNetworkEvent(NetworkEvent networkEvent) {}
 
   @Override
+  public void addMessageEvent(MessageEvent messageEvent) {}
+
+  @Override
   public void addLink(Link link) {}
 
   @Override

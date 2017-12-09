@@ -32,6 +32,7 @@ public class TraceParamsTest {
     assertThat(TraceParams.DEFAULT.getMaxNumberOfAttributes()).isEqualTo(32);
     assertThat(TraceParams.DEFAULT.getMaxNumberOfAnnotations()).isEqualTo(32);
     assertThat(TraceParams.DEFAULT.getMaxNumberOfNetworkEvents()).isEqualTo(128);
+    assertThat(TraceParams.DEFAULT.getMaxNumberOfMessageEvents()).isEqualTo(128);
     assertThat(TraceParams.DEFAULT.getMaxNumberOfLinks()).isEqualTo(128);
   }
 
@@ -56,6 +57,11 @@ public class TraceParamsTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void updateTraceParams_NonPositiveMaxNumberOfMessageEvents() {
+    TraceParams.DEFAULT.toBuilder().setMaxNumberOfMessageEvents(0).build();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void updateTraceParams_NonPositiveMaxNumberOfLinks() {
     TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(0).build();
   }
@@ -68,13 +74,22 @@ public class TraceParamsTest {
             .setSampler(Samplers.alwaysSample())
             .setMaxNumberOfAttributes(8)
             .setMaxNumberOfAnnotations(9)
-            .setMaxNumberOfNetworkEvents(10)
+            .setMaxNumberOfMessageEvents(10)
             .setMaxNumberOfLinks(11)
             .build();
     assertThat(traceParams.getSampler()).isEqualTo(Samplers.alwaysSample());
     assertThat(traceParams.getMaxNumberOfAttributes()).isEqualTo(8);
     assertThat(traceParams.getMaxNumberOfAnnotations()).isEqualTo(9);
     assertThat(traceParams.getMaxNumberOfNetworkEvents()).isEqualTo(10);
+    assertThat(traceParams.getMaxNumberOfMessageEvents()).isEqualTo(10);
     assertThat(traceParams.getMaxNumberOfLinks()).isEqualTo(11);
+  }
+
+  @Test
+  public void updateTraceParams_maxNumberOfNetworkEvents() {
+    TraceParams traceParams =
+        TraceParams.DEFAULT.toBuilder().setMaxNumberOfNetworkEvents(10).build();
+    assertThat(traceParams.getMaxNumberOfNetworkEvents()).isEqualTo(10);
+    assertThat(traceParams.getMaxNumberOfMessageEvents()).isEqualTo(10);
   }
 }

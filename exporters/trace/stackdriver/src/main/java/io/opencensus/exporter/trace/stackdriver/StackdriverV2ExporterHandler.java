@@ -31,7 +31,6 @@ import com.google.devtools.cloudtrace.v2.Span.Attributes;
 import com.google.devtools.cloudtrace.v2.Span.Link;
 import com.google.devtools.cloudtrace.v2.Span.Links;
 import com.google.devtools.cloudtrace.v2.Span.TimeEvent;
-import com.google.devtools.cloudtrace.v2.Span.TimeEvent.MessageEvent;
 import com.google.devtools.cloudtrace.v2.SpanName;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.Int32Value;
@@ -42,8 +41,8 @@ import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
-import io.opencensus.trace.NetworkEvent;
-import io.opencensus.trace.NetworkEvent.Type;
+import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -154,15 +153,15 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   private static Span.TimeEvents toTimeEventsProto(
       TimedEvents<Annotation> annotationTimedEvents,
-      TimedEvents<NetworkEvent> networkEventTimedEvents) {
+      TimedEvents<MessageEvent> messageEventTimedEvents) {
     Span.TimeEvents.Builder timeEventsBuilder = Span.TimeEvents.newBuilder();
     timeEventsBuilder.setDroppedAnnotationsCount(annotationTimedEvents.getDroppedEventsCount());
     for (TimedEvent<Annotation> annotation : annotationTimedEvents.getEvents()) {
       timeEventsBuilder.addTimeEvent(toTimeAnnotationProto(annotation));
     }
-    timeEventsBuilder.setDroppedMessageEventsCount(networkEventTimedEvents.getDroppedEventsCount());
-    for (TimedEvent<NetworkEvent> networkEvent : networkEventTimedEvents.getEvents()) {
-      timeEventsBuilder.addTimeEvent(toTimeMessageEventProto(networkEvent));
+    timeEventsBuilder.setDroppedMessageEventsCount(messageEventTimedEvents.getDroppedEventsCount());
+    for (TimedEvent<MessageEvent> messageEvent : messageEventTimedEvents.getEvents()) {
+      timeEventsBuilder.addTimeEvent(toTimeMessageEventProto(messageEvent));
     }
     return timeEventsBuilder.build();
   }
@@ -179,25 +178,25 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     return timeEventBuilder.build();
   }
 
-  private static TimeEvent toTimeMessageEventProto(TimedEvent<NetworkEvent> timedEvent) {
+  private static TimeEvent toTimeMessageEventProto(TimedEvent<MessageEvent> timedEvent) {
     TimeEvent.Builder timeEventBuilder =
         TimeEvent.newBuilder().setTime(toTimestampProto(timedEvent.getTimestamp()));
-    NetworkEvent networkEvent = timedEvent.getEvent();
+    MessageEvent messageEvent = timedEvent.getEvent();
     timeEventBuilder.setMessageEvent(
         TimeEvent.MessageEvent.newBuilder()
-            .setId(networkEvent.getMessageId())
-            .setCompressedSizeBytes(networkEvent.getCompressedMessageSize())
-            .setUncompressedSizeBytes(networkEvent.getUncompressedMessageSize())
-            .setType(toMessageEventTypeProto(networkEvent))
+            .setId(messageEvent.getMessageId())
+            .setCompressedSizeBytes(messageEvent.getCompressedMessageSize())
+            .setUncompressedSizeBytes(messageEvent.getUncompressedMessageSize())
+            .setType(toMessageEventTypeProto(messageEvent))
             .build());
     return timeEventBuilder.build();
   }
 
-  private static TimeEvent.MessageEvent.Type toMessageEventTypeProto(NetworkEvent networkEvent) {
-    if (networkEvent.getType() == Type.RECV) {
-      return MessageEvent.Type.RECEIVED;
+  private static TimeEvent.MessageEvent.Type toMessageEventTypeProto(MessageEvent messageEvent) {
+    if (messageEvent.getType() == Type.RECEIVED) {
+      return TimeEvent.MessageEvent.Type.RECEIVED;
     } else {
-      return MessageEvent.Type.SENT;
+      return TimeEvent.MessageEvent.Type.SENT;
     }
   }
 

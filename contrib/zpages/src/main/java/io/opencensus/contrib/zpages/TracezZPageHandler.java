@@ -27,8 +27,8 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.NetworkEvent;
-import io.opencensus.trace.NetworkEvent.Type;
+import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -320,9 +320,9 @@ final class TracezZPageHandler extends ZPageHandler {
 
     Timestamp lastTimestampNanos = span.getStartTimestamp();
     TimedEvents<Annotation> annotations = span.getAnnotations();
-    TimedEvents<NetworkEvent> networkEvents = span.getNetworkEvents();
+    TimedEvents<MessageEvent> messageEvents = span.getMessageEvents();
     List<TimedEvent<?>> timedEvents = new ArrayList<TimedEvent<?>>(annotations.getEvents());
-    timedEvents.addAll(networkEvents.getEvents());
+    timedEvents.addAll(messageEvents.getEvents());
     Collections.sort(timedEvents, new TimedEventComparator());
     for (TimedEvent<?> event : timedEvents) {
       // Special printing so that durations smaller than one second
@@ -371,7 +371,6 @@ final class TracezZPageHandler extends ZPageHandler {
                   event.getEvent() instanceof Annotation
                       ? renderAnnotation((Annotation) event.getEvent())
                       : renderNetworkEvents((NetworkEvent) castNonNull(event.getEvent()))));
-
       lastTimestampNanos = event.getTimestamp();
     }
     Status status = span.getStatus();
@@ -576,21 +575,21 @@ final class TracezZPageHandler extends ZPageHandler {
     throw new IllegalArgumentException("No value string available for: " + latencyBucketBoundaries);
   }
 
-  private static String renderNetworkEvents(NetworkEvent networkEvent) {
+  private static String renderMessageEvents(MessageEvent messageEvent) {
     StringBuilder stringBuilder = new StringBuilder();
-    if (networkEvent.getType() == Type.RECV) {
+    if (messageEvent.getType() == Type.RECEIVED) {
       stringBuilder.append("Received message");
-    } else if (networkEvent.getType() == Type.SENT) {
+    } else if (messageEvent.getType() == Type.SENT) {
       stringBuilder.append("Sent message");
     } else {
       stringBuilder.append("Unknown");
     }
     stringBuilder.append(" id=");
-    stringBuilder.append(networkEvent.getMessageId());
+    stringBuilder.append(messageEvent.getMessageId());
     stringBuilder.append(" uncompressed_size=");
-    stringBuilder.append(networkEvent.getUncompressedMessageSize());
+    stringBuilder.append(messageEvent.getUncompressedMessageSize());
     stringBuilder.append(" compressed_size=");
-    stringBuilder.append(networkEvent.getCompressedMessageSize());
+    stringBuilder.append(messageEvent.getCompressedMessageSize());
     return stringBuilder.toString();
   }
 

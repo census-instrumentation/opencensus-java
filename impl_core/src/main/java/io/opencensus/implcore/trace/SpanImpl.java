@@ -29,7 +29,7 @@ import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -253,7 +253,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           CheckerFrameworkUtils.castNonNull(timestampConverter).convertNanoTime(startNanoTime),
           attributesSpanData,
           annotationsSpanData,
-          networkEventsSpanData,
+          messageEventsSpanData,
           linksSpanData,
           null, // Not supported yet.
           hasBeenEnded ? getStatusWithDefault() : null,
@@ -327,19 +327,19 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
-  public void addNetworkEvent(NetworkEvent networkEvent) {
+  public void addMessageEvent(MessageEvent messageEvent) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling addNetworkEvent() on an ended Span.");
+        logger.log(Level.FINE, "Calling addMessageEvent() on an ended Span.");
         return;
       }
-      getInitializedNetworkEvents()
+      getInitializedMessageEvents()
           .addEvent(
-              new EventWithNanoTime<NetworkEvent>(
-                  clock.nowNanos(), checkNotNull(networkEvent, "networkEvent")));
+              new EventWithNanoTime<MessageEvent>(
+                  clock.nowNanos(), checkNotNull(messageEvent, "messageEvent")));
     }
   }
 
@@ -409,13 +409,13 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @GuardedBy("this")
-  private TraceEvents<EventWithNanoTime<NetworkEvent>> getInitializedNetworkEvents() {
-    if (networkEvents == null) {
-      networkEvents =
-          new TraceEvents<EventWithNanoTime<NetworkEvent>>(
-              traceParams.getMaxNumberOfNetworkEvents());
+  private TraceEvents<EventWithNanoTime<MessageEvent>> getInitializedMessageEvents() {
+    if (messageEvents == null) {
+      messageEvents =
+          new TraceEvents<EventWithNanoTime<MessageEvent>>(
+              traceParams.getMaxNumberOfMessageEvents());
     }
-    return networkEvents;
+    return messageEvents;
   }
 
   @GuardedBy("this")

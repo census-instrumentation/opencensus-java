@@ -24,6 +24,7 @@ import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Link.Type;
+import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -60,6 +61,10 @@ public class SpanDataTest {
       NetworkEvent.builder(NetworkEvent.Type.RECV, 1).build();
   private static final NetworkEvent sentNetworkEvent =
       NetworkEvent.builder(NetworkEvent.Type.SENT, 1).build();
+  private static final MessageEvent recvMessageEvent =
+      MessageEvent.builder(MessageEvent.Type.RECEIVED, 1).build();
+  private static final MessageEvent sentMessageEvent =
+      MessageEvent.builder(MessageEvent.Type.SENT, 1).build();
   private static final Status status = Status.DEADLINE_EXCEEDED.withDescription("TooSlow");
   private static final int CHILD_SPAN_COUNT = 13;
   private final Random random = new Random(1234);
@@ -72,11 +77,14 @@ public class SpanDataTest {
       new ArrayList<TimedEvent<Annotation>>();
   private final List<TimedEvent<NetworkEvent>> networkEventsList =
       new ArrayList<SpanData.TimedEvent<NetworkEvent>>();
+  private final List<TimedEvent<MessageEvent>> messageEventsList =
+      new ArrayList<SpanData.TimedEvent<MessageEvent>>();
   private final List<Link> linksList = new ArrayList<Link>();
 
   private Attributes attributes;
   private TimedEvents<Annotation> annotations;
   private TimedEvents<NetworkEvent> networkEvents;
+  private TimedEvents<MessageEvent> messageEvents;
   private Links links;
 
   @Before
@@ -90,6 +98,9 @@ public class SpanDataTest {
     networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp1, recvNetworkEvent));
     networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp2, sentNetworkEvent));
     networkEvents = TimedEvents.create(networkEventsList, 3);
+    messageEventsList.add(SpanData.TimedEvent.create(eventTimestamp1, recvMessageEvent));
+    messageEventsList.add(SpanData.TimedEvent.create(eventTimestamp2, sentMessageEvent));
+    messageEvents = TimedEvents.create(messageEventsList, 3);
     linksList.add(Link.fromSpanContext(spanContext, Type.CHILD_LINKED_SPAN));
     links = Links.create(linksList, 0);
   }
@@ -105,7 +116,7 @@ public class SpanDataTest {
             startTimestamp,
             attributes,
             annotations,
-            networkEvents,
+            messageEvents,
             links,
             CHILD_SPAN_COUNT,
             status,
@@ -118,6 +129,7 @@ public class SpanDataTest {
     assertThat(spanData.getAttributes()).isEqualTo(attributes);
     assertThat(spanData.getAnnotations()).isEqualTo(annotations);
     assertThat(spanData.getNetworkEvents()).isEqualTo(networkEvents);
+    assertThat(spanData.getMessageEvents()).isEqualTo(messageEvents);
     assertThat(spanData.getLinks()).isEqualTo(links);
     assertThat(spanData.getChildSpanCount()).isEqualTo(CHILD_SPAN_COUNT);
     assertThat(spanData.getStatus()).isEqualTo(status);
@@ -135,7 +147,7 @@ public class SpanDataTest {
             startTimestamp,
             attributes,
             annotations,
-            networkEvents,
+            messageEvents,
             links,
             null,
             null,
@@ -148,6 +160,7 @@ public class SpanDataTest {
     assertThat(spanData.getAttributes()).isEqualTo(attributes);
     assertThat(spanData.getAnnotations()).isEqualTo(annotations);
     assertThat(spanData.getNetworkEvents()).isEqualTo(networkEvents);
+    assertThat(spanData.getMessageEvents()).isEqualTo(messageEvents);
     assertThat(spanData.getLinks()).isEqualTo(links);
     assertThat(spanData.getChildSpanCount()).isNull();
     assertThat(spanData.getStatus()).isNull();
@@ -165,7 +178,7 @@ public class SpanDataTest {
             startTimestamp,
             Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
             TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
-            TimedEvents.create(Collections.<SpanData.TimedEvent<NetworkEvent>>emptyList(), 0),
+            TimedEvents.create(Collections.<SpanData.TimedEvent<MessageEvent>>emptyList(), 0),
             Links.create(Collections.<Link>emptyList(), 0),
             0,
             status,
@@ -178,6 +191,7 @@ public class SpanDataTest {
     assertThat(spanData.getAttributes().getAttributeMap().isEmpty()).isTrue();
     assertThat(spanData.getAnnotations().getEvents().isEmpty()).isTrue();
     assertThat(spanData.getNetworkEvents().getEvents().isEmpty()).isTrue();
+    assertThat(spanData.getMessageEvents().getEvents().isEmpty()).isTrue();
     assertThat(spanData.getLinks().getLinks().isEmpty()).isTrue();
     assertThat(spanData.getChildSpanCount()).isEqualTo(0);
     assertThat(spanData.getStatus()).isEqualTo(status);
@@ -195,7 +209,7 @@ public class SpanDataTest {
             startTimestamp,
             attributes,
             annotations,
-            networkEvents,
+            messageEvents,
             links,
             CHILD_SPAN_COUNT,
             status,
@@ -209,7 +223,7 @@ public class SpanDataTest {
             startTimestamp,
             attributes,
             annotations,
-            networkEvents,
+            messageEvents,
             links,
             CHILD_SPAN_COUNT,
             status,
@@ -223,7 +237,7 @@ public class SpanDataTest {
             startTimestamp,
             Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
             TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
-            TimedEvents.create(Collections.<SpanData.TimedEvent<NetworkEvent>>emptyList(), 0),
+            TimedEvents.create(Collections.<SpanData.TimedEvent<MessageEvent>>emptyList(), 0),
             Links.create(Collections.<Link>emptyList(), 0),
             0,
             status,
@@ -245,7 +259,7 @@ public class SpanDataTest {
                 startTimestamp,
                 attributes,
                 annotations,
-                networkEvents,
+                messageEvents,
                 links,
                 CHILD_SPAN_COUNT,
                 status,
@@ -257,7 +271,7 @@ public class SpanDataTest {
     assertThat(spanDataString).contains(startTimestamp.toString());
     assertThat(spanDataString).contains(attributes.toString());
     assertThat(spanDataString).contains(annotations.toString());
-    assertThat(spanDataString).contains(networkEvents.toString());
+    assertThat(spanDataString).contains(messageEvents.toString());
     assertThat(spanDataString).contains(links.toString());
     assertThat(spanDataString).contains(status.toString());
     assertThat(spanDataString).contains(endTimestamp.toString());

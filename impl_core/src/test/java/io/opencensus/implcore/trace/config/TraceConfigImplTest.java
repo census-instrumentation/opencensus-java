@@ -42,7 +42,7 @@ public class TraceConfigImplTest {
             .setSampler(Samplers.alwaysSample())
             .setMaxNumberOfAttributes(8)
             .setMaxNumberOfAnnotations(9)
-            .setMaxNumberOfNetworkEvents(10)
+            .setMaxNumberOfMessageEvents(10)
             .setMaxNumberOfLinks(11)
             .build();
     traceConfig.updateActiveTraceParams(traceParams);

@@ -26,7 +26,7 @@ import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -145,9 +145,9 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
           toEpochMicros(annotation.getTimestamp()), annotation.getEvent().getDescription());
     }
 
-    for (TimedEvent<NetworkEvent> networkEvent : spanData.getNetworkEvents().getEvents()) {
+    for (TimedEvent<MessageEvent> messageEvent : spanData.getMessageEvents().getEvents()) {
       spanBuilder.addAnnotation(
-          toEpochMicros(networkEvent.getTimestamp()), networkEvent.getEvent().getType().name());
+          toEpochMicros(messageEvent.getTimestamp()), messageEvent.getEvent().getType().name());
     }
 
     return spanBuilder.build();

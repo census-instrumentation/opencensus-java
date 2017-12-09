@@ -23,6 +23,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
+import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
@@ -64,7 +65,7 @@ public abstract class SpanData {
    * @param startTimestamp the start {@code Timestamp} of the {@code Span}.
    * @param attributes the attributes associated with the {@code Span}.
    * @param annotations the annotations associated with the {@code Span}.
-   * @param networkEvents the network events associated with the {@code Span}.
+   * @param messageEvents the message events associated with the {@code Span}.
    * @param links the links associated with the {@code Span}.
    * @param childSpanCount the number of child spans that were generated while the span was active.
    * @param status the {@code Status} of the {@code Span}. {@code null} if the {@code Span} is still
@@ -82,7 +83,7 @@ public abstract class SpanData {
       Timestamp startTimestamp,
       Attributes attributes,
       TimedEvents<Annotation> annotations,
-      TimedEvents<NetworkEvent> networkEvents,
+      TimedEvents<MessageEvent> messageEvents,
       Links links,
       @Nullable Integer childSpanCount,
       @Nullable Status status,
@@ -95,7 +96,7 @@ public abstract class SpanData {
         startTimestamp,
         attributes,
         annotations,
-        networkEvents,
+        messageEvents,
         links,
         childSpanCount,
         status,
@@ -167,9 +168,33 @@ public abstract class SpanData {
    * Returns network events recorded for this {@code Span}.
    *
    * @return network events recorded for this {@code Span}.
+   *
+   * @deprecated Use {@link #getMessageEvents}. This method will make a copy of internal list {@code
+   *     TimedEvents<MessageEvent>} and might be less efficient.
    * @since 0.5
    */
-  public abstract TimedEvents<NetworkEvent> getNetworkEvents();
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public TimedEvents<NetworkEvent> getNetworkEvents() {
+    TimedEvents<MessageEvent> messageEvents = getMessageEvents();
+    List<TimedEvent<NetworkEvent>> networkEventsList =
+        new ArrayList<TimedEvent<NetworkEvent>>(messageEvents.getEvents().size());
+    for (TimedEvent<MessageEvent> messageEvent : messageEvents.getEvents()) {
+      networkEventsList.add(
+          TimedEvent.<NetworkEvent>create(
+              messageEvent.getTimestamp(), NetworkEvent.fromMessageEvent(messageEvent.getEvent())));
+    }
+    TimedEvents<NetworkEvent> networkEvents =
+        TimedEvents.<NetworkEvent>create(networkEventsList, messageEvents.getDroppedEventsCount());
+    return networkEvents;
+  }
+
+  /**
+   * Returns network events recorded for this {@code Span}.
+   *
+   * @return network events recorded for this {@code Span}.
+   */
+  public abstract TimedEvents<MessageEvent> getMessageEvents();
 
   /**
    * Returns links recorded for this {@code Span}.

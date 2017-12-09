@@ -159,9 +159,21 @@ public abstract class Span {
    * higher level applications.
    *
    * @param networkEvent the network event to add.
+   * @deprecated Use {@link #addMessageEvent} for higher level applications.
    * @since 0.5
    */
-  public abstract void addNetworkEvent(NetworkEvent networkEvent);
+  @Deprecated
+  public void addNetworkEvent(NetworkEvent networkEvent) {
+    addMessageEvent(networkEvent.getMessageEvent());
+  }
+
+  /**
+   * Adds a MessageEvent to the {@code Span}.
+   *
+   * @param messageEvent the message to add.
+   * @since 0.10.0
+   */
+  public abstract void addMessageEvent(MessageEvent messageEvent);
 
   /**
    * Adds a {@link Link} to the {@code Span}.
