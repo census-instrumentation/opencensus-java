@@ -31,8 +31,26 @@ public class StackdriverStatsExporterTest {
 
   private static final String PROJECT_ID = "projectId";
   private static final Duration ONE_SECOND = Duration.create(1, 0);
+  private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
+  private static final StackdriverConfiguration DEFAULT_CONFIGURATION =
+      StackdriverConfiguration.builder().build();
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void createWithNullStackdriverConfiguration() throws IOException {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("configuration");
+    StackdriverStatsExporter.createAndRegisterWithConfiguration(null);
+  }
+
+  @Test
+  public void createWithNegativeDuration_WithConfiguration() throws IOException {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Duration must be positive");
+    StackdriverStatsExporter.createAndRegisterWithConfiguration(
+        StackdriverConfiguration.builder().setExportInterval(NEG_ONE_SECOND).build());
+  }
 
   @Test
   public void createWithNullCredentials() throws IOException {
@@ -63,18 +81,16 @@ public class StackdriverStatsExporterTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Duration must be positive");
     StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-        GoogleCredentials.newBuilder().build(), PROJECT_ID, Duration.create(-1, 0));
+        GoogleCredentials.newBuilder().build(), PROJECT_ID, NEG_ONE_SECOND);
   }
 
   @Test
   public void createExporterTwice() throws IOException {
-    StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-        GoogleCredentials.newBuilder().build(), PROJECT_ID, ONE_SECOND);
+    StackdriverStatsExporter.createAndRegisterWithConfiguration(DEFAULT_CONFIGURATION);
     try {
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Stackdriver stats exporter is already created.");
-      StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-          GoogleCredentials.newBuilder().build(), PROJECT_ID, ONE_SECOND);
+      StackdriverStatsExporter.createAndRegisterWithConfiguration(DEFAULT_CONFIGURATION);
     } finally {
       StackdriverStatsExporter.unsafeResetExporter();
     }

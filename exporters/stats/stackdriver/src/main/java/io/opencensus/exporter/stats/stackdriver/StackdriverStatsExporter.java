@@ -60,6 +60,7 @@ public final class StackdriverStatsExporter {
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);
+  private static final Duration DEFAUL_INTERVAL = Duration.create(60, 0);
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
 
@@ -144,7 +145,7 @@ public final class StackdriverStatsExporter {
    */
   public static void createAndRegister(Duration exportInterval) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval, null);
+    createInternal(null, null, exportInterval, null);
   }
 
   /**
@@ -194,16 +195,34 @@ public final class StackdriverStatsExporter {
       Duration exportInterval, MonitoredResource monitoredResource) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
-    createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval, monitoredResource);
+    createInternal(null, null, exportInterval, monitoredResource);
+  }
+
+  /**
+   * Creates a Stackdriver Stats exporter with a {@link StackdriverConfiguration}.
+   *
+   * @param configuration the {@code StackdriverConfiguration}.
+   */
+  public static void createAndRegisterWithConfiguration(StackdriverConfiguration configuration)
+      throws IOException {
+    checkNotNull(configuration, "configuration");
+    createInternal(
+        configuration.getCredentials(),
+        configuration.getProjectId(),
+        configuration.getExportInterval(),
+        configuration.getMonitoredResource());
   }
 
   // Use createInternal() (instead of constructor) to enforce singleton.
   private static void createInternal(
       @Nullable Credentials credentials,
-      String projectId,
-      Duration exportInterval,
+      @Nullable String projectId,
+      @Nullable Duration exportInterval,
       @Nullable MonitoredResource monitoredResource)
       throws IOException {
+    projectId = projectId == null ? ServiceOptions.getDefaultProjectId() : projectId;
+    exportInterval = exportInterval == null ? DEFAUL_INTERVAL : exportInterval;
+    monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
       MetricServiceClient metricServiceClient;
@@ -216,9 +235,6 @@ public final class StackdriverStatsExporter {
                 MetricServiceSettings.newBuilder()
                     .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
                     .build());
-      }
-      if (monitoredResource == null) {
-        monitoredResource = DEFAULT_RESOURCE;
       }
       exporter =
           new StackdriverStatsExporter(
