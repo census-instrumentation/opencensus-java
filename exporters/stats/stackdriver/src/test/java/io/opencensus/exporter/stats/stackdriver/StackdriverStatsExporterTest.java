@@ -59,7 +59,7 @@ public class StackdriverStatsExporterTest {
   public void createWithNullStackdriverStatsConfiguration() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("configuration");
-    StackdriverStatsExporter.createAndRegisterWithConfiguration(null);
+    StackdriverStatsExporter.createAndRegister((StackdriverStatsConfiguration) null);
   }
 
   @Test
@@ -71,7 +71,7 @@ public class StackdriverStatsExporterTest {
             .build();
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Duration must be positive");
-    StackdriverStatsExporter.createAndRegisterWithConfiguration(configuration);
+    StackdriverStatsExporter.createAndRegister(configuration);
   }
 
   @Test
@@ -112,11 +112,11 @@ public class StackdriverStatsExporterTest {
 
   @Test
   public void createExporterTwice() throws IOException {
-    StackdriverStatsExporter.createAndRegisterWithConfiguration(CONFIGURATION);
+    StackdriverStatsExporter.createAndRegister(CONFIGURATION);
     try {
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Stackdriver stats exporter is already created.");
-      StackdriverStatsExporter.createAndRegisterWithConfiguration(CONFIGURATION);
+      StackdriverStatsExporter.createAndRegister(CONFIGURATION);
     } finally {
       StackdriverStatsExporter.unsafeResetExporter();
     }
