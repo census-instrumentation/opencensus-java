@@ -19,6 +19,10 @@ matrix:
           # contrib/agent, but are not installed by default.
           - openjdk-6-jdk
 
+  - jdk: oraclejdk8
+    env: TASK=BUILD_EXAMPLES
+    os: linux
+
   - env: TASK=CHECK_GIT_HISTORY
     os: linux
 
