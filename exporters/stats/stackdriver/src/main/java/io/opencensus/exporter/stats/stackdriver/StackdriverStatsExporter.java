@@ -49,7 +49,7 @@ import javax.annotation.concurrent.GuardedBy;
  *             .builder()
  *             .setProjectId("MyStackdriverProjectId")
  *             .setExportInterval(Duration.fromMillis(100000))
- *             .builder());
+ *             .build());
  *     ... // Do work.
  *   }
  * </code></pre>
