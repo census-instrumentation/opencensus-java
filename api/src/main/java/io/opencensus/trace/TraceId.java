@@ -90,7 +90,8 @@ public final class TraceId implements Comparable<TraceId> {
    * @param src the lowercase base16 representation.
    * @return a {@code TraceId} built from a lowercase base16 representation.
    * @throws NullPointerException if {@code src} is null.
-   * @throws IllegalArgumentException if {@code buffer.length} is not {@code 2 * TraceId.SIZE}.
+   * @throws IllegalArgumentException if {@code src.length} is not {@code 2 * TraceId.SIZE} OR if
+   *     the {@code str} has invalid characters.
    */
   public static TraceId fromLowerBase16(String src) {
     checkArgument(

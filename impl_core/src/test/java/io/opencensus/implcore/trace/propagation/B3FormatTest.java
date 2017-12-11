@@ -51,9 +51,6 @@ public class B3FormatTest {
   private static final SpanId SPAN_ID = SpanId.fromLowerBase16(SPAN_ID_BASE16);
   private static final byte[] TRACE_OPTIONS_BYTES = new byte[] {1};
   private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromBytes(TRACE_OPTIONS_BYTES);
-  private static final byte[] NOT_SAMPLED_TRACE_OPTIONS_BYTES = new byte[] {0};
-  private static final TraceOptions NOT_SAMPLED_TRACE_OPTIONS =
-      TraceOptions.fromBytes(NOT_SAMPLED_TRACE_OPTIONS_BYTES);
   private final B3Format b3Format = new B3Format();
   @Rule public ExpectedException thrown = ExpectedException.none();
   private final Setter<Map<String, String>> setter =
@@ -74,34 +71,19 @@ public class B3FormatTest {
 
   @Test
   public void serialize_SampledContext() {
-    Map<String, String> headers = new HashMap<String, String>();
-    headers.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
-    headers.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
-    headers.put(X_B3_SAMPLED, "1");
     Map<String, String> carrier = new HashMap<String, String>();
     b3Format.inject(SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS), carrier, setter);
-    assertThat(carrier).isEqualTo(headers);
+    assertThat(carrier)
+        .containsExactly(
+            X_B3_TRACE_ID, TRACE_ID_BASE16, X_B3_SPAN_ID, SPAN_ID_BASE16, X_B3_SAMPLED, "1");
   }
 
   @Test
   public void serialize_NotSampledContext() {
-    Map<String, String> headers = new HashMap<String, String>();
-    headers.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
-    headers.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     Map<String, String> carrier = new HashMap<String, String>();
-    b3Format.inject(
-        SpanContext.create(TRACE_ID, SPAN_ID, NOT_SAMPLED_TRACE_OPTIONS), carrier, setter);
-    assertThat(carrier).isEqualTo(headers);
-  }
-
-  @Test
-  public void parseValidHeaders() throws SpanContextParseException {
-    Map<String, String> headers = new HashMap<String, String>();
-    headers.put(X_B3_TRACE_ID, TRACE_ID_BASE16);
-    headers.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
-    headers.put(X_B3_SAMPLED, "1");
-    assertThat(b3Format.extract(headers, getter))
-        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS));
+    b3Format.inject(SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT), carrier, setter);
+    assertThat(carrier)
+        .containsExactly(X_B3_TRACE_ID, TRACE_ID_BASE16, X_B3_SPAN_ID, SPAN_ID_BASE16);
   }
 
   @Test
@@ -130,7 +112,7 @@ public class B3FormatTest {
     headersNotSampled.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     headersNotSampled.put(X_B3_SAMPLED, "0");
     assertThat(b3Format.extract(headersNotSampled, getter))
-        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, NOT_SAMPLED_TRACE_OPTIONS));
+        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT));
   }
 
   @Test
@@ -150,7 +132,7 @@ public class B3FormatTest {
     headersFlagNotSampled.put(X_B3_SPAN_ID, SPAN_ID_BASE16);
     headersFlagNotSampled.put(X_B3_FLAGS, "0");
     assertThat(b3Format.extract(headersFlagNotSampled, getter))
-        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, NOT_SAMPLED_TRACE_OPTIONS));
+        .isEqualTo(SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT));
   }
 
   @Test
@@ -231,7 +213,7 @@ public class B3FormatTest {
   }
 
   @Test
-  public void fields_list() throws SpanContextParseException {
+  public void fields_list() {
     assertThat(b3Format.fields())
         .containsExactly(
             X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS);

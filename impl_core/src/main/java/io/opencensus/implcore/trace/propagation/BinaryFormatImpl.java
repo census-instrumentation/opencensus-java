@@ -18,7 +18,6 @@ package io.opencensus.implcore.trace.propagation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -60,8 +59,7 @@ import io.opencensus.trace.propagation.SpanContextParseException;
  *       </ul>
  * </ul>
  */
-@VisibleForTesting
-public final class BinaryFormatImpl extends BinaryFormat {
+final class BinaryFormatImpl extends BinaryFormat {
   private static final byte VERSION_ID = 0;
   private static final int VERSION_ID_OFFSET = 0;
   // The version_id/field_id size in bytes.

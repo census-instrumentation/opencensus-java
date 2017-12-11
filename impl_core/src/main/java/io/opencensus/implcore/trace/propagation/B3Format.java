@@ -44,9 +44,12 @@ final class B3Format extends TextFormat {
           Arrays.asList(
               X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS));
 
-  // Used as the upper 8-bytes of the traceId when a 8-bytes traceId is received.
+  // Used as the upper TraceId.SIZE hex characters of the traceID. B3-propagation used to send
+  // TraceId.SIZE hex characters (8-bytes traceId) in the past.
   private static final String UPPER_TRACE_ID = "0000000000000000";
+  // Sampled value via the X_B3_SAMPLED header.
   private static final String SAMPLED_VALUE = "1";
+  // "Debug" sampled value.
   private static final String FLAGS_VALUE = "1";
 
   @Override
@@ -58,6 +61,7 @@ final class B3Format extends TextFormat {
   public <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
     checkNotNull(spanContext, "spanContext");
     checkNotNull(setter, "setter");
+    checkNotNull(carrier, "carrier");
     setter.put(carrier, X_B3_TRACE_ID, spanContext.getTraceId().toLowerBase16());
     setter.put(carrier, X_B3_SPAN_ID, spanContext.getSpanId().toLowerBase16());
     if (spanContext.getTraceOptions().isSampled()) {
@@ -67,6 +71,7 @@ final class B3Format extends TextFormat {
 
   @Override
   public <C> SpanContext extract(C carrier, Getter<C> getter) throws SpanContextParseException {
+    checkNotNull(carrier, "carrier");
     checkNotNull(getter, "getter");
     try {
       TraceId traceId;
@@ -74,10 +79,9 @@ final class B3Format extends TextFormat {
       if (traceIdStr != null) {
         if (traceIdStr.length() == TraceId.SIZE) {
           // This is an 8-byte traceID.
-          traceId = TraceId.fromLowerBase16(UPPER_TRACE_ID + traceIdStr);
-        } else {
-          traceId = TraceId.fromLowerBase16(traceIdStr);
+          traceIdStr = UPPER_TRACE_ID + traceIdStr;
         }
+        traceId = TraceId.fromLowerBase16(traceIdStr);
       } else {
         throw new SpanContextParseException("Missing X_B3_TRACE_ID.");
       }
