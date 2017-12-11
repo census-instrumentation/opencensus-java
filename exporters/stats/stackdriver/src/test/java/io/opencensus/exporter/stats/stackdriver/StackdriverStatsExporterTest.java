@@ -19,9 +19,12 @@ package io.opencensus.exporter.stats.stackdriver;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.MonitoredResource;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import io.opencensus.common.Duration;
 import java.io.IOException;
+import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,8 +38,13 @@ public class StackdriverStatsExporterTest {
   private static final String PROJECT_ID = "projectId";
   private static final Duration ONE_SECOND = Duration.create(1, 0);
   private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
-  private static final StackdriverConfiguration DEFAULT_CONFIGURATION =
-      StackdriverConfiguration.builder().build();
+  private static final Credentials FAKE_CREDENTIALS =
+      GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
+  private static final StackdriverConfiguration CONFIGURATION =
+      StackdriverConfiguration.builder()
+          .setCredentials(FAKE_CREDENTIALS)
+          .setProjectId("project")
+          .build();
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -56,10 +64,14 @@ public class StackdriverStatsExporterTest {
 
   @Test
   public void createWithNegativeDuration_WithConfiguration() throws IOException {
+    StackdriverConfiguration configuration =
+        StackdriverConfiguration.builder()
+            .setCredentials(FAKE_CREDENTIALS)
+            .setExportInterval(NEG_ONE_SECOND)
+            .build();
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Duration must be positive");
-    StackdriverStatsExporter.createAndRegisterWithConfiguration(
-        StackdriverConfiguration.builder().setExportInterval(NEG_ONE_SECOND).build());
+    StackdriverStatsExporter.createAndRegisterWithConfiguration(configuration);
   }
 
   @Test
@@ -100,11 +112,11 @@ public class StackdriverStatsExporterTest {
 
   @Test
   public void createExporterTwice() throws IOException {
-    StackdriverStatsExporter.createAndRegisterWithConfiguration(DEFAULT_CONFIGURATION);
+    StackdriverStatsExporter.createAndRegisterWithConfiguration(CONFIGURATION);
     try {
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Stackdriver stats exporter is already created.");
-      StackdriverStatsExporter.createAndRegisterWithConfiguration(DEFAULT_CONFIGURATION);
+      StackdriverStatsExporter.createAndRegisterWithConfiguration(CONFIGURATION);
     } finally {
       StackdriverStatsExporter.unsafeResetExporter();
     }

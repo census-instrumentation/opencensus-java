@@ -19,7 +19,11 @@ package io.opencensus.exporter.stats.stackdriver;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.MonitoredResource;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.GoogleCredentials;
 import io.opencensus.common.Duration;
+import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +36,8 @@ public class StackdriverConfigurationTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
+  private static final Credentials FAKE_CREDENTIALS =
+      GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   private static final String PROJECT_ID = "project";
   private static final Duration DURATION = Duration.create(10, 0);
   private static final MonitoredResource RESOURCE =
@@ -42,12 +48,14 @@ public class StackdriverConfigurationTest {
 
   @Test
   public void testBuild() {
-    StackdriverConfiguration.Builder builder = StackdriverConfiguration.builder();
-    builder.setProjectId(PROJECT_ID);
-    builder.setExportInterval(DURATION);
-    builder.setMonitoredResource(RESOURCE);
-    StackdriverConfiguration configuration = builder.build();
-    assertThat(configuration.getCredentials()).isNull();
+    StackdriverConfiguration configuration =
+        StackdriverConfiguration.builder()
+            .setCredentials(FAKE_CREDENTIALS)
+            .setProjectId(PROJECT_ID)
+            .setExportInterval(DURATION)
+            .setMonitoredResource(RESOURCE)
+            .build();
+    assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
     assertThat(configuration.getExportInterval()).isEqualTo(DURATION);
     assertThat(configuration.getMonitoredResource()).isEqualTo(RESOURCE);
