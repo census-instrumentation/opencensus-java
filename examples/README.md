@@ -5,15 +5,16 @@
 ```
 $ ./gradlew installDist
 ```
+
 ## To run "StatsRunner" example use
 
 ```
-$ ./examples/build/install/examples/bin/StatsRunner
+$ ./build/install/examples/bin/StatsRunner
 ```
 
 ## To run "ZPagesTester"
 ```
-$ ./examples/build/install/examples/bin/ZPagesTester
+$ ./build/install/examples/bin/ZPagesTester
 ```
 
 Available pages:
