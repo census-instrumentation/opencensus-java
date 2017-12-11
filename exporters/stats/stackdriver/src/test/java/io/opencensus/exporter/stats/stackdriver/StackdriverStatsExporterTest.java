@@ -40,8 +40,8 @@ public class StackdriverStatsExporterTest {
   private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
   private static final Credentials FAKE_CREDENTIALS =
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
-  private static final StackdriverConfiguration CONFIGURATION =
-      StackdriverConfiguration.builder()
+  private static final StackdriverStatsConfiguration CONFIGURATION =
+      StackdriverStatsConfiguration.builder()
           .setCredentials(FAKE_CREDENTIALS)
           .setProjectId("project")
           .build();
@@ -50,13 +50,13 @@ public class StackdriverStatsExporterTest {
 
   @Test
   public void testConstants() {
-    assertThat(StackdriverStatsExporter.DEFAUL_INTERVAL).isEqualTo(Duration.create(60, 0));
+    assertThat(StackdriverStatsExporter.DEFAULT_INTERVAL).isEqualTo(Duration.create(60, 0));
     assertThat(StackdriverStatsExporter.DEFAULT_RESOURCE)
         .isEqualTo(MonitoredResource.newBuilder().setType("global").build());
   }
 
   @Test
-  public void createWithNullStackdriverConfiguration() throws IOException {
+  public void createWithNullStackdriverStatsConfiguration() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("configuration");
     StackdriverStatsExporter.createAndRegisterWithConfiguration(null);
@@ -64,8 +64,8 @@ public class StackdriverStatsExporterTest {
 
   @Test
   public void createWithNegativeDuration_WithConfiguration() throws IOException {
-    StackdriverConfiguration configuration =
-        StackdriverConfiguration.builder()
+    StackdriverStatsConfiguration configuration =
+        StackdriverStatsConfiguration.builder()
             .setCredentials(FAKE_CREDENTIALS)
             .setExportInterval(NEG_ONE_SECOND)
             .build();

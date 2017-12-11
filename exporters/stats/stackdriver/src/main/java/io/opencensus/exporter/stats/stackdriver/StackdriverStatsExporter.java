@@ -45,7 +45,7 @@ import javax.annotation.concurrent.GuardedBy;
  * <pre><code>
  *   public static void main(String[] args) {
  *     StackdriverStatsExporter.createAndRegisterWithConfiguration(
- *         StackdriverConfiguration
+ *         StackdriverStatsConfiguration
  *             .builder()
  *             .setProjectId("MyStackdriverProjectId")
  *             .setExportInterval(Duration.fromMillis(100000))
@@ -65,7 +65,7 @@ public final class StackdriverStatsExporter {
 
   private static final Duration ZERO = Duration.create(0, 0);
 
-  @VisibleForTesting static final Duration DEFAUL_INTERVAL = Duration.create(60, 0);
+  @VisibleForTesting static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
 
   @VisibleForTesting
   static final MonitoredResource DEFAULT_RESOURCE =
@@ -95,7 +95,8 @@ public final class StackdriverStatsExporter {
    * @param projectId the cloud project id.
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter already exists.
-   * @deprecated in favor of {@link #createAndRegisterWithConfiguration(StackdriverConfiguration)}.
+   * @deprecated in favor of {@link
+   *     #createAndRegisterWithConfiguration(StackdriverStatsConfiguration)}.
    */
   @Deprecated
   public static void createAndRegisterWithCredentialsAndProjectId(
@@ -125,7 +126,8 @@ public final class StackdriverStatsExporter {
    * @param projectId the cloud project id.
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
-   * @deprecated in favor of {@link #createAndRegisterWithConfiguration(StackdriverConfiguration)}.
+   * @deprecated in favor of {@link
+   *     #createAndRegisterWithConfiguration(StackdriverStatsConfiguration)}.
    */
   @Deprecated
   public static void createAndRegisterWithProjectId(String projectId, Duration exportInterval)
@@ -153,7 +155,8 @@ public final class StackdriverStatsExporter {
    *
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
-   * @deprecated in favor of {@link #createAndRegisterWithConfiguration(StackdriverConfiguration)}.
+   * @deprecated in favor of {@link
+   *     #createAndRegisterWithConfiguration(StackdriverStatsConfiguration)}.
    */
   @Deprecated
   public static void createAndRegister(Duration exportInterval) throws IOException {
@@ -177,7 +180,8 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
-   * @deprecated in favor of {@link #createAndRegisterWithConfiguration(StackdriverConfiguration)}.
+   * @deprecated in favor of {@link
+   *     #createAndRegisterWithConfiguration(StackdriverStatsConfiguration)}.
    */
   @Deprecated
   public static void createAndRegisterWithProjectIdAndMonitoredResource(
@@ -205,7 +209,8 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
-   * @deprecated in favor of {@link #createAndRegisterWithConfiguration(StackdriverConfiguration)}.
+   * @deprecated in favor of {@link
+   *     #createAndRegisterWithConfiguration(StackdriverStatsConfiguration)}.
    */
   @Deprecated
   public static void createAndRegisterWithMonitoredResource(
@@ -216,11 +221,28 @@ public final class StackdriverStatsExporter {
   }
 
   /**
-   * Creates a Stackdriver Stats exporter with a {@link StackdriverConfiguration}.
+   * Creates a Stackdriver Stats exporter with a {@link StackdriverStatsConfiguration}.
    *
-   * @param configuration the {@code StackdriverConfiguration}.
+   * <p>Only one Stackdriver exporter can be created.
+   *
+   * <p>If {@code credentials} of the configuration is not set, the exporter will use the default
+   * application credentials. See {@link GoogleCredentials#getApplicationDefault}.
+   *
+   * <p>If {@code projectId} of the configuration is not set, the exporter will use the default
+   * project ID configured. See {@link ServiceOptions#getDefaultProjectId}.
+   *
+   * <p>If {@code exportInterval} of the configuration is not set, the exporter will use the default
+   * interval of one minute.
+   *
+   * <p>If {@code monitoredResources} of the configuration is not set, the exporter will use the
+   * default resource with type global and no labels. In addition, please refer to
+   * cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource for a list of valid
+   * {@code MonitoredResource}s.
+   *
+   * @param configuration the {@code StackdriverStatsConfiguration}.
+   * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
-  public static void createAndRegisterWithConfiguration(StackdriverConfiguration configuration)
+  public static void createAndRegisterWithConfiguration(StackdriverStatsConfiguration configuration)
       throws IOException {
     checkNotNull(configuration, "configuration");
     createInternal(
@@ -238,7 +260,7 @@ public final class StackdriverStatsExporter {
       @Nullable MonitoredResource monitoredResource)
       throws IOException {
     projectId = projectId == null ? ServiceOptions.getDefaultProjectId() : projectId;
-    exportInterval = exportInterval == null ? DEFAUL_INTERVAL : exportInterval;
+    exportInterval = exportInterval == null ? DEFAULT_INTERVAL : exportInterval;
     monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");

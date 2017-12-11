@@ -30,9 +30,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link StackdriverConfiguration}. */
+/** Unit tests for {@link StackdriverStatsConfiguration}. */
 @RunWith(JUnit4.class)
-public class StackdriverConfigurationTest {
+public class StackdriverStatsConfigurationTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -48,8 +48,8 @@ public class StackdriverConfigurationTest {
 
   @Test
   public void testBuild() {
-    StackdriverConfiguration configuration =
-        StackdriverConfiguration.builder()
+    StackdriverStatsConfiguration configuration =
+        StackdriverStatsConfiguration.builder()
             .setCredentials(FAKE_CREDENTIALS)
             .setProjectId(PROJECT_ID)
             .setExportInterval(DURATION)
@@ -63,7 +63,7 @@ public class StackdriverConfigurationTest {
 
   @Test
   public void testBuild_Default() {
-    StackdriverConfiguration configuration = StackdriverConfiguration.builder().build();
+    StackdriverStatsConfiguration configuration = StackdriverStatsConfiguration.builder().build();
     assertThat(configuration.getCredentials()).isNull();
     assertThat(configuration.getProjectId()).isNull();
     assertThat(configuration.getExportInterval()).isNull();

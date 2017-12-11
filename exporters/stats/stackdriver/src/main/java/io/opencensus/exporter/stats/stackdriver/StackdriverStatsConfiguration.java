@@ -26,9 +26,9 @@ import javax.annotation.concurrent.Immutable;
 /** Configurations for {@link StackdriverStatsExporter}. */
 @AutoValue
 @Immutable
-public abstract class StackdriverConfiguration {
+public abstract class StackdriverStatsConfiguration {
 
-  StackdriverConfiguration() {}
+  StackdriverStatsConfiguration() {}
 
   /**
    * Returns the {@link Credentials}.
@@ -68,10 +68,10 @@ public abstract class StackdriverConfiguration {
    * @return a {@code Builder}.
    */
   public static Builder builder() {
-    return new AutoValue_StackdriverConfiguration.Builder();
+    return new AutoValue_StackdriverStatsConfiguration.Builder();
   }
 
-  /** Builder for {@link StackdriverConfiguration}. */
+  /** Builder for {@link StackdriverStatsConfiguration}. */
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -110,10 +110,10 @@ public abstract class StackdriverConfiguration {
     public abstract Builder setMonitoredResource(MonitoredResource monitoredResource);
 
     /**
-     * Builds a new {@link StackdriverConfiguration} with current settings.
+     * Builds a new {@link StackdriverStatsConfiguration} with current settings.
      *
-     * @return a {@code StackdriverConfiguration}.
+     * @return a {@code StackdriverStatsConfiguration}.
      */
-    public abstract StackdriverConfiguration build();
+    public abstract StackdriverStatsConfiguration build();
   }
 }
