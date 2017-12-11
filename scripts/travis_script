@@ -48,8 +48,10 @@ case "$TASK" in
         ;;
     esac
     ;;
-  "BUILD_EXAMPLES")
+  "BUILD_EXAMPLES_GRADLE")
     pushd examples && ./gradlew clean assemble --stacktrace && popd
+    ;;
+  "BUILD_EXAMPLES_MAVEN")
     pushd examples && mvn clean package appassembler:assemble -e && popd
     ;;
   *)

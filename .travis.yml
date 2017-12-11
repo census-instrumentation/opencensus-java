@@ -20,7 +20,11 @@ matrix:
           - openjdk-6-jdk
 
   - jdk: oraclejdk8
-    env: TASK=BUILD_EXAMPLES
+    env: TASK=BUILD_EXAMPLES_GRADLE
+    os: linux
+
+  - jdk: oraclejdk8
+    env: TASK=BUILD_EXAMPLES_MAVEN
     os: linux
 
   - env: TASK=CHECK_GIT_HISTORY
