@@ -16,6 +16,9 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import com.google.api.MonitoredResource;
 import com.google.auth.oauth2.GoogleCredentials;
 import io.opencensus.common.Duration;
 import java.io.IOException;
@@ -38,6 +41,13 @@ public class StackdriverStatsExporterTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
+  public void testConstants() {
+    assertThat(StackdriverStatsExporter.DEFAUL_INTERVAL).isEqualTo(Duration.create(60, 0));
+    assertThat(StackdriverStatsExporter.DEFAULT_RESOURCE)
+        .isEqualTo(MonitoredResource.newBuilder().setType("global").build());
+  }
+
+  @Test
   public void createWithNullStackdriverConfiguration() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("configuration");
@@ -53,6 +63,7 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullCredentials() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("credentials");
@@ -61,6 +72,7 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullProjectId() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("projectId");
@@ -69,6 +81,7 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullDuration() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("exportInterval");
@@ -77,6 +90,7 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNegativeDuration() throws IOException {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Duration must be positive");
@@ -97,6 +111,7 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullMonitoredResource() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("monitoredResource");

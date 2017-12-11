@@ -60,8 +60,11 @@ public final class StackdriverStatsExporter {
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);
-  private static final Duration DEFAUL_INTERVAL = Duration.create(60, 0);
-  private static final MonitoredResource DEFAULT_RESOURCE =
+
+  @VisibleForTesting static final Duration DEFAUL_INTERVAL = Duration.create(60, 0);
+
+  @VisibleForTesting
+  static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
 
   @VisibleForTesting
@@ -89,6 +92,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter already exists.
    */
+  @Deprecated
   public static void createAndRegisterWithCredentialsAndProjectId(
       Credentials credentials, String projectId, Duration exportInterval) throws IOException {
     checkNotNull(credentials, "credentials");
@@ -117,6 +121,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
+  @Deprecated
   public static void createAndRegisterWithProjectId(String projectId, Duration exportInterval)
       throws IOException {
     checkNotNull(projectId, "projectId");
@@ -143,6 +148,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
+  @Deprecated
   public static void createAndRegister(Duration exportInterval) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
     createInternal(null, null, exportInterval, null);
@@ -165,6 +171,7 @@ public final class StackdriverStatsExporter {
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
+  @Deprecated
   public static void createAndRegisterWithProjectIdAndMonitoredResource(
       String projectId, Duration exportInterval, MonitoredResource monitoredResource)
       throws IOException {
@@ -191,6 +198,7 @@ public final class StackdriverStatsExporter {
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    */
+  @Deprecated
   public static void createAndRegisterWithMonitoredResource(
       Duration exportInterval, MonitoredResource monitoredResource) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
