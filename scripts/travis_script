@@ -21,7 +21,6 @@ case "$TASK" in
             ./gradlew clean assemble --stacktrace
             ./gradlew check :opencensus-all:jacocoTestReport
             ./gradlew verGJF
-            pushd examples && ./gradlew clean assemble --stacktrace && popd
             ;;
           "openjdk7")
             # "./gradlew classes testClasses" is a workaround for
@@ -42,13 +41,18 @@ case "$TASK" in
         # https://docs.travis-ci.com/user/reference/osx/#JDK-and-OS-X
         ./gradlew clean assemble --stacktrace
         ./gradlew check
-        pushd examples && ./gradlew clean assemble check --stacktrace && popd
         ;;
       *)
         echo "Unknown OS name $TRAVIS_OS_NAME"
         exit 1
         ;;
     esac
+    ;;
+  "BUILD_EXAMPLES_GRADLE")
+    pushd examples && ./gradlew clean assemble --stacktrace && popd
+    ;;
+  "BUILD_EXAMPLES_MAVEN")
+    pushd examples && mvn clean package appassembler:assemble -e && popd
     ;;
   *)
     echo "Unknown task $TASK"
