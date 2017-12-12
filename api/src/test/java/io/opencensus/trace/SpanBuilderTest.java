@@ -58,42 +58,6 @@ public class SpanBuilderTest {
   }
 
   @Test
-  public void startSpanAndWrap_Runnable() {
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-    spanBuilder
-        .startSpanAndWrap(
-            new Runnable() {
-              @Override
-              public void run() {
-                assertThat(tracer.getCurrentSpan()).isSameAs(span);
-              }
-            })
-        .run();
-    verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-  }
-
-  @Test
-  public void startSpanAndWrap_Callable() throws Exception {
-    final Object ret = new Object();
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-    assertThat(
-            spanBuilder
-                .startSpanAndWrap(
-                    new Callable<Object>() {
-                      @Override
-                      public Object call() throws Exception {
-                        assertThat(tracer.getCurrentSpan()).isSameAs(span);
-                        return ret;
-                      }
-                    })
-                .call())
-        .isEqualTo(ret);
-    verify(span).end(EndSpanOptions.DEFAULT);
-    assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
-  }
-
-  @Test
   public void startSpanAndRun() {
     assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
     spanBuilder.startSpanAndRun(
