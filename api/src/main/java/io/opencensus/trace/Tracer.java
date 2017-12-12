@@ -209,6 +209,7 @@ public abstract class Tracer {
    * @param span the {@code Span} to be set as current.
    * @param runnable the {@code Runnable} to wrap in the {@code Span}.
    * @return the wrapped {@code Runnable}.
+   * @since 0.11.0
    */
   public final Runnable wrap(Span span, Runnable runnable) {
     return CurrentSpanUtils.wrap(span, runnable, false);
@@ -273,6 +274,7 @@ public abstract class Tracer {
    * @param span the {@code Span} to be set as current.
    * @param callable the {@code Callable} to run in the {@code Span}.
    * @return the wrapped {@code Callable}.
+   * @since 0.11.0
    */
   public final <C> Callable<C> wrap(Span span, final Callable<C> callable) {
     return CurrentSpanUtils.wrap(span, callable, false);

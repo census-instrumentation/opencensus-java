@@ -231,11 +231,15 @@ public abstract class SpanBuilder {
    *
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
-   * <p>This is a shorter version of the following code:
+   * <pre><code>
+   * Runnable newRunnable = tracer.spanBuilder("MyRunnableSpan").startSpanAndWrap(myRunnable);
+   * </code></pre>
+   *
+   * <p>It is equivalent with the following code:
    *
    * <pre><code>
    * Span span = tracer.spanBuilder("MyRunnableSpan").startSpan();
-   * tracer.wrap(span, new Runnable() {
+   * Runnable newRunnable = tracer.wrap(span, new Runnable() {
    *    {@literal @}Override
    *     public void run() {
    *       try {
@@ -248,6 +252,7 @@ public abstract class SpanBuilder {
    * </code></pre>
    *
    * @param runnable the {@code Runnable} to run in the {@code Span}.
+   * @since 0.11.0
    */
   public final Runnable startSpanAndWrap(final Runnable runnable) {
     final Span span = startSpan();
@@ -261,16 +266,20 @@ public abstract class SpanBuilder {
    *
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
-   * <p>This is a shorter version of the following code:
+   * <pre><code>
+   * {@code Callable<MyResult>} newCallable =
+   *     tracer.spanBuilder("MyCallableSpan").startSpanAndWrap(myCallable);
+   * </code></pre>
+   *
+   * <p>It is equivalent with the following code:
    *
    * <pre><code>
    * Span span = tracer.spanBuilder("MyCallableSpan").startSpan();
-   * tracer.wrap(span, {@code new Callable<V>()} {
+   * {@code Callable<MyResult>} newCallable = tracer.wrap(span, {@code new Callable<MyResult>()} {
    *    {@literal @}Override
-   *     public V call() throws Exception {
+   *     public MyResult call() throws Exception {
    *       try {
-   *         // The newly created Span is current in the Context.
-   *         return callable.call();
+   *         return myCallable.call();
    *       } finally {
    *         span.end();
    *       }
@@ -279,6 +288,7 @@ public abstract class SpanBuilder {
    * </code></pre>
    *
    * @param callable the {@code Callable} to run in the {@code Span}.
+   * @since 0.11.0
    */
   public final <V> Callable<V> startSpanAndWrap(final Callable<V> callable) throws Exception {
     final Span span = startSpan();
@@ -292,21 +302,17 @@ public abstract class SpanBuilder {
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
    * <pre><code>
-   * class MyClass {
-   *   private static Tracer tracer = Tracing.getTracer();
-   *   void handleRequest() {
-   *     Tracer.spanBuilder("MyRunnableSpan").startSpanAndRun(new Runnable() {
-   *      {@literal @}Override
-   *       public void run() {
-   *         // The newly created Span is current in the Context.
-   *         sendResult();
-   *       }
-   *     }));
-   *   }
-   * }
+   * tracer.spanBuilder("MyRunnableSpan").startSpanAndRun(myRunnable);
+   * </code></pre>
+   *
+   * <p>It is equivalent with the following code:
+   *
+   * <pre><code>
+   * tracer.spanBuilder("MyRunnableSpan").startSpanAndWrap(myRunnable).run();
    * </code></pre>
    *
    * @param runnable the {@code Runnable} to run in the {@code Span}.
+   * @since 0.11.0
    */
   public final void startSpanAndRun(final Runnable runnable) {
     startSpanAndWrap(runnable).run();
@@ -319,21 +325,17 @@ public abstract class SpanBuilder {
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
    * <pre><code>
-   * class MyClass {
-   *   private static Tracer tracer = Tracing.getTracer();
-   *   void handleRequest() {
-   *     new Tracer.spanBuilder("MyCallableSpan").startSpanAndCall({@code new Callable<V>()} {
-   *      {@literal @}Override
-   *       public V void call() throws Exception {
-   *         // The newly created Span is current in the Context.
-   *         return sendResult();
-   *       }
-   *     }));
-   *   }
-   * }
+   * MyResult myResult = tracer.spanBuilder("MyRunnableSpan").startSpanAndCall(myCallable);
+   * </code></pre>
+   *
+   * <p>It is equivalent with the following code:
+   *
+   * <pre><code>
+   * MyResult myResult = tracer.spanBuilder("MyCallableSpan").startSpanAndWrap(myCallable).call();
    * </code></pre>
    *
    * @param callable the {@code Callable} to run in the {@code Span}.
+   * @since 0.11.0
    */
   public final <V> V startSpanAndCall(Callable<V> callable) throws Exception {
     return startSpanAndWrap(callable).call();

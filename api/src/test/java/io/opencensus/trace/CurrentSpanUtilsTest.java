@@ -134,6 +134,7 @@ public class CurrentSpanUtilsTest {
         };
     try {
       CurrentSpanUtils.wrap(span, runnable, true).run();
+      Assert.fail();
     } catch (Throwable e) {
       assertThat(e).isEqualTo(error);
     }
@@ -157,6 +158,7 @@ public class CurrentSpanUtilsTest {
         };
     try {
       CurrentSpanUtils.wrap(span, runnable, true).run();
+      Assert.fail();
     } catch (Throwable e) {
       assertThat(e).isEqualTo(error);
     }
@@ -264,6 +266,7 @@ public class CurrentSpanUtilsTest {
         };
     try {
       CurrentSpanUtils.wrap(span, callable, true).call();
+      Assert.fail();
     } catch (Throwable e) {
       assertThat(e).isEqualTo(error);
     }
@@ -287,6 +290,7 @@ public class CurrentSpanUtilsTest {
         };
     try {
       CurrentSpanUtils.wrap(span, callable, true).call();
+      Assert.fail();
     } catch (Throwable e) {
       assertThat(e).isEqualTo(error);
     }
