@@ -92,7 +92,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @throws IllegalArgumentException if {@code src.length} is not {@code 2 * SpanId.SIZE} OR if the
    *     {@code str} has invalid characters.
    */
-  public static SpanId fromLowerBase16(String src) {
+  public static SpanId fromLowerBase16(CharSequence src) {
     checkArgument(
         src.length() == 2 * SIZE, "Invalid size: expected %s, got %s", 2 * SIZE, src.length());
     byte[] bytes = BaseEncoding.base16().lowerCase().decode(src);
