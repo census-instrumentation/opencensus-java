@@ -18,6 +18,7 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import com.google.api.MetricDescriptor;
 import com.google.api.MonitoredResource;
+import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -26,9 +27,16 @@ import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
 import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.common.Duration;
+import io.opencensus.common.Scope;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+import io.opencensus.trace.Sampler;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.Status;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
+import io.opencensus.trace.samplers.Samplers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +66,9 @@ final class StackdriverExporterWorker implements Runnable {
   private final ViewManager viewManager;
   private final MonitoredResource monitoredResource;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
+
+  private static final Tracer tracer = Tracing.getTracer();
+  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
 
   StackdriverExporterWorker(
       String projectId,
@@ -93,27 +104,44 @@ final class StackdriverExporterWorker implements Runnable {
     }
     registeredViews.put(view.getName(), view);
 
-    // TODO(songya): don't need to create MetricDescriptor for RpcViewConstants once we defined
-    // canonical metrics. Registration is required only for custom view definitions. Canonical
-    // views should be pre-registered.
-    MetricDescriptor metricDescriptor =
-        StackdriverExportUtils.createMetricDescriptor(view, projectId);
-    if (metricDescriptor == null) {
-      // Don't register interval views in this version.
-      return false;
-    }
+    Span span = tracer.getCurrentSpan();
+    span.addAnnotation("Create Stackdriver Metric.");
+    try (Scope scope = tracer.withSpan(span)) {
+      // TODO(songya): don't need to create MetricDescriptor for RpcViewConstants once we defined
+      // canonical metrics. Registration is required only for custom view definitions. Canonical
+      // views should be pre-registered.
+      MetricDescriptor metricDescriptor =
+          StackdriverExportUtils.createMetricDescriptor(view, projectId);
+      if (metricDescriptor == null) {
+        // Don't register interval views in this version.
+        return false;
+      }
 
-    CreateMetricDescriptorRequest request =
-        CreateMetricDescriptorRequest.newBuilder()
-            .setNameWithProjectName(projectName)
-            .setMetricDescriptor(metricDescriptor)
-            .build();
-    try {
-      metricServiceClient.createMetricDescriptor(request);
-      return true;
-    } catch (Throwable e) {
-      logger.log(Level.WARNING, "Exception thrown when registering MetricDescriptor.", e);
-      return false;
+      CreateMetricDescriptorRequest request =
+          CreateMetricDescriptorRequest.newBuilder()
+              .setNameWithProjectName(projectName)
+              .setMetricDescriptor(metricDescriptor)
+              .build();
+      try {
+        metricServiceClient.createMetricDescriptor(request);
+        tracer.getCurrentSpan().addAnnotation("Finish creating MetricDescriptor.");
+        tracer.getCurrentSpan().setStatus(Status.OK);
+        return true;
+      } catch (ApiException e) {
+        logger.log(Level.WARNING, "ApiException thrown when creating MetricDescriptor.", e);
+        tracer
+            .getCurrentSpan()
+            .addAnnotation("ApiException thrown when creating MetricDescriptor.");
+        tracer
+            .getCurrentSpan()
+            .setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
+        return false;
+      } catch (Throwable e) {
+        logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", e);
+        tracer.getCurrentSpan().addAnnotation("Exception thrown when creating MetricDescriptor.");
+        tracer.getCurrentSpan().setStatus(Status.UNKNOWN);
+        return false;
+      }
     }
   }
 
@@ -128,24 +156,36 @@ final class StackdriverExporterWorker implements Runnable {
         viewDataList.add(viewManager.getView(view.getName()));
       }
     }
+
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     for (ViewData viewData : viewDataList) {
       timeSeriesList.addAll(
           StackdriverExportUtils.createTimeSeriesList(viewData, monitoredResource));
     }
-
     for (List<TimeSeries> batchedTimeSeries :
         Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {
-      // Batch export 3 TimeSeries at one call, to avoid exceeding RPC header size limit.
-      CreateTimeSeriesRequest request =
-          CreateTimeSeriesRequest.newBuilder()
-              .setNameWithProjectName(projectName)
-              .addAllTimeSeries(batchedTimeSeries)
-              .build();
-      try {
+      Span span = tracer.getCurrentSpan();
+      span.addAnnotation("Export Stackdriver TimeSeries.");
+      try (Scope scope = tracer.withSpan(span)) {
+        // Batch export 3 TimeSeries at one call, to avoid exceeding RPC header size limit.
+        CreateTimeSeriesRequest request =
+            CreateTimeSeriesRequest.newBuilder()
+                .setNameWithProjectName(projectName)
+                .addAllTimeSeries(batchedTimeSeries)
+                .build();
         metricServiceClient.createTimeSeries(request);
+        tracer.getCurrentSpan().addAnnotation("Finish exporting TimeSeries.");
+        tracer.getCurrentSpan().setStatus(Status.OK);
+      } catch (ApiException e) {
+        logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
+        tracer.getCurrentSpan().addAnnotation(e.toString());
+        tracer
+            .getCurrentSpan()
+            .setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
+        tracer.getCurrentSpan().addAnnotation(e.toString());
+        tracer.getCurrentSpan().setStatus(Status.UNKNOWN);
       }
     }
   }
@@ -153,7 +193,14 @@ final class StackdriverExporterWorker implements Runnable {
   @Override
   public void run() {
     while (true) {
-      try {
+      // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
+      // sets the default sampler to always sample and we get the gRPC span of the stackdriver
+      // export call always sampled and go to an infinite loop.
+      try (Scope scope =
+          tracer
+              .spanBuilder("ExportStatsToStackdriverMonitoring")
+              .setSampler(probabilitySpampler)
+              .startScopedSpan()) {
         export();
         Thread.sleep(scheduleDelayMillis);
       } catch (InterruptedException ie) {
