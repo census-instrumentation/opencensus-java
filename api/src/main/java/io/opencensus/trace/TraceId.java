@@ -85,6 +85,22 @@ public final class TraceId implements Comparable<TraceId> {
   }
 
   /**
+   * Returns a {@code TraceId} built from a lowercase base16 representation.
+   *
+   * @param src the lowercase base16 representation.
+   * @return a {@code TraceId} built from a lowercase base16 representation.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if {@code src.length} is not {@code 2 * TraceId.SIZE} OR if
+   *     the {@code str} has invalid characters.
+   */
+  public static TraceId fromLowerBase16(String src) {
+    checkArgument(
+        src.length() == 2 * SIZE, "Invalid size: expected %s, got %s", 2 * SIZE, src.length());
+    byte[] bytes = BaseEncoding.base16().lowerCase().decode(src);
+    return new TraceId(bytes);
+  }
+
+  /**
    * Generates a new random {@code TraceId}.
    *
    * @param random the random number generator.
@@ -135,6 +151,15 @@ public final class TraceId implements Comparable<TraceId> {
    */
   public boolean isValid() {
     return !Arrays.equals(bytes, INVALID.bytes);
+  }
+
+  /**
+   * Returns the lowercase base16 encoding of this {@code TraceId}.
+   *
+   * @return the lowercase base16 encoding of this {@code TraceId}.
+   */
+  public String toLowerBase16() {
+    return BaseEncoding.base16().lowerCase().encode(bytes);
   }
 
   /**

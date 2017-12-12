@@ -84,6 +84,22 @@ public final class SpanId implements Comparable<SpanId> {
   }
 
   /**
+   * Returns a {@code SpanId} built from a lowercase base16 representation.
+   *
+   * @param src the lowercase base16 representation.
+   * @return a {@code SpanId} built from a lowercase base16 representation.
+   * @throws NullPointerException if {@code src} is null.
+   * @throws IllegalArgumentException if {@code src.length} is not {@code 2 * SpanId.SIZE} OR if the
+   *     {@code str} has invalid characters.
+   */
+  public static SpanId fromLowerBase16(String src) {
+    checkArgument(
+        src.length() == 2 * SIZE, "Invalid size: expected %s, got %s", 2 * SIZE, src.length());
+    byte[] bytes = BaseEncoding.base16().lowerCase().decode(src);
+    return new SpanId(bytes);
+  }
+
+  /**
    * Generates a new random {@code SpanId}.
    *
    * @param random The random number generator.
@@ -134,6 +150,15 @@ public final class SpanId implements Comparable<SpanId> {
    */
   public boolean isValid() {
     return !Arrays.equals(bytes, INVALID.bytes);
+  }
+
+  /**
+   * Returns the lowercase base16 encoding of this {@code SpanId}.
+   *
+   * @return the lowercase base16 encoding of this {@code SpanId}.
+   */
+  public String toLowerBase16() {
+    return BaseEncoding.base16().lowerCase().encode(bytes);
   }
 
   @Override
