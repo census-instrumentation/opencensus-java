@@ -225,9 +225,12 @@ public abstract class SpanBuilder {
   }
 
   /**
-   * Wraps a {@link Runnable} so that it executes with the {@code Span} as the current {@code Span},
-   * and ends the {@code Span} after the {@code Runnable} is run. See more details in {@link
-   * Tracer#wrap(Span, Runnable)}.
+   * Starts a new span and wraps a {@link Runnable} so that it executes with the {@code Span} as the
+   * current {@code Span}, and ends the {@code Span} after the {@code Runnable} is run. See more
+   * details in {@link Tracer#wrap(Span, Runnable)}.
+   *
+   * <p>To avoid leaking spans or dropping tracing events, the returned {@link Runnable} MUST be run
+   * exactly once.
    *
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
@@ -260,9 +263,12 @@ public abstract class SpanBuilder {
   }
 
   /**
-   * Wraps a {@link Callable} so that it executes with the {@code Span} as the current {@code Span},
-   * and ends the {@code Span} after the {@code Callable} is run. See more details in {@link
-   * Tracer#wrap(Span, Callable)}.
+   * Starts a new span and wraps a {@link Callable} so that it executes with the {@code Span} as the
+   * current {@code Span}, and ends the {@code Span} after the {@code Callable} is run. See more
+   * details in {@link Tracer#wrap(Span, Callable)}.
+   *
+   * <p>To avoid leaking spans or dropping tracing events, the returned {@link Callable} MUST be
+   * called exactly once.
    *
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
@@ -296,8 +302,8 @@ public abstract class SpanBuilder {
   }
 
   /**
-   * Runs the given {@code Runnable} with the newly created {@code Span} as the current {@code
-   * Span}, and ends the {@code Span} after the {@code Runnable} is run.
+   * Starts a new span and runs the given {@code Runnable} with the newly created {@code Span} as
+   * the current {@code Span}, and ends the {@code Span} after the {@code Runnable} is run.
    *
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
@@ -319,13 +325,13 @@ public abstract class SpanBuilder {
   }
 
   /**
-   * Calls the given {@code Callable} with the newly created {@code Span} as the current {@code
-   * Span}, and ends the {@code Span} after the {@code Callable} is called.
+   * Starts a new span and calls the given {@code Callable} with the newly created {@code Span} as
+   * the current {@code Span}, and ends the {@code Span} after the {@code Callable} is called.
    *
    * <p>Any error will end up as a {@link Status#UNKNOWN}.
    *
    * <pre><code>
-   * MyResult myResult = tracer.spanBuilder("MyRunnableSpan").startSpanAndCall(myCallable);
+   * MyResult myResult = tracer.spanBuilder("MyCallableSpan").startSpanAndCall(myCallable);
    * </code></pre>
    *
    * <p>It is equivalent with the following code:

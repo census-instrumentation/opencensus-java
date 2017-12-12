@@ -236,9 +236,9 @@ public abstract class Tracer {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
    *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
-   *     executor.execute(tracer.wrap(span, {@code new Callable<V>()} {
+   *     executor.execute(tracer.wrap(span, {@code new Callable<MyResult>()} {
    *      {@literal @}Override
-   *       public V void call() throws Exception {
+   *       public MyResult call() throws Exception {
    *         try {
    *           return sendResult();
    *         } finally {
@@ -257,9 +257,9 @@ public abstract class Tracer {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
    *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
-   *     executor.execute(Context.wrap(tracer.wrap(span, {@code new Callable<V>()} {
+   *     executor.execute(Context.wrap(tracer.wrap(span, {@code new Callable<MyResult>()} {
    *      {@literal @}Override
-   *       public V void call() throws Exception {
+   *       public MyResult call() throws Exception {
    *         try {
    *           return sendResult();
    *         } finally {
