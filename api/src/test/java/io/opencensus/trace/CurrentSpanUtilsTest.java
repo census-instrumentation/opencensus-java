@@ -25,7 +25,6 @@ import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.unsafe.ContextUtils;
 import java.util.concurrent.Callable;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +40,30 @@ public class CurrentSpanUtilsTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
+  }
+
+  // TODO(bdrutu): When update to junit 4.13 use assertThrows instead of this.
+  private void executeRunnableAndExpectError(Runnable runnable, Throwable error) {
+    boolean called = false;
+    try {
+      CurrentSpanUtils.wrap(span, runnable, true).run();
+    } catch (Throwable e) {
+      assertThat(e).isEqualTo(error);
+      called = true;
+    }
+    assertThat(called).isTrue();
+  }
+
+  // TODO(bdrutu): When update to junit 4.13 use assertThrows instead of this.
+  private void executeCallableAndExpectError(Callable<Object> callable, Throwable error) {
+    boolean called = false;
+    try {
+      CurrentSpanUtils.wrap(span, callable, true).call();
+    } catch (Throwable e) {
+      assertThat(e).isEqualTo(error);
+      called = true;
+    }
+    assertThat(called).isTrue();
   }
 
   @Test
@@ -132,12 +155,7 @@ public class CurrentSpanUtilsTest {
             throw error;
           }
         };
-    try {
-      CurrentSpanUtils.wrap(span, runnable, true).run();
-      Assert.fail();
-    } catch (Throwable e) {
-      assertThat(e).isEqualTo(error);
-    }
+    executeRunnableAndExpectError(runnable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("MyError"));
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
@@ -156,12 +174,7 @@ public class CurrentSpanUtilsTest {
             throw error;
           }
         };
-    try {
-      CurrentSpanUtils.wrap(span, runnable, true).run();
-      Assert.fail();
-    } catch (Throwable e) {
-      assertThat(e).isEqualTo(error);
-    }
+    executeRunnableAndExpectError(runnable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("AssertionError"));
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
@@ -216,12 +229,7 @@ public class CurrentSpanUtilsTest {
             throw exception;
           }
         };
-    try {
-      CurrentSpanUtils.wrap(span, callable, true).call();
-      Assert.fail();
-    } catch (Exception e) {
-      assertThat(e).isSameAs(exception);
-    }
+    executeCallableAndExpectError(callable, exception);
     verify(span).setStatus(Status.UNKNOWN.withDescription("MyException"));
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
@@ -240,12 +248,7 @@ public class CurrentSpanUtilsTest {
             throw exception;
           }
         };
-    try {
-      CurrentSpanUtils.wrap(span, callable, true).call();
-      Assert.fail();
-    } catch (Exception e) {
-      assertThat(e).isSameAs(exception);
-    }
+    executeCallableAndExpectError(callable, exception);
     verify(span).setStatus(Status.UNKNOWN.withDescription("Exception"));
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
@@ -264,12 +267,7 @@ public class CurrentSpanUtilsTest {
             throw error;
           }
         };
-    try {
-      CurrentSpanUtils.wrap(span, callable, true).call();
-      Assert.fail();
-    } catch (Throwable e) {
-      assertThat(e).isEqualTo(error);
-    }
+    executeCallableAndExpectError(callable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("MyError"));
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
@@ -288,12 +286,7 @@ public class CurrentSpanUtilsTest {
             throw error;
           }
         };
-    try {
-      CurrentSpanUtils.wrap(span, callable, true).call();
-      Assert.fail();
-    } catch (Throwable e) {
-      assertThat(e).isEqualTo(error);
-    }
+    executeCallableAndExpectError(callable, error);
     verify(span).setStatus(Status.UNKNOWN.withDescription("AssertionError"));
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
