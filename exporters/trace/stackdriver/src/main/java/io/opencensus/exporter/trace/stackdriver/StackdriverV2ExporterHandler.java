@@ -54,6 +54,7 @@ import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +78,10 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     this.projectId = checkNotNull(projectId, "projectId");
     this.traceServiceClient = traceServiceClient;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
+
+    Tracing.getExportComponent()
+        .getSampledSpanStore()
+        .registerSpanNamesForCollection(Collections.singletonList("ExportStackdriverTraces"));
   }
 
   static StackdriverV2ExporterHandler createWithCredentials(
@@ -254,6 +259,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         tracer
             .spanBuilder("ExportStackdriverTraces")
             .setSampler(probabilitySpampler)
+            .setRecordEvents(true)
             .startScopedSpan()) {
       List<Span> spans = new ArrayList<>(spanDataList.size());
       for (SpanData spanData : spanDataList) {
