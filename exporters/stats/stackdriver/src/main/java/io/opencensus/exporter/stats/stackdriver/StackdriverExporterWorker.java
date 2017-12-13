@@ -124,22 +124,17 @@ final class StackdriverExporterWorker implements Runnable {
               .build();
       try {
         metricServiceClient.createMetricDescriptor(request);
-        tracer.getCurrentSpan().addAnnotation("Finish creating MetricDescriptor.");
-        tracer.getCurrentSpan().setStatus(Status.OK);
+        span.addAnnotation("Finish creating MetricDescriptor.");
         return true;
       } catch (ApiException e) {
         logger.log(Level.WARNING, "ApiException thrown when creating MetricDescriptor.", e);
-        tracer
-            .getCurrentSpan()
-            .addAnnotation("ApiException thrown when creating MetricDescriptor.");
-        tracer
-            .getCurrentSpan()
-            .setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
+        span.addAnnotation("ApiException thrown when creating MetricDescriptor.");
+        span.setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
         return false;
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", e);
-        tracer.getCurrentSpan().addAnnotation("Exception thrown when creating MetricDescriptor.");
-        tracer.getCurrentSpan().setStatus(Status.UNKNOWN);
+        span.addAnnotation("Exception thrown when creating MetricDescriptor.");
+        span.setStatus(Status.UNKNOWN);
         return false;
       }
     }
@@ -174,20 +169,18 @@ final class StackdriverExporterWorker implements Runnable {
                 .addAllTimeSeries(batchedTimeSeries)
                 .build();
         metricServiceClient.createTimeSeries(request);
-        tracer.getCurrentSpan().addAnnotation("Finish exporting TimeSeries.");
-        tracer.getCurrentSpan().setStatus(Status.OK);
+        span.addAnnotation("Finish exporting TimeSeries.");
       } catch (ApiException e) {
         logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
-        tracer.getCurrentSpan().addAnnotation("ApiException thrown when exporting TimeSeries.");
-        tracer
-            .getCurrentSpan()
-            .setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
+        span.addAnnotation("ApiException thrown when exporting TimeSeries.");
+        span.setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
-        tracer.getCurrentSpan().addAnnotation("Exception thrown when exporting TimeSeries.");
-        tracer.getCurrentSpan().setStatus(Status.UNKNOWN);
+        span.addAnnotation("Exception thrown when exporting TimeSeries.");
+        span.setStatus(Status.UNKNOWN);
       }
     }
+    tracer.getCurrentSpan().end();
   }
 
   @Override
