@@ -64,8 +64,13 @@ final class CloudTraceFormat extends TextFormat {
   static final String TRACE_OPTION_DELIMITER = ";o=";
   static final String SAMPLED = "1";
   static final String NOT_SAMPLED = "0";
+  static final TraceOptions OPTIONS_SAMPLED = TraceOptions.builder().setIsSampled(true).build();
+  static final TraceOptions OPTIONS_NOT_SAMPLED = TraceOptions.DEFAULT;
   static final int TRACE_ID_SIZE = 2 * TraceId.SIZE;
   static final int TRACE_OPTION_DELIMITER_SIZE = TRACE_OPTION_DELIMITER.length();
+  static final int SPAN_ID_START_POS = TRACE_ID_SIZE + 1;
+  // 32-digit TRACE_ID + 1 digit SPAN_ID_DELIMITER + at least 1 digit SPAN_ID
+  static final int MIN_HEADER_SIZE = SPAN_ID_START_POS + 1;
 
   @Override
   public List<String> fields() {
@@ -94,27 +99,25 @@ final class CloudTraceFormat extends TextFormat {
     checkNotNull(getter, "getter");
     try {
       String headerStr = getter.get(carrier, HEADER_NAME);
-      if (headerStr == null) {
-        throw new SpanContextParseException("Missing " + HEADER_NAME);
+      if (headerStr == null || headerStr.length() < MIN_HEADER_SIZE) {
+        throw new SpanContextParseException("Missing or too short header: " + HEADER_NAME);
       }
+      checkArgument(headerStr.charAt(TRACE_ID_SIZE) == SPAN_ID_DELIMITER, "Invalid TRACE_ID size");
 
-      int delimiterPos = headerStr.indexOf(SPAN_ID_DELIMITER);
-      int traceOptionsPos = headerStr.indexOf(TRACE_OPTION_DELIMITER);
-      checkArgument(delimiterPos == TRACE_ID_SIZE, "Invalid TRACE_ID size");
-
-      TraceId traceId = TraceId.fromLowerBase16(headerStr.substring(0, TRACE_ID_SIZE));
-      String spanIdStr =
-          headerStr.substring(
-              TRACE_ID_SIZE + 1, traceOptionsPos < 0 ? headerStr.length() : traceOptionsPos);
-      SpanId spanId = longToSpanId(UnsignedLongs.parseUnsignedLong(spanIdStr, 10));
-      TraceOptions traceOptions = TraceOptions.DEFAULT;
+      TraceId traceId = TraceId.fromLowerBase16(headerStr.subSequence(0, TRACE_ID_SIZE));
+      int traceOptionsPos = headerStr.indexOf(TRACE_OPTION_DELIMITER, SPAN_ID_DELIMITER);
+      CharSequence spanIdStr =
+          headerStr.subSequence(
+              SPAN_ID_START_POS, traceOptionsPos < 0 ? headerStr.length() : traceOptionsPos);
+      SpanId spanId = longToSpanId(UnsignedLongs.parseUnsignedLong(spanIdStr.toString(), 10));
+      TraceOptions traceOptions = OPTIONS_NOT_SAMPLED;
       if (traceOptionsPos > 0) {
         String traceOptionsStr = headerStr.substring(traceOptionsPos + TRACE_OPTION_DELIMITER_SIZE);
         if (traceOptionsStr.isEmpty()) {
           throw new SpanContextParseException("Invalid TRACE_OPTIONS");
         }
         if (SAMPLED.equals(traceOptionsStr)) {
-          traceOptions = TraceOptions.builder().setIsSampled(true).build();
+          traceOptions = OPTIONS_SAMPLED;
         }
       }
       return SpanContext.create(traceId, spanId, traceOptions);

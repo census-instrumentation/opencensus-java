@@ -55,7 +55,8 @@ public final class CloudTraceFormatTest {
   private static final String SPAN_ID_BASE10_MAX_UNSIGNED_LONG = UnsignedLong.MAX_VALUE.toString();
   private static final String SPAN_ID_BASE16_MAX_UNSIGNED_LONG =
       UnsignedLong.MAX_VALUE.toString(16);
-  private static final String SPAN_ID_BASE10_OVERFLOW = SPAN_ID_BASE10_MAX_UNSIGNED_LONG + "1";
+  private static final String SPAN_ID_BASE10_VERY_LONG =
+      SPAN_ID_BASE10_MAX_UNSIGNED_LONG + SPAN_ID_BASE10_MAX_UNSIGNED_LONG;
   private static final String SPAN_ID_BASE10_INVALID = "0x12345";
 
   private static final TraceId TRACE_ID = TraceId.fromLowerBase16(TRACE_ID_BASE16);
@@ -84,11 +85,11 @@ public final class CloudTraceFormatTest {
         }
       };
 
-  private String constructHeader(String traceId, String spanId) {
+  private static String constructHeader(String traceId, String spanId) {
     return traceId + SPAN_ID_DELIMITER + spanId;
   }
 
-  private String constructHeader(String traceId, String spanId, String traceOptions) {
+  private static String constructHeader(String traceId, String spanId, String traceOptions) {
     return traceId + SPAN_ID_DELIMITER + spanId + TRACE_OPTION_DELIMITER + traceOptions;
   }
 
@@ -169,13 +170,22 @@ public final class CloudTraceFormatTest {
   public void parseMissingHeaderShouldFail() throws SpanContextParseException {
     Map<String, String> headerMissing = new HashMap<String, String>();
     thrown.expect(SpanContextParseException.class);
-    thrown.expectMessage("Missing X-Cloud-Trace-Context");
+    thrown.expectMessage("Missing or too short header: X-Cloud-Trace-Context");
     cloudTraceFormat.extract(headerMissing, getter);
   }
 
   @Test
   public void parseEmptyHeaderShouldFail() throws SpanContextParseException {
-    parseFailure("", SpanContextParseException.class, "Invalid input");
+    parseFailure(
+        "", SpanContextParseException.class, "Missing or too short header: X-Cloud-Trace-Context");
+  }
+
+  @Test
+  public void parseShortHeaderShouldFail() throws SpanContextParseException {
+    parseFailure(
+        constructHeader(TRACE_ID_BASE16, ""),
+        SpanContextParseException.class,
+        "Missing or too short header: X-Cloud-Trace-Context");
   }
 
   @Test
@@ -197,7 +207,7 @@ public final class CloudTraceFormatTest {
   @Test
   public void parseMissingTraceIdShouldFail() throws SpanContextParseException {
     parseFailure(
-        constructHeader("", SPAN_ID_BASE10, SAMPLED),
+        constructHeader("", SPAN_ID_BASE10_VERY_LONG, SAMPLED),
         SpanContextParseException.class,
         "Invalid input");
   }
@@ -233,7 +243,7 @@ public final class CloudTraceFormatTest {
   @Test
   public void parseOverflowSpanIdShouldFail() throws SpanContextParseException {
     parseFailure(
-        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10_OVERFLOW, SAMPLED),
+        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10_VERY_LONG, SAMPLED),
         SpanContextParseException.class,
         "Invalid input");
   }
