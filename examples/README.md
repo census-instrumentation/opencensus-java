@@ -12,6 +12,11 @@ $ ./gradlew installDist
 $ mvn package appassembler:assemble
 ```
 
+### Bazel
+```
+$ bazel build :all
+```
+
 ## To run "StatsRunner" example use
 
 ### Gradle
@@ -24,6 +29,11 @@ $ ./build/install/examples/bin/StatsRunner
 $ ./target/appassembler/bin/StatsRunner
 ```
 
+### Bazel
+```
+$ ./bazel-bin/StatsRunner
+```
+
 ## To run "ZPagesTester"
 
 ### Gradle
@@ -34,6 +44,11 @@ $ ./build/install/examples/bin/ZPagesTester
 ### Maven
 ```
 $ ./target/appassembler/bin/ZPagesTester
+```
+
+### Bazel
+```
+$ ./bazel-bin/ZPagesTester
 ```
 
 Available pages:

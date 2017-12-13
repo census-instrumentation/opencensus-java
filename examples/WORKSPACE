@@ -1,0 +1,5 @@
+workspace(name = "opencensus_examples")
+
+load("//:opencensus_workspace.bzl", "opencensus_maven_jars")
+
+opencensus_maven_jars()
