@@ -296,8 +296,15 @@ public class TagContextDeserializationTest {
   @Test
   public void testDeserializeWrongVersionId() throws TagContextDeserializationException {
     thrown.expect(TagContextDeserializationException.class);
-    thrown.expectMessage("Wrong Version ID: 1. Currently supported version is: 0");
+    thrown.expectMessage("Wrong Version ID: 1. Currently supports version up to: 0");
     serializer.fromByteArray(new byte[] {(byte) (SerializationUtils.VERSION_ID + 1)});
+  }
+
+  @Test
+  public void testDeserializeNegativeVersionId() throws TagContextDeserializationException {
+    thrown.expect(TagContextDeserializationException.class);
+    thrown.expectMessage("Wrong Version ID: -1. Currently supports version up to: 0");
+    serializer.fromByteArray(new byte[] {(byte) -1});
   }
 
   //     <tag_encoding> ==
