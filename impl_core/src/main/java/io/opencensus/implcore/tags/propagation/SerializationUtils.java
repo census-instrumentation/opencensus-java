@@ -103,9 +103,9 @@ final class SerializationUtils {
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes).asReadOnlyBuffer();
       int versionId = buffer.get();
-      if (versionId != VERSION_ID) {
+      if (versionId > VERSION_ID || versionId < 0) {
         throw new TagContextDeserializationException(
-            "Wrong Version ID: " + versionId + ". Currently supported version is: " + VERSION_ID);
+            "Wrong Version ID: " + versionId + ". Currently supports version up to: " + VERSION_ID);
       }
       return new TagContextImpl(parseTags(buffer));
     } catch (BufferUnderflowException exn) {
