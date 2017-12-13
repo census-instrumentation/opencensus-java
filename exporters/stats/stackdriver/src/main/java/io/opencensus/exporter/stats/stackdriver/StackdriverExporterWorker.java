@@ -31,12 +31,10 @@ import io.opencensus.common.Scope;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
-import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.samplers.Samplers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +66,6 @@ final class StackdriverExporterWorker implements Runnable {
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
 
   StackdriverExporterWorker(
       String projectId,
@@ -128,13 +125,17 @@ final class StackdriverExporterWorker implements Runnable {
         return true;
       } catch (ApiException e) {
         logger.log(Level.WARNING, "ApiException thrown when creating MetricDescriptor.", e);
-        span.addAnnotation("ApiException thrown when creating MetricDescriptor.");
-        span.setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
+        span.setStatus(
+            Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
+                .toStatus()
+                .withDescription(
+                    "ApiException thrown when creating MetricDescriptor: " + exceptionMessage(e)));
         return false;
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", e);
-        span.addAnnotation("Exception thrown when creating MetricDescriptor.");
-        span.setStatus(Status.UNKNOWN);
+        span.setStatus(
+            Status.UNKNOWN.withDescription(
+                "Exception thrown when creating MetricDescriptor: " + exceptionMessage(e)));
         return false;
       }
     }
@@ -172,36 +173,39 @@ final class StackdriverExporterWorker implements Runnable {
         span.addAnnotation("Finish exporting TimeSeries.");
       } catch (ApiException e) {
         logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
-        span.addAnnotation("ApiException thrown when exporting TimeSeries.");
-        span.setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
+        span.setStatus(
+            Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
+                .toStatus()
+                .withDescription(
+                    "ApiException thrown when exporting TimeSeries: " + exceptionMessage(e)));
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
-        span.addAnnotation("Exception thrown when exporting TimeSeries.");
-        span.setStatus(Status.UNKNOWN);
+        span.setStatus(
+            Status.UNKNOWN.withDescription(
+                "Exception thrown when exporting TimeSeries: " + exceptionMessage(e)));
       }
     }
-    tracer.getCurrentSpan().end();
   }
 
   @Override
   public void run() {
     while (true) {
-      // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
-      // sets the default sampler to always sample and we get the gRPC span of the stackdriver
-      // export call always sampled and go to an infinite loop.
-      try (Scope scope =
-          tracer
-              .spanBuilder("ExportStatsToStackdriverMonitoring")
-              .setSampler(probabilitySpampler)
-              .startScopedSpan()) {
+      Span span = tracer.spanBuilder("ExportStatsToStackdriverMonitoring").startSpan();
+      try (Scope scope = tracer.withSpan(span)) {
         export();
+      } catch (Throwable e) {
+        logger.log(Level.WARNING, "Exception thrown by the Stackdriver stats exporter.", e);
+        span.setStatus(
+            Status.UNKNOWN.withDescription(
+                "Exception from Stackdriver Exporter: " + exceptionMessage(e)));
+      }
+      span.end();
+      try {
         Thread.sleep(scheduleDelayMillis);
       } catch (InterruptedException ie) {
         // Preserve the interruption status as per guidance and stop doing any work.
         Thread.currentThread().interrupt();
         return;
-      } catch (Throwable e) {
-        logger.log(Level.WARNING, "Exception thrown by the Stackdriver stats exporter.", e);
       }
     }
   }
@@ -211,5 +215,9 @@ final class StackdriverExporterWorker implements Runnable {
 
   private static long toMillis(Duration duration) {
     return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
+  }
+
+  private static String exceptionMessage(Throwable e) {
+    return e.getMessage() != null ? e.getMessage() : e.getClass().getName();
   }
 }
