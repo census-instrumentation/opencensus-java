@@ -16,11 +16,14 @@
 
 package io.opencensus.implcore.trace.propagation;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.primitives.UnsignedLongs;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
+import io.opencensus.trace.TraceId;
+import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
 import java.nio.ByteBuffer;
@@ -33,16 +36,21 @@ import java.util.List;
  * <p>The supported format is the following:
  *
  * <pre>
- * TRACE_ID/SPAN_ID[;o=SAMPLED]
+ * &lt;TRACE_ID&gt;/&lt;SPAN_ID&gt;[;o=&lt;TRACE_OPTIONS&gt;]
  * </pre>
  *
  * <ul>
  *   <li>TRACE_ID is a 32-character hex value;
  *   <li>SPAN_ID is a decimal representation of a unsigned long;
- *   <li>SAMPLED must be 1 for sampled requests, 0 otherwise.
+ *   <li>TRACE_OPTIONS is a hex representation of a 32-bit unsigned integer. The least significant
+ *       bit defines whether a request is traced (1 - enabled, 0 - disabled). Behaviors of other
+ *       bits are currently undefined. This value is optional. Although upstream service may leave
+ *       this value unset to leave the sampling decision up to downstream client, this utility will
+ *       always default it to 0 if absent.
  * </ul>
  *
  * <p>Valid values:
+ *
  * <ul>
  *   <li>"105445aa7843bc8bf206b120001000/123;o=1"
  *   <li>"105445aa7843bc8bf206b120001000/123"
@@ -50,12 +58,14 @@ import java.util.List;
  * </ul>
  */
 final class CloudTraceFormat extends TextFormat {
-  private static final String HEADER_NAME = "X-Cloud-Trace-Context";
-  private static final List<String> FIELDS = Collections.singletonList(HEADER_NAME);
-  private static final char SPAN_ID_DELIMITER = '/';
-  private static final String TRACE_OPTION_DELIMITER = ";o=";
-  private static final String SAMPLED = "1";
-  private static final String NOT_SAMPLED = "0";
+  public static final String HEADER_NAME = "X-Cloud-Trace-Context";
+  public static final List<String> FIELDS = Collections.singletonList(HEADER_NAME);
+  public static final char SPAN_ID_DELIMITER = '/';
+  public static final String TRACE_OPTION_DELIMITER = ";o=";
+  public static final String SAMPLED = "1";
+  public static final String NOT_SAMPLED = "0";
+  public static final int TRACE_ID_SIZE = 2 * TraceId.SIZE;
+  public static final int TRACE_OPTION_DELIMITER_SIZE = TRACE_OPTION_DELIMITER.length();
 
   @Override
   public List<String> fields() {
@@ -82,8 +92,35 @@ final class CloudTraceFormat extends TextFormat {
   public <C> SpanContext extract(C carrier, Getter<C> getter) throws SpanContextParseException {
     checkNotNull(carrier, "carrier");
     checkNotNull(getter, "getter");
-    // TODO: implement this.
-    return SpanContext.INVALID;
+    try {
+      String headerStr = getter.get(carrier, HEADER_NAME);
+      if (headerStr == null) {
+        throw new SpanContextParseException("Missing " + HEADER_NAME);
+      }
+
+      int delimiterPos = headerStr.indexOf(SPAN_ID_DELIMITER);
+      int traceOptionsPos = headerStr.indexOf(TRACE_OPTION_DELIMITER);
+      checkArgument(delimiterPos == TRACE_ID_SIZE, "Invalid TRACE_ID size");
+
+      TraceId traceId = TraceId.fromLowerBase16(headerStr.substring(0, TRACE_ID_SIZE));
+      String spanIdStr =
+          headerStr.substring(
+              TRACE_ID_SIZE + 1, traceOptionsPos < 0 ? headerStr.length() : traceOptionsPos);
+      SpanId spanId = longToSpanId(UnsignedLongs.parseUnsignedLong(spanIdStr, 10));
+      TraceOptions traceOptions = TraceOptions.DEFAULT;
+      if (traceOptionsPos > 0) {
+        String traceOptionsStr = headerStr.substring(traceOptionsPos + TRACE_OPTION_DELIMITER_SIZE);
+        if (traceOptionsStr.isEmpty()) {
+          throw new SpanContextParseException("Invalid TRACE_OPTIONS");
+        }
+        if (SAMPLED.equals(traceOptionsStr)) {
+          traceOptions = TraceOptions.builder().setIsSampled(true).build();
+        }
+      }
+      return SpanContext.create(traceId, spanId, traceOptions);
+    } catch (IllegalArgumentException e) {
+      throw new SpanContextParseException("Invalid input", e);
+    }
   }
 
   // Using big-endian encoding.
