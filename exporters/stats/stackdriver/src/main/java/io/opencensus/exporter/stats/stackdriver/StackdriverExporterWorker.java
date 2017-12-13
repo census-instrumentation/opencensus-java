@@ -35,6 +35,7 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,11 @@ final class StackdriverExporterWorker implements Runnable {
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
     this.monitoredResource = monitoredResource;
+
+    Tracing.getExportComponent()
+        .getSampledSpanStore()
+        .registerSpanNamesForCollection(
+            Collections.singletonList("ExportStatsToStackdriverMonitoring"));
   }
 
   // Returns true if the given view is successfully registered to Stackdriver Monitoring, or the
@@ -190,7 +196,11 @@ final class StackdriverExporterWorker implements Runnable {
   @Override
   public void run() {
     while (true) {
-      Span span = tracer.spanBuilder("ExportStatsToStackdriverMonitoring").startSpan();
+      Span span =
+          tracer
+              .spanBuilder("ExportStatsToStackdriverMonitoring")
+              .setRecordEvents(true)
+              .startSpan();
       try (Scope scope = tracer.withSpan(span)) {
         export();
       } catch (Throwable e) {
