@@ -19,6 +19,7 @@ package io.opencensus.implcore.trace.propagation;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.primitives.UnsignedInts;
 import com.google.common.primitives.UnsignedLongs;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -41,12 +42,12 @@ import java.util.List;
  *
  * <ul>
  *   <li>TRACE_ID is a 32-character hex value;
- *   <li>SPAN_ID is a decimal representation of a unsigned long;
- *   <li>TRACE_OPTIONS is a hex representation of a 32-bit unsigned integer. The least significant
- *       bit defines whether a request is traced (1 - enabled, 0 - disabled). Behaviors of other
- *       bits are currently undefined. This value is optional. Although upstream service may leave
- *       this value unset to leave the sampling decision up to downstream client, this utility will
- *       always default it to 0 if absent.
+ *   <li>SPAN_ID is a decimal representation of a 64-bit unsigned long;
+ *   <li>TRACE_OPTIONS is a decimal representation of a 32-bit unsigned integer. The least
+ *       significant bit defines whether a request is traced (1 - enabled, 0 - disabled). Behaviors
+ *       of other bits are currently undefined. This value is optional. Although upstream service
+ *       may leave this value unset to leave the sampling decision up to downstream client, this
+ *       utility will always default it to 0 if absent.
  * </ul>
  *
  * <p>Valid values:
@@ -71,6 +72,7 @@ final class CloudTraceFormat extends TextFormat {
   static final int SPAN_ID_START_POS = TRACE_ID_SIZE + 1;
   // 32-digit TRACE_ID + 1 digit SPAN_ID_DELIMITER + at least 1 digit SPAN_ID
   static final int MIN_HEADER_SIZE = SPAN_ID_START_POS + 1;
+  static final int CLOUD_TRACE_IS_SAMPLED = 0x1;
 
   @Override
   public List<String> fields() {
@@ -113,10 +115,7 @@ final class CloudTraceFormat extends TextFormat {
       TraceOptions traceOptions = OPTIONS_NOT_SAMPLED;
       if (traceOptionsPos > 0) {
         String traceOptionsStr = headerStr.substring(traceOptionsPos + TRACE_OPTION_DELIMITER_SIZE);
-        if (traceOptionsStr.isEmpty()) {
-          throw new SpanContextParseException("Invalid TRACE_OPTIONS");
-        }
-        if (SAMPLED.equals(traceOptionsStr)) {
+        if ((UnsignedInts.parseUnsignedInt(traceOptionsStr, 10) & CLOUD_TRACE_IS_SAMPLED) != 0) {
           traceOptions = OPTIONS_SAMPLED;
         }
       }

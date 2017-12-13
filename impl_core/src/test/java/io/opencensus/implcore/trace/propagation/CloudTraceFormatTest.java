@@ -51,13 +51,17 @@ public final class CloudTraceFormatTest {
   private static final String TRACE_ID_BASE16_INVALID = "ff00000000000000000000000abcdefg";
   private static final String SPAN_ID_BASE16 = "ff00000000000041";
   private static final String SPAN_ID_BASE10 = UnsignedLong.valueOf(SPAN_ID_BASE16, 16).toString();
-  private static final String SPAN_ID_BASE10_SIGNED = "-12345";
+  private static final String SPAN_ID_BASE10_NEGATIVE = "-12345";
   private static final String SPAN_ID_BASE10_MAX_UNSIGNED_LONG = UnsignedLong.MAX_VALUE.toString();
   private static final String SPAN_ID_BASE16_MAX_UNSIGNED_LONG =
       UnsignedLong.MAX_VALUE.toString(16);
   private static final String SPAN_ID_BASE10_VERY_LONG =
       SPAN_ID_BASE10_MAX_UNSIGNED_LONG + SPAN_ID_BASE10_MAX_UNSIGNED_LONG;
   private static final String SPAN_ID_BASE10_INVALID = "0x12345";
+  private static final String OPTIONS_SAMPLED_MORE_BITS = "11"; // 1011
+  private static final String OPTIONS_NOT_SAMPLED_MORE_BITS = "10"; // 1010
+  private static final String OPTIONS_NEGATIVE = "-1";
+  private static final String OPTIONS_INVALID = "0x1";
 
   private static final TraceId TRACE_ID = TraceId.fromLowerBase16(TRACE_ID_BASE16);
   private static final SpanId SPAN_ID = SpanId.fromLowerBase16(SPAN_ID_BASE16);
@@ -132,14 +136,14 @@ public final class CloudTraceFormatTest {
   @Test
   public void parseSampledShouldSucceed() throws SpanContextParseException {
     parseSuccess(
-        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10, SAMPLED),
+        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10, OPTIONS_SAMPLED_MORE_BITS),
         SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS_SAMPLED));
   }
 
   @Test
   public void parseNotSampledShouldSucceed() throws SpanContextParseException {
     parseSuccess(
-        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10, NOT_SAMPLED),
+        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10, OPTIONS_NOT_SAMPLED_MORE_BITS),
         SpanContext.create(TRACE_ID, SPAN_ID, TRACE_OPTIONS_NOT_SAMPLED));
   }
 
@@ -155,13 +159,21 @@ public final class CloudTraceFormatTest {
     parseFailure(
         constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10, ""),
         SpanContextParseException.class,
-        "Invalid TRACE_OPTIONS");
+        "Invalid input");
+  }
+
+  @Test
+  public void parseNegativeTraceOptionsShouldFail() throws SpanContextParseException {
+    parseFailure(
+        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10, OPTIONS_NEGATIVE),
+        SpanContextParseException.class,
+        "Invalid input");
   }
 
   @Test
   public void parseInvalidTraceOptionsShouldFail() throws SpanContextParseException {
     parseFailure(
-        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10) + ";O=",
+        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10, OPTIONS_INVALID),
         SpanContextParseException.class,
         "Invalid input");
   }
@@ -226,9 +238,9 @@ public final class CloudTraceFormatTest {
   }
 
   @Test
-  public void parseSignedSpanIdShouldFail() throws SpanContextParseException {
+  public void parseNegativeSpanIdShouldFail() throws SpanContextParseException {
     parseFailure(
-        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10_SIGNED, SAMPLED),
+        constructHeader(TRACE_ID_BASE16, SPAN_ID_BASE10_NEGATIVE, SAMPLED),
         SpanContextParseException.class,
         "Invalid input");
   }
