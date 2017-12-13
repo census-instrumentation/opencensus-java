@@ -178,13 +178,13 @@ final class StackdriverExporterWorker implements Runnable {
         tracer.getCurrentSpan().setStatus(Status.OK);
       } catch (ApiException e) {
         logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
-        tracer.getCurrentSpan().addAnnotation(e.toString());
+        tracer.getCurrentSpan().addAnnotation("ApiException thrown when exporting TimeSeries.");
         tracer
             .getCurrentSpan()
             .setStatus(Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name()).toStatus());
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
-        tracer.getCurrentSpan().addAnnotation(e.toString());
+        tracer.getCurrentSpan().addAnnotation("Exception thrown when exporting TimeSeries.");
         tracer.getCurrentSpan().setStatus(Status.UNKNOWN);
       }
     }
