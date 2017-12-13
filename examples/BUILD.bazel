@@ -2,7 +2,7 @@ load("//:opencensus_workspace.bzl", "opencensus_java_libraries")
 opencensus_java_libraries()
 
 java_library(
-    name = "examples",
+    name = "opencensus_examples",
     srcs = glob(
         ["src/main/java/**/*.java"]
     ),
@@ -24,7 +24,7 @@ java_binary(
     name = "StatsRunner",
     main_class = "io.opencensus.examples.stats.StatsRunner",
     runtime_deps = [
-        ":examples",
+        ":opencensus_examples",
     ],
 )
 
@@ -32,7 +32,7 @@ java_binary(
     name = "MultiSpansTracing",
     main_class = "io.opencensus.examples.trace.MultiSpansTracing",
     runtime_deps = [
-        ":examples",
+        ":opencensus_examples",
     ],
 )
 
@@ -40,7 +40,7 @@ java_binary(
     name = "MultiSpansScopedTracing",
     main_class = "io.opencensus.examples.trace.MultiSpansScopedTracing",
     runtime_deps = [
-        ":examples",
+        ":opencensus_examples",
     ],
 )
 
@@ -48,7 +48,7 @@ java_binary(
     name = "MultiSpansContextTracing",
     main_class = "io.opencensus.examples.trace.MultiSpansContextTracing",
     runtime_deps = [
-        ":examples",
+        ":opencensus_examples",
     ],
 )
 
@@ -56,6 +56,6 @@ java_binary(
     name = "ZPagesTester",
     main_class = "io.opencensus.examples.zpages.ZPagesTester",
     runtime_deps = [
-        ":examples",
+        ":opencensus_examples",
     ],
 )
