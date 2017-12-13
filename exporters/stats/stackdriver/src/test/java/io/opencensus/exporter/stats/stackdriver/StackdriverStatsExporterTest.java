@@ -16,9 +16,15 @@
 
 package io.opencensus.exporter.stats.stackdriver;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import com.google.api.MonitoredResource;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import io.opencensus.common.Duration;
 import java.io.IOException;
+import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,10 +37,45 @@ public class StackdriverStatsExporterTest {
 
   private static final String PROJECT_ID = "projectId";
   private static final Duration ONE_SECOND = Duration.create(1, 0);
+  private static final Duration NEG_ONE_SECOND = Duration.create(-1, 0);
+  private static final Credentials FAKE_CREDENTIALS =
+      GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
+  private static final StackdriverStatsConfiguration CONFIGURATION =
+      StackdriverStatsConfiguration.builder()
+          .setCredentials(FAKE_CREDENTIALS)
+          .setProjectId("project")
+          .build();
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
+  public void testConstants() {
+    assertThat(StackdriverStatsExporter.DEFAULT_INTERVAL).isEqualTo(Duration.create(60, 0));
+    assertThat(StackdriverStatsExporter.DEFAULT_RESOURCE)
+        .isEqualTo(MonitoredResource.newBuilder().setType("global").build());
+  }
+
+  @Test
+  public void createWithNullStackdriverStatsConfiguration() throws IOException {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("configuration");
+    StackdriverStatsExporter.createAndRegister((StackdriverStatsConfiguration) null);
+  }
+
+  @Test
+  public void createWithNegativeDuration_WithConfiguration() throws IOException {
+    StackdriverStatsConfiguration configuration =
+        StackdriverStatsConfiguration.builder()
+            .setCredentials(FAKE_CREDENTIALS)
+            .setExportInterval(NEG_ONE_SECOND)
+            .build();
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Duration must be positive");
+    StackdriverStatsExporter.createAndRegister(configuration);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullCredentials() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("credentials");
@@ -43,6 +84,7 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullProjectId() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("projectId");
@@ -51,6 +93,7 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullDuration() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("exportInterval");
@@ -59,28 +102,28 @@ public class StackdriverStatsExporterTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNegativeDuration() throws IOException {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Duration must be positive");
     StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-        GoogleCredentials.newBuilder().build(), PROJECT_ID, Duration.create(-1, 0));
+        GoogleCredentials.newBuilder().build(), PROJECT_ID, NEG_ONE_SECOND);
   }
 
   @Test
   public void createExporterTwice() throws IOException {
-    StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-        GoogleCredentials.newBuilder().build(), PROJECT_ID, ONE_SECOND);
+    StackdriverStatsExporter.createAndRegister(CONFIGURATION);
     try {
       thrown.expect(IllegalStateException.class);
       thrown.expectMessage("Stackdriver stats exporter is already created.");
-      StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-          GoogleCredentials.newBuilder().build(), PROJECT_ID, ONE_SECOND);
+      StackdriverStatsExporter.createAndRegister(CONFIGURATION);
     } finally {
       StackdriverStatsExporter.unsafeResetExporter();
     }
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void createWithNullMonitoredResource() throws IOException {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("monitoredResource");

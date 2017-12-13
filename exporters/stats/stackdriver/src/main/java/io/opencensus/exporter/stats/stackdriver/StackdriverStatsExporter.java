@@ -44,8 +44,12 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre><code>
  *   public static void main(String[] args) {
- *     StackdriverStatsExporter.createAndRegisterWithProjectId(
- *         "MyStackdriverProjectId", Duration.fromMillis(100000));
+ *     StackdriverStatsExporter.createAndRegister(
+ *         StackdriverStatsConfiguration
+ *             .builder()
+ *             .setProjectId("MyStackdriverProjectId")
+ *             .setExportInterval(Duration.fromMillis(100000))
+ *             .build());
  *     ... // Do work.
  *   }
  * </code></pre>
@@ -60,7 +64,11 @@ public final class StackdriverStatsExporter {
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);
-  private static final MonitoredResource DEFAULT_RESOURCE =
+
+  @VisibleForTesting static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
+
+  @VisibleForTesting
+  static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
 
   @VisibleForTesting
@@ -87,7 +95,9 @@ public final class StackdriverStatsExporter {
    * @param projectId the cloud project id.
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter already exists.
+   * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegisterWithCredentialsAndProjectId(
       Credentials credentials, String projectId, Duration exportInterval) throws IOException {
     checkNotNull(credentials, "credentials");
@@ -115,12 +125,46 @@ public final class StackdriverStatsExporter {
    * @param projectId the cloud project id.
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
+   * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegisterWithProjectId(String projectId, Duration exportInterval)
       throws IOException {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     createInternal(null, projectId, exportInterval, null);
+  }
+
+  /**
+   * Creates a Stackdriver Stats exporter with a {@link StackdriverStatsConfiguration}.
+   *
+   * <p>Only one Stackdriver exporter can be created.
+   *
+   * <p>If {@code credentials} of the configuration is not set, the exporter will use the default
+   * application credentials. See {@link GoogleCredentials#getApplicationDefault}.
+   *
+   * <p>If {@code projectId} of the configuration is not set, the exporter will use the default
+   * project ID configured. See {@link ServiceOptions#getDefaultProjectId}.
+   *
+   * <p>If {@code exportInterval} of the configuration is not set, the exporter will use the default
+   * interval of one minute.
+   *
+   * <p>If {@code monitoredResources} of the configuration is not set, the exporter will use the
+   * default resource with type global and no labels. In addition, please refer to
+   * cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource for a list of valid
+   * {@code MonitoredResource}s.
+   *
+   * @param configuration the {@code StackdriverStatsConfiguration}.
+   * @throws IllegalStateException if a Stackdriver exporter is already created.
+   */
+  public static void createAndRegister(StackdriverStatsConfiguration configuration)
+      throws IOException {
+    checkNotNull(configuration, "configuration");
+    createInternal(
+        configuration.getCredentials(),
+        configuration.getProjectId(),
+        configuration.getExportInterval(),
+        configuration.getMonitoredResource());
   }
 
   /**
@@ -141,10 +185,12 @@ public final class StackdriverStatsExporter {
    *
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
+   * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegister(Duration exportInterval) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval, null);
+    createInternal(null, null, exportInterval, null);
   }
 
   /**
@@ -163,7 +209,9 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
+   * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegisterWithProjectIdAndMonitoredResource(
       String projectId, Duration exportInterval, MonitoredResource monitoredResource)
       throws IOException {
@@ -189,21 +237,26 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
+   * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
    */
+  @Deprecated
   public static void createAndRegisterWithMonitoredResource(
       Duration exportInterval, MonitoredResource monitoredResource) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
-    createInternal(null, ServiceOptions.getDefaultProjectId(), exportInterval, monitoredResource);
+    createInternal(null, null, exportInterval, monitoredResource);
   }
 
   // Use createInternal() (instead of constructor) to enforce singleton.
   private static void createInternal(
       @Nullable Credentials credentials,
-      String projectId,
-      Duration exportInterval,
+      @Nullable String projectId,
+      @Nullable Duration exportInterval,
       @Nullable MonitoredResource monitoredResource)
       throws IOException {
+    projectId = projectId == null ? ServiceOptions.getDefaultProjectId() : projectId;
+    exportInterval = exportInterval == null ? DEFAULT_INTERVAL : exportInterval;
+    monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
       MetricServiceClient metricServiceClient;
@@ -216,9 +269,6 @@ public final class StackdriverStatsExporter {
                 MetricServiceSettings.newBuilder()
                     .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
                     .build());
-      }
-      if (monitoredResource == null) {
-        monitoredResource = DEFAULT_RESOURCE;
       }
       exporter =
           new StackdriverStatsExporter(
