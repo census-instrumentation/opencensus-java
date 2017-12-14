@@ -152,7 +152,8 @@ public abstract class Tracer {
   }
 
   /**
-   * Wraps a {@link Runnable} so that it executes with the {@code Span} as the current {@code Span}.
+   * Returns a {@link Runnable} that runs the given task with the given {@code Span} in the current
+   * context.
    *
    * <p>Users may consider to use {@link SpanBuilder#startSpanAndRun(Runnable)}.
    *
@@ -171,7 +172,7 @@ public abstract class Tracer {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
    *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
-   *     executor.execute(tracer.wrap(span, new Runnable() {
+   *     executor.execute(tracer.withSpan(span, new Runnable() {
    *      {@literal @}Override
    *       public void run() {
    *         try {
@@ -192,7 +193,7 @@ public abstract class Tracer {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
    *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
-   *     executor.execute(Context.wrap(tracer.wrap(span, new Runnable() {
+   *     executor.execute(Context.wrap(tracer.withSpan(span, new Runnable() {
    *      {@literal @}Override
    *       public void run() {
    *         try {
@@ -207,17 +208,17 @@ public abstract class Tracer {
    * </code></pre>
    *
    * @param span the {@code Span} to be set as current.
-   * @param runnable the {@code Runnable} to wrap in the {@code Span}.
-   * @return the wrapped {@code Runnable}.
+   * @param runnable the {@code Runnable} to withSpan in the {@code Span}.
+   * @return the {@code Runnable}.
    * @since 0.11.0
    */
-  public final Runnable wrap(Span span, Runnable runnable) {
-    return CurrentSpanUtils.wrap(span, runnable, false);
+  public final Runnable withSpan(Span span, Runnable runnable) {
+    return CurrentSpanUtils.withSpan(span, false, runnable);
   }
 
   /**
-   * Wraps a {@code Callable} so that it executes with the {@code Span} as the current {@code Span}.
-   * This is used to ensure the given {@code Span} is readable when invoking the {@code Callable}.
+   * Returns a {@link Callable} that runs the given task with the given {@code Span} in the current
+   * context.
    *
    * <p>Users may consider to use {@link SpanBuilder#startSpanAndCall(Callable)}.
    *
@@ -236,7 +237,7 @@ public abstract class Tracer {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
    *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
-   *     executor.execute(tracer.wrap(span, {@code new Callable<MyResult>()} {
+   *     executor.execute(tracer.withSpan(span, {@code new Callable<MyResult>()} {
    *      {@literal @}Override
    *       public MyResult call() throws Exception {
    *         try {
@@ -257,7 +258,7 @@ public abstract class Tracer {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
    *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
-   *     executor.execute(Context.wrap(tracer.wrap(span, {@code new Callable<MyResult>()} {
+   *     executor.execute(Context.wrap(tracer.withSpan(span, {@code new Callable<MyResult>()} {
    *      {@literal @}Override
    *       public MyResult call() throws Exception {
    *         try {
@@ -273,11 +274,11 @@ public abstract class Tracer {
    *
    * @param span the {@code Span} to be set as current.
    * @param callable the {@code Callable} to run in the {@code Span}.
-   * @return the wrapped {@code Callable}.
+   * @return the {@code Callable}.
    * @since 0.11.0
    */
-  public final <C> Callable<C> wrap(Span span, final Callable<C> callable) {
-    return CurrentSpanUtils.wrap(span, callable, false);
+  public final <C> Callable<C> withSpan(Span span, final Callable<C> callable) {
+    return CurrentSpanUtils.withSpan(span, false, callable);
   }
 
   /**

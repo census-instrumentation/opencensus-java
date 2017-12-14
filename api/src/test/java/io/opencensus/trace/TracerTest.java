@@ -76,7 +76,7 @@ public class TracerTest {
     Runnable runnable;
     assertThat(noopTracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
     runnable =
-        tracer.wrap(
+        tracer.withSpan(
             span,
             new Runnable() {
               @Override
@@ -96,7 +96,7 @@ public class TracerTest {
     Callable<Object> callable;
     assertThat(noopTracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
     callable =
-        tracer.wrap(
+        tracer.withSpan(
             span,
             new Callable<Object>() {
               @Override

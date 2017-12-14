@@ -46,7 +46,7 @@ public class CurrentSpanUtilsTest {
   private void executeRunnableAndExpectError(Runnable runnable, Throwable error) {
     boolean called = false;
     try {
-      CurrentSpanUtils.wrap(span, runnable, true).run();
+      CurrentSpanUtils.withSpan(span, true, runnable).run();
     } catch (Throwable e) {
       assertThat(e).isEqualTo(error);
       called = true;
@@ -58,7 +58,7 @@ public class CurrentSpanUtilsTest {
   private void executeCallableAndExpectError(Callable<Object> callable, Throwable error) {
     boolean called = false;
     try {
-      CurrentSpanUtils.wrap(span, callable, true).call();
+      CurrentSpanUtils.withSpan(span, true, callable).call();
     } catch (Throwable e) {
       assertThat(e).isEqualTo(error);
       called = true;
@@ -111,7 +111,7 @@ public class CurrentSpanUtilsTest {
   }
 
   @Test
-  public void wrapRunnable() {
+  public void withSpanRunnable() {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Runnable runnable =
         new Runnable() {
@@ -121,13 +121,13 @@ public class CurrentSpanUtilsTest {
             assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
           }
         };
-    CurrentSpanUtils.wrap(span, runnable, false).run();
+    CurrentSpanUtils.withSpan(span, false, runnable).run();
     verifyZeroInteractions(span);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
   }
 
   @Test
-  public void wrapRunnable_EndSpan() {
+  public void withSpanRunnable_EndSpan() {
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Runnable runnable =
         new Runnable() {
@@ -137,13 +137,13 @@ public class CurrentSpanUtilsTest {
             assertThat(CurrentSpanUtils.getCurrentSpan()).isSameAs(span);
           }
         };
-    CurrentSpanUtils.wrap(span, runnable, true).run();
+    CurrentSpanUtils.withSpan(span, true, runnable).run();
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
   }
 
   @Test
-  public void wrapRunnable_WithError() {
+  public void withSpanRunnable_WithError() {
     final AssertionError error = new AssertionError("MyError");
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Runnable runnable =
@@ -162,7 +162,7 @@ public class CurrentSpanUtilsTest {
   }
 
   @Test
-  public void wrapRunnable_WithErrorNoMessage() {
+  public void withSpanRunnable_WithErrorNoMessage() {
     final AssertionError error = new AssertionError();
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Runnable runnable =
@@ -181,7 +181,7 @@ public class CurrentSpanUtilsTest {
   }
 
   @Test
-  public void wrapCallable() throws Exception {
+  public void withSpanCallable() throws Exception {
     final Object ret = new Object();
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Callable<Object> callable =
@@ -193,13 +193,13 @@ public class CurrentSpanUtilsTest {
             return ret;
           }
         };
-    assertThat(CurrentSpanUtils.wrap(span, callable, false).call()).isEqualTo(ret);
+    assertThat(CurrentSpanUtils.withSpan(span, false, callable).call()).isEqualTo(ret);
     verifyZeroInteractions(span);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
   }
 
   @Test
-  public void wrapCallable_EndSpan() throws Exception {
+  public void withSpanCallable_EndSpan() throws Exception {
     final Object ret = new Object();
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Callable<Object> callable =
@@ -211,13 +211,13 @@ public class CurrentSpanUtilsTest {
             return ret;
           }
         };
-    assertThat(CurrentSpanUtils.wrap(span, callable, true).call()).isEqualTo(ret);
+    assertThat(CurrentSpanUtils.withSpan(span, true, callable).call()).isEqualTo(ret);
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
   }
 
   @Test
-  public void wrapCallable_WithException() {
+  public void withSpanCallable_WithException() {
     final Exception exception = new Exception("MyException");
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Callable<Object> callable =
@@ -236,7 +236,7 @@ public class CurrentSpanUtilsTest {
   }
 
   @Test
-  public void wrapCallable_WithExceptionNoMessage() {
+  public void withSpanCallable_WithExceptionNoMessage() {
     final Exception exception = new Exception();
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Callable<Object> callable =
@@ -255,7 +255,7 @@ public class CurrentSpanUtilsTest {
   }
 
   @Test
-  public void wrapCallable_WithError() {
+  public void withSpanCallable_WithError() {
     final AssertionError error = new AssertionError("MyError");
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Callable<Object> callable =
@@ -274,7 +274,7 @@ public class CurrentSpanUtilsTest {
   }
 
   @Test
-  public void wrapCallable_WithErrorNoMessage() {
+  public void withSpanCallable_WithErrorNoMessage() {
     final AssertionError error = new AssertionError();
     assertThat(CurrentSpanUtils.getCurrentSpan()).isNull();
     Callable<Object> callable =

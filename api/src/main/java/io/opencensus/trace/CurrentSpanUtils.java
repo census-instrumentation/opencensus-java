@@ -55,11 +55,11 @@ final class CurrentSpanUtils {
    * Wraps a {@link Runnable} so that it executes with the {@code span} as the current {@code Span}.
    *
    * @param span the {@code Span} to be set as current.
-   * @param runnable the {@code Runnable} to run in the {@code Span}.
    * @param endSpan if {@code true} the returned {@code Runnable} will close the {@code Span}.
+   * @param runnable the {@code Runnable} to run in the {@code Span}.
    * @return the wrapped {@code Runnable}.
    */
-  static Runnable wrap(Span span, Runnable runnable, boolean endSpan) {
+  static Runnable withSpan(Span span, boolean endSpan, Runnable runnable) {
     return new RunnableInSpan(span, runnable, endSpan);
   }
 
@@ -67,11 +67,11 @@ final class CurrentSpanUtils {
    * Wraps a {@link Callable} so that it executes with the {@code span} as the current {@code Span}.
    *
    * @param span the {@code Span} to be set as current.
-   * @param callable the {@code Callable} to run in the {@code Span}.
    * @param endSpan if {@code true} the returned {@code Runnable} will close the {@code Span}.
+   * @param callable the {@code Callable} to run in the {@code Span}.
    * @return the wrapped {@code Callable}.
    */
-  static <C> Callable<C> wrap(Span span, Callable<C> callable, boolean endSpan) {
+  static <C> Callable<C> withSpan(Span span, boolean endSpan, Callable<C> callable) {
     return new CallableInSpan<C>(span, callable, endSpan);
   }
 

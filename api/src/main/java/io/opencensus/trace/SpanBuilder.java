@@ -238,17 +238,9 @@ public abstract class SpanBuilder {
    *
    * <pre><code>
    * Span span = tracer.spanBuilder("MyRunnableSpan").startSpan();
-   * Runnable newRunnable = tracer.wrap(span, new Runnable() {
-   *    {@literal @}Override
-   *     public void run() {
-   *       try {
-   *         myRunnable.run();
-   *       } finally {
-   *         span.end();
-   *       }
-   *     }
-   * });
+   * Runnable newRunnable = tracer.withSpan(span, myRunnable);
    * newRunnable.run();
+   * span.end();
    * </code></pre>
    *
    * @param runnable the {@code Runnable} to run in the {@code Span}.
@@ -256,7 +248,7 @@ public abstract class SpanBuilder {
    */
   public final void startSpanAndRun(final Runnable runnable) {
     final Span span = startSpan();
-    CurrentSpanUtils.wrap(span, runnable, true).run();
+    CurrentSpanUtils.withSpan(span, true, runnable).run();
   }
 
   /**
@@ -273,16 +265,9 @@ public abstract class SpanBuilder {
    *
    * <pre><code>
    * Span span = tracer.spanBuilder("MyCallableSpan").startSpan();
-   * {@code Callable<MyResult>} newCallable = tracer.wrap(span, {@code new Callable<MyResult>()} {
-   *    {@literal @}Override
-   *     public MyResult call() throws Exception {
-   *       try {
-   *         return myCallable.call();
-   *       } finally {
-   *         span.end();
-   *       }
-   *     }
+   * {@code Callable<MyResult>} newCallable = tracer.withSpan(span, myCallable);
    * MyResult myResult = newCallable.call();
+   * span.end();
    * });
    * </code></pre>
    *
@@ -291,7 +276,7 @@ public abstract class SpanBuilder {
    */
   public final <V> V startSpanAndCall(Callable<V> callable) throws Exception {
     final Span span = startSpan();
-    return CurrentSpanUtils.wrap(span, callable, true).call();
+    return CurrentSpanUtils.withSpan(span, true, callable).call();
   }
 
   static final class NoopSpanBuilder extends SpanBuilder {
