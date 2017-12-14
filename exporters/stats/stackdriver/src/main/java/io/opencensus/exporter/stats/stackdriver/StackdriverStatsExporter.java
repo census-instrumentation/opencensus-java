@@ -156,6 +156,7 @@ public final class StackdriverStatsExporter {
    *
    * @param configuration the {@code StackdriverStatsConfiguration}.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
+   * @since 0.11.0
    */
   public static void createAndRegister(StackdriverStatsConfiguration configuration)
       throws IOException {
@@ -165,6 +166,34 @@ public final class StackdriverStatsExporter {
         configuration.getProjectId(),
         configuration.getExportInterval(),
         configuration.getMonitoredResource());
+  }
+
+  /**
+   * Creates a Stackdriver Stats exporter with default settings.
+   *
+   * <p>Only one Stackdriver exporter can be created.
+   *
+   * <p>This is equivalent with:
+   *
+   * <pre>{@code
+   * StackdriverStatsExporter.createAndRegister(StackdriverStatsConfiguration.builder().build());
+   * }</pre>
+   *
+   * <p>This method uses the default application credentials. See {@link
+   * GoogleCredentials#getApplicationDefault}.
+   *
+   * <p>This method uses the default project ID configured. See {@link
+   * ServiceOptions#getDefaultProjectId}.
+   *
+   * <p>This method uses the default interval of one minute.
+   *
+   * <p>This method uses the default resource with type global and no labels.
+   *
+   * @throws IllegalStateException if a Stackdriver exporter is already created.
+   * @since 0.11.0
+   */
+  public static void createAndRegister() throws IOException {
+    createInternal(null, null, null, null);
   }
 
   /**
