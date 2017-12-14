@@ -41,6 +41,7 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_STATUS;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Distribution;
@@ -58,6 +59,7 @@ import java.util.List;
 public final class RpcViewConstants {
 
   // Common histogram bucket boundaries for bytes received/sets Views.
+  @VisibleForTesting
   static final List<Double> RPC_BYTES_BUCKET_BOUNDARIES =
       Collections.unmodifiableList(
           Arrays.asList(
@@ -77,6 +79,7 @@ public final class RpcViewConstants {
               4294967296.0));
 
   // Common histogram bucket boundaries for latency and elapsed-time Views.
+  @VisibleForTesting
   static final List<Double> RPC_MILLIS_BUCKET_BOUNDARIES =
       Collections.unmodifiableList(
           Arrays.asList(
@@ -85,6 +88,7 @@ public final class RpcViewConstants {
               800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0));
 
   // Common histogram bucket boundaries for request/response count Views.
+  @VisibleForTesting
   static final List<Double> RPC_COUNT_BUCKET_BOUNDARIES =
       Collections.unmodifiableList(
           Arrays.asList(
@@ -92,22 +96,25 @@ public final class RpcViewConstants {
               4096.0, 8192.0, 16384.0, 32768.0, 65536.0));
 
   // Use Aggregation.Mean to record sum and count stats at the same time.
-  static final Aggregation MEAN = Mean.create();
+  @VisibleForTesting static final Aggregation MEAN = Mean.create();
 
+  @VisibleForTesting
   static final Aggregation AGGREGATION_WITH_BYTES_HISTOGRAM =
       Distribution.create(BucketBoundaries.create(RPC_BYTES_BUCKET_BOUNDARIES));
 
+  @VisibleForTesting
   static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
       Distribution.create(BucketBoundaries.create(RPC_MILLIS_BUCKET_BOUNDARIES));
 
+  @VisibleForTesting
   static final Aggregation AGGREGATION_WITH_COUNT_HISTOGRAM =
       Distribution.create(BucketBoundaries.create(RPC_COUNT_BUCKET_BOUNDARIES));
 
-  static final Duration MINUTE = Duration.create(60, 0);
-  static final Duration HOUR = Duration.create(60 * 60, 0);
-  static final AggregationWindow CUMULATIVE = Cumulative.create();
-  static final AggregationWindow INTERVAL_MINUTE = Interval.create(MINUTE);
-  static final AggregationWindow INTERVAL_HOUR = Interval.create(HOUR);
+  @VisibleForTesting static final Duration MINUTE = Duration.create(60, 0);
+  @VisibleForTesting static final Duration HOUR = Duration.create(60 * 60, 0);
+  @VisibleForTesting static final AggregationWindow CUMULATIVE = Cumulative.create();
+  @VisibleForTesting static final AggregationWindow INTERVAL_MINUTE = Interval.create(MINUTE);
+  @VisibleForTesting static final AggregationWindow INTERVAL_HOUR = Interval.create(HOUR);
 
   // Rpc client cumulative views.
   public static final View RPC_CLIENT_ERROR_COUNT_VIEW =
