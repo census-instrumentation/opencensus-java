@@ -136,6 +136,7 @@ subprojects {
         guavaVersion = '19.0'
         googleAuthVersion = '0.9.0'
         googleCloudVersion = '0.30.0-beta'
+        signalfxVersion = '0.0.39'
         zipkinReporterVersion = '2.0.0'
 
         libraries = [
@@ -155,6 +156,7 @@ subprojects {
                 grpc_core: "io.grpc:grpc-core:${grpcVersion}",
                 guava: "com.google.guava:guava:${guavaVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
+                signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
@@ -317,6 +319,7 @@ subprojects {
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-zpages',
+                 'opencensus-exporter-stats-signalfx',
                  'opencensus-exporter-stats-stackdriver',
                  'opencensus-exporter-trace-logging',
                  'opencensus-exporter-trace-stackdriver',
