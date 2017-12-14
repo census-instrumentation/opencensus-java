@@ -239,8 +239,11 @@ public abstract class SpanBuilder {
    * <pre><code>
    * Span span = tracer.spanBuilder("MyRunnableSpan").startSpan();
    * Runnable newRunnable = tracer.withSpan(span, myRunnable);
-   * newRunnable.run();
-   * span.end();
+   * try {
+   *   newRunnable.run();
+   * } finally {
+   *   span.end();
+   * }
    * </code></pre>
    *
    * @param runnable the {@code Runnable} to run in the {@code Span}.
@@ -266,9 +269,13 @@ public abstract class SpanBuilder {
    * <pre><code>
    * Span span = tracer.spanBuilder("MyCallableSpan").startSpan();
    * {@code Callable<MyResult>} newCallable = tracer.withSpan(span, myCallable);
-   * MyResult myResult = newCallable.call();
-   * span.end();
-   * });
+   * MyResult myResult = null;
+   * try {
+   *   myResult = newCallable.call();
+   * } finally {
+   *   span.end();
+   * }
+   * );
    * </code></pre>
    *
    * @param callable the {@code Callable} to run in the {@code Span}.
