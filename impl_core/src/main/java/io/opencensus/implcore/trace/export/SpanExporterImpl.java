@@ -17,6 +17,7 @@
 package io.opencensus.implcore.trace.export;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.common.Duration;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.export.ExportComponent;
@@ -24,10 +25,10 @@ import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
@@ -47,11 +48,11 @@ public final class SpanExporterImpl extends SpanExporter {
    * the thread wakes up sooner.
    *
    * @param bufferSize the size of the buffered span data.
-   * @param scheduleDelayMillis the maximum delay in milliseconds.
+   * @param scheduleDelay the maximum delay.
    */
-  static SpanExporterImpl create(int bufferSize, long scheduleDelayMillis) {
+  static SpanExporterImpl create(int bufferSize, Duration scheduleDelay) {
     // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
-    Worker worker = new Worker(bufferSize, scheduleDelayMillis);
+    Worker worker = new Worker(bufferSize, scheduleDelay);
     return new SpanExporterImpl(worker);
   }
 
@@ -142,12 +143,12 @@ public final class SpanExporterImpl extends SpanExporter {
       }
     }
 
-    // TODO: Decide whether to use a different class instead of LinkedList.
-    @SuppressWarnings("JdkObsolete")
-    private Worker(int bufferSize, long scheduleDelayMillis) {
-      spans = new LinkedList<SpanImpl>();
+    private Worker(int bufferSize, Duration scheduleDelay) {
+      spans = new ArrayList<SpanImpl>(bufferSize);
       this.bufferSize = bufferSize;
-      this.scheduleDelayMillis = scheduleDelayMillis;
+      this.scheduleDelayMillis =
+          TimeUnit.SECONDS.toMillis(scheduleDelay.getSeconds())
+              + TimeUnit.NANOSECONDS.toMillis(scheduleDelay.getNanos());
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered

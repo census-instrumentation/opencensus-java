@@ -16,6 +16,7 @@
 
 package io.opencensus.implcore.trace.export;
 
+import io.opencensus.common.Duration;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.export.RunningSpanStore;
@@ -25,8 +26,8 @@ import javax.annotation.Nullable;
 /** Implementation of the {@link ExportComponent}. */
 public final class ExportComponentImpl extends ExportComponent {
   private static final int EXPORTER_BUFFER_SIZE = 32;
-  // Enforces that trace export exports data at least once every 2 seconds.
-  private static final long EXPORTER_SCHEDULE_DELAY_MS = 2000;
+  // Enforces that trace export exports data at least once every 5 seconds.
+  private static final Duration EXPORTER_SCHEDULE_DELAY = Duration.create(5, 0);
 
   private final SpanExporterImpl spanExporter;
   private final RunningSpanStoreImpl runningSpanStore;
@@ -76,7 +77,7 @@ public final class ExportComponentImpl extends ExportComponent {
    *     SampledSpanStore}.
    */
   private ExportComponentImpl(boolean supportInProcessStores, EventQueue eventQueue) {
-    this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY_MS);
+    this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY);
     this.runningSpanStore = supportInProcessStores ? new RunningSpanStoreImpl() : null;
     this.sampledSpanStore = supportInProcessStores ? new SampledSpanStoreImpl(eventQueue) : null;
   }
