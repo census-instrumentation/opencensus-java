@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doThrow;
 
+import io.opencensus.common.Duration;
 import io.opencensus.implcore.common.MillisClock;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.trace.SpanImpl;
@@ -58,7 +59,7 @@ public class SpanExporterImplTest {
   private final SpanContext notSampledSpanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private final SpanExporterImpl spanExporter = SpanExporterImpl.create(4, 1000);
+  private final SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(1, 0));
   private final RunningSpanStoreImpl runningSpanStore = new RunningSpanStoreImpl();
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());

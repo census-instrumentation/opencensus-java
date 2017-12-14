@@ -18,6 +18,7 @@ package io.opencensus.implcore.trace.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.common.Duration;
 import io.opencensus.implcore.common.MillisClock;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.trace.SpanImpl;
@@ -43,7 +44,8 @@ public class RunningSpanStoreImplTest {
   private static final String SPAN_NAME_1 = "MySpanName/1";
   private static final String SPAN_NAME_2 = "MySpanName/2";
   private final Random random = new Random(1234);
-  private final SpanExporterImpl sampledSpansServiceExporter = SpanExporterImpl.create(4, 1000);
+  private final SpanExporterImpl sampledSpansServiceExporter =
+      SpanExporterImpl.create(4, Duration.create(1, 0));
   private final RunningSpanStoreImpl activeSpansExporter = new RunningSpanStoreImpl();
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(
