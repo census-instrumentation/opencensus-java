@@ -18,10 +18,11 @@ package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.grpc.Context;
 import io.opencensus.common.Scope;
+import java.util.concurrent.Callable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,26 +69,42 @@ public class TracerTest {
   }
 
   @Test
-  public void propagationViaRunnable() {
+  public void wrapRunnable() {
     Runnable runnable;
-    Scope ws = noopTracer.withSpan(span);
-    try {
-      assertThat(noopTracer.getCurrentSpan()).isSameAs(span);
-      runnable =
-          Context.current()
-              .wrap(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      assertThat(noopTracer.getCurrentSpan()).isSameAs(span);
-                    }
-                  });
-    } finally {
-      ws.close();
-    }
     assertThat(noopTracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    runnable =
+        tracer.withSpan(
+            span,
+            new Runnable() {
+              @Override
+              public void run() {
+                assertThat(noopTracer.getCurrentSpan()).isSameAs(span);
+              }
+            });
     // When we run the runnable we will have the span in the current Context.
     runnable.run();
+    verifyZeroInteractions(span);
+    assertThat(noopTracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+  }
+
+  @Test
+  public void wrapCallable() throws Exception {
+    final Object ret = new Object();
+    Callable<Object> callable;
+    assertThat(noopTracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+    callable =
+        tracer.withSpan(
+            span,
+            new Callable<Object>() {
+              @Override
+              public Object call() throws Exception {
+                assertThat(noopTracer.getCurrentSpan()).isSameAs(span);
+                return ret;
+              }
+            });
+    // When we call the callable we will have the span in the current Context.
+    assertThat(callable.call()).isEqualTo(ret);
+    verifyZeroInteractions(span);
     assertThat(noopTracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 

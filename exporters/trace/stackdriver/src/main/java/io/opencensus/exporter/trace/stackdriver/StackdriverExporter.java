@@ -33,12 +33,12 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <p>Example of usage on Google Cloud VMs:
  *
- * <pre><code>
- *   public static void main(String[] args) {
- *     StackdriverExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
- *     ... // Do work.
- *   }
- * </code></pre>
+ * <pre>{@code
+ * public static void main(String[] args) {
+ *   StackdriverExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
+ *   ... // Do work.
+ * }
+ * }</pre>
  */
 public final class StackdriverExporter {
 

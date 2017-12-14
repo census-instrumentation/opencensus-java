@@ -30,32 +30,32 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <p>Elements must derive from the {@code Element<T extends Element<T>>} interface:
  *
- * <pre>{@code
- * class MyClass implements Element<MyClass> {
+ * <pre><code>
+ * class MyClass implements {@code Element<MyClass>} {
  *   private MyClass next = null;
  *   private MyClass prev = null;
  *
- *   {@literal @}Override
+ *  {@literal @}Override
  *   MyClass getNext() {
  *     return next;
  *   }
  *
- *   {@literal @}Override
+ *  {@literal @}Override
  *   void setNext(MyClass element) {
  *     next = element;
  *   }
  *
- *   {@literal @}Override
+ *  {@literal @}Override
  *   MyClass getPrev() {
  *     return prev;
  *   }
  *
- *   {@literal @}Override
+ *  {@literal @}Override
  *   void setPrev(MyClass element) {
  *     prev = element;
  *   }
  * }
- * }</pre>
+ * </code></pre>
  */
 @ThreadSafe
 public final class ConcurrentIntrusiveList<T extends Element<T>> {

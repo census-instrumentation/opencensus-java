@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.SpanBuilder.NoopSpanBuilder;
+import java.util.concurrent.Callable;
 import javax.annotation.Nullable;
 
 /**
@@ -148,6 +149,136 @@ public abstract class Tracer {
   @MustBeClosed
   public final Scope withSpan(Span span) {
     return CurrentSpanUtils.withSpan(checkNotNull(span, "span"), false);
+  }
+
+  /**
+   * Returns a {@link Runnable} that runs the given task with the given {@code Span} in the current
+   * context.
+   *
+   * <p>Users may consider to use {@link SpanBuilder#startSpanAndRun(Runnable)}.
+   *
+   * <p>Any error will end up as a {@link Status#UNKNOWN}.
+   *
+   * <p>IMPORTANT: Caller must manually propagate the entire {@code io.grpc.Context} when wraps a
+   * {@code Runnable}, see the examples.
+   *
+   * <p>IMPORTANT: Caller must manually end the {@code Span} within the {@code Runnable}, or after
+   * the {@code Runnable} is executed.
+   *
+   * <p>Example with Executor wrapped with {@link io.grpc.Context#currentContextExecutor}:
+   *
+   * <pre><code>
+   * class MyClass {
+   *   private static Tracer tracer = Tracing.getTracer();
+   *   void handleRequest(Executor executor) {
+   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     executor.execute(tracer.withSpan(span, new Runnable() {
+   *      {@literal @}Override
+   *       public void run() {
+   *         try {
+   *           sendResult();
+   *         } finally {
+   *           span.end();
+   *         }
+   *       }
+   *     }));
+   *   }
+   * }
+   * </code></pre>
+   *
+   * <p>Example without Executor wrapped with {@link io.grpc.Context#currentContextExecutor}:
+   *
+   * <pre><code>
+   * class MyClass {
+   *   private static Tracer tracer = Tracing.getTracer();
+   *   void handleRequest(Executor executor) {
+   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     executor.execute(Context.wrap(tracer.withSpan(span, new Runnable() {
+   *      {@literal @}Override
+   *       public void run() {
+   *         try {
+   *           sendResult();
+   *         } finally {
+   *           span.end();
+   *         }
+   *       }
+   *     })));
+   *   }
+   * }
+   * </code></pre>
+   *
+   * @param span the {@code Span} to be set as current.
+   * @param runnable the {@code Runnable} to withSpan in the {@code Span}.
+   * @return the {@code Runnable}.
+   * @since 0.11.0
+   */
+  public final Runnable withSpan(Span span, Runnable runnable) {
+    return CurrentSpanUtils.withSpan(span, false, runnable);
+  }
+
+  /**
+   * Returns a {@link Callable} that runs the given task with the given {@code Span} in the current
+   * context.
+   *
+   * <p>Users may consider to use {@link SpanBuilder#startSpanAndCall(Callable)}.
+   *
+   * <p>Any error will end up as a {@link Status#UNKNOWN}.
+   *
+   * <p>IMPORTANT: Caller must manually propagate the entire {@code io.grpc.Context} when wraps a
+   * {@code Callable}, see the examples.
+   *
+   * <p>IMPORTANT: Caller must manually end the {@code Span} within the {@code Callable}, or after
+   * the {@code Callable} is executed.
+   *
+   * <p>Example with Executor wrapped with {@link io.grpc.Context#currentContextExecutor}:
+   *
+   * <pre><code>
+   * class MyClass {
+   *   private static Tracer tracer = Tracing.getTracer();
+   *   void handleRequest(Executor executor) {
+   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     executor.execute(tracer.withSpan(span, {@code new Callable<MyResult>()} {
+   *      {@literal @}Override
+   *       public MyResult call() throws Exception {
+   *         try {
+   *           return sendResult();
+   *         } finally {
+   *           span.end();
+   *         }
+   *       }
+   *     }));
+   *   }
+   * }
+   * </code></pre>
+   *
+   * <p>Example without Executor wrapped with {@link io.grpc.Context#currentContextExecutor}:
+   *
+   * <pre><code>
+   * class MyClass {
+   *   private static Tracer tracer = Tracing.getTracer();
+   *   void handleRequest(Executor executor) {
+   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     executor.execute(Context.wrap(tracer.withSpan(span, {@code new Callable<MyResult>()} {
+   *      {@literal @}Override
+   *       public MyResult call() throws Exception {
+   *         try {
+   *           return sendResult();
+   *         } finally {
+   *           span.end();
+   *         }
+   *       }
+   *     })));
+   *   }
+   * }
+   * </code></pre>
+   *
+   * @param span the {@code Span} to be set as current.
+   * @param callable the {@code Callable} to run in the {@code Span}.
+   * @return the {@code Callable}.
+   * @since 0.11.0
+   */
+  public final <C> Callable<C> withSpan(Span span, final Callable<C> callable) {
+    return CurrentSpanUtils.withSpan(span, false, callable);
   }
 
   /**

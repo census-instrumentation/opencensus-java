@@ -33,12 +33,12 @@ import zipkin2.reporter.urlconnection.URLConnectionSender;
  *
  * <p>Example of usage:
  *
- * <pre><code>
- *   public static void main(String[] args) {
- *     ZipkinExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "myservicename");
- *     ... // Do work.
- *   }
- * </code></pre>
+ * <pre>{@code
+ * public static void main(String[] args) {
+ *   ZipkinExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "myservicename");
+ *   ... // Do work.
+ * }
+ * }</pre>
  */
 public final class ZipkinExporter {
 
