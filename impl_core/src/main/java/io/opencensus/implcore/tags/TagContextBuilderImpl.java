@@ -44,7 +44,7 @@ final class TagContextBuilderImpl extends TagContextBuilder {
 
   @Override
   public TagContextBuilderImpl remove(TagKey key) {
-    tags.remove(key);
+    tags.remove(checkNotNull(key, "key"));
     return this;
   }
 

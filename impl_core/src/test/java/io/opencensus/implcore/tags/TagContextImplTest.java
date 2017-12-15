@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
@@ -81,6 +82,24 @@ public class TagContextImplTest {
   }
 
   @Test
+  public void put_nullKey() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContextBuilder builder = tagger.toBuilder(tags);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key");
+    builder.put(null, V2);
+  }
+
+  @Test
+  public void put_nullValue() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContextBuilder builder = tagger.toBuilder(tags);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("value");
+    builder.put(K2, null);
+  }
+
+  @Test
   public void remove_existingKey() {
     TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
     assertThat(((TagContextImpl) tagger.toBuilder(tags).remove(K1).build()).getTags())
@@ -92,6 +111,15 @@ public class TagContextImplTest {
     TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
     assertThat(((TagContextImpl) tagger.toBuilder(tags).remove(K2).build()).getTags())
         .containsExactly(K1, V1);
+  }
+
+  @Test
+  public void remove_nullValue() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContextBuilder builder = tagger.toBuilder(tags);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key");
+    builder.remove(null);
   }
 
   @Test
