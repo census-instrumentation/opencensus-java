@@ -38,17 +38,13 @@ final class TagContextBuilderImpl extends TagContextBuilder {
 
   @Override
   public TagContextBuilderImpl put(TagKey key, TagValue value) {
-    return setInternal(key, checkNotNull(value, "value"));
-  }
-
-  private TagContextBuilderImpl setInternal(TagKey key, TagValue value) {
-    tags.put(checkNotNull(key), value);
+    tags.put(checkNotNull(key, "key"), checkNotNull(value, "value"));
     return this;
   }
 
   @Override
   public TagContextBuilderImpl remove(TagKey key) {
-    tags.remove(key);
+    tags.remove(checkNotNull(key, "key"));
     return this;
   }
 

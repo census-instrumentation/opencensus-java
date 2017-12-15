@@ -17,15 +17,15 @@
 package io.opencensus.implcore.tags;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.implcore.tags.TagsTestUtil.tagContextToList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
-import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
+import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
@@ -38,14 +38,17 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link TagContextImpl} and {@link TagContextBuilderImpl}. */
-// TODO(sebright): Add more tests once the API is finalized.
+/**
+ * Tests for {@link TagContextImpl} and {@link TagContextBuilderImpl}.
+ *
+ * <p>Tests for {@link TagContextBuilderImpl#buildScoped()} are in {@link ScopedTagContextsTest}.
+ */
 @RunWith(JUnit4.class)
 public class TagContextImplTest {
   private final Tagger tagger = new TaggerImpl(new CurrentTaggingState());
 
-  private static final TagKey KS1 = TagKey.create("k1");
-  private static final TagKey KS2 = TagKey.create("k2");
+  private static final TagKey K1 = TagKey.create("k1");
+  private static final TagKey K2 = TagKey.create("k2");
 
   private static final TagValue V1 = TagValue.create("v1");
   private static final TagValue V2 = TagValue.create("v2");
@@ -53,40 +56,90 @@ public class TagContextImplTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testSet() {
-    TagContext tags = tagger.emptyBuilder().put(KS1, V1).build();
-    assertThat(tagContextToList(tagger.toBuilder(tags).put(KS1, V2).build()))
-        .containsExactly(Tag.create(KS1, V2));
-    assertThat(tagContextToList(tagger.toBuilder(tags).put(KS2, V2).build()))
-        .containsExactly(Tag.create(KS1, V1), Tag.create(KS2, V2));
+  public void getTags_empty() {
+    TagContextImpl tags = new TagContextImpl(ImmutableMap.<TagKey, TagValue>of());
+    assertThat(tags.getTags()).isEmpty();
   }
 
   @Test
-  public void testClear() {
-    TagContext tags = tagger.emptyBuilder().put(KS1, V1).build();
-    assertThat(tagContextToList(tagger.toBuilder(tags).remove(KS1).build())).isEmpty();
-    assertThat(tagContextToList(tagger.toBuilder(tags).remove(KS2).build()))
-        .containsExactly(Tag.create(KS1, V1));
+  public void getTags_nonEmpty() {
+    TagContextImpl tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
+    assertThat(tags.getTags()).containsExactly(K1, V1, K2, V2);
+  }
+
+  @Test
+  public void put_newKey() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    assertThat(((TagContextImpl) tagger.toBuilder(tags).put(K2, V2).build()).getTags())
+        .containsExactly(K1, V1, K2, V2);
+  }
+
+  @Test
+  public void put_existingKey() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    assertThat(((TagContextImpl) tagger.toBuilder(tags).put(K1, V2).build()).getTags())
+        .containsExactly(K1, V2);
+  }
+
+  @Test
+  public void put_nullKey() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContextBuilder builder = tagger.toBuilder(tags);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key");
+    builder.put(null, V2);
+  }
+
+  @Test
+  public void put_nullValue() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContextBuilder builder = tagger.toBuilder(tags);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("value");
+    builder.put(K2, null);
+  }
+
+  @Test
+  public void remove_existingKey() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
+    assertThat(((TagContextImpl) tagger.toBuilder(tags).remove(K1).build()).getTags())
+        .containsExactly(K2, V2);
+  }
+
+  @Test
+  public void remove_differentKey() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    assertThat(((TagContextImpl) tagger.toBuilder(tags).remove(K2).build()).getTags())
+        .containsExactly(K1, V1);
+  }
+
+  @Test
+  public void remove_nullValue() {
+    TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
+    TagContextBuilder builder = tagger.toBuilder(tags);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key");
+    builder.remove(null);
   }
 
   @Test
   public void testIterator() {
-    TagContext tags = tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
-    Iterator<Tag> i = InternalUtils.getTags(tags);
+    TagContextImpl tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
+    Iterator<Tag> i = tags.getIterator();
     assertTrue(i.hasNext());
     Tag tag1 = i.next();
     assertTrue(i.hasNext());
     Tag tag2 = i.next();
     assertFalse(i.hasNext());
-    assertThat(Arrays.asList(tag1, tag2)).containsExactly(Tag.create(KS1, V1), Tag.create(KS2, V2));
+    assertThat(Arrays.asList(tag1, tag2)).containsExactly(Tag.create(K1, V1), Tag.create(K2, V2));
     thrown.expect(NoSuchElementException.class);
     i.next();
   }
 
   @Test
   public void disallowCallingRemoveOnIterator() {
-    TagContext tags = tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build();
-    Iterator<Tag> i = InternalUtils.getTags(tags);
+    TagContextImpl tags = new TagContextImpl(ImmutableMap.of(K1, V1, K2, V2));
+    Iterator<Tag> i = tags.getIterator();
     i.next();
     thrown.expect(UnsupportedOperationException.class);
     i.remove();
@@ -96,17 +149,17 @@ public class TagContextImplTest {
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build(),
-            tagger.emptyBuilder().put(KS1, V1).put(KS2, V2).build(),
-            tagger.emptyBuilder().put(KS2, V2).put(KS1, V1).build(),
+            tagger.emptyBuilder().put(K1, V1).put(K2, V2).build(),
+            tagger.emptyBuilder().put(K1, V1).put(K2, V2).build(),
+            tagger.emptyBuilder().put(K2, V2).put(K1, V1).build(),
             new TagContext() {
               @Override
               protected Iterator<Tag> getIterator() {
-                return Lists.<Tag>newArrayList(Tag.create(KS1, V1), Tag.create(KS2, V2)).iterator();
+                return Lists.<Tag>newArrayList(Tag.create(K1, V1), Tag.create(K2, V2)).iterator();
               }
             })
-        .addEqualityGroup(tagger.emptyBuilder().put(KS1, V1).put(KS2, V1).build())
-        .addEqualityGroup(tagger.emptyBuilder().put(KS1, V2).put(KS2, V1).build())
+        .addEqualityGroup(tagger.emptyBuilder().put(K1, V1).put(K2, V1).build())
+        .addEqualityGroup(tagger.emptyBuilder().put(K1, V2).put(K2, V1).build())
         .testEquals();
   }
 }
