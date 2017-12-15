@@ -36,7 +36,7 @@ public class RpcViewsTest {
   @Test
   public void registerCumulative() {
     FakeViewManager fakeViewManager = new FakeViewManager();
-    RpcViews.registerCumulativeViews(fakeViewManager);
+    RpcViews.registerAllCumulativeViews(fakeViewManager);
     for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
       assertThat(fakeViewManager.isRegistered(view)).isTrue();
     }
@@ -48,7 +48,7 @@ public class RpcViewsTest {
   @Test
   public void registerInterval() {
     FakeViewManager fakeViewManager = new FakeViewManager();
-    RpcViews.registerIntervalViews(fakeViewManager);
+    RpcViews.registerAllIntervalViews(fakeViewManager);
     for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
       assertThat(fakeViewManager.isRegistered(view)).isFalse();
     }
@@ -68,6 +68,8 @@ public class RpcViewsTest {
       assertThat(fakeViewManager.isRegistered(view)).isTrue();
     }
   }
+
+  // TODO(bdrutu): Test with reflection that all defined gRPC views are registered.
 
   private static final class FakeViewManager extends ViewManager {
     private final Map<View.Name, View> registeredViews = Maps.newHashMap();

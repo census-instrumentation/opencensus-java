@@ -89,16 +89,16 @@ public final class RpcViews {
   /**
    * Registers all standard cumulative views.
    *
-   * <p>This must be called once at the beginning of the process.
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
    * @since 0.11.0
    */
-  public static void registerCumulativeViews() {
-    registerCumulativeViews(Stats.getViewManager());
+  public static void registerAllCumulativeViews() {
+    registerAllCumulativeViews(Stats.getViewManager());
   }
 
   @VisibleForTesting
-  static void registerCumulativeViews(ViewManager viewManager) {
+  static void registerAllCumulativeViews(ViewManager viewManager) {
     for (View view : RPC_CUMULATIVE_VIEWS_SET) {
       viewManager.registerView(view);
     }
@@ -107,16 +107,16 @@ public final class RpcViews {
   /**
    * Registers all standard interval views.
    *
-   * <p>This must be called once at the beginning of the process.
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
    * @since 0.11.0
    */
-  public static void registerIntervalViews() {
-    registerIntervalViews(Stats.getViewManager());
+  public static void registerAllIntervalViews() {
+    registerAllIntervalViews(Stats.getViewManager());
   }
 
   @VisibleForTesting
-  static void registerIntervalViews(ViewManager viewManager) {
+  static void registerAllIntervalViews(ViewManager viewManager) {
     for (View view : RPC_INTERVAL_VIEWS_SET) {
       viewManager.registerView(view);
     }
@@ -125,7 +125,10 @@ public final class RpcViews {
   /**
    * Registers all views.
    *
-   * <p>This must be called once at the beginning of the process.
+   * <p>This is equivalent with calling {@link #registerAllCumulativeViews()} and {@link
+   * #registerAllIntervalViews()}.
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
    * @since 0.11.0
    */
@@ -135,8 +138,8 @@ public final class RpcViews {
 
   @VisibleForTesting
   static void registerAllViews(ViewManager viewManager) {
-    registerCumulativeViews(viewManager);
-    registerIntervalViews(viewManager);
+    registerAllCumulativeViews(viewManager);
+    registerAllIntervalViews(viewManager);
   }
 
   private RpcViews() {}
