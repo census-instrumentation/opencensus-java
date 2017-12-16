@@ -114,7 +114,7 @@ public class TagContextImplTest {
   }
 
   @Test
-  public void remove_nullValue() {
+  public void remove_nullKey() {
     TagContext tags = new TagContextImpl(ImmutableMap.of(K1, V1));
     TagContextBuilder builder = tagger.toBuilder(tags);
     thrown.expect(NullPointerException.class);
