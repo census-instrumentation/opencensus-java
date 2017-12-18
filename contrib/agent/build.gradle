@@ -1,5 +1,5 @@
 plugins {
-  id 'com.github.johnrengelman.shadow' version '2.0.1'
+  id 'com.github.johnrengelman.shadow' version '2.0.2'
   id 'me.champeau.gradle.jmh' version '0.4.4'
   id 'io.morethan.jmhreport' version '0.7.0'
 }
