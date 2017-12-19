@@ -25,8 +25,14 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
@@ -38,6 +44,7 @@ import io.opencensus.tags.TagValue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -52,7 +59,7 @@ public final class ViewDataTest {
 
   @Test
   public void testCumulativeViewData() {
-    View view = View.create(NAME, DESCRIPTION, MEASURE, DISTRIBUTION, tagKeys, CUMULATIVE);
+    View view = View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, CUMULATIVE);
     Timestamp start = Timestamp.fromMillis(1000);
     Timestamp end = Timestamp.fromMillis(2000);
     AggregationWindowData windowData = CumulativeData.create(start, end);
@@ -64,7 +71,8 @@ public final class ViewDataTest {
 
   @Test
   public void testIntervalViewData() {
-    View view = View.create(NAME, DESCRIPTION, MEASURE, DISTRIBUTION, tagKeys, INTERVAL_HOUR);
+    View view =
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, INTERVAL_HOUR);
     Timestamp end = Timestamp.fromMillis(2000);
     AggregationWindowData windowData = IntervalData.create(end);
     ViewData viewData = ViewData.create(view, ENTRIES, windowData);
@@ -76,9 +84,9 @@ public final class ViewDataTest {
   @Test
   public void testViewDataEquals() {
     View cumulativeView =
-        View.create(NAME, DESCRIPTION, MEASURE, DISTRIBUTION, tagKeys, CUMULATIVE);
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, CUMULATIVE);
     View intervalView =
-        View.create(NAME, DESCRIPTION, MEASURE, DISTRIBUTION, tagKeys, INTERVAL_HOUR);
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, INTERVAL_HOUR);
 
     new EqualsTester()
         .addEqualityGroup(
@@ -150,8 +158,9 @@ public final class ViewDataTest {
   @Test
   public void preventWindowAndAggregationWindowDataMismatch() {
     thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("AggregationWindow and AggregationWindowData types mismatch. ");
     ViewData.create(
-        View.create(NAME, DESCRIPTION, MEASURE, DISTRIBUTION, tagKeys, INTERVAL_HOUR),
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, INTERVAL_HOUR),
         ENTRIES,
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
   }
@@ -159,8 +168,9 @@ public final class ViewDataTest {
   @Test
   public void preventWindowAndAggregationWindowDataMismatch2() {
     thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("AggregationWindow and AggregationWindowData types mismatch. ");
     ViewData.create(
-        View.create(NAME, DESCRIPTION, MEASURE, DISTRIBUTION, tagKeys, CUMULATIVE),
+        View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, CUMULATIVE),
         ENTRIES,
         IntervalData.create(Timestamp.fromMillis(1000)));
   }
@@ -171,10 +181,64 @@ public final class ViewDataTest {
     CumulativeData.create(Timestamp.fromMillis(3000), Timestamp.fromMillis(2000));
   }
 
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_SumDouble_SumLong() {
+    aggregationAndAggregationDataMismatch(
+        createView(Sum.create(), MEASURE_DOUBLE),
+        ImmutableMap.<List<TagValue>, AggregationData>of(
+            Arrays.asList(V1, V2), SumDataLong.create(100)));
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_SumLong_SumDouble() {
+    aggregationAndAggregationDataMismatch(
+        createView(Sum.create(), MEASURE_LONG),
+        ImmutableMap.<List<TagValue>, AggregationData>of(
+            Arrays.asList(V1, V2), SumDataDouble.create(100)));
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_Count_Distribution() {
+    aggregationAndAggregationDataMismatch(createView(Count.create()), ENTRIES);
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_Mean_Distribution() {
+    aggregationAndAggregationDataMismatch(createView(Mean.create()), ENTRIES);
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_Distribution_Count() {
+    aggregationAndAggregationDataMismatch(
+        createView(DISTRIBUTION),
+        ImmutableMap.of(
+            Arrays.asList(V1, V2),
+            DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 0L)),
+            Arrays.asList(V10, V20),
+            CountData.create(100)));
+  }
+
+  private static View createView(Aggregation aggregation) {
+    return createView(aggregation, MEASURE_DOUBLE);
+  }
+
+  private static View createView(Aggregation aggregation, Measure measure) {
+    return View.create(NAME, DESCRIPTION, measure, aggregation, TAG_KEYS, CUMULATIVE);
+  }
+
+  private void aggregationAndAggregationDataMismatch(
+      View view, Map<List<TagValue>, ? extends AggregationData> entries) {
+    CumulativeData cumulativeData =
+        CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Aggregation and AggregationData types mismatch. ");
+    ViewData.create(view, entries, cumulativeData);
+  }
+
   // tag keys
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
-  private final List<TagKey> tagKeys = Arrays.asList(K1, K2);
+  private static final List<TagKey> TAG_KEYS = Arrays.asList(K1, K2);
 
   // tag values
   private static final TagValue V1 = TagValue.create("v1");
@@ -202,6 +266,8 @@ public final class ViewDataTest {
   // description
   private static final String DESCRIPTION = "test-view-descriptor description";
   // measure
-  private static final Measure MEASURE =
-      Measure.MeasureDouble.create("measure", "measure description", "1");
+  private static final Measure MEASURE_DOUBLE =
+      Measure.MeasureDouble.create("measure1", "measure description", "1");
+  private static final Measure MEASURE_LONG =
+      Measure.MeasureLong.create("measure2", "measure description", "1");
 }
