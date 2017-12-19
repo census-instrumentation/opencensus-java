@@ -40,8 +40,9 @@ public final class StatusConverter {
    */
   public static io.opencensus.trace.Status fromGrpcStatus(io.grpc.Status grpcStatus) {
     io.opencensus.trace.Status status = opencensusStatusFromGrpcCode(grpcStatus.getCode());
-    if (grpcStatus.getDescription() != null) {
-      status = status.withDescription(grpcStatus.getDescription());
+    String description = grpcStatus.getDescription();
+    if (description != null) {
+      status = status.withDescription(description);
     }
     return status;
   }

@@ -49,7 +49,11 @@ final class TraceStrategyImpl implements TraceStrategy {
     if (throwable != null) {
       Tracing.getTracer()
           .getCurrentSpan()
-          .setStatus(Status.UNKNOWN.withDescription(throwable.getMessage()));
+          .setStatus(
+              Status.UNKNOWN.withDescription(
+                  throwable.getMessage() == null
+                      ? throwable.getClass().getSimpleName()
+                      : throwable.getMessage()));
     }
 
     try {
