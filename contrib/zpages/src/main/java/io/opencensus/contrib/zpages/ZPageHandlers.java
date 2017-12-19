@@ -149,7 +149,9 @@ public final class ZPageHandlers {
   private static void stop() {
     synchronized (monitor) {
       // This should never happen because we register the shutdown hook only if we start the server.
-      checkState(server != null, "The HttpServer is already stopped.");
+      if (server == null) {
+        throw new IllegalStateException("The HttpServer is already stopped.");
+      }
       server.stop(STOP_DELAY);
       server = null;
     }

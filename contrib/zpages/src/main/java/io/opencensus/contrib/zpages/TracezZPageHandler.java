@@ -123,8 +123,8 @@ final class TracezZPageHandler extends ZPageHandler {
   // Map from LatencyBucketBoundaries to the human string displayed on the UI for each bucket.
   private static final Map<LatencyBucketBoundaries, String> LATENCY_BUCKET_BOUNDARIES_STRING_MAP =
       buildLatencyBucketBoundariesStringMap();
-  private final RunningSpanStore runningSpanStore;
-  private final SampledSpanStore sampledSpanStore;
+  @Nullable private final RunningSpanStore runningSpanStore;
+  @Nullable private final SampledSpanStore sampledSpanStore;
 
   private TracezZPageHandler(
       @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
@@ -374,8 +374,9 @@ final class TracezZPageHandler extends ZPageHandler {
 
       lastTimestampNanos = event.getTimestamp();
     }
-    if (span.getStatus() != null) {
-      formatter.format("%44s %s%n", "", htmlEscaper().escape(renderStatus(span.getStatus())));
+    Status status = span.getStatus();
+    if (status != null) {
+      formatter.format("%44s %s%n", "", htmlEscaper().escape(renderStatus(status)));
     }
     formatter.format(
         "%44s %s%n",
@@ -385,6 +386,9 @@ final class TracezZPageHandler extends ZPageHandler {
   // Emits the summary table with links to all samples.
   private void emitSummaryTable(PrintWriter out, Formatter formatter)
       throws UnsupportedEncodingException {
+    if (runningSpanStore == null || sampledSpanStore == null) {
+      return;
+    }
     RunningSpanStore.Summary runningSpanStoreSummary = runningSpanStore.getSummary();
     SampledSpanStore.Summary sampledSpanStoreSummary = sampledSpanStore.getSummary();
 
