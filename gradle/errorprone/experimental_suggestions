@@ -1,6 +1,9 @@
 # FieldMissingNullable is turned off due to
 # https://github.com/google/error-prone/issues/823.
 
+# ReturnMissingNullable is turned off because it
+# conflicts with Checker Framework null analysis.
+
 errorProneExperimentalSuggestions = \
 -Xep:ConstantField:ERROR,\
 -Xep:EmptySetMultibindingContributions:ERROR,\
@@ -16,7 +19,7 @@ errorProneExperimentalSuggestions = \
 -Xep:PrivateConstructorForNoninstantiableModuleTest:ERROR,\
 -Xep:PrivateConstructorForUtilityClass:ERROR,\
 -Xep:RemoveUnusedImports:ERROR,\
--Xep:ReturnMissingNullable:ERROR,\
+-Xep:ReturnMissingNullable:OFF,\
 -Xep:ThrowsUncheckedException:ERROR,\
 -Xep:UngroupedOverloads:ERROR,\
 -Xep:UnnecessarySetDefault:ERROR,\

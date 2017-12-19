@@ -62,6 +62,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 
 /** A mutable version of {@link ViewData}, used for recording stats and start/end time. */
 abstract class MutableViewData {
@@ -69,7 +70,8 @@ abstract class MutableViewData {
   private static final long MILLIS_PER_SECOND = 1000L;
   private static final long NANOS_PER_MILLI = 1000 * 1000;
 
-  @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
+  @Nullable @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
+
   @VisibleForTesting static final Timestamp ZERO_TIMESTAMP = Timestamp.create(0, 0);
 
   private final View view;

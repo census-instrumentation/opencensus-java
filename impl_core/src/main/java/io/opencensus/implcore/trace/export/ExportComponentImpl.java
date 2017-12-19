@@ -30,8 +30,8 @@ public final class ExportComponentImpl extends ExportComponent {
   private static final Duration EXPORTER_SCHEDULE_DELAY = Duration.create(5, 0);
 
   private final SpanExporterImpl spanExporter;
-  private final RunningSpanStoreImpl runningSpanStore;
-  private final SampledSpanStoreImpl sampledSpanStore;
+  @Nullable private final RunningSpanStoreImpl runningSpanStore;
+  @Nullable private final SampledSpanStoreImpl sampledSpanStore;
 
   @Override
   public SpanExporterImpl getSpanExporter() {

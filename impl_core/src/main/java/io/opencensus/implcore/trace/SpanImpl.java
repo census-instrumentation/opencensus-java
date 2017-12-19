@@ -55,9 +55,9 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
 
   // The parent SpanId of this span. Null if this is a root span.
-  private final SpanId parentSpanId;
+  @Nullable private final SpanId parentSpanId;
   // True if the parent is on a different process.
-  private final Boolean hasRemoteParent;
+  @Nullable private final Boolean hasRemoteParent;
   // Active trace params when the Span was created.
   private final TraceParams traceParams;
   // Handler called when the span starts and ends.
@@ -68,24 +68,29 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   private final Clock clock;
   // The time converter used to convert nano time to Timestamp. This is needed because Java has
   // millisecond granularity for Timestamp and tracing events are recorded more often.
-  private final TimestampConverter timestampConverter;
+  @Nullable private final TimestampConverter timestampConverter;
   // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
   // set, otherwise 0.
   private final long startNanoTime;
   // Set of recorded attributes. DO NOT CALL any other method that changes the ordering of events.
   @GuardedBy("this")
+  @Nullable
   private AttributesWithCapacity attributes;
   // List of recorded annotations.
   @GuardedBy("this")
+  @Nullable
   private TraceEvents<EventWithNanoTime<Annotation>> annotations;
   // List of recorded network events.
   @GuardedBy("this")
+  @Nullable
   private TraceEvents<EventWithNanoTime<NetworkEvent>> networkEvents;
   // List of recorded links to parent and child spans.
   @GuardedBy("this")
+  @Nullable
   private TraceEvents<Link> links;
   // The status of the span. Set when the span is ended iff the RECORD_EVENTS options is set.
   @GuardedBy("this")
+  @Nullable
   private Status status;
   // The end time of the span. Set when the span is ended iff the RECORD_EVENTS options is set,
   // otherwise 0.
@@ -99,8 +104,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   private boolean sampleToLocalSpanStore;
 
   // Pointers for the ConcurrentIntrusiveList$Element. Guarded by the ConcurrentIntrusiveList.
-  private SpanImpl next = null;
-  private SpanImpl prev = null;
+  @Nullable private SpanImpl next = null;
+  @Nullable private SpanImpl prev = null;
 
   /**
    * Creates and starts a span with the given configuration.
@@ -424,7 +429,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   private static <T> SpanData.TimedEvents<T> createTimedEvents(
-      TraceEvents<EventWithNanoTime<T>> events, TimestampConverter timestampConverter) {
+      TraceEvents<EventWithNanoTime<T>> events, @Nullable TimestampConverter timestampConverter) {
     if (events == null) {
       return SpanData.TimedEvents.create(Collections.<TimedEvent<T>>emptyList(), 0);
     }
@@ -436,22 +441,24 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
+  @Nullable
   public SpanImpl getNext() {
     return next;
   }
 
   @Override
-  public void setNext(SpanImpl element) {
+  public void setNext(@Nullable SpanImpl element) {
     next = element;
   }
 
   @Override
+  @Nullable
   public SpanImpl getPrev() {
     return prev;
   }
 
   @Override
-  public void setPrev(SpanImpl element) {
+  public void setPrev(@Nullable SpanImpl element) {
     prev = element;
   }
 

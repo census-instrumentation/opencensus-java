@@ -249,8 +249,9 @@ public final class Status {
 
   // The canonical code of this message.
   private final CanonicalCode canonicalCode;
+
   // An additional error message.
-  private final String description;
+  @Nullable private final String description;
 
   private Status(CanonicalCode canonicalCode, @Nullable String description) {
     this.canonicalCode = checkNotNull(canonicalCode, "canonicalCode");
@@ -304,7 +305,7 @@ public final class Status {
    * additional fields may be added to Status in the future.
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     }

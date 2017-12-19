@@ -22,6 +22,7 @@ import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -60,7 +61,7 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class ConcurrentIntrusiveList<T extends Element<T>> {
   private int size = 0;
-  private T head = null;
+  @Nullable private T head = null;
 
   public ConcurrentIntrusiveList() {}
 
@@ -151,6 +152,7 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
      *
      * @return a reference to the next element in the list.
      */
+    @Nullable
     T getNext();
 
     /**
@@ -158,13 +160,14 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
      *
      * @param element the reference to the next element in the list.
      */
-    void setNext(T element);
+    void setNext(@Nullable T element);
 
     /**
      * Returns a reference to the previous element in the list.
      *
      * @return a reference to the previous element in the list.
      */
+    @Nullable
     T getPrev();
 
     /**
@@ -172,6 +175,6 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
      *
      * @param element the reference to the previous element in the list.
      */
-    void setPrev(T element);
+    void setPrev(@Nullable T element);
   }
 }

@@ -25,6 +25,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
 import java.util.concurrent.Executors;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -144,7 +145,7 @@ public final class DisruptorEventQueue implements EventQueue {
 
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.
   private static final class DisruptorEvent {
-    private Entry entry = null;
+    @Nullable private Entry entry;
 
     // Sets the EventQueueEntry associated with this DisruptorEvent.
     void setEntry(Entry entry) {
@@ -152,6 +153,7 @@ public final class DisruptorEventQueue implements EventQueue {
     }
 
     // Returns the EventQueueEntry associated with this DisruptorEvent.
+    @Nullable
     Entry getEntry() {
       return entry;
     }

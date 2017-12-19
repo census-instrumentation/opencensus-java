@@ -24,6 +24,7 @@ import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Internal;
 import java.util.Arrays;
 import java.util.Random;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -184,7 +185,7 @@ public final class TraceId implements Comparable<TraceId> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     }
