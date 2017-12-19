@@ -17,5 +17,9 @@
     <Class name="io.opencensus.common.Duration" />
     <Method name="compareTo" />
   </Match>
+  <Match>
+    <!-- Reason: It conflicts with Checker Framework null analysis. -->
+    <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION"/>
+  </Match>
 
 </FindBugsFilter>

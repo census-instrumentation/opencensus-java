@@ -26,6 +26,7 @@ import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import java.io.IOException;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
@@ -46,6 +47,7 @@ public final class StackdriverExporter {
   private static final Object monitor = new Object();
 
   @GuardedBy("monitor")
+  @Nullable
   private static Handler handler = null;
 
   /**

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -50,7 +51,7 @@ public final class TagContextImpl extends TagContext {
   }
 
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     // Directly compare the tags when both objects are TagContextImpls, for efficiency.
     if (other instanceof TagContextImpl) {
       return getTags().equals(((TagContextImpl) other).getTags());

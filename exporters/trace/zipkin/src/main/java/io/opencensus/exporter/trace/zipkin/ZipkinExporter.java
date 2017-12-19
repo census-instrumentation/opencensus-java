@@ -22,6 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
@@ -46,6 +47,7 @@ public final class ZipkinExporter {
   private static final Object monitor = new Object();
 
   @GuardedBy("monitor")
+  @Nullable
   private static Handler handler = null;
 
   private ZipkinExporter() {}

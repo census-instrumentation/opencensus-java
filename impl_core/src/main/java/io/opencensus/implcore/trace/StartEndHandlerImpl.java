@@ -33,8 +33,8 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class StartEndHandlerImpl implements StartEndHandler {
   private final SpanExporterImpl spanExporter;
-  private final RunningSpanStoreImpl runningSpanStore;
-  private final SampledSpanStoreImpl sampledSpanStore;
+  @Nullable private final RunningSpanStoreImpl runningSpanStore;
+  @Nullable private final SampledSpanStoreImpl sampledSpanStore;
   private final EventQueue eventQueue;
   // true if any of (runningSpanStore OR sampledSpanStore) are different than null, which
   // means the spans with RECORD_EVENTS should be enqueued in the queue.
@@ -78,7 +78,7 @@ public final class StartEndHandlerImpl implements StartEndHandler {
   // An EventQueue entry that records the start of the span event.
   private static final class SpanStartEvent implements EventQueue.Entry {
     private final SpanImpl span;
-    private final RunningSpanStoreImpl activeSpansExporter;
+    @Nullable private final RunningSpanStoreImpl activeSpansExporter;
 
     SpanStartEvent(SpanImpl span, @Nullable RunningSpanStoreImpl activeSpansExporter) {
       this.span = span;
@@ -96,9 +96,9 @@ public final class StartEndHandlerImpl implements StartEndHandler {
   // An EventQueue entry that records the end of the span event.
   private static final class SpanEndEvent implements EventQueue.Entry {
     private final SpanImpl span;
-    private final RunningSpanStoreImpl runningSpanStore;
+    @Nullable private final RunningSpanStoreImpl runningSpanStore;
     private final SpanExporterImpl spanExporter;
-    private final SampledSpanStoreImpl sampledSpanStore;
+    @Nullable private final SampledSpanStoreImpl sampledSpanStore;
 
     SpanEndEvent(
         SpanImpl span,

@@ -61,6 +61,7 @@ public final class StackdriverStatsExporter {
   private final Thread workerThread;
 
   @GuardedBy("monitor")
+  @Nullable
   private static StackdriverStatsExporter exporter = null;
 
   private static final Duration ZERO = Duration.create(0, 0);

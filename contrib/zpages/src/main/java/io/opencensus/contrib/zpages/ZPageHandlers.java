@@ -23,6 +23,7 @@ import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -71,6 +72,7 @@ public final class ZPageHandlers {
   private static final Object monitor = new Object();
 
   @GuardedBy("monitor")
+  @Nullable
   private static HttpServer server;
 
   /**

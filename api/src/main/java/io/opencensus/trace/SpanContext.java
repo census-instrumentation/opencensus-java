@@ -18,6 +18,7 @@ package io.opencensus.trace;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -85,7 +86,7 @@ public final class SpanContext {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     }

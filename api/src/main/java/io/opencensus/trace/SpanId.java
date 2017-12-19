@@ -23,6 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
 import java.util.Arrays;
 import java.util.Random;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -162,7 +163,7 @@ public final class SpanId implements Comparable<SpanId> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj == this) {
       return true;
     }

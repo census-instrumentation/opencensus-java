@@ -43,19 +43,19 @@ final class SpanBuilderImpl extends SpanBuilder {
   private final Options options;
 
   private final String name;
-  private final Span parent;
-  private final SpanContext remoteParentSpanContext;
-  private Sampler sampler;
+  @Nullable private final Span parent;
+  @Nullable private final SpanContext remoteParentSpanContext;
+  @Nullable private Sampler sampler;
   private List<Span> parentLinks = Collections.<Span>emptyList();
-  private Boolean recordEvents;
+  @Nullable private Boolean recordEvents;
 
   private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
       @Nullable Boolean hasRemoteParent,
       String name,
-      Sampler sampler,
+      @Nullable Sampler sampler,
       List<Span> parentLinks,
-      Boolean recordEvents,
+      @Nullable Boolean recordEvents,
       @Nullable TimestampConverter timestampConverter) {
     TraceParams activeTraceParams = options.traceConfig.getActiveTraceParams();
     Random random = options.randomHandler.current();

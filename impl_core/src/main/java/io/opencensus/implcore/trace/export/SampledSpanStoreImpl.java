@@ -208,7 +208,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
       return errorBucketSummaries;
     }
 
-    private List<SpanImpl> getErrorSamples(CanonicalCode code, int maxSpansToReturn) {
+    private List<SpanImpl> getErrorSamples(@Nullable CanonicalCode code, int maxSpansToReturn) {
       ArrayList<SpanImpl> output = new ArrayList<SpanImpl>(maxSpansToReturn);
       if (code != null) {
         getErrorBucket(code).getSamples(maxSpansToReturn, output);
