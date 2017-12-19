@@ -247,4 +247,46 @@ public class SignalFxSessionAdaptorTest {
       }
     }
   }
+
+  @Test
+  public void adaptViewWithEmptyTagValueIntoDatapoints() {
+    Map<List<TagValue>, AggregationData> map =
+        ImmutableMap.<List<TagValue>, AggregationData>of(
+            ImmutableList.of(TagValue.create("dog")),
+            SumDataLong.create(2L),
+            ImmutableList.of(TagValue.create("")),
+            SumDataLong.create(3L));
+    Mockito.when(viewData.getAggregationMap()).thenReturn(map);
+    Mockito.when(view.getAggregation()).thenReturn(Aggregation.Count.create());
+    Mockito.when(view.getWindow()).thenReturn(AggregationWindow.Cumulative.create());
+
+    List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(viewData);
+    assertEquals(2, datapoints.size());
+    for (DataPoint dp : datapoints) {
+      assertEquals("view-name", dp.getMetric());
+      assertEquals(MetricType.CUMULATIVE_COUNTER, dp.getMetricType());
+      assertTrue(dp.hasValue());
+      assertFalse(dp.hasSource());
+
+      Datum datum = dp.getValue();
+      assertTrue(datum.hasIntValue());
+      assertFalse(datum.hasDoubleValue());
+      assertFalse(datum.hasStrValue());
+
+      switch (dp.getDimensionsCount()) {
+        case 0:
+          assertEquals(3L, datum.getIntValue());
+          break;
+        case 1:
+          Dimension dimension = dp.getDimensions(0);
+          assertEquals("animal", dimension.getKey());
+          assertEquals("dog", dimension.getValue());
+          assertEquals(2L, datum.getIntValue());
+          break;
+        default:
+          fail("Unexpected number of dimensions on the created datapoint");
+          break;
+      }
+    }
+  }
 }

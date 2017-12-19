@@ -31,12 +31,12 @@ For Maven add to your `pom.xml`:
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-impl</artifactId>
+    <artifactId>opencensus-exporter-stats-signalfx</artifactId>
     <version>0.10.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-exporter-stats-signalfx</artifactId>
+    <artifactId>opencensus-impl</artifactId>
     <version>0.10.1</version>
     <scope>runtime</scope>
   </dependency>

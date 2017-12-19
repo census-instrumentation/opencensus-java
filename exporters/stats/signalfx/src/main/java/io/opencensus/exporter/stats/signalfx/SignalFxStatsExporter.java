@@ -56,7 +56,8 @@ public final class SignalFxStatsExporter {
 
   private SignalFxStatsExporter(URL url, String token, Duration interval, ViewManager viewManager) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(token), "Invalid SignalFx token");
-    Preconditions.checkArgument(interval.compareTo(ZERO) > 0, "Duration must be positive");
+    Preconditions.checkNotNull(interval, "Interval must not be null");
+    Preconditions.checkArgument(interval.compareTo(ZERO) > 0, "Interval duration must be positive");
     this.workerThread =
         new SignalFxStatsExporterWorkerThread(
             SignalFxMetricsSenderFactory.DEFAULT, url, token, interval, viewManager);
@@ -85,6 +86,7 @@ public final class SignalFxStatsExporter {
    * @throws IllegalStateException if a SignalFx exporter already exists.
    */
   public static void create(Properties properties) {
+    Preconditions.checkNotNull(properties, "Given properties shouldn't be null");
     String host = properties.getProperty(SIGNALFX_HOST_PROPERTY, DEFAULT_SIGNALFX_ENDPOINT);
     String token = properties.getProperty(SIGNALFX_TOKEN_PROPERTY);
     create(host, token, DEFAULT_INTERVAL);

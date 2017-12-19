@@ -50,6 +50,13 @@ public class SignalFxStatsExporterTest {
   }
 
   @Test
+  public void createWithNullProperties() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Given properties shouldn't be null");
+    SignalFxStatsExporter.create(null);
+  }
+
+  @Test
   public void createWithNullTokenFromGivenProperties() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Invalid SignalFx token");
@@ -84,9 +91,16 @@ public class SignalFxStatsExporterTest {
   }
 
   @Test
+  public void createWithNullInterval() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Interval must not be null");
+    SignalFxStatsExporter.create(TEST_ENDPOINT, TEST_TOKEN, null);
+  }
+
+  @Test
   public void createWithNegativeDuration() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Duration must be positive");
+    thrown.expectMessage("Interval duration must be positive");
     SignalFxStatsExporter.create(TEST_ENDPOINT, TEST_TOKEN, Duration.create(-1, 0));
   }
 

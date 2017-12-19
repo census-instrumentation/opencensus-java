@@ -26,7 +26,7 @@ import java.net.URL;
 import java.util.Collections;
 
 /** Interface for creators of {@link AggregateMetricSender}. */
-public interface SignalFxMetricsSenderFactory {
+interface SignalFxMetricsSenderFactory {
 
   /**
    * Creates a new SignalFx metrics sender instance.
