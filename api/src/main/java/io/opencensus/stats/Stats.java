@@ -17,17 +17,17 @@
 package io.opencensus.stats;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.internal.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 /** Class for accessing the default {@link StatsComponent}. */
 public final class Stats {
   private static final Logger logger = Logger.getLogger(Stats.class.getName());
 
   private static final StatsComponent statsComponent =
-      loadStatsComponent(CheckerFrameworkUtils.castNonNull(StatsComponent.class.getClassLoader()));
+      loadStatsComponent(StatsComponent.class.getClassLoader());
 
   /** Returns the default {@link StatsRecorder}. */
   public static StatsRecorder getStatsRecorder() {
@@ -76,7 +76,7 @@ public final class Stats {
 
   // Any provider that may be used for StatsComponent can be added here.
   @VisibleForTesting
-  static StatsComponent loadStatsComponent(ClassLoader classLoader) {
+  static StatsComponent loadStatsComponent(@Nullable ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(

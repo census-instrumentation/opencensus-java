@@ -18,19 +18,19 @@ package io.opencensus.trace;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
-import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.internal.Provider;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.propagation.PropagationComponent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 /** Class that manages a global instance of the {@link TraceComponent}. */
 public final class Tracing {
   private static final Logger logger = Logger.getLogger(Tracing.class.getName());
   private static final TraceComponent traceComponent =
-      loadTraceComponent(CheckerFrameworkUtils.castNonNull(TraceComponent.class.getClassLoader()));
+      loadTraceComponent(TraceComponent.class.getClassLoader());
 
   /**
    * Returns the global {@link Tracer}.
@@ -79,7 +79,7 @@ public final class Tracing {
 
   // Any provider that may be used for TraceComponent can be added here.
   @VisibleForTesting
-  static TraceComponent loadTraceComponent(ClassLoader classLoader) {
+  static TraceComponent loadTraceComponent(@Nullable ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
