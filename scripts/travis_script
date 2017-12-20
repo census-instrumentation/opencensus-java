@@ -48,6 +48,9 @@ case "$TASK" in
         ;;
     esac
     ;;
+  "CHECKER_FRAMEWORK")
+    ./gradlew clean assemble -PcheckerFramework=true
+    ;;
   "BUILD_EXAMPLES_GRADLE")
     pushd examples && ./gradlew clean assemble --stacktrace && popd
     ;;
