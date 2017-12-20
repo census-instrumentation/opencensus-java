@@ -70,11 +70,11 @@ public abstract class TagContext {
     Multiset<Tag> tags1 =
         iter1 == null
             ? ImmutableMultiset.<Tag>of()
-            : HashMultiset.create(Lists.newArrayList(iter1));
+            : HashMultiset.create(Lists.<Tag>newArrayList(iter1));
     Multiset<Tag> tags2 =
         iter2 == null
             ? ImmutableMultiset.<Tag>of()
-            : HashMultiset.create(Lists.newArrayList(iter2));
+            : HashMultiset.create(Lists.<Tag>newArrayList(iter2));
     return tags1.equals(tags2);
   }
 

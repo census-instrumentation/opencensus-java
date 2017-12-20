@@ -70,7 +70,9 @@ public abstract class Span {
   protected Span(SpanContext context, @Nullable EnumSet<Options> options) {
     this.context = checkNotNull(context, "context");
     this.options =
-        options == null ? DEFAULT_OPTIONS : Collections.unmodifiableSet(EnumSet.copyOf(options));
+        options == null
+            ? DEFAULT_OPTIONS
+            : Collections.<Options>unmodifiableSet(EnumSet.copyOf(options));
     checkArgument(
         !context.getTraceOptions().isSampled() || (this.options.contains(Options.RECORD_EVENTS)),
         "Span is sampled, but does not have RECORD_EVENTS set.");
