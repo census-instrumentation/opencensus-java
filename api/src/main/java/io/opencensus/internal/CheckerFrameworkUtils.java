@@ -29,7 +29,7 @@ import org.checkerframework.checker.nullness.qual.KeyForBottom;
 public final class CheckerFrameworkUtils {
   private CheckerFrameworkUtils() {}
 
-  /** Suppress warnings about a nullable value. */
+  /** Suppresses warnings about a nullable value. */
   // TODO(sebright): Try to remove all uses of this method.
   @SuppressWarnings("nullness")
   public static <T> T castNonNull(@Nullable T arg) {
@@ -37,7 +37,7 @@ public final class CheckerFrameworkUtils {
   }
 
   /**
-   * Work around https://github.com/typetools/checker-framework/issues/1712 by removing {@code ?
+   * Works around https://github.com/typetools/checker-framework/issues/1712 by removing {@code ?
    * super} from a {@code Function}'s argument type.
    */
   // TODO(sebright): Remove this method once the issue is fixed.
