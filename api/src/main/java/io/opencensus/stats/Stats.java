@@ -17,6 +17,7 @@
 package io.opencensus.stats;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.internal.NullnessUtils;
 import io.opencensus.internal.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +27,7 @@ public final class Stats {
   private static final Logger logger = Logger.getLogger(Stats.class.getName());
 
   private static final StatsComponent statsComponent =
-      loadStatsComponent(StatsComponent.class.getClassLoader());
+      loadStatsComponent(NullnessUtils.castNonNull(StatsComponent.class.getClassLoader()));
 
   /** Returns the default {@link StatsRecorder}. */
   public static StatsRecorder getStatsRecorder() {

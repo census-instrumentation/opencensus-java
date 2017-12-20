@@ -17,14 +17,24 @@
 package io.opencensus.implcore.internal;
 
 import io.opencensus.common.Function;
+import javax.annotation.Nullable;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.KeyForBottom;
 */
 
-/** Utility methods for working around Checker Framework issues. */
+/**
+ * Utility methods for suppressing nullness warnings and working around Checker Framework issues.
+ */
 public final class NullnessUtils {
   private NullnessUtils() {}
+
+  /** Suppress warnings about a nullable value. */
+  // TODO(sebright): Try to remove all uses of this method.
+  @SuppressWarnings("nullness")
+  public static <T> T castNonNull(@Nullable T arg) {
+    return arg;
+  }
 
   /**
    * Work around https://github.com/typetools/checker-framework/issues/1712 by removing {@code ?

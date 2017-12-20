@@ -26,6 +26,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.NullnessUtils;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
@@ -307,7 +308,7 @@ abstract class MutableViewData {
       List<TagValue> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
       refreshBucketList(timestamp);
       // It is always the last bucket that does the recording.
-      buckets.peekLast().record(tagValues, value);
+      NullnessUtils.castNonNull(buckets.peekLast()).record(tagValues, value);
     }
 
     @Override
@@ -345,7 +346,7 @@ abstract class MutableViewData {
       if (buckets.size() != N + 1) {
         throw new AssertionError("Bucket list must have exactly " + (N + 1) + " buckets.");
       }
-      Timestamp startOfLastBucket = buckets.peekLast().getStart();
+      Timestamp startOfLastBucket = NullnessUtils.castNonNull(buckets.peekLast()).getStart();
       // TODO(songya): decide what to do when time goes backwards
       checkArgument(
           now.compareTo(startOfLastBucket) >= 0,
@@ -361,7 +362,8 @@ abstract class MutableViewData {
       Timestamp startOfNewBucket;
 
       if (!buckets.isEmpty()) {
-        startOfNewBucket = buckets.peekLast().getStart().addDuration(bucketDuration);
+        startOfNewBucket =
+            NullnessUtils.castNonNull(buckets.peekLast()).getStart().addDuration(bucketDuration);
       } else {
         // Initialize bucket list. Should only enter this block once.
         startOfNewBucket = subtractDuration(now, totalDuration);
@@ -410,8 +412,8 @@ abstract class MutableViewData {
         Aggregation aggregation,
         Timestamp now) {
       // Put fractional stats of the head (oldest) bucket.
-      IntervalBucket head = buckets.peekFirst();
-      IntervalBucket tail = buckets.peekLast();
+      IntervalBucket head = NullnessUtils.castNonNull(buckets.peekFirst());
+      IntervalBucket tail = NullnessUtils.castNonNull(buckets.peekLast());
       double fractionTail = tail.getFraction(now);
       // TODO(songya): decide what to do when time goes backwards
       checkArgument(

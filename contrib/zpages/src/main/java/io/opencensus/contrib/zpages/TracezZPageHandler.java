@@ -370,7 +370,7 @@ final class TracezZPageHandler extends ZPageHandler {
               .escape(
                   event.getEvent() instanceof Annotation
                       ? renderAnnotation((Annotation) event.getEvent())
-                      : renderNetworkEvents((NetworkEvent) event.getEvent())));
+                      : renderNetworkEvents((NetworkEvent) castNonNull(event.getEvent()))));
 
       lastTimestampNanos = event.getTimestamp();
     }
@@ -381,6 +381,12 @@ final class TracezZPageHandler extends ZPageHandler {
     formatter.format(
         "%44s %s%n",
         "", htmlEscaper().escape(renderAttributes(span.getAttributes().getAttributeMap())));
+  }
+
+  // TODO(sebright): Remove this method.
+  @SuppressWarnings("nullness")
+  private static <T> T castNonNull(@Nullable T arg) {
+    return arg;
   }
 
   // Emits the summary table with links to all samples.

@@ -18,6 +18,7 @@ package io.opencensus.trace;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
+import io.opencensus.internal.NullnessUtils;
 import io.opencensus.internal.Provider;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
@@ -29,7 +30,7 @@ import java.util.logging.Logger;
 public final class Tracing {
   private static final Logger logger = Logger.getLogger(Tracing.class.getName());
   private static final TraceComponent traceComponent =
-      loadTraceComponent(TraceComponent.class.getClassLoader());
+      loadTraceComponent(NullnessUtils.castNonNull(TraceComponent.class.getClassLoader()));
 
   /**
    * Returns the global {@link Tracer}.
