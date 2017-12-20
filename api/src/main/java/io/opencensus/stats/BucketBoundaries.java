@@ -28,6 +28,9 @@ import javax.annotation.concurrent.Immutable;
 /** The bucket boundaries for a histogram. */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class BucketBoundaries {
 
   /**

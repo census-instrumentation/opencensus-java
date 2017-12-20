@@ -60,6 +60,9 @@ public abstract class AggregationData {
   /** The sum value of aggregated {@code MeasureValueDouble}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class SumDataDouble extends AggregationData {
 
     SumDataDouble() {}
@@ -96,6 +99,9 @@ public abstract class AggregationData {
   /** The sum value of aggregated {@code MeasureValueLong}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class SumDataLong extends AggregationData {
 
     SumDataLong() {}
@@ -132,6 +138,9 @@ public abstract class AggregationData {
   /** The count value of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class CountData extends AggregationData {
 
     CountData() {}
@@ -168,6 +177,9 @@ public abstract class AggregationData {
   /** The mean value of aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class MeanData extends AggregationData {
 
     MeanData() {}
@@ -215,6 +227,9 @@ public abstract class AggregationData {
    */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class DistributionData extends AggregationData {
 
     DistributionData() {}

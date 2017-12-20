@@ -70,6 +70,9 @@ public abstract class Measure {
   /** {@link Measure} with {@code Double} typed values. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class MeasureDouble extends Measure {
 
     MeasureDouble() {}
@@ -112,6 +115,9 @@ public abstract class Measure {
   /** {@link Measure} with {@code Long} typed values. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class MeasureLong extends Measure {
 
     MeasureLong() {}

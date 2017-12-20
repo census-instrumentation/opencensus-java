@@ -33,6 +33,9 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class TagKey {
   /** The maximum length for a tag key name. The value is {@value #MAX_LENGTH}. */
   public static final int MAX_LENGTH = 255;

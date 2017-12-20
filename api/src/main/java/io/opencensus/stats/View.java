@@ -36,6 +36,9 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class View {
 
   @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
@@ -103,6 +106,9 @@ public abstract class View {
   // This type should be used as the key when associating data with Views.
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Name {
 
     Name() {}
@@ -146,6 +152,9 @@ public abstract class View {
     /** Cumulative (infinite interval) time {@code AggregationWindow}. */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class Cumulative extends AggregationWindow {
 
       private static final Cumulative CUMULATIVE =
@@ -176,6 +185,9 @@ public abstract class View {
     /** Interval (finite interval) time {@code AggregationWindow.} */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class Interval extends AggregationWindow {
 
       private static final Duration ZERO = Duration.create(0, 0);

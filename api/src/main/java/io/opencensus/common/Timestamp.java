@@ -37,6 +37,9 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class Timestamp implements Comparable<Timestamp> {
   private static final Timestamp EPOCH = new AutoValue_Timestamp(0, 0);
 

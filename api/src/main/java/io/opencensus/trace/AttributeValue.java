@@ -82,6 +82,9 @@ public abstract class AttributeValue {
 
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   abstract static class AttributeValueString extends AttributeValue {
 
     AttributeValueString() {}
@@ -105,6 +108,9 @@ public abstract class AttributeValue {
 
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   abstract static class AttributeValueBoolean extends AttributeValue {
 
     AttributeValueBoolean() {}
@@ -128,6 +134,9 @@ public abstract class AttributeValue {
 
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   abstract static class AttributeValueLong extends AttributeValue {
 
     AttributeValueLong() {}

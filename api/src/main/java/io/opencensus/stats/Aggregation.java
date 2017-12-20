@@ -54,6 +54,9 @@ public abstract class Aggregation {
   /** Calculate sum on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Sum extends Aggregation {
 
     Sum() {}
@@ -83,6 +86,9 @@ public abstract class Aggregation {
   /** Calculate count on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Count extends Aggregation {
 
     Count() {}
@@ -112,6 +118,9 @@ public abstract class Aggregation {
   /** Calculate mean on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Mean extends Aggregation {
 
     Mean() {}
@@ -144,6 +153,9 @@ public abstract class Aggregation {
    */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Distribution extends Aggregation {
 
     Distribution() {}

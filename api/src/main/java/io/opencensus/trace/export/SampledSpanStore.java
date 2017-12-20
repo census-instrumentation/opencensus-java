@@ -130,6 +130,9 @@ public abstract class SampledSpanStore {
   /** The summary of all available data. */
   @AutoValue
   @Immutable
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Summary {
 
     Summary() {}
@@ -159,6 +162,9 @@ public abstract class SampledSpanStore {
   /** Summary of all available data for a span name. */
   @AutoValue
   @Immutable
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class PerSpanNameSummary {
 
     PerSpanNameSummary() {}
@@ -269,6 +275,9 @@ public abstract class SampledSpanStore {
    */
   @AutoValue
   @Immutable
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class LatencyFilter {
 
     LatencyFilter() {}
@@ -332,6 +341,9 @@ public abstract class SampledSpanStore {
    */
   @AutoValue
   @Immutable
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class ErrorFilter {
 
     ErrorFilter() {}

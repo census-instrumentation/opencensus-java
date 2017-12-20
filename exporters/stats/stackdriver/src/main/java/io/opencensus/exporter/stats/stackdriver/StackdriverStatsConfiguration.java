@@ -26,6 +26,9 @@ import javax.annotation.concurrent.Immutable;
 /** Configurations for {@link StackdriverStatsExporter}. */
 @AutoValue
 @Immutable
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class StackdriverStatsConfiguration {
 
   StackdriverStatsConfiguration() {}

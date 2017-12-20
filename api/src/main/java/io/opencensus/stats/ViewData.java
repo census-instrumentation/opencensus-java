@@ -46,6 +46,9 @@ import javax.annotation.concurrent.Immutable;
 /** The aggregated data for a particular {@link View}. */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class ViewData {
 
   // Prevents this class from being subclassed anywhere else.
@@ -208,6 +211,9 @@ public abstract class ViewData {
     /** Cumulative {@code AggregationWindowData.} */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class CumulativeData extends AggregationWindowData {
 
       CumulativeData() {}
@@ -246,6 +252,9 @@ public abstract class ViewData {
     /** Interval {@code AggregationWindowData.} */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class IntervalData extends AggregationWindowData {
 
       IntervalData() {}
