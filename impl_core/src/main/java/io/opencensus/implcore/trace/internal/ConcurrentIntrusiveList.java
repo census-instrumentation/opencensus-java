@@ -79,8 +79,8 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
     if (head == null) {
       head = element;
     } else {
-      element.setNext(head);
       head.setPrev(element);
+      element.setNext(head);
       head = element;
     }
   }

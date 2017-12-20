@@ -77,8 +77,9 @@ public final class ZipkinExporter {
       SpanBytesEncoder encoder, Sender sender, String serviceName) {
     synchronized (monitor) {
       checkState(handler == null, "Zipkin exporter is already registered.");
-      handler = new ZipkinExporterHandler(encoder, sender, serviceName);
-      register(Tracing.getExportComponent().getSpanExporter(), handler);
+      Handler newHandler = new ZipkinExporterHandler(encoder, sender, serviceName);
+      handler = newHandler;
+      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
     }
   }
 

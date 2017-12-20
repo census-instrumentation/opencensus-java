@@ -236,9 +236,9 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
               ? SpanData.Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0)
               : SpanData.Attributes.create(attributes, attributes.getNumberOfDroppedAttributes());
       SpanData.TimedEvents<Annotation> annotationsSpanData =
-          createTimedEvents(annotations, timestampConverter);
+          createTimedEvents(getInitializedAnnotations(), timestampConverter);
       SpanData.TimedEvents<NetworkEvent> networkEventsSpanData =
-          createTimedEvents(networkEvents, timestampConverter);
+          createTimedEvents(getInitializedNetworkEvents(), timestampConverter);
       SpanData.Links linksSpanData =
           links == null
               ? SpanData.Links.create(Collections.<Link>emptyList(), 0)
@@ -573,7 +573,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     this.clock = clock;
     this.hasBeenEnded = false;
     this.sampleToLocalSpanStore = false;
-    if (getOptions().contains(Options.RECORD_EVENTS)) {
+    if (options != null && options.contains(Options.RECORD_EVENTS)) {
       this.timestampConverter =
           timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
       startNanoTime = clock.nowNanos();
