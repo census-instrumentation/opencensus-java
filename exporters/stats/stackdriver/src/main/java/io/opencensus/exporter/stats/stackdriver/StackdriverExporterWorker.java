@@ -43,6 +43,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.NotThreadSafe;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /**
  * Worker {@code Runnable} that polls ViewData from Stats library and batch export to StackDriver.
  *
@@ -151,7 +155,7 @@ final class StackdriverExporterWorker implements Runnable {
   // StackDriver.
   @VisibleForTesting
   void export() {
-    List<ViewData> viewDataList = Lists.newArrayList();
+    List</*@Nullable*/ ViewData> viewDataList = Lists.newArrayList();
     for (View view : viewManager.getAllExportedViews()) {
       if (registerView(view)) {
         // Only upload stats for valid views.
@@ -160,7 +164,7 @@ final class StackdriverExporterWorker implements Runnable {
     }
 
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
-    for (ViewData viewData : viewDataList) {
+    for (/*@Nullable*/ ViewData viewData : viewDataList) {
       timeSeriesList.addAll(
           StackdriverExportUtils.createTimeSeriesList(viewData, monitoredResource));
     }

@@ -28,6 +28,10 @@ import java.util.TreeMap;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+/*>>>
+import org.checkerframework.dataflow.qual.Deterministic;
+*/
+
 /**
  * Defines the status of a {@link Span} by providing a standard {@link CanonicalCode} in conjunction
  * with an optional descriptive message. Instances of {@code Status} are created by starting with
@@ -286,6 +290,7 @@ public final class Status {
    * @return the description of this {@code Status}.
    */
   @Nullable
+  /*@Deterministic*/
   public String getDescription() {
     return description;
   }

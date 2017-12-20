@@ -28,6 +28,10 @@ import io.opencensus.tags.TagValue;
 import java.util.List;
 import java.util.Map;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /** The bucket with aggregated {@code MeasureValue}s used for {@code IntervalViewData}. */
 final class IntervalBucket {
 
@@ -36,7 +40,8 @@ final class IntervalBucket {
   private final Timestamp start;
   private final Duration duration;
   private final Aggregation aggregation;
-  private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap = Maps.newHashMap();
+  private final Map<List</*@Nullable*/ TagValue>, MutableAggregation> tagValueAggregationMap =
+      Maps.newHashMap();
 
   IntervalBucket(Timestamp start, Duration duration, Aggregation aggregation) {
     checkNotNull(start, "Start");
@@ -48,7 +53,7 @@ final class IntervalBucket {
     this.aggregation = aggregation;
   }
 
-  Map<List<TagValue>, MutableAggregation> getTagValueAggregationMap() {
+  Map<List</*@Nullable*/ TagValue>, MutableAggregation> getTagValueAggregationMap() {
     return tagValueAggregationMap;
   }
 
@@ -57,7 +62,7 @@ final class IntervalBucket {
   }
 
   // Puts a new value into the internal MutableAggregations, based on the TagValues.
-  void record(List<TagValue> tagValues, double value) {
+  void record(List</*@Nullable*/ TagValue> tagValues, double value) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       tagValueAggregationMap.put(tagValues, MutableViewData.createMutableAggregation(aggregation));
     }

@@ -64,7 +64,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /** Util methods to convert OpenCensus Stats data models to StackDriver monitoring data models. */
 final class StackdriverExportUtils {
@@ -96,7 +99,7 @@ final class StackdriverExportUtils {
   }
 
   // Construct a MetricDescriptor using a View.
-  @Nullable
+  @javax.annotation.Nullable
   static MetricDescriptor createMetricDescriptor(View view, String projectId) {
     if (!(view.getWindow() instanceof Cumulative)) {
       // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
@@ -170,7 +173,7 @@ final class StackdriverExportUtils {
 
   // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
   static List<TimeSeries> createTimeSeriesList(
-      ViewData viewData, MonitoredResource monitoredResource) {
+      @javax.annotation.Nullable ViewData viewData, MonitoredResource monitoredResource) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     if (viewData == null) {
       return timeSeriesList;
@@ -252,7 +255,7 @@ final class StackdriverExportUtils {
             throw new IllegalArgumentException("IntervalData not supported");
           }
         },
-        Functions.<Void>throwIllegalArgumentException());
+        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
     return builder.build();
   }
 
@@ -303,7 +306,7 @@ final class StackdriverExportUtils {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException());
+        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
     return builder.build();
   }
 

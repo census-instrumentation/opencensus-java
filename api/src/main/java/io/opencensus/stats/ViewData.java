@@ -44,6 +44,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /** The aggregated data for a particular {@link View}. */
 @Immutable
 @AutoValue
@@ -117,7 +121,7 @@ public abstract class ViewData {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException());
+        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
   }
 
   private static String createErrorMessageForWindow(

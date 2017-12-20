@@ -58,6 +58,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /** Exporter to Stackdriver Trace API v2. */
 final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
@@ -252,7 +256,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             return null;
           }
         },
-        Functions.<Void>returnNull());
+        Functions.</*@Nullable*/ Void>returnNull());
     return attributeValueBuilder.build();
   }
 

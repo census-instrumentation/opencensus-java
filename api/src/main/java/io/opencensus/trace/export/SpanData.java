@@ -36,6 +36,10 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+/*>>>
+import org.checkerframework.dataflow.qual.Deterministic;
+*/
+
 /** Immutable representation of all data collected by the {@link Span} class. */
 @Immutable
 @AutoValue
@@ -106,6 +110,7 @@ public abstract class SpanData {
    * @return the parent {@code SpanId} or {@code null} if the {@code Span} is a root {@code Span}.
    */
   @Nullable
+  /*@Deterministic*/
   public abstract SpanId getParentSpanId();
 
   /**
@@ -177,6 +182,7 @@ public abstract class SpanData {
    * @return the {@code Status} or {@code null} if {@code Span} is still active.
    */
   @Nullable
+  /*@Deterministic*/
   public abstract Status getStatus();
 
   /**
@@ -185,6 +191,7 @@ public abstract class SpanData {
    * @return the end {@code Timestamp} or {@code null} if the {@code Span} is still active.
    */
   @Nullable
+  /*@Deterministic*/
   public abstract Timestamp getEndTimestamp();
 
   SpanData() {}
@@ -224,6 +231,7 @@ public abstract class SpanData {
      *
      * @return the event.
      */
+    /*@Deterministic*/
     public abstract T getEvent();
 
     TimedEvent() {}
