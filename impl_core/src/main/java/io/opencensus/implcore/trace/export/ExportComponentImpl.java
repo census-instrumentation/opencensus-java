@@ -38,14 +38,18 @@ public final class ExportComponentImpl extends ExportComponent {
     return spanExporter;
   }
 
-  @Nullable
   @Override
+  // TODO(#914): This method shouldn't be nullable.
+  @SuppressWarnings("nullness")
+  @Nullable
   public RunningSpanStoreImpl getRunningSpanStore() {
     return runningSpanStore;
   }
 
-  @Nullable
   @Override
+  // TODO(#914): This method shouldn't be nullable.
+  @SuppressWarnings("nullness")
+  @Nullable
   public SampledSpanStoreImpl getSampledSpanStore() {
     return sampledSpanStore;
   }
