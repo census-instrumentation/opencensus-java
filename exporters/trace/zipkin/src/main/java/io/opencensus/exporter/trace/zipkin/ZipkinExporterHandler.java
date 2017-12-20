@@ -128,9 +128,12 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
         spanData.getAttributes().getAttributeMap().entrySet()) {
       spanBuilder.putTag(label.getKey(), attributeValueToString(label.getValue()));
     }
-    spanBuilder.putTag(STATUS_CODE, spanData.getStatus().getCanonicalCode().toString());
-    if (spanData.getStatus().getDescription() != null) {
-      spanBuilder.putTag(STATUS_DESCRIPTION, spanData.getStatus().getDescription());
+    Status status = spanData.getStatus();
+    if (status != null) {
+      spanBuilder.putTag(STATUS_CODE, status.getCanonicalCode().toString());
+      if (status.getDescription() != null) {
+        spanBuilder.putTag(STATUS_DESCRIPTION, status.getDescription());
+      }
     }
 
     for (TimedEvent<Annotation> annotation : spanData.getAnnotations().getEvents()) {
@@ -196,7 +199,11 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
       try {
         sender.sendSpans(encodedSpans).execute();
       } catch (IOException e) {
-        tracer.getCurrentSpan().setStatus(Status.UNKNOWN.withDescription(e.getMessage()));
+        tracer
+            .getCurrentSpan()
+            .setStatus(
+                Status.UNKNOWN.withDescription(
+                    e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
         throw new RuntimeException(e); // TODO: should we instead do drop metrics?
       }
     } finally {
