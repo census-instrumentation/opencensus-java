@@ -18,7 +18,7 @@ package io.opencensus.implcore.trace.internal;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import io.opencensus.implcore.internal.NullnessUtils;
+import io.opencensus.implcore.internal.CheckerFrameworkUtils;
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,11 +108,11 @@ public final class ConcurrentIntrusiveList<T extends Element<T>> {
     } else if (element.getNext() == null) {
       // This is the last element, and there is at least another element because
       // element.getPrev() != null.
-      NullnessUtils.castNonNull(element.getPrev()).setNext(null);
+      CheckerFrameworkUtils.castNonNull(element.getPrev()).setNext(null);
       element.setPrev(null);
     } else {
-      NullnessUtils.castNonNull(element.getPrev()).setNext(element.getNext());
-      NullnessUtils.castNonNull(element.getNext()).setPrev(element.getPrev());
+      CheckerFrameworkUtils.castNonNull(element.getPrev()).setNext(element.getNext());
+      CheckerFrameworkUtils.castNonNull(element.getNext()).setPrev(element.getPrev());
       element.setNext(null);
       element.setPrev(null);
     }

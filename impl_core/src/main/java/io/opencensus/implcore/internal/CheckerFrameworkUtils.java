@@ -26,8 +26,8 @@ import org.checkerframework.checker.nullness.qual.KeyForBottom;
 /**
  * Utility methods for suppressing nullness warnings and working around Checker Framework issues.
  */
-public final class NullnessUtils {
-  private NullnessUtils() {}
+public final class CheckerFrameworkUtils {
+  private CheckerFrameworkUtils() {}
 
   /** Suppress warnings about a nullable value. */
   // TODO(sebright): Try to remove all uses of this method.

@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.common.Clock;
-import io.opencensus.implcore.internal.NullnessUtils;
+import io.opencensus.implcore.internal.CheckerFrameworkUtils;
 import io.opencensus.implcore.internal.TimestampConverter;
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
 import io.opencensus.trace.Annotation;
@@ -250,7 +250,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           parentSpanId,
           hasRemoteParent,
           name,
-          NullnessUtils.castNonNull(timestampConverter).convertNanoTime(startNanoTime),
+          CheckerFrameworkUtils.castNonNull(timestampConverter).convertNanoTime(startNanoTime),
           attributesSpanData,
           annotationsSpanData,
           networkEventsSpanData,
@@ -258,7 +258,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           null, // Not supported yet.
           hasBeenEnded ? getStatusWithDefault() : null,
           hasBeenEnded
-              ? NullnessUtils.castNonNull(timestampConverter).convertNanoTime(endNanoTime)
+              ? CheckerFrameworkUtils.castNonNull(timestampConverter).convertNanoTime(endNanoTime)
               : null);
     }
   }
@@ -439,7 +439,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     List<TimedEvent<T>> eventsList = new ArrayList<TimedEvent<T>>(events.events.size());
     for (EventWithNanoTime<T> networkEvent : events.events) {
       eventsList.add(
-          networkEvent.toSpanDataTimedEvent(NullnessUtils.castNonNull(timestampConverter)));
+          networkEvent.toSpanDataTimedEvent(CheckerFrameworkUtils.castNonNull(timestampConverter)));
     }
     return SpanData.TimedEvents.create(eventsList, events.getNumberOfDroppedEvents());
   }

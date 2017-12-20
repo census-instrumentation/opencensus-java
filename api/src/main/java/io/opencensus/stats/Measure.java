@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Function;
-import io.opencensus.internal.NullnessUtils;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
@@ -100,7 +100,8 @@ public abstract class Measure {
         Function<? super MeasureDouble, T> p0,
         Function<? super MeasureLong, T> p1,
         Function<? super Measure, T> defaultFunction) {
-      return NullnessUtils.<MeasureDouble, T>removeSuperFromFunctionParameterType(p0).apply(this);
+      return CheckerFrameworkUtils.<MeasureDouble, T>removeSuperFromFunctionParameterType(p0)
+          .apply(this);
     }
 
     @Override
@@ -145,7 +146,8 @@ public abstract class Measure {
         Function<? super MeasureDouble, T> p0,
         Function<? super MeasureLong, T> p1,
         Function<? super Measure, T> defaultFunction) {
-      return NullnessUtils.<MeasureLong, T>removeSuperFromFunctionParameterType(p1).apply(this);
+      return CheckerFrameworkUtils.<MeasureLong, T>removeSuperFromFunctionParameterType(p1)
+          .apply(this);
     }
 
     @Override

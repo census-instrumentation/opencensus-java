@@ -17,7 +17,7 @@
 package io.opencensus.tags;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.internal.NullnessUtils;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.internal.Provider;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.logging.Level;
@@ -28,7 +28,7 @@ public final class Tags {
   private static final Logger logger = Logger.getLogger(Tags.class.getName());
 
   private static final TagsComponent tagsComponent =
-      loadTagsComponent(NullnessUtils.castNonNull(TagsComponent.class.getClassLoader()));
+      loadTagsComponent(CheckerFrameworkUtils.castNonNull(TagsComponent.class.getClassLoader()));
 
   private Tags() {}
 

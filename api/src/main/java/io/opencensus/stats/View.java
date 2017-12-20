@@ -22,7 +22,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
-import io.opencensus.internal.NullnessUtils;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.internal.StringUtil;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
@@ -179,7 +179,8 @@ public abstract class View {
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
           Function<? super AggregationWindow, T> defaultFunction) {
-        return NullnessUtils.<Cumulative, T>removeSuperFromFunctionParameterType(p0).apply(this);
+        return CheckerFrameworkUtils.<Cumulative, T>removeSuperFromFunctionParameterType(p0)
+            .apply(this);
       }
     }
 
@@ -221,7 +222,8 @@ public abstract class View {
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
           Function<? super AggregationWindow, T> defaultFunction) {
-        return NullnessUtils.<Interval, T>removeSuperFromFunctionParameterType(p1).apply(this);
+        return CheckerFrameworkUtils.<Interval, T>removeSuperFromFunctionParameterType(p1)
+            .apply(this);
       }
     }
   }

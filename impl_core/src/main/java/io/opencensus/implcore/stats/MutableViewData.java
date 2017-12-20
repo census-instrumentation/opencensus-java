@@ -26,7 +26,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.implcore.internal.NullnessUtils;
+import io.opencensus.implcore.internal.CheckerFrameworkUtils;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
@@ -313,7 +313,7 @@ abstract class MutableViewData {
           getTagValues(getTagMap(context), super.view.getColumns());
       refreshBucketList(timestamp);
       // It is always the last bucket that does the recording.
-      NullnessUtils.castNonNull(buckets.peekLast()).record(tagValues, value);
+      CheckerFrameworkUtils.castNonNull(buckets.peekLast()).record(tagValues, value);
     }
 
     @Override
@@ -351,7 +351,8 @@ abstract class MutableViewData {
       if (buckets.size() != N + 1) {
         throw new AssertionError("Bucket list must have exactly " + (N + 1) + " buckets.");
       }
-      Timestamp startOfLastBucket = NullnessUtils.castNonNull(buckets.peekLast()).getStart();
+      Timestamp startOfLastBucket =
+          CheckerFrameworkUtils.castNonNull(buckets.peekLast()).getStart();
       // TODO(songya): decide what to do when time goes backwards
       checkArgument(
           now.compareTo(startOfLastBucket) >= 0,
@@ -368,7 +369,9 @@ abstract class MutableViewData {
 
       if (!buckets.isEmpty()) {
         startOfNewBucket =
-            NullnessUtils.castNonNull(buckets.peekLast()).getStart().addDuration(bucketDuration);
+            CheckerFrameworkUtils.castNonNull(buckets.peekLast())
+                .getStart()
+                .addDuration(bucketDuration);
       } else {
         // Initialize bucket list. Should only enter this block once.
         startOfNewBucket = subtractDuration(now, totalDuration);
@@ -418,8 +421,8 @@ abstract class MutableViewData {
         Aggregation aggregation,
         Timestamp now) {
       // Put fractional stats of the head (oldest) bucket.
-      IntervalBucket head = NullnessUtils.castNonNull(buckets.peekFirst());
-      IntervalBucket tail = NullnessUtils.castNonNull(buckets.peekLast());
+      IntervalBucket head = CheckerFrameworkUtils.castNonNull(buckets.peekFirst());
+      IntervalBucket tail = CheckerFrameworkUtils.castNonNull(buckets.peekLast());
       double fractionTail = tail.getFraction(now);
       // TODO(songya): decide what to do when time goes backwards
       checkArgument(
