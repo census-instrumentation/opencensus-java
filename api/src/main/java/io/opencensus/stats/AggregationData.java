@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.Lists;
 import io.opencensus.common.Function;
+import io.opencensus.internal.NullnessUtils;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
@@ -92,7 +93,7 @@ public abstract class AggregationData {
         Function<? super MeanData, T> p3,
         Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p0.apply(this);
+      return NullnessUtils.<SumDataDouble, T>removeSuperFromFunctionParameterType(p0).apply(this);
     }
   }
 
@@ -131,7 +132,7 @@ public abstract class AggregationData {
         Function<? super MeanData, T> p3,
         Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p1.apply(this);
+      return NullnessUtils.<SumDataLong, T>removeSuperFromFunctionParameterType(p1).apply(this);
     }
   }
 
@@ -170,7 +171,7 @@ public abstract class AggregationData {
         Function<? super MeanData, T> p3,
         Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p2.apply(this);
+      return NullnessUtils.<CountData, T>removeSuperFromFunctionParameterType(p2).apply(this);
     }
   }
 
@@ -217,7 +218,7 @@ public abstract class AggregationData {
         Function<? super MeanData, T> p3,
         Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p3.apply(this);
+      return NullnessUtils.<MeanData, T>removeSuperFromFunctionParameterType(p3).apply(this);
     }
   }
 
@@ -317,7 +318,8 @@ public abstract class AggregationData {
         Function<? super MeanData, T> p3,
         Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
-      return p4.apply(this);
+      return NullnessUtils.<DistributionData, T>removeSuperFromFunctionParameterType(p4)
+          .apply(this);
     }
   }
 }

@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Function;
+import io.opencensus.implcore.internal.NullnessUtils;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.BucketBoundaries;
 
@@ -99,7 +100,7 @@ abstract class MutableAggregation {
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
         Function<? super MutableDistribution, T> p3) {
-      return p0.apply(this);
+      return NullnessUtils.<MutableSum, T>removeSuperFromFunctionParameterType(p0).apply(this);
     }
   }
 
@@ -145,7 +146,7 @@ abstract class MutableAggregation {
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
         Function<? super MutableDistribution, T> p3) {
-      return p1.apply(this);
+      return NullnessUtils.<MutableCount, T>removeSuperFromFunctionParameterType(p1).apply(this);
     }
   }
 
@@ -213,7 +214,7 @@ abstract class MutableAggregation {
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
         Function<? super MutableDistribution, T> p3) {
-      return p2.apply(this);
+      return NullnessUtils.<MutableMean, T>removeSuperFromFunctionParameterType(p2).apply(this);
     }
   }
 
@@ -355,7 +356,8 @@ abstract class MutableAggregation {
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
         Function<? super MutableDistribution, T> p3) {
-      return p3.apply(this);
+      return NullnessUtils.<MutableDistribution, T>removeSuperFromFunctionParameterType(p3)
+          .apply(this);
     }
   }
 }

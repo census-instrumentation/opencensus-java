@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.NullnessUtils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -100,7 +101,8 @@ public abstract class AttributeValue {
         Function<? super Boolean, T> booleanFunction,
         Function<? super Long, T> longFunction,
         Function<Object, T> defaultFunction) {
-      return stringFunction.apply(getStringValue());
+      return NullnessUtils.<String, T>removeSuperFromFunctionParameterType(stringFunction)
+          .apply(getStringValue());
     }
 
     abstract String getStringValue();
@@ -126,7 +128,8 @@ public abstract class AttributeValue {
         Function<? super Boolean, T> booleanFunction,
         Function<? super Long, T> longFunction,
         Function<Object, T> defaultFunction) {
-      return booleanFunction.apply(getBooleanValue());
+      return NullnessUtils.<Boolean, T>removeSuperFromFunctionParameterType(booleanFunction)
+          .apply(getBooleanValue());
     }
 
     abstract Boolean getBooleanValue();
@@ -152,7 +155,8 @@ public abstract class AttributeValue {
         Function<? super Boolean, T> booleanFunction,
         Function<? super Long, T> longFunction,
         Function<Object, T> defaultFunction) {
-      return longFunction.apply(getLongValue());
+      return NullnessUtils.<Long, T>removeSuperFromFunctionParameterType(longFunction)
+          .apply(getLongValue());
     }
 
     abstract Long getLongValue();
