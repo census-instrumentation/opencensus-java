@@ -27,6 +27,9 @@ import javax.annotation.concurrent.Immutable;
 /** A text annotation with a set of attributes. */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class Annotation {
   private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES =
       Collections.unmodifiableMap(Collections.<String, AttributeValue>emptyMap());

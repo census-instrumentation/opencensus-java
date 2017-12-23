@@ -18,6 +18,7 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import javax.annotation.concurrent.Immutable;
@@ -41,6 +42,9 @@ public abstract class Measurement {
   /** {@code Double} typed {@link Measurement}. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class MeasurementDouble extends Measurement {
     MeasurementDouble() {}
 
@@ -59,13 +63,17 @@ public abstract class Measurement {
         Function<? super MeasurementDouble, T> p0,
         Function<? super MeasurementLong, T> p1,
         Function<? super Measurement, T> defaultFunction) {
-      return p0.apply(this);
+      return CheckerFrameworkUtils.<MeasurementDouble, T>removeSuperFromFunctionParameterType(p0)
+          .apply(this);
     }
   }
 
   /** {@code Long} typed {@link Measurement}. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class MeasurementLong extends Measurement {
     MeasurementLong() {}
 
@@ -84,7 +92,8 @@ public abstract class Measurement {
         Function<? super MeasurementDouble, T> p0,
         Function<? super MeasurementLong, T> p1,
         Function<? super Measurement, T> defaultFunction) {
-      return p1.apply(this);
+      return CheckerFrameworkUtils.<MeasurementLong, T>removeSuperFromFunctionParameterType(p1)
+          .apply(this);
     }
   }
 }

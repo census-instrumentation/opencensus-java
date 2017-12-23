@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -54,6 +55,9 @@ public abstract class Aggregation {
   /** Calculate sum on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Sum extends Aggregation {
 
     Sum() {}
@@ -76,13 +80,16 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p0.apply(this);
+      return CheckerFrameworkUtils.<Sum, T>removeSuperFromFunctionParameterType(p0).apply(this);
     }
   }
 
   /** Calculate count on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Count extends Aggregation {
 
     Count() {}
@@ -105,13 +112,16 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p1.apply(this);
+      return CheckerFrameworkUtils.<Count, T>removeSuperFromFunctionParameterType(p1).apply(this);
     }
   }
 
   /** Calculate mean on aggregated {@code MeasureValue}s. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Mean extends Aggregation {
 
     Mean() {}
@@ -134,7 +144,7 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p2.apply(this);
+      return CheckerFrameworkUtils.<Mean, T>removeSuperFromFunctionParameterType(p2).apply(this);
     }
   }
 
@@ -144,6 +154,9 @@ public abstract class Aggregation {
    */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Distribution extends Aggregation {
 
     Distribution() {}
@@ -167,7 +180,8 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p3.apply(this);
+      return CheckerFrameworkUtils.<Distribution, T>removeSuperFromFunctionParameterType(p3)
+          .apply(this);
     }
   }
 }

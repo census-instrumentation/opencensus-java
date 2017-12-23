@@ -22,6 +22,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.internal.StringUtil;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class View {
 
   @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
@@ -103,6 +107,9 @@ public abstract class View {
   // This type should be used as the key when associating data with Views.
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Name {
 
     Name() {}
@@ -146,6 +153,9 @@ public abstract class View {
     /** Cumulative (infinite interval) time {@code AggregationWindow}. */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class Cumulative extends AggregationWindow {
 
       private static final Cumulative CUMULATIVE =
@@ -169,13 +179,17 @@ public abstract class View {
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
           Function<? super AggregationWindow, T> defaultFunction) {
-        return p0.apply(this);
+        return CheckerFrameworkUtils.<Cumulative, T>removeSuperFromFunctionParameterType(p0)
+            .apply(this);
       }
     }
 
     /** Interval (finite interval) time {@code AggregationWindow.} */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class Interval extends AggregationWindow {
 
       private static final Duration ZERO = Duration.create(0, 0);
@@ -208,7 +222,8 @@ public abstract class View {
           Function<? super Cumulative, T> p0,
           Function<? super Interval, T> p1,
           Function<? super AggregationWindow, T> defaultFunction) {
-        return p1.apply(this);
+        return CheckerFrameworkUtils.<Interval, T>removeSuperFromFunctionParameterType(p1)
+            .apply(this);
       }
     }
   }

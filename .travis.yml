@@ -20,6 +20,10 @@ matrix:
           - openjdk-6-jdk
 
   - jdk: oraclejdk8
+    env: TASK=CHECKER_FRAMEWORK
+    os: linux
+
+  - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_GRADLE
     os: linux
 

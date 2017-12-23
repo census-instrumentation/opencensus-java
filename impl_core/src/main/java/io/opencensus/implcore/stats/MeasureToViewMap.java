@@ -40,8 +40,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /** A class that stores a singleton map from {@code MeasureName}s to {@link MutableViewData}s. */
 final class MeasureToViewMap {
@@ -63,10 +66,10 @@ final class MeasureToViewMap {
 
   // Cached set of exported views. It must be set to null whenever a view is registered or
   // unregistered.
-  @Nullable private volatile Set<View> exportedViews;
+  @javax.annotation.Nullable private volatile Set<View> exportedViews;
 
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
-  @Nullable
+  @javax.annotation.Nullable
   synchronized ViewData getView(View.Name viewName, Clock clock, StatsCollectionState state) {
     MutableViewData view = getMutableViewData(viewName);
     return view == null ? null : view.toViewData(clock.now(), state);
@@ -119,7 +122,7 @@ final class MeasureToViewMap {
     mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private synchronized MutableViewData getMutableViewData(View.Name viewName) {
     View view = registeredViews.get(viewName);
     if (view == null) {
@@ -155,7 +158,7 @@ final class MeasureToViewMap {
         measurement.match(
             new RecordDoubleValueFunc(tags, view, timestamp),
             new RecordLongValueFunc(tags, view, timestamp),
-            Functions.<Void>throwAssertionError());
+            Functions.</*@Nullable*/ Void>throwAssertionError());
       }
     }
   }

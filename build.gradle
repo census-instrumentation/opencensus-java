@@ -19,6 +19,10 @@ buildscript {
 // Also see https://github.com/ben-manes/gradle-versions-plugin.
 apply plugin: 'com.github.ben-manes.versions'
 
+// Don't use the Checker Framework by default, since it interferes with Error Prone.
+def useCheckerFramework = rootProject.hasProperty('checkerFramework')
+def useErrorProne = !useCheckerFramework
+
 subprojects {
     apply plugin: "checkstyle"
     apply plugin: 'maven'
@@ -32,7 +36,9 @@ subprojects {
     apply plugin: 'net.ltgt.apt'
     // Plugins that require java8
     if (JavaVersion.current().isJava8Compatible()) {
-        apply plugin: "net.ltgt.errorprone"
+        if (useErrorProne) {
+            apply plugin: "net.ltgt.errorprone"
+        }
         apply plugin: 'com.github.sherter.google-java-format'
     }
 
@@ -47,33 +53,51 @@ subprojects {
         mavenLocal()
     }
 
+    if (useCheckerFramework) {
+        configurations {
+            checkerFrameworkJavac {
+                description = 'a customization of the Open JDK javac compiler with additional support for type annotations'
+            }
+            checkerFrameworkAnnotatedJDK {
+                description = 'a copy of JDK classes with Checker Framework type qualifiers inserted'
+            }
+        }
+    }
+
     [compileJava, compileTestJava].each() {
         // We suppress the "processing" warning as suggested in
         // https://groups.google.com/forum/#!topic/bazel-discuss/_R3A9TJSoPM
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
-        if (JavaVersion.current().isJava8Compatible()) {
-            it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
-            // TODO(bdrutu): Read files directly instead of reading from properties.
-            if (rootProject.hasProperty("errorProneWarnings")) {
-                it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
-                    it as String
+        if (useErrorProne) {
+            if (JavaVersion.current().isJava8Compatible()) {
+                it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
+                // TODO(bdrutu): Read files directly instead of reading from properties.
+                if (rootProject.hasProperty("errorProneWarnings")) {
+                    it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
+                        it as String
+                    }
+                }
+                if (rootProject.hasProperty("errorProneExperimentalErrors")) {
+                    it.options.compilerArgs += rootProject.properties["errorProneExperimentalErrors"].split(',').collect {
+                        it as String
+                    }
+                }
+                if (rootProject.hasProperty("errorProneExperimentalWarnings")) {
+                    it.options.compilerArgs += rootProject.properties["errorProneExperimentalWarnings"].split(',').collect {
+                        it as String
+                    }
+                }
+                if (rootProject.hasProperty("errorProneExperimentalSuggestions")) {
+                    it.options.compilerArgs += rootProject.properties["errorProneExperimentalSuggestions"].split(',').collect {
+                        it as String
+                    }
                 }
             }
-            if (rootProject.hasProperty("errorProneExperimentalErrors")) {
-                it.options.compilerArgs += rootProject.properties["errorProneExperimentalErrors"].split(',').collect {
-                    it as String
-                }
-            }
-            if (rootProject.hasProperty("errorProneExperimentalWarnings")) {
-                it.options.compilerArgs += rootProject.properties["errorProneExperimentalWarnings"].split(',').collect {
-                    it as String
-                }
-            }
-            if (rootProject.hasProperty("errorProneExperimentalSuggestions")) {
-                it.options.compilerArgs += rootProject.properties["errorProneExperimentalSuggestions"].split(',').collect {
-                    it as String
-                }
-            }
+        }
+        if (useCheckerFramework) {
+            it.options.compilerArgs += [
+                '-processor', 'com.google.auto.value.processor.AutoValueProcessor,org.checkerframework.checker.nullness.NullnessChecker'
+            ]
         }
         it.options.encoding = "UTF-8"
         // TODO(bdrutu): Enable when fix the issue with configuring bootstrap class.
@@ -141,6 +165,16 @@ subprojects {
     }
 
     dependencies {
+        if (useCheckerFramework) {
+            ext.checkerFrameworkVersion = '2.3.0'
+            ext.jdkVersion = 'jdk8'
+            checkerFrameworkAnnotatedJDK "org.checkerframework:${jdkVersion}:${checkerFrameworkVersion}"
+            checkerFrameworkJavac "org.checkerframework:compiler:${checkerFrameworkVersion}"
+            compileOnly "org.checkerframework:checker:${checkerFrameworkVersion}"
+            compile "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
+            compileOnly libraries.auto_value
+        }
+
         compile libraries.errorprone,
                 libraries.jsr305
 
@@ -149,7 +183,7 @@ subprojects {
                 libraries.mockito,
                 libraries.truth
 
-        if (JavaVersion.current().isJava8Compatible()) {
+    if (useErrorProne && JavaVersion.current().isJava8Compatible()) {
             // The ErrorProne plugin defaults to the latest, which would break our
             // build if error prone releases a new version with a new check
             errorprone "com.google.errorprone:error_prone_core:${errorProneVersion}"
@@ -303,5 +337,19 @@ subprojects {
             showStackTraces true
         }
         maxHeapSize = '1500m'
+    }
+
+    if (useCheckerFramework) {
+        allprojects {
+            tasks.withType(JavaCompile).all { JavaCompile compile ->
+                compile.doFirst {
+                    compile.options.compilerArgs += [
+                        '-Xmaxerrs', '10000', "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
+                    ]
+                    options.fork = true
+                    options.forkOptions.jvmArgs += ["-Xbootclasspath/p:${configurations.checkerFrameworkJavac.asPath}"]
+                }
+            }
+        }
     }
 }

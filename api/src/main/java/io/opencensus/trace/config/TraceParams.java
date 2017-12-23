@@ -30,6 +30,9 @@ import javax.annotation.concurrent.Immutable;
 /** Class that holds global trace parameters. */
 @AutoValue
 @Immutable
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class TraceParams {
   // These values are the default values for all the global parameters.
   private static final double DEFAULT_PROBABILITY = 1e-4;

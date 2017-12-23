@@ -22,6 +22,9 @@ import javax.annotation.concurrent.Immutable;
 /** {@link TagKey} paired with a {@link TagValue}. */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class Tag {
 
   Tag() {}

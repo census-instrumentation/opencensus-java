@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
@@ -43,9 +44,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /** The aggregated data for a particular {@link View}. */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class ViewData {
 
   // Prevents this class from being subclassed anywhere else.
@@ -113,7 +121,7 @@ public abstract class ViewData {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException());
+        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
   }
 
   private static String createErrorMessageForWindow(
@@ -208,6 +216,9 @@ public abstract class ViewData {
     /** Cumulative {@code AggregationWindowData.} */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class CumulativeData extends AggregationWindowData {
 
       CumulativeData() {}
@@ -231,7 +242,8 @@ public abstract class ViewData {
           Function<? super CumulativeData, T> p0,
           Function<? super IntervalData, T> p1,
           Function<? super AggregationWindowData, T> defaultFunction) {
-        return p0.apply(this);
+        return CheckerFrameworkUtils.<CumulativeData, T>removeSuperFromFunctionParameterType(p0)
+            .apply(this);
       }
 
       /** Constructs a new {@link CumulativeData}. */
@@ -246,6 +258,9 @@ public abstract class ViewData {
     /** Interval {@code AggregationWindowData.} */
     @Immutable
     @AutoValue
+    // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+    @AutoValue.CopyAnnotations
+    @SuppressWarnings("nullness")
     public abstract static class IntervalData extends AggregationWindowData {
 
       IntervalData() {}
@@ -262,7 +277,8 @@ public abstract class ViewData {
           Function<? super CumulativeData, T> p0,
           Function<? super IntervalData, T> p1,
           Function<? super AggregationWindowData, T> defaultFunction) {
-        return p1.apply(this);
+        return CheckerFrameworkUtils.<IntervalData, T>removeSuperFromFunctionParameterType(p1)
+            .apply(this);
       }
 
       /** Constructs a new {@link IntervalData}. */

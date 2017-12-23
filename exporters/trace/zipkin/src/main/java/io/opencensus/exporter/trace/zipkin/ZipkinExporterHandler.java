@@ -109,7 +109,11 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
   static Span generateSpan(SpanData spanData, Endpoint localEndpoint) {
     SpanContext context = spanData.getContext();
     long startTimestamp = toEpochMicros(spanData.getStartTimestamp());
+
+    // TODO(sebright): Fix the Checker Framework warning.
+    @SuppressWarnings("nullness")
     long endTimestamp = toEpochMicros(spanData.getEndTimestamp());
+
     Span.Builder spanBuilder =
         Span.newBuilder()
             .traceId(encodeTraceId(context.getTraceId()))

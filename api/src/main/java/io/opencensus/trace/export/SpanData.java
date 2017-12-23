@@ -36,9 +36,16 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+/*>>>
+import org.checkerframework.dataflow.qual.Deterministic;
+*/
+
 /** Immutable representation of all data collected by the {@link Span} class. */
 @Immutable
 @AutoValue
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
 public abstract class SpanData {
 
   /**
@@ -103,6 +110,7 @@ public abstract class SpanData {
    * @return the parent {@code SpanId} or {@code null} if the {@code Span} is a root {@code Span}.
    */
   @Nullable
+  /*@Deterministic*/
   public abstract SpanId getParentSpanId();
 
   /**
@@ -174,6 +182,7 @@ public abstract class SpanData {
    * @return the {@code Status} or {@code null} if {@code Span} is still active.
    */
   @Nullable
+  /*@Deterministic*/
   public abstract Status getStatus();
 
   /**
@@ -182,6 +191,7 @@ public abstract class SpanData {
    * @return the end {@code Timestamp} or {@code null} if the {@code Span} is still active.
    */
   @Nullable
+  /*@Deterministic*/
   public abstract Timestamp getEndTimestamp();
 
   SpanData() {}
@@ -193,6 +203,9 @@ public abstract class SpanData {
    */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class TimedEvent<T> {
     /**
      * Returns a new immutable {@code TimedEvent<T>}.
@@ -218,6 +231,7 @@ public abstract class SpanData {
      *
      * @return the event.
      */
+    /*@Deterministic*/
     public abstract T getEvent();
 
     TimedEvent() {}
@@ -230,6 +244,9 @@ public abstract class SpanData {
    */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class TimedEvents<T> {
     /**
      * Returns a new immutable {@code TimedEvents<T>}.
@@ -266,6 +283,9 @@ public abstract class SpanData {
   /** A set of attributes and the number of dropped attributes representation. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Attributes {
     /**
      * Returns a new immutable {@code Attributes}.
@@ -304,6 +324,9 @@ public abstract class SpanData {
   /** A list of links and the number of dropped links representation. */
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   public abstract static class Links {
     /**
      * Returns a new immutable {@code Links}.

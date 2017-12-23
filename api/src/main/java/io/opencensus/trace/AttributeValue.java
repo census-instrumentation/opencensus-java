@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.CheckerFrameworkUtils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -82,6 +83,9 @@ public abstract class AttributeValue {
 
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   abstract static class AttributeValueString extends AttributeValue {
 
     AttributeValueString() {}
@@ -97,7 +101,8 @@ public abstract class AttributeValue {
         Function<? super Boolean, T> booleanFunction,
         Function<? super Long, T> longFunction,
         Function<Object, T> defaultFunction) {
-      return stringFunction.apply(getStringValue());
+      return CheckerFrameworkUtils.<String, T>removeSuperFromFunctionParameterType(stringFunction)
+          .apply(getStringValue());
     }
 
     abstract String getStringValue();
@@ -105,6 +110,9 @@ public abstract class AttributeValue {
 
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   abstract static class AttributeValueBoolean extends AttributeValue {
 
     AttributeValueBoolean() {}
@@ -120,7 +128,8 @@ public abstract class AttributeValue {
         Function<? super Boolean, T> booleanFunction,
         Function<? super Long, T> longFunction,
         Function<Object, T> defaultFunction) {
-      return booleanFunction.apply(getBooleanValue());
+      return CheckerFrameworkUtils.<Boolean, T>removeSuperFromFunctionParameterType(booleanFunction)
+          .apply(getBooleanValue());
     }
 
     abstract Boolean getBooleanValue();
@@ -128,6 +137,9 @@ public abstract class AttributeValue {
 
   @Immutable
   @AutoValue
+  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @AutoValue.CopyAnnotations
+  @SuppressWarnings("nullness")
   abstract static class AttributeValueLong extends AttributeValue {
 
     AttributeValueLong() {}
@@ -143,7 +155,8 @@ public abstract class AttributeValue {
         Function<? super Boolean, T> booleanFunction,
         Function<? super Long, T> longFunction,
         Function<Object, T> defaultFunction) {
-      return longFunction.apply(getLongValue());
+      return CheckerFrameworkUtils.<Long, T>removeSuperFromFunctionParameterType(longFunction)
+          .apply(getLongValue());
     }
 
     abstract Long getLongValue();

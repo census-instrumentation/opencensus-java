@@ -26,6 +26,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.CheckerFrameworkUtils;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
@@ -62,7 +63,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /** A mutable version of {@link ViewData}, used for recording stats and start/end time. */
 abstract class MutableViewData {
@@ -70,7 +74,7 @@ abstract class MutableViewData {
   private static final long MILLIS_PER_SECOND = 1000L;
   private static final long NANOS_PER_MILLI = 1000 * 1000;
 
-  @Nullable @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
+  @javax.annotation.Nullable @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
 
   @VisibleForTesting static final Timestamp ZERO_TIMESTAMP = Timestamp.create(0, 0);
 
@@ -133,9 +137,9 @@ abstract class MutableViewData {
   }
 
   @VisibleForTesting
-  static List<TagValue> getTagValues(
+  static List</*@Nullable*/ TagValue> getTagValues(
       Map<? extends TagKey, ? extends TagValue> tags, List<? extends TagKey> columns) {
-    List<TagValue> tagValues = new ArrayList<TagValue>(columns.size());
+    List</*@Nullable*/ TagValue> tagValues = new ArrayList</*@Nullable*/ TagValue>(columns.size());
     // Record all the measures in a "Greedy" way.
     // Every view aggregates every measure. This is similar to doing a GROUPBY view’s keys.
     for (int i = 0; i < columns.size(); ++i) {
@@ -201,7 +205,7 @@ abstract class MutableViewData {
   private static final class CumulativeMutableViewData extends MutableViewData {
 
     private Timestamp start;
-    private final Map<List<TagValue>, MutableAggregation> tagValueAggregationMap =
+    private final Map<List</*@Nullable*/ TagValue>, MutableAggregation> tagValueAggregationMap =
         Maps.newHashMap();
 
     private CumulativeMutableViewData(View view, Timestamp start) {
@@ -211,7 +215,8 @@ abstract class MutableViewData {
 
     @Override
     void record(TagContext context, double value, Timestamp timestamp) {
-      List<TagValue> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
+      List</*@Nullable*/ TagValue> tagValues =
+          getTagValues(getTagMap(context), super.view.getColumns());
       if (!tagValueAggregationMap.containsKey(tagValues)) {
         tagValueAggregationMap.put(
             tagValues, createMutableAggregation(super.view.getAggregation()));
@@ -304,10 +309,11 @@ abstract class MutableViewData {
 
     @Override
     void record(TagContext context, double value, Timestamp timestamp) {
-      List<TagValue> tagValues = getTagValues(getTagMap(context), super.view.getColumns());
+      List</*@Nullable*/ TagValue> tagValues =
+          getTagValues(getTagMap(context), super.view.getColumns());
       refreshBucketList(timestamp);
       // It is always the last bucket that does the recording.
-      buckets.peekLast().record(tagValues, value);
+      CheckerFrameworkUtils.castNonNull(buckets.peekLast()).record(tagValues, value);
     }
 
     @Override
@@ -345,7 +351,8 @@ abstract class MutableViewData {
       if (buckets.size() != N + 1) {
         throw new AssertionError("Bucket list must have exactly " + (N + 1) + " buckets.");
       }
-      Timestamp startOfLastBucket = buckets.peekLast().getStart();
+      Timestamp startOfLastBucket =
+          CheckerFrameworkUtils.castNonNull(buckets.peekLast()).getStart();
       // TODO(songya): decide what to do when time goes backwards
       checkArgument(
           now.compareTo(startOfLastBucket) >= 0,
@@ -361,7 +368,10 @@ abstract class MutableViewData {
       Timestamp startOfNewBucket;
 
       if (!buckets.isEmpty()) {
-        startOfNewBucket = buckets.peekLast().getStart().addDuration(bucketDuration);
+        startOfNewBucket =
+            CheckerFrameworkUtils.castNonNull(buckets.peekLast())
+                .getStart()
+                .addDuration(bucketDuration);
       } else {
         // Initialize bucket list. Should only enter this block once.
         startOfNewBucket = subtractDuration(now, totalDuration);
@@ -388,8 +398,9 @@ abstract class MutableViewData {
 
     // Combine stats within each bucket, aggregate stats by tag values, and return the mapping from
     // tag values to aggregation data.
-    private Map<List<TagValue>, AggregationData> combineBucketsAndGetAggregationMap(Timestamp now) {
-      Multimap<List<TagValue>, MutableAggregation> multimap = HashMultimap.create();
+    private Map<List</*@Nullable*/ TagValue>, AggregationData> combineBucketsAndGetAggregationMap(
+        Timestamp now) {
+      Multimap<List</*@Nullable*/ TagValue>, MutableAggregation> multimap = HashMultimap.create();
 
       // TODO(sebright): Decide whether to use a different class instead of LinkedList.
       @SuppressWarnings("JdkObsolete")
@@ -397,7 +408,7 @@ abstract class MutableViewData {
 
       Aggregation aggregation = super.view.getAggregation();
       putBucketsIntoMultiMap(shallowCopy, multimap, aggregation, now);
-      Map<List<TagValue>, MutableAggregation> singleMap =
+      Map<List</*@Nullable*/ TagValue>, MutableAggregation> singleMap =
           aggregateOnEachTagValueList(multimap, aggregation);
       return createAggregationMap(singleMap, super.getView().getMeasure());
     }
@@ -406,12 +417,12 @@ abstract class MutableViewData {
     // mutable aggregations (map value) from different buckets.
     private static void putBucketsIntoMultiMap(
         LinkedList<IntervalBucket> buckets,
-        Multimap<List<TagValue>, MutableAggregation> multimap,
+        Multimap<List</*@Nullable*/ TagValue>, MutableAggregation> multimap,
         Aggregation aggregation,
         Timestamp now) {
       // Put fractional stats of the head (oldest) bucket.
-      IntervalBucket head = buckets.peekFirst();
-      IntervalBucket tail = buckets.peekLast();
+      IntervalBucket head = CheckerFrameworkUtils.castNonNull(buckets.peekFirst());
+      IntervalBucket tail = CheckerFrameworkUtils.castNonNull(buckets.peekLast());
       double fractionTail = tail.getFraction(now);
       // TODO(songya): decide what to do when time goes backwards
       checkArgument(
@@ -428,7 +439,7 @@ abstract class MutableViewData {
           shouldSkipFirst = false;
           continue; // skip the first bucket
         }
-        for (Entry<List<TagValue>, MutableAggregation> entry :
+        for (Entry<List</*@Nullable*/ TagValue>, MutableAggregation> entry :
             bucket.getTagValueAggregationMap().entrySet()) {
           multimap.put(entry.getKey(), entry.getValue());
         }

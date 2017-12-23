@@ -21,6 +21,7 @@ import io.opencensus.internal.Provider;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 /** Class for accessing the default {@link TagsComponent}. */
 public final class Tags {
@@ -83,7 +84,7 @@ public final class Tags {
 
   // Any provider that may be used for TagsComponent can be added here.
   @VisibleForTesting
-  static TagsComponent loadTagsComponent(ClassLoader classLoader) {
+  static TagsComponent loadTagsComponent(@Nullable ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
