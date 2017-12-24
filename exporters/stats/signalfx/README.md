@@ -47,8 +47,8 @@ For Gradle add to your dependencies:
 
 ```
 compile 'io.opencensus:opencensus-api:0.10.1'
-compile 'io.opencensus:opencensus-impl:0.10.1'
-runtime 'io.opencensus:opencensus-exporter-stats-signalfx:0.10.1'
+compile 'io.opencensus:opencensus-exporter-stats-signalfx:0.10.1'
+runtime 'io.opencensus:opencensus-impl:0.10.1'
 ```
 
 ### Register the exporter

@@ -41,8 +41,14 @@ import javax.annotation.concurrent.GuardedBy;
  */
 public final class SignalFxStatsExporter {
 
+  /**
+   * The name of the Java property that specifies the SignalFx authentication token to use when
+   * reporting metrics.
+   */
   public static final String SIGNALFX_TOKEN_PROPERTY = "signalfx.auth.token";
+  /** The name of the Java property that specifies the SignalFx ingest API URL (without path). */
   public static final String SIGNALFX_HOST_PROPERTY = "signalfx.ingest.url";
+  /** The default SignalFx ingest API URL. */
   public static final String DEFAULT_SIGNALFX_ENDPOINT = "https://ingest.signalfx.com";
 
   private static final Duration ZERO = Duration.create(0, 0);
