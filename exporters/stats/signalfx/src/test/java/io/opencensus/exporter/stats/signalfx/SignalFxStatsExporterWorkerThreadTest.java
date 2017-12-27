@@ -42,7 +42,7 @@ import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,15 +65,15 @@ public class SignalFxStatsExporterWorkerThreadTest {
 
   @Mock private SignalFxMetricsSenderFactory factory;
 
-  private URL endpoint;
+  private URI endpoint;
 
   @Before
   public void setUp() throws Exception {
-    endpoint = new URL("http://example.com");
+    endpoint = new URI("http://example.com");
 
     Mockito.when(
             factory.create(
-                Mockito.any(URL.class), Mockito.anyString(), Mockito.any(OnSendErrorHandler.class)))
+                Mockito.any(URI.class), Mockito.anyString(), Mockito.any(OnSendErrorHandler.class)))
         .thenAnswer(
             new Answer<AggregateMetricSender>() {
               @Override
@@ -81,7 +81,7 @@ public class SignalFxStatsExporterWorkerThreadTest {
                 Object[] args = invocation.getArguments();
                 AggregateMetricSender sender =
                     SignalFxMetricsSenderFactory.DEFAULT.create(
-                        (URL) args[0], (String) args[1], (OnSendErrorHandler) args[2]);
+                        (URI) args[0], (String) args[1], (OnSendErrorHandler) args[2]);
                 AggregateMetricSender spy = Mockito.spy(sender);
                 Mockito.doReturn(session).when(spy).createSession();
                 return spy;

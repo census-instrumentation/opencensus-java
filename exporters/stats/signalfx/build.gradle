@@ -6,6 +6,8 @@ description = 'OpenCensus SignalFx Stats Exporter'
 }
 
 dependencies {
+    compileOnly libraries.auto_value
+
     compile project(':opencensus-api'),
             libraries.signalfx_java
 

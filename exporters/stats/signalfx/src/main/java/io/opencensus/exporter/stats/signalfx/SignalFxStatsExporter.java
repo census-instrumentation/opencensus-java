@@ -22,9 +22,7 @@ import com.google.common.base.Strings;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.ViewManager;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Properties;
+import java.net.URI;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
@@ -41,84 +39,47 @@ import javax.annotation.concurrent.GuardedBy;
  */
 public final class SignalFxStatsExporter {
 
-  /**
-   * The name of the Java property that specifies the SignalFx authentication token to use when
-   * reporting metrics.
-   */
-  public static final String SIGNALFX_TOKEN_PROPERTY = "signalfx.auth.token";
-  /** The name of the Java property that specifies the SignalFx ingest API URL (without path). */
-  public static final String SIGNALFX_HOST_PROPERTY = "signalfx.ingest.url";
-  /** The default SignalFx ingest API URL. */
-  public static final String DEFAULT_SIGNALFX_ENDPOINT = "https://ingest.signalfx.com";
-
   private static final Duration ZERO = Duration.create(0, 0);
-  private static final Duration DEFAULT_INTERVAL = Duration.create(1, 0);
   private static final Object monitor = new Object();
 
+  private final SignalFxStatsConfiguration configuration;
   private final SignalFxStatsExporterWorkerThread workerThread;
 
   @GuardedBy("monitor")
   private static SignalFxStatsExporter exporter = null;
 
-  private SignalFxStatsExporter(URL url, String token, Duration interval, ViewManager viewManager) {
+  private SignalFxStatsExporter(SignalFxStatsConfiguration configuration, ViewManager viewManager) {
+    Preconditions.checkNotNull(configuration, "SignalFx stats exporter configuration");
+    this.configuration = configuration;
+
+    String token = configuration.getToken();
     Preconditions.checkArgument(!Strings.isNullOrEmpty(token), "Invalid SignalFx token");
-    Preconditions.checkNotNull(interval, "Interval must not be null");
+
+    Duration interval = configuration.getExportInterval();
     Preconditions.checkArgument(interval.compareTo(ZERO) > 0, "Interval duration must be positive");
+
+    URI endpoint = configuration.getIngestEndpoint();
     this.workerThread =
         new SignalFxStatsExporterWorkerThread(
-            SignalFxMetricsSenderFactory.DEFAULT, url, token, interval, viewManager);
+            SignalFxMetricsSenderFactory.DEFAULT, endpoint, token, interval, viewManager);
   }
 
   /**
-   * Creates a SignalFx Stats exporter that gets its authentication token and the SignalFx ingest
-   * URL from system properties and uses the default reporting interval.
+   * Creates a SignalFx Stats exporter from the given {@link SignalFxStatsConfiguration}.
    *
-   * <p>Only one SignalFx Stats exporter can be created.
+   * <p>If {@code ingestEndpoint} is not set on the configuration, the exporter will use {@link
+   * SignalFxStatsConfiguration#DEFAULT_SIGNALFX_ENDPOINT}.
    *
-   * @throws IllegalStateException if a SignalFx exporter already exists.
+   * <p>If {@code exportInterval} is not set on the configuration, the exporter will use {@link
+   * SignalFxStatsConfiguration#DEFAULT_EXPORT_INTERVAL}.
+   *
+   * @param configuration the {@code SignalFxStatsConfiguration}.
+   * @throws IllegalStateException if a SignalFx exporter is already created.
    */
-  public static void create() {
-    create(System.getProperties());
-  }
-
-  /**
-   * Creates a SignalFx Stats exporter that gets its authentication token and the SignalFx ingest
-   * URL from the given Java properties and uses the default reporting interval.
-   *
-   * <p>Only one SignalFx Stats exporter can be created.
-   *
-   * @param properties a {@code Properties} object containing the {@link #SIGNALFX_TOKEN_PROPERTY}
-   *     and {@link #SIGNALFX_HOST_PROPERTY}.
-   * @throws IllegalStateException if a SignalFx exporter already exists.
-   */
-  public static void create(Properties properties) {
-    Preconditions.checkNotNull(properties, "Given properties shouldn't be null");
-    String host = properties.getProperty(SIGNALFX_HOST_PROPERTY, DEFAULT_SIGNALFX_ENDPOINT);
-    String token = properties.getProperty(SIGNALFX_TOKEN_PROPERTY);
-    create(host, token, DEFAULT_INTERVAL);
-  }
-
-  /**
-   * Creates a SignalFx Stats exporter with an explicit authentication token and reporting interval.
-   *
-   * <p>Only one SignalFx Stats exporter can be created.
-   *
-   * @param host the SignalFx ingest URL.
-   * @param token a SignalFx ingest token.
-   * @param interval the interval at which stats are reported to SignalFx.
-   * @throws IllegalStateException if a SignalFx exporter already exists.
-   */
-  public static void create(String host, String token, Duration interval) {
-    URL url;
-    try {
-      url = new URL(host);
-    } catch (MalformedURLException e) {
-      throw new IllegalArgumentException("Invalid SignalFx endpoint URL", e);
-    }
-
+  public static void create(SignalFxStatsConfiguration configuration) {
     synchronized (monitor) {
       Preconditions.checkState(exporter == null, "SignalFx stats exporter is already created.");
-      exporter = new SignalFxStatsExporter(url, token, interval, Stats.getViewManager());
+      exporter = new SignalFxStatsExporter(configuration, Stats.getViewManager());
       exporter.workerThread.start();
     }
   }
@@ -136,6 +97,13 @@ public final class SignalFxStatsExporter {
           exporter = null;
         }
       }
+    }
+  }
+
+  @VisibleForTesting
+  static SignalFxStatsConfiguration unsafeGetConfig() {
+    synchronized (monitor) {
+      return exporter != null ? exporter.configuration : null;
     }
   }
 }

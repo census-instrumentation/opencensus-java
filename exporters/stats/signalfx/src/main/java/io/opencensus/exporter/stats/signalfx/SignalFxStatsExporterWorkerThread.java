@@ -27,7 +27,7 @@ import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,7 +56,7 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
 
   SignalFxStatsExporterWorkerThread(
       SignalFxMetricsSenderFactory factory,
-      URL url,
+      URI endpoint,
       String token,
       Duration interval,
       ViewManager views) {
@@ -64,11 +64,11 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
         TimeUnit.SECONDS.toMillis(interval.getSeconds())
             + TimeUnit.NANOSECONDS.toMillis(interval.getNanos());
     this.views = views;
-    this.sender = factory.create(url, token, ERROR_HANDLER);
+    this.sender = factory.create(endpoint, token, ERROR_HANDLER);
 
     setDaemon(true);
     setName(getClass().getSimpleName());
-    logger.log(Level.FINE, "Initialized SignalFx exporter to {0}.", url);
+    logger.log(Level.FINE, "Initialized SignalFx exporter to {0}.", endpoint);
   }
 
   @VisibleForTesting

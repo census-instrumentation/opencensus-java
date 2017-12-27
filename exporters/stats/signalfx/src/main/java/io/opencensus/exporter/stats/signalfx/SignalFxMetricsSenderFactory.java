@@ -22,7 +22,7 @@ import com.signalfx.metrics.connection.HttpDataPointProtobufReceiverFactory;
 import com.signalfx.metrics.connection.HttpEventProtobufReceiverFactory;
 import com.signalfx.metrics.errorhandler.OnSendErrorHandler;
 import com.signalfx.metrics.flush.AggregateMetricSender;
-import java.net.URL;
+import java.net.URI;
 import java.util.Collections;
 
 /** Interface for creators of {@link AggregateMetricSender}. */
@@ -31,26 +31,26 @@ interface SignalFxMetricsSenderFactory {
   /**
    * Creates a new SignalFx metrics sender instance.
    *
-   * @param url The SignalFx ingest endpoint URL.
+   * @param endpoint The SignalFx ingest endpoint URL.
    * @param token The SignalFx ingest token.
    * @param errorHandler An {@link OnSendErrorHandler} through which errors when sending data to
    *     SignalFx will be communicated.
    * @return The created {@link AggregateMetricSender} instance.
    */
-  AggregateMetricSender create(URL url, String token, OnSendErrorHandler errorHandler);
+  AggregateMetricSender create(URI endpoint, String token, OnSendErrorHandler errorHandler);
 
   /** The default, concrete implementation of this interface. */
   SignalFxMetricsSenderFactory DEFAULT =
       new SignalFxMetricsSenderFactory() {
         @Override
         public AggregateMetricSender create(
-            URL url, String token, OnSendErrorHandler errorHandler) {
-          SignalFxEndpoint endpoint =
-              new SignalFxEndpoint(url.getProtocol(), url.getHost(), url.getPort());
+            URI endpoint, String token, OnSendErrorHandler errorHandler) {
+          SignalFxEndpoint sfx =
+              new SignalFxEndpoint(endpoint.getScheme(), endpoint.getHost(), endpoint.getPort());
           return new AggregateMetricSender(
               null,
-              new HttpDataPointProtobufReceiverFactory(endpoint).setVersion(2),
-              new HttpEventProtobufReceiverFactory(endpoint),
+              new HttpDataPointProtobufReceiverFactory(sfx).setVersion(2),
+              new HttpEventProtobufReceiverFactory(sfx),
               new StaticAuthToken(token),
               Collections.singleton(errorHandler));
         }
