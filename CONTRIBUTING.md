@@ -56,8 +56,8 @@ We also follow these project-specific guidelines:
 
 ## Building opencensus-java
 
-Run `./gradlew clean assemble check` on OS X or Linux, or run
-`gradlew.bat clean assemble check` on Windows. This command performs the same
+Run `./gradlew clean assemble check verGJF` on OS X or Linux, or run
+`gradlew.bat clean assemble check verGJF` on Windows. This command performs the same
 checks as the continuous integration build.
 
 ## Proposing changes
