@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.zpages;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import com.google.common.base.Charsets;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
@@ -25,11 +27,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Map;
-import javax.annotation.Nullable;
-
-/*>>>
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
-*/
 
 // TODO(bdrutu): Add tests.
 /**
@@ -168,13 +165,6 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     } else if (RESTORE_DEFAULT_CHANGE.equals(changeStr)) {
       traceConfig.updateActiveTraceParams(TraceParams.DEFAULT);
     }
-  }
-
-  // TODO(sebright): Try to use a Checker Framework stub file for the Guava Strings class and use
-  // Strings.isNullOrEmpty instead.
-  /*>>> @EnsuresNonNullIf(result = false, expression = "#1") */
-  private static boolean isNullOrEmpty(@Nullable String str) {
-    return str == null || str.isEmpty();
   }
 
   // Prints a table to a PrintWriter that shows existing trace parameters.

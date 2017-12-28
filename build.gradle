@@ -96,7 +96,9 @@ subprojects {
         }
         if (useCheckerFramework) {
             it.options.compilerArgs += [
-                '-processor', 'com.google.auto.value.processor.AutoValueProcessor,org.checkerframework.checker.nullness.NullnessChecker'
+                '-processor',
+		'com.google.auto.value.processor.AutoValueProcessor,org.checkerframework.checker.nullness.NullnessChecker',
+		"-Astubs=$rootDir/checker-framework/stubs"
             ]
         }
         it.options.encoding = "UTF-8"
