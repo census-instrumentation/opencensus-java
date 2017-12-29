@@ -56,9 +56,44 @@ We also follow these project-specific guidelines:
 
 ## Building opencensus-java
 
-Run `./gradlew clean assemble check` on OS X or Linux, or run
-`gradlew.bat clean assemble check` on Windows. This command performs the same
-checks as the continuous integration build.
+Continuous integration builds the project, runs the tests, and runs multiple
+types of static analysis.
+
+Run the following commands to build, run tests and most static analysis, and
+check formatting:
+
+### OS X or Linux
+
+`./gradlew clean assemble check verGJF`
+
+### Windows
+
+`gradlew.bat clean assemble check verGJF`
+
+Use these commands to run Checker Framework null analysis:
+
+### OS X or Linux
+
+`./gradlew clean assemble -PcheckerFramework`
+
+### Windows
+
+`gradlew.bat clean assemble -PcheckerFramework`
+
+### Checker Framework null analysis
+
+OpenCensus uses the [Checker Framework](https://checkerframework.org/) to
+prevent NullPointerExceptions. Since the project uses Java 6, and Java 6 doesn't
+allow annotations on types, all Checker Framework type annotations must be
+[put in comments](https://checkerframework.org/manual/#backward-compatibility).
+Putting all Checker Framework annotations and imports in comments also avoids a
+dependency on the Checker Framework library.
+
+OpenCensus uses `org.checkerframework.checker.nullness.qual.Nullable` for all
+nullable annotations on types, since `javax.annotation.Nullable` cannot be
+applied to types. However, it uses `javax.annotation.Nullable` in API method
+signatures whenever possible, so that the annotations can be uncommented and
+be included in .class files and Javadocs.
 
 ## Proposing changes
 
