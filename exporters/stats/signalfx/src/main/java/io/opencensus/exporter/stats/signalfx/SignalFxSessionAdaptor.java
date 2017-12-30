@@ -42,7 +42,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /** Adapter for a {@code ViewData}'s contents into SignalFx datapoints. */
 final class SignalFxSessionAdaptor {
@@ -59,7 +63,7 @@ final class SignalFxSessionAdaptor {
    *     values.
    * @return A list of datapoints for the corresponding metric timeseries of this view's metric.
    */
-  static List<DataPoint> adapt(ViewData data) {
+  static List<DataPoint> adapt(@Nonnull ViewData data) {
     View view = data.getView();
     List<TagKey> keys = view.getColumns();
 
@@ -82,7 +86,7 @@ final class SignalFxSessionAdaptor {
   }
 
   @VisibleForTesting
-  @Nullable
+  @javax.annotation.Nullable
   static MetricType getMetricTypeForAggregation(Aggregation aggregation, AggregationWindow window) {
     if (aggregation instanceof Aggregation.Mean) {
       return MetricType.GAUGE;
@@ -123,47 +127,42 @@ final class SignalFxSessionAdaptor {
   static Datum createDatum(AggregationData data) {
     final Datum.Builder builder = Datum.newBuilder();
     data.match(
-        new Function<SumDataDouble, Object>() {
+        new Function<SumDataDouble, Void>() {
           @Override
-          @Nullable
-          public Object apply(SumDataDouble arg) {
+          public Void apply(SumDataDouble arg) {
             builder.setDoubleValue(arg.getSum());
             return null;
           }
         },
-        new Function<SumDataLong, Object>() {
+        new Function<SumDataLong, Void>() {
           @Override
-          @Nullable
-          public Object apply(SumDataLong arg) {
+          public Void apply(SumDataLong arg) {
             builder.setIntValue(arg.getSum());
             return null;
           }
         },
-        new Function<CountData, Object>() {
+        new Function<CountData, Void>() {
           @Override
-          @Nullable
-          public Object apply(CountData arg) {
+          public Void apply(CountData arg) {
             builder.setIntValue(arg.getCount());
             return null;
           }
         },
-        new Function<MeanData, Object>() {
+        new Function<MeanData, Void>() {
           @Override
-          @Nullable
-          public Object apply(MeanData arg) {
+          public Void apply(MeanData arg) {
             builder.setDoubleValue(arg.getMean());
             return null;
           }
         },
-        new Function<DistributionData, Object>() {
+        new Function<DistributionData, Void>() {
           @Override
-          @Nullable
-          public Object apply(DistributionData arg) {
+          public Void apply(DistributionData arg) {
             // TODO(mpetazzoni): add histogram support.
             throw new IllegalArgumentException("Distribution aggregations are not supported");
           }
         },
-        Functions.throwIllegalArgumentException());
+        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
     return builder.build();
   }
 }

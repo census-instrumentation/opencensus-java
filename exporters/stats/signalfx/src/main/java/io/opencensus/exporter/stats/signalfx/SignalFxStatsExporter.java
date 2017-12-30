@@ -23,6 +23,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.ViewManager;
 import java.net.URI;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 /**
@@ -46,6 +47,7 @@ public final class SignalFxStatsExporter {
   private final SignalFxStatsExporterWorkerThread workerThread;
 
   @GuardedBy("monitor")
+  @Nullable
   private static SignalFxStatsExporter exporter = null;
 
   private SignalFxStatsExporter(SignalFxStatsConfiguration configuration, ViewManager viewManager) {
@@ -88,19 +90,22 @@ public final class SignalFxStatsExporter {
   static void unsafeResetExporter() {
     synchronized (monitor) {
       if (exporter != null) {
-        try {
-          exporter.workerThread.interrupt();
-          exporter.workerThread.join();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        } finally {
-          exporter = null;
+        SignalFxStatsExporterWorkerThread workerThread = exporter.workerThread;
+        if (workerThread != null && workerThread.isAlive()) {
+          try {
+            workerThread.interrupt();
+            workerThread.join();
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
         }
+        exporter = null;
       }
     }
   }
 
   @VisibleForTesting
+  @Nullable
   static SignalFxStatsConfiguration unsafeGetConfig() {
     synchronized (monitor) {
       return exporter != null ? exporter.configuration : null;

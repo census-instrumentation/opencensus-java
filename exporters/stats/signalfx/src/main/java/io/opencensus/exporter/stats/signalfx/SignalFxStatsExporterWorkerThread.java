@@ -76,6 +76,10 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
     try (Session session = sender.createSession()) {
       for (View view : views.getAllExportedViews()) {
         ViewData data = views.getView(view.getName());
+        if (data == null) {
+          continue;
+        }
+
         for (DataPoint datapoint : SignalFxSessionAdaptor.adapt(data)) {
           session.setDatapoint(datapoint);
         }

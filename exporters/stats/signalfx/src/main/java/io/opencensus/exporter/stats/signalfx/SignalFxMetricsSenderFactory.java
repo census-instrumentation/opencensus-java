@@ -43,6 +43,7 @@ interface SignalFxMetricsSenderFactory {
   SignalFxMetricsSenderFactory DEFAULT =
       new SignalFxMetricsSenderFactory() {
         @Override
+        @SuppressWarnings("nullness")
         public AggregateMetricSender create(
             URI endpoint, String token, OnSendErrorHandler errorHandler) {
           SignalFxEndpoint sfx =
