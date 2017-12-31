@@ -51,17 +51,10 @@ public class SignalFxStatsExporterTest {
   }
 
   @Test
-  public void createWithEmptyToken() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Invalid SignalFx token");
-    SignalFxStatsExporter.create(SignalFxStatsConfiguration.builder().setToken("").build());
-  }
-
-  @Test
-  public void createWithNullHostUsesDefault() throws URISyntaxException {
+  public void createWithNullHostUsesDefault() {
     SignalFxStatsExporter.create(SignalFxStatsConfiguration.builder().setToken(TEST_TOKEN).build());
     assertEquals(
-        new URI(SignalFxStatsConfiguration.DEFAULT_SIGNALFX_ENDPOINT),
+        SignalFxStatsConfiguration.DEFAULT_SIGNALFX_ENDPOINT,
         SignalFxStatsExporter.unsafeGetConfig().getIngestEndpoint());
   }
 
@@ -71,17 +64,6 @@ public class SignalFxStatsExporterTest {
     assertEquals(
         SignalFxStatsConfiguration.DEFAULT_EXPORT_INTERVAL,
         SignalFxStatsExporter.unsafeGetConfig().getExportInterval());
-  }
-
-  @Test
-  public void createWithNegativeDuration() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Interval duration must be positive");
-    SignalFxStatsExporter.create(
-        SignalFxStatsConfiguration.builder()
-            .setToken(TEST_TOKEN)
-            .setExportInterval(Duration.create(-1, 0))
-            .build());
   }
 
   @Test

@@ -18,11 +18,8 @@ package io.opencensus.exporter.stats.signalfx;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import io.opencensus.common.Duration;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.ViewManager;
-import java.net.URI;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -40,7 +37,6 @@ import javax.annotation.concurrent.GuardedBy;
  */
 public final class SignalFxStatsExporter {
 
-  private static final Duration ZERO = Duration.create(0, 0);
   private static final Object monitor = new Object();
 
   private final SignalFxStatsConfiguration configuration;
@@ -53,17 +49,13 @@ public final class SignalFxStatsExporter {
   private SignalFxStatsExporter(SignalFxStatsConfiguration configuration, ViewManager viewManager) {
     Preconditions.checkNotNull(configuration, "SignalFx stats exporter configuration");
     this.configuration = configuration;
-
-    String token = configuration.getToken();
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(token), "Invalid SignalFx token");
-
-    Duration interval = configuration.getExportInterval();
-    Preconditions.checkArgument(interval.compareTo(ZERO) > 0, "Interval duration must be positive");
-
-    URI endpoint = configuration.getIngestEndpoint();
     this.workerThread =
         new SignalFxStatsExporterWorkerThread(
-            SignalFxMetricsSenderFactory.DEFAULT, endpoint, token, interval, viewManager);
+            SignalFxMetricsSenderFactory.DEFAULT,
+            configuration.getIngestEndpoint(),
+            configuration.getToken(),
+            configuration.getExportInterval(),
+            viewManager);
   }
 
   /**

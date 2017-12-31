@@ -42,7 +42,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import javax.annotation.Nonnull;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -63,7 +62,7 @@ final class SignalFxSessionAdaptor {
    *     values.
    * @return A list of datapoints for the corresponding metric timeseries of this view's metric.
    */
-  static List<DataPoint> adapt(@Nonnull ViewData data) {
+  static List<DataPoint> adapt(ViewData data) {
     View view = data.getView();
     List<TagKey> keys = view.getColumns();
 

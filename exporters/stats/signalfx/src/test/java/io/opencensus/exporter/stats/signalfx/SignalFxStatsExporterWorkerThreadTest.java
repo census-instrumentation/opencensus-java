@@ -33,7 +33,7 @@ import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.MetricType;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
-import io.opencensus.stats.AggregationData.SumDataDouble;
+import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.View.Name;
@@ -108,7 +108,7 @@ public class SignalFxStatsExporterWorkerThreadTest {
             factory, endpoint, TEST_TOKEN, ONE_SECOND, viewManager);
     thread.start();
     thread.interrupt();
-    thread.join();
+    thread.join(5000, 0);
     assertFalse("Worker thread should have stopped", thread.isAlive());
   }
 
@@ -126,7 +126,7 @@ public class SignalFxStatsExporterWorkerThreadTest {
     Mockito.when(viewData.getAggregationMap())
         .thenReturn(
             ImmutableMap.<List<TagValue>, AggregationData>of(
-                ImmutableList.of(TagValue.create("cat")), SumDataDouble.create(3.14d)));
+                ImmutableList.of(TagValue.create("cat")), MeanData.create(3.14d, 1)));
 
     Mockito.when(viewManager.getAllExportedViews()).thenReturn(ImmutableSet.of(view));
     Mockito.when(viewManager.getView(Mockito.eq(viewName))).thenReturn(viewData);

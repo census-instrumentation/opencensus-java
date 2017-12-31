@@ -17,6 +17,8 @@
 package io.opencensus.exporter.stats.signalfx;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import io.opencensus.common.Duration;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,10 +33,21 @@ import javax.annotation.concurrent.Immutable;
 public abstract class SignalFxStatsConfiguration {
 
   /** The default SignalFx ingest API URL. */
-  public static final String DEFAULT_SIGNALFX_ENDPOINT = "https://ingest.signalfx.com";
+  public static final URI DEFAULT_SIGNALFX_ENDPOINT;
+
+  static {
+    try {
+      DEFAULT_SIGNALFX_ENDPOINT = new URI("https://ingest.signalfx.com");
+    } catch (URISyntaxException e) {
+      // This shouldn't happen if DEFAULT_SIGNALFX_ENDPOINT was typed in correctly.
+      throw new IllegalStateException(e);
+    }
+  }
 
   /** The default stats export interval. */
   public static final Duration DEFAULT_EXPORT_INTERVAL = Duration.create(1, 0);
+
+  private static final Duration ZERO = Duration.create(0, 0);
 
   SignalFxStatsConfiguration() {}
 
@@ -65,14 +78,9 @@ public abstract class SignalFxStatsConfiguration {
    * @return a {@code Builder}.
    */
   public static Builder builder() {
-    try {
-      return new AutoValue_SignalFxStatsConfiguration.Builder()
-          .setIngestEndpoint(new URI(DEFAULT_SIGNALFX_ENDPOINT))
-          .setExportInterval(DEFAULT_EXPORT_INTERVAL);
-    } catch (URISyntaxException e) {
-      // This shouldn't happen if DEFAULT_SIGNALFX_ENDPOINT was typed in correctly.
-      throw new IllegalArgumentException(e);
-    }
+    return new AutoValue_SignalFxStatsConfiguration.Builder()
+        .setIngestEndpoint(DEFAULT_SIGNALFX_ENDPOINT)
+        .setExportInterval(DEFAULT_EXPORT_INTERVAL);
   }
 
   /** Builder for {@link SignalFxStatsConfiguration}. */
@@ -105,11 +113,20 @@ public abstract class SignalFxStatsConfiguration {
      */
     public abstract Builder setExportInterval(Duration exportInterval);
 
+    abstract SignalFxStatsConfiguration autoBuild();
+
     /**
      * Builds a new {@link SignalFxStatsConfiguration} with current settings.
      *
      * @return a {@code SignalFxStatsConfiguration}.
      */
-    public abstract SignalFxStatsConfiguration build();
+    public SignalFxStatsConfiguration build() {
+      SignalFxStatsConfiguration config = autoBuild();
+      Preconditions.checkArgument(
+          !Strings.isNullOrEmpty(config.getToken()), "Invalid SignalFx token");
+      Preconditions.checkArgument(
+          config.getExportInterval().compareTo(ZERO) > 0, "Interval duration must be positive");
+      return config;
+    }
   }
 }

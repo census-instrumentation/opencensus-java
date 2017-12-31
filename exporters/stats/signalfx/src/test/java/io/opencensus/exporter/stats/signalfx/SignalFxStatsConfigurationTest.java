@@ -21,7 +21,9 @@ import static org.junit.Assert.assertEquals;
 import io.opencensus.common.Duration;
 import java.net.URI;
 import java.net.URISyntaxException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -31,20 +33,21 @@ public class SignalFxStatsConfigurationTest {
 
   private static final String TEST_TOKEN = "token";
 
+  @Rule public final ExpectedException thrown = ExpectedException.none();
+
   @Test
-  public void testBuildDefaults() {
+  public void buildWithDefaults() {
     SignalFxStatsConfiguration configuration =
         SignalFxStatsConfiguration.builder().setToken(TEST_TOKEN).build();
     assertEquals(TEST_TOKEN, configuration.getToken());
     assertEquals(
-        SignalFxStatsConfiguration.DEFAULT_SIGNALFX_ENDPOINT,
-        configuration.getIngestEndpoint().toString());
+        SignalFxStatsConfiguration.DEFAULT_SIGNALFX_ENDPOINT, configuration.getIngestEndpoint());
     assertEquals(
         SignalFxStatsConfiguration.DEFAULT_EXPORT_INTERVAL, configuration.getExportInterval());
   }
 
   @Test
-  public void testBuildFields() throws URISyntaxException {
+  public void buildWithFields() throws URISyntaxException {
     URI url = new URI("http://example.com");
     Duration duration = Duration.create(5, 0);
     SignalFxStatsConfiguration configuration =
@@ -59,12 +62,29 @@ public class SignalFxStatsConfigurationTest {
   }
 
   @Test
-  public void testSameConfigurationsAreEqual() {
+  public void sameConfigurationsAreEqual() {
     SignalFxStatsConfiguration config1 =
         SignalFxStatsConfiguration.builder().setToken(TEST_TOKEN).build();
     SignalFxStatsConfiguration config2 =
         SignalFxStatsConfiguration.builder().setToken(TEST_TOKEN).build();
     assertEquals(config1, config2);
     assertEquals(config1.hashCode(), config2.hashCode());
+  }
+
+  @Test
+  public void buildWithEmptyToken() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Invalid SignalFx token");
+    SignalFxStatsConfiguration.builder().setToken("").build();
+  }
+
+  @Test
+  public void buildWithNegativeDuration() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Interval duration must be positive");
+    SignalFxStatsConfiguration.builder()
+        .setToken(TEST_TOKEN)
+        .setExportInterval(Duration.create(-1, 0))
+        .build();
   }
 }
