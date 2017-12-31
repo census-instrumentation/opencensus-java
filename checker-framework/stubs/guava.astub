@@ -1,0 +1,9 @@
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+package com.google.common.base;
+
+class Strings {
+  @EnsuresNonNullIf(result = false, expression = "#1")
+  static boolean isNullOrEmpty(@Nullable String str);
+}
