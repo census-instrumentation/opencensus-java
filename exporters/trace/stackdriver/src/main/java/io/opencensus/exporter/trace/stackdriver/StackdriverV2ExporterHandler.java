@@ -132,10 +132,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     if (end != null) {
       spanBuilder.setEndTime(toTimestampProto(end));
     }
-    io.opencensus.trace.export.SpanData.Links links = spanData.getLinks();
-    if (links != null) {
-      spanBuilder.setLinks(toLinksProto(links));
-    }
+    spanBuilder.setLinks(toLinksProto(spanData.getLinks()));
     Integer childSpanCount = spanData.getChildSpanCount();
     if (childSpanCount != null) {
       spanBuilder.setChildSpanCount(Int32Value.newBuilder().setValue(childSpanCount).build());
@@ -291,12 +288,10 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   }
 
   private static Links toLinksProto(io.opencensus.trace.export.SpanData.Links links) {
-    final Links.Builder linksBuilder = Links.newBuilder();
-    if (links != null) {
-      linksBuilder.setDroppedLinksCount(links.getDroppedLinksCount());
-      for (io.opencensus.trace.Link link : links.getLinks()) {
-        linksBuilder.addLink(toLinkProto(link));
-      }
+    final Links.Builder linksBuilder =
+        Links.newBuilder().setDroppedLinksCount(links.getDroppedLinksCount());
+    for (io.opencensus.trace.Link link : links.getLinks()) {
+      linksBuilder.addLink(toLinkProto(link));
     }
     return linksBuilder.build();
   }

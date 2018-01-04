@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2018, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 package io.opencensus.exporter.trace.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.when;
 
-import com.google.cloud.trace.v2.TraceServiceClient;
-import com.google.cloud.trace.v2.stub.TraceServiceStub;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.common.collect.Lists;
 import com.google.devtools.cloudtrace.v2.AttributeValue;
 import com.google.devtools.cloudtrace.v2.Span;
 import com.google.devtools.cloudtrace.v2.Span.TimeEvent;
@@ -41,23 +42,19 @@ import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 @RunWith(JUnit4.class)
-public final class StackdriverV2ExporterHandlerTest {
+public final class StackdriverV2ExporterHandlerProtoTest {
+  private static final Credentials FAKE_CREDENTIALS =
+      GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   // OpenCensus constants
   private static final Timestamp startTimestamp = Timestamp.create(123, 456);
   private static final Timestamp eventTimestamp1 = Timestamp.create(123, 457);
@@ -94,31 +91,19 @@ public final class StackdriverV2ExporterHandlerTest {
   private static final TraceOptions traceOptions = TraceOptions.DEFAULT;
   private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
 
-  private final List<TimedEvent<Annotation>> annotationsList =
-      new ArrayList<TimedEvent<Annotation>>();
-  private final List<TimedEvent<NetworkEvent>> networkEventsList =
-      new ArrayList<SpanData.TimedEvent<NetworkEvent>>();
-  private final List<Link> linksList = new ArrayList<Link>();
+  private final List<TimedEvent<Annotation>> annotationsList = Lists.newArrayList();
+  private final List<TimedEvent<NetworkEvent>> networkEventsList = Lists.newArrayList();
+  private final List<Link> linksList = Lists.newArrayList();
 
   private SpanData.Attributes attributes;
   private TimedEvents<Annotation> annotations;
   private TimedEvents<NetworkEvent> networkEvents;
   private SpanData.Links links;
 
-  // mock the service stub to provide a fake trace service.
-  @Mock private TraceServiceStub traceServiceStub;
-  private TraceServiceClient traceServiceClient;
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
   private StackdriverV2ExporterHandler handler;
 
   @Before
   public void setUp() throws IOException {
-    MockitoAnnotations.initMocks(this);
-    // TODO(@Hailong): this is a beta API and might change in the future.
-    traceServiceClient = TraceServiceClient.create(traceServiceStub);
-    handler = new StackdriverV2ExporterHandler(PROJECT_ID, traceServiceClient);
-
     Map<String, io.opencensus.trace.AttributeValue> attributesMap =
         new HashMap<String, io.opencensus.trace.AttributeValue>();
     attributesMap.put(ATTRIBUTE_KEY_1, io.opencensus.trace.AttributeValue.longAttributeValue(10L));
@@ -136,6 +121,8 @@ public final class StackdriverV2ExporterHandlerTest {
 
     linksList.add(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
     links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
+
+    handler = StackdriverV2ExporterHandler.createWithCredentials(FAKE_CREDENTIALS, PROJECT_ID);
   }
 
   @Test
@@ -248,10 +235,10 @@ public final class StackdriverV2ExporterHandlerTest {
     assertThat(span.getEndTime()).isEqualTo(endTime);
     assertThat(span.getAttributes().getDroppedAttributesCount())
         .isEqualTo(DROPPED_ATTRIBUTES_COUNT);
-    // don't care about the agent attribute.
-    assertThat(span.getAttributes().getAttributeMap())
+    // The generated attributes map contains more values (e.g. agent). We only test what we added.
+    assertThat(span.getAttributes().getAttributeMapMap())
         .containsEntry(ATTRIBUTE_KEY_1, AttributeValue.newBuilder().setIntValue(10L).build());
-    assertThat(span.getAttributes().getAttributeMap())
+    assertThat(span.getAttributes().getAttributeMapMap())
         .containsEntry(ATTRIBUTE_KEY_2, AttributeValue.newBuilder().setBoolValue(true).build());
     // TODO(@Hailong): add stack trace test in the future.
     assertThat(span.getStackTrace()).isEqualTo(StackTrace.newBuilder().build());
@@ -267,17 +254,5 @@ public final class StackdriverV2ExporterHandlerTest {
         .isEqualTo(com.google.protobuf.BoolValue.newBuilder().build());
     assertThat(span.getChildSpanCount())
         .isEqualTo(Int32Value.newBuilder().setValue(CHILD_SPAN_COUNT).build());
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  public void export() {
-    when(traceServiceStub.batchWriteSpansCallable())
-        .thenThrow(new RuntimeException("TraceServiceStub called"));
-    Collection<SpanData> spanDataList = Collections.<SpanData>emptyList();
-    List<Span> spanList = Collections.<Span>emptyList();
-    thrown.expect(RuntimeException.class);
-    thrown.expectMessage("TraceServiceStub called");
-    handler.export(spanDataList);
   }
 }
