@@ -22,15 +22,19 @@ import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.trace.v2.TraceServiceClient;
 import com.google.cloud.trace.v2.TraceServiceSettings;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.BaseEncoding;
 import com.google.devtools.cloudtrace.v2.AttributeValue;
 import com.google.devtools.cloudtrace.v2.ProjectName;
 import com.google.devtools.cloudtrace.v2.Span;
 import com.google.devtools.cloudtrace.v2.Span.Attributes;
+import com.google.devtools.cloudtrace.v2.Span.Link;
+import com.google.devtools.cloudtrace.v2.Span.Links;
 import com.google.devtools.cloudtrace.v2.Span.TimeEvent;
 import com.google.devtools.cloudtrace.v2.Span.TimeEvent.MessageEvent;
 import com.google.devtools.cloudtrace.v2.SpanName;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
+import com.google.protobuf.Int32Value;
 import com.google.rpc.Status;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -78,7 +82,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private final TraceServiceClient traceServiceClient;
   private final ProjectName projectName;
 
-  private StackdriverV2ExporterHandler(String projectId, TraceServiceClient traceServiceClient) {
+  @VisibleForTesting
+  StackdriverV2ExporterHandler(String projectId, TraceServiceClient traceServiceClient) {
     this.projectId = checkNotNull(projectId, "projectId");
     this.traceServiceClient = traceServiceClient;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
@@ -103,8 +108,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     return new StackdriverV2ExporterHandler(projectId, TraceServiceClient.create());
   }
 
-  // TODO(bdrutu): Add tests for this.
-  private Span generateSpan(SpanData spanData) {
+  @VisibleForTesting
+  Span generateSpan(SpanData spanData) {
     SpanContext context = spanData.getContext();
     final String traceIdHex = encodeTraceId(context.getTraceId());
     final String spanIdHex = encodeSpanId(context.getSpanId());
@@ -127,7 +132,11 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     if (end != null) {
       spanBuilder.setEndTime(toTimestampProto(end));
     }
-
+    spanBuilder.setLinks(toLinksProto(spanData.getLinks()));
+    Integer childSpanCount = spanData.getChildSpanCount();
+    if (childSpanCount != null) {
+      spanBuilder.setChildSpanCount(Int32Value.newBuilder().setValue(childSpanCount).build());
+    }
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
       spanBuilder.setParentSpanId(encodeSpanId(spanData.getParentSpanId()));
     }
@@ -258,6 +267,33 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         },
         Functions.</*@Nullable*/ Void>returnNull());
     return attributeValueBuilder.build();
+  }
+
+  private static Link.Type toLinkTypeProto(io.opencensus.trace.Link.Type type) {
+    if (type == io.opencensus.trace.Link.Type.PARENT_LINKED_SPAN) {
+      return Link.Type.PARENT_LINKED_SPAN;
+    } else {
+      return Link.Type.CHILD_LINKED_SPAN;
+    }
+  }
+
+  private static Link toLinkProto(io.opencensus.trace.Link link) {
+    checkNotNull(link);
+    return Link.newBuilder()
+        .setTraceId(encodeTraceId(link.getTraceId()))
+        .setSpanId(encodeSpanId(link.getSpanId()))
+        .setType(toLinkTypeProto(link.getType()))
+        .setAttributes(toAttributesBuilderProto(link.getAttributes(), 0))
+        .build();
+  }
+
+  private static Links toLinksProto(io.opencensus.trace.export.SpanData.Links links) {
+    final Links.Builder linksBuilder =
+        Links.newBuilder().setDroppedLinksCount(links.getDroppedLinksCount());
+    for (io.opencensus.trace.Link link : links.getLinks()) {
+      linksBuilder.addLink(toLinkProto(link));
+    }
+    return linksBuilder.build();
   }
 
   @Override
