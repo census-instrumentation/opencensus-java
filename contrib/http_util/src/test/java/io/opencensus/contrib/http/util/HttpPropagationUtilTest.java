@@ -31,6 +31,6 @@ public class HttpPropagationUtilTest {
   public void cloudTraceFormatNotNull() {
     TextFormat cloudTraceFormat = HttpPropagationUtil.getCloudTraceFormat();
     assertThat(cloudTraceFormat).isNotNull();
-    assertThat(cloudTraceFormat.getClass()).isEqualTo(CloudTraceFormat.class);
+    assertThat(cloudTraceFormat).isInstanceOf(CloudTraceFormat.class);
   }
 }
