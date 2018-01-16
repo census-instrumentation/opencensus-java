@@ -12,6 +12,7 @@ include ":opencensus-exporter-stats-stackdriver"
 include ":opencensus-contrib-agent"
 include ":opencensus-contrib-grpc-metrics"
 include ":opencensus-contrib-grpc-util"
+include ":opencensus-contrib-http-util"
 
 project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
@@ -21,6 +22,7 @@ project(':opencensus-testing').projectDir = "$rootDir/testing" as File
 project(':opencensus-contrib-agent').projectDir = "$rootDir/contrib/agent" as File
 project(':opencensus-contrib-grpc-metrics').projectDir = "$rootDir/contrib/grpc_metrics" as File
 project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_util" as File
+project(':opencensus-contrib-http-util').projectDir = "$rootDir/contrib/http_util" as File
 project(':opencensus-exporter-trace-logging').projectDir =
         "$rootDir/exporters/trace/logging" as File
 project(':opencensus-exporter-trace-stackdriver').projectDir =

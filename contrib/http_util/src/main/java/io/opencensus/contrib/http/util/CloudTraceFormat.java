@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.trace.propagation;
+package io.opencensus.contrib.http.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;

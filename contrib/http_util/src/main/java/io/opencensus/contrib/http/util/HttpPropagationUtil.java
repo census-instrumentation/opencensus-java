@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2018, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.trace.propagation;
+package io.opencensus.contrib.http.util;
 
-import io.opencensus.trace.propagation.BinaryFormat;
-import io.opencensus.trace.propagation.PropagationComponent;
 import io.opencensus.trace.propagation.TextFormat;
 
-/** Implementation of the {@link PropagationComponent}. */
-public class PropagationComponentImpl extends PropagationComponent {
-  private final BinaryFormat binaryFormat = new BinaryFormatImpl();
-  private final B3Format b3Format = new B3Format();
-
-  @Override
-  public BinaryFormat getBinaryFormat() {
-    return binaryFormat;
-  }
-
-  @Override
-  public TextFormat getB3Format() {
-    return b3Format;
+/** Utility class to get all supported {@link TextFormat}. */
+public class HttpPropagationUtil {
+  /**
+   * Returns the Stack Driver format.
+   *
+   * @return the Stack Driver format.
+   */
+  public static TextFormat cloudTraceFormat() {
+    return new CloudTraceFormat();
   }
 }
