@@ -1,13 +1,15 @@
-# FieldMissingNullable is turned off due to
-# https://github.com/google/error-prone/issues/823.
+# FieldMissingNullable is marked as WARN
+# detects errors in autovalue generated code.
 
 # ReturnMissingNullable is turned off because it
 # conflicts with Checker Framework null analysis.
 
 errorProneExperimentalSuggestions = \
+-Xep:BooleanParameter:ERROR,\
 -Xep:ConstantField:ERROR,\
 -Xep:EmptySetMultibindingContributions:ERROR,\
--Xep:FieldMissingNullable:OFF,\
+-Xep:FieldMissingNullable:WARN,\
+-Xep:LambdaFunctionalInterface:ERROR,\
 -Xep:MethodCanBeStatic:ERROR,\
 -Xep:MixedArrayDimensions:ERROR,\
 -Xep:MultiVariableDeclaration:ERROR,\
@@ -20,7 +22,9 @@ errorProneExperimentalSuggestions = \
 -Xep:PrivateConstructorForUtilityClass:ERROR,\
 -Xep:RemoveUnusedImports:ERROR,\
 -Xep:ReturnMissingNullable:OFF,\
+-Xep:SwitchDefault:ERROR,\
 -Xep:ThrowsUncheckedException:ERROR,\
+-Xep:TypeParameterNaming:ERROR,\
 -Xep:UngroupedOverloads:ERROR,\
 -Xep:UnnecessarySetDefault:ERROR,\
 -Xep:UnnecessaryStaticImport:ERROR,\

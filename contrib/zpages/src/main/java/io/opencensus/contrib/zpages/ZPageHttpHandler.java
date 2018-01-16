@@ -17,6 +17,7 @@
 package io.opencensus.contrib.zpages;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.opencensus.common.Scope;
@@ -28,6 +29,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** An {@link HttpHandler} that can be used to render HTML pages using any {@code ZPageHandler}. */
@@ -73,12 +75,12 @@ final class ZPageHttpHandler implements HttpHandler {
       return Collections.emptyMap();
     }
     Map<String, String> result = new HashMap<String, String>();
-    for (String param : query.split("&")) {
-      String[] pair = param.split("=");
-      if (pair.length > 1) {
-        result.put(pair[0], pair[1]);
+    for (String param : Splitter.on("&").split(query)) {
+      List<String> splits = Splitter.on("=").splitToList(param);
+      if (splits.size() > 1) {
+        result.put(splits.get(0), splits.get(1));
       } else {
-        result.put(pair[0], "");
+        result.put(splits.get(0), "");
       }
     }
     return result;

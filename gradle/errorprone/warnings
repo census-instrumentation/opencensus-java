@@ -1,3 +1,6 @@
+# NarrowingCompoundAssignment is marked as WARN
+# detects errors in autovalue generated code.
+
 errorProneWarnings = \
 -Xep:AmbiguousMethodReference:ERROR,\
 -Xep:ArgumentSelectionDefectChecker:ERROR,\
@@ -8,22 +11,26 @@ errorProneWarnings = \
 -Xep:BoxedPrimitiveConstructor:ERROR,\
 -Xep:CannotMockFinalClass:ERROR,\
 -Xep:CanonicalDuration:ERROR,\
+-Xep:CatchFail:ERROR,\
 -Xep:ClassCanBeStatic:ERROR,\
 -Xep:ClassNewInstance:ERROR,\
 -Xep:CollectionToArraySafeParameter:ERROR,\
 -Xep:CollectorShouldNotUseState:ERROR,\
 -Xep:ComparableAndComparator:ERROR,\
+-Xep:DateFormatConstant:ERROR,\
 -Xep:DefaultCharset:ERROR,\
 -Xep:DoubleCheckedLocking:ERROR,\
 -Xep:EqualsHashCode:ERROR,\
 -Xep:EqualsIncompatibleType:ERROR,\
+-Xep:FallThrough:ERROR,\
 -Xep:Finally:ERROR,\
+-Xep:FloatCast:ERROR,\
 -Xep:FloatingPointLiteralPrecision:ERROR,\
 -Xep:FragmentInjection:ERROR,\
 -Xep:FragmentNotInstantiable:ERROR,\
--Xep:FunctionalInterfaceClash:ERROR,\
 -Xep:FutureReturnValueIgnored:ERROR,\
 -Xep:GetClassOnEnum:ERROR,\
+-Xep:HidingField:ERROR,\
 -Xep:ImmutableAnnotationChecker:ERROR,\
 -Xep:ImmutableEnumChecker:ERROR,\
 -Xep:IncompatibleModifiers:ERROR,\
@@ -39,11 +46,12 @@ errorProneWarnings = \
 -Xep:JavaLangClash:ERROR,\
 -Xep:JdkObsolete:ERROR,\
 -Xep:LogicalAssignment:ERROR,\
+-Xep:MissingCasesInEnumSwitch:ERROR,\
 -Xep:MissingFail:ERROR,\
 -Xep:MissingOverride:ERROR,\
+-Xep:ModifyCollectionInEnhancedForLoop:ERROR,\
 -Xep:MultipleParallelOrSequentialCalls:ERROR,\
 -Xep:MutableConstantField:ERROR,\
--Xep:NamedParameters:ERROR,\
 -Xep:NarrowingCompoundAssignment:WARN,\
 -Xep:NestedInstanceOfConditions:ERROR,\
 -Xep:NonAtomicVolatileUpdate:ERROR,\
@@ -59,17 +67,22 @@ errorProneWarnings = \
 -Xep:ParameterName:ERROR,\
 -Xep:PreconditionsInvalidPlaceholder:ERROR,\
 -Xep:ProtoFieldPreconditionsCheckNotNull:ERROR,\
+-Xep:QualifierOrScopeOnInjectMethod:ERROR,\
+-Xep:ReachabilityFenceUsage:ERROR,\
 -Xep:ReferenceEquality:ERROR,\
 -Xep:RequiredModifiers:ERROR,\
 -Xep:ShortCircuitBoolean:ERROR,\
--Xep:SimpleDateFormatConstant:ERROR,\
 -Xep:StaticGuardedByInstance:ERROR,\
+-Xep:StringSplitter:ERROR,\
 -Xep:SynchronizeOnNonFinalField:ERROR,\
 -Xep:ThreadJoinLoop:ERROR,\
+-Xep:ThreadLocalUsage:ERROR,\
+-Xep:ThreeLetterTimeZoneID:ERROR,\
 -Xep:TruthConstantAsserts:ERROR,\
 -Xep:TypeParameterShadowing:ERROR,\
 -Xep:TypeParameterUnusedInFormals:ERROR,\
 -Xep:URLEqualsHashCode:ERROR,\
+-Xep:UnsafeFinalization:ERROR,\
 -Xep:UnsynchronizedOverridesSynchronized:ERROR,\
 -Xep:UseCorrectAssertInTests:ERROR,\
 -Xep:WaitNotInLoop:ERROR,\

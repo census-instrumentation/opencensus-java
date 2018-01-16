@@ -148,7 +148,7 @@ public abstract class Tracer {
    */
   @MustBeClosed
   public final Scope withSpan(Span span) {
-    return CurrentSpanUtils.withSpan(checkNotNull(span, "span"), false);
+    return CurrentSpanUtils.withSpan(checkNotNull(span, "span"), /* endSpan= */ false);
   }
 
   /**
@@ -213,7 +213,7 @@ public abstract class Tracer {
    * @since 0.11.0
    */
   public final Runnable withSpan(Span span, Runnable runnable) {
-    return CurrentSpanUtils.withSpan(span, false, runnable);
+    return CurrentSpanUtils.withSpan(span, /* endSpan= */ false, runnable);
   }
 
   /**
@@ -278,7 +278,7 @@ public abstract class Tracer {
    * @since 0.11.0
    */
   public final <C> Callable<C> withSpan(Span span, final Callable<C> callable) {
-    return CurrentSpanUtils.withSpan(span, false, callable);
+    return CurrentSpanUtils.withSpan(span, /* endSpan= */ false, callable);
   }
 
   /**

@@ -133,11 +133,11 @@ subprojects {
     ext {
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
-        errorProneVersion = '2.1.2'
-        grpcVersion = '1.8.0'
+        errorProneVersion = '2.2.0'
+        grpcVersion = '1.9.0'
         guavaVersion = '19.0'
         googleAuthVersion = '0.9.0'
-        googleCloudVersion = '0.30.0-beta'
+        googleCloudVersion = '0.32.0-beta'
         signalfxVersion = '0.0.39'
         zipkinReporterVersion = '2.0.0'
 
