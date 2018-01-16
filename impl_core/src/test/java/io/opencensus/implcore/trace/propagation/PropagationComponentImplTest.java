@@ -32,4 +32,9 @@ public class PropagationComponentImplTest {
   public void implementationOfBinary() {
     assertThat(propagationComponent.getBinaryFormat()).isInstanceOf(BinaryFormatImpl.class);
   }
+
+  @Test
+  public void implementationOfB3Format() {
+    assertThat(propagationComponent.getB3Format()).isInstanceOf(B3Format.class);
+  }
 }

@@ -25,7 +25,7 @@ public class HttpPropagationUtil {
    *
    * @return the Stack Driver format.
    */
-  public static TextFormat cloudTraceFormat() {
+  public static TextFormat getCloudTraceFormat() {
     return new CloudTraceFormat();
   }
 }
