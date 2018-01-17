@@ -18,11 +18,19 @@ package io.opencensus.contrib.http.util;
 
 import io.opencensus.trace.propagation.TextFormat;
 
-/** Utility class to get all supported {@link TextFormat}. */
+/**
+ * Utility class to get all supported {@link TextFormat}.
+ *
+ * @since 0.11.0
+ */
 public class HttpPropagationUtil {
+
+  private HttpPropagationUtil() {}
+
   /**
-   * Returns the Stack Driver format.
+   * Returns the Stack Driver format. See {@link CloudTraceFormat} for more information.
    *
+   * @since 0.11.0
    * @return the Stack Driver format.
    */
   public static TextFormat getCloudTraceFormat() {

@@ -58,7 +58,7 @@ import java.util.List;
  *   <li>"105445aa7843bc8bf206b120001000/123;o=0"
  * </ul>
  */
-final class CloudTraceFormat extends TextFormat {
+public final class CloudTraceFormat extends TextFormat {
   static final String HEADER_NAME = "X-Cloud-Trace-Context";
   static final List<String> FIELDS = Collections.singletonList(HEADER_NAME);
   static final char SPAN_ID_DELIMITER = '/';
