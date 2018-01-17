@@ -28,7 +28,9 @@ public class HttpPropagationUtil {
   private HttpPropagationUtil() {}
 
   /**
-   * Returns the Stack Driver format. See {@link CloudTraceFormat} for more information.
+   * Returns the Stack Driver format implementation. The header specification for this format is
+   * "X-Cloud-Trace-Context: &lt;TRACE_ID&gt;/&lt;SPAN_ID&gt;[;o=&lt;TRACE_TRUE&gt;]". See this <a
+   * href="https://cloud.google.com/trace/docs/support">page</a> for more information.
    *
    * @since 0.11.0
    * @return the Stack Driver format.
