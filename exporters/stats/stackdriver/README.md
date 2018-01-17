@@ -73,7 +73,7 @@ By default, the Stackdriver Stats Exporter uses [a global Stackdriver monitored 
 labels](https://cloud.google.com/monitoring/api/resources#tag_global), and this works fine when you 
 have only one exporter running. If you want to have multiple processes exporting stats for the same 
 metric concurrently, please associate a unique monitored resource with each exporter if possible. 
-Please note that there is also an "opencensus-task" metric label that uniquely identifies the 
+Please note that there is also an "opencensus_task" metric label that uniquely identifies the 
 uploaded stats.
 
 To set a custom MonitoredResource:
@@ -140,7 +140,7 @@ requires a [Premium tier Stackdriver account](https://cloud.google.com/monitorin
 Please note that by default all new Stackdriver accounts are Basic tier. To upgrade to a Premium 
 tier Stackdriver account, follow the instructions [here](https://cloud.google.com/monitoring/accounts/tiers#start-premium).
 
-### What is "opencensus-task" metric label ?
+### What is "opencensus_task" metric label ?
 Stackdriver requires that each Timeseries to be updated only by one task at a time. A
 `Timeseries` is uniquely identified by the `MonitoredResource` and the `Metric`'s labels.
 Stackdriver exporter adds a new `Metric` label for each custom `Metric` to ensure the uniqueness
