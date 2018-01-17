@@ -111,6 +111,7 @@ runtime 'io.opencensus:opencensus-impl:0.10.1'
 
 #### Stats exporters
 * [Stackdriver][StatsExporterStackdriver]
+* [SignalFx][StatsExporterSignalFx]
 
 ### How to setup debugging Z-Pages?
 
@@ -133,3 +134,4 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [TraceExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/stackdriver#quickstart
 [TraceExporterZipkin]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/zipkin#quickstart
 [StatsExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/stats/stackdriver#quickstart
+[StatsExporterSignalFx]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/stats/signalfx#quickstart

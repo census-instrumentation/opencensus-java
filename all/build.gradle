@@ -24,6 +24,7 @@ def subprojects = [
         project(':opencensus-exporter-trace-logging'),
         project(':opencensus-exporter-trace-stackdriver'),
         project(':opencensus-exporter-trace-zipkin'),
+        project(':opencensus-exporter-stats-signalfx'),
         project(':opencensus-exporter-stats-stackdriver'),
 ]
 
@@ -38,6 +39,7 @@ def subprojects_javadoc = [
         project(':opencensus-exporter-trace-logging'),
         project(':opencensus-exporter-trace-stackdriver'),
         project(':opencensus-exporter-trace-zipkin'),
+        project(':opencensus-exporter-stats-signalfx'),
         project(':opencensus-exporter-stats-stackdriver'),
 ]
 

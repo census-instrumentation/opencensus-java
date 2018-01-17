@@ -8,6 +8,7 @@ include ":opencensus-testing"
 include ":opencensus-exporter-trace-logging"
 include ":opencensus-exporter-trace-stackdriver"
 include ":opencensus-exporter-trace-zipkin"
+include ":opencensus-exporter-stats-signalfx"
 include ":opencensus-exporter-stats-stackdriver"
 include ":opencensus-contrib-agent"
 include ":opencensus-contrib-grpc-metrics"
@@ -26,6 +27,7 @@ project(':opencensus-exporter-trace-logging').projectDir =
 project(':opencensus-exporter-trace-stackdriver').projectDir =
         "$rootDir/exporters/trace/stackdriver" as File
 project(':opencensus-exporter-trace-zipkin').projectDir = "$rootDir/exporters/trace/zipkin" as File
+project(':opencensus-exporter-stats-signalfx').projectDir = "$rootDir/exporters/stats/signalfx" as File
 project(':opencensus-exporter-stats-stackdriver').projectDir = "$rootDir/exporters/stats/stackdriver" as File
 
 // Java8 projects only
