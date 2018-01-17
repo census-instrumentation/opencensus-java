@@ -2,11 +2,13 @@ errorProneExperimentalWarnings = \
 -Xep:AssertFalse:ERROR,\
 -Xep:AssistedInjectAndInjectOnConstructors:ERROR,\
 -Xep:BigDecimalLiteralDouble:ERROR,\
+-Xep:BinderIdentityRestoredDangerously:ERROR,\
 -Xep:BindingToUnqualifiedCommonType:ERROR,\
 -Xep:ConstructorInvokesOverridable:ERROR,\
 -Xep:ConstructorLeaksThis:ERROR,\
 -Xep:EmptyTopLevelDeclaration:ERROR,\
 -Xep:ExpectedExceptionChecker:ERROR,\
+-Xep:FunctionalInterfaceClash:ERROR,\
 -Xep:HardCodedSdCardPath:ERROR,\
 -Xep:InconsistentOverloads:ERROR,\
 -Xep:MissingDefault:ERROR,\
@@ -18,6 +20,7 @@ errorProneExperimentalWarnings = \
 -Xep:RedundantThrows:ERROR,\
 -Xep:StaticQualifiedUsingExpression:ERROR,\
 -Xep:StringEquality:ERROR,\
+-Xep:StringSplit:ERROR,\
 -Xep:TestExceptionChecker:ERROR,\
 -Xep:UnnecessaryDefaultInEnumSwitch:ERROR,\
 -Xep:Var:OFF

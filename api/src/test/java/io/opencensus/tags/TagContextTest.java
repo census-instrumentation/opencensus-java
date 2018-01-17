@@ -84,7 +84,7 @@ public final class TagContextTest {
   }
 
   private static final class SimpleTagContext extends TagContext {
-    private final List<Tag> tags;
+    @Nullable private final List<Tag> tags;
 
     // This Error Prone warning doesn't seem correct, because the constructor is just calling
     // another constructor.

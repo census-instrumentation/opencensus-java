@@ -131,7 +131,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         SpanData.create(
             spanContext,
             parentSpanId,
-            true,
+            /* hasRemoteParent= */ true,
             SPAN_NAME,
             startTimestamp,
             attributes,

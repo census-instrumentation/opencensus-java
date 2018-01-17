@@ -19,6 +19,7 @@ package io.opencensus.implcore.trace.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList.Element;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -96,8 +97,8 @@ public class ConcurrentIntrusiveListTest {
   }
 
   private static final class FakeElement implements Element<FakeElement> {
-    private FakeElement next = null;
-    private FakeElement prev = null;
+    @Nullable private FakeElement next = null;
+    @Nullable private FakeElement prev = null;
 
     @Override
     public FakeElement getNext() {

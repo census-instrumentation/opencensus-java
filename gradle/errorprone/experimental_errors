@@ -22,6 +22,6 @@ errorProneExperimentalErrors = \
 -Xep:NumericEquality:ERROR,\
 -Xep:ParameterPackage:ERROR,\
 -Xep:ProtoStringFieldReferenceEquality:ERROR,\
--Xep:QualifierOrScopeOnInjectMethod:ERROR,\
+-Xep:RestrictTo:ERROR,\
 -Xep:StaticOrDefaultInterfaceMethod:ERROR,\
 -Xep:UnlockMethod:ERROR

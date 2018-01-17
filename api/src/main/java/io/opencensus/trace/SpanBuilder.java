@@ -221,7 +221,7 @@ public abstract class SpanBuilder {
    */
   @MustBeClosed
   public final Scope startScopedSpan() {
-    return CurrentSpanUtils.withSpan(startSpan(), true);
+    return CurrentSpanUtils.withSpan(startSpan(), /* endSpan= */ true);
   }
 
   /**
@@ -251,7 +251,7 @@ public abstract class SpanBuilder {
    */
   public final void startSpanAndRun(final Runnable runnable) {
     final Span span = startSpan();
-    CurrentSpanUtils.withSpan(span, true, runnable).run();
+    CurrentSpanUtils.withSpan(span, /* endSpan= */ true, runnable).run();
   }
 
   /**
@@ -283,7 +283,7 @@ public abstract class SpanBuilder {
    */
   public final <V> V startSpanAndCall(Callable<V> callable) throws Exception {
     final Span span = startSpan();
-    return CurrentSpanUtils.withSpan(span, true, callable).call();
+    return CurrentSpanUtils.withSpan(span, /* endSpan= */ true, callable).call();
   }
 
   static final class NoopSpanBuilder extends SpanBuilder {
