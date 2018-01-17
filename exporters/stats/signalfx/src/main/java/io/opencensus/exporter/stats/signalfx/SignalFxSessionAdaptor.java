@@ -90,11 +90,10 @@ final class SignalFxSessionAdaptor {
     if (aggregation instanceof Aggregation.Mean) {
       return MetricType.GAUGE;
     } else if (aggregation instanceof Aggregation.Count || aggregation instanceof Aggregation.Sum) {
-      if (window instanceof AggregationWindow.Interval) {
-        return MetricType.COUNTER;
-      } else if (window instanceof AggregationWindow.Cumulative) {
+      if (window instanceof AggregationWindow.Cumulative) {
         return MetricType.CUMULATIVE_COUNTER;
       }
+      // TODO(mpetazzoni): support incremental counters when AggregationWindow.Interval is ready
     }
 
     // TODO(mpetazzoni): add support for histograms (Aggregation.Distribution).

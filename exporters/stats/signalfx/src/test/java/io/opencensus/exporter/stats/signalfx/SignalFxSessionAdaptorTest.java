@@ -92,20 +92,18 @@ public class SignalFxSessionAdaptorTest {
         SignalFxSessionAdaptor.getMetricTypeForAggregation(
             Aggregation.Count.create(), AggregationWindow.Cumulative.create()));
     assertEquals(
-        MetricType.COUNTER,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Count.create(), AggregationWindow.Interval.create(ONE_SECOND)));
-    assertEquals(
         MetricType.CUMULATIVE_COUNTER,
         SignalFxSessionAdaptor.getMetricTypeForAggregation(
             Aggregation.Sum.create(), AggregationWindow.Cumulative.create()));
-    assertEquals(
-        MetricType.COUNTER,
-        SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Sum.create(), AggregationWindow.Interval.create(ONE_SECOND)));
     assertNull(
         SignalFxSessionAdaptor.getMetricTypeForAggregation(Aggregation.Count.create(), null));
     assertNull(SignalFxSessionAdaptor.getMetricTypeForAggregation(Aggregation.Sum.create(), null));
+    assertNull(
+        SignalFxSessionAdaptor.getMetricTypeForAggregation(
+            Aggregation.Count.create(), AggregationWindow.Interval.create(ONE_SECOND)));
+    assertNull(
+        SignalFxSessionAdaptor.getMetricTypeForAggregation(
+            Aggregation.Sum.create(), AggregationWindow.Interval.create(ONE_SECOND)));
     assertNull(
         SignalFxSessionAdaptor.getMetricTypeForAggregation(
             Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.14d))),
