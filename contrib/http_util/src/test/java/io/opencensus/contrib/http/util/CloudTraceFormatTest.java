@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.trace.propagation;
+package io.opencensus.contrib.http.util;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.implcore.trace.propagation.CloudTraceFormat.HEADER_NAME;
-import static io.opencensus.implcore.trace.propagation.CloudTraceFormat.NOT_SAMPLED;
-import static io.opencensus.implcore.trace.propagation.CloudTraceFormat.SAMPLED;
-import static io.opencensus.implcore.trace.propagation.CloudTraceFormat.SPAN_ID_DELIMITER;
-import static io.opencensus.implcore.trace.propagation.CloudTraceFormat.TRACE_OPTION_DELIMITER;
+import static io.opencensus.contrib.http.util.CloudTraceFormat.HEADER_NAME;
+import static io.opencensus.contrib.http.util.CloudTraceFormat.NOT_SAMPLED;
+import static io.opencensus.contrib.http.util.CloudTraceFormat.SAMPLED;
+import static io.opencensus.contrib.http.util.CloudTraceFormat.SPAN_ID_DELIMITER;
+import static io.opencensus.contrib.http.util.CloudTraceFormat.TRACE_OPTION_DELIMITER;
 
 import com.google.common.primitives.UnsignedLong;
 import io.opencensus.trace.SpanContext;

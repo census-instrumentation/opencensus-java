@@ -1,0 +1,15 @@
+description = 'OpenCensus HTTP Util'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            libraries.guava
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}

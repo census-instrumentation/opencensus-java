@@ -18,7 +18,8 @@ package io.opencensus.trace.propagation;
 
 /**
  * Container class for all the supported propagation formats. Currently supports only Binary format
- * see {@link BinaryFormat} but more formats will be added.
+ * (see {@link BinaryFormat}) and B3 Text format (see {@link TextFormat}) but more formats will be
+ * added.
  */
 public abstract class PropagationComponent {
   private static final PropagationComponent NOOP_PROPAGATION_COMPONENT =
@@ -33,6 +34,16 @@ public abstract class PropagationComponent {
   public abstract BinaryFormat getBinaryFormat();
 
   /**
+   * Returns the B3 {@link TextFormat} with the provided implementations. See <a
+   * href="https://github.com/openzipkin/b3-propagation">b3-propagation</a> for more information. If
+   * no implementation is provided then no-op implementation will be used.
+   *
+   * @since 0.11.0
+   * @return the B3 {@code TextFormat} implementation for B3.
+   */
+  public abstract TextFormat getB3Format();
+
+  /**
    * Returns an instance that contains no-op implementations for all the instances.
    *
    * @return an instance that contains no-op implementations for all the instances.
@@ -45,6 +56,11 @@ public abstract class PropagationComponent {
     @Override
     public BinaryFormat getBinaryFormat() {
       return BinaryFormat.getNoopBinaryFormat();
+    }
+
+    @Override
+    public TextFormat getB3Format() {
+      return TextFormat.getNoopTextFormat();
     }
   }
 }

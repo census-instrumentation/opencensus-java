@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2018, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,23 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.trace.propagation;
+package io.opencensus.contrib.http.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.trace.propagation.PropagationComponent;
+import io.opencensus.trace.propagation.TextFormat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link PropagationComponentImpl}. */
+/** Unit tests for {@link HttpPropagationUtil}. */
 @RunWith(JUnit4.class)
-public class PropagationComponentImplTest {
-  private final PropagationComponent propagationComponent = new PropagationComponentImpl();
+public class HttpPropagationUtilTest {
 
   @Test
-  public void implementationOfBinary() {
-    assertThat(propagationComponent.getBinaryFormat()).isInstanceOf(BinaryFormatImpl.class);
-  }
-
-  @Test
-  public void implementationOfB3Format() {
-    assertThat(propagationComponent.getB3Format()).isInstanceOf(B3Format.class);
+  public void cloudTraceFormatNotNull() {
+    TextFormat cloudTraceFormat = HttpPropagationUtil.getCloudTraceFormat();
+    assertThat(cloudTraceFormat).isNotNull();
+    assertThat(cloudTraceFormat).isInstanceOf(CloudTraceFormat.class);
   }
 }
