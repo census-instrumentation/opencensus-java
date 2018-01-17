@@ -25,7 +25,12 @@ import io.opencensus.tags.TagKey;
 public final class RpcMeasureConstants {
 
   // Rpc tag keys.
+  /**
+   * Tag key that represents a gRPC canonical status. Refer to
+   * https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.
+   */
   public static final TagKey RPC_STATUS = TagKey.create("canonical_status");
+  /** Tag key that represents a gRPC method. */
   public static final TagKey RPC_METHOD = TagKey.create("method");
 
   // Constants used to define the following Measures.
