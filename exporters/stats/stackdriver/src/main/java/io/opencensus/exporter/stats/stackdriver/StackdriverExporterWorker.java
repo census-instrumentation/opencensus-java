@@ -126,7 +126,7 @@ final class StackdriverExporterWorker implements Runnable {
 
       CreateMetricDescriptorRequest request =
           CreateMetricDescriptorRequest.newBuilder()
-              .setNameWithProjectName(projectName)
+              .setName(projectName.toString())
               .setMetricDescriptor(metricDescriptor)
               .build();
       try {
@@ -176,7 +176,7 @@ final class StackdriverExporterWorker implements Runnable {
         // Batch export 3 TimeSeries at one call, to avoid exceeding RPC header size limit.
         CreateTimeSeriesRequest request =
             CreateTimeSeriesRequest.newBuilder()
-                .setNameWithProjectName(projectName)
+                .setName(projectName.toString())
                 .addAllTimeSeries(batchedTimeSeries)
                 .build();
         metricServiceClient.createTimeSeries(request);

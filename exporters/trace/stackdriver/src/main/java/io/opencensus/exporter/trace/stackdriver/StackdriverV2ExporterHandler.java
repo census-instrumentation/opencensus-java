@@ -117,7 +117,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         SpanName.newBuilder().setProject(projectId).setTrace(traceIdHex).setSpan(spanIdHex).build();
     Span.Builder spanBuilder =
         Span.newBuilder()
-            .setNameWithSpanName(spanName)
+            .setName(spanName.toString())
             .setSpanId(encodeSpanId(context.getSpanId()))
             .setDisplayName(toTruncatableStringProto(spanData.getName()))
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
