@@ -16,6 +16,8 @@
 
 package io.opencensus.trace.propagation;
 
+import io.opencensus.common.ExperimentalApi;
+
 /**
  * Container class for all the supported propagation formats. Currently supports only Binary format
  * (see {@link BinaryFormat}) and B3 Text format (see {@link TextFormat}) but more formats will be
@@ -41,6 +43,7 @@ public abstract class PropagationComponent {
    * @since 0.11.0
    * @return the B3 {@code TextFormat} implementation for B3.
    */
+  @ExperimentalApi
   public abstract TextFormat getB3Format();
 
   /**
