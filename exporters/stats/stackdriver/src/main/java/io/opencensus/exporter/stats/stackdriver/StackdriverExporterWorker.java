@@ -182,9 +182,10 @@ final class StackdriverExporterWorker implements Runnable {
         metricServiceClient.createTimeSeries(request);
         span.addAnnotation("Finish exporting TimeSeries.");
       } catch (com.google.api.gax.rpc.UnavailableException e) {
-        if (e.getLocalizedMessage()
-            .startsWith(
-                "io.grpc.StatusRuntimeException: UNAVAILABLE: HTTP/2 error code: NO_ERROR")) {
+        if (e.getLocalizedMessage() != null
+            && e.getLocalizedMessage()
+                .startsWith(
+                    "io.grpc.StatusRuntimeException: UNAVAILABLE: HTTP/2 error code: NO_ERROR")) {
           continue; // Silently skip NO_ERROR Goaway
         } else {
           logAndSetSpanStatusForApiException(e, span);
