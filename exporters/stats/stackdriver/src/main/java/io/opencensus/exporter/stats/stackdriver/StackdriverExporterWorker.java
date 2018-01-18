@@ -186,14 +186,11 @@ final class StackdriverExporterWorker implements Runnable {
             .startsWith(
                 "io.grpc.StatusRuntimeException: UNAVAILABLE: HTTP/2 error code: NO_ERROR")) {
           continue; // Silently skip NO_ERROR Goaway
+        } else {
+          logAndSetSpanStatusForApiException(e, span);
         }
       } catch (ApiException e) {
-        logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
-        span.setStatus(
-            Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
-                .toStatus()
-                .withDescription(
-                    "ApiException thrown when exporting TimeSeries: " + exceptionMessage(e)));
+        logAndSetSpanStatusForApiException(e, span);
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
         span.setStatus(
@@ -201,6 +198,15 @@ final class StackdriverExporterWorker implements Runnable {
                 "Exception thrown when exporting TimeSeries: " + exceptionMessage(e)));
       }
     }
+  }
+
+  private static void logAndSetSpanStatusForApiException(ApiException e, Span span) {
+    logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
+    span.setStatus(
+        Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
+            .toStatus()
+            .withDescription(
+                "ApiException thrown when exporting TimeSeries: " + exceptionMessage(e)));
   }
 
   @Override
