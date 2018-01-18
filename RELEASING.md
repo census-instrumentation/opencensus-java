@@ -188,6 +188,28 @@ Central (the staging repository will be destroyed in the process). You can see
 the complete process for releasing to Maven Central on the [OSSRH
 site](http://central.sonatype.org/pages/releasing-the-deployment.html).
 
+### Update JavaDoc
+
+```bash
+$ git checkout -b update-javadoc gh-pages
+$ rm -fr *
+$ wget -O opencensus-api-javadoc.jar “http://central.maven.org/maven2/io/opencensus/opencensus-api/$MAJOR.$MINOR.$PATCH/opencensus-api-$MAJOR.$MINOR.$PATCH-javadoc.jar”
+$ unzip -d . opencensus-api-javadoc.jar
+$ rm opencensus-api-javadoc.jar
+$ rm -r META-INF/
+$ git commit -a -m "Javadoc for $MAJOR.$MINOR.$PATCH"
+```
+
+Go through PR review and push the gh-pages branch to GitHub:
+
+```bash
+$ git checkout gh-pages
+$ git merge --ff-only update-javadoc
+$ git push upstream gh-pages
+```
+
+Check that the javadoc is updated [here](http://opencensus.io/opencensus-java).
+
 ## Known Issues
 
 ### Deployment for tag v0.5.0
