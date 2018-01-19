@@ -65,6 +65,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     $ VERSION_FILES=(
       build.gradle
       examples/build.gradle
+      examples/pom.xml
       api/src/main/java/io/opencensus/common/OpenCensusLibraryInformation.java
       )
     $ git checkout -b v$MAJOR.$MINOR.x master
