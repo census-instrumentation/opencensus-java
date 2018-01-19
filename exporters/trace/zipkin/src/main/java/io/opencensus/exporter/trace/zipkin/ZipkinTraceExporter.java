@@ -36,21 +36,21 @@ import zipkin2.reporter.urlconnection.URLConnectionSender;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   ZipkinExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "myservicename");
+ *   ZipkinTraceExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "myservicename");
  *   ... // Do work.
  * }
  * }</pre>
  */
-public final class ZipkinExporter {
+public final class ZipkinTraceExporter {
 
-  private static final String REGISTER_NAME = ZipkinExporter.class.getName();
+  private static final String REGISTER_NAME = ZipkinTraceExporter.class.getName();
   private static final Object monitor = new Object();
 
   @GuardedBy("monitor")
   @Nullable
   private static Handler handler = null;
 
-  private ZipkinExporter() {}
+  private ZipkinTraceExporter() {}
 
   /**
    * Creates and registers the Zipkin Trace exporter to the OpenCensus library. Only one Zipkin

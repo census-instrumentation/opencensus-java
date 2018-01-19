@@ -33,18 +33,18 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   LoggingExporter.register();
+ *   LoggingTraceExporter.register();
  *   ... // Do work.
  * }
  * }</pre>
  */
 @ThreadSafe
-public final class LoggingExporter {
-  private static final Logger logger = Logger.getLogger(LoggingExporter.class.getName());
-  private static final String REGISTER_NAME = LoggingExporter.class.getName();
+public final class LoggingTraceExporter {
+  private static final Logger logger = Logger.getLogger(LoggingTraceExporter.class.getName());
+  private static final String REGISTER_NAME = LoggingTraceExporter.class.getName();
   private static final LoggingExporterHandler HANDLER = new LoggingExporterHandler();
 
-  private LoggingExporter() {}
+  private LoggingTraceExporter() {}
 
   /** Registers the Logging exporter to the OpenCensus library. */
   public static void register() {

@@ -29,9 +29,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link StackdriverExporter}. */
+/** Unit tests for {@link StackdriverTraceExporter}. */
 @RunWith(JUnit4.class)
-public class StackdriverExporterTest {
+public class StackdriverTraceExporterTest {
   @Mock private SpanExporter spanExporter;
   @Mock private Handler handler;
 
@@ -42,12 +42,12 @@ public class StackdriverExporterTest {
 
   @Test
   public void registerUnregisterStackdriverExporter() {
-    StackdriverExporter.register(spanExporter, handler);
+    StackdriverTraceExporter.register(spanExporter, handler);
     verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.exporter.trace.stackdriver.StackdriverExporter"), same(handler));
-    StackdriverExporter.unregister(spanExporter);
+            eq("io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter"), same(handler));
+    StackdriverTraceExporter.unregister(spanExporter);
     verify(spanExporter)
-        .unregisterHandler(eq("io.opencensus.exporter.trace.stackdriver.StackdriverExporter"));
+        .unregisterHandler(eq("io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter"));
   }
 }

@@ -36,14 +36,14 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   StackdriverExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
+ *   StackdriverTraceExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
  *   ... // Do work.
  * }
  * }</pre>
  */
-public final class StackdriverExporter {
+public final class StackdriverTraceExporter {
 
-  private static final String REGISTER_NAME = StackdriverExporter.class.getName();
+  private static final String REGISTER_NAME = StackdriverTraceExporter.class.getName();
   private static final Object monitor = new Object();
 
   @GuardedBy("monitor")
@@ -156,5 +156,5 @@ public final class StackdriverExporter {
     spanExporter.unregisterHandler(REGISTER_NAME);
   }
 
-  private StackdriverExporter() {}
+  private StackdriverTraceExporter() {}
 }

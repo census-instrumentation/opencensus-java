@@ -29,9 +29,9 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link ZipkinExporter}. */
+/** Unit tests for {@link ZipkinTraceExporter}. */
 @RunWith(JUnit4.class)
-public class ZipkinExporterTest {
+public class ZipkinTraceExporterTest {
   @Mock private SpanExporter spanExporter;
   @Mock private Handler handler;
 
@@ -42,11 +42,12 @@ public class ZipkinExporterTest {
 
   @Test
   public void registerUnregisterZipkinExporter() {
-    ZipkinExporter.register(spanExporter, handler);
+    ZipkinTraceExporter.register(spanExporter, handler);
     verify(spanExporter)
-        .registerHandler(eq("io.opencensus.exporter.trace.zipkin.ZipkinExporter"), same(handler));
-    ZipkinExporter.unregister(spanExporter);
+        .registerHandler(
+            eq("io.opencensus.exporter.trace.zipkin.ZipkinTraceExporter"), same(handler));
+    ZipkinTraceExporter.unregister(spanExporter);
     verify(spanExporter)
-        .unregisterHandler(eq("io.opencensus.exporter.trace.zipkin.ZipkinExporter"));
+        .unregisterHandler(eq("io.opencensus.exporter.trace.zipkin.ZipkinTraceExporter"));
   }
 }
