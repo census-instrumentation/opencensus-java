@@ -45,9 +45,9 @@ public class StackdriverExporterTest {
     StackdriverExporter.register(spanExporter, handler);
     verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.exporter.trace.stackdriver.StackdriverExporter"), same(handler));
+            eq("io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter"), same(handler));
     StackdriverExporter.unregister(spanExporter);
     verify(spanExporter)
-        .unregisterHandler(eq("io.opencensus.exporter.trace.stackdriver.StackdriverExporter"));
+        .unregisterHandler(eq("io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter"));
   }
 }

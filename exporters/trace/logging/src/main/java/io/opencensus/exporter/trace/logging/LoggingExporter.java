@@ -17,13 +17,7 @@
 package io.opencensus.exporter.trace.logging;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.trace.Tracing;
-import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
-import io.opencensus.trace.export.SpanExporter.Handler;
-import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -43,15 +37,11 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 @Deprecated
 public final class LoggingExporter {
-  private static final Logger logger = Logger.getLogger(LoggingExporter.class.getName());
-  private static final String REGISTER_NAME = LoggingExporter.class.getName();
-  private static final LoggingExporterHandler HANDLER = new LoggingExporterHandler();
-
   private LoggingExporter() {}
 
   /** Registers the Logging exporter to the OpenCensus library. */
   public static void register() {
-    register(Tracing.getExportComponent().getSpanExporter());
+    LoggingTraceExporter.register();
   }
 
   /**
@@ -61,12 +51,12 @@ public final class LoggingExporter {
    */
   @VisibleForTesting
   static void register(SpanExporter spanExporter) {
-    spanExporter.registerHandler(REGISTER_NAME, HANDLER);
+    LoggingTraceExporter.register(spanExporter);
   }
 
   /** Unregisters the Logging exporter from the OpenCensus library. */
   public static void unregister() {
-    unregister(Tracing.getExportComponent().getSpanExporter());
+    LoggingTraceExporter.unregister();
   }
 
   /**
@@ -77,18 +67,6 @@ public final class LoggingExporter {
    */
   @VisibleForTesting
   static void unregister(SpanExporter spanExporter) {
-    spanExporter.unregisterHandler(REGISTER_NAME);
-  }
-
-  @VisibleForTesting
-  static final class LoggingExporterHandler extends Handler {
-    @Override
-    public void export(Collection<SpanData> spanDataList) {
-      // TODO(bdrutu): Use JSON as a standard format for logging SpanData and define this to be
-      // compatible between languages.
-      for (SpanData spanData : spanDataList) {
-        logger.log(Level.INFO, spanData.toString());
-      }
-    }
+    LoggingTraceExporter.unregister(spanExporter);
   }
 }

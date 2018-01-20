@@ -16,18 +16,12 @@
 
 package io.opencensus.exporter.trace.zipkin;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.Sender;
-import zipkin2.reporter.urlconnection.URLConnectionSender;
 
 /**
  * An OpenCensus span exporter implementation which exports data to Zipkin.
@@ -46,13 +40,6 @@ import zipkin2.reporter.urlconnection.URLConnectionSender;
 @Deprecated
 public final class ZipkinExporter {
 
-  private static final String REGISTER_NAME = ZipkinExporter.class.getName();
-  private static final Object monitor = new Object();
-
-  @GuardedBy("monitor")
-  @Nullable
-  private static Handler handler = null;
-
   private ZipkinExporter() {}
 
   /**
@@ -64,7 +51,7 @@ public final class ZipkinExporter {
    * @throws IllegalStateException if a Zipkin exporter is already registered.
    */
   public static void createAndRegister(String v2Url, String serviceName) {
-    createAndRegister(SpanBytesEncoder.JSON_V2, URLConnectionSender.create(v2Url), serviceName);
+    ZipkinTraceExporter.createAndRegister(v2Url, serviceName);
   }
 
   /**
@@ -78,12 +65,7 @@ public final class ZipkinExporter {
    */
   public static void createAndRegister(
       SpanBytesEncoder encoder, Sender sender, String serviceName) {
-    synchronized (monitor) {
-      checkState(handler == null, "Zipkin exporter is already registered.");
-      Handler newHandler = new ZipkinExporterHandler(encoder, sender, serviceName);
-      handler = newHandler;
-      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
-    }
+    ZipkinTraceExporter.createAndRegister(encoder, sender, serviceName);
   }
 
   /**
@@ -93,7 +75,7 @@ public final class ZipkinExporter {
    */
   @VisibleForTesting
   static void register(SpanExporter spanExporter, Handler handler) {
-    spanExporter.registerHandler(REGISTER_NAME, handler);
+    ZipkinTraceExporter.register(spanExporter, handler);
   }
 
   /**
@@ -102,11 +84,7 @@ public final class ZipkinExporter {
    * @throws IllegalStateException if a Zipkin exporter is not registered.
    */
   public static void unregister() {
-    synchronized (monitor) {
-      checkState(handler != null, "Zipkin exporter is not registered.");
-      unregister(Tracing.getExportComponent().getSpanExporter());
-      handler = null;
-    }
+    ZipkinTraceExporter.unregister();
   }
 
   /**
@@ -117,6 +95,6 @@ public final class ZipkinExporter {
    */
   @VisibleForTesting
   static void unregister(SpanExporter spanExporter) {
-    spanExporter.unregisterHandler(REGISTER_NAME);
+    ZipkinTraceExporter.unregister(spanExporter);
   }
 }

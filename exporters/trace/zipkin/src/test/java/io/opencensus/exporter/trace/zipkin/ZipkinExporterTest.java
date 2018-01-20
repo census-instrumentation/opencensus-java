@@ -44,9 +44,10 @@ public class ZipkinExporterTest {
   public void registerUnregisterZipkinExporter() {
     ZipkinExporter.register(spanExporter, handler);
     verify(spanExporter)
-        .registerHandler(eq("io.opencensus.exporter.trace.zipkin.ZipkinExporter"), same(handler));
+        .registerHandler(
+            eq("io.opencensus.exporter.trace.zipkin.ZipkinTraceExporter"), same(handler));
     ZipkinExporter.unregister(spanExporter);
     verify(spanExporter)
-        .unregisterHandler(eq("io.opencensus.exporter.trace.zipkin.ZipkinExporter"));
+        .unregisterHandler(eq("io.opencensus.exporter.trace.zipkin.ZipkinTraceExporter"));
   }
 }

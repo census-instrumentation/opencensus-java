@@ -20,7 +20,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import io.opencensus.exporter.trace.logging.LoggingExporter.LoggingExporterHandler;
+import io.opencensus.exporter.trace.logging.LoggingTraceExporter.LoggingExporterHandler;
 import io.opencensus.trace.export.SpanExporter;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,10 +44,10 @@ public class LoggingExporterTest {
     LoggingExporter.register(spanExporter);
     verify(spanExporter)
         .registerHandler(
-            eq("io.opencensus.exporter.trace.logging.LoggingExporter"),
+            eq("io.opencensus.exporter.trace.logging.LoggingTraceExporter"),
             any(LoggingExporterHandler.class));
     LoggingExporter.unregister(spanExporter);
     verify(spanExporter)
-        .unregisterHandler(eq("io.opencensus.exporter.trace.logging.LoggingExporter"));
+        .unregisterHandler(eq("io.opencensus.exporter.trace.logging.LoggingTraceExporter"));
   }
 }
