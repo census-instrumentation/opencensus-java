@@ -195,10 +195,10 @@ Once deployment is done, go to Github [release
 page](https://github.com/census-instrumentation/opencensus-java/releases), press
 `Draft a new release` to write release notes about the new release.
 
-You can use the Github [compare
-tool](https://github.com/census-instrumentation/opencensus-java/compare/)
+You can use `git log upstream/v$MAJOR.$((MINOR-1)).x..upstream/v$MAJOR.$MINOR.x --graph --first-parent`
+or the Github [compare tool](https://github.com/census-instrumentation/opencensus-java/compare/)
 to view a summary of all commits since last release as a reference.
-Please pick major or important changes only.
+Please pick major or important user-visible changes only.
 
 ## Update release versions in documentations and build files
 
@@ -209,21 +209,30 @@ latest version.
 
 ```bash
 $ git checkout -b bump-document-version master
-$ RELEASE_VERSION_FILES=(
+$ BUILD_FILES=(
+  examples/build.gradle
+  examples/pom.xml
+  )
+$ README_FILES=(
   README.md
   contrib/grpc_util/README.md
   contrib/http_util/README.md
   contrib/zpages/README.md
-  examples/build.gradle
-  examples/pom.xml
   exporters/stats/signalfx/README.md
   exporters/stats/stackdriver/README.md
   exporters/trace/logging/README.md
   exporters/trace/stackdriver/README.md
   exporters/trace/zipkin/README.md
   )
+# Substitute versions in build files
 $ sed -i 's/[0-9]\+\.[0-9]\+\.[0-9]\+\(.*LATEST_OPENCENSUS_RELEASE_VERSION\)/'$MAJOR.$MINOR.$PATCH'\1/' \
- "${RELEASE_VERSION_FILES[@]}"
+ "${BUILD_FILES[@]}"
+# Substitute versions in build.gradle examples in README.md
+$ sed -i 's/\(\(compile\|runtime\).\+io\.opencensus:.\+:\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
+ "${README_FILES[@]}"
+# Substitute versions in maven pom examples in README.md
+$ sed -i 's/\(<version>\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
+ "${README_FILES[@]}"
 ```
 
 2. Update bazel dependencies for subproject `examples`:
@@ -231,8 +240,8 @@ $ sed -i 's/[0-9]\+\.[0-9]\+\.[0-9]\+\(.*LATEST_OPENCENSUS_RELEASE_VERSION\)/'$M
     - Follow the instructions on [this
     page](https://docs.bazel.build/versions/master/generate-workspace.html) to
     install bazel migration tool. You may also need to manually apply
-    this [patch]
-    (https://github.com/nevillelyh/migration-tooling/commit/f10e14fd18ad3885c7ec8aa305e4eba266a07ebf)
+    this [patch](
+    https://github.com/nevillelyh/migration-tooling/commit/f10e14fd18ad3885c7ec8aa305e4eba266a07ebf)
     if you encounter `Unable to find a version for ... due to Invalid Range Result` error when
     using it.
 

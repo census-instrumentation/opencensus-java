@@ -16,14 +16,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-grpc-util</artifactId>
-    <version>0.11.0</version> <!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
+    <version>0.11.0</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-contrib-grpc-util:0.11.0' //LATEST_OPENCENSUS_RELEASE_VERSION
+compile 'io.opencensus:opencensus-contrib-grpc-util:0.11.0'
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
