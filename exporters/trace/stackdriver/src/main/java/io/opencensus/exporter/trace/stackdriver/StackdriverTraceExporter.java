@@ -16,13 +16,18 @@
 
 package io.opencensus.exporter.trace.stackdriver;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import java.io.IOException;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 /**
  * An OpenCensus span exporter implementation which exports data to Stackdriver Trace.
@@ -31,15 +36,19 @@ import java.io.IOException;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   StackdriverExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
+ *   StackdriverTraceExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
  *   ... // Do work.
  * }
  * }</pre>
- *
- * @deprecated Deprecated due to inconsistent naming. Use {@link StackdriverTraceExporter}.
  */
-@Deprecated
-public final class StackdriverExporter {
+public final class StackdriverTraceExporter {
+
+  private static final String REGISTER_NAME = StackdriverTraceExporter.class.getName();
+  private static final Object monitor = new Object();
+
+  @GuardedBy("monitor")
+  @Nullable
+  private static Handler handler = null;
 
   /**
    * Creates and registers the Stackdriver Trace exporter to the OpenCensus library for an explicit
@@ -52,7 +61,10 @@ public final class StackdriverExporter {
    */
   public static void createAndRegisterWithCredentialsAndProjectId(
       Credentials credentials, String projectId) throws IOException {
-    StackdriverTraceExporter.createAndRegisterWithCredentialsAndProjectId(credentials, projectId);
+    synchronized (monitor) {
+      checkState(handler == null, "Stackdriver exporter is already registered.");
+      registerInternal(StackdriverV2ExporterHandler.createWithCredentials(credentials, projectId));
+    }
   }
 
   /**
@@ -73,7 +85,10 @@ public final class StackdriverExporter {
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
    */
   public static void createAndRegisterWithProjectId(String projectId) throws IOException {
-    StackdriverTraceExporter.createAndRegisterWithProjectId(projectId);
+    synchronized (monitor) {
+      checkState(handler == null, "Stackdriver exporter is already registered.");
+      registerInternal(StackdriverV2ExporterHandler.create(projectId));
+    }
   }
 
   /**
@@ -94,7 +109,17 @@ public final class StackdriverExporter {
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
    */
   public static void createAndRegister() throws IOException {
-    StackdriverTraceExporter.createAndRegister();
+    synchronized (monitor) {
+      checkState(handler == null, "Stackdriver exporter is already registered.");
+      registerInternal(StackdriverV2ExporterHandler.create(ServiceOptions.getDefaultProjectId()));
+    }
+  }
+
+  private static void registerInternal(Handler newHandler) {
+    synchronized (monitor) {
+      handler = newHandler;
+      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
+    }
   }
 
   /**
@@ -104,7 +129,7 @@ public final class StackdriverExporter {
    */
   @VisibleForTesting
   static void register(SpanExporter spanExporter, Handler handler) {
-    StackdriverTraceExporter.register(spanExporter, handler);
+    spanExporter.registerHandler(REGISTER_NAME, handler);
   }
 
   /**
@@ -113,7 +138,11 @@ public final class StackdriverExporter {
    * @throws IllegalStateException if a Stackdriver exporter is not registered.
    */
   public static void unregister() {
-    StackdriverTraceExporter.unregister();
+    synchronized (monitor) {
+      checkState(handler != null, "Stackdriver exporter is not registered.");
+      unregister(Tracing.getExportComponent().getSpanExporter());
+      handler = null;
+    }
   }
 
   /**
@@ -124,8 +153,8 @@ public final class StackdriverExporter {
    */
   @VisibleForTesting
   static void unregister(SpanExporter spanExporter) {
-    StackdriverTraceExporter.unregister(spanExporter);
+    spanExporter.unregisterHandler(REGISTER_NAME);
   }
 
-  private StackdriverExporter() {}
+  private StackdriverTraceExporter() {}
 }

@@ -17,7 +17,13 @@
 package io.opencensus.exporter.trace.logging;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.trace.Tracing;
+import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
+import io.opencensus.trace.export.SpanExporter.Handler;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -27,21 +33,22 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   LoggingExporter.register();
+ *   LoggingTraceExporter.register();
  *   ... // Do work.
  * }
  * }</pre>
- *
- * @deprecated Deprecated due to inconsistent naming. Use {@link LoggingTraceExporter}.
  */
 @ThreadSafe
-@Deprecated
-public final class LoggingExporter {
-  private LoggingExporter() {}
+public final class LoggingTraceExporter {
+  private static final Logger logger = Logger.getLogger(LoggingTraceExporter.class.getName());
+  private static final String REGISTER_NAME = LoggingTraceExporter.class.getName();
+  private static final LoggingExporterHandler HANDLER = new LoggingExporterHandler();
+
+  private LoggingTraceExporter() {}
 
   /** Registers the Logging exporter to the OpenCensus library. */
   public static void register() {
-    LoggingTraceExporter.register();
+    register(Tracing.getExportComponent().getSpanExporter());
   }
 
   /**
@@ -51,12 +58,12 @@ public final class LoggingExporter {
    */
   @VisibleForTesting
   static void register(SpanExporter spanExporter) {
-    LoggingTraceExporter.register(spanExporter);
+    spanExporter.registerHandler(REGISTER_NAME, HANDLER);
   }
 
   /** Unregisters the Logging exporter from the OpenCensus library. */
   public static void unregister() {
-    LoggingTraceExporter.unregister();
+    unregister(Tracing.getExportComponent().getSpanExporter());
   }
 
   /**
@@ -67,6 +74,18 @@ public final class LoggingExporter {
    */
   @VisibleForTesting
   static void unregister(SpanExporter spanExporter) {
-    LoggingTraceExporter.unregister(spanExporter);
+    spanExporter.unregisterHandler(REGISTER_NAME);
+  }
+
+  @VisibleForTesting
+  static final class LoggingExporterHandler extends Handler {
+    @Override
+    public void export(Collection<SpanData> spanDataList) {
+      // TODO(bdrutu): Use JSON as a standard format for logging SpanData and define this to be
+      // compatible between languages.
+      for (SpanData spanData : spanDataList) {
+        logger.log(Level.INFO, spanData.toString());
+      }
+    }
   }
 }
