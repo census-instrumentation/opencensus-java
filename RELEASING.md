@@ -190,6 +190,87 @@ Central (the staging repository will be destroyed in the process). You can see
 the complete process for releasing to Maven Central on the [OSSRH
 site](http://central.sonatype.org/pages/releasing-the-deployment.html).
 
+## Announcement
+
+Once deployment is done, go to Github [release
+page](https://github.com/census-instrumentation/opencensus-java/releases), press
+`Draft a new release` to write release notes about the new release.
+
+You can use `git log upstream/v$MAJOR.$((MINOR-1)).x..upstream/v$MAJOR.$MINOR.x --graph --first-parent`
+or the Github [compare tool](https://github.com/census-instrumentation/opencensus-java/compare/)
+to view a summary of all commits since last release as a reference.
+Please pick major or important user-visible changes only.
+
+## Update release versions in documentations and build files
+
+After releasing is done, you need to update all readmes and examples to point to the
+latest version.
+
+1. Update README.md and gradle/maven build files on `master` branch:
+
+```bash
+$ git checkout -b bump-document-version master
+$ BUILD_FILES=(
+  examples/build.gradle
+  examples/pom.xml
+  )
+$ README_FILES=(
+  README.md
+  contrib/grpc_util/README.md
+  contrib/http_util/README.md
+  contrib/zpages/README.md
+  exporters/stats/signalfx/README.md
+  exporters/stats/stackdriver/README.md
+  exporters/trace/logging/README.md
+  exporters/trace/stackdriver/README.md
+  exporters/trace/zipkin/README.md
+  )
+# Substitute versions in build files
+$ sed -i 's/[0-9]\+\.[0-9]\+\.[0-9]\+\(.*LATEST_OPENCENSUS_RELEASE_VERSION\)/'$MAJOR.$MINOR.$PATCH'\1/' \
+ "${BUILD_FILES[@]}"
+# Substitute versions in build.gradle examples in README.md
+$ sed -i 's/\(\(compile\|runtime\).\+io\.opencensus:.\+:\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
+ "${README_FILES[@]}"
+# Substitute versions in maven pom examples in README.md
+$ sed -i 's/\(<version>\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
+ "${README_FILES[@]}"
+```
+
+2. Update bazel dependencies for subproject `examples`:
+
+    - Follow the instructions on [this
+    page](https://docs.bazel.build/versions/master/generate-workspace.html) to
+    install bazel migration tool. You may also need to manually apply
+    this [patch](
+    https://github.com/nevillelyh/migration-tooling/commit/f10e14fd18ad3885c7ec8aa305e4eba266a07ebf)
+    if you encounter `Unable to find a version for ... due to Invalid Range Result` error when
+    using it.
+
+    - Use the following command to generate new dependencies file:
+
+    ```bash
+    $ bazel run //generate_workspace -- \
+    --artifact=io.opencensus:opencensus-api:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.opencensus:opencensus-contrib-zpages:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.opencensus:opencensus-exporter-trace-logging:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.opencensus:opencensus-impl:$MAJOR.$MINOR.$PATCH \
+    --repositories=http://repo.maven.apache.org/maven2
+    Wrote
+    /usr/local/.../generate_workspace.runfiles/__main__/generate_workspace.bzl
+    ```
+
+    - Copy this file to overwrite `examples/opencensus_workspace.bzl`.
+
+    - Use the following command to rename the generated rules and commit the
+      changes above:
+
+    ```bash
+    $ sed -i 's/def generated_/def opencensus_/' examples/opencensus_workspace.bzl
+    $ git commit -a -m "Update release versions for all readme and build files."
+    ```
+
+3. Go through PR review and merge it to GitHub master branch.
+
 ## Known Issues
 
 ### Deployment for tag v0.5.0
