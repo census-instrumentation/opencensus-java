@@ -107,7 +107,7 @@ final class CloudTraceFormat extends TextFormat {
       checkArgument(headerStr.charAt(TRACE_ID_SIZE) == SPAN_ID_DELIMITER, "Invalid TRACE_ID size");
 
       TraceId traceId = TraceId.fromLowerBase16(headerStr.subSequence(0, TRACE_ID_SIZE));
-      int traceOptionsPos = headerStr.indexOf(TRACE_OPTION_DELIMITER, SPAN_ID_DELIMITER);
+      int traceOptionsPos = headerStr.indexOf(TRACE_OPTION_DELIMITER, TRACE_ID_SIZE);
       CharSequence spanIdStr =
           headerStr.subSequence(
               SPAN_ID_START_POS, traceOptionsPos < 0 ? headerStr.length() : traceOptionsPos);
