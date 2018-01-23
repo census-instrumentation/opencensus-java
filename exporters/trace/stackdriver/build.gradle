@@ -7,8 +7,18 @@ description = 'OpenCensus Trace Stackdriver Exporter'
 
 dependencies {
     compile project(':opencensus-api'),
-            libraries.google_auth,
-            libraries.google_cloud_trace
+            libraries.google_auth
+
+    compile (libraries.google_cloud_trace) {
+        // Prefer library version.
+        exclude group: 'com.google.guava', module: 'guava'
+
+        // Prefer library version.
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+
+        // We will always be more up to date.
+        exclude group: 'io.opencensus', module: 'opencensus-api'
+    }
 
     testCompile project(':opencensus-api')
 
