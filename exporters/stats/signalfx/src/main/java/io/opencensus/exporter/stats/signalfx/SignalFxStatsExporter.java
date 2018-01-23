@@ -30,7 +30,7 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre><code>
  * public static void main(String[] args) {
- *   SignalFxStatsExporter.create();
+ *   SignalFxStatsExporter.create(SignalFxStatsConfiguration.builder().build());
  *   ... // Do work.
  * }
  * </code></pre>
