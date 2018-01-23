@@ -61,8 +61,8 @@ This uses the default configuration for authentication and a given project ID.
 ```java
 public class MyMainClass {
   public static void main(String[] args) {
-    // Exporter will export to Stackdriver every 10 seconds.
-    StackdriverStatsExporter.createWithProjectId("MyStackdriverProjectId", Duration.create(10, 0));
+    StackdriverStatsExporter.createAndRegister(
+        StackdriverStatsConfiguration.builder().setProjectId("MyStackdriverProjectId").build());
   }
 }
 ```
@@ -91,10 +91,8 @@ public class MyMainClass {
     
     // Set a custom MonitoredResource. Please make sure each Stackdriver Stats Exporter has a 
     // unique MonitoredResource.      
-    StackdriverStatsExporter.createAndRegisterWithProjectIdAndMonitoredResource(
-        "MyStackdriverProjectId", 
-        Duration.create(10, 0), 
-        myResource);
+    StackdriverStatsExporter.createAndRegister(
+        StackdriverStatsConfiguration.builder().setMonitoredResource(myResource).build());
   }
 }
 ```
@@ -112,10 +110,12 @@ for details about how to configure the authentication see [here](https://github.
 
 If you prefer to manually set the credentials use:
 ```
-StackdriverStatsExporter.createAndRegisterWithCredentialsAndProjectId(
-    new GoogleCredentials(new AccessToken(accessToken, expirationTime)), 
-    "MyStackdriverProjectId",
-    Duration.create(10, 0));
+StackdriverStatsExporter.createAndRegister(
+    StackdriverStatsConfiguration.builder()
+        .setCredentials(new GoogleCredentials(new AccessToken(accessToken, expirationTime)))
+        .setProjectId("MyStackdriverProjectId")
+        .setExportInterval(Duration.create(10, 0))
+        .build());
 ```
 
 #### Specifying a Project ID
@@ -125,7 +125,8 @@ for details about how to configure the project ID see [here](https://github.com/
 
 If you prefer to manually set the project ID use:
 ```
-StackdriverStatsExporter.createAndRegisterWithProjectId("MyStackdriverProjectId", Duration.create(10, 0));
+StackdriverStatsExporter.createAndRegister(
+    StackdriverStatsConfiguration.builder().setProjectId("MyStackdriverProjectId").build());
 ```
 
 #### Java Versions
