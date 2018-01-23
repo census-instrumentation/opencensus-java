@@ -84,7 +84,7 @@ public final class ZipkinTraceExporter {
   }
 
   /**
-   * Registers the {@code ZipkinExporter}.
+   * Registers the {@code ZipkinTraceExporter}.
    *
    * @param spanExporter the instance of the {@code SpanExporter} where this service is registered.
    */
@@ -107,7 +107,7 @@ public final class ZipkinTraceExporter {
   }
 
   /**
-   * Unregisters the {@code ZipkinExporter}.
+   * Unregisters the {@code ZipkinTraceExporter}.
    *
    * @param spanExporter the instance of the {@code SpanExporter} from where this service is
    *     unregistered.
