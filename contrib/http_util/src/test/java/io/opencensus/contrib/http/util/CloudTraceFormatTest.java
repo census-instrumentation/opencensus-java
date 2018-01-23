@@ -31,6 +31,7 @@ import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat.Getter;
 import io.opencensus.trace.propagation.TextFormat.Setter;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -279,5 +280,16 @@ public final class CloudTraceFormatTest {
   @Test
   public void fieldsShouldMatch() {
     assertThat(cloudTraceFormat.fields()).containsExactly(HEADER_NAME);
+  }
+
+  @Test
+  public void parseWithShortSpanIdAndSamplingShouldSucceed() throws SpanContextParseException {
+    final String spanId = "1";
+    ByteBuffer buffer = ByteBuffer.allocate(SpanId.SIZE);
+    buffer.putLong(Long.valueOf(spanId));
+    SpanId expectedSpanId = SpanId.fromBytes(buffer.array());
+    parseSuccess(
+        constructHeader(TRACE_ID_BASE16, spanId, SAMPLED),
+        SpanContext.create(TRACE_ID, expectedSpanId, TRACE_OPTIONS_SAMPLED));
   }
 }
