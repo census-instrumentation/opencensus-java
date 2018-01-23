@@ -58,7 +58,7 @@ public class MyMainClass {
   public static void main(String[] args) {
     // SignalFx token is read from Java system properties.
     // Stats will be reported every second by default.
-    SignalFxStatsExporter.create();
+    SignalFxStatsExporter.create(SignalFxStatsConfiguration.builder().build());
   }
 }
 ```
@@ -69,7 +69,8 @@ interval, use:
 ```java
 // Use token "your_signalfx_token" and report every 5 seconds.
 SignalFxStatsExporter.create(
-    SignalFxStatsExporter.DEFAULT_SIGNALFX_ENDPOINT,
-    "your_signalfx_token",
-    Duration.create(5, 0));
+    SignalFxStatsConfiguration.builder()
+        .setToken("your_signalfx_token")
+        .setExportInterval(Duration.create(5, 0))
+        .build());
 ```
