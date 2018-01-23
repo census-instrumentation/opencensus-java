@@ -77,7 +77,7 @@ public final class StackdriverTraceExporter {
    * <p>This is equivalent with:
    *
    * <pre>{@code
-   * StackdriverExporter.createAndRegisterWithCredentialsAndProjectId(
+   * StackdriverTraceExporter.createAndRegisterWithCredentialsAndProjectId(
    *     GoogleCredentials.getApplicationDefault(), projectId);
    * }</pre>
    *
@@ -103,7 +103,7 @@ public final class StackdriverTraceExporter {
    * <p>This is equivalent with:
    *
    * <pre>{@code
-   * StackdriverExporter.createAndRegisterWithProjectId(ServiceOptions.getDefaultProjectId());
+   * StackdriverTraceExporter.createAndRegisterWithProjectId(ServiceOptions.getDefaultProjectId());
    * }</pre>
    *
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
@@ -123,7 +123,7 @@ public final class StackdriverTraceExporter {
   }
 
   /**
-   * Registers the {@code StackdriverExporter}.
+   * Registers the {@code StackdriverTraceExporter}.
    *
    * @param spanExporter the instance of the {@code SpanExporter} where this service is registered.
    */
@@ -146,7 +146,7 @@ public final class StackdriverTraceExporter {
   }
 
   /**
-   * Unregisters the {@code StackdriverExporter}.
+   * Unregisters the {@code StackdriverTraceExporter}.
    *
    * @param spanExporter the instance of the {@code SpanExporter} from where this service is
    *     unregistered.

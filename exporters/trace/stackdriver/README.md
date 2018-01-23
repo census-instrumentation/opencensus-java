@@ -64,7 +64,7 @@ This uses the default configuration for authentication and project ID.
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
-    StackdriverExporter.createAndRegister();
+    StackdriverTraceExporter.createAndRegister();
     // ...
   }
 }
@@ -77,7 +77,7 @@ for details about how to configure the authentication see [here](https://github.
 
 If you prefer to manually set the credentials use:
 ```
-StackdriverExporter.createAndRegisterWithCredentialsAndProjectId(
+StackdriverTraceExporter.createAndRegisterWithCredentialsAndProjectId(
     new GoogleCredentials(new AccessToken(accessToken, expirationTime)),
     "MyStackdriverProjectId");
 ```
@@ -89,7 +89,7 @@ for details about how to configure the project ID see [here](https://github.com/
 
 If you prefer to manually set the project ID use:
 ```
-StackdriverExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
+StackdriverTraceExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
 ```
 
 #### Java Versions

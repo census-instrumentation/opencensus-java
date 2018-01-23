@@ -43,7 +43,7 @@ runtime 'io.opencensus:opencensus-impl:0.11.0'
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
-    LoggingExporter.register();
+    LoggingTraceExporter.register();
     // ...
   }
 }
