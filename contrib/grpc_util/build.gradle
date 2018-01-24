@@ -8,8 +8,18 @@ apply plugin: 'java'
 }
 
 dependencies {
-    compile project(':opencensus-api'),
-            libraries.grpc_core
+    compile project(':opencensus-api')
+
+    compile (libraries.grpc_core) {
+        // Prefer library version.
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+
+        // Prefer library version.
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+
+        // We will always be more up to date.
+        exclude group: 'io.opencensus', module: 'opencensus-api'
+    }
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }

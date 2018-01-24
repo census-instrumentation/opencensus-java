@@ -168,6 +168,19 @@ subprojects {
         ]
     }
 
+    configurations {
+        compile {
+            // Detect Maven Enforcer's dependencyConvergence failures. We only
+            // care for artifacts used as libraries by others.
+            // TODO(bdrutu): re-enable for exporters when 'com.google.cloud' artifacts become clean.
+            if (!(project.name in ['benchmarks', 'opencensus-all',
+                                   'opencensus-exporter-stats-stackdriver',
+                                   'opencensus-exporter-trace-stackdriver'])) {
+                resolutionStrategy.failOnVersionConflict()
+            }
+        }
+    }
+
     dependencies {
         if (useCheckerFramework) {
             ext.checkerFrameworkVersion = '2.3.0'
