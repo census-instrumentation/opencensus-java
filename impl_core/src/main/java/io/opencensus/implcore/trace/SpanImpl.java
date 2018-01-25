@@ -29,7 +29,6 @@ import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -84,7 +83,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   // List of recorded network events.
   @GuardedBy("this")
   @Nullable
-  private TraceEvents<EventWithNanoTime<NetworkEvent>> networkEvents;
+  @SuppressWarnings("deprecation")
+  private TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>> networkEvents;
   // List of recorded links to parent and child spans.
   @GuardedBy("this")
   @Nullable
@@ -227,6 +227,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    * @return an immutable representation of all the data from this {@code Span}.
    * @throws IllegalStateException if the Span doesn't have RECORD_EVENTS option.
    */
+  @SuppressWarnings("deprecation")
   public SpanData toSpanData() {
     checkState(
         getOptions().contains(Options.RECORD_EVENTS),
@@ -238,7 +239,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
               : SpanData.Attributes.create(attributes, attributes.getNumberOfDroppedAttributes());
       SpanData.TimedEvents<Annotation> annotationsSpanData =
           createTimedEvents(getInitializedAnnotations(), timestampConverter);
-      SpanData.TimedEvents<NetworkEvent> networkEventsSpanData =
+      SpanData.TimedEvents<io.opencensus.trace.NetworkEvent> networkEventsSpanData =
           createTimedEvents(getInitializedNetworkEvents(), timestampConverter);
       SpanData.Links linksSpanData =
           links == null
@@ -253,7 +254,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           CheckerFrameworkUtils.castNonNull(timestampConverter).convertNanoTime(startNanoTime),
           attributesSpanData,
           annotationsSpanData,
-          messageEventsSpanData,
+          networkEventsSpanData,
           linksSpanData,
           null, // Not supported yet.
           hasBeenEnded ? getStatusWithDefault() : null,
@@ -327,19 +328,21 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
-  public void addMessageEvent(MessageEvent messageEvent) {
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public void addNetworkEvent(io.opencensus.trace.NetworkEvent networkEvent) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
     synchronized (this) {
       if (hasBeenEnded) {
-        logger.log(Level.FINE, "Calling addMessageEvent() on an ended Span.");
+        logger.log(Level.FINE, "Calling addNetworkEvent() on an ended Span.");
         return;
       }
-      getInitializedMessageEvents()
+      getInitializedNetworkEvents()
           .addEvent(
-              new EventWithNanoTime<MessageEvent>(
-                  clock.nowNanos(), checkNotNull(messageEvent, "messageEvent")));
+              new EventWithNanoTime<io.opencensus.trace.NetworkEvent>(
+                  clock.nowNanos(), checkNotNull(networkEvent, "networkEvent")));
     }
   }
 
@@ -409,13 +412,15 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @GuardedBy("this")
-  private TraceEvents<EventWithNanoTime<MessageEvent>> getInitializedMessageEvents() {
-    if (messageEvents == null) {
-      messageEvents =
-          new TraceEvents<EventWithNanoTime<MessageEvent>>(
-              traceParams.getMaxNumberOfMessageEvents());
+  @SuppressWarnings("deprecation")
+  private TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>>
+      getInitializedNetworkEvents() {
+    if (networkEvents == null) {
+      networkEvents =
+          new TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>>(
+              traceParams.getMaxNumberOfNetworkEvents());
     }
-    return messageEvents;
+    return networkEvents;
   }
 
   @GuardedBy("this")

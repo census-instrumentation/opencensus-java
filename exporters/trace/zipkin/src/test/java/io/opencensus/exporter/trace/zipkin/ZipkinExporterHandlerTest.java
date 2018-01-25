@@ -58,7 +58,7 @@ public class ZipkinExporterHandlerTest {
     String parentId = "8b03ab423da481c5";
     Map<String, AttributeValue> attributes = Collections.emptyMap();
     List<TimedEvent<Annotation>> annotations = Collections.emptyList();
-    List<TimedEvent<MessageEvent>> networkEvents =
+    List<TimedEvent<MessageEvent>> messageEvents =
         ImmutableList.of(
             TimedEvent.create(
                 Timestamp.create(1505855799, 433901068),
@@ -81,7 +81,7 @@ public class ZipkinExporterHandlerTest {
             Timestamp.create(1505855794, 194009601) /* startTimestamp */,
             Attributes.create(attributes, 0 /* droppedAttributesCount */),
             TimedEvents.create(annotations, 0 /* droppedEventsCount */),
-            TimedEvents.create(networkEvents, 0 /* droppedEventsCount */),
+            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
             Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
             null, /* childSpanCount */
             Status.OK,

@@ -22,7 +22,6 @@ import com.google.auto.value.AutoValue;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.MessageEvent;
-import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.samplers.Samplers;
@@ -94,7 +93,8 @@ public abstract class TraceParams {
   public abstract int getMaxNumberOfMessageEvents();
 
   /**
-   * Returns the global default max number of {@link NetworkEvent} events per {@link Span}.
+   * Returns the global default max number of {@link io.opencensus.trace.NetworkEvent} events per
+   * {@link Span}.
    *
    * @return the global default max number of {@code NetworkEvent} events per {@code Span}.
    * @deprecated Use {@link getMaxNumberOfMessageEvents}.
@@ -173,10 +173,12 @@ public abstract class TraceParams {
     public abstract Builder setMaxNumberOfMessageEvents(int maxNumberOfMessageEvents);
 
     /**
-     * Sets the global default max number of {@link NetworkEvent} events per {@link Span}.
+     * Sets the global default max number of {@link io.opencensus.trace.NetworkEvent} events per
+     * {@link Span}.
      *
-     * @param maxNumberOfNetworkEvents the global default max number of {@link NetworkEvent} events
-     *     per {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
+     * @param maxNumberOfNetworkEvents the global default max number of {@link
+     *     io.opencensus.trace.NetworkEvent} events per {@link Span}. It must be positive otherwise
+     *     {@link #build()} will throw an exception.
      * @return this.
      * @deprecated Use {@link setMaxNumberOfMessageEvents}.
      * @since 0.5

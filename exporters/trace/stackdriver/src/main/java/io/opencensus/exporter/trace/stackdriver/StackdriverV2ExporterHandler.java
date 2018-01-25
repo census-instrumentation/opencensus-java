@@ -122,7 +122,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
             .setAttributes(toAttributesProto(spanData.getAttributes()))
             .setTimeEvents(
-                toTimeEventsProto(spanData.getAnnotations(), spanData.getNetworkEvents()));
+                toTimeEventsProto(spanData.getAnnotations(), spanData.getMessageEvents()));
     io.opencensus.trace.Status status = spanData.getStatus();
     if (status != null) {
       spanBuilder.setStatus(toStatusProto(status));

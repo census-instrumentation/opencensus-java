@@ -19,8 +19,8 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Internal;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.BaseMessageEvent;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -29,16 +29,16 @@ import javax.annotation.concurrent.Immutable;
  * serves to uniquely identify each network message. It can optionally can have information about
  * the kernel time and message size.
  *
+ * @deprecated Use {@link MessageEvent}.
  * @since 0.5
  */
-// TODO(@Hailong): add `Deprecated` and `deprecated` annotation once we've removed most of the
-// imports.
 @Immutable
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
-public abstract class NetworkEvent {
+@Deprecated
+public abstract class NetworkEvent extends BaseMessageEvent {
   /**
    * Available types for a {@code NetworkEvent}.
    *
@@ -66,12 +66,10 @@ public abstract class NetworkEvent {
    * @param messageId serves to uniquely identify each network message.
    * @return a new {@code Builder} with default values.
    * @throws NullPointerException if {@code type} is {@code null}.
-   * @deprecated Use {@link MessageEvent#builder}.
    * @since 0.5
    */
-  @Deprecated
   public static Builder builder(Type type, long messageId) {
-    return new NetworkEvent.Builder()
+    return new AutoValue_NetworkEvent.Builder()
         .setType(checkNotNull(type, "type"))
         .setMessageId(messageId)
         // We need to set a value for the message size because the autovalue requires all
@@ -79,30 +77,6 @@ public abstract class NetworkEvent {
         .setUncompressedMessageSize(0)
         .setCompressedMessageSize(0);
   }
-
-  /**
-   * Internal utility method to convert a {@link MessageEvent} to {@code NetworkEvent}.
-   *
-   * <p>This method is used when users invoke deprecated API {@code SpanData#getNetworkEvents} to
-   * get all collected events, which is why it is made public. However, it is not intended for
-   * external use.
-   *
-   * @return a new {@code NetworkEvent}.
-   */
-  @Internal
-  public static NetworkEvent fromMessageEvent(MessageEvent messageEvent) {
-    return new AutoValue_NetworkEvent(messageEvent);
-  }
-
-  /**
-   * Returns the underlying {@link MessageEvent}.
-   *
-   * <p>This method is used when users add event by deprecated API {@code Span#addNetworkEvents} and
-   * is thus package protected.
-   *
-   * @return the underlying @{code MessageEvent}.
-   */
-  abstract MessageEvent getMessageEvent();
 
   /**
    * Returns the kernel timestamp associated with the {@code NetworkEvent} or {@code null} if not
@@ -113,9 +87,7 @@ public abstract class NetworkEvent {
    * @since 0.5
    */
   @Nullable
-  public Timestamp getKernelTimestamp() {
-    return getMessageEvent().getKernelTimestamp();
-  }
+  public abstract Timestamp getKernelTimestamp();
 
   /**
    * Returns the type of the {@code NetworkEvent}.
@@ -123,9 +95,7 @@ public abstract class NetworkEvent {
    * @return the type of the {@code NetworkEvent}.
    * @since 0.5
    */
-  public Type getType() {
-    return getMessageEvent().getType() == MessageEvent.Type.SENT ? Type.SENT : Type.RECV;
-  }
+  public abstract Type getType();
 
   /**
    * Returns the message id argument that serves to uniquely identify each network message.
@@ -133,9 +103,7 @@ public abstract class NetworkEvent {
    * @return the message id of the {@code NetworkEvent}.
    * @since 0.5
    */
-  public long getMessageId() {
-    return getMessageEvent().getMessageId();
-  }
+  public abstract long getMessageId();
 
   /**
    * Returns the uncompressed size in bytes of the {@code NetworkEvent}.
@@ -143,9 +111,7 @@ public abstract class NetworkEvent {
    * @return the uncompressed size in bytes of the {@code NetworkEvent}.
    * @since 0.6
    */
-  public long getUncompressedMessageSize() {
-    return getMessageEvent().getUncompressedMessageSize();
-  }
+  public abstract long getUncompressedMessageSize();
 
   /**
    * Returns the compressed size in bytes of the {@code NetworkEvent}.
@@ -153,9 +119,7 @@ public abstract class NetworkEvent {
    * @return the compressed size in bytes of the {@code NetworkEvent}.
    * @since 0.6
    */
-  public long getCompressedMessageSize() {
-    return getMessageEvent().getCompressedMessageSize();
-  }
+  public abstract long getCompressedMessageSize();
 
   /**
    * @deprecated Use {@link #getUncompressedMessageSize}.
@@ -170,22 +134,18 @@ public abstract class NetworkEvent {
   /**
    * Builder class for {@link NetworkEvent}.
    *
+   * @deprecated {@link NetworkEvent} is deprecated. Please use {@link MessageEvent} and its builder
+   *     {@link MessageEvent.Builder}.
    * @since 0.5
    */
   @AutoValue.Builder
+  @Deprecated
   public abstract static class Builder {
     // Package protected methods because these values are mandatory and set only in the
     // NetworkEvent#builder() function.
-    Builder setType(Type type) {
-      messageEventBuilder.setType(
-          type == Type.SENT ? MessageEvent.Type.SENT : MessageEvent.Type.RECEIVED);
-      return this;
-    }
+    abstract Builder setType(Type type);
 
-    Builder setMessageId(long messageId) {
-      messageEventBuilder.setMessageId(messageId);
-      return this;
-    }
+    abstract Builder setMessageId(long messageId);
 
     /**
      * Sets the kernel timestamp.
@@ -194,10 +154,7 @@ public abstract class NetworkEvent {
      * @return this.
      * @since 0.5
      */
-    public Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp) {
-      messageEventBuilder.setKernelTimestamp(kernelTimestamp);
-      return this;
-    }
+    public abstract Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp);
 
     /**
      * @deprecated Use {@link #setUncompressedMessageSize}.
@@ -217,10 +174,7 @@ public abstract class NetworkEvent {
      * @return this.
      * @since 0.6
      */
-    public Builder setUncompressedMessageSize(long uncompressedMessageSize) {
-      messageEventBuilder.setUncompressedMessageSize(uncompressedMessageSize);
-      return this;
-    }
+    public abstract Builder setUncompressedMessageSize(long uncompressedMessageSize);
 
     /**
      * Sets the compressed message size.
@@ -229,10 +183,7 @@ public abstract class NetworkEvent {
      * @return this.
      * @since 0.6
      */
-    public Builder setCompressedMessageSize(long compressedMessageSize) {
-      messageEventBuilder.setCompressedMessageSize(compressedMessageSize);
-      return this;
-    }
+    public abstract Builder setCompressedMessageSize(long compressedMessageSize);
 
     /**
      * Builds and returns a {@code NetworkEvent} with the desired values.
@@ -240,13 +191,9 @@ public abstract class NetworkEvent {
      * @return a {@code NetworkEvent} with the desired values.
      * @since 0.5
      */
-    public NetworkEvent build() {
-      return new AutoValue_NetworkEvent(messageEventBuilder.build());
-    }
+    public abstract NetworkEvent build();
 
-    Builder() {
-      messageEventBuilder = new AutoValue_MessageEvent.Builder();
-    }
+    Builder() {}
   }
 
   NetworkEvent() {}

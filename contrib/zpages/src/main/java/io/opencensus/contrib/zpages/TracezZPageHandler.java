@@ -370,7 +370,7 @@ final class TracezZPageHandler extends ZPageHandler {
               .escape(
                   event.getEvent() instanceof Annotation
                       ? renderAnnotation((Annotation) event.getEvent())
-                      : renderNetworkEvents((NetworkEvent) castNonNull(event.getEvent()))));
+                      : renderMessageEvents((MessageEvent) castNonNull(event.getEvent()))));
       lastTimestampNanos = event.getTimestamp();
     }
     Status status = span.getStatus();

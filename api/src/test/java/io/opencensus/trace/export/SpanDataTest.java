@@ -137,6 +137,37 @@ public class SpanDataTest {
   }
 
   @Test
+  public void spanData_Create_Compatibility() {
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            true,
+            SPAN_NAME,
+            startTimestamp,
+            attributes,
+            annotations,
+            networkEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    assertThat(spanData.getContext()).isEqualTo(spanContext);
+    assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
+    assertThat(spanData.getHasRemoteParent()).isTrue();
+    assertThat(spanData.getName()).isEqualTo(SPAN_NAME);
+    assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
+    assertThat(spanData.getAttributes()).isEqualTo(attributes);
+    assertThat(spanData.getAnnotations()).isEqualTo(annotations);
+    assertThat(spanData.getNetworkEvents()).isEqualTo(networkEvents);
+    assertThat(spanData.getMessageEvents()).isEqualTo(messageEvents);
+    assertThat(spanData.getLinks()).isEqualTo(links);
+    assertThat(spanData.getChildSpanCount()).isEqualTo(CHILD_SPAN_COUNT);
+    assertThat(spanData.getStatus()).isEqualTo(status);
+    assertThat(spanData.getEndTimestamp()).isEqualTo(endTimestamp);
+  }
+
+  @Test
   public void spanData_RootActiveSpan() {
     SpanData spanData =
         SpanData.create(

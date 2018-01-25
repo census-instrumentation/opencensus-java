@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-17, OpenCensus Authors
+ * Copyright 2018, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,27 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.BaseMessageEvent;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a message event. It requires a {@link Type type} and a message id that
- * serves to uniquely identify each message. It can optionally have information about the kernel
- * time and message size.
+ * A class that represents a generic messaging event. Unlike {@link NetworkEvent} recorded by RPC
+ * client or server, this class can represent messaging happened in any layer, especailly higher
+ * application layer. Thus, it can be used when recording events in pipeline works, in-process
+ * bidirectional streams and batch processing.
  *
- * @since 0.10.0
+ * <p>It requires a {@link Type type} and a message id that serves to uniquely identify each
+ * message. It can optionally have information about the kernel time and message size.
+ *
+ * @since 0.12.0
  */
 @Immutable
 @AutoValue
-public abstract class MessageEvent {
+// Suppress Checker Framework warning about missing @Nullable in generated equals method.
+@AutoValue.CopyAnnotations
+@SuppressWarnings("nullness")
+public abstract class MessageEvent extends BaseMessageEvent {
   /** Available types for a {@code MessageEvent}. */
   public enum Type {
     /** When the message was sent. */

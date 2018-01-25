@@ -61,7 +61,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "<tr><td>MaxNumberOfAnnotations to</td>"
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
-          + "<tr><td>MaxNumberOfNetworkEvents to</td> "
+          + "<tr><td>MaxNumberOfMessageEvents to</td> "
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "<tr><td>MaxNumberOfLinks to</td>"
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
@@ -150,11 +150,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         int maxNumberOfAnnotations = Integer.parseInt(maxNumberOfAnnotationsStr);
         traceParamsBuilder.setMaxNumberOfAnnotations(maxNumberOfAnnotations);
       }
-      String maxNumberOfNetworkEventsStr =
+      String maxNumberOfMessageEventsStr =
           queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS);
-      if (!isNullOrEmpty(maxNumberOfNetworkEventsStr)) {
-        int maxNumberOfNetworkEvents = Integer.parseInt(maxNumberOfNetworkEventsStr);
-        traceParamsBuilder.setMaxNumberOfMessageEvents(maxNumberOfNetworkEvents);
+      if (!isNullOrEmpty(maxNumberOfMessageEventsStr)) {
+        int maxNumberOfMessageEvents = Integer.parseInt(maxNumberOfMessageEventsStr);
+        traceParamsBuilder.setMaxNumberOfMessageEvents(maxNumberOfMessageEvents);
       }
       String maxNumverOfLinksStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS);
       if (!isNullOrEmpty(maxNumverOfLinksStr)) {
@@ -186,7 +186,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         "  <tr>%n    <td>MaxNumberOfAnnotations</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfAnnotations());
     out.printf(
-        "  <tr>%n    <td>MaxNumberOfNetworkEvents</td>%n    <td>%d</td>%n  </tr>%n",
+        "  <tr>%n    <td>MaxNumberOfMessageEvents</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfMessageEvents());
     out.printf(
         "  <tr>%n    <td>MaxNumberOfLinks</td>%n    <td>%d</td>%n  </tr>%n",

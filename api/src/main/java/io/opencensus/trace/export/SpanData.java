@@ -19,12 +19,13 @@ package io.opencensus.trace.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.Lists;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.BaseMessageEvent;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.MessageEvent;
-import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -65,7 +66,8 @@ public abstract class SpanData {
    * @param startTimestamp the start {@code Timestamp} of the {@code Span}.
    * @param attributes the attributes associated with the {@code Span}.
    * @param annotations the annotations associated with the {@code Span}.
-   * @param messageEvents the message events associated with the {@code Span}.
+   * @param messageOrNetworkEvents the message events (or network events for backward compatibility)
+   *     associated with the {@code Span}.
    * @param links the links associated with the {@code Span}.
    * @param childSpanCount the number of child spans that were generated while the span was active.
    * @param status the {@code Status} of the {@code Span}. {@code null} if the {@code Span} is still
@@ -75,6 +77,7 @@ public abstract class SpanData {
    * @return a new immutable {@code SpanData}.
    * @since 0.5
    */
+  @SuppressWarnings({"deprecation", "unchecked"})
   public static SpanData create(
       SpanContext context,
       @Nullable SpanId parentSpanId,
@@ -83,11 +86,27 @@ public abstract class SpanData {
       Timestamp startTimestamp,
       Attributes attributes,
       TimedEvents<Annotation> annotations,
-      TimedEvents<MessageEvent> messageEvents,
+      TimedEvents<? extends BaseMessageEvent> messageOrNetworkEvents,
       Links links,
       @Nullable Integer childSpanCount,
       @Nullable Status status,
       @Nullable Timestamp endTimestamp) {
+    if (messageOrNetworkEvents == null) {
+      throw new NullPointerException("Null messageOrNetworkEvents");
+    }
+    List<TimedEvent<MessageEvent>> messageEventsList = Lists.newArrayList();
+    for (TimedEvent<? extends BaseMessageEvent> timedEvent : messageOrNetworkEvents.getEvents()) {
+      BaseMessageEvent event = timedEvent.getEvent();
+      if (event instanceof MessageEvent) {
+        messageEventsList.add((TimedEvent<MessageEvent>) timedEvent);
+      } else {
+        messageEventsList.add(
+            TimedEvent.<MessageEvent>create(timedEvent.getTimestamp(), event.asMessageEvent()));
+      }
+    }
+    TimedEvents<MessageEvent> messageEvents =
+        TimedEvents.<MessageEvent>create(
+            messageEventsList, messageOrNetworkEvents.getDroppedEventsCount());
     return new AutoValue_SpanData(
         context,
         parentSpanId,
@@ -168,25 +187,21 @@ public abstract class SpanData {
    * Returns network events recorded for this {@code Span}.
    *
    * @return network events recorded for this {@code Span}.
-   *
-   * @deprecated Use {@link #getMessageEvents}. This method will make a copy of internal list {@code
-   *     TimedEvents<MessageEvent>} and might be less efficient.
+   * @deprecated Use {@link #getMessageEvents}.
    * @since 0.5
    */
   @Deprecated
-  @SuppressWarnings("deprecation")
-  public TimedEvents<NetworkEvent> getNetworkEvents() {
-    TimedEvents<MessageEvent> messageEvents = getMessageEvents();
-    List<TimedEvent<NetworkEvent>> networkEventsList =
-        new ArrayList<TimedEvent<NetworkEvent>>(messageEvents.getEvents().size());
-    for (TimedEvent<MessageEvent> messageEvent : messageEvents.getEvents()) {
+  @SuppressWarnings({"deprecation", "unchecked"})
+  public TimedEvents<io.opencensus.trace.NetworkEvent> getNetworkEvents() {
+    TimedEvents<MessageEvent> timedEvents = getMessageEvents();
+    List<TimedEvent<io.opencensus.trace.NetworkEvent>> networkEventsList = Lists.newArrayList();
+    for (TimedEvent<MessageEvent> timedEvent : timedEvents.getEvents()) {
       networkEventsList.add(
-          TimedEvent.<NetworkEvent>create(
-              messageEvent.getTimestamp(), NetworkEvent.fromMessageEvent(messageEvent.getEvent())));
+          TimedEvent.<io.opencensus.trace.NetworkEvent>create(
+              timedEvent.getTimestamp(), timedEvent.getEvent().asNetworkEvent()));
     }
-    TimedEvents<NetworkEvent> networkEvents =
-        TimedEvents.<NetworkEvent>create(networkEventsList, messageEvents.getDroppedEventsCount());
-    return networkEvents;
+    return TimedEvents.<io.opencensus.trace.NetworkEvent>create(
+        networkEventsList, timedEvents.getDroppedEventsCount());
   }
 
   /**
