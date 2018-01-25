@@ -16,17 +16,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.11.0</version>
+    <version>0.11.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-zpages</artifactId>
-    <version>0.11.0</version>
+    <version>0.11.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.11.0</version>
+    <version>0.11.1</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -34,9 +34,9 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-api:0.11.0'
-compile 'io.opencensus:opencensus-contrib-zpages:0.11.0'
-runtime 'io.opencensus:opencensus-impl:0.11.0'
+compile 'io.opencensus:opencensus-api:0.11.1'
+compile 'io.opencensus:opencensus-contrib-zpages:0.11.1'
+runtime 'io.opencensus:opencensus-impl:0.11.1'
 ```
 
 ### Register the Z-Pages
