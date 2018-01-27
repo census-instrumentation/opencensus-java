@@ -27,29 +27,21 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
 
-/** Implementation of the {@link RunningSpanStore}. */
+/** In-process implementation of the {@link RunningSpanStore}. */
 @ThreadSafe
-public final class RunningSpanStoreImpl extends RunningSpanStore {
+public final class InProcessRunningSpanStoreImpl extends RunningSpanStoreImpl {
   private final ConcurrentIntrusiveList<SpanImpl> runningSpans;
 
-  public RunningSpanStoreImpl() {
+  public InProcessRunningSpanStoreImpl() {
     runningSpans = new ConcurrentIntrusiveList<SpanImpl>();
   }
 
-  /**
-   * Adds the {@code Span} into the running spans list when the {@code Span} starts.
-   *
-   * @param span the {@code Span} that started.
-   */
+  @Override
   public void onStart(SpanImpl span) {
     runningSpans.addElement(span);
   }
 
-  /**
-   * Removes the {@code Span} from the running spans list when the {@code Span} ends.
-   *
-   * @param span the {@code Span} that ended.
-   */
+  @Override
   public void onEnd(SpanImpl span) {
     runningSpans.removeElement(span);
   }

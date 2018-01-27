@@ -37,9 +37,9 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-/** Implementation of the {@link SampledSpanStore}. */
+/** In-process implementation of the {@link SampledSpanStore}. */
 @ThreadSafe
-public final class SampledSpanStoreImpl extends SampledSpanStore {
+public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
   private static final int NUM_SAMPLES_PER_LATENCY_BUCKET = 10;
   private static final int NUM_SAMPLES_PER_ERROR_BUCKET = 5;
   private static final long TIME_BETWEEN_SAMPLES = TimeUnit.SECONDS.toNanos(1);
@@ -235,8 +235,8 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     }
   }
 
-  /** Constructs a new {@code SampledSpanStoreImpl}. */
-  SampledSpanStoreImpl(EventQueue eventQueue) {
+  /** Constructs a new {@code InProcessSampledSpanStoreImpl}. */
+  InProcessSampledSpanStoreImpl(EventQueue eventQueue) {
     samples = new HashMap<String, PerSpanNameSamples>();
     this.eventQueue = eventQueue;
   }
@@ -256,12 +256,7 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
     return Summary.create(ret);
   }
 
-  /**
-   * Considers to save the given spans to the stored samples. This must be called at the end of each
-   * Span with the option RECORD_EVENTS.
-   *
-   * @param span the span to be consider for storing into the store buckets.
-   */
+  @Override
   public void considerForSampling(SpanImpl span) {
     synchronized (samples) {
       String spanName = span.getName();
@@ -291,11 +286,11 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   private static final class RegisterSpanNameEvent implements EventQueue.Entry {
-    private final SampledSpanStoreImpl sampledSpanStore;
+    private final InProcessSampledSpanStoreImpl sampledSpanStore;
     private final Collection<String> spanNames;
 
     private RegisterSpanNameEvent(
-        SampledSpanStoreImpl sampledSpanStore, Collection<String> spanNames) {
+        InProcessSampledSpanStoreImpl sampledSpanStore, Collection<String> spanNames) {
       this.sampledSpanStore = sampledSpanStore;
       this.spanNames = new ArrayList<String>(spanNames);
     }
@@ -318,11 +313,11 @@ public final class SampledSpanStoreImpl extends SampledSpanStore {
   }
 
   private static final class UnregisterSpanNameEvent implements EventQueue.Entry {
-    private final SampledSpanStoreImpl sampledSpanStore;
+    private final InProcessSampledSpanStoreImpl sampledSpanStore;
     private final Collection<String> spanNames;
 
     private UnregisterSpanNameEvent(
-        SampledSpanStoreImpl sampledSpanStore, Collection<String> spanNames) {
+        InProcessSampledSpanStoreImpl sampledSpanStore, Collection<String> spanNames) {
       this.sampledSpanStore = sampledSpanStore;
       this.spanNames = new ArrayList<String>(spanNames);
     }

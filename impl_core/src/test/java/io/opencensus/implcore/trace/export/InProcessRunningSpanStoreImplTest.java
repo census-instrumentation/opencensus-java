@@ -37,16 +37,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link RunningSpanStoreImpl}. */
+/** Unit tests for {@link InProcessRunningSpanStoreImpl}. */
 @RunWith(JUnit4.class)
-public class RunningSpanStoreImplTest {
+public class InProcessRunningSpanStoreImplTest {
 
   private static final String SPAN_NAME_1 = "MySpanName/1";
   private static final String SPAN_NAME_2 = "MySpanName/2";
   private final Random random = new Random(1234);
   private final SpanExporterImpl sampledSpansServiceExporter =
       SpanExporterImpl.create(4, Duration.create(1, 0));
-  private final RunningSpanStoreImpl activeSpansExporter = new RunningSpanStoreImpl();
+  private final InProcessRunningSpanStoreImpl activeSpansExporter =
+      new InProcessRunningSpanStoreImpl();
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(
           sampledSpansServiceExporter, activeSpansExporter, null, new SimpleEventQueue());
