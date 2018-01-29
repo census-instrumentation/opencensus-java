@@ -52,6 +52,9 @@ final class PrometheusExportUtils {
 
   @VisibleForTesting static final String OPENCENSUS_NAMESPACE = "opencensus";
   @VisibleForTesting static final String OPENCENSUS_HELP_MSG = "Opencensus Prometheus metrics: ";
+  @VisibleForTesting static final String SAMPLE_SUFFIX_BUCKET = "_bucket";
+  @VisibleForTesting static final String SAMPLE_SUFFIX_COUNT = "_count";
+  @VisibleForTesting static final String SAMPLE_SUFFIX_SUM = "_sum";
 
   // Convert a ViewData to a Prometheus MetricFamilySamples.
   static MetricFamilySamples createMetricFamilySamples(ViewData viewData) {
@@ -136,10 +139,13 @@ final class PrometheusExportUtils {
           public Void apply(MeanData arg) {
             samples.add(
                 new MetricFamilySamples.Sample(
-                    name + "_count", labelNames, labelValues, arg.getCount()));
+                    name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, arg.getCount()));
             samples.add(
                 new MetricFamilySamples.Sample(
-                    name + "_sum", labelNames, labelValues, arg.getCount() * arg.getMean()));
+                    name + SAMPLE_SUFFIX_SUM,
+                    labelNames,
+                    labelValues,
+                    arg.getCount() * arg.getMean()));
             return null;
           }
         },
@@ -149,14 +155,17 @@ final class PrometheusExportUtils {
             for (long bucketCount : arg.getBucketCounts()) {
               samples.add(
                   new MetricFamilySamples.Sample(
-                      name + "_bucket", labelNames, labelValues, bucketCount));
+                      name + SAMPLE_SUFFIX_BUCKET, labelNames, labelValues, bucketCount));
             }
             samples.add(
                 new MetricFamilySamples.Sample(
-                    name + "_count", labelNames, labelValues, arg.getCount()));
+                    name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, arg.getCount()));
             samples.add(
                 new MetricFamilySamples.Sample(
-                    name + "_sum", labelNames, labelValues, arg.getCount() * arg.getMean()));
+                    name + SAMPLE_SUFFIX_SUM,
+                    labelNames,
+                    labelValues,
+                    arg.getCount() * arg.getMean()));
             return null;
           }
         },

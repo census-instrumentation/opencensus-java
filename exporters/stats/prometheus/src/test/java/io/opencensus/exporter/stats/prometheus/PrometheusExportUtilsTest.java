@@ -19,6 +19,9 @@ package io.opencensus.exporter.stats.prometheus;
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.OPENCENSUS_HELP_MSG;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.OPENCENSUS_NAMESPACE;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_BUCKET;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_COUNT;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_SUM;
 
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
@@ -106,6 +109,9 @@ public class PrometheusExportUtilsTest {
   public void testConstants() {
     assertThat(OPENCENSUS_NAMESPACE).isEqualTo("opencensus");
     assertThat(OPENCENSUS_HELP_MSG).isEqualTo("Opencensus Prometheus metrics: ");
+    assertThat(SAMPLE_SUFFIX_BUCKET).isEqualTo("_bucket");
+    assertThat(SAMPLE_SUFFIX_COUNT).isEqualTo("_count");
+    assertThat(SAMPLE_SUFFIX_SUM).isEqualTo("_sum");
   }
 
   @Test
