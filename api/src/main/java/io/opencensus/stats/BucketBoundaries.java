@@ -25,7 +25,11 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
-/** The bucket boundaries for a histogram. */
+/**
+ * The bucket boundaries for a histogram.
+ *
+ * @since 0.8
+ */
 @Immutable
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -38,6 +42,7 @@ public abstract class BucketBoundaries {
    * @return a new {@code BucketBoundaries} with the specified boundaries.
    * @throws NullPointerException if {@code bucketBoundaries} is null.
    * @throws IllegalArgumentException if {@code bucketBoundaries} is not sorted.
+   * @since 0.8
    */
   public static final BucketBoundaries create(List<Double> bucketBoundaries) {
     checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
@@ -58,6 +63,7 @@ public abstract class BucketBoundaries {
    * Returns a list of histogram bucket boundaries.
    *
    * @return a list of histogram bucket boundaries.
+   * @since 0.8
    */
   public abstract List<Double> getBoundaries();
 }

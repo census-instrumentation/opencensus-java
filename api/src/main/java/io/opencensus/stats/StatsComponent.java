@@ -20,13 +20,23 @@ package io.opencensus.stats;
  * Class that holds the implementations for {@link ViewManager} and {@link StatsRecorder}.
  *
  * <p>All objects returned by methods on {@code StatsComponent} are cacheable.
+ *
+ * @since 0.8
  */
 public abstract class StatsComponent {
 
-  /** Returns the default {@link ViewManager}. */
+  /**
+   * Returns the default {@link ViewManager}.
+   *
+   * @since 0.8
+   */
   public abstract ViewManager getViewManager();
 
-  /** Returns the default {@link StatsRecorder}. */
+  /**
+   * Returns the default {@link StatsRecorder}.
+   *
+   * @since 0.8
+   */
   public abstract StatsRecorder getStatsRecorder();
 
   /**
@@ -39,6 +49,7 @@ public abstract class StatsComponent {
    * #setState(StatsCollectionState)} will throw an {@code IllegalStateException}.
    *
    * @return the current {@code StatsCollectionState}.
+   * @since 0.8
    */
   public abstract StatsCollectionState getState();
 
@@ -56,6 +67,7 @@ public abstract class StatsComponent {
    *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
    *     initialization. This method throws {@link IllegalStateException} after {@code getState()}
    *     has been called, in order to limit changes to the result of {@code getState()}.
+   * @since 0.8
    */
   @Deprecated
   public abstract void setState(StatsCollectionState state);

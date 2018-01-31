@@ -23,23 +23,39 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import javax.annotation.concurrent.Immutable;
 
-/** Immutable representation of a Measurement. */
+/**
+ * Immutable representation of a Measurement.
+ *
+ * @since 0.8
+ */
 @Immutable
 public abstract class Measurement {
 
-  /** Applies the given match function to the underlying data type. */
+  /**
+   * Applies the given match function to the underlying data type.
+   *
+   * @since 0.8
+   */
   public abstract <T> T match(
       Function<? super MeasurementDouble, T> p0,
       Function<? super MeasurementLong, T> p1,
       Function<? super Measurement, T> defaultFunction);
 
-  /** Extracts the measured {@link Measure}. */
+  /**
+   * Extracts the measured {@link Measure}.
+   *
+   * @since 0.8
+   */
   public abstract Measure getMeasure();
 
   // Prevents this class from being subclassed anywhere else.
   private Measurement() {}
 
-  /** {@code Double} typed {@link Measurement}. */
+  /**
+   * {@code Double} typed {@link Measurement}.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -48,7 +64,11 @@ public abstract class Measurement {
   public abstract static class MeasurementDouble extends Measurement {
     MeasurementDouble() {}
 
-    /** Constructs a new {@link MeasurementDouble}. */
+    /**
+     * Constructs a new {@link MeasurementDouble}.
+     *
+     * @since 0.8
+     */
     public static MeasurementDouble create(MeasureDouble measure, double value) {
       return new AutoValue_Measurement_MeasurementDouble(measure, value);
     }
@@ -56,6 +76,12 @@ public abstract class Measurement {
     @Override
     public abstract MeasureDouble getMeasure();
 
+    /**
+     * Returns the value for the measure.
+     *
+     * @return the value for the measure.
+     * @since 0.8
+     */
     public abstract double getValue();
 
     @Override
@@ -68,7 +94,11 @@ public abstract class Measurement {
     }
   }
 
-  /** {@code Long} typed {@link Measurement}. */
+  /**
+   * {@code Long} typed {@link Measurement}.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -77,7 +107,11 @@ public abstract class Measurement {
   public abstract static class MeasurementLong extends Measurement {
     MeasurementLong() {}
 
-    /** Constructs a new {@link MeasurementLong}. */
+    /**
+     * Constructs a new {@link MeasurementLong}.
+     *
+     * @since 0.8
+     */
     public static MeasurementLong create(MeasureLong measure, long value) {
       return new AutoValue_Measurement_MeasurementLong(measure, value);
     }
@@ -85,6 +119,12 @@ public abstract class Measurement {
     @Override
     public abstract MeasureLong getMeasure();
 
+    /**
+     * Returns the value for the measure.
+     *
+     * @return the value for the measure.
+     * @since 0.8
+     */
     public abstract long getValue();
 
     @Override

@@ -16,13 +16,19 @@
 
 package io.opencensus.stats;
 
-/** State of the {@link StatsComponent}. */
+/**
+ * State of the {@link StatsComponent}.
+ *
+ * @since 0.8
+ */
 public enum StatsCollectionState {
 
   /**
    * State that fully enables stats collection.
    *
    * <p>The {@link StatsComponent} collects stats for registered views.
+   *
+   * @since 0.8
    */
   ENABLED,
 
@@ -31,6 +37,8 @@ public enum StatsCollectionState {
    *
    * <p>The {@link StatsComponent} does not need to collect stats for registered views and may
    * return empty {@link ViewData}s from {@link ViewManager#getView(View.Name)}.
+   *
+   * @since 0.8
    */
   DISABLED
 }

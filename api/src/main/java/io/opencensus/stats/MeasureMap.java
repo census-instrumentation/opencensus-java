@@ -21,7 +21,11 @@ import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
 import javax.annotation.concurrent.NotThreadSafe;
 
-/** A map from {@link Measure}s to measured values to be recorded at the same time. */
+/**
+ * A map from {@link Measure}s to measured values to be recorded at the same time.
+ *
+ * @since 0.8
+ */
 @NotThreadSafe
 public abstract class MeasureMap {
 
@@ -32,6 +36,7 @@ public abstract class MeasureMap {
    * @param measure the {@link MeasureDouble}
    * @param value the value to be associated with {@code measure}
    * @return this
+   * @since 0.8
    */
   public abstract MeasureMap put(MeasureDouble measure, double value);
 
@@ -42,6 +47,7 @@ public abstract class MeasureMap {
    * @param measure the {@link MeasureLong}
    * @param value the value to be associated with {@code measure}
    * @return this
+   * @since 0.8
    */
   public abstract MeasureMap put(MeasureLong measure, long value);
 
@@ -49,6 +55,8 @@ public abstract class MeasureMap {
    * Records all of the measures at the same time, with the current {@link TagContext}.
    *
    * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
+   *
+   * @since 0.8
    */
   public abstract void record();
 
@@ -58,6 +66,7 @@ public abstract class MeasureMap {
    * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
    *
    * @param tags the tags associated with the measurements.
+   * @since 0.8
    */
   public abstract void record(TagContext tags);
 }

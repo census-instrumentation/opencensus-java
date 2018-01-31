@@ -22,6 +22,8 @@ import javax.annotation.Nullable;
 /**
  * Provides facilities to register {@link View}s for collecting stats and retrieving stats data as a
  * {@link ViewData}.
+ *
+ * @since 0.8
  */
 public abstract class ViewManager {
   /**
@@ -29,6 +31,7 @@ public abstract class ViewManager {
    * #getView(View.Name)}.
    *
    * @param view the {@code View} to be registered.
+   * @since 0.8
    */
   public abstract void registerView(View view);
 
@@ -40,6 +43,7 @@ public abstract class ViewManager {
    * @param view the name of {@code View} for the current stats.
    * @return {@code ViewData} for the {@code View}, or {@code null} if the {@code View} is not
    *     registered.
+   * @since 0.8
    */
   @Nullable
   public abstract ViewData getView(View.Name view);

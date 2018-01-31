@@ -43,13 +43,19 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>{@link ViewData} will contain one {@link AggregationData}, corresponding to its {@link
  * Aggregation} definition in {@link View}.
+ *
+ * @since 0.8
  */
 @Immutable
 public abstract class AggregationData {
 
   private AggregationData() {}
 
-  /** Applies the given match function to the underlying data type. */
+  /**
+   * Applies the given match function to the underlying data type.
+   *
+   * @since 0.8
+   */
   public abstract <T> T match(
       Function<? super SumDataDouble, T> p0,
       Function<? super SumDataLong, T> p1,
@@ -58,7 +64,11 @@ public abstract class AggregationData {
       Function<? super DistributionData, T> p4,
       Function<? super AggregationData, T> defaultFunction);
 
-  /** The sum value of aggregated {@code MeasureValueDouble}s. */
+  /**
+   * The sum value of aggregated {@code MeasureValueDouble}s.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -73,6 +83,7 @@ public abstract class AggregationData {
      *
      * @param sum the aggregated sum.
      * @return a {@code SumDataDouble}.
+     * @since 0.8
      */
     public static SumDataDouble create(double sum) {
       return new AutoValue_AggregationData_SumDataDouble(sum);
@@ -82,6 +93,7 @@ public abstract class AggregationData {
      * Returns the aggregated sum.
      *
      * @return the aggregated sum.
+     * @since 0.8
      */
     public abstract double getSum();
 
@@ -98,7 +110,11 @@ public abstract class AggregationData {
     }
   }
 
-  /** The sum value of aggregated {@code MeasureValueLong}s. */
+  /**
+   * The sum value of aggregated {@code MeasureValueLong}s.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -113,6 +129,7 @@ public abstract class AggregationData {
      *
      * @param sum the aggregated sum.
      * @return a {@code SumDataLong}.
+     * @since 0.8
      */
     public static SumDataLong create(long sum) {
       return new AutoValue_AggregationData_SumDataLong(sum);
@@ -122,6 +139,7 @@ public abstract class AggregationData {
      * Returns the aggregated sum.
      *
      * @return the aggregated sum.
+     * @since 0.8
      */
     public abstract long getSum();
 
@@ -138,7 +156,11 @@ public abstract class AggregationData {
     }
   }
 
-  /** The count value of aggregated {@code MeasureValue}s. */
+  /**
+   * The count value of aggregated {@code MeasureValue}s.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -153,6 +175,7 @@ public abstract class AggregationData {
      *
      * @param count the aggregated count.
      * @return a {@code CountData}.
+     * @since 0.8
      */
     public static CountData create(long count) {
       return new AutoValue_AggregationData_CountData(count);
@@ -162,6 +185,7 @@ public abstract class AggregationData {
      * Returns the aggregated count.
      *
      * @return the aggregated count.
+     * @since 0.8
      */
     public abstract long getCount();
 
@@ -178,7 +202,11 @@ public abstract class AggregationData {
     }
   }
 
-  /** The mean value of aggregated {@code MeasureValue}s. */
+  /**
+   * The mean value of aggregated {@code MeasureValue}s.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -194,6 +222,7 @@ public abstract class AggregationData {
      * @param mean the aggregated mean.
      * @param count the aggregated count.
      * @return a {@code MeanData}.
+     * @since 0.8
      */
     public static MeanData create(double mean, long count) {
       return new AutoValue_AggregationData_MeanData(mean, count);
@@ -203,6 +232,7 @@ public abstract class AggregationData {
      * Returns the aggregated mean.
      *
      * @return the aggregated mean.
+     * @since 0.8
      */
     public abstract double getMean();
 
@@ -210,6 +240,7 @@ public abstract class AggregationData {
      * Returns the aggregated count.
      *
      * @return the aggregated count.
+     * @since 0.8
      */
     public abstract long getCount();
 
@@ -229,6 +260,8 @@ public abstract class AggregationData {
   /**
    * The distribution stats of aggregated {@code MeasureValue}s. Distribution stats include mean,
    * count, histogram, min, max and sum of squared deviations.
+   *
+   * @since 0.8
    */
   @Immutable
   @AutoValue
@@ -249,6 +282,7 @@ public abstract class AggregationData {
      * @param sumOfSquaredDeviations sum of squared deviations.
      * @param bucketCounts histogram bucket counts.
      * @return a {@code DistributionData}.
+     * @since 0.8
      */
     public static DistributionData create(
         double mean,
@@ -275,6 +309,7 @@ public abstract class AggregationData {
      * Returns the aggregated mean.
      *
      * @return the aggregated mean.
+     * @since 0.8
      */
     public abstract double getMean();
 
@@ -282,6 +317,7 @@ public abstract class AggregationData {
      * Returns the aggregated count.
      *
      * @return the aggregated count.
+     * @since 0.8
      */
     public abstract long getCount();
 
@@ -289,6 +325,7 @@ public abstract class AggregationData {
      * Returns the minimum of the population values.
      *
      * @return the minimum of the population values.
+     * @since 0.8
      */
     public abstract double getMin();
 
@@ -296,6 +333,7 @@ public abstract class AggregationData {
      * Returns the maximum of the population values.
      *
      * @return the maximum of the population values.
+     * @since 0.8
      */
     public abstract double getMax();
 
@@ -303,6 +341,7 @@ public abstract class AggregationData {
      * Returns the aggregated sum of squared deviations.
      *
      * @return the aggregated sum of squared deviations.
+     * @since 0.8
      */
     public abstract double getSumOfSquaredDeviations();
 
@@ -311,6 +350,7 @@ public abstract class AggregationData {
      * will throw an {@code UnsupportedOperationException}.
      *
      * @return the aggregated bucket counts.
+     * @since 0.8
      */
     public abstract List<Long> getBucketCounts();
 
