@@ -22,13 +22,23 @@ import io.opencensus.tags.propagation.TagPropagationComponent;
  * Class that holds the implementation for {@link Tagger} and {@link TagPropagationComponent}.
  *
  * <p>All objects returned by methods on {@code TagsComponent} are cacheable.
+ *
+ * @since 0.8
  */
 public abstract class TagsComponent {
 
-  /** Returns the {@link Tagger} for this implementation. */
+  /**
+   * Returns the {@link Tagger} for this implementation.
+   *
+   * @since 0.8
+   */
   public abstract Tagger getTagger();
 
-  /** Returns the {@link TagPropagationComponent} for this implementation. */
+  /**
+   * Returns the {@link TagPropagationComponent} for this implementation.
+   *
+   * @since 0.8
+   */
   public abstract TagPropagationComponent getTagPropagationComponent();
 
   /**
@@ -41,6 +51,7 @@ public abstract class TagsComponent {
    * throw an {@code IllegalStateException}.
    *
    * @return the current {@code TaggingState}.
+   * @since 0.8
    */
   public abstract TaggingState getState();
 
@@ -55,6 +66,7 @@ public abstract class TagsComponent {
    *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
    *     initialization. This method throws {@link IllegalStateException} after {@code getState()}
    *     has been called, in order to limit changes to the result of {@code getState()}.
+   * @since 0.8
    */
   @Deprecated
   public abstract void setState(TaggingState state);

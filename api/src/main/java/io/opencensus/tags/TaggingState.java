@@ -16,7 +16,11 @@
 
 package io.opencensus.tags;
 
-/** State of the {@link TagsComponent}. */
+/**
+ * State of the {@link TagsComponent}.
+ *
+ * @since 0.8
+ */
 public enum TaggingState {
   // TODO(sebright): Should we add a state that propagates the tags, but doesn't allow
   // modifications?
@@ -26,6 +30,8 @@ public enum TaggingState {
    *
    * <p>The {@link TagsComponent} can add tags to {@link TagContext}s, propagate {@code TagContext}s
    * in the current context, and serialize {@code TagContext}s.
+   *
+   * @since 0.8
    */
   ENABLED,
 
@@ -34,6 +40,8 @@ public enum TaggingState {
    *
    * <p>The {@link TagsComponent} may not add tags to {@link TagContext}s, propagate {@code
    * TagContext}s in the current context, or serialize {@code TagContext}s.
+   *
+   * @since 0.8
    */
   // TODO(sebright): Document how this interacts with stats collection.
   DISABLED

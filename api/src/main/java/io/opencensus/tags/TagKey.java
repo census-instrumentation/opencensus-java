@@ -30,6 +30,8 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>{@code TagKey}s are designed to be used as constants. Declaring each key as a constant
  * prevents key names from being validated multiple times.
+ *
+ * @since 0.8
  */
 @Immutable
 @AutoValue
@@ -37,7 +39,11 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
 public abstract class TagKey {
-  /** The maximum length for a tag key name. The value is {@value #MAX_LENGTH}. */
+  /**
+   * The maximum length for a tag key name. The value is {@value #MAX_LENGTH}.
+   *
+   * @since 0.8
+   */
   public static final int MAX_LENGTH = 255;
 
   TagKey() {}
@@ -55,6 +61,7 @@ public abstract class TagKey {
    * @param name the name of the key.
    * @return a {@code TagKey} with the given name.
    * @throws IllegalArgumentException if the name is not valid.
+   * @since 0.8
    */
   public static TagKey create(String name) {
     checkArgument(isValid(name));
@@ -65,6 +72,7 @@ public abstract class TagKey {
    * Returns the name of the key.
    *
    * @return the name of the key.
+   * @since 0.8
    */
   public abstract String getName();
 

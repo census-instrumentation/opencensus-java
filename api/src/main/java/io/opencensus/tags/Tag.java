@@ -19,7 +19,11 @@ package io.opencensus.tags;
 import com.google.auto.value.AutoValue;
 import javax.annotation.concurrent.Immutable;
 
-/** {@link TagKey} paired with a {@link TagValue}. */
+/**
+ * {@link TagKey} paired with a {@link TagValue}.
+ *
+ * @since 0.8
+ */
 @Immutable
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -35,6 +39,7 @@ public abstract class Tag {
    * @param key the tag key.
    * @param value the tag value.
    * @return a {@code Tag} with the given key and value.
+   * @since 0.8
    */
   public static Tag create(TagKey key, TagValue value) {
     return new AutoValue_Tag(key, value);
@@ -44,6 +49,7 @@ public abstract class Tag {
    * Returns the tag's key.
    *
    * @return the tag's key.
+   * @since 0.8
    */
   public abstract TagKey getKey();
 
@@ -51,6 +57,7 @@ public abstract class Tag {
    * Returns the tag's value.
    *
    * @return the tag's value.
+   * @since 0.8
    */
   public abstract TagValue getValue();
 }

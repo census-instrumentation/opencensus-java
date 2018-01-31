@@ -26,6 +26,8 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Validation ensures that the {@code String} has a maximum length of {@link #MAX_LENGTH} and
  * contains only printable ASCII characters.
+ *
+ * @since 0.8
  */
 @Immutable
 @AutoValue
@@ -33,7 +35,11 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
 public abstract class TagValue {
-  /** The maximum length for a tag value. The value is {@value #MAX_LENGTH}. */
+  /**
+   * The maximum length for a tag value. The value is {@value #MAX_LENGTH}.
+   *
+   * @since 0.8
+   */
   public static final int MAX_LENGTH = 255;
 
   TagValue() {}
@@ -49,6 +55,7 @@ public abstract class TagValue {
    *
    * @param value the tag value.
    * @throws IllegalArgumentException if the {@code String} is not valid.
+   * @since 0.8
    */
   public static TagValue create(String value) {
     Preconditions.checkArgument(isValid(value));
@@ -59,6 +66,7 @@ public abstract class TagValue {
    * Returns the tag value as a {@code String}.
    *
    * @return the tag value as a {@code String}.
+   * @since 0.8
    */
   public abstract String asString();
 

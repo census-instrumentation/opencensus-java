@@ -24,6 +24,8 @@ import io.opencensus.tags.TagContext;
  * <p>See <a
  * href="https://github.com/census-instrumentation/opencensus-specs/blob/master/encodings/BinaryEncoding.md#tag-context">opencensus-specs</a>
  * for the specification of the cross-language binary serialization format.
+ *
+ * @since 0.8
  */
 public abstract class TagContextBinarySerializer {
 
@@ -36,6 +38,7 @@ public abstract class TagContextBinarySerializer {
    * @return the on-the-wire representation of a {@code TagContext}.
    * @throws TagContextSerializationException if the result would be larger than the maximum allowed
    *     serialized size.
+   * @since 0.8
    */
   public abstract byte[] toByteArray(TagContext tags) throws TagContextSerializationException;
 
@@ -48,6 +51,7 @@ public abstract class TagContextBinarySerializer {
    * @return a {@code TagContext} deserialized from {@code bytes}.
    * @throws TagContextDeserializationException if there is a parse error, the input contains
    *     invalid tags, or the input is larger than the maximum allowed serialized size.
+   * @since 0.8
    */
   public abstract TagContext fromByteArray(byte[] bytes) throws TagContextDeserializationException;
 }

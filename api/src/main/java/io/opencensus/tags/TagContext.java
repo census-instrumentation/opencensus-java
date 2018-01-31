@@ -30,6 +30,8 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>For example, {@code TagContext}s can be used to label stats, log messages, or debugging
  * information.
+ *
+ * @since 0.8
  */
 @Immutable
 public abstract class TagContext {
@@ -38,6 +40,7 @@ public abstract class TagContext {
    * Returns an iterator over the tags in this {@code TagContext}.
    *
    * @return an iterator over the tags in this {@code TagContext}.
+   * @since 0.8
    */
   // This method is protected to prevent client code from accessing the tags of any TagContext. We
   // don't currently support efficient access to tags. However, every TagContext subclass needs to

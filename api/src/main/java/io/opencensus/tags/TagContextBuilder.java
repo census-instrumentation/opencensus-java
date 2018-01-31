@@ -18,7 +18,11 @@ package io.opencensus.tags;
 
 import io.opencensus.common.Scope;
 
-/** Builder for the {@link TagContext} class. */
+/**
+ * Builder for the {@link TagContext} class.
+ *
+ * @since 0.8
+ */
 public abstract class TagContextBuilder {
 
   /**
@@ -27,6 +31,7 @@ public abstract class TagContextBuilder {
    * @param key the {@code TagKey} which will be set.
    * @param value the {@code TagValue} to set for the given key.
    * @return this
+   * @since 0.8
    */
   public abstract TagContextBuilder put(TagKey key, TagValue value);
 
@@ -35,6 +40,7 @@ public abstract class TagContextBuilder {
    *
    * @param key the {@code TagKey} which will be removed.
    * @return this
+   * @since 0.8
    */
   public abstract TagContextBuilder remove(TagKey key);
 
@@ -42,6 +48,7 @@ public abstract class TagContextBuilder {
    * Creates a {@code TagContext} from this builder.
    *
    * @return a {@code TagContext} with the same tags as this builder.
+   * @since 0.8
    */
   public abstract TagContext build();
 
@@ -52,6 +59,7 @@ public abstract class TagContextBuilder {
    *
    * @return an object that defines a scope where the {@code TagContext} created from this builder
    *     is set to the current context.
+   * @since 0.8
    */
   public abstract Scope buildScoped();
 }

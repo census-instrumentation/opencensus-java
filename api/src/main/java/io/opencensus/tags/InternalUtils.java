@@ -18,11 +18,20 @@ package io.opencensus.tags;
 
 import java.util.Iterator;
 
-/** Internal tagging utilities. */
+/**
+ * Internal tagging utilities.
+ *
+ * @since 0.8
+ */
 @io.opencensus.common.Internal
 public final class InternalUtils {
   private InternalUtils() {}
 
+  /**
+   * Internal tag accessor.
+   *
+   * @since 0.8
+   */
   public static Iterator<Tag> getTags(TagContext tags) {
     return tags.getIterator();
   }
