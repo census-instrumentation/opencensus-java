@@ -28,6 +28,8 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Most code should interact with the current context via the public APIs in {@link
  * io.opencensus.tags.TagContext} and avoid accessing {@link #TAG_CONTEXT_KEY} directly.
+ *
+ * @since 0.8
  */
 public final class ContextUtils {
   private static final TagContext EMPTY_TAG_CONTEXT = new EmptyTagContext();
@@ -37,6 +39,8 @@ public final class ContextUtils {
   /**
    * The {@link io.grpc.Context.Key} used to interact with the {@code TagContext} contained in the
    * {@link io.grpc.Context}.
+   *
+   * @since 0.8
    */
   public static final Context.Key<TagContext> TAG_CONTEXT_KEY =
       Context.keyWithDefault("opencensus-tag-context-key", EMPTY_TAG_CONTEXT);

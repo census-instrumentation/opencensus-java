@@ -18,7 +18,11 @@ package io.opencensus.tags.propagation;
 
 import io.opencensus.tags.TagContext;
 
-/** Object containing all supported {@link TagContext} propagation formats. */
+/**
+ * Object containing all supported {@link TagContext} propagation formats.
+ *
+ * @since 0.8
+ */
 // TODO(sebright): Add an HTTP serializer.
 public abstract class TagPropagationComponent {
 
@@ -26,6 +30,7 @@ public abstract class TagPropagationComponent {
    * Returns the {@link TagContextBinarySerializer} for this implementation.
    *
    * @return the {@code TagContextBinarySerializer} for this implementation.
+   * @since 0.8
    */
   public abstract TagContextBinarySerializer getBinarySerializer();
 }

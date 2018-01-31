@@ -34,6 +34,8 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A View specifies an aggregation and a set of tag keys. The aggregation will be broken down by the
  * unique set of matching tag values for each measure.
+ *
+ * @since 0.8
  */
 @Immutable
 @AutoValue
@@ -46,16 +48,32 @@ public abstract class View {
 
   View() {}
 
-  /** Name of view. Must be unique. */
+  /**
+   * Name of view. Must be unique.
+   *
+   * @since 0.8
+   */
   public abstract Name getName();
 
-  /** More detailed description, for documentation purposes. */
+  /**
+   * More detailed description, for documentation purposes.
+   *
+   * @since 0.8
+   */
   public abstract String getDescription();
 
-  /** Measure type of this view. */
+  /**
+   * Measure type of this view.
+   *
+   * @since 0.8
+   */
   public abstract Measure getMeasure();
 
-  /** The {@link Aggregation} associated with this {@link View}. */
+  /**
+   * The {@link Aggregation} associated with this {@link View}.
+   *
+   * @since 0.8
+   */
   public abstract Aggregation getAggregation();
 
   /**
@@ -63,6 +81,8 @@ public abstract class View {
    *
    * <p>{@link Measure} will be recorded in a "greedy" way. That is, every view aggregates every
    * measure. This is similar to doing a GROUPBY on view’s columns. Columns must be unique.
+   *
+   * @since 0.8
    */
   public abstract List<TagKey> getColumns();
 
@@ -70,6 +90,7 @@ public abstract class View {
    * Returns the time {@link AggregationWindow} for this {@code View}.
    *
    * @return the time {@link AggregationWindow}.
+   * @since 0.8
    */
   public abstract AggregationWindow getWindow();
 
@@ -84,6 +105,7 @@ public abstract class View {
    *     duplicates.
    * @param window the {@link AggregationWindow} of view.
    * @return a new {@link View}.
+   * @since 0.8
    */
   public static View create(
       Name name,
@@ -103,7 +125,11 @@ public abstract class View {
         window);
   }
 
-  /** The name of a {@code View}. */
+  /**
+   * The name of a {@code View}.
+   *
+   * @since 0.8
+   */
   // This type should be used as the key when associating data with Views.
   @Immutable
   @AutoValue
@@ -118,6 +144,7 @@ public abstract class View {
      * Returns the name as a {@code String}.
      *
      * @return the name as a {@code String}.
+     * @since 0.8
      */
     public abstract String asString();
 
@@ -129,6 +156,7 @@ public abstract class View {
      *
      * @param name the name {@code String}.
      * @return a {@code View.Name} with the given name {@code String}.
+     * @since 0.8
      */
     public static Name create(String name) {
       checkArgument(
@@ -138,19 +166,31 @@ public abstract class View {
     }
   }
 
-  /** The time window for a {@code View}. */
+  /**
+   * The time window for a {@code View}.
+   *
+   * @since 0.8
+   */
   @Immutable
   public abstract static class AggregationWindow {
 
     private AggregationWindow() {}
 
-    /** Applies the given match function to the underlying data type. */
+    /**
+     * Applies the given match function to the underlying data type.
+     *
+     * @since 0.8
+     */
     public abstract <T> T match(
         Function<? super Cumulative, T> p0,
         Function<? super Interval, T> p1,
         Function<? super AggregationWindow, T> defaultFunction);
 
-    /** Cumulative (infinite interval) time {@code AggregationWindow}. */
+    /**
+     * Cumulative (infinite interval) time {@code AggregationWindow}.
+     *
+     * @since 0.8
+     */
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -169,6 +209,7 @@ public abstract class View {
        * {@code Duration}.
        *
        * @return a cumulative {@code AggregationWindow}.
+       * @since 0.8
        */
       public static Cumulative create() {
         return CUMULATIVE;
@@ -184,7 +225,11 @@ public abstract class View {
       }
     }
 
-    /** Interval (finite interval) time {@code AggregationWindow.} */
+    /**
+     * Interval (finite interval) time {@code AggregationWindow}.
+     *
+     * @since 0.8
+     */
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -200,6 +245,7 @@ public abstract class View {
        * Returns the {@code Duration} associated with this {@code Interval}.
        *
        * @return a {@code Duration}.
+       * @since 0.8
        */
       public abstract Duration getDuration();
 
@@ -211,6 +257,7 @@ public abstract class View {
        * cannot have smaller {@code Duration} such as microseconds or nanoseconds.
        *
        * @return an interval {@code AggregationWindow}.
+       * @since 0.8
        */
       public static Interval create(Duration duration) {
         checkArgument(duration.compareTo(ZERO) > 0, "Duration must be positive");

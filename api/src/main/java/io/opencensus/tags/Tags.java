@@ -23,7 +23,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-/** Class for accessing the default {@link TagsComponent}. */
+/**
+ * Class for accessing the default {@link TagsComponent}.
+ *
+ * @since 0.8
+ */
 public final class Tags {
   private static final Logger logger = Logger.getLogger(Tags.class.getName());
 
@@ -36,6 +40,7 @@ public final class Tags {
    * Returns the default {@code Tagger}.
    *
    * @return the default {@code Tagger}.
+   * @since 0.8
    */
   public static Tagger getTagger() {
     return tagsComponent.getTagger();
@@ -45,6 +50,7 @@ public final class Tags {
    * Returns the default {@code TagPropagationComponent}.
    *
    * @return the default {@code TagPropagationComponent}.
+   * @since 0.8
    */
   public static TagPropagationComponent getTagPropagationComponent() {
     return tagsComponent.getTagPropagationComponent();
@@ -60,6 +66,7 @@ public final class Tags {
    * throw an {@code IllegalStateException}.
    *
    * @return the current {@code TaggingState}.
+   * @since 0.8
    */
   public static TaggingState getState() {
     return tagsComponent.getState();
@@ -76,6 +83,7 @@ public final class Tags {
    *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
    *     initialization. This method throws {@link IllegalStateException} after {@link #getState()}
    *     has been called, in order to limit changes to the result of {@code getState()}.
+   * @since 0.8
    */
   @Deprecated
   public static void setState(TaggingState state) {

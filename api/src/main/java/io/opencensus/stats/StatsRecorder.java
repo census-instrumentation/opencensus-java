@@ -16,7 +16,11 @@
 
 package io.opencensus.stats;
 
-/** Provides methods to record stats against tags. */
+/**
+ * Provides methods to record stats against tags.
+ *
+ * @since 0.8
+ */
 public abstract class StatsRecorder {
   // TODO(sebright): Should we provide convenience methods for only recording one measure?
 
@@ -24,6 +28,7 @@ public abstract class StatsRecorder {
    * Returns an object for recording multiple measurements.
    *
    * @return an object for recording multiple measurements.
+   * @since 0.8
    */
   public abstract MeasureMap newMeasureMap();
 }

@@ -38,13 +38,19 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>When creating a {@link View}, one {@link Aggregation} needs to be specified as how to
  * aggregate {@code MeasureValue}s.
+ *
+ * @since 0.8
  */
 @Immutable
 public abstract class Aggregation {
 
   private Aggregation() {}
 
-  /** Applies the given match function to the underlying data type. */
+  /**
+   * Applies the given match function to the underlying data type.
+   *
+   * @since 0.8
+   */
   public abstract <T> T match(
       Function<? super Sum, T> p0,
       Function<? super Count, T> p1,
@@ -52,7 +58,11 @@ public abstract class Aggregation {
       Function<? super Distribution, T> p3,
       Function<? super Aggregation, T> defaultFunction);
 
-  /** Calculate sum on aggregated {@code MeasureValue}s. */
+  /**
+   * Calculate sum on aggregated {@code MeasureValue}s.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -68,6 +78,7 @@ public abstract class Aggregation {
      * Construct a {@code Sum}.
      *
      * @return a new {@code Sum}.
+     * @since 0.8
      */
     public static Sum create() {
       return INSTANCE;
@@ -84,7 +95,11 @@ public abstract class Aggregation {
     }
   }
 
-  /** Calculate count on aggregated {@code MeasureValue}s. */
+  /**
+   * Calculate count on aggregated {@code MeasureValue}s.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -100,6 +115,7 @@ public abstract class Aggregation {
      * Construct a {@code Count}.
      *
      * @return a new {@code Count}.
+     * @since 0.8
      */
     public static Count create() {
       return INSTANCE;
@@ -116,7 +132,11 @@ public abstract class Aggregation {
     }
   }
 
-  /** Calculate mean on aggregated {@code MeasureValue}s. */
+  /**
+   * Calculate mean on aggregated {@code MeasureValue}s.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -132,6 +152,7 @@ public abstract class Aggregation {
      * Construct a {@code Mean}.
      *
      * @return a new {@code Mean}.
+     * @since 0.8
      */
     public static Mean create() {
       return INSTANCE;
@@ -151,6 +172,8 @@ public abstract class Aggregation {
   /**
    * Calculate distribution stats on aggregated {@code MeasureValue}s. Distribution includes mean,
    * count, histogram, min, max and sum of squared deviations.
+   *
+   * @since 0.8
    */
   @Immutable
   @AutoValue
@@ -165,12 +188,19 @@ public abstract class Aggregation {
      * Construct a {@code Distribution}.
      *
      * @return a new {@code Distribution}.
+     * @since 0.8
      */
     public static Distribution create(BucketBoundaries bucketBoundaries) {
       checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
       return new AutoValue_Aggregation_Distribution(bucketBoundaries);
     }
 
+    /**
+     * Returns the {@code Distribution}'s bucket boundaries.
+     *
+     * @return the {@code Distribution}'s bucket boundaries.
+     * @since 0.8
+     */
     public abstract BucketBoundaries getBucketBoundaries();
 
     @Override

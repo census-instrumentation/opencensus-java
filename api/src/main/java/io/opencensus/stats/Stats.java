@@ -22,19 +22,31 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-/** Class for accessing the default {@link StatsComponent}. */
+/**
+ * Class for accessing the default {@link StatsComponent}.
+ *
+ * @since 0.8
+ */
 public final class Stats {
   private static final Logger logger = Logger.getLogger(Stats.class.getName());
 
   private static final StatsComponent statsComponent =
       loadStatsComponent(StatsComponent.class.getClassLoader());
 
-  /** Returns the default {@link StatsRecorder}. */
+  /**
+   * Returns the default {@link StatsRecorder}.
+   *
+   * @since 0.8
+   */
   public static StatsRecorder getStatsRecorder() {
     return statsComponent.getStatsRecorder();
   }
 
-  /** Returns the default {@link ViewManager}. */
+  /**
+   * Returns the default {@link ViewManager}.
+   *
+   * @since 0.8
+   */
   public static ViewManager getViewManager() {
     return statsComponent.getViewManager();
   }
@@ -49,6 +61,7 @@ public final class Stats {
    * #setState(StatsCollectionState)} will throw an {@code IllegalStateException}.
    *
    * @return the current {@code StatsCollectionState}.
+   * @since 0.8
    */
   public static StatsCollectionState getState() {
     return statsComponent.getState();
@@ -68,6 +81,7 @@ public final class Stats {
    *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
    *     initialization. This method throws {@link IllegalStateException} after {@code getState()}
    *     has been called, in order to limit changes to the result of {@code getState()}.
+   * @since 0.8
    */
   @Deprecated
   public static void setState(StatsCollectionState state) {

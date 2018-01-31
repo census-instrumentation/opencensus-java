@@ -48,7 +48,11 @@ import javax.annotation.concurrent.Immutable;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
-/** The aggregated data for a particular {@link View}. */
+/**
+ * The aggregated data for a particular {@link View}.
+ *
+ * @since 0.8
+ */
 @Immutable
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -59,12 +63,18 @@ public abstract class ViewData {
   // Prevents this class from being subclassed anywhere else.
   ViewData() {}
 
-  /** The {@link View} associated with this {@link ViewData}. */
+  /**
+   * The {@link View} associated with this {@link ViewData}.
+   *
+   * @since 0.8
+   */
   public abstract View getView();
 
   /**
    * The {@link AggregationData} grouped by combination of tag values, associated with this {@link
    * ViewData}.
+   *
+   * @since 0.8
    */
   public abstract Map<List<TagValue>, AggregationData> getAggregationMap();
 
@@ -72,6 +82,7 @@ public abstract class ViewData {
    * Returns the {@link AggregationWindowData} associated with this {@link ViewData}.
    *
    * @return the {@code AggregationWindowData}.
+   * @since 0.8
    */
   public abstract AggregationWindowData getWindowData();
 
@@ -85,6 +96,7 @@ public abstract class ViewData {
    * @throws IllegalArgumentException if the types of {@code Aggregation} and {@code
    *     AggregationData} don't match, or the types of {@code Window} and {@code WindowData} don't
    *     match.
+   * @since 0.8
    */
   public static ViewData create(
       View view,
@@ -201,19 +213,31 @@ public abstract class ViewData {
         + aggregationData;
   }
 
-  /** The {@code AggregationWindowData} for a {@link ViewData}. */
+  /**
+   * The {@code AggregationWindowData} for a {@link ViewData}.
+   *
+   * @since 0.8
+   */
   @Immutable
   public abstract static class AggregationWindowData {
 
     private AggregationWindowData() {}
 
-    /** Applies the given match function to the underlying data type. */
+    /**
+     * Applies the given match function to the underlying data type.
+     *
+     * @since 0.8
+     */
     public abstract <T> T match(
         Function<? super CumulativeData, T> p0,
         Function<? super IntervalData, T> p1,
         Function<? super AggregationWindowData, T> defaultFunction);
 
-    /** Cumulative {@code AggregationWindowData.} */
+    /**
+     * Cumulative {@code AggregationWindowData}.
+     *
+     * @since 0.8
+     */
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -227,6 +251,7 @@ public abstract class ViewData {
        * Returns the start {@code Timestamp} for a {@link CumulativeData}.
        *
        * @return the start {@code Timestamp}.
+       * @since 0.8
        */
       public abstract Timestamp getStart();
 
@@ -234,6 +259,7 @@ public abstract class ViewData {
        * Returns the end {@code Timestamp} for a {@link CumulativeData}.
        *
        * @return the end {@code Timestamp}.
+       * @since 0.8
        */
       public abstract Timestamp getEnd();
 
@@ -246,7 +272,11 @@ public abstract class ViewData {
             .apply(this);
       }
 
-      /** Constructs a new {@link CumulativeData}. */
+      /**
+       * Constructs a new {@link CumulativeData}.
+       *
+       * @since 0.8
+       */
       public static CumulativeData create(Timestamp start, Timestamp end) {
         if (start.compareTo(end) > 0) {
           throw new IllegalArgumentException("Start time is later than end time.");
@@ -255,7 +285,11 @@ public abstract class ViewData {
       }
     }
 
-    /** Interval {@code AggregationWindowData.} */
+    /**
+     * Interval {@code AggregationWindowData}.
+     *
+     * @since 0.8
+     */
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -269,6 +303,7 @@ public abstract class ViewData {
        * Returns the end {@code Timestamp} for an {@link IntervalData}.
        *
        * @return the end {@code Timestamp}.
+       * @since 0.8
        */
       public abstract Timestamp getEnd();
 
@@ -281,7 +316,11 @@ public abstract class ViewData {
             .apply(this);
       }
 
-      /** Constructs a new {@link IntervalData}. */
+      /**
+       * Constructs a new {@link IntervalData}.
+       *
+       * @since 0.8
+       */
       public static IntervalData create(Timestamp end) {
         return new AutoValue_ViewData_AggregationWindowData_IntervalData(end);
       }

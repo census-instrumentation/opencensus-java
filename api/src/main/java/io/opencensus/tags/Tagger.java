@@ -27,6 +27,8 @@ import io.opencensus.common.Scope;
  * <p>Implementations may have different constraints and are free to convert tag contexts to their
  * own subtypes. This means callers cannot assume the {@link #getCurrentTagContext() current
  * context} is the same instance as the one {@link #withTagContext(TagContext) placed into scope}.
+ *
+ * @since 0.8
  */
 public abstract class Tagger {
 
@@ -34,6 +36,7 @@ public abstract class Tagger {
    * Returns an empty {@code TagContext}.
    *
    * @return an empty {@code TagContext}.
+   * @since 0.8
    */
   public abstract TagContext empty();
 
@@ -41,6 +44,7 @@ public abstract class Tagger {
    * Returns the current {@code TagContext}.
    *
    * @return the current {@code TagContext}.
+   * @since 0.8
    */
   public abstract TagContext getCurrentTagContext();
 
@@ -48,6 +52,7 @@ public abstract class Tagger {
    * Returns a new empty {@code Builder}.
    *
    * @return a new empty {@code Builder}.
+   * @since 0.8
    */
   public abstract TagContextBuilder emptyBuilder();
 
@@ -55,6 +60,7 @@ public abstract class Tagger {
    * Returns a builder based on this {@code TagContext}.
    *
    * @return a builder based on this {@code TagContext}.
+   * @since 0.8
    */
   public abstract TagContextBuilder toBuilder(TagContext tags);
 
@@ -62,6 +68,7 @@ public abstract class Tagger {
    * Returns a new builder created from the current {@code TagContext}.
    *
    * @return a new builder created from the current {@code TagContext}.
+   * @since 0.8
    */
   public abstract TagContextBuilder currentBuilder();
 
@@ -73,6 +80,7 @@ public abstract class Tagger {
    * @param tags the {@code TagContext} to be set to the current context.
    * @return an object that defines a scope where the given {@code TagContext} is set to the current
    *     context.
+   * @since 0.8
    */
   public abstract Scope withTagContext(TagContext tags);
 }

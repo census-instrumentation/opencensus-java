@@ -25,13 +25,21 @@ import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.internal.StringUtil;
 import javax.annotation.concurrent.Immutable;
 
-/** The definition of the {@link Measurement} that is taken by OpenCensus library. */
+/**
+ * The definition of the {@link Measurement} that is taken by OpenCensus library.
+ *
+ * @since 0.8
+ */
 @Immutable
 public abstract class Measure {
 
   @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
 
-  /** Applies the given match function to the underlying data type. */
+  /**
+   * Applies the given match function to the underlying data type.
+   *
+   * @since 0.8
+   */
   public abstract <T> T match(
       Function<? super MeasureDouble, T> p0,
       Function<? super MeasureLong, T> p1,
@@ -42,10 +50,16 @@ public abstract class Measure {
    * 255 characters.
    *
    * <p>Suggested format for name: {@code <web_host>/<path>}.
+   *
+   * @since 0.8
    */
   public abstract String getName();
 
-  /** Detailed description of the measure, used in documentation. */
+  /**
+   * Detailed description of the measure, used in documentation.
+   *
+   * @since 0.8
+   */
   public abstract String getDescription();
 
   /**
@@ -61,6 +75,8 @@ public abstract class Measure {
    *
    * <p>For example, string “MBy{transmitted}/ms” stands for megabytes per milliseconds, and the
    * annotation transmitted inside {} is just a comment of the unit.
+   *
+   * @since 0.8
    */
   // TODO(songya): determine whether we want to check the grammar on string unit.
   public abstract String getUnit();
@@ -68,7 +84,11 @@ public abstract class Measure {
   // Prevents this class from being subclassed anywhere else.
   private Measure() {}
 
-  /** {@link Measure} with {@code Double} typed values. */
+  /**
+   * {@link Measure} with {@code Double} typed values.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -85,6 +105,7 @@ public abstract class Measure {
      * @param description description of {@code Measure}.
      * @param unit unit of {@code Measure}.
      * @return a {@code MeasureDouble}.
+     * @since 0.8
      */
     public static MeasureDouble create(String name, String description, String unit) {
       checkArgument(
@@ -114,7 +135,11 @@ public abstract class Measure {
     public abstract String getUnit();
   }
 
-  /** {@link Measure} with {@code Long} typed values. */
+  /**
+   * {@link Measure} with {@code Long} typed values.
+   *
+   * @since 0.8
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -131,6 +156,7 @@ public abstract class Measure {
      * @param description description of {@code Measure}.
      * @param unit unit of {@code Measure}.
      * @return a {@code MeasureLong}.
+     * @since 0.8
      */
     public static MeasureLong create(String name, String description, String unit) {
       checkArgument(
