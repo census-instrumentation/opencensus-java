@@ -180,7 +180,7 @@ subprojects {
 
     dependencies {
         if (useCheckerFramework) {
-            ext.checkerFrameworkVersion = '2.3.0'
+            ext.checkerFrameworkVersion = '2.3.2'
             ext.jdkVersion = 'jdk8'
             checkerFrameworkAnnotatedJDK "org.checkerframework:${jdkVersion}:${checkerFrameworkVersion}"
             checkerFrameworkJavac "org.checkerframework:compiler:${checkerFrameworkVersion}"
