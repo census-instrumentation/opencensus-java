@@ -30,4 +30,15 @@ public class ZPageHandlersTest {
   public void implementationOfTracez() {
     assertThat(ZPageHandlers.getTracezZPageHandler()).isInstanceOf(TracezZPageHandler.class);
   }
+
+  @Test
+  public void implementationOfTraceConfigz() {
+    assertThat(ZPageHandlers.getTraceConfigzZPageHandler())
+        .isInstanceOf(TraceConfigzZPageHandler.class);
+  }
+
+  @Test
+  public void implementationOfRpcz() {
+    assertThat(ZPageHandlers.getRpczZpageHandler()).isInstanceOf(RpczZPageHandler.class);
+  }
 }

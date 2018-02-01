@@ -19,6 +19,7 @@ package io.opencensus.contrib.zpages;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.sun.net.httpserver.HttpServer;
+import io.opencensus.stats.Stats;
 import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -70,6 +71,8 @@ public final class ZPageHandlers {
           Tracing.getExportComponent().getSampledSpanStore());
   private static final ZPageHandler traceConfigzZPageHandler =
       TraceConfigzZPageHandler.create(Tracing.getTraceConfig());
+  private static final ZPageHandler rpczZpageHandler =
+      RpczZPageHandler.create(Stats.getViewManager());
 
   private static final Object monitor = new Object();
 
@@ -106,6 +109,18 @@ public final class ZPageHandlers {
   }
 
   /**
+   * Returns a {@code ZPageHandler} for gRPC stats.
+   *
+   * <p>It prints a summary table which contains rows for each gRPC method.
+   *
+   * @return a {@code ZPageHandler} for gRPC stats.
+   * @since 0.12.0
+   */
+  public static ZPageHandler getRpczZpageHandler() {
+    return rpczZpageHandler;
+  }
+
+  /**
    * Registers all pages to the given {@code HttpServer}.
    *
    * @param server the server that exports the tracez page.
@@ -115,6 +130,7 @@ public final class ZPageHandlers {
     server.createContext(tracezZPageHandler.getUrlPath(), new ZPageHttpHandler(tracezZPageHandler));
     server.createContext(
         traceConfigzZPageHandler.getUrlPath(), new ZPageHttpHandler(traceConfigzZPageHandler));
+    server.createContext(rpczZpageHandler.getUrlPath(), new ZPageHttpHandler(rpczZpageHandler));
   }
 
   /**
