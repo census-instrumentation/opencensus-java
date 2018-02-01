@@ -18,7 +18,6 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
-import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import javax.annotation.concurrent.Immutable;
@@ -89,8 +88,7 @@ public abstract class Measurement {
         Function<? super MeasurementDouble, T> p0,
         Function<? super MeasurementLong, T> p1,
         Function<? super Measurement, T> defaultFunction) {
-      return CheckerFrameworkUtils.<MeasurementDouble, T>removeSuperFromFunctionParameterType(p0)
-          .apply(this);
+      return p0.apply(this);
     }
   }
 
@@ -132,8 +130,7 @@ public abstract class Measurement {
         Function<? super MeasurementDouble, T> p0,
         Function<? super MeasurementLong, T> p1,
         Function<? super Measurement, T> defaultFunction) {
-      return CheckerFrameworkUtils.<MeasurementLong, T>removeSuperFromFunctionParameterType(p1)
-          .apply(this);
+      return p1.apply(this);
     }
   }
 }

@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
-import io.opencensus.internal.CheckerFrameworkUtils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -91,7 +90,7 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return CheckerFrameworkUtils.<Sum, T>removeSuperFromFunctionParameterType(p0).apply(this);
+      return p0.apply(this);
     }
   }
 
@@ -128,7 +127,7 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return CheckerFrameworkUtils.<Count, T>removeSuperFromFunctionParameterType(p1).apply(this);
+      return p1.apply(this);
     }
   }
 
@@ -165,7 +164,7 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return CheckerFrameworkUtils.<Mean, T>removeSuperFromFunctionParameterType(p2).apply(this);
+      return p2.apply(this);
     }
   }
 
@@ -210,8 +209,7 @@ public abstract class Aggregation {
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return CheckerFrameworkUtils.<Distribution, T>removeSuperFromFunctionParameterType(p3)
-          .apply(this);
+      return p3.apply(this);
     }
   }
 }

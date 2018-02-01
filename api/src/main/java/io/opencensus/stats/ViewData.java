@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.internal.CheckerFrameworkUtils;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
@@ -268,8 +267,7 @@ public abstract class ViewData {
           Function<? super CumulativeData, T> p0,
           Function<? super IntervalData, T> p1,
           Function<? super AggregationWindowData, T> defaultFunction) {
-        return CheckerFrameworkUtils.<CumulativeData, T>removeSuperFromFunctionParameterType(p0)
-            .apply(this);
+        return p0.apply(this);
       }
 
       /**
@@ -312,8 +310,7 @@ public abstract class ViewData {
           Function<? super CumulativeData, T> p0,
           Function<? super IntervalData, T> p1,
           Function<? super AggregationWindowData, T> defaultFunction) {
-        return CheckerFrameworkUtils.<IntervalData, T>removeSuperFromFunctionParameterType(p1)
-            .apply(this);
+        return p1.apply(this);
       }
 
       /**
