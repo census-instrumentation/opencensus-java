@@ -21,7 +21,7 @@ $ bazel build :all
 
 ### Gradle
 ```
-$ ./build/install/examples/bin/StatsRunner
+$ ./build/install/opencensus-examples/bin/StatsRunner
 ```
 
 ### Maven
@@ -38,7 +38,7 @@ $ ./bazel-bin/StatsRunner
 
 ### Gradle
 ```
-$ ./build/install/examples/bin/ZPagesTester
+$ ./build/install/opencensus-examples/bin/ZPagesTester
 ```
 
 ### Maven
