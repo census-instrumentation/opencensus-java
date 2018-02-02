@@ -27,6 +27,7 @@ subprojects {
     apply plugin: "checkstyle"
     apply plugin: 'maven'
     apply plugin: 'idea'
+    apply plugin: 'eclipse'
     apply plugin: 'java'
     apply plugin: "signing"
     apply plugin: "jacoco"
