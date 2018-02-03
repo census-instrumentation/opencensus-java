@@ -7,7 +7,7 @@
 [![Coverage Status][codecov-image]][codecov-url]
 
 
-OpenCensus is a toolkit for collecting application performance and behavior data. It currently 
+OpenCensus is a toolkit for collecting application performance and behavior data. It currently
 includes 3 apis: stats, tracing and tags.
 
 The library is in alpha stage and the API is subject to change.
@@ -53,13 +53,13 @@ public final class MyClassWithTracing {
       doFinalWork();
     }
   }
-  
+
   private static void doInitialWork() {
     // ...
     tracer.getCurrentSpan().addAnnotation("Important.");
     // ...
   }
-  
+
   private static void doFinalWork() {
     // ...
     tracer.getCurrentSpan().addAnnotation("More important.");
@@ -74,7 +74,7 @@ TODO
 
 ## Quickstart for Applications
 
-Besides recording tracing/stats events the application also need to link the implementation, 
+Besides recording tracing/stats events the application also need to link the implementation,
 setup exporters, and debugging [Z-Pages](https://github.com/census-instrumentation/opencensus-java/tree/master/contrib/zpages).
 
 ### Add the dependencies to your project
@@ -105,6 +105,7 @@ runtime 'io.opencensus:opencensus-impl:0.11.1'
 ### How to setup exporters?
 
 #### Trace exporters
+* [Instana][TraceExporterInstana]
 * [Logging][TraceExporterLogging]
 * [Stackdriver][TraceExporterStackdriver]
 * [Zipkin][TraceExporterZipkin]
@@ -115,7 +116,7 @@ runtime 'io.opencensus:opencensus-impl:0.11.1'
 
 ### How to setup debugging Z-Pages?
 
-If the application owner wants to export in-process tracing and stats data via HTML debugging pages 
+If the application owner wants to export in-process tracing and stats data via HTML debugging pages
 see this [link](https://github.com/census-instrumentation/opencensus-java/tree/master/contrib/zpages#quickstart).
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
@@ -130,6 +131,7 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [gitter-url]: https://gitter.im/census-instrumentation/lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [codecov-image]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/
+[TraceExporterInstana]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/instana#quickstart
 [TraceExporterLogging]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/logging#quickstart
 [TraceExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/stackdriver#quickstart
 [TraceExporterZipkin]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/zipkin#quickstart
