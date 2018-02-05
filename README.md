@@ -4,6 +4,7 @@
 [![Javadocs][javadoc-image]][javadoc-url]
 [![Build Status][travis-image]][travis-url]
 [![Windows Build Status][appveyor-image]][appveyor-url]
+[![Coverage Status][codecov-image]][codecov-url]
 
 
 OpenCensus is a toolkit for collecting application performance and behavior data. It currently 
@@ -127,6 +128,8 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-api
 [gitter-image]: https://badges.gitter.im/census-instrumentation/lobby.svg
 [gitter-url]: https://gitter.im/census-instrumentation/lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[codecov-image]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/
 [TraceExporterLogging]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/logging#quickstart
 [TraceExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/stackdriver#quickstart
 [TraceExporterZipkin]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/zipkin#quickstart
