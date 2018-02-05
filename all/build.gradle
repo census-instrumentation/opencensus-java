@@ -1,13 +1,8 @@
-apply plugin: 'com.github.kt3k.coveralls'
-
 description = "OpenCensus All"
 
 buildscript {
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
     }
 }
 
@@ -91,12 +86,4 @@ jacocoTestReport {
     classDirectories = files(classDirectories.files.collect {
         fileTree(dir: it)
     })
-}
-
-coveralls {
-    sourceDirs = subprojects.sourceSets.main.allSource.srcDirs.flatten()
-}
-
-tasks.coveralls {
-    dependsOn(jacocoTestReport)
 }
