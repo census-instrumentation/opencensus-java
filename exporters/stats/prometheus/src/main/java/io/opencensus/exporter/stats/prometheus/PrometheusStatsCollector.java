@@ -17,7 +17,6 @@
 package io.opencensus.exporter.stats.prometheus;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
@@ -28,13 +27,11 @@ import io.prometheus.client.CollectorRegistry;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /** OpenCensus Stats {@link Collector} for Prometheus. */
 public final class PrometheusStatsCollector extends Collector implements Collector.Describable {
 
   private static final Logger logger = Logger.getLogger(PrometheusStatsCollector.class.getName());
-  @Nullable private static volatile PrometheusStatsCollector collector;
 
   private final ViewManager viewManager;
 
@@ -42,14 +39,11 @@ public final class PrometheusStatsCollector extends Collector implements Collect
    * Creates a {@link PrometheusStatsCollector} and registers it to Prometheus {@link
    * CollectorRegistry#defaultRegistry}.
    *
-   * @throws IllegalStateException if a {@code PrometheusStatsCollector} has already been created
+   * @throws IllegalArgumentException if a {@code PrometheusStatsCollector} has already been created
    *     and registered.
    */
   public static void createAndRegister() {
-    Preconditions.checkState(
-        collector == null, "PrometheusStatsCollector has already been created and registered.");
-    collector = new PrometheusStatsCollector(Stats.getViewManager());
-    collector.register();
+    new PrometheusStatsCollector(Stats.getViewManager()).register();
   }
 
   @Override
@@ -86,13 +80,5 @@ public final class PrometheusStatsCollector extends Collector implements Collect
   @VisibleForTesting
   PrometheusStatsCollector(ViewManager viewManager) {
     this.viewManager = viewManager;
-  }
-
-  @VisibleForTesting
-  static void unsafeResetCollector() {
-    if (collector != null) {
-      CollectorRegistry.defaultRegistry.unregister(collector);
-      collector = null;
-    }
   }
 }

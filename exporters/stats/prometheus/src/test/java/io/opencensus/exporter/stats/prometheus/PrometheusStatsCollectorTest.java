@@ -87,18 +87,6 @@ public class PrometheusStatsCollectorTest {
   }
 
   @Test
-  public void createPrometheusStatsCollectorTwice() {
-    try {
-      PrometheusStatsCollector.createAndRegister();
-      thrown.expect(IllegalStateException.class);
-      thrown.expectMessage("PrometheusStatsCollector has already been created and registered.");
-      PrometheusStatsCollector.createAndRegister();
-    } finally {
-      PrometheusStatsCollector.unsafeResetCollector();
-    }
-  }
-
-  @Test
   public void testCollect() {
     PrometheusStatsCollector collector = new PrometheusStatsCollector(mockViewManager);
     String name = "opencensus_view1";
