@@ -21,7 +21,6 @@ import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.export.RunningSpanStore;
 import io.opencensus.trace.export.SampledSpanStore;
-import javax.annotation.Nullable;
 
 /** Implementation of the {@link ExportComponent}. */
 public final class ExportComponentImpl extends ExportComponent {
@@ -30,8 +29,8 @@ public final class ExportComponentImpl extends ExportComponent {
   private static final Duration EXPORTER_SCHEDULE_DELAY = Duration.create(5, 0);
 
   private final SpanExporterImpl spanExporter;
-  @Nullable private final RunningSpanStoreImpl runningSpanStore;
-  @Nullable private final SampledSpanStoreImpl sampledSpanStore;
+  private final RunningSpanStoreImpl runningSpanStore;
+  private final SampledSpanStoreImpl sampledSpanStore;
 
   @Override
   public SpanExporterImpl getSpanExporter() {
@@ -39,17 +38,11 @@ public final class ExportComponentImpl extends ExportComponent {
   }
 
   @Override
-  // TODO(#914): This method shouldn't be nullable.
-  @SuppressWarnings("nullness")
-  @Nullable
   public RunningSpanStoreImpl getRunningSpanStore() {
     return runningSpanStore;
   }
 
   @Override
-  // TODO(#914): This method shouldn't be nullable.
-  @SuppressWarnings("nullness")
-  @Nullable
   public SampledSpanStoreImpl getSampledSpanStore() {
     return sampledSpanStore;
   }
@@ -82,7 +75,13 @@ public final class ExportComponentImpl extends ExportComponent {
    */
   private ExportComponentImpl(boolean supportInProcessStores, EventQueue eventQueue) {
     this.spanExporter = SpanExporterImpl.create(EXPORTER_BUFFER_SIZE, EXPORTER_SCHEDULE_DELAY);
-    this.runningSpanStore = supportInProcessStores ? new RunningSpanStoreImpl() : null;
-    this.sampledSpanStore = supportInProcessStores ? new SampledSpanStoreImpl(eventQueue) : null;
+    this.runningSpanStore =
+        supportInProcessStores
+            ? new InProcessRunningSpanStoreImpl()
+            : RunningSpanStoreImpl.getNoopRunningSpanStoreImpl();
+    this.sampledSpanStore =
+        supportInProcessStores
+            ? new InProcessSampledSpanStoreImpl(eventQueue)
+            : SampledSpanStoreImpl.getNoopSampledSpanStoreImpl();
   }
 }

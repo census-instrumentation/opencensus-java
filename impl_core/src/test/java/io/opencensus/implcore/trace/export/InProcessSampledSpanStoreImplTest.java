@@ -50,9 +50,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link SampledSpanStoreImpl}. */
+/** Unit tests for {@link InProcessSampledSpanStoreImpl}. */
 @RunWith(JUnit4.class)
-public class SampledSpanStoreImplTest {
+public class InProcessSampledSpanStoreImplTest {
   private static final String REGISTERED_SPAN_NAME = "MySpanName/1";
   private static final String NOT_REGISTERED_SPAN_NAME = "MySpanName/2";
   private static final long NUM_NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
@@ -68,7 +68,8 @@ public class SampledSpanStoreImplTest {
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
   private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final TestClock testClock = TestClock.create(Timestamp.create(12345, 54321));
-  private final SampledSpanStoreImpl sampleStore = new SampledSpanStoreImpl(new SimpleEventQueue());
+  private final InProcessSampledSpanStoreImpl sampleStore =
+      new InProcessSampledSpanStoreImpl(new SimpleEventQueue());
   private final StartEndHandler startEndHandler =
       new StartEndHandler() {
         @Override
