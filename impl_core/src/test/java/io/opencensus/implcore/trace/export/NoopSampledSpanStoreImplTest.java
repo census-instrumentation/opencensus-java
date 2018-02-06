@@ -19,6 +19,8 @@ package io.opencensus.implcore.trace.export;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.internal.TimestampConverter;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
@@ -60,15 +62,44 @@ public final class NoopSampledSpanStoreImplTest {
   private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   @Mock private StartEndHandler startEndHandler;
   private SpanImpl spanImpl;
-  private ErrorFilter errorFilter = ErrorFilter.create(SPAN_NAME, null, 0);
-  private LatencyFilter latencyFilter = LatencyFilter.create(SPAN_NAME, 0, 0, 0);
+  // maxSpansToReturn=0 means all
+  private final ErrorFilter errorFilter =
+      ErrorFilter.create(SPAN_NAME, null /* canonicalCode */, 0 /* maxSpansToReturn */);
+  private final LatencyFilter latencyFilter =
+      LatencyFilter.create(
+          SPAN_NAME,
+          0 /* latencyLowerNs */,
+          Long.MAX_VALUE /* latencyUpperNs */,
+          0 /* maxSpansToReturn */);
+  private final EventQueue eventQueue = new SimpleEventQueue();
   private final SampledSpanStoreImpl sampledSpanStoreImpl =
-      ExportComponentImpl.createWithoutInProcessStores(null).getSampledSpanStore();
+      ExportComponentImpl.createWithoutInProcessStores(eventQueue).getSampledSpanStore();
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    SpanImpl span =
+  }
+
+  private void getMethodsShouldReturnEmpty() {
+    // get methods always return empty collections.
+    assertThat(sampledSpanStoreImpl.getSummary().getPerSpanNameSummary()).isEmpty();
+    assertThat(sampledSpanStoreImpl.getRegisteredSpanNamesForCollection()).isEmpty();
+    assertThat(sampledSpanStoreImpl.getErrorSampledSpans(errorFilter)).isEmpty();
+    assertThat(sampledSpanStoreImpl.getLatencySampledSpans(latencyFilter)).isEmpty();
+  }
+
+  @Test
+  public void noopImplementation() {
+    // None of the get methods should yield non-empty result.
+    getMethodsShouldReturnEmpty();
+
+    // registerSpanNamesForCollection() should do nothing and do not affect the result.
+    sampledSpanStoreImpl.registerSpanNamesForCollection(NAMES_FOR_COLLECTION);
+    getMethodsShouldReturnEmpty();
+
+    // considerForSampling() should do nothing and do not affect the result.
+    // It should be called after registerSpanNamesForCollection.
+    spanImpl =
         SpanImpl.startSpan(
             spanContext,
             recordSpanOptions,
@@ -79,27 +110,12 @@ public final class NoopSampledSpanStoreImplTest {
             startEndHandler,
             timestampConverter,
             testClock);
-  }
-
-  private void getMethodsReturnsEmpty() {
-    // get methods always return empty collections.
-    assertThat(sampledSpanStoreImpl.getSummary().getPerSpanNameSummary()).isEmpty();
-    assertThat(sampledSpanStoreImpl.getRegisteredSpanNamesForCollection()).isEmpty();
-    assertThat(sampledSpanStoreImpl.getErrorSampledSpans(errorFilter)).isEmpty();
-    assertThat(sampledSpanStoreImpl.getLatencySampledSpans(latencyFilter)).isEmpty();
-  }
-
-  @Test
-  public void noopImplementation() {
-    getMethodsReturnsEmpty();
-    // considerForSampling() does not affect the result.
+    spanImpl.end();
     sampledSpanStoreImpl.considerForSampling(spanImpl);
-    getMethodsReturnsEmpty();
-    // registerSpanNamesForCollection() does not affect the result.
-    sampledSpanStoreImpl.registerSpanNamesForCollection(NAMES_FOR_COLLECTION);
-    getMethodsReturnsEmpty();
-    // unregisterSpanNamesForCollection() does not affect the result.
+    getMethodsShouldReturnEmpty();
+
+    // unregisterSpanNamesForCollection() should do nothing and do not affect the result.
     sampledSpanStoreImpl.unregisterSpanNamesForCollection(NAMES_FOR_COLLECTION);
-    getMethodsReturnsEmpty();
+    getMethodsShouldReturnEmpty();
   }
 }

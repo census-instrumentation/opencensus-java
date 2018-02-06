@@ -19,6 +19,8 @@ package io.opencensus.implcore.trace.export;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.internal.TimestampConverter;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
@@ -55,9 +57,11 @@ public class NoopRunningSpanStoreImplTest {
   private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   @Mock private StartEndHandler startEndHandler;
   private SpanImpl spanImpl;
-  private Filter filter = Filter.create(SPAN_NAME, 0);
+  // maxSpansToReturn=0 means all
+  private final Filter filter = Filter.create(SPAN_NAME, 0 /* maxSpansToReturn */);
+  private final EventQueue eventQueue = new SimpleEventQueue();
   private final RunningSpanStoreImpl runningSpanStoreImpl =
-      ExportComponentImpl.createWithoutInProcessStores(null).getRunningSpanStore();
+      ExportComponentImpl.createWithoutInProcessStores(eventQueue).getRunningSpanStore();
 
   @Before
   public void setUp() {
@@ -75,7 +79,7 @@ public class NoopRunningSpanStoreImplTest {
             testClock);
   }
 
-  private void getMethodsReturnsEmpty() {
+  private void getMethodsShouldReturnEmpty() {
     // get methods should always return empty collections.
     assertThat(runningSpanStoreImpl.getSummary().getPerSpanNameSummary()).isEmpty();
     assertThat(runningSpanStoreImpl.getRunningSpans(filter)).isEmpty();
@@ -83,12 +87,12 @@ public class NoopRunningSpanStoreImplTest {
 
   @Test
   public void noopImplementation() {
-    getMethodsReturnsEmpty();
+    getMethodsShouldReturnEmpty();
     // onStart() does not affect the result.
     runningSpanStoreImpl.onStart(spanImpl);
-    getMethodsReturnsEmpty();
+    getMethodsShouldReturnEmpty();
     // onEnd() does not affect the result.
     runningSpanStoreImpl.onEnd(spanImpl);
-    getMethodsReturnsEmpty();
+    getMethodsShouldReturnEmpty();
   }
 }
