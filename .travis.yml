@@ -71,7 +71,6 @@ script:
 
 after_success:
   - if \[ "$TASK" == "BUILD" \] && \[ "$TRAVIS_JDK_VERSION" == "oraclejdk8" \] && \[ "$TRAVIS_OS_NAME" = linux \]; then
-      ./gradlew :opencensus-all:coveralls --stacktrace ;
       bash <(curl -s https://codecov.io/bash) ;
     fi
 
