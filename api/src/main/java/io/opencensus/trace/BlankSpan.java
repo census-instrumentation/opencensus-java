@@ -24,10 +24,16 @@ import javax.annotation.concurrent.Immutable;
  * no {@code Span} implementation is available. All operations are no-op.
  *
  * <p>Used also to stop tracing, see {@link Tracer#withSpan}.
+ *
+ * @since 0.5
  */
 @Immutable
 public final class BlankSpan extends Span {
-  /** Singleton instance of this class. */
+  /**
+   * Singleton instance of this class.
+   *
+   * @since 0.5
+   */
   public static final BlankSpan INSTANCE = new BlankSpan();
 
   private BlankSpan() {

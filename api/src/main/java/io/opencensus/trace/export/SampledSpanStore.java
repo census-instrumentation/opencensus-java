@@ -45,6 +45,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * store samples based on latency for succeeded operations or based on error code for failed
  * operations. To activate this, users MUST manually configure all the span names for which samples
  * will be collected (see {@link #registerSpanNamesForCollection(Collection)}).
+ *
+ * @since 0.5
  */
 @ThreadSafe
 public abstract class SampledSpanStore {
@@ -70,6 +72,7 @@ public abstract class SampledSpanStore {
    * #registerSpanNamesForCollection(Collection)}.
    *
    * @return the summary of all available data.
+   * @since 0.5
    */
   public abstract Summary getSummary();
 
@@ -82,6 +85,7 @@ public abstract class SampledSpanStore {
    *
    * @param filter used to filter the returned sampled spans.
    * @return a list of succeeded spans that match the {@code filter}.
+   * @since 0.5
    */
   public abstract Collection<SpanData> getLatencySampledSpans(LatencyFilter filter);
 
@@ -94,6 +98,7 @@ public abstract class SampledSpanStore {
    *
    * @param filter used to filter the returned sampled spans.
    * @return a list of failed spans that match the {@code filter}.
+   * @since 0.5
    */
   public abstract Collection<SpanData> getErrorSampledSpans(ErrorFilter filter);
 
@@ -104,6 +109,7 @@ public abstract class SampledSpanStore {
    * <p>If called multiple times the library keeps the list of unique span names from all the calls.
    *
    * @param spanNames list of span names for which the library will collect samples.
+   * @since 0.5
    */
   public abstract void registerSpanNamesForCollection(Collection<String> spanNames);
 
@@ -115,6 +121,7 @@ public abstract class SampledSpanStore {
    * This method allows users to remove span names from that list.
    *
    * @param spanNames list of span names for which the library will no longer collect samples.
+   * @since 0.5
    */
   public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
 
@@ -123,11 +130,16 @@ public abstract class SampledSpanStore {
    * library will collect latency based sampled spans and error based sampled spans.
    *
    * @return the set of unique span names registered to the library.
+   * @since 0.7
    */
   @VisibleForTesting
   public abstract Set<String> getRegisteredSpanNamesForCollection();
 
-  /** The summary of all available data. */
+  /**
+   * The summary of all available data.
+   *
+   * @since 0.5
+   */
   @AutoValue
   @Immutable
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -143,6 +155,7 @@ public abstract class SampledSpanStore {
      * @param perSpanNameSummary a map with summary for each span name.
      * @return a new instance of {@code Summary}.
      * @throws NullPointerException if {@code perSpanNameSummary} is {@code null}.
+     * @since 0.5
      */
     public static Summary create(Map<String, PerSpanNameSummary> perSpanNameSummary) {
       return new AutoValue_SampledSpanStore_Summary(
@@ -155,11 +168,16 @@ public abstract class SampledSpanStore {
      * Returns a map with summary of available data for each span name.
      *
      * @return a map with all the span names and the summary.
+     * @since 0.5
      */
     public abstract Map<String, PerSpanNameSummary> getPerSpanNameSummary();
   }
 
-  /** Summary of all available data for a span name. */
+  /**
+   * Summary of all available data for a span name.
+   *
+   * @since 0.5
+   */
   @AutoValue
   @Immutable
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -177,6 +195,7 @@ public abstract class SampledSpanStore {
      * @return a new instance of {@code PerSpanNameSummary}.
      * @throws NullPointerException if {@code numbersOfLatencySampledSpans} or {@code
      *     numbersOfErrorSampledSpans} are {@code null}.
+     * @since 0.5
      */
     public static PerSpanNameSummary create(
         Map<LatencyBucketBoundaries, Integer> numbersOfLatencySampledSpans,
@@ -197,6 +216,7 @@ public abstract class SampledSpanStore {
      * #registerSpanNamesForCollection(Collection)}.
      *
      * @return the number of sampled spans in all the latency buckets.
+     * @since 0.5
      */
     public abstract Map<LatencyBucketBoundaries, Integer> getNumbersOfLatencySampledSpans();
 
@@ -207,6 +227,7 @@ public abstract class SampledSpanStore {
      * #registerSpanNamesForCollection(Collection)}.
      *
      * @return the number of sampled spans in all the error buckets.
+     * @since 0.5
      */
     public abstract Map<CanonicalCode, Integer> getNumbersOfErrorSampledSpans();
   }
@@ -215,25 +236,71 @@ public abstract class SampledSpanStore {
    * The latency buckets boundaries. Samples based on latency for successful spans (the status of
    * the span has a canonical code equal to {@link CanonicalCode#OK}) are collected in one of these
    * latency buckets.
+   *
+   * @since 0.5
    */
   public enum LatencyBucketBoundaries {
-    // Stores finished successful requests of duration within the interval [0, 10us)
+    /**
+     * Stores finished successful requests of duration within the interval [0, 10us)
+     *
+     * @since 0.5
+     */
     ZERO_MICROSx10(0, TimeUnit.MICROSECONDS.toNanos(10)),
-    // Stores finished successful requests of duration within the interval [10us, 100us)
+
+    /**
+     * Stores finished successful requests of duration within the interval [10us, 100us)
+     *
+     * @since 0.5
+     */
     MICROSx10_MICROSx100(TimeUnit.MICROSECONDS.toNanos(10), TimeUnit.MICROSECONDS.toNanos(100)),
-    // Stores finished successful requests of duration within the interval [100us, 1ms)
+
+    /**
+     * Stores finished successful requests of duration within the interval [100us, 1ms)
+     *
+     * @since 0.5
+     */
     MICROSx100_MILLIx1(TimeUnit.MICROSECONDS.toNanos(100), TimeUnit.MILLISECONDS.toNanos(1)),
-    // Stores finished successful requests of duration within the interval [1ms, 10ms)
+
+    /**
+     * Stores finished successful requests of duration within the interval [1ms, 10ms)
+     *
+     * @since 0.5
+     */
     MILLIx1_MILLIx10(TimeUnit.MILLISECONDS.toNanos(1), TimeUnit.MILLISECONDS.toNanos(10)),
-    // Stores finished successful requests of duration within the interval [10ms, 100ms)
+
+    /**
+     * Stores finished successful requests of duration within the interval [10ms, 100ms)
+     *
+     * @since 0.5
+     */
     MILLIx10_MILLIx100(TimeUnit.MILLISECONDS.toNanos(10), TimeUnit.MILLISECONDS.toNanos(100)),
-    // Stores finished successful requests of duration within the interval [100ms, 1sec)
+
+    /**
+     * Stores finished successful requests of duration within the interval [100ms, 1sec)
+     *
+     * @since 0.5
+     */
     MILLIx100_SECONDx1(TimeUnit.MILLISECONDS.toNanos(100), TimeUnit.SECONDS.toNanos(1)),
-    // Stores finished successful requests of duration within the interval [1sec, 10sec)
+
+    /**
+     * Stores finished successful requests of duration within the interval [1sec, 10sec)
+     *
+     * @since 0.5
+     */
     SECONDx1_SECONDx10(TimeUnit.SECONDS.toNanos(1), TimeUnit.SECONDS.toNanos(10)),
-    // Stores finished successful requests of duration within the interval [10sec, 100sec)
+
+    /**
+     * Stores finished successful requests of duration within the interval [10sec, 100sec)
+     *
+     * @since 0.5
+     */
     SECONDx10_SECONDx100(TimeUnit.SECONDS.toNanos(10), TimeUnit.SECONDS.toNanos(100)),
-    // Stores finished successful requests of duration >= 100sec
+
+    /**
+     * Stores finished successful requests of duration &gt;= 100sec
+     *
+     * @since 0.5
+     */
     SECONDx100_MAX(TimeUnit.SECONDS.toNanos(100), Long.MAX_VALUE);
 
     /**
@@ -251,6 +318,7 @@ public abstract class SampledSpanStore {
      * Returns the latency lower bound of the bucket.
      *
      * @return the latency lower bound of the bucket.
+     * @since 0.5
      */
     public long getLatencyLowerNs() {
       return latencyLowerNs;
@@ -260,6 +328,7 @@ public abstract class SampledSpanStore {
      * Returns the latency upper bound of the bucket.
      *
      * @return the latency upper bound of the bucket.
+     * @since 0.5
      */
     public long getLatencyUpperNs() {
       return latencyUpperNs;
@@ -272,6 +341,8 @@ public abstract class SampledSpanStore {
   /**
    * Filter for latency based sampled spans. Used to filter results returned by the {@link
    * #getLatencySampledSpans(LatencyFilter)} request.
+   *
+   * @since 0.5
    */
   @AutoValue
   @Immutable
@@ -296,6 +367,7 @@ public abstract class SampledSpanStore {
      * @throws NullPointerException if {@code spanName} is {@code null}.
      * @throws IllegalArgumentException if {@code maxSpansToReturn} or {@code latencyLowerNs} or
      *     {@code latencyUpperNs} are negative.
+     * @since 0.5
      */
     public static LatencyFilter create(
         String spanName, long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn) {
@@ -310,6 +382,7 @@ public abstract class SampledSpanStore {
      * Returns the span name used by this filter.
      *
      * @return the span name used by this filter.
+     * @since 0.5
      */
     public abstract String getSpanName();
 
@@ -317,6 +390,7 @@ public abstract class SampledSpanStore {
      * Returns the latency lower bound of this bucket (inclusive).
      *
      * @return the latency lower bound of this bucket.
+     * @since 0.5
      */
     public abstract long getLatencyLowerNs();
 
@@ -324,6 +398,7 @@ public abstract class SampledSpanStore {
      * Returns the latency upper bound of this bucket (exclusive).
      *
      * @return the latency upper bound of this bucket.
+     * @since 0.5
      */
     public abstract long getLatencyUpperNs();
 
@@ -331,6 +406,7 @@ public abstract class SampledSpanStore {
      * Returns the maximum number of spans to be returned. {@code 0} means all.
      *
      * @return the maximum number of spans to be returned.
+     * @since 0.5
      */
     public abstract int getMaxSpansToReturn();
   }
@@ -338,6 +414,8 @@ public abstract class SampledSpanStore {
   /**
    * Filter for error based sampled spans. Used to filter results returned by the {@link
    * #getErrorSampledSpans(ErrorFilter)} request.
+   *
+   * @since 0.5
    */
   @AutoValue
   @Immutable
@@ -362,6 +440,7 @@ public abstract class SampledSpanStore {
      * @throws NullPointerException if {@code spanName} is {@code null}.
      * @throws IllegalArgumentException if {@code canonicalCode} is {@link CanonicalCode#OK} or
      *     {@code maxSpansToReturn} is negative.
+     * @since 0.5
      */
     public static ErrorFilter create(
         String spanName, @Nullable CanonicalCode canonicalCode, int maxSpansToReturn) {
@@ -376,6 +455,7 @@ public abstract class SampledSpanStore {
      * Returns the span name used by this filter.
      *
      * @return the span name used by this filter.
+     * @since 0.5
      */
     public abstract String getSpanName();
 
@@ -384,6 +464,7 @@ public abstract class SampledSpanStore {
      * CanonicalCode#OK}. If {@code null} then all errors match.
      *
      * @return the canonical code used by this filter.
+     * @since 0.5
      */
     @Nullable
     public abstract CanonicalCode getCanonicalCode();
@@ -393,6 +474,7 @@ public abstract class SampledSpanStore {
      * {@code SpanData}. {@code 0} means all.
      *
      * @return the maximum number of spans to be returned.
+     * @since 0.5
      */
     public abstract int getMaxSpansToReturn();
   }

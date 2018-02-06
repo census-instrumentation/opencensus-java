@@ -23,6 +23,8 @@ import io.opencensus.trace.TraceOptions;
  * and {@link SampledSpanStore}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
+ *
+ * @since 0.5
  */
 public abstract class ExportComponent {
 
@@ -30,6 +32,7 @@ public abstract class ExportComponent {
    * Returns the no-op implementation of the {@code ExportComponent}.
    *
    * @return the no-op implementation of the {@code ExportComponent}.
+   * @since 0.5
    */
   public static ExportComponent newNoopExportComponent() {
     return new NoopExportComponent();
@@ -41,6 +44,7 @@ public abstract class ExportComponent {
    *
    * @return the implementation of the {@code SpanExporter} or no-op if no implementation linked in
    *     the binary.
+   * @since 0.5
    */
   public abstract SpanExporter getSpanExporter();
 
@@ -49,6 +53,7 @@ public abstract class ExportComponent {
    * all the current active spans.
    *
    * @return the {@code RunningSpanStore}.
+   * @since 0.5
    */
   public abstract RunningSpanStore getRunningSpanStore();
 
@@ -57,6 +62,7 @@ public abstract class ExportComponent {
    * as latency based sampled spans, error based sampled spans.
    *
    * @return the {@code SampledSpanStore}.
+   * @since 0.5
    */
   public abstract SampledSpanStore getSampledSpanStore();
 

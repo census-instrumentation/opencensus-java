@@ -73,6 +73,8 @@ import javax.annotation.Nullable;
  *   span.end()
  * }
  * }</pre>
+ *
+ * @since 0.11
  */
 @ExperimentalApi
 public abstract class TextFormat {
@@ -85,6 +87,8 @@ public abstract class TextFormat {
    * <p>For example, if the carrier is a single-use or immutable request object, you don't need to
    * clear fields as they couldn't have been set before. If it is a mutable, retryable object,
    * successive calls should clear these fields first.
+   *
+   * @since 0.11
    */
   // The use cases of this are:
   // * allow pre-allocation of fields, especially in systems like gRPC Metadata
@@ -97,6 +101,7 @@ public abstract class TextFormat {
    * @param spanContext possibly not sampled.
    * @param carrier holds propagation fields. For example, an outgoing message or http request.
    * @param setter invoked for each propagation key to add or remove.
+   * @since 0.11
    */
   public abstract <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter);
 
@@ -107,6 +112,7 @@ public abstract class TextFormat {
    * allocations.
    *
    * @param <C> carrier of propagation fields, such as an http request
+   * @since 0.11
    */
   public abstract static class Setter<C> {
 
@@ -119,6 +125,7 @@ public abstract class TextFormat {
      * @param carrier holds propagation fields. For example, an outgoing message or http request.
      * @param key the key of the field.
      * @param value the value of the field.
+     * @since 0.11
      */
     public abstract void put(C carrier, String key, String value);
   }
@@ -129,6 +136,7 @@ public abstract class TextFormat {
    * @param carrier holds propagation fields. For example, an outgoing message or http request.
    * @param getter invoked for each propagation key to get.
    * @throws SpanContextParseException if the input is invalid
+   * @since 0.11
    */
   public abstract <C> SpanContext extract(C carrier, Getter<C> getter)
       throws SpanContextParseException;
@@ -140,6 +148,7 @@ public abstract class TextFormat {
    * allocations.
    *
    * @param <C> carrier of propagation fields, such as an http request
+   * @since 0.11
    */
   public abstract static class Getter<C> {
 
@@ -149,6 +158,7 @@ public abstract class TextFormat {
      * @param carrier carrier of propagation fields, such as an http request
      * @param key the key of the field.
      * @return the first value of the given propagation {@code key} or returns {@code null}.
+     * @since 0.11
      */
     @Nullable
     public abstract String get(C carrier, String key);

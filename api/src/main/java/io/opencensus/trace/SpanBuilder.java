@@ -104,6 +104,8 @@ import javax.annotation.Nullable;
  *
  * <p>If your Java version is less than Java SE 7, see {@link SpanBuilder#startSpan} and {@link
  * SpanBuilder#startScopedSpan} for usage examples.
+ *
+ * @since 0.5
  */
 public abstract class SpanBuilder {
 
@@ -112,6 +114,7 @@ public abstract class SpanBuilder {
    *
    * @param sampler The {@code Sampler} to use when determining sampling for a {@code Span}.
    * @return this.
+   * @since 0.5
    */
   public abstract SpanBuilder setSampler(Sampler sampler);
 
@@ -123,6 +126,7 @@ public abstract class SpanBuilder {
    * @param parentLinks New links to be added.
    * @return this.
    * @throws NullPointerException if {@code parentLinks} is {@code null}.
+   * @since 0.5
    */
   public abstract SpanBuilder setParentLinks(List<Span> parentLinks);
 
@@ -132,6 +136,7 @@ public abstract class SpanBuilder {
    *
    * @param recordEvents New value determining if this {@code Span} should have events recorded.
    * @return this.
+   * @since 0.5
    */
   public abstract SpanBuilder setRecordEvents(boolean recordEvents);
 
@@ -162,6 +167,7 @@ public abstract class SpanBuilder {
    * }</pre>
    *
    * @return the newly created {@code Span}.
+   * @since 0.5
    */
   public abstract Span startSpan();
 
@@ -218,6 +224,7 @@ public abstract class SpanBuilder {
    *
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context.
+   * @since 0.5
    */
   @MustBeClosed
   public final Scope startScopedSpan() {

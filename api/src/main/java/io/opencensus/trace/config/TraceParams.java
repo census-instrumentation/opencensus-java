@@ -27,7 +27,11 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.samplers.Samplers;
 import javax.annotation.concurrent.Immutable;
 
-/** Class that holds global trace parameters. */
+/**
+ * Class that holds global trace parameters.
+ *
+ * @since 0.5
+ */
 @AutoValue
 @Immutable
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -42,6 +46,11 @@ public abstract class TraceParams {
   private static final int DEFAULT_SPAN_MAX_NUM_NETWORK_EVENTS = 128;
   private static final int DEFAULT_SPAN_MAX_NUM_LINKS = 128;
 
+  /**
+   * Default {@code TraceParams}.
+   *
+   * @since 0.5
+   */
   public static final TraceParams DEFAULT =
       TraceParams.builder()
           .setSampler(DEFAULT_SAMPLER)
@@ -56,6 +65,7 @@ public abstract class TraceParams {
    * io.opencensus.trace.SpanBuilder#setSampler(Sampler)}.
    *
    * @return the global default {@code Sampler}.
+   * @since 0.5
    */
   public abstract Sampler getSampler();
 
@@ -63,6 +73,7 @@ public abstract class TraceParams {
    * Returns the global default max number of attributes per {@link Span}.
    *
    * @return the global default max number of attributes per {@link Span}.
+   * @since 0.5
    */
   public abstract int getMaxNumberOfAttributes();
 
@@ -70,6 +81,7 @@ public abstract class TraceParams {
    * Returns the global default max number of {@link Annotation} events per {@link Span}.
    *
    * @return the global default max number of {@code Annotation} events per {@code Span}.
+   * @since 0.5
    */
   public abstract int getMaxNumberOfAnnotations();
 
@@ -77,6 +89,7 @@ public abstract class TraceParams {
    * Returns the global default max number of {@link NetworkEvent} events per {@link Span}.
    *
    * @return the global default max number of {@code NetworkEvent} events per {@code Span}.
+   * @since 0.5
    */
   public abstract int getMaxNumberOfNetworkEvents();
 
@@ -84,6 +97,7 @@ public abstract class TraceParams {
    * Returns the global default max number of {@link Link} entries per {@link Span}.
    *
    * @return the global default max number of {@code Link} entries per {@code Span}.
+   * @since 0.5
    */
   public abstract int getMaxNumberOfLinks();
 
@@ -95,10 +109,15 @@ public abstract class TraceParams {
    * Returns a {@link Builder} initialized to the same property values as the current instance.
    *
    * @return a {@link Builder} initialized to the same property values as the current instance.
+   * @since 0.5
    */
   public abstract Builder toBuilder();
 
-  /** A {@code Builder} class for {@link TraceParams}. */
+  /**
+   * A {@code Builder} class for {@link TraceParams}.
+   *
+   * @since 0.5
+   */
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -108,6 +127,7 @@ public abstract class TraceParams {
      *
      * @param sampler the global default {@code Sampler}.
      * @return this.
+     * @since 0.5
      */
     public abstract Builder setSampler(Sampler sampler);
 
@@ -117,6 +137,7 @@ public abstract class TraceParams {
      * @param maxNumberOfAttributes the global default max number of attributes per {@link Span}. It
      *     must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
+     * @since 0.5
      */
     public abstract Builder setMaxNumberOfAttributes(int maxNumberOfAttributes);
 
@@ -126,6 +147,7 @@ public abstract class TraceParams {
      * @param maxNumberOfAnnotations the global default max number of {@link Annotation} events per
      *     {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
+     * @since 0.5
      */
     public abstract Builder setMaxNumberOfAnnotations(int maxNumberOfAnnotations);
 
@@ -135,6 +157,7 @@ public abstract class TraceParams {
      * @param maxNumberOfNetworkEvents the global default max number of {@link NetworkEvent} events
      *     per {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
+     * @since 0.5
      */
     public abstract Builder setMaxNumberOfNetworkEvents(int maxNumberOfNetworkEvents);
 
@@ -144,6 +167,7 @@ public abstract class TraceParams {
      * @param maxNumberOfLinks the global default max number of {@link Link} entries per {@link
      *     Span}. It must be positive otherwise {@link #build()} will throw an exception.
      * @return this.
+     * @since 0.5
      */
     public abstract Builder setMaxNumberOfLinks(int maxNumberOfLinks);
 
@@ -155,6 +179,7 @@ public abstract class TraceParams {
      * @return a {@code TraceParams} with the desired values.
      * @throws NullPointerException if the sampler is {@code null}.
      * @throws IllegalArgumentException if any of the max numbers are not positive.
+     * @since 0.5
      */
     public TraceParams build() {
       TraceParams traceParams = autoBuild();

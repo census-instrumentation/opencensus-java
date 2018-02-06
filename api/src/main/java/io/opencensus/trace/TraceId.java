@@ -30,13 +30,23 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A class that represents a trace identifier. A valid trace identifier is a 16-byte array with at
  * least one non-zero byte.
+ *
+ * @since 0.5
  */
 @Immutable
 public final class TraceId implements Comparable<TraceId> {
-  /** The size in bytes of the {@code TraceId}. */
+  /**
+   * The size in bytes of the {@code TraceId}.
+   *
+   * @since 0.5
+   */
   public static final int SIZE = 16;
 
-  /** The invalid {@code TraceId}. All bytes are '\0'. */
+  /**
+   * The invalid {@code TraceId}. All bytes are '\0'.
+   *
+   * @since 0.5
+   */
   public static final TraceId INVALID = new TraceId(new byte[SIZE]);
 
   // The internal representation of the TraceId.
@@ -59,6 +69,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @return a {@code TraceId} whose representation is given by the {@code buffer} parameter.
    * @throws NullPointerException if {@code buffer} is null.
    * @throws IllegalArgumentException if {@code buffer.length} is not {@link TraceId#SIZE}.
+   * @since 0.5
    */
   public static TraceId fromBytes(byte[] buffer) {
     checkNotNull(buffer, "buffer");
@@ -78,6 +89,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @throws NullPointerException if {@code src} is null.
    * @throws IndexOutOfBoundsException if {@code srcOffset+TraceId.SIZE} is greater than {@code
    *     src.length}.
+   * @since 0.5
    */
   public static TraceId fromBytes(byte[] src, int srcOffset) {
     byte[] bytes = new byte[SIZE];
@@ -93,6 +105,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @throws NullPointerException if {@code src} is null.
    * @throws IllegalArgumentException if {@code src.length} is not {@code 2 * TraceId.SIZE} OR if
    *     the {@code str} has invalid characters.
+   * @since 0.11
    */
   public static TraceId fromLowerBase16(CharSequence src) {
     checkArgument(
@@ -106,6 +119,7 @@ public final class TraceId implements Comparable<TraceId> {
    *
    * @param random the random number generator.
    * @return a new valid {@code TraceId}.
+   * @since 0.5
    */
   public static TraceId generateRandomId(Random random) {
     byte[] bytes = new byte[SIZE];
@@ -119,6 +133,7 @@ public final class TraceId implements Comparable<TraceId> {
    * Returns the 16-bytes array representation of the {@code TraceId}.
    *
    * @return the 16-bytes array representation of the {@code TraceId}.
+   * @since 0.5
    */
   public byte[] getBytes() {
     return Arrays.copyOf(bytes, SIZE);
@@ -139,6 +154,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @throws NullPointerException if {@code dest} is null.
    * @throws IndexOutOfBoundsException if {@code destOffset+TraceId.SIZE} is greater than {@code
    *     dest.length}.
+   * @since 0.5
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
     System.arraycopy(bytes, 0, dest, destOffset, SIZE);
@@ -149,6 +165,7 @@ public final class TraceId implements Comparable<TraceId> {
    * at least one non-zero byte.
    *
    * @return {@code true} if the {@code TraceId} is valid.
+   * @since 0.5
    */
   public boolean isValid() {
     return !Arrays.equals(bytes, INVALID.bytes);
@@ -158,6 +175,7 @@ public final class TraceId implements Comparable<TraceId> {
    * Returns the lowercase base16 encoding of this {@code TraceId}.
    *
    * @return the lowercase base16 encoding of this {@code TraceId}.
+   * @since 0.11
    */
   public String toLowerBase16() {
     return BaseEncoding.base16().lowerCase().encode(bytes);

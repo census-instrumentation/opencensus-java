@@ -27,6 +27,8 @@ import io.opencensus.trace.propagation.PropagationComponent;
  * {@link Clock}, {@link ExportComponent} and {@link TraceConfig}.
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
+ *
+ * @since 0.5
  */
 public abstract class TraceComponent {
 
@@ -35,6 +37,7 @@ public abstract class TraceComponent {
    * then no-op implementations will be used.
    *
    * @return the {@code Tracer} implementation.
+   * @since 0.5
    */
   public abstract Tracer getTracer();
 
@@ -43,6 +46,7 @@ public abstract class TraceComponent {
    * is provided then no-op implementation will be used.
    *
    * @return the {@code PropagationComponent} implementation.
+   * @since 0.5
    */
   public abstract PropagationComponent getPropagationComponent();
 
@@ -50,6 +54,7 @@ public abstract class TraceComponent {
    * Returns the {@link Clock} with the provided implementation.
    *
    * @return the {@code Clock} implementation.
+   * @since 0.5
    */
   public abstract Clock getClock();
 
@@ -58,6 +63,7 @@ public abstract class TraceComponent {
    * provided then no-op implementations will be used.
    *
    * @return the {@link ExportComponent} implementation.
+   * @since 0.5
    */
   public abstract ExportComponent getExportComponent();
 
@@ -66,6 +72,7 @@ public abstract class TraceComponent {
    * provided then no-op implementations will be used.
    *
    * @return the {@link TraceConfig} implementation.
+   * @since 0.5
    */
   public abstract TraceConfig getTraceConfig();
 

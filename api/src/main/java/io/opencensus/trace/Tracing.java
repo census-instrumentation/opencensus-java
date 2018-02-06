@@ -26,7 +26,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-/** Class that manages a global instance of the {@link TraceComponent}. */
+/**
+ * Class that manages a global instance of the {@link TraceComponent}.
+ *
+ * @since 0.5
+ */
 public final class Tracing {
   private static final Logger logger = Logger.getLogger(Tracing.class.getName());
   private static final TraceComponent traceComponent =
@@ -36,6 +40,7 @@ public final class Tracing {
    * Returns the global {@link Tracer}.
    *
    * @return the global {@code Tracer}.
+   * @since 0.5
    */
   public static Tracer getTracer() {
     return traceComponent.getTracer();
@@ -45,6 +50,7 @@ public final class Tracing {
    * Returns the global {@link PropagationComponent}.
    *
    * @return the global {@code PropagationComponent}.
+   * @since 0.5
    */
   public static PropagationComponent getPropagationComponent() {
     return traceComponent.getPropagationComponent();
@@ -54,6 +60,7 @@ public final class Tracing {
    * Returns the global {@link Clock}.
    *
    * @return the global {@code Clock}.
+   * @since 0.5
    */
   public static Clock getClock() {
     return traceComponent.getClock();
@@ -63,6 +70,7 @@ public final class Tracing {
    * Returns the global {@link ExportComponent}.
    *
    * @return the global {@code ExportComponent}.
+   * @since 0.5
    */
   public static ExportComponent getExportComponent() {
     return traceComponent.getExportComponent();
@@ -72,6 +80,7 @@ public final class Tracing {
    * Returns the global {@link TraceConfig}.
    *
    * @return the global {@code TraceConfig}.
+   * @since 0.5
    */
   public static TraceConfig getTraceConfig() {
     return traceComponent.getTraceConfig();

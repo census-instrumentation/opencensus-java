@@ -30,6 +30,8 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Used (for example) in batching operations, where a single batch handler processes multiple
  * requests from different traces.
+ *
+ * @since 0.5
  */
 @Immutable
 @AutoValue
@@ -39,11 +41,23 @@ import javax.annotation.concurrent.Immutable;
 public abstract class Link {
   private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES = Collections.emptyMap();
 
-  /** The relationship with the linked {@code Span} relative to the current {@code Span}. */
+  /**
+   * The relationship with the linked {@code Span} relative to the current {@code Span}.
+   *
+   * @since 0.5
+   */
   public enum Type {
-    /** When the linked {@code Span} is a child of the current {@code Span}. */
+    /**
+     * When the linked {@code Span} is a child of the current {@code Span}.
+     *
+     * @since 0.5
+     */
     CHILD_LINKED_SPAN,
-    /** When the linked {@code Span} is a parent of the current {@code Span}. */
+    /**
+     * When the linked {@code Span} is a parent of the current {@code Span}.
+     *
+     * @since 0.5
+     */
     PARENT_LINKED_SPAN
   }
 
@@ -53,6 +67,7 @@ public abstract class Link {
    * @param context the context of the linked {@code Span}.
    * @param type the type of the relationship with the linked {@code Span}.
    * @return a new {@code Link}.
+   * @since 0.5
    */
   public static Link fromSpanContext(SpanContext context, Type type) {
     return new AutoValue_Link(context.getTraceId(), context.getSpanId(), type, EMPTY_ATTRIBUTES);
@@ -65,6 +80,7 @@ public abstract class Link {
    * @param type the type of the relationship with the linked {@code Span}.
    * @param attributes the attributes of the {@code Link}.
    * @return a new {@code Link}.
+   * @since 0.5
    */
   public static Link fromSpanContext(
       SpanContext context, Type type, Map<String, AttributeValue> attributes) {
@@ -79,6 +95,7 @@ public abstract class Link {
    * Returns the {@code TraceId}.
    *
    * @return the {@code TraceId}.
+   * @since 0.5
    */
   public abstract TraceId getTraceId();
 
@@ -86,6 +103,7 @@ public abstract class Link {
    * Returns the {@code SpanId}.
    *
    * @return the {@code SpanId}
+   * @since 0.5
    */
   public abstract SpanId getSpanId();
 
@@ -93,6 +111,7 @@ public abstract class Link {
    * Returns the {@code Type}.
    *
    * @return the {@code Type}.
+   * @since 0.5
    */
   public abstract Type getType();
 
@@ -100,6 +119,7 @@ public abstract class Link {
    * Returns the set of attributes.
    *
    * @return the set of attributes.
+   * @since 0.5
    */
   public abstract Map<String, AttributeValue> getAttributes();
 
