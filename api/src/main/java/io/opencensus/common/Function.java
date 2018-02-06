@@ -22,7 +22,17 @@ package io.opencensus.common;
  *
  * <p>Note: This class is based on the java.util.Function class added in Java 1.8. We cannot use the
  * Function from Java 1.8 because this library is Java 1.6 compatible.
+ *
+ * @since 0.5
  */
 public interface Function<A, B> {
+
+  /**
+   * Applies the function to the given argument.
+   *
+   * @param arg the argument to the function.
+   * @return the result of the function.
+   * @since 0.5
+   */
   B apply(A arg);
 }

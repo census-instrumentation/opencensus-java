@@ -16,13 +16,18 @@
 
 package io.opencensus.common;
 
-/** Interface for getting the current time. */
+/**
+ * Interface for getting the current time.
+ *
+ * @since 0.5
+ */
 public abstract class Clock {
 
   /**
    * Obtains the current instant from this clock.
    *
    * @return the current instant.
+   * @since 0.5
    */
   public abstract Timestamp now();
 
@@ -32,6 +37,7 @@ public abstract class Clock {
    *
    * @return a time measurement with nanosecond precision that can only be used to calculate elapsed
    *     time.
+   * @since 0.5
    */
   public abstract long nowNanos();
 }
