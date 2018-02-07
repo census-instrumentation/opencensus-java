@@ -24,7 +24,6 @@ import io.opencensus.tags.TagKey;
 /** Constants for collecting rpc stats. */
 public final class RpcMeasureConstants {
 
-  // Rpc tag keys.
   /**
    * Tag key that represents a gRPC canonical status. Refer to
    * https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.
