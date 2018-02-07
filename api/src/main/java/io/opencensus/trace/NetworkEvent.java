@@ -27,6 +27,8 @@ import javax.annotation.concurrent.Immutable;
  * A class that represents a network event. It requires a {@link Type type} and a message id that
  * serves to uniquely identify each network message. It can optionally can have information about
  * the kernel time and message size.
+ *
+ * @since 0.5
  */
 @Immutable
 @AutoValue
@@ -34,11 +36,23 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
 public abstract class NetworkEvent {
-  /** Available types for a {@code NetworkEvent}. */
+  /**
+   * Available types for a {@code NetworkEvent}.
+   *
+   * @since 0.5
+   */
   public enum Type {
-    /** When the message was sent. */
+    /**
+     * When the message was sent.
+     *
+     * @since 0.5
+     */
     SENT,
-    /** When the message was received. */
+    /**
+     * When the message was received.
+     *
+     * @since 0.5
+     */
     RECV,
   }
 
@@ -49,6 +63,7 @@ public abstract class NetworkEvent {
    * @param messageId serves to uniquely identify each network message.
    * @return a new {@code Builder} with default values.
    * @throws NullPointerException if {@code type} is {@code null}.
+   * @since 0.5
    */
   public static Builder builder(Type type, long messageId) {
     return new AutoValue_NetworkEvent.Builder()
@@ -66,6 +81,7 @@ public abstract class NetworkEvent {
    *
    * @return the kernel timestamp associated with the {@code NetworkEvent} or {@code null} if not
    *     set.
+   * @since 0.5
    */
   @Nullable
   public abstract Timestamp getKernelTimestamp();
@@ -74,6 +90,7 @@ public abstract class NetworkEvent {
    * Returns the type of the {@code NetworkEvent}.
    *
    * @return the type of the {@code NetworkEvent}.
+   * @since 0.5
    */
   public abstract Type getType();
 
@@ -81,6 +98,7 @@ public abstract class NetworkEvent {
    * Returns the message id argument that serves to uniquely identify each network message.
    *
    * @return the message id of the {@code NetworkEvent}.
+   * @since 0.5
    */
   public abstract long getMessageId();
 
@@ -88,6 +106,7 @@ public abstract class NetworkEvent {
    * Returns the uncompressed size in bytes of the {@code NetworkEvent}.
    *
    * @return the uncompressed size in bytes of the {@code NetworkEvent}.
+   * @since 0.6
    */
   public abstract long getUncompressedMessageSize();
 
@@ -95,19 +114,25 @@ public abstract class NetworkEvent {
    * Returns the compressed size in bytes of the {@code NetworkEvent}.
    *
    * @return the compressed size in bytes of the {@code NetworkEvent}.
+   * @since 0.6
    */
   public abstract long getCompressedMessageSize();
 
   /**
    * @deprecated Use {@link #getUncompressedMessageSize}.
    * @return the uncompressed size in bytes of the {@code NetworkEvent}.
+   * @since 0.5
    */
   @Deprecated
   public long getMessageSize() {
     return getUncompressedMessageSize();
   }
 
-  /** Builder class for {@link NetworkEvent}. */
+  /**
+   * Builder class for {@link NetworkEvent}.
+   *
+   * @since 0.5
+   */
   @AutoValue.Builder
   public abstract static class Builder {
     // Package protected methods because these values are mandatory and set only in the
@@ -121,6 +146,7 @@ public abstract class NetworkEvent {
      *
      * @param kernelTimestamp The kernel timestamp of the event.
      * @return this.
+     * @since 0.5
      */
     public abstract Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp);
 
@@ -128,6 +154,7 @@ public abstract class NetworkEvent {
      * @deprecated Use {@link #setUncompressedMessageSize}.
      * @param messageSize represents the uncompressed size in bytes of this message.
      * @return this.
+     * @since 0.5
      */
     @Deprecated
     public Builder setMessageSize(long messageSize) {
@@ -139,6 +166,7 @@ public abstract class NetworkEvent {
      *
      * @param uncompressedMessageSize represents the uncompressed size in bytes of this message.
      * @return this.
+     * @since 0.6
      */
     public abstract Builder setUncompressedMessageSize(long uncompressedMessageSize);
 
@@ -147,6 +175,7 @@ public abstract class NetworkEvent {
      *
      * @param compressedMessageSize represents the compressed size in bytes of this message.
      * @return this.
+     * @since 0.6
      */
     public abstract Builder setCompressedMessageSize(long compressedMessageSize);
 
@@ -154,6 +183,7 @@ public abstract class NetworkEvent {
      * Builds and returns a {@code NetworkEvent} with the desired values.
      *
      * @return a {@code NetworkEvent} with the desired values.
+     * @since 0.5
      */
     public abstract NetworkEvent build();
 

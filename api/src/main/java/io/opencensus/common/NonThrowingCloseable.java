@@ -33,6 +33,7 @@ import java.io.Closeable;
  * </pre>
  *
  * @deprecated {@link Scope} is a better match for operations involving the current context.
+ * @since 0.5
  */
 @Deprecated
 public interface NonThrowingCloseable extends Closeable {

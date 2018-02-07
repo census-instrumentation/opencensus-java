@@ -16,7 +16,11 @@
 
 package io.opencensus.common;
 
-/** Commonly used {@link Function} instances. */
+/**
+ * Commonly used {@link Function} instances.
+ *
+ * @since 0.5
+ */
 public final class Functions {
   private Functions() {}
 
@@ -48,6 +52,7 @@ public final class Functions {
    * A {@code Function} that always ignores its argument and returns {@code null}.
    *
    * @return a {@code Function} that always ignores its argument and returns {@code null}.
+   * @since 0.5
    */
   public static <T> Function<Object, T> returnNull() {
     // It is safe to cast a producer of Void to anything, because Void is always null.
@@ -60,6 +65,7 @@ public final class Functions {
    * A {@code Function} that always ignores its argument and returns a constant value.
    *
    * @return a {@code Function} that always ignores its argument and returns a constant value.
+   * @since 0.5
    */
   public static <T> Function<Object, T> returnConstant(final T constant) {
     return new Function<Object, T>() {
@@ -76,6 +82,7 @@ public final class Functions {
    *
    * @return a {@code Function} that always ignores its argument and throws an {@link
    *     IllegalArgumentException}.
+   * @since 0.5
    */
   public static <T> Function<Object, T> throwIllegalArgumentException() {
     // It is safe to cast this function to have any return type, since it never returns a result.
@@ -89,6 +96,7 @@ public final class Functions {
    *
    * @return a {@code Function} that always ignores its argument and throws an {@code
    *     AssertionError}.
+   * @since 0.6
    */
   public static <T> Function<Object, T> throwAssertionError() {
     // It is safe to cast this function to have any return type, since it never returns a result.

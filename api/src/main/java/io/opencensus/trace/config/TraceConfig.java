@@ -19,6 +19,8 @@ package io.opencensus.trace.config;
 /**
  * Global configuration of the trace service. This allows users to change configs for the default
  * sampler, maximum events to be kept, etc. (see {@link TraceParams} for details).
+ *
+ * @since 0.5
  */
 public abstract class TraceConfig {
   private static final NoopTraceConfig NOOP_TRACE_CONFIG = new NoopTraceConfig();
@@ -27,6 +29,7 @@ public abstract class TraceConfig {
    * Returns the active {@code TraceParams}.
    *
    * @return the active {@code TraceParams}.
+   * @since 0.5
    */
   public abstract TraceParams getActiveTraceParams();
 
@@ -34,6 +37,7 @@ public abstract class TraceConfig {
    * Updates the active {@link TraceParams}.
    *
    * @param traceParams the new active {@code TraceParams}.
+   * @since 0.5
    */
   public abstract void updateActiveTraceParams(TraceParams traceParams);
 
@@ -41,6 +45,7 @@ public abstract class TraceConfig {
    * Returns the no-op implementation of the {@code TraceConfig}.
    *
    * @return the no-op implementation of the {@code TraceConfig}.
+   * @since 0.5
    */
   public static TraceConfig getNoopTraceConfig() {
     return NOOP_TRACE_CONFIG;

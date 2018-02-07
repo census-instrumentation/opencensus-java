@@ -30,6 +30,8 @@ import javax.annotation.concurrent.Immutable;
  * A class that represents global trace options. These options are propagated to all child {@link
  * io.opencensus.trace.Span spans}. These determine features such as whether a {@code Span} should
  * be traced. It is implemented as a bitmask.
+ *
+ * @since 0.5
  */
 @Immutable
 public final class TraceOptions {
@@ -38,10 +40,18 @@ public final class TraceOptions {
   // Bit to represent whether trace is sampled or not.
   private static final byte IS_SAMPLED = 0x1;
 
-  /** The size in bytes of the {@code TraceOptions}. */
+  /**
+   * The size in bytes of the {@code TraceOptions}.
+   *
+   * @since 0.5
+   */
   public static final int SIZE = 1;
 
-  /** The default {@code TraceOptions}. */
+  /**
+   * The default {@code TraceOptions}.
+   *
+   * @since 0.5
+   */
   public static final TraceOptions DEFAULT = new TraceOptions(DEFAULT_OPTIONS);
 
   // The set of enabled features is determined by all the enabled bits.
@@ -65,6 +75,7 @@ public final class TraceOptions {
    * @return a {@code TraceOptions} whose representation is given by the {@code buffer} parameter.
    * @throws NullPointerException if {@code buffer} is null.
    * @throws IllegalArgumentException if {@code buffer.length} is not {@link TraceOptions#SIZE}.
+   * @since 0.5
    */
   public static TraceOptions fromBytes(byte[] buffer) {
     checkNotNull(buffer, "buffer");
@@ -83,6 +94,7 @@ public final class TraceOptions {
    * @throws NullPointerException if {@code src} is null.
    * @throws IndexOutOfBoundsException if {@code srcOffset+TraceOptions.SIZE} is greater than {@code
    *     src.length}.
+   * @since 0.5
    */
   public static TraceOptions fromBytes(byte[] src, int srcOffset) {
     checkElementIndex(srcOffset, src.length);
@@ -93,6 +105,7 @@ public final class TraceOptions {
    * Returns the 1-byte array representation of the {@code TraceOptions}.
    *
    * @return the 1-byte array representation of the {@code TraceOptions}.
+   * @since 0.5
    */
   public byte[] getBytes() {
     byte[] bytes = new byte[SIZE];
@@ -115,6 +128,7 @@ public final class TraceOptions {
    * @throws NullPointerException if {@code dest} is null.
    * @throws IndexOutOfBoundsException if {@code destOffset+TraceOptions.SIZE} is greater than
    *     {@code dest.length}.
+   * @since 0.5
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
     checkElementIndex(destOffset, dest.length);
@@ -125,6 +139,7 @@ public final class TraceOptions {
    * Returns a new {@link Builder} with default options.
    *
    * @return a new {@code Builder} with default options.
+   * @since 0.5
    */
   public static Builder builder() {
     return new Builder(DEFAULT_OPTIONS);
@@ -135,6 +150,7 @@ public final class TraceOptions {
    *
    * @param traceOptions the given options set.
    * @return a new {@code Builder} with all given options set.
+   * @since 0.5
    */
   public static Builder builder(TraceOptions traceOptions) {
     return new Builder(traceOptions.options);
@@ -145,6 +161,7 @@ public final class TraceOptions {
    * should be exported to a persistent store.
    *
    * @return a boolean indicating whether the trace is sampled.
+   * @since 0.5
    */
   public boolean isSampled() {
     return hasOption(IS_SAMPLED);
@@ -174,7 +191,11 @@ public final class TraceOptions {
     return MoreObjects.toStringHelper(this).add("sampled", isSampled()).toString();
   }
 
-  /** Builder class for {@link TraceOptions}. */
+  /**
+   * Builder class for {@link TraceOptions}.
+   *
+   * @since 0.5
+   */
   public static final class Builder {
     private byte options;
 
@@ -185,6 +206,7 @@ public final class TraceOptions {
     /**
      * @deprecated Use {@code Builder.setIsSampled(true)}.
      * @return this.
+     * @since 0.5
      */
     @Deprecated
     public Builder setIsSampled() {
@@ -196,6 +218,7 @@ public final class TraceOptions {
      *
      * @param isSampled the sampling bit.
      * @return this.
+     * @since 0.7
      */
     public Builder setIsSampled(boolean isSampled) {
       if (isSampled) {
@@ -211,6 +234,7 @@ public final class TraceOptions {
      * Builds and returns a {@code TraceOptions} with the desired options.
      *
      * @return a {@code TraceOptions} with the desired options.
+     * @since 0.5
      */
     public TraceOptions build() {
       return new TraceOptions(options);

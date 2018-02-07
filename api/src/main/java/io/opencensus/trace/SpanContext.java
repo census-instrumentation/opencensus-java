@@ -26,6 +26,8 @@ import javax.annotation.concurrent.Immutable;
  * child {@link Span}s and across process boundaries. It contains the identifiers (a {@link TraceId
  * trace_id} and {@link SpanId span_id}) associated with the {@link Span} and a set of {@link
  * TraceOptions options}.
+ *
+ * @since 0.5
  */
 @Immutable
 public final class SpanContext {
@@ -33,7 +35,11 @@ public final class SpanContext {
   private final SpanId spanId;
   private final TraceOptions traceOptions;
 
-  /** The invalid {@code SpanContext}. */
+  /**
+   * The invalid {@code SpanContext}.
+   *
+   * @since 0.5
+   */
   public static final SpanContext INVALID =
       new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT);
 
@@ -44,6 +50,7 @@ public final class SpanContext {
    * @param spanId the span identifier of the span context.
    * @param traceOptions the trace options for the span context.
    * @return a new {@code SpanContext} with the given identifiers and options.
+   * @since 0.5
    */
   public static SpanContext create(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
     return new SpanContext(traceId, spanId, traceOptions);
@@ -53,6 +60,7 @@ public final class SpanContext {
    * Returns the trace identifier associated with this {@code SpanContext}.
    *
    * @return the trace identifier associated with this {@code SpanContext}.
+   * @since 0.5
    */
   public TraceId getTraceId() {
     return traceId;
@@ -62,6 +70,7 @@ public final class SpanContext {
    * Returns the span identifier associated with this {@code SpanContext}.
    *
    * @return the span identifier associated with this {@code SpanContext}.
+   * @since 0.5
    */
   public SpanId getSpanId() {
     return spanId;
@@ -71,6 +80,7 @@ public final class SpanContext {
    * Returns the trace options associated with this {@code SpanContext}.
    *
    * @return the trace options associated with this {@code SpanContext}.
+   * @since 0.5
    */
   public TraceOptions getTraceOptions() {
     return traceOptions;
@@ -80,6 +90,7 @@ public final class SpanContext {
    * Returns true if this {@code SpanContext} is valid.
    *
    * @return true if this {@code SpanContext} is valid.
+   * @since 0.5
    */
   public boolean isValid() {
     return traceId.isValid() && spanId.isValid();

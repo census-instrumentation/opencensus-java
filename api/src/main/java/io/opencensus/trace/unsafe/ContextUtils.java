@@ -24,11 +24,17 @@ import io.opencensus.trace.Span;
  *
  * <p>Users must interact with the current Context via the public APIs in {@link
  * io.opencensus.trace.Tracer} and avoid usages of the {@link #CONTEXT_SPAN_KEY} directly.
+ *
+ * @since 0.5
  */
 public final class ContextUtils {
   // No instance of this class.
   private ContextUtils() {}
 
-  /** The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}. */
+  /**
+   * The {@link io.grpc.Context.Key} used to interact with {@link io.grpc.Context}.
+   *
+   * @since 0.5
+   */
   public static final Context.Key<Span> CONTEXT_SPAN_KEY = Context.key("opencensus-trace-span-key");
 }

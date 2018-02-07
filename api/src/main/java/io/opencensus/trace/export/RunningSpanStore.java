@@ -33,6 +33,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * <p>The running spans tracking is available for all the spans with the option {@link
  * io.opencensus.trace.Span.Options#RECORD_EVENTS}. This functionality allows users to debug stuck
  * operations or long living operations.
+ *
+ * @since 0.5
  */
 @ThreadSafe
 public abstract class RunningSpanStore {
@@ -54,6 +56,7 @@ public abstract class RunningSpanStore {
    * Returns the summary of all available data such, as number of running spans.
    *
    * @return the summary of all available data.
+   * @since 0.5
    */
   public abstract Summary getSummary();
 
@@ -62,10 +65,15 @@ public abstract class RunningSpanStore {
    *
    * @param filter used to filter the returned spans.
    * @return a list of running spans that match the {@code Filter}.
+   * @since 0.5
    */
   public abstract Collection<SpanData> getRunningSpans(Filter filter);
 
-  /** The summary of all available data. */
+  /**
+   * The summary of all available data.
+   *
+   * @since 0.5
+   */
   @AutoValue
   @Immutable
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -81,6 +89,7 @@ public abstract class RunningSpanStore {
      * @param perSpanNameSummary a map with summary for each span name.
      * @return a new instance of {@code Summary}.
      * @throws NullPointerException if {@code perSpanNameSummary} is {@code null}.
+     * @since 0.5
      */
     public static Summary create(Map<String, PerSpanNameSummary> perSpanNameSummary) {
       return new AutoValue_RunningSpanStore_Summary(
@@ -93,11 +102,16 @@ public abstract class RunningSpanStore {
      * Returns a map with summary of available data for each span name.
      *
      * @return a map with all the span names and the summary.
+     * @since 0.5
      */
     public abstract Map<String, PerSpanNameSummary> getPerSpanNameSummary();
   }
 
-  /** Summary of all available data for a span name. */
+  /**
+   * Summary of all available data for a span name.
+   *
+   * @since 0.5
+   */
   @AutoValue
   @Immutable
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -113,6 +127,7 @@ public abstract class RunningSpanStore {
      * @param numRunningSpans the number of running spans.
      * @return a new instance of {@code PerSpanNameSummary}.
      * @throws IllegalArgumentException if {@code numRunningSpans} is negative.
+     * @since 0.5
      */
     public static PerSpanNameSummary create(int numRunningSpans) {
       checkArgument(numRunningSpans >= 0, "Negative numRunningSpans.");
@@ -123,6 +138,7 @@ public abstract class RunningSpanStore {
      * Returns the number of running spans.
      *
      * @return the number of running spans.
+     * @since 0.5
      */
     public abstract int getNumRunningSpans();
   }
@@ -130,6 +146,8 @@ public abstract class RunningSpanStore {
   /**
    * Filter for running spans. Used to filter results returned by the {@link
    * #getRunningSpans(Filter)} request.
+   *
+   * @since 0.5
    */
   @AutoValue
   @Immutable
@@ -151,6 +169,7 @@ public abstract class RunningSpanStore {
      * @return a new instance of {@code Filter}.
      * @throws NullPointerException if {@code spanName} is {@code null}.
      * @throws IllegalArgumentException if {@code maxSpansToReturn} is negative.
+     * @since 0.5
      */
     public static Filter create(String spanName, int maxSpansToReturn) {
       checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
@@ -161,6 +180,7 @@ public abstract class RunningSpanStore {
      * Returns the span name.
      *
      * @return the span name.
+     * @since 0.5
      */
     public abstract String getSpanName();
 
@@ -168,6 +188,7 @@ public abstract class RunningSpanStore {
      * Returns the maximum number of spans to be returned. {@code 0} means all.
      *
      * @return the maximum number of spans to be returned.
+     * @since 0.5
      */
     public abstract int getMaxSpansToReturn();
   }

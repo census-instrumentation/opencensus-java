@@ -34,6 +34,8 @@ import java.lang.annotation.Target;
  *       Adding it to an existing API is considered API-breaking.
  *   <li>Removing this annotation from an API gives it stable status.
  * </ol>
+ *
+ * @since 0.8
  */
 @Internal
 @Retention(RetentionPolicy.SOURCE)
@@ -47,6 +49,10 @@ import java.lang.annotation.Target;
 })
 @Documented
 public @interface ExperimentalApi {
-  /** Context information such as links to discussion thread, tracking issue etc. */
+  /**
+   * Context information such as links to discussion thread, tracking issue etc.
+   *
+   * @since 0.8
+   */
   String value() default "";
 }

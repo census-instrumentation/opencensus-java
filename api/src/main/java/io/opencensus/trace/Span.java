@@ -32,6 +32,8 @@ import javax.annotation.Nullable;
  * <p>Spans are created by the {@link SpanBuilder#startSpan} method.
  *
  * <p>{@code Span} <b>must</b> be ended by calling {@link #end()} or {@link #end(EndSpanOptions)}
+ *
+ * @since 0.5
  */
 public abstract class Span {
   private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES = Collections.emptyMap();
@@ -45,11 +47,15 @@ public abstract class Span {
   /**
    * {@code Span} options. These options are NOT propagated to child spans. These options determine
    * features such as whether a {@code Span} should record any annotations or events.
+   *
+   * @since 0.5
    */
   public enum Options {
     /**
      * This option is set if the Span is part of a sampled distributed trace OR {@link
      * SpanBuilder#setRecordEvents(boolean)} was called with true.
+     *
+     * @since 0.5
      */
     RECORD_EVENTS;
   }
@@ -66,6 +72,7 @@ public abstract class Span {
    * @throws NullPointerException if context is {@code null}.
    * @throws IllegalArgumentException if the {@code SpanContext} is sampled but no RECORD_EVENTS
    *     options.
+   * @since 0.5
    */
   protected Span(SpanContext context, @Nullable EnumSet<Options> options) {
     this.context = checkNotNull(context, "context");
@@ -84,6 +91,7 @@ public abstract class Span {
    *
    * @param key the key for this attribute.
    * @param value the value for this attribute.
+   * @since 0.6
    */
   public void putAttribute(String key, AttributeValue value) {
     // Not final because for performance reasons we want to override this in the implementation.
@@ -98,6 +106,7 @@ public abstract class Span {
    * map.
    *
    * @param attributes the attributes that will be added and associated with the {@code Span}.
+   * @since 0.6
    */
   public void putAttributes(Map<String, AttributeValue> attributes) {
     // Not final because we want to start overriding this method from the beginning, this will
@@ -108,6 +117,7 @@ public abstract class Span {
   /**
    * @deprecated Use {@link #putAttributes(Map)}
    * @param attributes the attributes that will be added and associated with the {@code Span}.
+   * @since 0.5
    */
   @Deprecated
   public void addAttributes(Map<String, AttributeValue> attributes) {
@@ -118,6 +128,7 @@ public abstract class Span {
    * Adds an annotation to the {@code Span}.
    *
    * @param description the description of the annotation time event.
+   * @since 0.5
    */
   public final void addAnnotation(String description) {
     addAnnotation(description, EMPTY_ATTRIBUTES);
@@ -129,6 +140,7 @@ public abstract class Span {
    * @param description the description of the annotation time event.
    * @param attributes the attributes that will be added; these are associated with this annotation,
    *     not the {@code Span} as for {@link #putAttributes(Map)}.
+   * @since 0.5
    */
   public abstract void addAnnotation(String description, Map<String, AttributeValue> attributes);
 
@@ -136,6 +148,7 @@ public abstract class Span {
    * Adds an annotation to the {@code Span}.
    *
    * @param annotation the annotations to add.
+   * @since 0.5
    */
   public abstract void addAnnotation(Annotation annotation);
 
@@ -146,6 +159,7 @@ public abstract class Span {
    * higher level applications.
    *
    * @param networkEvent the network event to add.
+   * @since 0.5
    */
   public abstract void addNetworkEvent(NetworkEvent networkEvent);
 
@@ -156,6 +170,7 @@ public abstract class Span {
    * requests from different traces.
    *
    * @param link the link to add.
+   * @since 0.5
    */
   public abstract void addLink(Link link);
 
@@ -169,6 +184,7 @@ public abstract class Span {
    * will always be the last call.
    *
    * @param status the {@link Status} to set.
+   * @since 0.9
    */
   public void setStatus(Status status) {
     // Implemented as no-op for backwards compatibility (for example gRPC extends Span in tests).
@@ -182,6 +198,7 @@ public abstract class Span {
    * implementations are free to ignore all further calls.
    *
    * @param options the options to be used for the end of the {@code Span}.
+   * @since 0.5
    */
   public abstract void end(EndSpanOptions options);
 
@@ -190,6 +207,8 @@ public abstract class Span {
    *
    * <p>Only the timing of the first end call for a given {@code Span} will be recorded, and
    * implementations are free to ignore all further calls.
+   *
+   * @since 0.5
    */
   public final void end() {
     end(EndSpanOptions.DEFAULT);
@@ -199,6 +218,7 @@ public abstract class Span {
    * Returns the {@code SpanContext} associated with this {@code Span}.
    *
    * @return the {@code SpanContext} associated with this {@code Span}.
+   * @since 0.5
    */
   public final SpanContext getContext() {
     return context;
@@ -208,6 +228,7 @@ public abstract class Span {
    * Returns the options associated with this {@code Span}.
    *
    * @return the options associated with this {@code Span}.
+   * @since 0.5
    */
   public final Set<Options> getOptions() {
     return options;

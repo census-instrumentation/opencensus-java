@@ -24,7 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
-/** A text annotation with a set of attributes. */
+/**
+ * A text annotation with a set of attributes.
+ *
+ * @since 0.5
+ */
 @Immutable
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -40,6 +44,7 @@ public abstract class Annotation {
    * @param description the text description of the {@code Annotation}.
    * @return a new {@code Annotation} with the given description.
    * @throws NullPointerException if {@code description} is {@code null}.
+   * @since 0.5
    */
   public static Annotation fromDescription(String description) {
     return new AutoValue_Annotation(description, EMPTY_ATTRIBUTES);
@@ -52,6 +57,7 @@ public abstract class Annotation {
    * @param attributes the attributes of the {@code Annotation}.
    * @return a new {@code Annotation} with the given description and set of attributes.
    * @throws NullPointerException if {@code description} or {@code attributes} are {@code null}.
+   * @since 0.5
    */
   public static Annotation fromDescriptionAndAttributes(
       String description, Map<String, AttributeValue> attributes) {
@@ -65,6 +71,7 @@ public abstract class Annotation {
    * Return the description of the {@code Annotation}.
    *
    * @return the description of the {@code Annotation}.
+   * @since 0.5
    */
   public abstract String getDescription();
 
@@ -72,6 +79,7 @@ public abstract class Annotation {
    * Return the attributes of the {@code Annotation}.
    *
    * @return the attributes of the {@code Annotation}.
+   * @since 0.5
    */
   public abstract Map<String, AttributeValue> getAttributes();
 

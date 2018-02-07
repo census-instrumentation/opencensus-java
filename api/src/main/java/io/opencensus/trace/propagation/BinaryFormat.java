@@ -60,6 +60,8 @@ import java.text.ParseException;
  *   }
  * }
  * }</pre>
+ *
+ * @since 0.5
  */
 public abstract class BinaryFormat {
   static final NoopBinaryFormat NOOP_BINARY_FORMAT = new NoopBinaryFormat();
@@ -69,6 +71,7 @@ public abstract class BinaryFormat {
    * @param spanContext the {@code SpanContext} to serialize.
    * @return the serialized binary value.
    * @throws NullPointerException if the {@code spanContext} is {@code null}.
+   * @since 0.5
    */
   @Deprecated
   public byte[] toBinaryValue(SpanContext spanContext) {
@@ -81,6 +84,7 @@ public abstract class BinaryFormat {
    * @param spanContext the {@code SpanContext} to serialize.
    * @return the serialized binary value.
    * @throws NullPointerException if the {@code spanContext} is {@code null}.
+   * @since 0.7
    */
   public byte[] toByteArray(SpanContext spanContext) {
     // Implementation must override this method.
@@ -93,6 +97,7 @@ public abstract class BinaryFormat {
    * @return the parsed {@code SpanContext}.
    * @throws NullPointerException if the {@code input} is {@code null}.
    * @throws ParseException if the version is not supported or the input is invalid
+   * @since 0.5
    */
   @Deprecated
   public SpanContext fromBinaryValue(byte[] bytes) throws ParseException {
@@ -110,6 +115,7 @@ public abstract class BinaryFormat {
    * @return the parsed {@code SpanContext}.
    * @throws NullPointerException if the {@code input} is {@code null}.
    * @throws SpanContextParseException if the version is not supported or the input is invalid
+   * @since 0.7
    */
   public SpanContext fromByteArray(byte[] bytes) throws SpanContextParseException {
     // Implementation must override this method.

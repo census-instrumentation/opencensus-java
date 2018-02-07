@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 /**
  * Annotates a program element (class, method, package etc) which is internal to OpenCensus, not
  * part of the public API, and should not be used by users of the OpenCensus library.
+ *
+ * @since 0.5
  */
 @Internal
 @Retention(RetentionPolicy.SOURCE)

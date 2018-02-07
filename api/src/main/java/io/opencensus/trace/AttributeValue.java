@@ -25,6 +25,8 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A class that represents all the possible values for an attribute. An attribute can have 3 types
  * of values: {@code String}, {@code Boolean} or {@code Long}.
+ *
+ * @since 0.5
  */
 @Immutable
 public abstract class AttributeValue {
@@ -34,6 +36,7 @@ public abstract class AttributeValue {
    * @param stringValue The new value.
    * @return an {@code AttributeValue} with a string value.
    * @throws NullPointerException if {@code stringValue} is {@code null}.
+   * @since 0.5
    */
   public static AttributeValue stringAttributeValue(String stringValue) {
     return AttributeValueString.create(stringValue);
@@ -44,6 +47,7 @@ public abstract class AttributeValue {
    *
    * @param booleanValue The new value.
    * @return an {@code AttributeValue} with a boolean value.
+   * @since 0.5
    */
   public static AttributeValue booleanAttributeValue(boolean booleanValue) {
     return AttributeValueBoolean.create(booleanValue);
@@ -54,6 +58,7 @@ public abstract class AttributeValue {
    *
    * @param longValue The new value.
    * @return an {@code AttributeValue} with a long value.
+   * @since 0.5
    */
   public static AttributeValue longAttributeValue(long longValue) {
     return AttributeValueLong.create(longValue);
@@ -73,6 +78,7 @@ public abstract class AttributeValue {
    *     added after this {@code match} method was added to the API. See {@link
    *     io.opencensus.common.Functions} for some common functions for handling unknown types.
    * @return the result of the function applied to the underlying value.
+   * @since 0.5
    */
   public abstract <T> T match(
       Function<? super String, T> stringFunction,

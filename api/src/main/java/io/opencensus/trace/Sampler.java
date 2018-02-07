@@ -19,7 +19,11 @@ package io.opencensus.trace;
 import java.util.List;
 import javax.annotation.Nullable;
 
-/** Sampler is used to make decisions on {@link Span} sampling. */
+/**
+ * Sampler is used to make decisions on {@link Span} sampling.
+ *
+ * @since 0.5
+ */
 public abstract class Sampler {
   /**
    * Called during {@link Span} creation to make a sampling decision.
@@ -34,6 +38,7 @@ public abstract class Sampler {
    * @param name the name of the new {@code Span}.
    * @param parentLinks the parentLinks associated with the new {@code Span}.
    * @return {@code true} if the {@code Span} is sampled.
+   * @since 0.5
    */
   public abstract boolean shouldSample(
       @Nullable SpanContext parentContext,
@@ -50,6 +55,7 @@ public abstract class Sampler {
    * <p>Example: "ProbabilitySampler{0.000100}"
    *
    * @return the description of this {@code Sampler}.
+   * @since 0.6
    */
   public abstract String getDescription();
 }

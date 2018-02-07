@@ -29,13 +29,23 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A class that represents a span identifier. A valid span identifier is an 8-byte array with at
  * least one non-zero byte.
+ *
+ * @since 0.5
  */
 @Immutable
 public final class SpanId implements Comparable<SpanId> {
-  /** The size in bytes of the {@code SpanId}. */
+  /**
+   * The size in bytes of the {@code SpanId}.
+   *
+   * @since 0.5
+   */
   public static final int SIZE = 8;
 
-  /** The invalid {@code SpanId}. All bytes are 0. */
+  /**
+   * The invalid {@code SpanId}. All bytes are 0.
+   *
+   * @since 0.5
+   */
   public static final SpanId INVALID = new SpanId(new byte[SIZE]);
 
   // The internal representation of the SpanId.
@@ -58,6 +68,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @return a {@code SpanId} whose representation is given by the {@code buffer} parameter.
    * @throws NullPointerException if {@code buffer} is null.
    * @throws IllegalArgumentException if {@code buffer.length} is not {@link SpanId#SIZE}.
+   * @since 0.5
    */
   public static SpanId fromBytes(byte[] buffer) {
     checkNotNull(buffer, "buffer");
@@ -77,6 +88,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @throws NullPointerException if {@code src} is null.
    * @throws IndexOutOfBoundsException if {@code srcOffset+SpanId.SIZE} is greater than {@code
    *     src.length}.
+   * @since 0.5
    */
   public static SpanId fromBytes(byte[] src, int srcOffset) {
     byte[] bytes = new byte[SIZE];
@@ -92,6 +104,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @throws NullPointerException if {@code src} is null.
    * @throws IllegalArgumentException if {@code src.length} is not {@code 2 * SpanId.SIZE} OR if the
    *     {@code str} has invalid characters.
+   * @since 0.11
    */
   public static SpanId fromLowerBase16(CharSequence src) {
     checkArgument(
@@ -105,6 +118,7 @@ public final class SpanId implements Comparable<SpanId> {
    *
    * @param random The random number generator.
    * @return a valid new {@code SpanId}.
+   * @since 0.5
    */
   public static SpanId generateRandomId(Random random) {
     byte[] bytes = new byte[SIZE];
@@ -118,6 +132,7 @@ public final class SpanId implements Comparable<SpanId> {
    * Returns the byte representation of the {@code SpanId}.
    *
    * @return the byte representation of the {@code SpanId}.
+   * @since 0.5
    */
   public byte[] getBytes() {
     return Arrays.copyOf(bytes, SIZE);
@@ -138,6 +153,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @throws NullPointerException if {@code dest} is null.
    * @throws IndexOutOfBoundsException if {@code destOffset+SpanId.SIZE} is greater than {@code
    *     dest.length}.
+   * @since 0.5
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
     System.arraycopy(bytes, 0, dest, destOffset, SIZE);
@@ -148,6 +164,7 @@ public final class SpanId implements Comparable<SpanId> {
    * at least one non-zero byte.
    *
    * @return {@code true} if the span identifier is valid.
+   * @since 0.5
    */
   public boolean isValid() {
     return !Arrays.equals(bytes, INVALID.bytes);
@@ -157,6 +174,7 @@ public final class SpanId implements Comparable<SpanId> {
    * Returns the lowercase base16 encoding of this {@code SpanId}.
    *
    * @return the lowercase base16 encoding of this {@code SpanId}.
+   * @since 0.11
    */
   public String toLowerBase16() {
     return BaseEncoding.base16().lowerCase().encode(bytes);

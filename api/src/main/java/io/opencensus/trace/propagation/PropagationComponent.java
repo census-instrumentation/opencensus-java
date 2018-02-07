@@ -22,6 +22,8 @@ import io.opencensus.common.ExperimentalApi;
  * Container class for all the supported propagation formats. Currently supports only Binary format
  * (see {@link BinaryFormat}) and B3 Text format (see {@link TextFormat}) but more formats will be
  * added.
+ *
+ * @since 0.5
  */
 public abstract class PropagationComponent {
   private static final PropagationComponent NOOP_PROPAGATION_COMPONENT =
@@ -32,6 +34,7 @@ public abstract class PropagationComponent {
    * provided then no-op implementation will be used.
    *
    * @return the {@code BinaryFormat} implementation.
+   * @since 0.5
    */
   public abstract BinaryFormat getBinaryFormat();
 
@@ -50,6 +53,7 @@ public abstract class PropagationComponent {
    * Returns an instance that contains no-op implementations for all the instances.
    *
    * @return an instance that contains no-op implementations for all the instances.
+   * @since 0.5
    */
   public static PropagationComponent getNoopPropagationComponent() {
     return NOOP_PROPAGATION_COMPONENT;

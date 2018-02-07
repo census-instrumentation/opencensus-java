@@ -19,7 +19,11 @@ package io.opencensus.trace.samplers;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 
-/** Static class to access a set of pre-defined {@link Sampler Samplers}. */
+/**
+ * Static class to access a set of pre-defined {@link Sampler Samplers}.
+ *
+ * @since 0.5
+ */
 public final class Samplers {
   private static final Sampler ALWAYS_SAMPLE = new AlwaysSampleSampler();
   private static final Sampler NEVER_SAMPLE = new NeverSampleSampler();
@@ -31,6 +35,7 @@ public final class Samplers {
    * Returns a {@link Sampler} that always makes a "yes" decision on {@link Span} sampling.
    *
    * @return a {@code Sampler} that always makes a "yes" decision on {@code Span} sampling.
+   * @since 0.5
    */
   public static Sampler alwaysSample() {
     return ALWAYS_SAMPLE;
@@ -40,6 +45,7 @@ public final class Samplers {
    * Returns a {@link Sampler} that always makes a "no" decision on {@link Span} sampling.
    *
    * @return a {@code Sampler} that always makes a "no" decision on {@code Span} sampling.
+   * @since 0.5
    */
   public static Sampler neverSample() {
     return NEVER_SAMPLE;
@@ -51,6 +57,7 @@ public final class Samplers {
    * @param probability The desired probability of sampling. Must be within [0.0, 1.0].
    * @return a {@code Sampler} that makes a "yes" decision with a given probability.
    * @throws IllegalArgumentException if {@code probability} is out of range
+   * @since 0.5
    */
   public static Sampler probabilitySampler(double probability) {
     return ProbabilitySampler.create(probability);

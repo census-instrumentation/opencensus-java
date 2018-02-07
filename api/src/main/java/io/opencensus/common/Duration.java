@@ -29,6 +29,8 @@ import javax.annotation.concurrent.Immutable;
  * Represents a signed, fixed-length span of time represented as a count of seconds and fractions of
  * seconds at nanosecond resolution. It is independent of any calendar and concepts like "day" or
  * "month". Range is approximately +-10,000 years.
+ *
+ * @since 0.5
  */
 @Immutable
 @AutoValue
@@ -50,6 +52,7 @@ public abstract class Duration implements Comparable<Duration> {
    *     +999,999,999 inclusive.
    * @return new {@code Duration} with specified fields. For invalid inputs, a {@code Duration} of
    *     zero is returned.
+   * @since 0.5
    */
   public static Duration create(long seconds, int nanos) {
     if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
@@ -70,6 +73,7 @@ public abstract class Duration implements Comparable<Duration> {
    * @param millis the duration in milliseconds.
    * @return a new {@code Duration} from given milliseconds. For invalid inputs, a {@code Duration}
    *     of zero is returned.
+   * @since 0.5
    */
   public static Duration fromMillis(long millis) {
     long seconds = millis / MILLIS_PER_SECOND;
@@ -81,6 +85,7 @@ public abstract class Duration implements Comparable<Duration> {
    * Returns the number of seconds in the {@code Duration}.
    *
    * @return the number of seconds in the {@code Duration}.
+   * @since 0.5
    */
   public abstract long getSeconds();
 
@@ -88,6 +93,7 @@ public abstract class Duration implements Comparable<Duration> {
    * Returns the number of nanoseconds in the {@code Duration}.
    *
    * @return the number of nanoseconds in the {@code Duration}.
+   * @since 0.5
    */
   public abstract int getNanos();
 

@@ -67,6 +67,8 @@ import javax.annotation.Nullable;
  *   }
  * }
  * }</pre>
+ *
+ * @since 0.5
  */
 public abstract class Tracer {
   private static final NoopTracer noopTracer = new NoopTracer();
@@ -91,6 +93,7 @@ public abstract class Tracer {
    * @return a default {@code Span} that does nothing and has an invalid {@link SpanContext} if no
    *     {@code Span} is associated with the current Context, otherwise the current {@code Span}
    *     from the Context.
+   * @since 0.5
    */
   public final Span getCurrentSpan() {
     Span currentSpan = CurrentSpanUtils.getCurrentSpan();
@@ -145,6 +148,7 @@ public abstract class Tracer {
    * @return an object that defines a scope where the given {@link Span} will be set to the current
    *     Context.
    * @throws NullPointerException if {@code span} is {@code null}.
+   * @since 0.5
    */
   @MustBeClosed
   public final Scope withSpan(Span span) {
@@ -299,6 +303,7 @@ public abstract class Tracer {
    * @param spanName The name of the returned Span.
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if {@code spanName} is {@code null}.
+   * @since 0.5
    */
   public final SpanBuilder spanBuilder(String spanName) {
     return spanBuilderWithExplicitParent(spanName, CurrentSpanUtils.getCurrentSpan());
@@ -319,6 +324,7 @@ public abstract class Tracer {
    *     build a root {@code Span}.
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if {@code spanName} is {@code null}.
+   * @since 0.5
    */
   public abstract SpanBuilder spanBuilderWithExplicitParent(String spanName, @Nullable Span parent);
 
@@ -339,6 +345,7 @@ public abstract class Tracer {
    * @param remoteParentSpanContext The remote parent of the returned Span.
    * @return a {@code SpanBuilder} to create and start a new {@code Span}.
    * @throws NullPointerException if {@code spanName} is {@code null}.
+   * @since 0.5
    */
   public abstract SpanBuilder spanBuilderWithRemoteParent(
       String spanName, @Nullable SpanContext remoteParentSpanContext);

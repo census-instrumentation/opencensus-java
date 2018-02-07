@@ -34,6 +34,8 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Use {@code Tracing.getClock().now()} to get the current timestamp since epoch
  * (1970-01-01T00:00:00Z).
+ *
+ * @since 0.5
  */
 @Immutable
 @AutoValue
@@ -55,6 +57,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    *     Must be from 0 to 999,999,999 inclusive.
    * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@code Timestamp} of
    *     zero is returned.
+   * @since 0.5
    */
   public static Timestamp create(long seconds, int nanos) {
     if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
@@ -72,6 +75,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * @param epochMilli the timestamp represented in milliseconds since epoch.
    * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@code Timestamp} of
    *     zero is returned.
+   * @since 0.5
    */
   public static Timestamp fromMillis(long epochMilli) {
     long secs = floorDiv(epochMilli, MILLIS_PER_SECOND);
@@ -83,6 +87,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * Returns the number of seconds since the Unix Epoch represented by this timestamp.
    *
    * @return the number of seconds since the Unix Epoch.
+   * @since 0.5
    */
   public abstract long getSeconds();
 
@@ -91,6 +96,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * by this timestamp.
    *
    * @return the number of nanoseconds after the number of seconds since the Unix Epoch.
+   * @since 0.5
    */
   public abstract int getNanos();
 
@@ -102,6 +108,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * @return the calculated {@code Timestamp}. For invalid inputs, a {@code Timestamp} of zero is
    *     returned.
    * @throws ArithmeticException if numeric overflow occurs.
+   * @since 0.5
    */
   public Timestamp addNanos(long nanosToAdd) {
     return plus(0, nanosToAdd);
@@ -112,6 +119,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    *
    * @param duration the {@code Duration} to add.
    * @return a {@code Timestamp} with the specified {@code Duration} added.
+   * @since 0.5
    */
   public Timestamp addDuration(Duration duration) {
     return plus(duration.getSeconds(), duration.getNanos());
@@ -123,6 +131,7 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * @param timestamp the {@code Timestamp} to subtract.
    * @return the calculated {@code Duration}. For invalid inputs, a {@code Duration} of zero is
    *     returned.
+   * @since 0.5
    */
   public Duration subtractTimestamp(Timestamp timestamp) {
     long durationSeconds = getSeconds() - timestamp.getSeconds();

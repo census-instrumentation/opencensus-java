@@ -40,7 +40,11 @@ import javax.annotation.concurrent.Immutable;
 import org.checkerframework.dataflow.qual.Deterministic;
 */
 
-/** Immutable representation of all data collected by the {@link Span} class. */
+/**
+ * Immutable representation of all data collected by the {@link Span} class.
+ *
+ * @since 0.5
+ */
 @Immutable
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -68,6 +72,7 @@ public abstract class SpanData {
    * @param endTimestamp the end {@code Timestamp} of the {@code Span}. {@code null} if the {@code
    *     Span} is still active.
    * @return a new immutable {@code SpanData}.
+   * @since 0.5
    */
   public static SpanData create(
       SpanContext context,
@@ -101,6 +106,7 @@ public abstract class SpanData {
    * Returns the {@code SpanContext} associated with this {@code Span}.
    *
    * @return the {@code SpanContext} associated with this {@code Span}.
+   * @since 0.5
    */
   public abstract SpanContext getContext();
 
@@ -108,6 +114,7 @@ public abstract class SpanData {
    * Returns the parent {@code SpanId} or {@code null} if the {@code Span} is a root {@code Span}.
    *
    * @return the parent {@code SpanId} or {@code null} if the {@code Span} is a root {@code Span}.
+   * @since 0.5
    */
   @Nullable
   /*@Deterministic*/
@@ -119,6 +126,7 @@ public abstract class SpanData {
    *
    * @return {@code true} if the parent is on a different process. {@code null} if this is a root
    *     span.
+   * @since 0.5
    */
   @Nullable
   public abstract Boolean getHasRemoteParent();
@@ -127,6 +135,7 @@ public abstract class SpanData {
    * Returns the name of this {@code Span}.
    *
    * @return the name of this {@code Span}.
+   * @since 0.5
    */
   public abstract String getName();
 
@@ -134,6 +143,7 @@ public abstract class SpanData {
    * Returns the start {@code Timestamp} of this {@code Span}.
    *
    * @return the start {@code Timestamp} of this {@code Span}.
+   * @since 0.5
    */
   public abstract Timestamp getStartTimestamp();
 
@@ -141,6 +151,7 @@ public abstract class SpanData {
    * Returns the attributes recorded for this {@code Span}.
    *
    * @return the attributes recorded for this {@code Span}.
+   * @since 0.5
    */
   public abstract Attributes getAttributes();
 
@@ -148,6 +159,7 @@ public abstract class SpanData {
    * Returns the annotations recorded for this {@code Span}.
    *
    * @return the annotations recorded for this {@code Span}.
+   * @since 0.5
    */
   public abstract TimedEvents<Annotation> getAnnotations();
 
@@ -155,6 +167,7 @@ public abstract class SpanData {
    * Returns network events recorded for this {@code Span}.
    *
    * @return network events recorded for this {@code Span}.
+   * @since 0.5
    */
   public abstract TimedEvents<NetworkEvent> getNetworkEvents();
 
@@ -162,6 +175,7 @@ public abstract class SpanData {
    * Returns links recorded for this {@code Span}.
    *
    * @return links recorded for this {@code Span}.
+   * @since 0.5
    */
   public abstract Links getLinks();
 
@@ -172,6 +186,7 @@ public abstract class SpanData {
    * <p>This information is not always available.
    *
    * @return the number of child spans that were generated while the {@code Span} was running.
+   * @since 0.5
    */
   @Nullable
   public abstract Integer getChildSpanCount();
@@ -180,6 +195,7 @@ public abstract class SpanData {
    * Returns the {@code Status} or {@code null} if {@code Span} is still active.
    *
    * @return the {@code Status} or {@code null} if {@code Span} is still active.
+   * @since 0.5
    */
   @Nullable
   /*@Deterministic*/
@@ -189,6 +205,7 @@ public abstract class SpanData {
    * Returns the end {@code Timestamp} or {@code null} if the {@code Span} is still active.
    *
    * @return the end {@code Timestamp} or {@code null} if the {@code Span} is still active.
+   * @since 0.5
    */
   @Nullable
   /*@Deterministic*/
@@ -200,6 +217,7 @@ public abstract class SpanData {
    * A timed event representation.
    *
    * @param <T> the type of value that is timed.
+   * @since 0.5
    */
   @Immutable
   @AutoValue
@@ -214,6 +232,7 @@ public abstract class SpanData {
      * @param event the event.
      * @param <T> the type of value that is timed.
      * @return a new immutable {@code TimedEvent<T>}
+     * @since 0.5
      */
     public static <T> TimedEvent<T> create(Timestamp timestamp, T event) {
       return new AutoValue_SpanData_TimedEvent<T>(timestamp, event);
@@ -223,6 +242,7 @@ public abstract class SpanData {
      * Returns the {@code Timestamp} of this event.
      *
      * @return the {@code Timestamp} of this event.
+     * @since 0.5
      */
     public abstract Timestamp getTimestamp();
 
@@ -230,6 +250,7 @@ public abstract class SpanData {
      * Returns the event.
      *
      * @return the event.
+     * @since 0.5
      */
     /*@Deterministic*/
     public abstract T getEvent();
@@ -241,6 +262,7 @@ public abstract class SpanData {
    * A list of timed events and the number of dropped events representation.
    *
    * @param <T> the type of value that is timed.
+   * @since 0.5
    */
   @Immutable
   @AutoValue
@@ -255,6 +277,7 @@ public abstract class SpanData {
      * @param droppedEventsCount the number of dropped events.
      * @param <T> the type of value that is timed.
      * @return a new immutable {@code TimedEvents<T>}
+     * @since 0.5
      */
     public static <T> TimedEvents<T> create(List<TimedEvent<T>> events, int droppedEventsCount) {
       return new AutoValue_SpanData_TimedEvents<T>(
@@ -267,6 +290,7 @@ public abstract class SpanData {
      * Returns the list of events.
      *
      * @return the list of events.
+     * @since 0.5
      */
     public abstract List<TimedEvent<T>> getEvents();
 
@@ -274,13 +298,18 @@ public abstract class SpanData {
      * Returns the number of dropped events.
      *
      * @return the number of dropped events.
+     * @since 0.5
      */
     public abstract int getDroppedEventsCount();
 
     TimedEvents() {}
   }
 
-  /** A set of attributes and the number of dropped attributes representation. */
+  /**
+   * A set of attributes and the number of dropped attributes representation.
+   *
+   * @since 0.5
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -293,6 +322,7 @@ public abstract class SpanData {
      * @param attributeMap the set of attributes.
      * @param droppedAttributesCount the number of dropped attributes.
      * @return a new immutable {@code Attributes}.
+     * @since 0.5
      */
     public static Attributes create(
         Map<String, AttributeValue> attributeMap, int droppedAttributesCount) {
@@ -308,6 +338,7 @@ public abstract class SpanData {
      * Returns the set of attributes.
      *
      * @return the set of attributes.
+     * @since 0.5
      */
     public abstract Map<String, AttributeValue> getAttributeMap();
 
@@ -315,13 +346,18 @@ public abstract class SpanData {
      * Returns the number of dropped attributes.
      *
      * @return the number of dropped attributes.
+     * @since 0.5
      */
     public abstract int getDroppedAttributesCount();
 
     Attributes() {}
   }
 
-  /** A list of links and the number of dropped links representation. */
+  /**
+   * A list of links and the number of dropped links representation.
+   *
+   * @since 0.5
+   */
   @Immutable
   @AutoValue
   // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -334,6 +370,7 @@ public abstract class SpanData {
      * @param links the list of links.
      * @param droppedLinksCount the number of dropped links.
      * @return a new immutable {@code Links}.
+     * @since 0.5
      */
     public static Links create(List<Link> links, int droppedLinksCount) {
       return new AutoValue_SpanData_Links(
@@ -345,6 +382,7 @@ public abstract class SpanData {
      * Returns the list of links.
      *
      * @return the list of links.
+     * @since 0.5
      */
     public abstract List<Link> getLinks();
 
@@ -352,6 +390,7 @@ public abstract class SpanData {
      * Returns the number of dropped links.
      *
      * @return the number of dropped links.
+     * @since 0.5
      */
     public abstract int getDroppedLinksCount();
 

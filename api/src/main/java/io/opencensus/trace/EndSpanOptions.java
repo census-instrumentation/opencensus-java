@@ -25,6 +25,8 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A class that enables overriding the default values used when ending a {@link Span}. Allows
  * overriding the {@link Status status}.
+ *
+ * @since 0.5
  */
 @Immutable
 @AutoValue
@@ -32,13 +34,18 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
 public abstract class EndSpanOptions {
-  /** The default {@code EndSpanOptions}. */
+  /**
+   * The default {@code EndSpanOptions}.
+   *
+   * @since 0.5
+   */
   public static final EndSpanOptions DEFAULT = builder().build();
 
   /**
    * Returns a new {@link Builder} with default options.
    *
    * @return a new {@code Builder} with default options.
+   * @since 0.5
    */
   public static Builder builder() {
     return new AutoValue_EndSpanOptions.Builder().setSampleToLocalSpanStore(false);
@@ -55,6 +62,7 @@ public abstract class EndSpanOptions {
    *
    * @return {@code true} if the name of the {@code Span} should be registered to the {@code
    *     io.opencensus.trace.export.SampledSpanStore}.
+   * @since 0.8
    */
   @ExperimentalApi
   public abstract boolean getSampleToLocalSpanStore();
@@ -66,11 +74,16 @@ public abstract class EndSpanOptions {
    * Span#setStatus(Status)} or the default {@link Status#OK} if no status was set.
    *
    * @return the status.
+   * @since 0.5
    */
   @Nullable
   public abstract Status getStatus();
 
-  /** Builder class for {@link EndSpanOptions}. */
+  /**
+   * Builder class for {@link EndSpanOptions}.
+   *
+   * @since 0.5
+   */
   @AutoValue.Builder
   public abstract static class Builder {
     /**
@@ -80,6 +93,7 @@ public abstract class EndSpanOptions {
      *
      * @param status the status.
      * @return this.
+     * @since 0.5
      */
     public abstract Builder setStatus(Status status);
 
@@ -96,6 +110,7 @@ public abstract class EndSpanOptions {
      * instead.
      *
      * @return this.
+     * @since 0.8
      */
     @ExperimentalApi
     public abstract Builder setSampleToLocalSpanStore(boolean sampleToLocalSpanStore);
@@ -104,6 +119,7 @@ public abstract class EndSpanOptions {
      * Builds and returns a {@code EndSpanOptions} with the desired settings.
      *
      * @return a {@code EndSpanOptions} with the desired settings.
+     * @since 0.5
      */
     public abstract EndSpanOptions build();
 
