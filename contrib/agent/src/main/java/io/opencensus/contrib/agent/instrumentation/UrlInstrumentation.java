@@ -36,6 +36,8 @@ import net.bytebuddy.utility.JavaModule;
  *
  * <p>TODO(stschmidt): Replace this preliminary, java.net.URL-specific implementation with a
  * generic, configurable implementation.
+ *
+ * @since 0.9
  */
 @AutoService(Instrumenter.class)
 public final class UrlInstrumentation implements Instrumenter {

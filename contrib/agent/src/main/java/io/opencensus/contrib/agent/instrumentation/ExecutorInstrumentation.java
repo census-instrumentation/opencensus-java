@@ -40,6 +40,8 @@ import net.bytebuddy.utility.JavaModule;
  * Propagates the context of the caller of {@link Executor#execute} to the submitted {@link
  * Runnable}, just like the Microsoft .Net Framework propagates the <a
  * href="https://msdn.microsoft.com/en-us/library/system.threading.executioncontext(v=vs.110).aspx">System.Threading.ExecutionContext</a>.
+ *
+ * @since 0.6
  */
 @AutoService(Instrumenter.class)
 public final class ExecutorInstrumentation implements Instrumenter {

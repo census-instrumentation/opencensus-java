@@ -43,6 +43,7 @@ import net.bytebuddy.agent.builder.AgentBuilder;
  *
  * @see <a
  *     href="https://github.com/census-instrumentation/instrumentation-java/tree/master/agent">https://github.com/census-instrumentation/instrumentation-java/tree/master/agent</a>
+ * @since 0.6
  */
 public final class AgentMain {
 
@@ -58,6 +59,7 @@ public final class AgentMain {
    *     Java programming language code
    * @throws Exception if initialization of the agent fails
    * @see java.lang.instrument
+   * @since 0.6
    */
   public static void premain(String agentArgs, Instrumentation instrumentation) throws Exception {
     checkNotNull(instrumentation, "instrumentation");
