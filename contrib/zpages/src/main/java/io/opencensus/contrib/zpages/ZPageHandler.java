@@ -22,6 +22,8 @@ import java.util.Map;
 /**
  * Main interface for all the Z-Pages. All Z-Pages must implement this interface to allow other HTTP
  * server implementation to support these pages.
+ *
+ * @since 0.6
  */
 public abstract class ZPageHandler {
 
@@ -29,6 +31,7 @@ public abstract class ZPageHandler {
    * Returns the URL path that should be used to register this page.
    *
    * @return the URL path that should be used to register this page.
+   * @since 0.6
    */
   public abstract String getUrlPath();
 
@@ -37,6 +40,7 @@ public abstract class ZPageHandler {
    *
    * @param queryMap the query components map.
    * @param outputStream the output {@code OutputStream}.
+   * @since 0.6
    */
   public abstract void emitHtml(Map<String, String> queryMap, OutputStream outputStream);
 

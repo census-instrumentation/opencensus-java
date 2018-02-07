@@ -21,15 +21,26 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey;
 
-/** Constants for collecting rpc stats. */
+/**
+ * Constants for collecting rpc stats.
+ *
+ * @since 0.8
+ */
 public final class RpcMeasureConstants {
 
   /**
    * Tag key that represents a gRPC canonical status. Refer to
    * https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.
+   *
+   * @since 0.8
    */
   public static final TagKey RPC_STATUS = TagKey.create("canonical_status");
-  /** Tag key that represents a gRPC method. */
+
+  /**
+   * Tag key that represents a gRPC method.
+   *
+   * @since 0.8
+   */
   public static final TagKey RPC_METHOD = TagKey.create("method");
 
   // Constants used to define the following Measures.

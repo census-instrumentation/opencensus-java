@@ -55,7 +55,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** Constants for exporting views on rpc stats. */
+/**
+ * Constants for exporting views on rpc stats.
+ *
+ * @since 0.8
+ */
 public final class RpcViewConstants {
 
   // Common histogram bucket boundaries for bytes received/sets Views.
