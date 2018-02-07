@@ -22,7 +22,11 @@ import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 
-/** Helper class that allows users to register rpc views easily. */
+/**
+ * Helper class that allows users to register rpc views easily.
+ *
+ * @since 0.11
+ */
 public final class RpcViews {
   @VisibleForTesting
   static final ImmutableSet<View> RPC_CUMULATIVE_VIEWS_SET =

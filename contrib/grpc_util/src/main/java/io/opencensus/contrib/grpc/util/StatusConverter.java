@@ -18,6 +18,8 @@ package io.opencensus.contrib.grpc.util;
 
 /**
  * Utility class to convert between {@link io.opencensus.trace.Status} and {@link io.grpc.Status}
+ *
+ * @since 0.6
  */
 public final class StatusConverter {
 
@@ -26,6 +28,7 @@ public final class StatusConverter {
    *
    * @param grpcCode the given {@code io.grpc.Status.Code}.
    * @return a {@code io.opencensus.trace.Status.CanonicalCode} from a {@code io.grpc.Status.Code}.
+   * @since 0.6
    */
   public static io.opencensus.trace.Status.CanonicalCode fromGrpcCode(
       io.grpc.Status.Code grpcCode) {
@@ -37,6 +40,7 @@ public final class StatusConverter {
    *
    * @param grpcStatus the given {@code io.grpc.Status}.
    * @return a {@code io.opencensus.trace.Status} from a {@code io.grpc.Status}.
+   * @since 0.6
    */
   public static io.opencensus.trace.Status fromGrpcStatus(io.grpc.Status grpcStatus) {
     io.opencensus.trace.Status status = opencensusStatusFromGrpcCode(grpcStatus.getCode());
@@ -52,6 +56,7 @@ public final class StatusConverter {
    *
    * @param opencensusCanonicalCode the given {@code io.opencensus.trace.Status.CanonicalCode}.
    * @return a {@code io.grpc.Status.Code} from a {@code io.opencensus.trace.Status.CanonicalCode}.
+   * @since 0.6
    */
   public static io.grpc.Status.Code toGrpcCode(
       io.opencensus.trace.Status.CanonicalCode opencensusCanonicalCode) {
@@ -63,6 +68,7 @@ public final class StatusConverter {
    *
    * @param opencensusStatus the given {@code io.opencensus.trace.Status}.
    * @return a {@code io.grpc.Status} from a {@code io.opencensus.trace.Status}.
+   * @since 0.6
    */
   public static io.grpc.Status toGrpcStatus(io.opencensus.trace.Status opencensusStatus) {
     io.grpc.Status status =

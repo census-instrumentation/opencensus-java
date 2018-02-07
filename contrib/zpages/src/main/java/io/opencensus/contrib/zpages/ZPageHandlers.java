@@ -54,6 +54,8 @@ import javax.annotation.concurrent.ThreadSafe;
  *   }
  * }
  * }</pre>
+ *
+ * @since 0.6
  */
 @ThreadSafe
 public final class ZPageHandlers {
@@ -86,6 +88,7 @@ public final class ZPageHandlers {
    * sure that the span name is registered to the {@code SampledSpanStore}.
    *
    * @return a {@code ZPageHandler} for tracing debug.
+   * @since 0.6
    */
   public static ZPageHandler getTracezZPageHandler() {
     return tracezZPageHandler;
@@ -96,6 +99,7 @@ public final class ZPageHandlers {
    * active configuration and allow changing the active configuration.
    *
    * @return a {@code ZPageHandler} for tracing config.
+   * @since 0.6
    */
   public static ZPageHandler getTraceConfigzZPageHandler() {
     return traceConfigzZPageHandler;
@@ -105,6 +109,7 @@ public final class ZPageHandlers {
    * Registers all pages to the given {@code HttpServer}.
    *
    * @param server the server that exports the tracez page.
+   * @since 0.6
    */
   public static void registerAllToHttpServer(HttpServer server) {
     server.createContext(tracezZPageHandler.getUrlPath(), new ZPageHttpHandler(tracezZPageHandler));
@@ -121,6 +126,7 @@ public final class ZPageHandlers {
    * @param port the port used to bind the {@code HttpServer}.
    * @throws IllegalStateException if the server is already started.
    * @throws IOException if the server cannot bind to the requested address.
+   * @since 0.6
    */
   public static void startHttpServerAndRegisterAll(int port) throws IOException {
     synchronized (monitor) {
