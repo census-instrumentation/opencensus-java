@@ -23,7 +23,11 @@ import io.opencensus.common.Timestamp;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-/** A {@link Clock} that allows the time to be set for testing. */
+/**
+ * A {@link Clock} that allows the time to be set for testing.
+ *
+ * @since 0.5
+ */
 @ThreadSafe
 public final class TestClock extends Clock {
   private static final int NUM_NANOS_PER_SECOND = 1000 * 1000 * 1000;
@@ -38,6 +42,7 @@ public final class TestClock extends Clock {
    * a good default, because it represents an invalid time.
    *
    * @return a clock initialized to a constant non-zero time.
+   * @since 0.5
    */
   public static TestClock create() {
     return new TestClock();
@@ -48,6 +53,7 @@ public final class TestClock extends Clock {
    *
    * @param time the initial time.
    * @return a new {@code TestClock} with the given time.
+   * @since 0.5
    */
   public static TestClock create(Timestamp time) {
     TestClock clock = new TestClock();
@@ -59,6 +65,7 @@ public final class TestClock extends Clock {
    * Sets the time.
    *
    * @param time the new time.
+   * @since 0.5
    */
   public synchronized void setTime(Timestamp time) {
     currentTime = validateNanos(time);
@@ -68,6 +75,7 @@ public final class TestClock extends Clock {
    * Advances the time by a duration.
    *
    * @param duration the increase in time.
+   * @since 0.5
    */
   public synchronized void advanceTime(Duration duration) {
     currentTime = validateNanos(currentTime.addDuration(duration));

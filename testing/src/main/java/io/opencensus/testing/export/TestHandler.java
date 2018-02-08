@@ -25,7 +25,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
-/** A {@link SpanExporter.Handler} for testing only. */
+/**
+ * A {@link SpanExporter.Handler} for testing only.
+ *
+ * @since 0.9
+ */
 public final class TestHandler extends SpanExporter.Handler {
 
   private final Object monitor = new Object();
@@ -50,6 +54,7 @@ public final class TestHandler extends SpanExporter.Handler {
    * @param numberOfSpans the number of minimum spans to be collected.
    * @return the list of exported {@link SpanData} objects, otherwise {@code null} if the current
    *     thread is interrupted.
+   * @since 0.9
    */
   @Nullable
   public List<SpanData> waitForExport(int numberOfSpans) {

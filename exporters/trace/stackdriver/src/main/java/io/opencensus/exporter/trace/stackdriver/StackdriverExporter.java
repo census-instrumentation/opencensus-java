@@ -37,6 +37,7 @@ import java.io.IOException;
  * }</pre>
  *
  * @deprecated Deprecated due to inconsistent naming. Use {@link StackdriverTraceExporter}.
+ * @since 0.6
  */
 @Deprecated
 public final class StackdriverExporter {
@@ -49,6 +50,7 @@ public final class StackdriverExporter {
    * @param credentials a credentials used to authenticate API calls.
    * @param projectId the cloud project id.
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
+   * @since 0.6
    */
   public static void createAndRegisterWithCredentialsAndProjectId(
       Credentials credentials, String projectId) throws IOException {
@@ -71,6 +73,7 @@ public final class StackdriverExporter {
    *
    * @param projectId the cloud project id.
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
+   * @since 0.6
    */
   public static void createAndRegisterWithProjectId(String projectId) throws IOException {
     StackdriverTraceExporter.createAndRegisterWithProjectId(projectId);
@@ -92,6 +95,7 @@ public final class StackdriverExporter {
    * }</pre>
    *
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
+   * @since 0.6
    */
   public static void createAndRegister() throws IOException {
     StackdriverTraceExporter.createAndRegister();
@@ -111,6 +115,7 @@ public final class StackdriverExporter {
    * Unregisters the Stackdriver Trace exporter from the OpenCensus library.
    *
    * @throws IllegalStateException if a Stackdriver exporter is not registered.
+   * @since 0.6
    */
   public static void unregister() {
     StackdriverTraceExporter.unregister();

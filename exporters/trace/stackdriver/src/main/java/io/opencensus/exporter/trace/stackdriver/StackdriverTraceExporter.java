@@ -40,6 +40,8 @@ import javax.annotation.concurrent.GuardedBy;
  *   ... // Do work.
  * }
  * }</pre>
+ *
+ * @since 0.12
  */
 public final class StackdriverTraceExporter {
 
@@ -58,6 +60,7 @@ public final class StackdriverTraceExporter {
    * @param credentials a credentials used to authenticate API calls.
    * @param projectId the cloud project id.
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
+   * @since 0.12
    */
   public static void createAndRegisterWithCredentialsAndProjectId(
       Credentials credentials, String projectId) throws IOException {
@@ -83,6 +86,7 @@ public final class StackdriverTraceExporter {
    *
    * @param projectId the cloud project id.
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
+   * @since 0.12
    */
   public static void createAndRegisterWithProjectId(String projectId) throws IOException {
     synchronized (monitor) {
@@ -107,6 +111,7 @@ public final class StackdriverTraceExporter {
    * }</pre>
    *
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
+   * @since 0.12
    */
   public static void createAndRegister() throws IOException {
     synchronized (monitor) {
@@ -136,6 +141,7 @@ public final class StackdriverTraceExporter {
    * Unregisters the Stackdriver Trace exporter from the OpenCensus library.
    *
    * @throws IllegalStateException if a Stackdriver exporter is not registered.
+   * @since 0.12
    */
   public static void unregister() {
     synchronized (monitor) {

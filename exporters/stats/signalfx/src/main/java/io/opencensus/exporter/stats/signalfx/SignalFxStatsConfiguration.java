@@ -24,7 +24,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javax.annotation.concurrent.Immutable;
 
-/** Configurations for {@link SignalFxStatsExporter}. */
+/**
+ * Configurations for {@link SignalFxStatsExporter}.
+ *
+ * @since 0.11
+ */
 @AutoValue
 @Immutable
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -32,7 +36,11 @@ import javax.annotation.concurrent.Immutable;
 @SuppressWarnings("nullness")
 public abstract class SignalFxStatsConfiguration {
 
-  /** The default SignalFx ingest API URL. */
+  /**
+   * The default SignalFx ingest API URL.
+   *
+   * @since 0.11
+   */
   public static final URI DEFAULT_SIGNALFX_ENDPOINT;
 
   static {
@@ -44,7 +52,11 @@ public abstract class SignalFxStatsConfiguration {
     }
   }
 
-  /** The default stats export interval. */
+  /**
+   * The default stats export interval.
+   *
+   * @since 0.11
+   */
   public static final Duration DEFAULT_EXPORT_INTERVAL = Duration.create(1, 0);
 
   private static final Duration ZERO = Duration.create(0, 0);
@@ -55,6 +67,7 @@ public abstract class SignalFxStatsConfiguration {
    * Returns the SignalFx ingest API URL.
    *
    * @return the SignalFx ingest API URL.
+   * @since 0.11
    */
   public abstract URI getIngestEndpoint();
 
@@ -62,6 +75,7 @@ public abstract class SignalFxStatsConfiguration {
    * Returns the authentication token.
    *
    * @return the authentication token.
+   * @since 0.11
    */
   public abstract String getToken();
 
@@ -69,6 +83,7 @@ public abstract class SignalFxStatsConfiguration {
    * Returns the export interval between pushes to SignalFx.
    *
    * @return the export interval.
+   * @since 0.11
    */
   public abstract Duration getExportInterval();
 
@@ -76,6 +91,7 @@ public abstract class SignalFxStatsConfiguration {
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
+   * @since 0.11
    */
   public static Builder builder() {
     return new AutoValue_SignalFxStatsConfiguration.Builder()
@@ -83,7 +99,11 @@ public abstract class SignalFxStatsConfiguration {
         .setExportInterval(DEFAULT_EXPORT_INTERVAL);
   }
 
-  /** Builder for {@link SignalFxStatsConfiguration}. */
+  /**
+   * Builder for {@link SignalFxStatsConfiguration}.
+   *
+   * @since 0.11
+   */
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -94,6 +114,7 @@ public abstract class SignalFxStatsConfiguration {
      *
      * @param url the SignalFx ingest API URL.
      * @return this.
+     * @since 0.11
      */
     public abstract Builder setIngestEndpoint(URI url);
 
@@ -102,6 +123,7 @@ public abstract class SignalFxStatsConfiguration {
      *
      * @param token the authentication token.
      * @return this.
+     * @since 0.11
      */
     public abstract Builder setToken(String token);
 
@@ -110,6 +132,7 @@ public abstract class SignalFxStatsConfiguration {
      *
      * @param exportInterval the export interval between pushes to SignalFx.
      * @return this.
+     * @since 0.11
      */
     public abstract Builder setExportInterval(Duration exportInterval);
 
@@ -119,6 +142,7 @@ public abstract class SignalFxStatsConfiguration {
      * Builds a new {@link SignalFxStatsConfiguration} with current settings.
      *
      * @return a {@code SignalFxStatsConfiguration}.
+     * @since 0.11
      */
     public SignalFxStatsConfiguration build() {
       SignalFxStatsConfiguration config = autoBuild();
