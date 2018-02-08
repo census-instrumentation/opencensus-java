@@ -23,7 +23,11 @@ import io.opencensus.common.Duration;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-/** Configurations for {@link StackdriverStatsExporter}. */
+/**
+ * Configurations for {@link StackdriverStatsExporter}.
+ *
+ * @since 0.11
+ */
 @AutoValue
 @Immutable
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -37,6 +41,7 @@ public abstract class StackdriverStatsConfiguration {
    * Returns the {@link Credentials}.
    *
    * @return the {@code Credentials}.
+   * @since 0.11
    */
   @Nullable
   public abstract Credentials getCredentials();
@@ -45,6 +50,7 @@ public abstract class StackdriverStatsConfiguration {
    * Returns the project id.
    *
    * @return the project id.
+   * @since 0.11
    */
   @Nullable
   public abstract String getProjectId();
@@ -53,6 +59,7 @@ public abstract class StackdriverStatsConfiguration {
    * Returns the export interval between pushes to StackDriver.
    *
    * @return the export interval.
+   * @since 0.11
    */
   @Nullable
   public abstract Duration getExportInterval();
@@ -61,6 +68,7 @@ public abstract class StackdriverStatsConfiguration {
    * Returns the Stackdriver {@link MonitoredResource}.
    *
    * @return the {@code MonitoredResource}.
+   * @since 0.11
    */
   @Nullable
   public abstract MonitoredResource getMonitoredResource();
@@ -69,12 +77,17 @@ public abstract class StackdriverStatsConfiguration {
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
+   * @since 0.11
    */
   public static Builder builder() {
     return new AutoValue_StackdriverStatsConfiguration.Builder();
   }
 
-  /** Builder for {@link StackdriverStatsConfiguration}. */
+  /**
+   * Builder for {@link StackdriverStatsConfiguration}.
+   *
+   * @since 0.11
+   */
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -85,6 +98,7 @@ public abstract class StackdriverStatsConfiguration {
      *
      * @param credentials the {@code Credentials}.
      * @return this.
+     * @since 0.11
      */
     public abstract Builder setCredentials(Credentials credentials);
 
@@ -93,6 +107,7 @@ public abstract class StackdriverStatsConfiguration {
      *
      * @param projectId the cloud project id.
      * @return this.
+     * @since 0.11
      */
     public abstract Builder setProjectId(String projectId);
 
@@ -101,6 +116,7 @@ public abstract class StackdriverStatsConfiguration {
      *
      * @param exportInterval the export interval between pushes to StackDriver.
      * @return this.
+     * @since 0.11
      */
     public abstract Builder setExportInterval(Duration exportInterval);
 
@@ -109,6 +125,7 @@ public abstract class StackdriverStatsConfiguration {
      *
      * @param monitoredResource the Stackdriver {@code MonitoredResource}.
      * @return this.
+     * @since 0.11
      */
     public abstract Builder setMonitoredResource(MonitoredResource monitoredResource);
 
@@ -116,6 +133,7 @@ public abstract class StackdriverStatsConfiguration {
      * Builds a new {@link StackdriverStatsConfiguration} with current settings.
      *
      * @return a {@code StackdriverStatsConfiguration}.
+     * @since 0.11
      */
     public abstract StackdriverStatsConfiguration build();
   }

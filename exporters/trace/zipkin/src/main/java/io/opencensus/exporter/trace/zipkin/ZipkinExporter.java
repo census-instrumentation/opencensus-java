@@ -36,6 +36,7 @@ import zipkin2.reporter.Sender;
  * }</pre>
  *
  * @deprecated Deprecated due to inconsistent naming. Use {@link ZipkinTraceExporter}.
+ * @since 0.8
  */
 @Deprecated
 public final class ZipkinExporter {
@@ -49,6 +50,7 @@ public final class ZipkinExporter {
    * @param v2Url Ex http://127.0.0.1:9411/api/v2/spans
    * @param serviceName the {@link Span#localServiceName() local service name} of the process.
    * @throws IllegalStateException if a Zipkin exporter is already registered.
+   * @since 0.8
    */
   public static void createAndRegister(String v2Url, String serviceName) {
     ZipkinTraceExporter.createAndRegister(v2Url, serviceName);
@@ -62,6 +64,7 @@ public final class ZipkinExporter {
    * @param sender Often, but not necessarily an http sender. This could be Kafka or SQS.
    * @param serviceName the {@link Span#localServiceName() local service name} of the process.
    * @throws IllegalStateException if a Zipkin exporter is already registered.
+   * @since 0.8
    */
   public static void createAndRegister(
       SpanBytesEncoder encoder, Sender sender, String serviceName) {
@@ -82,6 +85,7 @@ public final class ZipkinExporter {
    * Unregisters the Zipkin Trace exporter from the OpenCensus library.
    *
    * @throws IllegalStateException if a Zipkin exporter is not registered.
+   * @since 0.8
    */
   public static void unregister() {
     ZipkinTraceExporter.unregister();

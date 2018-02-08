@@ -37,6 +37,8 @@ import javax.annotation.concurrent.ThreadSafe;
  *   ... // Do work.
  * }
  * }</pre>
+ *
+ * @since 0.12
  */
 @ThreadSafe
 public final class LoggingTraceExporter {
@@ -46,7 +48,11 @@ public final class LoggingTraceExporter {
 
   private LoggingTraceExporter() {}
 
-  /** Registers the Logging exporter to the OpenCensus library. */
+  /**
+   * Registers the Logging exporter to the OpenCensus library.
+   *
+   * @since 0.12
+   */
   public static void register() {
     register(Tracing.getExportComponent().getSpanExporter());
   }
@@ -61,7 +67,11 @@ public final class LoggingTraceExporter {
     spanExporter.registerHandler(REGISTER_NAME, HANDLER);
   }
 
-  /** Unregisters the Logging exporter from the OpenCensus library. */
+  /**
+   * Unregisters the Logging exporter from the OpenCensus library.
+   *
+   * @since 0.12
+   */
   public static void unregister() {
     unregister(Tracing.getExportComponent().getSpanExporter());
   }

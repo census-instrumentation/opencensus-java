@@ -34,6 +34,8 @@ import javax.annotation.concurrent.GuardedBy;
  *   ... // Do work.
  * }
  * </code></pre>
+ *
+ * @since 0.11
  */
 public final class SignalFxStatsExporter {
 
@@ -69,6 +71,7 @@ public final class SignalFxStatsExporter {
    *
    * @param configuration the {@code SignalFxStatsConfiguration}.
    * @throws IllegalStateException if a SignalFx exporter is already created.
+   * @since 0.11
    */
   public static void create(SignalFxStatsConfiguration configuration) {
     synchronized (monitor) {

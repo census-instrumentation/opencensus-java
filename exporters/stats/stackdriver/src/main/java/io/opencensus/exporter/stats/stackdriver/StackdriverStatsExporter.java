@@ -53,6 +53,8 @@ import javax.annotation.concurrent.GuardedBy;
  *     ... // Do work.
  *   }
  * </code></pre>
+ *
+ * @since 0.9
  */
 public final class StackdriverStatsExporter {
 
@@ -97,6 +99,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter already exists.
    * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
+   * @since 0.9
    */
   @Deprecated
   public static void createAndRegisterWithCredentialsAndProjectId(
@@ -127,6 +130,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
+   * @since 0.9
    */
   @Deprecated
   public static void createAndRegisterWithProjectId(String projectId, Duration exportInterval)
@@ -216,6 +220,7 @@ public final class StackdriverStatsExporter {
    * @param exportInterval the interval between pushing stats to StackDriver.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
+   * @since 0.9
    */
   @Deprecated
   public static void createAndRegister(Duration exportInterval) throws IOException {
@@ -240,6 +245,7 @@ public final class StackdriverStatsExporter {
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
+   * @since 0.10
    */
   @Deprecated
   public static void createAndRegisterWithProjectIdAndMonitoredResource(
@@ -268,6 +274,7 @@ public final class StackdriverStatsExporter {
    * @param monitoredResource the Monitored Resource used by exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @deprecated in favor of {@link #createAndRegister(StackdriverStatsConfiguration)}.
+   * @since 0.10
    */
   @Deprecated
   public static void createAndRegisterWithMonitoredResource(

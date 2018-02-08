@@ -33,13 +33,18 @@ import javax.annotation.concurrent.ThreadSafe;
  * }</pre>
  *
  * @deprecated Deprecated due to inconsistent naming. Use {@link LoggingTraceExporter}.
+ * @since 0.6
  */
 @ThreadSafe
 @Deprecated
 public final class LoggingExporter {
   private LoggingExporter() {}
 
-  /** Registers the Logging exporter to the OpenCensus library. */
+  /**
+   * Registers the Logging exporter to the OpenCensus library.
+   *
+   * @since 0.6
+   */
   public static void register() {
     LoggingTraceExporter.register();
   }
@@ -54,7 +59,11 @@ public final class LoggingExporter {
     LoggingTraceExporter.register(spanExporter);
   }
 
-  /** Unregisters the Logging exporter from the OpenCensus library. */
+  /**
+   * Unregisters the Logging exporter from the OpenCensus library.
+   *
+   * @since 0.6
+   */
   public static void unregister() {
     LoggingTraceExporter.unregister();
   }
