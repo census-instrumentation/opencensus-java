@@ -62,6 +62,8 @@ public final class RpcViews {
           RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW,
           RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW,
           RpcViewConstants.RPC_CLIENT_SERVER_ELAPSED_TIME_MINUTE_VIEW,
+          RpcViewConstants.RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW,
+          RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_MINUTE_VIEW,
           RpcViewConstants.RPC_SERVER_ERROR_COUNT_MINUTE_VIEW,
           RpcViewConstants.RPC_SERVER_SERVER_LATENCY_MINUTE_VIEW,
           RpcViewConstants.RPC_SERVER_SERVER_ELAPSED_TIME_MINUTE_VIEW,
@@ -71,6 +73,8 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_MINUTE_VIEW,
           RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW,
           RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW,
+          RpcViewConstants.RPC_SERVER_STARTED_COUNT_MINUTE_VIEW,
+          RpcViewConstants.RPC_SERVER_FINISHED_COUNT_MINUTE_VIEW,
           RpcViewConstants.RPC_CLIENT_ERROR_COUNT_HOUR_VIEW,
           RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_HOUR_VIEW,
           RpcViewConstants.RPC_CLIENT_REQUEST_BYTES_HOUR_VIEW,
@@ -80,6 +84,8 @@ public final class RpcViews {
           RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW,
           RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW,
           RpcViewConstants.RPC_CLIENT_SERVER_ELAPSED_TIME_HOUR_VIEW,
+          RpcViewConstants.RPC_CLIENT_STARTED_COUNT_HOUR_VIEW,
+          RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_HOUR_VIEW,
           RpcViewConstants.RPC_SERVER_ERROR_COUNT_HOUR_VIEW,
           RpcViewConstants.RPC_SERVER_SERVER_LATENCY_HOUR_VIEW,
           RpcViewConstants.RPC_SERVER_SERVER_ELAPSED_TIME_HOUR_VIEW,
@@ -88,7 +94,9 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_REQUEST_COUNT_HOUR_VIEW,
           RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_HOUR_VIEW,
           RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW,
-          RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW);
+          RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW,
+          RpcViewConstants.RPC_SERVER_STARTED_COUNT_HOUR_VIEW,
+          RpcViewConstants.RPC_SERVER_FINISHED_COUNT_HOUR_VIEW);
 
   /**
    * Registers all standard cumulative views.
