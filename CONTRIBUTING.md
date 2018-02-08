@@ -38,6 +38,8 @@ We also follow these project-specific guidelines:
   (package-protected classes, private) MAY have javadoc, at the code writer's
   whim. It does not have to be complete, and reviewers are not allowed to
   require or disallow it.
+* Each API element should have a `@since` tag specifying the minor version when
+  it was released (or the next minor version).
 * There MUST be NO javadoc errors.
 * See
   [section 7.3.1](https://google.github.io/styleguide/javaguide.html#s7.3.1-javadoc-exception-self-explanatory)
