@@ -121,6 +121,12 @@ public final class RpcViewConstants {
   @VisibleForTesting static final AggregationWindow INTERVAL_HOUR = Interval.create(HOUR);
 
   // Rpc client cumulative views.
+
+  /**
+   * Cumulative {@link View} for client RPC errors.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_ERROR_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/client/error_count/cumulative"),
@@ -129,6 +135,12 @@ public final class RpcViewConstants {
           MEAN,
           Arrays.asList(RPC_STATUS, RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client roundtrip latency in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW =
       View.create(
           View.Name.create("grpc.io/client/roundtrip_latency/cumulative"),
@@ -137,6 +149,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client server elapsed time in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW =
       View.create(
           View.Name.create("grpc.io/client/server_elapsed_time/cumulative"),
@@ -145,6 +163,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_bytes/cumulative"),
@@ -153,6 +177,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_bytes/cumulative"),
@@ -161,6 +191,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client uncompressed request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_request_bytes/cumulative"),
@@ -169,6 +205,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client uncompressed response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_response_bytes/cumulative"),
@@ -177,6 +219,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client request message counts.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_REQUEST_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_count/cumulative"),
@@ -185,6 +233,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_COUNT_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for client response message counts.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_RESPONSE_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_count/cumulative"),
@@ -195,6 +249,12 @@ public final class RpcViewConstants {
           CUMULATIVE);
 
   // Rpc server cumulative views.
+
+  /**
+   * Cumulative {@link View} for server RPC errors.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_ERROR_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/server/error_count/cumulative"),
@@ -203,6 +263,12 @@ public final class RpcViewConstants {
           MEAN,
           Arrays.asList(RPC_STATUS, RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server latency in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_SERVER_LATENCY_VIEW =
       View.create(
           View.Name.create("grpc.io/server/server_latency/cumulative"),
@@ -211,6 +277,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server elapsed time in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
       View.create(
           View.Name.create("grpc.io/server/elapsed_time/cumulative"),
@@ -219,6 +291,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_bytes/cumulative"),
@@ -227,6 +305,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_bytes/cumulative"),
@@ -235,6 +319,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server uncompressed request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_request_bytes/cumulative"),
@@ -243,6 +333,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server uncompressed response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_response_bytes/cumulative"),
@@ -251,6 +347,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_BYTES_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server request message counts.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_REQUEST_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_count/cumulative"),
@@ -259,6 +361,12 @@ public final class RpcViewConstants {
           AGGREGATION_WITH_COUNT_HISTOGRAM,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for server response message counts.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_RESPONSE_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_count/cumulative"),
@@ -271,6 +379,12 @@ public final class RpcViewConstants {
   // Interval Stats
 
   // RPC client interval views.
+
+  /**
+   * Minute {@link View} for client roundtrip latency in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_ROUNDTRIP_LATENCY_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/roundtrip_latency/minute"),
@@ -280,6 +394,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_REQUEST_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_bytes/minute"),
@@ -289,6 +408,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_RESPONSE_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_bytes/minute"),
@@ -298,6 +422,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client RPC errors.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_ERROR_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/error_count/minute"),
@@ -307,6 +436,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client uncompressed request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_request_bytes/minute"),
@@ -316,6 +450,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client uncompressed response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_response_bytes/minute"),
@@ -325,6 +464,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client server elapsed time in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/server_elapsed_time/minute"),
@@ -334,6 +478,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for started client RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/started_count/minute"),
@@ -343,6 +492,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for finished client RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_FINISHED_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/finished_count/minute"),
@@ -352,6 +506,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client request messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_REQUEST_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_count/minute"),
@@ -361,6 +520,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for client response messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_RESPONSE_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_count/minute"),
@@ -370,6 +534,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Hour {@link View} for client roundtrip latency in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_ROUNDTRIP_LATENCY_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/roundtrip_latency/hour"),
@@ -379,6 +548,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_REQUEST_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_bytes/hour"),
@@ -388,6 +562,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_RESPONSE_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_bytes/hour"),
@@ -397,6 +576,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client RPC errors.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_ERROR_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/error_count/hour"),
@@ -406,6 +590,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client uncompressed request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_request_bytes/hour"),
@@ -415,6 +604,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client uncompressed response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_response_bytes/hour"),
@@ -424,6 +618,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client server elapsed time in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/server_elapsed_time/hour"),
@@ -433,6 +632,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for started client RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_STARTED_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/started_count/hour"),
@@ -442,6 +646,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for finished client RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_FINISHED_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/finished_count/hour"),
@@ -451,6 +660,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client request messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_REQUEST_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_count/hour"),
@@ -460,6 +674,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for client response messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_CLIENT_RESPONSE_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_count/hour"),
@@ -470,6 +689,12 @@ public final class RpcViewConstants {
           INTERVAL_HOUR);
 
   // RPC server interval views.
+
+  /**
+   * Minute {@link View} for server latency in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_SERVER_LATENCY_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/server_latency/minute"),
@@ -479,6 +704,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_REQUEST_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_bytes/minute"),
@@ -488,6 +718,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_RESPONSE_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_bytes/minute"),
@@ -497,6 +732,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server RPC errors.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_ERROR_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/error_count/minute"),
@@ -506,6 +746,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server uncompressed request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_request_bytes/minute"),
@@ -515,6 +760,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server uncompressed response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_response_bytes/minute"),
@@ -524,6 +774,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server elapsed time in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/server_elapsed_time/minute"),
@@ -533,6 +788,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for started server RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_STARTED_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/started_count/minute"),
@@ -542,6 +802,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for finished server RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_FINISHED_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/finished_count/minute"),
@@ -551,6 +816,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server request messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_REQUEST_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_count/minute"),
@@ -560,6 +830,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Minute {@link View} for server response messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_RESPONSE_COUNT_MINUTE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_count/minute"),
@@ -569,6 +844,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
+  /**
+   * Hour {@link View} for server latency in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_SERVER_LATENCY_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/server_latency/hour"),
@@ -578,6 +858,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_REQUEST_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_bytes/hour"),
@@ -587,6 +872,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_RESPONSE_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_bytes/hour"),
@@ -596,6 +886,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server RPC errors.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_ERROR_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/error_count/hour"),
@@ -605,6 +900,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server uncompressed request bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_request_bytes/hour"),
@@ -614,6 +914,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server uncompressed response bytes.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_response_bytes/hour"),
@@ -623,6 +928,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server elapsed time in milliseconds.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/server_elapsed_time/hour"),
@@ -632,6 +942,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for started server RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_STARTED_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/started_count/hour"),
@@ -641,6 +956,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for finished server RPCs.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_FINISHED_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/finished_count/hour"),
@@ -650,6 +970,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server request messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_REQUEST_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_count/hour"),
@@ -659,6 +984,11 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
+  /**
+   * Hour {@link View} for server response messages.
+   *
+   * @since 0.8
+   */
   public static final View RPC_SERVER_RESPONSE_COUNT_HOUR_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_count/hour"),
