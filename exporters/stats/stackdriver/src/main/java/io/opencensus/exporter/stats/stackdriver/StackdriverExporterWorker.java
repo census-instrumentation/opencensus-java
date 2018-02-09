@@ -60,7 +60,8 @@ final class StackdriverExporterWorker implements Runnable {
 
   private static final Logger logger = Logger.getLogger(StackdriverExporterWorker.class.getName());
 
-  @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 3;
+  // Stackdriver Monitoring v3 only accepts up to 200 TimeSeries per CreateTimeSeries call.
+  @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
 
   private final long scheduleDelayMillis;
   private final String projectId;
@@ -173,7 +174,6 @@ final class StackdriverExporterWorker implements Runnable {
       Span span = tracer.getCurrentSpan();
       span.addAnnotation("Export Stackdriver TimeSeries.");
       try (Scope scope = tracer.withSpan(span)) {
-        // Batch export 3 TimeSeries at one call, to avoid exceeding RPC header size limit.
         CreateTimeSeriesRequest request =
             CreateTimeSeriesRequest.newBuilder()
                 .setName(projectName.toString())

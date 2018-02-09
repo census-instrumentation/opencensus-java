@@ -110,7 +110,7 @@ public class StackdriverExporterWorkerTest {
 
   @Test
   public void testConstants() {
-    assertThat(StackdriverExporterWorker.MAX_BATCH_EXPORT_SIZE).isEqualTo(3);
+    assertThat(StackdriverExporterWorker.MAX_BATCH_EXPORT_SIZE).isEqualTo(200);
   }
 
   @Test
