@@ -221,6 +221,7 @@ $ README_FILES=(
   contrib/zpages/README.md
   exporters/stats/signalfx/README.md
   exporters/stats/stackdriver/README.md
+  exporters/trace/instana/README.md
   exporters/trace/logging/README.md
   exporters/trace/stackdriver/README.md
   exporters/trace/zipkin/README.md

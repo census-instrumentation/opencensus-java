@@ -335,6 +335,7 @@ subprojects {
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-stats-signalfx',
                  'opencensus-exporter-stats-stackdriver',
+                 'opencensus-exporter-trace-instana',
                  'opencensus-exporter-trace-logging',
                  'opencensus-exporter-trace-stackdriver',
                  'opencensus-exporter-trace-zipkin',
