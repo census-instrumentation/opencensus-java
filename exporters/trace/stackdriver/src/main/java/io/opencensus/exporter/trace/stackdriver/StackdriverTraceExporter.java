@@ -22,7 +22,6 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.MoreObjects;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
@@ -75,13 +74,12 @@ public final class StackdriverTraceExporter {
       throws IOException {
     synchronized (monitor) {
       checkState(handler == null, "Stackdriver exporter is already registered.");
-      Credentials credentials =
-          MoreObjects.<Credentials>firstNonNull(
-              configuration.getCredentials(), GoogleCredentials.getApplicationDefault());
-      String projectId =
-          MoreObjects.<String>firstNonNull(
-              configuration.getProjectId(), ServiceOptions.getDefaultProjectId());
-      registerInternal(StackdriverV2ExporterHandler.createWithCredentials(credentials, projectId));
+      Credentials credentials = configuration.getCredentials();
+      String projectId = configuration.getProjectId();
+      registerInternal(
+          StackdriverV2ExporterHandler.createWithCredentials(
+              credentials != null ? credentials : GoogleCredentials.getApplicationDefault(),
+              projectId != null ? projectId : ServiceOptions.getDefaultProjectId()));
     }
   }
 
