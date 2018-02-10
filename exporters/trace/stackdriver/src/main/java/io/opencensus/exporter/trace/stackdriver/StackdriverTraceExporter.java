@@ -36,7 +36,10 @@ import javax.annotation.concurrent.GuardedBy;
  *
  * <pre>{@code
  * public static void main(String[] args) {
- *   StackdriverTraceExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
+ *   StackdriverTraceExporter.createAndRegister(
+ *       StackdriverTraceConfiguration.builder()
+ *           .setProjectId("MyStackdriverProjectId")
+ *           .build());
  *   ... // Do work.
  * }
  * }</pre>
@@ -53,70 +56,30 @@ public final class StackdriverTraceExporter {
   private static Handler handler = null;
 
   /**
-   * Creates and registers the Stackdriver Trace exporter to the OpenCensus library for an explicit
-   * project ID and using explicit credentials. Only one Stackdriver exporter can be registered at
-   * any point.
-   *
-   * @param credentials a credentials used to authenticate API calls.
-   * @param projectId the cloud project id.
-   * @throws IllegalStateException if a Stackdriver exporter is already registered.
-   * @since 0.12
-   */
-  public static void createAndRegisterWithCredentialsAndProjectId(
-      Credentials credentials, String projectId) throws IOException {
-    synchronized (monitor) {
-      checkState(handler == null, "Stackdriver exporter is already registered.");
-      registerInternal(StackdriverV2ExporterHandler.createWithCredentials(credentials, projectId));
-    }
-  }
-
-  /**
-   * Creates and registers the Stackdriver Trace exporter to the OpenCensus library for an explicit
-   * project ID. Only one Stackdriver exporter can be registered at any point.
-   *
-   * <p>This uses the default application credentials see {@link
-   * GoogleCredentials#getApplicationDefault}.
-   *
-   * <p>This is equivalent with:
-   *
-   * <pre>{@code
-   * StackdriverTraceExporter.createAndRegisterWithCredentialsAndProjectId(
-   *     GoogleCredentials.getApplicationDefault(), projectId);
-   * }</pre>
-   *
-   * @param projectId the cloud project id.
-   * @throws IllegalStateException if a Stackdriver exporter is already registered.
-   * @since 0.12
-   */
-  public static void createAndRegisterWithProjectId(String projectId) throws IOException {
-    synchronized (monitor) {
-      checkState(handler == null, "Stackdriver exporter is already registered.");
-      registerInternal(StackdriverV2ExporterHandler.create(projectId));
-    }
-  }
-
-  /**
    * Creates and registers the Stackdriver Trace exporter to the OpenCensus library. Only one
    * Stackdriver exporter can be registered at any point.
    *
-   * <p>This uses the default application credentials see {@link
+   * <p>If the {@code credentials} in the provided {@link StackdriverTraceConfiguration} is not set,
+   * the exporter will use the default application credentials. See {@link
    * GoogleCredentials#getApplicationDefault}.
    *
-   * <p>This uses the default project ID configured see {@link ServiceOptions#getDefaultProjectId}.
+   * <p>If the {@code projectId} in the provided {@link StackdriverTraceConfiguration} is not set,
+   * the exporter will use the default project ID. See {@link ServiceOptions#getDefaultProjectId}.
    *
-   * <p>This is equivalent with:
-   *
-   * <pre>{@code
-   * StackdriverTraceExporter.createAndRegisterWithProjectId(ServiceOptions.getDefaultProjectId());
-   * }</pre>
-   *
+   * @param configuration the {@code StackdriverTraceConfiguration} used to create the exporter.
    * @throws IllegalStateException if a Stackdriver exporter is already registered.
    * @since 0.12
    */
-  public static void createAndRegister() throws IOException {
+  public static void createAndRegister(StackdriverTraceConfiguration configuration)
+      throws IOException {
     synchronized (monitor) {
       checkState(handler == null, "Stackdriver exporter is already registered.");
-      registerInternal(StackdriverV2ExporterHandler.create(ServiceOptions.getDefaultProjectId()));
+      Credentials credentials = configuration.getCredentials();
+      String projectId = configuration.getProjectId();
+      registerInternal(
+          StackdriverV2ExporterHandler.createWithCredentials(
+              credentials != null ? credentials : GoogleCredentials.getApplicationDefault(),
+              projectId != null ? projectId : ServiceOptions.getDefaultProjectId()));
     }
   }
 

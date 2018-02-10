@@ -54,7 +54,11 @@ public final class StackdriverExporter {
    */
   public static void createAndRegisterWithCredentialsAndProjectId(
       Credentials credentials, String projectId) throws IOException {
-    StackdriverTraceExporter.createAndRegisterWithCredentialsAndProjectId(credentials, projectId);
+    StackdriverTraceExporter.createAndRegister(
+        StackdriverTraceConfiguration.builder()
+            .setCredentials(credentials)
+            .setProjectId(projectId)
+            .build());
   }
 
   /**
@@ -76,7 +80,11 @@ public final class StackdriverExporter {
    * @since 0.6
    */
   public static void createAndRegisterWithProjectId(String projectId) throws IOException {
-    StackdriverTraceExporter.createAndRegisterWithProjectId(projectId);
+    StackdriverTraceExporter.createAndRegister(
+        StackdriverTraceConfiguration.builder()
+            .setCredentials(GoogleCredentials.getApplicationDefault())
+            .setProjectId(projectId)
+            .build());
   }
 
   /**
@@ -98,7 +106,11 @@ public final class StackdriverExporter {
    * @since 0.6
    */
   public static void createAndRegister() throws IOException {
-    StackdriverTraceExporter.createAndRegister();
+    StackdriverTraceExporter.createAndRegister(
+        StackdriverTraceConfiguration.builder()
+            .setCredentials(GoogleCredentials.getApplicationDefault())
+            .setProjectId(ServiceOptions.getDefaultProjectId())
+            .build());
   }
 
   /**
