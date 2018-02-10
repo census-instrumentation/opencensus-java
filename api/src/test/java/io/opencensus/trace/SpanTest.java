@@ -98,4 +98,22 @@ public class SpanTest {
     span.end();
     verify(span).end(same(EndSpanOptions.DEFAULT));
   }
+
+  @Test
+  public void addMessageEventDefaultImplementation() {
+    Span mockSpan = Mockito.mock(Span.class);
+    MessageEvent messageEvent =
+        MessageEvent.builder(MessageEvent.Type.SENT, 123)
+            .setUncompressedMessageSize(456)
+            .setCompressedMessageSize(789)
+            .build();
+    NetworkEvent networkEvent =
+        NetworkEvent.builder(NetworkEvent.Type.SENT, 123)
+            .setUncompressedMessageSize(456)
+            .setCompressedMessageSize(789)
+            .build();
+    Mockito.doCallRealMethod().when(mockSpan).addMessageEvent(messageEvent);
+    mockSpan.addMessageEvent(messageEvent);
+    verify(mockSpan).addNetworkEvent(eq(networkEvent));
+  }
 }

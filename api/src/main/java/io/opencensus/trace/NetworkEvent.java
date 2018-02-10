@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Timestamp;
-import io.opencensus.internal.BaseMessageEvent;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 

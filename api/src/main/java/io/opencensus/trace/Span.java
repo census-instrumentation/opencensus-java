@@ -158,12 +158,17 @@ public abstract class Span {
    * <p>This function is only intended to be used by RPC systems (either client or server), not by
    * higher level applications.
    *
+   * <p>For testing purposes, this method should always be overridden.
+   *
    * @param networkEvent the network event to add.
    * @deprecated Use {@link #addMessageEvent}.
    * @since 0.5
    */
   @Deprecated
-  public abstract void addNetworkEvent(NetworkEvent networkEvent);
+  public void addNetworkEvent(NetworkEvent networkEvent) {
+    throw new UnsupportedOperationException(
+        "This method is deprecated. For testing purposes, please override this method.");
+  }
 
   /**
    * Adds a MessageEvent to the {@code Span}.
@@ -171,10 +176,12 @@ public abstract class Span {
    * <p>This function can be used by higher level applications to record messaging event.
    *
    * @param messageEvent the message to add.
-   * @since 0.12.0
+   * @since 0.12
    */
   public void addMessageEvent(MessageEvent messageEvent) {
-    addNetworkEvent(messageEvent.asNetworkEvent());
+    // Default implementation by invoking addNetworkEvent() so that any existing derived classes,
+    // including implementation and the mocked ones, do not need to override this method explicitly.
+    addNetworkEvent(BaseMessageEvent.asNetworkEvent(messageEvent));
   }
 
   /**

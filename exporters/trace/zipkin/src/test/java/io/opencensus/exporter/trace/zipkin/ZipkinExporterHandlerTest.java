@@ -24,8 +24,8 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.MessageEvent;
-import io.opencensus.trace.MessageEvent.Type;
+import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.NetworkEvent.Type;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -58,14 +58,14 @@ public class ZipkinExporterHandlerTest {
     String parentId = "8b03ab423da481c5";
     Map<String, AttributeValue> attributes = Collections.emptyMap();
     List<TimedEvent<Annotation>> annotations = Collections.emptyList();
-    List<TimedEvent<MessageEvent>> messageEvents =
+    List<TimedEvent<NetworkEvent>> networkEvents =
         ImmutableList.of(
             TimedEvent.create(
                 Timestamp.create(1505855799, 433901068),
-                MessageEvent.builder(Type.RECEIVED, 0).setCompressedMessageSize(7).build()),
+                NetworkEvent.builder(Type.RECV, 0).setCompressedMessageSize(7).build()),
             TimedEvent.create(
                 Timestamp.create(1505855799, 459486280),
-                MessageEvent.builder(Type.SENT, 0).setCompressedMessageSize(13).build()));
+                NetworkEvent.builder(Type.SENT, 0).setCompressedMessageSize(13).build()));
     SpanData data =
         SpanData.create(
             SpanContext.create(
@@ -81,7 +81,7 @@ public class ZipkinExporterHandlerTest {
             Timestamp.create(1505855794, 194009601) /* startTimestamp */,
             Attributes.create(attributes, 0 /* droppedAttributesCount */),
             TimedEvents.create(annotations, 0 /* droppedEventsCount */),
-            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
+            TimedEvents.create(networkEvents, 0 /* droppedEventsCount */),
             Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
             null, /* childSpanCount */
             Status.OK,
@@ -100,7 +100,7 @@ public class ZipkinExporterHandlerTest {
                     (1505855799000000L + 465726528L / 1000)
                         - (1505855794000000L + 194009601L / 1000))
                 .localEndpoint(localEndpoint)
-                .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
+                .addAnnotation(1505855799000000L + 433901068L / 1000, "RECV")
                 .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
                 .putTag("census.status_code", "OK")
                 .build());

@@ -89,6 +89,7 @@ public abstract class TraceParams {
    * Returns the global default max number of {@link MessageEvent} events per {@link Span}.
    *
    * @return the global default max number of {@code MessageEvent} events per {@code Span}.
+   * @since 0.12
    */
   public abstract int getMaxNumberOfMessageEvents();
 
@@ -168,6 +169,7 @@ public abstract class TraceParams {
      *
      * @param maxNumberOfMessageEvents the global default max number of {@link MessageEvent} events
      *     per {@link Span}. It must be positive otherwise {@link #build()} will throw an exception.
+     * @since 0.12
      * @return this.
      */
     public abstract Builder setMaxNumberOfMessageEvents(int maxNumberOfMessageEvents);

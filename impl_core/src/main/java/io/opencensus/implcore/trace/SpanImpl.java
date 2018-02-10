@@ -49,6 +49,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+// TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 /** Implementation for the {@link Span} class. */
 @ThreadSafe
 public final class SpanImpl extends Span implements Element<SpanImpl> {
@@ -227,7 +228,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    * @return an immutable representation of all the data from this {@code Span}.
    * @throws IllegalStateException if the Span doesn't have RECORD_EVENTS option.
    */
-  @SuppressWarnings("deprecation")
   public SpanData toSpanData() {
     checkState(
         getOptions().contains(Options.RECORD_EVENTS),
@@ -239,6 +239,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
               : SpanData.Attributes.create(attributes, attributes.getNumberOfDroppedAttributes());
       SpanData.TimedEvents<Annotation> annotationsSpanData =
           createTimedEvents(getInitializedAnnotations(), timestampConverter);
+      @SuppressWarnings("deprecation")
       SpanData.TimedEvents<io.opencensus.trace.NetworkEvent> networkEventsSpanData =
           createTimedEvents(getInitializedNetworkEvents(), timestampConverter);
       SpanData.Links linksSpanData =
@@ -328,7 +329,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
-  @Deprecated
   @SuppressWarnings("deprecation")
   public void addNetworkEvent(io.opencensus.trace.NetworkEvent networkEvent) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {

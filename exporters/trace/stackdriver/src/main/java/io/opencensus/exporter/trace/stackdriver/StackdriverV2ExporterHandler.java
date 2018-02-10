@@ -31,6 +31,7 @@ import com.google.devtools.cloudtrace.v2.Span.Attributes;
 import com.google.devtools.cloudtrace.v2.Span.Link;
 import com.google.devtools.cloudtrace.v2.Span.Links;
 import com.google.devtools.cloudtrace.v2.Span.TimeEvent;
+import com.google.devtools.cloudtrace.v2.Span.TimeEvent.MessageEvent;
 import com.google.devtools.cloudtrace.v2.SpanName;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.Int32Value;
@@ -41,8 +42,6 @@ import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
-import io.opencensus.trace.MessageEvent;
-import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -65,6 +64,7 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
+// TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 /** Exporter to Stackdriver Trace API v2. */
 final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
@@ -114,6 +114,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     final String spanIdHex = encodeSpanId(context.getSpanId());
     SpanName spanName =
         SpanName.newBuilder().setProject(projectId).setTrace(traceIdHex).setSpan(spanIdHex).build();
+    @SuppressWarnings("deprecation")
     Span.Builder spanBuilder =
         Span.newBuilder()
             .setName(spanName.toString())
@@ -122,7 +123,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
             .setAttributes(toAttributesProto(spanData.getAttributes()))
             .setTimeEvents(
-                toTimeEventsProto(spanData.getAnnotations(), spanData.getMessageEvents()));
+                toTimeEventsProto(spanData.getAnnotations(), spanData.getNetworkEvents()));
     io.opencensus.trace.Status status = spanData.getStatus();
     if (status != null) {
       spanBuilder.setStatus(toStatusProto(status));
@@ -151,17 +152,19 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     return BaseEncoding.base16().lowerCase().encode(traceId.getBytes());
   }
 
+  @SuppressWarnings("deprecation")
   private static Span.TimeEvents toTimeEventsProto(
       TimedEvents<Annotation> annotationTimedEvents,
-      TimedEvents<MessageEvent> messageEventTimedEvents) {
+      TimedEvents<io.opencensus.trace.NetworkEvent> networkEventTimedEvents) {
     Span.TimeEvents.Builder timeEventsBuilder = Span.TimeEvents.newBuilder();
     timeEventsBuilder.setDroppedAnnotationsCount(annotationTimedEvents.getDroppedEventsCount());
     for (TimedEvent<Annotation> annotation : annotationTimedEvents.getEvents()) {
       timeEventsBuilder.addTimeEvent(toTimeAnnotationProto(annotation));
     }
-    timeEventsBuilder.setDroppedMessageEventsCount(messageEventTimedEvents.getDroppedEventsCount());
-    for (TimedEvent<MessageEvent> messageEvent : messageEventTimedEvents.getEvents()) {
-      timeEventsBuilder.addTimeEvent(toTimeMessageEventProto(messageEvent));
+    timeEventsBuilder.setDroppedMessageEventsCount(networkEventTimedEvents.getDroppedEventsCount());
+    for (TimedEvent<io.opencensus.trace.NetworkEvent> networkEvent :
+        networkEventTimedEvents.getEvents()) {
+      timeEventsBuilder.addTimeEvent(toTimeMessageEventProto(networkEvent));
     }
     return timeEventsBuilder.build();
   }
@@ -178,25 +181,29 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     return timeEventBuilder.build();
   }
 
-  private static TimeEvent toTimeMessageEventProto(TimedEvent<MessageEvent> timedEvent) {
+  @SuppressWarnings("deprecation")
+  private static TimeEvent toTimeMessageEventProto(
+      TimedEvent<io.opencensus.trace.NetworkEvent> timedEvent) {
     TimeEvent.Builder timeEventBuilder =
         TimeEvent.newBuilder().setTime(toTimestampProto(timedEvent.getTimestamp()));
-    MessageEvent messageEvent = timedEvent.getEvent();
+    io.opencensus.trace.NetworkEvent networkEvent = timedEvent.getEvent();
     timeEventBuilder.setMessageEvent(
         TimeEvent.MessageEvent.newBuilder()
-            .setId(messageEvent.getMessageId())
-            .setCompressedSizeBytes(messageEvent.getCompressedMessageSize())
-            .setUncompressedSizeBytes(messageEvent.getUncompressedMessageSize())
-            .setType(toMessageEventTypeProto(messageEvent))
+            .setId(networkEvent.getMessageId())
+            .setCompressedSizeBytes(networkEvent.getCompressedMessageSize())
+            .setUncompressedSizeBytes(networkEvent.getUncompressedMessageSize())
+            .setType(toMessageEventTypeProto(networkEvent))
             .build());
     return timeEventBuilder.build();
   }
 
-  private static TimeEvent.MessageEvent.Type toMessageEventTypeProto(MessageEvent messageEvent) {
-    if (messageEvent.getType() == Type.RECEIVED) {
-      return TimeEvent.MessageEvent.Type.RECEIVED;
+  @SuppressWarnings("deprecation")
+  private static TimeEvent.MessageEvent.Type toMessageEventTypeProto(
+      io.opencensus.trace.NetworkEvent networkEvent) {
+    if (networkEvent.getType() == io.opencensus.trace.NetworkEvent.Type.RECV) {
+      return MessageEvent.Type.RECEIVED;
     } else {
-      return TimeEvent.MessageEvent.Type.SENT;
+      return MessageEvent.Type.SENT;
     }
   }
 

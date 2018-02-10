@@ -18,7 +18,6 @@ package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.common.Timestamp;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,19 +35,6 @@ public class MessageEventTest {
     MessageEvent messageEvent = MessageEvent.builder(MessageEvent.Type.SENT, 1L).build();
     assertThat(messageEvent.getType()).isEqualTo(MessageEvent.Type.SENT);
     assertThat(messageEvent.getMessageId()).isEqualTo(1L);
-    assertThat(messageEvent.getKernelTimestamp()).isNull();
-    assertThat(messageEvent.getUncompressedMessageSize()).isEqualTo(0L);
-  }
-
-  @Test
-  public void buildMessageEvent_WithTimestamp() {
-    MessageEvent messageEvent =
-        MessageEvent.builder(MessageEvent.Type.SENT, 1L)
-            .setKernelTimestamp(Timestamp.fromMillis(123456L))
-            .build();
-    assertThat(messageEvent.getKernelTimestamp()).isEqualTo(Timestamp.fromMillis(123456L));
-    assertThat(messageEvent.getType()).isEqualTo(MessageEvent.Type.SENT);
-    assertThat(messageEvent.getMessageId()).isEqualTo(1L);
     assertThat(messageEvent.getUncompressedMessageSize()).isEqualTo(0L);
   }
 
@@ -56,7 +42,6 @@ public class MessageEventTest {
   public void buildMessageEvent_WithUncompressedMessageSize() {
     MessageEvent messageEvent =
         MessageEvent.builder(MessageEvent.Type.SENT, 1L).setUncompressedMessageSize(123L).build();
-    assertThat(messageEvent.getKernelTimestamp()).isNull();
     assertThat(messageEvent.getType()).isEqualTo(MessageEvent.Type.SENT);
     assertThat(messageEvent.getMessageId()).isEqualTo(1L);
     assertThat(messageEvent.getUncompressedMessageSize()).isEqualTo(123L);
@@ -66,7 +51,6 @@ public class MessageEventTest {
   public void buildMessageEvent_WithCompressedMessageSize() {
     MessageEvent messageEvent =
         MessageEvent.builder(MessageEvent.Type.SENT, 1L).setCompressedMessageSize(123L).build();
-    assertThat(messageEvent.getKernelTimestamp()).isNull();
     assertThat(messageEvent.getType()).isEqualTo(MessageEvent.Type.SENT);
     assertThat(messageEvent.getMessageId()).isEqualTo(1L);
     assertThat(messageEvent.getCompressedMessageSize()).isEqualTo(123L);
@@ -76,11 +60,9 @@ public class MessageEventTest {
   public void buildMessageEvent_WithAllValues() {
     MessageEvent messageEvent =
         MessageEvent.builder(MessageEvent.Type.RECEIVED, 1L)
-            .setKernelTimestamp(Timestamp.fromMillis(123456L))
             .setUncompressedMessageSize(123L)
             .setCompressedMessageSize(63L)
             .build();
-    assertThat(messageEvent.getKernelTimestamp()).isEqualTo(Timestamp.fromMillis(123456L));
     assertThat(messageEvent.getType()).isEqualTo(MessageEvent.Type.RECEIVED);
     assertThat(messageEvent.getMessageId()).isEqualTo(1L);
     assertThat(messageEvent.getUncompressedMessageSize()).isEqualTo(123L);
@@ -91,11 +73,9 @@ public class MessageEventTest {
   public void messageEvent_ToString() {
     MessageEvent messageEvent =
         MessageEvent.builder(MessageEvent.Type.SENT, 1L)
-            .setKernelTimestamp(Timestamp.fromMillis(123456L))
             .setUncompressedMessageSize(123L)
             .setCompressedMessageSize(63L)
             .build();
-    assertThat(messageEvent.toString()).contains(Timestamp.fromMillis(123456L).toString());
     assertThat(messageEvent.toString()).contains("type=SENT");
     assertThat(messageEvent.toString()).contains("messageId=1");
     assertThat(messageEvent.toString()).contains("compressedMessageSize=63");

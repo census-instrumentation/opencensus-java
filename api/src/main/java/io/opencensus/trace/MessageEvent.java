@@ -19,21 +19,17 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.common.Timestamp;
-import io.opencensus.internal.BaseMessageEvent;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A class that represents a generic messaging event. Unlike {@link NetworkEvent} recorded by RPC
- * client or server, this class can represent messaging happened in any layer, especailly higher
- * application layer. Thus, it can be used when recording events in pipeline works, in-process
- * bidirectional streams and batch processing.
+ * A class that represents a generic messaging event. This class can represent messaging happened in
+ * any layer, especailly higher application layer. Thus, it can be used when recording events in
+ * pipeline works, in-process bidirectional streams and batch processing.
  *
  * <p>It requires a {@link Type type} and a message id that serves to uniquely identify each
- * message. It can optionally have information about the kernel time and message size.
+ * message. It can optionally have information about the message size.
  *
- * @since 0.12.0
+ * @since 0.12
  */
 @Immutable
 @AutoValue
@@ -41,11 +37,23 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
 public abstract class MessageEvent extends BaseMessageEvent {
-  /** Available types for a {@code MessageEvent}. */
+  /**
+   * Available types for a {@code MessageEvent}.
+   *
+   * @since 0.12
+   */
   public enum Type {
-    /** When the message was sent. */
+    /**
+     * When the message was sent.
+     *
+     * @since 0.12
+     */
     SENT,
-    /** When the message was received. */
+    /**
+     * When the message was received.
+     *
+     * @since 0.12
+     */
     RECEIVED,
   }
 
@@ -56,6 +64,7 @@ public abstract class MessageEvent extends BaseMessageEvent {
    * @param messageId serves to uniquely identify each message.
    * @return a new {@code Builder} with default values.
    * @throws NullPointerException if {@code type} is {@code null}.
+   * @since 0.12
    */
   public static Builder builder(Type type, long messageId) {
     return new AutoValue_MessageEvent.Builder()
@@ -68,19 +77,10 @@ public abstract class MessageEvent extends BaseMessageEvent {
   }
 
   /**
-   * Returns the kernel timestamp associated with the {@code MessageEvent} or {@code null} if not
-   * set.
-   *
-   * @return the kernel timestamp associated with the {@code MessageEvent} or {@code null} if not
-   *     set.
-   */
-  @Nullable
-  public abstract Timestamp getKernelTimestamp();
-
-  /**
    * Returns the type of the {@code MessageEvent}.
    *
    * @return the type of the {@code MessageEvent}.
+   * @since 0.12
    */
   public abstract Type getType();
 
@@ -88,6 +88,7 @@ public abstract class MessageEvent extends BaseMessageEvent {
    * Returns the message id argument that serves to uniquely identify each message.
    *
    * @return the message id of the {@code MessageEvent}.
+   * @since 0.12
    */
   public abstract long getMessageId();
 
@@ -95,6 +96,7 @@ public abstract class MessageEvent extends BaseMessageEvent {
    * Returns the uncompressed size in bytes of the {@code MessageEvent}.
    *
    * @return the uncompressed size in bytes of the {@code MessageEvent}.
+   * @since 0.12
    */
   public abstract long getUncompressedMessageSize();
 
@@ -102,10 +104,15 @@ public abstract class MessageEvent extends BaseMessageEvent {
    * Returns the compressed size in bytes of the {@code MessageEvent}.
    *
    * @return the compressed size in bytes of the {@code MessageEvent}.
+   * @since 0.12
    */
   public abstract long getCompressedMessageSize();
 
-  /** Builder class for {@link MessageEvent}. */
+  /**
+   * Builder class for {@link MessageEvent}.
+   *
+   * @since 0.12
+   */
   @AutoValue.Builder
   public abstract static class Builder {
     // Package protected methods because these values are mandatory and set only in the
@@ -115,18 +122,11 @@ public abstract class MessageEvent extends BaseMessageEvent {
     abstract Builder setMessageId(long messageId);
 
     /**
-     * Sets the kernel timestamp.
-     *
-     * @param kernelTimestamp The kernel timestamp of the event.
-     * @return this.
-     */
-    public abstract Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp);
-
-    /**
      * Sets the uncompressed message size.
      *
      * @param uncompressedMessageSize represents the uncompressed size in bytes of this message.
      * @return this.
+     * @since 0.12
      */
     public abstract Builder setUncompressedMessageSize(long uncompressedMessageSize);
 
@@ -135,6 +135,7 @@ public abstract class MessageEvent extends BaseMessageEvent {
      *
      * @param compressedMessageSize represents the compressed size in bytes of this message.
      * @return this.
+     * @since 0.12
      */
     public abstract Builder setCompressedMessageSize(long compressedMessageSize);
 
@@ -142,6 +143,7 @@ public abstract class MessageEvent extends BaseMessageEvent {
      * Builds and returns a {@code MessageEvent} with the desired values.
      *
      * @return a {@code MessageEvent} with the desired values.
+     * @since 0.12
      */
     public abstract MessageEvent build();
 

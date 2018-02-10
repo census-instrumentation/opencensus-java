@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 // TODO(bdrutu): Add tests.
+// TODO(hailongwen): Remove the usage of `NetworkEvent` in the future.
 /**
  * HTML page formatter for tracing config. The page displays information about the current active
  * tracing configuration and allows users to change it.
@@ -61,7 +62,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "<tr><td>MaxNumberOfAnnotations to</td>"
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
-          + "<tr><td>MaxNumberOfMessageEvents to</td> "
+          + "<tr><td>MaxNumberOfNetworkEvents to</td> "
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "<tr><td>MaxNumberOfLinks to</td>"
           + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
@@ -90,6 +91,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
     PrintWriter out =
         new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream, Charsets.UTF_8)));
@@ -117,7 +119,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           QUERY_COMPONENT_MAX_NUMBER_OF_ANNOTATIONS,
           TraceParams.DEFAULT.getMaxNumberOfAnnotations(),
           QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS,
-          TraceParams.DEFAULT.getMaxNumberOfMessageEvents(),
+          TraceParams.DEFAULT.getMaxNumberOfNetworkEvents(),
           QUERY_COMPONENT_MAX_NUMBER_OF_LINKS,
           TraceParams.DEFAULT.getMaxNumberOfLinks());
       out.write("<br>\n");
@@ -131,6 +133,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   // If this is a supported change (currently only permanent changes are supported) apply it.
+  @SuppressWarnings("deprecation")
   private void maybeApplyChanges(Map<String, String> queryMap) {
     String changeStr = queryMap.get(CHANGE);
     if (PERMANENT_CHANGE.equals(changeStr)) {
@@ -150,11 +153,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         int maxNumberOfAnnotations = Integer.parseInt(maxNumberOfAnnotationsStr);
         traceParamsBuilder.setMaxNumberOfAnnotations(maxNumberOfAnnotations);
       }
-      String maxNumberOfMessageEventsStr =
+      String maxNumberOfNetworkEventsStr =
           queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_NETWORK_EVENTS);
-      if (!isNullOrEmpty(maxNumberOfMessageEventsStr)) {
-        int maxNumberOfMessageEvents = Integer.parseInt(maxNumberOfMessageEventsStr);
-        traceParamsBuilder.setMaxNumberOfMessageEvents(maxNumberOfMessageEvents);
+      if (!isNullOrEmpty(maxNumberOfNetworkEventsStr)) {
+        int maxNumberOfNetworkEvents = Integer.parseInt(maxNumberOfNetworkEventsStr);
+        traceParamsBuilder.setMaxNumberOfNetworkEvents(maxNumberOfNetworkEvents);
       }
       String maxNumverOfLinksStr = queryMap.get(QUERY_COMPONENT_MAX_NUMBER_OF_LINKS);
       if (!isNullOrEmpty(maxNumverOfLinksStr)) {
@@ -168,6 +171,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   // Prints a table to a PrintWriter that shows existing trace parameters.
+  @SuppressWarnings("deprecation")
   private static void emitTraceParamsTable(TraceParams params, PrintWriter out) {
     out.write(
         "<b>Active tracing parameters:</b><br>\n"
@@ -186,8 +190,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         "  <tr>%n    <td>MaxNumberOfAnnotations</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfAnnotations());
     out.printf(
-        "  <tr>%n    <td>MaxNumberOfMessageEvents</td>%n    <td>%d</td>%n  </tr>%n",
-        params.getMaxNumberOfMessageEvents());
+        "  <tr>%n    <td>MaxNumberOfNetworkEvents</td>%n    <td>%d</td>%n  </tr>%n",
+        params.getMaxNumberOfNetworkEvents());
     out.printf(
         "  <tr>%n    <td>MaxNumberOfLinks</td>%n    <td>%d</td>%n  </tr>%n",
         params.getMaxNumberOfLinks());
