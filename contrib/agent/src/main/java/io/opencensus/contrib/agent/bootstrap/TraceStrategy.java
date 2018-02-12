@@ -20,7 +20,11 @@ import com.google.errorprone.annotations.MustBeClosed;
 import java.io.Closeable;
 import javax.annotation.Nullable;
 
-/** Strategy interface for creating and manipulating trace spans. */
+/**
+ * Strategy interface for creating and manipulating trace spans.
+ *
+ * @since 0.9
+ */
 public interface TraceStrategy {
 
   /**
@@ -44,6 +48,7 @@ public interface TraceStrategy {
    *     current Context
    * @see io.opencensus.trace.Tracer#spanBuilder(java.lang.String)
    * @see io.opencensus.trace.SpanBuilder#startScopedSpan()
+   * @since 0.9
    */
   @MustBeClosed
   Closeable startScopedSpan(String spanName);
@@ -54,6 +59,7 @@ public interface TraceStrategy {
    *
    * @param scope an object representing the scope
    * @param throwable an optional Throwable
+   * @since 0.9
    */
   void endScope(Closeable scope, @Nullable Throwable throwable);
 }

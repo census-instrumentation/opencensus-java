@@ -30,6 +30,8 @@ package io.opencensus.contrib.agent.bootstrap;
  *
  * <p>{@code ContextTrampoline} is implemented as a static class to allow for easy and fast use from
  * instrumented bytecode. We cannot use dependency injection for the instrumented bytecode.
+ *
+ * @since 0.9
  */
 // TODO(sebright): Fix the Checker Framework warnings.
 @SuppressWarnings("nullness")
@@ -49,6 +51,7 @@ public final class ContextTrampoline {
    * of this class is called.
    *
    * @param contextStrategy the concrete strategy for accessing and manipulating the context
+   * @since 0.9
    */
   public static void setContextStrategy(ContextStrategy contextStrategy) {
     if (ContextTrampoline.contextStrategy != null) {
@@ -69,6 +72,7 @@ public final class ContextTrampoline {
    * @param runnable a {@link Runnable} object
    * @return the wrapped {@link Runnable} object
    * @see ContextStrategy#wrapInCurrentContext
+   * @since 0.9
    */
   public static Runnable wrapInCurrentContext(Runnable runnable) {
     return contextStrategy.wrapInCurrentContext(runnable);
@@ -81,6 +85,7 @@ public final class ContextTrampoline {
    * method.
    *
    * @param thread a {@link Thread} object
+   * @since 0.9
    */
   public static void saveContextForThread(Thread thread) {
     contextStrategy.saveContextForThread(thread);
@@ -90,6 +95,7 @@ public final class ContextTrampoline {
    * Attaches the context that was previously saved for the specified thread.
    *
    * @param thread a {@link Thread} object
+   * @since 0.9
    */
   public static void attachContextForThread(Thread thread) {
     contextStrategy.attachContextForThread(thread);

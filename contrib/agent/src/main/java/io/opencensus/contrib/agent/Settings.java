@@ -24,13 +24,22 @@ import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-/** The {@code Settings} class provides access to user-configurable settings. */
+/**
+ * The {@code Settings} class provides access to user-configurable settings.
+ *
+ * @since 0.10
+ */
 public class Settings {
 
   private static final String CONFIG_ROOT = "opencensus.contrib.agent";
 
   private final Config config;
 
+  /**
+   * Creates agent settings.
+   *
+   * @since 0.10
+   */
   @VisibleForTesting
   public Settings(Config config) {
     this.config = checkNotNull(config);
@@ -57,6 +66,7 @@ public class Settings {
    *
    * @param featurePath the feature's path expression
    * @return true, if enabled, otherwise false
+   * @since 0.10
    */
   public boolean isEnabled(String featurePath) {
     checkArgument(!Strings.isNullOrEmpty(featurePath));

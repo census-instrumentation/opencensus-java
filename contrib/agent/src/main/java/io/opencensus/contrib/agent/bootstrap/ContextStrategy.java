@@ -16,7 +16,11 @@
 
 package io.opencensus.contrib.agent.bootstrap;
 
-/** Strategy interface for accessing and manipulating the context. */
+/**
+ * Strategy interface for accessing and manipulating the context.
+ *
+ * @since 0.6
+ */
 public interface ContextStrategy {
 
   /**
@@ -25,6 +29,7 @@ public interface ContextStrategy {
    *
    * @param runnable a {@link Runnable} object
    * @return the wrapped {@link Runnable} object
+   * @since 0.6
    */
   Runnable wrapInCurrentContext(Runnable runnable);
 
@@ -35,6 +40,7 @@ public interface ContextStrategy {
    * method.
    *
    * @param thread a {@link Thread} object
+   * @since 0.6
    */
   void saveContextForThread(Thread thread);
 
@@ -42,6 +48,7 @@ public interface ContextStrategy {
    * Attaches the context that was previously saved for the specified thread.
    *
    * @param thread a {@link Thread} object
+   * @since 0.6
    */
   void attachContextForThread(Thread thread);
 }

@@ -22,7 +22,11 @@ import io.opencensus.contrib.agent.bootstrap.TraceStrategy;
 import io.opencensus.contrib.agent.bootstrap.TraceTrampoline;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
-/** Initializes the {@link TraceTrampoline} with a concrete {@link TraceStrategy}. */
+/**
+ * Initializes the {@link TraceTrampoline} with a concrete {@link TraceStrategy}.
+ *
+ * @since 0.9
+ */
 @AutoService(Instrumenter.class)
 public final class TraceTrampolineInitializer implements Instrumenter {
 

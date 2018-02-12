@@ -38,6 +38,8 @@ import net.bytebuddy.utility.JavaModule;
  * <p>NB: A similar effect could be achieved with {@link InheritableThreadLocal}, but the semantics
  * are different: {@link InheritableThreadLocal} inherits values when the thread object is
  * initialized as opposed to when {@link Thread#start()} is called.
+ *
+ * @since 0.6
  */
 @AutoService(Instrumenter.class)
 public final class ThreadInstrumentation implements Instrumenter {

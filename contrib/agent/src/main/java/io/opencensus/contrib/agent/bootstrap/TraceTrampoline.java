@@ -34,6 +34,8 @@ import javax.annotation.Nullable;
  *
  * <p>{@code TraceTrampoline} is implemented as a static class to allow for easy and fast use from
  * instrumented bytecode. We cannot use dependency injection for the instrumented bytecode.
+ *
+ * @since 0.9
  */
 // TODO(sebright): Fix the Checker Framework warnings.
 @SuppressWarnings("nullness")
@@ -53,6 +55,7 @@ public final class TraceTrampoline {
    * this class is called.
    *
    * @param traceStrategy the concrete strategy for creating and manipulating trace spans
+   * @since 0.9
    */
   public static void setTraceStrategy(TraceStrategy traceStrategy) {
     if (TraceTrampoline.traceStrategy != null) {
@@ -87,6 +90,7 @@ public final class TraceTrampoline {
    *     current Context
    * @see io.opencensus.trace.Tracer#spanBuilder(String)
    * @see io.opencensus.trace.SpanBuilder#startScopedSpan()
+   * @since 0.9
    */
   @MustBeClosed
   public static Closeable startScopedSpan(String spanName) {
@@ -99,6 +103,7 @@ public final class TraceTrampoline {
    *
    * @param scope an object representing the scope
    * @param throwable an optional Throwable
+   * @since 0.9
    */
   public static void endScope(Closeable scope, @Nullable Throwable throwable) {
     traceStrategy.endScope(scope, throwable);

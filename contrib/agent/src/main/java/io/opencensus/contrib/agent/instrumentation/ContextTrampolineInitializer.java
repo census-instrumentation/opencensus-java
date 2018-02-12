@@ -22,7 +22,11 @@ import io.opencensus.contrib.agent.bootstrap.ContextStrategy;
 import io.opencensus.contrib.agent.bootstrap.ContextTrampoline;
 import net.bytebuddy.agent.builder.AgentBuilder;
 
-/** Initializes the {@link ContextTrampoline} with a concrete {@link ContextStrategy}. */
+/**
+ * Initializes the {@link ContextTrampoline} with a concrete {@link ContextStrategy}.
+ *
+ * @since 0.9
+ */
 @AutoService(Instrumenter.class)
 public final class ContextTrampolineInitializer implements Instrumenter {
 
