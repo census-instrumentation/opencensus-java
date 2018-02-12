@@ -44,6 +44,7 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_STATUS;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.BucketBoundaries;
@@ -101,6 +102,7 @@ public final class RpcViewConstants {
 
   // Use Aggregation.Mean to record sum and count stats at the same time.
   @VisibleForTesting static final Aggregation MEAN = Mean.create();
+  @VisibleForTesting static final Aggregation COUNT = Count.create();
 
   @VisibleForTesting
   static final Aggregation AGGREGATION_WITH_BYTES_HISTOGRAM =
@@ -248,6 +250,34 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
+  /**
+   * Cumulative {@link View} for started client RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/started_count/cumulative"),
+          "Number of started client RPCs",
+          RPC_CLIENT_STARTED_COUNT,
+          COUNT,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for finished client RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_CLIENT_FINISHED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/finished_count/cumulative"),
+          "Number of finished client RPCs",
+          RPC_CLIENT_FINISHED_COUNT,
+          COUNT,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
   // Rpc server cumulative views.
 
   /**
@@ -376,6 +406,34 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
+  /**
+   * Cumulative {@link View} for started server RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/started_count/cumulative"),
+          "Number of started server RPCs",
+          RPC_SERVER_STARTED_COUNT,
+          COUNT,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for finished server RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/finished_count/cumulative"),
+          "Number of finished server RPCs",
+          RPC_SERVER_FINISHED_COUNT,
+          COUNT,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
   // Interval Stats
 
   // RPC client interval views.
@@ -488,7 +546,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/started_count/minute"),
           "Minute stats on the number of client RPCs started",
           RPC_CLIENT_STARTED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
@@ -502,7 +560,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/finished_count/minute"),
           "Minute stats on the number of client RPCs finished",
           RPC_CLIENT_FINISHED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
@@ -642,7 +700,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/started_count/hour"),
           "Hour stats on the number of client RPCs started",
           RPC_CLIENT_STARTED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
@@ -656,7 +714,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/finished_count/hour"),
           "Hour stats on the number of client RPCs finished",
           RPC_CLIENT_FINISHED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
@@ -798,7 +856,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/server/started_count/minute"),
           "Minute stats on the number of server RPCs started",
           RPC_SERVER_STARTED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
@@ -812,7 +870,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/server/finished_count/minute"),
           "Minute stats on the number of server RPCs finished",
           RPC_SERVER_FINISHED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_MINUTE);
 
@@ -952,7 +1010,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/server/started_count/hour"),
           "Hour stats on the number of server RPCs started",
           RPC_SERVER_STARTED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
@@ -966,7 +1024,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/server/finished_count/hour"),
           "Hour stats on the number of server RPCs finished",
           RPC_SERVER_FINISHED_COUNT,
-          MEAN,
+          COUNT,
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 

@@ -19,6 +19,7 @@ package io.opencensus.contrib.grpc.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
+import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.BucketBoundaries;
@@ -67,6 +68,7 @@ public final class RpcViewConstantsTest {
 
     // Test Aggregations
     assertThat(RpcViewConstants.MEAN).isEqualTo(Mean.create());
+    assertThat(RpcViewConstants.COUNT).isEqualTo(Count.create());
     assertThat(RpcViewConstants.AGGREGATION_WITH_BYTES_HISTOGRAM)
         .isEqualTo(
             Distribution.create(
