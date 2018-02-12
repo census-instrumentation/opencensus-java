@@ -287,28 +287,29 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<tr>");
     formatter.format("<td><b>%s</b></td>", method);
     out.write("<td></td>");
-    formatter.format("<td align=\"right\">%d</td>", snapshot.countMinute);
-    formatter.format("<td align=\"right\">%d</td>", snapshot.countHour);
+    formatter.format("<td align=\"right\">%d</td>", snapshot.countLastMinute);
+    formatter.format("<td align=\"right\">%d</td>", snapshot.countLastHour);
     // We don't have a cumulative view for started/finished RPC counts in Java.
     formatter.format("<td align=\"right\">%s</td><td></td>", NA);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyMinute);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyHour);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastMinute);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastHour);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.avgLatencyTotal);
     // We don't record max/min values for minute/hour views in Java.
     formatter.format("<td align=\"right\">%s</td>", NA);
     formatter.format("<td align=\"right\">%s</td>", NA);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.maxLatencyTotal);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.countMinute / SECONDS_PER_MINUTE);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.countHour / SECONDS_PER_HOUR);
+    formatter.format(
+        "<td align=\"right\">%.3f</td>", snapshot.countLastMinute / SECONDS_PER_MINUTE);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.countLastHour / SECONDS_PER_HOUR);
     formatter.format("<td align=\"right\">%s</td><td></td>", NA);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateMinute);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateHour);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateLastMinute);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateLastHour);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.inputRateTotal);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.outputRateMinute);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.outputRateHour);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.outputRateLastMinute);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.outputRateLastHour);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.outputRateTotal);
-    formatter.format("<td align=\"right\">%d</td>", snapshot.errorsMinute);
-    formatter.format("<td align=\"right\">%d</td>", snapshot.errorsHour);
+    formatter.format("<td align=\"right\">%d</td>", snapshot.errorsLastMinute);
+    formatter.format("<td align=\"right\">%d</td>", snapshot.errorsLastHour);
     formatter.format("<td align=\"right\">%d</td><td></td>", snapshot.errorsTotal);
     out.write("</tr>");
   }
@@ -361,18 +362,18 @@ final class RpczZPageHandler extends ZPageHandler {
       snapshot.maxLatencyTotal = ((DistributionData) data).getMax();
     } else if (view == RPC_CLIENT_ROUNDTRIP_LATENCY_MINUTE_VIEW
         || view == RPC_SERVER_SERVER_LATENCY_MINUTE_VIEW) {
-      snapshot.avgLatencyMinute = ((MeanData) data).getMean();
+      snapshot.avgLatencyLastMinute = ((MeanData) data).getMean();
     } else if (view == RPC_CLIENT_ROUNDTRIP_LATENCY_HOUR_VIEW
         || view == RPC_SERVER_SERVER_LATENCY_HOUR_VIEW) {
-      snapshot.avgLatencyHour = ((MeanData) data).getMean();
+      snapshot.avgLatencyLastHour = ((MeanData) data).getMean();
     } else if (view == RPC_CLIENT_ERROR_COUNT_VIEW || view == RPC_SERVER_ERROR_COUNT_VIEW) {
       snapshot.errorsTotal = ((MeanData) data).getCount();
     } else if (view == RPC_CLIENT_ERROR_COUNT_MINUTE_VIEW
         || view == RPC_SERVER_ERROR_COUNT_MINUTE_VIEW) {
-      snapshot.errorsMinute = ((MeanData) data).getCount();
+      snapshot.errorsLastMinute = ((MeanData) data).getCount();
     } else if (view == RPC_CLIENT_ERROR_COUNT_HOUR_VIEW
         || view == RPC_SERVER_ERROR_COUNT_HOUR_VIEW) {
-      snapshot.errorsHour = ((MeanData) data).getCount();
+      snapshot.errorsLastHour = ((MeanData) data).getCount();
     } else if (view == RPC_CLIENT_REQUEST_BYTES_VIEW || view == RPC_SERVER_REQUEST_BYTES_VIEW) {
       DistributionData distributionData = (DistributionData) data;
       snapshot.inputRateTotal =
@@ -383,12 +384,12 @@ final class RpczZPageHandler extends ZPageHandler {
     } else if (view == RPC_CLIENT_REQUEST_BYTES_MINUTE_VIEW
         || view == RPC_SERVER_REQUEST_BYTES_MINUTE_VIEW) {
       MeanData meanData = (MeanData) data;
-      snapshot.inputRateMinute =
+      snapshot.inputRateLastMinute =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_MINUTE;
     } else if (view == RPC_CLIENT_REQUEST_BYTES_HOUR_VIEW
         || view == RPC_SERVER_REQUEST_BYTES_HOUR_VIEW) {
       MeanData meanData = (MeanData) data;
-      snapshot.inputRateHour =
+      snapshot.inputRateLastHour =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_HOUR;
     } else if (view == RPC_CLIENT_RESPONSE_BYTES_VIEW || view == RPC_SERVER_RESPONSE_BYTES_VIEW) {
       DistributionData distributionData = (DistributionData) data;
@@ -400,19 +401,19 @@ final class RpczZPageHandler extends ZPageHandler {
     } else if (view == RPC_CLIENT_RESPONSE_BYTES_MINUTE_VIEW
         || view == RPC_SERVER_RESPONSE_BYTES_MINUTE_VIEW) {
       MeanData meanData = (MeanData) data;
-      snapshot.outputRateMinute =
+      snapshot.outputRateLastMinute =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_MINUTE;
     } else if (view == RPC_CLIENT_RESPONSE_BYTES_HOUR_VIEW
         || view == RPC_SERVER_RESPONSE_BYTES_HOUR_VIEW) {
       MeanData meanData = (MeanData) data;
-      snapshot.outputRateHour =
+      snapshot.outputRateLastHour =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_HOUR;
     } else if (view == RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW
         || view == RPC_SERVER_STARTED_COUNT_MINUTE_VIEW) {
-      snapshot.countMinute = ((MeanData) data).getCount();
+      snapshot.countLastMinute = ((MeanData) data).getCount();
     } else if (view == RPC_CLIENT_STARTED_COUNT_HOUR_VIEW
         || view == RPC_SERVER_STARTED_COUNT_HOUR_VIEW) {
-      snapshot.countHour = ((MeanData) data).getCount();
+      snapshot.countLastHour = ((MeanData) data).getCount();
     }
   }
 
@@ -435,20 +436,20 @@ final class RpczZPageHandler extends ZPageHandler {
   }
 
   private static class StatsSnapshot {
-    long countMinute;
-    long countHour;
-    double avgLatencyMinute;
-    double avgLatencyHour;
+    long countLastMinute;
+    long countLastHour;
+    double avgLatencyLastMinute;
+    double avgLatencyLastHour;
     double avgLatencyTotal;
     double maxLatencyTotal;
-    double inputRateMinute;
-    double inputRateHour;
+    double inputRateLastMinute;
+    double inputRateLastHour;
     double inputRateTotal;
-    double outputRateMinute;
-    double outputRateHour;
+    double outputRateLastMinute;
+    double outputRateLastHour;
     double outputRateTotal;
-    long errorsMinute;
-    long errorsHour;
+    long errorsLastMinute;
+    long errorsLastHour;
     long errorsTotal;
   }
 }
