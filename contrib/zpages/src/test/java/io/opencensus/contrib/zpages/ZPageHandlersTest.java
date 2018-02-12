@@ -41,4 +41,9 @@ public class ZPageHandlersTest {
   public void implementationOfRpcz() {
     assertThat(ZPageHandlers.getRpczZpageHandler()).isInstanceOf(RpczZPageHandler.class);
   }
+
+  @Test
+  public void implementationOfStatsz() {
+    assertThat(ZPageHandlers.getStatszZPageHandler()).isInstanceOf(StatszZPageHandler.class);
+  }
 }
