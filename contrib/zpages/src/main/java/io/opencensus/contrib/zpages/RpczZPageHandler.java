@@ -19,6 +19,7 @@ package io.opencensus.contrib.zpages;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_ERROR_COUNT_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_ERROR_COUNT_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_ERROR_COUNT_VIEW;
+import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_CUMULATIVE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_REQUEST_BYTES_HOUR_VIEW;
@@ -36,6 +37,7 @@ import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_RES
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW;
+import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_STARTED_COUNT_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW;
@@ -47,6 +49,7 @@ import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_CLIENT_UNC
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_ERROR_COUNT_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_ERROR_COUNT_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_ERROR_COUNT_VIEW;
+import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_FINISHED_COUNT_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_FINISHED_COUNT_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_REQUEST_BYTES_HOUR_VIEW;
@@ -65,6 +68,7 @@ import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_SER
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_SERVER_LATENCY_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_SERVER_LATENCY_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_SERVER_LATENCY_VIEW;
+import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_STARTED_COUNT_HOUR_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_STARTED_COUNT_MINUTE_VIEW;
 import static io.opencensus.contrib.grpc.metrics.RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_HOUR_VIEW;
@@ -79,6 +83,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.View;
@@ -130,11 +135,13 @@ final class RpczZPageHandler extends ZPageHandler {
           RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
           RPC_CLIENT_REQUEST_BYTES_VIEW,
           RPC_CLIENT_RESPONSE_BYTES_VIEW,
-          // The last 4 views are not used yet.
+          RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW,
+          // The last 5 views are not used yet.
           RPC_CLIENT_REQUEST_COUNT_VIEW,
           RPC_CLIENT_RESPONSE_COUNT_VIEW,
           RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW,
-          RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW);
+          RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW,
+          RPC_CLIENT_FINISHED_COUNT_CUMULATIVE_VIEW);
 
   private static final ImmutableList<View> SERVER_RPC_CUMULATIVE_VIEWS =
       ImmutableList.of(
@@ -142,11 +149,13 @@ final class RpczZPageHandler extends ZPageHandler {
           RPC_SERVER_SERVER_LATENCY_VIEW,
           RPC_SERVER_REQUEST_BYTES_VIEW,
           RPC_SERVER_RESPONSE_BYTES_VIEW,
-          // The last 4 views are not used yet.
+          RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW,
+          // The last 5 views are not used yet.
           RPC_SERVER_REQUEST_COUNT_VIEW,
           RPC_SERVER_RESPONSE_COUNT_VIEW,
           RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW,
-          RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW);
+          RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW,
+          RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW);
 
   // Interval views may be removed in the future.
   private static final ImmutableList<View> CLIENT_RPC_MINUTE_VIEWS =
@@ -289,8 +298,7 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<td></td>");
     formatter.format("<td align=\"right\">%d</td>", snapshot.countLastMinute);
     formatter.format("<td align=\"right\">%d</td>", snapshot.countLastHour);
-    // We don't have a cumulative view for started/finished RPC counts in Java.
-    formatter.format("<td align=\"right\">%s</td><td></td>", NA);
+    formatter.format("<td align=\"right\">%d</td><td></td>", snapshot.countTotal);
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastMinute);
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastHour);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.avgLatencyTotal);
@@ -298,10 +306,9 @@ final class RpczZPageHandler extends ZPageHandler {
     formatter.format("<td align=\"right\">%s</td>", NA);
     formatter.format("<td align=\"right\">%s</td>", NA);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.maxLatencyTotal);
-    formatter.format(
-        "<td align=\"right\">%.3f</td>", snapshot.countLastMinute / SECONDS_PER_MINUTE);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.countLastHour / SECONDS_PER_HOUR);
-    formatter.format("<td align=\"right\">%s</td><td></td>", NA);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.rpcRateLastMinute);
+    formatter.format("<td align=\"right\">%.3f</td>", snapshot.rpcRateLastHour);
+    formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.rpcRateTotal);
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateLastMinute);
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateLastHour);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.inputRateTotal);
@@ -410,10 +417,16 @@ final class RpczZPageHandler extends ZPageHandler {
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_HOUR;
     } else if (view == RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW
         || view == RPC_SERVER_STARTED_COUNT_MINUTE_VIEW) {
-      snapshot.countLastMinute = ((MeanData) data).getCount();
+      snapshot.countLastMinute = ((CountData) data).getCount();
+      snapshot.rpcRateLastMinute = snapshot.countLastMinute / SECONDS_PER_MINUTE;
     } else if (view == RPC_CLIENT_STARTED_COUNT_HOUR_VIEW
         || view == RPC_SERVER_STARTED_COUNT_HOUR_VIEW) {
-      snapshot.countLastHour = ((MeanData) data).getCount();
+      snapshot.countLastHour = ((CountData) data).getCount();
+      snapshot.rpcRateLastHour = snapshot.countLastHour / SECONDS_PER_HOUR;
+    } else if (view == RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW
+        || view == RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW) {
+      snapshot.countTotal = ((CountData) data).getCount();
+      snapshot.rpcRateTotal = snapshot.countTotal / getDurationInSecs((CumulativeData) windowData);
     }
   }
 
@@ -438,6 +451,10 @@ final class RpczZPageHandler extends ZPageHandler {
   private static class StatsSnapshot {
     long countLastMinute;
     long countLastHour;
+    long countTotal;
+    double rpcRateLastMinute;
+    double rpcRateLastHour;
+    double rpcRateTotal;
     double avgLatencyLastMinute;
     double avgLatencyLastHour;
     double avgLatencyTotal;
