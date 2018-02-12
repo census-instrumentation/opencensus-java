@@ -248,6 +248,34 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
+  /**
+   * Cumulative {@link View} for started client RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/started_count/cumulative"),
+          "Number of started client RPCs",
+          RPC_CLIENT_STARTED_COUNT,
+          MEAN,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for finished client RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_CLIENT_FINISHED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/finished_count/cumulative"),
+          "Number of finished client RPCs",
+          RPC_CLIENT_FINISHED_COUNT,
+          MEAN,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
   // Rpc server cumulative views.
 
   /**
@@ -373,6 +401,34 @@ public final class RpcViewConstants {
           "Count of response messages per server RPC",
           RPC_SERVER_RESPONSE_COUNT,
           AGGREGATION_WITH_COUNT_HISTOGRAM,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for started server RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/started_count/cumulative"),
+          "Number of started server RPCs",
+          RPC_SERVER_STARTED_COUNT,
+          MEAN,
+          Arrays.asList(RPC_METHOD),
+          CUMULATIVE);
+
+  /**
+   * Cumulative {@link View} for finished server RPCs.
+   *
+   * @since 0.12
+   */
+  public static final View RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/finished_count/cumulative"),
+          "Number of finished server RPCs",
+          RPC_SERVER_FINISHED_COUNT,
+          MEAN,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 

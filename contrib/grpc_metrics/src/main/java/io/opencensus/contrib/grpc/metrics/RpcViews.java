@@ -40,6 +40,8 @@ public final class RpcViews {
           RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW,
           RpcViewConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW,
           RpcViewConstants.RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW,
+          RpcViewConstants.RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW,
+          RpcViewConstants.RPC_CLIENT_FINISHED_COUNT_CUMULATIVE_VIEW,
           RpcViewConstants.RPC_SERVER_ERROR_COUNT_VIEW,
           RpcViewConstants.RPC_SERVER_SERVER_LATENCY_VIEW,
           RpcViewConstants.RPC_SERVER_SERVER_ELAPSED_TIME_VIEW,
@@ -48,7 +50,9 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_REQUEST_COUNT_VIEW,
           RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_VIEW,
           RpcViewConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW,
-          RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW);
+          RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW,
+          RpcViewConstants.RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW,
+          RpcViewConstants.RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW);
 
   @VisibleForTesting
   static final ImmutableSet<View> RPC_INTERVAL_VIEWS_SET =
