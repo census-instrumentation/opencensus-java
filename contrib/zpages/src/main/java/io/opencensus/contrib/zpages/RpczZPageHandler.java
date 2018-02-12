@@ -111,7 +111,6 @@ final class RpczZPageHandler extends ZPageHandler {
   private static final String RPCZ_URL = "/rpcz";
   private static final String SENT = "Sent";
   private static final String RECEIVED = "Received";
-  private static final String NA = "N/A";
   private static final String TITLE_COLOR = "\"#eeeeff\"";
   private static final String TABLE_HEADER_COLOR = "\"#fff5ee\"";
   private static final String TABLE_ROW_COLOR = "\"#eee5de\"";
@@ -123,7 +122,7 @@ final class RpczZPageHandler extends ZPageHandler {
       ImmutableList.of(
           "Count",
           "Avg latency (ms)",
-          "Max latency (ms)",
+          // TODO(songya): add a column for latency percentiles.
           "Rate (rpc/s)",
           "Input (kb/s)",
           "Output (kb/s)",
@@ -302,10 +301,6 @@ final class RpczZPageHandler extends ZPageHandler {
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastMinute);
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastHour);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.avgLatencyTotal);
-    // We don't record max/min values for minute/hour views in Java.
-    formatter.format("<td align=\"right\">%s</td>", NA);
-    formatter.format("<td align=\"right\">%s</td>", NA);
-    formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.maxLatencyTotal);
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.rpcRateLastMinute);
     formatter.format("<td align=\"right\">%.3f</td>", snapshot.rpcRateLastHour);
     formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.rpcRateTotal);
@@ -366,7 +361,6 @@ final class RpczZPageHandler extends ZPageHandler {
       StatsSnapshot snapshot, AggregationData data, View view, AggregationWindowData windowData) {
     if (view == RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW || view == RPC_SERVER_SERVER_LATENCY_VIEW) {
       snapshot.avgLatencyTotal = ((DistributionData) data).getMean();
-      snapshot.maxLatencyTotal = ((DistributionData) data).getMax();
     } else if (view == RPC_CLIENT_ROUNDTRIP_LATENCY_MINUTE_VIEW
         || view == RPC_SERVER_SERVER_LATENCY_MINUTE_VIEW) {
       snapshot.avgLatencyLastMinute = ((MeanData) data).getMean();
@@ -427,16 +421,19 @@ final class RpczZPageHandler extends ZPageHandler {
         || view == RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW) {
       snapshot.countTotal = ((CountData) data).getCount();
       snapshot.rpcRateTotal = snapshot.countTotal / getDurationInSecs((CumulativeData) windowData);
-    }
+    } // TODO(songya): compute and store latency percentiles.
   }
 
   // Calculates the duration of the given CumulativeData in seconds.
   private static double getDurationInSecs(CumulativeData cumulativeData) {
-    return toSecs(cumulativeData.getEnd().subtractTimestamp(cumulativeData.getStart()));
+    return toDoubleSeconds(cumulativeData.getEnd().subtractTimestamp(cumulativeData.getStart()));
   }
 
-  // Converts a Duration to seconds.
-  private static double toSecs(Duration duration) {
+  // Converts a Duration to seconds. Converts the nanoseconds of the given duration to decimals of
+  // second, and adds it to the second of duration.
+  // For example, Duration.create(/* seconds */ 5, /* nanos */ 5 * 1e8) will be converted to 5.5
+  // seconds.
+  private static double toDoubleSeconds(Duration duration) {
     return duration.getNanos() / NANOS_PER_SECOND + duration.getSeconds();
   }
 
@@ -458,7 +455,6 @@ final class RpczZPageHandler extends ZPageHandler {
     double avgLatencyLastMinute;
     double avgLatencyLastHour;
     double avgLatencyTotal;
-    double maxLatencyTotal;
     double inputRateLastMinute;
     double inputRateLastHour;
     double inputRateTotal;
