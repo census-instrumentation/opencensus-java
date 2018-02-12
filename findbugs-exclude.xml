@@ -21,5 +21,9 @@
     <!-- Reason: It conflicts with Checker Framework null analysis. -->
     <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION"/>
   </Match>
-
+  <Match>
+    <!-- Reason: BaseMessageEvent only has two visible subclasses. -->
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    <Class name="io.opencensus.internal.BaseMessageEventUtil" />
+  </Match>
 </FindBugsFilter>

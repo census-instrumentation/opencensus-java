@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.NetworkEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link BaseMessageEvent}. */
+/** Unit tests for {@link BaseMessageEventUtil}. */
 @RunWith(JUnit4.class)
-public class BaseMessageEventTest {
+public class BaseMessageEventUtilTest {
   private static final long SENT_EVENT_ID = 12345L;
   private static final long RECV_EVENT_ID = 67890L;
   private static final long UNCOMPRESSED_SIZE = 100;
@@ -53,13 +55,17 @@ public class BaseMessageEventTest {
 
   @Test
   public void networkEventToMessageEvent() {
-    assertThat(BaseMessageEvent.asMessageEvent(SENT_NETWORK_EVENT)).isEqualTo(SENT_MESSAGE_EVENT);
-    assertThat(BaseMessageEvent.asMessageEvent(RECV_NETWORK_EVENT)).isEqualTo(RECV_MESSAGE_EVENT);
+    assertThat(BaseMessageEventUtil.asMessageEvent(SENT_NETWORK_EVENT))
+        .isEqualTo(SENT_MESSAGE_EVENT);
+    assertThat(BaseMessageEventUtil.asMessageEvent(RECV_NETWORK_EVENT))
+        .isEqualTo(RECV_MESSAGE_EVENT);
   }
 
   @Test
   public void messageEventToNetworkEvent() {
-    assertThat(BaseMessageEvent.asNetworkEvent(SENT_MESSAGE_EVENT)).isEqualTo(SENT_NETWORK_EVENT);
-    assertThat(BaseMessageEvent.asNetworkEvent(RECV_MESSAGE_EVENT)).isEqualTo(RECV_NETWORK_EVENT);
+    assertThat(BaseMessageEventUtil.asNetworkEvent(SENT_MESSAGE_EVENT))
+        .isEqualTo(SENT_NETWORK_EVENT);
+    assertThat(BaseMessageEventUtil.asNetworkEvent(RECV_MESSAGE_EVENT))
+        .isEqualTo(RECV_NETWORK_EVENT);
   }
 }

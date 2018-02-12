@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.Lists;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.BaseMessageEventUtil;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.BaseMessageEvent;
@@ -104,7 +105,7 @@ public abstract class SpanData {
       } else {
         messageEventsList.add(
             TimedEvent.<MessageEvent>create(
-                timedEvent.getTimestamp(), BaseMessageEvent.asMessageEvent(event)));
+                timedEvent.getTimestamp(), BaseMessageEventUtil.asMessageEvent(event)));
       }
     }
     TimedEvents<MessageEvent> messageEvents =
@@ -201,7 +202,8 @@ public abstract class SpanData {
     for (TimedEvent<MessageEvent> timedEvent : timedEvents.getEvents()) {
       networkEventsList.add(
           TimedEvent.<io.opencensus.trace.NetworkEvent>create(
-              timedEvent.getTimestamp(), BaseMessageEvent.asNetworkEvent(timedEvent.getEvent())));
+              timedEvent.getTimestamp(),
+              BaseMessageEventUtil.asNetworkEvent(timedEvent.getEvent())));
     }
     return TimedEvents.<io.opencensus.trace.NetworkEvent>create(
         networkEventsList, timedEvents.getDroppedEventsCount());
