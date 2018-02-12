@@ -38,6 +38,8 @@ import javax.annotation.concurrent.GuardedBy;
  *   ... // Do work.
  * }
  * }</pre>
+ *
+ * @since 0.12
  */
 public final class InstanaTraceExporter {
 
@@ -57,6 +59,7 @@ public final class InstanaTraceExporter {
    * @param agentEndpoint Ex http://localhost:42699/com.instana.plugin.generic.trace
    * @throws MalformedURLException if the agentEndpoint is not a valid http url.
    * @throws IllegalStateException if a Instana exporter is already registered.
+   * @since 0.12
    */
   public static void createAndRegister(String agentEndpoint) throws MalformedURLException {
     synchronized (monitor) {
@@ -81,6 +84,7 @@ public final class InstanaTraceExporter {
    * Unregisters the Instana Trace exporter from the OpenCensus library.
    *
    * @throws IllegalStateException if a Instana exporter is not registered.
+   * @since 0.12
    */
   public static void unregister() {
     synchronized (monitor) {
