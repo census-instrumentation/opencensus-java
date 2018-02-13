@@ -9,6 +9,7 @@ apply plugin: 'java'
 
 dependencies {
     compile project(':opencensus-api'),
+            project(':opencensus-contrib-grpc-metrics',),
             libraries.guava
 
     signature "org.codehaus.mojo.signature:java18:+@signature"
