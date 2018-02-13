@@ -79,8 +79,9 @@ public final class PrometheusStatsCollector extends Collector implements Collect
           Status.UNKNOWN.withDescription(
               "Exception thrown when collecting Prometheus Metric Samples: "
                   + exceptionMessage(e)));
+    } finally {
+      span.end();
     }
-    span.end();
     return samples;
   }
 
@@ -100,8 +101,9 @@ public final class PrometheusStatsCollector extends Collector implements Collect
       span.setStatus(
           Status.UNKNOWN.withDescription(
               "Exception thrown when describing Prometheus Metrics: " + exceptionMessage(e)));
+    } finally {
+      span.end();
     }
-    span.end();
     return samples;
   }
 
