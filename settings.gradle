@@ -11,6 +11,7 @@ include ":opencensus-exporter-trace-stackdriver"
 include ":opencensus-exporter-trace-zipkin"
 include ":opencensus-exporter-stats-signalfx"
 include ":opencensus-exporter-stats-stackdriver"
+include ":opencensus-exporter-stats-prometheus"
 include ":opencensus-contrib-agent"
 include ":opencensus-contrib-grpc-metrics"
 include ":opencensus-contrib-grpc-util"
@@ -34,6 +35,8 @@ project(':opencensus-exporter-trace-stackdriver').projectDir =
 project(':opencensus-exporter-trace-zipkin').projectDir = "$rootDir/exporters/trace/zipkin" as File
 project(':opencensus-exporter-stats-signalfx').projectDir = "$rootDir/exporters/stats/signalfx" as File
 project(':opencensus-exporter-stats-stackdriver').projectDir = "$rootDir/exporters/stats/stackdriver" as File
+project(':opencensus-exporter-stats-prometheus').projectDir = "$rootDir/exporters/stats/prometheus" as File
+
 
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {

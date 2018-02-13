@@ -141,6 +141,7 @@ subprojects {
         googleCloudVersion = '0.33.0-beta'
         signalfxVersion = '0.0.39'
         zipkinReporterVersion = '2.0.0'
+        prometheusVersion = '0.2.0'
 
         libraries = [
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
@@ -160,6 +161,7 @@ subprojects {
                 guava: "com.google.guava:guava:${guavaVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
                 signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
+                prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
@@ -333,6 +335,7 @@ subprojects {
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
                  'opencensus-contrib-zpages',
+                 'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',
                  'opencensus-exporter-stats-stackdriver',
                  'opencensus-exporter-trace-instana',
