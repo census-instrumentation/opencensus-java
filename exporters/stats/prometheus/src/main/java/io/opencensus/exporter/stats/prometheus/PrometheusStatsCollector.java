@@ -28,7 +28,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** OpenCensus Stats {@link Collector} for Prometheus. */
+/**
+ * OpenCensus Stats {@link Collector} for Prometheus.
+ *
+ * @since 0.12
+ */
 public final class PrometheusStatsCollector extends Collector implements Collector.Describable {
 
   private static final Logger logger = Logger.getLogger(PrometheusStatsCollector.class.getName());
@@ -41,6 +45,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
    *
    * @throws IllegalArgumentException if a {@code PrometheusStatsCollector} has already been created
    *     and registered.
+   * @since 0.12
    */
   public static void createAndRegister() {
     new PrometheusStatsCollector(Stats.getViewManager()).register();

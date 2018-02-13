@@ -22,6 +22,10 @@ import com.google.common.collect.Lists;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Aggregation.Count;
+import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
@@ -47,7 +51,33 @@ import java.util.Map.Entry;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
-/** Util methods to convert OpenCensus Stats data models to Prometheus data models. */
+/**
+ * Util methods to convert OpenCensus Stats data models to Prometheus data models.
+ *
+ * <p>Each OpenCensus {@link View} will be converted to a Prometheus {@link MetricFamilySamples}
+ * with no {@link Sample}s, and is used for registering Prometheus {@code Metric}s. Only {@link
+ * Cumulative} views are supported. All views are under namespace "opencensus".
+ *
+ * <p>{@link Aggregation} will be converted to a corresponding Prometheus {@link Type}. {@link Sum}
+ * will be {@link Type#UNTYPED}, {@link Count} will be {@link Type#COUNTER}, {@link Mean} will be
+ * {@link Type#SUMMARY} and {@link Distribution} will be {@link Type#HISTOGRAM}. Please note we
+ * cannot set bucket boundaries for custom {@link Type#HISTOGRAM}.
+ *
+ * <p>Each OpenCensus {@link ViewData} will be converted to a Prometheus {@link
+ * MetricFamilySamples}, and each {@code Row} of the {@link ViewData} will be converted to
+ * Prometheus {@link Sample}s.
+ *
+ * <p>{@link SumDataDouble}, {@link SumDataLong} and {@link CountData} will be converted to a single
+ * {@link Sample}. {@link MeanData} will be converted to two {@link Sample}s sum and count. {@link
+ * DistributionData} will be converted to a list of {@link Sample}s that have the sum, count and
+ * histogram buckets.
+ *
+ * <p>{@link TagKey} and {@link TagValue} will be converted to Prometheus {@code LabelName} and
+ * {@code LabelValue}. {@code Null} {@link TagValue} will be converted to an empty string.
+ *
+ * <p>Please note that Prometheus Metric and Label name can only have alphanumeric characters and
+ * underscore. All other characters will be sanitized by underscores.
+ */
 final class PrometheusExportUtils {
 
   @VisibleForTesting static final String OPENCENSUS_NAMESPACE = "opencensus";
@@ -56,7 +86,7 @@ final class PrometheusExportUtils {
   @VisibleForTesting static final String SAMPLE_SUFFIX_COUNT = "_count";
   @VisibleForTesting static final String SAMPLE_SUFFIX_SUM = "_sum";
 
-  // Convert a ViewData to a Prometheus MetricFamilySamples.
+  // Converts a ViewData to a Prometheus MetricFamilySamples.
   static MetricFamilySamples createMetricFamilySamples(ViewData viewData) {
     View view = viewData.getView();
     String name =
@@ -70,7 +100,7 @@ final class PrometheusExportUtils {
         name, type, OPENCENSUS_HELP_MSG + view.getDescription(), samples);
   }
 
-  // Convert a View to a Prometheus MetricFamilySamples.
+  // Converts a View to a Prometheus MetricFamilySamples.
   // Used only for Prometheus metric registry, should not contain any actual samples.
   static MetricFamilySamples createDescribableMetricFamilySamples(View view) {
     String name =
