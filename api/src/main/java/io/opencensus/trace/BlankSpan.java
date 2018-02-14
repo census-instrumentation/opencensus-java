@@ -58,7 +58,7 @@ public final class BlankSpan extends Span {
 
   /** No-op implementation of the {@link Span#addNetworkEvent(NetworkEvent)} method. */
   @Override
-  @SuppressWarnings("deprecation")
+  @Deprecated
   public void addNetworkEvent(NetworkEvent networkEvent) {}
 
   /** No-op implementation of the {@link Span#addMessageEvent(MessageEvent)} method. */

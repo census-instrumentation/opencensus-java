@@ -23,7 +23,7 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * A class that represents a generic messaging event. This class can represent messaging happened in
- * any layer, especailly higher application layer. Thus, it can be used when recording events in
+ * any layer, especially higher application layer. Thus, it can be used when recording events in
  * pipeline works, in-process bidirectional streams and batch processing.
  *
  * <p>It requires a {@link Type type} and a message id that serves to uniquely identify each
