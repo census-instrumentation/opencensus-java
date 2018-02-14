@@ -20,8 +20,16 @@ package io.opencensus.trace;
  * Superclass for {@link MessageEvent} and {@link NetworkEvent} to resolve API backward
  * compatibility issue.
  *
+ * <p>{@code SpanData.create} can't be overloaded with parameter types that differ only in the type
+ * of the TimedEvent, because the signatures are the same after generic type erasure. {@code
+ * BaseMessageEvent} allows the same method to accept both {@code TimedEvents<NetworkEvent>} and
+ * {@code TimedEvents<MessageEvent>}.
+ *
+ * <p>This class should only be extended by {@code NetworkEvent} and {@code MessageEvent}.
+ *
  * @since 0.12
  */
 public abstract class BaseMessageEvent {
+  // package protected to avoid users to extend it.
   BaseMessageEvent() {}
 }

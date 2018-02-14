@@ -27,7 +27,7 @@ import io.opencensus.trace.MessageEvent;
  * @since 0.12
  */
 @SuppressWarnings("deprecation")
-public class BaseMessageEventUtil {
+public final class BaseMessageEventUtil {
   /**
    * Cast or convert a {@link BaseMessageEvent} to {@link MessageEvent}.
    *
@@ -36,7 +36,6 @@ public class BaseMessageEventUtil {
    *
    * @param event the {@code BaseMessageEvent} that is being cast or converted.
    * @return a {@code MessageEvent} representation of the input.
-   * @since 0.12
    */
   public static MessageEvent asMessageEvent(BaseMessageEvent event) {
     checkNotNull(event);
@@ -59,7 +58,6 @@ public class BaseMessageEventUtil {
    *
    * @param event the {@code BaseMessageEvent} that is being cast or converted.
    * @return a {@code io.opencensus.trace.NetworkEvent} representation of the input.
-   * @since 0.12
    */
   public static io.opencensus.trace.NetworkEvent asNetworkEvent(BaseMessageEvent event) {
     checkNotNull(event);
