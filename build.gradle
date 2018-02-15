@@ -140,8 +140,8 @@ subprojects {
         googleAuthVersion = '0.9.0'
         googleCloudVersion = '0.34.0-beta'
         signalfxVersion = '0.0.39'
-        zipkinReporterVersion = '2.0.0'
         prometheusVersion = '0.2.0'
+        zipkinReporterVersion = '2.3.2'
 
         libraries = [
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
