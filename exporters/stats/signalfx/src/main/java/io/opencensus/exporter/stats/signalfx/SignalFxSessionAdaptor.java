@@ -72,7 +72,8 @@ final class SignalFxSessionAdaptor {
     }
 
     List<DataPoint> datapoints = new ArrayList<>(data.getAggregationMap().size());
-    for (Map.Entry<List<TagValue>, AggregationData> entry : data.getAggregationMap().entrySet()) {
+    for (Map.Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
+        data.getAggregationMap().entrySet()) {
       datapoints.add(
           DataPoint.newBuilder()
               .setMetric(view.getName().asString())
@@ -101,7 +102,8 @@ final class SignalFxSessionAdaptor {
   }
 
   @VisibleForTesting
-  static Iterable<Dimension> createDimensions(List<TagKey> keys, List<TagValue> values) {
+  static Iterable<Dimension> createDimensions(
+      List<TagKey> keys, List</*@Nullable*/ TagValue> values) {
     Preconditions.checkArgument(
         keys.size() == values.size(), "TagKeys and TagValues don't have the same size.");
     List<Dimension> dimensions = new ArrayList<>(keys.size());

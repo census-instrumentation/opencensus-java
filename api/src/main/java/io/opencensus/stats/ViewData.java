@@ -75,7 +75,7 @@ public abstract class ViewData {
    *
    * @since 0.8
    */
-  public abstract Map<List<TagValue>, AggregationData> getAggregationMap();
+  public abstract Map<List</*@Nullable*/ TagValue>, AggregationData> getAggregationMap();
 
   /**
    * Returns the {@link AggregationWindowData} associated with this {@link ViewData}.
@@ -99,14 +99,15 @@ public abstract class ViewData {
    */
   public static ViewData create(
       View view,
-      Map<? extends List<TagValue>, ? extends AggregationData> map,
+      Map<? extends List</*@Nullable*/ TagValue>, ? extends AggregationData> map,
       final AggregationWindowData windowData) {
     checkWindow(view.getWindow(), windowData);
     Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
     for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map.entrySet()) {
       checkAggregation(view.getAggregation(), entry.getValue(), view.getMeasure());
       deepCopy.put(
-          Collections.unmodifiableList(new ArrayList<TagValue>(entry.getKey())), entry.getValue());
+          Collections.unmodifiableList(new ArrayList</*@Nullable*/ TagValue>(entry.getKey())),
+          entry.getValue());
     }
     return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), windowData);
   }
