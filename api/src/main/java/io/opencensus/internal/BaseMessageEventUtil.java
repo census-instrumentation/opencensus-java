@@ -18,7 +18,6 @@ package io.opencensus.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.trace.BaseMessageEvent;
 import io.opencensus.trace.MessageEvent;
 
 /**
@@ -29,7 +28,7 @@ import io.opencensus.trace.MessageEvent;
 @SuppressWarnings("deprecation")
 public final class BaseMessageEventUtil {
   /**
-   * Cast or convert a {@link BaseMessageEvent} to {@link MessageEvent}.
+   * Cast or convert a {@link io.opencensus.trace.BaseMessageEvent} to {@link MessageEvent}.
    *
    * <p>Warning: if the input is a {@code io.opencensus.trace.NetworkEvent} and contains {@code
    * kernelTimestamp} information, this information will be dropped.
@@ -37,7 +36,7 @@ public final class BaseMessageEventUtil {
    * @param event the {@code BaseMessageEvent} that is being cast or converted.
    * @return a {@code MessageEvent} representation of the input.
    */
-  public static MessageEvent asMessageEvent(BaseMessageEvent event) {
+  public static MessageEvent asMessageEvent(io.opencensus.trace.BaseMessageEvent event) {
     checkNotNull(event);
     if (event instanceof MessageEvent) {
       return (MessageEvent) event;
@@ -54,12 +53,14 @@ public final class BaseMessageEventUtil {
   }
 
   /**
-   * Cast or convert a {@link BaseMessageEvent} to {@link io.opencensus.trace.NetworkEvent}.
+   * Cast or convert a {@link io.opencensus.trace.BaseMessageEvent} to {@link
+   * io.opencensus.trace.NetworkEvent}.
    *
    * @param event the {@code BaseMessageEvent} that is being cast or converted.
    * @return a {@code io.opencensus.trace.NetworkEvent} representation of the input.
    */
-  public static io.opencensus.trace.NetworkEvent asNetworkEvent(BaseMessageEvent event) {
+  public static io.opencensus.trace.NetworkEvent asNetworkEvent(
+      io.opencensus.trace.BaseMessageEvent event) {
     checkNotNull(event);
     if (event instanceof io.opencensus.trace.NetworkEvent) {
       return (io.opencensus.trace.NetworkEvent) event;

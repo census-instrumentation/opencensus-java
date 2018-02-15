@@ -24,7 +24,6 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.internal.BaseMessageEventUtil;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.BaseMessageEvent;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Span;
@@ -87,7 +86,7 @@ public abstract class SpanData {
       Timestamp startTimestamp,
       Attributes attributes,
       TimedEvents<Annotation> annotations,
-      TimedEvents<? extends BaseMessageEvent> messageOrNetworkEvents,
+      TimedEvents<? extends io.opencensus.trace.BaseMessageEvent> messageOrNetworkEvents,
       Links links,
       @Nullable Integer childSpanCount,
       @Nullable Status status,
@@ -96,8 +95,9 @@ public abstract class SpanData {
       throw new NullPointerException("Null messageOrNetworkEvents");
     }
     List<TimedEvent<MessageEvent>> messageEventsList = Lists.newArrayList();
-    for (TimedEvent<? extends BaseMessageEvent> timedEvent : messageOrNetworkEvents.getEvents()) {
-      BaseMessageEvent event = timedEvent.getEvent();
+    for (TimedEvent<? extends io.opencensus.trace.BaseMessageEvent> timedEvent :
+        messageOrNetworkEvents.getEvents()) {
+      io.opencensus.trace.BaseMessageEvent event = timedEvent.getEvent();
       if (event instanceof MessageEvent) {
         @SuppressWarnings("unchecked")
         TimedEvent<MessageEvent> timedMessageEvent = (TimedEvent<MessageEvent>) timedEvent;

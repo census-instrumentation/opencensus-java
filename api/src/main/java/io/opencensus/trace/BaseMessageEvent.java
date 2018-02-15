@@ -27,8 +27,10 @@ package io.opencensus.trace;
  *
  * <p>This class should only be extended by {@code NetworkEvent} and {@code MessageEvent}.
  *
+ * @deprecated This class is for internal use only.
  * @since 0.12
  */
+@Deprecated
 public abstract class BaseMessageEvent {
   // package protected to avoid users to extend it.
   BaseMessageEvent() {}

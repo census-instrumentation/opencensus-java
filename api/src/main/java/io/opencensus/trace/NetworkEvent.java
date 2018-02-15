@@ -37,7 +37,7 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
 @Deprecated
-public abstract class NetworkEvent extends BaseMessageEvent {
+public abstract class NetworkEvent extends io.opencensus.trace.BaseMessageEvent {
   /**
    * Available types for a {@code NetworkEvent}.
    *
