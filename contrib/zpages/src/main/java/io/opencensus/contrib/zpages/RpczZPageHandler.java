@@ -103,6 +103,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /** HTML page formatter for gRPC cumulative and interval stats. */
 final class RpczZPageHandler extends ZPageHandler {
 
@@ -337,14 +341,16 @@ final class RpczZPageHandler extends ZPageHandler {
       if (viewData == null) {
         continue;
       }
-      for (Entry<List<TagValue>, AggregationData> entry : viewData.getAggregationMap().entrySet()) {
-        String method;
-        List<TagValue> tagValues = entry.getKey();
+      for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
+          viewData.getAggregationMap().entrySet()) {
+        TagValue tagValue;
+        List</*@Nullable*/ TagValue> tagValues = entry.getKey();
         if (tagValues.size() == 1) {
-          method = tagValues.get(0).asString();
+          tagValue = tagValues.get(0);
         } else { // Error count views have two tag key: status and method.
-          method = tagValues.get(1).asString();
+          tagValue = tagValues.get(1);
         }
+        String method = tagValue == null ? "" : tagValue.asString();
         StatsSnapshot snapshot = map.get(method);
         if (snapshot == null) {
           snapshot = new StatsSnapshot();

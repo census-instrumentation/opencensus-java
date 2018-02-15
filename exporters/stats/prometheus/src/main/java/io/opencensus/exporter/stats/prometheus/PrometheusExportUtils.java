@@ -93,7 +93,8 @@ final class PrometheusExportUtils {
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
     List<Sample> samples = Lists.newArrayList();
-    for (Entry<List<TagValue>, AggregationData> entry : viewData.getAggregationMap().entrySet()) {
+    for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
+        viewData.getAggregationMap().entrySet()) {
       samples.addAll(getSamples(name, view.getColumns(), entry.getKey(), entry.getValue()));
     }
     return new MetricFamilySamples(
@@ -127,7 +128,7 @@ final class PrometheusExportUtils {
   static List<Sample> getSamples(
       final String name,
       List<TagKey> tagKeys,
-      List<TagValue> tagValues,
+      List</*@Nullable*/ TagValue> tagValues,
       AggregationData aggregationData) {
     Preconditions.checkArgument(
         tagKeys.size() == tagValues.size(), "Tag keys and tag values have different sizes.");

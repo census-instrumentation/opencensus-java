@@ -191,7 +191,8 @@ final class StackdriverExportUtils {
     shared.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
 
     // Each entry in AggregationMap will be converted into an independent TimeSeries object
-    for (Entry<List<TagValue>, AggregationData> entry : viewData.getAggregationMap().entrySet()) {
+    for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
+        viewData.getAggregationMap().entrySet()) {
       TimeSeries.Builder builder = shared.clone();
       builder.setMetric(createMetric(view, entry.getKey()));
       builder.addPoints(
@@ -204,7 +205,7 @@ final class StackdriverExportUtils {
 
   // Create a Metric using the TagKeys and TagValues.
   @VisibleForTesting
-  static Metric createMetric(View view, List<? extends TagValue> tagValues) {
+  static Metric createMetric(View view, List</*@Nullable*/ TagValue> tagValues) {
     Metric.Builder builder = Metric.newBuilder();
     // TODO(songya): use pre-defined metrics for canonical views
     builder.setType(generateType(view.getName().asString()));
