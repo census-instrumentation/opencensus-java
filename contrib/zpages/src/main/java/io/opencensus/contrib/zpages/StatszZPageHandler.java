@@ -538,8 +538,7 @@ final class StatszZPageHandler extends ZPageHandler {
    */
   private static class TreeNode {
     // Only leaf nodes have views.
-    @SuppressWarnings("nullness")
-    final /*@Nullable*/ View view;
+    @javax.annotation.Nullable final /*@Nullable*/ View view;
 
     // A mapping from relative path to children TreeNodes. Sorted by the relative path.
     SortedMap<String, TreeNode> children = Maps.newTreeMap();
