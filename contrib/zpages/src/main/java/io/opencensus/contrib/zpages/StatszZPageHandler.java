@@ -99,6 +99,7 @@ final class StatszZPageHandler extends ZPageHandler {
   private static final String TABLE_HEADER_BUCKET_SIZE = "Bucket Size";
   private static final long MILLIS_PER_SECOND = 1000;
   private static final long NANOS_PER_MILLISECOND = 1000 * 1000;
+  private static final Splitter PATH_SPLITTER = Splitter.on('/');
 
   @Override
   public String getUrlPath() {
@@ -163,7 +164,7 @@ final class StatszZPageHandler extends ZPageHandler {
       }
       cachedViews.add(view);
 
-      List<String> dirs = Splitter.on('/').splitToList(view.getName().asString());
+      List<String> dirs = PATH_SPLITTER.splitToList(view.getName().asString());
       TreeNode node = root;
       for (int i = 0; i < dirs.size(); i++) {
         if (node == null) {
@@ -232,10 +233,8 @@ final class StatszZPageHandler extends ZPageHandler {
   private /*@Nullable*/ TreeNode findNode(/*@Nullable*/ String path) {
     if (Strings.isNullOrEmpty(path) || "/".equals(path)) { // Go back to the root directory.
       return root;
-    } else if (path.indexOf('/') == -1) {
-      return root.children.get(path);
     } else {
-      List<String> dirs = Splitter.on('/').splitToList(path);
+      List<String> dirs = PATH_SPLITTER.splitToList(path);
       TreeNode node = root;
       for (int i = 0; i < dirs.size(); i++) {
         String dir = dirs.get(i);
@@ -253,7 +252,7 @@ final class StatszZPageHandler extends ZPageHandler {
   }
 
   private static void emitDirectoryHeader(String path, PrintWriter out, Formatter formatter) {
-    List<String> dirs = Splitter.on('/').splitToList(path);
+    List<String> dirs = PATH_SPLITTER.splitToList(path);
     StringBuilder currentPath = new StringBuilder("");
     out.write("<h3>Current Path: ");
     for (int i = 0; i < dirs.size(); i++) {
