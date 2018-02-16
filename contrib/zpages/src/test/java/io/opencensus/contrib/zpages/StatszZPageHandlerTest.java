@@ -188,6 +188,14 @@ public class StatszZPageHandlerTest {
         .contains("Directory not found: /unknown/unknown_view. Return to root.");
   }
 
+  @Test
+  public void viewWithNoStats() {
+    StatszZPageHandler handler = StatszZPageHandler.create(mockViewManager);
+    OutputStream output = new ByteArrayOutputStream();
+    handler.emitHtml(ImmutableMap.of(QUERY_PATH, "/my_view"), output);
+    assertThat(output.toString()).contains("No Stats found for View my_view.");
+  }
+
   private static void assertContainsMeasure(OutputStream output, Measure measure) {
     assertThat(output.toString()).contains(measure.getName());
     assertThat(output.toString()).contains(measure.getDescription());

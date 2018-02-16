@@ -148,7 +148,7 @@ final class StatszZPageHandler extends ZPageHandler {
     emitDirectoryTable(current, path, out, formatter);
     if (current != null && current.view != null) {
       ViewData viewData = viewManager.getView(current.view.getName());
-      emitViewData(viewData, out, formatter);
+      emitViewData(viewData, current.view.getName(), out, formatter);
     }
     emitMeasureTable(measures, out, formatter);
   }
@@ -266,8 +266,10 @@ final class StatszZPageHandler extends ZPageHandler {
   }
 
   private static void emitViewData(
-      /*@Nullable*/ ViewData viewData, PrintWriter out, Formatter formatter) {
+      /*@Nullable*/ ViewData viewData, View.Name viewName, PrintWriter out, Formatter formatter) {
     if (viewData == null) {
+      formatter.format(
+          "<p class=\"%s\">No Stats found for View %s.</p>", CLASS_LARGER_TR, viewName.asString());
       return;
     }
     View view = viewData.getView();
