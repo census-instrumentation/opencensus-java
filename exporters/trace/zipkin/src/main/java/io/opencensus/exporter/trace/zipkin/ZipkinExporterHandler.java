@@ -114,6 +114,8 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     @SuppressWarnings("nullness")
     long endTimestamp = toEpochMicros(spanData.getEndTimestamp());
 
+    // TODO(bdrutu): Fix the Checker Framework warning.
+    @SuppressWarnings("nullness")
     Span.Builder spanBuilder =
         Span.newBuilder()
             .traceId(encodeTraceId(context.getTraceId()))
