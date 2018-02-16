@@ -192,6 +192,7 @@ final class StatszZPageHandler extends ZPageHandler {
       /*@Nullable*/ String path,
       PrintWriter out,
       Formatter formatter) {
+    out.write("<h2>Views</h2>");
     if (currentNode == null) {
       formatter.format(
           "<p><font size=+2>Directory not found: %s. Return to root.</font></p>", path);
@@ -251,11 +252,10 @@ final class StatszZPageHandler extends ZPageHandler {
     }
   }
 
-  private static void emitDirectoryHeader(
-      String path, PrintWriter out, Formatter formatter) {
+  private static void emitDirectoryHeader(String path, PrintWriter out, Formatter formatter) {
     List<String> dirs = Splitter.on('/').splitToList(path);
     StringBuilder currentPath = new StringBuilder("");
-    out.write("<h2>Current Path: ");
+    out.write("<h3>Current Path: ");
     for (int i = 0; i < dirs.size(); i++) {
       String dir = dirs.get(i);
       currentPath.append(dir);
@@ -441,8 +441,7 @@ final class StatszZPageHandler extends ZPageHandler {
                 formatter.format("<td %s>%d</td>", ALIGN_CENTER, arg.getCount());
                 formatter.format("<td %s>%.3f</td>", ALIGN_CENTER, arg.getMax());
                 formatter.format("<td %s>%.3f</td>", ALIGN_CENTER, arg.getMin());
-                formatter.format(
-                    "<td %s>%.3f</td>", ALIGN_CENTER, arg.getSumOfSquaredDeviations());
+                formatter.format("<td %s>%.3f</td>", ALIGN_CENTER, arg.getSumOfSquaredDeviations());
                 emitHistogramBuckets(
                     ((Distribution) view.getAggregation()).getBucketBoundaries().getBoundaries(),
                     arg.getBucketCounts(),
