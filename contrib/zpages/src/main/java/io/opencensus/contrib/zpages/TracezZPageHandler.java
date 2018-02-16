@@ -27,8 +27,6 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.NetworkEvent;
-import io.opencensus.trace.NetworkEvent.Type;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -65,6 +63,7 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
+// TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 /**
  * HTML page formatter for tracing debug. The page displays information about all active spans and
  * all sampled spans based on latency and errors.
@@ -280,6 +279,7 @@ final class TracezZPageHandler extends ZPageHandler {
   }
 
   // Emits the internal html for a single {@link SpanData}.
+  @SuppressWarnings("deprecation")
   private static void emitSingleSpan(PrintWriter out, Formatter formatter, SpanData span) {
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeInMillis(TimeUnit.SECONDS.toMillis(span.getStartTimestamp().getSeconds()));
@@ -320,7 +320,7 @@ final class TracezZPageHandler extends ZPageHandler {
 
     Timestamp lastTimestampNanos = span.getStartTimestamp();
     TimedEvents<Annotation> annotations = span.getAnnotations();
-    TimedEvents<NetworkEvent> networkEvents = span.getNetworkEvents();
+    TimedEvents<io.opencensus.trace.NetworkEvent> networkEvents = span.getNetworkEvents();
     List<TimedEvent<?>> timedEvents = new ArrayList<TimedEvent<?>>(annotations.getEvents());
     timedEvents.addAll(networkEvents.getEvents());
     Collections.sort(timedEvents, new TimedEventComparator());
@@ -370,8 +370,8 @@ final class TracezZPageHandler extends ZPageHandler {
               .escape(
                   event.getEvent() instanceof Annotation
                       ? renderAnnotation((Annotation) event.getEvent())
-                      : renderNetworkEvents((NetworkEvent) castNonNull(event.getEvent()))));
-
+                      : renderNetworkEvents(
+                          (io.opencensus.trace.NetworkEvent) castNonNull(event.getEvent()))));
       lastTimestampNanos = event.getTimestamp();
     }
     Status status = span.getStatus();
@@ -576,11 +576,12 @@ final class TracezZPageHandler extends ZPageHandler {
     throw new IllegalArgumentException("No value string available for: " + latencyBucketBoundaries);
   }
 
-  private static String renderNetworkEvents(NetworkEvent networkEvent) {
+  @SuppressWarnings("deprecation")
+  private static String renderNetworkEvents(io.opencensus.trace.NetworkEvent networkEvent) {
     StringBuilder stringBuilder = new StringBuilder();
-    if (networkEvent.getType() == Type.RECV) {
+    if (networkEvent.getType() == io.opencensus.trace.NetworkEvent.Type.RECV) {
       stringBuilder.append("Received message");
-    } else if (networkEvent.getType() == Type.SENT) {
+    } else if (networkEvent.getType() == io.opencensus.trace.NetworkEvent.Type.SENT) {
       stringBuilder.append("Sent message");
     } else {
       stringBuilder.append("Unknown");

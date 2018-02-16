@@ -29,7 +29,6 @@ import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -50,6 +49,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+// TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 /** Implementation for the {@link Span} class. */
 @ThreadSafe
 public final class SpanImpl extends Span implements Element<SpanImpl> {
@@ -84,7 +84,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   // List of recorded network events.
   @GuardedBy("this")
   @Nullable
-  private TraceEvents<EventWithNanoTime<NetworkEvent>> networkEvents;
+  @SuppressWarnings("deprecation")
+  private TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>> networkEvents;
   // List of recorded links to parent and child spans.
   @GuardedBy("this")
   @Nullable
@@ -238,7 +239,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
               : SpanData.Attributes.create(attributes, attributes.getNumberOfDroppedAttributes());
       SpanData.TimedEvents<Annotation> annotationsSpanData =
           createTimedEvents(getInitializedAnnotations(), timestampConverter);
-      SpanData.TimedEvents<NetworkEvent> networkEventsSpanData =
+      @SuppressWarnings("deprecation")
+      SpanData.TimedEvents<io.opencensus.trace.NetworkEvent> networkEventsSpanData =
           createTimedEvents(getInitializedNetworkEvents(), timestampConverter);
       SpanData.Links linksSpanData =
           links == null
@@ -327,7 +329,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
-  public void addNetworkEvent(NetworkEvent networkEvent) {
+  @SuppressWarnings("deprecation")
+  public void addNetworkEvent(io.opencensus.trace.NetworkEvent networkEvent) {
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
@@ -338,7 +341,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       }
       getInitializedNetworkEvents()
           .addEvent(
-              new EventWithNanoTime<NetworkEvent>(
+              new EventWithNanoTime<io.opencensus.trace.NetworkEvent>(
                   clock.nowNanos(), checkNotNull(networkEvent, "networkEvent")));
     }
   }
@@ -409,10 +412,12 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @GuardedBy("this")
-  private TraceEvents<EventWithNanoTime<NetworkEvent>> getInitializedNetworkEvents() {
+  @SuppressWarnings("deprecation")
+  private TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>>
+      getInitializedNetworkEvents() {
     if (networkEvents == null) {
       networkEvents =
-          new TraceEvents<EventWithNanoTime<NetworkEvent>>(
+          new TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>>(
               traceParams.getMaxNumberOfNetworkEvents());
     }
     return networkEvents;

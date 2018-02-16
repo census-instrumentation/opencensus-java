@@ -18,7 +18,6 @@ package io.opencensus.benchmarks.trace;
 
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
@@ -80,9 +79,12 @@ public class RecordTraceEventsNonSampledSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
+  @SuppressWarnings("deprecation")
   public Span addNetworkEvent() {
     span.addNetworkEvent(
-        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build());
+        io.opencensus.trace.NetworkEvent.builder(io.opencensus.trace.NetworkEvent.Type.RECV, 1)
+            .setUncompressedMessageSize(3)
+            .build());
     return span;
   }
 

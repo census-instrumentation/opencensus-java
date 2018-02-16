@@ -53,6 +53,7 @@ public class BlankSpanTest {
     BlankSpan.INSTANCE.addAnnotation("MyAnnotation", multipleAttributes);
     BlankSpan.INSTANCE.addAnnotation(Annotation.fromDescription("MyAnnotation"));
     BlankSpan.INSTANCE.addNetworkEvent(NetworkEvent.builder(NetworkEvent.Type.SENT, 1L).build());
+    BlankSpan.INSTANCE.addMessageEvent(MessageEvent.builder(MessageEvent.Type.SENT, 1L).build());
     BlankSpan.INSTANCE.addLink(
         Link.fromSpanContext(SpanContext.INVALID, Link.Type.CHILD_LINKED_SPAN));
     BlankSpan.INSTANCE.setStatus(Status.OK);

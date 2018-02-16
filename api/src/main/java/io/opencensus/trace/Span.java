@@ -19,6 +19,7 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.internal.BaseMessageEventUtil;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
@@ -159,9 +160,30 @@ public abstract class Span {
    * higher level applications.
    *
    * @param networkEvent the network event to add.
+   * @deprecated Use {@link #addMessageEvent}.
    * @since 0.5
    */
-  public abstract void addNetworkEvent(NetworkEvent networkEvent);
+  @Deprecated
+  public void addNetworkEvent(NetworkEvent networkEvent) {
+    addMessageEvent(BaseMessageEventUtil.asMessageEvent(networkEvent));
+  }
+
+  /**
+   * Adds a MessageEvent to the {@code Span}.
+   *
+   * <p>This function can be used by higher level applications to record messaging event.
+   *
+   * <p>This method should always be overridden by users whose API versions are larger or equal to
+   * {@code 0.12}.
+   *
+   * @param messageEvent the message to add.
+   * @since 0.12
+   */
+  public void addMessageEvent(MessageEvent messageEvent) {
+    // Default implementation by invoking addNetworkEvent() so that any existing derived classes,
+    // including implementation and the mocked ones, do not need to override this method explicitly.
+    addNetworkEvent(BaseMessageEventUtil.asNetworkEvent(messageEvent));
+  }
 
   /**
    * Adds a {@link Link} to the {@code Span}.

@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 // TODO(bdrutu): Add tests.
+// TODO(hailongwen): Remove the usage of `NetworkEvent` in the future.
 /**
  * HTML page formatter for tracing config. The page displays information about the current active
  * tracing configuration and allows users to change it.
@@ -90,6 +91,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
     PrintWriter out =
         new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream, Charsets.UTF_8)));
@@ -131,6 +133,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   // If this is a supported change (currently only permanent changes are supported) apply it.
+  @SuppressWarnings("deprecation")
   private void maybeApplyChanges(Map<String, String> queryMap) {
     String changeStr = queryMap.get(CHANGE);
     if (PERMANENT_CHANGE.equals(changeStr)) {
@@ -168,6 +171,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   // Prints a table to a PrintWriter that shows existing trace parameters.
+  @SuppressWarnings("deprecation")
   private static void emitTraceParamsTable(TraceParams params, PrintWriter out) {
     out.write(
         "<b>Active tracing parameters:</b><br>\n"

@@ -26,7 +26,6 @@ import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -54,6 +53,7 @@ import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.Sender;
 
+// TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 final class ZipkinExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
@@ -106,6 +106,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     return builder.build();
   }
 
+  @SuppressWarnings("deprecation")
   static Span generateSpan(SpanData spanData, Endpoint localEndpoint) {
     SpanContext context = spanData.getContext();
     long startTimestamp = toEpochMicros(spanData.getStartTimestamp());
@@ -147,7 +148,8 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
           toEpochMicros(annotation.getTimestamp()), annotation.getEvent().getDescription());
     }
 
-    for (TimedEvent<NetworkEvent> networkEvent : spanData.getNetworkEvents().getEvents()) {
+    for (TimedEvent<io.opencensus.trace.NetworkEvent> networkEvent :
+        spanData.getNetworkEvents().getEvents()) {
       spanBuilder.addAnnotation(
           toEpochMicros(networkEvent.getTimestamp()), networkEvent.getEvent().getType().name());
     }

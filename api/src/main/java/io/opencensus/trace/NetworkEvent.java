@@ -28,6 +28,7 @@ import javax.annotation.concurrent.Immutable;
  * serves to uniquely identify each network message. It can optionally can have information about
  * the kernel time and message size.
  *
+ * @deprecated Use {@link MessageEvent}.
  * @since 0.5
  */
 @Immutable
@@ -35,7 +36,8 @@ import javax.annotation.concurrent.Immutable;
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
 @AutoValue.CopyAnnotations
 @SuppressWarnings("nullness")
-public abstract class NetworkEvent {
+@Deprecated
+public abstract class NetworkEvent extends io.opencensus.trace.BaseMessageEvent {
   /**
    * Available types for a {@code NetworkEvent}.
    *
@@ -131,9 +133,12 @@ public abstract class NetworkEvent {
   /**
    * Builder class for {@link NetworkEvent}.
    *
+   * @deprecated {@link NetworkEvent} is deprecated. Please use {@link MessageEvent} and its builder
+   *     {@link MessageEvent.Builder}.
    * @since 0.5
    */
   @AutoValue.Builder
+  @Deprecated
   public abstract static class Builder {
     // Package protected methods because these values are mandatory and set only in the
     // NetworkEvent#builder() function.
