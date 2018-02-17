@@ -19,7 +19,10 @@ package io.opencensus.contrib.zpages;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.sun.net.httpserver.HttpServer;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.Stats;
+import io.opencensus.stats.View;
+import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -73,6 +76,8 @@ public final class ZPageHandlers {
       TraceConfigzZPageHandler.create(Tracing.getTraceConfig());
   private static final ZPageHandler rpczZpageHandler =
       RpczZPageHandler.create(Stats.getViewManager());
+  private static final ZPageHandler statszZPageHandler =
+      StatszZPageHandler.create(Stats.getViewManager());
 
   private static final Object monitor = new Object();
 
@@ -121,6 +126,18 @@ public final class ZPageHandlers {
   }
 
   /**
+   * Returns a {@code ZPageHandler} for all registered {@link View}s and {@link Measure}s.
+   *
+   * <p>Only {@link Cumulative} views are exported. {@link View}s are grouped by directories.
+   *
+   * @return a {@code ZPageHandler} for all registered {@code View}s and {@code Measure}s.
+   * @since 0.12.0
+   */
+  public static ZPageHandler getStatszZPageHandler() {
+    return statszZPageHandler;
+  }
+
+  /**
    * Registers all pages to the given {@code HttpServer}.
    *
    * @param server the server that exports the tracez page.
@@ -131,6 +148,7 @@ public final class ZPageHandlers {
     server.createContext(
         traceConfigzZPageHandler.getUrlPath(), new ZPageHttpHandler(traceConfigzZPageHandler));
     server.createContext(rpczZpageHandler.getUrlPath(), new ZPageHttpHandler(rpczZpageHandler));
+    server.createContext(statszZPageHandler.getUrlPath(), new ZPageHttpHandler(statszZPageHandler));
   }
 
   /**
