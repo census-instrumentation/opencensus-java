@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
+import javax.annotation.concurrent.GuardedBy;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -67,9 +68,22 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /** HTML page formatter for all exported {@link View}s. */
 final class StatszZPageHandler extends ZPageHandler {
 
+  private static final Object monitor = new Object();
+
   private final ViewManager viewManager;
+
+  // measures, cachedViews and root are created when StatszZPageHandler is initialized, and will
+  // be updated every time when there's a new View from viewManager.getAllExportedViews().
+  // viewManager.getAllExportedViews() will be called every time when the StatsZ page is
+  // re-rendered, like refreshing or navigating to other paths.
+
+  @GuardedBy("monitor")
   private final Map<String, Measure> measures = Maps.newTreeMap();
+
+  @GuardedBy("monitor")
   private final Set<View> cachedViews = Sets.newHashSet();
+
+  @GuardedBy("monitor")
   private final TreeNode root = new TreeNode();
 
   @VisibleForTesting static final String QUERY_PATH = "path";
@@ -139,18 +153,20 @@ final class StatszZPageHandler extends ZPageHandler {
   }
 
   private void emitHtmlBody(Map<String, String> queryMap, PrintWriter out, Formatter formatter) {
-    groupViewsByDirectoriesAndGetMeasures(
-        viewManager.getAllExportedViews(), root, measures, cachedViews);
-    out.write("<h1><a href='?'>StatsZ</a></h1>");
-    out.write("<p></p>");
-    String path = queryMap.get(QUERY_PATH);
-    TreeNode current = findNode(path);
-    emitDirectoryTable(current, path, out, formatter);
-    if (current != null && current.view != null) {
-      ViewData viewData = viewManager.getView(current.view.getName());
-      emitViewData(viewData, current.view.getName(), out, formatter);
+    synchronized (monitor) {
+      groupViewsByDirectoriesAndGetMeasures(
+          viewManager.getAllExportedViews(), root, measures, cachedViews);
+      out.write("<h1><a href='?'>StatsZ</a></h1>");
+      out.write("<p></p>");
+      String path = queryMap.get(QUERY_PATH);
+      TreeNode current = findNode(path);
+      emitDirectoryTable(current, path, out, formatter);
+      if (current != null && current.view != null) {
+        ViewData viewData = viewManager.getView(current.view.getName());
+        emitViewData(viewData, current.view.getName(), out, formatter);
+      }
+      emitMeasureTable(measures, out, formatter);
     }
-    emitMeasureTable(measures, out, formatter);
   }
 
   // Parses view names, creates a tree that represents the directory structure and put each view
@@ -188,6 +204,7 @@ final class StatszZPageHandler extends ZPageHandler {
     }
   }
 
+  @GuardedBy("monitor")
   private void emitDirectoryTable(
       /*@Nullable*/ TreeNode currentNode,
       /*@Nullable*/ String path,
@@ -223,13 +240,13 @@ final class StatszZPageHandler extends ZPageHandler {
             CLASS_LARGER_TR, QUERY_PATH, path + '/' + relativePath, viewName);
       }
     }
-
     out.write("</table>");
     out.write("<p></p>");
   }
 
   // Searches the TreeNode whose absolute path matches the given path, started from root.
   // Returns null if such a TreeNode doesn't exist.
+  @GuardedBy("monitor")
   private /*@Nullable*/ TreeNode findNode(/*@Nullable*/ String path) {
     if (Strings.isNullOrEmpty(path) || "/".equals(path)) { // Go back to the root directory.
       return root;
@@ -485,7 +502,8 @@ final class StatszZPageHandler extends ZPageHandler {
 
   private static void emitMeasureTable(
       Map<String, Measure> measures, PrintWriter out, Formatter formatter) {
-    out.write("<h2>Measures</h2>");
+    out.write("<h2>Measures with Views</h2>");
+    out.write("<p>Below are the measures used in registered views.</p>");
     out.write("<p></p>");
     formatter.format("<table %s frame=box cellspacing=0 cellpadding=2>", TABLE_BORDER);
     emitMeasureTableHeader(out, formatter);
