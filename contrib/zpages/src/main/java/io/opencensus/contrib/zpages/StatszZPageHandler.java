@@ -72,6 +72,11 @@ final class StatszZPageHandler extends ZPageHandler {
 
   private final ViewManager viewManager;
 
+  // measures, cachedViews and root are created when StatszZPageHandler are initialized, and will
+  // be updated every time when there's a new View from viewManager.getAllExportedViews().
+  // viewManager.getAllExportedViews() will be called every time the StatsZ page is re-rendered,
+  // like refreshing or navigating to other paths.
+
   @GuardedBy("monitor")
   private final Map<String, Measure> measures = Maps.newTreeMap();
 
@@ -199,69 +204,67 @@ final class StatszZPageHandler extends ZPageHandler {
     }
   }
 
+  @GuardedBy("monitor")
   private void emitDirectoryTable(
       /*@Nullable*/ TreeNode currentNode,
       /*@Nullable*/ String path,
       PrintWriter out,
       Formatter formatter) {
-    synchronized (monitor) {
-      out.write("<h2>Views</h2>");
-      if (currentNode == null) {
-        formatter.format(
-            "<p><font size=+2>Directory not found: %s. Return to root.</font></p>", path);
-        currentNode = root;
-      }
-      if (currentNode == root || path == null) {
-        path = "";
-      }
-      emitDirectoryHeader(path, out, formatter);
-      out.write("<table frame=box cellspacing=0 cellpadding=2>");
-      for (Entry<String, TreeNode> entry : currentNode.children.entrySet()) {
-        TreeNode child = entry.getValue();
-        String relativePath = entry.getKey();
-        if (child.view == null) { // Directory node, emit a row for directory.
-          formatter.format(
-              "<tr class=\"%s\"><td>Directory: <a href='?%s=%s'>%s</a> (%d %s)</td></tr>",
-              CLASS_LARGER_TR,
-              QUERY_PATH,
-              path + '/' + relativePath,
-              relativePath,
-              child.views,
-              child.views > 1 ? "views" : "view");
-        } else { // View node, emit a row for view.
-          String viewName = child.view.getName().asString();
-          formatter.format(
-              "<tr class=\"%s\"><td>View: <a href='?%s=%s'>%s</a></td></tr>",
-              CLASS_LARGER_TR, QUERY_PATH, path + '/' + relativePath, viewName);
-        }
-      }
-      out.write("</table>");
-      out.write("<p></p>");
+    out.write("<h2>Views</h2>");
+    if (currentNode == null) {
+      formatter.format(
+          "<p><font size=+2>Directory not found: %s. Return to root.</font></p>", path);
+      currentNode = root;
     }
+    if (currentNode == root || path == null) {
+      path = "";
+    }
+    emitDirectoryHeader(path, out, formatter);
+    out.write("<table frame=box cellspacing=0 cellpadding=2>");
+    for (Entry<String, TreeNode> entry : currentNode.children.entrySet()) {
+      TreeNode child = entry.getValue();
+      String relativePath = entry.getKey();
+      if (child.view == null) { // Directory node, emit a row for directory.
+        formatter.format(
+            "<tr class=\"%s\"><td>Directory: <a href='?%s=%s'>%s</a> (%d %s)</td></tr>",
+            CLASS_LARGER_TR,
+            QUERY_PATH,
+            path + '/' + relativePath,
+            relativePath,
+            child.views,
+            child.views > 1 ? "views" : "view");
+      } else { // View node, emit a row for view.
+        String viewName = child.view.getName().asString();
+        formatter.format(
+            "<tr class=\"%s\"><td>View: <a href='?%s=%s'>%s</a></td></tr>",
+            CLASS_LARGER_TR, QUERY_PATH, path + '/' + relativePath, viewName);
+      }
+    }
+    out.write("</table>");
+    out.write("<p></p>");
   }
 
   // Searches the TreeNode whose absolute path matches the given path, started from root.
   // Returns null if such a TreeNode doesn't exist.
+  @GuardedBy("monitor")
   private /*@Nullable*/ TreeNode findNode(/*@Nullable*/ String path) {
-    synchronized (monitor) {
-      if (Strings.isNullOrEmpty(path) || "/".equals(path)) { // Go back to the root directory.
-        return root;
-      } else {
-        List<String> dirs = PATH_SPLITTER.splitToList(path);
-        TreeNode node = root;
-        for (int i = 0; i < dirs.size(); i++) {
-          String dir = dirs.get(i);
-          if ("".equals(dir) && i == 0) {
-            continue; // Skip the first "", the path of root node.
-          }
-          if (!node.children.containsKey(dir)) {
-            return null;
-          } else {
-            node = node.children.get(dir);
-          }
+    if (Strings.isNullOrEmpty(path) || "/".equals(path)) { // Go back to the root directory.
+      return root;
+    } else {
+      List<String> dirs = PATH_SPLITTER.splitToList(path);
+      TreeNode node = root;
+      for (int i = 0; i < dirs.size(); i++) {
+        String dir = dirs.get(i);
+        if ("".equals(dir) && i == 0) {
+          continue; // Skip the first "", the path of root node.
         }
-        return node;
+        if (!node.children.containsKey(dir)) {
+          return null;
+        } else {
+          node = node.children.get(dir);
+        }
       }
+      return node;
     }
   }
 
