@@ -72,10 +72,10 @@ final class StatszZPageHandler extends ZPageHandler {
 
   private final ViewManager viewManager;
 
-  // measures, cachedViews and root are created when StatszZPageHandler are initialized, and will
+  // measures, cachedViews and root are created when StatszZPageHandler is initialized, and will
   // be updated every time when there's a new View from viewManager.getAllExportedViews().
-  // viewManager.getAllExportedViews() will be called every time the StatsZ page is re-rendered,
-  // like refreshing or navigating to other paths.
+  // viewManager.getAllExportedViews() will be called every time when the StatsZ page is
+  // re-rendered, like refreshing or navigating to other paths.
 
   @GuardedBy("monitor")
   private final Map<String, Measure> measures = Maps.newTreeMap();
