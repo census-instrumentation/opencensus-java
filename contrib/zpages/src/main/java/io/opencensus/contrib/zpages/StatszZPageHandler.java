@@ -502,7 +502,8 @@ final class StatszZPageHandler extends ZPageHandler {
 
   private static void emitMeasureTable(
       Map<String, Measure> measures, PrintWriter out, Formatter formatter) {
-    out.write("<h2>Measures</h2>");
+    out.write("<h2>Measures with Views</h2>");
+    out.write("<p>Below are the measures used in registered views.</p>");
     out.write("<p></p>");
     formatter.format("<table %s frame=box cellspacing=0 cellpadding=2>", TABLE_BORDER);
     emitMeasureTableHeader(out, formatter);
