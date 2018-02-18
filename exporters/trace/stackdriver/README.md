@@ -64,7 +64,8 @@ This uses the default configuration for authentication and project ID.
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
-    StackdriverTraceExporter.createAndRegister();
+    StackdriverTraceExporter.createAndRegister(
+        StackdriverTraceConfiguration.builder().build());
     // ...
   }
 }
