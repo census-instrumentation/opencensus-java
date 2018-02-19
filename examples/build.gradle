@@ -12,7 +12,7 @@ repositories {
 group = "io.opencensus"
 version = "0.13.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
-def opencensusVersion = "0.11.1" // LATEST_OPENCENSUS_RELEASE_VERSION
+def opencensusVersion = "0.12.0" // LATEST_OPENCENSUS_RELEASE_VERSION
 
 checkstyle {
     configFile = file("$rootDir/../buildscripts/checkstyle.xml")
