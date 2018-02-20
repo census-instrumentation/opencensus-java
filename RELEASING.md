@@ -146,6 +146,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
     $ git merge --ff-only release
     $ git push upstream v$MAJOR.$MINOR.$PATCH
     $ git push upstream v$MAJOR.$MINOR.x
+    $ git push upstream --tags
     ```
 
 ## Deployment
