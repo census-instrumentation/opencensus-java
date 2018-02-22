@@ -500,7 +500,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       // Capacity of the map is capacity + 1 to avoid resizing because removeEldestEntry is invoked
       // by put and putAll after inserting a new entry into the map. The loadFactor is set to 1
       // to avoid resizing because. The accessOrder is set to true.
-      super(capacity + 1, 1, true);
+      super(capacity + 1, 1, /*accessOrder=*/ true);
       this.capacity = capacity;
     }
 

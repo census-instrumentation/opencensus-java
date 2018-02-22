@@ -16,6 +16,9 @@ case "$TASK" in
         source /opt/jdk_switcher/jdk_switcher.sh
         export JAVA8_HOME="$(jdk_switcher home oraclejdk8)"
         case "$TRAVIS_JDK_VERSION" in
+          "oraclejdk9")
+            ./gradlew clean assemble check --stacktrace
+            ;;
           "oraclejdk8")
             export JAVA_HOMES="$(jdk_switcher home openjdk6)/jre:$(jdk_switcher home openjdk7)/jre:$(jdk_switcher home oraclejdk8)/jre:$(jdk_switcher home oraclejdk9)"
             ./gradlew clean assemble --stacktrace

@@ -92,7 +92,8 @@ public final class Tracing {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.impl.trace.TraceComponentImpl", true, classLoader),
+          Class.forName(
+              "io.opencensus.impl.trace.TraceComponentImpl", /*initialize=*/ true, classLoader),
           TraceComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(
@@ -104,7 +105,10 @@ public final class Tracing {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.impllite.trace.TraceComponentImplLite", true, classLoader),
+          Class.forName(
+              "io.opencensus.impllite.trace.TraceComponentImplLite",
+              /*initialize=*/ true,
+              classLoader),
           TraceComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(

@@ -96,7 +96,8 @@ public final class Tags {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.impl.tags.TagsComponentImpl", true, classLoader),
+          Class.forName(
+              "io.opencensus.impl.tags.TagsComponentImpl", /*initialize=*/ true, classLoader),
           TagsComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(
@@ -108,7 +109,10 @@ public final class Tags {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.
       return Provider.createInstance(
-          Class.forName("io.opencensus.impllite.tags.TagsComponentImplLite", true, classLoader),
+          Class.forName(
+              "io.opencensus.impllite.tags.TagsComponentImplLite",
+              /*initialize=*/ true,
+              classLoader),
           TagsComponent.class);
     } catch (ClassNotFoundException e) {
       logger.log(
