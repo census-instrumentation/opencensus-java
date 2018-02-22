@@ -103,9 +103,10 @@ subprojects {
             ]
         }
         it.options.encoding = "UTF-8"
-        // TODO(bdrutu): Enable when fix the issue with configuring bootstrap class.
+        // TODO(bdrutu): Enable for Java 7 when fix the issue with configuring bootstrap class.
         // [options] bootstrap class path not set in conjunction with -source 1.6
-        if (JavaVersion.current().isJava8Compatible()) {
+	// TODO(sebright): Fix warnings about -source 1.6 and -target 1.6 with Java 9.
+        if (JavaVersion.current().isJava8()) {
             it.options.compilerArgs += ["-Werror"]
         }
     }
