@@ -23,14 +23,9 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.stats.View.AggregationWindow;
-import io.opencensus.stats.ViewData.AggregationWindowData;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
-import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
 import java.util.Collection;
@@ -186,13 +181,8 @@ final class NoopStats {
           return ViewData.create(
               view,
               Collections.<List<TagValue>, AggregationData>emptyMap(),
-              view.getWindow()
-                  .match(
-                      Functions.<AggregationWindowData>returnConstant(
-                          CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP)),
-                      Functions.<AggregationWindowData>returnConstant(
-                          IntervalData.create(ZERO_TIMESTAMP)),
-                      Functions.<AggregationWindowData>throwAssertionError()));
+              ZERO_TIMESTAMP,
+              ZERO_TIMESTAMP);
         }
       }
     }
@@ -209,12 +199,14 @@ final class NoopStats {
     }
 
     // Returns the subset of the given views that should be exported
+    @SuppressWarnings("deprecation")
     private static Set<View> filterExportedViews(Collection<View> allViews) {
       Set<View> views = Sets.newHashSet();
       for (View view : allViews) {
-        if (view.getWindow() instanceof AggregationWindow.Cumulative) {
-          views.add(view);
+        if (view.getWindow() instanceof View.AggregationWindow.Interval) {
+          continue;
         }
+        views.add(view);
       }
       return Collections.unmodifiableSet(views);
     }

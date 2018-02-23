@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.Maps;
+import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -34,7 +35,6 @@ import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,7 +56,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
 @AutoValue.CopyAnnotations
-@SuppressWarnings("nullness")
+@SuppressWarnings({"nullness", "deprecation"})
 public abstract class ViewData {
 
   // Prevents this class from being subclassed anywhere else.
@@ -80,10 +80,32 @@ public abstract class ViewData {
   /**
    * Returns the {@link AggregationWindowData} associated with this {@link ViewData}.
    *
-   * @return the {@code AggregationWindowData}.
+   * <p>Always return null since 0.13.0. {@link AggregationWindowData} is deprecated, please avoid
+   * using this method. Use {@link #getStart()} and {@link #getEnd()} instead.
+   *
+   * @return {@code null}.
    * @since 0.8
+   * @deprecated since 0.13
    */
+  @Deprecated
+  @javax.annotation.Nullable
   public abstract AggregationWindowData getWindowData();
+
+  /**
+   * Returns the start {@code Timestamp} for a {@link ViewData}.
+   *
+   * @return the start {@code Timestamp}.
+   * @since 0.13
+   */
+  public abstract Timestamp getStart();
+
+  /**
+   * Returns the end {@code Timestamp} for a {@link ViewData}.
+   *
+   * @return the end {@code Timestamp}.
+   * @since 0.13
+   */
+  public abstract Timestamp getEnd();
 
   /**
    * Constructs a new {@link ViewData}.
@@ -96,12 +118,62 @@ public abstract class ViewData {
    *     AggregationData} don't match, or the types of {@code Window} and {@code WindowData} don't
    *     match.
    * @since 0.8
+   * @deprecated since 0.13
+   */
+  @Deprecated
+  public static ViewData create(
+      final View view,
+      Map<? extends List</*@Nullable*/ TagValue>, ? extends AggregationData> map,
+      final AggregationWindowData windowData) {
+    checkWindow(view.getWindow(), windowData);
+    final Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
+    for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map.entrySet()) {
+      checkAggregation(view.getAggregation(), entry.getValue(), view.getMeasure());
+      deepCopy.put(
+          Collections.unmodifiableList(new ArrayList</*@Nullable*/ TagValue>(entry.getKey())),
+          entry.getValue());
+    }
+    return windowData.match(
+        new Function<ViewData.AggregationWindowData.CumulativeData, ViewData>() {
+          @Override
+          public ViewData apply(ViewData.AggregationWindowData.CumulativeData arg) {
+            return new AutoValue_ViewData(
+                view, Collections.unmodifiableMap(deepCopy), arg, arg.getStart(), arg.getEnd());
+          }
+        },
+        new Function<ViewData.AggregationWindowData.IntervalData, ViewData>() {
+          @Override
+          public ViewData apply(ViewData.AggregationWindowData.IntervalData arg) {
+            Duration duration = ((View.AggregationWindow.Interval) view.getWindow()).getDuration();
+            return new AutoValue_ViewData(
+                view,
+                Collections.unmodifiableMap(deepCopy),
+                arg,
+                arg.getEnd()
+                    .addDuration(Duration.create(-duration.getSeconds(), -duration.getNanos())),
+                arg.getEnd());
+          }
+        },
+        Functions.<ViewData>throwIllegalArgumentException());
+  }
+
+  /**
+   * Constructs a new {@link ViewData}.
+   *
+   * @param view the {@link View} associated with this {@link ViewData}.
+   * @param map the mapping from {@link TagValue} list to {@link AggregationData}.
+   * @param start the start {@link Timestamp} for this {@link ViewData}.
+   * @param end the end {@link Timestamp} for this {@link ViewData}.
+   * @return a {@code ViewData}.
+   * @throws IllegalArgumentException if the types of {@code Aggregation} and {@code
+   *     AggregationData} don't match.
+   * @since 0.13
    */
   public static ViewData create(
       View view,
       Map<? extends List</*@Nullable*/ TagValue>, ? extends AggregationData> map,
-      final AggregationWindowData windowData) {
-    checkWindow(view.getWindow(), windowData);
+      Timestamp start,
+      Timestamp end) {
     Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
     for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map.entrySet()) {
       checkAggregation(view.getAggregation(), entry.getValue(), view.getMeasure());
@@ -109,11 +181,11 @@ public abstract class ViewData {
           Collections.unmodifiableList(new ArrayList</*@Nullable*/ TagValue>(entry.getKey())),
           entry.getValue());
     }
-    return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), windowData);
+    return new AutoValue_ViewData(view, Collections.unmodifiableMap(deepCopy), null, start, end);
   }
 
   private static void checkWindow(
-      AggregationWindow window, final AggregationWindowData windowData) {
+      View.AggregationWindow window, final AggregationWindowData windowData) {
     window.match(
         new Function<View.AggregationWindow.Cumulative, Void>() {
           @Override
@@ -137,7 +209,7 @@ public abstract class ViewData {
   }
 
   private static String createErrorMessageForWindow(
-      AggregationWindow window, AggregationWindowData windowData) {
+      View.AggregationWindow window, AggregationWindowData windowData) {
     return "AggregationWindow and AggregationWindowData types mismatch. "
         + "AggregationWindow: "
         + window
@@ -217,7 +289,9 @@ public abstract class ViewData {
    * The {@code AggregationWindowData} for a {@link ViewData}.
    *
    * @since 0.8
+   * @deprecated since 0.13
    */
+  @Deprecated
   @Immutable
   public abstract static class AggregationWindowData {
 
@@ -237,7 +311,9 @@ public abstract class ViewData {
      * Cumulative {@code AggregationWindowData}.
      *
      * @since 0.8
+     * @deprecated since 0.13
      */
+    @Deprecated
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -288,7 +364,9 @@ public abstract class ViewData {
      * Interval {@code AggregationWindowData}.
      *
      * @since 0.8
+     * @deprecated since 0.13
      */
+    @Deprecated
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.

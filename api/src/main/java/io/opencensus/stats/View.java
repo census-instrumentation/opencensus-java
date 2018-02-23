@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -40,7 +41,7 @@ import javax.annotation.concurrent.Immutable;
 @AutoValue
 // Suppress Checker Framework warning about missing @Nullable in generated equals method.
 @AutoValue.CopyAnnotations
-@SuppressWarnings("nullness")
+@SuppressWarnings({"nullness", "deprecation"})
 public abstract class View {
 
   @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
@@ -90,7 +91,10 @@ public abstract class View {
    *
    * @return the time {@link AggregationWindow}.
    * @since 0.8
+   * @deprecated since 0.13
    */
+  @Deprecated
+  @Nullable
   public abstract AggregationWindow getWindow();
 
   /**
@@ -105,7 +109,9 @@ public abstract class View {
    * @param window the {@link AggregationWindow} of view.
    * @return a new {@link View}.
    * @since 0.8
+   * @deprecated since 0.13
    */
+  @Deprecated
   public static View create(
       Name name,
       String description,
@@ -122,6 +128,35 @@ public abstract class View {
         aggregation,
         Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
         window);
+  }
+
+  /**
+   * Constructs a new {@link View}.
+   *
+   * @param name the {@link Name} of view. Must be unique.
+   * @param description the description of view.
+   * @param measure the {@link Measure} to be aggregated by this view.
+   * @param aggregation the basic {@link Aggregation} that this view will support.
+   * @param columns the {@link TagKey}s that this view will aggregate on. Columns should not contain
+   *     duplicates.
+   * @return a new {@link View}.
+   * @since 0.13
+   */
+  public static View create(
+      Name name,
+      String description,
+      Measure measure,
+      Aggregation aggregation,
+      List<TagKey> columns) {
+    checkArgument(new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
+
+    return new AutoValue_View(
+        name,
+        description,
+        measure,
+        aggregation,
+        Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
+        null);
   }
 
   /**
@@ -169,7 +204,9 @@ public abstract class View {
    * The time window for a {@code View}.
    *
    * @since 0.8
+   * @deprecated since 0.13
    */
+  @Deprecated
   @Immutable
   public abstract static class AggregationWindow {
 
@@ -189,7 +226,9 @@ public abstract class View {
      * Cumulative (infinite interval) time {@code AggregationWindow}.
      *
      * @since 0.8
+     * @deprecated since 0.13
      */
+    @Deprecated
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.
@@ -227,7 +266,9 @@ public abstract class View {
      * Interval (finite interval) time {@code AggregationWindow}.
      *
      * @since 0.8
+     * @deprecated since 0.13
      */
+    @Deprecated
     @Immutable
     @AutoValue
     // Suppress Checker Framework warning about missing @Nullable in generated equals method.
