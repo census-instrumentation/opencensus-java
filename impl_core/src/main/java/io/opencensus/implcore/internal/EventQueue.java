@@ -31,12 +31,4 @@ public interface EventQueue {
      */
     void process();
   }
-
-  /** No-op implementation of the {@link EventQueue.Entry}. */
-  enum NoopEntry implements Entry {
-    INSTANCE;
-
-    @Override
-    public void process() {}
-  }
 }

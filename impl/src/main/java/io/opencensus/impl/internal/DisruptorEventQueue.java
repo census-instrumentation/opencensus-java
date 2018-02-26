@@ -24,6 +24,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -144,14 +145,17 @@ public final class DisruptorEventQueue implements EventQueue {
 
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.
   private static final class DisruptorEvent {
-    private Entry entry = EventQueue.NoopEntry.INSTANCE;
+    // TODO(bdrutu): Investigate if volatile is needed. This object is shared between threads so
+    // intuitively this variable must be volatile.
+    @Nullable private volatile Entry entry = null;
 
     // Sets the EventQueueEntry associated with this DisruptorEvent.
-    void setEntry(Entry entry) {
+    void setEntry(@Nullable Entry entry) {
       this.entry = entry;
     }
 
     // Returns the EventQueueEntry associated with this DisruptorEvent.
+    @Nullable
     Entry getEntry() {
       return entry;
     }
@@ -176,7 +180,12 @@ public final class DisruptorEventQueue implements EventQueue {
 
     @Override
     public void onEvent(DisruptorEvent event, long sequence, boolean endOfBatch) {
-      event.getEntry().process();
+      Entry entry = event.getEntry();
+      if (entry != null) {
+        entry.process();
+      }
+      // Remove the reference to the previous entry to allow the memory to be gc'ed.
+      event.setEntry(null);
     }
   }
 }
