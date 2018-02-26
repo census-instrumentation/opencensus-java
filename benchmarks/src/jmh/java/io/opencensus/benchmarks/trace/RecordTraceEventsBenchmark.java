@@ -17,83 +17,102 @@
 package io.opencensus.benchmarks.trace;
 
 import io.opencensus.trace.AttributeValue;
+import io.opencensus.trace.BlankSpan;
 import io.opencensus.trace.Link;
+import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
 /** Benchmarks for {@link Span} to record trace events. */
 @State(Scope.Benchmark)
-public class RecordTraceEventsSampledSpanBenchmark {
-  private static final Tracer tracer = Tracing.getTracer();
+public class RecordTraceEventsBenchmark {
   private static final String SPAN_NAME = "MySpanName";
   private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
   private static final String ATTRIBUTE_KEY = "MyAttributeKey";
   private static final String ATTRIBUTE_VALUE = "MyAttributeValue";
-  private final Span linkedSpan =
-      tracer
-          .spanBuilderWithExplicitParent(SPAN_NAME, null)
-          .setSampler(Samplers.alwaysSample())
-          .startSpan();
-  private final Span span =
-      tracer
-          .spanBuilderWithExplicitParent(SPAN_NAME, null)
-          .setSampler(Samplers.alwaysSample())
-          .startSpan();
 
-  /** TearDown method. */
-  @TearDown
-  public void doTearDown() {
-    span.end();
-    linkedSpan.end();
+  @State(Scope.Benchmark)
+  public static class Data {
+
+    private Span linkedSpan = BlankSpan.INSTANCE;
+    private Span span = BlankSpan.INSTANCE;
+
+    @Param({"impl", "impl-lite"})
+    String implementation;
+
+    @Param({"true", "false"})
+    boolean sampled;
+
+    @Setup
+    public void setup() {
+      Tracer tracer = BenchmarksUtil.getTracer(implementation);
+      linkedSpan =
+          tracer
+              .spanBuilderWithExplicitParent(SPAN_NAME, null)
+              .setSampler(sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+              .startSpan();
+      span =
+          tracer
+              .spanBuilderWithExplicitParent(SPAN_NAME, null)
+              .setSampler(sampled ? Samplers.alwaysSample() : Samplers.neverSample())
+              .startSpan();
+    }
+
+    @TearDown
+    public void doTearDown() {
+      linkedSpan.end();
+      span.end();
+    }
   }
 
   /** This benchmark attempts to measure performance of adding an attribute to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span putAttribute() {
-    span.putAttribute(ATTRIBUTE_KEY, AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE));
-    return span;
+  public Span putAttribute(Data data) {
+    data.span.putAttribute(ATTRIBUTE_KEY, AttributeValue.stringAttributeValue(ATTRIBUTE_VALUE));
+    return data.span;
   }
 
   /** This benchmark attempts to measure performance of adding an annotation to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span addAnnotation() {
-    span.addAnnotation(ANNOTATION_DESCRIPTION);
-    return span;
+  public Span addAnnotation(Data data) {
+    data.span.addAnnotation(ANNOTATION_DESCRIPTION);
+    return data.span;
   }
 
   /** This benchmark attempts to measure performance of adding a network event to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  @SuppressWarnings("deprecation")
-  public Span addNetworkEvent() {
-    span.addNetworkEvent(
-        io.opencensus.trace.NetworkEvent.builder(io.opencensus.trace.NetworkEvent.Type.RECV, 1)
+  public Span addMessageEvent(Data data) {
+    data.span.addMessageEvent(
+        io.opencensus.trace.MessageEvent.builder(Type.RECEIVED, 1)
             .setUncompressedMessageSize(3)
             .build());
-    return span;
+    return data.span;
   }
 
   /** This benchmark attempts to measure performance of adding a link to the span. */
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span addLink() {
-    span.addLink(Link.fromSpanContext(linkedSpan.getContext(), Link.Type.PARENT_LINKED_SPAN));
-    return span;
+  public Span addLink(Data data) {
+    data.span.addLink(
+        Link.fromSpanContext(data.linkedSpan.getContext(), Link.Type.PARENT_LINKED_SPAN));
+    return data.span;
   }
 }
