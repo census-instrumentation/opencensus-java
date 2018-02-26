@@ -1,0 +1,15 @@
+description = 'OpenCensus Trace Jaeger Exporter'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            libraries.jaeger_reporter
+
+    testCompile project(':opencensus-api')
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}
