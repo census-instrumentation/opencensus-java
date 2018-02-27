@@ -18,12 +18,20 @@
     <Method name="compareTo" />
   </Match>
   <Match>
-    <!-- Reason: It conflicts with Checker Framework null analysis. -->
-    <Bug pattern="NP_METHOD_PARAMETER_TIGHTENS_ANNOTATION"/>
-  </Match>
-  <Match>
     <!-- Reason: BaseMessageEvent only has two visible subclasses. -->
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
     <Class name="io.opencensus.internal.BaseMessageEventUtil" />
+  </Match>
+
+  <!-- Suppress all FindBugs warnings about NullPointerExceptions. They are redundant with the -->
+  <!-- Checker Framework's warnings, and they sometimes conflict. -->
+  <Match>
+    <Bug code="NP"/>
+  </Match>
+  <Match>
+    <Bug pattern="UR_UNINIT_READ"/>
+  </Match>
+  <Match>
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
   </Match>
 </FindBugsFilter>
