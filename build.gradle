@@ -105,11 +105,27 @@ subprojects {
             ]
         }
         it.options.encoding = "UTF-8"
-        // TODO(bdrutu): Enable for Java 7 when fix the issue with configuring bootstrap class.
-        // [options] bootstrap class path not set in conjunction with -source 1.6
-	// TODO(sebright): Fix warnings about -source 1.6 and -target 1.6 with Java 9.
-        if (JavaVersion.current().isJava8()) {
+        if (!JavaVersion.current().isJava9()) {
+            // TODO(sebright): Enable -Werror for Java 9 once we upgrade AutoValue (issue #1017).
             it.options.compilerArgs += ["-Werror"]
+        }
+        if (JavaVersion.current().isJava7()) {
+            // Suppress all deprecation warnings with Java 7, since there are some bugs in its handling of
+            // @SuppressWarnings. See
+            // https://stackoverflow.com/questions/26921774/how-to-avoid-deprecation-warnings-when-suppresswarningsdeprecation-doesnt
+            it.options.compilerArgs += ["-Xlint:-deprecation"]
+
+            // TODO(bdrutu): Enable for Java 7 when fix the issue with configuring bootstrap class.
+            // [options] bootstrap class path not set in conjunction with -source 1.6
+            it.options.compilerArgs += ["-Xlint:-options"]
+        }
+        if (JavaVersion.current().isJava9()) {
+            // TODO(sebright): Currently, building with Java 9 produces the following "options" warnings:
+            //
+            // :opencensus-api:compileJavawarning: [options] bootstrap class path not set in conjunction with -source 1.6
+            // warning: [options] source value 1.6 is obsolete and will be removed in a future release
+            // warning: [options] target value 1.6 is obsolete and will be removed in a future release
+            it.options.compilerArgs += ["-Xlint:-options"]
         }
     }
 
