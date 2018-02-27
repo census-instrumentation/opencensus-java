@@ -16,6 +16,8 @@
 
 package io.opencensus.benchmarks.trace;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import io.opencensus.trace.BlankSpan;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
@@ -57,6 +59,7 @@ public class StartEndSpanBenchmark {
 
     @TearDown
     public void doTearDown() {
+      checkState(rootSpan != BlankSpan.INSTANCE, "Uninitialized rootSpan");
       rootSpan.end();
     }
   }

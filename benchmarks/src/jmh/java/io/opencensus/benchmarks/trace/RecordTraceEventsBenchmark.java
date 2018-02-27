@@ -16,6 +16,8 @@
 
 package io.opencensus.benchmarks.trace;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.BlankSpan;
 import io.opencensus.trace.Link;
@@ -71,6 +73,8 @@ public class RecordTraceEventsBenchmark {
 
     @TearDown
     public void doTearDown() {
+      checkState(linkedSpan != BlankSpan.INSTANCE, "Uninitialized linkedSpan");
+      checkState(span != BlankSpan.INSTANCE, "Uninitialized span");
       linkedSpan.end();
       span.end();
     }
