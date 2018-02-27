@@ -28,6 +28,7 @@ jmh {
 dependencies {
     compile project(':opencensus-api'),
             project(':opencensus-impl-core'),
+            project(':opencensus-impl-lite'),
             project(':opencensus-impl')
 }
 

@@ -41,9 +41,10 @@ project(':opencensus-exporter-stats-prometheus').projectDir = "$rootDir/exporter
 // Java8 projects only
 if (JavaVersion.current().isJava8Compatible()) {
     include ":opencensus-all"
-    include ":benchmarks"
+    include ":opencensus-benchmarks"
     include ":opencensus-contrib-zpages"
 
     project(':opencensus-all').projectDir = "$rootDir/all" as File
+    project(':opencensus-benchmarks').projectDir = "$rootDir/benchmarks" as File
     project(':opencensus-contrib-zpages').projectDir = "$rootDir/contrib/zpages" as File
 }

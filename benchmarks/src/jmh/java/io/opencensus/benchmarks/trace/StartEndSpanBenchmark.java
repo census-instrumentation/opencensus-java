@@ -16,33 +16,52 @@
 
 package io.opencensus.benchmarks.trace;
 
+import static com.google.common.base.Preconditions.checkState;
+
+import io.opencensus.trace.BlankSpan;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
 /** Benchmarks for {@link io.opencensus.trace.SpanBuilder} and {@link Span}. */
 @State(Scope.Benchmark)
 public class StartEndSpanBenchmark {
-  private static final Tracer tracer = Tracing.getTracer();
   private static final String SPAN_NAME = "MySpanName";
-  private final Span rootSpan =
-      tracer
-          .spanBuilderWithExplicitParent(SPAN_NAME, null)
-          .setSampler(Samplers.neverSample())
-          .startSpan();
 
-  @TearDown
-  public void doTearDown() {
-    rootSpan.end();
+  @State(Scope.Benchmark)
+  public static class Data {
+    private Tracer tracer;
+    private Span rootSpan = BlankSpan.INSTANCE;
+
+    @Param({"impl", "impl-lite"})
+    String implementation;
+
+    @Setup
+    public void setup() {
+      tracer = BenchmarksUtil.getTracer(implementation);
+
+      rootSpan =
+          tracer
+              .spanBuilderWithExplicitParent(SPAN_NAME, null)
+              .setSampler(Samplers.neverSample())
+              .startSpan();
+    }
+
+    @TearDown
+    public void doTearDown() {
+      checkState(rootSpan != BlankSpan.INSTANCE, "Uninitialized rootSpan");
+      rootSpan.end();
+    }
   }
 
   /**
@@ -52,9 +71,9 @@ public class StartEndSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span startEndNonSampledRootSpan() {
+  public Span startEndNonSampledRootSpan(Data data) {
     Span span =
-        tracer
+        data.tracer
             .spanBuilderWithExplicitParent(SPAN_NAME, null)
             .setSampler(Samplers.neverSample())
             .startSpan();
@@ -69,9 +88,9 @@ public class StartEndSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span startEndRecordEventsRootSpan() {
+  public Span startEndRecordEventsRootSpan(Data data) {
     Span span =
-        tracer
+        data.tracer
             .spanBuilderWithExplicitParent(SPAN_NAME, null)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
@@ -86,8 +105,8 @@ public class StartEndSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span startEndSampledRootSpan() {
-    Span span = tracer.spanBuilder(SPAN_NAME).setSampler(Samplers.alwaysSample()).startSpan();
+  public Span startEndSampledRootSpan(Data data) {
+    Span span = data.tracer.spanBuilder(SPAN_NAME).setSampler(Samplers.alwaysSample()).startSpan();
     span.end();
     return span;
   }
@@ -99,10 +118,10 @@ public class StartEndSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span startEndNonSampledChildSpan() {
+  public Span startEndNonSampledChildSpan(Data data) {
     Span span =
-        tracer
-            .spanBuilderWithExplicitParent(SPAN_NAME, rootSpan)
+        data.tracer
+            .spanBuilderWithExplicitParent(SPAN_NAME, data.rootSpan)
             .setSampler(Samplers.neverSample())
             .startSpan();
     span.end();
@@ -116,10 +135,10 @@ public class StartEndSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span startEndRecordEventsChildSpan() {
+  public Span startEndRecordEventsChildSpan(Data data) {
     Span span =
-        tracer
-            .spanBuilderWithExplicitParent(SPAN_NAME, rootSpan)
+        data.tracer
+            .spanBuilderWithExplicitParent(SPAN_NAME, data.rootSpan)
             .setSampler(Samplers.neverSample())
             .setRecordEvents(true)
             .startSpan();
@@ -133,10 +152,10 @@ public class StartEndSpanBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public Span startEndSampledChildSpan() {
+  public Span startEndSampledChildSpan(Data data) {
     Span span =
-        tracer
-            .spanBuilderWithExplicitParent(SPAN_NAME, rootSpan)
+        data.tracer
+            .spanBuilderWithExplicitParent(SPAN_NAME, data.rootSpan)
             .setSampler(Samplers.alwaysSample())
             .startSpan();
     span.end();
