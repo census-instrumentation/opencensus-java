@@ -30,7 +30,6 @@ import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
 import java.util.Collection;
@@ -47,6 +46,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** A class that stores a singleton map from {@code MeasureName}s to {@link MutableViewData}s. */
+@SuppressWarnings("deprecation")
 final class MeasureToViewMap {
 
   /*
@@ -89,7 +89,7 @@ final class MeasureToViewMap {
   private static Set<View> filterExportedViews(Collection<View> allViews) {
     Set<View> views = Sets.newHashSet();
     for (View view : allViews) {
-      if (view.getWindow() instanceof AggregationWindow.Cumulative) {
+      if (view.getWindow() instanceof View.AggregationWindow.Cumulative) {
         views.add(view);
       }
     }

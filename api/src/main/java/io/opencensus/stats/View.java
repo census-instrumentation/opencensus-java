@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.internal.StringUtil;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -155,7 +154,7 @@ public abstract class View {
         measure,
         aggregation,
         Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
-        Cumulative.create());
+        AggregationWindow.Cumulative.create());
   }
 
   /**

@@ -35,7 +35,6 @@ import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -182,7 +181,11 @@ public abstract class ViewData {
           entry.getValue());
     }
     return new AutoValue_ViewData(
-        view, Collections.unmodifiableMap(deepCopy), CumulativeData.create(start, end), start, end);
+        view,
+        Collections.unmodifiableMap(deepCopy),
+        AggregationWindowData.CumulativeData.create(start, end),
+        start,
+        end);
   }
 
   private static void checkWindow(

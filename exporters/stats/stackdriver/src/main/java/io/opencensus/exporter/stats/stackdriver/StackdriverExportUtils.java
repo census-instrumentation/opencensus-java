@@ -47,12 +47,7 @@ import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewData.AggregationWindowData;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
-import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.lang.management.ManagementFactory;
@@ -70,6 +65,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** Util methods to convert OpenCensus Stats data models to StackDriver monitoring data models. */
+@SuppressWarnings("deprecation")
 final class StackdriverExportUtils {
   // TODO(songya): do we want these constants to be customizable?
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
@@ -101,7 +97,7 @@ final class StackdriverExportUtils {
   // Construct a MetricDescriptor using a View.
   @javax.annotation.Nullable
   static MetricDescriptor createMetricDescriptor(View view, String projectId) {
-    if (!(view.getWindow() instanceof Cumulative)) {
+    if (!(view.getWindow() instanceof View.AggregationWindow.Cumulative)) {
       // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
       return null;
     }
@@ -147,7 +143,7 @@ final class StackdriverExportUtils {
 
   // Construct a MetricKind from an AggregationWindow
   @VisibleForTesting
-  static MetricKind createMetricKind(AggregationWindow window) {
+  static MetricKind createMetricKind(View.AggregationWindow window) {
     return window.match(
         Functions.returnConstant(MetricKind.CUMULATIVE), // Cumulative
         // TODO(songya): We don't support exporting Interval stats to StackDriver in this version.
@@ -179,7 +175,7 @@ final class StackdriverExportUtils {
       return timeSeriesList;
     }
     View view = viewData.getView();
-    if (!(view.getWindow() instanceof Cumulative)) {
+    if (!(view.getWindow() instanceof View.AggregationWindow.Cumulative)) {
       // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
       return timeSeriesList;
     }
@@ -229,7 +225,9 @@ final class StackdriverExportUtils {
   // Create Point from AggregationData, AggregationWindowData and Aggregation.
   @VisibleForTesting
   static Point createPoint(
-      AggregationData aggregationData, AggregationWindowData windowData, Aggregation aggregation) {
+      AggregationData aggregationData,
+      ViewData.AggregationWindowData windowData,
+      Aggregation aggregation) {
     Point.Builder builder = Point.newBuilder();
     builder.setInterval(createTimeInterval(windowData));
     builder.setValue(createTypedValue(aggregation, aggregationData));
@@ -238,24 +236,18 @@ final class StackdriverExportUtils {
 
   // Convert AggregationWindowData to TimeInterval, currently only support CumulativeData.
   @VisibleForTesting
-  static TimeInterval createTimeInterval(AggregationWindowData windowData) {
+  static TimeInterval createTimeInterval(ViewData.AggregationWindowData windowData) {
     final TimeInterval.Builder builder = TimeInterval.newBuilder();
     windowData.match(
-        new Function<CumulativeData, Void>() {
+        new Function<ViewData.AggregationWindowData.CumulativeData, Void>() {
           @Override
-          public Void apply(CumulativeData arg) {
+          public Void apply(ViewData.AggregationWindowData.CumulativeData arg) {
             builder.setStartTime(convertTimestamp(arg.getStart()));
             builder.setEndTime(convertTimestamp(arg.getEnd()));
             return null;
           }
         },
-        new Function<IntervalData, Void>() {
-          @Override
-          public Void apply(IntervalData arg) {
-            // TODO(songya): we don't export IntervalData in this version.
-            throw new IllegalArgumentException("IntervalData not supported");
-          }
-        },
+        Functions.</*@Nullable*/ Void>throwIllegalArgumentException(),
         Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
     return builder.build();
   }

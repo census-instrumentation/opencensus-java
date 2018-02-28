@@ -22,7 +22,6 @@ import com.sun.net.httpserver.HttpServer;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.trace.Tracing;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -128,7 +127,7 @@ public final class ZPageHandlers {
   /**
    * Returns a {@code ZPageHandler} for all registered {@link View}s and {@link Measure}s.
    *
-   * <p>Only {@link Cumulative} views are exported. {@link View}s are grouped by directories.
+   * <p>Only {@code Cumulative} views are exported. {@link View}s are grouped by directories.
    *
    * @return a {@code ZPageHandler} for all registered {@code View}s and {@code Measure}s.
    * @since 0.12.0

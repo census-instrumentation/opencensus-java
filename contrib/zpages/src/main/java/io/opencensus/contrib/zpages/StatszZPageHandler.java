@@ -41,8 +41,6 @@ import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewData.AggregationWindowData;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
@@ -66,6 +64,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** HTML page formatter for all exported {@link View}s. */
+@SuppressWarnings("deprecation")
 final class StatszZPageHandler extends ZPageHandler {
 
   private static final Object monitor = new Object();
@@ -305,7 +304,7 @@ final class StatszZPageHandler extends ZPageHandler {
   }
 
   private static void emitViewInfo(
-      View view, AggregationWindowData windowData, PrintWriter out, Formatter formatter) {
+      View view, ViewData.AggregationWindowData windowData, PrintWriter out, Formatter formatter) {
     formatter.format("<table width=100%% %s>", TABLE_BORDER);
     emitViewInfoHeader(out, formatter);
 
@@ -324,9 +323,9 @@ final class StatszZPageHandler extends ZPageHandler {
                 Functions.<String>throwAssertionError());
     formatter.format("<td>%s</td>", aggregationType);
     windowData.match(
-        new Function<CumulativeData, Void>() {
+        new Function<ViewData.AggregationWindowData.CumulativeData, Void>() {
           @Override
-          public Void apply(CumulativeData arg) {
+          public Void apply(ViewData.AggregationWindowData.CumulativeData arg) {
             formatter.format("<td>%s</td>", toDate(arg.getStart()));
             formatter.format("<td>%s</td>", toDate(arg.getEnd()));
             return null;
