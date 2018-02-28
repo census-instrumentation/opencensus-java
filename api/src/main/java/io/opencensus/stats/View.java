@@ -23,12 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.internal.StringUtil;
+import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -91,10 +91,9 @@ public abstract class View {
    *
    * @return the time {@link AggregationWindow}.
    * @since 0.8
-   * @deprecated since 0.13
+   * @deprecated since 0.13. In the future all {@link View}s will be cumulative.
    */
   @Deprecated
-  @Nullable
   public abstract AggregationWindow getWindow();
 
   /**
@@ -109,7 +108,7 @@ public abstract class View {
    * @param window the {@link AggregationWindow} of view.
    * @return a new {@link View}.
    * @since 0.8
-   * @deprecated since 0.13
+   * @deprecated in favor of {@link #create(Name, String, Measure, Aggregation, List)}.
    */
   @Deprecated
   public static View create(
@@ -156,7 +155,7 @@ public abstract class View {
         measure,
         aggregation,
         Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
-        null);
+        Cumulative.create());
   }
 
   /**
@@ -204,7 +203,7 @@ public abstract class View {
    * The time window for a {@code View}.
    *
    * @since 0.8
-   * @deprecated since 0.13
+   * @deprecated since 0.13. In the future all {@link View}s will be cumulative.
    */
   @Deprecated
   @Immutable
@@ -226,7 +225,7 @@ public abstract class View {
      * Cumulative (infinite interval) time {@code AggregationWindow}.
      *
      * @since 0.8
-     * @deprecated since 0.13
+     * @deprecated since 0.13. In the future all {@link View}s will be cumulative.
      */
     @Deprecated
     @Immutable
@@ -266,7 +265,7 @@ public abstract class View {
      * Interval (finite interval) time {@code AggregationWindow}.
      *
      * @since 0.8
-     * @deprecated since 0.13
+     * @deprecated since 0.13. In the future all {@link View}s will be cumulative.
      */
     @Deprecated
     @Immutable

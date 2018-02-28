@@ -19,11 +19,14 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
+import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.View.Name;
+import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
+import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey;
 import java.util.Arrays;
 import java.util.Set;
@@ -102,6 +105,8 @@ public final class NoopViewManagerTest {
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEmpty();
+    assertThat(viewData.getWindowData())
+        .isEqualTo(CumulativeData.create(Timestamp.create(0, 0), Timestamp.create(0, 0)));
   }
 
   @Test
@@ -115,6 +120,7 @@ public final class NoopViewManagerTest {
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEmpty();
+    assertThat(viewData.getWindowData()).isEqualTo(IntervalData.create(Timestamp.create(0, 0)));
   }
 
   @Test
