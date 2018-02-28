@@ -17,7 +17,7 @@ In order to be able to push your stats to [Stackdriver Monitoring][stackdriver-m
 1. [Create a Cloud project](https://support.google.com/cloud/answer/6251787?hl=en).
 2. [Enable billing](https://support.google.com/cloud/answer/6288653#new-billing).
 3. [Enable the Stackdriver Monitoring API](https://app.google.stackdriver.com/).
-4. [Make sure you have a Premium Stackdiver account](https://cloud.google.com/monitoring/accounts/tiers).
+4. [Make sure you have a Premium Stackdriver account](https://cloud.google.com/monitoring/accounts/tiers).
 
 These steps enable the API but don't require that your app is hosted on Google Cloud Platform.
 
