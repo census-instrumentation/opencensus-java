@@ -29,7 +29,8 @@ We follow the [Google Java Style
 Guide](https://google.github.io/styleguide/javaguide.html). Our
 build automatically will provide warnings for simple style issues.
 
-Run the following command to format all files:
+Run the following command to format all files. This formatter uses
+[google-java-format](https://github.com/google/google-java-format):
 
 ### OS X or Linux
 
