@@ -10,7 +10,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- change to the version you want to use. -->
-    <opencensus.version>0.12.0</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
+    <opencensus.version>0.12.2</opencensus.version><!-- LATEST_OPENCENSUS_RELEASE_VERSION -->
   </properties>
   <dependencies>
     <dependency>
