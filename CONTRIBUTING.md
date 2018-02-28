@@ -29,6 +29,16 @@ We follow the [Google Java Style
 Guide](https://google.github.io/styleguide/javaguide.html). Our
 build automatically will provide warnings for simple style issues.
 
+Run the following command to format all files:
+
+### OS X or Linux
+
+`./gradlew goJF`
+
+### Windows
+
+`gradlew.bat goJF`
+
 We also follow these project-specific guidelines:
 
 ### Javadoc
