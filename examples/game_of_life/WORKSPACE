@@ -3,6 +3,7 @@ workspace(name = "gameoflife")
 opencensus_version = "0.12.0"
 grpc_verion = "1.10.0"
 google_cloud_api_version = "1.23.0"
+prometheus_version = "0.2.0"
 
 git_repository(
     name = "grpc_java",
@@ -23,6 +24,11 @@ maven_jar(
 maven_jar(
     name = "io_opencensus_opencensus_impl",
     artifact = "io.opencensus:opencensus-impl:" + opencensus_version,
+)
+
+maven_jar(
+    name = "io_opencensus_opencensus_exporter_stats_prometheus",
+    artifact = "io.opencensus:opencensus-exporter-stats-prometheus:" + opencensus_version,
 )
 
 maven_jar(
@@ -148,6 +154,21 @@ maven_jar(
 maven_jar(
     name = "io_grpc_auth",
     artifact = "io.grpc:grpc-auth:" + grpc_verion,
+)
+
+maven_jar(
+    name = "io_prometheus_simpleclient",
+    artifact = "io.prometheus:simpleclient:" + prometheus_version,
+)
+
+maven_jar(
+    name = "io_prometheus_simpleclient_httpserver",
+    artifact = "io.prometheus:simpleclient_httpserver:" + prometheus_version,
+)
+
+maven_jar(
+    name = "io_prometheus_simpleclient_common",
+    artifact = "io.prometheus:simpleclient_common:" + prometheus_version,
 )
 
 load("@grpc_java//:repositories.bzl", "grpc_java_repositories")

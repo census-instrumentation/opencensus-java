@@ -31,6 +31,7 @@ import io.opencensus.common.Scope;
 import io.opencensus.contrib.grpc.metrics.RpcMeasureConstants;
 import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.contrib.zpages.ZPageHandlers;
+import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
 import io.opencensus.stats.Aggregation.Distribution;
@@ -46,6 +47,7 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
+import io.prometheus.client.exporter.HTTPServer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -161,6 +163,7 @@ final class GameOfLifeServer {
     if (args.length >= 3) {
       cloudProjectId = args[2];
     }
+    int prometheusPort = getPortOrDefaultFromArgs(args, 3, 10000);
 
     viewManager.registerView(SERVER_VIEW);
     viewManager.registerView(SERVER_LATENCY_VIEW);
@@ -174,6 +177,9 @@ final class GameOfLifeServer {
               .setExportInterval(Duration.create(5, 0))
               .build());
     }
+
+    PrometheusStatsCollector.createAndRegister();
+    HTTPServer prometheusServer = new HTTPServer(prometheusPort, true);
 
     GameOfLifeServer server = new GameOfLifeServer(serverPort);
     server.start();

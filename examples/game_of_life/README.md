@@ -28,10 +28,11 @@ results.
 
 ```bash
 $ bazel build :all
-$ bazel-bin/bazel-bin/game-of-life-server SERVER_PORT SERVER_ZPAGE_PORT CLOUD_PROJECT_ID
+$ bazel-bin/bazel-bin/game-of-life-server SERVER_PORT SERVER_ZPAGE_PORT CLOUD_PROJECT_ID PROMETHEUS_PORT
 $ bazel-bin/bazel-bin/game-of-life-client SERVER_PORT CLIENT_ZPAGE_PORT CLOUD_PROJECT_ID
 ```
-By default, SERVER_PORT is 3000, SERVER_ZPAGE_PORT is 9000, CLIENT_ZPAGE_PORT is 9001.
+By default, SERVER_PORT is 3000, SERVER_ZPAGE_PORT is 9000, CLIENT_ZPAGE_PORT is 9001,
+PROMETHEUS_PORT is 10000.
 
 To view the game of life board and play the game, go to:
 localhost:CLIENT_ZPAGE_PORT/clientz
@@ -47,7 +48,7 @@ localhost:CLIENT_ZPAGE_PORT/rpcz or
 localhost:CLIENT_ZPAGE_PORT/statsz
 
 To view stats on server side, go to:
-localhost:SERVER_ZPAGE_PORT/rpcz or  
+localhost:SERVER_ZPAGE_PORT/rpcz or
 localhost:SERVER_ZPAGE_PORT/statsz
 
 ## View Stats on Stackdriver Monitoring Dashboard
@@ -58,3 +59,8 @@ from the Life client and server will also be exported to Stackdriver Monitoring.
 Go to [Stackdriver Monitoring main page](https://app.google.stackdriver.com/), and follow the
 [instructions](https://cloud.google.com/monitoring/charts/) to create a dashboard and charts. Then
 you can view stats from Life application on those charts.
+
+## View Stats on Prometheus Metrics page
+
+To view both server and client stats on Prometheus metrics page, go to:
+localhost:PROMETHEUS_PORT/metrics

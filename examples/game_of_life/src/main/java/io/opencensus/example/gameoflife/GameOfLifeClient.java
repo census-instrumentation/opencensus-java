@@ -29,6 +29,7 @@ import io.grpc.StatusRuntimeException;
 import io.opencensus.common.Duration;
 import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.contrib.zpages.ZPageHandlers;
+import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
 import io.opencensus.stats.Aggregation.Distribution;
@@ -138,5 +139,7 @@ final class GameOfLifeClient {
               .setExportInterval(Duration.create(5, 0))
               .build());
     }
+
+    PrometheusStatsCollector.createAndRegister();
   }
 }

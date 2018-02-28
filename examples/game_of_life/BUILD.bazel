@@ -38,7 +38,10 @@ java_library(
         "@io_opencensus_opencensus_api//jar",
         "@io_opencensus_opencensus_contrib_zpages//jar",
         "@io_opencensus_opencensus_exporter_stats_stackdriver//jar",
+        "@io_opencensus_opencensus_exporter_stats_prometheus//jar",
         "@io_opencensus_opencensus_contrib_grpc_metrics//jar",
+        "@io_prometheus_simpleclient//jar",
+        "@io_prometheus_simpleclient_httpserver//jar",
     ],
     runtime_deps = [
         "@com_google_api_client//jar",
@@ -60,6 +63,7 @@ java_library(
         "@io_netty_tcnative_boringssl_static//jar",
         "@io_opencensus_opencensus_impl//jar",
         "@io_opencensus_opencensus_impl_core//jar",
+        "@io_prometheus_simpleclient_common//jar",
         "@org_eclipse_jetty_alpn//jar",
         "@org_threeten_threetenbp//jar",
         "@org_json//jar",
