@@ -34,27 +34,30 @@ $ bazel-bin/bazel-bin/game-of-life-client SERVER_PORT CLIENT_ZPAGE_PORT CLOUD_PR
 By default, SERVER_PORT is 3000, SERVER_ZPAGE_PORT is 9000, CLIENT_ZPAGE_PORT is 9001,
 PROMETHEUS_PORT is 10000.
 
-To view the game of life board and play the game, go to:
+To view the game of life board and play the game, go to:  
 localhost:CLIENT_ZPAGE_PORT/clientz
 
 ## Detailed Explanations on the Demo Code
 
 TODO
 
-## View Stats on ZPages
+## View Stats and Spans on ZPages
 
-To view stats on client side, go to:
-localhost:CLIENT_ZPAGE_PORT/rpcz or
-localhost:CLIENT_ZPAGE_PORT/statsz
+To view stats and/or spans on client side, go to:  
+localhost:CLIENT_ZPAGE_PORT/rpcz  
+localhost:CLIENT_ZPAGE_PORT/statsz  
+localhost:CLIENT_ZPAGE_PORT/tracez
 
-To view stats on server side, go to:
-localhost:SERVER_ZPAGE_PORT/rpcz or
-localhost:SERVER_ZPAGE_PORT/statsz
+To view stats and/or spans on server side, go to:  
+localhost:SERVER_ZPAGE_PORT/rpcz  
+localhost:SERVER_ZPAGE_PORT/statsz  
+localhost:SERVER_ZPAGE_PORT/tracez
 
-## View Stats on Stackdriver Monitoring Dashboard
+## View Stats and Spans on Stackdriver Dashboard
 
 If you specified a valid CLOUD_PROJECT_ID and have the appropriate Google credentials set, stats
-from the Life client and server will also be exported to Stackdriver Monitoring.
+from the Life client and server will be exported to Stackdriver Monitoring, and spans will be
+exported to Stackdriver Trace.
 
 Go to [Stackdriver Monitoring main page](https://app.google.stackdriver.com/), and follow the
 [instructions](https://cloud.google.com/monitoring/charts/) to create a dashboard and charts. Then
@@ -62,5 +65,5 @@ you can view stats from Life application on those charts.
 
 ## View Stats on Prometheus Metrics page
 
-To view both server and client stats on Prometheus metrics page, go to:
+To view both server and client stats on Prometheus metrics page, go to:  
 localhost:PROMETHEUS_PORT/metrics

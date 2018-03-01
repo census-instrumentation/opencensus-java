@@ -34,6 +34,9 @@ import io.opencensus.contrib.zpages.ZPageHandlers;
 import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
+import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
+import io.opencensus.exporter.trace.stackdriver.StackdriverTraceConfiguration;
+import io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -47,9 +50,14 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.Status;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 import io.prometheus.client.exporter.HTTPServer;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -62,6 +70,7 @@ final class GameOfLifeServer {
   private static final Tagger tagger = Tags.getTagger();
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
   private static final ViewManager viewManager = Stats.getViewManager();
+  private static final Tracer tracer = Tracing.getTracer();
 
   private static final TagKey SERVER_TAG_KEY = TagKey.create("server");
   private static final List<Double> bucketBoundaries = Arrays.asList(0.0, 5.0, 10.0, 15.0, 20.0);
@@ -91,6 +100,8 @@ final class GameOfLifeServer {
   private Server server;
 
   private static String executeCommand(String command) {
+    Span span = tracer.getCurrentSpan();
+    span.addAnnotation("Gol Server started calculating next generation.");
     String[] decode = command.split(" ");
     if (decode.length == 3 && decode[0].equals("gol")) {
       int gens = GolUtils.toInt(decode[1]);
@@ -105,10 +116,14 @@ final class GameOfLifeServer {
           statsRecorder.newMeasureMap()
               .put(SERVER_MEASURE, new Random().nextInt(20))
               .record();
-          return new GameOfLife(dims, decode[2]).calcNextGenerations(gens).encode();
+          String result = new GameOfLife(dims, decode[2]).calcNextGenerations(gens).encode();
+          span.addAnnotation("Gol Server finished calculating next generation.");
+          return result;
         }
       }
     }
+    span.addAnnotation("Gol Server received bad request.");
+    span.setStatus(Status.INVALID_ARGUMENT);
     return "Error: bad request";
   }
 
@@ -151,6 +166,10 @@ final class GameOfLifeServer {
 
   GameOfLifeServer(int port) {
     this.port = port;
+
+    Tracing.getExportComponent()
+        .getSampledSpanStore()
+        .registerSpanNamesForCollection(Collections.singletonList("GolServerSpan"));
   }
 
   /**
@@ -176,8 +195,12 @@ final class GameOfLifeServer {
               .setProjectId(cloudProjectId)
               .setExportInterval(Duration.create(5, 0))
               .build());
+      StackdriverTraceExporter.createAndRegister(
+          StackdriverTraceConfiguration.builder().setProjectId(cloudProjectId).build());
     }
 
+    // ZipkinTraceExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "Service");
+    LoggingTraceExporter.register();
     PrometheusStatsCollector.createAndRegister();
     HTTPServer prometheusServer = new HTTPServer(prometheusPort, true);
 
@@ -190,10 +213,18 @@ final class GameOfLifeServer {
 
     @Override
     public void execute(CommandRequest req, StreamObserver<CommandResponse> responseObserver) {
-      CommandResponse reply =
-          CommandResponse.newBuilder().setRetval(executeCommand(req.getReq())).build();
-      responseObserver.onNext(reply);
-      responseObserver.onCompleted();
+      // Create one span on server side for each incoming RPC.
+      try (Scope scopedSpan =
+          tracer.spanBuilder("GolServerSpan").setRecordEvents(true).startScopedSpan()) {
+        Span span = tracer.getCurrentSpan();
+        span.addAnnotation("Gol Server received request.");
+        CommandResponse reply =
+            CommandResponse.newBuilder().setRetval(executeCommand(req.getReq())).build();
+        span.addAnnotation("Gol Server is sending response.");
+        responseObserver.onNext(reply);
+        responseObserver.onCompleted();
+        span.addAnnotation("Gol Server sent response.");
+      }
     }
   }
 }

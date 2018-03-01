@@ -32,6 +32,10 @@ import io.opencensus.contrib.zpages.ZPageHandlers;
 import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
 import io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter;
+import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
+import io.opencensus.exporter.trace.stackdriver.StackdriverTraceConfiguration;
+import io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter;
+import io.opencensus.exporter.trace.zipkin.ZipkinTraceExporter;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -41,6 +45,9 @@ import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.Name;
 import io.opencensus.stats.ViewManager;
+import io.opencensus.trace.Status;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -53,6 +60,7 @@ final class GameOfLifeClient {
   private static final Logger logger = Logger.getLogger(GameOfLifeClient.class.getName());
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
   private static final ViewManager viewManager = Stats.getViewManager();
+  private static final Tracer tracer = Tracing.getTracer();
 
   private static final List<Double> bucketBoundaries = Arrays.asList(0.0, 5.0, 10.0, 15.0, 20.0);
   private static final MeasureDouble CLIENT_MEASURE =
@@ -110,6 +118,8 @@ final class GameOfLifeClient {
       statsRecorder.newMeasureMap().put(CLIENT_MEASURE, new Random().nextInt(10)).record();
     } catch (StatusRuntimeException e) {
       logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      tracer.getCurrentSpan().setStatus(
+          Status.CanonicalCode.valueOf(e.getStatus().getCode().name()).toStatus());
       return null;
     }
     return response.getRetval();
@@ -138,8 +148,12 @@ final class GameOfLifeClient {
               .setProjectId(cloudProjectId)
               .setExportInterval(Duration.create(5, 0))
               .build());
+      StackdriverTraceExporter.createAndRegister(
+          StackdriverTraceConfiguration.builder().setProjectId(cloudProjectId).build());
     }
 
+    // ZipkinTraceExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "Service");
+    LoggingTraceExporter.register();
     PrometheusStatsCollector.createAndRegister();
   }
 }

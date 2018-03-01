@@ -19,9 +19,15 @@ package io.opencensus.example.gameoflife;
 import static io.opencensus.example.gameoflife.GameOfLifeApplication.CLIENT_TAG_KEY;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import io.opencensus.common.Scope;
 import io.opencensus.example.gameoflife.GameOfLifeApplication.GolSpec;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.SpanBuilder;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,6 +43,9 @@ import java.util.Map;
  */
 // Cannot extend ZPageHandler since it's package private.
 final class ClientzHandler implements HttpHandler {
+
+  private static final Tracer tracer = Tracing.getTracer();
+
   private final String defaultHost;
   private final int defaultPort;
   private final int gensPerGol;
@@ -45,13 +54,21 @@ final class ClientzHandler implements HttpHandler {
     this.defaultHost = host;
     this.defaultPort = defaultPort;
     this.gensPerGol = gensPerGol;
+
+    Tracing.getExportComponent()
+        .getSampledSpanStore()
+        .registerSpanNamesForCollection(ImmutableList.of("GolClientSpan", "GolClientChildSpan"));
   }
 
   @Override
   public void handle(HttpExchange httpExchange) throws IOException {
-    try {
+    SpanBuilder spanBuilder = tracer.spanBuilder("GolClientSpan").setRecordEvents(true);
+    try (Scope scopedSpan = spanBuilder.startScopedSpan()) {
+      Span span = tracer.getCurrentSpan();
+      span.addAnnotation("Gol Clientz handling request.");
       httpExchange.sendResponseHeaders(200, 0);
       emitHtml(uriQueryToMap(httpExchange.getRequestURI()), httpExchange.getResponseBody());
+      span.addAnnotation("Gol Clientz finished rendering page.");
     } finally {
       httpExchange.close();
     }

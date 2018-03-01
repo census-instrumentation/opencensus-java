@@ -22,12 +22,18 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
+import io.opencensus.trace.Span;
+import io.opencensus.trace.SpanBuilder;
+import io.opencensus.trace.Status;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
 
 // Invokes the given GameOfLifeClient for all of the Game-of-Life specs with the appropriate
 // client tag in scope.
 final class GameOfLifeApplication {
 
   private static final Tagger tagger = Tags.getTagger();
+  private static final Tracer tracer = Tracing.getTracer();
 
   static final TagKey CLIENT_TAG_KEY = TagKey.create("client");
   static final TagKey METHOD = TagKey.create("method");
@@ -116,24 +122,39 @@ final class GameOfLifeApplication {
   void execute() {
     for (GolSpec gol : gols) {
       String request = GolUtils.getRequest(gol.currentGen, gensPerGol);
+      TagValue boardId = GolUtils.getTagValue(gol.dim, gensPerGol, "client");
       TagContext ctx =
           tagger
               .currentBuilder()
-              .put(CLIENT_TAG_KEY, GolUtils.getTagValue(gol.dim, gensPerGol, "client"))
+              .put(CLIENT_TAG_KEY, boardId)
               .put(METHOD, METHOD_NAME)
               .put(CALLER, USERNAME)
               .put(ORIGINATOR, USERNAME)
               .build();
 
-      try (Scope scope = tagger.withTagContext(ctx)) {
+      // Create one tag context for each game board.
+      try (Scope scopedTags = tagger.withTagContext(ctx)) {
         for (int i = 0; i < numGols; ++i) {
-          String result = client.executeCommand(request);
-          String[] results = result.split("; ");
-          if (results.length < 1 || results[0].isEmpty()) {
-            break;
+          // Create one span on client side for each outgoing RPC.
+          SpanBuilder spanBuilder = tracer.spanBuilder("GolClientChildSpan").setRecordEvents(true);
+          try (Scope scopedSpan = spanBuilder.startScopedSpan()) {
+            Span span = tracer.getCurrentSpan();
+            span.addAnnotation("Gol Client sending request to Server.");
+            String result = client.executeCommand(request);
+            if (result == null) {
+              return;
+            }
+            String[] results = result.split("; ");
+            if (results.length < 1 || results[0].isEmpty()) {
+              span.addAnnotation("Gol Client sent invalid request.");
+              span.setStatus(Status.INVALID_ARGUMENT);
+              break;
+            } else {
+              gol.currentGen = results[0];
+              gol.gens += gensPerGol;
+              span.addAnnotation("Gol Client received next Gol generation.");
+            }
           }
-          gol.currentGen = results[0];
-          gol.gens += gensPerGol;
         }
       }
     }

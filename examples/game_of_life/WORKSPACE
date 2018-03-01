@@ -1,6 +1,6 @@
 workspace(name = "gameoflife")
 
-opencensus_version = "0.12.0"
+opencensus_version = "0.12.2"
 grpc_verion = "1.10.0"
 google_cloud_api_version = "1.23.0"
 prometheus_version = "0.2.0"
@@ -34,6 +34,21 @@ maven_jar(
 maven_jar(
     name = "io_opencensus_opencensus_exporter_stats_stackdriver",
     artifact = "io.opencensus:opencensus-exporter-stats-stackdriver:" + opencensus_version,
+)
+
+maven_jar(
+    name = "io_opencensus_opencensus_exporter_trace_logging",
+    artifact = "io.opencensus:opencensus-exporter-trace-logging:" + opencensus_version,
+)
+
+maven_jar(
+    name = "io_opencensus_opencensus_exporter_trace_stackdriver",
+    artifact = "io.opencensus:opencensus-exporter-trace-stackdriver:" + opencensus_version,
+)
+
+maven_jar(
+    name = "io_opencensus_opencensus_exporter_trace_zipkin",
+    artifact = "io.opencensus:opencensus-exporter-trace-zipkin:" + opencensus_version,
 )
 
 maven_jar(
@@ -117,6 +132,11 @@ maven_jar(
 )
 
 maven_jar(
+    name = "com_google_cloud_google_cloud_trace",
+    artifact = "com.google.cloud:google-cloud-trace:0.34.0-beta"
+)
+
+maven_jar(
     name = "com_fasterxml_jackson_core_jackson_core",
     artifact = "com.fasterxml.jackson.core:jackson-core:2.1.3",
 )
@@ -169,6 +189,21 @@ maven_jar(
 maven_jar(
     name = "io_prometheus_simpleclient_common",
     artifact = "io.prometheus:simpleclient_common:" + prometheus_version,
+)
+
+maven_jar(
+    name = "io_zipkin_zipkin2_zipkin",
+    artifact = "io.zipkin.zipkin2:zipkin:2.4.6",
+)
+
+maven_jar(
+    name = "io_zipkin_reporter2_zipkin_sender_urlconnection",
+    artifact = "io.zipkin.reporter2:zipkin-sender-urlconnection:2.3.2",
+)
+
+maven_jar(
+    name = "io_zipkin_reporter2_zipkin_reporter",
+    artifact = "io.zipkin.reporter2:zipkin-reporter:2.3.2"
 )
 
 load("@grpc_java//:repositories.bzl", "grpc_java_repositories")

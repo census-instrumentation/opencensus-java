@@ -28,9 +28,7 @@ package io.opencensus.example.gameoflife;
  *       has exactly 3 live neighbors in the current generation.
  * </ol>
  *
- * This implementation is restricted to square matricies.
- *
- * <p>
+ * <p>This implementation is restricted to square matricies.
  */
 final class GameOfLife {
   // Square matrix representation of the current generation - a live cell is
