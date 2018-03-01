@@ -69,7 +69,7 @@ public final class QuickStart {
       Collections.singletonList(FRONTEND_KEY),
       Cumulative.create());
 
-
+  /** Main launcher for the QuickStart example. */
   public static void main(String[] args) {
     TagContextBuilder tagContextBuilder =
         tagger.currentBuilder().put(FRONTEND_KEY, TagValue.create("mobile-ios9.3.5"));
