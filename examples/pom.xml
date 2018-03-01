@@ -76,6 +76,10 @@
               <id>ZPagesTester</id>
               <mainClass>io.opencensus.examples.zpages.ZPagesTester</mainClass>
             </program>
+            <program>
+              <id>QuickStart</id>
+              <mainClass>io.opencensus.examples.helloworld.QuickStart</mainClass>
+            </program>
           </programs>
         </configuration>
       </plugin>
