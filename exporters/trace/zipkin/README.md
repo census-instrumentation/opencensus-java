@@ -64,7 +64,7 @@ This will report Zipkin v2 json format to a single server. Alternate
 ```java
 public class MyMainClass {
   public static void main(String[] args) throws Exception {
-    ZipkinTraceExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "myService");
+    ZipkinTraceExporter.createAndRegister("http://127.0.0.1:9411/api/v2/spans", "my-service");
     // ...
   }
 }
