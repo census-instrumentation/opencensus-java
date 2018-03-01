@@ -63,6 +63,8 @@ Go to [Stackdriver Monitoring main page](https://app.google.stackdriver.com/), a
 [instructions](https://cloud.google.com/monitoring/charts/) to create a dashboard and charts. Then
 you can view stats from Life application on those charts.
 
+Go to [Stackdriver Trace console](https://console.cloud.google.com/traces/traces) to see traces.
+
 ## View Stats on Prometheus Metrics page
 
 To view both server and client stats on Prometheus metrics page, go to:  
