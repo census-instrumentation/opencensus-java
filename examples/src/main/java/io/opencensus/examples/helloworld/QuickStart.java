@@ -17,6 +17,7 @@
 package io.opencensus.examples.helloworld;
 
 import io.opencensus.common.Scope;
+import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureLong;
@@ -35,6 +36,7 @@ import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.samplers.Samplers;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
@@ -70,11 +72,15 @@ public final class QuickStart {
       Cumulative.create());
 
   /** Main launcher for the QuickStart example. */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     TagContextBuilder tagContextBuilder =
         tagger.currentBuilder().put(FRONTEND_KEY, TagValue.create("mobile-ios9.3.5"));
-    SpanBuilder spanBuilder = tracer.spanBuilder("my.org/ProcessVideo");
+    SpanBuilder spanBuilder =
+        tracer.spanBuilder("my.org/ProcessVideo")
+            .setRecordEvents(true)
+            .setSampler(Samplers.alwaysSample());
     viewManager.registerView(VIDEO_SIZE_VIEW);
+    LoggingTraceExporter.register();
 
     // Process video.
     // Record the processed video size.
@@ -82,7 +88,7 @@ public final class QuickStart {
         Scope scopedSpan = spanBuilder.startScopedSpan()) {
       tracer.getCurrentSpan().addAnnotation("Start processing video.");
       // Sleep for [0,10] milliseconds to fake work.
-      Thread.sleep(new Random().nextInt(11));
+      Thread.sleep(new Random().nextInt(10) + 1);
       statsRecorder.newMeasureMap().put(VIDEO_SIZE, 25648).record();
       tracer.getCurrentSpan().addAnnotation("Finished processing video.");
     } catch (Exception e) {
@@ -91,6 +97,8 @@ public final class QuickStart {
       logger.severe(e.getMessage());
     }
 
+    // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
+    Thread.sleep(5100);
     ViewData viewData = viewManager.getView(VIDEO_SIZE_VIEW_NAME);
     logger.info(
         String.format("Recorded stats for %s:\n %s", VIDEO_SIZE_VIEW_NAME.asString(), viewData));
