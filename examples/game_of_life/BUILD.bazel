@@ -1,0 +1,96 @@
+load("@grpc_java//:java_grpc_library.bzl", "java_grpc_library")
+
+proto_library(
+    name = "game-of-life_proto",
+    srcs = ["src/main/proto/game_of_life.proto"],
+)
+
+java_proto_library(
+    name = "game-of-life_java_proto",
+    deps = [":game-of-life_proto"],
+)
+
+java_grpc_library(
+    name = "game-of-life_java_grpc",
+    srcs = [":game-of-life_proto"],
+    deps = [":game-of-life_java_proto"],
+)
+
+java_library(
+    name = "gameoflife",
+    testonly = 1,
+    srcs = glob(
+        ["src/main/java/**/*.java"],
+    ),
+    resources = glob(
+        ["src/main/resources/**"],
+    ),
+    deps = [
+        ":game-of-life_java_grpc",
+        ":game-of-life_java_proto",
+        "@com_google_api_grpc_proto_google_common_protos//jar",
+        "@com_google_guava//jar",
+        "@grpc_java//core",
+        "@grpc_java//netty",
+        "@grpc_java//protobuf",
+        "@grpc_java//stub",
+        "@io_grpc_services//jar",
+        "@io_opencensus_opencensus_api//jar",
+        "@io_opencensus_opencensus_contrib_zpages//jar",
+        "@io_opencensus_opencensus_exporter_stats_stackdriver//jar",
+        "@io_opencensus_opencensus_exporter_stats_prometheus//jar",
+        "@io_opencensus_opencensus_exporter_trace_logging//jar",
+        "@io_opencensus_opencensus_exporter_trace_stackdriver//jar",
+        "@io_opencensus_opencensus_exporter_trace_zipkin//jar",
+        "@io_opencensus_opencensus_contrib_grpc_metrics//jar",
+        "@io_prometheus_simpleclient//jar",
+        "@io_prometheus_simpleclient_httpserver//jar",
+    ],
+    runtime_deps = [
+        "@com_google_api_client//jar",
+        "@com_google_api_common//jar",
+        "@com_google_api_gax//jar",
+        "@com_google_api_gax_grpc//jar",
+        "@com_google_api_grpc_cloud_monitoring//jar",
+        "@com_google_api_http_client//jar",
+        "@com_google_api_http_client_jackson2//jar",
+        "@com_google_api_proto_cloud_monitoring//jar",
+        "@com_google_cloud_core//jar",
+        "@com_google_cloud_monitoring//jar",
+        "@com_google_cloud_google_cloud_trace//jar",
+        "@com_google_auth_credentials//jar",
+        "@com_google_auth_oauth2_http//jar",
+        "@com_fasterxml_jackson_core_jackson_core//jar",
+        "@com_lmax_disruptor//jar",
+        "@io_grpc_auth//jar",
+        "@io_netty_codec_http2//jar",
+        "@io_netty_tcnative_boringssl_static//jar",
+        "@io_opencensus_opencensus_impl//jar",
+        "@io_opencensus_opencensus_impl_core//jar",
+        "@io_prometheus_simpleclient_common//jar",
+        "@io_zipkin_zipkin2_zipkin//jar",
+        "@io_zipkin_reporter2_zipkin_sender_urlconnection//jar",
+        "@io_zipkin_reporter2_zipkin_reporter//jar",
+        "@org_eclipse_jetty_alpn//jar",
+        "@org_threeten_threetenbp//jar",
+        "@org_json//jar",
+    ],
+)
+
+java_binary(
+    name = "game-of-life-client",
+    testonly = 1,
+    main_class = "io.opencensus.example.gameoflife.GameOfLifeClient",
+    runtime_deps = [
+        ":gameoflife",
+    ],
+)
+
+java_binary(
+    name = "game-of-life-server",
+    testonly = 1,
+    main_class = "io.opencensus.example.gameoflife.GameOfLifeServer",
+    runtime_deps = [
+        ":gameoflife",
+    ],
+)
