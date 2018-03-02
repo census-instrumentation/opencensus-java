@@ -60,6 +60,8 @@ public final class QuickStart {
       "my.org/measure/video_size", "size of processed videos", "MBy");
 
   // Create view to see the processed video size distribution broken down by frontend.
+  // The view has bucket boundaries (0, 256, 65536) that will group measure values into
+  // histogram buckets.
   private static final View.Name VIDEO_SIZE_VIEW_NAME = View.Name.create("my.org/views/video_size");
   private static final View VIDEO_SIZE_VIEW = View.create(
       VIDEO_SIZE_VIEW_NAME,
@@ -97,6 +99,7 @@ public final class QuickStart {
       logger.severe(e.getMessage());
     }
 
+    logger.info("Wait longer than the reporting duration...");
     // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
     Thread.sleep(5100);
     ViewData viewData = viewManager.getView(VIDEO_SIZE_VIEW_NAME);
