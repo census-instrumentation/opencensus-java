@@ -271,7 +271,7 @@ public class SamplersTest {
   @Test
   public void probabilitySampler_getDescription() {
     assertThat((Samplers.probabilitySampler(0.5)).getDescription())
-        .isEqualTo("ProbabilitySampler{0.500000}");
+        .isEqualTo(String.format("ProbabilitySampler{%.6f}", 0.5));
   }
 
   @Test
