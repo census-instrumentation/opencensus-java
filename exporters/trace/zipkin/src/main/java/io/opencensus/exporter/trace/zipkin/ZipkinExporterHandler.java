@@ -56,7 +56,7 @@ import zipkin2.reporter.Sender;
 // TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 final class ZipkinExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
+  private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
   static final Logger logger = Logger.getLogger(ZipkinExporterHandler.class.getName());
 
   private static final String STATUS_CODE = "census.status_code";
@@ -192,13 +192,10 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
   @Override
   public void export(Collection<SpanData> spanDataList) {
     // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
-    // sets the default sampler to always sample and we get the gRPC span of the stackdriver
+    // sets the default sampler to always sample and we get the gRPC span of the zipkin
     // export call always sampled and go to an infinite loop.
     Scope scope =
-        tracer
-            .spanBuilder("ExportStackdriverTraces")
-            .setSampler(probabilitySpampler)
-            .startScopedSpan();
+        tracer.spanBuilder("SendZipkinSpans").setSampler(probabilitySampler).startScopedSpan();
     try {
       List<byte[]> encodedSpans = new ArrayList<byte[]>(spanDataList.size());
       for (SpanData spanData : spanDataList) {
