@@ -67,9 +67,7 @@ public final class QuickStart {
       VIDEO_SIZE_VIEW_NAME,
       "processed video size over time",
       VIDEO_SIZE,
-      Aggregation.Distribution.create(
-          BucketBoundaries.create(
-              Arrays.asList(0.0, (double) (1 << 8), (double) (1 << 16)))),
+      Aggregation.Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 256.0, 65536.0))),
       Collections.singletonList(FRONTEND_KEY),
       Cumulative.create());
 
