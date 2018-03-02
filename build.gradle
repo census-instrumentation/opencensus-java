@@ -394,4 +394,24 @@ subprojects {
             }
         }
     }
+
+    // For projects that depend on gRPC during test execution, make sure to
+    // also configure ALPN if running on a platform (e.g. FreeBSD) that is not
+    // supported by io.netty:netty-tcnative-boringssl-static:jar. Also see:
+    // https://github.com/grpc/grpc-java/blob/master/SECURITY.md#tls-with-jdk-jetty-alpnnpn
+    if (project.name in ['opencensus-exporter-stats-stackdriver',
+                         'opencensus-exporter-trace-stackdriver']) {
+        def os = org.gradle.internal.os.OperatingSystem.current()
+        if (!os.isLinux() && !os.isWindows() && !os.isMacOsX()) {
+            configurations {
+                alpn
+            }
+            dependencies {
+                alpn 'org.mortbay.jetty.alpn:jetty-alpn-agent:2.0.7'
+            }
+            test {
+                jvmArgs "-javaagent:${configurations.alpn.asPath}"
+            }
+        }
+    }
 }
