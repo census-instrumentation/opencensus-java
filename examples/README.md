@@ -57,3 +57,20 @@ Available pages:
 
 [ZPagesTraceZLink]: http://localhost:8080/tracez
 [ZPagesTraceConfigZLink]: http://localhost:8080/traceconfigz
+
+## To run "QuickStart" example use
+
+### Gradle
+```
+$ ./build/install/opencensus-examples/bin/QuickStart
+```
+
+### Maven
+```
+$ ./target/appassembler/bin/QuickStart
+```
+
+### Bazel
+```
+$ ./bazel-bin/QuickStart
+```
