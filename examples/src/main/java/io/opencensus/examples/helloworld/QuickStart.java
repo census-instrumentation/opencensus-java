@@ -101,6 +101,7 @@ public final class QuickStart {
 
     logger.info("Wait longer than the reporting duration...");
     // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
+    // TODO(songya): remove the gap once we add a shutdown hook for exporting unflushed spans.
     Thread.sleep(5100);
     ViewData viewData = viewManager.getView(VIDEO_SIZE_VIEW_NAME);
     logger.info(
