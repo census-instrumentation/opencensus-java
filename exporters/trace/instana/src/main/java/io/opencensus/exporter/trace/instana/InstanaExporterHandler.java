@@ -16,26 +16,13 @@
 
 package io.opencensus.exporter.trace.instana;
 
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import com.google.common.io.BaseEncoding;
-import io.opencensus.common.Duration;
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
-import io.opencensus.common.Scope;
-import io.opencensus.common.Timestamp;
-import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Sampler;
-import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.SpanId;
-import io.opencensus.trace.Status;
-import io.opencensus.trace.TraceId;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
+import io.opencensus.common.*;
+import io.opencensus.trace.*;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.samplers.Samplers;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,6 +33,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /*
  * Exports to an Instana agent acting as proxy to the Instana backend (and handling authentication)
