@@ -62,6 +62,7 @@ import org.apache.thrift.TException;
 @NotThreadSafe
 final class JaegerExporterHandler extends SpanExporter.Handler {
   private static final String EXPORT_SPAN_NAME = "ExportJaegerTraces";
+  private static final String DESCRIPTION = "description";
 
   private static final Logger logger = Logger.getLogger(JaegerExporterHandler.class.getName());
 
@@ -293,8 +294,16 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     for (final SpanData.TimedEvent<Annotation> event : events) {
       final long timestampsInMicros = timestampToMicros(event.getTimestamp());
       final List<Tag> tags = attributesToTags(event.getEvent().getAttributes());
-      logs.add(new Log(timestampsInMicros, tags));
+      tags.add(descriptionToTag(event.getEvent().getDescription()));
+      final Log log = new Log(timestampsInMicros, tags);
+      logs.add(log);
     }
     return logs;
+  }
+
+  private static Tag descriptionToTag(final String description) {
+    final Tag tag = new Tag(DESCRIPTION, TagType.STRING);
+    tag.setVStr(description);
+    return tag;
   }
 }

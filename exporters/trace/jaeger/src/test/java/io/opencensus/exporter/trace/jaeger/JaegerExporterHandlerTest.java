@@ -18,8 +18,8 @@ package io.opencensus.exporter.trace.jaeger;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -113,10 +113,11 @@ public class JaegerExporterHandlerTest {
     assertThat(span.logs.size(), is(1));
     Log log = span.logs.get(0);
     assertThat(log.timestamp, is(1519629872987654L));
-    assertThat(log.fields.size(), is(3));
+    assertThat(log.fields.size(), is(4));
     assertThat(
         log.fields,
         hasItems(
+            new Tag("description", TagType.STRING).setVStr("annotation #1"),
             new Tag("bool", TagType.BOOL).setVBool(true),
             new Tag("long", TagType.LONG).setVLong(1337L),
             new Tag("string", TagType.STRING)
