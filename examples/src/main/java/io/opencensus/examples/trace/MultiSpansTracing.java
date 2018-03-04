@@ -16,7 +16,7 @@
 
 package io.opencensus.examples.trace;
 
-import io.opencensus.exporter.trace.logging.LoggingExporter;
+import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
@@ -44,7 +44,7 @@ public final class MultiSpansTracing {
    * @param args the main arguments.
    */
   public static void main(String[] args) {
-    LoggingExporter.register();
+    LoggingTraceExporter.register();
     doWork();
   }
 }

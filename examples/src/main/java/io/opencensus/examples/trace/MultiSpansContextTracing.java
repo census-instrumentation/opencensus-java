@@ -17,7 +17,7 @@
 package io.opencensus.examples.trace;
 
 import io.opencensus.common.Scope;
-import io.opencensus.exporter.trace.logging.LoggingExporter;
+import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
@@ -57,7 +57,7 @@ public final class MultiSpansContextTracing {
    * @param args the main arguments.
    */
   public static void main(String[] args) {
-    LoggingExporter.register();
+    LoggingTraceExporter.register();
     Span span = tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startSpan();
     try (Scope ws = tracer.withSpan(span)) {
       doWork();
