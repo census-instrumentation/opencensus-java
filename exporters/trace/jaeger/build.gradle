@@ -9,7 +9,10 @@ dependencies {
     compile project(':opencensus-api'),
             libraries.jaeger_reporter
 
+    testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
+    testCompile 'com.google.http-client:google-http-client-gson:1.23.0'
     testCompile project(':opencensus-api')
+    testRuntime project(':opencensus-impl')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
