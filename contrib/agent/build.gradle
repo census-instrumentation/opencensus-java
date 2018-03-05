@@ -123,6 +123,18 @@ jar.finalizedBy shadowJar
 // The JAVA_HOMES environment variable lists the home directories of the Java installations used
 // for integration testing.
 
+// The default JAR has been replaced with a self-contained JAR by the shadowJar task. Therefore,
+// remove all declared dependencies from the generated Maven POM for said JAR.
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.whenConfigured {
+        dependencies = []
+      }
+    }
+  }
+}
+
 sourceSets {
   integrationTest {
     java {
