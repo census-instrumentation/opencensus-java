@@ -161,10 +161,6 @@ public class HelloWorldServer {
 
     @Override
     public void sayHello(HelloRequest req, StreamObserver<HelloReply> responseObserver) {
-      // Trace all incoming RPCs.
-      Tracing.getTraceConfig().updateActiveTraceParams(
-          TraceParams.DEFAULT.toBuilder().setSampler(Samplers.alwaysSample()).build());
-
       Span span = tracer.getCurrentSpan();
       span.putAttribute("my_attribute", AttributeValue.stringAttributeValue("red"));
       span.addAnnotation(
@@ -181,9 +177,6 @@ public class HelloWorldServer {
       responseObserver.onNext(reply);
       responseObserver.onCompleted();
       logger.info("SayHello RPC handled.");
-
-      // Restore sampling probability.
-      Tracing.getTraceConfig().updateActiveTraceParams(TraceParams.DEFAULT);
     }
   }
 }

@@ -73,16 +73,14 @@ public class HelloWorldClient {
 
   /** Say hello to server. */
   public void greet(String name) {
-    // Trace all outgoing RPCs.
-    Tracing.getTraceConfig().updateActiveTraceParams(
-        TraceParams.DEFAULT.toBuilder().setSampler(Samplers.alwaysSample()).build());
-
     logger.info("Will try to greet " + name + " ...");
     HelloRequest request = HelloRequest.newBuilder().setName(name).build();
     HelloReply response;
 
     SpanBuilder spanBuilder =
-        tracer.spanBuilder("client").setRecordEvents(true);
+        tracer.spanBuilder("client")
+            .setRecordEvents(true)
+            .setSampler(Samplers.alwaysSample());
     try (Scope scope = spanBuilder.startScopedSpan()) {
       tracer.getCurrentSpan().addAnnotation("Saying Hello to Server.");
       response = blockingStub.sayHello(request);
@@ -97,9 +95,6 @@ public class HelloWorldClient {
       return;
     }
     logger.info("Greeting: " + response.getMessage());
-
-    // Restore sampling probability.
-    Tracing.getTraceConfig().updateActiveTraceParams(TraceParams.DEFAULT);
   }
 
   /**
