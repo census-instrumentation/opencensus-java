@@ -16,6 +16,9 @@
 
 package io.opencensus.examples.grpc.helloworld;
 
+import static io.opencensus.examples.grpc.helloworld.HelloWorldUtils.getPortOrDefaultFromArgs;
+import static io.opencensus.examples.grpc.helloworld.HelloWorldUtils.getStringOrDefaultFromArgs;
+
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -48,7 +51,12 @@ public class HelloWorldServer {
 
   private static final Tracer tracer = Tracing.getTracer();
 
+  private final int serverPort;
   private Server server;
+
+  private HelloWorldServer(int serverPort) {
+    this.serverPort = serverPort;
+  }
 
   // A helper function that performs some work in its own Span.
   private static void performWork(Span parent) {
@@ -76,13 +84,11 @@ public class HelloWorldServer {
   }
 
   private void start() throws IOException {
-    /* The port on which the server should run */
-    int port = 50051;
-    server = ServerBuilder.forPort(port)
+    server = ServerBuilder.forPort(serverPort)
         .addService(new GreeterImpl())
         .build()
         .start();
-    logger.info("Server started, listening on " + port);
+    logger.info("Server started, listening on " + serverPort);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
@@ -113,10 +119,10 @@ public class HelloWorldServer {
    * Main launches the server from the command line.
    */
   public static void main(String[] args) throws IOException, InterruptedException {
-    String cloudProjectId = null;
-    if (args.length > 0) {
-      cloudProjectId = args[0];
-    }
+    int serverPort = getPortOrDefaultFromArgs(args, 0, 50051);
+    String cloudProjectId = getStringOrDefaultFromArgs(args, 1, null);
+    int zPagePort = getPortOrDefaultFromArgs(args, 2, 3000);
+    int prometheusPort = getPortOrDefaultFromArgs(args, 3, 9090);
 
     // Registers all RPC views.
     RpcViews.registerAllViews();
@@ -125,7 +131,8 @@ public class HelloWorldServer {
     LoggingTraceExporter.register();
 
     // Starts a HTTP server and registers all Zpages to it.
-    ZPageHandlers.startHttpServerAndRegisterAll(3000);
+    ZPageHandlers.startHttpServerAndRegisterAll(zPagePort);
+    logger.info("ZPages server starts at localhost:" + zPagePort);
 
     // Registers Stackdriver exporters.
     if (cloudProjectId != null) {
@@ -141,11 +148,11 @@ public class HelloWorldServer {
 
     // Register Prometheus exporters and export metrics to a Prometheus HTTPServer.
     PrometheusStatsCollector.createAndRegister();
-    HTTPServer prometheusServer = new HTTPServer(9090, true);
+    HTTPServer prometheusServer = new HTTPServer(prometheusPort, true);
 
     // Start the RPC server. You shouldn't see any output from gRPC before this.
     logger.info("gRPC starting.");
-    final HelloWorldServer server = new HelloWorldServer();
+    final HelloWorldServer server = new HelloWorldServer(serverPort);
     server.start();
     server.blockUntilShutdown();
   }

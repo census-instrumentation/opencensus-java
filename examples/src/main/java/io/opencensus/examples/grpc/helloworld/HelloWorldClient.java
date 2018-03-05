@@ -16,6 +16,9 @@
 
 package io.opencensus.examples.grpc.helloworld;
 
+import static io.opencensus.examples.grpc.helloworld.HelloWorldUtils.getPortOrDefaultFromArgs;
+import static io.opencensus.examples.grpc.helloworld.HelloWorldUtils.getStringOrDefaultFromArgs;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -35,6 +38,7 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.samplers.Samplers;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,18 +106,19 @@ public class HelloWorldClient {
    * Greet server. If provided, the first element of {@code args} is the name to use in the
    * greeting.
    */
-  public static void main(String[] args) throws Exception {
-    String user = "world";
-    if (args.length > 0) {
-      user = args[0]; /* Use the arg as the name to greet if provided */
-    }
-    String cloudProjectId = null;
-    if (args.length > 1) {
-      cloudProjectId = args[1];
-    }
+  public static void main(String[] args) throws IOException, InterruptedException {
+    String user = getStringOrDefaultFromArgs(args, 0, "world");
+    String host = getStringOrDefaultFromArgs(args, 1, "localhost");
+    int serverPort = getPortOrDefaultFromArgs(args, 2, 50051);
+    String cloudProjectId = getStringOrDefaultFromArgs(args, 3, null);
+    int zPagePort = getPortOrDefaultFromArgs(args, 4, 3001);
 
     // Registers all RPC views.
     RpcViews.registerAllViews();
+
+    // Starts a HTTP server and registers all Zpages to it.
+    ZPageHandlers.startHttpServerAndRegisterAll(zPagePort);
+    logger.info("ZPages server starts at localhost:" + zPagePort);
 
     // Registers logging trace exporter.
     LoggingTraceExporter.register();
@@ -126,24 +131,27 @@ public class HelloWorldClient {
           StackdriverStatsConfiguration
               .builder()
               .setProjectId(cloudProjectId)
-              .setExportInterval(Duration.create(5, 0))
+              .setExportInterval(Duration.create(15, 0))
               .build());
     }
 
     // Register Prometheus exporters and export metrics to a Prometheus HTTPServer.
     PrometheusStatsCollector.createAndRegister();
 
-    HelloWorldClient client = new HelloWorldClient("localhost", 50051);
+    HelloWorldClient client = new HelloWorldClient(host, serverPort);
     try {
-      /* Access a service running on the local machine on port 50051 */
       client.greet(user);
     } finally {
       client.shutdown();
     }
 
-    logger.info("Wait longer than the reporting duration...");
-    // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
-    // TODO(songya): remove the gap once we have a shutdown hook for exporting unflushed spans.
-    Thread.sleep(5100);
+    logger.info("Client sleeping, ^C to exit. Meanwhile you can view stats and spans on zpages.");
+    while (true) {
+      try {
+        Thread.sleep(10000);
+      } catch (InterruptedException e) {
+        logger.info("Exiting HelloWorldClient...");
+      }
+    }
   }
 }
