@@ -119,10 +119,11 @@ public class HelloWorldServer {
    * Main launches the server from the command line.
    */
   public static void main(String[] args) throws IOException, InterruptedException {
-    int serverPort = getPortOrDefaultFromArgs(args, 0, 50051);
-    String cloudProjectId = getStringOrDefaultFromArgs(args, 1, null);
-    int zPagePort = getPortOrDefaultFromArgs(args, 2, 3000);
-    int prometheusPort = getPortOrDefaultFromArgs(args, 3, 9090);
+    // Add final keyword to pass checkStyle.
+    final int serverPort = getPortOrDefaultFromArgs(args, 0, 50051);
+    final String cloudProjectId = getStringOrDefaultFromArgs(args, 1, null);
+    final int zPagePort = getPortOrDefaultFromArgs(args, 2, 3000);
+    final int prometheusPort = getPortOrDefaultFromArgs(args, 3, 9090);
 
     // Registers all RPC views.
     RpcViews.registerAllViews();
@@ -168,12 +169,11 @@ public class HelloWorldServer {
           ImmutableMap.of(
               "name", AttributeValue.stringAttributeValue(req.getName()),
               "name length", AttributeValue.longAttributeValue(req.getName().length())));
-
-      HelloReply reply = HelloReply.newBuilder().setMessage("Hello " + req.getName()).build();
       sleepFor(10);
       performWork(span);
       span.addAnnotation("Sleeping.");
       sleepFor(30);
+      HelloReply reply = HelloReply.newBuilder().setMessage("Hello " + req.getName()).build();
       responseObserver.onNext(reply);
       responseObserver.onCompleted();
       logger.info("SayHello RPC handled.");

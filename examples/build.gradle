@@ -61,6 +61,10 @@ if (JavaVersion.current().isJava8Compatible()) {
             include '**/*.java'
         }
     }
+
+checkstyleMain {
+    // This skips proto generated files beucasue they are in gen_gradle/src/main/**
+    source = fileTree(dir: "src/main", include: "**/*.java")
 }
 
 tasks.withType(JavaCompile) {

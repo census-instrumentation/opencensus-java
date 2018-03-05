@@ -102,11 +102,12 @@ public class HelloWorldClient {
    * greeting.
    */
   public static void main(String[] args) throws IOException, InterruptedException {
-    String user = getStringOrDefaultFromArgs(args, 0, "world");
-    String host = getStringOrDefaultFromArgs(args, 1, "localhost");
-    int serverPort = getPortOrDefaultFromArgs(args, 2, 50051);
-    String cloudProjectId = getStringOrDefaultFromArgs(args, 3, null);
-    int zPagePort = getPortOrDefaultFromArgs(args, 4, 3001);
+    // Add final keyword to pass checkStyle.
+    final String user = getStringOrDefaultFromArgs(args, 0, "world");
+    final String host = getStringOrDefaultFromArgs(args, 1, "localhost");
+    final int serverPort = getPortOrDefaultFromArgs(args, 2, 50051);
+    final String cloudProjectId = getStringOrDefaultFromArgs(args, 3, null);
+    final int zPagePort = getPortOrDefaultFromArgs(args, 4, 3001);
 
     // Registers all RPC views.
     RpcViews.registerAllViews();
