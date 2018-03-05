@@ -54,9 +54,13 @@ $ ./bazel-bin/ZPagesTester
 Available pages:
 * For tracing page go to [localhost:8080/tracez][ZPagesTraceZLink]. 
 * For tracing config page go to [localhost:8080/traceconfigz][ZPagesTraceConfigZLink].
+* For RPC stats page go to [localhost:8080/rpcz][ZPagesRpcZLink].
+* For stats and measures on all registered views go to [localhost:8080/statsz][ZPagesStatsZLink].
 
 [ZPagesTraceZLink]: http://localhost:8080/tracez
 [ZPagesTraceConfigZLink]: http://localhost:8080/traceconfigz
+[ZPagesRpcZLink]: http://localhost:8080/rpcz
+[ZPagesStatsZLink]: http://localhost:8080/statsz
 
 ## To run "QuickStart" example use
 
