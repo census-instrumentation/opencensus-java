@@ -65,6 +65,15 @@ tasks.withType(JavaCompile) {
     targetCompatibility = '1.8'
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+            exclude '**/grpc/**'
+        }
+    }
+}
+
 dependencies {
     compile "io.opencensus:opencensus-api:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-zpages:${opencensusVersion}",
