@@ -95,7 +95,10 @@ will be used:
 However, if you want to specify any of these arguements, please make sure they are in order.
 
 ### Gradle
-TODO
+```
+$ ./build/install/opencensus-examples/bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
+$ ./build/install/opencensus-examples/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
+```
 
 ### Maven
 ```
