@@ -19,6 +19,8 @@ package io.opencensus.implcore.trace.export;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
+import io.opencensus.implcore.internal.ShutdownHookManager;
+import io.opencensus.implcore.internal.ShutdownHookManager.Hook;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.export.SpanData;
@@ -51,8 +53,15 @@ public final class SpanExporterImpl extends SpanExporter {
    * @param scheduleDelay the maximum delay.
    */
   static SpanExporterImpl create(int bufferSize, Duration scheduleDelay) {
-    // TODO(bdrutu): Consider to add a shutdown hook to not avoid dropping data.
-    Worker worker = new Worker(bufferSize, scheduleDelay);
+    final Worker worker = new Worker(bufferSize, scheduleDelay);
+    ShutdownHookManager.getInstance()
+        .addShutdownHook(
+            new Hook("exporter-flush") {
+              @Override
+              public void run() {
+                worker.flush();
+              }
+            });
     return new SpanExporterImpl(worker);
   }
 
@@ -159,6 +168,20 @@ public final class SpanExporterImpl extends SpanExporter {
         spanDatas.add(span.toSpanData());
       }
       return Collections.unmodifiableList(spanDatas);
+    }
+
+    // Flushes the existing data no matter how many spans there are.
+    private void flush() {
+      List<SpanImpl> spansCopy;
+      synchronized (monitor) {
+        spansCopy = new ArrayList<SpanImpl>(spans);
+        spans.clear();
+      }
+      // Execute the batch export outside the synchronized to not block all producers.
+      final List<SpanData> spanDataList = fromSpanImplToSpanData(spansCopy);
+      if (!spanDataList.isEmpty()) {
+        onBatchExport(spanDataList);
+      }
     }
 
     @Override
