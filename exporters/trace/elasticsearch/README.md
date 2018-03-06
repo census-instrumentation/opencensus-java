@@ -50,10 +50,10 @@ runtime 'io.opencensus:opencensus-impl:0.12.2'
 
 The ElasticsearchConfig is the configurations required by the exporter.
 
-**userName** : The username for *Basic Auth* required by elasticsearch restful api.
-**password** : The password for *Basic Auth* required by elasticsearch restful api.
-**elasticsearchUrl** : The elasticsearch url for your installation.
-**elasticsearchIndex** : The elasticsearch index to store the data.
+**userName** : The username for *Basic Auth* required by elasticsearch restful api. <br/>
+**password** : The password for *Basic Auth* required by elasticsearch restful api.<br/>
+**elasticsearchUrl** : The elasticsearch url for your installation.<br/>
+**elasticsearchIndex** : The elasticsearch index to store the data.<br/>
 
 
 ```java
