@@ -72,8 +72,15 @@ public final class MyClassWithTracing {
 
 ### Hello "OpenCensus" stats events
 
-Here's an example on defining TagKey, Measure and View, registering view, recording stats and get
-ViewData. For the complete example, see
+Here's an example on
+ * defining TagKey, Measure and View,
+ * registering a view,
+ * putting TagKey and TagValue into a scoped TagContext,
+ * recording stats against current TagContext,
+ * getting ViewData.
+
+ 
+For the complete example, see
 [here](https://github.com/census-instrumentation/opencensus-java/blob/master/examples/src/main/java/io/opencensus/examples/helloworld/QuickStart.java).
 
 ```java
@@ -98,16 +105,26 @@ public final class QuickStart {
       Collections.singletonList(FRONTEND_KEY),
       Cumulative.create());
 
-  public static void main(String[] args) throws InterruptedException {
-    TagContextBuilder tagContextBuilder =
-      tagger.currentBuilder().put(FRONTEND_KEY, TagValue.create("mobile-ios9.3.5"));
-    viewManager.registerView(VIDEO_SIZE_VIEW);
-    // Process video.
-    // Record the processed video size.
-    try (Scope scopedTags = tagContextBuilder.buildScoped()) {
+  private static void processVideo() {
+    try (Scope scopedTags =
+           tagger
+             .currentBuilder()
+             .put(FRONTEND_KEY, TagValue.create("mobile-ios9.3.5")
+             .buildScoped()) {
+      // Processing video.
+      // ...
+
+      // Record the processed video size.
       statsRecorder.newMeasureMap().put(VIDEO_SIZE, 25648).record();
     }
+  }
+
+  public static void main(String[] args) throws InterruptedException {
+    viewManager.registerView(VIDEO_SIZE_VIEW);
+    processVideo();
     ViewData viewData = viewManager.getView(VIDEO_SIZE_VIEW_NAME);
+    System.out.println(
+      String.format("Recorded stats for %s:\n %s", VIDEO_SIZE_VIEW_NAME.asString(), viewData));
   }
 }
 ```
