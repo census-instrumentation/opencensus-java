@@ -30,7 +30,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * An utility class to help with registering shutdown {@link Hook}s to the runtime.
+ * A utility class to help with registering shutdown {@link Hook}s to the runtime.
  *
  * <p>A {@link Hook} can have its own name and priority. The execution order among registered hooks
  * will be determined by their priorities first (descending order) and then registration time
@@ -54,7 +54,7 @@ public final class ShutdownHookManager {
 
   private final Object monitor = new Object();
 
-  // A list to store registered {@link Hook}s.
+  // A list to store registered hooks.
   @GuardedBy("monitor")
   private final List<Hook> hooks = new ArrayList<Hook>();
 
@@ -194,7 +194,7 @@ public final class ShutdownHookManager {
    * @param hook the {@code Hook}
    */
   public void addShutdownHook(Hook hook) {
-    checkNotNull(hook);
+    checkNotNull(hook, "hook");
     synchronized (monitor) {
       if (!isShuttingDown) {
         hooks.add(hook);
