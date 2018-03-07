@@ -105,6 +105,8 @@ public final class NoopViewManagerTest {
     ViewData viewData = viewManager.getView(VIEW_NAME);
     assertThat(viewData.getView()).isEqualTo(view);
     assertThat(viewData.getAggregationMap()).isEmpty();
+    assertThat(viewData.getStart()).isEqualTo(Timestamp.create(0, 0));
+    assertThat(viewData.getEnd()).isEqualTo(Timestamp.create(0, 0));
     assertThat(viewData.getWindowData())
         .isEqualTo(CumulativeData.create(Timestamp.create(0, 0), Timestamp.create(0, 0)));
   }
@@ -171,23 +173,13 @@ public final class NoopViewManagerTest {
     ViewManager viewManager = NoopStats.newNoopViewManager();
     View view1 =
         View.create(
-            View.Name.create("View 1"),
-            VIEW_DESCRIPTION,
-            MEASURE,
-            AGGREGATION,
-            Arrays.asList(KEY),
-            CUMULATIVE);
+            View.Name.create("View 1"), VIEW_DESCRIPTION, MEASURE, AGGREGATION, Arrays.asList(KEY));
     viewManager.registerView(view1);
     Set<View> exported = viewManager.getAllExportedViews();
 
     View view2 =
         View.create(
-            View.Name.create("View 2"),
-            VIEW_DESCRIPTION,
-            MEASURE,
-            AGGREGATION,
-            Arrays.asList(KEY),
-            CUMULATIVE);
+            View.Name.create("View 2"), VIEW_DESCRIPTION, MEASURE, AGGREGATION, Arrays.asList(KEY));
     thrown.expect(UnsupportedOperationException.class);
     exported.add(view2);
   }

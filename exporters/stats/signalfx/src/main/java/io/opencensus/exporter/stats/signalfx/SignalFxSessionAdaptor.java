@@ -33,7 +33,6 @@ import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
@@ -48,6 +47,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** Adapter for a {@code ViewData}'s contents into SignalFx datapoints. */
+@SuppressWarnings("deprecation")
 final class SignalFxSessionAdaptor {
 
   private SignalFxSessionAdaptor() {}
@@ -87,11 +87,12 @@ final class SignalFxSessionAdaptor {
 
   @VisibleForTesting
   @javax.annotation.Nullable
-  static MetricType getMetricTypeForAggregation(Aggregation aggregation, AggregationWindow window) {
+  static MetricType getMetricTypeForAggregation(
+      Aggregation aggregation, View.AggregationWindow window) {
     if (aggregation instanceof Aggregation.Mean) {
       return MetricType.GAUGE;
     } else if (aggregation instanceof Aggregation.Count || aggregation instanceof Aggregation.Sum) {
-      if (window instanceof AggregationWindow.Cumulative) {
+      if (window instanceof View.AggregationWindow.Cumulative) {
         return MetricType.CUMULATIVE_COUNTER;
       }
       // TODO(mpetazzoni): support incremental counters when AggregationWindow.Interval is ready
