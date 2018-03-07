@@ -105,6 +105,11 @@ public final class QuickStart {
       Collections.singletonList(FRONTEND_KEY),
       Cumulative.create());
 
+  private static void initialize() {
+    // ...
+    viewManager.registerView(VIDEO_SIZE_VIEW);
+  }
+
   private static void processVideo() {
     try (Scope scopedTags =
            tagger
@@ -119,12 +124,16 @@ public final class QuickStart {
     }
   }
 
-  public static void main(String[] args) throws InterruptedException {
-    viewManager.registerView(VIDEO_SIZE_VIEW);
-    processVideo();
+  private static void printStats() {
     ViewData viewData = viewManager.getView(VIDEO_SIZE_VIEW_NAME);
     System.out.println(
       String.format("Recorded stats for %s:\n %s", VIDEO_SIZE_VIEW_NAME.asString(), viewData));
+  }
+
+  public static void main(String[] args) {
+    initialize();
+    processVideo();
+    printStats();
   }
 }
 ```
