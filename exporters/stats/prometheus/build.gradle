@@ -6,6 +6,8 @@ description = 'OpenCensus Stats Prometheus Exporter'
 }
 
 dependencies {
+    compileOnly libraries.auto_value
+
     compile project(':opencensus-api'),
             libraries.prometheus_simpleclient
 
