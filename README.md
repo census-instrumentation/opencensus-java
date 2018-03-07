@@ -15,9 +15,11 @@ The library is in alpha stage and the API is subject to change.
 Please join [gitter](https://gitter.im/census-instrumentation/Lobby) for help or feedback on this
 project.
 
-## Instrumentation Quickstart
+## OpenCensus Quickstart
 
 Integrating OpenCensus with a new library means recording stats or traces and propagating context.
+
+TODO: add a link to Java quick start documentation on opencensus.io once it's ready.
 
 ### Add the dependencies to your project
 
@@ -45,6 +47,8 @@ the same way.
 
 ```java
 public final class MyClassWithTracing {
+  private static final Tracer tracer = Tracing.getTracer();
+
   public static void doWork() {
     // Create a child Span of the current Span.
     try (Scope ss = tracer.spanBuilder("MyChildWorkSpan").startScopedSpan()) {
@@ -70,7 +74,68 @@ public final class MyClassWithTracing {
 
 ### Hello "OpenCensus" stats events
 
-TODO
+Here's an example on
+ * defining TagKey, Measure and View,
+ * registering a view,
+ * putting TagKey and TagValue into a scoped TagContext,
+ * recording stats against current TagContext,
+ * getting ViewData.
+
+ 
+For the complete example, see
+[here](https://github.com/census-instrumentation/opencensus-java/blob/master/examples/src/main/java/io/opencensus/examples/helloworld/QuickStart.java).
+
+```java
+public final class QuickStart {
+  private static final Tagger tagger = Tags.getTagger();
+  private static final ViewManager viewManager = Stats.getViewManager();
+  private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();  
+
+  // frontendKey allows us to break down the recorded data
+  private static final TagKey FRONTEND_KEY = TagKey.create("my.org/keys/frontend");
+
+  // videoSize will measure the size of processed videos.
+  private static final MeasureLong VIDEO_SIZE = MeasureLong.create(
+      "my.org/measure/video_size", "size of processed videos", "MBy");
+
+  // Create view to see the processed video size distribution broken down by frontend.
+  // The view has bucket boundaries (0, 256, 65536) that will group measure values into
+  // histogram buckets.
+  private static final View.Name VIDEO_SIZE_VIEW_NAME = View.Name.create("my.org/views/video_size");
+  private static final View VIDEO_SIZE_VIEW = View.create(
+      VIDEO_SIZE_VIEW_NAME,
+      "processed video size over time",
+      VIDEO_SIZE,
+      Aggregation.Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 256.0, 65536.0))),
+      Collections.singletonList(FRONTEND_KEY),
+      Cumulative.create());
+
+  private static void initialize() {
+    // ...
+    viewManager.registerView(VIDEO_SIZE_VIEW);
+  }
+
+  private static void processVideo() {
+    try (Scope scopedTags =
+           tagger
+             .currentBuilder()
+             .put(FRONTEND_KEY, TagValue.create("mobile-ios9.3.5")
+             .buildScoped()) {
+      // Processing video.
+      // ...
+
+      // Record the processed video size.
+      statsRecorder.newMeasureMap().put(VIDEO_SIZE, 25648).record();
+    }
+  }
+
+  private static void printStats() {
+    ViewData viewData = viewManager.getView(VIDEO_SIZE_VIEW_NAME);
+    System.out.println(
+      String.format("Recorded stats for %s:\n %s", VIDEO_SIZE_VIEW_NAME.asString(), viewData));
+  }
+}
+```
 
 ## Quickstart for Applications
 
