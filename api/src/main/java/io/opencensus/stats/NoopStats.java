@@ -23,6 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
@@ -171,6 +172,7 @@ final class NoopStats {
 
     @Override
     @Nullable
+    @SuppressWarnings("deprecation")
     public ViewData getView(View.Name name) {
       checkNotNull(name, "name");
       synchronized (registeredViews) {
@@ -181,8 +183,14 @@ final class NoopStats {
           return ViewData.create(
               view,
               Collections.<List<TagValue>, AggregationData>emptyMap(),
-              ZERO_TIMESTAMP,
-              ZERO_TIMESTAMP);
+              view.getWindow()
+                  .match(
+                      Functions.<ViewData.AggregationWindowData>returnConstant(
+                          ViewData.AggregationWindowData.CumulativeData.create(
+                              ZERO_TIMESTAMP, ZERO_TIMESTAMP)),
+                      Functions.<ViewData.AggregationWindowData>returnConstant(
+                          ViewData.AggregationWindowData.IntervalData.create(ZERO_TIMESTAMP)),
+                      Functions.<ViewData.AggregationWindowData>throwAssertionError()));
         }
       }
     }
