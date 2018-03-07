@@ -47,6 +47,8 @@ the same way.
 
 ```java
 public final class MyClassWithTracing {
+  private static final Tracer tracer = Tracing.getTracer();
+
   public static void doWork() {
     // Create a child Span of the current Span.
     try (Scope ss = tracer.spanBuilder("MyChildWorkSpan").startScopedSpan()) {
@@ -85,6 +87,9 @@ For the complete example, see
 
 ```java
 public final class QuickStart {
+  private static final Tagger tagger = Tags.getTagger();
+  private static final ViewManager viewManager = Stats.getViewManager();
+  private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();  
 
   // frontendKey allows us to break down the recorded data
   private static final TagKey FRONTEND_KEY = TagKey.create("my.org/keys/frontend");
