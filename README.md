@@ -129,12 +129,6 @@ public final class QuickStart {
     System.out.println(
       String.format("Recorded stats for %s:\n %s", VIDEO_SIZE_VIEW_NAME.asString(), viewData));
   }
-
-  public static void main(String[] args) {
-    initialize();
-    processVideo();
-    printStats();
-  }
 }
 ```
 
