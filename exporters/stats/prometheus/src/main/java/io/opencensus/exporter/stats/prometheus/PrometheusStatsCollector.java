@@ -76,10 +76,10 @@ public final class PrometheusStatsCollector extends Collector implements Collect
    * @since 0.13
    */
   public static void createAndRegister(PrometheusStatsConfiguration configuration) {
-    CollectorRegistry registry =
-        configuration.getRegistry() == null
-            ? CollectorRegistry.defaultRegistry
-            : configuration.getRegistry();
+    CollectorRegistry registry = configuration.getRegistry();
+    if (registry == null) {
+      registry = CollectorRegistry.defaultRegistry;
+    }
     new PrometheusStatsCollector(Stats.getViewManager()).register(registry);
   }
 
