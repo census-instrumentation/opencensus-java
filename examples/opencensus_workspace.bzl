@@ -1,6 +1,6 @@
 # The following dependencies were calculated from:
 #
-# generate_workspace --artifact=io.opencensus:opencensus-api:0.12.2 --artifact=io.opencensus:opencensus-contrib-zpages:0.12.2 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.12.2 --artifact=io.opencensus:opencensus-impl:0.12.2 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.12.2 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.12.2 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.12.2 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.12.2 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --artifact=io.grpc:grpc-all:1.9.0 --repositories=http://repo.maven.apache.org/maven2
+# generate_workspace --artifact=io.opencensus:opencensus-api:0.12.2 --artifact=io.opencensus:opencensus-contrib-zpages:0.12.2 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.12.2 --artifact=io.opencensus:opencensus-impl:0.12.2 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.12.2 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.12.2 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.12.2 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.12.2 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --artifact=io.grpc:grpc-all:1.9.0 --artifact=com.google.guava:guava:23.0 --repositories=http://repo.maven.apache.org/maven2
 
 
 def opencensus_maven_jars():
@@ -624,16 +624,10 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl-core:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-contrib-zpages:jar:0.12.2 got requested version
-  # io.grpc:grpc-protobuf-nano:jar:1.9.0 got requested version
-  # io.opencensus:opencensus-api:jar:0.12.2
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.12.2 got requested version
   native.maven_jar(
       name = "com_google_guava_guava",
-      artifact = "com.google.guava:guava:19.0",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "6ce200f6b23222af3d8abb6b6459e6c44f4bb0e9",
+      artifact = "com.google.guava:guava:23.0",
+      sha1 = "c947004bb13d18182be60077ade044099e4f26f1",
   )
 
 

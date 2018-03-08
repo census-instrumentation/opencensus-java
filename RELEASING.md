@@ -263,6 +263,7 @@ $ sed -i 's/\(<version>\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
     --artifact=io.opencensus:opencensus-exporter-stats-prometheus:$MAJOR.$MINOR.$PATCH \
     --artifact=io.prometheus:simpleclient_httpserver:0.3.0 \
     --artifact=io.grpc:grpc-all:1.9.0 \
+    --artifact=com.google.guava:guava:23.0 \
     --repositories=http://repo.maven.apache.org/maven2
     Wrote
     /usr/local/.../generate_workspace.runfiles/__main__/generate_workspace.bzl
