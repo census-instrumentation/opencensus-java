@@ -46,11 +46,7 @@ import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
-import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
-import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
@@ -69,6 +65,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /** A mutable version of {@link ViewData}, used for recording stats and start/end time. */
+@SuppressWarnings("deprecation")
 abstract class MutableViewData {
 
   private static final long MILLIS_PER_SECOND = 1000L;
@@ -230,13 +227,13 @@ abstract class MutableViewData {
         return ViewData.create(
             super.view,
             createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
-            CumulativeData.create(start, now));
+            ViewData.AggregationWindowData.CumulativeData.create(start, now));
       } else {
         // If Stats state is DISABLED, return an empty ViewData.
         return ViewData.create(
             super.view,
             Collections.<List<TagValue>, AggregationData>emptyMap(),
-            CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
+            ViewData.AggregationWindowData.CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
       }
     }
 
@@ -298,7 +295,7 @@ abstract class MutableViewData {
 
     private IntervalMutableViewData(View view, Timestamp start) {
       super(view);
-      Duration totalDuration = ((Interval) view.getWindow()).getDuration();
+      Duration totalDuration = ((View.AggregationWindow.Interval) view.getWindow()).getDuration();
       this.totalDuration = totalDuration;
       this.bucketDuration = Duration.fromMillis(toMillis(totalDuration) / N);
 
@@ -321,13 +318,15 @@ abstract class MutableViewData {
       refreshBucketList(now);
       if (state == StatsCollectionState.ENABLED) {
         return ViewData.create(
-            super.view, combineBucketsAndGetAggregationMap(now), IntervalData.create(now));
+            super.view,
+            combineBucketsAndGetAggregationMap(now),
+            ViewData.AggregationWindowData.IntervalData.create(now));
       } else {
         // If Stats state is DISABLED, return an empty ViewData.
         return ViewData.create(
             super.view,
             Collections.<List<TagValue>, AggregationData>emptyMap(),
-            IntervalData.create(ZERO_TIMESTAMP));
+            ViewData.AggregationWindowData.IntervalData.create(ZERO_TIMESTAMP));
       }
     }
 
@@ -576,9 +575,10 @@ abstract class MutableViewData {
     private static final CreateDistributionData INSTANCE = new CreateDistributionData();
   }
 
-  private static final class CreateCumulative implements Function<Cumulative, MutableViewData> {
+  private static final class CreateCumulative
+      implements Function<View.AggregationWindow.Cumulative, MutableViewData> {
     @Override
-    public MutableViewData apply(Cumulative arg) {
+    public MutableViewData apply(View.AggregationWindow.Cumulative arg) {
       return new CumulativeMutableViewData(view, start);
     }
 
@@ -591,9 +591,10 @@ abstract class MutableViewData {
     }
   }
 
-  private static final class CreateInterval implements Function<Interval, MutableViewData> {
+  private static final class CreateInterval
+      implements Function<View.AggregationWindow.Interval, MutableViewData> {
     @Override
-    public MutableViewData apply(Interval arg) {
+    public MutableViewData apply(View.AggregationWindow.Interval arg) {
       return new IntervalMutableViewData(view, start);
     }
 

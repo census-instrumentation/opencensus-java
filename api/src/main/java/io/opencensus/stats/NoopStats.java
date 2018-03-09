@@ -27,10 +27,6 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.stats.View.AggregationWindow;
-import io.opencensus.stats.ViewData.AggregationWindowData;
-import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
-import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
 import java.util.Collection;
@@ -176,6 +172,7 @@ final class NoopStats {
 
     @Override
     @Nullable
+    @SuppressWarnings("deprecation")
     public ViewData getView(View.Name name) {
       checkNotNull(name, "name");
       synchronized (registeredViews) {
@@ -188,11 +185,12 @@ final class NoopStats {
               Collections.<List<TagValue>, AggregationData>emptyMap(),
               view.getWindow()
                   .match(
-                      Functions.<AggregationWindowData>returnConstant(
-                          CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP)),
-                      Functions.<AggregationWindowData>returnConstant(
-                          IntervalData.create(ZERO_TIMESTAMP)),
-                      Functions.<AggregationWindowData>throwAssertionError()));
+                      Functions.<ViewData.AggregationWindowData>returnConstant(
+                          ViewData.AggregationWindowData.CumulativeData.create(
+                              ZERO_TIMESTAMP, ZERO_TIMESTAMP)),
+                      Functions.<ViewData.AggregationWindowData>returnConstant(
+                          ViewData.AggregationWindowData.IntervalData.create(ZERO_TIMESTAMP)),
+                      Functions.<ViewData.AggregationWindowData>throwAssertionError()));
         }
       }
     }
@@ -209,12 +207,14 @@ final class NoopStats {
     }
 
     // Returns the subset of the given views that should be exported
+    @SuppressWarnings("deprecation")
     private static Set<View> filterExportedViews(Collection<View> allViews) {
       Set<View> views = Sets.newHashSet();
       for (View view : allViews) {
-        if (view.getWindow() instanceof AggregationWindow.Cumulative) {
-          views.add(view);
+        if (view.getWindow() instanceof View.AggregationWindow.Interval) {
+          continue;
         }
+        views.add(view);
       }
       return Collections.unmodifiableSet(views);
     }

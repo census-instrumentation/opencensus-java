@@ -50,12 +50,37 @@ public final class PrometheusStatsCollector extends Collector implements Collect
    * Creates a {@link PrometheusStatsCollector} and registers it to Prometheus {@link
    * CollectorRegistry#defaultRegistry}.
    *
+   * <p>This is equivalent with:
+   *
+   * <pre>{@code
+   * PrometheusStatsCollector.createAndRegister(PrometheusStatsConfiguration.builder().build());
+   * }</pre>
+   *
    * @throws IllegalArgumentException if a {@code PrometheusStatsCollector} has already been created
    *     and registered.
    * @since 0.12
    */
   public static void createAndRegister() {
     new PrometheusStatsCollector(Stats.getViewManager()).register();
+  }
+
+  /**
+   * Creates a {@link PrometheusStatsCollector} and registers it to the given Prometheus {@link
+   * CollectorRegistry} in the {@link PrometheusStatsConfiguration}.
+   *
+   * <p>If {@code CollectorRegistry} of the configuration is not set, the collector will use {@link
+   * CollectorRegistry#defaultRegistry}.
+   *
+   * @throws IllegalArgumentException if a {@code PrometheusStatsCollector} has already been created
+   *     and registered.
+   * @since 0.13
+   */
+  public static void createAndRegister(PrometheusStatsConfiguration configuration) {
+    CollectorRegistry registry = configuration.getRegistry();
+    if (registry == null) {
+      registry = CollectorRegistry.defaultRegistry;
+    }
+    new PrometheusStatsCollector(Stats.getViewManager()).register(registry);
   }
 
   @Override

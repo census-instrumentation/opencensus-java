@@ -49,9 +49,6 @@ import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
-import io.opencensus.stats.View.AggregationWindow.Interval;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +58,7 @@ import java.util.List;
  *
  * @since 0.8
  */
+@SuppressWarnings("deprecation")
 public final class RpcViewConstants {
 
   // Common histogram bucket boundaries for bytes received/sets Views.
@@ -118,9 +116,16 @@ public final class RpcViewConstants {
 
   @VisibleForTesting static final Duration MINUTE = Duration.create(60, 0);
   @VisibleForTesting static final Duration HOUR = Duration.create(60 * 60, 0);
-  @VisibleForTesting static final AggregationWindow CUMULATIVE = Cumulative.create();
-  @VisibleForTesting static final AggregationWindow INTERVAL_MINUTE = Interval.create(MINUTE);
-  @VisibleForTesting static final AggregationWindow INTERVAL_HOUR = Interval.create(HOUR);
+
+  @VisibleForTesting
+  static final View.AggregationWindow CUMULATIVE = View.AggregationWindow.Cumulative.create();
+
+  @VisibleForTesting
+  static final View.AggregationWindow INTERVAL_MINUTE =
+      View.AggregationWindow.Interval.create(MINUTE);
+
+  @VisibleForTesting
+  static final View.AggregationWindow INTERVAL_HOUR = View.AggregationWindow.Interval.create(HOUR);
 
   // Rpc client cumulative views.
 
