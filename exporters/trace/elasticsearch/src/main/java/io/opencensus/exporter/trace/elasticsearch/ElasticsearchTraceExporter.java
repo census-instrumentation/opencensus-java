@@ -46,7 +46,7 @@ public class ElasticsearchTraceExporter {
   private static final Logger logger = Logger.getLogger(ElasticsearchTraceExporter.class.getName());
   private static final String REGISTER_NAME = ElasticsearchTraceExporter.class.getName();
   private static final Object monitor = new Object();
-  private static final String DATE_FORMAT = "";
+  private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ ";
   private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT);
   private static final String CONTENT_TYPE = "application/json";
   private static final String REQUEST_METHOD = "POST";
