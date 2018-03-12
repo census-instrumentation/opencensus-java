@@ -30,19 +30,25 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A utility class to help with registering shutdown {@link Hook}s to the runtime.
+ * A utility class to help with registering shutdown {@link Hook}s to the runtime, influenced by
+ * Apache Hadoop's <a
+ * href="https://github.com/apache/hadoop/blob/trunk/hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/util/ShutdownHookManager.java">ShutdownHookManager</a>.
+ * It is used for OpenCensus to clean things up in a deterministic order. Possible usages are: 1.
+ * close running spans. 2. Dump unexported spans for stat/tracing. 3. Allow users to have their own
+ * shutdown hooks (not supported yet, still in discussion).
  *
  * <p>A {@link Hook} can have its own name and priority. The execution order among registered hooks
  * will be determined by their priorities first (descending order) and then registration time
  * (ascending order). That is to say, higher priority {@code Hook} will be executed first, and
  * earlier registered {@code Hook} will be executed first given the same priority.
  *
- * <p>Caveat: 1. GAE Java 7 environment is not supported for now. 2. User can still use other method
- * to register a shutdown hook, e.g. the native {@link Runtime#addShutdownHook}. The execution order
- * of registered {@link Hook}s and other hooks depends on the JVM implementation and thus can not be
- * guaranteed, which might sometimes leads to unwanted behaviors. An example is that {@code
- * java.util.logging.Logger} has its own shutdown hook to reset all handlers, and once invoked, it
- * will prevent all future logging in other shutdown hooks.
+ * <p>Caveat: 1. GAE Java 7 environment is not supported for now. 2. This manager only manages
+ * OpenCensus related shutdown hooks. User can still use other methods to register a shutdown hook,
+ * e.g. the native {@link Runtime#addShutdownHook}, or the Hadoop's {@code ShutdownHookManager}. The
+ * execution order of registered {@link Hook}s and hooks registered by other systems depends on the
+ * JVM implementation and thus can not be guaranteed, which might sometimes leads to unwanted
+ * behaviors. An example is that {@code java.util.logging.Logger} has its own shutdown hook to reset
+ * all handlers, and once invoked, it will prevent all future logging in other shutdown hooks.
  */
 @ThreadSafe
 public final class ShutdownHookManager {
