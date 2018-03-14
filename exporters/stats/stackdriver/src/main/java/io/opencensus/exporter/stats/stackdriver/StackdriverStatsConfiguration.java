@@ -71,6 +71,15 @@ public abstract class StackdriverStatsConfiguration {
   public abstract MonitoredResource getMonitoredResource();
 
   /**
+   * Returns the name prefix when displaying Stackdriver metrics.
+   *
+   * @return the display name prefix.
+   * @since 0.13
+   */
+  @Nullable
+  public abstract String getDisplayNamePrefix();
+
+  /**
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
@@ -125,6 +134,15 @@ public abstract class StackdriverStatsConfiguration {
      * @since 0.11
      */
     public abstract Builder setMonitoredResource(MonitoredResource monitoredResource);
+
+    /**
+     * Sets the the name prefix when displaying Stackdriver metrics.
+     *
+     * @param prefix the display name prefix.
+     * @return this.
+     * @since 0.13
+     */
+    public abstract Builder setDisplayNamePrefix(String prefix);
 
     /**
      * Builds a new {@link StackdriverStatsConfiguration} with current settings.

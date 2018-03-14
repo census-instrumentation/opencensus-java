@@ -71,6 +71,7 @@ final class StackdriverExporterWorker implements Runnable {
   private final MetricServiceClient metricServiceClient;
   private final ViewManager viewManager;
   private final MonitoredResource monitoredResource;
+  private final String displayNamePrefix;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -81,13 +82,15 @@ final class StackdriverExporterWorker implements Runnable {
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
       ViewManager viewManager,
-      MonitoredResource monitoredResource) {
+      MonitoredResource monitoredResource,
+      String displayNamePrefix) {
     this.scheduleDelayMillis = exportInterval.toMillis();
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
     this.monitoredResource = monitoredResource;
+    this.displayNamePrefix = displayNamePrefix;
 
     Tracing.getExportComponent()
         .getSampledSpanStore()
@@ -122,7 +125,7 @@ final class StackdriverExporterWorker implements Runnable {
       // canonical metrics. Registration is required only for custom view definitions. Canonical
       // views should be pre-registered.
       MetricDescriptor metricDescriptor =
-          StackdriverExportUtils.createMetricDescriptor(view, projectId);
+          StackdriverExportUtils.createMetricDescriptor(view, projectId, displayNamePrefix);
       if (metricDescriptor == null) {
         // Don't register interval views in this version.
         return false;

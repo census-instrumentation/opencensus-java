@@ -73,17 +73,25 @@ public final class StackdriverStatsExporter {
   private static final MonitoredResource DEFAULT_RESOURCE =
       StackdriverExportUtils.getDefaultResource();
 
+  @VisibleForTesting static final String DEFAULT_DISPLAY_NAME_PREFIX = "OpenCensus";
+
   @VisibleForTesting
   StackdriverStatsExporter(
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
       ViewManager viewManager,
-      MonitoredResource monitoredResource) {
+      MonitoredResource monitoredResource,
+      String displayNamePrefix) {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
-            projectId, metricServiceClient, exportInterval, viewManager, monitoredResource);
+            projectId,
+            metricServiceClient,
+            exportInterval,
+            viewManager,
+            monitoredResource,
+            displayNamePrefix);
     this.workerThread = new DaemonThreadFactory().newThread(worker);
   }
 
@@ -106,7 +114,7 @@ public final class StackdriverStatsExporter {
     checkNotNull(credentials, "credentials");
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(credentials, projectId, exportInterval, null);
+    createInternal(credentials, projectId, exportInterval, null, null);
   }
 
   /**
@@ -136,7 +144,7 @@ public final class StackdriverStatsExporter {
       throws IOException {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, projectId, exportInterval, null);
+    createInternal(null, projectId, exportInterval, null, null);
   }
 
   /**
@@ -159,6 +167,9 @@ public final class StackdriverStatsExporter {
    * cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource for a list of valid
    * {@code MonitoredResource}s.
    *
+   * <p>If {@code displayNamePrefix} of the configuration is not set, the exporter will use the
+   * default prefix "OpenCensus".
+   *
    * @param configuration the {@code StackdriverStatsConfiguration}.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @since 0.11.0
@@ -170,7 +181,8 @@ public final class StackdriverStatsExporter {
         configuration.getCredentials(),
         configuration.getProjectId(),
         configuration.getExportInterval(),
-        configuration.getMonitoredResource());
+        configuration.getMonitoredResource(),
+        configuration.getDisplayNamePrefix());
   }
 
   /**
@@ -194,11 +206,13 @@ public final class StackdriverStatsExporter {
    *
    * <p>This method uses the default resource created from the environment variables.
    *
+   * <p>This method uses the default display name prefix "OpenCensus".
+   *
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @since 0.11.0
    */
   public static void createAndRegister() throws IOException {
-    createInternal(null, null, null, null);
+    createInternal(null, null, null, null, null);
   }
 
   /**
@@ -225,7 +239,7 @@ public final class StackdriverStatsExporter {
   @Deprecated
   public static void createAndRegister(Duration exportInterval) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
-    createInternal(null, null, exportInterval, null);
+    createInternal(null, null, exportInterval, null, null);
   }
 
   /**
@@ -254,7 +268,7 @@ public final class StackdriverStatsExporter {
     checkNotNull(projectId, "projectId");
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
-    createInternal(null, projectId, exportInterval, monitoredResource);
+    createInternal(null, projectId, exportInterval, monitoredResource, null);
   }
 
   /**
@@ -281,7 +295,7 @@ public final class StackdriverStatsExporter {
       Duration exportInterval, MonitoredResource monitoredResource) throws IOException {
     checkNotNull(exportInterval, "exportInterval");
     checkNotNull(monitoredResource, "monitoredResource");
-    createInternal(null, null, exportInterval, monitoredResource);
+    createInternal(null, null, exportInterval, monitoredResource, null);
   }
 
   // Use createInternal() (instead of constructor) to enforce singleton.
@@ -289,11 +303,13 @@ public final class StackdriverStatsExporter {
       @Nullable Credentials credentials,
       @Nullable String projectId,
       @Nullable Duration exportInterval,
-      @Nullable MonitoredResource monitoredResource)
+      @Nullable MonitoredResource monitoredResource,
+      @Nullable String displayNamePrefix)
       throws IOException {
     projectId = projectId == null ? ServiceOptions.getDefaultProjectId() : projectId;
     exportInterval = exportInterval == null ? DEFAULT_INTERVAL : exportInterval;
     monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
+    displayNamePrefix = displayNamePrefix == null ? DEFAULT_DISPLAY_NAME_PREFIX : displayNamePrefix;
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
       MetricServiceClient metricServiceClient;
@@ -313,7 +329,8 @@ public final class StackdriverStatsExporter {
               metricServiceClient,
               exportInterval,
               Stats.getViewManager(),
-              monitoredResource);
+              monitoredResource,
+              displayNamePrefix);
       exporter.workerThread.start();
     }
   }

@@ -204,7 +204,8 @@ final class StackdriverExportUtils {
 
   // Construct a MetricDescriptor using a View.
   @javax.annotation.Nullable
-  static MetricDescriptor createMetricDescriptor(View view, String projectId) {
+  static MetricDescriptor createMetricDescriptor(
+      View view, String projectId, String displayNamePrefix) {
     if (!(view.getWindow() instanceof View.AggregationWindow.Cumulative)) {
       // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
       return null;
@@ -218,7 +219,7 @@ final class StackdriverExportUtils {
     builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
     builder.setType(type);
     builder.setDescription(view.getDescription());
-    builder.setDisplayName("OpenCensus/" + viewName);
+    builder.setDisplayName(displayNamePrefix + '/' + viewName);
     for (TagKey tagKey : view.getColumns()) {
       builder.addLabels(createLabelDescriptor(tagKey));
     }

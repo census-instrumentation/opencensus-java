@@ -17,6 +17,7 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter.DEFAULT_DISPLAY_NAME_PREFIX;
 
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
@@ -350,7 +351,7 @@ public class StackdriverExportUtilsTest {
             Arrays.asList(KEY),
             CUMULATIVE);
     MetricDescriptor metricDescriptor =
-        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID, "myorg");
     assertThat(metricDescriptor.getName())
         .isEqualTo(
             "projects/"
@@ -358,7 +359,7 @@ public class StackdriverExportUtilsTest {
                 + "/metricDescriptors/custom.googleapis.com/opencensus/"
                 + VIEW_NAME);
     assertThat(metricDescriptor.getDescription()).isEqualTo(VIEW_DESCRIPTION);
-    assertThat(metricDescriptor.getDisplayName()).isEqualTo("OpenCensus/" + VIEW_NAME);
+    assertThat(metricDescriptor.getDisplayName()).isEqualTo("myorg/" + VIEW_NAME);
     assertThat(metricDescriptor.getType())
         .isEqualTo("custom.googleapis.com/opencensus/" + VIEW_NAME);
     assertThat(metricDescriptor.getUnit()).isEqualTo(MEASURE_UNIT);
@@ -427,7 +428,10 @@ public class StackdriverExportUtilsTest {
             DISTRIBUTION,
             Arrays.asList(KEY),
             INTERVAL);
-    assertThat(StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID)).isNull();
+    assertThat(
+            StackdriverExportUtils.createMetricDescriptor(
+                view, PROJECT_ID, DEFAULT_DISPLAY_NAME_PREFIX))
+        .isNull();
   }
 
   @Test
