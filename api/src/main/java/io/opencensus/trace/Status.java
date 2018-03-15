@@ -393,8 +393,8 @@ public final class Status {
    * @return The newly created {@code Status} with the given description.
    * @since 0.5
    */
-  public Status withDescription(String description) {
-    if (Utils.equalsObjects(this.description, description)) {
+  public Status withDescription(@Nullable String description) {
+    if (Objects.equal(this.description, description)) {
       return this;
     }
     return new Status(this.canonicalCode, description);
