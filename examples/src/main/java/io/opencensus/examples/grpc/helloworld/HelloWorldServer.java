@@ -39,7 +39,6 @@ import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.samplers.Samplers;
 import io.prometheus.client.exporter.HTTPServer;
 import java.io.IOException;
@@ -60,10 +59,11 @@ public class HelloWorldServer {
 
   // A helper function that performs some work in its own Span.
   private static void performWork(Span parent) {
-    SpanBuilder spanBuilder = tracer
-        .spanBuilderWithExplicitParent("internal_work", parent)
-        .setRecordEvents(true)
-        .setSampler(Samplers.alwaysSample());
+    SpanBuilder spanBuilder =
+        tracer
+            .spanBuilderWithExplicitParent("internal_work", parent)
+            .setRecordEvents(true)
+            .setSampler(Samplers.alwaysSample());
     try (Scope scope = spanBuilder.startScopedSpan()) {
       Span span = tracer.getCurrentSpan();
       span.putAttribute("my_attribute", AttributeValue.stringAttributeValue("blue"));
@@ -84,20 +84,19 @@ public class HelloWorldServer {
   }
 
   private void start() throws IOException {
-    server = ServerBuilder.forPort(serverPort)
-        .addService(new GreeterImpl())
-        .build()
-        .start();
+    server = ServerBuilder.forPort(serverPort).addService(new GreeterImpl()).build().start();
     logger.info("Server started, listening on " + serverPort);
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-        System.err.println("*** shutting down gRPC server since JVM is shutting down");
-        HelloWorldServer.this.stop();
-        System.err.println("*** server shut down");
-      }
-    });
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread() {
+              @Override
+              public void run() {
+                // Use stderr here since the logger may have been reset by its JVM shutdown hook.
+                System.err.println("*** shutting down gRPC server since JVM is shutting down");
+                HelloWorldServer.this.stop();
+                System.err.println("*** server shut down");
+              }
+            });
   }
 
   private void stop() {
@@ -106,18 +105,14 @@ public class HelloWorldServer {
     }
   }
 
-  /**
-   * Await termination on the main thread since the grpc library uses daemon threads.
-   */
+  /** Await termination on the main thread since the grpc library uses daemon threads. */
   private void blockUntilShutdown() throws InterruptedException {
     if (server != null) {
       server.awaitTermination();
     }
   }
 
-  /**
-   * Main launches the server from the command line.
-   */
+  /** Main launches the server from the command line. */
   public static void main(String[] args) throws IOException, InterruptedException {
     // Add final keyword to pass checkStyle.
     final int serverPort = getPortOrDefaultFromArgs(args, 0, 50051);
@@ -140,8 +135,7 @@ public class HelloWorldServer {
       StackdriverTraceExporter.createAndRegister(
           StackdriverTraceConfiguration.builder().setProjectId(cloudProjectId).build());
       StackdriverStatsExporter.createAndRegister(
-          StackdriverStatsConfiguration
-              .builder()
+          StackdriverStatsConfiguration.builder()
               .setProjectId(cloudProjectId)
               .setExportInterval(Duration.create(15, 0))
               .build());

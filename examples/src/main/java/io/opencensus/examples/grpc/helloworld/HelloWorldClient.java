@@ -36,7 +36,6 @@ import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status.CanonicalCode;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -54,11 +53,12 @@ public class HelloWorldClient {
 
   /** Construct client connecting to HelloWorld server at {@code host:port}. */
   public HelloWorldClient(String host, int port) {
-    this(ManagedChannelBuilder.forAddress(host, port)
-        // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
-        // needing certificates.
-        .usePlaintext(true)
-        .build());
+    this(
+        ManagedChannelBuilder.forAddress(host, port)
+            // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
+            // needing certificates.
+            .usePlaintext(true)
+            .build());
   }
 
   /** Construct client for accessing RouteGuide server using the existing channel. */
@@ -78,19 +78,18 @@ public class HelloWorldClient {
     HelloReply response;
 
     SpanBuilder spanBuilder =
-        tracer.spanBuilder("client")
-            .setRecordEvents(true)
-            .setSampler(Samplers.alwaysSample());
+        tracer.spanBuilder("client").setRecordEvents(true).setSampler(Samplers.alwaysSample());
     try (Scope scope = spanBuilder.startScopedSpan()) {
       tracer.getCurrentSpan().addAnnotation("Saying Hello to Server.");
       response = blockingStub.sayHello(request);
       tracer.getCurrentSpan().addAnnotation("Received response from Server.");
     } catch (StatusRuntimeException e) {
-      tracer.getCurrentSpan().setStatus(
-          CanonicalCode
-              .valueOf(e.getStatus().getCode().name())
-              .toStatus()
-              .withDescription(e.getMessage()));
+      tracer
+          .getCurrentSpan()
+          .setStatus(
+              CanonicalCode.valueOf(e.getStatus().getCode().name())
+                  .toStatus()
+                  .withDescription(e.getMessage()));
       logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
       return;
     }
@@ -124,8 +123,7 @@ public class HelloWorldClient {
       StackdriverTraceExporter.createAndRegister(
           StackdriverTraceConfiguration.builder().setProjectId(cloudProjectId).build());
       StackdriverStatsExporter.createAndRegister(
-          StackdriverStatsConfiguration
-              .builder()
+          StackdriverStatsConfiguration.builder()
               .setProjectId(cloudProjectId)
               .setExportInterval(Duration.create(15, 0))
               .build());

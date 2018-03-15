@@ -46,6 +46,5 @@ final class HelloWorldUtils {
     return s;
   }
 
-  private HelloWorldUtils() {
-  }
+  private HelloWorldUtils() {}
 }

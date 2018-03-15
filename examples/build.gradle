@@ -21,6 +21,7 @@ apply plugin: 'com.google.protobuf'
 // Plugins that require java8
 if (JavaVersion.current().isJava8Compatible()) {
     apply plugin: 'com.github.sherter.google-java-format'
+}
 
 repositories {
     mavenCentral()
@@ -44,6 +45,11 @@ checkstyle {
     configProperties["rootDir"] = file("$rootDir/../")
 }
 
+checkstyleMain {
+    // This skips proto generated files beucasue they are in gen_gradle/src/main/**
+    source = fileTree(dir: "src/main", include: "**/*.java")
+}
+
 // Google formatter works only on java8.
 if (JavaVersion.current().isJava8Compatible()) {
     googleJavaFormat {
@@ -52,19 +58,17 @@ if (JavaVersion.current().isJava8Compatible()) {
 
     afterEvaluate {  // Allow subproject to add more source sets.
         tasks.googleJavaFormat {
-            source = sourceSets*.allJava
+            // This skips proto generated files beucasue they are in gen_gradle/src/main/**
+            source = "src/main"
             include '**/*.java'
         }
 
         tasks.verifyGoogleJavaFormat {
-            source = sourceSets*.allJava
+            // This skips proto generated files beucasue they are in gen_gradle/src/main/**
+            source = "src/main"
             include '**/*.java'
         }
     }
-
-checkstyleMain {
-    // This skips proto generated files beucasue they are in gen_gradle/src/main/**
-    source = fileTree(dir: "src/main", include: "**/*.java")
 }
 
 tasks.withType(JavaCompile) {
