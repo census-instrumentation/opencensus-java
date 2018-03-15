@@ -21,13 +21,17 @@ import javax.annotation.Nullable;
 /**
  * An adaptor to extract information from request and response.
  *
+ * <p>This class provides no-op implementations by default.
+ *
  * <p>Please refer to this <a
- * href="https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/HTTPAttributes.md">document</a>
+ * href="https://github.com/census-instrumentation/opencensus-specs/blob/master/trace/HTTP.md">document</a>
  * for more information about the HTTP attributes recorded in Open Census.
  *
+ * @param <Q> the HTTP request entity.
+ * @param <P> the HTTP response entity.
  * @since 0.13
  */
-public abstract class HttpExtractor<Q, P> {
+public class HttpExtractor<Q, P> {
 
   /**
    * Returns the request URL host.
@@ -36,7 +40,9 @@ public abstract class HttpExtractor<Q, P> {
    * @return the request URL host.
    * @since 0.13
    */
-  public abstract String getHost(Q request);
+  public String getHost(Q request) {
+    return "host";
+  }
 
   /**
    * Returns the request method.
@@ -45,7 +51,9 @@ public abstract class HttpExtractor<Q, P> {
    * @return the request method.
    * @since 0.13
    */
-  public abstract String getMethod(Q request);
+  public String getMethod(Q request) {
+    return "method";
+  }
 
   /**
    * Returns the request URL path.
@@ -54,17 +62,9 @@ public abstract class HttpExtractor<Q, P> {
    * @return the request URL path.
    * @since 0.13
    */
-  public abstract String getPath(Q request);
-
-  /**
-   * Returns the matched request URL route. This is for server-side instrumentation to determine
-   * route and handler.
-   *
-   * @param request the HTTP request.
-   * @return the matched request URL route.
-   * @since 0.13
-   */
-  public abstract String getRoute(Q request);
+  public String getPath(Q request) {
+    return "path";
+  }
 
   /**
    * Returns the request user agent.
@@ -73,18 +73,20 @@ public abstract class HttpExtractor<Q, P> {
    * @return the request user agent.
    * @since 0.13
    */
-  public abstract String getUserAgent(Q request);
+  public String getUserAgent(Q request) {
+    return "userAgent";
+  }
 
   /**
-   * Returns the response status code. If the response is null, this method should return {@code
-   * null}.
+   * Returns the response status code. If the response is null, this method should return {@code 0}.
    *
    * @param response the HTTP response.
    * @return the response status code.
    * @since 0.13
    */
-  @Nullable
-  public abstract Integer getStatusCode(@Nullable P response);
+  public int getStatusCode(@Nullable P response) {
+    return 0;
+  }
 
   /**
    * Returns the request message size.
@@ -93,7 +95,9 @@ public abstract class HttpExtractor<Q, P> {
    * @return the request message size.
    * @since 0.13
    */
-  public abstract long getRequestSize(Q request);
+  public long getRequestSize(Q request) {
+    return 0L;
+  }
 
   /**
    * Returns the response message size.
@@ -103,5 +107,7 @@ public abstract class HttpExtractor<Q, P> {
    * @return the response message size.
    * @since 0.13
    */
-  public abstract long getResponseSize(@Nullable P response);
+  public long getResponseSize(@Nullable P response) {
+    return 0L;
+  }
 }

@@ -16,22 +16,16 @@
 
 package io.opencensus.contrib.http;
 
-import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.opencensus.trace.EndSpanOptions;
-import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
-import io.opencensus.trace.Status;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracer;
@@ -52,114 +46,94 @@ import org.mockito.Spy;
 @RunWith(JUnit4.class)
 public class HttpServerHandlerTest {
 
-  @Mock private FakeHttpRequest request;
-  @Mock private FakeHttpResponse response;
-  @Mock private HttpExtractor<FakeHttpRequest, FakeHttpResponse> extractor;
-  @Mock private SpanBuilder spanBuilder;
+  @Mock private SpanBuilder spanBuilderWithRemoteParent;
+  @Mock private SpanBuilder spanBuilderWithLocalParent;
   @Mock private Tracer tracer;
   @Mock private TextFormat textFormat;
-  @Mock private TextFormat.Getter<FakeHttpRequest> textFormatGetter;
+  @Mock private TextFormat.Getter<Object> textFormatGetter;
+  @Mock private HttpExtractor<Object, Object> extractor;
+  @Mock private HttpSpanCustomizer<Object, Object> customizer;
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
+  private HttpServerHandler<Object, Object> handler;
 
-  private HttpServerHandler<FakeHttpRequest, FakeHttpResponse> handler;
-
+  // TODO(hailongwen): use `MockableSpan` instead.
   private final Random random = new Random();
-  private final SpanContext spanContext =
+  private final SpanContext spanContextRemote =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+  private final SpanContext spanContextLocal =
+      SpanContext.create(
+          TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
+
   private final Throwable error = new Exception("test");
-  @Spy private FakeSpan span = new FakeSpan(spanContext);
+  private final Object request = new Object();
+  private final Object response = new Object();
+  private final Object carrier = new Object();
+  @Spy private FakeSpan spanWithLocalParent = new FakeSpan(spanContextLocal);
+  @Spy private FakeSpan spanWithRemoteParent = new FakeSpan(spanContextRemote);
 
   @Before
-  public void setUp() {
+  public void setUp() throws SpanContextParseException {
     MockitoAnnotations.initMocks(this);
-    handler =
-        new HttpServerHandler<FakeHttpRequest, FakeHttpResponse>(tracer, textFormat, extractor);
+    handler = new HttpServerHandler<Object, Object>(tracer, textFormat, extractor, customizer);
+
+    when(tracer.spanBuilderWithRemoteParent(any(String.class), same(spanContextRemote)))
+        .thenReturn(spanBuilderWithRemoteParent);
     when(tracer.spanBuilderWithExplicitParent(any(String.class), any(Span.class)))
-        .thenReturn(spanBuilder);
-    when(spanBuilder.startSpan()).thenReturn(span);
+        .thenReturn(spanBuilderWithLocalParent);
+    when(spanBuilderWithRemoteParent.startSpan()).thenReturn(spanWithRemoteParent);
+    when(spanBuilderWithLocalParent.startSpan()).thenReturn(spanWithLocalParent);
+
+    when(textFormat.extract(same(carrier), same(textFormatGetter))).thenReturn(spanContextRemote);
+    when(customizer.customizeSpanBuilder(same(request), any(SpanBuilder.class), same(extractor)))
+        .thenCallRealMethod();
   }
 
   @Test
-  public void getSpanNameDefaultImplementation() {
-    assertThat(handler.getSpanName(request, "test")).isEqualTo("Recv.test");
-  }
-
-  @Test
-  public void handleRecvDisallowNullGetter() {
+  public void handleStartDisallowNullGetter() {
     thrown.expect(NullPointerException.class);
-    handler.<FakeHttpRequest>handleRecv(
-        null /* getter */, request /* carrier */, request /* request */, "test");
+    handler.<Object>handleStart(/*getter=*/ null, carrier, request);
   }
 
   @Test
-  public void handleRecvDisallowNullCarrier() {
+  public void handleStartDisallowNullCarrier() {
     thrown.expect(NullPointerException.class);
-    handler.<FakeHttpRequest>handleRecv(
-        textFormatGetter, null /* carrier */, request /* request */, "test");
+    handler.<Object>handleStart(textFormatGetter, /*carrier=*/ null, request);
   }
 
   @Test
-  public void handleRecvDisallowNullRequest() {
+  public void handleStartDisallowNullRequest() {
     thrown.expect(NullPointerException.class);
-    handler.<FakeHttpRequest>handleRecv(
-        textFormatGetter, request /* carrier */, null /* request */, "test");
+    handler.<Object>handleStart(textFormatGetter, carrier, /*request=*/ null);
   }
 
   @Test
-  @SuppressWarnings("unchecked")
-  public void handleRecvShouldCreateChildSpanUnderParent() throws SpanContextParseException {
-    when(textFormat.extract(isA(FakeHttpRequest.class), isA(TextFormat.Getter.class)))
-        .thenReturn(spanContext);
-    handler.<FakeHttpRequest>handleRecv(textFormatGetter, request, request, "test");
-    verify(tracer).spanBuilderWithRemoteParent(eq("Recv.test"), same(spanContext));
+  public void handleStartShouldCreateChildSpanUnderParent() throws SpanContextParseException {
+    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    verify(tracer).spanBuilderWithRemoteParent(any(String.class), same(spanContextRemote));
   }
 
   @Test
-  public void handleRecvShouldExtractFromCarrier() throws SpanContextParseException {
-    handler.<FakeHttpRequest>handleRecv(textFormatGetter, request, request, "test");
-    verify(textFormat).extract(same(request), same(textFormatGetter));
+  public void handleStartShouldHandleContextParseException() throws Exception {
+    when(textFormat.extract(same(carrier), same(textFormatGetter)))
+        .thenThrow(new SpanContextParseException("test"));
+    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    verify(tracer).spanBuilderWithExplicitParent(any(String.class), any(Span.class));
+    // make sure the exception is recorded.
+    verify(spanWithLocalParent).addAnnotation(any(Annotation.class));
   }
 
   @Test
-  public void handleRecvShouldRecordMessageEvent() {
-    handler.<FakeHttpRequest>handleRecv(textFormatGetter, request, request, "test");
-    verify(span).addMessageEvent(isA(MessageEvent.class));
+  public void handleStartShouldExtractFromCarrier() throws SpanContextParseException {
+    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    verify(textFormat).extract(same(carrier), same(textFormatGetter));
   }
 
   @Test
-  public void handleSendDisallowNullSpan() {
-    thrown.expect(NullPointerException.class);
-    handler.handleSend(response, error, null /* span */, false);
-  }
-
-  @Test
-  public void handleSendAllowNullResponseAndError() {
-    handler.handleSend(null /* response */, null /* error */, span, false);
-  }
-
-  @Test
-  public void handleSendRecordMessageEvent() {
-    handler.handleSend(response, error, span, false);
-    verify(span).addMessageEvent(isA(MessageEvent.class));
-  }
-
-  @Test
-  public void handleSendSetStatus() {
-    handler.handleSend(response, error, span, false);
-    verify(span).setStatus(isA(Status.class));
-  }
-
-  @Test
-  public void handleSendNotEndSpan() {
-    handler.handleSend(response, error, span, false);
-    verify(span, never()).end(isA(EndSpanOptions.class));
-  }
-
-  @Test
-  public void handleSendEndSpan() {
-    handler.handleSend(response, error, span, true);
-    verify(span).end(isA(EndSpanOptions.class));
+  public void handleStartShouldInvokeCustomizer() {
+    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    verify(customizer)
+        .customizeSpanStart(same(request), same(spanWithRemoteParent), same(extractor));
   }
 }

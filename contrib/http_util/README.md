@@ -34,18 +34,17 @@ compile 'io.opencensus:opencensus-contrib-http-util:0.13.2'
 
 ## Instrumenting HTTP libraries/frameworks
 
-### customization
+### customization for libraries/frameworks
 
-Users need to implement their own `HttpExtractor` to extract information from
-the request/response entity defined in their libraries/frameworks.
+Users can implement `HttpExtractor` to customize what information are extracted from the HTTP
+request/response entity.
 
-Besides, users need to explicitly specify which `TextFormat` they want to use
-in HTTP propagation, and provide framework specific `TextFormat.Setter` and
-`TextFormat.Getter` to inject/extract information into/from the `Carrier` of the
-request. The `Carrier` could be the request itself or other classes,
-as long as it provides functionalities of setting/getting HTTP attributes.
+If context propagation is enabled, users need to provide framework specific `TextFormat.Setter`
+and `TextFormat.Getter`. They are used to inject/extract information into/from the `Carrier` of
+the request. The `Carrier` can be the request itself or other objects, as long as it provides
+functionalities of setting/getting HTTP attributes.
 
-Below is an example of how the customization should be done:
+Below is an example of how the customization for libraries/frameworks should be done:
 
 ```java
 // // Http request entity in the library/framework.
@@ -58,7 +57,7 @@ Below is an example of how the customization should be done:
 //   ...
 // }
 
-TextFormat mytextFormat = HttpPropagationUtil.getCloudTraceFormat();
+// use the HttpRequest itself as Carrier.
 TextFormat.Setter<HttpRequest> myTextFormatSetter =
     new TextFormat.Setter<HttpRequest>() {
       @Override
@@ -83,6 +82,50 @@ HttpExtractor<HttpRequest, HttpResponse> extractor =
       // other methods that need to be overridden
       // ...
     };
+```
+
+### customization for span behaviors
+
+Users can implement `HttpSpanCustomizer` to customize how spans are created and what operations
+need to be done upon starting and ending of the span. This class also provides a default mapping
+from HTTP status code to OpenCensus span Status, and users can override to use their own parsing logic.
+
+Users can enable context propagation by specifying a valid `TextFormat`, which is used for
+context serialization/deserialization.
+
+Below is an example of how the customization for span behaviors should be done:
+
+```java
+// Use B3Format for propagation. You can also use other formats provided in
+// HttpPropagationUtil.
+TextFormat myTextFormat = Tracing.getPropagationComponent().getB3Format();
+HttpSpanCustomizer<HttpRequest, HttpResponse> customizer =
+    new HttpSpanCustomizer<HttpRequest, HttpResponse> {
+      @Override
+      public String getSpanName(
+          HttpRequest request,
+          HttpExtractor<HttpRequest, HttpResponse> extractor) {
+        // user-defined span name
+        return extractor.getPath() + " " + extractor.getMethod(request);
+      }
+
+      @Override
+      public SpanBuilder customizeSpanBuilder(
+          HttpRequest request,
+          SpanBuilder spanBuilder,
+          HttpExtractor<HttpRequest, HttpResponse> extractor) {
+        // do not sample API for heartbeat.
+        if ("/heartbeat".equals(extractor.getPath())) {
+          spanBuilder.setSampler(Samplers.neverSample());
+        }
+        // always record spans locally.
+        return spanBuilder.setRecordEvents(true);
+      }
+
+      // other methods that need to be overridden.
+      // ...
+    };
+// The OpenCensus tracer. You can mock it for testing.
 Tracer tracer = Tracing.getTracer();
 ```
 
@@ -94,17 +137,29 @@ An example usage of the handler would be:
 
 ```java
 HttpClientHandler<HttpRequest, HttpResponse> handler =
-    new HttpClientHandler<HttpRequest, HttpResponse>(tracer, myTextFormat, extractor);
-Span span = handler.handleSend(myTextFormatSetter, request, request, "Client.send");
-try (Scope scope = tracer.withSpan(span)) {
-  Throwable error = null;
-  HttpResponse response = null;
-  // do something to send the request
-  // do something to receive the response or handle error.
-  // ...
+    new HttpClientHandler<HttpRequest, HttpResponse>(tracer, myTextFormat, extractor, customizer);
 
-  // handle the response, and optionally close current span.
-  handler.handleRecv(response, error, span, true);
+// Use #handleStart in client to start a new span.
+Span span = handler.handleStart(myTextFormatSetter, request, request);
+HttpResponse response = null;
+Throwable error = null;
+try {
+  // Do something to send the request, and get response code from the server
+  int responseCode = request.getResponseCode();
+
+  // Optionally, use #handleMessageSent in client to log a SENT event and its size.
+  handler.handleMessageSent(span, sentId++, extractor.getRequestSize(request));
+
+  // Do something to read the message body.
+  response = request.getResponse();
+
+  // Optionally, use #handleMessageReceived in client to log a RECEIVED event and message size.
+  handler.handleMessageReceived(span, recvId++, extractor.getResponseSize(response));
+} catch (Throwable e) {
+  error = e;
+} finally {
+  // Use #handleEnd in client to close the span.
+  handler.handleEnd(response, error, span);
 }
 ```
 
@@ -116,17 +171,38 @@ An example usage of the handler would be:
 
 ```java
 HttpServerHandler<HttpRequest, HttpResponse> handler =
-    new HttpServerHandler<HttpRequest, HttpResponse>(tracer, myTextFormat, extractor);
-Span span = handler.handleRecv(myTextFormatGetter, request, request, "Server.recv");
-try (Scope scope = tracer.withSpan(span)) {
-  Throwable error = null;
-  HttpResponse response = null;
-  // do something to receive the request
-  // do something to prepare the response or exception.
-  // ...
+    new HttpServerHandler<HttpRequest, HttpResponse>(tracer, myTextFormat, extractor, customizer);
 
-  // handle the response send, and optionally close current span.
-  handler.handleSend(response, error, span, true);
+// Use #handleStart in server to start a new span.
+Span span = handler.handleStart(myTextFormatGetter, request, request);
+HttpResponse response = constructResponse();
+Throwable error = null;
+try (Scope scope = tracer.withSpan(span)) {
+  // Do something to decide whether to serve the request or early exit.
+  // For example, client may expect a 100 Continue before sending the message body.
+  if (extractor.getRequestSize(request) > REQUEST_LIMIT) {
+    response.setStatus(413);
+  } else {
+    response.setStatus(100);
+    String content = request.getContent();
+
+    // Optionally, use #handleMessageReceived in server to log a RECEIVED event and its size.
+    handler.handleMessageReceived(span, recvId++, extractor.getRequestSize(request));
+
+    // Do something to prepare the response or exception.
+    response.setStatus(201);
+    response.write("OK");
+    response.flush();
+
+    // Optionally, use #handleMessageSent in server to log a SENT message event and its message size.
+    handler.handleMessageSent(span, sentId++, extractor.getResponseSize(response));
+
+  } catch (Throwable e) {
+    error = e;
+  } finally {
+    // Use #handleEnd in server to close the span.
+    handler.handleEnd(response, error, span);
+  }
 }
 ```
 
