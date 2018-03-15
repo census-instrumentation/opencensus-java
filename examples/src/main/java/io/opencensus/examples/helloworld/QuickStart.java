@@ -52,12 +52,14 @@ public final class QuickStart {
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
   private static final Tracer tracer = Tracing.getTracer();
 
-  // frontendKey allows us to break down the recorded data
+  // frontendKey allows us to break down the recorded data.
   private static final TagKey FRONTEND_KEY = TagKey.create("my.org/keys/frontend");
 
   // videoSize will measure the size of processed videos.
   private static final MeasureLong VIDEO_SIZE =
-      MeasureLong.create("my.org/measure/video_size", "size of processed videos", "MBy");
+      MeasureLong.create("my.org/measure/video_size", "size of processed videos", "By");
+
+  private static final long MiB = 1 << 20;
 
   // Create view to see the processed video size distribution broken down by frontend.
   // The view has bucket boundaries (0, 256, 65536) that will group measure values into
@@ -69,7 +71,7 @@ public final class QuickStart {
           "processed video size over time",
           VIDEO_SIZE,
           Aggregation.Distribution.create(
-              BucketBoundaries.create(Arrays.asList(0.0, 256.0, 65536.0))),
+              BucketBoundaries.create(Arrays.asList(0.0, 16.0 * MiB, 256.0 * MiB))),
           Collections.singletonList(FRONTEND_KEY),
           Cumulative.create());
 
@@ -92,7 +94,7 @@ public final class QuickStart {
       tracer.getCurrentSpan().addAnnotation("Start processing video.");
       // Sleep for [0,10] milliseconds to fake work.
       Thread.sleep(new Random().nextInt(10) + 1);
-      statsRecorder.newMeasureMap().put(VIDEO_SIZE, 25648).record();
+      statsRecorder.newMeasureMap().put(VIDEO_SIZE, 25 * MiB).record();
       tracer.getCurrentSpan().addAnnotation("Finished processing video.");
     } catch (Exception e) {
       tracer.getCurrentSpan().addAnnotation("Exception thrown when processing video.");
