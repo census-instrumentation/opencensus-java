@@ -1,8 +1,25 @@
 description = 'OpenCensus Examples'
 
-apply plugin: "checkstyle"
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.6"
+    }
+}
+
+apply plugin: 'checkstyle'
 apply plugin: 'idea'
 apply plugin: 'java'
+// Plugins that require java8
+if (JavaVersion.current().isJava8Compatible()) {
+    apply plugin: 'com.github.sherter.google-java-format'
+}
 
 repositories {
     mavenCentral()
@@ -22,6 +39,25 @@ checkstyle {
         ignoreFailures = rootProject.properties["checkstyle.ignoreFailures"].toBoolean()
     }
     configProperties["rootDir"] = file("$rootDir/../")
+}
+
+// Google formatter works only on java8.
+if (JavaVersion.current().isJava8Compatible()) {
+    googleJavaFormat {
+        toolVersion '1.5'
+    }
+
+    afterEvaluate {  // Allow subproject to add more source sets.
+        tasks.googleJavaFormat {
+            source = sourceSets*.allJava
+            include '**/*.java'
+        }
+
+        tasks.verifyGoogleJavaFormat {
+            source = sourceSets*.allJava
+            include '**/*.java'
+        }
+    }
 }
 
 tasks.withType(JavaCompile) {
