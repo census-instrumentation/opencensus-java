@@ -38,19 +38,15 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.xml.bind.DatatypeConverter;
 
-/**
- * @autor malike_st
- */
 public class ElasticsearchTraceExporter {
 
   private static final Logger logger = Logger.getLogger(ElasticsearchTraceExporter.class.getName());
   private static final String REGISTER_NAME = ElasticsearchTraceExporter.class.getName();
-  private static final Object monitor = new Object();
-  private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ ";
-  private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT);
   private static final String CONTENT_TYPE = "application/json";
   private static final String REQUEST_METHOD = "POST";
   private static final int CONNECTION_TIMEOUT = 6000;
+  private static final Object monitor = new Object();
+  private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
 
 
   @GuardedBy("monitor")
@@ -120,9 +116,9 @@ public class ElasticsearchTraceExporter {
       parameters.put("traceOptions", spanData.getContext().getTraceOptions().toString());
       parameters.put("attributes", spanData.getAttributes().getAttributeMap());
       parameters.put("parentSpanId", spanData.getParentSpanId().toString());
-      parameters.put("endTimestamp", SIMPLE_DATE_FORMAT.format(spanData.getEndTimestamp()));
-      parameters.put("startTimestamp", SIMPLE_DATE_FORMAT.format(spanData.getEndTimestamp()));
-      parameters.put("createdTimestamp", SIMPLE_DATE_FORMAT.format(new Date()));
+      parameters.put("endTimestamp", dateFormat.format(spanData.getEndTimestamp()));
+      parameters.put("startTimestamp", dateFormat.format(spanData.getEndTimestamp()));
+      parameters.put("createdTimestamp", dateFormat.format(new Date()));
       connection.setDoOutput(true);
       connection.setConnectTimeout(CONNECTION_TIMEOUT);
       connection.setRequestProperty("Content-Type", CONTENT_TYPE);

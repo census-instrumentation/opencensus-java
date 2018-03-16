@@ -16,9 +16,7 @@
 
 package io.opencensus.exporter.trace.elasticsearch.exception;
 
-/**
- * @autor malike_st
- */
+@SuppressWarnings("serial")
 public class InvalidElasticsearchConfigException extends Exception {
 
   public InvalidElasticsearchConfigException(String message) {
