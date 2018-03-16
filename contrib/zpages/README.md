@@ -50,6 +50,37 @@ public class MyMainClass {
 }
 ```
 
+### View stats and spans on Z-Pages
+
+#### View RPC stats on /rpcz page
+
+The /rpcz page displays the canonical RPC stats broken down by RPC methods. Example:
+
+![rpcz-example](https://user-images.githubusercontent.com/10536136/37544216-74f04012-2921-11e8-8fa2-3d5d00edd400.png)
+
+#### View measures and stats for all exported views on /statsz page
+
+The /statsz page displays measures and stats for all exported views. Views are grouped into directories 
+according to their namespace. Example:
+
+![statsz-example-1](https://user-images.githubusercontent.com/10536136/37544231-7ec913ac-2921-11e8-938f-4457f6bffefb.png)
+![statsz-example-2](https://user-images.githubusercontent.com/10536136/37544240-84621f20-2921-11e8-8758-839655273a41.png)
+
+#### View trace spans on /tracez page
+
+The /tracez page displays information about all active spans and all sampled spans based on latency 
+and errors. Example:
+
+![tracez-example](https://user-images.githubusercontent.com/10536136/37544247-8a044e94-2921-11e8-8b14-ef73bf7f3046.png)
+
+#### View and update tracing configuration on /traceconfigz page
+
+The /traceconfigz page displays information about the current active tracing configuration and 
+allows users to change it. Example:
+
+![traceconfigz-example](https://user-images.githubusercontent.com/10536136/37544258-8f3e3816-2921-11e8-9469-b6f97a516a28.png)
+
+
 ### FAQ
 
 #### Why do I not see sampled spans based on latency and error codes for a given span name?
