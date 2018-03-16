@@ -16,3 +16,7 @@ dependencies {
 
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
+
+test {
+  systemProperty "enable.jaeger.integration.test", System.getProperty("enable.jaeger.integration.test")
+}

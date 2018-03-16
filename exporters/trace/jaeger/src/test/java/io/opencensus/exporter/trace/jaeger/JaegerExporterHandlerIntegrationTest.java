@@ -67,6 +67,7 @@ public class JaegerExporterHandlerIntegrationTest {
 
   @Test(timeout = 30000)
   public void exportToJaeger() throws InterruptedException, IOException {
+    assumeThat("enable jaeger integration test", enableJaegerIntegrationTest(), is(true));
     assumeThat("docker is installed and executable", dockerIsInstalledAndExecutable(), is(true));
 
     final Process jaeger =
@@ -202,6 +203,10 @@ public class JaegerExporterHandlerIntegrationTest {
     } finally {
       jaeger.destroy();
     }
+  }
+
+  private static boolean enableJaegerIntegrationTest() {
+    return "true".equals(System.getProperty("enable.jaeger.integration.test"));
   }
 
   private static boolean dockerIsInstalledAndExecutable() {
