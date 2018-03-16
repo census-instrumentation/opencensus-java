@@ -29,13 +29,13 @@ public class HttpMeasureConstantsTest {
 
   @Test
   public void constants() {
-    // Test Tags
+    // Test TagKeys
     assertThat(HttpMeasureConstants.HTTP_STATUS_CODE).isEqualTo(TagKey.create("http.status"));
     assertThat(HttpMeasureConstants.HTTP_METHOD).isEqualTo(TagKey.create("http.method"));
     assertThat(HttpMeasureConstants.HTTP_PATH).isEqualTo(TagKey.create("http.path"));
     assertThat(HttpMeasureConstants.HTTP_HOST).isEqualTo(TagKey.create("http.host"));
 
-    // Test measurement descriptors.
+    // Test measures
     assertThat(HttpMeasureConstants.HTTP_CLIENT_REQUEST_COUNT.getUnit()).isEqualTo("1");
     assertThat(HttpMeasureConstants.HTTP_CLIENT_REQUEST_BYTES.getUnit()).isEqualTo("By");
     assertThat(HttpMeasureConstants.HTTP_CLIENT_RESPONSE_BYTES.getUnit()).isEqualTo("By");

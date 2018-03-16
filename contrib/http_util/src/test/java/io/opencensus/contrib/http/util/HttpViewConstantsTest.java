@@ -64,7 +64,7 @@ public class HttpViewConstantsTest {
             1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0)
         .inOrder();
 
-    // Test view descriptors.
+    // Test views.
     assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_VIEW.getName().asString())
         .contains("opencensus.io/http/client");
     assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_BYTES_VIEW.getName().asString())
