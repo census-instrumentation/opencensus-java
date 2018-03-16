@@ -171,6 +171,7 @@ runtime 'io.opencensus:opencensus-impl:0.12.2'
 
 #### Trace exporters
 * [Instana][TraceExporterInstana]
+* [Jaeger][TraceExporterJaeger]
 * [Logging][TraceExporterLogging]
 * [Stackdriver][TraceExporterStackdriver]
 * [Zipkin][TraceExporterZipkin]
@@ -198,6 +199,7 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [codecov-image]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/
 [TraceExporterInstana]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/instana#quickstart
+[TraceExporterJaeger]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/jaeger#quickstart
 [TraceExporterLogging]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/logging#quickstart
 [TraceExporterStackdriver]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/stackdriver#quickstart
 [TraceExporterZipkin]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/zipkin#quickstart
