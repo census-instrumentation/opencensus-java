@@ -162,6 +162,7 @@ subprojects {
         signalfxVersion = '0.0.39'
         prometheusVersion = '0.2.0'
         zipkinReporterVersion = '2.3.2'
+        jaegerReporterVersion = '0.24.0'
 
         libraries = [
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
@@ -175,6 +176,7 @@ subprojects {
                 google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudVersion}",
                 zipkin_reporter: "io.zipkin.reporter2:zipkin-reporter:${zipkinReporterVersion}",
                 zipkin_urlconnection: "io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}",
+                jaeger_reporter: "com.uber.jaeger:jaeger-core:${jaegerReporterVersion}",
                 google_cloud_monitoring: "com.google.cloud:google-cloud-monitoring:${googleCloudVersion}",
                 grpc_context: "io.grpc:grpc-context:${grpcVersion}",
                 grpc_core: "io.grpc:grpc-core:${grpcVersion}",
@@ -366,6 +368,7 @@ subprojects {
                  'opencensus-exporter-trace-elasticsearch',
                  'opencensus-exporter-trace-stackdriver',
                  'opencensus-exporter-trace-zipkin',
+                 'opencensus-exporter-trace-jaeger',
                  'opencensus-impl-core',
                  'opencensus-impl-lite',
                  'opencensus-impl',

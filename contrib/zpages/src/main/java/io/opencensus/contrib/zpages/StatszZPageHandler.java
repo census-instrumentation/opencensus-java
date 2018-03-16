@@ -160,9 +160,9 @@ final class StatszZPageHandler extends ZPageHandler {
       String path = queryMap.get(QUERY_PATH);
       TreeNode current = findNode(path);
       emitDirectoryTable(current, path, out, formatter);
-      if (current != null && current.view != null) {
-        ViewData viewData = viewManager.getView(current.view.getName());
-        emitViewData(viewData, current.view.getName(), out, formatter);
+      if (current != null && current.viewName != null) {
+        ViewData viewData = viewManager.getView(current.viewName);
+        emitViewData(viewData, current.viewName, out, formatter);
       }
       emitMeasureTable(measures, out, formatter);
     }
@@ -194,7 +194,7 @@ final class StatszZPageHandler extends ZPageHandler {
           node.children.putIfAbsent(dir, new TreeNode());
           node = node.children.get(dir);
         } else { // Leaf node (view node)
-          node.children.putIfAbsent(dir, new TreeNode(view));
+          node.children.putIfAbsent(dir, new TreeNode(view.getName()));
         }
       }
 
@@ -223,7 +223,7 @@ final class StatszZPageHandler extends ZPageHandler {
     for (Entry<String, TreeNode> entry : currentNode.children.entrySet()) {
       TreeNode child = entry.getValue();
       String relativePath = entry.getKey();
-      if (child.view == null) { // Directory node, emit a row for directory.
+      if (child.viewName == null) { // Directory node, emit a row for directory.
         formatter.format(
             "<tr class=\"%s\"><td>Directory: <a href='?%s=%s'>%s</a> (%d %s)</td></tr>",
             CLASS_LARGER_TR,
@@ -233,7 +233,7 @@ final class StatszZPageHandler extends ZPageHandler {
             child.views,
             child.views > 1 ? "views" : "view");
       } else { // View node, emit a row for view.
-        String viewName = child.view.getName().asString();
+        String viewName = child.viewName.asString();
         formatter.format(
             "<tr class=\"%s\"><td>View: <a href='?%s=%s'>%s</a></td></tr>",
             CLASS_LARGER_TR, QUERY_PATH, path + '/' + relativePath, viewName);
@@ -556,7 +556,7 @@ final class StatszZPageHandler extends ZPageHandler {
    */
   private static class TreeNode {
     // Only leaf nodes have views.
-    @javax.annotation.Nullable final View view;
+    @javax.annotation.Nullable final View.Name viewName;
 
     // A mapping from relative path to children TreeNodes. Sorted by the relative path.
     SortedMap<String, TreeNode> children = Maps.newTreeMap();
@@ -565,11 +565,11 @@ final class StatszZPageHandler extends ZPageHandler {
     int views = 0;
 
     TreeNode() {
-      this.view = null;
+      this.viewName = null;
     }
 
-    TreeNode(View view) {
-      this.view = checkNotNull(view, "view");
+    TreeNode(View.Name viewName) {
+      this.viewName = checkNotNull(viewName, "view name");
     }
   }
 }

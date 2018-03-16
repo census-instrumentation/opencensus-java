@@ -27,6 +27,10 @@ matrix:
     env: TASK=CHECKER_FRAMEWORK
     os: linux
 
+  - env: TASK=CHECK_GIT_HISTORY
+    os: linux
+
+  # Build example projects last, since they are affected by fewer pull requests.
   - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_GRADLE
     os: linux
@@ -37,9 +41,6 @@ matrix:
 
   - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_BAZEL
-    os: linux
-
-  - env: TASK=CHECK_GIT_HISTORY
     os: linux
 
   # Work around https://github.com/travis-ci/travis-ci/issues/2317

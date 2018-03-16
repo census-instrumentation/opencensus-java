@@ -224,6 +224,7 @@ $ README_FILES=(
   exporters/stats/stackdriver/README.md
   exporters/trace/instana/README.md
   exporters/trace/logging/README.md
+  exporters/trace/jaeger/README.md
   exporters/trace/stackdriver/README.md
   exporters/trace/zipkin/README.md
   )
