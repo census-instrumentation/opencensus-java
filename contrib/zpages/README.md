@@ -50,6 +50,38 @@ public class MyMainClass {
 }
 ```
 
+### View stats and spans on Z-Pages
+
+#### View RPC stats on /rpcz page
+
+The /rpcz page displays the canonical gRPC cumulative and interval stats broken down by RPC methods.
+Example:
+
+![rpcz-example](screenshots/rpcz-example.png)
+
+#### View measures and stats for all exported views on /statsz page
+
+The /statsz page displays measures and stats for all exported views. Views are grouped into directories 
+according to their namespace. Example:
+
+![statsz-example-1](screenshots/statsz-example-1.png)
+![statsz-example-2](screenshots/statsz-example-2.png)
+
+#### View trace spans on /tracez page
+
+The /tracez page displays information about all active spans and all sampled spans based on latency 
+and errors. Example:
+
+![tracez-example](screenshots/tracez-example.png)
+
+#### View and update tracing configuration on /traceconfigz page
+
+The /traceconfigz page displays information about the current active tracing configuration and 
+allows users to change it. Example:
+
+![traceconfigz-example](screenshots/traceconfigz-example.png)
+
+
 ### FAQ
 
 #### Why do I not see sampled spans based on latency and error codes for a given span name?
