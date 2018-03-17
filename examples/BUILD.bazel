@@ -4,7 +4,8 @@ opencensus_java_libraries()
 java_library(
     name = "opencensus_examples",
     srcs = glob(
-        ["src/main/java/**/*.java"]
+        ["src/main/java/**/*.java"],
+        exclude = ["src/main/java/io/opencensus/examples/grpc/**/*.java"],
     ),
     deps = [
         "@io_opencensus_opencensus_api//jar",
