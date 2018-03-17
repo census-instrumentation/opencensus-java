@@ -23,13 +23,15 @@ public class ElasticsearchConfiguration {
   private final String password;
   private final String elasticsearchUrl;
   private final String elasticsearchIndex;
+  private final String elasticsearchType;
 
   public ElasticsearchConfiguration(String userName,
-      String password, String elasticsearchUrl, String elasticsearchIndex) {
+      String password, String elasticsearchUrl, String elasticsearchIndex,String elasticsearchType) {
     this.userName = userName;
     this.password = password;
     this.elasticsearchUrl = elasticsearchUrl;
     this.elasticsearchIndex = elasticsearchIndex;
+    this.elasticsearchType = elasticsearchType;
   }
 
   public String getUserName() {
@@ -46,5 +48,9 @@ public class ElasticsearchConfiguration {
 
   public String getElasticsearchIndex() {
     return elasticsearchIndex;
+  }
+
+  public String getElasticsearchType() {
+    return elasticsearchType;
   }
 }

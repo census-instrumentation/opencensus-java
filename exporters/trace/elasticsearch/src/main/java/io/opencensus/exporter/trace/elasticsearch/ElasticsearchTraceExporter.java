@@ -96,7 +96,7 @@ public class ElasticsearchTraceExporter {
       ElasticsearchConfiguration elasticsearchConfiguration) {
     try {
       URL url = new URL(elasticsearchConfiguration.getElasticsearchUrl()+"/"
-          +elasticsearchConfiguration.getElasticsearchIndex()+"/"+elasticsearchConfiguration.getElasticsearchIndex());
+          +elasticsearchConfiguration.getElasticsearchIndex()+"/"+elasticsearchConfiguration.getElasticsearchType());
       HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       if (elasticsearchConfiguration.getUserName() != null
           && !elasticsearchConfiguration.getUserName().isEmpty()) {
