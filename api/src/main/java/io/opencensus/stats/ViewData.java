@@ -19,7 +19,6 @@ package io.opencensus.stats;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.Maps;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -38,6 +37,7 @@ import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -125,7 +125,8 @@ public abstract class ViewData {
       Map<? extends List</*@Nullable*/ TagValue>, ? extends AggregationData> map,
       final AggregationWindowData windowData) {
     checkWindow(view.getWindow(), windowData);
-    final Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
+    final Map<List<TagValue>, AggregationData> deepCopy =
+        new HashMap<List<TagValue>, AggregationData>();
     for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map.entrySet()) {
       checkAggregation(view.getAggregation(), entry.getValue(), view.getMeasure());
       deepCopy.put(
@@ -173,7 +174,7 @@ public abstract class ViewData {
       Map<? extends List</*@Nullable*/ TagValue>, ? extends AggregationData> map,
       Timestamp start,
       Timestamp end) {
-    Map<List<TagValue>, AggregationData> deepCopy = Maps.newHashMap();
+    Map<List<TagValue>, AggregationData> deepCopy = new HashMap<List<TagValue>, AggregationData>();
     for (Entry<? extends List<TagValue>, ? extends AggregationData> entry : map.entrySet()) {
       checkAggregation(view.getAggregation(), entry.getValue(), view.getMeasure());
       deepCopy.put(
