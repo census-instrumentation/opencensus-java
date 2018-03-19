@@ -13,10 +13,10 @@ opencensus_maven_jars()
 grpc_java_repositories(
     # Omit to avoid conflicts.
 
-    # Remove this one after gRPC v1.10.0.
+    # TODO(songya): Remove this one after gRPC v1.10.0.
     omit_com_google_instrumentation_api=True,
 
-    # Uncomment this one after gRPC v1.10.0.
+    # TODO(songya): Uncomment this one after gRPC v1.10.0.
     # omit_com_google_auth_google_auth_library_credentials=True,
 
     omit_com_google_api_grpc_google_common_protos=True,
@@ -61,7 +61,7 @@ http_archive(
     urls = ["https://github.com/google/protobuf/archive/v3.5.1.zip"],
 )
 
-# Remove this one after gRPC v1.10.0.
+# TODO(songya): Remove this one after gRPC v1.10.0.
 # See https://github.com/grpc/grpc-java/issues/3175.
 http_archive(
     name = "com_google_protobuf_java",
