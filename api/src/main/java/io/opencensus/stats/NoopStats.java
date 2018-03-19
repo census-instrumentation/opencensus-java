@@ -21,8 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -31,6 +29,8 @@ import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,7 +149,7 @@ final class NoopStats {
     private static final Timestamp ZERO_TIMESTAMP = Timestamp.create(0, 0);
 
     @GuardedBy("registeredViews")
-    private final Map<View.Name, View> registeredViews = Maps.newHashMap();
+    private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
     // Cached set of exported views. It must be set to null whenever a view is registered or
     // unregistered.
@@ -209,7 +209,7 @@ final class NoopStats {
     // Returns the subset of the given views that should be exported
     @SuppressWarnings("deprecation")
     private static Set<View> filterExportedViews(Collection<View> allViews) {
-      Set<View> views = Sets.newHashSet();
+      Set<View> views = new HashSet<View>();
       for (View view : allViews) {
         if (view.getWindow() instanceof View.AggregationWindow.Interval) {
           continue;

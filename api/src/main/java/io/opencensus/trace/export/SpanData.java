@@ -19,7 +19,6 @@ package io.opencensus.trace.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.Lists;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.BaseMessageEventUtil;
 import io.opencensus.trace.Annotation;
@@ -94,7 +93,7 @@ public abstract class SpanData {
     if (messageOrNetworkEvents == null) {
       throw new NullPointerException("Null messageOrNetworkEvents");
     }
-    List<TimedEvent<MessageEvent>> messageEventsList = Lists.newArrayList();
+    List<TimedEvent<MessageEvent>> messageEventsList = new ArrayList<TimedEvent<MessageEvent>>();
     for (TimedEvent<? extends io.opencensus.trace.BaseMessageEvent> timedEvent :
         messageOrNetworkEvents.getEvents()) {
       io.opencensus.trace.BaseMessageEvent event = timedEvent.getEvent();
@@ -198,7 +197,8 @@ public abstract class SpanData {
   @SuppressWarnings({"deprecation"})
   public TimedEvents<io.opencensus.trace.NetworkEvent> getNetworkEvents() {
     TimedEvents<MessageEvent> timedEvents = getMessageEvents();
-    List<TimedEvent<io.opencensus.trace.NetworkEvent>> networkEventsList = Lists.newArrayList();
+    List<TimedEvent<io.opencensus.trace.NetworkEvent>> networkEventsList =
+        new ArrayList<TimedEvent<io.opencensus.trace.NetworkEvent>>();
     for (TimedEvent<MessageEvent> timedEvent : timedEvents.getEvents()) {
       networkEventsList.add(
           TimedEvent.<io.opencensus.trace.NetworkEvent>create(

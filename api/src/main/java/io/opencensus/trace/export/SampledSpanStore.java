@@ -21,14 +21,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -487,11 +486,11 @@ public abstract class SampledSpanStore {
             Collections.<CanonicalCode, Integer>emptyMap());
 
     @GuardedBy("registeredSpanNames")
-    private final Set<String> registeredSpanNames = Sets.newHashSet();
+    private final Set<String> registeredSpanNames = new HashSet<String>();
 
     @Override
     public Summary getSummary() {
-      Map<String, PerSpanNameSummary> result = Maps.newHashMap();
+      Map<String, PerSpanNameSummary> result = new HashMap<String, PerSpanNameSummary>();
       synchronized (registeredSpanNames) {
         for (String registeredSpanName : registeredSpanNames) {
           result.put(registeredSpanName, EMPTY_PER_SPAN_NAME_SUMMARY);
@@ -531,7 +530,7 @@ public abstract class SampledSpanStore {
     @Override
     public Set<String> getRegisteredSpanNamesForCollection() {
       synchronized (registeredSpanNames) {
-        return Collections.<String>unmodifiableSet(Sets.newHashSet(registeredSpanNames));
+        return Collections.<String>unmodifiableSet(new HashSet<String>(registeredSpanNames));
       }
     }
   }

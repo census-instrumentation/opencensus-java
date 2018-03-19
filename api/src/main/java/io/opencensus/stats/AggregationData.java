@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.Lists;
 import io.opencensus.common.Function;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
@@ -291,7 +291,7 @@ public abstract class AggregationData {
       }
 
       checkNotNull(bucketCounts, "bucket counts should not be null.");
-      List<Long> bucketCountsCopy = Collections.unmodifiableList(Lists.newArrayList(bucketCounts));
+      List<Long> bucketCountsCopy = Collections.unmodifiableList(new ArrayList<Long>(bucketCounts));
       for (Long bucket : bucketCountsCopy) {
         checkNotNull(bucket, "bucket should not be null.");
       }
