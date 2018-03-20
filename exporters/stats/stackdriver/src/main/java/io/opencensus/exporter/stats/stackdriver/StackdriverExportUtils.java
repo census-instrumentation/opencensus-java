@@ -27,7 +27,9 @@ import com.google.api.Metric;
 import com.google.api.MetricDescriptor;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
+import com.google.cloud.MetadataConfig;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.Point;
@@ -337,6 +339,116 @@ final class StackdriverExportUtils {
         .setSeconds(censusTimestamp.getSeconds())
         .setNanos(censusTimestamp.getNanos())
         .build();
+  }
+
+  private enum Label {
+    ClusterName("cluster_name"),
+    ContainerName("container_name"),
+    NamespaceId("namespace_id"),
+    InstanceId("instance_id"),
+    InstanceName("instance_name"),
+    PodId("pod_id"),
+    Zone("zone");
+
+    private final String key;
+
+    Label(String key) {
+      this.key = key;
+    }
+
+    String getKey() {
+      return key;
+    }
+  }
+
+  private enum Resource {
+    GkeContainer("gke_container"),
+    GceInstance("gce_instance"),
+    Global("global");
+
+    private final String key;
+
+    Resource(String key) {
+      this.key = key;
+    }
+
+    String getKey() {
+      return key;
+    }
+  }
+
+  private static final ImmutableMultimap<String, Label> RESOURCE_TYPE_WITH_LABELS =
+      ImmutableMultimap.<String, Label>builder()
+          .putAll(
+              Resource.GkeContainer.getKey(),
+              Label.ClusterName,
+              Label.ContainerName,
+              Label.NamespaceId,
+              Label.InstanceId,
+              Label.PodId,
+              Label.Zone)
+          .putAll(Resource.GceInstance.getKey(), Label.InstanceId, Label.Zone)
+          .build();
+
+  /* Return a self-configured monitored Resource. */
+  static MonitoredResource getResource() {
+    Resource detectedResourceType = getAutoDetectedResourceType();
+    String resourceType = detectedResourceType.getKey();
+    MonitoredResource.Builder builder = MonitoredResource.newBuilder().setType(resourceType);
+
+    for (Label label : RESOURCE_TYPE_WITH_LABELS.get(resourceType)) {
+      String value = getValue(label);
+      if (value == null) {
+        value = "";
+      }
+      // Label values can be null or empty, but each label key must have an associated value.
+      builder.putLabels(label.getKey(), value);
+    }
+    return builder.build();
+  }
+
+  @javax.annotation.Nullable
+  private static String getValue(Label label) {
+    String value;
+    switch (label) {
+      case ClusterName:
+        value = MetadataConfig.getClusterName();
+        break;
+      case InstanceId:
+        value = MetadataConfig.getInstanceId();
+        break;
+      case InstanceName:
+        value = System.getenv("GAE_INSTANCE");
+        break;
+      case PodId:
+        value = System.getenv("HOSTNAME");
+        break;
+      case Zone:
+        value = MetadataConfig.getZone();
+        break;
+      case ContainerName:
+        value = System.getenv("CONTAINER_NAME");
+        break;
+      case NamespaceId:
+        value = System.getenv("NAMESPACE");
+        break;
+      default:
+        value = null;
+        break;
+    }
+    return value;
+  }
+
+  /* Detects monitored Resource type using environment variables, else return global as default. */
+  private static Resource getAutoDetectedResourceType() {
+    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
+      return Resource.GkeContainer;
+    }
+    if (MetadataConfig.getInstanceId() != null) {
+      return Resource.GceInstance;
+    }
+    // default Resource type
+    return Resource.Global;
   }
 
   private StackdriverExportUtils() {}
