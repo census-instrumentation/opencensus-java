@@ -107,4 +107,7 @@ $ ./target/appassembler/bin/HelloWorldClient user host serverPort cloudProjectId
 ```
 
 ### Bazel
-TODO
+```
+$ ./bazel-bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
+$ ./bazel-bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
+```

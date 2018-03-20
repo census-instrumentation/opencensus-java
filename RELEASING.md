@@ -253,10 +253,17 @@ $ sed -i 's/\(<version>\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
 
     ```bash
     $ bazel run //generate_workspace -- \
+    --artifact=com.google.guava:guava:23.0 \
+    --artifact=io.grpc:grpc-all:1.9.0 \
     --artifact=io.opencensus:opencensus-api:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.opencensus:opencensus-contrib-grpc-metrics:$MAJOR.$MINOR.$PATCH \
     --artifact=io.opencensus:opencensus-contrib-zpages:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.opencensus:opencensus-exporter-stats-prometheus:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:$MAJOR.$MINOR.$PATCH \
     --artifact=io.opencensus:opencensus-exporter-trace-logging:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:$MAJOR.$MINOR.$PATCH \
     --artifact=io.opencensus:opencensus-impl:$MAJOR.$MINOR.$PATCH \
+    --artifact=io.prometheus:simpleclient_httpserver:0.3.0 \
     --repositories=http://repo.maven.apache.org/maven2
     Wrote
     /usr/local/.../generate_workspace.runfiles/__main__/generate_workspace.bzl
