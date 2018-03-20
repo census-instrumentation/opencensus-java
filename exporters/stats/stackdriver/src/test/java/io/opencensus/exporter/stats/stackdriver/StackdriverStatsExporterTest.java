@@ -18,7 +18,6 @@ package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.api.MonitoredResource;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -51,8 +50,6 @@ public class StackdriverStatsExporterTest {
   @Test
   public void testConstants() {
     assertThat(StackdriverStatsExporter.DEFAULT_INTERVAL).isEqualTo(Duration.create(60, 0));
-    assertThat(StackdriverStatsExporter.DEFAULT_RESOURCE)
-        .isEqualTo(MonitoredResource.newBuilder().setType("global").build());
   }
 
   @Test

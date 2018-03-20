@@ -73,6 +73,9 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
+  @VisibleForTesting static final String GKE_CONTAINER = "gke_container";
+  @VisibleForTesting static final String GCE_INSTANCE = "gce_instance";
+  @VisibleForTesting static final String GLOBAL = "global";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
@@ -362,9 +365,9 @@ final class StackdriverExportUtils {
   }
 
   private enum Resource {
-    GkeContainer("gke_container"),
-    GceInstance("gce_instance"),
-    Global("global");
+    GkeContainer(GKE_CONTAINER),
+    GceInstance(GCE_INSTANCE),
+    Global(GLOBAL);
 
     private final String key;
 

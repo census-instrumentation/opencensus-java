@@ -70,8 +70,7 @@ public final class StackdriverStatsExporter {
 
   @VisibleForTesting static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
 
-  @VisibleForTesting
-  static final MonitoredResource DEFAULT_RESOURCE = StackdriverExportUtils.getResource();
+  private static final MonitoredResource DEFAULT_RESOURCE = StackdriverExportUtils.getResource();
 
   @VisibleForTesting
   StackdriverStatsExporter(

@@ -26,6 +26,7 @@ import com.google.api.Metric;
 import com.google.api.MetricDescriptor;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
+import com.google.cloud.MetadataConfig;
 import com.google.common.collect.ImmutableMap;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
@@ -451,5 +452,17 @@ public class StackdriverExportUtilsTest {
                 .setResource(resource)
                 .addPoints(StackdriverExportUtils.createPoint(sumData, cumulativeData, SUM))
                 .build());
+  }
+
+  @Test
+  public void testGetResource() {
+    MonitoredResource resource = StackdriverExportUtils.getResource();
+    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
+      assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GKE_CONTAINER);
+    } else if (MetadataConfig.getInstanceId() != null) {
+      assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GCE_INSTANCE);
+    } else {
+      assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GLOBAL);
+    }
   }
 }
