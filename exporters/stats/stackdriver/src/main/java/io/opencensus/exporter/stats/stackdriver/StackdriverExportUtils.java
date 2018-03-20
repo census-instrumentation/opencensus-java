@@ -380,26 +380,25 @@ final class StackdriverExportUtils {
     }
   }
 
-  private static final ImmutableMultimap<String, Label> RESOURCE_TYPE_WITH_LABELS =
-      ImmutableMultimap.<String, Label>builder()
+  private static final ImmutableMultimap<Resource, Label> RESOURCE_TYPE_WITH_LABELS =
+      ImmutableMultimap.<Resource, Label>builder()
           .putAll(
-              Resource.GkeContainer.getKey(),
+              Resource.GkeContainer,
               Label.ClusterName,
               Label.ContainerName,
               Label.NamespaceId,
               Label.InstanceId,
               Label.PodId,
               Label.Zone)
-          .putAll(Resource.GceInstance.getKey(), Label.InstanceId, Label.Zone)
+          .putAll(Resource.GceInstance, Label.InstanceId, Label.Zone)
           .build();
 
   /* Return a self-configured monitored Resource. */
-  static MonitoredResource getResource() {
+  static MonitoredResource getDefaultResource() {
     Resource detectedResourceType = getAutoDetectedResourceType();
     String resourceType = detectedResourceType.getKey();
     MonitoredResource.Builder builder = MonitoredResource.newBuilder().setType(resourceType);
-
-    for (Label label : RESOURCE_TYPE_WITH_LABELS.get(resourceType)) {
+    for (Label label : RESOURCE_TYPE_WITH_LABELS.get(detectedResourceType)) {
       String value = getValue(label);
       if (value == null) {
         value = "";

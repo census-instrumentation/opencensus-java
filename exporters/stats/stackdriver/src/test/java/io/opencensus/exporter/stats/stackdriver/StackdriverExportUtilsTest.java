@@ -455,8 +455,8 @@ public class StackdriverExportUtilsTest {
   }
 
   @Test
-  public void testGetResource() {
-    MonitoredResource resource = StackdriverExportUtils.getResource();
+  public void testGetDefaultResource() {
+    MonitoredResource resource = StackdriverExportUtils.getDefaultResource();
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
       assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GKE_CONTAINER);
     } else if (MetadataConfig.getInstanceId() != null) {
