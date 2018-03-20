@@ -141,7 +141,6 @@ java_binary(
 
 java_binary(
     name = "HelloWorldClient",
-    testonly = 1,
     main_class = "io.opencensus.examples.grpc.helloworld.HelloWorldClient",
     runtime_deps = [
         ":opencensus_examples",
@@ -150,7 +149,6 @@ java_binary(
 
 java_binary(
     name = "HelloWorldServer",
-    testonly = 1,
     main_class = "io.opencensus.examples.grpc.helloworld.HelloWorldServer",
     runtime_deps = [
         ":opencensus_examples",
