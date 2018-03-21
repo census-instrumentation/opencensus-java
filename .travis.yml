@@ -32,6 +32,10 @@ matrix:
 
   # Build example projects last, since they are affected by fewer pull requests.
   - jdk: oraclejdk8
+    env: TASK=CHECK_EXAMPLES_LICENSE
+    os: linux
+
+  - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_GRADLE
     os: linux
 
