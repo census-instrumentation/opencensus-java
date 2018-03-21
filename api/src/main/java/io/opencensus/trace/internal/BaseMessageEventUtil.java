@@ -23,8 +23,6 @@ import io.opencensus.common.Internal;
 /**
  * Helper class to convert/cast between for {@link io.opencensus.trace.MessageEvent} and {@link
  * io.opencensus.trace.NetworkEvent}.
- *
- * @since 0.12
  */
 @Internal
 @SuppressWarnings("deprecation")
@@ -44,9 +42,6 @@ public final class BaseMessageEventUtil {
     checkNotNull(event);
     if (event instanceof io.opencensus.trace.MessageEvent) {
       return (io.opencensus.trace.MessageEvent) event;
-    }
-    if (!(event instanceof io.opencensus.trace.NetworkEvent)) { // Work around FindBugs.
-      throw new IllegalArgumentException("NetworkEvent expected.");
     }
     io.opencensus.trace.NetworkEvent networkEvent = (io.opencensus.trace.NetworkEvent) event;
     io.opencensus.trace.MessageEvent.Type type =
@@ -71,9 +66,6 @@ public final class BaseMessageEventUtil {
     checkNotNull(event);
     if (event instanceof io.opencensus.trace.NetworkEvent) {
       return (io.opencensus.trace.NetworkEvent) event;
-    }
-    if (!(event instanceof io.opencensus.trace.MessageEvent)) { // Work around FindBugs.
-      throw new IllegalArgumentException("MessageEvent expected.");
     }
     io.opencensus.trace.MessageEvent messageEvent = (io.opencensus.trace.MessageEvent) event;
     io.opencensus.trace.NetworkEvent.Type type =
