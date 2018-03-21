@@ -19,6 +19,7 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.trace.internal.BaseMessageEventUtil;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;

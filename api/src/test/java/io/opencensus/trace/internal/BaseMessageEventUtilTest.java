@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace;
+package io.opencensus.trace.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.NetworkEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
