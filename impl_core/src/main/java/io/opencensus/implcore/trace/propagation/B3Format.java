@@ -34,10 +34,10 @@ import java.util.List;
  * href=https://github.com/openzipkin/b3-propagation>b3-propagation</a>.
  */
 final class B3Format extends TextFormat {
-  @VisibleForTesting static final String X_B3_TRACE_ID = "X─B3─TraceId";
-  @VisibleForTesting static final String X_B3_SPAN_ID = "X─B3─SpanId";
-  @VisibleForTesting static final String X_B3_PARENT_SPAN_ID = "X─B3─ParentSpanId";
-  @VisibleForTesting static final String X_B3_SAMPLED = "X─B3─Sampled";
+  @VisibleForTesting static final String X_B3_TRACE_ID = "X-B3-TraceId";
+  @VisibleForTesting static final String X_B3_SPAN_ID = "X-B3-SpanId";
+  @VisibleForTesting static final String X_B3_PARENT_SPAN_ID = "X-B3-ParentSpanId";
+  @VisibleForTesting static final String X_B3_SAMPLED = "X-B3-Sampled";
   @VisibleForTesting static final String X_B3_FLAGS = "X-B3-Flags";
   private static final List<String> FIELDS =
       Collections.unmodifiableList(
