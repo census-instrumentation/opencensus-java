@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package io.opencensus.internal;
+package io.opencensus.trace;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.trace.MessageEvent;
+import io.opencensus.common.Internal;
 
 /**
  * Helper class to convert/cast between for {@link MessageEvent} and {@link NetworkEvent}.
  *
  * @since 0.12
  */
+@Internal
 @SuppressWarnings("deprecation")
 public final class BaseMessageEventUtil {
   /**
