@@ -60,11 +60,6 @@ matrix:
   - env: TASK=BUILD
     os: osx
 
-  # Allowing failures because not everyone has downloaded the google-java-format tool.
-  - jdk: oraclejdk8
-    env: TASK=CHECK_EXAMPLES_FORMAT
-    os: linux
-
 before_install:
   - git log --oneline --decorate --graph -30
   - if \[ "$TASK" == "BUILD" \]; then
