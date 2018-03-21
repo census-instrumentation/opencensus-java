@@ -78,3 +78,36 @@ $ ./target/appassembler/bin/QuickStart
 ```
 $ ./bazel-bin/QuickStart
 ```
+
+## To run "gRPC Hello World" example use
+
+Please note all the arguments are optional. If you do not specify these arguments, default values
+will be used:
+
+* host and serverPort will be "localhost:50051"
+* user will be "world"
+* cloudProjectId will be null (which means no stats/spans will be exported to Stackdriver)
+* server zPagePort will be 3000
+* client zPagePort will be 3001
+* Prometheus port will be 9090
+
+
+However, if you want to specify any of these arguements, please make sure they are in order.
+
+### Gradle
+```
+$ ./build/install/opencensus-examples/bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
+$ ./build/install/opencensus-examples/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
+```
+
+### Maven
+```
+$ ./target/appassembler/bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
+$ ./target/appassembler/bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
+```
+
+### Bazel
+```
+$ ./bazel-bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
+$ ./bazel-bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
+```

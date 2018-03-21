@@ -16,10 +16,7 @@
 
 package io.opencensus.tags;
 
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multiset;
+import java.util.HashMap;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -70,15 +67,28 @@ public abstract class TagContext {
     TagContext otherTags = (TagContext) other;
     Iterator<Tag> iter1 = getIterator();
     Iterator<Tag> iter2 = otherTags.getIterator();
-    Multiset<Tag> tags1 =
-        iter1 == null
-            ? ImmutableMultiset.<Tag>of()
-            : HashMultiset.create(Lists.<Tag>newArrayList(iter1));
-    Multiset<Tag> tags2 =
-        iter2 == null
-            ? ImmutableMultiset.<Tag>of()
-            : HashMultiset.create(Lists.<Tag>newArrayList(iter2));
-    return tags1.equals(tags2);
+    HashMap<Tag, Integer> tags = new HashMap<Tag, Integer>();
+    while (iter1 != null && iter1.hasNext()) {
+      Tag tag = iter1.next();
+      if (tags.containsKey(tag)) {
+        tags.put(tag, tags.get(tag) + 1);
+      } else {
+        tags.put(tag, 1);
+      }
+    }
+    while (iter2 != null && iter2.hasNext()) {
+      Tag tag = iter2.next();
+      if (!tags.containsKey(tag)) {
+        return false;
+      }
+      int count = tags.get(tag);
+      if (count > 1) {
+        tags.put(tag, count - 1);
+      } else {
+        tags.remove(tag);
+      }
+    }
+    return tags.isEmpty();
   }
 
   @Override
