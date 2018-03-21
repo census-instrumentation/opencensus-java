@@ -168,7 +168,7 @@ subprojects {
                 auto_service: 'com.google.auto.service:auto-service:1.0-rc3',
                 byte_buddy: 'net.bytebuddy:byte-buddy:1.7.11',
                 config: 'com.typesafe:config:1.2.1',
-                disruptor: 'com.lmax:disruptor:3.3.9',
+                disruptor: 'com.lmax:disruptor:3.4.1',
                 errorprone: "com.google.errorprone:error_prone_annotations:${errorProneVersion}",
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
                 google_auth: "com.google.auth:google-auth-library-credentials:${googleAuthVersion}",
