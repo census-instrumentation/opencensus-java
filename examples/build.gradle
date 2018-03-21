@@ -9,7 +9,6 @@ buildscript {
         }
     }
     dependencies {
-        classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.6"
         classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
     }
 }
@@ -17,10 +16,6 @@ buildscript {
 apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
-// Plugins that require java8
-if (JavaVersion.current().isJava8Compatible()) {
-    apply plugin: 'com.github.sherter.google-java-format'
-}
 
 repositories {
     mavenCentral()
@@ -33,27 +28,6 @@ version = "0.13.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 def opencensusVersion = "0.12.2" // LATEST_OPENCENSUS_RELEASE_VERSION
 def grpcVersion = "1.9.0" // CURRENT_GRPC_VERSION
 def prometheusVersion = "0.3.0"
-
-// Google formatter works only on java8.
-if (JavaVersion.current().isJava8Compatible()) {
-    googleJavaFormat {
-        toolVersion '1.5'
-    }
-
-    afterEvaluate {  // Allow subproject to add more source sets.
-        tasks.googleJavaFormat {
-            // This skips proto generated files beucasue they are in gen_gradle/src/main/**
-            source = "src/main"
-            include '**/*.java'
-        }
-
-        tasks.verifyGoogleJavaFormat {
-            // This skips proto generated files beucasue they are in gen_gradle/src/main/**
-            source = "src/main"
-            include '**/*.java'
-        }
-    }
-}
 
 tasks.withType(JavaCompile) {
     sourceCompatibility = '1.8'

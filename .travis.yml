@@ -47,6 +47,10 @@ matrix:
     env: TASK=BUILD_EXAMPLES_BAZEL
     os: linux
 
+  - jdk: oraclejdk8
+    env: TASK=CHECK_EXAMPLES_FORMAT
+    os: linux
+
   # Work around https://github.com/travis-ci/travis-ci/issues/2317
   - env: TASK=BUILD
     os: osx
@@ -55,6 +59,11 @@ matrix:
   # Allowing failures because osx builds are very slow.
   - env: TASK=BUILD
     os: osx
+
+  # Allowing failures because not everyone has downloaded the google-java-format tool.
+  - jdk: oraclejdk8
+    env: TASK=CHECK_EXAMPLES_FORMAT
+    os: linux
 
 before_install:
   - git log --oneline --decorate --graph -30
