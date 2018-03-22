@@ -32,6 +32,10 @@ matrix:
 
   # Build example projects last, since they are affected by fewer pull requests.
   - jdk: oraclejdk8
+    env: TASK=CHECK_EXAMPLES_LICENSE
+    os: linux
+
+  - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_GRADLE
     os: linux
 
@@ -41,6 +45,10 @@ matrix:
 
   - jdk: oraclejdk8
     env: TASK=BUILD_EXAMPLES_BAZEL
+    os: linux
+
+  - jdk: oraclejdk8
+    env: TASK=CHECK_EXAMPLES_FORMAT
     os: linux
 
   # Work around https://github.com/travis-ci/travis-ci/issues/2317
