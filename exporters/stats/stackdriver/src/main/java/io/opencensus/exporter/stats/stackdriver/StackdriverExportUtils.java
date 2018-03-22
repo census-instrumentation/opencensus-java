@@ -81,6 +81,7 @@ final class StackdriverExportUtils {
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
   private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
+  private static final String PROJECT_ID_LABEL_KEY = "project_id";
 
   private static String generateDefaultTaskValue() {
     // Something like '<pid>@<hostname>', at least in Oracle and OpenJdk JVMs
@@ -398,6 +399,11 @@ final class StackdriverExportUtils {
     Resource detectedResourceType = getAutoDetectedResourceType();
     String resourceType = detectedResourceType.getKey();
     MonitoredResource.Builder builder = MonitoredResource.newBuilder().setType(resourceType);
+    if (MetadataConfig.getProjectId() != null) {
+      // For default resource, always use the project id from MetadataConfig. This allows stats from
+      // other projects (e.g from GCE running in another project) to be collected.
+      builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
+    }
     for (Label label : RESOURCE_TYPE_WITH_LABELS.get(detectedResourceType)) {
       String value = getValue(label);
       if (value == null) {
