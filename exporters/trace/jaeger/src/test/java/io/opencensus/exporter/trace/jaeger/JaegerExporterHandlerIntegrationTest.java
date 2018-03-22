@@ -135,7 +135,7 @@ public class JaegerExporterHandlerIntegrationTest {
       assertThat(data.size(), is(1));
       final JsonObject trace = data.get(0).getAsJsonObject();
       assertThat(trace, is(not(nullValue())));
-      assertThat(trace.get("traceID").getAsString(), matchesPattern("[a-z0-9]{31,32}"));
+      assertThat(trace.get("traceID").getAsString(), matchesPattern("[a-z0-9]{1,32}"));
 
       final JsonArray spans = trace.get("spans").getAsJsonArray();
       assertThat(spans, is(not(nullValue())));
@@ -143,8 +143,8 @@ public class JaegerExporterHandlerIntegrationTest {
 
       final JsonObject span = spans.get(0).getAsJsonObject();
       assertThat(span, is(not(nullValue())));
-      assertThat(span.get("traceID").getAsString(), matchesPattern("[a-z0-9]{31,32}"));
-      assertThat(span.get("spanID").getAsString(), matchesPattern("[a-z0-9]{15,16}"));
+      assertThat(span.get("traceID").getAsString(), matchesPattern("[a-z0-9]{1,32}"));
+      assertThat(span.get("spanID").getAsString(), matchesPattern("[a-z0-9]{1,16}"));
       assertThat(span.get("flags").getAsInt(), is(1));
       assertThat(span.get("operationName").getAsString(), is(SPAN_NAME));
       assertThat(span.get("references").getAsJsonArray().size(), is(0));
