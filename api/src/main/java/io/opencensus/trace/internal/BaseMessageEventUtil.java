@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package io.opencensus.internal;
+package io.opencensus.trace.internal;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.trace.MessageEvent;
+import io.opencensus.common.Internal;
 
 /**
- * Helper class to convert/cast between for {@link MessageEvent} and {@link NetworkEvent}.
- *
- * @since 0.12
+ * Helper class to convert/cast between for {@link io.opencensus.trace.MessageEvent} and {@link
+ * io.opencensus.trace.NetworkEvent}.
  */
+@Internal
 @SuppressWarnings("deprecation")
 public final class BaseMessageEventUtil {
   /**
-   * Cast or convert a {@link io.opencensus.trace.BaseMessageEvent} to {@link MessageEvent}.
+   * Cast or convert a {@link io.opencensus.trace.BaseMessageEvent} to {@link
+   * io.opencensus.trace.MessageEvent}.
    *
    * <p>Warning: if the input is a {@code io.opencensus.trace.NetworkEvent} and contains {@code
    * kernelTimestamp} information, this information will be dropped.
@@ -36,17 +37,18 @@ public final class BaseMessageEventUtil {
    * @param event the {@code BaseMessageEvent} that is being cast or converted.
    * @return a {@code MessageEvent} representation of the input.
    */
-  public static MessageEvent asMessageEvent(io.opencensus.trace.BaseMessageEvent event) {
+  public static io.opencensus.trace.MessageEvent asMessageEvent(
+      io.opencensus.trace.BaseMessageEvent event) {
     checkNotNull(event);
-    if (event instanceof MessageEvent) {
-      return (MessageEvent) event;
+    if (event instanceof io.opencensus.trace.MessageEvent) {
+      return (io.opencensus.trace.MessageEvent) event;
     }
     io.opencensus.trace.NetworkEvent networkEvent = (io.opencensus.trace.NetworkEvent) event;
-    MessageEvent.Type type =
+    io.opencensus.trace.MessageEvent.Type type =
         (networkEvent.getType() == io.opencensus.trace.NetworkEvent.Type.RECV)
-            ? MessageEvent.Type.RECEIVED
-            : MessageEvent.Type.SENT;
-    return MessageEvent.builder(type, networkEvent.getMessageId())
+            ? io.opencensus.trace.MessageEvent.Type.RECEIVED
+            : io.opencensus.trace.MessageEvent.Type.SENT;
+    return io.opencensus.trace.MessageEvent.builder(type, networkEvent.getMessageId())
         .setUncompressedMessageSize(networkEvent.getUncompressedMessageSize())
         .setCompressedMessageSize(networkEvent.getCompressedMessageSize())
         .build();
@@ -65,9 +67,9 @@ public final class BaseMessageEventUtil {
     if (event instanceof io.opencensus.trace.NetworkEvent) {
       return (io.opencensus.trace.NetworkEvent) event;
     }
-    MessageEvent messageEvent = (MessageEvent) event;
+    io.opencensus.trace.MessageEvent messageEvent = (io.opencensus.trace.MessageEvent) event;
     io.opencensus.trace.NetworkEvent.Type type =
-        (messageEvent.getType() == MessageEvent.Type.RECEIVED)
+        (messageEvent.getType() == io.opencensus.trace.MessageEvent.Type.RECEIVED)
             ? io.opencensus.trace.NetworkEvent.Type.RECV
             : io.opencensus.trace.NetworkEvent.Type.SENT;
     return io.opencensus.trace.NetworkEvent.builder(type, messageEvent.getMessageId())

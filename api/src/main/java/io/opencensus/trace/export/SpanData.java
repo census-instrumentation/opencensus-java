@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Timestamp;
-import io.opencensus.internal.BaseMessageEventUtil;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
@@ -29,6 +28,7 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
+import io.opencensus.trace.internal.BaseMessageEventUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
