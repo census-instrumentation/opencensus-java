@@ -32,9 +32,6 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.common.base.Splitter;
-import com.google.common.collect.TreeTraverser;
-import com.google.common.io.Files;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
@@ -47,7 +44,6 @@ import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
-import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 import java.util.logging.Level;
@@ -67,7 +63,7 @@ public class JaegerExporterHandlerIntegrationTest {
 
   @Test(timeout = 30000)
   public void exportToJaeger() throws InterruptedException, IOException {
-    assumeThat("docker is installed and executable", dockerIsInstalledAndExecutable(), is(true));
+    assumeThat("docker is installed and running", isDockerInstalledAndRunning(), is(true));
 
     final Process jaeger =
         Runtime.getRuntime()
@@ -204,24 +200,22 @@ public class JaegerExporterHandlerIntegrationTest {
     }
   }
 
-  private static boolean dockerIsInstalledAndExecutable() {
-    final TreeTraverser<File> traverser = Files.fileTreeTraverser();
-    for (final String pathPart : Splitter.on(File.pathSeparator).split(System.getenv("PATH"))) {
-      final File file = new File(pathPart);
-      if (isDocker(file) && file.canExecute()) {
-        return true;
-      } else if (file.isDirectory()) {
-        for (final File child : traverser.children(file)) {
-          if (isDocker(child) && child.canExecute()) {
-            return true;
-          }
-        }
-      }
+  private static boolean isDockerInstalledAndRunning() {
+    final String command = "docker -v";
+    try {
+      return Runtime.getRuntime().exec(command).waitFor() == 0;
+    } catch (IOException e) {
+      logger.log(
+          Level.WARNING,
+          format("Failed to run '%s' to find if docker is installed and running", command),
+          e);
+    } catch (InterruptedException e) {
+      logger.log(
+          Level.WARNING,
+          format(
+              "Interrupted '%s' while trying to find if docker is installed and running", command),
+          e);
     }
     return false;
-  }
-
-  private static boolean isDocker(final File file) {
-    return file.isFile() && file.getName().toLowerCase().equals("docker");
   }
 }
