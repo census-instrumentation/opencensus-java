@@ -97,7 +97,7 @@ public class ViewManagerImplTest {
   private static final Cumulative CUMULATIVE = Cumulative.create();
 
   private static final double EPSILON = 1e-7;
-  private static final int MILLIS_PER_SECOND = 1000;
+  private static final long MILLIS_PER_SECOND = 1000;
   private static final Duration TEN_SECONDS = Duration.create(10, 0);
   private static final Interval INTERVAL = Interval.create(TEN_SECONDS);
 

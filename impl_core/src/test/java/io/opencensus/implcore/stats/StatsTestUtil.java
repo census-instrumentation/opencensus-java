@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 /** Stats test utilities. */
@@ -76,8 +77,9 @@ final class StatsTestUtil {
       Map<? extends List<? extends TagValue>, ? extends AggregationData> expected,
       double tolerance) {
     assertThat(actual.keySet()).containsExactlyElementsIn(expected.keySet());
-    for (List<? extends TagValue> tagValues : actual.keySet()) {
-      assertAggregationDataEquals(expected.get(tagValues), actual.get(tagValues), tolerance);
+    for (Entry<? extends List<? extends TagValue>, ? extends AggregationData> entry :
+        actual.entrySet()) {
+      assertAggregationDataEquals(expected.get(entry.getKey()), entry.getValue(), tolerance);
     }
   }
 

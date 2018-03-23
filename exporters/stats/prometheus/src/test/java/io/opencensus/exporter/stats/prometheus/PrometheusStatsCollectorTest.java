@@ -40,9 +40,7 @@ import io.prometheus.client.Collector.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
@@ -51,8 +49,6 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link PrometheusStatsCollector}. */
 @RunWith(JUnit4.class)
 public class PrometheusStatsCollectorTest {
-
-  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final Cumulative CUMULATIVE = Cumulative.create();
   private static final BucketBoundaries BUCKET_BOUNDARIES =

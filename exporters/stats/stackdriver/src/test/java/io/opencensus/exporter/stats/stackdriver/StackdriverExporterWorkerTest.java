@@ -55,9 +55,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
@@ -83,8 +81,6 @@ public class StackdriverExporterWorkerTest {
   private static final Sum SUM = Sum.create();
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
-
-  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Mock private ViewManager mockViewManager;
 

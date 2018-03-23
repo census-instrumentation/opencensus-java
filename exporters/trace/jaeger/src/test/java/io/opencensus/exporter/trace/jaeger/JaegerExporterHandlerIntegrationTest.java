@@ -72,7 +72,7 @@ public class JaegerExporterHandlerIntegrationTest {
                     + "-e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p5775:5775/udp -p6831:6831/udp "
                     + "-p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 -p9411:9411 "
                     + "jaegertracing/all-in-one:1.2.0");
-    final long timeWaitingForJaegerToStart = 1000L;
+    long timeWaitingForJaegerToStart = 1000L;
     Thread.sleep(timeWaitingForJaegerToStart);
     final long startTime = currentTimeMillis();
 
@@ -99,7 +99,7 @@ public class JaegerExporterHandlerIntegrationTest {
 
       logger.info("Wait longer than the reporting duration...");
       // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
-      final long timeWaitingForSpansToBeExported = 5100L;
+      long timeWaitingForSpansToBeExported = 5100L;
       Thread.sleep(timeWaitingForSpansToBeExported);
       JaegerTraceExporter.unregister();
       final long endTime = currentTimeMillis();

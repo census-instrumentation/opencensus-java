@@ -106,7 +106,7 @@ public class SignalFxSessionAdaptorTest {
             Aggregation.Sum.create(), AggregationWindow.Interval.create(ONE_SECOND)));
     assertNull(
         SignalFxSessionAdaptor.getMetricTypeForAggregation(
-            Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.14d))),
+            Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.15d))),
             AggregationWindow.Cumulative.create()));
   }
 
@@ -143,7 +143,7 @@ public class SignalFxSessionAdaptorTest {
   public void unsupportedAggregationYieldsNoDatapoints() {
     Mockito.when(view.getAggregation())
         .thenReturn(
-            Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.14d))));
+            Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.15d))));
     Mockito.when(view.getWindow()).thenReturn(AggregationWindow.Cumulative.create());
     List<DataPoint> datapoints = SignalFxSessionAdaptor.adapt(viewData);
     assertEquals(0, datapoints.size());
@@ -159,12 +159,12 @@ public class SignalFxSessionAdaptorTest {
 
   @Test
   public void createDatumFromDoubleSum() {
-    SumDataDouble data = SumDataDouble.create(3.14d);
+    SumDataDouble data = SumDataDouble.create(3.15d);
     Datum datum = SignalFxSessionAdaptor.createDatum(data);
     assertTrue(datum.hasDoubleValue());
     assertFalse(datum.hasIntValue());
     assertFalse(datum.hasStrValue());
-    assertEquals(3.14d, datum.getDoubleValue(), 0d);
+    assertEquals(3.15d, datum.getDoubleValue(), 0d);
   }
 
   @Test
@@ -189,12 +189,12 @@ public class SignalFxSessionAdaptorTest {
 
   @Test
   public void createDatumFromMean() {
-    MeanData data = MeanData.create(3.14d, 2L);
+    MeanData data = MeanData.create(3.15d, 2L);
     Datum datum = SignalFxSessionAdaptor.createDatum(data);
     assertTrue(datum.hasDoubleValue());
     assertFalse(datum.hasIntValue());
     assertFalse(datum.hasStrValue());
-    assertEquals(3.14d, datum.getDoubleValue(), 0d);
+    assertEquals(3.15d, datum.getDoubleValue(), 0d);
   }
 
   @Test
