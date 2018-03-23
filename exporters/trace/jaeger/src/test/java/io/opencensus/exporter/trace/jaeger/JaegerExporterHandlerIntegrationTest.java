@@ -47,6 +47,7 @@ import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -242,6 +243,15 @@ public class JaegerExporterHandlerIntegrationTest {
       } catch (ConnectException e) {
         logger.log(Level.INFO, "Jaeger is not yet ready, waiting a bit...");
         Thread.sleep(10L);
+      } catch (SocketException e) {
+        if (e.getMessage().contains("Unexpected end of file from server")) {
+          // Jaeger seems to accept connections even though it is not yet ready to handle HTTP
+          // requests.
+          logger.log(Level.INFO, "Jaeger is still not yet ready, waiting a bit more...", e);
+          Thread.sleep(10L);
+        } else {
+          throw e;
+        }
       }
     }
   }
