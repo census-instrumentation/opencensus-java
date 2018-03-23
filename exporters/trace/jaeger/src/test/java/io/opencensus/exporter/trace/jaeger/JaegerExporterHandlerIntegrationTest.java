@@ -82,11 +82,12 @@ public class JaegerExporterHandlerIntegrationTest {
       JaegerTraceExporter.createAndRegister(
           format("http://%s:14268/api/traces", JAEGER_HOST), SERVICE_NAME);
 
+      final int spanDurationInMillis = new Random().nextInt(10) + 1;
+
       final Scope scopedSpan = spanBuilder.startScopedSpan();
       try {
         tracer.getCurrentSpan().addAnnotation(START_PROCESSING_VIDEO);
-        // Sleep for [0,10] milliseconds to fake work.
-        Thread.sleep(new Random().nextInt(10) + 1);
+        Thread.sleep(spanDurationInMillis); // Fake work.
         tracer.getCurrentSpan().putAttribute("foo", AttributeValue.stringAttributeValue("bar"));
         tracer.getCurrentSpan().addAnnotation(FINISHED_PROCESSING_VIDEO);
       } catch (Exception e) {
@@ -152,9 +153,13 @@ public class JaegerExporterHandlerIntegrationTest {
           is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTimeInMillis))));
       assertThat(
           span.get("duration").getAsLong(),
+          is(greaterThanOrEqualTo(MILLISECONDS.toMicros(spanDurationInMillis))));
+      assertThat(
+          span.get("duration").getAsLong(),
           is(
-              greaterThanOrEqualTo(
-                  timeWaitingForJaegerToStartInMillis + timeWaitingForSpansToBeExportedInMillis)));
+              lessThanOrEqualTo(
+                  MILLISECONDS.toMicros(
+                      spanDurationInMillis + timeWaitingForSpansToBeExportedInMillis))));
 
       final JsonArray tags = span.get("tags").getAsJsonArray();
       assertThat(tags.size(), is(1));
