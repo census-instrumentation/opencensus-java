@@ -30,6 +30,7 @@ import static org.junit.Assume.assumeThat;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.GsonBuilder;
@@ -45,6 +46,7 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,6 +54,7 @@ import org.junit.Test;
 
 public class JaegerExporterHandlerIntegrationTest {
   private static final String JAEGER_HOST = "127.0.0.1";
+  private static final int OK = 200;
   private static final String SERVICE_NAME = "test";
   private static final String SPAN_NAME = "my.org/ProcessVideo";
   private static final String START_PROCESSING_VIDEO = "Start processing video.";
@@ -60,6 +63,8 @@ public class JaegerExporterHandlerIntegrationTest {
   private static final Logger logger =
       Logger.getLogger(JaegerExporterHandlerIntegrationTest.class.getName());
   private static final Tracer tracer = Tracing.getTracer();
+
+  private HttpRequestFactory httpRequestFactory = new NetHttpTransport().createRequestFactory();
 
   @Test(timeout = 30000)
   public void exportToJaeger() throws InterruptedException, IOException {
@@ -72,8 +77,7 @@ public class JaegerExporterHandlerIntegrationTest {
                     + "-e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p5775:5775/udp -p6831:6831/udp "
                     + "-p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 -p9411:9411 "
                     + "jaegertracing/all-in-one:1.2.0");
-    long timeWaitingForJaegerToStartInMillis = 1000L;
-    Thread.sleep(timeWaitingForJaegerToStartInMillis);
+    waitForJaegerToStart(format("http://%s:16686", JAEGER_HOST));
     final long startTimeInMillis = currentTimeMillis();
 
     try {
@@ -107,16 +111,14 @@ public class JaegerExporterHandlerIntegrationTest {
 
       // Get traces recorded by Jaeger:
       final HttpRequest request =
-          new NetHttpTransport()
-              .createRequestFactory()
-              .buildGetRequest(
-                  new GenericUrl(
-                      format(
-                          "http://%s:16686/api/traces?end=%d&limit=20&lookback=1m&maxDuration&minDuration&service=%s",
-                          JAEGER_HOST, MILLISECONDS.toMicros(currentTimeMillis()), SERVICE_NAME)));
+          httpRequestFactory.buildGetRequest(
+              new GenericUrl(
+                  format(
+                      "http://%s:16686/api/traces?end=%d&limit=20&lookback=1m&maxDuration&minDuration&service=%s",
+                      JAEGER_HOST, MILLISECONDS.toMicros(currentTimeMillis()), SERVICE_NAME)));
       final HttpResponse response = request.execute();
       final String body = response.parseAsString();
-      assertThat("Response was: " + body, response.getStatusCode(), is(200));
+      assertThat("Response was: " + body, response.getStatusCode(), is(OK));
 
       final JsonObject result = new JsonParser().parse(body).getAsJsonObject();
       // Pretty-print for debugging purposes:
@@ -225,5 +227,22 @@ public class JaegerExporterHandlerIntegrationTest {
           e);
     }
     return false;
+  }
+
+  private void waitForJaegerToStart(final String url) throws IOException, InterruptedException {
+    logger.log(Level.INFO, "Waiting for Jaeger to be ready...");
+    while (true) { // We rely on the test's timeout to avoid looping forever.
+      try {
+        final HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(url));
+        final HttpResponse response = request.execute();
+        if (response.getStatusCode() == OK) {
+          logger.log(Level.INFO, "Jaeger is now ready.");
+          return;
+        }
+      } catch (ConnectException e) {
+        logger.log(Level.INFO, "Jaeger is not yet ready, waiting a bit...");
+        Thread.sleep(10L);
+      }
+    }
   }
 }
