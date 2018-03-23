@@ -72,9 +72,9 @@ public class JaegerExporterHandlerIntegrationTest {
                     + "-e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p5775:5775/udp -p6831:6831/udp "
                     + "-p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 -p9411:9411 "
                     + "jaegertracing/all-in-one:1.2.0");
-    long timeWaitingForJaegerToStart = 1000L;
-    Thread.sleep(timeWaitingForJaegerToStart);
-    final long startTime = currentTimeMillis();
+    long timeWaitingForJaegerToStartInMillis = 1000L;
+    Thread.sleep(timeWaitingForJaegerToStartInMillis);
+    final long startTimeInMillis = currentTimeMillis();
 
     try {
       SpanBuilder spanBuilder =
@@ -99,10 +99,10 @@ public class JaegerExporterHandlerIntegrationTest {
 
       logger.info("Wait longer than the reporting duration...");
       // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
-      long timeWaitingForSpansToBeExported = 5100L;
-      Thread.sleep(timeWaitingForSpansToBeExported);
+      long timeWaitingForSpansToBeExportedInMillis = 5100L;
+      Thread.sleep(timeWaitingForSpansToBeExportedInMillis);
       JaegerTraceExporter.unregister();
-      final long endTime = currentTimeMillis();
+      final long endTimeInMillis = currentTimeMillis();
 
       // Get traces recorded by Jaeger:
       final HttpRequest request =
@@ -146,12 +146,15 @@ public class JaegerExporterHandlerIntegrationTest {
       assertThat(span.get("references").getAsJsonArray().size(), is(0));
       assertThat(
           span.get("startTime").getAsLong(),
-          is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTime))));
+          is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTimeInMillis))));
       assertThat(
-          span.get("startTime").getAsLong(), is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTime))));
+          span.get("startTime").getAsLong(),
+          is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTimeInMillis))));
       assertThat(
           span.get("duration").getAsLong(),
-          is(greaterThanOrEqualTo(timeWaitingForJaegerToStart + timeWaitingForSpansToBeExported)));
+          is(
+              greaterThanOrEqualTo(
+                  timeWaitingForJaegerToStartInMillis + timeWaitingForSpansToBeExportedInMillis)));
 
       final JsonArray tags = span.get("tags").getAsJsonArray();
       assertThat(tags.size(), is(1));
@@ -165,8 +168,8 @@ public class JaegerExporterHandlerIntegrationTest {
 
       final JsonObject log1 = logs.get(0).getAsJsonObject();
       final long ts1 = log1.get("timestamp").getAsLong();
-      assertThat(ts1, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTime))));
-      assertThat(ts1, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTime))));
+      assertThat(ts1, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTimeInMillis))));
+      assertThat(ts1, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTimeInMillis))));
       final JsonArray fields1 = log1.get("fields").getAsJsonArray();
       assertThat(fields1.size(), is(1));
       final JsonObject field1 = fields1.get(0).getAsJsonObject();
@@ -176,8 +179,8 @@ public class JaegerExporterHandlerIntegrationTest {
 
       final JsonObject log2 = logs.get(1).getAsJsonObject();
       final long ts2 = log2.get("timestamp").getAsLong();
-      assertThat(ts2, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTime))));
-      assertThat(ts2, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTime))));
+      assertThat(ts2, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTimeInMillis))));
+      assertThat(ts2, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTimeInMillis))));
       assertThat(ts2, is(greaterThanOrEqualTo(ts1)));
       final JsonArray fields2 = log2.get("fields").getAsJsonArray();
       assertThat(fields2.size(), is(1));
