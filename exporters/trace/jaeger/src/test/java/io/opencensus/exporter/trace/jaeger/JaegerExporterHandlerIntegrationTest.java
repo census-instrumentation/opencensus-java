@@ -201,7 +201,7 @@ public class JaegerExporterHandlerIntegrationTest {
   }
 
   private static boolean isDockerInstalledAndRunning() {
-    final String command = "docker -v";
+    final String command = "docker version";
     try {
       return Runtime.getRuntime().exec(command).waitFor() == 0;
     } catch (IOException e) {
