@@ -66,16 +66,17 @@ public class NoopRunningSpanStoreImplTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    SpanImpl.startSpan(
-        spanContext,
-        recordSpanOptions,
-        SPAN_NAME,
-        null,
-        false,
-        TraceParams.DEFAULT,
-        startEndHandler,
-        timestampConverter,
-        testClock);
+    spanImpl =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            null,
+            false,
+            TraceParams.DEFAULT,
+            startEndHandler,
+            timestampConverter,
+            testClock);
   }
 
   private void getMethodsShouldReturnEmpty() {
