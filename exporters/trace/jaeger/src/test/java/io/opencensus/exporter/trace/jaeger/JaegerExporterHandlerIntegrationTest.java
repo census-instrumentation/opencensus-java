@@ -244,7 +244,7 @@ public class JaegerExporterHandlerIntegrationTest {
         logger.log(Level.INFO, "Jaeger is not yet ready, waiting a bit...");
         Thread.sleep(10L);
       } catch (SocketException e) {
-        if (e.getMessage().contains("Unexpected end of file from server")) {
+        if (isRetryableError(e)) {
           // Jaeger seems to accept connections even though it is not yet ready to handle HTTP
           // requests.
           logger.log(Level.INFO, "Jaeger is still not yet ready, waiting a bit more...", e);
@@ -254,5 +254,11 @@ public class JaegerExporterHandlerIntegrationTest {
         }
       }
     }
+  }
+
+  private static boolean isRetryableError(final SocketException e) {
+    final String message = e.getMessage();
+    return message.contains("Unexpected end of file from server")
+        || message.contains("Connection reset");
   }
 }
