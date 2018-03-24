@@ -110,7 +110,6 @@ final class StackdriverExportUtils {
     builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
     builder.setType(type);
     builder.setDescription(view.getDescription());
-    builder.setUnit(view.getMeasure().getUnit());
     builder.setDisplayName("OpenCensus/" + viewName);
     for (TagKey tagKey : view.getColumns()) {
       builder.addLabels(createLabelDescriptor(tagKey));
@@ -121,6 +120,7 @@ final class StackdriverExportUtils {
             .setDescription(OPENCENSUS_TASK_DESCRIPTION)
             .setValueType(ValueType.STRING)
             .build());
+    builder.setUnit(createUnit(view.getAggregation(), view.getMeasure()));
     builder.setMetricKind(createMetricKind(view.getWindow()));
     builder.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
     return builder.build();
@@ -149,6 +149,17 @@ final class StackdriverExportUtils {
         // TODO(songya): We don't support exporting Interval stats to StackDriver in this version.
         Functions.returnConstant(MetricKind.UNRECOGNIZED), // Interval
         Functions.returnConstant(MetricKind.UNRECOGNIZED));
+  }
+
+  // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
+  @VisibleForTesting
+  static String createUnit(Aggregation aggregation, final Measure measure) {
+    return aggregation.match(
+        Functions.returnConstant(measure.getUnit()),
+        Functions.returnConstant("1"), // Count
+        Functions.returnConstant(measure.getUnit()), // Mean
+        Functions.returnConstant(measure.getUnit()), // Distribution
+        Functions.returnConstant(measure.getUnit()));
   }
 
   // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
