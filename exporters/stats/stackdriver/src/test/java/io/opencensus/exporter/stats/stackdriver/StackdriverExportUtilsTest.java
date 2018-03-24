@@ -354,6 +354,45 @@ public class StackdriverExportUtilsTest {
   }
 
   @Test
+  public void createMetricDescriptor_cumulative_count() {
+    View view =
+        View.create(
+            Name.create(VIEW_NAME),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            COUNT,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    MetricDescriptor metricDescriptor =
+        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+    assertThat(metricDescriptor.getName())
+        .isEqualTo(
+            "projects/"
+                + PROJECT_ID
+                + "/metricDescriptors/custom.googleapis.com/opencensus/"
+                + VIEW_NAME);
+    assertThat(metricDescriptor.getDescription()).isEqualTo(VIEW_DESCRIPTION);
+    assertThat(metricDescriptor.getDisplayName()).isEqualTo("OpenCensus/" + VIEW_NAME);
+    assertThat(metricDescriptor.getType())
+        .isEqualTo("custom.googleapis.com/opencensus/" + VIEW_NAME);
+    assertThat(metricDescriptor.getUnit()).isEqualTo("1");
+    assertThat(metricDescriptor.getMetricKind()).isEqualTo(MetricKind.CUMULATIVE);
+    assertThat(metricDescriptor.getValueType()).isEqualTo(MetricDescriptor.ValueType.INT64);
+    assertThat(metricDescriptor.getLabelsList())
+        .containsExactly(
+            LabelDescriptor.newBuilder()
+                .setKey(KEY.getName())
+                .setDescription(StackdriverExportUtils.LABEL_DESCRIPTION)
+                .setValueType(ValueType.STRING)
+                .build(),
+            LabelDescriptor.newBuilder()
+                .setKey(StackdriverExportUtils.OPENCENSUS_TASK)
+                .setDescription(StackdriverExportUtils.OPENCENSUS_TASK_DESCRIPTION)
+                .setValueType(ValueType.STRING)
+                .build());
+  }
+
+  @Test
   public void createMetricDescriptor_interval() {
     View view =
         View.create(
