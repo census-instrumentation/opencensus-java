@@ -143,6 +143,15 @@ public class StackdriverExportUtilsTest {
   }
 
   @Test
+  public void createUnit() {
+    assertThat(StackdriverExportUtils.createUnit(SUM, MEASURE_DOUBLE)).isEqualTo(MEASURE_UNIT);
+    assertThat(StackdriverExportUtils.createUnit(COUNT, MEASURE_DOUBLE)).isEqualTo("1");
+    assertThat(StackdriverExportUtils.createUnit(MEAN, MEASURE_DOUBLE)).isEqualTo(MEASURE_UNIT);
+    assertThat(StackdriverExportUtils.createUnit(DISTRIBUTION, MEASURE_DOUBLE))
+        .isEqualTo(MEASURE_UNIT);
+  }
+
+  @Test
   public void createMetric() {
     View view =
         View.create(
