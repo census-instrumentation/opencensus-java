@@ -133,7 +133,7 @@ public class TagContextSerializationTest {
         encodeString(tag.getKey().getName(), expected);
         encodeString(tag.getValue().asString(), expected);
       }
-      possibleOutputs.add(expected.toString());
+      possibleOutputs.add(new String(expected.toByteArray(), Charsets.UTF_8));
     }
 
     assertThat(possibleOutputs).contains(new String(actual, Charsets.UTF_8));

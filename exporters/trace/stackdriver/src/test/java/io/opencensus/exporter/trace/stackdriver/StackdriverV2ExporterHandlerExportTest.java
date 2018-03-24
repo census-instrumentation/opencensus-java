@@ -20,12 +20,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.cloud.trace.v2.TraceServiceClient;
 import com.google.cloud.trace.v2.stub.TraceServiceStub;
-import com.google.devtools.cloudtrace.v2.Span;
 import io.opencensus.trace.export.SpanData;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +43,7 @@ public final class StackdriverV2ExporterHandlerExportTest {
   private StackdriverV2ExporterHandler handler;
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
     // TODO(@Hailong): TraceServiceClient.create(TraceServiceStub) is a beta API and might change
     // in the future.
@@ -59,7 +56,6 @@ public final class StackdriverV2ExporterHandlerExportTest {
     when(traceServiceStub.batchWriteSpansCallable())
         .thenThrow(new RuntimeException("TraceServiceStub called"));
     Collection<SpanData> spanDataList = Collections.<SpanData>emptyList();
-    List<Span> spanList = Collections.<Span>emptyList();
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("TraceServiceStub called");
     handler.export(spanDataList);

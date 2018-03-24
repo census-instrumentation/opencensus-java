@@ -245,8 +245,6 @@ subprojects {
             html.enabled = true
         }
     }
-    // Disable findbugs for tests.
-    findbugsTest.enabled = false
 
     checkstyle {
         configFile = file("$rootDir/buildscripts/checkstyle.xml")

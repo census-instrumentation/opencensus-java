@@ -1061,8 +1061,5 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           INTERVAL_HOUR);
 
-  // Visible for testing.
-  RpcViewConstants() {
-    throw new AssertionError();
-  }
+  private RpcViewConstants() {}
 }

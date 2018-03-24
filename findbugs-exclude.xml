@@ -23,15 +23,54 @@
     <Class name="io.opencensus.trace.internal.BaseMessageEventUtil" />
   </Match>
 
-  <!-- Suppress all FindBugs warnings about NullPointerExceptions. They are redundant with the -->
-  <!-- Checker Framework's warnings, and they sometimes conflict. -->
+  <!-- Suppress some FindBugs warnings related to performance or robustness -->
+  <!-- in test classes, where those issues are less important. -->
+  <Match>
+    <!-- Reason: Only needed for performance. -->
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+    <Source name="~.*Test\.java" />
+  </Match>
+  <Match>
+    <!-- Reason: Only needed for performance. -->
+    <Bug pattern="WMI_WRONG_MAP_ITERATOR"/>
+    <Source name="~.*Test\.java" />
+  </Match>
+  <Match>
+    <!-- Reason: Only needed for performance. -->
+    <Bug pattern="UM_UNNECESSARY_MATH"/>
+    <Source name="~.*Test\.java" />
+  </Match>
+  <Match>
+    <!-- Reason: This is less important in a test environment. -->
+    <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
+    <Source name="~.*Test\.java" />
+  </Match>
+  <Match>
+    <!-- Reason: Many classes initialize fields in @Before methods. -->
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    <Source name="~.*Test\.java" />
+  </Match>
+
+  <!-- Suppress all FindBugs warnings about NullPointerExceptions in -->
+  <!-- non-test code. They are redundant with the Checker Framework's -->
+  <!-- warnings, and they sometimes conflict. These warnings are still -->
+  <!-- useful in test code, where we don't use the Checker Framework. -->
   <Match>
     <Bug code="NP"/>
+    <Not>
+      <Source name="~.*Test\.java" />
+    </Not>
   </Match>
   <Match>
     <Bug pattern="UR_UNINIT_READ"/>
+    <Not>
+      <Source name="~.*Test\.java" />
+    </Not>
   </Match>
   <Match>
     <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    <Not>
+      <Source name="~.*Test\.java" />
+    </Not>
   </Match>
 </FindBugsFilter>

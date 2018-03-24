@@ -56,9 +56,4 @@ public class RpcMeasureConstantsTest {
     assertThat(RpcMeasureConstants.RPC_SERVER_STARTED_COUNT).isNotNull();
     assertThat(RpcMeasureConstants.RPC_SERVER_FINISHED_COUNT).isNotNull();
   }
-
-  @Test(expected = AssertionError.class)
-  public void testConstructor() {
-    new RpcMeasureConstants();
-  }
 }
