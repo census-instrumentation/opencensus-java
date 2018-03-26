@@ -30,6 +30,7 @@ import static org.junit.Assume.assumeThat;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.gson.GsonBuilder;
@@ -45,6 +46,8 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketException;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,6 +55,7 @@ import org.junit.Test;
 
 public class JaegerExporterHandlerIntegrationTest {
   private static final String JAEGER_HOST = "127.0.0.1";
+  private static final int OK = 200;
   private static final String SERVICE_NAME = "test";
   private static final String SPAN_NAME = "my.org/ProcessVideo";
   private static final String START_PROCESSING_VIDEO = "Start processing video.";
@@ -60,6 +64,8 @@ public class JaegerExporterHandlerIntegrationTest {
   private static final Logger logger =
       Logger.getLogger(JaegerExporterHandlerIntegrationTest.class.getName());
   private static final Tracer tracer = Tracing.getTracer();
+
+  private HttpRequestFactory httpRequestFactory = new NetHttpTransport().createRequestFactory();
 
   @Test(timeout = 30000)
   public void exportToJaeger() throws InterruptedException, IOException {
@@ -72,9 +78,8 @@ public class JaegerExporterHandlerIntegrationTest {
                     + "-e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p5775:5775/udp -p6831:6831/udp "
                     + "-p6832:6832/udp -p5778:5778 -p16686:16686 -p14268:14268 -p9411:9411 "
                     + "jaegertracing/all-in-one:1.2.0");
-    long timeWaitingForJaegerToStart = 1000L;
-    Thread.sleep(timeWaitingForJaegerToStart);
-    final long startTime = currentTimeMillis();
+    waitForJaegerToStart(format("http://%s:16686", JAEGER_HOST));
+    final long startTimeInMillis = currentTimeMillis();
 
     try {
       SpanBuilder spanBuilder =
@@ -82,11 +87,12 @@ public class JaegerExporterHandlerIntegrationTest {
       JaegerTraceExporter.createAndRegister(
           format("http://%s:14268/api/traces", JAEGER_HOST), SERVICE_NAME);
 
+      final int spanDurationInMillis = new Random().nextInt(10) + 1;
+
       final Scope scopedSpan = spanBuilder.startScopedSpan();
       try {
         tracer.getCurrentSpan().addAnnotation(START_PROCESSING_VIDEO);
-        // Sleep for [0,10] milliseconds to fake work.
-        Thread.sleep(new Random().nextInt(10) + 1);
+        Thread.sleep(spanDurationInMillis); // Fake work.
         tracer.getCurrentSpan().putAttribute("foo", AttributeValue.stringAttributeValue("bar"));
         tracer.getCurrentSpan().addAnnotation(FINISHED_PROCESSING_VIDEO);
       } catch (Exception e) {
@@ -99,23 +105,21 @@ public class JaegerExporterHandlerIntegrationTest {
 
       logger.info("Wait longer than the reporting duration...");
       // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
-      long timeWaitingForSpansToBeExported = 5100L;
-      Thread.sleep(timeWaitingForSpansToBeExported);
+      long timeWaitingForSpansToBeExportedInMillis = 5100L;
+      Thread.sleep(timeWaitingForSpansToBeExportedInMillis);
       JaegerTraceExporter.unregister();
-      final long endTime = currentTimeMillis();
+      final long endTimeInMillis = currentTimeMillis();
 
       // Get traces recorded by Jaeger:
       final HttpRequest request =
-          new NetHttpTransport()
-              .createRequestFactory()
-              .buildGetRequest(
-                  new GenericUrl(
-                      format(
-                          "http://%s:16686/api/traces?end=%d&limit=20&lookback=1m&maxDuration&minDuration&service=%s",
-                          JAEGER_HOST, MILLISECONDS.toMicros(currentTimeMillis()), SERVICE_NAME)));
+          httpRequestFactory.buildGetRequest(
+              new GenericUrl(
+                  format(
+                      "http://%s:16686/api/traces?end=%d&limit=20&lookback=1m&maxDuration&minDuration&service=%s",
+                      JAEGER_HOST, MILLISECONDS.toMicros(currentTimeMillis()), SERVICE_NAME)));
       final HttpResponse response = request.execute();
       final String body = response.parseAsString();
-      assertThat("Response was: " + body, response.getStatusCode(), is(200));
+      assertThat("Response was: " + body, response.getStatusCode(), is(OK));
 
       final JsonObject result = new JsonParser().parse(body).getAsJsonObject();
       // Pretty-print for debugging purposes:
@@ -146,12 +150,19 @@ public class JaegerExporterHandlerIntegrationTest {
       assertThat(span.get("references").getAsJsonArray().size(), is(0));
       assertThat(
           span.get("startTime").getAsLong(),
-          is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTime))));
+          is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTimeInMillis))));
       assertThat(
-          span.get("startTime").getAsLong(), is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTime))));
+          span.get("startTime").getAsLong(),
+          is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTimeInMillis))));
       assertThat(
           span.get("duration").getAsLong(),
-          is(greaterThanOrEqualTo(timeWaitingForJaegerToStart + timeWaitingForSpansToBeExported)));
+          is(greaterThanOrEqualTo(MILLISECONDS.toMicros(spanDurationInMillis))));
+      assertThat(
+          span.get("duration").getAsLong(),
+          is(
+              lessThanOrEqualTo(
+                  MILLISECONDS.toMicros(
+                      spanDurationInMillis + timeWaitingForSpansToBeExportedInMillis))));
 
       final JsonArray tags = span.get("tags").getAsJsonArray();
       assertThat(tags.size(), is(1));
@@ -165,8 +176,8 @@ public class JaegerExporterHandlerIntegrationTest {
 
       final JsonObject log1 = logs.get(0).getAsJsonObject();
       final long ts1 = log1.get("timestamp").getAsLong();
-      assertThat(ts1, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTime))));
-      assertThat(ts1, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTime))));
+      assertThat(ts1, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTimeInMillis))));
+      assertThat(ts1, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTimeInMillis))));
       final JsonArray fields1 = log1.get("fields").getAsJsonArray();
       assertThat(fields1.size(), is(1));
       final JsonObject field1 = fields1.get(0).getAsJsonObject();
@@ -176,8 +187,8 @@ public class JaegerExporterHandlerIntegrationTest {
 
       final JsonObject log2 = logs.get(1).getAsJsonObject();
       final long ts2 = log2.get("timestamp").getAsLong();
-      assertThat(ts2, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTime))));
-      assertThat(ts2, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTime))));
+      assertThat(ts2, is(greaterThanOrEqualTo(MILLISECONDS.toMicros(startTimeInMillis))));
+      assertThat(ts2, is(lessThanOrEqualTo(MILLISECONDS.toMicros(endTimeInMillis))));
       assertThat(ts2, is(greaterThanOrEqualTo(ts1)));
       final JsonArray fields2 = log2.get("fields").getAsJsonArray();
       assertThat(fields2.size(), is(1));
@@ -217,5 +228,37 @@ public class JaegerExporterHandlerIntegrationTest {
           e);
     }
     return false;
+  }
+
+  private void waitForJaegerToStart(final String url) throws IOException, InterruptedException {
+    logger.log(Level.INFO, "Waiting for Jaeger to be ready...");
+    while (true) { // We rely on the test's timeout to avoid looping forever.
+      try {
+        final HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(url));
+        final HttpResponse response = request.execute();
+        if (response.getStatusCode() == OK) {
+          logger.log(Level.INFO, "Jaeger is now ready.");
+          return;
+        }
+      } catch (ConnectException e) {
+        logger.log(Level.INFO, "Jaeger is not yet ready, waiting a bit...");
+        Thread.sleep(10L);
+      } catch (SocketException e) {
+        if (isRetryableError(e)) {
+          // Jaeger seems to accept connections even though it is not yet ready to handle HTTP
+          // requests.
+          logger.log(Level.INFO, "Jaeger is still not yet ready, waiting a bit more...", e);
+          Thread.sleep(10L);
+        } else {
+          throw e;
+        }
+      }
+    }
+  }
+
+  private static boolean isRetryableError(final SocketException e) {
+    final String message = e.getMessage();
+    return message.contains("Unexpected end of file from server")
+        || message.contains("Connection reset");
   }
 }
