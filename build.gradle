@@ -155,7 +155,7 @@ subprojects {
         findBugsVersion = '3.0.1'
         errorProneVersion = '2.2.0'
         grpcVersion = '1.10.0'
-        guavaVersion = '19.0'
+        guavaVersion = '20.0'
         googleAuthVersion = '0.9.0'
         googleCloudVersion = '0.34.0-beta'
         signalfxVersion = '0.0.39'
