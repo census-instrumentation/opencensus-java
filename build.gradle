@@ -215,8 +215,8 @@ subprojects {
             compileOnly libraries.auto_value
         }
 
-        compile libraries.errorprone,
-                libraries.jsr305
+        compileOnly libraries.errorprone,
+                    libraries.jsr305
 
         testCompile libraries.guava_testlib,
                 libraries.junit,
