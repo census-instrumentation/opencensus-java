@@ -92,7 +92,7 @@ public final class QuickStart {
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
   // frontendKey allows us to break down the recorded data
-  private static final TagKey FRONTEND_KEY = TagKey.create("my.org/keys/frontend");
+  private static final TagKey FRONTEND_KEY = TagKey.create("frontend");
 
   // videoSize will measure the size of processed videos.
   private static final MeasureLong VIDEO_SIZE = MeasureLong.create(
