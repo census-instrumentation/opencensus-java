@@ -62,7 +62,7 @@ This uses the default configuration for authentication and a given project ID.
 public class MyMainClass {
   public static void main(String[] args) {
     StackdriverStatsExporter.createAndRegister(
-        StackdriverStatsConfiguration.builder().setProjectId("MyStackdriverProjectId").build());
+        StackdriverStatsConfiguration.builder().build());
   }
 }
 ```
