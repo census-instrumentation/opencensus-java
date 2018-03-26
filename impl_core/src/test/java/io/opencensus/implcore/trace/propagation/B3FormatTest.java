@@ -23,6 +23,7 @@ import static io.opencensus.implcore.trace.propagation.B3Format.X_B3_SAMPLED;
 import static io.opencensus.implcore.trace.propagation.B3Format.X_B3_SPAN_ID;
 import static io.opencensus.implcore.trace.propagation.B3Format.X_B3_TRACE_ID;
 
+import io.opencensus.testing.propagation.HttpUtils;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -217,5 +218,8 @@ public class B3FormatTest {
     assertThat(b3Format.fields())
         .containsExactly(
             X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS);
+    for (String header : b3Format.fields()) {
+      assertThat(HttpUtils.validateHeaderName(header)).isEqualTo(true);
+    }
   }
 }
