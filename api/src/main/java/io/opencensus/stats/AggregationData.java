@@ -69,6 +69,7 @@ public abstract class AggregationData {
    *
    * @since 0.13
    */
+  @SuppressWarnings("InconsistentOverloads")
   public abstract <T> T match(
       Function<? super SumDataDouble, T> p0,
       Function<? super SumDataLong, T> p1,

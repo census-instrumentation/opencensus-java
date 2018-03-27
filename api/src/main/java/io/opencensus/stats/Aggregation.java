@@ -63,6 +63,7 @@ public abstract class Aggregation {
    *
    * @since 0.13
    */
+  @SuppressWarnings("InconsistentOverloads")
   public abstract <T> T match(
       Function<? super Sum, T> p0,
       Function<? super Count, T> p1,
