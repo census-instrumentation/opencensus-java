@@ -37,9 +37,6 @@ import javax.annotation.concurrent.Immutable;
  */
 @AutoValue
 @Immutable
-// Suppress Checker Framework warning about missing @Nullable in generated equals method.
-@AutoValue.CopyAnnotations
-@SuppressWarnings("nullness")
 abstract class ProbabilitySampler extends Sampler {
 
   ProbabilitySampler() {}

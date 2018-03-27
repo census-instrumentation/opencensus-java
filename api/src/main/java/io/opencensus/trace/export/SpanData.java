@@ -48,9 +48,6 @@ import org.checkerframework.dataflow.qual.Deterministic;
  */
 @Immutable
 @AutoValue
-// Suppress Checker Framework warning about missing @Nullable in generated equals method.
-@AutoValue.CopyAnnotations
-@SuppressWarnings("nullness")
 public abstract class SpanData {
 
   /**
@@ -267,9 +264,6 @@ public abstract class SpanData {
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class TimedEvent<T> {
     /**
      * Returns a new immutable {@code TimedEvent<T>}.
@@ -312,9 +306,6 @@ public abstract class SpanData {
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class TimedEvents<T> {
     /**
      * Returns a new immutable {@code TimedEvents<T>}.
@@ -358,9 +349,6 @@ public abstract class SpanData {
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class Attributes {
     /**
      * Returns a new immutable {@code Attributes}.
@@ -406,9 +394,6 @@ public abstract class SpanData {
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class Links {
     /**
      * Returns a new immutable {@code Links}.

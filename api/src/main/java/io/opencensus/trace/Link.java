@@ -35,9 +35,6 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
-// Suppress Checker Framework warning about missing @Nullable in generated equals method.
-@AutoValue.CopyAnnotations
-@SuppressWarnings("nullness")
 public abstract class Link {
   private static final Map<String, AttributeValue> EMPTY_ATTRIBUTES = Collections.emptyMap();
 

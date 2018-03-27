@@ -387,7 +387,9 @@ subprojects {
             tasks.withType(JavaCompile).all { JavaCompile compile ->
                 compile.doFirst {
                     compile.options.compilerArgs += [
-                        '-Xmaxerrs', '10000', "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
+                        '-Xmaxerrs', '10000',
+                        "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
+                        "-AskipDefs=\\.AutoValue_"
                     ]
                     options.fork = true
                     options.forkOptions.jvmArgs += ["-Xbootclasspath/p:${configurations.checkerFrameworkJavac.asPath}"]
