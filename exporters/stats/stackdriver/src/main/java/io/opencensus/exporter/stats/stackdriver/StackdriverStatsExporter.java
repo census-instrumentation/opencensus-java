@@ -70,9 +70,8 @@ public final class StackdriverStatsExporter {
 
   @VisibleForTesting static final Duration DEFAULT_INTERVAL = Duration.create(60, 0);
 
-  @VisibleForTesting
-  static final MonitoredResource DEFAULT_RESOURCE =
-      MonitoredResource.newBuilder().setType("global").build();
+  private static final MonitoredResource DEFAULT_RESOURCE =
+      StackdriverExportUtils.getDefaultResource();
 
   @VisibleForTesting
   StackdriverStatsExporter(
@@ -154,8 +153,9 @@ public final class StackdriverStatsExporter {
    * <p>If {@code exportInterval} of the configuration is not set, the exporter will use the default
    * interval of one minute.
    *
-   * <p>If {@code monitoredResources} of the configuration is not set, the exporter will use the
-   * default resource with type global and no labels. In addition, please refer to
+   * <p>If {@code monitoredResources} of the configuration is not set, the exporter will try to
+   * create an appropriate {@code monitoredResources} based on the environment variables. In
+   * addition, please refer to
    * cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource for a list of valid
    * {@code MonitoredResource}s.
    *
@@ -192,7 +192,7 @@ public final class StackdriverStatsExporter {
    *
    * <p>This method uses the default interval of one minute.
    *
-   * <p>This method uses the default resource with type global and no labels.
+   * <p>This method uses the default resource created from the environment variables.
    *
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @since 0.11.0
