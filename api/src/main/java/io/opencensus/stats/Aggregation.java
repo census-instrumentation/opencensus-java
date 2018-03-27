@@ -165,6 +165,7 @@ public abstract class Aggregation {
   @Immutable
   @AutoValue
   @Deprecated
+  @AutoValue.CopyAnnotations
   public abstract static class Mean extends Aggregation {
 
     Mean() {}

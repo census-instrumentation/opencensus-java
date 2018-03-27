@@ -242,6 +242,7 @@ public abstract class AggregationData {
   @Immutable
   @AutoValue
   @Deprecated
+  @AutoValue.CopyAnnotations
   public abstract static class MeanData extends AggregationData {
 
     MeanData() {}
