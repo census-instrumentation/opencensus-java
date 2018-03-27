@@ -16,14 +16,14 @@
 
 package io.opencensus.testing.propagation;
 
-import static com.google.common.truth.Truth.assertWithMessage;
-
-import java.util.HashSet;
-import java.util.Set;
-import org.junit.Before;
+import com.google.common.collect.ImmutableList;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Tests for {@link HttpUtils}.
@@ -40,54 +40,67 @@ import org.junit.runners.JUnit4;
  * HT         = &lt;US-ASCII HT, horizontal-tab (9)&gt;
  * </pre>
  */
-@RunWith(JUnit4.class)
+@RunWith(Parameterized.class)
 public final class HttpUtilsTest {
 
-  private final Set<Character> disallowed = new HashSet<Character>();
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
-  @Before
-  public void setUp() {
-    // non-ascii and CTLs
-    for (int i = -128; i <= 31; i++) {
-      disallowed.add((char) i);
+  /** Returns the parameters used in the test. */
+  @Parameters(name = "character: ASCII {0}, disallowed: {1}")
+  public static ImmutableList<Object[]> parameters() {
+    boolean[] disallowed = new boolean[256];
+
+    // CTLs
+    for (int i = 0; i <= 31; i++) {
+      disallowed[i] = true;
     }
-    disallowed.add((char) 127);
+
+    // DEL and extended ASCII
+    for (int i = 127; i < 256; i++) {
+      disallowed[i] = true;
+    }
+
     // separators
-    disallowed.add('(');
-    disallowed.add(')');
-    disallowed.add('<');
-    disallowed.add('>');
-    disallowed.add('@');
-    disallowed.add(',');
-    disallowed.add(';');
-    disallowed.add(':');
-    disallowed.add('\\');
-    disallowed.add('"');
-    disallowed.add('/');
-    disallowed.add('[');
-    disallowed.add(']');
-    disallowed.add('?');
-    disallowed.add('=');
-    disallowed.add('{');
-    disallowed.add('}');
-    disallowed.add(' ');
-    disallowed.add('\t');
+    disallowed['('] = true;
+    disallowed[')'] = true;
+    disallowed['<'] = true;
+    disallowed['>'] = true;
+    disallowed['@'] = true;
+    disallowed[','] = true;
+    disallowed[';'] = true;
+    disallowed[':'] = true;
+    disallowed['\\'] = true;
+    disallowed['"'] = true;
+    disallowed['/'] = true;
+    disallowed['['] = true;
+    disallowed[']'] = true;
+    disallowed['?'] = true;
+    disallowed['='] = true;
+    disallowed['{'] = true;
+    disallowed['}'] = true;
+    disallowed[' '] = true;
+    disallowed['\t'] = true;
+
+    ImmutableList.Builder<Object[]> parametersBuilder = ImmutableList.<Object[]>builder();
+    for (int i = 0; i < 256; i++) {
+      parametersBuilder.add(new Object[] {(byte) i, disallowed[i]});
+    }
+    return parametersBuilder.build();
   }
 
+  /** Parameter for ASCII. */
+  @Parameter(0)
+  public byte ascii;
+
+  /** Parameter indicating whetehr the ASCII is disallowed. */
+  @Parameter(1)
+  public boolean disallowed;
+
   @Test
-  public void allowedAndDisallowed() {
-    for (int i = -128; i <= 127; i++) {
-      char ch = (char) i;
-      String header = "" + ch;
-      if (disallowed.contains(ch)) {
-        assertWithMessage(String.format("ASCII %d (%s)", i, header))
-            .that(HttpUtils.validateHeaderName(header))
-            .isEqualTo(false);
-      } else {
-        assertWithMessage(String.format("ASCII %d (%s)", i, header))
-            .that(HttpUtils.validateHeaderName(header))
-            .isEqualTo(true);
-      }
+  public void assertHeaderNameIsValid() {
+    if (disallowed) {
+      thrown.expect(AssertionError.class);
     }
+    HttpUtils.assertHeaderNameIsValid("" + (char) ascii);
   }
 }

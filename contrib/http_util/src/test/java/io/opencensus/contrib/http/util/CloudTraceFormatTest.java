@@ -286,7 +286,7 @@ public final class CloudTraceFormatTest {
   @Test
   public void fieldsShouldBeValid() {
     for (String header : cloudTraceFormat.fields()) {
-      assertThat(HttpUtils.validateHeaderName(header)).isEqualTo(true);
+      HttpUtils.assertHeaderNameIsValid(header);
     }
   }
 

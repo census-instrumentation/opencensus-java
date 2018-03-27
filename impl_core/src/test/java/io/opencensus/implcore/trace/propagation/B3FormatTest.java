@@ -219,7 +219,7 @@ public class B3FormatTest {
         .containsExactly(
             X_B3_TRACE_ID, X_B3_SPAN_ID, X_B3_PARENT_SPAN_ID, X_B3_SAMPLED, X_B3_FLAGS);
     for (String header : b3Format.fields()) {
-      assertThat(HttpUtils.validateHeaderName(header)).isEqualTo(true);
+      HttpUtils.assertHeaderNameIsValid(header);
     }
   }
 }
