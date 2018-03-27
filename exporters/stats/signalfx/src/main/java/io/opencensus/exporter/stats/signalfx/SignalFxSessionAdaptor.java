@@ -29,7 +29,6 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View;
@@ -149,9 +148,9 @@ final class SignalFxSessionAdaptor {
             return null;
           }
         },
-        new Function<MeanData, Void>() {
+        new Function<AggregationData.MeanData, Void>() {
           @Override
-          public Void apply(MeanData arg) {
+          public Void apply(AggregationData.MeanData arg) {
             builder.setDoubleValue(arg.getMean());
             return null;
           }

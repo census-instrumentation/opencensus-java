@@ -85,7 +85,6 @@ import io.opencensus.common.Duration;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
@@ -371,18 +370,18 @@ final class RpczZPageHandler extends ZPageHandler {
       snapshot.avgLatencyTotal = ((DistributionData) data).getMean();
     } else if (view == RPC_CLIENT_ROUNDTRIP_LATENCY_MINUTE_VIEW
         || view == RPC_SERVER_SERVER_LATENCY_MINUTE_VIEW) {
-      snapshot.avgLatencyLastMinute = ((MeanData) data).getMean();
+      snapshot.avgLatencyLastMinute = ((AggregationData.MeanData) data).getMean();
     } else if (view == RPC_CLIENT_ROUNDTRIP_LATENCY_HOUR_VIEW
         || view == RPC_SERVER_SERVER_LATENCY_HOUR_VIEW) {
-      snapshot.avgLatencyLastHour = ((MeanData) data).getMean();
+      snapshot.avgLatencyLastHour = ((AggregationData.MeanData) data).getMean();
     } else if (view == RPC_CLIENT_ERROR_COUNT_VIEW || view == RPC_SERVER_ERROR_COUNT_VIEW) {
-      snapshot.errorsTotal = ((MeanData) data).getCount();
+      snapshot.errorsTotal = ((AggregationData.MeanData) data).getCount();
     } else if (view == RPC_CLIENT_ERROR_COUNT_MINUTE_VIEW
         || view == RPC_SERVER_ERROR_COUNT_MINUTE_VIEW) {
-      snapshot.errorsLastMinute = ((MeanData) data).getCount();
+      snapshot.errorsLastMinute = ((AggregationData.MeanData) data).getCount();
     } else if (view == RPC_CLIENT_ERROR_COUNT_HOUR_VIEW
         || view == RPC_SERVER_ERROR_COUNT_HOUR_VIEW) {
-      snapshot.errorsLastHour = ((MeanData) data).getCount();
+      snapshot.errorsLastHour = ((AggregationData.MeanData) data).getCount();
     } else if (view == RPC_CLIENT_REQUEST_BYTES_VIEW || view == RPC_SERVER_REQUEST_BYTES_VIEW) {
       DistributionData distributionData = (DistributionData) data;
       snapshot.inputRateTotal =
@@ -392,12 +391,12 @@ final class RpczZPageHandler extends ZPageHandler {
               / getDurationInSecs((ViewData.AggregationWindowData.CumulativeData) windowData);
     } else if (view == RPC_CLIENT_REQUEST_BYTES_MINUTE_VIEW
         || view == RPC_SERVER_REQUEST_BYTES_MINUTE_VIEW) {
-      MeanData meanData = (MeanData) data;
+      AggregationData.MeanData meanData = (AggregationData.MeanData) data;
       snapshot.inputRateLastMinute =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_MINUTE;
     } else if (view == RPC_CLIENT_REQUEST_BYTES_HOUR_VIEW
         || view == RPC_SERVER_REQUEST_BYTES_HOUR_VIEW) {
-      MeanData meanData = (MeanData) data;
+      AggregationData.MeanData meanData = (AggregationData.MeanData) data;
       snapshot.inputRateLastHour =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_HOUR;
     } else if (view == RPC_CLIENT_RESPONSE_BYTES_VIEW || view == RPC_SERVER_RESPONSE_BYTES_VIEW) {
@@ -409,12 +408,12 @@ final class RpczZPageHandler extends ZPageHandler {
               / getDurationInSecs((ViewData.AggregationWindowData.CumulativeData) windowData);
     } else if (view == RPC_CLIENT_RESPONSE_BYTES_MINUTE_VIEW
         || view == RPC_SERVER_RESPONSE_BYTES_MINUTE_VIEW) {
-      MeanData meanData = (MeanData) data;
+      AggregationData.MeanData meanData = (AggregationData.MeanData) data;
       snapshot.outputRateLastMinute =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_MINUTE;
     } else if (view == RPC_CLIENT_RESPONSE_BYTES_HOUR_VIEW
         || view == RPC_SERVER_RESPONSE_BYTES_HOUR_VIEW) {
-      MeanData meanData = (MeanData) data;
+      AggregationData.MeanData meanData = (AggregationData.MeanData) data;
       snapshot.outputRateLastHour =
           meanData.getMean() * meanData.getCount() / BYTES_PER_KB / SECONDS_PER_HOUR;
     } else if (view == RPC_CLIENT_STARTED_COUNT_MINUTE_VIEW

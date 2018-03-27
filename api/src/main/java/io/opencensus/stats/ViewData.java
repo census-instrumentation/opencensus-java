@@ -25,11 +25,9 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
-import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -275,11 +273,11 @@ public abstract class ViewData {
             return null;
           }
         },
-        new Function<Mean, Void>() {
+        new Function<Aggregation.Mean, Void>() {
           @Override
-          public Void apply(Mean arg) {
+          public Void apply(Aggregation.Mean arg) {
             checkArgument(
-                aggregationData instanceof MeanData,
+                aggregationData instanceof AggregationData.MeanData,
                 createErrorMessageForAggregation(aggregation, aggregationData));
             return null;
           }

@@ -46,7 +46,6 @@ import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
-import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.View;
 import java.util.Arrays;
@@ -99,7 +98,7 @@ public final class RpcViewConstants {
               4096.0, 8192.0, 16384.0, 32768.0, 65536.0));
 
   // Use Aggregation.Mean to record sum and count stats at the same time.
-  @VisibleForTesting static final Aggregation MEAN = Mean.create();
+  @VisibleForTesting static final Aggregation MEAN = Aggregation.Mean.create();
   @VisibleForTesting static final Aggregation COUNT = Count.create();
 
   @VisibleForTesting
