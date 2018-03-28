@@ -70,7 +70,7 @@ public class HttpClientHandlerTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    handler = new HttpClientHandler<Object, Object>(tracer, textFormat, extractor, customizer);
+    handler = new HttpClientHandler<Object, Object>(tracer, extractor, customizer);
     when(tracer.spanBuilderWithExplicitParent(any(String.class), any(Span.class)))
         .thenReturn(spanBuilder);
     when(spanBuilder.startSpan()).thenReturn(span);
@@ -81,26 +81,26 @@ public class HttpClientHandlerTest {
   @Test
   public void handleStartDisallowNullSetter() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(/*setter=*/ null, carrier, request);
+    handler.<Object>handleStart(textFormat, /*setter=*/ null, carrier, request);
   }
 
   @Test
   public void handleStartWithoutSpanDisallowNullCarrier() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(textFormatSetter, /*carrier=*/ null, request);
+    handler.<Object>handleStart(textFormat, textFormatSetter, /*carrier=*/ null, request);
   }
 
   @Test
   public void handleStartDisallowNullRequest() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(textFormatSetter, carrier, /*request=*/ null);
+    handler.<Object>handleStart(textFormat, textFormatSetter, carrier, /*request=*/ null);
   }
 
   @Test
   public void handleStartShouldCreateChildSpanInCurrentContext() {
     Scope scope = tracer.withSpan(span);
     try {
-      handler.<Object>handleStart(textFormatSetter, carrier, request);
+      handler.<Object>handleStart(textFormat, textFormatSetter, carrier, request);
       verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(span));
     } finally {
       scope.close();
@@ -109,13 +109,13 @@ public class HttpClientHandlerTest {
 
   @Test
   public void handleStartShouldInjectCarrier() {
-    handler.<Object>handleStart(textFormatSetter, carrier, request);
+    handler.<Object>handleStart(textFormat, textFormatSetter, carrier, request);
     verify(textFormat).inject(same(spanContext), same(carrier), same(textFormatSetter));
   }
 
   @Test
   public void handleStartShouldInvokeCustomizer() {
-    handler.<Object>handleStart(textFormatSetter, carrier, request);
+    handler.<Object>handleStart(textFormat, textFormatSetter, carrier, request);
     verify(customizer).customizeSpanStart(same(request), same(span), same(extractor));
   }
 }

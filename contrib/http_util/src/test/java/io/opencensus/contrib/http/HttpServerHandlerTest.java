@@ -76,7 +76,7 @@ public class HttpServerHandlerTest {
   @Before
   public void setUp() throws SpanContextParseException {
     MockitoAnnotations.initMocks(this);
-    handler = new HttpServerHandler<Object, Object>(tracer, textFormat, extractor, customizer);
+    handler = new HttpServerHandler<Object, Object>(tracer, extractor, customizer);
 
     when(tracer.spanBuilderWithRemoteParent(any(String.class), same(spanContextRemote)))
         .thenReturn(spanBuilderWithRemoteParent);
@@ -93,24 +93,24 @@ public class HttpServerHandlerTest {
   @Test
   public void handleStartDisallowNullGetter() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(/*getter=*/ null, carrier, request);
+    handler.<Object>handleStart(textFormat, /*getter=*/ null, carrier, request);
   }
 
   @Test
   public void handleStartDisallowNullCarrier() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(textFormatGetter, /*carrier=*/ null, request);
+    handler.<Object>handleStart(textFormat, textFormatGetter, /*carrier=*/ null, request);
   }
 
   @Test
   public void handleStartDisallowNullRequest() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(textFormatGetter, carrier, /*request=*/ null);
+    handler.<Object>handleStart(textFormat, textFormatGetter, carrier, /*request=*/ null);
   }
 
   @Test
   public void handleStartShouldCreateChildSpanUnderParent() throws SpanContextParseException {
-    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    handler.<Object>handleStart(textFormat, textFormatGetter, carrier, request);
     verify(tracer).spanBuilderWithRemoteParent(any(String.class), same(spanContextRemote));
   }
 
@@ -118,7 +118,7 @@ public class HttpServerHandlerTest {
   public void handleStartShouldHandleContextParseException() throws Exception {
     when(textFormat.extract(same(carrier), same(textFormatGetter)))
         .thenThrow(new SpanContextParseException("test"));
-    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    handler.<Object>handleStart(textFormat, textFormatGetter, carrier, request);
     verify(tracer).spanBuilderWithExplicitParent(any(String.class), any(Span.class));
     // make sure the exception is recorded.
     verify(spanWithLocalParent).addAnnotation(any(Annotation.class));
@@ -126,13 +126,13 @@ public class HttpServerHandlerTest {
 
   @Test
   public void handleStartShouldExtractFromCarrier() throws SpanContextParseException {
-    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    handler.<Object>handleStart(textFormat, textFormatGetter, carrier, request);
     verify(textFormat).extract(same(carrier), same(textFormatGetter));
   }
 
   @Test
   public void handleStartShouldInvokeCustomizer() {
-    handler.<Object>handleStart(textFormatGetter, carrier, request);
+    handler.<Object>handleStart(textFormat, textFormatGetter, carrier, request);
     verify(customizer)
         .customizeSpanStart(same(request), same(spanWithRemoteParent), same(extractor));
   }

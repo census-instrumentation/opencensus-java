@@ -145,13 +145,10 @@ HttpResponse response = null;
 Throwable error = null;
 try {
   // Do something to send the request, and get response code from the server
-  int responseCode = request.getResponseCode();
+  response = getResponse(request);
 
   // Optionally, use #handleMessageSent in client to log a SENT event and its size.
   handler.handleMessageSent(span, sentId++, extractor.getRequestSize(request));
-
-  // Do something to read the message body.
-  response = request.getResponse();
 
   // Optionally, use #handleMessageReceived in client to log a RECEIVED event and message size.
   handler.handleMessageReceived(span, recvId++, extractor.getResponseSize(response));

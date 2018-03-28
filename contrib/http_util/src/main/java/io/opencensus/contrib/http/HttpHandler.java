@@ -23,7 +23,6 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
-import io.opencensus.trace.propagation.TextFormat;
 import javax.annotation.Nullable;
 
 /**
@@ -38,9 +37,6 @@ abstract class HttpHandler<Q, P> {
   /** The Open Census tracing component. */
   @VisibleForTesting final Tracer tracer;
 
-  /** The {@link TextFormat} used in HTTP propagation. */
-  @VisibleForTesting final TextFormat textFormat;
-
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
 
@@ -48,17 +44,11 @@ abstract class HttpHandler<Q, P> {
   @VisibleForTesting final HttpSpanCustomizer<Q, P> customizer;
 
   /** Package-protected constructor to allow access from subclasses only. */
-  HttpHandler(
-      Tracer tracer,
-      TextFormat textFormat,
-      HttpExtractor<Q, P> extractor,
-      HttpSpanCustomizer<Q, P> customizer) {
+  HttpHandler(Tracer tracer, HttpExtractor<Q, P> extractor, HttpSpanCustomizer<Q, P> customizer) {
     checkNotNull(tracer, "tracer");
-    checkNotNull(textFormat, "textFormat");
     checkNotNull(extractor, "extractor");
     checkNotNull(customizer, "customizer");
     this.tracer = tracer;
-    this.textFormat = textFormat;
     this.extractor = extractor;
     this.customizer = customizer;
   }

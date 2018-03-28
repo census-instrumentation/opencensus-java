@@ -26,7 +26,6 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
-import io.opencensus.trace.propagation.TextFormat;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +43,6 @@ public class HttpHandlerTest {
 
   @Mock private Span span;
   @Mock private Tracer tracer;
-  @Mock private TextFormat textFormat;
   @Mock private HttpExtractor<Object, Object> extractor;
   @Mock private HttpSpanCustomizer<Object, Object> customizer;
   private HttpHandler<Object, Object> handler;
@@ -60,7 +58,7 @@ public class HttpHandlerTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    handler = new HttpHandler<Object, Object>(tracer, textFormat, extractor, customizer) {};
+    handler = new HttpHandler<Object, Object>(tracer, extractor, customizer) {};
   }
 
   @Test

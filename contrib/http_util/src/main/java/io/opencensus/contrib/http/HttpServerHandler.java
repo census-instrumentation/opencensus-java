@@ -38,18 +38,14 @@ public class HttpServerHandler<Q, P> extends HttpHandler<Q, P> {
    * Creates a {@link HttpServerHandler} with given parameters.
    *
    * @param tracer the Open Census tracing component.
-   * @param textFormat the {@code TextFormat} used in HTTP propagation.
    * @param extractor the {@code HttpExtractor} used to extract information from the
    *     request/response.
    * @param customizer the {@link HttpSpanCustomizer} used to customize span behaviors.
    * @since 0.13
    */
   public HttpServerHandler(
-      Tracer tracer,
-      TextFormat textFormat,
-      HttpExtractor<Q, P> extractor,
-      HttpSpanCustomizer<Q, P> customizer) {
-    super(tracer, textFormat, extractor, customizer);
+      Tracer tracer, HttpExtractor<Q, P> extractor, HttpSpanCustomizer<Q, P> customizer) {
+    super(tracer, extractor, customizer);
   }
 
   /**
@@ -66,13 +62,16 @@ public class HttpServerHandler<Q, P> extends HttpHandler<Q, P> {
    * control when to enter the scope of this span.
    *
    * @param <C> the type of the carrier
+   * @param textFormat the {@code TextFormat} used in HTTP propagation.
    * @param getter the getter used when extracting information from the {@code carrier}.
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
    * @return a span that represents the response handling process.
    * @since 0.13
    */
-  public <C> Span handleStart(TextFormat.Getter<C> getter, C carrier, Q request) {
+  public <C> Span handleStart(
+      TextFormat textFormat, TextFormat.Getter<C> getter, C carrier, Q request) {
+    checkNotNull(textFormat, "textFormat");
     checkNotNull(getter, "getter");
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
