@@ -35,12 +35,10 @@ import io.opencensus.implcore.tags.TagContextImpl;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
-import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
@@ -501,9 +499,10 @@ abstract class MutableViewData {
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
 
-  private static final class CreateMutableMean implements Function<Mean, MutableAggregation> {
+  private static final class CreateMutableMean
+      implements Function<Aggregation.Mean, MutableAggregation> {
     @Override
-    public MutableAggregation apply(Mean arg) {
+    public MutableAggregation apply(Aggregation.Mean arg) {
       return MutableMean.create();
     }
 
@@ -549,7 +548,7 @@ abstract class MutableViewData {
   private static final class CreateMeanData implements Function<MutableMean, AggregationData> {
     @Override
     public AggregationData apply(MutableMean arg) {
-      return MeanData.create(arg.getMean(), arg.getCount());
+      return AggregationData.MeanData.create(arg.getMean(), arg.getCount());
     }
 
     private static final CreateMeanData INSTANCE = new CreateMeanData();

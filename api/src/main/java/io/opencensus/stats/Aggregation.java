@@ -26,12 +26,11 @@ import javax.annotation.concurrent.Immutable;
  * {@link Aggregation} is the process of combining a certain set of {@code MeasureValue}s for a
  * given {@code Measure} into an {@link AggregationData}.
  *
- * <p>{@link Aggregation} currently supports 4 types of basic aggregation:
+ * <p>{@link Aggregation} currently supports 3 types of basic aggregation:
  *
  * <ul>
  *   <li>Sum
  *   <li>Count
- *   <li>Mean
  *   <li>Distribution
  * </ul>
  *
@@ -49,12 +48,26 @@ public abstract class Aggregation {
    * Applies the given match function to the underlying data type.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #match(Function, Function, Function, Function)}.
    */
+  @Deprecated
   public abstract <T> T match(
       Function<? super Sum, T> p0,
       Function<? super Count, T> p1,
       Function<? super Mean, T> p2,
       Function<? super Distribution, T> p3,
+      Function<? super Aggregation, T> defaultFunction);
+
+  /**
+   * Applies the given match function to the underlying data type.
+   *
+   * @since 0.13
+   */
+  @SuppressWarnings("InconsistentOverloads")
+  public abstract <T> T match(
+      Function<? super Sum, T> p0,
+      Function<? super Count, T> p1,
+      Function<? super Distribution, T> p2,
       Function<? super Aggregation, T> defaultFunction);
 
   /**
@@ -86,6 +99,15 @@ public abstract class Aggregation {
         Function<? super Count, T> p1,
         Function<? super Mean, T> p2,
         Function<? super Distribution, T> p3,
+        Function<? super Aggregation, T> defaultFunction) {
+      return p0.apply(this);
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Distribution, T> p2,
         Function<? super Aggregation, T> defaultFunction) {
       return p0.apply(this);
     }
@@ -123,15 +145,27 @@ public abstract class Aggregation {
         Function<? super Aggregation, T> defaultFunction) {
       return p1.apply(this);
     }
+
+    @Override
+    public final <T> T match(
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Distribution, T> p2,
+        Function<? super Aggregation, T> defaultFunction) {
+      return p1.apply(this);
+    }
   }
 
   /**
    * Calculate mean on aggregated {@code MeasureValue}s.
    *
    * @since 0.8
+   * @deprecated since 0.13, use {@link Distribution} instead.
    */
   @Immutable
   @AutoValue
+  @Deprecated
+  @AutoValue.CopyAnnotations
   public abstract static class Mean extends Aggregation {
 
     Mean() {}
@@ -156,6 +190,15 @@ public abstract class Aggregation {
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
       return p2.apply(this);
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Distribution, T> p2,
+        Function<? super Aggregation, T> defaultFunction) {
+      return defaultFunction.apply(this);
     }
   }
 
@@ -198,6 +241,15 @@ public abstract class Aggregation {
         Function<? super Distribution, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
       return p3.apply(this);
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Distribution, T> p2,
+        Function<? super Aggregation, T> defaultFunction) {
+      return p2.apply(this);
     }
   }
 }
