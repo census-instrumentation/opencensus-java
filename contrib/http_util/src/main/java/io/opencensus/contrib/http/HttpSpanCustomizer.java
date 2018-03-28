@@ -59,13 +59,11 @@ public class HttpSpanCustomizer<Q, P> {
    * @param request the HTTP request entity.
    * @param spanBuilder the {@link SpanBuilder} used to start the HTTP span.
    * @param extractor the framework specific extractor to get information from the request.
-   * @return the spanBuilder itself.
    * @since 0.13
    */
-  public SpanBuilder customizeSpanBuilder(
+  public void customizeSpanBuilder(
       Q request, SpanBuilder spanBuilder, HttpExtractor<Q, P> extractor) {
     // do nothing by default.
-    return spanBuilder;
   }
 
   /**

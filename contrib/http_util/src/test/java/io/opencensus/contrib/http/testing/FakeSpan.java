@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.http;
+package io.opencensus.contrib.http.testing;
 
+import io.opencensus.common.Internal;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
@@ -27,6 +28,9 @@ import io.opencensus.trace.Status;
 import java.util.Map;
 
 /** A fake {@link Span} which allows user to set {@link SpanContext} upon initialization. */
+// TODO(hailongwen): consider using the MockableSpan in
+// https://github.com/census-instrumentation/opencensus-java/pull/410
+@Internal
 public class FakeSpan extends Span {
   public FakeSpan(SpanContext context) {
     super(context, null);

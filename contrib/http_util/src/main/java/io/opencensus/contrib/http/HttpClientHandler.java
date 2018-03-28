@@ -75,8 +75,8 @@ public final class HttpClientHandler<Q, P> extends HttpHandler<Q, P> {
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
     String spanName = customizer.getSpanName(request, extractor);
-    SpanBuilder builder =
-        customizer.customizeSpanBuilder(request, tracer.spanBuilder(spanName), extractor);
+    SpanBuilder builder = tracer.spanBuilder(spanName);
+    customizer.customizeSpanBuilder(request, builder, extractor);
     Span span = builder.startSpan();
 
     // user-defined behaviors

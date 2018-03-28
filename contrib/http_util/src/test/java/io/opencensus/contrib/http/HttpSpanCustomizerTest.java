@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.http;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -50,7 +51,8 @@ public class HttpSpanCustomizerTest {
 
   @Test
   public void defaultImplementationsDoNotCrash() {
-    customizer.getSpanName(request, extractor);
+    String spanName = customizer.getSpanName(request, extractor);
+    assertThat(spanName).isNotNull();
     customizer.customizeSpanBuilder(request, spanBuilder, extractor);
     customizer.customizeSpanStart(request, span, extractor);
     customizer.customizeSpanEnd(response, error, span, extractor);

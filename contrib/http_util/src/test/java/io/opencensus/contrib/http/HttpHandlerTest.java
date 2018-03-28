@@ -47,9 +47,7 @@ public class HttpHandlerTest {
   @Mock private HttpSpanCustomizer<Object, Object> customizer;
   private HttpHandler<Object, Object> handler;
 
-  private final Object request = new Object();
   private final Object response = new Object();
-  private final Object carrier = new Object();
   private final Exception error = new Exception("test");
   @Captor private ArgumentCaptor<MessageEvent> captor;
 

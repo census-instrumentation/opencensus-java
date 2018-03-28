@@ -18,10 +18,12 @@ package io.opencensus.contrib.http;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.opencensus.common.Scope;
+import io.opencensus.contrib.http.testing.FakeSpan;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
@@ -56,15 +58,13 @@ public class HttpClientHandlerTest {
 
   private HttpClientHandler<Object, Object> handler;
 
-  // TODO(hailongwen): use MockableSpan
   private final Random random = new Random();
   private final SpanContext spanContext =
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
-  private final Throwable error = new Exception("test");
   private final Object request = new Object();
-  private final Object response = new Object();
   private final Object carrier = new Object();
+  // TODO(hailongwen): use MockableSpan
   @Spy private FakeSpan span = new FakeSpan(spanContext);
 
   @Before
@@ -74,8 +74,9 @@ public class HttpClientHandlerTest {
     when(tracer.spanBuilderWithExplicitParent(any(String.class), any(Span.class)))
         .thenReturn(spanBuilder);
     when(spanBuilder.startSpan()).thenReturn(span);
-    when(customizer.customizeSpanBuilder(same(request), same(spanBuilder), same(extractor)))
-        .thenCallRealMethod();
+    doCallRealMethod()
+        .when(customizer)
+        .customizeSpanBuilder(same(request), same(spanBuilder), same(extractor));
   }
 
   @Test

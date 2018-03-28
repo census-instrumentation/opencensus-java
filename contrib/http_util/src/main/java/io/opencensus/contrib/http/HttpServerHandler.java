@@ -88,7 +88,7 @@ public class HttpServerHandler<Q, P> extends HttpHandler<Q, P> {
       parseError = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
     }
 
-    spanBuilder = customizer.customizeSpanBuilder(request, spanBuilder, extractor);
+    customizer.customizeSpanBuilder(request, spanBuilder, extractor);
     Span span = spanBuilder.startSpan();
     // log an annotation to indicate the error
     if (parseError != null) {

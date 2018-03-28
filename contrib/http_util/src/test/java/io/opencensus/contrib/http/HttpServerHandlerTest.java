@@ -18,9 +18,11 @@ package io.opencensus.contrib.http;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.opencensus.contrib.http.testing.FakeSpan;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
@@ -57,7 +59,6 @@ public class HttpServerHandlerTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
   private HttpServerHandler<Object, Object> handler;
 
-  // TODO(hailongwen): use `MockableSpan` instead.
   private final Random random = new Random();
   private final SpanContext spanContextRemote =
       SpanContext.create(
@@ -66,10 +67,9 @@ public class HttpServerHandlerTest {
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
 
-  private final Throwable error = new Exception("test");
   private final Object request = new Object();
-  private final Object response = new Object();
   private final Object carrier = new Object();
+  // TODO(hailongwen): use `MockableSpan` instead.
   @Spy private FakeSpan spanWithLocalParent = new FakeSpan(spanContextLocal);
   @Spy private FakeSpan spanWithRemoteParent = new FakeSpan(spanContextRemote);
 
@@ -86,8 +86,9 @@ public class HttpServerHandlerTest {
     when(spanBuilderWithLocalParent.startSpan()).thenReturn(spanWithLocalParent);
 
     when(textFormat.extract(same(carrier), same(textFormatGetter))).thenReturn(spanContextRemote);
-    when(customizer.customizeSpanBuilder(same(request), any(SpanBuilder.class), same(extractor)))
-        .thenCallRealMethod();
+    doCallRealMethod()
+        .when(customizer)
+        .customizeSpanBuilder(same(request), any(SpanBuilder.class), same(extractor));
   }
 
   @Test
