@@ -30,13 +30,12 @@ import javax.annotation.concurrent.Immutable;
  * {@link AggregationData} is the result of applying a given {@link Aggregation} to a set of {@code
  * MeasureValue}s.
  *
- * <p>{@link AggregationData} currently supports 5 types of basic aggregation values:
+ * <p>{@link AggregationData} currently supports 4 types of basic aggregation values:
  *
  * <ul>
  *   <li>SumDataDouble
  *   <li>SumDataLong
  *   <li>CountData
- *   <li>MeanData
  *   <li>DistributionData
  * </ul>
  *
@@ -54,7 +53,9 @@ public abstract class AggregationData {
    * Applies the given match function to the underlying data type.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #match(Function, Function, Function, Function, Function)}.
    */
+  @Deprecated
   public abstract <T> T match(
       Function<? super SumDataDouble, T> p0,
       Function<? super SumDataLong, T> p1,
@@ -64,15 +65,25 @@ public abstract class AggregationData {
       Function<? super AggregationData, T> defaultFunction);
 
   /**
+   * Applies the given match function to the underlying data type.
+   *
+   * @since 0.13
+   */
+  @SuppressWarnings("InconsistentOverloads")
+  public abstract <T> T match(
+      Function<? super SumDataDouble, T> p0,
+      Function<? super SumDataLong, T> p1,
+      Function<? super CountData, T> p2,
+      Function<? super DistributionData, T> p3,
+      Function<? super AggregationData, T> defaultFunction);
+
+  /**
    * The sum value of aggregated {@code MeasureValueDouble}s.
    *
    * @since 0.8
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class SumDataDouble extends AggregationData {
 
     SumDataDouble() {}
@@ -106,6 +117,16 @@ public abstract class AggregationData {
         Function<? super AggregationData, T> defaultFunction) {
       return p0.apply(this);
     }
+
+    @Override
+    public final <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super DistributionData, T> p3,
+        Function<? super AggregationData, T> defaultFunction) {
+      return p0.apply(this);
+    }
   }
 
   /**
@@ -115,9 +136,6 @@ public abstract class AggregationData {
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class SumDataLong extends AggregationData {
 
     SumDataLong() {}
@@ -151,6 +169,16 @@ public abstract class AggregationData {
         Function<? super AggregationData, T> defaultFunction) {
       return p1.apply(this);
     }
+
+    @Override
+    public final <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super DistributionData, T> p3,
+        Function<? super AggregationData, T> defaultFunction) {
+      return p1.apply(this);
+    }
   }
 
   /**
@@ -160,9 +188,6 @@ public abstract class AggregationData {
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class CountData extends AggregationData {
 
     CountData() {}
@@ -196,18 +221,28 @@ public abstract class AggregationData {
         Function<? super AggregationData, T> defaultFunction) {
       return p2.apply(this);
     }
+
+    @Override
+    public final <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super DistributionData, T> p3,
+        Function<? super AggregationData, T> defaultFunction) {
+      return p2.apply(this);
+    }
   }
 
   /**
    * The mean value of aggregated {@code MeasureValue}s.
    *
    * @since 0.8
+   * @deprecated since 0.13, use {@link DistributionData} instead.
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
+  @Deprecated
   @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class MeanData extends AggregationData {
 
     MeanData() {}
@@ -250,6 +285,16 @@ public abstract class AggregationData {
         Function<? super AggregationData, T> defaultFunction) {
       return p3.apply(this);
     }
+
+    @Override
+    public final <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super DistributionData, T> p3,
+        Function<? super AggregationData, T> defaultFunction) {
+      return defaultFunction.apply(this);
+    }
   }
 
   /**
@@ -260,9 +305,6 @@ public abstract class AggregationData {
    */
   @Immutable
   @AutoValue
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class DistributionData extends AggregationData {
 
     DistributionData() {}
@@ -358,6 +400,16 @@ public abstract class AggregationData {
         Function<? super DistributionData, T> p4,
         Function<? super AggregationData, T> defaultFunction) {
       return p4.apply(this);
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super DistributionData, T> p3,
+        Function<? super AggregationData, T> defaultFunction) {
+      return p3.apply(this);
     }
   }
 }

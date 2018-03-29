@@ -23,9 +23,7 @@ import io.opencensus.trace.Status.CanonicalCode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -33,7 +31,6 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class NoopSampledSpanStoreTest {
 
-  @Rule public final ExpectedException thrown = ExpectedException.none();
   private static final SampledSpanStore.PerSpanNameSummary EMPTY_PER_SPAN_NAME_SUMMARY =
       SampledSpanStore.PerSpanNameSummary.create(
           Collections.<SampledSpanStore.LatencyBucketBoundaries, Integer>emptyMap(),

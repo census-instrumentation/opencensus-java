@@ -27,7 +27,9 @@ import com.google.api.Metric;
 import com.google.api.MetricDescriptor;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
+import com.google.cloud.MetadataConfig;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.Point;
@@ -41,7 +43,6 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.BucketBoundaries;
@@ -71,11 +72,15 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
+  @VisibleForTesting static final String GKE_CONTAINER = "gke_container";
+  @VisibleForTesting static final String GCE_INSTANCE = "gce_instance";
+  @VisibleForTesting static final String GLOBAL = "global";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
   private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
+  private static final String PROJECT_ID_LABEL_KEY = "project_id";
 
   private static String generateDefaultTaskValue() {
     // Something like '<pid>@<hostname>', at least in Oracle and OpenJdk JVMs
@@ -110,7 +115,6 @@ final class StackdriverExportUtils {
     builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
     builder.setType(type);
     builder.setDescription(view.getDescription());
-    builder.setUnit(view.getMeasure().getUnit());
     builder.setDisplayName("OpenCensus/" + viewName);
     for (TagKey tagKey : view.getColumns()) {
       builder.addLabels(createLabelDescriptor(tagKey));
@@ -121,6 +125,7 @@ final class StackdriverExportUtils {
             .setDescription(OPENCENSUS_TASK_DESCRIPTION)
             .setValueType(ValueType.STRING)
             .build());
+    builder.setUnit(createUnit(view.getAggregation(), view.getMeasure()));
     builder.setMetricKind(createMetricKind(view.getWindow()));
     builder.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
     return builder.build();
@@ -149,6 +154,17 @@ final class StackdriverExportUtils {
         // TODO(songya): We don't support exporting Interval stats to StackDriver in this version.
         Functions.returnConstant(MetricKind.UNRECOGNIZED), // Interval
         Functions.returnConstant(MetricKind.UNRECOGNIZED));
+  }
+
+  // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
+  @VisibleForTesting
+  static String createUnit(Aggregation aggregation, final Measure measure) {
+    return aggregation.match(
+        Functions.returnConstant(measure.getUnit()),
+        Functions.returnConstant("1"), // Count
+        Functions.returnConstant(measure.getUnit()), // Mean
+        Functions.returnConstant(measure.getUnit()), // Distribution
+        Functions.returnConstant(measure.getUnit()));
   }
 
   // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
@@ -280,9 +296,9 @@ final class StackdriverExportUtils {
             return null;
           }
         },
-        new Function<MeanData, Void>() {
+        new Function<AggregationData.MeanData, Void>() {
           @Override
-          public Void apply(MeanData arg) {
+          public Void apply(AggregationData.MeanData arg) {
             builder.setDoubleValue(arg.getMean());
             return null;
           }
@@ -337,6 +353,120 @@ final class StackdriverExportUtils {
         .setSeconds(censusTimestamp.getSeconds())
         .setNanos(censusTimestamp.getNanos())
         .build();
+  }
+
+  private enum Label {
+    ClusterName("cluster_name"),
+    ContainerName("container_name"),
+    NamespaceId("namespace_id"),
+    InstanceId("instance_id"),
+    InstanceName("instance_name"),
+    PodId("pod_id"),
+    Zone("zone");
+
+    private final String key;
+
+    Label(String key) {
+      this.key = key;
+    }
+
+    String getKey() {
+      return key;
+    }
+  }
+
+  private enum Resource {
+    GkeContainer(GKE_CONTAINER),
+    GceInstance(GCE_INSTANCE),
+    Global(GLOBAL);
+
+    private final String key;
+
+    Resource(String key) {
+      this.key = key;
+    }
+
+    String getKey() {
+      return key;
+    }
+  }
+
+  private static final ImmutableMultimap<Resource, Label> RESOURCE_TYPE_WITH_LABELS =
+      ImmutableMultimap.<Resource, Label>builder()
+          .putAll(
+              Resource.GkeContainer,
+              Label.ClusterName,
+              Label.ContainerName,
+              Label.NamespaceId,
+              Label.InstanceId,
+              Label.PodId,
+              Label.Zone)
+          .putAll(Resource.GceInstance, Label.InstanceId, Label.Zone)
+          .build();
+
+  /* Return a self-configured monitored Resource. */
+  static MonitoredResource getDefaultResource() {
+    Resource detectedResourceType = getAutoDetectedResourceType();
+    String resourceType = detectedResourceType.getKey();
+    MonitoredResource.Builder builder = MonitoredResource.newBuilder().setType(resourceType);
+    if (MetadataConfig.getProjectId() != null) {
+      // For default resource, always use the project id from MetadataConfig. This allows stats from
+      // other projects (e.g from GCE running in another project) to be collected.
+      builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
+    }
+    for (Label label : RESOURCE_TYPE_WITH_LABELS.get(detectedResourceType)) {
+      String value = getValue(label);
+      if (value == null) {
+        value = "";
+      }
+      // Label values can be null or empty, but each label key must have an associated value.
+      builder.putLabels(label.getKey(), value);
+    }
+    return builder.build();
+  }
+
+  @javax.annotation.Nullable
+  private static String getValue(Label label) {
+    String value;
+    switch (label) {
+      case ClusterName:
+        value = MetadataConfig.getClusterName();
+        break;
+      case InstanceId:
+        value = MetadataConfig.getInstanceId();
+        break;
+      case InstanceName:
+        value = System.getenv("GAE_INSTANCE");
+        break;
+      case PodId:
+        value = System.getenv("HOSTNAME");
+        break;
+      case Zone:
+        value = MetadataConfig.getZone();
+        break;
+      case ContainerName:
+        value = System.getenv("CONTAINER_NAME");
+        break;
+      case NamespaceId:
+        value = System.getenv("NAMESPACE");
+        break;
+      default:
+        value = null;
+        break;
+    }
+    return value;
+  }
+
+  /* Detects monitored Resource type using environment variables, else return global as default. */
+  private static Resource getAutoDetectedResourceType() {
+    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
+      return Resource.GkeContainer;
+    }
+    if (MetadataConfig.getInstanceId() != null) {
+      return Resource.GceInstance;
+    }
+    // default Resource type
+    return Resource.Global;
   }
 
   private StackdriverExportUtils() {}

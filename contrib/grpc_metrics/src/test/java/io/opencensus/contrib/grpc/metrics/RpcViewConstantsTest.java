@@ -159,9 +159,4 @@ public final class RpcViewConstantsTest {
     assertThat(RpcViewConstants.RPC_SERVER_REQUEST_COUNT_HOUR_VIEW).isNotNull();
     assertThat(RpcViewConstants.RPC_SERVER_RESPONSE_COUNT_HOUR_VIEW).isNotNull();
   }
-
-  @Test(expected = AssertionError.class)
-  public void testConstructor() {
-    new RpcViewConstants();
-  }
 }

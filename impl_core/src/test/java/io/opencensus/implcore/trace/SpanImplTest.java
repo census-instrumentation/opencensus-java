@@ -459,7 +459,7 @@ public class SpanImplTest {
     assertThat(spanData.getAnnotations().getEvents().size()).isEqualTo(maxNumberOfAnnotations);
     for (int i = 0; i < maxNumberOfAnnotations; i++) {
       assertThat(spanData.getAnnotations().getEvents().get(i).getTimestamp())
-          .isEqualTo(timestamp.addNanos(100 * (maxNumberOfAnnotations + i)));
+          .isEqualTo(timestamp.addNanos(100L * (maxNumberOfAnnotations + i)));
       assertThat(spanData.getAnnotations().getEvents().get(i).getEvent()).isEqualTo(annotation);
     }
     span.end();
@@ -468,7 +468,7 @@ public class SpanImplTest {
     assertThat(spanData.getAnnotations().getEvents().size()).isEqualTo(maxNumberOfAnnotations);
     for (int i = 0; i < maxNumberOfAnnotations; i++) {
       assertThat(spanData.getAnnotations().getEvents().get(i).getTimestamp())
-          .isEqualTo(timestamp.addNanos(100 * (maxNumberOfAnnotations + i)));
+          .isEqualTo(timestamp.addNanos(100L * (maxNumberOfAnnotations + i)));
       assertThat(spanData.getAnnotations().getEvents().get(i).getEvent()).isEqualTo(annotation);
     }
   }
@@ -504,7 +504,7 @@ public class SpanImplTest {
     assertThat(spanData.getNetworkEvents().getEvents().size()).isEqualTo(maxNumberOfNetworkEvents);
     for (int i = 0; i < maxNumberOfNetworkEvents; i++) {
       assertThat(spanData.getNetworkEvents().getEvents().get(i).getTimestamp())
-          .isEqualTo(timestamp.addNanos(100 * (maxNumberOfNetworkEvents + i)));
+          .isEqualTo(timestamp.addNanos(100L * (maxNumberOfNetworkEvents + i)));
       assertThat(spanData.getNetworkEvents().getEvents().get(i).getEvent()).isEqualTo(networkEvent);
     }
     span.end();
@@ -514,7 +514,7 @@ public class SpanImplTest {
     assertThat(spanData.getNetworkEvents().getEvents().size()).isEqualTo(maxNumberOfNetworkEvents);
     for (int i = 0; i < maxNumberOfNetworkEvents; i++) {
       assertThat(spanData.getNetworkEvents().getEvents().get(i).getTimestamp())
-          .isEqualTo(timestamp.addNanos(100 * (maxNumberOfNetworkEvents + i)));
+          .isEqualTo(timestamp.addNanos(100L * (maxNumberOfNetworkEvents + i)));
       assertThat(spanData.getNetworkEvents().getEvents().get(i).getEvent()).isEqualTo(networkEvent);
     }
   }

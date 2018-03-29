@@ -24,17 +24,13 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import io.opencensus.common.Duration;
 import java.util.Date;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link StackdriverStatsConfiguration}. */
 @RunWith(JUnit4.class)
 public class StackdriverStatsConfigurationTest {
-
-  @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final Credentials FAKE_CREDENTIALS =
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();

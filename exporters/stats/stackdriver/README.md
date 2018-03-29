@@ -16,7 +16,7 @@ In order to be able to push your stats to [Stackdriver Monitoring][stackdriver-m
 
 1. [Create a Cloud project](https://support.google.com/cloud/answer/6251787?hl=en).
 2. [Enable billing](https://support.google.com/cloud/answer/6288653#new-billing).
-3. [Enable the Stackdriver Monitoring API](https://app.google.stackdriver.com/).
+3. [Enable the Stackdriver Monitoring API](https://console.cloud.google.com/apis/dashboard).
 4. [Make sure you have a Premium Stackdriver account](https://cloud.google.com/monitoring/accounts/tiers).
 
 These steps enable the API but don't require that your app is hosted on Google Cloud Platform.
@@ -62,7 +62,7 @@ This uses the default configuration for authentication and a given project ID.
 public class MyMainClass {
   public static void main(String[] args) {
     StackdriverStatsExporter.createAndRegister(
-        StackdriverStatsConfiguration.builder().setProjectId("MyStackdriverProjectId").build());
+        StackdriverStatsConfiguration.builder().build());
   }
 }
 ```

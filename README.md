@@ -92,7 +92,7 @@ public final class QuickStart {
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
   // frontendKey allows us to break down the recorded data
-  private static final TagKey FRONTEND_KEY = TagKey.create("my.org/keys/frontend");
+  private static final TagKey FRONTEND_KEY = TagKey.create("myorg_keys_frontend");
 
   // videoSize will measure the size of processed videos.
   private static final MeasureLong VIDEO_SIZE = MeasureLong.create(
@@ -119,7 +119,7 @@ public final class QuickStart {
     try (Scope scopedTags =
            tagger
              .currentBuilder()
-             .put(FRONTEND_KEY, TagValue.create("mobile-ios9.3.5")
+             .put(FRONTEND_KEY, TagValue.create("mobile-ios9.3.5"))
              .buildScoped()) {
       // Processing video.
       // ...

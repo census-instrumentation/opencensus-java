@@ -286,7 +286,7 @@ public final class CloudTraceFormatTest {
   public void parseWithShortSpanIdAndSamplingShouldSucceed() throws SpanContextParseException {
     final String spanId = "1";
     ByteBuffer buffer = ByteBuffer.allocate(SpanId.SIZE);
-    buffer.putLong(Long.valueOf(spanId));
+    buffer.putLong(Long.parseLong(spanId));
     SpanId expectedSpanId = SpanId.fromBytes(buffer.array());
     parseSuccess(
         constructHeader(TRACE_ID_BASE16, spanId, SAMPLED),

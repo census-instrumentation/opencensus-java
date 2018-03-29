@@ -76,9 +76,6 @@ public abstract class RunningSpanStore {
    */
   @AutoValue
   @Immutable
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class Summary {
 
     Summary() {}
@@ -114,9 +111,6 @@ public abstract class RunningSpanStore {
    */
   @AutoValue
   @Immutable
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class PerSpanNameSummary {
 
     PerSpanNameSummary() {}
@@ -151,9 +145,6 @@ public abstract class RunningSpanStore {
    */
   @AutoValue
   @Immutable
-  // Suppress Checker Framework warning about missing @Nullable in generated equals method.
-  @AutoValue.CopyAnnotations
-  @SuppressWarnings("nullness")
   public abstract static class Filter {
 
     Filter() {}

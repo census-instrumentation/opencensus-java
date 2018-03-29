@@ -126,7 +126,7 @@ public class SignalFxStatsExporterWorkerThreadTest {
     Mockito.when(viewData.getAggregationMap())
         .thenReturn(
             ImmutableMap.<List<TagValue>, AggregationData>of(
-                ImmutableList.of(TagValue.create("cat")), MeanData.create(3.14d, 1)));
+                ImmutableList.of(TagValue.create("cat")), MeanData.create(3.15d, 1)));
 
     Mockito.when(viewManager.getAllExportedViews()).thenReturn(ImmutableSet.of(view));
     Mockito.when(viewManager.getView(Mockito.eq(viewName))).thenReturn(viewData);
@@ -141,7 +141,7 @@ public class SignalFxStatsExporterWorkerThreadTest {
             .setMetric("test")
             .setMetricType(MetricType.GAUGE)
             .addDimensions(Dimension.newBuilder().setKey("animal").setValue("cat").build())
-            .setValue(Datum.newBuilder().setDoubleValue(3.14d).build())
+            .setValue(Datum.newBuilder().setDoubleValue(3.15d).build())
             .build();
     Mockito.verify(session).setDatapoint(Mockito.eq(datapoint));
     Mockito.verify(session).close();

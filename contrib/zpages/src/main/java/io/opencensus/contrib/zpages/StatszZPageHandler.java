@@ -28,14 +28,13 @@ import com.google.common.collect.Sets;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
-import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
@@ -382,9 +381,9 @@ final class StatszZPageHandler extends ZPageHandler {
                 return null;
               }
             },
-            new Function<Mean, Void>() {
+            new Function<Aggregation.Mean, Void>() {
               @Override
-              public Void apply(Mean arg) {
+              public Void apply(Aggregation.Mean arg) {
                 formatter.format("<th class=\"l1\">%s, %s</th>", TABLE_HEADER_MEAN, unit);
                 formatter.format("<th class=\"l1\">%s</th>", TABLE_HEADER_COUNT);
                 return null;
@@ -441,9 +440,9 @@ final class StatszZPageHandler extends ZPageHandler {
                 return null;
               }
             },
-            new Function<MeanData, Void>() {
+            new Function<AggregationData.MeanData, Void>() {
               @Override
-              public Void apply(MeanData arg) {
+              public Void apply(AggregationData.MeanData arg) {
                 formatter.format("<td %s>%.3f</td>", ALIGN_CENTER, arg.getMean());
                 formatter.format("<td %s>%d</td>", ALIGN_CENTER, arg.getCount());
                 return null;

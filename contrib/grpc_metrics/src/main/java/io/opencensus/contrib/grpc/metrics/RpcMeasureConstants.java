@@ -262,8 +262,5 @@ public final class RpcMeasureConstants {
       Measure.MeasureLong.create(
           "grpc.io/server/response_count", "Number of server RPC response messages", COUNT);
 
-  // Visible for testing.
-  RpcMeasureConstants() {
-    throw new AssertionError();
-  }
+  private RpcMeasureConstants() {}
 }

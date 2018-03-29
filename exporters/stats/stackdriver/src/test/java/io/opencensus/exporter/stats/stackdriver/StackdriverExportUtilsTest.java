@@ -26,6 +26,7 @@ import com.google.api.Metric;
 import com.google.api.MetricDescriptor;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
+import com.google.cloud.MetadataConfig;
 import com.google.common.collect.ImmutableMap;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
@@ -140,6 +141,15 @@ public class StackdriverExportUtilsTest {
         .isEqualTo(MetricDescriptor.ValueType.DISTRIBUTION);
     assertThat(StackdriverExportUtils.createValueType(DISTRIBUTION, MEASURE_LONG))
         .isEqualTo(MetricDescriptor.ValueType.DISTRIBUTION);
+  }
+
+  @Test
+  public void createUnit() {
+    assertThat(StackdriverExportUtils.createUnit(SUM, MEASURE_DOUBLE)).isEqualTo(MEASURE_UNIT);
+    assertThat(StackdriverExportUtils.createUnit(COUNT, MEASURE_DOUBLE)).isEqualTo("1");
+    assertThat(StackdriverExportUtils.createUnit(MEAN, MEASURE_DOUBLE)).isEqualTo(MEASURE_UNIT);
+    assertThat(StackdriverExportUtils.createUnit(DISTRIBUTION, MEASURE_DOUBLE))
+        .isEqualTo(MEASURE_UNIT);
   }
 
   @Test
@@ -345,6 +355,45 @@ public class StackdriverExportUtilsTest {
   }
 
   @Test
+  public void createMetricDescriptor_cumulative_count() {
+    View view =
+        View.create(
+            Name.create(VIEW_NAME),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            COUNT,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    MetricDescriptor metricDescriptor =
+        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+    assertThat(metricDescriptor.getName())
+        .isEqualTo(
+            "projects/"
+                + PROJECT_ID
+                + "/metricDescriptors/custom.googleapis.com/opencensus/"
+                + VIEW_NAME);
+    assertThat(metricDescriptor.getDescription()).isEqualTo(VIEW_DESCRIPTION);
+    assertThat(metricDescriptor.getDisplayName()).isEqualTo("OpenCensus/" + VIEW_NAME);
+    assertThat(metricDescriptor.getType())
+        .isEqualTo("custom.googleapis.com/opencensus/" + VIEW_NAME);
+    assertThat(metricDescriptor.getUnit()).isEqualTo("1");
+    assertThat(metricDescriptor.getMetricKind()).isEqualTo(MetricKind.CUMULATIVE);
+    assertThat(metricDescriptor.getValueType()).isEqualTo(MetricDescriptor.ValueType.INT64);
+    assertThat(metricDescriptor.getLabelsList())
+        .containsExactly(
+            LabelDescriptor.newBuilder()
+                .setKey(KEY.getName())
+                .setDescription(StackdriverExportUtils.LABEL_DESCRIPTION)
+                .setValueType(ValueType.STRING)
+                .build(),
+            LabelDescriptor.newBuilder()
+                .setKey(StackdriverExportUtils.OPENCENSUS_TASK)
+                .setDescription(StackdriverExportUtils.OPENCENSUS_TASK_DESCRIPTION)
+                .setValueType(ValueType.STRING)
+                .build());
+  }
+
+  @Test
   public void createMetricDescriptor_interval() {
     View view =
         View.create(
@@ -451,5 +500,17 @@ public class StackdriverExportUtilsTest {
                 .setResource(resource)
                 .addPoints(StackdriverExportUtils.createPoint(sumData, cumulativeData, SUM))
                 .build());
+  }
+
+  @Test
+  public void testGetDefaultResource() {
+    MonitoredResource resource = StackdriverExportUtils.getDefaultResource();
+    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
+      assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GKE_CONTAINER);
+    } else if (MetadataConfig.getInstanceId() != null) {
+      assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GCE_INSTANCE);
+    } else {
+      assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GLOBAL);
+    }
   }
 }

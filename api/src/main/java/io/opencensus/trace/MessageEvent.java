@@ -33,9 +33,7 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
-// Suppress Checker Framework warning about missing @Nullable in generated equals method.
-@AutoValue.CopyAnnotations
-@SuppressWarnings({"nullness", "deprecation"})
+@SuppressWarnings("deprecation")
 public abstract class MessageEvent extends BaseMessageEvent {
   /**
    * Available types for a {@code MessageEvent}.

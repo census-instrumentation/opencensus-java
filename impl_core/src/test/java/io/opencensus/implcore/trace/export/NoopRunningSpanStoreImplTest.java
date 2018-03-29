@@ -66,7 +66,7 @@ public class NoopRunningSpanStoreImplTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    SpanImpl span =
+    spanImpl =
         SpanImpl.startSpan(
             spanContext,
             recordSpanOptions,

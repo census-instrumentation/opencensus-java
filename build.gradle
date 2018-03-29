@@ -155,7 +155,7 @@ subprojects {
         findBugsVersion = '3.0.1'
         errorProneVersion = '2.2.0'
         grpcVersion = '1.10.0'
-        guavaVersion = '19.0'
+        guavaVersion = '20.0'
         gsonVersion = '2.8.1'
         googleAuthVersion = '0.9.0'
         googleCloudVersion = '0.34.0-beta'
@@ -217,8 +217,8 @@ subprojects {
             compileOnly libraries.auto_value
         }
 
-        compile libraries.errorprone,
-                libraries.jsr305
+        compileOnly libraries.errorprone,
+                    libraries.jsr305
 
         testCompile libraries.guava_testlib,
                 libraries.junit,
@@ -247,8 +247,6 @@ subprojects {
             html.enabled = true
         }
     }
-    // Disable findbugs for tests.
-    findbugsTest.enabled = false
 
     checkstyle {
         configFile = file("$rootDir/buildscripts/checkstyle.xml")
@@ -392,7 +390,9 @@ subprojects {
             tasks.withType(JavaCompile).all { JavaCompile compile ->
                 compile.doFirst {
                     compile.options.compilerArgs += [
-                        '-Xmaxerrs', '10000', "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
+                        '-Xmaxerrs', '10000',
+                        "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
+                        "-AskipDefs=\\.AutoValue_"
                     ]
                     options.fork = true
                     options.forkOptions.jvmArgs += ["-Xbootclasspath/p:${configurations.checkerFrameworkJavac.asPath}"]
