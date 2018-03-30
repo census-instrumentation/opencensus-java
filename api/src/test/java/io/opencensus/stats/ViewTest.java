@@ -46,7 +46,7 @@ public final class ViewTest {
 
   @Test
   public void testDistributionView() {
-    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Cumulative.create());
+    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS);
     assertThat(view.getName()).isEqualTo(NAME);
     assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
@@ -70,7 +70,7 @@ public final class ViewTest {
   public void testViewEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Cumulative.create()),
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS),
             View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Cumulative.create()))
         .addEqualityGroup(
             View.create(NAME, DESCRIPTION + 2, MEASURE, MEAN, KEYS, Cumulative.create()))
@@ -93,7 +93,7 @@ public final class ViewTest {
 
   @Test(expected = NullPointerException.class)
   public void preventNullViewName() {
-    View.create(null, DESCRIPTION, MEASURE, MEAN, KEYS, Interval.create(MINUTE));
+    View.create(null, DESCRIPTION, MEASURE, MEAN, KEYS);
   }
 
   @Test
