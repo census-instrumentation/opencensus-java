@@ -111,3 +111,17 @@ $ ./target/appassembler/bin/HelloWorldClient user host serverPort cloudProjectId
 $ ./bazel-bin/HelloWorldServer serverPort cloudProjectId zPagePort prometheusPort
 $ ./bazel-bin/HelloWorldClient user host serverPort cloudProjectId zPagePort
 ```
+
+## To run "NettyHttp" example
+
+### Gradle
+
+* Server
+```
+$ ./build/install/opencensus-examples/bin/NettyHttpServer
+```
+
+* Client
+```
+$ ./build/install/opencensus-examples/bin/NettyHttpClient
+```
