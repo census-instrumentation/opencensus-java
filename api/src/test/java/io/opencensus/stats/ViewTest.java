@@ -18,7 +18,6 @@ package io.opencensus.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Duration;
 import io.opencensus.stats.Aggregation.Mean;
@@ -26,6 +25,7 @@ import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.View.AggregationWindow.Interval;
 import io.opencensus.tags.TagKey;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,24 +46,22 @@ public final class ViewTest {
 
   @Test
   public void testDistributionView() {
-    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create());
+    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Cumulative.create());
     assertThat(view.getName()).isEqualTo(NAME);
     assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
     assertThat(view.getAggregation()).isEqualTo(MEAN);
-    assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
     assertThat(view.getWindow()).isEqualTo(Cumulative.create());
   }
 
   @Test
   public void testIntervalView() {
-    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE));
+    final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Interval.create(MINUTE));
     assertThat(view.getName()).isEqualTo(NAME);
     assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
     assertThat(view.getAggregation()).isEqualTo(MEAN);
-    assertThat(view.getColumns()).hasSize(2);
     assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
     assertThat(view.getWindow()).isEqualTo(Interval.create(MINUTE));
   }
@@ -72,32 +70,30 @@ public final class ViewTest {
   public void testViewEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()),
-            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Cumulative.create()))
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Cumulative.create()),
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Cumulative.create()))
         .addEqualityGroup(
-            View.create(NAME, DESCRIPTION + 2, MEASURE, MEAN, keys, Cumulative.create()))
+            View.create(NAME, DESCRIPTION + 2, MEASURE, MEAN, KEYS, Cumulative.create()))
         .addEqualityGroup(
-            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)),
-            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE)))
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Interval.create(MINUTE)),
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Interval.create(MINUTE)))
         .addEqualityGroup(
-            View.create(NAME, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(TWO_MINUTES)))
+            View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS, Interval.create(TWO_MINUTES)))
         .testEquals();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void preventDuplicateColumns() {
-    View.create(
-        NAME,
-        DESCRIPTION,
-        MEASURE,
-        MEAN,
-        Arrays.asList(TagKey.create("duplicate"), TagKey.create("duplicate")),
-        Cumulative.create());
+    TagKey key1 = TagKey.create("duplicate");
+    TagKey key2 = TagKey.create("duplicate");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Columns have duplicate.");
+    View.create(NAME, DESCRIPTION, MEASURE, MEAN, Arrays.asList(key1, key2));
   }
 
   @Test(expected = NullPointerException.class)
   public void preventNullViewName() {
-    View.create(null, DESCRIPTION, MEASURE, MEAN, keys, Interval.create(MINUTE));
+    View.create(null, DESCRIPTION, MEASURE, MEAN, KEYS, Interval.create(MINUTE));
   }
 
   @Test
@@ -144,7 +140,7 @@ public final class ViewTest {
       Measure.MeasureDouble.create("measure", "measure description", "1");
   private static final TagKey FOO = TagKey.create("foo");
   private static final TagKey BAR = TagKey.create("bar");
-  private static final List<TagKey> keys = ImmutableList.of(FOO, BAR);
+  private static final List<TagKey> KEYS = Collections.unmodifiableList(Arrays.asList(FOO, BAR));
   private static final Mean MEAN = Mean.create();
   private static final Duration MINUTE = Duration.create(60, 0);
   private static final Duration TWO_MINUTES = Duration.create(120, 0);
