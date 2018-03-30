@@ -37,7 +37,5 @@ public class HttpExtractorTest {
     assertThat(extractor.getPath(request)).isEqualTo("path");
     assertThat(extractor.getUserAgent(request)).isEqualTo("userAgent");
     assertThat(extractor.getStatusCode(response)).isEqualTo(0);
-    assertThat(extractor.getRequestSize(request)).isEqualTo(0);
-    assertThat(extractor.getResponseSize(response)).isEqualTo(0);
   }
 }

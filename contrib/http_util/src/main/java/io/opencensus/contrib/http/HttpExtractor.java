@@ -87,27 +87,4 @@ public class HttpExtractor<Q, P> {
   public int getStatusCode(@Nullable P response) {
     return 0;
   }
-
-  /**
-   * Returns the request message size.
-   *
-   * @param request the HTTP request.
-   * @return the request message size.
-   * @since 0.13
-   */
-  public long getRequestSize(Q request) {
-    return 0L;
-  }
-
-  /**
-   * Returns the response message size.
-   *
-   * @param response the HTTP response. If the response is null, this method should return {@code
-   *     0}.
-   * @return the response message size.
-   * @since 0.13
-   */
-  public long getResponseSize(@Nullable P response) {
-    return 0L;
-  }
 }

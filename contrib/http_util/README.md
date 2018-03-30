@@ -119,7 +119,7 @@ HttpSpanCustomizer<HttpRequest, HttpResponse> customizer =
           spanBuilder.setSampler(Samplers.neverSample());
         }
         // always record spans locally.
-        return spanBuilder.setRecordEvents(true);
+        spanBuilder.setRecordEvents(true);
       }
 
       // other methods that need to be overridden.
@@ -137,10 +137,10 @@ An example usage of the handler would be:
 
 ```java
 HttpClientHandler<HttpRequest, HttpResponse> handler =
-    new HttpClientHandler<HttpRequest, HttpResponse>(tracer, myTextFormat, extractor, customizer);
+    new HttpClientHandler<HttpRequest, HttpResponse>(tracer, extractor, customizer);
 
 // Use #handleStart in client to start a new span.
-Span span = handler.handleStart(myTextFormatSetter, request, request);
+Span span = handler.handleStart(myTextFormat, myTextFormatSetter, request, request);
 HttpResponse response = null;
 Throwable error = null;
 try {
@@ -148,10 +148,10 @@ try {
   response = getResponse(request);
 
   // Optionally, use #handleMessageSent in client to log a SENT event and its size.
-  handler.handleMessageSent(span, sentId++, extractor.getRequestSize(request));
+  handler.handleMessageSent(span, sentId++, request.getContentLength());
 
   // Optionally, use #handleMessageReceived in client to log a RECEIVED event and message size.
-  handler.handleMessageReceived(span, recvId++, extractor.getResponseSize(response));
+  handler.handleMessageReceived(span, recvId++, response.getContentLength());
 } catch (Throwable e) {
   error = e;
 } finally {
@@ -168,10 +168,10 @@ An example usage of the handler would be:
 
 ```java
 HttpServerHandler<HttpRequest, HttpResponse> handler =
-    new HttpServerHandler<HttpRequest, HttpResponse>(tracer, myTextFormat, extractor, customizer);
+    new HttpServerHandler<HttpRequest, HttpResponse>(tracer, extractor, customizer);
 
 // Use #handleStart in server to start a new span.
-Span span = handler.handleStart(myTextFormatGetter, request, request);
+Span span = handler.handleStart(myTextFormat, myTextFormatGetter, request, request);
 HttpResponse response = constructResponse();
 Throwable error = null;
 try (Scope scope = tracer.withSpan(span)) {
@@ -184,7 +184,7 @@ try (Scope scope = tracer.withSpan(span)) {
     String content = request.getContent();
 
     // Optionally, use #handleMessageReceived in server to log a RECEIVED event and its size.
-    handler.handleMessageReceived(span, recvId++, extractor.getRequestSize(request));
+    handler.handleMessageReceived(span, recvId++, request.getContentLength());
 
     // Do something to prepare the response or exception.
     response.setStatus(201);
@@ -192,8 +192,7 @@ try (Scope scope = tracer.withSpan(span)) {
     response.flush();
 
     // Optionally, use #handleMessageSent in server to log a SENT message event and its message size.
-    handler.handleMessageSent(span, sentId++, extractor.getResponseSize(response));
-
+    handler.handleMessageSent(span, sentId++, response.getContentLength());
   } catch (Throwable e) {
     error = e;
   } finally {
@@ -202,6 +201,20 @@ try (Scope scope = tracer.withSpan(span)) {
   }
 }
 ```
+
+### handling async calls
+
+In asynchronous HTTP calls, message receiving and sending may happen in different
+threads. Users need to ensure the started span (as well as scope, if any) is
+closed or ended no matter the call is successful or not.
+
+To do that, store current scope and span somewhere, e.g. the context of the channel,
+and close them before the channel exits.
+
+Here is an [example](
+https://github.com/census-instrumentation/opencensus-java/tree/master/examples/src/main/java/io/opencensus/examples/http/netty
+) of instrumenting Netty client/server. Note that we store the `Span` into the `Channel` and use it
+later.
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java

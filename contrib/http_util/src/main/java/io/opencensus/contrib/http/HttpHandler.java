@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
  * @param <P> the HTTP response entity.
  * @since 0.13
  */
-abstract class HttpHandler<Q, P> {
+public abstract class HttpHandler<Q, P> {
 
   /** The Open Census tracing component. */
   @VisibleForTesting final Tracer tracer;
@@ -81,7 +81,7 @@ abstract class HttpHandler<Q, P> {
    * @param messageSize the size of the message.
    * @since 0.13
    */
-  public void handleMessageSent(Span span, long messageId, long messageSize) {
+  public final void handleMessageSent(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
     recordMessageEvent(span, messageId, Type.SENT, messageSize, 0L);
   }
@@ -94,7 +94,7 @@ abstract class HttpHandler<Q, P> {
    * @param messageSize the size of the message.
    * @since 0.13
    */
-  public void handleMessageReceived(Span span, long messageId, long messageSize) {
+  public final void handleMessageReceived(Span span, long messageId, long messageSize) {
     checkNotNull(span, "span");
     // record message size
     recordMessageEvent(span, messageId, Type.RECEIVED, messageSize, 0L);
@@ -111,7 +111,7 @@ abstract class HttpHandler<Q, P> {
    * @param span the span.
    * @since 0.13
    */
-  public void handleEnd(@Nullable P response, @Nullable Throwable error, Span span) {
+  public final void handleEnd(@Nullable P response, @Nullable Throwable error, Span span) {
     checkNotNull(span, "span");
     // user-customized handling.
     customizer.customizeSpanEnd(response, error, span, extractor);
