@@ -1,3 +1,6 @@
+# MutableMethodReturnType is turned off because it can suggest returning Guava
+# types from API methods (https://github.com/google/error-prone/issues/982).
+
 errorProneExperimentalWarnings = \
 -Xep:AssertFalse:ERROR,\
 -Xep:AssistedInjectAndInjectOnConstructors:ERROR,\
@@ -12,7 +15,7 @@ errorProneExperimentalWarnings = \
 -Xep:HardCodedSdCardPath:ERROR,\
 -Xep:InconsistentOverloads:ERROR,\
 -Xep:MissingDefault:ERROR,\
--Xep:MutableMethodReturnType:ERROR,\
+-Xep:MutableMethodReturnType:OFF,\
 -Xep:NonCanonicalStaticMemberImport:ERROR,\
 -Xep:PrimitiveArrayPassedToVarargsMethod:ERROR,\
 -Xep:ProvidesFix:ERROR,\
