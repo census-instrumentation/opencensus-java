@@ -45,13 +45,29 @@ public final class ViewTest {
   }
 
   @Test
+  public void sortTagKeys() {
+    final View view =
+        View.create(
+            NAME,
+            DESCRIPTION,
+            MEASURE,
+            MEAN,
+            Arrays.asList(
+                TagKey.create("ab"), TagKey.create("a"), TagKey.create("A"), TagKey.create("b")));
+    assertThat(view.getColumns())
+        .containsExactly(
+            TagKey.create("A"), TagKey.create("a"), TagKey.create("ab"), TagKey.create("b"))
+        .inOrder();
+  }
+
+  @Test
   public void testDistributionView() {
     final View view = View.create(NAME, DESCRIPTION, MEASURE, MEAN, KEYS);
     assertThat(view.getName()).isEqualTo(NAME);
     assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
     assertThat(view.getAggregation()).isEqualTo(MEAN);
-    assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
+    assertThat(view.getColumns()).containsExactly(BAR, FOO).inOrder();
     assertThat(view.getWindow()).isEqualTo(Cumulative.create());
   }
 
@@ -62,7 +78,7 @@ public final class ViewTest {
     assertThat(view.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(view.getMeasure().getName()).isEqualTo(MEASURE.getName());
     assertThat(view.getAggregation()).isEqualTo(MEAN);
-    assertThat(view.getColumns()).containsExactly(FOO, BAR).inOrder();
+    assertThat(view.getColumns()).containsExactly(BAR, FOO).inOrder();
     assertThat(view.getWindow()).isEqualTo(Interval.create(MINUTE));
   }
 
