@@ -50,8 +50,13 @@ public final class MyClassWithTracing {
   private static final Tracer tracer = Tracing.getTracer();
 
   public static void doWork() {
-    // Create a child Span of the current Span.
-    try (Scope ss = tracer.spanBuilder("MyChildWorkSpan").startScopedSpan()) {
+    // Create a child Span of the current Span. Always record events for this span and force it to 
+    // be sampled.
+    try (Scope ss = 
+         tracer.spanBuilder("MyChildWorkSpan")
+           .setRecordEvents(true)
+           .setSampler(Samplers.alwaysSample())
+           .startScopedSpan()) {
       doInitialWork();
       tracer.getCurrentSpan().addAnnotation("Finished initial work");
       doFinalWork();
