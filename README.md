@@ -51,7 +51,8 @@ public final class MyClassWithTracing {
 
   public static void doWork() {
     // Create a child Span of the current Span. Always record events for this span and force it to 
-    // be sampled.
+    // be sampled. This makes it easier to try out the example, but unless you have a clear use 
+    // case, you don't need to explicitly set record events or sampler.
     try (Scope ss = 
          tracer.spanBuilder("MyChildWorkSpan")
            .setRecordEvents(true)
