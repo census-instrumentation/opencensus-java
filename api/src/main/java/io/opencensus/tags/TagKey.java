@@ -19,7 +19,7 @@ package io.opencensus.tags;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.internal.StringUtil;
+import io.opencensus.internal.StringUtils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -80,6 +80,6 @@ public abstract class TagKey {
    * @return whether the name is valid.
    */
   private static boolean isValid(String name) {
-    return !name.isEmpty() && name.length() <= MAX_LENGTH && StringUtil.isPrintableString(name);
+    return !name.isEmpty() && name.length() <= MAX_LENGTH && StringUtils.isPrintableString(name);
   }
 }

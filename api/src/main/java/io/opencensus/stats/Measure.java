@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Function;
-import io.opencensus.internal.StringUtil;
+import io.opencensus.internal.StringUtils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -105,7 +105,7 @@ public abstract class Measure {
      */
     public static MeasureDouble create(String name, String description, String unit) {
       checkArgument(
-          StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+          StringUtils.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
           "Name should be a ASCII string with a length no greater than "
               + NAME_MAX_LENGTH
               + " characters.");
@@ -152,7 +152,7 @@ public abstract class Measure {
      */
     public static MeasureLong create(String name, String description, String unit) {
       checkArgument(
-          StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+          StringUtils.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
           "Name should be a ASCII string with a length no greater than "
               + NAME_MAX_LENGTH
               + " characters.");

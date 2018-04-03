@@ -26,7 +26,7 @@ import io.opencensus.common.Internal;
  */
 @Internal
 @SuppressWarnings("deprecation")
-public final class BaseMessageEventUtil {
+public final class BaseMessageEventUtils {
   /**
    * Cast or convert a {@link io.opencensus.trace.BaseMessageEvent} to {@link
    * io.opencensus.trace.MessageEvent}.
@@ -78,5 +78,5 @@ public final class BaseMessageEventUtil {
         .build();
   }
 
-  private BaseMessageEventUtil() {}
+  private BaseMessageEventUtils() {}
 }

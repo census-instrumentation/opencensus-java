@@ -22,7 +22,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
-import io.opencensus.internal.StringUtil;
+import io.opencensus.internal.StringUtils;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -188,7 +188,7 @@ public abstract class View {
      */
     public static Name create(String name) {
       checkArgument(
-          StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+          StringUtils.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
           "Name should be a ASCII string with a length no greater than 255 characters.");
       return new AutoValue_View_Name(name);
     }

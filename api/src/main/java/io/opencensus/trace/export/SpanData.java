@@ -28,7 +28,7 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
-import io.opencensus.trace.internal.BaseMessageEventUtil;
+import io.opencensus.trace.internal.BaseMessageEventUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,7 +101,7 @@ public abstract class SpanData {
       } else {
         messageEventsList.add(
             TimedEvent.<MessageEvent>create(
-                timedEvent.getTimestamp(), BaseMessageEventUtil.asMessageEvent(event)));
+                timedEvent.getTimestamp(), BaseMessageEventUtils.asMessageEvent(event)));
       }
     }
     TimedEvents<MessageEvent> messageEvents =
@@ -200,7 +200,7 @@ public abstract class SpanData {
       networkEventsList.add(
           TimedEvent.<io.opencensus.trace.NetworkEvent>create(
               timedEvent.getTimestamp(),
-              BaseMessageEventUtil.asNetworkEvent(timedEvent.getEvent())));
+              BaseMessageEventUtils.asNetworkEvent(timedEvent.getEvent())));
     }
     return TimedEvents.<io.opencensus.trace.NetworkEvent>create(
         networkEventsList, timedEvents.getDroppedEventsCount());

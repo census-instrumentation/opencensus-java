@@ -16,11 +16,11 @@
 
 package io.opencensus.common;
 
-import static io.opencensus.common.TimeUtil.MAX_NANOS;
-import static io.opencensus.common.TimeUtil.MAX_SECONDS;
-import static io.opencensus.common.TimeUtil.MILLIS_PER_SECOND;
-import static io.opencensus.common.TimeUtil.NANOS_PER_MILLI;
-import static io.opencensus.common.TimeUtil.NANOS_PER_SECOND;
+import static io.opencensus.common.TimeUtils.MAX_NANOS;
+import static io.opencensus.common.TimeUtils.MAX_SECONDS;
+import static io.opencensus.common.TimeUtils.MILLIS_PER_SECOND;
+import static io.opencensus.common.TimeUtils.NANOS_PER_MILLI;
+import static io.opencensus.common.TimeUtils.NANOS_PER_SECOND;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.math.LongMath;

@@ -20,7 +20,7 @@
   <Match>
     <!-- Reason: BaseMessageEvent only has two visible subclasses. -->
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
-    <Class name="io.opencensus.trace.internal.BaseMessageEventUtil" />
+    <Class name="io.opencensus.trace.internal.BaseMessageEventUtils" />
   </Match>
 
   <!-- Suppress some FindBugs warnings related to performance or robustness -->

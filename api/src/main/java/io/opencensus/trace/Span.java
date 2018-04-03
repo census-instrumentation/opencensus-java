@@ -19,7 +19,7 @@ package io.opencensus.trace;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.trace.internal.BaseMessageEventUtil;
+import io.opencensus.trace.internal.BaseMessageEventUtils;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
@@ -165,7 +165,7 @@ public abstract class Span {
    */
   @Deprecated
   public void addNetworkEvent(NetworkEvent networkEvent) {
-    addMessageEvent(BaseMessageEventUtil.asMessageEvent(networkEvent));
+    addMessageEvent(BaseMessageEventUtils.asMessageEvent(networkEvent));
   }
 
   /**
@@ -182,7 +182,7 @@ public abstract class Span {
   public void addMessageEvent(MessageEvent messageEvent) {
     // Default implementation by invoking addNetworkEvent() so that any existing derived classes,
     // including implementation and the mocked ones, do not need to override this method explicitly.
-    addNetworkEvent(BaseMessageEventUtil.asNetworkEvent(messageEvent));
+    addNetworkEvent(BaseMessageEventUtils.asNetworkEvent(messageEvent));
   }
 
   /**
