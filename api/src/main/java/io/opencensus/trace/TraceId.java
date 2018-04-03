@@ -16,7 +16,6 @@
 
 package io.opencensus.trace;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Internal;
 import io.opencensus.internal.Utils;
@@ -179,6 +178,10 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.11
    */
   public String toLowerBase16() {
+    return toLowerBase16(bytes);
+  }
+
+  private static String toLowerBase16(byte[] bytes) {
     return BaseEncoding.base16().lowerCase().encode(bytes);
   }
 
@@ -224,9 +227,7 @@ public final class TraceId implements Comparable<TraceId> {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("traceId", BaseEncoding.base16().lowerCase().encode(bytes))
-        .toString();
+    return "TraceId{traceId=" + toLowerBase16(bytes) + "}";
   }
 
   @Override

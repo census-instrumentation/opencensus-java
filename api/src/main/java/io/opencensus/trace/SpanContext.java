@@ -16,8 +16,7 @@
 
 package io.opencensus.trace;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -114,16 +113,18 @@ public final class SpanContext {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(traceId, spanId, traceOptions);
+    return Arrays.hashCode(new Object[] {traceId, spanId, traceOptions});
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("traceId", traceId)
-        .add("spanId", spanId)
-        .add("traceOptions", traceOptions)
-        .toString();
+    return "SpanContext{traceId="
+        + traceId
+        + ", spanId="
+        + spanId
+        + ", traceOptions="
+        + traceOptions
+        + "}";
   }
 
   private SpanContext(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {

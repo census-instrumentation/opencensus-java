@@ -16,10 +16,9 @@
 
 package io.opencensus.trace;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.Utils;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -182,12 +181,12 @@ public final class TraceOptions {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(options);
+    return Arrays.hashCode(new byte[] {options});
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this).add("sampled", isSampled()).toString();
+    return "TraceOptions{sampled=" + isSampled() + "}";
   }
 
   /**

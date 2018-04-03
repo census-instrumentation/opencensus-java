@@ -16,7 +16,6 @@
 
 package io.opencensus.trace;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
 import io.opencensus.internal.Utils;
 import java.util.Arrays;
@@ -178,6 +177,10 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.11
    */
   public String toLowerBase16() {
+    return toLowerBase16(bytes);
+  }
+
+  private static String toLowerBase16(byte[] bytes) {
     return BaseEncoding.base16().lowerCase().encode(bytes);
   }
 
@@ -202,9 +205,7 @@ public final class SpanId implements Comparable<SpanId> {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("spanId", BaseEncoding.base16().lowerCase().encode(bytes))
-        .toString();
+    return "SpanId{spanId=" + toLowerBase16(bytes) + "}";
   }
 
   @Override

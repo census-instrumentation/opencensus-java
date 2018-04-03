@@ -17,7 +17,10 @@
 package io.opencensus.internal;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -86,6 +89,19 @@ public final class UtilsTest {
     thrown.expect(IndexOutOfBoundsException.class);
     thrown.expectMessage("Index out of bounds: size=10, index=11");
     Utils.checkIndex(11, 10);
+  }
+
+  @Test
+  public void equalsObjects_Equal() {
+    assertTrue(Utils.equalsObjects(null, null));
+    assertTrue(Utils.equalsObjects(new Date(1L), new Date(1L)));
+  }
+
+  @Test
+  public void equalsObjects_Unequal() {
+    assertFalse(Utils.equalsObjects(null, new Object()));
+    assertFalse(Utils.equalsObjects(new Object(), null));
+    assertFalse(Utils.equalsObjects(new Object(), new Object()));
   }
 
   @Test

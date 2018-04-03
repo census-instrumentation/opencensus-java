@@ -17,6 +17,7 @@
 package io.opencensus.internal;
 
 import java.math.BigInteger;
+import javax.annotation.Nullable;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -84,6 +85,14 @@ public final class Utils {
       throw new NullPointerException(message);
     }
     return arg;
+  }
+
+  /**
+   * Compares two Objects for equality. This functionality is provided by {@code
+   * Objects.equal(Object, Object)} in Java 7.
+   */
+  public static boolean equalsObjects(@Nullable Object x, @Nullable Object y) {
+    return x == null ? y == null : x.equals(y);
   }
 
   /**
