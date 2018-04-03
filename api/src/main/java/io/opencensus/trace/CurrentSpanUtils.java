@@ -16,7 +16,6 @@
 
 package io.opencensus.trace;
 
-import com.google.common.base.Throwables;
 import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.unsafe.ContextUtils;
@@ -121,7 +120,11 @@ final class CurrentSpanUtils {
         runnable.run();
       } catch (Throwable t) {
         setErrorStatus(span, t);
-        Throwables.throwIfUnchecked(t);
+        if (t instanceof RuntimeException) {
+          throw (RuntimeException) t;
+        } else if (t instanceof Error) {
+          throw (Error) t;
+        }
         throw new RuntimeException("unexpected", t);
       } finally {
         Context.current().detach(origContext);
@@ -154,7 +157,9 @@ final class CurrentSpanUtils {
         throw e;
       } catch (Throwable t) {
         setErrorStatus(span, t);
-        Throwables.throwIfUnchecked(t);
+        if (t instanceof Error) {
+          throw (Error) t;
+        }
         throw new RuntimeException("unexpected", t);
       } finally {
         Context.current().detach(origContext);
