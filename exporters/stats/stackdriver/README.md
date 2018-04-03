@@ -76,7 +76,7 @@ can correctly identify your pod, cluster and container. Follow the Kubernetes in
 [here](https://cloud.google.com/kubernetes-engine/docs/tutorials/custom-metrics-autoscaling#exporting_metrics_from_the_application) 
 and [here](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/).
 
-Otherwise, Exporter will use [a global Stackdriver monitored resource with no labels](https://cloud.google.com/monitoring/api/resources#tag_global), 
+Otherwise, Exporter will use [a global Stackdriver monitored resource with a project_id label](https://cloud.google.com/monitoring/api/resources#tag_global), 
 and it works fine when you have only one exporter running. 
 
 If you want to have multiple processes exporting stats for the same metric concurrently, and your 
