@@ -16,9 +16,7 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.internal.BaseMessageEventUtils;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -76,12 +74,12 @@ public abstract class Span {
    * @since 0.5
    */
   protected Span(SpanContext context, @Nullable EnumSet<Options> options) {
-    this.context = checkNotNull(context, "context");
+    this.context = Utils.checkNotNull(context, "context");
     this.options =
         options == null
             ? DEFAULT_OPTIONS
             : Collections.<Options>unmodifiableSet(EnumSet.copyOf(options));
-    checkArgument(
+    Utils.checkArgument(
         !context.getTraceOptions().isSampled() || (this.options.contains(Options.RECORD_EVENTS)),
         "Span is sampled, but does not have RECORD_EVENTS set.");
   }

@@ -16,10 +16,9 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.errorprone.annotations.MustBeClosed;
 import io.opencensus.common.Scope;
+import io.opencensus.internal.Utils;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.Nullable;
@@ -324,7 +323,7 @@ public abstract class SpanBuilder {
     }
 
     private NoopSpanBuilder(String name) {
-      checkNotNull(name, "name");
+      Utils.checkNotNull(name, "name");
     }
   }
 }

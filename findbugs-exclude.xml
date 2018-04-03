@@ -22,6 +22,12 @@
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
     <Class name="io.opencensus.trace.internal.BaseMessageEventUtils" />
   </Match>
+  <Match>
+    <!-- Reason: This test is testing for a NPE. -->
+    <Bug pattern="NP_NONNULL_PARAM_VIOLATION"/>
+    <Class name="io.opencensus.internal.UtilsTest" />
+    <Method name="checkNotNull" />
+  </Match>
 
   <!-- Suppress some FindBugs warnings related to performance or robustness -->
   <!-- in test classes, where those issues are less important. -->

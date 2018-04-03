@@ -16,13 +16,10 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import io.opencensus.internal.Utils;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -78,8 +75,10 @@ public final class TraceOptions {
    * @since 0.5
    */
   public static TraceOptions fromBytes(byte[] buffer) {
-    checkNotNull(buffer, "buffer");
-    checkArgument(buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
+    Utils.checkNotNull(buffer, "buffer");
+    Utils.checkArgument(
+        buffer.length == SIZE,
+        String.format("Invalid size: expected %s, got %s", SIZE, buffer.length));
     return new TraceOptions(buffer[0]);
   }
 
@@ -97,7 +96,7 @@ public final class TraceOptions {
    * @since 0.5
    */
   public static TraceOptions fromBytes(byte[] src, int srcOffset) {
-    checkElementIndex(srcOffset, src.length);
+    Utils.checkIndex(srcOffset, src.length);
     return new TraceOptions(src[srcOffset]);
   }
 
@@ -131,7 +130,7 @@ public final class TraceOptions {
    * @since 0.5
    */
   public void copyBytesTo(byte[] dest, int destOffset) {
-    checkElementIndex(destOffset, dest.length);
+    Utils.checkIndex(destOffset, dest.length);
     dest[destOffset] = options;
   }
 

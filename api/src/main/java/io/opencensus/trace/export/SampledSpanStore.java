@@ -16,11 +16,9 @@
 
 package io.opencensus.trace.export;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
@@ -157,7 +155,7 @@ public abstract class SampledSpanStore {
       return new AutoValue_SampledSpanStore_Summary(
           Collections.unmodifiableMap(
               new HashMap<String, PerSpanNameSummary>(
-                  checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
+                  Utils.checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
     }
 
     /**
@@ -196,10 +194,11 @@ public abstract class SampledSpanStore {
       return new AutoValue_SampledSpanStore_PerSpanNameSummary(
           Collections.unmodifiableMap(
               new HashMap<LatencyBucketBoundaries, Integer>(
-                  checkNotNull(numbersOfLatencySampledSpans, "numbersOfLatencySampledSpans"))),
+                  Utils.checkNotNull(
+                      numbersOfLatencySampledSpans, "numbersOfLatencySampledSpans"))),
           Collections.unmodifiableMap(
               new HashMap<CanonicalCode, Integer>(
-                  checkNotNull(numbersOfErrorSampledSpans, "numbersOfErrorSampledSpans"))));
+                  Utils.checkNotNull(numbersOfErrorSampledSpans, "numbersOfErrorSampledSpans"))));
     }
 
     /**
@@ -361,9 +360,9 @@ public abstract class SampledSpanStore {
      */
     public static LatencyFilter create(
         String spanName, long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn) {
-      checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
-      checkArgument(latencyLowerNs >= 0, "Negative latencyLowerNs");
-      checkArgument(latencyUpperNs >= 0, "Negative latencyUpperNs");
+      Utils.checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
+      Utils.checkArgument(latencyLowerNs >= 0, "Negative latencyLowerNs");
+      Utils.checkArgument(latencyUpperNs >= 0, "Negative latencyUpperNs");
       return new AutoValue_SampledSpanStore_LatencyFilter(
           spanName, latencyLowerNs, latencyUpperNs, maxSpansToReturn);
     }
@@ -432,9 +431,9 @@ public abstract class SampledSpanStore {
     public static ErrorFilter create(
         String spanName, @Nullable CanonicalCode canonicalCode, int maxSpansToReturn) {
       if (canonicalCode != null) {
-        checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
+        Utils.checkArgument(canonicalCode != CanonicalCode.OK, "Invalid canonical code.");
       }
-      checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
+      Utils.checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
       return new AutoValue_SampledSpanStore_ErrorFilter(spanName, canonicalCode, maxSpansToReturn);
     }
 
@@ -489,19 +488,19 @@ public abstract class SampledSpanStore {
 
     @Override
     public Collection<SpanData> getLatencySampledSpans(LatencyFilter filter) {
-      checkNotNull(filter, "latencyFilter");
+      Utils.checkNotNull(filter, "latencyFilter");
       return Collections.<SpanData>emptyList();
     }
 
     @Override
     public Collection<SpanData> getErrorSampledSpans(ErrorFilter filter) {
-      checkNotNull(filter, "errorFilter");
+      Utils.checkNotNull(filter, "errorFilter");
       return Collections.<SpanData>emptyList();
     }
 
     @Override
     public void registerSpanNamesForCollection(Collection<String> spanNames) {
-      checkNotNull(spanNames, "spanNames");
+      Utils.checkNotNull(spanNames, "spanNames");
       synchronized (registeredSpanNames) {
         registeredSpanNames.addAll(spanNames);
       }
@@ -509,7 +508,7 @@ public abstract class SampledSpanStore {
 
     @Override
     public void unregisterSpanNamesForCollection(Collection<String> spanNames) {
-      checkNotNull(spanNames);
+      Utils.checkNotNull(spanNames, "spanNames");
       synchronized (registeredSpanNames) {
         registeredSpanNames.removeAll(spanNames);
       }

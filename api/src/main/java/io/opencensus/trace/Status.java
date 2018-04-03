@@ -16,11 +16,10 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -386,7 +385,7 @@ public final class Status {
   @Nullable private final String description;
 
   private Status(CanonicalCode canonicalCode, @Nullable String description) {
-    this.canonicalCode = checkNotNull(canonicalCode, "canonicalCode");
+    this.canonicalCode = Utils.checkNotNull(canonicalCode, "canonicalCode");
     this.description = description;
   }
 

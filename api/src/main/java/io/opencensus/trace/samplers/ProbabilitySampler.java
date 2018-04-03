@@ -16,9 +16,8 @@
 
 package io.opencensus.trace.samplers;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.auto.value.AutoValue;
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
@@ -54,7 +53,7 @@ abstract class ProbabilitySampler extends Sampler {
    * @throws IllegalArgumentException if {@code probability} is out of range
    */
   static ProbabilitySampler create(double probability) {
-    checkArgument(
+    Utils.checkArgument(
         probability >= 0.0 && probability <= 1.0, "probability must be in range [0.0, 1.0]");
     long idUpperBound;
     // Special case the limits, to avoid any possible issues with lack of precision across

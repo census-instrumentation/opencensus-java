@@ -16,9 +16,8 @@
 
 package io.opencensus.trace.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.auto.value.AutoValue;
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.MessageEvent;
@@ -209,10 +208,11 @@ public abstract class TraceParams {
      */
     public TraceParams build() {
       TraceParams traceParams = autoBuild();
-      checkArgument(traceParams.getMaxNumberOfAttributes() > 0, "maxNumberOfAttributes");
-      checkArgument(traceParams.getMaxNumberOfAnnotations() > 0, "maxNumberOfAnnotations");
-      checkArgument(traceParams.getMaxNumberOfMessageEvents() > 0, "maxNumberOfMessageEvents");
-      checkArgument(traceParams.getMaxNumberOfLinks() > 0, "maxNumberOfLinks");
+      Utils.checkArgument(traceParams.getMaxNumberOfAttributes() > 0, "maxNumberOfAttributes");
+      Utils.checkArgument(traceParams.getMaxNumberOfAnnotations() > 0, "maxNumberOfAnnotations");
+      Utils.checkArgument(
+          traceParams.getMaxNumberOfMessageEvents() > 0, "maxNumberOfMessageEvents");
+      Utils.checkArgument(traceParams.getMaxNumberOfLinks() > 0, "maxNumberOfLinks");
       return traceParams;
     }
   }

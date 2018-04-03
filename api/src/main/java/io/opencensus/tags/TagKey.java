@@ -16,10 +16,9 @@
 
 package io.opencensus.tags;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.auto.value.AutoValue;
 import io.opencensus.internal.StringUtils;
+import io.opencensus.internal.Utils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -61,7 +60,7 @@ public abstract class TagKey {
    * @since 0.8
    */
   public static TagKey create(String name) {
-    checkArgument(isValid(name));
+    Utils.checkArgument(isValid(name), "Invalid TagKey name: " + name);
     return new AutoValue_TagKey(name);
   }
 

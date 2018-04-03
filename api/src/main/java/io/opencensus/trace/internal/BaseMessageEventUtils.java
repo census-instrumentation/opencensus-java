@@ -16,9 +16,8 @@
 
 package io.opencensus.trace.internal;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.opencensus.common.Internal;
+import io.opencensus.internal.Utils;
 
 /**
  * Helper class to convert/cast between for {@link io.opencensus.trace.MessageEvent} and {@link
@@ -39,7 +38,7 @@ public final class BaseMessageEventUtils {
    */
   public static io.opencensus.trace.MessageEvent asMessageEvent(
       io.opencensus.trace.BaseMessageEvent event) {
-    checkNotNull(event);
+    Utils.checkNotNull(event, "event");
     if (event instanceof io.opencensus.trace.MessageEvent) {
       return (io.opencensus.trace.MessageEvent) event;
     }
@@ -63,7 +62,7 @@ public final class BaseMessageEventUtils {
    */
   public static io.opencensus.trace.NetworkEvent asNetworkEvent(
       io.opencensus.trace.BaseMessageEvent event) {
-    checkNotNull(event);
+    Utils.checkNotNull(event, "event");
     if (event instanceof io.opencensus.trace.NetworkEvent) {
       return (io.opencensus.trace.NetworkEvent) event;
     }

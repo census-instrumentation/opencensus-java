@@ -16,9 +16,8 @@
 
 package io.opencensus.trace.propagation;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.SpanContext;
 import java.util.Collections;
 import java.util.List;
@@ -190,15 +189,15 @@ public abstract class TextFormat {
     @Override
     public <C /*>>> extends @NonNull Object*/> void inject(
         SpanContext spanContext, C carrier, Setter<C> setter) {
-      checkNotNull(spanContext, "spanContext");
-      checkNotNull(carrier, "carrier");
-      checkNotNull(setter, "setter");
+      Utils.checkNotNull(spanContext, "spanContext");
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(setter, "setter");
     }
 
     @Override
     public <C /*>>> extends @NonNull Object*/> SpanContext extract(C carrier, Getter<C> getter) {
-      checkNotNull(carrier, "carrier");
-      checkNotNull(getter, "getter");
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(getter, "getter");
       return SpanContext.INVALID;
     }
   }

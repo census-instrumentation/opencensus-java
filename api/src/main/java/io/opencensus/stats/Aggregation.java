@@ -16,10 +16,9 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.Utils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -221,7 +220,7 @@ public abstract class Aggregation {
      * @since 0.8
      */
     public static Distribution create(BucketBoundaries bucketBoundaries) {
-      checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
+      Utils.checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
       return new AutoValue_Aggregation_Distribution(bucketBoundaries);
     }
 

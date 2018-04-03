@@ -16,10 +16,8 @@
 
 package io.opencensus.trace.export;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
+import io.opencensus.internal.Utils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -92,7 +90,7 @@ public abstract class RunningSpanStore {
       return new AutoValue_RunningSpanStore_Summary(
           Collections.unmodifiableMap(
               new HashMap<String, PerSpanNameSummary>(
-                  checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
+                  Utils.checkNotNull(perSpanNameSummary, "perSpanNameSummary"))));
     }
 
     /**
@@ -124,7 +122,7 @@ public abstract class RunningSpanStore {
      * @since 0.5
      */
     public static PerSpanNameSummary create(int numRunningSpans) {
-      checkArgument(numRunningSpans >= 0, "Negative numRunningSpans.");
+      Utils.checkArgument(numRunningSpans >= 0, "Negative numRunningSpans.");
       return new AutoValue_RunningSpanStore_PerSpanNameSummary(numRunningSpans);
     }
 
@@ -163,7 +161,7 @@ public abstract class RunningSpanStore {
      * @since 0.5
      */
     public static Filter create(String spanName, int maxSpansToReturn) {
-      checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
+      Utils.checkArgument(maxSpansToReturn >= 0, "Negative maxSpansToReturn.");
       return new AutoValue_RunningSpanStore_Filter(spanName, maxSpansToReturn);
     }
 
@@ -196,7 +194,7 @@ public abstract class RunningSpanStore {
 
     @Override
     public Collection<SpanData> getRunningSpans(Filter filter) {
-      checkNotNull(filter, "filter");
+      Utils.checkNotNull(filter, "filter");
       return Collections.<SpanData>emptyList();
     }
   }

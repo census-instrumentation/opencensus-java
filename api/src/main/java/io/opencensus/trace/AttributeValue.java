@@ -16,10 +16,9 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.Utils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -94,7 +93,7 @@ public abstract class AttributeValue {
 
     static AttributeValue create(String stringValue) {
       return new AutoValue_AttributeValue_AttributeValueString(
-          checkNotNull(stringValue, "stringValue"));
+          Utils.checkNotNull(stringValue, "stringValue"));
     }
 
     @Override
@@ -117,7 +116,7 @@ public abstract class AttributeValue {
 
     static AttributeValue create(Boolean stringValue) {
       return new AutoValue_AttributeValue_AttributeValueBoolean(
-          checkNotNull(stringValue, "stringValue"));
+          Utils.checkNotNull(stringValue, "stringValue"));
     }
 
     @Override
@@ -140,7 +139,7 @@ public abstract class AttributeValue {
 
     static AttributeValue create(Long stringValue) {
       return new AutoValue_AttributeValue_AttributeValueLong(
-          checkNotNull(stringValue, "stringValue"));
+          Utils.checkNotNull(stringValue, "stringValue"));
     }
 
     @Override
