@@ -4,7 +4,7 @@
 [![Maven Central][maven-image]][maven-url]
 
 The *OpenCensus Instana Trace Exporter* is a trace exporter that exports
-data to Instana. [Instana](http://www.instana.com/) Instana is a distributed
+data to Instana. [Instana](http://www.instana.com/) is a distributed
 tracing system.
 
 ## Quickstart
