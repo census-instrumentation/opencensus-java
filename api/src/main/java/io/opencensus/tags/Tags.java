@@ -16,7 +16,7 @@
 
 package io.opencensus.tags;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.Provider;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.logging.Level;
@@ -91,7 +91,7 @@ public final class Tags {
   }
 
   // Any provider that may be used for TagsComponent can be added here.
-  @VisibleForTesting
+  @DefaultVisibilityForTesting
   static TagsComponent loadTagsComponent(@Nullable ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.

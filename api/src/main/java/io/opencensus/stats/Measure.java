@@ -17,8 +17,8 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Function;
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.StringUtils;
 import io.opencensus.internal.Utils;
 import javax.annotation.concurrent.Immutable;
@@ -31,7 +31,7 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public abstract class Measure {
 
-  @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
+  @DefaultVisibilityForTesting static final int NAME_MAX_LENGTH = 255;
 
   /**
    * Applies the given match function to the underlying data type.

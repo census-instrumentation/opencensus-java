@@ -17,7 +17,7 @@
 package io.opencensus.trace.export;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.internal.PublicForTesting;
 import io.opencensus.internal.Utils;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
@@ -129,7 +129,7 @@ public abstract class SampledSpanStore {
    * @return the set of unique span names registered to the library.
    * @since 0.7
    */
-  @VisibleForTesting
+  @PublicForTesting
   public abstract Set<String> getRegisteredSpanNamesForCollection();
 
   /**

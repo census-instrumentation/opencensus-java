@@ -16,9 +16,9 @@
 
 package io.opencensus.trace;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.Utils;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -241,7 +241,7 @@ public final class TraceOptions {
   }
 
   // Returns the current set of options bitmask.
-  @VisibleForTesting
+  @DefaultVisibilityForTesting
   byte getOptions() {
     return options;
   }

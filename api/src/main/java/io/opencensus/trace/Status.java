@@ -16,9 +16,9 @@
 
 package io.opencensus.trace;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import io.opencensus.internal.PublicForTesting;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -229,7 +229,7 @@ public final class Status {
      * @return the status that has the current {@code CanonicalCode}.
      * @since 0.5
      */
-    @VisibleForTesting
+    @PublicForTesting
     public Status toStatus() {
       return STATUS_LIST.get(value);
     }

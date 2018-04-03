@@ -17,9 +17,9 @@
 package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.StringUtils;
 import io.opencensus.internal.Utils;
 import io.opencensus.tags.TagKey;
@@ -42,7 +42,7 @@ import javax.annotation.concurrent.Immutable;
 @SuppressWarnings("deprecation")
 public abstract class View {
 
-  @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
+  @DefaultVisibilityForTesting static final int NAME_MAX_LENGTH = 255;
 
   private static final Comparator<TagKey> TAG_KEY_COMPARATOR =
       new Comparator<TagKey>() {
