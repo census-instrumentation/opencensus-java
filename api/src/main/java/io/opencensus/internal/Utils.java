@@ -16,6 +16,8 @@
 
 package io.opencensus.internal;
 
+import java.math.BigInteger;
+
 /*>>>
 import org.checkerframework.checker.nullness.qual.NonNull;
 */
@@ -82,5 +84,34 @@ public final class Utils {
       throw new NullPointerException(message);
     }
     return arg;
+  }
+
+  /**
+   * Compares two longs. This functionality is provided by {@code Long.compare(long, long)} in Java
+   * 7.
+   */
+  public static int compareLongs(long x, long y) {
+    if (x < y) {
+      return -1;
+    } else if (x == y) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
+  private static final BigInteger MAX_LONG_VALUE = BigInteger.valueOf(Long.MAX_VALUE);
+  private static final BigInteger MIN_LONG_VALUE = BigInteger.valueOf(Long.MIN_VALUE);
+
+  /**
+   * Adds two longs and throws an {@link ArithmeticException} if the result overflows. This
+   * functionality is provided by {@code Math.addExact(long, long)} in Java 8.
+   */
+  public static long checkedAdd(long x, long y) {
+    BigInteger sum = BigInteger.valueOf(x).add(BigInteger.valueOf(y));
+    if (sum.compareTo(MAX_LONG_VALUE) > 0 || sum.compareTo(MIN_LONG_VALUE) < 0) {
+      throw new ArithmeticException("Long sum overflow: x=" + x + ", y=" + y);
+    }
+    return x + y;
   }
 }

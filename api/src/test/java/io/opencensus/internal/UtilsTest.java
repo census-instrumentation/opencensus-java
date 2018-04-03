@@ -16,6 +16,8 @@
 
 package io.opencensus.internal;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -84,5 +86,33 @@ public final class UtilsTest {
     thrown.expect(IndexOutOfBoundsException.class);
     thrown.expectMessage("Index out of bounds: size=10, index=11");
     Utils.checkIndex(11, 10);
+  }
+
+  @Test
+  public void compareLongs() {
+    assertThat(Utils.compareLongs(-1L, 1L)).isLessThan(0);
+    assertThat(Utils.compareLongs(10L, 10L)).isEqualTo(0);
+    assertThat(Utils.compareLongs(1L, 0L)).isGreaterThan(0);
+  }
+
+  @Test
+  public void checkedAdd_TooLow() {
+    thrown.expect(ArithmeticException.class);
+    thrown.expectMessage("Long sum overflow: x=-9223372036854775807, y=-2");
+    Utils.checkedAdd(Long.MIN_VALUE + 1, -2);
+  }
+
+  @Test
+  public void checkedAdd_TooHigh() {
+    thrown.expect(ArithmeticException.class);
+    thrown.expectMessage("Long sum overflow: x=9223372036854775806, y=2");
+    Utils.checkedAdd(Long.MAX_VALUE - 1, 2);
+  }
+
+  @Test
+  public void checkedAdd_Valid() {
+    assertThat(Utils.checkedAdd(1, 2)).isEqualTo(3);
+    assertThat(Utils.checkedAdd(Integer.MAX_VALUE, Integer.MAX_VALUE))
+        .isEqualTo(2L * Integer.MAX_VALUE);
   }
 }

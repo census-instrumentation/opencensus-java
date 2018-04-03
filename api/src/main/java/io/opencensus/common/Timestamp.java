@@ -23,8 +23,8 @@ import static io.opencensus.common.TimeUtils.NANOS_PER_MILLI;
 import static io.opencensus.common.TimeUtils.NANOS_PER_SECOND;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.math.LongMath;
-import com.google.common.primitives.Longs;
+import io.opencensus.internal.Utils;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import javax.annotation.concurrent.Immutable;
 
@@ -153,11 +153,11 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    */
   @Override
   public int compareTo(Timestamp otherTimestamp) {
-    int cmp = Longs.compare(getSeconds(), otherTimestamp.getSeconds());
+    int cmp = Utils.compareLongs(getSeconds(), otherTimestamp.getSeconds());
     if (cmp != 0) {
       return cmp;
     }
-    return Longs.compare(getNanos(), otherTimestamp.getNanos());
+    return Utils.compareLongs(getNanos(), otherTimestamp.getNanos());
   }
 
   // Returns a Timestamp with the specified duration added.
@@ -165,8 +165,8 @@ public abstract class Timestamp implements Comparable<Timestamp> {
     if ((secondsToAdd | nanosToAdd) == 0) {
       return this;
     }
-    long epochSec = LongMath.checkedAdd(getSeconds(), secondsToAdd);
-    epochSec = LongMath.checkedAdd(epochSec, nanosToAdd / NANOS_PER_SECOND);
+    long epochSec = Utils.checkedAdd(getSeconds(), secondsToAdd);
+    epochSec = Utils.checkedAdd(epochSec, nanosToAdd / NANOS_PER_SECOND);
     nanosToAdd = nanosToAdd % NANOS_PER_SECOND;
     long nanoAdjustment = getNanos() + nanosToAdd; // safe int + NANOS_PER_SECOND
     return ofEpochSecond(epochSec, nanoAdjustment);
@@ -175,14 +175,14 @@ public abstract class Timestamp implements Comparable<Timestamp> {
   // Returns a Timestamp calculated using seconds from the epoch and nanosecond fraction of
   // second (arbitrary number of nanoseconds).
   private static Timestamp ofEpochSecond(long epochSecond, long nanoAdjustment) {
-    long secs = LongMath.checkedAdd(epochSecond, floorDiv(nanoAdjustment, NANOS_PER_SECOND));
+    long secs = Utils.checkedAdd(epochSecond, floorDiv(nanoAdjustment, NANOS_PER_SECOND));
     int nos = (int) floorMod(nanoAdjustment, NANOS_PER_SECOND);
     return create(secs, nos);
   }
 
   // Returns the result of dividing x by y rounded using floor.
   private static long floorDiv(long x, long y) {
-    return LongMath.divide(x, y, RoundingMode.FLOOR);
+    return BigDecimal.valueOf(x).divide(BigDecimal.valueOf(y), 0, RoundingMode.FLOOR).longValue();
   }
 
   // Returns the floor modulus "x - (floorDiv(x, y) * y)"
