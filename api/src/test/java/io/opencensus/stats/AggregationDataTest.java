@@ -23,6 +23,8 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -95,6 +97,8 @@ public class AggregationDataTest {
         .addEqualityGroup(DistributionData.create(10, 10, 1, 1, 55.5, Arrays.asList(0L, 10L, 0L)))
         .addEqualityGroup(MeanData.create(5.0, 1), MeanData.create(5.0, 1))
         .addEqualityGroup(MeanData.create(-5.0, 1), MeanData.create(-5.0, 1))
+        .addEqualityGroup(LastValueDataDouble.create(20.0), LastValueDataDouble.create(20.0))
+        .addEqualityGroup(LastValueDataLong.create(20), LastValueDataLong.create(20))
         .testEquals();
   }
 
@@ -106,7 +110,9 @@ public class AggregationDataTest {
             SumDataLong.create(100000000),
             CountData.create(40),
             MeanData.create(5.0, 1),
-            DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 10L, 0L)));
+            DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 10L, 0L)),
+            LastValueDataDouble.create(20.0),
+            LastValueDataLong.create(200000000L));
 
     final List<Object> actual = new ArrayList<Object>();
     for (AggregationData aggregation : aggregations) {
@@ -146,10 +152,25 @@ public class AggregationDataTest {
               return null;
             }
           },
+          new Function<LastValueDataDouble, Void>() {
+            @Override
+            public Void apply(LastValueDataDouble arg) {
+              actual.add(arg.getLastValue());
+              return null;
+            }
+          },
+          new Function<LastValueDataLong, Void>() {
+            @Override
+            public Void apply(LastValueDataLong arg) {
+              actual.add(arg.getLastValue());
+              return null;
+            }
+          },
           Functions.<Void>throwIllegalArgumentException());
     }
 
     assertThat(actual)
-        .isEqualTo(Arrays.asList(10.0, 100000000L, 40L, 5.0, Arrays.asList(0L, 10L, 0L)));
+        .containsExactly(10.0, 100000000L, 40L, 5.0, Arrays.asList(0L, 10L, 0L), 20.0, 200000000L)
+        .inOrder();
   }
 }

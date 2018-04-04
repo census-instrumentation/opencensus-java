@@ -19,10 +19,10 @@ package io.opencensus.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import java.util.ArrayList;
@@ -66,6 +66,7 @@ public class AggregationTest {
             Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))),
             Distribution.create(BucketBoundaries.create(Arrays.asList(0.0, 1.0, 5.0))))
         .addEqualityGroup(Mean.create(), Mean.create())
+        .addEqualityGroup(LastValue.create(), LastValue.create())
         .testEquals();
   }
 
@@ -76,39 +77,33 @@ public class AggregationTest {
             Sum.create(),
             Count.create(),
             Mean.create(),
-            Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))));
+            Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
+            LastValue.create());
 
-    List<String> actual = new ArrayList<String>();
+    List<String> actual1 = new ArrayList<String>();
+    List<String> actual2 = new ArrayList<String>();
     for (Aggregation aggregation : aggregations) {
-      actual.add(
+      actual1.add(
           aggregation.match(
-              new Function<Sum, String>() {
-                @Override
-                public String apply(Sum arg) {
-                  return "SUM";
-                }
-              },
-              new Function<Count, String>() {
-                @Override
-                public String apply(Count arg) {
-                  return "COUNT";
-                }
-              },
-              new Function<Mean, String>() {
-                @Override
-                public String apply(Mean arg) {
-                  return "MEAN";
-                }
-              },
-              new Function<Distribution, String>() {
-                @Override
-                public String apply(Distribution arg) {
-                  return "DISTRIBUTION";
-                }
-              },
-              Functions.<String>throwIllegalArgumentException()));
+              Functions.returnConstant("SUM"),
+              Functions.returnConstant("COUNT"),
+              Functions.returnConstant("MEAN"),
+              Functions.returnConstant("DISTRIBUTION"),
+              Functions.returnConstant("LASTVALUE"),
+              Functions.returnConstant("UNKNOWN")));
+
+      // Test the deprecated match() method.
+      actual2.add(
+          aggregation.match(
+              Functions.returnConstant("SUM"),
+              Functions.returnConstant("COUNT"),
+              Functions.returnConstant("MEAN"),
+              Functions.returnConstant("DISTRIBUTION"),
+              Functions.returnConstant("UNKNOWN")));
     }
 
-    assertThat(actual).isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION"));
+    assertThat(actual1)
+        .isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION", "LASTVALUE"));
+    assertThat(actual2).isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION", "UNKNOWN"));
   }
 }

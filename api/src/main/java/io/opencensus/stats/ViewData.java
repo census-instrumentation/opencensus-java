@@ -24,9 +24,12 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -287,6 +290,32 @@ public abstract class ViewData {
             Utils.checkArgument(
                 aggregationData instanceof DistributionData,
                 createErrorMessageForAggregation(aggregation, aggregationData));
+            return null;
+          }
+        },
+        new Function<LastValue, Void>() {
+          @Override
+          public Void apply(LastValue arg) {
+            measure.match(
+                new Function<MeasureDouble, Void>() {
+                  @Override
+                  public Void apply(MeasureDouble arg) {
+                    checkArgument(
+                        aggregationData instanceof LastValueDataDouble,
+                        createErrorMessageForAggregation(aggregation, aggregationData));
+                    return null;
+                  }
+                },
+                new Function<MeasureLong, Void>() {
+                  @Override
+                  public Void apply(MeasureLong arg) {
+                    checkArgument(
+                        aggregationData instanceof LastValueDataLong,
+                        createErrorMessageForAggregation(aggregation, aggregationData));
+                    return null;
+                  }
+                },
+                Functions.</*@Nullable*/ Void>throwAssertionError());
             return null;
           }
         },

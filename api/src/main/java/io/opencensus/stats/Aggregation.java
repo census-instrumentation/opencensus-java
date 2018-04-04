@@ -25,12 +25,13 @@ import javax.annotation.concurrent.Immutable;
  * {@link Aggregation} is the process of combining a certain set of {@code MeasureValue}s for a
  * given {@code Measure} into an {@link AggregationData}.
  *
- * <p>{@link Aggregation} currently supports 3 types of basic aggregation:
+ * <p>{@link Aggregation} currently supports 4 types of basic aggregation:
  *
  * <ul>
  *   <li>Sum
  *   <li>Count
  *   <li>Distribution
+ *   <li>LastValue
  * </ul>
  *
  * <p>When creating a {@link View}, one {@link Aggregation} needs to be specified as how to
@@ -47,7 +48,8 @@ public abstract class Aggregation {
    * Applies the given match function to the underlying data type.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #match(Function, Function, Function, Function)}.
+   * @deprecated in favor of {@link #match(Function, Function, Function, Function, Function,
+   *     Function)}.
    */
   @Deprecated
   public abstract <T> T match(
@@ -66,7 +68,9 @@ public abstract class Aggregation {
   public abstract <T> T match(
       Function<? super Sum, T> p0,
       Function<? super Count, T> p1,
-      Function<? super Distribution, T> p2,
+      Function<? super Mean, T> p2,
+      Function<? super Distribution, T> p3,
+      Function<? super LastValue, T> p4,
       Function<? super Aggregation, T> defaultFunction);
 
   /**
@@ -106,7 +110,9 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Distribution, T> p2,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
+        Function<? super LastValue, T> p4,
         Function<? super Aggregation, T> defaultFunction) {
       return p0.apply(this);
     }
@@ -149,7 +155,9 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Distribution, T> p2,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
+        Function<? super LastValue, T> p4,
         Function<? super Aggregation, T> defaultFunction) {
       return p1.apply(this);
     }
@@ -195,9 +203,11 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Distribution, T> p2,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
+        Function<? super LastValue, T> p4,
         Function<? super Aggregation, T> defaultFunction) {
-      return defaultFunction.apply(this);
+      return p2.apply(this);
     }
   }
 
@@ -246,9 +256,56 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Distribution, T> p2,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
+        Function<? super LastValue, T> p4,
         Function<? super Aggregation, T> defaultFunction) {
-      return p2.apply(this);
+      return p3.apply(this);
+    }
+  }
+
+  /**
+   * Calculate the last value of aggregated {@code MeasureValue}s.
+   *
+   * @since 0.13
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class LastValue extends Aggregation {
+
+    LastValue() {}
+
+    private static final LastValue INSTANCE = new AutoValue_Aggregation_LastValue();
+
+    /**
+     * Construct a {@code LastValue}.
+     *
+     * @return a new {@code LastValue}.
+     * @since 0.13
+     */
+    public static LastValue create() {
+      return INSTANCE;
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
+        Function<? super Aggregation, T> defaultFunction) {
+      return defaultFunction.apply(this);
+    }
+
+    @Override
+    public final <T> T match(
+        Function<? super Sum, T> p0,
+        Function<? super Count, T> p1,
+        Function<? super Mean, T> p2,
+        Function<? super Distribution, T> p3,
+        Function<? super LastValue, T> p4,
+        Function<? super Aggregation, T> defaultFunction) {
+      return p4.apply(this);
     }
   }
 }
