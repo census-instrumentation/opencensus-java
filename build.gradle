@@ -389,7 +389,8 @@ subprojects {
                     compile.options.compilerArgs += [
                         '-Xmaxerrs', '10000',
                         "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
-                        "-AskipDefs=\\.AutoValue_"
+                        "-AskipDefs=\\.AutoValue_",
+                        "-AinvariantArrays"
                     ]
                     options.fork = true
                     options.forkOptions.jvmArgs += ["-Xbootclasspath/p:${configurations.checkerFrameworkJavac.asPath}"]
