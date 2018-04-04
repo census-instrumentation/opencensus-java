@@ -22,15 +22,19 @@ import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
+import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -91,6 +95,10 @@ public class MutableViewDataTest {
     assertThat(((MutableMean) MutableViewData.createMutableAggregation(Mean.create())).getMean())
         .isWithin(EPSILON)
         .of(0D);
+    assertThat(
+            ((MutableLastValue) MutableViewData.createMutableAggregation(LastValue.create()))
+                .getLastValue())
+        .isNaN();
 
     MutableDistribution mutableDistribution =
         (MutableDistribution)
@@ -104,15 +112,18 @@ public class MutableViewDataTest {
   @Test
   public void createAggregationData() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
+    List<AggregationData> aggregates = new ArrayList<AggregationData>();
+    aggregates.add(MutableViewData.createAggregationData(MutableSum.create(), MEASURE_DOUBLE));
+    aggregates.add(MutableViewData.createAggregationData(MutableSum.create(), MEASURE_LONG));
+    aggregates.add(
+        MutableViewData.createAggregationData(MutableLastValue.create(), MEASURE_DOUBLE));
+    aggregates.add(MutableViewData.createAggregationData(MutableLastValue.create(), MEASURE_LONG));
+
     List<MutableAggregation> mutableAggregations =
         Arrays.asList(
             MutableCount.create(),
             MutableMean.create(),
             MutableDistribution.create(bucketBoundaries));
-    List<AggregationData> aggregates = new ArrayList<AggregationData>();
-
-    aggregates.add(MutableViewData.createAggregationData(MutableSum.create(), MEASURE_DOUBLE));
-    aggregates.add(MutableViewData.createAggregationData(MutableSum.create(), MEASURE_LONG));
     for (MutableAggregation mutableAggregation : mutableAggregations) {
       aggregates.add(MutableViewData.createAggregationData(mutableAggregation, MEASURE_DOUBLE));
     }
@@ -121,6 +132,8 @@ public class MutableViewDataTest {
         .containsExactly(
             SumDataDouble.create(0),
             SumDataLong.create(0),
+            LastValueDataDouble.create(Double.NaN),
+            LastValueDataLong.create(0),
             CountData.create(0),
             MeanData.create(0, 0),
             DistributionData.create(

@@ -26,6 +26,8 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -130,6 +132,24 @@ final class StatsTestUtil {
           public Void apply(DistributionData arg) {
             assertThat(actual).isInstanceOf(DistributionData.class);
             assertDistributionDataEquals(arg, (DistributionData) actual, tolerance);
+            return null;
+          }
+        },
+        new Function<LastValueDataDouble, Void>() {
+          @Override
+          public Void apply(LastValueDataDouble arg) {
+            assertThat(actual).isInstanceOf(LastValueDataDouble.class);
+            assertThat(((LastValueDataDouble) actual).getLastValue())
+                .isWithin(tolerance)
+                .of(arg.getLastValue());
+            return null;
+          }
+        },
+        new Function<LastValueDataLong, Void>() {
+          @Override
+          public Void apply(LastValueDataLong arg) {
+            assertThat(actual).isInstanceOf(LastValueDataLong.class);
+            assertThat(((LastValueDataLong) actual).getLastValue()).isEqualTo(arg.getLastValue());
             return null;
           }
         },
