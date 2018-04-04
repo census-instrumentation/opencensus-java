@@ -69,10 +69,19 @@ public class MyMainClass {
 
 #### Set Monitored Resource for exporter
 
-By default, the Stackdriver Stats Exporter uses [a global Stackdriver monitored resource with no 
-labels](https://cloud.google.com/monitoring/api/resources#tag_global), and this works fine when you 
-have only one exporter running. If you want to have multiple processes exporting stats for the same 
-metric concurrently, please associate a unique monitored resource with each exporter if possible. 
+By default, Stackdriver Stats Exporter will try to automatically detect the environment if your 
+application is running on GCE or GKE, and generate a corresponding Stackdriver GCE/GKE monitored 
+resource. For GKE particularly, you may want to set up some environment variables so that Exporter 
+can correctly identify your pod, cluster and container. Follow the Kubernetes instruction 
+[here](https://cloud.google.com/kubernetes-engine/docs/tutorials/custom-metrics-autoscaling#exporting_metrics_from_the_application) 
+and [here](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/).
+
+Otherwise, Exporter will use [a global Stackdriver monitored resource with a project_id label](https://cloud.google.com/monitoring/api/resources#tag_global), 
+and it works fine when you have only one exporter running. 
+
+If you want to have multiple processes exporting stats for the same metric concurrently, and your 
+application is running on some different environment than GCE or GKE (for example AWS EC2), please 
+associate a unique monitored resource with each exporter if possible. 
 Please note that there is also an "opencensus_task" metric label that uniquely identifies the 
 uploaded stats.
 

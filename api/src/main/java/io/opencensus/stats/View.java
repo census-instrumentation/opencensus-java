@@ -26,6 +26,7 @@ import io.opencensus.internal.StringUtil;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
@@ -43,6 +44,14 @@ import javax.annotation.concurrent.Immutable;
 public abstract class View {
 
   @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
+
+  private static final Comparator<TagKey> TAG_KEY_COMPARATOR =
+      new Comparator<TagKey>() {
+        @Override
+        public int compare(TagKey key1, TagKey key2) {
+          return key1.getName().compareTo(key2.getName());
+        }
+      };
 
   View() {}
 
@@ -118,13 +127,10 @@ public abstract class View {
       AggregationWindow window) {
     checkArgument(new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
 
+    List<TagKey> tagKeys = new ArrayList<TagKey>(columns);
+    Collections.sort(tagKeys, TAG_KEY_COMPARATOR);
     return new AutoValue_View(
-        name,
-        description,
-        measure,
-        aggregation,
-        Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
-        window);
+        name, description, measure, aggregation, Collections.unmodifiableList(tagKeys), window);
   }
 
   /**
@@ -146,14 +152,8 @@ public abstract class View {
       Aggregation aggregation,
       List<TagKey> columns) {
     checkArgument(new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
-
-    return new AutoValue_View(
-        name,
-        description,
-        measure,
-        aggregation,
-        Collections.unmodifiableList(new ArrayList<TagKey>(columns)),
-        AggregationWindow.Cumulative.create());
+    return create(
+        name, description, measure, aggregation, columns, AggregationWindow.Cumulative.create());
   }
 
   /**
