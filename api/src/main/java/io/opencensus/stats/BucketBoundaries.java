@@ -16,10 +16,8 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
+import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,14 +40,14 @@ public abstract class BucketBoundaries {
    * @since 0.8
    */
   public static final BucketBoundaries create(List<Double> bucketBoundaries) {
-    checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
+    Utils.checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
     List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries); // Deep copy.
     // Check if sorted.
     if (bucketBoundariesCopy.size() > 1) {
       double lower = bucketBoundariesCopy.get(0);
       for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
         double next = bucketBoundariesCopy.get(i);
-        checkArgument(lower < next, "Bucket boundaries not sorted.");
+        Utils.checkArgument(lower < next, "Bucket boundaries not sorted.");
         lower = next;
       }
     }

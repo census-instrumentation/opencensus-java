@@ -23,13 +23,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link StringUtil}. */
+/** Tests for {@link StringUtils}. */
 @RunWith(JUnit4.class)
-public final class StringUtilTest {
+public final class StringUtilsTest {
 
   @Test
   public void isPrintableString() {
-    assertTrue(StringUtil.isPrintableString("abcd"));
-    assertFalse(StringUtil.isPrintableString("\2ab\3cd"));
+    assertTrue(StringUtils.isPrintableString("abcd"));
+    assertFalse(StringUtils.isPrintableString("\2ab\3cd"));
   }
 }

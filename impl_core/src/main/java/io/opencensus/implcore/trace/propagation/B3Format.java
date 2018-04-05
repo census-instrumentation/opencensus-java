@@ -29,6 +29,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
+
 /**
  * Implementation of the B3 propagation protocol. See <a
  * href=https://github.com/openzipkin/b3-propagation>b3-propagation</a>.
@@ -58,7 +62,8 @@ final class B3Format extends TextFormat {
   }
 
   @Override
-  public <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
+  public <C /*>>> extends @NonNull Object*/> void inject(
+      SpanContext spanContext, C carrier, Setter<C> setter) {
     checkNotNull(spanContext, "spanContext");
     checkNotNull(setter, "setter");
     checkNotNull(carrier, "carrier");
@@ -70,7 +75,8 @@ final class B3Format extends TextFormat {
   }
 
   @Override
-  public <C> SpanContext extract(C carrier, Getter<C> getter) throws SpanContextParseException {
+  public <C /*>>> extends @NonNull Object*/> SpanContext extract(C carrier, Getter<C> getter)
+      throws SpanContextParseException {
     checkNotNull(carrier, "carrier");
     checkNotNull(getter, "getter");
     try {

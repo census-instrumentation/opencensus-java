@@ -16,12 +16,10 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import io.opencensus.internal.PublicForTesting;
+import io.opencensus.internal.Utils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
@@ -230,7 +228,7 @@ public final class Status {
      * @return the status that has the current {@code CanonicalCode}.
      * @since 0.5
      */
-    @VisibleForTesting
+    @PublicForTesting
     public Status toStatus() {
       return STATUS_LIST.get(value);
     }
@@ -386,7 +384,7 @@ public final class Status {
   @Nullable private final String description;
 
   private Status(CanonicalCode canonicalCode, @Nullable String description) {
-    this.canonicalCode = checkNotNull(canonicalCode, "canonicalCode");
+    this.canonicalCode = Utils.checkNotNull(canonicalCode, "canonicalCode");
     this.description = description;
   }
 
@@ -398,7 +396,7 @@ public final class Status {
    * @since 0.5
    */
   public Status withDescription(String description) {
-    if (Objects.equal(this.description, description)) {
+    if (Utils.equalsObjects(this.description, description)) {
       return this;
     }
     return new Status(this.canonicalCode, description);
@@ -452,7 +450,8 @@ public final class Status {
     }
 
     Status that = (Status) obj;
-    return canonicalCode == that.canonicalCode && Objects.equal(description, that.description);
+    return canonicalCode == that.canonicalCode
+        && Utils.equalsObjects(description, that.description);
   }
 
   /**
@@ -462,14 +461,11 @@ public final class Status {
    */
   @Override
   public int hashCode() {
-    return Objects.hashCode(canonicalCode, description);
+    return Arrays.hashCode(new Object[] {canonicalCode, description});
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("canonicalCode", canonicalCode)
-        .add("description", description)
-        .toString();
+    return "Status{canonicalCode=" + canonicalCode + ", description=" + description + "}";
   }
 }

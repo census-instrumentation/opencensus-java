@@ -16,9 +16,8 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
+import io.opencensus.internal.Utils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +60,7 @@ public abstract class Annotation {
     return new AutoValue_Annotation(
         description,
         Collections.unmodifiableMap(
-            new HashMap<String, AttributeValue>(checkNotNull(attributes, "attributes"))));
+            new HashMap<String, AttributeValue>(Utils.checkNotNull(attributes, "attributes"))));
   }
 
   /**

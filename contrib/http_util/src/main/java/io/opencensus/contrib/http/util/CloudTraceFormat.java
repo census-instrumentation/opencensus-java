@@ -31,6 +31,10 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
+
 /**
  * Implementation of the "X-Cloud-Trace-Context" format, defined by the Google Cloud Trace.
  *
@@ -80,7 +84,8 @@ final class CloudTraceFormat extends TextFormat {
   }
 
   @Override
-  public <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
+  public <C /*>>> extends @NonNull Object*/> void inject(
+      SpanContext spanContext, C carrier, Setter<C> setter) {
     checkNotNull(spanContext, "spanContext");
     checkNotNull(setter, "setter");
     checkNotNull(carrier, "carrier");
@@ -96,7 +101,8 @@ final class CloudTraceFormat extends TextFormat {
   }
 
   @Override
-  public <C> SpanContext extract(C carrier, Getter<C> getter) throws SpanContextParseException {
+  public <C /*>>> extends @NonNull Object*/> SpanContext extract(C carrier, Getter<C> getter)
+      throws SpanContextParseException {
     checkNotNull(carrier, "carrier");
     checkNotNull(getter, "getter");
     try {

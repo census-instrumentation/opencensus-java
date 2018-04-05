@@ -16,7 +16,7 @@
 
 package io.opencensus.stats;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -89,7 +89,7 @@ public final class Stats {
   }
 
   // Any provider that may be used for StatsComponent can be added here.
-  @VisibleForTesting
+  @DefaultVisibilityForTesting
   static StatsComponent loadStatsComponent(@Nullable ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.

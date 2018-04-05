@@ -16,13 +16,16 @@
 
 package io.opencensus.trace.propagation;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.SpanContext;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.NonNull;
+*/
 
 /**
  * Injects and extracts {@link SpanContext trace identifiers} as text into carriers that travel
@@ -103,7 +106,8 @@ public abstract class TextFormat {
    * @param setter invoked for each propagation key to add or remove.
    * @since 0.11
    */
-  public abstract <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter);
+  public abstract <C /*>>> extends @NonNull Object*/> void inject(
+      SpanContext spanContext, C carrier, Setter<C> setter);
 
   /**
    * Class that allows a {@code TextFormat} to set propagated fields into a carrier.
@@ -138,8 +142,8 @@ public abstract class TextFormat {
    * @throws SpanContextParseException if the input is invalid
    * @since 0.11
    */
-  public abstract <C> SpanContext extract(C carrier, Getter<C> getter)
-      throws SpanContextParseException;
+  public abstract <C /*>>> extends @NonNull Object*/> SpanContext extract(
+      C carrier, Getter<C> getter) throws SpanContextParseException;
 
   /**
    * Class that allows a {@code TextFormat} to read propagated fields from a carrier.
@@ -183,16 +187,17 @@ public abstract class TextFormat {
     }
 
     @Override
-    public <C> void inject(SpanContext spanContext, C carrier, Setter<C> setter) {
-      checkNotNull(spanContext, "spanContext");
-      checkNotNull(carrier, "carrier");
-      checkNotNull(setter, "setter");
+    public <C /*>>> extends @NonNull Object*/> void inject(
+        SpanContext spanContext, C carrier, Setter<C> setter) {
+      Utils.checkNotNull(spanContext, "spanContext");
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(setter, "setter");
     }
 
     @Override
-    public <C> SpanContext extract(C carrier, Getter<C> getter) {
-      checkNotNull(carrier, "carrier");
-      checkNotNull(getter, "getter");
+    public <C /*>>> extends @NonNull Object*/> SpanContext extract(C carrier, Getter<C> getter) {
+      Utils.checkNotNull(carrier, "carrier");
+      Utils.checkNotNull(getter, "getter");
       return SpanContext.INVALID;
     }
   }

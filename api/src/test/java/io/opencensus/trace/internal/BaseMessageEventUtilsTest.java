@@ -24,9 +24,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link BaseMessageEventUtil}. */
+/** Unit tests for {@link BaseMessageEventUtils}. */
 @RunWith(JUnit4.class)
-public class BaseMessageEventUtilTest {
+public class BaseMessageEventUtilsTest {
   private static final long SENT_EVENT_ID = 12345L;
   private static final long RECV_EVENT_ID = 67890L;
   private static final long UNCOMPRESSED_SIZE = 100;
@@ -55,17 +55,17 @@ public class BaseMessageEventUtilTest {
 
   @Test
   public void networkEventToMessageEvent() {
-    assertThat(BaseMessageEventUtil.asMessageEvent(SENT_NETWORK_EVENT))
+    assertThat(BaseMessageEventUtils.asMessageEvent(SENT_NETWORK_EVENT))
         .isEqualTo(SENT_MESSAGE_EVENT);
-    assertThat(BaseMessageEventUtil.asMessageEvent(RECV_NETWORK_EVENT))
+    assertThat(BaseMessageEventUtils.asMessageEvent(RECV_NETWORK_EVENT))
         .isEqualTo(RECV_MESSAGE_EVENT);
   }
 
   @Test
   public void messageEventToNetworkEvent() {
-    assertThat(BaseMessageEventUtil.asNetworkEvent(SENT_MESSAGE_EVENT))
+    assertThat(BaseMessageEventUtils.asNetworkEvent(SENT_MESSAGE_EVENT))
         .isEqualTo(SENT_NETWORK_EVENT);
-    assertThat(BaseMessageEventUtil.asNetworkEvent(RECV_MESSAGE_EVENT))
+    assertThat(BaseMessageEventUtils.asNetworkEvent(RECV_MESSAGE_EVENT))
         .isEqualTo(RECV_NETWORK_EVENT);
   }
 }

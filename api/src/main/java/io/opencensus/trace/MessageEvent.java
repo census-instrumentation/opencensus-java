@@ -16,9 +16,8 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
+import io.opencensus.internal.Utils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -66,7 +65,7 @@ public abstract class MessageEvent extends BaseMessageEvent {
    */
   public static Builder builder(Type type, long messageId) {
     return new AutoValue_MessageEvent.Builder()
-        .setType(checkNotNull(type, "type"))
+        .setType(Utils.checkNotNull(type, "type"))
         .setMessageId(messageId)
         // We need to set a value for the message size because the autovalue requires all
         // primitives to be initialized.
