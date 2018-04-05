@@ -300,7 +300,7 @@ public abstract class ViewData {
                 new Function<MeasureDouble, Void>() {
                   @Override
                   public Void apply(MeasureDouble arg) {
-                    checkArgument(
+                    Utils.checkArgument(
                         aggregationData instanceof LastValueDataDouble,
                         createErrorMessageForAggregation(aggregation, aggregationData));
                     return null;
@@ -309,7 +309,7 @@ public abstract class ViewData {
                 new Function<MeasureLong, Void>() {
                   @Override
                   public Void apply(MeasureLong arg) {
-                    checkArgument(
+                    Utils.checkArgument(
                         aggregationData instanceof LastValueDataLong,
                         createErrorMessageForAggregation(aggregation, aggregationData));
                     return null;
