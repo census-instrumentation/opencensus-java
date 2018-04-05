@@ -27,7 +27,7 @@ import io.opencensus.stats.ViewManager;
  *
  * @since 0.13
  */
-public class HttpViews {
+public final class HttpViews {
 
   private HttpViews() {}
 

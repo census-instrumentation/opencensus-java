@@ -46,7 +46,7 @@ import java.util.Collections;
  *
  * @since 0.13
  */
-public class HttpViewConstants {
+public final class HttpViewConstants {
 
   private HttpViewConstants() {}
 

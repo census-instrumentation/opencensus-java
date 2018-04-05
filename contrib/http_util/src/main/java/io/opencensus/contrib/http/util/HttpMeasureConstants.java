@@ -29,13 +29,13 @@ import io.opencensus.tags.TagKey;
  *
  * @since 0.13
  */
-public class HttpMeasureConstants {
+public final class HttpMeasureConstants {
 
   private HttpMeasureConstants() {}
 
   private static final String UNIT_COUNT = "1";
-  private static final String UNIT_SIZE = "By";
-  private static final String UNIT_LATENCY = "ms";
+  private static final String UNIT_SIZE_BYTE = "By";
+  private static final String UNIT_LATENCY_MS = "ms";
 
   /**
    * {@link Measure} for the client-side total bytes sent in request body (not including headers).
@@ -47,7 +47,7 @@ public class HttpMeasureConstants {
       Measure.MeasureLong.create(
           "opencensus.io/http/client/sent_bytes",
           "Client-side total bytes sent in request body (uncompressed)",
-          UNIT_SIZE);
+          UNIT_SIZE_BYTE);
 
   /**
    * {@link Measure} for the client-side total bytes received in response bodies (not including
@@ -61,7 +61,7 @@ public class HttpMeasureConstants {
       Measure.MeasureLong.create(
           "opencensus.io/http/client/received_bytes",
           "Client-side total bytes received in response bodies (uncompressed)",
-          UNIT_SIZE);
+          UNIT_SIZE_BYTE);
 
   /**
    * {@link Measure} for the client-side time between first byte of request headers sent to last
@@ -74,7 +74,7 @@ public class HttpMeasureConstants {
           "opencensus.io/http/client/roundtrip_latency",
           "Client-side time between first byte of request headers sent to last byte of response "
               + "received, or terminal error",
-          UNIT_LATENCY);
+          UNIT_LATENCY_MS);
 
   /**
    * {@link Measure} for the server-side total bytes received in request body (not including
@@ -86,7 +86,7 @@ public class HttpMeasureConstants {
       Measure.MeasureLong.create(
           "opencensus.io/http/server/received_bytes",
           "Server-side total bytes received in request body (uncompressed)",
-          UNIT_SIZE);
+          UNIT_SIZE_BYTE);
 
   /**
    * {@link Measure} for the server-side total bytes sent in response bodies (not including headers
@@ -100,7 +100,7 @@ public class HttpMeasureConstants {
       Measure.MeasureLong.create(
           "opencensus.io/http/server/sent_bytes",
           "Server-side total bytes sent in response bodies (uncompressed)",
-          UNIT_SIZE);
+          UNIT_SIZE_BYTE);
 
   /**
    * {@link Measure} for the server-side time between first byte of request headers received to last
@@ -113,7 +113,7 @@ public class HttpMeasureConstants {
           "opencensus.io/http/server/server_latency",
           "Server-side time between first byte of request headers received to last byte of "
               + "response sent, or terminal error",
-          UNIT_LATENCY);
+          UNIT_LATENCY_MS);
 
   /**
    * {@link TagKey} for the value of the client-side HTTP host header.
