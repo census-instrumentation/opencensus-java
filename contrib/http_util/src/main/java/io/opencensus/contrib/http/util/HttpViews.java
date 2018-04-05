@@ -34,22 +34,18 @@ public class HttpViews {
   @VisibleForTesting
   static final ImmutableSet<View> HTTP_SERVER_VIEWS_SET =
       ImmutableSet.of(
-          HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_VIEW,
-          HttpViewConstants.HTTP_SERVER_REQUEST_BYTES_VIEW,
-          HttpViewConstants.HTTP_SERVER_RESPONSE_BYTES_VIEW,
-          HttpViewConstants.HTTP_SERVER_LATENCY_VIEW,
-          HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_BY_METHOD_VIEW,
-          HttpViewConstants.HTTP_SERVER_RESPONSE_COUNT_BY_STATUS_CODE_VIEW);
+          HttpViewConstants.HTTP_SERVER_COMPLETED_COUNT_VIEW,
+          HttpViewConstants.HTTP_SERVER_SENT_BYTES_VIEW,
+          HttpViewConstants.HTTP_SERVER_RECEIVED_BYTES_VIEW,
+          HttpViewConstants.HTTP_SERVER_LATENCY_VIEW);
 
   @VisibleForTesting
   static final ImmutableSet<View> HTTP_CLIENT_VIEWS_SET =
       ImmutableSet.of(
-          HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_VIEW,
-          HttpViewConstants.HTTP_CLIENT_REQUEST_BYTES_VIEW,
-          HttpViewConstants.HTTP_CLIENT_RESPONSE_BYTES_VIEW,
-          HttpViewConstants.HTTP_CLIENT_LATENCY_VIEW,
-          HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_BY_METHOD_VIEW,
-          HttpViewConstants.HTTP_CLIENT_RESPONSE_COUNT_BY_STATUS_CODE_VIEW);
+          HttpViewConstants.HTTP_CLIENT_COMPLETED_COUNT_VIEW,
+          HttpViewConstants.HTTP_CLIENT_RECEIVED_BYTES_VIEW,
+          HttpViewConstants.HTTP_CLIENT_SENT_BYTES_VIEW,
+          HttpViewConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY_VIEW);
 
   /**
    * Register all default client views.

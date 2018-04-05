@@ -38,125 +38,138 @@ public class HttpMeasureConstants {
   private static final String UNIT_LATENCY = "ms";
 
   /**
-   * {@link Measure} for the number of client-side HTTP requests started.
+   * {@link Measure} for the client-side total bytes sent in request body (not including headers).
+   * This is uncompressed bytes.
    *
    * @since 0.13
    */
-  public static final MeasureLong HTTP_CLIENT_REQUEST_COUNT =
+  public static final MeasureLong HTTP_CLIENT_SENT_BYTES =
       Measure.MeasureLong.create(
-          "opencensus.io/http/client/request_count",
-          "Number of client-side HTTP requests started",
-          UNIT_COUNT);
-
-  /**
-   * {@link Measure} for the client-side HTTP request body size if set as ContentLength
-   * (uncompressed).
-   *
-   * @since 0.13
-   */
-  public static final MeasureLong HTTP_CLIENT_REQUEST_BYTES =
-      Measure.MeasureLong.create(
-          "opencensus.io/http/client/request_bytes",
-          "Client-side HTTP request body size if set as ContentLength (uncompressed)",
+          "opencensus.io/http/client/sent_bytes",
+          "Client-side total bytes sent in request body (uncompressed)",
           UNIT_SIZE);
 
   /**
-   * {@link Measure} for the client-side HTTP response body size (uncompressed).
+   * {@link Measure} for the client-side total bytes received in response bodies (not including
+   * headers but including error responses with bodies). Should be measured from actual bytes
+   * received and read, not the value of the Content-Length header. This is uncompressed bytes.
+   * Responses with no body should record 0 for this value.
    *
    * @since 0.13
    */
-  public static final MeasureLong HTTP_CLIENT_RESPONSE_BYTES =
+  public static final MeasureLong HTTP_CLIENT_RECEIVED_BYTES =
       Measure.MeasureLong.create(
-          "opencensus.io/http/client/response_bytes",
-          "Client-side HTTP response body size (uncompressed)",
+          "opencensus.io/http/client/received_bytes",
+          "Client-side total bytes received in response bodies (uncompressed)",
           UNIT_SIZE);
 
   /**
-   * {@link Measure} for the client-side roundtrip latency (from first byte of request headers sent
-   * to last byte of response received).
+   * {@link Measure} for the client-side time between first byte of request headers sent to last
+   * byte of response received, or terminal error.
    *
    * @since 0.13
    */
-  public static final MeasureDouble HTTP_CLIENT_LATENCY =
+  public static final MeasureDouble HTTP_CLIENT_ROUNDTRIP_LATENCY =
       Measure.MeasureDouble.create(
-          "opencensus.io/http/client/latency",
-          "Client-side roundtrip latency (from first byte of request headers sent to last byte "
-              + "of response received)",
+          "opencensus.io/http/client/roundtrip_latency",
+          "Client-side time between first byte of request headers sent to last byte of response "
+              + "received, or terminal error",
           UNIT_LATENCY);
 
   /**
-   * {@link Measure} for the number of server-side HTTP requests started.
+   * {@link Measure} for the server-side total bytes received in request body (not including
+   * headers). This is uncompressed bytes.
    *
    * @since 0.13
    */
-  public static final MeasureLong HTTP_SERVER_REQUEST_COUNT =
+  public static final MeasureLong HTTP_SERVER_RECEIVED_BYTES =
       Measure.MeasureLong.create(
-          "opencensus.io/http/server/request_count",
-          "Number of server-side HTTP requests started",
-          UNIT_COUNT);
-
-  /**
-   * {@link Measure} for the server-side HTTP request body size if set as ContentLength
-   * (uncompressed).
-   *
-   * @since 0.13
-   */
-  public static final MeasureLong HTTP_SERVER_REQUEST_BYTES =
-      Measure.MeasureLong.create(
-          "opencensus.io/http/server/request_bytes",
-          "Server-side HTTP request body size if set as ContentLength (uncompressed)",
+          "opencensus.io/http/server/received_bytes",
+          "Server-side total bytes received in request body (uncompressed)",
           UNIT_SIZE);
 
   /**
-   * {@link Measure} for the server-side HTTP response body size (uncompressed).
+   * {@link Measure} for the server-side total bytes sent in response bodies (not including headers
+   * but including error responses with bodies). Should be measured from actual bytes written and
+   * sent, not the value of the Content-Length header. This is uncompressed bytes. Responses with no
+   * body should record 0 for this value.
    *
    * @since 0.13
    */
-  public static final MeasureLong HTTP_SERVER_RESPONSE_BYTES =
+  public static final MeasureLong HTTP_SERVER_SENT_BYTES =
       Measure.MeasureLong.create(
-          "opencensus.io/http/server/response_bytes",
-          "Server-side HTTP response body size (uncompressed)",
+          "opencensus.io/http/server/sent_bytes",
+          "Server-side total bytes sent in response bodies (uncompressed)",
           UNIT_SIZE);
 
   /**
-   * {@link Measure} for the server-side roundtrip latency (from first byte of request headers
-   * received to last byte of response sent).
+   * {@link Measure} for the server-side time between first byte of request headers received to last
+   * byte of response sent, or terminal error.
    *
    * @since 0.13
    */
   public static final MeasureDouble HTTP_SERVER_LATENCY =
       Measure.MeasureDouble.create(
-          "opencensus.io/http/server/latency",
-          "Server-side roundtrip latency (from first byte of request headers received to last "
-              + "byte of response sent)",
+          "opencensus.io/http/server/server_latency",
+          "Server-side time between first byte of request headers received to last byte of "
+              + "response sent, or terminal error",
           UNIT_LATENCY);
 
   /**
-   * {@link TagKey} for the value of the HTTP host header.
+   * {@link TagKey} for the value of the client-side HTTP host header.
    *
    * @since 0.13
    */
-  public static final TagKey HTTP_HOST = TagKey.create("http.host");
+  public static final TagKey HTTP_CLIENT_HOST = TagKey.create("http_client_host");
 
   /**
-   * {@link TagKey} for the numeric HTTP response status code. If a transport error occurred and no
-   * status code was read, use "error" as the {@code TagValue}.
+   * {@link TagKey} for the value of the server-side HTTP host header.
    *
    * @since 0.13
    */
-  public static final TagKey HTTP_STATUS_CODE = TagKey.create("http.status");
+  public static final TagKey HTTP_SERVER_HOST = TagKey.create("http_server_host");
 
   /**
-   * {@link TagKey} for the URL path (not including query string) in the request.
+   * {@link TagKey} for the numeric client-side HTTP response status code (e.g. 200, 404, 500). If a
+   * transport error occurred and no status code was read, use "error" as the {@code TagValue}.
    *
    * @since 0.13
    */
-  public static final TagKey HTTP_PATH = TagKey.create("http.path");
+  public static final TagKey HTTP_CLIENT_STATUS = TagKey.create("http_client_status");
 
   /**
-   * {@link TagKey} for the HTTP method of the request, capitalized (GET, POST, etc.).
+   * {@link TagKey} for the numeric server-side HTTP response status code (e.g. 200, 404, 500). If a
+   * transport error occurred and no status code was written, use "error" as the {@code TagValue}.
    *
    * @since 0.13
    */
-  public static final TagKey HTTP_METHOD = TagKey.create("http.method");
+  public static final TagKey HTTP_SERVER_STATUS = TagKey.create("http_server_status");
+
+  /**
+   * {@link TagKey} for the client-side URL path (not including query string) in the request.
+   *
+   * @since 0.13
+   */
+  public static final TagKey HTTP_CLIENT_PATH = TagKey.create("http_client_path");
+
+  /**
+   * {@link TagKey} for the server-side URL path (not including query string) in the request.
+   *
+   * @since 0.13
+   */
+  public static final TagKey HTTP_SERVER_PATH = TagKey.create("http_server_path");
+
+  /**
+   * {@link TagKey} for the client-side HTTP method of the request, capitalized (GET, POST, etc.).
+   *
+   * @since 0.13
+   */
+  public static final TagKey HTTP_CLIENT_METHOD = TagKey.create("http_client_method");
+
+  /**
+   * {@link TagKey} for the server-side HTTP method of the request, capitalized (GET, POST, etc.).
+   *
+   * @since 0.13
+   */
+  public static final TagKey HTTP_SERVER_METHOD = TagKey.create("http_server_method");
 }

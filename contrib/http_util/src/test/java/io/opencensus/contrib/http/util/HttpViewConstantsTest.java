@@ -65,104 +65,84 @@ public class HttpViewConstantsTest {
         .inOrder();
 
     // Test views.
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_VIEW.getName().asString())
+    assertThat(HttpViewConstants.HTTP_CLIENT_COMPLETED_COUNT_VIEW.getName().asString())
         .contains("opencensus.io/http/client");
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_BYTES_VIEW.getName().asString())
+    assertThat(HttpViewConstants.HTTP_CLIENT_SENT_BYTES_VIEW.getName().asString())
         .contains("opencensus.io/http/client");
-    assertThat(HttpViewConstants.HTTP_CLIENT_RESPONSE_BYTES_VIEW.getName().asString())
+    assertThat(HttpViewConstants.HTTP_CLIENT_RECEIVED_BYTES_VIEW.getName().asString())
         .contains("opencensus.io/http/client");
-    assertThat(HttpViewConstants.HTTP_CLIENT_LATENCY_VIEW.getName().asString())
+    assertThat(HttpViewConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY_VIEW.getName().asString())
         .contains("opencensus.io/http/client");
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_BY_METHOD_VIEW.getName().asString())
-        .contains("opencensus.io/http/client");
-    assertThat(
-            HttpViewConstants.HTTP_CLIENT_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getName().asString())
-        .contains("opencensus.io/http/client");
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_VIEW.getName().asString())
+    assertThat(HttpViewConstants.HTTP_SERVER_COMPLETED_COUNT_VIEW.getName().asString())
         .contains("opencensus.io/http/server");
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_BYTES_VIEW.getName().asString())
+    assertThat(HttpViewConstants.HTTP_SERVER_RECEIVED_BYTES_VIEW.getName().asString())
         .contains("opencensus.io/http/server");
-    assertThat(HttpViewConstants.HTTP_SERVER_RESPONSE_BYTES_VIEW.getName().asString())
+    assertThat(HttpViewConstants.HTTP_SERVER_SENT_BYTES_VIEW.getName().asString())
         .contains("opencensus.io/http/server");
     assertThat(HttpViewConstants.HTTP_SERVER_LATENCY_VIEW.getName().asString())
         .contains("opencensus.io/http/server");
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_BY_METHOD_VIEW.getName().asString())
-        .contains("opencensus.io/http/server");
-    assertThat(
-            HttpViewConstants.HTTP_SERVER_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getName().asString())
-        .contains("opencensus.io/http/server");
 
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_REQUEST_COUNT);
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_BYTES_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_REQUEST_BYTES);
-    assertThat(HttpViewConstants.HTTP_CLIENT_RESPONSE_BYTES_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_RESPONSE_BYTES);
-    assertThat(HttpViewConstants.HTTP_CLIENT_LATENCY_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_LATENCY);
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_BY_METHOD_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_REQUEST_COUNT);
-    // In specs we don't have a measure for HTTP_CLIENT_RESPONSE_COUNT.
-    // The count view for client response actually comes from "count" aggregation on
-    // HTTP_CLIENT_LATENCY.
-    assertThat(HttpViewConstants.HTTP_CLIENT_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_LATENCY);
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_REQUEST_COUNT);
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_BYTES_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_REQUEST_BYTES);
-    assertThat(HttpViewConstants.HTTP_SERVER_RESPONSE_BYTES_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_RESPONSE_BYTES);
+    assertThat(HttpViewConstants.HTTP_CLIENT_COMPLETED_COUNT_VIEW.getMeasure())
+        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY);
+    assertThat(HttpViewConstants.HTTP_CLIENT_SENT_BYTES_VIEW.getMeasure())
+        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_SENT_BYTES);
+    assertThat(HttpViewConstants.HTTP_CLIENT_RECEIVED_BYTES_VIEW.getMeasure())
+        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES);
+    assertThat(HttpViewConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY_VIEW.getMeasure())
+        .isEqualTo(HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY);
+    assertThat(HttpViewConstants.HTTP_SERVER_COMPLETED_COUNT_VIEW.getMeasure())
+        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_LATENCY);
+    assertThat(HttpViewConstants.HTTP_SERVER_RECEIVED_BYTES_VIEW.getMeasure())
+        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_RECEIVED_BYTES);
+    assertThat(HttpViewConstants.HTTP_SERVER_SENT_BYTES_VIEW.getMeasure())
+        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_SENT_BYTES);
     assertThat(HttpViewConstants.HTTP_SERVER_LATENCY_VIEW.getMeasure())
         .isEqualTo(HttpMeasureConstants.HTTP_SERVER_LATENCY);
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_BY_METHOD_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_REQUEST_COUNT);
-    // In specs we don't have a measure for HTTP_SERVER_RESPONSE_COUNT.
-    // The count view for server response actually comes from "count" aggregation on
-    // HTTP_SERVER_LATENCY.
-    assertThat(HttpViewConstants.HTTP_SERVER_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getMeasure())
-        .isEqualTo(HttpMeasureConstants.HTTP_SERVER_LATENCY);
 
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_VIEW.getAggregation())
+    assertThat(HttpViewConstants.HTTP_CLIENT_COMPLETED_COUNT_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.COUNT);
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_BYTES_VIEW.getAggregation())
+    assertThat(HttpViewConstants.HTTP_CLIENT_SENT_BYTES_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.SIZE_DISTRIBUTION);
-    assertThat(HttpViewConstants.HTTP_CLIENT_RESPONSE_BYTES_VIEW.getAggregation())
+    assertThat(HttpViewConstants.HTTP_CLIENT_RECEIVED_BYTES_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.SIZE_DISTRIBUTION);
-    assertThat(HttpViewConstants.HTTP_CLIENT_LATENCY_VIEW.getAggregation())
+    assertThat(HttpViewConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.LATENCY_DISTRIBUTION);
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_BY_METHOD_VIEW.getAggregation())
+    assertThat(HttpViewConstants.HTTP_SERVER_COMPLETED_COUNT_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.COUNT);
-    assertThat(HttpViewConstants.HTTP_CLIENT_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getAggregation())
-        .isEqualTo(HttpViewConstants.COUNT);
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_VIEW.getAggregation())
-        .isEqualTo(HttpViewConstants.COUNT);
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_BYTES_VIEW.getAggregation())
+    assertThat(HttpViewConstants.HTTP_SERVER_RECEIVED_BYTES_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.SIZE_DISTRIBUTION);
-    assertThat(HttpViewConstants.HTTP_SERVER_RESPONSE_BYTES_VIEW.getAggregation())
+    assertThat(HttpViewConstants.HTTP_SERVER_SENT_BYTES_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.SIZE_DISTRIBUTION);
     assertThat(HttpViewConstants.HTTP_SERVER_LATENCY_VIEW.getAggregation())
         .isEqualTo(HttpViewConstants.LATENCY_DISTRIBUTION);
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_BY_METHOD_VIEW.getAggregation())
-        .isEqualTo(HttpViewConstants.COUNT);
-    assertThat(HttpViewConstants.HTTP_SERVER_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getAggregation())
-        .isEqualTo(HttpViewConstants.COUNT);
 
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_BYTES_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_CLIENT_RESPONSE_BYTES_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_CLIENT_LATENCY_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_CLIENT_REQUEST_COUNT_BY_METHOD_VIEW.getColumns())
-        .containsExactly(HttpMeasureConstants.HTTP_METHOD);
-    assertThat(HttpViewConstants.HTTP_CLIENT_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getColumns())
-        .containsExactly(HttpMeasureConstants.HTTP_STATUS_CODE);
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_BYTES_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_SERVER_RESPONSE_BYTES_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_SERVER_LATENCY_VIEW.getColumns()).isEmpty();
-    assertThat(HttpViewConstants.HTTP_SERVER_REQUEST_COUNT_BY_METHOD_VIEW.getColumns())
-        .containsExactly(HttpMeasureConstants.HTTP_METHOD);
-    assertThat(HttpViewConstants.HTTP_SERVER_RESPONSE_COUNT_BY_STATUS_CODE_VIEW.getColumns())
-        .containsExactly(HttpMeasureConstants.HTTP_STATUS_CODE);
+    assertThat(HttpViewConstants.HTTP_CLIENT_COMPLETED_COUNT_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_PATH);
+    assertThat(HttpViewConstants.HTTP_CLIENT_SENT_BYTES_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_PATH);
+    assertThat(HttpViewConstants.HTTP_CLIENT_RECEIVED_BYTES_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_CLIENT_METHOD, HttpMeasureConstants.HTTP_CLIENT_PATH);
+    assertThat(HttpViewConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_CLIENT_METHOD,
+            HttpMeasureConstants.HTTP_CLIENT_PATH,
+            HttpMeasureConstants.HTTP_CLIENT_STATUS);
+    assertThat(HttpViewConstants.HTTP_SERVER_COMPLETED_COUNT_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_SERVER_METHOD, HttpMeasureConstants.HTTP_SERVER_PATH);
+    assertThat(HttpViewConstants.HTTP_SERVER_RECEIVED_BYTES_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_SERVER_METHOD, HttpMeasureConstants.HTTP_SERVER_PATH);
+    assertThat(HttpViewConstants.HTTP_SERVER_SENT_BYTES_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_SERVER_METHOD, HttpMeasureConstants.HTTP_SERVER_PATH);
+    assertThat(HttpViewConstants.HTTP_SERVER_LATENCY_VIEW.getColumns())
+        .containsExactly(
+            HttpMeasureConstants.HTTP_SERVER_METHOD,
+            HttpMeasureConstants.HTTP_SERVER_PATH,
+            HttpMeasureConstants.HTTP_SERVER_STATUS);
   }
 }

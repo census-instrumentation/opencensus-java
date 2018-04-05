@@ -16,16 +16,18 @@
 
 package io.opencensus.contrib.http.util;
 
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_LATENCY;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_REQUEST_BYTES;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_REQUEST_COUNT;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RESPONSE_BYTES;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_METHOD;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_METHOD;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_PATH;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_SENT_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_CLIENT_STATUS;
 import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_LATENCY;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_REQUEST_BYTES;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_REQUEST_COUNT;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_RESPONSE_BYTES;
-import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_STATUS_CODE;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_METHOD;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_PATH;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_RECEIVED_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_SENT_BYTES;
+import static io.opencensus.contrib.http.util.HttpMeasureConstants.HTTP_SERVER_STATUS;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.stats.Aggregation;
@@ -33,7 +35,6 @@ import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.View;
-import io.opencensus.tags.TagKey;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -84,158 +85,106 @@ public class HttpViewConstants {
                       100000.0))));
 
   /**
-   * {@link View} for count of client-side HTTP requests started.
+   * {@link View} for count of client-side HTTP requests completed.
    *
    * @since 0.13
    */
-  public static final View HTTP_CLIENT_REQUEST_COUNT_VIEW =
+  public static final View HTTP_CLIENT_COMPLETED_COUNT_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/client/request_count"),
-          "Count of client-side HTTP requests started",
-          HTTP_CLIENT_REQUEST_COUNT,
+          View.Name.create("opencensus.io/http/client/completed_count"),
+          "Count of client-side HTTP requests completed",
+          HTTP_CLIENT_ROUNDTRIP_LATENCY,
           COUNT,
-          Collections.<TagKey>emptyList());
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH));
 
   /**
    * {@link View} for size distribution of client-side HTTP request body.
    *
    * @since 0.13
    */
-  public static final View HTTP_CLIENT_REQUEST_BYTES_VIEW =
+  public static final View HTTP_CLIENT_SENT_BYTES_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/client/request_bytes"),
+          View.Name.create("opencensus.io/http/client/sent_bytes"),
           "Size distribution of client-side HTTP request body",
-          HTTP_CLIENT_REQUEST_BYTES,
+          HTTP_CLIENT_SENT_BYTES,
           SIZE_DISTRIBUTION,
-          Collections.<TagKey>emptyList());
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH));
 
   /**
    * {@link View} for size distribution of client-side HTTP response body.
    *
    * @since 0.13
    */
-  public static final View HTTP_CLIENT_RESPONSE_BYTES_VIEW =
+  public static final View HTTP_CLIENT_RECEIVED_BYTES_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/client/response_bytes"),
+          View.Name.create("opencensus.io/http/client/received_bytes"),
           "Size distribution of client-side HTTP response body",
-          HTTP_CLIENT_RESPONSE_BYTES,
+          HTTP_CLIENT_RECEIVED_BYTES,
           SIZE_DISTRIBUTION,
-          Collections.<TagKey>emptyList());
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH));
 
   /**
-   * {@link View} for latency distribution of client-side HTTP requests.
+   * {@link View} for roundtrip latency distribution of client-side HTTP requests.
    *
    * @since 0.13
    */
-  public static final View HTTP_CLIENT_LATENCY_VIEW =
+  public static final View HTTP_CLIENT_ROUNDTRIP_LATENCY_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/client/latency"),
-          "Latency distribution of client-side HTTP requests",
-          HTTP_CLIENT_LATENCY,
+          View.Name.create("opencensus.io/http/client/roundtrip_latency"),
+          "Roundtrip latency distribution of client-side HTTP requests",
+          HTTP_CLIENT_ROUNDTRIP_LATENCY,
           LATENCY_DISTRIBUTION,
-          Collections.<TagKey>emptyList());
+          Arrays.asList(HTTP_CLIENT_METHOD, HTTP_CLIENT_PATH, HTTP_CLIENT_STATUS));
 
   /**
-   * {@link View} for client request count by HTTP method.
+   * {@link View} for count of server-side HTTP requests serving completed.
    *
    * @since 0.13
    */
-  public static final View HTTP_CLIENT_REQUEST_COUNT_BY_METHOD_VIEW =
+  public static final View HTTP_SERVER_COMPLETED_COUNT_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/client/request_count_by_method"),
-          "Client request count by HTTP method",
-          HTTP_CLIENT_REQUEST_COUNT,
+          View.Name.create("opencensus.io/http/server/completed_count"),
+          "Count of HTTP server-side requests serving completed",
+          HTTP_SERVER_LATENCY,
           COUNT,
-          Arrays.asList(HTTP_METHOD));
-
-  /**
-   * {@link View} for client response count by status code.
-   *
-   * @since 0.13
-   */
-  public static final View HTTP_CLIENT_RESPONSE_COUNT_BY_STATUS_CODE_VIEW =
-      View.create(
-          View.Name.create("opencensus.io/http/client/response_count_by_status_code"),
-          "Client response count by status code",
-          HTTP_CLIENT_LATENCY,
-          COUNT,
-          Arrays.asList(HTTP_STATUS_CODE));
-
-  /**
-   * {@link View} for count of server-side HTTP requests started.
-   *
-   * @since 0.13
-   */
-  public static final View HTTP_SERVER_REQUEST_COUNT_VIEW =
-      View.create(
-          View.Name.create("opencensus.io/http/server/request_count"),
-          "Count of HTTP server-side requests started",
-          HTTP_SERVER_REQUEST_COUNT,
-          COUNT,
-          Collections.<TagKey>emptyList());
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH));
 
   /**
    * {@link View} for size distribution of server-side HTTP request body.
    *
    * @since 0.13
    */
-  public static final View HTTP_SERVER_REQUEST_BYTES_VIEW =
+  public static final View HTTP_SERVER_RECEIVED_BYTES_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/server/request_bytes"),
+          View.Name.create("opencensus.io/http/server/received_bytes"),
           "Size distribution of server-side HTTP request body",
-          HTTP_SERVER_REQUEST_BYTES,
+          HTTP_SERVER_RECEIVED_BYTES,
           SIZE_DISTRIBUTION,
-          Collections.<TagKey>emptyList());
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH));
 
   /**
    * {@link View} for size distribution of server-side HTTP response body.
    *
    * @since 0.13
    */
-  public static final View HTTP_SERVER_RESPONSE_BYTES_VIEW =
+  public static final View HTTP_SERVER_SENT_BYTES_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/server/response_bytes"),
+          View.Name.create("opencensus.io/http/server/sent_bytes"),
           "Size distribution of server-side HTTP response body",
-          HTTP_SERVER_RESPONSE_BYTES,
+          HTTP_SERVER_SENT_BYTES,
           SIZE_DISTRIBUTION,
-          Collections.<TagKey>emptyList());
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH));
 
   /**
-   * {@link View} for latency distribution of server-side HTTP requests.
+   * {@link View} for latency distribution of server-side HTTP requests serving.
    *
    * @since 0.13
    */
   public static final View HTTP_SERVER_LATENCY_VIEW =
       View.create(
-          View.Name.create("opencensus.io/http/server/latency"),
-          "Latency distribution of server-side HTTP requests",
+          View.Name.create("opencensus.io/http/server/server_latency"),
+          "Latency distribution of server-side HTTP requests serving",
           HTTP_SERVER_LATENCY,
           LATENCY_DISTRIBUTION,
-          Collections.<TagKey>emptyList());
-
-  /**
-   * {@link View} for server request count by HTTP method.
-   *
-   * @since 0.13
-   */
-  public static final View HTTP_SERVER_REQUEST_COUNT_BY_METHOD_VIEW =
-      View.create(
-          View.Name.create("opencensus.io/http/server/request_count_by_method"),
-          "Server request count by HTTP method",
-          HTTP_SERVER_REQUEST_COUNT,
-          COUNT,
-          Arrays.asList(HTTP_METHOD));
-
-  /**
-   * {@link View} for server response count by status code.
-   *
-   * @since 0.13
-   */
-  public static final View HTTP_SERVER_RESPONSE_COUNT_BY_STATUS_CODE_VIEW =
-      View.create(
-          View.Name.create("opencensus.io/http/server/response_count_by_status_code"),
-          "Server response count by status code",
-          HTTP_SERVER_LATENCY,
-          COUNT,
-          Arrays.asList(HTTP_STATUS_CODE));
+          Arrays.asList(HTTP_SERVER_METHOD, HTTP_SERVER_PATH, HTTP_SERVER_STATUS));
 }

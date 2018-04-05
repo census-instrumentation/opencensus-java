@@ -30,34 +30,36 @@ public class HttpMeasureConstantsTest {
   @Test
   public void constants() {
     // Test TagKeys
-    assertThat(HttpMeasureConstants.HTTP_STATUS_CODE).isEqualTo(TagKey.create("http.status"));
-    assertThat(HttpMeasureConstants.HTTP_METHOD).isEqualTo(TagKey.create("http.method"));
-    assertThat(HttpMeasureConstants.HTTP_PATH).isEqualTo(TagKey.create("http.path"));
-    assertThat(HttpMeasureConstants.HTTP_HOST).isEqualTo(TagKey.create("http.host"));
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_STATUS)
+        .isEqualTo(TagKey.create("http_client_status"));
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_METHOD)
+        .isEqualTo(TagKey.create("http_client_method"));
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_PATH).isEqualTo(TagKey.create("http_client_path"));
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_HOST).isEqualTo(TagKey.create("http_client_host"));
+    assertThat(HttpMeasureConstants.HTTP_SERVER_STATUS)
+        .isEqualTo(TagKey.create("http_server_status"));
+    assertThat(HttpMeasureConstants.HTTP_SERVER_METHOD)
+        .isEqualTo(TagKey.create("http_server_method"));
+    assertThat(HttpMeasureConstants.HTTP_SERVER_PATH).isEqualTo(TagKey.create("http_server_path"));
+    assertThat(HttpMeasureConstants.HTTP_SERVER_HOST).isEqualTo(TagKey.create("http_server_host"));
 
     // Test measures
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_REQUEST_COUNT.getUnit()).isEqualTo("1");
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_REQUEST_BYTES.getUnit()).isEqualTo("By");
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_RESPONSE_BYTES.getUnit()).isEqualTo("By");
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_LATENCY.getUnit()).isEqualTo("ms");
-    assertThat(HttpMeasureConstants.HTTP_SERVER_REQUEST_COUNT.getUnit()).isEqualTo("1");
-    assertThat(HttpMeasureConstants.HTTP_SERVER_REQUEST_BYTES.getUnit()).isEqualTo("By");
-    assertThat(HttpMeasureConstants.HTTP_SERVER_RESPONSE_BYTES.getUnit()).isEqualTo("By");
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_SENT_BYTES.getUnit()).isEqualTo("By");
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES.getUnit()).isEqualTo("By");
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY.getUnit()).isEqualTo("ms");
+    assertThat(HttpMeasureConstants.HTTP_SERVER_RECEIVED_BYTES.getUnit()).isEqualTo("By");
+    assertThat(HttpMeasureConstants.HTTP_SERVER_SENT_BYTES.getUnit()).isEqualTo("By");
     assertThat(HttpMeasureConstants.HTTP_SERVER_LATENCY.getUnit()).isEqualTo("ms");
 
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_REQUEST_COUNT.getName())
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_SENT_BYTES.getName())
         .contains("opencensus.io/http/client");
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_REQUEST_BYTES.getName())
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_RECEIVED_BYTES.getName())
         .contains("opencensus.io/http/client");
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_RESPONSE_BYTES.getName())
+    assertThat(HttpMeasureConstants.HTTP_CLIENT_ROUNDTRIP_LATENCY.getName())
         .contains("opencensus.io/http/client");
-    assertThat(HttpMeasureConstants.HTTP_CLIENT_LATENCY.getName())
-        .contains("opencensus.io/http/client");
-    assertThat(HttpMeasureConstants.HTTP_SERVER_REQUEST_COUNT.getName())
+    assertThat(HttpMeasureConstants.HTTP_SERVER_RECEIVED_BYTES.getName())
         .contains("opencensus.io/http/server");
-    assertThat(HttpMeasureConstants.HTTP_SERVER_REQUEST_BYTES.getName())
-        .contains("opencensus.io/http/server");
-    assertThat(HttpMeasureConstants.HTTP_SERVER_RESPONSE_BYTES.getName())
+    assertThat(HttpMeasureConstants.HTTP_SERVER_SENT_BYTES.getName())
         .contains("opencensus.io/http/server");
     assertThat(HttpMeasureConstants.HTTP_SERVER_LATENCY.getName())
         .contains("opencensus.io/http/server");
