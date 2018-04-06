@@ -21,7 +21,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 import io.opencensus.exporter.trace.elasticsearch.ElasticsearchTraceExporter.ElasticsearchTraceHandler;
-import io.opencensus.exporter.trace.elasticsearch.exception.InvalidElasticsearchConfigException;
 import io.opencensus.trace.export.SpanExporter;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,13 +39,13 @@ public class ElasticsearchTraceExporterTest {
 
   @Before
   public void setUp() {
-    elasticsearchConfiguration = new ElasticsearchConfiguration(null, null, "http://url.com", "test");
+    elasticsearchConfiguration = new ElasticsearchConfiguration(null, null,
+        "http://url.com", "test","test");
     MockitoAnnotations.initMocks(this);
   }
 
   @Test
-  public void registerElasticsearchExporterService()
-      throws InvalidElasticsearchConfigException {
+  public void registerElasticsearchExporterService() throws Exception {
 
     ElasticsearchTraceExporter.register(spanExporter,
         new ElasticsearchTraceHandler(elasticsearchConfiguration));
@@ -54,7 +53,6 @@ public class ElasticsearchTraceExporterTest {
         .registerHandler(
             anyString(),
             any(ElasticsearchTraceHandler.class));
-
 
     ElasticsearchTraceExporter.unregister(spanExporter);
     verify(spanExporter)

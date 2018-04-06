@@ -20,12 +20,14 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
-import io.opencensus.exporter.trace.elasticsearch.exception.InvalidElasticsearchConfigException;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -46,7 +48,8 @@ public class ElasticsearchTraceExporter {
   private static final String REQUEST_METHOD = "POST";
   private static final int CONNECTION_TIMEOUT = 6000;
   private static final Object monitor = new Object();
-  private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+  private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
+      "yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
 
 
   @GuardedBy("monitor")
@@ -54,12 +57,9 @@ public class ElasticsearchTraceExporter {
   private static SpanExporter.Handler handler = null;
 
   public static void createAndRegister(ElasticsearchConfiguration elasticsearchConfiguration)
-      throws InvalidElasticsearchConfigException {
+      throws Exception {
     synchronized (monitor) {
       checkState(handler == null, "Elasticsearch exporter already registered.");
-      if (elasticsearchConfiguration == null) {
-        throw new InvalidElasticsearchConfigException("Elasticsearch configuration not usable");
-      }
       checkState(elasticsearchConfiguration.getElasticsearchIndex() != null,
           "Elasticsearch Index not specified");
       checkState(elasticsearchConfiguration.getElasticsearchUrl() != null,
@@ -92,19 +92,8 @@ public class ElasticsearchTraceExporter {
     }
   }
 
-  private static void exportToElasticsearch(SpanData spanData,
-      ElasticsearchConfiguration elasticsearchConfiguration) {
+  private static void exportToElasticsearch(SpanData spanData, HttpURLConnection connection) {
     try {
-      URL url = new URL(elasticsearchConfiguration.getElasticsearchUrl()+"/"
-          +elasticsearchConfiguration.getElasticsearchIndex()+"/"+elasticsearchConfiguration.getElasticsearchType());
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      if (elasticsearchConfiguration.getUserName() != null
-          && !elasticsearchConfiguration.getUserName().isEmpty()) {
-        String encoding = DatatypeConverter
-            .printBase64Binary((elasticsearchConfiguration.getUserName() + ":" +
-                elasticsearchConfiguration.getPassword()).getBytes("UTF-8"));
-        connection.setRequestProperty("Authorization", "Basic " + encoding);
-      }
       connection.setRequestMethod(REQUEST_METHOD);
       Map<String, Object> parameters = new HashMap<String, Object>();
       parameters.put("name", spanData.getName());
@@ -139,17 +128,46 @@ public class ElasticsearchTraceExporter {
 
   static final class ElasticsearchTraceHandler extends SpanExporter.Handler {
 
+    private static HttpURLConnection connection;
     private final ElasticsearchConfiguration elasticsearchConfiguration;
 
     @VisibleForTesting
     public ElasticsearchTraceHandler(ElasticsearchConfiguration elasticsearchConfiguration) {
+
       this.elasticsearchConfiguration = elasticsearchConfiguration;
+      initConnection();
+    }
+
+    public void initConnection() {
+
+      try {
+        String indexUri = elasticsearchConfiguration.getElasticsearchUrl() + "/"
+            + elasticsearchConfiguration.getElasticsearchIndex() + "/"
+            + elasticsearchConfiguration.getElasticsearchType();
+        URL url = new URL(indexUri);
+        connection = (HttpURLConnection) url.openConnection();
+        if (elasticsearchConfiguration.getUserName() != null && !elasticsearchConfiguration
+            .getUserName().isEmpty()) {
+          String parameters = DatatypeConverter
+              .printBase64Binary((elasticsearchConfiguration.getUserName()
+                  + ":" + elasticsearchConfiguration.getPassword()).getBytes("UTF-8"));
+          connection.setRequestProperty("Authorization", "Basic " + parameters);
+        }
+      } catch (UnsupportedEncodingException e) {
+        logger.log(Level.FINE, "Error emcoding credentilas for Elasticsearch", e);
+      } catch (MalformedURLException e) {
+        logger.log(Level.FINE, "Error accessing ES over API.", e);
+
+      } catch (IOException e) {
+        logger.log(Level.FINE, "Error accessing ES over API.", e);
+
+      }
     }
 
     @Override
     public void export(Collection<SpanData> spanDataList) {
       for (SpanData spanData : spanDataList) {
-        exportToElasticsearch(spanData, elasticsearchConfiguration);
+        exportToElasticsearch(spanData, connection);
       }
     }
 
