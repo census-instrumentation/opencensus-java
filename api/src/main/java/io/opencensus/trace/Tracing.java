@@ -16,8 +16,8 @@
 
 package io.opencensus.trace;
 
-import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.Provider;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.export.ExportComponent;
@@ -87,7 +87,7 @@ public final class Tracing {
   }
 
   // Any provider that may be used for TraceComponent can be added here.
-  @VisibleForTesting
+  @DefaultVisibilityForTesting
   static TraceComponent loadTraceComponent(@Nullable ClassLoader classLoader) {
     try {
       // Call Class.forName with literal string name of the class to help shading tools.

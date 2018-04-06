@@ -17,8 +17,8 @@
 package io.opencensus.tags;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.Preconditions;
-import io.opencensus.internal.StringUtil;
+import io.opencensus.internal.StringUtils;
+import io.opencensus.internal.Utils;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -55,7 +55,7 @@ public abstract class TagValue {
    * @since 0.8
    */
   public static TagValue create(String value) {
-    Preconditions.checkArgument(isValid(value));
+    Utils.checkArgument(isValid(value), "Invalid TagValue: " + value);
     return new AutoValue_TagValue(value);
   }
 
@@ -74,6 +74,6 @@ public abstract class TagValue {
    * @return whether the value is valid.
    */
   private static boolean isValid(String value) {
-    return value.length() <= MAX_LENGTH && StringUtil.isPrintableString(value);
+    return value.length() <= MAX_LENGTH && StringUtils.isPrintableString(value);
   }
 }

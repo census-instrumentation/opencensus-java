@@ -16,11 +16,9 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -329,13 +327,13 @@ public abstract class AggregationData {
         double sumOfSquaredDeviations,
         List<Long> bucketCounts) {
       if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
-        checkArgument(min <= max, "max should be greater or equal to min.");
+        Utils.checkArgument(min <= max, "max should be greater or equal to min.");
       }
 
-      checkNotNull(bucketCounts, "bucket counts should not be null.");
+      Utils.checkNotNull(bucketCounts, "bucket counts should not be null.");
       List<Long> bucketCountsCopy = Collections.unmodifiableList(new ArrayList<Long>(bucketCounts));
       for (Long bucket : bucketCountsCopy) {
-        checkNotNull(bucket, "bucket should not be null.");
+        Utils.checkNotNull(bucket, "bucket should not be null.");
       }
 
       return new AutoValue_AggregationData_DistributionData(

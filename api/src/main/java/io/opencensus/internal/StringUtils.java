@@ -17,7 +17,7 @@
 package io.opencensus.internal;
 
 /** Internal utility methods for working with tag keys, tag values, and metric names. */
-public final class StringUtil {
+public final class StringUtils {
 
   /**
    * Determines whether the {@code String} contains only printable characters.
@@ -38,5 +38,5 @@ public final class StringUtil {
     return ch >= ' ' && ch <= '~';
   }
 
-  private StringUtil() {}
+  private StringUtils() {}
 }

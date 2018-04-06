@@ -16,11 +16,9 @@
 
 package io.opencensus.tags;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.Preconditions;
 import io.opencensus.common.Scope;
 import io.opencensus.internal.NoopScope;
+import io.opencensus.internal.Utils;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 import java.util.Collections;
@@ -105,8 +103,8 @@ final class NoopTags {
     @Override
     @Deprecated
     public void setState(TaggingState state) {
-      Preconditions.checkNotNull(state, "state");
-      Preconditions.checkState(!isRead, "State was already read, cannot set state.");
+      Utils.checkNotNull(state, "state");
+      Utils.checkState(!isRead, "State was already read, cannot set state.");
     }
   }
 
@@ -131,7 +129,7 @@ final class NoopTags {
 
     @Override
     public TagContextBuilder toBuilder(TagContext tags) {
-      checkNotNull(tags, "tags");
+      Utils.checkNotNull(tags, "tags");
       return getNoopTagContextBuilder();
     }
 
@@ -142,7 +140,7 @@ final class NoopTags {
 
     @Override
     public Scope withTagContext(TagContext tags) {
-      checkNotNull(tags, "tags");
+      Utils.checkNotNull(tags, "tags");
       return NoopScope.getInstance();
     }
   }
@@ -153,14 +151,14 @@ final class NoopTags {
 
     @Override
     public TagContextBuilder put(TagKey key, TagValue value) {
-      checkNotNull(key, "key");
-      checkNotNull(value, "value");
+      Utils.checkNotNull(key, "key");
+      Utils.checkNotNull(value, "value");
       return this;
     }
 
     @Override
     public TagContextBuilder remove(TagKey key) {
-      checkNotNull(key, "key");
+      Utils.checkNotNull(key, "key");
       return this;
     }
 
@@ -203,13 +201,13 @@ final class NoopTags {
 
     @Override
     public byte[] toByteArray(TagContext tags) {
-      checkNotNull(tags, "tags");
+      Utils.checkNotNull(tags, "tags");
       return EMPTY_BYTE_ARRAY;
     }
 
     @Override
     public TagContext fromByteArray(byte[] bytes) {
-      checkNotNull(bytes, "bytes");
+      Utils.checkNotNull(bytes, "bytes");
       return getNoopTagContext();
     }
   }

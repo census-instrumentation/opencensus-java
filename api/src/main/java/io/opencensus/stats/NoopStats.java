@@ -16,13 +16,9 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
-import com.google.common.base.Preconditions;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.Utils;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
@@ -106,8 +102,8 @@ final class NoopStats {
     @Override
     @Deprecated
     public void setState(StatsCollectionState state) {
-      Preconditions.checkNotNull(state, "state");
-      checkState(!isRead, "State was already read, cannot set state.");
+      Utils.checkNotNull(state, "state");
+      Utils.checkState(!isRead, "State was already read, cannot set state.");
     }
   }
 
@@ -140,7 +136,7 @@ final class NoopStats {
 
     @Override
     public void record(TagContext tags) {
-      checkNotNull(tags, "tags");
+      Utils.checkNotNull(tags, "tags");
     }
   }
 
@@ -157,11 +153,11 @@ final class NoopStats {
 
     @Override
     public void registerView(View newView) {
-      checkNotNull(newView, "newView");
+      Utils.checkNotNull(newView, "newView");
       synchronized (registeredViews) {
         exportedViews = null;
         View existing = registeredViews.get(newView.getName());
-        checkArgument(
+        Utils.checkArgument(
             existing == null || newView.equals(existing),
             "A different view with the same name already exists.");
         if (existing == null) {
@@ -174,7 +170,7 @@ final class NoopStats {
     @Nullable
     @SuppressWarnings("deprecation")
     public ViewData getView(View.Name name) {
-      checkNotNull(name, "name");
+      Utils.checkNotNull(name, "name");
       synchronized (registeredViews) {
         View view = registeredViews.get(name);
         if (view == null) {

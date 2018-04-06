@@ -16,8 +16,7 @@
 
 package io.opencensus.trace.propagation;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.SpanContext;
 import java.text.ParseException;
 
@@ -138,13 +137,13 @@ public abstract class BinaryFormat {
   private static final class NoopBinaryFormat extends BinaryFormat {
     @Override
     public byte[] toByteArray(SpanContext spanContext) {
-      checkNotNull(spanContext, "spanContext");
+      Utils.checkNotNull(spanContext, "spanContext");
       return new byte[0];
     }
 
     @Override
     public SpanContext fromByteArray(byte[] bytes) {
-      checkNotNull(bytes, "bytes");
+      Utils.checkNotNull(bytes, "bytes");
       return SpanContext.INVALID;
     }
 

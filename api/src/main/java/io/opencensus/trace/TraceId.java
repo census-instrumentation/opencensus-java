@@ -16,12 +16,9 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Internal;
+import io.opencensus.internal.Utils;
 import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -72,8 +69,10 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.5
    */
   public static TraceId fromBytes(byte[] buffer) {
-    checkNotNull(buffer, "buffer");
-    checkArgument(buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
+    Utils.checkNotNull(buffer, "buffer");
+    Utils.checkArgument(
+        buffer.length == SIZE,
+        String.format("Invalid size: expected %s, got %s", SIZE, buffer.length));
     byte[] bytesCopied = Arrays.copyOf(buffer, SIZE);
     return new TraceId(bytesCopied);
   }
@@ -108,8 +107,9 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.11
    */
   public static TraceId fromLowerBase16(CharSequence src) {
-    checkArgument(
-        src.length() == 2 * SIZE, "Invalid size: expected %s, got %s", 2 * SIZE, src.length());
+    Utils.checkArgument(
+        src.length() == 2 * SIZE,
+        String.format("Invalid size: expected %s, got %s", 2 * SIZE, src.length()));
     byte[] bytes = BaseEncoding.base16().lowerCase().decode(src);
     return new TraceId(bytes);
   }
@@ -178,6 +178,10 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.11
    */
   public String toLowerBase16() {
+    return toLowerBase16(bytes);
+  }
+
+  private static String toLowerBase16(byte[] bytes) {
     return BaseEncoding.base16().lowerCase().encode(bytes);
   }
 
@@ -223,9 +227,7 @@ public final class TraceId implements Comparable<TraceId> {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("traceId", BaseEncoding.base16().lowerCase().encode(bytes))
-        .toString();
+    return "TraceId{traceId=" + toLowerBase16(bytes) + "}";
   }
 
   @Override

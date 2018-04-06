@@ -20,7 +20,20 @@
   <Match>
     <!-- Reason: BaseMessageEvent only has two visible subclasses. -->
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
-    <Class name="io.opencensus.trace.internal.BaseMessageEventUtil" />
+    <Class name="io.opencensus.trace.internal.BaseMessageEventUtils" />
+  </Match>
+  <Match>
+    <!-- Reason: This test is testing for a NPE. -->
+    <Bug pattern="NP_NONNULL_PARAM_VIOLATION"/>
+    <Class name="io.opencensus.internal.UtilsTest" />
+    <Method name="checkNotNull" />
+  </Match>
+  <Match>
+    <!-- Reason: It seems like FindBugs incorrectly assumes that all -->
+    <!-- Throwables are subclasses of Error or Exception. -->
+    <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
+    <Class name="io.opencensus.trace.CurrentSpanUtils$CallableInSpan" />
+    <Method name="call" />
   </Match>
 
   <!-- Suppress some FindBugs warnings related to performance or robustness -->

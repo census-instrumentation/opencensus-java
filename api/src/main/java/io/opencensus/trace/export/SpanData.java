@@ -16,10 +16,9 @@
 
 package io.opencensus.trace.export;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.Utils;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
@@ -28,7 +27,7 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
-import io.opencensus.trace.internal.BaseMessageEventUtil;
+import io.opencensus.trace.internal.BaseMessageEventUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -101,7 +100,7 @@ public abstract class SpanData {
       } else {
         messageEventsList.add(
             TimedEvent.<MessageEvent>create(
-                timedEvent.getTimestamp(), BaseMessageEventUtil.asMessageEvent(event)));
+                timedEvent.getTimestamp(), BaseMessageEventUtils.asMessageEvent(event)));
       }
     }
     TimedEvents<MessageEvent> messageEvents =
@@ -200,7 +199,7 @@ public abstract class SpanData {
       networkEventsList.add(
           TimedEvent.<io.opencensus.trace.NetworkEvent>create(
               timedEvent.getTimestamp(),
-              BaseMessageEventUtil.asNetworkEvent(timedEvent.getEvent())));
+              BaseMessageEventUtils.asNetworkEvent(timedEvent.getEvent())));
     }
     return TimedEvents.<io.opencensus.trace.NetworkEvent>create(
         networkEventsList, timedEvents.getDroppedEventsCount());
@@ -319,7 +318,7 @@ public abstract class SpanData {
     public static <T> TimedEvents<T> create(List<TimedEvent<T>> events, int droppedEventsCount) {
       return new AutoValue_SpanData_TimedEvents<T>(
           Collections.unmodifiableList(
-              new ArrayList<TimedEvent<T>>(checkNotNull(events, "events"))),
+              new ArrayList<TimedEvent<T>>(Utils.checkNotNull(events, "events"))),
           droppedEventsCount);
     }
 
@@ -364,7 +363,8 @@ public abstract class SpanData {
       // for others on account of determinism.
       return new AutoValue_SpanData_Attributes(
           Collections.unmodifiableMap(
-              new HashMap<String, AttributeValue>(checkNotNull(attributeMap, "attributeMap"))),
+              new HashMap<String, AttributeValue>(
+                  Utils.checkNotNull(attributeMap, "attributeMap"))),
           droppedAttributesCount);
     }
 
@@ -405,7 +405,7 @@ public abstract class SpanData {
      */
     public static Links create(List<Link> links, int droppedLinksCount) {
       return new AutoValue_SpanData_Links(
-          Collections.unmodifiableList(new ArrayList<Link>(checkNotNull(links, "links"))),
+          Collections.unmodifiableList(new ArrayList<Link>(Utils.checkNotNull(links, "links"))),
           droppedLinksCount);
     }
 

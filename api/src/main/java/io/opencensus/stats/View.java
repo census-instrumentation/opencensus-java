@@ -16,13 +16,12 @@
 
 package io.opencensus.stats;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.auto.value.AutoValue;
-import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
-import io.opencensus.internal.StringUtil;
+import io.opencensus.internal.DefaultVisibilityForTesting;
+import io.opencensus.internal.StringUtils;
+import io.opencensus.internal.Utils;
 import io.opencensus.tags.TagKey;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +42,7 @@ import javax.annotation.concurrent.Immutable;
 @SuppressWarnings("deprecation")
 public abstract class View {
 
-  @VisibleForTesting static final int NAME_MAX_LENGTH = 255;
+  @DefaultVisibilityForTesting static final int NAME_MAX_LENGTH = 255;
 
   private static final Comparator<TagKey> TAG_KEY_COMPARATOR =
       new Comparator<TagKey>() {
@@ -125,7 +124,8 @@ public abstract class View {
       Aggregation aggregation,
       List<TagKey> columns,
       AggregationWindow window) {
-    checkArgument(new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
+    Utils.checkArgument(
+        new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
 
     List<TagKey> tagKeys = new ArrayList<TagKey>(columns);
     Collections.sort(tagKeys, TAG_KEY_COMPARATOR);
@@ -151,7 +151,8 @@ public abstract class View {
       Measure measure,
       Aggregation aggregation,
       List<TagKey> columns) {
-    checkArgument(new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
+    Utils.checkArgument(
+        new HashSet<TagKey>(columns).size() == columns.size(), "Columns have duplicate.");
     return create(
         name, description, measure, aggregation, columns, AggregationWindow.Cumulative.create());
   }
@@ -187,8 +188,8 @@ public abstract class View {
      * @since 0.8
      */
     public static Name create(String name) {
-      checkArgument(
-          StringUtil.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
+      Utils.checkArgument(
+          StringUtils.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
           "Name should be a ASCII string with a length no greater than 255 characters.");
       return new AutoValue_View_Name(name);
     }
@@ -289,7 +290,7 @@ public abstract class View {
        * @since 0.8
        */
       public static Interval create(Duration duration) {
-        checkArgument(duration.compareTo(ZERO) > 0, "Duration must be positive");
+        Utils.checkArgument(duration.compareTo(ZERO) > 0, "Duration must be positive");
         return new AutoValue_View_AggregationWindow_Interval(duration);
       }
 

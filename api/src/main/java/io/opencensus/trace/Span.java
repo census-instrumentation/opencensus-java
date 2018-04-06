@@ -16,10 +16,8 @@
 
 package io.opencensus.trace;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import io.opencensus.trace.internal.BaseMessageEventUtil;
+import io.opencensus.internal.Utils;
+import io.opencensus.trace.internal.BaseMessageEventUtils;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
@@ -76,12 +74,12 @@ public abstract class Span {
    * @since 0.5
    */
   protected Span(SpanContext context, @Nullable EnumSet<Options> options) {
-    this.context = checkNotNull(context, "context");
+    this.context = Utils.checkNotNull(context, "context");
     this.options =
         options == null
             ? DEFAULT_OPTIONS
             : Collections.<Options>unmodifiableSet(EnumSet.copyOf(options));
-    checkArgument(
+    Utils.checkArgument(
         !context.getTraceOptions().isSampled() || (this.options.contains(Options.RECORD_EVENTS)),
         "Span is sampled, but does not have RECORD_EVENTS set.");
   }
@@ -165,7 +163,7 @@ public abstract class Span {
    */
   @Deprecated
   public void addNetworkEvent(NetworkEvent networkEvent) {
-    addMessageEvent(BaseMessageEventUtil.asMessageEvent(networkEvent));
+    addMessageEvent(BaseMessageEventUtils.asMessageEvent(networkEvent));
   }
 
   /**
@@ -182,7 +180,7 @@ public abstract class Span {
   public void addMessageEvent(MessageEvent messageEvent) {
     // Default implementation by invoking addNetworkEvent() so that any existing derived classes,
     // including implementation and the mocked ones, do not need to override this method explicitly.
-    addNetworkEvent(BaseMessageEventUtil.asNetworkEvent(messageEvent));
+    addNetworkEvent(BaseMessageEventUtils.asNetworkEvent(messageEvent));
   }
 
   /**
