@@ -16,7 +16,6 @@
 
 package io.opencensus.contrib.grpc.metrics;
 
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_FINISHED_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RECEIVED_BYTES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC;
@@ -26,9 +25,6 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SERVER_LATENCY;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STARTED_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STATUS;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_FINISHED_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC;
@@ -37,8 +33,6 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_SERVER_LATENCY;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_STARTED_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_STATUS;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC;
-import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_REQUEST_BYTES;
@@ -381,32 +375,6 @@ public final class RpcViewConstants {
           Arrays.asList(GRPC_CLIENT_METHOD));
 
   /**
-   * {@link View} for client uncompressed sent bytes per RPC.
-   *
-   * @since 0.13
-   */
-  public static final View GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW =
-      View.create(
-          View.Name.create("grpc.io/client/uncompressed_sent_bytes_per_rpc"),
-          "Uncompressed sent bytes per RPC",
-          GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC,
-          AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(GRPC_CLIENT_METHOD));
-
-  /**
-   * {@link View} for client uncompressed received bytes per RPC.
-   *
-   * @since 0.13
-   */
-  public static final View GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW =
-      View.create(
-          View.Name.create("grpc.io/client/uncompressed_received_bytes_per_rpc"),
-          "Uncompressed received bytes per RPC",
-          GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC,
-          AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(GRPC_CLIENT_METHOD));
-
-  /**
    * {@link View} for client sent messages per RPC.
    *
    * @since 0.13
@@ -448,13 +416,17 @@ public final class RpcViewConstants {
   /**
    * {@link View} for completed client RPCs.
    *
+   * <p>This {@code View} uses measure {@code GRPC_CLIENT_ROUNDTRIP_LATENCY}, since completed RPCs
+   * can be inferred over any measure recorded once per RPC (since it's just a count aggregation
+   * over the measure). It would be unnecessary to use a separate "count" measure.
+   *
    * @since 0.13
    */
   public static final View GRPC_CLIENT_COMPLETED_RPC_VIEW =
       View.create(
           View.Name.create("grpc.io/client/completed_rpcs"),
           "Number of completed client RPCs",
-          GRPC_CLIENT_FINISHED_COUNT,
+          GRPC_CLIENT_ROUNDTRIP_LATENCY,
           COUNT,
           Arrays.asList(GRPC_CLIENT_METHOD, GRPC_CLIENT_STATUS));
 
@@ -676,32 +648,6 @@ public final class RpcViewConstants {
           Arrays.asList(GRPC_SERVER_METHOD));
 
   /**
-   * {@link View} for server uncompressed sent bytes per RPC.
-   *
-   * @since 0.13
-   */
-  public static final View GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW =
-      View.create(
-          View.Name.create("grpc.io/server/uncompressed_sent_bytes_per_rpc"),
-          "Uncompressed sent bytes per RPC",
-          GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC,
-          AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(GRPC_SERVER_METHOD));
-
-  /**
-   * {@link View} for server uncompressed received bytes per RPC.
-   *
-   * @since 0.13
-   */
-  public static final View GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW =
-      View.create(
-          View.Name.create("grpc.io/server/uncompressed_received_bytes_per_rpc"),
-          "Uncompressed received bytes per RPC",
-          GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC,
-          AGGREGATION_WITH_BYTES_HISTOGRAM,
-          Arrays.asList(GRPC_SERVER_METHOD));
-
-  /**
    * {@link View} for server sent messages per RPC.
    *
    * @since 0.13
@@ -743,13 +689,17 @@ public final class RpcViewConstants {
   /**
    * {@link View} for completed server RPCs.
    *
+   * <p>This {@code View} uses measure {@code GRPC_SERVER_SERVER_LATENCY}, since completed RPCs can
+   * be inferred over any measure recorded once per RPC (since it's just a count aggregation over
+   * the measure). It would be unnecessary to use a separate "count" measure.
+   *
    * @since 0.13
    */
   public static final View GRPC_SERVER_COMPLETED_RPC_VIEW =
       View.create(
           View.Name.create("grpc.io/server/completed_rpcs"),
           "Number of completed server RPCs",
-          GRPC_SERVER_FINISHED_COUNT,
+          GRPC_SERVER_SERVER_LATENCY,
           COUNT,
           Arrays.asList(GRPC_SERVER_METHOD, GRPC_SERVER_STATUS));
 

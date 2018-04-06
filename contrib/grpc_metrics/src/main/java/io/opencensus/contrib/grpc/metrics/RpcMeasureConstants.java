@@ -157,7 +157,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for gRPC client uncompressed request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_SENT_BYTES_PER_RPC}.
    */
   @Deprecated
   public static final MeasureDouble RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES =
@@ -168,7 +168,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for gRPC client uncompressed response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_BYTES_PER_RPC}.
    */
   @Deprecated
   public static final MeasureDouble RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES =
@@ -190,7 +190,8 @@ public final class RpcMeasureConstants {
    * {@link Measure} for number of finished client RPCs.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_CLIENT_FINISHED_COUNT}.
+   * @deprecated since finished count can be inferred with a {@code Count} aggregation on {@link
+   *     #GRPC_CLIENT_SERVER_LATENCY}.
    */
   @Deprecated
   public static final MeasureLong RPC_CLIENT_FINISHED_COUNT =
@@ -252,28 +253,6 @@ public final class RpcMeasureConstants {
           MILLISECOND);
 
   /**
-   * {@link Measure} for total uncompressed bytes sent across all request messages per RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureDouble GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC =
-      Measure.MeasureDouble.create(
-          "grpc.io/client/uncompressed_sent_bytes_per_rpc",
-          "Total uncompressed bytes sent across all request messages per RPC",
-          BYTE);
-
-  /**
-   * {@link Measure} for total uncompressed bytes received across all response messages per RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureDouble GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC =
-      Measure.MeasureDouble.create(
-          "grpc.io/client/uncompressed_received_bytes_per_rpc",
-          "Total uncompressed bytes received across all request messages per RPC",
-          BYTE);
-
-  /**
    * {@link Measure} for number of started client RPCs.
    *
    * @since 0.13
@@ -281,15 +260,6 @@ public final class RpcMeasureConstants {
   public static final MeasureLong GRPC_CLIENT_STARTED_COUNT =
       Measure.MeasureLong.create(
           "grpc.io/client/started_count", "Number of client RPCs (streams) started", COUNT);
-
-  /**
-   * {@link Measure} for number of finished client RPCs.
-   *
-   * @since 0.13
-   */
-  public static final MeasureLong GRPC_CLIENT_FINISHED_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/client/finished_count", "Number of client RPCs (streams) finished", COUNT);
 
   /**
    * {@link Measure} for number of messages sent in the RPC.
@@ -379,7 +349,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for gRPC server uncompressed request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC}.
    */
   @Deprecated
   public static final MeasureDouble RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES =
@@ -390,7 +360,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for gRPC server uncompressed response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC}.
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC}.
    */
   @Deprecated
   public static final MeasureDouble RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES =
@@ -412,7 +382,8 @@ public final class RpcMeasureConstants {
    * {@link Measure} for number of finished server RPCs.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_FINISHED_COUNT}.
+   * @deprecated since finished count can be inferred with a {@code Count} aggregation on {@link
+   *     #GRPC_SERVER_SERVER_LATENCY}.
    */
   @Deprecated
   public static final MeasureLong RPC_SERVER_FINISHED_COUNT =
@@ -464,28 +435,6 @@ public final class RpcMeasureConstants {
           BYTE);
 
   /**
-   * {@link Measure} for total uncompressed bytes sent across all request messages per RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureDouble GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/uncompressed_sent_bytes_per_rpc",
-          "Total uncompressed bytes sent across all request messages per RPC",
-          BYTE);
-
-  /**
-   * {@link Measure} for total uncompressed bytes received across all response messages per RPC.
-   *
-   * @since 0.13
-   */
-  public static final MeasureDouble GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC =
-      Measure.MeasureDouble.create(
-          "grpc.io/server/uncompressed_received_bytes_per_rpc",
-          "Total uncompressed bytes received across all request messages per RPC",
-          BYTE);
-
-  /**
    * {@link Measure} for number of started server RPCs.
    *
    * @since 0.13
@@ -493,15 +442,6 @@ public final class RpcMeasureConstants {
   public static final MeasureLong GRPC_SERVER_STARTED_COUNT =
       Measure.MeasureLong.create(
           "grpc.io/server/started_count", "Number of server RPCs (streams) started", COUNT);
-
-  /**
-   * {@link Measure} for number of finished server RPCs.
-   *
-   * @since 0.13
-   */
-  public static final MeasureLong GRPC_SERVER_FINISHED_COUNT =
-      Measure.MeasureLong.create(
-          "grpc.io/server/finished_count", "Number of server RPCs (streams) finished", COUNT);
 
   /**
    * {@link Measure} for number of messages sent in the RPC.

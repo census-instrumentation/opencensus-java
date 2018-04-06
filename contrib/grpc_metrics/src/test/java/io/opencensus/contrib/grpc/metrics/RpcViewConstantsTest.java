@@ -105,8 +105,6 @@ public final class RpcViewConstantsTest {
     assertThat(RpcViewConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_SENT_BYTES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_RECEIVED_BYTES_PER_RPC_VIEW).isNotNull();
-    assertThat(RpcViewConstants.GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW).isNotNull();
-    assertThat(RpcViewConstants.GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_SENT_MESSAGES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_CLIENT_SERVER_LATENCY_VIEW).isNotNull();
@@ -123,8 +121,6 @@ public final class RpcViewConstantsTest {
 
     assertThat(RpcViewConstants.GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW).isNotNull();
-    assertThat(RpcViewConstants.GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW).isNotNull();
-    assertThat(RpcViewConstants.GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW).isNotNull();
     assertThat(RpcViewConstants.GRPC_SERVER_SERVER_LATENCY_VIEW).isNotNull();
