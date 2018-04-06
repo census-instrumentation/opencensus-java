@@ -89,7 +89,7 @@ public class RpcViewsTest {
       assertThat(fakeViewManager.isRegistered(view)).isTrue();
     }
     for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
+      assertThat(fakeViewManager.isRegistered(view)).isFalse();
     }
   }
 

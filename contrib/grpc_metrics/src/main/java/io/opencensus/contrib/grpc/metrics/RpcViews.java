@@ -185,20 +185,21 @@ public final class RpcViews {
   /**
    * Registers all views.
    *
-   * <p>This is equivalent with calling {@link #registerAllCumulativeViews()}, {@link
-   * #registerAllIntervalViews()} and {@link #registerAllGrpcViews()}.
+   * <p>This is equivalent with calling {@link #registerAllCumulativeViews()} and {@link
+   * #registerAllIntervalViews()}.
    *
    * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
    * @since 0.11.0
+   * @deprecated in favor of {@link #registerAllGrpcViews()}.
    */
+  @Deprecated
   public static void registerAllViews() {
     registerAllViews(Stats.getViewManager());
   }
 
   @VisibleForTesting
   static void registerAllViews(ViewManager viewManager) {
-    registerAllGrpcViews(viewManager);
     registerAllCumulativeViews(viewManager);
     registerAllIntervalViews(viewManager);
   }
