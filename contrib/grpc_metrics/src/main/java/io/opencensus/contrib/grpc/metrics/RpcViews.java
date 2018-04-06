@@ -27,6 +27,7 @@ import io.opencensus.stats.ViewManager;
  *
  * @since 0.11
  */
+@SuppressWarnings("deprecation")
 public final class RpcViews {
   @VisibleForTesting
   static final ImmutableSet<View> RPC_CUMULATIVE_VIEWS_SET =
@@ -53,6 +54,29 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW,
           RpcViewConstants.RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW,
           RpcViewConstants.RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW);
+
+  @VisibleForTesting
+  static final ImmutableSet<View> GRPC_CUMULATIVE_VIEWS_SET =
+      ImmutableSet.of(
+          RpcViewConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
+          RpcViewConstants.GRPC_CLIENT_SENT_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_RECEIVED_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_SENT_MESSAGES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_SERVER_LATENCY_VIEW,
+          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_COMPLETED_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_SERVER_LATENCY_VIEW,
+          RpcViewConstants.GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_STARTED_RPC_VIEW,
+          RpcViewConstants.GRPC_SERVER_COMPLETED_RPC_VIEW);
 
   @VisibleForTesting
   static final ImmutableSet<View> RPC_INTERVAL_VIEWS_SET =
@@ -103,12 +127,34 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_FINISHED_COUNT_HOUR_VIEW);
 
   /**
+   * Registers all standard gRPC views.
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
+   *
+   * @since 0.13
+   */
+  public static void registerAllGrpcViews() {
+    registerAllCumulativeViews(Stats.getViewManager());
+  }
+
+  @VisibleForTesting
+  static void registerAllGrpcViews(ViewManager viewManager) {
+    for (View view : GRPC_CUMULATIVE_VIEWS_SET) {
+      viewManager.registerView(view);
+    }
+  }
+
+  /**
    * Registers all standard cumulative views.
    *
    * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
    * @since 0.11.0
+   * @deprecated in favor of {@link #registerAllGrpcViews()}. It is likely that there won't be stats
+   *     for the old views, but you may still want to register the old views before they are
+   *     completely removed.
    */
+  @Deprecated
   public static void registerAllCumulativeViews() {
     registerAllCumulativeViews(Stats.getViewManager());
   }
@@ -126,7 +172,9 @@ public final class RpcViews {
    * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
    * @since 0.11.0
+   * @deprecated because interval window is deprecated. There won't be interval views in the future.
    */
+  @Deprecated
   public static void registerAllIntervalViews() {
     registerAllIntervalViews(Stats.getViewManager());
   }
@@ -141,8 +189,8 @@ public final class RpcViews {
   /**
    * Registers all views.
    *
-   * <p>This is equivalent with calling {@link #registerAllCumulativeViews()} and {@link
-   * #registerAllIntervalViews()}.
+   * <p>This is equivalent with calling {@link #registerAllCumulativeViews()}, {@link
+   * #registerAllIntervalViews()} and {@link #registerAllGrpcViews()}.
    *
    * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
@@ -154,6 +202,7 @@ public final class RpcViews {
 
   @VisibleForTesting
   static void registerAllViews(ViewManager viewManager) {
+    registerAllGrpcViews(viewManager);
     registerAllCumulativeViews(viewManager);
     registerAllIntervalViews(viewManager);
   }

@@ -43,6 +43,9 @@ public class RpcViewsTest {
     for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
       assertThat(fakeViewManager.isRegistered(view)).isFalse();
     }
+    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isFalse();
+    }
   }
 
   @Test
@@ -55,6 +58,24 @@ public class RpcViewsTest {
     for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
       assertThat(fakeViewManager.isRegistered(view)).isTrue();
     }
+    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isFalse();
+    }
+  }
+
+  @Test
+  public void registerGrpcViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerAllGrpcViews(fakeViewManager);
+    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isFalse();
+    }
+    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isFalse();
+    }
+    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isTrue();
+    }
   }
 
   @Test
@@ -65,6 +86,9 @@ public class RpcViewsTest {
       assertThat(fakeViewManager.isRegistered(view)).isTrue();
     }
     for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isTrue();
+    }
+    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
       assertThat(fakeViewManager.isRegistered(view)).isTrue();
     }
   }
