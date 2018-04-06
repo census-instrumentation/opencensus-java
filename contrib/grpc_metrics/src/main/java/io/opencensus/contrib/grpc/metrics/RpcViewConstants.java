@@ -172,7 +172,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client roundtrip latency in milliseconds.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW =
@@ -188,7 +188,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client server elapsed time in milliseconds.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_SERVER_LATENCY_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_SERVER_LATENCY_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW =
@@ -204,7 +204,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_SENT_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_SENT_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_REQUEST_BYTES_VIEW =
@@ -220,7 +220,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_RECEIVED_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_RESPONSE_BYTES_VIEW =
@@ -236,7 +236,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client uncompressed request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW =
@@ -252,7 +252,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client uncompressed response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
@@ -268,7 +268,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client request message counts.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_SENT_MESSAGES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_SENT_MESSAGES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_REQUEST_COUNT_VIEW =
@@ -284,7 +284,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client response message counts.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_RESPONSE_COUNT_VIEW =
@@ -300,7 +300,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for started client RPCs.
    *
    * @since 0.12
-   * @deprecated in favor of {@link #RPC_CLIENT_STARTED_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_STARTED_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW =
@@ -316,7 +316,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for finished client RPCs.
    *
    * @since 0.12
-   * @deprecated in favor of {@link #RPC_CLIENT_COMPLETED_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_CLIENT_COMPLETED_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_FINISHED_COUNT_CUMULATIVE_VIEW =
@@ -480,7 +480,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server latency in milliseconds.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_SERVER_LATENCY_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SERVER_LATENCY_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_SERVER_LATENCY_VIEW =
@@ -496,7 +496,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server elapsed time in milliseconds.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_SERVER_LATENCY_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SERVER_LATENCY_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
@@ -512,7 +512,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_REQUEST_BYTES_VIEW =
@@ -528,7 +528,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_RESPONSE_BYTES_VIEW =
@@ -544,7 +544,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server uncompressed request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_UNCOMPRESSED_SENT_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
@@ -560,7 +560,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server uncompressed response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_UNCOMPRESSED_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
@@ -576,7 +576,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server request message counts.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_REQUEST_COUNT_VIEW =
@@ -592,7 +592,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server response message counts.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #RPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_RESPONSE_COUNT_VIEW =
@@ -608,7 +608,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for started server RPCs.
    *
    * @since 0.12
-   * @deprecated in favor of {@link #RPC_SERVER_STARTED_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_STARTED_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW =
@@ -624,7 +624,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for finished server RPCs.
    *
    * @since 0.12
-   * @deprecated in favor of {@link #RPC_SERVER_COMPLETED_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_COMPLETED_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW =
