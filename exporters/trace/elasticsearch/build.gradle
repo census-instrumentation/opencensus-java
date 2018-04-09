@@ -2,7 +2,6 @@ description = 'OpenCensus Trace Elasticsearch Exporter'
 
 dependencies {
     compile project(':opencensus-api'),
-            libraries.gson,
             libraries.guava
 
     testCompile project(':opencensus-api')

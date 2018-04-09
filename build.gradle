@@ -156,7 +156,6 @@ subprojects {
         errorProneVersion = '2.2.0'
         grpcVersion = '1.10.0'
         guavaVersion = '20.0'
-        gsonVersion = '2.8.1'
         googleAuthVersion = '0.9.0'
         googleCloudVersion = '0.34.0-beta'
         signalfxVersion = '0.0.39'
@@ -181,7 +180,6 @@ subprojects {
                 grpc_context: "io.grpc:grpc-context:${grpcVersion}",
                 grpc_core: "io.grpc:grpc-core:${grpcVersion}",
                 guava: "com.google.guava:guava:${guavaVersion}",
-                gson: "com.google.code.gson:gson:${gsonVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
                 signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
                 prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",

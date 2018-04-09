@@ -39,8 +39,8 @@ public class ElasticsearchTraceExporterTest {
 
   @Before
   public void setUp() {
-    elasticsearchConfiguration = new ElasticsearchConfiguration(null, null,
-        "http://url.com", "test","test");
+    elasticsearchConfiguration = new ElasticsearchConfiguration("sample-app", null, null,
+        "http://url.com", "test", "test");
     MockitoAnnotations.initMocks(this);
   }
 
