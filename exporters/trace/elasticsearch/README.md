@@ -8,6 +8,8 @@ It centrally stores your data so you can discover the expected and uncover the u
 Using [Kibana](https://www.elastic.co/products/kibana) we can visualize our trace metrics
 with self designed dashboards and easily search as well.
 
+Once the trace is exported to Elasticsearch, you can search traces to find more data on trace.
+
 
 
 ## Quickstart
@@ -23,17 +25,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.12.2</version>
+    <version>0.13.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-exporter-trace-elasticsearch</artifactId>
-    <version>0.12.2</version>
+        <version>0.13.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.12.2</version>
+   <version>0.13.0</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -41,32 +43,26 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.12.2'
-compile 'io.opencensus:opencensus-exporter-trace-elasticsearch:0.12.2'
-runtime 'io.opencensus:opencensus-impl:0.12.2'
+compile 'io.opencensus:opencensus-api:0.13.0'
+compile 'io.opencensus:opencensus-exporter-trace-elasticsearch:0.13.0'
+runtime 'io.opencensus:opencensus-impl:0.13.0'
 ```
 
 #### Register the exporter
 
 The ElasticsearchConfig is the configurations required by the exporter.
 
-**userName** : The username for *Basic Auth* required by elasticsearch restful api. <br/>
-**password** : The password for *Basic Auth* required by elasticsearch restful api.<br/>
-**elasticsearchUrl** : The elasticsearch url for your installation.<br/>
-**elasticsearchIndex** : The elasticsearch index to store the data.<br/>
+      private final static String ELASTIC_SEARCH_URL= "http://localhost:9200";
+      private final static String INDEX_FOR_TRACE= "opencensus";
+      private final static String TYPE_FOR_TRACE= "trace";
+      private final static String MICROSERVICE= "sample-opencensus";
 
 
-```java
-public class MyMainClass {
-  public static void main(String[] args) throws Exception {
-    ElasticsearchConfig elasticsearchConfig =
-        new ElasticsearchConfig(null,null,"opencensus-trace","http://localhost:9200/");
-    ElasticsearchTraceExporter.createAndRegister(
-        ElasticsearchTraceExporter.builder().build());
-    // ...
-  }
-}
-```
+
+    ElasticsearchConfiguration elasticsearchConfiguration
+            = new ElasticsearchConfiguration(MICROSERVICE,null, null,ELASTIC_SEARCH_URL,
+            INDEX_FOR_TRACE,TYPE_FOR_TRACE);
+    ElasticsearchTraceExporter.createAndRegister(elasticsearchConfiguration);
 
 #### Java Versions
 
