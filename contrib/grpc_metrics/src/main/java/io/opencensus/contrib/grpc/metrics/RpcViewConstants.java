@@ -16,6 +16,23 @@
 
 package io.opencensus.contrib.grpc.metrics;
 
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_METHOD;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RECEIVED_BYTES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_BYTES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_MESSAGES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SERVER_LATENCY;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STARTED_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STATUS;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_METHOD;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_SENT_BYTES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_SENT_MESSAGES_PER_RPC;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_SERVER_LATENCY;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_STARTED_COUNT;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_STATUS;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_REQUEST_BYTES;
@@ -85,9 +102,10 @@ public final class RpcViewConstants {
   static final List<Double> RPC_MILLIS_BUCKET_BOUNDARIES =
       Collections.unmodifiableList(
           Arrays.asList(
-              0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0,
-              50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
-              800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0));
+              0.0, 0.01, 0.05, 0.1, 0.3, 0.6, 0.8, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0,
+              16.0, 20.0, 25.0, 30.0, 40.0, 50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0,
+              300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0,
+              100000.0));
 
   // Common histogram bucket boundaries for request/response count Views.
   @VisibleForTesting
@@ -132,7 +150,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client RPC errors.
    *
    * @since 0.8
+   * @deprecated since error count measure is deprecated.
    */
+  @Deprecated
   public static final View RPC_CLIENT_ERROR_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/client/error_count/cumulative"),
@@ -146,7 +166,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client roundtrip latency in milliseconds.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_ROUNDTRIP_LATENCY_VIEW =
       View.create(
           View.Name.create("grpc.io/client/roundtrip_latency/cumulative"),
@@ -160,7 +182,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client server elapsed time in milliseconds.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_SERVER_LATENCY_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_SERVER_ELAPSED_TIME_VIEW =
       View.create(
           View.Name.create("grpc.io/client/server_elapsed_time/cumulative"),
@@ -174,7 +198,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client request bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_SENT_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_bytes/cumulative"),
@@ -188,7 +214,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client response bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_bytes/cumulative"),
@@ -202,7 +230,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client uncompressed request bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_SENT_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_request_bytes/cumulative"),
@@ -216,7 +246,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client uncompressed response bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/client/uncompressed_response_bytes/cumulative"),
@@ -230,7 +262,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client request message counts.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_SENT_MESSAGES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_REQUEST_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/client/request_count/cumulative"),
@@ -244,7 +278,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for client response message counts.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_RESPONSE_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/client/response_count/cumulative"),
@@ -258,7 +294,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for started client RPCs.
    *
    * @since 0.12
+   * @deprecated in favor of {@link #GRPC_CLIENT_STARTED_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/started_count/cumulative"),
@@ -272,7 +310,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for finished client RPCs.
    *
    * @since 0.12
+   * @deprecated in favor of {@link #GRPC_CLIENT_COMPLETED_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_CLIENT_FINISHED_COUNT_CUMULATIVE_VIEW =
       View.create(
           View.Name.create("grpc.io/client/finished_count/cumulative"),
@@ -282,13 +322,123 @@ public final class RpcViewConstants {
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
+  /**
+   * {@link View} for client roundtrip latency in milliseconds.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/roundtrip_latency"),
+          "Latency in msecs",
+          GRPC_CLIENT_ROUNDTRIP_LATENCY,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for client server latency in milliseconds.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_SERVER_LATENCY_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/server_latency"),
+          "Server latency in msecs",
+          GRPC_CLIENT_SERVER_LATENCY,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for client sent bytes per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_SENT_BYTES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/sent_bytes_per_rpc"),
+          "Sent bytes per RPC",
+          GRPC_CLIENT_SENT_BYTES_PER_RPC,
+          AGGREGATION_WITH_BYTES_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for client received bytes per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_RECEIVED_BYTES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/received_bytes_per_rpc"),
+          "Received bytes per RPC",
+          GRPC_CLIENT_RECEIVED_BYTES_PER_RPC,
+          AGGREGATION_WITH_BYTES_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for client sent messages per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_SENT_MESSAGES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/sent_messages_per_rpc"),
+          "Number of messages sent in the RPC",
+          GRPC_CLIENT_SENT_MESSAGES_PER_RPC,
+          AGGREGATION_WITH_COUNT_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for client received messages per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/received_messages_per_rpc"),
+          "Number of response messages received per RPC",
+          GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC,
+          AGGREGATION_WITH_COUNT_HISTOGRAM,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for started client RPCs.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_STARTED_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/started_rpcs"),
+          "Number of started client RPCs",
+          GRPC_CLIENT_STARTED_COUNT,
+          COUNT,
+          Arrays.asList(GRPC_CLIENT_METHOD));
+
+  /**
+   * {@link View} for completed client RPCs.
+   *
+   * <p>This {@code View} uses measure {@code GRPC_CLIENT_ROUNDTRIP_LATENCY}, since completed RPCs
+   * can be inferred over any measure recorded once per RPC (since it's just a count aggregation
+   * over the measure). It would be unnecessary to use a separate "count" measure.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_CLIENT_COMPLETED_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/completed_rpcs"),
+          "Number of completed client RPCs",
+          GRPC_CLIENT_ROUNDTRIP_LATENCY,
+          COUNT,
+          Arrays.asList(GRPC_CLIENT_METHOD, GRPC_CLIENT_STATUS));
+
   // Rpc server cumulative views.
 
   /**
    * Cumulative {@link View} for server RPC errors.
    *
    * @since 0.8
+   * @deprecated since error count measure is deprecated.
    */
+  @Deprecated
   public static final View RPC_SERVER_ERROR_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/server/error_count/cumulative"),
@@ -302,7 +452,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server latency in milliseconds.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_SERVER_LATENCY_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_SERVER_LATENCY_VIEW =
       View.create(
           View.Name.create("grpc.io/server/server_latency/cumulative"),
@@ -316,7 +468,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server elapsed time in milliseconds.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_SERVER_LATENCY_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_SERVER_ELAPSED_TIME_VIEW =
       View.create(
           View.Name.create("grpc.io/server/elapsed_time/cumulative"),
@@ -330,7 +484,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server request bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_bytes/cumulative"),
@@ -344,7 +500,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server response bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_bytes/cumulative"),
@@ -358,7 +516,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server uncompressed request bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_request_bytes/cumulative"),
@@ -372,7 +532,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server uncompressed response bytes.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
       View.create(
           View.Name.create("grpc.io/server/uncompressed_response_bytes/cumulative"),
@@ -386,7 +548,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server request message counts.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_REQUEST_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/server/request_count/cumulative"),
@@ -400,7 +564,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server response message counts.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_RESPONSE_COUNT_VIEW =
       View.create(
           View.Name.create("grpc.io/server/response_count/cumulative"),
@@ -414,7 +580,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for started server RPCs.
    *
    * @since 0.12
+   * @deprecated in favor of {@link #GRPC_SERVER_STARTED_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/started_count/cumulative"),
@@ -428,7 +596,9 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for finished server RPCs.
    *
    * @since 0.12
+   * @deprecated in favor of {@link #GRPC_SERVER_COMPLETED_RPC_VIEW}.
    */
+  @Deprecated
   public static final View RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW =
       View.create(
           View.Name.create("grpc.io/server/finished_count/cumulative"),
@@ -437,6 +607,101 @@ public final class RpcViewConstants {
           COUNT,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
+
+  /**
+   * {@link View} for server server latency in milliseconds.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_SERVER_SERVER_LATENCY_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/server_latency"),
+          "Server latency in msecs",
+          GRPC_SERVER_SERVER_LATENCY,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          Arrays.asList(GRPC_SERVER_METHOD));
+
+  /**
+   * {@link View} for server sent bytes per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/sent_bytes_per_rpc"),
+          "Sent bytes per RPC",
+          GRPC_SERVER_SENT_BYTES_PER_RPC,
+          AGGREGATION_WITH_BYTES_HISTOGRAM,
+          Arrays.asList(GRPC_SERVER_METHOD));
+
+  /**
+   * {@link View} for server received bytes per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/received_bytes_per_rpc"),
+          "Received bytes per RPC",
+          GRPC_SERVER_RECEIVED_BYTES_PER_RPC,
+          AGGREGATION_WITH_BYTES_HISTOGRAM,
+          Arrays.asList(GRPC_SERVER_METHOD));
+
+  /**
+   * {@link View} for server sent messages per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/sent_messages_per_rpc"),
+          "Number of messages sent in the RPC",
+          GRPC_SERVER_SENT_MESSAGES_PER_RPC,
+          AGGREGATION_WITH_COUNT_HISTOGRAM,
+          Arrays.asList(GRPC_SERVER_METHOD));
+
+  /**
+   * {@link View} for server received messages per RPC.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/received_messages_per_rpc"),
+          "Number of response messages received per RPC",
+          GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC,
+          AGGREGATION_WITH_COUNT_HISTOGRAM,
+          Arrays.asList(GRPC_SERVER_METHOD));
+
+  /**
+   * {@link View} for started server RPCs.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_SERVER_STARTED_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/started_rpcs"),
+          "Number of started server RPCs",
+          GRPC_SERVER_STARTED_COUNT,
+          COUNT,
+          Arrays.asList(GRPC_SERVER_METHOD));
+
+  /**
+   * {@link View} for completed server RPCs.
+   *
+   * <p>This {@code View} uses measure {@code GRPC_SERVER_SERVER_LATENCY}, since completed RPCs can
+   * be inferred over any measure recorded once per RPC (since it's just a count aggregation over
+   * the measure). It would be unnecessary to use a separate "count" measure.
+   *
+   * @since 0.13
+   */
+  public static final View GRPC_SERVER_COMPLETED_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/completed_rpcs"),
+          "Number of completed server RPCs",
+          GRPC_SERVER_SERVER_LATENCY,
+          COUNT,
+          Arrays.asList(GRPC_SERVER_METHOD, GRPC_SERVER_STATUS));
 
   // Interval Stats
 
