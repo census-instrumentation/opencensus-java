@@ -361,6 +361,7 @@ subprojects {
                  'opencensus-exporter-stats-stackdriver',
                  'opencensus-exporter-trace-instana',
                  'opencensus-exporter-trace-logging',
+                 'opencensus-exporter-trace-elasticsearch',
                  'opencensus-exporter-trace-stackdriver',
                  'opencensus-exporter-trace-zipkin',
                  'opencensus-exporter-trace-jaeger',
