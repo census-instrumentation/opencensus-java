@@ -41,8 +41,10 @@ import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.util.Random;
+import org.junit.AfterClass;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,12 +65,29 @@ public class JaegerExporterHandlerIntegrationTest {
 
   private HttpRequestFactory httpRequestFactory = new NetHttpTransport().createRequestFactory();
 
-  @ClassRule
+  private static GenericContainer<?> container;
+
+  /** Starts a docker container optionally. For example, skips if Docker is unavailable. */
   @SuppressWarnings("rawtypes")
-  public static final GenericContainer<?> container =
-      new GenericContainer(JAEGER_IMAGE)
-          .withExposedPorts(JAEGER_HTTP_PORT, JAEGER_HTTP_PORT_THRIFT)
-          .waitingFor(new HttpWaitStrategy());
+  @BeforeClass
+  public static void startContainer() {
+    try {
+      container =
+          new GenericContainer(JAEGER_IMAGE)
+              .withExposedPorts(JAEGER_HTTP_PORT, JAEGER_HTTP_PORT_THRIFT)
+              .waitingFor(new HttpWaitStrategy());
+      container.start();
+    } catch (RuntimeException e) {
+      throw new AssumptionViolatedException("could not start docker container", e);
+    }
+  }
+
+  @AfterClass
+  public static void stopContainer() {
+    if (container != null) {
+      container.stop();
+    }
+  }
 
   @Before
   public void before() {
