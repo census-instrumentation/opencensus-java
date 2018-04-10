@@ -484,7 +484,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_REQUEST_BYTES_VIEW =
@@ -500,7 +500,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_RESPONSE_BYTES_VIEW =
@@ -516,7 +516,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server uncompressed request bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES_VIEW =
@@ -532,7 +532,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server uncompressed response bytes.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES_VIEW =
@@ -548,7 +548,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server request message counts.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_REQUEST_COUNT_VIEW =
@@ -564,7 +564,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for server response message counts.
    *
    * @since 0.8
-   * @deprecated in favor of {@link #GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW}.
+   * @deprecated in favor of {@link #GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_RESPONSE_COUNT_VIEW =
@@ -655,7 +655,7 @@ public final class RpcViewConstants {
   public static final View GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW =
       View.create(
           View.Name.create("grpc.io/server/sent_messages_per_rpc"),
-          "Number of messages sent in the RPC",
+          "Number of messages sent in each RPC",
           GRPC_SERVER_SENT_MESSAGES_PER_RPC,
           AGGREGATION_WITH_COUNT_HISTOGRAM,
           Arrays.asList(GRPC_SERVER_METHOD));
@@ -668,7 +668,7 @@ public final class RpcViewConstants {
   public static final View GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW =
       View.create(
           View.Name.create("grpc.io/server/received_messages_per_rpc"),
-          "Number of response messages received per RPC",
+          "Number of response messages received in each RPC",
           GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC,
           AGGREGATION_WITH_COUNT_HISTOGRAM,
           Arrays.asList(GRPC_SERVER_METHOD));
