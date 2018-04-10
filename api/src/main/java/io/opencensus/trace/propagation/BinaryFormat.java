@@ -117,7 +117,7 @@ public abstract class BinaryFormat {
    * @since 0.7
    */
   public SpanContext fromByteArray(byte[] bytes) throws SpanContextParseException {
-    // Implementation must override this method.
+    // Implementation must override this method. If it doesn't, the below will StackOverflowError.
     try {
       return fromBinaryValue(bytes);
     } catch (ParseException e) {
