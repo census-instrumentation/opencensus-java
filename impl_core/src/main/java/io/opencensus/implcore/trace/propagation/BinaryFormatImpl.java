@@ -18,6 +18,7 @@ package io.opencensus.implcore.trace.propagation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -65,13 +66,22 @@ final class BinaryFormatImpl extends BinaryFormat {
   // The version_id/field_id size in bytes.
   private static final byte ID_SIZE = 1;
   private static final byte TRACE_ID_FIELD_ID = 0;
-  private static final int TRACE_ID_FIELD_ID_OFFSET = VERSION_ID_OFFSET + ID_SIZE;
+
+  @DefaultVisibilityForTesting
+  static final int TRACE_ID_FIELD_ID_OFFSET = VERSION_ID_OFFSET + ID_SIZE;
+
   private static final int TRACE_ID_OFFSET = TRACE_ID_FIELD_ID_OFFSET + ID_SIZE;
   private static final byte SPAN_ID_FIELD_ID = 1;
-  private static final int SPAN_ID_FIELD_ID_OFFSET = TRACE_ID_OFFSET + TraceId.SIZE;
+
+  @DefaultVisibilityForTesting
+  static final int SPAN_ID_FIELD_ID_OFFSET = TRACE_ID_OFFSET + TraceId.SIZE;
+
   private static final int SPAN_ID_OFFSET = SPAN_ID_FIELD_ID_OFFSET + ID_SIZE;
   private static final byte TRACE_OPTION_FIELD_ID = 2;
-  private static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
+
+  @DefaultVisibilityForTesting
+  static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
+
   private static final int TRACE_OPTIONS_OFFSET = TRACE_OPTION_FIELD_ID_OFFSET + ID_SIZE;
   private static final int FORMAT_LENGTH =
       4 * ID_SIZE + TraceId.SIZE + SpanId.SIZE + TraceOptions.SIZE;
@@ -96,25 +106,36 @@ final class BinaryFormatImpl extends BinaryFormat {
     if (bytes.length == 0 || bytes[0] != VERSION_ID) {
       throw new SpanContextParseException("Unsupported version.");
     }
-    TraceId traceId = TraceId.INVALID;
-    SpanId spanId = SpanId.INVALID;
+    if (bytes.length < FORMAT_LENGTH - ID_SIZE - TraceOptions.SIZE) {
+      throw new SpanContextParseException("Invalid input: truncated");
+    }
+    TraceId traceId;
+    SpanId spanId;
     TraceOptions traceOptions = TraceOptions.DEFAULT;
     int pos = 1;
-    try {
-      if (bytes.length > pos && bytes[pos] == TRACE_ID_FIELD_ID) {
-        traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
-        pos += ID_SIZE + TraceId.SIZE;
-      }
-      if (bytes.length > pos && bytes[pos] == SPAN_ID_FIELD_ID) {
-        spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
-        pos += ID_SIZE + SpanId.SIZE;
-      }
-      if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
-        traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
-      }
-      return SpanContext.create(traceId, spanId, traceOptions);
-    } catch (IndexOutOfBoundsException e) {
-      throw new SpanContextParseException("Invalid input.", e);
+    if (bytes[pos] == TRACE_ID_FIELD_ID) {
+      traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
+      pos += ID_SIZE + TraceId.SIZE;
+    } else {
+      throw new SpanContextParseException("Invalid input: expected trace ID at offset " + pos);
     }
+    if (bytes[pos] == SPAN_ID_FIELD_ID) {
+      spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
+      pos += ID_SIZE + SpanId.SIZE;
+    } else {
+      throw new SpanContextParseException("Invalid input: expected span ID at offset " + pos);
+    }
+    // The trace options field is optional. However, when present, it should be valid.
+    if (bytes.length > pos) {
+      if (bytes[pos] != TRACE_OPTION_FIELD_ID) {
+        throw new SpanContextParseException(
+            "Invalid input: expected trace options at offset " + pos);
+      }
+      if (bytes.length < pos + ID_SIZE + TraceOptions.SIZE) {
+        throw new SpanContextParseException("Invalid input: truncated");
+      }
+      traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
+    }
+    return SpanContext.create(traceId, spanId, traceOptions);
   }
 }
