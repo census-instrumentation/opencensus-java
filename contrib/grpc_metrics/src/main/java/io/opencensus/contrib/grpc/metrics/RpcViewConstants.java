@@ -107,6 +107,13 @@ public final class RpcViewConstants {
               300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0,
               100000.0));
 
+  static final List<Double> RPC_MILLIS_BUCKET_BOUNDARIES_DEPRECATED =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0,
+              50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
+              800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0));
+
   // Common histogram bucket boundaries for request/response count Views.
   @VisibleForTesting
   static final List<Double> RPC_COUNT_BUCKET_BOUNDARIES =
@@ -126,6 +133,9 @@ public final class RpcViewConstants {
   @VisibleForTesting
   static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
       Distribution.create(BucketBoundaries.create(RPC_MILLIS_BUCKET_BOUNDARIES));
+
+  static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM_DEPRECATED =
+      Distribution.create(BucketBoundaries.create(RPC_MILLIS_BUCKET_BOUNDARIES_DEPRECATED));
 
   @VisibleForTesting
   static final Aggregation AGGREGATION_WITH_COUNT_HISTOGRAM =
@@ -174,7 +184,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/roundtrip_latency/cumulative"),
           "Latency in msecs",
           RPC_CLIENT_ROUNDTRIP_LATENCY,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM_DEPRECATED,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
@@ -190,7 +200,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/server_elapsed_time/cumulative"),
           "Server elapsed time in msecs",
           RPC_CLIENT_SERVER_ELAPSED_TIME,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM_DEPRECATED,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
@@ -460,7 +470,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/server/server_latency/cumulative"),
           "Latency in msecs",
           RPC_SERVER_SERVER_LATENCY,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM_DEPRECATED,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
@@ -476,7 +486,7 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/server/elapsed_time/cumulative"),
           "Server elapsed time in msecs",
           RPC_SERVER_SERVER_ELAPSED_TIME,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
+          AGGREGATION_WITH_MILLIS_HISTOGRAM_DEPRECATED,
           Arrays.asList(RPC_METHOD),
           CUMULATIVE);
 
