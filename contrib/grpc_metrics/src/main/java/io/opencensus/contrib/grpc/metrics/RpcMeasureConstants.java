@@ -49,6 +49,9 @@ public final class RpcMeasureConstants {
    * Tag key that represents a client gRPC canonical status. Refer to
    * https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.
    *
+   * <p>{@link #GRPC_CLIENT_STATUS} is set when an outgoing request finishes and is only available
+   * around metrics recorded at the end of the outgoing request.
+   *
    * @since 0.13
    */
   public static final TagKey GRPC_CLIENT_STATUS = TagKey.create("grpc_client_status");
@@ -57,6 +60,9 @@ public final class RpcMeasureConstants {
    * Tag key that represents a server gRPC canonical status. Refer to
    * https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.
    *
+   * <p>{@link #GRPC_SERVER_STATUS} is set when an incoming request finishes and is only available
+   * around metrics recorded at the end of the incoming request.
+   *
    * @since 0.13
    */
   public static final TagKey GRPC_SERVER_STATUS = TagKey.create("grpc_server_status");
@@ -64,12 +70,18 @@ public final class RpcMeasureConstants {
   /**
    * Tag key that represents a client gRPC method.
    *
+   * <p>{@link #GRPC_CLIENT_METHOD} is set when an outgoing request starts and is available in all
+   * the recorded metrics.
+   *
    * @since 0.13
    */
   public static final TagKey GRPC_CLIENT_METHOD = TagKey.create("grpc_client_method");
 
   /**
    * Tag key that represents a server gRPC method.
+   *
+   * <p>{@link #GRPC_SERVER_METHOD} is set when an incoming request starts and is available in the
+   * context for the entire RPC call handling.
    *
    * @since 0.13
    */
