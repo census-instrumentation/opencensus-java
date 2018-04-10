@@ -202,6 +202,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for client RPC request message counts.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_SENT_MESSAGES_PER_RPC}.
    */
   @Deprecated
   public static final MeasureLong RPC_CLIENT_REQUEST_COUNT =
@@ -211,6 +212,7 @@ public final class RpcMeasureConstants {
   /**
    * {@link Measure} for client RPC response message counts.
    *
+   * @deprecated in favor of {@link #GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC}.
    * @since 0.8
    */
   @Deprecated
