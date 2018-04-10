@@ -130,7 +130,7 @@ public final class RpcViews {
    * @since 0.13
    */
   public static void registerAllGrpcViews() {
-    registerAllCumulativeViews(Stats.getViewManager());
+    registerAllGrpcViews(Stats.getViewManager());
   }
 
   @VisibleForTesting
