@@ -64,14 +64,12 @@ public final class RpcViews {
           RpcViewConstants.GRPC_CLIENT_SENT_MESSAGES_PER_RPC_VIEW,
           RpcViewConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW,
           RpcViewConstants.GRPC_CLIENT_SERVER_LATENCY_VIEW,
-          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW,
           RpcViewConstants.GRPC_CLIENT_COMPLETED_RPC_VIEW,
           RpcViewConstants.GRPC_SERVER_SERVER_LATENCY_VIEW,
           RpcViewConstants.GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW,
           RpcViewConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW,
           RpcViewConstants.GRPC_SERVER_SENT_MESSAGES_PER_RPC_VIEW,
           RpcViewConstants.GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC_VIEW,
-          RpcViewConstants.GRPC_SERVER_STARTED_RPC_VIEW,
           RpcViewConstants.GRPC_SERVER_COMPLETED_RPC_VIEW);
 
   @VisibleForTesting
@@ -130,7 +128,7 @@ public final class RpcViews {
    * @since 0.13
    */
   public static void registerAllGrpcViews() {
-    registerAllCumulativeViews(Stats.getViewManager());
+    registerAllGrpcViews(Stats.getViewManager());
   }
 
   @VisibleForTesting

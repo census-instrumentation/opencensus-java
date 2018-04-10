@@ -54,7 +54,6 @@ public class RpcMeasureConstantsTest {
     assertThat(RpcMeasureConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC).isNotNull();
     assertThat(RpcMeasureConstants.GRPC_CLIENT_SERVER_LATENCY).isNotNull();
     assertThat(RpcMeasureConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY).isNotNull();
-    assertThat(RpcMeasureConstants.GRPC_CLIENT_STARTED_COUNT).isNotNull();
 
     // Test server measurement descriptors.
     assertThat(RpcMeasureConstants.RPC_SERVER_ERROR_COUNT).isNotNull();
@@ -73,6 +72,5 @@ public class RpcMeasureConstantsTest {
     assertThat(RpcMeasureConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC).isNotNull();
     assertThat(RpcMeasureConstants.GRPC_SERVER_RECEIVED_MESSAGES_PER_RPC).isNotNull();
     assertThat(RpcMeasureConstants.GRPC_SERVER_SERVER_LATENCY).isNotNull();
-    assertThat(RpcMeasureConstants.GRPC_SERVER_STARTED_COUNT).isNotNull();
   }
 }
