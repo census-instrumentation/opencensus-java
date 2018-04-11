@@ -5,13 +5,26 @@ description = 'OpenCensus Trace Jaeger Exporter'
     it.targetCompatibility = 1.6
 }
 
+// Docker tests require JDK 8+
+sourceSets {
+    test {
+        java {
+            if (!JavaVersion.current().isJava8Compatible()) {
+                exclude '**/JaegerExporterHandlerIntegrationTest.java'
+            }
+        }
+    }
+}
+
 dependencies {
     compile project(':opencensus-api'),
             libraries.jaeger_reporter
 
-    testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
-    testCompile 'com.google.http-client:google-http-client-gson:1.23.0'
-    testCompile project(':opencensus-api')
+    testCompile project(':opencensus-api'),
+                'org.testcontainers:testcontainers:1.7.0',
+                'com.google.http-client:google-http-client-gson:1.23.0'
+
+    // Unless linked to impl, spans will be blank and not exported during integration tests.
     testRuntime project(':opencensus-impl')
 
     signature "org.codehaus.mojo.signature:java16:+@signature"

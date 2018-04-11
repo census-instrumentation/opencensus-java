@@ -16,11 +16,9 @@
 
 package io.opencensus.exporter.trace.jaeger;
 
+import static com.google.common.truth.Truth.assertThat;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -88,47 +86,45 @@ public class JaegerExporterHandlerTest {
     verify(mockSender).send(eq(process), captor.capture());
     List<Span> spans = captor.getValue();
 
-    assertThat(spans.size(), is(1));
+    assertThat(spans.size()).isEqualTo(1);
     Span span = spans.get(0);
 
-    assertThat(span.operationName, is("test"));
-    assertThat(span.spanId, is(256L));
-    assertThat(span.traceIdHigh, is(-72057594037927936L));
-    assertThat(span.traceIdLow, is(1L));
-    assertThat(span.parentSpanId, is(Long.MAX_VALUE));
-    assertThat(span.flags, is(1));
-    assertThat(span.startTime, is(MILLISECONDS.toMicros(startTime)));
-    assertThat(span.duration, is(MILLISECONDS.toMicros(endTime - startTime)));
+    assertThat(span.operationName).isEqualTo("test");
+    assertThat(span.spanId).isEqualTo(256L);
+    assertThat(span.traceIdHigh).isEqualTo(-72057594037927936L);
+    assertThat(span.traceIdLow).isEqualTo(1L);
+    assertThat(span.parentSpanId).isEqualTo(Long.MAX_VALUE);
+    assertThat(span.flags).isEqualTo(1);
+    assertThat(span.startTime).isEqualTo(MILLISECONDS.toMicros(startTime));
+    assertThat(span.duration).isEqualTo(MILLISECONDS.toMicros(endTime - startTime));
 
-    assertThat(span.tags.size(), is(3));
-    assertThat(
-        span.tags,
-        hasItems(
+    assertThat(span.tags.size()).isEqualTo(3);
+    assertThat(span.tags)
+        .containsExactly(
             new Tag("BOOL", TagType.BOOL).setVBool(false),
             new Tag("LONG", TagType.LONG).setVLong(Long.MAX_VALUE),
             new Tag("STRING", TagType.STRING)
                 .setVStr(
-                    "Judge of a man by his questions rather than by his answers. -- Voltaire")));
+                    "Judge of a man by his questions rather than by his answers. -- Voltaire"));
 
-    assertThat(span.logs.size(), is(1));
+    assertThat(span.logs.size()).isEqualTo(1);
     Log log = span.logs.get(0);
-    assertThat(log.timestamp, is(1519629872987654L));
-    assertThat(log.fields.size(), is(4));
-    assertThat(
-        log.fields,
-        hasItems(
+    assertThat(log.timestamp).isEqualTo(1519629872987654L);
+    assertThat(log.fields.size()).isEqualTo(4);
+    assertThat(log.fields)
+        .containsExactly(
             new Tag("description", TagType.STRING).setVStr("annotation #1"),
             new Tag("bool", TagType.BOOL).setVBool(true),
             new Tag("long", TagType.LONG).setVLong(1337L),
             new Tag("string", TagType.STRING)
-                .setVStr("Kind words do not cost much. Yet they accomplish much. -- Pascal")));
+                .setVStr("Kind words do not cost much. Yet they accomplish much. -- Pascal"));
 
-    assertThat(span.references.size(), is(1));
+    assertThat(span.references.size()).isEqualTo(1);
     SpanRef reference = span.references.get(0);
-    assertThat(reference.traceIdHigh, is(-1L));
-    assertThat(reference.traceIdLow, is(-256L));
-    assertThat(reference.spanId, is(512L));
-    assertThat(reference.refType, is(SpanRefType.CHILD_OF));
+    assertThat(reference.traceIdHigh).isEqualTo(-1L);
+    assertThat(reference.traceIdLow).isEqualTo(-256L);
+    assertThat(reference.spanId).isEqualTo(512L);
+    assertThat(reference.refType).isEqualTo(SpanRefType.CHILD_OF);
   }
 
   private static SpanContext sampleSpanContext() {
