@@ -25,9 +25,10 @@ repositories {
 group = "io.opencensus"
 version = "0.13.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
-def opencensusVersion = "0.12.2" // LATEST_OPENCENSUS_RELEASE_VERSION
+def opencensusVersion = rootProject.hasProperty("opencensusVersion") ? rootProject.getProperty("opencensusVersion") : "0.12.2"
 def grpcVersion = "1.9.0" // CURRENT_GRPC_VERSION
 def prometheusVersion = "0.3.0"
+def nettyVersion = '4.1.22.Final'
 
 tasks.withType(JavaCompile) {
     sourceCompatibility = '1.8'
@@ -39,6 +40,7 @@ dependencies {
             "io.opencensus:opencensus-api:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-zpages:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-grpc-metrics:${opencensusVersion}",
+            "io.opencensus:opencensus-contrib-http-util:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-stats-prometheus:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-stats-stackdriver:${opencensusVersion}",
             "io.opencensus:opencensus-exporter-trace-stackdriver:${opencensusVersion}",
@@ -46,7 +48,11 @@ dependencies {
             "io.grpc:grpc-protobuf:${grpcVersion}",
             "io.grpc:grpc-stub:${grpcVersion}",
             "io.grpc:grpc-netty:${grpcVersion}",
-            "io.prometheus:simpleclient_httpserver:${prometheusVersion}"
+            "io.prometheus:simpleclient_httpserver:${prometheusVersion}",
+
+            // HTTP integration examples
+            "io.netty:netty-codec-http:${nettyVersion}",
+            "io.netty:netty-transport:${nettyVersion}"
 
     runtime "io.opencensus:opencensus-impl:${opencensusVersion}"
 }
@@ -140,6 +146,20 @@ task helloWorldClient(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
 }
 
+task nettyHttpClient(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.http.netty.Client'
+    applicationName = 'NettyHttpClient'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task nettyHttpServer(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.http.netty.Server'
+    applicationName = 'NettyHttpServer'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
 applicationDistribution.into('bin') {
     from(multiSpansTracing)
     from(multiSpansScopedTracing)
@@ -149,5 +169,7 @@ applicationDistribution.into('bin') {
     from(quickStart)
     from(helloWorldServer)
     from(helloWorldClient)
+    from(nettyHttpClient)
+    from(nettyHttpServer)
     fileMode = 0755
 }
