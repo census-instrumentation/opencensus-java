@@ -99,7 +99,7 @@ final class StackdriverExportUtils {
   private static final Splitter LINE_BREAK_SPLITTER = Splitter.on('\n');
   private static final Splitter COLON_SPLITTER = Splitter.on(':');
 
-  private static Map<String, String> awsEnvVarMap;
+  @javax.annotation.Nullable private static Map<String, String> awsEnvVarMap = null;
 
   private static String generateDefaultTaskValue() {
     // Something like '<pid>@<hostname>', at least in Oracle and OpenJdk JVMs
