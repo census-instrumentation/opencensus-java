@@ -546,7 +546,8 @@ final class StackdriverExportUtils {
 
   // AWS Instance Identity Document is a JSON file.
   // See docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html.
-  private static Map<String, String> parseAwsIdentityDocument(String awsIdentityDocument) {
+  @VisibleForTesting
+  static Map<String, String> parseAwsIdentityDocument(String awsIdentityDocument) {
     Map<String, String> map = Maps.newHashMap();
     List<String> lines = LINE_BREAK_SPLITTER.splitToList(awsIdentityDocument);
     for (String line : lines) {
