@@ -55,7 +55,10 @@ import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -510,6 +513,17 @@ public class StackdriverExportUtilsTest {
     } else if (MetadataConfig.getInstanceId() != null) {
       assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GCE_INSTANCE);
     } else {
+      URLConnection connection;
+      try {
+        connection =
+            StackdriverExportUtils.AWS_INSTANCE_IDENTITY_DOCUMENT_URI.toURL().openConnection();
+        connection.connect();
+        assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.AWS_EC2_INSTANCE);
+      } catch (MalformedURLException e) {
+        // Do nothing.
+      } catch (IOException e) {
+        // Not on an AWS EC2 instance.
+      }
       assertThat(resource.getType()).isEqualTo(StackdriverExportUtils.GLOBAL);
     }
   }

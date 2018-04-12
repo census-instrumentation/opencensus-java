@@ -29,6 +29,8 @@ import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
 import com.google.cloud.MetadataConfig;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -51,9 +53,16 @@ import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.management.ManagementFactory;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.nio.CharBuffer;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Map;
@@ -74,13 +83,23 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
   @VisibleForTesting static final String GKE_CONTAINER = "gke_container";
   @VisibleForTesting static final String GCE_INSTANCE = "gce_instance";
+  @VisibleForTesting static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
   @VisibleForTesting static final String GLOBAL = "global";
+
+  @VisibleForTesting
+  static final URI AWS_INSTANCE_IDENTITY_DOCUMENT_URI =
+      URI.create("http://169.254.169.254/latest/dynamic/instance-identity/document");
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
   private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
   private static final String PROJECT_ID_LABEL_KEY = "project_id";
+  private static final int BUF_SIZE = 0x800; // 2K chars (4K bytes)
+  private static final Splitter LINE_BREAK_SPLITTER = Splitter.on('\n');
+  private static final Splitter COLON_SPLITTER = Splitter.on(':');
+
+  private static Map<String, String> awsEnvVarMap;
 
   private static String generateDefaultTaskValue() {
     // Something like '<pid>@<hostname>', at least in Oracle and OpenJdk JVMs
@@ -359,10 +378,13 @@ final class StackdriverExportUtils {
     ClusterName("cluster_name"),
     ContainerName("container_name"),
     NamespaceId("namespace_id"),
-    InstanceId("instance_id"),
+    GcpInstanceId("instance_id"),
     InstanceName("instance_name"),
     PodId("pod_id"),
-    Zone("zone");
+    Zone("zone"),
+    AwsAccount("aws_account"),
+    AwsInstanceId("instance_id"),
+    AwsRegion("region");
 
     private final String key;
 
@@ -378,6 +400,7 @@ final class StackdriverExportUtils {
   private enum Resource {
     GkeContainer(GKE_CONTAINER),
     GceInstance(GCE_INSTANCE),
+    AwsEc2Instance(AWS_EC2_INSTANCE),
     Global(GLOBAL);
 
     private final String key;
@@ -398,10 +421,11 @@ final class StackdriverExportUtils {
               Label.ClusterName,
               Label.ContainerName,
               Label.NamespaceId,
-              Label.InstanceId,
+              Label.GcpInstanceId,
               Label.PodId,
               Label.Zone)
-          .putAll(Resource.GceInstance, Label.InstanceId, Label.Zone)
+          .putAll(Resource.GceInstance, Label.GcpInstanceId, Label.Zone)
+          .putAll(Resource.AwsEc2Instance, Label.AwsAccount, Label.AwsInstanceId, Label.AwsRegion)
           .build();
 
   /* Return a self-configured monitored Resource. */
@@ -432,7 +456,7 @@ final class StackdriverExportUtils {
       case ClusterName:
         value = MetadataConfig.getClusterName();
         break;
-      case InstanceId:
+      case GcpInstanceId:
         value = MetadataConfig.getInstanceId();
         break;
       case InstanceName:
@@ -450,6 +474,15 @@ final class StackdriverExportUtils {
       case NamespaceId:
         value = System.getenv("NAMESPACE");
         break;
+      case AwsAccount:
+        value = getValueFromAwsIdentityDocument("accountId");
+        break;
+      case AwsInstanceId:
+        value = getValueFromAwsIdentityDocument("instanceId");
+        break;
+      case AwsRegion:
+        value = "aws:" + getValueFromAwsIdentityDocument("region");
+        break;
       default:
         value = null;
         break;
@@ -465,8 +498,75 @@ final class StackdriverExportUtils {
     if (MetadataConfig.getInstanceId() != null) {
       return Resource.GceInstance;
     }
+
+    InputStream stream = null;
+    try {
+      stream = openStream(AWS_INSTANCE_IDENTITY_DOCUMENT_URI);
+      String awsIdentityDocument = slurp(new InputStreamReader(stream, Charsets.UTF_8));
+      awsEnvVarMap = parseAwsIdentityDocument(awsIdentityDocument);
+      return Resource.AwsEc2Instance;
+    } catch (IOException e) {
+      // Cannot connect to http://169.254.169.254/latest/dynamic/instance-identity/document.
+      // Not on an AWS EC2 instance.
+    } finally {
+      if (stream != null) {
+        try {
+          stream.close();
+        } catch (IOException e) {
+          // Do nothing.
+        }
+      }
+    }
+
     // default Resource type
     return Resource.Global;
+  }
+
+  /** quick http client that allows no-dependency try at getting instance data. */
+  private static InputStream openStream(URI uri) throws IOException {
+    HttpURLConnection connection = HttpURLConnection.class.cast(uri.toURL().openConnection());
+    connection.setConnectTimeout(1000 * 2);
+    connection.setReadTimeout(1000 * 2);
+    connection.setAllowUserInteraction(false);
+    connection.setInstanceFollowRedirects(false);
+    return connection.getInputStream();
+  }
+
+  /** returns the {@code reader} as a string without closing it. */
+  private static String slurp(Reader reader) throws IOException {
+    StringBuilder to = new StringBuilder();
+    CharBuffer buf = CharBuffer.allocate(BUF_SIZE);
+    while (reader.read(buf) != -1) {
+      buf.flip();
+      to.append(buf);
+      buf.clear();
+    }
+    return to.toString();
+  }
+
+  // AWS Instance Identity Document is a JSON file.
+  // See docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html.
+  private static Map<String, String> parseAwsIdentityDocument(String awsIdentityDocument) {
+    Map<String, String> map = Maps.newHashMap();
+    List<String> lines = LINE_BREAK_SPLITTER.splitToList(awsIdentityDocument);
+    for (String line : lines) {
+      List<String> keyValuePair = COLON_SPLITTER.splitToList(line);
+      if (keyValuePair.size() != 2) {
+        continue;
+      }
+      String key = keyValuePair.get(0).replaceAll("[\" ]", "");
+      String value = keyValuePair.get(1).replaceAll("[\" ,]", "");
+      map.put(key, value);
+    }
+    return map;
+  }
+
+  @javax.annotation.Nullable
+  private static String getValueFromAwsIdentityDocument(String key) {
+    if (awsEnvVarMap == null) {
+      return null;
+    }
+    return awsEnvVarMap.get(key);
   }
 
   private StackdriverExportUtils() {}
