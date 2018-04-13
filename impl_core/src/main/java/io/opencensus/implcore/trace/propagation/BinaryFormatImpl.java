@@ -18,6 +18,7 @@ package io.opencensus.implcore.trace.propagation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -65,21 +66,36 @@ final class BinaryFormatImpl extends BinaryFormat {
   // The version_id/field_id size in bytes.
   private static final byte ID_SIZE = 1;
   private static final byte TRACE_ID_FIELD_ID = 0;
-  private static final int TRACE_ID_FIELD_ID_OFFSET = VERSION_ID_OFFSET + ID_SIZE;
+
+  // TODO: clarify if offsets are correct here. While the specification suggests you should stop
+  // parsing when you hit an unknown field, it does not suggest that fields must be declared in
+  // ID order. Rather it only groups by data type order, in this case Trace Context
+  // https://github.com/census-instrumentation/opencensus-specs/blob/master/encodings/BinaryEncoding.md#deserialization-rules
+  @DefaultVisibilityForTesting
+  static final int TRACE_ID_FIELD_ID_OFFSET = VERSION_ID_OFFSET + ID_SIZE;
+
   private static final int TRACE_ID_OFFSET = TRACE_ID_FIELD_ID_OFFSET + ID_SIZE;
   private static final byte SPAN_ID_FIELD_ID = 1;
-  private static final int SPAN_ID_FIELD_ID_OFFSET = TRACE_ID_OFFSET + TraceId.SIZE;
+
+  @DefaultVisibilityForTesting
+  static final int SPAN_ID_FIELD_ID_OFFSET = TRACE_ID_OFFSET + TraceId.SIZE;
+
   private static final int SPAN_ID_OFFSET = SPAN_ID_FIELD_ID_OFFSET + ID_SIZE;
   private static final byte TRACE_OPTION_FIELD_ID = 2;
-  private static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
+
+  @DefaultVisibilityForTesting
+  static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
+
   private static final int TRACE_OPTIONS_OFFSET = TRACE_OPTION_FIELD_ID_OFFSET + ID_SIZE;
-  private static final int FORMAT_LENGTH =
-      4 * ID_SIZE + TraceId.SIZE + SpanId.SIZE + TraceOptions.SIZE;
+  /** Version, Trace and Span IDs are required fields. */
+  private static final int REQUIRED_FORMAT_LENGTH = 3 * ID_SIZE + TraceId.SIZE + SpanId.SIZE;
+  /** Use {@link TraceOptions#DEFAULT} unless its optional field is present. */
+  private static final int ALL_FORMAT_LENGTH = REQUIRED_FORMAT_LENGTH + ID_SIZE + TraceOptions.SIZE;
 
   @Override
   public byte[] toByteArray(SpanContext spanContext) {
     checkNotNull(spanContext, "spanContext");
-    byte[] bytes = new byte[FORMAT_LENGTH];
+    byte[] bytes = new byte[ALL_FORMAT_LENGTH];
     bytes[VERSION_ID_OFFSET] = VERSION_ID;
     bytes[TRACE_ID_FIELD_ID_OFFSET] = TRACE_ID_FIELD_ID;
     spanContext.getTraceId().copyBytesTo(bytes, TRACE_ID_OFFSET);
@@ -96,25 +112,38 @@ final class BinaryFormatImpl extends BinaryFormat {
     if (bytes.length == 0 || bytes[0] != VERSION_ID) {
       throw new SpanContextParseException("Unsupported version.");
     }
-    TraceId traceId = TraceId.INVALID;
-    SpanId spanId = SpanId.INVALID;
+    if (bytes.length < REQUIRED_FORMAT_LENGTH) {
+      throw new SpanContextParseException("Invalid input: truncated");
+    }
+    // TODO: the following logic assumes that fields are written in ID order. The spec does not say
+    // that. If it decides not to, this logic would need to be more like a loop
+    TraceId traceId;
+    SpanId spanId;
     TraceOptions traceOptions = TraceOptions.DEFAULT;
     int pos = 1;
-    try {
-      if (bytes.length > pos && bytes[pos] == TRACE_ID_FIELD_ID) {
-        traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
-        pos += ID_SIZE + TraceId.SIZE;
-      }
-      if (bytes.length > pos && bytes[pos] == SPAN_ID_FIELD_ID) {
-        spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
-        pos += ID_SIZE + SpanId.SIZE;
-      }
-      if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
-        traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
-      }
-      return SpanContext.create(traceId, spanId, traceOptions);
-    } catch (IndexOutOfBoundsException e) {
-      throw new SpanContextParseException("Invalid input.", e);
+    if (bytes[pos] == TRACE_ID_FIELD_ID) {
+      traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
+      pos += ID_SIZE + TraceId.SIZE;
+    } else {
+      // TODO: update the spec to suggest that the trace ID is not actually optional
+      throw new SpanContextParseException("Invalid input: expected trace ID at offset " + pos);
     }
+    if (bytes[pos] == SPAN_ID_FIELD_ID) {
+      spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
+      pos += ID_SIZE + SpanId.SIZE;
+    } else {
+      // TODO: update the spec to suggest that the span ID is not actually optional.
+      throw new SpanContextParseException("Invalid input: expected span ID at offset " + pos);
+    }
+    // Check to see if we are long enough to include an options field, and also that the next field
+    // is an options field. Per spec we simply stop parsing at first unknown field instead of
+    // failing.
+    if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
+      if (bytes.length < ALL_FORMAT_LENGTH) {
+        throw new SpanContextParseException("Invalid input: truncated");
+      }
+      traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
+    }
+    return SpanContext.create(traceId, spanId, traceOptions);
   }
 }

@@ -115,35 +115,45 @@ public class BinaryFormatImplTest {
 
   @Test
   public void fromBinaryValue_UnsupportedFieldIdFirst() throws SpanContextParseException {
-    assertThat(
-            binaryFormat.fromByteArray(
-                new byte[] {
-                  0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98,
-                  99, 100, 101, 102, 103, 104, 2, 1
-                }))
-        .isEqualTo(SpanContext.create(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT));
+    expectedException.expect(SpanContextParseException.class);
+    expectedException.expectMessage(
+        "Invalid input: expected trace ID at offset " + BinaryFormatImpl.TRACE_ID_FIELD_ID_OFFSET);
+    binaryFormat.fromByteArray(
+        new byte[] {
+          0, 4, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
+          101, 102, 103, 104, 2, 1
+        });
   }
 
   @Test
   public void fromBinaryValue_UnsupportedFieldIdSecond() throws SpanContextParseException {
+    expectedException.expect(SpanContextParseException.class);
+    expectedException.expectMessage(
+        "Invalid input: expected span ID at offset " + BinaryFormatImpl.SPAN_ID_FIELD_ID_OFFSET);
+    binaryFormat.fromByteArray(
+        new byte[] {
+          0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 3, 97, 98, 99, 100,
+          101, 102, 103, 104, 2, 1
+        });
+  }
+
+  @Test
+  public void fromBinaryValue_UnsupportedFieldIdThird_skipped() throws SpanContextParseException {
     assertThat(
-            binaryFormat.fromByteArray(
-                new byte[] {
-                  0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 3, 97, 98,
-                  99, 100, 101, 102, 103, 104, 2, 1
-                }))
-        .isEqualTo(
-            SpanContext.create(
-                TraceId.fromBytes(
-                    new byte[] {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79}),
-                SpanId.INVALID,
-                TraceOptions.DEFAULT));
+            binaryFormat
+                .fromByteArray(
+                    new byte[] {
+                      0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97,
+                      98, 99, 100, 101, 102, 103, 104, 0, 1
+                    })
+                .isValid())
+        .isTrue();
   }
 
   @Test
   public void fromBinaryValue_ShorterTraceId() throws SpanContextParseException {
     expectedException.expect(SpanContextParseException.class);
-    expectedException.expectMessage("Invalid input.");
+    expectedException.expectMessage("Invalid input: truncated");
     binaryFormat.fromByteArray(
         new byte[] {0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76});
   }
@@ -151,18 +161,31 @@ public class BinaryFormatImplTest {
   @Test
   public void fromBinaryValue_ShorterSpanId() throws SpanContextParseException {
     expectedException.expect(SpanContextParseException.class);
-    expectedException.expectMessage("Invalid input.");
+    expectedException.expectMessage("Invalid input: truncated");
     binaryFormat.fromByteArray(new byte[] {0, 1, 97, 98, 99, 100, 101, 102, 103});
   }
 
   @Test
   public void fromBinaryValue_ShorterTraceOptions() throws SpanContextParseException {
     expectedException.expect(SpanContextParseException.class);
-    expectedException.expectMessage("Invalid input.");
+    expectedException.expectMessage("Invalid input: truncated");
     binaryFormat.fromByteArray(
         new byte[] {
           0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
           101, 102, 103, 104, 2
         });
+  }
+
+  @Test
+  public void fromBinaryValue_MissingTraceOptionsOk() throws SpanContextParseException {
+    SpanContext extracted =
+        binaryFormat.fromByteArray(
+            new byte[] {
+              0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99,
+              100, 101, 102, 103, 104
+            });
+
+    assertThat(extracted.isValid()).isTrue();
+    assertThat(extracted.getTraceOptions()).isEqualTo(TraceOptions.DEFAULT);
   }
 }
