@@ -28,6 +28,7 @@ import com.google.monitoring.v3.ProjectName;
 import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Scope;
+import io.opencensus.common.TimeUtils;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
@@ -79,7 +80,7 @@ final class StackdriverExporterWorker implements Runnable {
       Duration exportInterval,
       ViewManager viewManager,
       MonitoredResource monitoredResource) {
-    this.scheduleDelayMillis = toMillis(exportInterval);
+    this.scheduleDelayMillis = TimeUtils.toMillis(exportInterval);
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
@@ -222,13 +223,6 @@ final class StackdriverExporterWorker implements Runnable {
         return;
       }
     }
-  }
-
-  private static final long MILLIS_PER_SECOND = 1000L;
-  private static final long NANOS_PER_MILLI = 1000 * 1000;
-
-  private static long toMillis(Duration duration) {
-    return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
   }
 
   private static String exceptionMessage(Throwable e) {

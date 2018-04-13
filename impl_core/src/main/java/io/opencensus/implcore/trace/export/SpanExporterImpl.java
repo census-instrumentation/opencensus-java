@@ -18,6 +18,7 @@ package io.opencensus.implcore.trace.export;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
+import io.opencensus.common.TimeUtils;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.export.ExportComponent;
@@ -28,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
@@ -146,9 +146,7 @@ public final class SpanExporterImpl extends SpanExporter {
     private Worker(int bufferSize, Duration scheduleDelay) {
       spans = new ArrayList<SpanImpl>(bufferSize);
       this.bufferSize = bufferSize;
-      this.scheduleDelayMillis =
-          TimeUnit.SECONDS.toMillis(scheduleDelay.getSeconds())
-              + TimeUnit.NANOSECONDS.toMillis(scheduleDelay.getNanos());
+      this.scheduleDelayMillis = TimeUtils.toMillis(scheduleDelay);
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered
