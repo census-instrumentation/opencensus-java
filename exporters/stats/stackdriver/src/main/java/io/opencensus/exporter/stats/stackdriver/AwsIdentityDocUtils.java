@@ -135,4 +135,6 @@ final class AwsIdentityDocUtils {
       return awsEnvVarMap.get(key);
     }
   }
+
+  private AwsIdentityDocUtils() {}
 }
