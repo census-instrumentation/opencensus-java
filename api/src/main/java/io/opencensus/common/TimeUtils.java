@@ -16,13 +16,26 @@
 
 package io.opencensus.common;
 
+import java.util.concurrent.TimeUnit;
+
 /** Util class for {@link Timestamp} and {@link Duration}. */
-final class TimeUtils {
+public final class TimeUtils {
   static final long MAX_SECONDS = 315576000000L;
   static final int MAX_NANOS = 999999999;
   static final long MILLIS_PER_SECOND = 1000L;
   static final long NANOS_PER_MILLI = 1000 * 1000;
   static final long NANOS_PER_SECOND = NANOS_PER_MILLI * MILLIS_PER_SECOND;
+
+  /**
+   * Converts a {@link Duration} to milliseconds.
+   *
+   * @param duration a {@code Duration}.
+   * @return the milliseconds representation of this {@code Duration}.
+   */
+  public static long toMillis(Duration duration) {
+    return TimeUnit.SECONDS.toMillis(duration.getSeconds())
+        + TimeUnit.NANOSECONDS.toMillis(duration.getNanos());
+  }
 
   private TimeUtils() {}
 }
