@@ -139,11 +139,15 @@ public class BinaryFormatImplTest {
 
   @Test
   public void fromBinaryValue_UnsupportedFieldIdThird_skipped() throws SpanContextParseException {
-    assertThat(binaryFormat.fromByteArray(
-        new byte[] {
-          0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,
-          101, 102, 103, 104, 0, 1
-        }).isValid()).isTrue();
+    assertThat(
+            binaryFormat
+                .fromByteArray(
+                    new byte[] {
+                      0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97,
+                      98, 99, 100, 101, 102, 103, 104, 0, 1
+                    })
+                .isValid())
+        .isTrue();
   }
 
   @Test

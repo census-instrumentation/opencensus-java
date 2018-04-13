@@ -87,13 +87,15 @@ final class BinaryFormatImpl extends BinaryFormat {
   static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
 
   private static final int TRACE_OPTIONS_OFFSET = TRACE_OPTION_FIELD_ID_OFFSET + ID_SIZE;
-  private static final int FORMAT_LENGTH =
-      4 * ID_SIZE + TraceId.SIZE + SpanId.SIZE + TraceOptions.SIZE;
+  /** Version, Trace and Span IDs are required fields */
+  private static final int REQUIRED_FORMAT_LENGTH = 3 * ID_SIZE + TraceId.SIZE + SpanId.SIZE;
+  /** Use {@link TraceOptions#DEFAULT} unless its optional field is present */
+  private static final int ALL_FORMAT_LENGTH = REQUIRED_FORMAT_LENGTH + ID_SIZE + TraceOptions.SIZE;
 
   @Override
   public byte[] toByteArray(SpanContext spanContext) {
     checkNotNull(spanContext, "spanContext");
-    byte[] bytes = new byte[FORMAT_LENGTH];
+    byte[] bytes = new byte[ALL_FORMAT_LENGTH];
     bytes[VERSION_ID_OFFSET] = VERSION_ID;
     bytes[TRACE_ID_FIELD_ID_OFFSET] = TRACE_ID_FIELD_ID;
     spanContext.getTraceId().copyBytesTo(bytes, TRACE_ID_OFFSET);
@@ -110,7 +112,7 @@ final class BinaryFormatImpl extends BinaryFormat {
     if (bytes.length == 0 || bytes[0] != VERSION_ID) {
       throw new SpanContextParseException("Unsupported version.");
     }
-    if (bytes.length < FORMAT_LENGTH - ID_SIZE - TraceOptions.SIZE) {
+    if (bytes.length < REQUIRED_FORMAT_LENGTH) {
       throw new SpanContextParseException("Invalid input: truncated");
     }
     // TODO: the following logic assumes that fields are written in ID order. The spec does not say
@@ -137,7 +139,7 @@ final class BinaryFormatImpl extends BinaryFormat {
     // is an options field. Per spec we simply stop parsing at first unknown field instead of
     // failing.
     if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
-      if (bytes.length < pos + ID_SIZE + TraceOptions.SIZE) {
+      if (bytes.length < ALL_FORMAT_LENGTH) {
         throw new SpanContextParseException("Invalid input: truncated");
       }
       traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
