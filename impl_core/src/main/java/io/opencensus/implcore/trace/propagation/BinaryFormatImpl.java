@@ -87,9 +87,9 @@ final class BinaryFormatImpl extends BinaryFormat {
   static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
 
   private static final int TRACE_OPTIONS_OFFSET = TRACE_OPTION_FIELD_ID_OFFSET + ID_SIZE;
-  /** Version, Trace and Span IDs are required fields */
+  /** Version, Trace and Span IDs are required fields. */
   private static final int REQUIRED_FORMAT_LENGTH = 3 * ID_SIZE + TraceId.SIZE + SpanId.SIZE;
-  /** Use {@link TraceOptions#DEFAULT} unless its optional field is present */
+  /** Use {@link TraceOptions#DEFAULT} unless its optional field is present. */
   private static final int ALL_FORMAT_LENGTH = REQUIRED_FORMAT_LENGTH + ID_SIZE + TraceOptions.SIZE;
 
   @Override
