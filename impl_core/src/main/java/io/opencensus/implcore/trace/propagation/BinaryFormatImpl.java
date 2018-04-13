@@ -67,6 +67,10 @@ final class BinaryFormatImpl extends BinaryFormat {
   private static final byte ID_SIZE = 1;
   private static final byte TRACE_ID_FIELD_ID = 0;
 
+  // TODO: clarify if offsets are correct here. While the specification suggests you should stop
+  // parsing when you hit an unknown field, it does not suggest that fields must be declared in
+  // ID order. Rather it only groups by data type order, in this case Trace Context
+  // https://github.com/census-instrumentation/opencensus-specs/blob/master/encodings/BinaryEncoding.md#deserialization-rules
   @DefaultVisibilityForTesting
   static final int TRACE_ID_FIELD_ID_OFFSET = VERSION_ID_OFFSET + ID_SIZE;
 
@@ -109,6 +113,8 @@ final class BinaryFormatImpl extends BinaryFormat {
     if (bytes.length < FORMAT_LENGTH - ID_SIZE - TraceOptions.SIZE) {
       throw new SpanContextParseException("Invalid input: truncated");
     }
+    // TODO: the following logic assumes that fields are written in ID order. The spec does not say
+    // that. If it decides not to, this logic would need to be more like a loop
     TraceId traceId;
     SpanId spanId;
     TraceOptions traceOptions = TraceOptions.DEFAULT;
@@ -117,20 +123,20 @@ final class BinaryFormatImpl extends BinaryFormat {
       traceId = TraceId.fromBytes(bytes, pos + ID_SIZE);
       pos += ID_SIZE + TraceId.SIZE;
     } else {
+      // TODO: update the spec to suggest that the trace ID is not actually optional
       throw new SpanContextParseException("Invalid input: expected trace ID at offset " + pos);
     }
     if (bytes[pos] == SPAN_ID_FIELD_ID) {
       spanId = SpanId.fromBytes(bytes, pos + ID_SIZE);
       pos += ID_SIZE + SpanId.SIZE;
     } else {
+      // TODO: update the spec to suggest that the span ID is not actually optional.
       throw new SpanContextParseException("Invalid input: expected span ID at offset " + pos);
     }
-    // The trace options field is optional. However, when present, it should be valid.
-    if (bytes.length > pos) {
-      if (bytes[pos] != TRACE_OPTION_FIELD_ID) {
-        throw new SpanContextParseException(
-            "Invalid input: expected trace options at offset " + pos);
-      }
+    // Check to see if we are long enough to include an options field, and also that the next field
+    // is an options field. Per spec we simply stop parsing at first unknown field instead of
+    // failing.
+    if (bytes.length > pos && bytes[pos] == TRACE_OPTION_FIELD_ID) {
       if (bytes.length < pos + ID_SIZE + TraceOptions.SIZE) {
         throw new SpanContextParseException("Invalid input: truncated");
       }
