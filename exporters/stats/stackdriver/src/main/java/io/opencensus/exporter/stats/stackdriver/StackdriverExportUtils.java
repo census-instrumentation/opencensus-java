@@ -81,8 +81,8 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
-  @VisibleForTesting static final String GKE_CONTAINER = "gke_container";
-  @VisibleForTesting static final String GCE_INSTANCE = "gce_instance";
+  @VisibleForTesting static final String GCP_GKE_CONTAINER = "gke_container";
+  @VisibleForTesting static final String GCP_GCE_INSTANCE = "gce_instance";
   @VisibleForTesting static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
   @VisibleForTesting static final String GLOBAL = "global";
 
@@ -95,9 +95,9 @@ final class StackdriverExportUtils {
   private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
   private static final String PROJECT_ID_LABEL_KEY = "project_id";
-  private static final int BUF_SIZE = 0x800; // 2K chars (4K bytes)
-  private static final Splitter LINE_BREAK_SPLITTER = Splitter.on('\n');
-  private static final Splitter COLON_SPLITTER = Splitter.on(':');
+  private static final int AWS_IDENTITY_DOC_BUF_SIZE = 0x800; // 2K chars (4K bytes)
+  private static final Splitter AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER = Splitter.on('\n');
+  private static final Splitter AWS_IDENTITY_DOC_COLON_SPLITTER = Splitter.on(':');
 
   @javax.annotation.Nullable private static Map<String, String> awsEnvVarMap = null;
 
@@ -375,13 +375,13 @@ final class StackdriverExportUtils {
   }
 
   private enum Label {
-    ClusterName("cluster_name"),
-    ContainerName("container_name"),
-    NamespaceId("namespace_id"),
+    GcpClusterName("cluster_name"),
+    GcpContainerName("container_name"),
+    GcpNamespaceId("namespace_id"),
     GcpInstanceId("instance_id"),
-    InstanceName("instance_name"),
-    PodId("pod_id"),
-    Zone("zone"),
+    GcpInstanceName("instance_name"),
+    GcpGkePodId("pod_id"),
+    GcpZone("zone"),
     AwsAccount("aws_account"),
     AwsInstanceId("instance_id"),
     AwsRegion("region");
@@ -398,8 +398,8 @@ final class StackdriverExportUtils {
   }
 
   private enum Resource {
-    GkeContainer(GKE_CONTAINER),
-    GceInstance(GCE_INSTANCE),
+    GkeContainer(GCP_GKE_CONTAINER),
+    GceInstance(GCP_GCE_INSTANCE),
     AwsEc2Instance(AWS_EC2_INSTANCE),
     Global(GLOBAL);
 
@@ -418,13 +418,13 @@ final class StackdriverExportUtils {
       ImmutableMultimap.<Resource, Label>builder()
           .putAll(
               Resource.GkeContainer,
-              Label.ClusterName,
-              Label.ContainerName,
-              Label.NamespaceId,
+              Label.GcpClusterName,
+              Label.GcpContainerName,
+              Label.GcpNamespaceId,
               Label.GcpInstanceId,
-              Label.PodId,
-              Label.Zone)
-          .putAll(Resource.GceInstance, Label.GcpInstanceId, Label.Zone)
+              Label.GcpGkePodId,
+              Label.GcpZone)
+          .putAll(Resource.GceInstance, Label.GcpInstanceId, Label.GcpZone)
           .putAll(Resource.AwsEc2Instance, Label.AwsAccount, Label.AwsInstanceId, Label.AwsRegion)
           .build();
 
@@ -453,25 +453,25 @@ final class StackdriverExportUtils {
   private static String getValue(Label label) {
     String value;
     switch (label) {
-      case ClusterName:
+      case GcpClusterName:
         value = MetadataConfig.getClusterName();
         break;
       case GcpInstanceId:
         value = MetadataConfig.getInstanceId();
         break;
-      case InstanceName:
+      case GcpInstanceName:
         value = System.getenv("GAE_INSTANCE");
         break;
-      case PodId:
+      case GcpGkePodId:
         value = System.getenv("HOSTNAME");
         break;
-      case Zone:
+      case GcpZone:
         value = MetadataConfig.getZone();
         break;
-      case ContainerName:
+      case GcpContainerName:
         value = System.getenv("CONTAINER_NAME");
         break;
-      case NamespaceId:
+      case GcpNamespaceId:
         value = System.getenv("NAMESPACE");
         break;
       case AwsAccount:
@@ -535,7 +535,7 @@ final class StackdriverExportUtils {
   /** returns the {@code reader} as a string without closing it. */
   private static String slurp(Reader reader) throws IOException {
     StringBuilder to = new StringBuilder();
-    CharBuffer buf = CharBuffer.allocate(BUF_SIZE);
+    CharBuffer buf = CharBuffer.allocate(AWS_IDENTITY_DOC_BUF_SIZE);
     while (reader.read(buf) != -1) {
       buf.flip();
       to.append(buf);
@@ -549,9 +549,9 @@ final class StackdriverExportUtils {
   @VisibleForTesting
   static Map<String, String> parseAwsIdentityDocument(String awsIdentityDocument) {
     Map<String, String> map = Maps.newHashMap();
-    List<String> lines = LINE_BREAK_SPLITTER.splitToList(awsIdentityDocument);
+    List<String> lines = AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER.splitToList(awsIdentityDocument);
     for (String line : lines) {
-      List<String> keyValuePair = COLON_SPLITTER.splitToList(line);
+      List<String> keyValuePair = AWS_IDENTITY_DOC_COLON_SPLITTER.splitToList(line);
       if (keyValuePair.size() != 2) {
         continue;
       }
