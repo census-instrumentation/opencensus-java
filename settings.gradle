@@ -10,6 +10,7 @@ include ":opencensus-exporter-trace-logging"
 include ":opencensus-exporter-trace-stackdriver"
 include ":opencensus-exporter-trace-zipkin"
 include ":opencensus-exporter-trace-jaeger"
+include ":opencensus-exporter-trace-elasticsearch"
 include ":opencensus-exporter-stats-signalfx"
 include ":opencensus-exporter-stats-stackdriver"
 include ":opencensus-exporter-stats-prometheus"
@@ -35,6 +36,8 @@ project(':opencensus-exporter-trace-stackdriver').projectDir =
         "$rootDir/exporters/trace/stackdriver" as File
 project(':opencensus-exporter-trace-zipkin').projectDir = "$rootDir/exporters/trace/zipkin" as File
 project(':opencensus-exporter-trace-jaeger').projectDir = "$rootDir/exporters/trace/jaeger" as File
+project(':opencensus-exporter-trace-elasticsearch').projectDir =
+        "$rootDir/exporters/trace/elasticsearch" as File
 project(':opencensus-exporter-stats-signalfx').projectDir = "$rootDir/exporters/stats/signalfx" as File
 project(':opencensus-exporter-stats-stackdriver').projectDir = "$rootDir/exporters/stats/stackdriver" as File
 project(':opencensus-exporter-stats-prometheus').projectDir = "$rootDir/exporters/stats/prometheus" as File
