@@ -72,8 +72,9 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
-  @VisibleForTesting static final String GKE_CONTAINER = "gke_container";
-  @VisibleForTesting static final String GCE_INSTANCE = "gce_instance";
+  @VisibleForTesting static final String GCP_GKE_CONTAINER = "gke_container";
+  @VisibleForTesting static final String GCP_GCE_INSTANCE = "gce_instance";
+  @VisibleForTesting static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
   @VisibleForTesting static final String GLOBAL = "global";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
@@ -356,13 +357,16 @@ final class StackdriverExportUtils {
   }
 
   private enum Label {
-    ClusterName("cluster_name"),
-    ContainerName("container_name"),
-    NamespaceId("namespace_id"),
-    InstanceId("instance_id"),
-    InstanceName("instance_name"),
-    PodId("pod_id"),
-    Zone("zone");
+    GcpClusterName("cluster_name"),
+    GcpContainerName("container_name"),
+    GcpNamespaceId("namespace_id"),
+    GcpInstanceId("instance_id"),
+    GcpInstanceName("instance_name"),
+    GcpGkePodId("pod_id"),
+    GcpZone("zone"),
+    AwsAccount("aws_account"),
+    AwsInstanceId("instance_id"),
+    AwsRegion("region");
 
     private final String key;
 
@@ -376,8 +380,9 @@ final class StackdriverExportUtils {
   }
 
   private enum Resource {
-    GkeContainer(GKE_CONTAINER),
-    GceInstance(GCE_INSTANCE),
+    GkeContainer(GCP_GKE_CONTAINER),
+    GceInstance(GCP_GCE_INSTANCE),
+    AwsEc2Instance(AWS_EC2_INSTANCE),
     Global(GLOBAL);
 
     private final String key;
@@ -395,13 +400,14 @@ final class StackdriverExportUtils {
       ImmutableMultimap.<Resource, Label>builder()
           .putAll(
               Resource.GkeContainer,
-              Label.ClusterName,
-              Label.ContainerName,
-              Label.NamespaceId,
-              Label.InstanceId,
-              Label.PodId,
-              Label.Zone)
-          .putAll(Resource.GceInstance, Label.InstanceId, Label.Zone)
+              Label.GcpClusterName,
+              Label.GcpContainerName,
+              Label.GcpNamespaceId,
+              Label.GcpInstanceId,
+              Label.GcpGkePodId,
+              Label.GcpZone)
+          .putAll(Resource.GceInstance, Label.GcpInstanceId, Label.GcpZone)
+          .putAll(Resource.AwsEc2Instance, Label.AwsAccount, Label.AwsInstanceId, Label.AwsRegion)
           .build();
 
   /* Return a self-configured monitored Resource. */
@@ -429,26 +435,35 @@ final class StackdriverExportUtils {
   private static String getValue(Label label) {
     String value;
     switch (label) {
-      case ClusterName:
+      case GcpClusterName:
         value = MetadataConfig.getClusterName();
         break;
-      case InstanceId:
+      case GcpInstanceId:
         value = MetadataConfig.getInstanceId();
         break;
-      case InstanceName:
+      case GcpInstanceName:
         value = System.getenv("GAE_INSTANCE");
         break;
-      case PodId:
+      case GcpGkePodId:
         value = System.getenv("HOSTNAME");
         break;
-      case Zone:
+      case GcpZone:
         value = MetadataConfig.getZone();
         break;
-      case ContainerName:
+      case GcpContainerName:
         value = System.getenv("CONTAINER_NAME");
         break;
-      case NamespaceId:
+      case GcpNamespaceId:
         value = System.getenv("NAMESPACE");
+        break;
+      case AwsAccount:
+        value = AwsIdentityDocUtils.getValueFromAwsIdentityDocument("accountId");
+        break;
+      case AwsInstanceId:
+        value = AwsIdentityDocUtils.getValueFromAwsIdentityDocument("instanceId");
+        break;
+      case AwsRegion:
+        value = "aws:" + AwsIdentityDocUtils.getValueFromAwsIdentityDocument("region");
         break;
       default:
         value = null;
@@ -464,6 +479,9 @@ final class StackdriverExportUtils {
     }
     if (MetadataConfig.getInstanceId() != null) {
       return Resource.GceInstance;
+    }
+    if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
+      return Resource.AwsEc2Instance;
     }
     // default Resource type
     return Resource.Global;
