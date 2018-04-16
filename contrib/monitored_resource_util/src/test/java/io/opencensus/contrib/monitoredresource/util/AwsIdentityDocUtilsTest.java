@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.exporter.stats.stackdriver;
+package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.truth.Truth.assertThat;
 

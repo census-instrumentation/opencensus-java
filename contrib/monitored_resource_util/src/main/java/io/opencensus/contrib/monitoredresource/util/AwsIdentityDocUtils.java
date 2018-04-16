@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.exporter.stats.stackdriver;
+package io.opencensus.contrib.monitoredresource.util;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
