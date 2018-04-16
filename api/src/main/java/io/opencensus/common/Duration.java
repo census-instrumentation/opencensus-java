@@ -82,9 +82,6 @@ public abstract class Duration implements Comparable<Duration> {
   /**
    * Converts a {@link Duration} to milliseconds.
    *
-   * <p>Returns {@code Long.MIN_VALUE} if conversion would negatively overflow, or {@code
-   * Long.MAX_VALUE} if it would positively overflow.
-   *
    * @return the milliseconds representation of this {@code Duration}.
    * @since 0.13
    */
