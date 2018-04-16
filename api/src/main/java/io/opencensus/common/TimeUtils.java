@@ -29,6 +29,9 @@ public final class TimeUtils {
   /**
    * Converts a {@link Duration} to milliseconds.
    *
+   * <p>Note that there could be overflow or loss of precision by making this conversion. See {@link
+   * TimeUnit#convert(long, TimeUnit)} for details.
+   *
    * @param duration a {@code Duration}.
    * @return the milliseconds representation of this {@code Duration}.
    */
