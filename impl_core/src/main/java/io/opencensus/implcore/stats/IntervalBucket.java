@@ -81,7 +81,7 @@ final class IntervalBucket {
     checkArgument(
         elapsedTime.compareTo(ZERO) >= 0 && elapsedTime.compareTo(duration) < 0,
         "This bucket must be current.");
-    return ((double) Duration.toMillis(elapsedTime)) / Duration.toMillis(duration);
+    return ((double) elapsedTime.toMillis()) / duration.toMillis();
   }
 
   void clearStats() {
