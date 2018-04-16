@@ -88,4 +88,15 @@ public class DurationTest {
     assertThat(Duration.create(-25, -42)).isNotEqualTo(Duration.create(-24, -42));
     assertThat(Duration.create(-24, -43)).isNotEqualTo(Duration.create(-24, -42));
   }
+
+  @Test
+  public void toMillis() {
+    assertThat(Duration.toMillis(Duration.create(10, 0))).isEqualTo(10000L);
+    assertThat(Duration.toMillis(Duration.create(10, 1000))).isEqualTo(10000L);
+    assertThat(Duration.toMillis(Duration.create(0, (int) 1e6))).isEqualTo(1L);
+    assertThat(Duration.toMillis(Duration.create(0, 0))).isEqualTo(0L);
+    assertThat(Duration.toMillis(Duration.create(-10, 0))).isEqualTo(-10000L);
+    assertThat(Duration.toMillis(Duration.create(-10, -1000))).isEqualTo(-10000L);
+    assertThat(Duration.toMillis(Duration.create(0, -(int) 1e6))).isEqualTo(-1L);
+  }
 }

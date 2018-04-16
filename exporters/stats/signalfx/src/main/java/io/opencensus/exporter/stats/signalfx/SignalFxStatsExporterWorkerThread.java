@@ -23,7 +23,6 @@ import com.signalfx.metrics.flush.AggregateMetricSender;
 import com.signalfx.metrics.flush.AggregateMetricSender.Session;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.DataPoint;
 import io.opencensus.common.Duration;
-import io.opencensus.common.TimeUtils;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
@@ -60,7 +59,7 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
       String token,
       Duration interval,
       ViewManager views) {
-    this.intervalMs = TimeUtils.toMillis(interval);
+    this.intervalMs = Duration.toMillis(interval);
     this.views = views;
     this.sender = factory.create(endpoint, token, ERROR_HANDLER);
 

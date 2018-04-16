@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Maps;
 import io.opencensus.common.Duration;
-import io.opencensus.common.TimeUtils;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.tags.TagValue;
@@ -82,7 +81,7 @@ final class IntervalBucket {
     checkArgument(
         elapsedTime.compareTo(ZERO) >= 0 && elapsedTime.compareTo(duration) < 0,
         "This bucket must be current.");
-    return ((double) TimeUtils.toMillis(elapsedTime)) / TimeUtils.toMillis(duration);
+    return ((double) Duration.toMillis(elapsedTime)) / Duration.toMillis(duration);
   }
 
   void clearStats() {

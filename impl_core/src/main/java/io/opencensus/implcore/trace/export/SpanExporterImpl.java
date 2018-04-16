@@ -18,7 +18,6 @@ package io.opencensus.implcore.trace.export;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
-import io.opencensus.common.TimeUtils;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.trace.SpanImpl;
 import io.opencensus.trace.export.ExportComponent;
@@ -146,7 +145,7 @@ public final class SpanExporterImpl extends SpanExporter {
     private Worker(int bufferSize, Duration scheduleDelay) {
       spans = new ArrayList<SpanImpl>(bufferSize);
       this.bufferSize = bufferSize;
-      this.scheduleDelayMillis = TimeUtils.toMillis(scheduleDelay);
+      this.scheduleDelayMillis = Duration.toMillis(scheduleDelay);
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered
