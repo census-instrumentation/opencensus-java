@@ -23,6 +23,7 @@ import static io.opencensus.common.TimeUtils.NANOS_PER_MILLI;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.internal.Utils;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -76,6 +77,20 @@ public abstract class Duration implements Comparable<Duration> {
     long seconds = millis / MILLIS_PER_SECOND;
     int nanos = (int) (millis % MILLIS_PER_SECOND * NANOS_PER_MILLI);
     return Duration.create(seconds, nanos);
+  }
+
+  /**
+   * Converts a {@link Duration} to milliseconds.
+   *
+   * <p>Note that there could be overflow or loss of precision by making this conversion. See {@link
+   * TimeUnit#convert(long, TimeUnit)} for details.
+   *
+   * @param duration a {@code Duration}.
+   * @return the milliseconds representation of this {@code Duration}.
+   */
+  public static long toMillis(Duration duration) {
+    return TimeUnit.SECONDS.toMillis(duration.getSeconds())
+        + TimeUnit.NANOSECONDS.toMillis(duration.getNanos());
   }
 
   /**

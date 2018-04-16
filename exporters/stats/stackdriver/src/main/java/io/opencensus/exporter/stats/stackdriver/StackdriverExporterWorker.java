@@ -79,7 +79,7 @@ final class StackdriverExporterWorker implements Runnable {
       Duration exportInterval,
       ViewManager viewManager,
       MonitoredResource monitoredResource) {
-    this.scheduleDelayMillis = toMillis(exportInterval);
+    this.scheduleDelayMillis = Duration.toMillis(exportInterval);
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
@@ -222,13 +222,6 @@ final class StackdriverExporterWorker implements Runnable {
         return;
       }
     }
-  }
-
-  private static final long MILLIS_PER_SECOND = 1000L;
-  private static final long NANOS_PER_MILLI = 1000 * 1000;
-
-  private static long toMillis(Duration duration) {
-    return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
   }
 
   private static String exceptionMessage(Throwable e) {

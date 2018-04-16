@@ -66,9 +66,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @SuppressWarnings("deprecation")
 abstract class MutableViewData {
 
-  private static final long MILLIS_PER_SECOND = 1000L;
-  private static final long NANOS_PER_MILLI = 1000 * 1000;
-
   @javax.annotation.Nullable @VisibleForTesting static final TagValue UNKNOWN_TAG_VALUE = null;
 
   @VisibleForTesting static final Timestamp ZERO_TIMESTAMP = Timestamp.create(0, 0);
@@ -147,11 +144,6 @@ abstract class MutableViewData {
       }
     }
     return tagValues;
-  }
-
-  // Returns the milliseconds representation of a Duration.
-  static long toMillis(Duration duration) {
-    return duration.getSeconds() * MILLIS_PER_SECOND + duration.getNanos() / NANOS_PER_MILLI;
   }
 
   /**
@@ -295,7 +287,7 @@ abstract class MutableViewData {
       super(view);
       Duration totalDuration = ((View.AggregationWindow.Interval) view.getWindow()).getDuration();
       this.totalDuration = totalDuration;
-      this.bucketDuration = Duration.fromMillis(toMillis(totalDuration) / N);
+      this.bucketDuration = Duration.fromMillis(Duration.toMillis(totalDuration) / N);
 
       // When initializing. add N empty buckets prior to the start timestamp of this
       // IntervalMutableViewData, so that the last bucket will be the current one in effect.
@@ -354,8 +346,8 @@ abstract class MutableViewData {
       checkArgument(
           now.compareTo(startOfLastBucket) >= 0,
           "Current time must be within or after the last bucket.");
-      long elapsedTimeMillis = toMillis(now.subtractTimestamp(startOfLastBucket));
-      long numOfPadBuckets = elapsedTimeMillis / toMillis(bucketDuration);
+      long elapsedTimeMillis = Duration.toMillis(now.subtractTimestamp(startOfLastBucket));
+      long numOfPadBuckets = elapsedTimeMillis / Duration.toMillis(bucketDuration);
 
       shiftBucketList(numOfPadBuckets, now);
     }

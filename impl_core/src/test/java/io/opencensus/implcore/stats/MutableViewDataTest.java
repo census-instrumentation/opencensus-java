@@ -17,10 +17,8 @@
 package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.implcore.stats.MutableViewData.toMillis;
 
 import com.google.common.collect.ImmutableMap;
-import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
@@ -133,15 +131,5 @@ public class MutableViewDataTest {
                 0,
                 Arrays.asList(new Long[] {0L, 0L, 0L, 0L})))
         .inOrder();
-  }
-
-  @Test
-  public void testDurationToMillis() {
-    assertThat(toMillis(Duration.create(0, 0))).isEqualTo(0);
-    assertThat(toMillis(Duration.create(0, 987000000))).isEqualTo(987);
-    assertThat(toMillis(Duration.create(3, 456000000))).isEqualTo(3456);
-    assertThat(toMillis(Duration.create(0, -1000000))).isEqualTo(-1);
-    assertThat(toMillis(Duration.create(-1, 0))).isEqualTo(-1000);
-    assertThat(toMillis(Duration.create(-3, -456000000))).isEqualTo(-3456);
   }
 }
