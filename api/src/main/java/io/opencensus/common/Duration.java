@@ -82,15 +82,14 @@ public abstract class Duration implements Comparable<Duration> {
   /**
    * Converts a {@link Duration} to milliseconds.
    *
-   * <p>Note that there could be overflow or loss of precision by making this conversion. See {@link
-   * TimeUnit#convert(long, TimeUnit)} for details.
+   * <p>Returns {@code Long.MIN_VALUE} if conversion would negatively overflow, or {@code
+   * Long.MAX_VALUE} if it would positively overflow.
    *
-   * @param duration a {@code Duration}.
    * @return the milliseconds representation of this {@code Duration}.
+   * @since 0.13
    */
-  public static long toMillis(Duration duration) {
-    return TimeUnit.SECONDS.toMillis(duration.getSeconds())
-        + TimeUnit.NANOSECONDS.toMillis(duration.getNanos());
+  public long toMillis() {
+    return TimeUnit.SECONDS.toMillis(getSeconds()) + TimeUnit.NANOSECONDS.toMillis(getNanos());
   }
 
   /**

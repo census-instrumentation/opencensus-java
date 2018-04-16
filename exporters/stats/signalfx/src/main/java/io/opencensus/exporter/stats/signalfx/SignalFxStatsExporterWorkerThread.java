@@ -59,7 +59,7 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
       String token,
       Duration interval,
       ViewManager views) {
-    this.intervalMs = Duration.toMillis(interval);
+    this.intervalMs = interval.toMillis();
     this.views = views;
     this.sender = factory.create(endpoint, token, ERROR_HANDLER);
 
