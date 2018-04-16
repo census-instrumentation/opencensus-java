@@ -79,7 +79,7 @@ final class StackdriverExporterWorker implements Runnable {
       Duration exportInterval,
       ViewManager viewManager,
       MonitoredResource monitoredResource) {
-    this.scheduleDelayMillis = Duration.toMillis(exportInterval);
+    this.scheduleDelayMillis = exportInterval.toMillis();
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;

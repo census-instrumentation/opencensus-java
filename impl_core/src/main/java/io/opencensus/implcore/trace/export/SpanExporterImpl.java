@@ -145,7 +145,7 @@ public final class SpanExporterImpl extends SpanExporter {
     private Worker(int bufferSize, Duration scheduleDelay) {
       spans = new ArrayList<SpanImpl>(bufferSize);
       this.bufferSize = bufferSize;
-      this.scheduleDelayMillis = Duration.toMillis(scheduleDelay);
+      this.scheduleDelayMillis = scheduleDelay.toMillis();
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered

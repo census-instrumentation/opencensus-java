@@ -287,7 +287,7 @@ abstract class MutableViewData {
       super(view);
       Duration totalDuration = ((View.AggregationWindow.Interval) view.getWindow()).getDuration();
       this.totalDuration = totalDuration;
-      this.bucketDuration = Duration.fromMillis(Duration.toMillis(totalDuration) / N);
+      this.bucketDuration = Duration.fromMillis(totalDuration.toMillis() / N);
 
       // When initializing. add N empty buckets prior to the start timestamp of this
       // IntervalMutableViewData, so that the last bucket will be the current one in effect.
@@ -346,8 +346,8 @@ abstract class MutableViewData {
       checkArgument(
           now.compareTo(startOfLastBucket) >= 0,
           "Current time must be within or after the last bucket.");
-      long elapsedTimeMillis = Duration.toMillis(now.subtractTimestamp(startOfLastBucket));
-      long numOfPadBuckets = elapsedTimeMillis / Duration.toMillis(bucketDuration);
+      long elapsedTimeMillis = now.subtractTimestamp(startOfLastBucket).toMillis();
+      long numOfPadBuckets = elapsedTimeMillis / bucketDuration.toMillis();
 
       shiftBucketList(numOfPadBuckets, now);
     }
