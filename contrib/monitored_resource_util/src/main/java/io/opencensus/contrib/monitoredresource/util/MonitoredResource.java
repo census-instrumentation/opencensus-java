@@ -22,19 +22,20 @@ import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * {@link Resource} represents an auto-detected monitored resource used by application for exporting
- * stats. It has a {@code ResourceType} associated with a mapping from resource labels to values.
+ * {@link MonitoredResource} represents an auto-detected monitored resource used by application for
+ * exporting stats. It has a {@code ResourceType} associated with a mapping from resource labels to
+ * values.
  *
  * @since 0.13
  */
-@AutoValue
 @Immutable
-public abstract class Resource {
+@AutoValue
+public abstract class MonitoredResource {
 
-  Resource() {}
+  MonitoredResource() {}
 
   /**
-   * Returns the string representation of {@link ResourceType} of this {@link Resource}.
+   * Returns the string representation of {@link ResourceType} of this {@link MonitoredResource}.
    *
    * @return the {@code ResourceType}.
    * @since 0.13
@@ -42,7 +43,8 @@ public abstract class Resource {
   public abstract String getResourceType();
 
   /**
-   * Returns a mapping from {@code LabelKey}s to values associated with this {@link Resource}.
+   * Returns a mapping from {@code LabelKey}s to values associated with this {@link
+   * MonitoredResource}.
    *
    * @return the mapping from {@code LabelKey}s to their values.
    * @since 0.13
@@ -50,14 +52,14 @@ public abstract class Resource {
   public abstract Map<String, String> getLabels();
 
   /**
-   * Creates a {@link Resource} from the given {@link ResourceType} and labels.
+   * Creates a {@link MonitoredResource} from the given {@link ResourceType} and labels.
    *
    * @param resourceType the {@code ResourceType}.
    * @param labels the labels.
    * @return a new {@code Resource}.
    * @since 0.13
    */
-  public static Resource create(String resourceType, Map<String, String> labels) {
-    return new AutoValue_Resource(resourceType, ImmutableMap.copyOf(labels));
+  public static MonitoredResource create(String resourceType, Map<String, String> labels) {
+    return new AutoValue_MonitoredResource(resourceType, ImmutableMap.copyOf(labels));
   }
 }

@@ -39,7 +39,6 @@ import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtil;
-import io.opencensus.contrib.monitoredresource.util.Resource;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
@@ -359,7 +358,8 @@ final class StackdriverExportUtils {
 
   /* Return a self-configured Stackdriver monitored resource. */
   static MonitoredResource getDefaultResource() {
-    Resource autoDetectedResource = MonitoredResourceUtil.getDefaultResource();
+    io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
+        MonitoredResourceUtil.getDefaultResource();
     MonitoredResource.Builder builder =
         MonitoredResource.newBuilder().setType(autoDetectedResource.getResourceType());
     if (MetadataConfig.getProjectId() != null) {

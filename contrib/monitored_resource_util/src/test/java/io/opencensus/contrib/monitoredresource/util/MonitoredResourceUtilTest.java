@@ -29,7 +29,7 @@ public class MonitoredResourceUtilTest {
 
   @Test
   public void testGetDefaultResource() {
-    Resource resource = MonitoredResourceUtil.getDefaultResource();
+    MonitoredResource resource = MonitoredResourceUtil.getDefaultResource();
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
       assertThat(resource.getResourceType()).isEqualTo(ResourceType.GkeContainer.getType());
     } else if (MetadataConfig.getInstanceId() != null) {

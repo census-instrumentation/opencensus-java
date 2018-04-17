@@ -54,7 +54,7 @@ public final class MonitoredResourceUtil {
    * @return a {@code Resource}.
    * @since 0.13
    */
-  public static Resource getDefaultResource() {
+  public static MonitoredResource getDefaultResource() {
     ResourceType detectedResourceType = getAutoDetectedResourceType();
     Map<String, String> labels = Maps.newHashMap();
     for (LabelKey labelKey : RESOURCE_TYPE_WITH_LABEL_KEYS.get(detectedResourceType)) {
@@ -65,7 +65,7 @@ public final class MonitoredResourceUtil {
       // Label values can be null or empty, but each label key must have an associated value.
       labels.put(labelKey.getKey(), value);
     }
-    return Resource.create(detectedResourceType.getType(), labels);
+    return MonitoredResource.create(detectedResourceType.getType(), labels);
   }
 
   // Gets the value for the given {@link LabelKey}.
