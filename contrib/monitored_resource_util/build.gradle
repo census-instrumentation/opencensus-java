@@ -10,8 +10,7 @@ apply plugin: 'java'
 dependencies {
     compileOnly libraries.auto_value
 
-    compile project(':opencensus-api'),
-            libraries.google_cloud_core,
+    compile libraries.google_cloud_core,
             libraries.guava
 
     signature "org.codehaus.mojo.signature:java16:+@signature"

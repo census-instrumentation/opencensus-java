@@ -15,11 +15,6 @@ For Maven add to your `pom.xml`:
 <dependencies>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-api</artifactId>
-    <version>0.13.0</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-monitored-resource-util</artifactId>
     <version>0.13.0</version>
   </dependency>
@@ -28,7 +23,6 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-api:0.13.0'
 compile 'io.opencensus:opencensus-contrib-monitored-resource-util:0.13.0'
 ```
 
