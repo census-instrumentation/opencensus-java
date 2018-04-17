@@ -31,13 +31,13 @@ public class MonitoredResourceUtilTest {
   public void testGetDefaultResource() {
     MonitoredResource resource = MonitoredResourceUtil.getDefaultResource();
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GkeContainer.getType());
+      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GkeContainer);
     } else if (MetadataConfig.getInstanceId() != null) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GceInstance.getType());
+      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GceInstance);
     } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.AwsEc2Instance.getType());
+      assertThat(resource.getResourceType()).isEqualTo(ResourceType.AwsEc2Instance);
     } else {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.Global.getType());
+      assertThat(resource.getResourceType()).isEqualTo(ResourceType.Global);
     }
   }
 }

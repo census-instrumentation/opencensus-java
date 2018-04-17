@@ -38,6 +38,7 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.contrib.monitoredresource.util.LabelKey;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtil;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
@@ -361,14 +362,17 @@ final class StackdriverExportUtils {
     io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
         MonitoredResourceUtil.getDefaultResource();
     MonitoredResource.Builder builder =
-        MonitoredResource.newBuilder().setType(autoDetectedResource.getResourceType());
+        MonitoredResource.newBuilder().setType(autoDetectedResource.getResourceType().getType());
     if (MetadataConfig.getProjectId() != null) {
       // For default resource, always use the project id from MetadataConfig. This allows stats from
       // other projects (e.g from GCE running in another project) to be collected.
       builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
     }
-    for (Entry<String, String> entry : autoDetectedResource.getLabels().entrySet()) {
-      builder.putLabels(entry.getKey(), entry.getValue());
+    List<LabelKey> labelKeys = autoDetectedResource.getLabelKeys();
+    List<String> labelValues = autoDetectedResource.getLabelValues();
+    checkArgument(labelKeys.size() == labelValues.size(), "Label keys and values don't match.");
+    for (int i = 0; i < labelKeys.size(); i++) {
+      builder.putLabels(labelKeys.get(i).getKey(), labelValues.get(i));
     }
     return builder.build();
   }

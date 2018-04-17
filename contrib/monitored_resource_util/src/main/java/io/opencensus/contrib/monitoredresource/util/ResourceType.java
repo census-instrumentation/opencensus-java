@@ -19,8 +19,10 @@ package io.opencensus.contrib.monitoredresource.util;
 /**
  * {@link ResourceType} represents the type of supported monitored resources that can be
  * automatically detected by OpenCensus.
+ *
+ * @since 0.13
  */
-enum ResourceType {
+public enum ResourceType {
   GkeContainer("gke_container"),
   GceInstance("gce_instance"),
   AwsEc2Instance("aws_ec2_instance"),
@@ -32,8 +34,13 @@ enum ResourceType {
     this.type = type;
   }
 
-  /** Returns the type of {@link ResourceType}. */
-  String getType() {
+  /**
+   * Returns the type of {@link ResourceType}.
+   *
+   * @return the type of {@link ResourceType}.
+   * @since 0.13
+   */
+  public String getType() {
     return type;
   }
 }

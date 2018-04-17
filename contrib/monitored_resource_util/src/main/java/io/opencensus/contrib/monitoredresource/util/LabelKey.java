@@ -16,13 +16,16 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
-/** {@link LabelKey} represents the associated property of a {@link Resource}. */
-enum LabelKey {
+/**
+ * {@link LabelKey} represents the associated property of a {@link MonitoredResource}.
+ *
+ * @since 0.13
+ */
+public enum LabelKey {
   GcpClusterName("cluster_name"),
   GcpContainerName("container_name"),
   GcpNamespaceId("namespace_id"),
   GcpInstanceId("instance_id"),
-  GcpInstanceName("instance_name"),
   GcpGkePodId("pod_id"),
   GcpZone("zone"),
   AwsAccount("aws_account"),
@@ -35,8 +38,13 @@ enum LabelKey {
     this.key = key;
   }
 
-  /** Returns the key of the {@link LabelKey}. */
-  String getKey() {
+  /**
+   * Returns the key of the {@link LabelKey}.
+   *
+   * @return the key of the {@link LabelKey}.
+   * @since 0.13
+   */
+  public String getKey() {
     return key;
   }
 }
