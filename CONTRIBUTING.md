@@ -108,6 +108,16 @@ applied to types. However, it uses `javax.annotation.Nullable` in API method
 signatures whenever possible, so that the annotations can be uncommented and
 be included in .class files and Javadocs.
 
+### Checkstyle import control
+
+This project uses Checkstyle to specify the allowed dependencies between
+packages, using its ImportControl feature
+(http://checkstyle.sourceforge.net/config_imports.html#ImportControl).
+`buildscripts/import-control.xml` specifies the allowed imports. An error
+messsage such as
+`Disallowed import - edu.umd.cs.findbugs.annotations.SuppressFBWarnings. [ImportControl]`
+could mean that `import-control.xml` needs to be updated.
+
 ## Proposing changes
 
 Create a Pull Request with your changes. The continuous integration build will
