@@ -113,8 +113,9 @@ be included in .class files and Javadocs.
 This project uses Checkstyle to specify the allowed dependencies between
 packages, using its ImportControl feature
 (http://checkstyle.sourceforge.net/config_imports.html#ImportControl).
-`buildscripts/import-control.xml` specifies the allowed imports. An error
-messsage such as
+`buildscripts/import-control.xml` specifies the allowed imports and contains
+some guidelines on OpenCensus' inter-package dependencies. An error messsage
+such as
 `Disallowed import - edu.umd.cs.findbugs.annotations.SuppressFBWarnings. [ImportControl]`
 could mean that `import-control.xml` needs to be updated.
 

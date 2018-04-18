@@ -3,6 +3,23 @@
     "-//Puppy Crawl//DTD Import Control 1.3//EN"
     "http://checkstyle.sourceforge.net/dtds/import_control_1_3.dtd">
 
+<!--
+
+General guidelines on imports:
+
+- 'stats' depends on 'tags', but 'tags' shouldn't depend on 'stats' or 'trace'.
+  'stats'/'tags' and 'trace' should remain independent, where possible.
+
+- Packages should not be split between artifacts.
+
+- 'internal' packages should only be imported by packages within the same
+  artifact.
+
+- Since we are trying to remove dependencies on Guava (issue #1113), we should
+  avoid adding any new Guava imports here, especially in the API.
+
+-->
+
 <import-control pkg="io.opencensus">
   <allow pkg="com.google.auto.value"/>
   <allow pkg="com.google.errorprone.annotations"/>
