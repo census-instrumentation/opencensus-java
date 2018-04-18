@@ -227,6 +227,10 @@
         <module name="CommentsIndentation"/>
         <module name="FileContentsHolder"/>
         <module name="SuppressWarningsHolder"/>
+        <module name="ImportControl">
+            <property name="file" value="${rootDir}/buildscripts/import-control.xml"/>
+            <property name="path" value="^.*[\\/]src[\\/]main[\\/]java[\\/].*$"/>
+        </module>
     </module>
     <module name="SuppressionCommentFilter"/>
     <module name="SuppressWarningsFilter"/>

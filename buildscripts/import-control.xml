@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<!DOCTYPE import-control PUBLIC
+    "-//Puppy Crawl//DTD Import Control 1.3//EN"
+    "http://checkstyle.sourceforge.net/dtds/import_control_1_3.dtd">
+
+<import-control pkg="io.opencensus">
+  <allow pkg="com.google.auto.value"/>
+  <allow pkg="com.google.errorprone.annotations"/>
+  <allow pkg="java"/>
+  <allow pkg="javax"/>
+  <allow class="io.grpc.Context"/>
+  <subpackage name="common">
+    <allow pkg="io.opencensus.common"/>
+  </subpackage>
+  <subpackage name="internal">
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.internal"/>
+  </subpackage>
+  <subpackage name="tags">
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.internal"/>
+    <allow pkg="io.opencensus.tags"/>
+  </subpackage>
+  <subpackage name="stats">
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.internal"/>
+    <allow pkg="io.opencensus.stats"/>
+    <allow pkg="io.opencensus.tags"/>
+  </subpackage>
+  <subpackage name="trace">
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.internal"/>
+    <allow pkg="io.opencensus.trace"/>
+
+    <!-- TODO(#1081): Remove this dependency on Guava. -->
+    <allow class="com.google.common.io.BaseEncoding"/>
+
+    <!-- These dependencies on impl/implcore are only needed by -->
+    <!-- io.opencensus.trace.TraceComponentImpl and io.opencensus.trace.TraceComponentImplLite, -->
+    <!-- which are deprecated. -->
+    <allow class="io.opencensus.impl.internal.DisruptorEventQueue"/>
+    <allow class="io.opencensus.impl.trace.internal.ThreadLocalRandomHandler"/>
+    <allow class="io.opencensus.implcore.common.MillisClock"/>
+    <allow class="io.opencensus.implcore.internal.SimpleEventQueue"/>
+    <allow class="io.opencensus.implcore.trace.TraceComponentImplBase"/>
+    <allow class="io.opencensus.implcore.trace.internal.RandomHandler.SecureRandomHandler"/>
+  </subpackage>
+  <subpackage name="contrib">
+    <allow pkg="com.google.common"/>
+    <allow pkg="io.opencensus.common"/>
+    <subpackage name="agent">
+      <allow pkg="com.google.auto"/>
+      <allow pkg="com.typesafe.config"/>
+      <allow pkg="edu.umd.cs.findbugs.annotations"/>
+      <allow pkg="io.opencensus.contrib.agent"/>
+      <allow pkg="io.opencensus.trace"/>
+      <allow pkg="net.bytebuddy"/>
+    </subpackage>
+    <subpackage name="grpc.metrics">
+      <allow pkg="io.opencensus.contrib.grpc.metrics"/>
+      <allow pkg="io.opencensus.stats"/>
+      <allow pkg="io.opencensus.tags"/>
+    </subpackage>
+    <subpackage name="http.util">
+      <allow pkg="io.opencensus.contrib.http.util"/>
+      <allow pkg="io.opencensus.stats"/>
+      <allow pkg="io.opencensus.tags"/>
+      <allow pkg="io.opencensus.trace"/>
+    </subpackage>
+    <subpackage name="zpages">
+      <allow pkg="com.sun.net.httpserver"/>
+      <allow pkg="io.opencensus.contrib.grpc.metrics"/>
+      <allow pkg="io.opencensus.contrib.zpages"/>
+      <allow pkg="io.opencensus.stats"/>
+      <allow pkg="io.opencensus.tags"/>
+      <allow pkg="io.opencensus.trace"/>
+    </subpackage>
+  </subpackage>
+  <subpackage name="exporter">
+    <allow pkg="com.google.common"/>
+    <allow pkg="io.opencensus.common"/>
+    <subpackage name="stats">
+      <allow pkg="io.opencensus.stats"/>
+      <allow pkg="io.opencensus.tags"/>
+      <subpackage name="prometheus">
+        <allow pkg="io.opencensus.exporter.stats.prometheus"/>
+        <allow pkg="io.opencensus.trace"/>
+        <allow pkg="io.prometheus.client"/>
+      </subpackage>
+      <subpackage name="signalfx">
+        <allow pkg="com.signalfx"/>
+        <allow pkg="io.opencensus.exporter.stats.signalfx"/>
+        <allow pkg="io.opencensus.trace"/>
+      </subpackage>
+      <subpackage name="stackdriver">
+        <allow pkg="com.google"/>
+        <allow pkg="io.opencensus.exporter.stats.stackdriver"/>
+        <allow pkg="io.opencensus.trace"/>
+      </subpackage>
+    </subpackage>
+    <subpackage name="trace">
+      <allow pkg="io.opencensus.trace"/>
+      <subpackage name="instana">
+        <allow pkg="io.opencensus.exporter.trace.instana"/>
+      </subpackage>
+      <subpackage name="jaeger">
+        <allow pkg="com.uber.jaeger"/>
+        <allow pkg="io.opencensus.exporter.trace.jaeger"/>
+        <allow pkg="org.apache.thrift"/>
+      </subpackage>
+      <subpackage name="stackdriver">
+        <allow pkg="com.google"/>
+        <allow pkg="io.opencensus.exporter.trace.stackdriver"/>
+      </subpackage>
+      <subpackage name="zipkin">
+        <allow pkg="io.opencensus.exporter.trace.zipkin"/>
+        <allow pkg="zipkin2"/>
+      </subpackage>
+    </subpackage>
+  </subpackage>
+  <subpackage name="implcore">
+    <allow pkg="com.google.common"/>
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.implcore"/>
+    <allow pkg="io.opencensus.stats"/>
+    <allow pkg="io.opencensus.tags"/>
+    <allow pkg="io.opencensus.trace"/>
+  </subpackage>
+  <subpackage name="impl">
+    <allow pkg="com.lmax.disruptor"/>
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.impl"/>
+    <allow pkg="io.opencensus.implcore"/>
+    <allow pkg="io.opencensus.stats"/>
+    <allow pkg="io.opencensus.tags"/>
+    <allow pkg="io.opencensus.trace"/>
+  </subpackage>
+  <subpackage name="impllite">
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.implcore"/>
+    <allow pkg="io.opencensus.impllite"/>
+    <allow pkg="io.opencensus.stats"/>
+    <allow pkg="io.opencensus.tags"/>
+    <allow pkg="io.opencensus.trace"/>
+  </subpackage>
+  <subpackage name="testing">
+    <allow pkg="com.google.common"/>
+    <allow pkg="io.opencensus.common"/>
+    <subpackage name="common">
+      <allow pkg="io.opencensus.testing.common"/>
+    </subpackage>
+    <subpackage name="export">
+      <allow pkg="io.opencensus.stats"/>
+      <allow pkg="io.opencensus.tags"/>
+      <allow pkg="io.opencensus.testing.export"/>
+      <allow pkg="io.opencensus.trace"/>
+    </subpackage>
+  </subpackage>
+  <subpackage name="examples">
+    <allow pkg="com.google.common"/>
+    <allow pkg="io.grpc"/>
+    <allow pkg="io.opencensus.common"/>
+    <allow pkg="io.opencensus.contrib"/>
+    <allow pkg="io.opencensus.examples"/>
+    <allow pkg="io.opencensus.exporter"/>
+    <allow pkg="io.opencensus.stats"/>
+    <allow pkg="io.opencensus.tags"/>
+    <allow pkg="io.opencensus.testing.export"/>
+    <allow pkg="io.opencensus.trace"/>
+    <allow pkg="io.prometheus"/>
+  </subpackage>
+</import-control>
