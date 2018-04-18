@@ -18,7 +18,7 @@ package io.opencensus.implcore.trace.propagation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.internal.DefaultVisibilityForTesting;
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -71,20 +71,17 @@ final class BinaryFormatImpl extends BinaryFormat {
   // parsing when you hit an unknown field, it does not suggest that fields must be declared in
   // ID order. Rather it only groups by data type order, in this case Trace Context
   // https://github.com/census-instrumentation/opencensus-specs/blob/master/encodings/BinaryEncoding.md#deserialization-rules
-  @DefaultVisibilityForTesting
-  static final int TRACE_ID_FIELD_ID_OFFSET = VERSION_ID_OFFSET + ID_SIZE;
+  @VisibleForTesting static final int TRACE_ID_FIELD_ID_OFFSET = VERSION_ID_OFFSET + ID_SIZE;
 
   private static final int TRACE_ID_OFFSET = TRACE_ID_FIELD_ID_OFFSET + ID_SIZE;
   private static final byte SPAN_ID_FIELD_ID = 1;
 
-  @DefaultVisibilityForTesting
-  static final int SPAN_ID_FIELD_ID_OFFSET = TRACE_ID_OFFSET + TraceId.SIZE;
+  @VisibleForTesting static final int SPAN_ID_FIELD_ID_OFFSET = TRACE_ID_OFFSET + TraceId.SIZE;
 
   private static final int SPAN_ID_OFFSET = SPAN_ID_FIELD_ID_OFFSET + ID_SIZE;
   private static final byte TRACE_OPTION_FIELD_ID = 2;
 
-  @DefaultVisibilityForTesting
-  static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
+  @VisibleForTesting static final int TRACE_OPTION_FIELD_ID_OFFSET = SPAN_ID_OFFSET + SpanId.SIZE;
 
   private static final int TRACE_OPTIONS_OFFSET = TRACE_OPTION_FIELD_ID_OFFSET + ID_SIZE;
   /** Version, Trace and Span IDs are required fields. */
