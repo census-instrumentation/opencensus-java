@@ -1,13 +1,15 @@
 description = 'OpenCensus Trace Elasticsearch Exporter'
 
 [compileJava, compileTestJava].each() {
-    it.sourceCompatibility = 1.7
-    it.targetCompatibility = 1.7
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
 }
 
 
 dependencies {
-    compile project(':opencensus-api')
+
+    compile project(':opencensus-api'),
+            libraries.auto_value
 
     testCompile project(':opencensus-api')
 
