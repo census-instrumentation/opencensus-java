@@ -30,11 +30,11 @@ import java.nio.charset.Charset;
  * @see <a href="https://cloud.google.com/compute/docs/storing-retrieving-metadata">
  *     https://cloud.google.com/compute/docs/storing-retrieving-metadata</a>
  */
-final class MetadataConfig {
+final class GcpMetadataConfig {
 
   private static final String METADATA_URL = "http://metadata/computeMetadata/v1/";
 
-  private MetadataConfig() {}
+  private GcpMetadataConfig() {}
 
   static String getProjectId() {
     return getAttribute("project/project-id");

@@ -39,7 +39,7 @@ public final class MonitoredResourceUtil {
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
       return GcpGkeContainerMonitoredResource.create();
     }
-    if (MetadataConfig.getInstanceId() != null) {
+    if (GcpMetadataConfig.getInstanceId() != null) {
       return GcpGceInstanceMonitoredResource.create();
     }
     if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {

@@ -106,8 +106,8 @@ public abstract class MonitoredResource {
   @AutoValue
   abstract static class GcpGceInstanceMonitoredResource extends MonitoredResource {
 
-    private static final String GCP_INSTANCE_ID = firstNonNull(MetadataConfig.getInstanceId(), "");
-    private static final String GCP_ZONE = firstNonNull(MetadataConfig.getZone(), "");
+    private static final String GCP_INSTANCE_ID = firstNonNull(GcpMetadataConfig.getInstanceId(), "");
+    private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
 
     private static final Map<LabelKey, String> GCP_GCE_LABELS;
 
@@ -138,13 +138,13 @@ public abstract class MonitoredResource {
   abstract static class GcpGkeContainerMonitoredResource extends MonitoredResource {
 
     private static final String GCP_CLUSTER_NAME =
-        firstNonNull(MetadataConfig.getClusterName(), "");
+        firstNonNull(GcpMetadataConfig.getClusterName(), "");
     private static final String GCP_CONTAINER_NAME =
         firstNonNull(System.getenv("CONTAINER_NAME"), "");
     private static final String GCP_NAMESPACE_ID = firstNonNull(System.getenv("NAMESPACE"), "");
-    private static final String GCP_INSTANCE_ID = firstNonNull(MetadataConfig.getInstanceId(), "");
+    private static final String GCP_INSTANCE_ID = firstNonNull(GcpMetadataConfig.getInstanceId(), "");
     private static final String GCP_POD_ID = firstNonNull(System.getenv("HOSTNAME"), "");
-    private static final String GCP_ZONE = firstNonNull(MetadataConfig.getZone(), "");
+    private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
 
     private static final Map<LabelKey, String> GCP_GKE_LABELS;
 
