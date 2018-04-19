@@ -16,7 +16,6 @@
 
 package io.opencensus.internal;
 
-import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -102,33 +101,5 @@ public final class UtilsTest {
     assertFalse(Utils.equalsObjects(null, new Object()));
     assertFalse(Utils.equalsObjects(new Object(), null));
     assertFalse(Utils.equalsObjects(new Object(), new Object()));
-  }
-
-  @Test
-  public void compareLongs() {
-    assertThat(Utils.compareLongs(-1L, 1L)).isLessThan(0);
-    assertThat(Utils.compareLongs(10L, 10L)).isEqualTo(0);
-    assertThat(Utils.compareLongs(1L, 0L)).isGreaterThan(0);
-  }
-
-  @Test
-  public void checkedAdd_TooLow() {
-    thrown.expect(ArithmeticException.class);
-    thrown.expectMessage("Long sum overflow: x=-9223372036854775807, y=-2");
-    Utils.checkedAdd(Long.MIN_VALUE + 1, -2);
-  }
-
-  @Test
-  public void checkedAdd_TooHigh() {
-    thrown.expect(ArithmeticException.class);
-    thrown.expectMessage("Long sum overflow: x=9223372036854775806, y=2");
-    Utils.checkedAdd(Long.MAX_VALUE - 1, 2);
-  }
-
-  @Test
-  public void checkedAdd_Valid() {
-    assertThat(Utils.checkedAdd(1, 2)).isEqualTo(3);
-    assertThat(Utils.checkedAdd(Integer.MAX_VALUE, Integer.MAX_VALUE))
-        .isEqualTo(2L * Integer.MAX_VALUE);
   }
 }
