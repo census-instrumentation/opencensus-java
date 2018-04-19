@@ -40,6 +40,7 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.contrib.monitoredresource.util.LabelKey;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtil;
+import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
@@ -359,20 +360,36 @@ final class StackdriverExportUtils {
 
   /* Return a self-configured Stackdriver monitored resource. */
   static MonitoredResource getDefaultResource() {
-    io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
-        MonitoredResourceUtil.getDefaultResource();
-    MonitoredResource.Builder builder =
-        MonitoredResource.newBuilder().setType(autoDetectedResource.getResourceType().getType());
+    MonitoredResource.Builder builder = MonitoredResource.newBuilder();
     if (MetadataConfig.getProjectId() != null) {
       // For default resource, always use the project id from MetadataConfig. This allows stats from
       // other projects (e.g from GCE running in another project) to be collected.
       builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
     }
+    io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
+        MonitoredResourceUtil.getDefaultResource();
+    if (autoDetectedResource == null) {
+      return builder.setType("global").build();
+    }
+    builder.setType(mapToStackdriverResourceType(autoDetectedResource.getResourceType()));
     Map<LabelKey, String> labels = autoDetectedResource.getLabels();
     for (Entry<LabelKey, String> label : labels.entrySet()) {
       builder.putLabels(label.getKey().getKey(), label.getValue());
     }
     return builder.build();
+  }
+
+  private static String mapToStackdriverResourceType(ResourceType resourceType) {
+    switch (resourceType) {
+      case GceInstance:
+        return "gce_instance";
+      case GkeContainer:
+        return "gke_container";
+      case AwsEc2Instance:
+        return "aws_ec2_instance";
+      default:
+        throw new IllegalArgumentException("Unknown resource type.");
+    }
   }
 
   private StackdriverExportUtils() {}

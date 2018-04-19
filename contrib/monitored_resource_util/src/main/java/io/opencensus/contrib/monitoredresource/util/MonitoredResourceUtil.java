@@ -19,7 +19,7 @@ package io.opencensus.contrib.monitoredresource.util;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2MonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GlobalMonitoredResource;
+import javax.annotation.Nullable;
 
 /**
  * Utilities for for auto detecting monitored resource based on the environment where the
@@ -30,11 +30,13 @@ import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GlobalMoni
 public final class MonitoredResourceUtil {
 
   /**
-   * Returns a self-configured monitored resource.
+   * Returns a self-configured monitored resource, or {@code null} if the application is not running
+   * on a supported environment.
    *
-   * @return a {@code Resource}.
+   * @return a {@code MonitoredResource}.
    * @since 0.13
    */
+  @Nullable
   public static MonitoredResource getDefaultResource() {
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
       return GcpGkeContainerMonitoredResource.create();
@@ -45,7 +47,7 @@ public final class MonitoredResourceUtil {
     if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
       return AwsEc2MonitoredResource.create();
     }
-    return GlobalMonitoredResource.create();
+    return null;
   }
 
   private MonitoredResourceUtil() {}

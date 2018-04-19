@@ -36,7 +36,7 @@ public class MonitoredResourceUtilTest {
     } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
       assertThat(resource.getResourceType()).isEqualTo(ResourceType.AwsEc2Instance);
     } else {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.Global);
+      assertThat(resource).isNull();
     }
   }
 }

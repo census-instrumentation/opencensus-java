@@ -106,7 +106,8 @@ public abstract class MonitoredResource {
   @AutoValue
   abstract static class GcpGceInstanceMonitoredResource extends MonitoredResource {
 
-    private static final String GCP_INSTANCE_ID = firstNonNull(GcpMetadataConfig.getInstanceId(), "");
+    private static final String GCP_INSTANCE_ID =
+        firstNonNull(GcpMetadataConfig.getInstanceId(), "");
     private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
 
     private static final Map<LabelKey, String> GCP_GCE_LABELS;
@@ -142,7 +143,8 @@ public abstract class MonitoredResource {
     private static final String GCP_CONTAINER_NAME =
         firstNonNull(System.getenv("CONTAINER_NAME"), "");
     private static final String GCP_NAMESPACE_ID = firstNonNull(System.getenv("NAMESPACE"), "");
-    private static final String GCP_INSTANCE_ID = firstNonNull(GcpMetadataConfig.getInstanceId(), "");
+    private static final String GCP_INSTANCE_ID =
+        firstNonNull(GcpMetadataConfig.getInstanceId(), "");
     private static final String GCP_POD_ID = firstNonNull(System.getenv("HOSTNAME"), "");
     private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
 
@@ -171,24 +173,6 @@ public abstract class MonitoredResource {
 
     static GcpGkeContainerMonitoredResource create() {
       return new AutoValue_MonitoredResource_GcpGkeContainerMonitoredResource();
-    }
-  }
-
-  @Immutable
-  @AutoValue
-  abstract static class GlobalMonitoredResource extends MonitoredResource {
-    @Override
-    public ResourceType getResourceType() {
-      return ResourceType.Global;
-    }
-
-    @Override
-    public Map<LabelKey, String> getLabels() {
-      return Collections.emptyMap();
-    }
-
-    static GlobalMonitoredResource create() {
-      return new AutoValue_MonitoredResource_GlobalMonitoredResource();
     }
   }
 }

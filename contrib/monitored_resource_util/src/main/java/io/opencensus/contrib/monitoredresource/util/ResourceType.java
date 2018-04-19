@@ -23,10 +23,9 @@ package io.opencensus.contrib.monitoredresource.util;
  * @since 0.13
  */
 public enum ResourceType {
-  GkeContainer("gke_container"),
-  GceInstance("gce_instance"),
-  AwsEc2Instance("aws_ec2_instance"),
-  Global("global");
+  GkeContainer("GCP_GCE_INSTANCE"),
+  GceInstance("GCP_GKE_CONTAINER"),
+  AwsEc2Instance("AWS_EC2_INSTANCE");
 
   private final String type;
 
