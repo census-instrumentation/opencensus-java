@@ -121,7 +121,8 @@ could mean that `import-control.xml` needs to be updated.
 
 ## Proposing changes
 
-Create a Pull Request with your changes. The continuous integration build will
-run the tests and static analysis. It will also check that the pull request
-branch has no merge commits. When the changes are accepted, they will be merged
-or cherry-picked by an OpenCensus core developer.
+Create a Pull Request with your changes. Please add any user-visible changes to
+CHANGELOG.md. The continuous integration build will run the tests and static
+analysis. It will also check that the pull request branch has no merge commits.
+When the changes are accepted, they will be merged or cherry-picked by an
+OpenCensus core developer.
