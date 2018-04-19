@@ -158,7 +158,6 @@ subprojects {
         guavaVersion = '20.0'
         googleAuthVersion = '0.9.0'
         googleCloudVersion = '0.34.0-beta'
-        googleCloudCoreVersion = '1.16.0'
         signalfxVersion = '0.0.39'
         prometheusVersion = '0.2.0'
         zipkinReporterVersion = '2.3.2'
@@ -173,7 +172,6 @@ subprojects {
                 errorprone: "com.google.errorprone:error_prone_annotations:${errorProneVersion}",
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
                 google_auth: "com.google.auth:google-auth-library-credentials:${googleAuthVersion}",
-                google_cloud_core: "com.google.cloud:google-cloud-core:${googleCloudCoreVersion}",
                 google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudVersion}",
                 zipkin_reporter: "io.zipkin.reporter2:zipkin-reporter:${zipkinReporterVersion}",
                 zipkin_urlconnection: "io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}",
