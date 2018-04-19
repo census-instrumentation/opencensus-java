@@ -16,7 +16,6 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
-import com.google.cloud.MetadataConfig;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2MonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;

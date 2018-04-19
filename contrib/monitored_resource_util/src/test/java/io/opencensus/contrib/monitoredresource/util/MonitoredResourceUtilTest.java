@@ -18,7 +18,6 @@ package io.opencensus.contrib.monitoredresource.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.cloud.MetadataConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

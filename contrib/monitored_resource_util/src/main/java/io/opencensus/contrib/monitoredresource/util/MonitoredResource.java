@@ -17,10 +17,10 @@
 package io.opencensus.contrib.monitoredresource.util;
 
 import com.google.auto.value.AutoValue;
-import com.google.cloud.MetadataConfig;
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -44,40 +44,48 @@ public abstract class MonitoredResource {
   public abstract ResourceType getResourceType();
 
   /**
-   * Returns the list of {@link LabelKey}s associated with this {@code MonitoredResource}.
+   * Returns the map of {@link LabelKey}s to {@code LabelValue}s, associated with this {@code
+   * MonitoredResource}.
    *
-   * @return {@code LabelKey}s.
+   * @return {@code Label}s.
    * @since 0.13
    */
-  public abstract List<LabelKey> getLabelKeys();
+  public abstract Map<LabelKey, String> getLabels();
 
-  /**
-   * Returns the list of {@code LabelValue}s associated with this {@code MonitoredResource}. The
-   * order of {@code LabelValue}s is the same as {@code LabelKey}s.
-   *
-   * @return {@code LabelValue}s.
-   * @since 0.13
+  /*
+   * Returns the first of two given parameters that is not null, if either is, or otherwise
+   * throws a NullPointerException.
    */
-  public abstract List<String> getLabelValues();
+  private static <T> T firstNonNull(@Nullable T first, @Nullable T second) {
+    if (first != null) {
+      return first;
+    }
+    if (second != null) {
+      return second;
+    }
+    throw new NullPointerException("Both parameters are null");
+  }
 
   @Immutable
   @AutoValue
   abstract static class AwsEc2MonitoredResource extends MonitoredResource {
 
-    private static final ImmutableList<LabelKey> AWS_EC2_LABEL_KEYS =
-        ImmutableList.of(LabelKey.AwsAccount, LabelKey.AwsInstanceId, LabelKey.AwsRegion);
-
     private static final String AWS_ACCOUNT =
-        MoreObjects.firstNonNull(
-            AwsIdentityDocUtils.getValueFromAwsIdentityDocument("accountId"), "");
+        firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("accountId"), "");
     private static final String AWS_INSTANCE_ID =
-        MoreObjects.firstNonNull(
-            AwsIdentityDocUtils.getValueFromAwsIdentityDocument("instanceId"), "");
+        firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("instanceId"), "");
     private static final String AWS_REGION =
-        MoreObjects.firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("region"), "");
+        firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("region"), "");
 
-    private static final ImmutableList<String> AWS_EC2_LABEL_VALUES =
-        ImmutableList.of(AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
+    private static final Map<LabelKey, String> AWS_EC2_LABELS;
+
+    static {
+      Map<LabelKey, String> awsEc2Labels = new HashMap<LabelKey, String>();
+      awsEc2Labels.put(LabelKey.AwsAccount, AWS_ACCOUNT);
+      awsEc2Labels.put(LabelKey.AwsInstanceId, AWS_INSTANCE_ID);
+      awsEc2Labels.put(LabelKey.AwsRegion, AWS_REGION);
+      AWS_EC2_LABELS = Collections.unmodifiableMap(awsEc2Labels);
+    }
 
     @Override
     public ResourceType getResourceType() {
@@ -85,13 +93,8 @@ public abstract class MonitoredResource {
     }
 
     @Override
-    public List<LabelKey> getLabelKeys() {
-      return AWS_EC2_LABEL_KEYS;
-    }
-
-    @Override
-    public List<String> getLabelValues() {
-      return AWS_EC2_LABEL_VALUES;
+    public Map<LabelKey, String> getLabels() {
+      return AWS_EC2_LABELS;
     }
 
     static AwsEc2MonitoredResource create() {
@@ -103,15 +106,17 @@ public abstract class MonitoredResource {
   @AutoValue
   abstract static class GcpGceInstanceMonitoredResource extends MonitoredResource {
 
-    private static final ImmutableList<LabelKey> GCP_GCE_LABEL_KEYS =
-        ImmutableList.of(LabelKey.GcpInstanceId, LabelKey.GcpZone);
+    private static final String GCP_INSTANCE_ID = firstNonNull(MetadataConfig.getInstanceId(), "");
+    private static final String GCP_ZONE = firstNonNull(MetadataConfig.getZone(), "");
 
-    private static final String GCP_INSTANCE_ID =
-        MoreObjects.firstNonNull(MetadataConfig.getInstanceId(), "");
-    private static final String GCP_ZONE = MoreObjects.firstNonNull(MetadataConfig.getZone(), "");
+    private static final Map<LabelKey, String> GCP_GCE_LABELS;
 
-    private static final ImmutableList<String> GCP_GCE_LABEL_VALUES =
-        ImmutableList.of(GCP_INSTANCE_ID, GCP_ZONE);
+    static {
+      Map<LabelKey, String> gcpGceLabels = new HashMap<LabelKey, String>();
+      gcpGceLabels.put(LabelKey.GcpInstanceId, GCP_INSTANCE_ID);
+      gcpGceLabels.put(LabelKey.GcpZone, GCP_ZONE);
+      GCP_GCE_LABELS = Collections.unmodifiableMap(gcpGceLabels);
+    }
 
     @Override
     public ResourceType getResourceType() {
@@ -119,13 +124,8 @@ public abstract class MonitoredResource {
     }
 
     @Override
-    public List<LabelKey> getLabelKeys() {
-      return GCP_GCE_LABEL_KEYS;
-    }
-
-    @Override
-    public List<String> getLabelValues() {
-      return GCP_GCE_LABEL_VALUES;
+    public Map<LabelKey, String> getLabels() {
+      return GCP_GCE_LABELS;
     }
 
     static GcpGceInstanceMonitoredResource create() {
@@ -137,35 +137,27 @@ public abstract class MonitoredResource {
   @AutoValue
   abstract static class GcpGkeContainerMonitoredResource extends MonitoredResource {
 
-    private static final ImmutableList<LabelKey> GCP_GKE_LABEL_KEYS =
-        ImmutableList.of(
-            LabelKey.GcpClusterName,
-            LabelKey.GcpContainerName,
-            LabelKey.GcpNamespaceId,
-            LabelKey.GcpInstanceId,
-            LabelKey.GcpGkePodId,
-            LabelKey.GcpZone);
-
     private static final String GCP_CLUSTER_NAME =
-        MoreObjects.firstNonNull(MetadataConfig.getClusterName(), "");
+        firstNonNull(MetadataConfig.getClusterName(), "");
     private static final String GCP_CONTAINER_NAME =
-        MoreObjects.firstNonNull(System.getenv("CONTAINER_NAME"), "");
-    private static final String GCP_NAMESPACE_ID =
-        MoreObjects.firstNonNull(System.getenv("NAMESPACE"), "");
-    private static final String GCP_INSTANCE_ID =
-        MoreObjects.firstNonNull(MetadataConfig.getInstanceId(), "");
-    private static final String GCP_POD_ID =
-        MoreObjects.firstNonNull(System.getenv("HOSTNAME"), "");
-    private static final String GCP_ZONE = MoreObjects.firstNonNull(MetadataConfig.getZone(), "");
+        firstNonNull(System.getenv("CONTAINER_NAME"), "");
+    private static final String GCP_NAMESPACE_ID = firstNonNull(System.getenv("NAMESPACE"), "");
+    private static final String GCP_INSTANCE_ID = firstNonNull(MetadataConfig.getInstanceId(), "");
+    private static final String GCP_POD_ID = firstNonNull(System.getenv("HOSTNAME"), "");
+    private static final String GCP_ZONE = firstNonNull(MetadataConfig.getZone(), "");
 
-    private static final ImmutableList<String> GCP_GKE_LABEL_VALUES =
-        ImmutableList.of(
-            GCP_CLUSTER_NAME,
-            GCP_CONTAINER_NAME,
-            GCP_NAMESPACE_ID,
-            GCP_INSTANCE_ID,
-            GCP_POD_ID,
-            GCP_ZONE);
+    private static final Map<LabelKey, String> GCP_GKE_LABELS;
+
+    static {
+      Map<LabelKey, String> gcpGkeLabels = new HashMap<LabelKey, String>();
+      gcpGkeLabels.put(LabelKey.GcpClusterName, GCP_CLUSTER_NAME);
+      gcpGkeLabels.put(LabelKey.GcpContainerName, GCP_CONTAINER_NAME);
+      gcpGkeLabels.put(LabelKey.GcpNamespaceId, GCP_NAMESPACE_ID);
+      gcpGkeLabels.put(LabelKey.GcpInstanceId, GCP_INSTANCE_ID);
+      gcpGkeLabels.put(LabelKey.GcpGkePodId, GCP_POD_ID);
+      gcpGkeLabels.put(LabelKey.GcpZone, GCP_ZONE);
+      GCP_GKE_LABELS = Collections.unmodifiableMap(gcpGkeLabels);
+    }
 
     @Override
     public ResourceType getResourceType() {
@@ -173,13 +165,8 @@ public abstract class MonitoredResource {
     }
 
     @Override
-    public List<LabelKey> getLabelKeys() {
-      return GCP_GKE_LABEL_KEYS;
-    }
-
-    @Override
-    public List<String> getLabelValues() {
-      return GCP_GKE_LABEL_VALUES;
+    public Map<LabelKey, String> getLabels() {
+      return GCP_GKE_LABELS;
     }
 
     static GcpGkeContainerMonitoredResource create() {
@@ -196,13 +183,8 @@ public abstract class MonitoredResource {
     }
 
     @Override
-    public List<LabelKey> getLabelKeys() {
-      return ImmutableList.of();
-    }
-
-    @Override
-    public List<String> getLabelValues() {
-      return ImmutableList.of();
+    public Map<LabelKey, String> getLabels() {
+      return Collections.emptyMap();
     }
 
     static GlobalMonitoredResource create() {

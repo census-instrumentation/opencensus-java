@@ -10,8 +10,5 @@ apply plugin: 'java'
 dependencies {
     compileOnly libraries.auto_value
 
-    compile libraries.google_cloud_core,
-            libraries.guava
-
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }

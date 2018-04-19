@@ -368,11 +368,9 @@ final class StackdriverExportUtils {
       // other projects (e.g from GCE running in another project) to be collected.
       builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
     }
-    List<LabelKey> labelKeys = autoDetectedResource.getLabelKeys();
-    List<String> labelValues = autoDetectedResource.getLabelValues();
-    checkArgument(labelKeys.size() == labelValues.size(), "Label keys and values don't match.");
-    for (int i = 0; i < labelKeys.size(); i++) {
-      builder.putLabels(labelKeys.get(i).getKey(), labelValues.get(i));
+    Map<LabelKey, String> labels = autoDetectedResource.getLabels();
+    for (Entry<LabelKey, String> label : labels.entrySet()) {
+      builder.putLabels(label.getKey().getKey(), label.getValue());
     }
     return builder.build();
   }
