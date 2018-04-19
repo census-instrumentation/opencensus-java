@@ -92,6 +92,9 @@ General guidelines on imports:
       <allow pkg="io.opencensus.tags"/>
       <allow pkg="io.opencensus.trace"/>
     </subpackage>
+    <subpackage name="monitoredresource.util">
+      <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
+    </subpackage>
   </subpackage>
   <subpackage name="exporter">
     <allow pkg="com.google.common"/>
