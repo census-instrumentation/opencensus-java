@@ -206,10 +206,17 @@ subprojects {
 
     dependencies {
         if (useCheckerFramework) {
-            ext.checkerFrameworkVersion = '2.4.0'
+            ext.checkerFrameworkVersion = '2.5.0'
+
+            // 2.4.0 is the last version of the Checker Framework compiler that supports annotations
+            // in comments, though it should continue to work with newer versions of the Checker Framework.
+            // See
+            // https://github.com/census-instrumentation/opencensus-java/pull/1112#issuecomment-381366366.
+            ext.checkerFrameworkCompilerVersion = '2.4.0'
+
             ext.jdkVersion = 'jdk8'
             checkerFrameworkAnnotatedJDK "org.checkerframework:${jdkVersion}:${checkerFrameworkVersion}"
-            checkerFrameworkJavac "org.checkerframework:compiler:${checkerFrameworkVersion}"
+            checkerFrameworkJavac "org.checkerframework:compiler:${checkerFrameworkCompilerVersion}"
             compileOnly "org.checkerframework:checker:${checkerFrameworkVersion}"
             compile "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
             compileOnly libraries.auto_value

@@ -28,7 +28,6 @@ import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,9 +59,7 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
       String token,
       Duration interval,
       ViewManager views) {
-    this.intervalMs =
-        TimeUnit.SECONDS.toMillis(interval.getSeconds())
-            + TimeUnit.NANOSECONDS.toMillis(interval.getNanos());
+    this.intervalMs = interval.toMillis();
     this.views = views;
     this.sender = factory.create(endpoint, token, ERROR_HANDLER);
 
