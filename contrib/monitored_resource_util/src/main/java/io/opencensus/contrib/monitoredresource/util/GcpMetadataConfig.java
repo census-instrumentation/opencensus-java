@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import javax.annotation.Nullable;
 
 /**
  * Retrieves Google Cloud project-id and a limited set of instance attributes from Metadata server.
@@ -36,26 +37,34 @@ final class GcpMetadataConfig {
 
   private GcpMetadataConfig() {}
 
+  @Nullable
   static String getProjectId() {
     return getAttribute("project/project-id");
   }
 
+  @Nullable
   static String getZone() {
     String zoneId = getAttribute("instance/zone");
+    if (zoneId == null) {
+      return null;
+    }
     if (zoneId.contains("/")) {
       return zoneId.substring(zoneId.lastIndexOf('/') + 1);
     }
     return zoneId;
   }
 
+  @Nullable
   static String getInstanceId() {
     return getAttribute("instance/id");
   }
 
+  @Nullable
   static String getClusterName() {
     return getAttribute("instance/attributes/cluster-name");
   }
 
+  @Nullable
   private static String getAttribute(String attributeName) {
     try {
       URL url = new URL(METADATA_URL + attributeName);

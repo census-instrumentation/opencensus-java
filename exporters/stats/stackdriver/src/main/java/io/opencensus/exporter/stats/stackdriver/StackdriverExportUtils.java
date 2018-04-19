@@ -387,9 +387,8 @@ final class StackdriverExportUtils {
         return "gke_container";
       case AwsEc2Instance:
         return "aws_ec2_instance";
-      default:
-        throw new IllegalArgumentException("Unknown resource type.");
     }
+    throw new IllegalArgumentException("Unknown resource type.");
   }
 
   private StackdriverExportUtils() {}

@@ -109,10 +109,10 @@ final class AwsIdentityDocUtils {
   static Map<String, String> parseAwsIdentityDocument(String awsIdentityDocument) {
     Map<String, String> map = new HashMap<String, String>();
     @SuppressWarnings("StringSplitter")
-    String[] lines = awsIdentityDocument.split(AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER);
+    String[] lines = awsIdentityDocument.split(AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER, -1);
     for (String line : lines) {
       @SuppressWarnings("StringSplitter")
-      String[] keyValuePair = line.split(AWS_IDENTITY_DOC_COLON_SPLITTER);
+      String[] keyValuePair = line.split(AWS_IDENTITY_DOC_COLON_SPLITTER, -1);
       if (keyValuePair.length != 2) {
         continue;
       }
