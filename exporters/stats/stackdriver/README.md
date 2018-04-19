@@ -70,9 +70,9 @@ public class MyMainClass {
 #### Set Monitored Resource for exporter
 
 By default, Stackdriver Stats Exporter will try to automatically detect the environment if your 
-application is running on GCE or GKE, and generate a corresponding Stackdriver GCE/GKE monitored 
-resource. For GKE particularly, you may want to set up some environment variables so that Exporter 
-can correctly identify your pod, cluster and container. Follow the Kubernetes instruction 
+application is running on GCE, GKE or AWS EC2, and generate a corresponding Stackdriver GCE/GKE/EC2 
+monitored resource. For GKE particularly, you may want to set up some environment variables so that 
+Exporter can correctly identify your pod, cluster and container. Follow the Kubernetes instruction 
 [here](https://cloud.google.com/kubernetes-engine/docs/tutorials/custom-metrics-autoscaling#exporting_metrics_from_the_application) 
 and [here](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/).
 
@@ -80,8 +80,8 @@ Otherwise, Exporter will use [a global Stackdriver monitored resource with a pro
 and it works fine when you have only one exporter running. 
 
 If you want to have multiple processes exporting stats for the same metric concurrently, and your 
-application is running on some different environment than GCE or GKE (for example AWS EC2), please 
-associate a unique monitored resource with each exporter if possible. 
+application is running on some different environment than GCE, GKE or AWS EC2 (for example DataFlow), 
+please associate a unique monitored resource with each exporter if possible. 
 Please note that there is also an "opencensus_task" metric label that uniquely identifies the 
 uploaded stats.
 
@@ -90,12 +90,12 @@ To set a custom MonitoredResource:
 ```java
 public class MyMainClass {
   public static void main(String[] args) {
-    // A sample AWS EC2 monitored resource.
+    // A sample DataFlow monitored resource.
     MonitoredResource myResource = MonitoredResource.newBuilder()
-                                               .setType("aws_ec2_instance")
-                                               .putLabels("instance_id", "instance")
-                                               .putLabels("aws_account", "account")
-                                               .putLabels("region", "aws:us-west-2")
+                                               .setType("dataflow_job")
+                                               .putLabels("project_id", "my_project")
+                                               .putLabels("job_name", "my_job")
+                                               .putLabels("region", "us-east1")
                                                .build();
     
     // Set a custom MonitoredResource. Please make sure each Stackdriver Stats Exporter has a 
