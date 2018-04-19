@@ -36,11 +36,11 @@ final class MetadataConfig {
 
   private MetadataConfig() {}
 
-  public static String getProjectId() {
+  static String getProjectId() {
     return getAttribute("project/project-id");
   }
 
-  public static String getZone() {
+  static String getZone() {
     String zoneId = getAttribute("instance/zone");
     if (zoneId.contains("/")) {
       return zoneId.substring(zoneId.lastIndexOf('/') + 1);
@@ -48,11 +48,11 @@ final class MetadataConfig {
     return zoneId;
   }
 
-  public static String getInstanceId() {
+  static String getInstanceId() {
     return getAttribute("instance/id");
   }
 
-  public static String getClusterName() {
+  static String getClusterName() {
     return getAttribute("instance/attributes/cluster-name");
   }
 
