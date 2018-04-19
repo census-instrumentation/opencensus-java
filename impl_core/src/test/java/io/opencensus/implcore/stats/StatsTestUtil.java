@@ -119,14 +119,6 @@ final class StatsTestUtil {
             return null;
           }
         },
-        new Function<MeanData, Void>() {
-          @Override
-          public Void apply(MeanData arg) {
-            assertThat(actual).isInstanceOf(MeanData.class);
-            assertThat(((MeanData) actual).getMean()).isWithin(tolerance).of(arg.getMean());
-            return null;
-          }
-        },
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
@@ -153,7 +145,19 @@ final class StatsTestUtil {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException());
+        new Function<AggregationData, Void>() {
+          @Override
+          public Void apply(AggregationData arg) {
+            if (arg instanceof MeanData) {
+              assertThat(actual).isInstanceOf(MeanData.class);
+              assertThat(((MeanData) actual).getMean())
+                  .isWithin(tolerance)
+                  .of(((MeanData) arg).getMean());
+              return null;
+            }
+            throw new IllegalArgumentException("Unknown Aggregation.");
+          }
+        });
   }
 
   // Create an empty ViewData with the given View.

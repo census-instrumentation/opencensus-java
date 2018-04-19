@@ -109,7 +109,6 @@ public class AggregationDataTest {
             SumDataDouble.create(10.0),
             SumDataLong.create(100000000),
             CountData.create(40),
-            MeanData.create(5.0, 1),
             DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 10L, 0L)),
             LastValueDataDouble.create(20.0),
             LastValueDataLong.create(200000000L));
@@ -138,13 +137,6 @@ public class AggregationDataTest {
               return null;
             }
           },
-          new Function<MeanData, Void>() {
-            @Override
-            public Void apply(MeanData arg) {
-              actual.add(arg.getMean());
-              return null;
-            }
-          },
           new Function<DistributionData, Void>() {
             @Override
             public Void apply(DistributionData arg) {
@@ -170,7 +162,7 @@ public class AggregationDataTest {
     }
 
     assertThat(actual)
-        .containsExactly(10.0, 100000000L, 40L, 5.0, Arrays.asList(0L, 10L, 0L), 20.0, 200000000L)
+        .containsExactly(10.0, 100000000L, 40L, Arrays.asList(0L, 10L, 0L), 20.0, 200000000L)
         .inOrder();
   }
 }

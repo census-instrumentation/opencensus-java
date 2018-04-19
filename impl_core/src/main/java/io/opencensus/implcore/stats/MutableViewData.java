@@ -161,10 +161,9 @@ abstract class MutableViewData {
     return aggregation.match(
         CreateMutableSum.INSTANCE,
         CreateMutableCount.INSTANCE,
-        CreateMutableMean.INSTANCE,
         CreateMutableDistribution.INSTANCE,
         CreateMutableLastValue.INSTANCE,
-        Functions.<MutableAggregation>throwIllegalArgumentException());
+        AggregationDefaultFunction.INSTANCE);
   }
 
   /**
@@ -499,14 +498,17 @@ abstract class MutableViewData {
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
 
-  private static final class CreateMutableMean
-      implements Function<Aggregation.Mean, MutableAggregation> {
+  private static final class AggregationDefaultFunction
+      implements Function<Aggregation, MutableAggregation> {
     @Override
-    public MutableAggregation apply(Aggregation.Mean arg) {
-      return MutableMean.create();
+    public MutableAggregation apply(Aggregation arg) {
+      if (arg instanceof Aggregation.Mean) {
+        return MutableMean.create();
+      }
+      throw new IllegalArgumentException("Unknown Aggregation.");
     }
 
-    private static final CreateMutableMean INSTANCE = new CreateMutableMean();
+    private static final AggregationDefaultFunction INSTANCE = new AggregationDefaultFunction();
   }
 
   private static final class CreateMutableDistribution

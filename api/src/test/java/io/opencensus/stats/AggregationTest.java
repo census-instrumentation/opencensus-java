@@ -80,30 +80,18 @@ public class AggregationTest {
             Distribution.create(BucketBoundaries.create(Arrays.asList(-10.0, 1.0, 5.0))),
             LastValue.create());
 
-    List<String> actual1 = new ArrayList<String>();
-    List<String> actual2 = new ArrayList<String>();
+    List<String> actual = new ArrayList<String>();
     for (Aggregation aggregation : aggregations) {
-      actual1.add(
+      actual.add(
           aggregation.match(
               Functions.returnConstant("SUM"),
               Functions.returnConstant("COUNT"),
-              Functions.returnConstant("MEAN"),
               Functions.returnConstant("DISTRIBUTION"),
               Functions.returnConstant("LASTVALUE"),
               Functions.returnConstant("UNKNOWN")));
-
-      // Test the deprecated match() method.
-      actual2.add(
-          aggregation.match(
-              Functions.returnConstant("SUM"),
-              Functions.returnConstant("COUNT"),
-              Functions.returnConstant("MEAN"),
-              Functions.returnConstant("DISTRIBUTION"),
-              Functions.returnConstant("UNKNOWN")));
     }
 
-    assertThat(actual1)
-        .isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION", "LASTVALUE"));
-    assertThat(actual2).isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION", "UNKNOWN"));
+    assertThat(actual)
+        .isEqualTo(Arrays.asList("SUM", "COUNT", "UNKNOWN", "DISTRIBUTION", "LASTVALUE"));
   }
 }

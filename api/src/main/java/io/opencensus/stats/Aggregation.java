@@ -47,30 +47,13 @@ public abstract class Aggregation {
   /**
    * Applies the given match function to the underlying data type.
    *
-   * @since 0.8
-   * @deprecated in favor of {@link #match(Function, Function, Function, Function, Function,
-   *     Function)}.
-   */
-  @Deprecated
-  public abstract <T> T match(
-      Function<? super Sum, T> p0,
-      Function<? super Count, T> p1,
-      Function<? super Mean, T> p2,
-      Function<? super Distribution, T> p3,
-      Function<? super Aggregation, T> defaultFunction);
-
-  /**
-   * Applies the given match function to the underlying data type.
-   *
    * @since 0.13
    */
-  @SuppressWarnings("InconsistentOverloads")
   public abstract <T> T match(
       Function<? super Sum, T> p0,
       Function<? super Count, T> p1,
-      Function<? super Mean, T> p2,
-      Function<? super Distribution, T> p3,
-      Function<? super LastValue, T> p4,
+      Function<? super Distribution, T> p2,
+      Function<? super LastValue, T> p3,
       Function<? super Aggregation, T> defaultFunction);
 
   /**
@@ -100,19 +83,8 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
-        Function<? super Aggregation, T> defaultFunction) {
-      return p0.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
-        Function<? super LastValue, T> p4,
+        Function<? super Distribution, T> p2,
+        Function<? super LastValue, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
       return p0.apply(this);
     }
@@ -145,19 +117,8 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
-        Function<? super Aggregation, T> defaultFunction) {
-      return p1.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
-        Function<? super LastValue, T> p4,
+        Function<? super Distribution, T> p2,
+        Function<? super LastValue, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
       return p1.apply(this);
     }
@@ -193,21 +154,10 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
+        Function<? super Distribution, T> p2,
+        Function<? super LastValue, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p2.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
-        Function<? super LastValue, T> p4,
-        Function<? super Aggregation, T> defaultFunction) {
-      return p2.apply(this);
+      return defaultFunction.apply(this);
     }
   }
 
@@ -246,21 +196,10 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
+        Function<? super Distribution, T> p2,
+        Function<? super LastValue, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return p3.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
-        Function<? super LastValue, T> p4,
-        Function<? super Aggregation, T> defaultFunction) {
-      return p3.apply(this);
+      return p2.apply(this);
     }
   }
 
@@ -291,21 +230,10 @@ public abstract class Aggregation {
     public final <T> T match(
         Function<? super Sum, T> p0,
         Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
+        Function<? super Distribution, T> p2,
+        Function<? super LastValue, T> p3,
         Function<? super Aggregation, T> defaultFunction) {
-      return defaultFunction.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super Sum, T> p0,
-        Function<? super Count, T> p1,
-        Function<? super Mean, T> p2,
-        Function<? super Distribution, T> p3,
-        Function<? super LastValue, T> p4,
-        Function<? super Aggregation, T> defaultFunction) {
-      return p4.apply(this);
+      return p3.apply(this);
     }
   }
 }

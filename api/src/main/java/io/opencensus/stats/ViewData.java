@@ -275,15 +275,6 @@ public abstract class ViewData {
             return null;
           }
         },
-        new Function<Aggregation.Mean, Void>() {
-          @Override
-          public Void apply(Aggregation.Mean arg) {
-            Utils.checkArgument(
-                aggregationData instanceof AggregationData.MeanData,
-                createErrorMessageForAggregation(aggregation, aggregationData));
-            return null;
-          }
-        },
         new Function<Distribution, Void>() {
           @Override
           public Void apply(Distribution arg) {
@@ -319,7 +310,18 @@ public abstract class ViewData {
             return null;
           }
         },
-        Functions.</*@Nullable*/ Void>throwAssertionError());
+        new Function<Aggregation, Void>() {
+          @Override
+          public Void apply(Aggregation arg) {
+            if (arg instanceof Aggregation.Mean) {
+              Utils.checkArgument(
+                  aggregationData instanceof AggregationData.MeanData,
+                  createErrorMessageForAggregation(aggregation, aggregationData));
+              return null;
+            }
+            throw new AssertionError();
+          }
+        });
   }
 
   private static String createErrorMessageForAggregation(
