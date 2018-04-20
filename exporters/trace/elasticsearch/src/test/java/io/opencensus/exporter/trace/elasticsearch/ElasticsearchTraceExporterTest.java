@@ -32,32 +32,31 @@ import org.mockito.MockitoAnnotations;
 @RunWith(JUnit4.class)
 public class ElasticsearchTraceExporterTest {
 
-  @Mock
-  private SpanExporter spanExporter;
+  @Mock private SpanExporter spanExporter;
   private ElasticsearchConfiguration elasticsearchConfiguration;
-
 
   @Before
   public void setUp() {
-    elasticsearchConfiguration = new ElasticsearchConfiguration("sample-app", null, null,
-        "http://url.com", "test", "test");
+    elasticsearchConfiguration =
+        ElasticsearchConfiguration.builder()
+            .setAppName("app-name")
+            .setUserName("username")
+            .setPassword("password")
+            .setElasticsearchUrl("http://localhost:9200")
+            .setElasticsearchIndex("opencensus")
+            .setElasticsearchType("type")
+            .build();
     MockitoAnnotations.initMocks(this);
   }
 
   @Test
   public void registerElasticsearchExporterService() throws Exception {
 
-    ElasticsearchTraceExporter.register(spanExporter,
-        new ElasticsearchTraceHandler(elasticsearchConfiguration));
-    verify(spanExporter)
-        .registerHandler(
-            anyString(),
-            any(ElasticsearchTraceHandler.class));
+    ElasticsearchTraceExporter.register(
+        spanExporter, new ElasticsearchTraceHandler(elasticsearchConfiguration));
+    verify(spanExporter).registerHandler(anyString(), any(ElasticsearchTraceHandler.class));
 
     ElasticsearchTraceExporter.unregister(spanExporter);
-    verify(spanExporter)
-        .unregisterHandler(anyString());
+    verify(spanExporter).unregisterHandler(anyString());
   }
-
-
 }
