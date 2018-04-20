@@ -31,10 +31,13 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
@@ -109,6 +112,7 @@ final class StatszZPageHandler extends ZPageHandler {
   private static final String TABLE_HEADER_HISTOGRAM = "Histogram";
   private static final String TABLE_HEADER_RANGE = "Range";
   private static final String TABLE_HEADER_BUCKET_SIZE = "Bucket Size";
+  private static final String TABLE_HEADER_LAST_VALUE = "Last Value";
   private static final long MILLIS_PER_SECOND = 1000;
   private static final long NANOS_PER_MILLISECOND = 1000 * 1000;
   private static final Splitter PATH_SPLITTER = Splitter.on('/');
@@ -317,9 +321,17 @@ final class StatszZPageHandler extends ZPageHandler {
             .match(
                 Functions.returnConstant("Sum"),
                 Functions.returnConstant("Count"),
-                Functions.returnConstant("Mean"),
+                Functions.returnConstant("Last Value"),
                 Functions.returnConstant("Distribution"),
-                Functions.<String>throwAssertionError());
+                new Function<Aggregation, String>() {
+                  @Override
+                  public String apply(Aggregation arg) {
+                    if (arg instanceof Aggregation.Mean) {
+                      return "Mean";
+                    }
+                    throw new AssertionError();
+                  }
+                });
     formatter.format("<td>%s</td>", aggregationType);
     windowData.match(
         new Function<ViewData.AggregationWindowData.CumulativeData, Void>() {
@@ -381,14 +393,6 @@ final class StatszZPageHandler extends ZPageHandler {
                 return null;
               }
             },
-            new Function<Aggregation.Mean, Void>() {
-              @Override
-              public Void apply(Aggregation.Mean arg) {
-                formatter.format("<th class=\"l1\">%s, %s</th>", TABLE_HEADER_MEAN, unit);
-                formatter.format("<th class=\"l1\">%s</th>", TABLE_HEADER_COUNT);
-                return null;
-              }
-            },
             new Function<Distribution, Void>() {
               @Override
               public Void apply(Distribution arg) {
@@ -401,7 +405,24 @@ final class StatszZPageHandler extends ZPageHandler {
                 return null;
               }
             },
-            Functions.</*@Nullable*/ Void>throwAssertionError());
+            new Function<LastValue, Void>() {
+              @Override
+              public Void apply(LastValue arg) {
+                formatter.format("<th class=\"l1\">%s, %s</th>", TABLE_HEADER_LAST_VALUE, unit);
+                return null;
+              }
+            },
+            new Function<Aggregation, Void>() {
+              @Override
+              public Void apply(Aggregation arg) {
+                if (arg instanceof Aggregation.Mean) {
+                  formatter.format("<th class=\"l1\">%s, %s</th>", TABLE_HEADER_MEAN, unit);
+                  formatter.format("<th class=\"l1\">%s</th>", TABLE_HEADER_COUNT);
+                  return null;
+                }
+                throw new IllegalArgumentException("Unknown Aggregation.");
+              }
+            });
     out.write("</tr>");
     out.write("</thead>");
   }
@@ -440,14 +461,6 @@ final class StatszZPageHandler extends ZPageHandler {
                 return null;
               }
             },
-            new Function<AggregationData.MeanData, Void>() {
-              @Override
-              public Void apply(AggregationData.MeanData arg) {
-                formatter.format("<td %s>%.3f</td>", ALIGN_CENTER, arg.getMean());
-                formatter.format("<td %s>%d</td>", ALIGN_CENTER, arg.getCount());
-                return null;
-              }
-            },
             new Function<DistributionData, Void>() {
               @Override
               public Void apply(DistributionData arg) {
@@ -466,7 +479,32 @@ final class StatszZPageHandler extends ZPageHandler {
                 return null;
               }
             },
-            Functions.</*@Nullable*/ Void>throwAssertionError());
+            new Function<LastValueDataDouble, Void>() {
+              @Override
+              public Void apply(LastValueDataDouble arg) {
+                formatter.format("<td %s>%.3f</td>", ALIGN_CENTER, arg.getLastValue());
+                return null;
+              }
+            },
+            new Function<LastValueDataLong, Void>() {
+              @Override
+              public Void apply(LastValueDataLong arg) {
+                formatter.format("<td %s>%d</td>", ALIGN_CENTER, arg.getLastValue());
+                return null;
+              }
+            },
+            new Function<AggregationData, Void>() {
+              @Override
+              public Void apply(AggregationData arg) {
+                if (arg instanceof AggregationData.MeanData) {
+                  AggregationData.MeanData meanData = (AggregationData.MeanData) arg;
+                  formatter.format("<td %s>%.3f</td>", ALIGN_CENTER, meanData.getMean());
+                  formatter.format("<td %s>%d</td>", ALIGN_CENTER, meanData.getCount());
+                  return null;
+                }
+                throw new IllegalArgumentException("Unknown Aggregation.");
+              }
+            });
     out.write("</tr>");
   }
 

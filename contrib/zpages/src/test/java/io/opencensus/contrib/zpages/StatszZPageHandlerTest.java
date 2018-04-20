@@ -34,8 +34,10 @@ import com.google.common.collect.Maps;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.stats.View.AggregationWindow.Cumulative;
@@ -221,9 +223,17 @@ public class StatszZPageHandlerTest {
             .match(
                 Functions.returnConstant("Sum"),
                 Functions.returnConstant("Count"),
-                Functions.returnConstant("Mean"),
+                Functions.returnConstant("Last Value"),
                 Functions.returnConstant("Distribution"),
-                Functions.<String>throwAssertionError());
+                new Function<Aggregation, String>() {
+                  @Override
+                  public String apply(Aggregation arg) {
+                    if (arg instanceof Aggregation.Mean) {
+                      return "Mean";
+                    }
+                    throw new AssertionError();
+                  }
+                });
     assertThat(output.toString()).contains(aggregationType);
     for (Map.Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
         viewData.getAggregationMap().entrySet()) {
@@ -238,14 +248,6 @@ public class StatszZPageHandlerTest {
               Functions.</*@Nullable*/ Void>throwAssertionError(),
               Functions.</*@Nullable*/ Void>throwAssertionError(),
               Functions.</*@Nullable*/ Void>throwAssertionError(),
-              new Function<AggregationData.MeanData, Void>() {
-                @Override
-                public Void apply(AggregationData.MeanData arg) {
-                  assertThat(output.toString()).contains(String.valueOf(arg.getCount()));
-                  assertThat(output.toString()).contains(String.valueOf(arg.getMean()));
-                  return null;
-                }
-              },
               new Function<AggregationData.DistributionData, Void>() {
                 @Override
                 public Void apply(AggregationData.DistributionData arg) {
@@ -258,7 +260,20 @@ public class StatszZPageHandlerTest {
                   return null;
                 }
               },
-              Functions.</*@Nullable*/ Void>throwAssertionError());
+              Functions.</*@Nullable*/ Void>throwAssertionError(),
+              Functions.</*@Nullable*/ Void>throwAssertionError(),
+              new Function<AggregationData, Void>() {
+                @Override
+                public Void apply(AggregationData arg) {
+                  if (arg instanceof MeanData) {
+                    MeanData meanData = (MeanData) arg;
+                    assertThat(output.toString()).contains(String.valueOf(meanData.getCount()));
+                    assertThat(output.toString()).contains(String.valueOf(meanData.getMean()));
+                    return null;
+                  }
+                  throw new AssertionError();
+                }
+              });
     }
   }
 }

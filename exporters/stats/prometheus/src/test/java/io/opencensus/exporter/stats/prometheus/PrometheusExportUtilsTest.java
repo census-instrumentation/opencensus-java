@@ -28,10 +28,13 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -71,6 +74,7 @@ public class PrometheusExportUtilsTest {
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(Arrays.asList(-5.0, 0.0, 5.0));
   private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
+  private static final LastValue LAST_VALUE = LastValue.create();
   private static final View.Name VIEW_NAME_1 = View.Name.create("view1");
   private static final View.Name VIEW_NAME_2 = View.Name.create("view2");
   private static final View.Name VIEW_NAME_3 = View.Name.create("view-3");
@@ -90,6 +94,8 @@ public class PrometheusExportUtilsTest {
   private static final MeanData MEAN_DATA = MeanData.create(3.4, 22);
   private static final DistributionData DISTRIBUTION_DATA =
       DistributionData.create(4.4, 5, -3.2, 15.7, 135.22, Arrays.asList(0L, 2L, 2L, 1L));
+  private static final LastValueDataDouble LAST_VALUE_DATA_DOUBLE = LastValueDataDouble.create(7.9);
+  private static final LastValueDataLong LAST_VALUE_DATA_LONG = LastValueDataLong.create(66666666);
   private static final View VIEW1 =
       View.create(
           VIEW_NAME_1, DESCRIPTION, MEASURE_DOUBLE, COUNT, Arrays.asList(K1, K2), CUMULATIVE);
@@ -121,6 +127,7 @@ public class PrometheusExportUtilsTest {
     assertThat(PrometheusExportUtils.getType(DISTRIBUTION, CUMULATIVE)).isEqualTo(Type.HISTOGRAM);
     assertThat(PrometheusExportUtils.getType(SUM, CUMULATIVE)).isEqualTo(Type.UNTYPED);
     assertThat(PrometheusExportUtils.getType(MEAN, CUMULATIVE)).isEqualTo(Type.SUMMARY);
+    assertThat(PrometheusExportUtils.getType(LAST_VALUE, CUMULATIVE)).isEqualTo(Type.GAUGE);
   }
 
   @Test
@@ -190,6 +197,16 @@ public class PrometheusExportUtilsTest {
             new Sample(SAMPLE_NAME + "_count", Arrays.asList("k1"), Arrays.asList("v1"), 5),
             new Sample(SAMPLE_NAME + "_sum", Arrays.asList("k1"), Arrays.asList("v1"), 22.0))
         .inOrder();
+    assertThat(
+            PrometheusExportUtils.getSamples(
+                SAMPLE_NAME, Arrays.asList(K1, K2), Arrays.asList(V1, V2), LAST_VALUE_DATA_DOUBLE))
+        .containsExactly(
+            new Sample(SAMPLE_NAME, Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 7.9));
+    assertThat(
+            PrometheusExportUtils.getSamples(
+                SAMPLE_NAME, Arrays.asList(K3), Arrays.asList(V3), LAST_VALUE_DATA_LONG))
+        .containsExactly(
+            new Sample(SAMPLE_NAME, Arrays.asList("k_3"), Arrays.asList("v-3"), 66666666));
   }
 
   @Test

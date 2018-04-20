@@ -44,9 +44,12 @@ import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeCont
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
 import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.BucketBoundaries;
@@ -131,7 +134,7 @@ final class StackdriverExportUtils {
             .setValueType(ValueType.STRING)
             .build());
     builder.setUnit(createUnit(view.getAggregation(), view.getMeasure()));
-    builder.setMetricKind(createMetricKind(view.getWindow()));
+    builder.setMetricKind(createMetricKind(view.getWindow(), view.getAggregation()));
     builder.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
     return builder.build();
   }
@@ -153,7 +156,10 @@ final class StackdriverExportUtils {
 
   // Construct a MetricKind from an AggregationWindow
   @VisibleForTesting
-  static MetricKind createMetricKind(View.AggregationWindow window) {
+  static MetricKind createMetricKind(View.AggregationWindow window, Aggregation aggregation) {
+    if (aggregation instanceof LastValue) {
+      return MetricKind.GAUGE;
+    }
     return window.match(
         Functions.returnConstant(MetricKind.CUMULATIVE), // Cumulative
         // TODO(songya): We don't support exporting Interval stats to StackDriver in this version.
@@ -167,8 +173,8 @@ final class StackdriverExportUtils {
     return aggregation.match(
         Functions.returnConstant(measure.getUnit()),
         Functions.returnConstant("1"), // Count
-        Functions.returnConstant(measure.getUnit()), // Mean
         Functions.returnConstant(measure.getUnit()), // Distribution
+        Functions.returnConstant(measure.getUnit()), // LastValue
         Functions.returnConstant(measure.getUnit()));
   }
 
@@ -183,9 +189,21 @@ final class StackdriverExportUtils {
                 Functions.returnConstant(MetricDescriptor.ValueType.INT64), // Sum Long
                 Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED))),
         Functions.returnConstant(MetricDescriptor.ValueType.INT64), // Count
-        Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE), // Mean
         Functions.returnConstant(MetricDescriptor.ValueType.DISTRIBUTION), // Distribution
-        Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED));
+        Functions.returnConstant(
+            measure.match(
+                Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE), // LastValue Double
+                Functions.returnConstant(MetricDescriptor.ValueType.INT64), // LastValue Long
+                Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED))),
+        new Function<Aggregation, MetricDescriptor.ValueType>() {
+          @Override
+          public MetricDescriptor.ValueType apply(Aggregation arg) {
+            if (arg instanceof Aggregation.Mean) {
+              return MetricDescriptor.ValueType.DOUBLE;
+            }
+            return MetricDescriptor.ValueType.UNRECOGNIZED;
+          }
+        });
   }
 
   // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
@@ -203,7 +221,7 @@ final class StackdriverExportUtils {
 
     // Shared fields for all TimeSeries generated from the same ViewData
     TimeSeries.Builder shared = TimeSeries.newBuilder();
-    shared.setMetricKind(createMetricKind(view.getWindow()));
+    shared.setMetricKind(createMetricKind(view.getWindow(), view.getAggregation()));
     shared.setResource(monitoredResource);
     shared.setValueType(createValueType(view.getAggregation(), view.getMeasure()));
 
@@ -301,13 +319,6 @@ final class StackdriverExportUtils {
             return null;
           }
         },
-        new Function<AggregationData.MeanData, Void>() {
-          @Override
-          public Void apply(AggregationData.MeanData arg) {
-            builder.setDoubleValue(arg.getMean());
-            return null;
-          }
-        },
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
@@ -320,7 +331,30 @@ final class StackdriverExportUtils {
             return null;
           }
         },
-        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
+        new Function<LastValueDataDouble, Void>() {
+          @Override
+          public Void apply(LastValueDataDouble arg) {
+            builder.setDoubleValue(arg.getLastValue());
+            return null;
+          }
+        },
+        new Function<LastValueDataLong, Void>() {
+          @Override
+          public Void apply(LastValueDataLong arg) {
+            builder.setInt64Value(arg.getLastValue());
+            return null;
+          }
+        },
+        new Function<AggregationData, Void>() {
+          @Override
+          public Void apply(AggregationData arg) {
+            if (arg instanceof AggregationData.MeanData) {
+              builder.setDoubleValue(((AggregationData.MeanData) arg).getMean());
+              return null;
+            }
+            throw new IllegalArgumentException("Unknown Aggregation");
+          }
+        });
     return builder.build();
   }
 

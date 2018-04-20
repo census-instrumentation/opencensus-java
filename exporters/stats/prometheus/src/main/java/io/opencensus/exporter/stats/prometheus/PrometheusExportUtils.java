@@ -28,6 +28,8 @@ import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View;
@@ -56,17 +58,19 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * <p>{@link Aggregation} will be converted to a corresponding Prometheus {@link Type}. {@link Sum}
  * will be {@link Type#UNTYPED}, {@link Count} will be {@link Type#COUNTER}, {@link
- * Aggregation.Mean} will be {@link Type#SUMMARY} and {@link Distribution} will be {@link
- * Type#HISTOGRAM}. Please note we cannot set bucket boundaries for custom {@link Type#HISTOGRAM}.
+ * Aggregation.Mean} will be {@link Type#SUMMARY}, {@link Aggregation.LastValue} will be {@link
+ * Type#GAUGE} and {@link Distribution} will be {@link Type#HISTOGRAM}. Please note we cannot set
+ * bucket boundaries for custom {@link Type#HISTOGRAM}.
  *
  * <p>Each OpenCensus {@link ViewData} will be converted to a Prometheus {@link
  * MetricFamilySamples}, and each {@code Row} of the {@link ViewData} will be converted to
  * Prometheus {@link Sample}s.
  *
- * <p>{@link SumDataDouble}, {@link SumDataLong} and {@link CountData} will be converted to a single
- * {@link Sample}. {@link AggregationData.MeanData} will be converted to two {@link Sample}s sum and
- * count. {@link DistributionData} will be converted to a list of {@link Sample}s that have the sum,
- * count and histogram buckets.
+ * <p>{@link SumDataDouble}, {@link SumDataLong}, {@link LastValueDataDouble}, {@link
+ * LastValueDataLong} and {@link CountData} will be converted to a single {@link Sample}. {@link
+ * AggregationData.MeanData} will be converted to two {@link Sample}s sum and count. {@link
+ * DistributionData} will be converted to a list of {@link Sample}s that have the sum, count and
+ * histogram buckets.
  *
  * <p>{@link TagKey} and {@link TagValue} will be converted to Prometheus {@code LabelName} and
  * {@code LabelValue}. {@code Null} {@link TagValue} will be converted to an empty string.
@@ -116,9 +120,17 @@ final class PrometheusExportUtils {
     return aggregation.match(
         Functions.returnConstant(Type.UNTYPED), // SUM
         Functions.returnConstant(Type.COUNTER), // COUNT
-        Functions.returnConstant(Type.SUMMARY), // MEAN
         Functions.returnConstant(Type.HISTOGRAM), // DISTRIBUTION
-        Functions.returnConstant(Type.UNTYPED));
+        Functions.returnConstant(Type.GAUGE), // LAST VALUE
+        new Function<Aggregation, Type>() {
+          @Override
+          public Type apply(Aggregation arg) {
+            if (arg instanceof Aggregation.Mean) {
+              return Type.SUMMARY;
+            }
+            return Type.UNTYPED;
+          }
+        });
   }
 
   @VisibleForTesting
@@ -162,21 +174,6 @@ final class PrometheusExportUtils {
             return null;
           }
         },
-        new Function<AggregationData.MeanData, Void>() {
-          @Override
-          public Void apply(AggregationData.MeanData arg) {
-            samples.add(
-                new MetricFamilySamples.Sample(
-                    name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, arg.getCount()));
-            samples.add(
-                new MetricFamilySamples.Sample(
-                    name + SAMPLE_SUFFIX_SUM,
-                    labelNames,
-                    labelValues,
-                    arg.getCount() * arg.getMean()));
-            return null;
-          }
-        },
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
@@ -197,7 +194,39 @@ final class PrometheusExportUtils {
             return null;
           }
         },
-        Functions.</*@Nullable*/ Void>throwAssertionError());
+        new Function<LastValueDataDouble, Void>() {
+          @Override
+          public Void apply(LastValueDataDouble arg) {
+            samples.add(new Sample(name, labelNames, labelValues, arg.getLastValue()));
+            return null;
+          }
+        },
+        new Function<LastValueDataLong, Void>() {
+          @Override
+          public Void apply(LastValueDataLong arg) {
+            samples.add(new Sample(name, labelNames, labelValues, arg.getLastValue()));
+            return null;
+          }
+        },
+        new Function<AggregationData, Void>() {
+          @Override
+          public Void apply(AggregationData arg) {
+            if (arg instanceof AggregationData.MeanData) {
+              AggregationData.MeanData meanData = (AggregationData.MeanData) arg;
+              samples.add(
+                  new MetricFamilySamples.Sample(
+                      name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, meanData.getCount()));
+              samples.add(
+                  new MetricFamilySamples.Sample(
+                      name + SAMPLE_SUFFIX_SUM,
+                      labelNames,
+                      labelValues,
+                      meanData.getCount() * meanData.getMean()));
+              return null;
+            }
+            throw new IllegalArgumentException("Unknown Aggregation.");
+          }
+        });
 
     return samples;
   }
