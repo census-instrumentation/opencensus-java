@@ -20,6 +20,8 @@ package io.opencensus.implcore.internal;
 public interface EventQueue {
   void enqueue(Entry entry);
 
+  void shutdown();
+
   /**
    * Base interface to be used for all entries in {@link EventQueue}. For example usage, see {@code
    * DisruptorEventQueue}.

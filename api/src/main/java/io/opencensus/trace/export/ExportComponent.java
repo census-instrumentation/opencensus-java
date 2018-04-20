@@ -66,6 +66,8 @@ public abstract class ExportComponent {
    */
   public abstract SampledSpanStore getSampledSpanStore();
 
+  public abstract void flushAndShutdown();
+
   private static final class NoopExportComponent extends ExportComponent {
     private final SampledSpanStore noopSampledSpanStore =
         SampledSpanStore.newNoopSampledSpanStore();
@@ -84,5 +86,8 @@ public abstract class ExportComponent {
     public SampledSpanStore getSampledSpanStore() {
       return noopSampledSpanStore;
     }
+
+    @Override
+    public void flushAndShutdown() {}
   }
 }

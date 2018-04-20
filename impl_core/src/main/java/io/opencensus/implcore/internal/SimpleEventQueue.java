@@ -26,4 +26,7 @@ public class SimpleEventQueue implements EventQueue {
   public void enqueue(Entry entry) {
     entry.process();
   }
+
+  @Override
+  public void shutdown() {}
 }

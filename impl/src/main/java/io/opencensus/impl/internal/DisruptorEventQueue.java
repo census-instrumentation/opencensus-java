@@ -143,6 +143,17 @@ public final class DisruptorEventQueue implements EventQueue {
     }
   }
 
+  /**
+   * Shuts down the underlying disruptor.
+   *
+   * <p>Unfortunately there is no underlying public flush mechanism, without it there is a race
+   * condition in the ring buffer where it can hold events into the jvm shutdown.
+   */
+  @Override
+  public void shutdown() {
+    disruptor.shutdown();
+  }
+
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.
   private static final class DisruptorEvent {
     // TODO(bdrutu): Investigate if volatile is needed. This object is shared between threads so

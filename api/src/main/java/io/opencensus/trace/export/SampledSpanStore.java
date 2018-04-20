@@ -133,6 +133,13 @@ public abstract class SampledSpanStore {
   public abstract Set<String> getRegisteredSpanNamesForCollection();
 
   /**
+   * This forces any underlying event queue to flush any pending events and shutdown and handlers.
+   *
+   * @since 0.13
+   */
+  public abstract void shutdown();
+
+  /**
    * The summary of all available data.
    *
    * @since 0.5
@@ -520,5 +527,8 @@ public abstract class SampledSpanStore {
         return Collections.<String>unmodifiableSet(new HashSet<String>(registeredSpanNames));
       }
     }
+
+    @Override
+    public void shutdown() {}
   }
 }

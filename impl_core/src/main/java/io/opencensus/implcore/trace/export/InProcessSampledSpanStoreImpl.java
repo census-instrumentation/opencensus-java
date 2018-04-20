@@ -275,6 +275,11 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
     eventQueue.enqueue(new RegisterSpanNameEvent(this, spanNames));
   }
 
+  @Override
+  public void shutdown() {
+    eventQueue.shutdown();
+  }
+
   private void internaltRegisterSpanNamesForCollection(Collection<String> spanNames) {
     synchronized (samples) {
       for (String spanName : spanNames) {
