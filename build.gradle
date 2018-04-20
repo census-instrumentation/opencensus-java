@@ -366,6 +366,7 @@ subprojects {
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',
                  'opencensus-exporter-stats-stackdriver',
+                 'opencensus-exporter-trace-elasticsearch',
                  'opencensus-exporter-trace-instana',
                  'opencensus-exporter-trace-logging',
                  'opencensus-exporter-trace-stackdriver',
