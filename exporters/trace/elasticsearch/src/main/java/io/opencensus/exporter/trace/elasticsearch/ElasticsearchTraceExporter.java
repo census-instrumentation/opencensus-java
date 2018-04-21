@@ -71,6 +71,8 @@ public class ElasticsearchTraceExporter {
   @Nullable
   private static Handler handler = null;
 
+  public ElasticsearchTraceExporter() {}
+
   /**
    * Creates and registers the ElasticsearchTraceExporter to the OpenCensus.
    *
