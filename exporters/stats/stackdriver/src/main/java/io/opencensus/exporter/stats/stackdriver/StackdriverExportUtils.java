@@ -38,7 +38,9 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.contrib.monitoredresource.util.LabelKey;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2MonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtil;
 import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.stats.Aggregation;
@@ -372,10 +374,7 @@ final class StackdriverExportUtils {
       return builder.setType("global").build();
     }
     builder.setType(mapToStackdriverResourceType(autoDetectedResource.getResourceType()));
-    Map<LabelKey, String> labels = autoDetectedResource.getLabels();
-    for (Entry<LabelKey, String> label : labels.entrySet()) {
-      builder.putLabels(label.getKey().getKey(), label.getValue());
-    }
+    setMonitoredResourceLabelsForBuilder(builder, autoDetectedResource);
     return builder.build();
   }
 
@@ -389,6 +388,33 @@ final class StackdriverExportUtils {
         return "aws_ec2_instance";
     }
     throw new IllegalArgumentException("Unknown resource type.");
+  }
+
+  private static void setMonitoredResourceLabelsForBuilder(
+      MonitoredResource.Builder builder,
+      io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource) {
+    if (autoDetectedResource instanceof AwsEc2MonitoredResource) {
+      AwsEc2MonitoredResource awsEc2MonitoredResource =
+          (AwsEc2MonitoredResource) autoDetectedResource;
+      builder.putLabels("aws_account", awsEc2MonitoredResource.getAccount());
+      builder.putLabels("instance_id", awsEc2MonitoredResource.getInstanceId());
+      builder.putLabels("region", awsEc2MonitoredResource.getRegion());
+    } else if (autoDetectedResource instanceof GcpGceInstanceMonitoredResource) {
+      GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
+          (GcpGceInstanceMonitoredResource) autoDetectedResource;
+      builder.putLabels("instance_id", gcpGceInstanceMonitoredResource.getInstanceId());
+      builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
+    } else if (autoDetectedResource instanceof GcpGkeContainerMonitoredResource) {
+      GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
+          (GcpGkeContainerMonitoredResource) autoDetectedResource;
+      builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
+      builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
+      builder.putLabels("namespace_id", gcpGkeContainerMonitoredResource.getNamespaceId());
+      builder.putLabels("instance_id", gcpGkeContainerMonitoredResource.getInstanceId());
+      builder.putLabels("pod_id", gcpGkeContainerMonitoredResource.getPodId());
+      builder.putLabels("zone", gcpGkeContainerMonitoredResource.getZone());
+    }
+    throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
   }
 
   private StackdriverExportUtils() {}

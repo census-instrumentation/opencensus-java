@@ -17,9 +17,6 @@
 package io.opencensus.contrib.monitoredresource.util;
 
 import com.google.auto.value.AutoValue;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -43,15 +40,6 @@ public abstract class MonitoredResource {
    */
   public abstract ResourceType getResourceType();
 
-  /**
-   * Returns the map of {@link LabelKey}s to {@code LabelValue}s, associated with this {@code
-   * MonitoredResource}.
-   *
-   * @return {@code Label}s.
-   * @since 0.13
-   */
-  public abstract Map<LabelKey, String> getLabels();
-
   /*
    * Returns the first of two given parameters that is not null, if either is, or otherwise
    * throws a NullPointerException.
@@ -66,9 +54,14 @@ public abstract class MonitoredResource {
     throw new NullPointerException("Both parameters are null");
   }
 
+  /**
+   * {@link MonitoredResource} for AWS EC2 instance.
+   *
+   * @since 0.13
+   */
   @Immutable
   @AutoValue
-  abstract static class AwsEc2MonitoredResource extends MonitoredResource {
+  public abstract static class AwsEc2MonitoredResource extends MonitoredResource {
 
     private static final String AWS_ACCOUNT =
         firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("accountId"), "");
@@ -77,66 +70,89 @@ public abstract class MonitoredResource {
     private static final String AWS_REGION =
         firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("region"), "");
 
-    private static final Map<LabelKey, String> AWS_EC2_LABELS;
-
-    static {
-      Map<LabelKey, String> awsEc2Labels = new HashMap<LabelKey, String>();
-      awsEc2Labels.put(LabelKey.AwsAccount, AWS_ACCOUNT);
-      awsEc2Labels.put(LabelKey.AwsInstanceId, AWS_INSTANCE_ID);
-      awsEc2Labels.put(LabelKey.AwsRegion, AWS_REGION);
-      AWS_EC2_LABELS = Collections.unmodifiableMap(awsEc2Labels);
-    }
-
     @Override
     public ResourceType getResourceType() {
       return ResourceType.AwsEc2Instance;
     }
 
-    @Override
-    public Map<LabelKey, String> getLabels() {
-      return AWS_EC2_LABELS;
-    }
+    /**
+     * Returns the AWS account ID.
+     *
+     * @return the AWS account ID.
+     * @since 0.13
+     */
+    public abstract String getAccount();
+
+    /**
+     * Returns the AWS EC2 instance ID.
+     *
+     * @return the AWS EC2 instance ID.
+     * @since 0.13
+     */
+    public abstract String getInstanceId();
+
+    /**
+     * Returns the AWS region.
+     *
+     * @return the AWS region.
+     * @since 0.13
+     */
+    public abstract String getRegion();
 
     static AwsEc2MonitoredResource create() {
-      return new AutoValue_MonitoredResource_AwsEc2MonitoredResource();
+      return new AutoValue_MonitoredResource_AwsEc2MonitoredResource(
+          AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
     }
   }
 
+  /**
+   * {@link MonitoredResource} for GCP GCE instance.
+   *
+   * @since 0.13
+   */
   @Immutable
   @AutoValue
-  abstract static class GcpGceInstanceMonitoredResource extends MonitoredResource {
+  public abstract static class GcpGceInstanceMonitoredResource extends MonitoredResource {
 
     private static final String GCP_INSTANCE_ID =
         firstNonNull(GcpMetadataConfig.getInstanceId(), "");
     private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
-
-    private static final Map<LabelKey, String> GCP_GCE_LABELS;
-
-    static {
-      Map<LabelKey, String> gcpGceLabels = new HashMap<LabelKey, String>();
-      gcpGceLabels.put(LabelKey.GcpInstanceId, GCP_INSTANCE_ID);
-      gcpGceLabels.put(LabelKey.GcpZone, GCP_ZONE);
-      GCP_GCE_LABELS = Collections.unmodifiableMap(gcpGceLabels);
-    }
 
     @Override
     public ResourceType getResourceType() {
       return ResourceType.GceInstance;
     }
 
-    @Override
-    public Map<LabelKey, String> getLabels() {
-      return GCP_GCE_LABELS;
-    }
+    /**
+     * Returns the GCP GCE instance ID.
+     *
+     * @return the GCP GCE instance ID.
+     * @since 0.13
+     */
+    public abstract String getInstanceId();
+
+    /**
+     * Returns the GCP zone.
+     *
+     * @return the GCP zone.
+     * @since 0.13
+     */
+    public abstract String getZone();
 
     static GcpGceInstanceMonitoredResource create() {
-      return new AutoValue_MonitoredResource_GcpGceInstanceMonitoredResource();
+      return new AutoValue_MonitoredResource_GcpGceInstanceMonitoredResource(
+          GCP_INSTANCE_ID, GCP_ZONE);
     }
   }
 
+  /**
+   * {@link MonitoredResource} for GCP GKE container.
+   *
+   * @since 0.13
+   */
   @Immutable
   @AutoValue
-  abstract static class GcpGkeContainerMonitoredResource extends MonitoredResource {
+  public abstract static class GcpGkeContainerMonitoredResource extends MonitoredResource {
 
     private static final String GCP_CLUSTER_NAME =
         firstNonNull(GcpMetadataConfig.getClusterName(), "");
@@ -148,31 +164,67 @@ public abstract class MonitoredResource {
     private static final String GCP_POD_ID = firstNonNull(System.getenv("HOSTNAME"), "");
     private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
 
-    private static final Map<LabelKey, String> GCP_GKE_LABELS;
-
-    static {
-      Map<LabelKey, String> gcpGkeLabels = new HashMap<LabelKey, String>();
-      gcpGkeLabels.put(LabelKey.GcpClusterName, GCP_CLUSTER_NAME);
-      gcpGkeLabels.put(LabelKey.GcpContainerName, GCP_CONTAINER_NAME);
-      gcpGkeLabels.put(LabelKey.GcpNamespaceId, GCP_NAMESPACE_ID);
-      gcpGkeLabels.put(LabelKey.GcpInstanceId, GCP_INSTANCE_ID);
-      gcpGkeLabels.put(LabelKey.GcpGkePodId, GCP_POD_ID);
-      gcpGkeLabels.put(LabelKey.GcpZone, GCP_ZONE);
-      GCP_GKE_LABELS = Collections.unmodifiableMap(gcpGkeLabels);
-    }
-
     @Override
     public ResourceType getResourceType() {
       return ResourceType.GkeContainer;
     }
 
-    @Override
-    public Map<LabelKey, String> getLabels() {
-      return GCP_GKE_LABELS;
-    }
+    /**
+     * Returns the GCP GKE cluster name.
+     *
+     * @return the GCP GKE cluster name.
+     * @since 0.13
+     */
+    public abstract String getClusterName();
+
+    /**
+     * Returns the GCP GKE container name.
+     *
+     * @return the GCP GKE container name.
+     * @since 0.13
+     */
+    public abstract String getContainerName();
+
+    /**
+     * Returns the GCP GKE namespace ID.
+     *
+     * @return the GCP GKE namespace ID.
+     * @since 0.13
+     */
+    public abstract String getNamespaceId();
+
+    /**
+     * Returns the GCP GKE instance ID.
+     *
+     * @return the GCP GKE instance ID.
+     * @since 0.13
+     */
+    public abstract String getInstanceId();
+
+    /**
+     * Returns the GCP GKE Pod ID.
+     *
+     * @return the GCP GKE Pod ID.
+     * @since 0.13
+     */
+    public abstract String getPodId();
+
+    /**
+     * Returns the GCP zone.
+     *
+     * @return the GCP zone.
+     * @since 0.13
+     */
+    public abstract String getZone();
 
     static GcpGkeContainerMonitoredResource create() {
-      return new AutoValue_MonitoredResource_GcpGkeContainerMonitoredResource();
+      return new AutoValue_MonitoredResource_GcpGkeContainerMonitoredResource(
+          GCP_CLUSTER_NAME,
+          GCP_CONTAINER_NAME,
+          GCP_NAMESPACE_ID,
+          GCP_INSTANCE_ID,
+          GCP_POD_ID,
+          GCP_ZONE);
     }
   }
 }
