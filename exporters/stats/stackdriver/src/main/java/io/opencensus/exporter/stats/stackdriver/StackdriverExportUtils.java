@@ -398,7 +398,7 @@ final class StackdriverExportUtils {
           (AwsEc2MonitoredResource) autoDetectedResource;
       builder.putLabels("aws_account", awsEc2MonitoredResource.getAccount());
       builder.putLabels("instance_id", awsEc2MonitoredResource.getInstanceId());
-      builder.putLabels("region", awsEc2MonitoredResource.getRegion());
+      builder.putLabels("region", "aws:" + awsEc2MonitoredResource.getRegion());
     } else if (autoDetectedResource instanceof GcpGceInstanceMonitoredResource) {
       GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
           (GcpGceInstanceMonitoredResource) autoDetectedResource;
