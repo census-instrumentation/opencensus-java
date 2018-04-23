@@ -120,7 +120,7 @@ public abstract class MonitoredResource {
 
     @Override
     public ResourceType getResourceType() {
-      return ResourceType.GceInstance;
+      return ResourceType.GcpGceInstance;
     }
 
     /**
@@ -166,7 +166,7 @@ public abstract class MonitoredResource {
 
     @Override
     public ResourceType getResourceType() {
-      return ResourceType.GkeContainer;
+      return ResourceType.GcpGkeContainer;
     }
 
     /**

@@ -36,7 +36,7 @@ final class AwsIdentityDocUtils {
   private static final String AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER = "\n";
   private static final String AWS_IDENTITY_DOC_COLON_SPLITTER = ":";
 
-  static final URI AWS_INSTANCE_IDENTITY_DOCUMENT_URI =
+  private static final URI AWS_INSTANCE_IDENTITY_DOCUMENT_URI =
       URI.create("http://169.254.169.254/latest/dynamic/instance-identity/document");
 
   @GuardedBy("monitor")

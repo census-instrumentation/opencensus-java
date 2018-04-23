@@ -76,10 +76,10 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
-  @VisibleForTesting static final String GCP_GKE_CONTAINER = "gke_container";
-  @VisibleForTesting static final String GCP_GCE_INSTANCE = "gce_instance";
-  @VisibleForTesting static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
-  @VisibleForTesting static final String GLOBAL = "global";
+  private static final String GCP_GKE_CONTAINER = "gke_container";
+  private static final String GCP_GCE_INSTANCE = "gce_instance";
+  private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
+  private static final String GLOBAL = "global";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
@@ -371,7 +371,7 @@ final class StackdriverExportUtils {
     io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
         MonitoredResourceUtil.getDefaultResource();
     if (autoDetectedResource == null) {
-      return builder.setType("global").build();
+      return builder.setType(GLOBAL).build();
     }
     builder.setType(mapToStackdriverResourceType(autoDetectedResource.getResourceType()));
     setMonitoredResourceLabelsForBuilder(builder, autoDetectedResource);
@@ -380,12 +380,12 @@ final class StackdriverExportUtils {
 
   private static String mapToStackdriverResourceType(ResourceType resourceType) {
     switch (resourceType) {
-      case GceInstance:
-        return "gce_instance";
-      case GkeContainer:
-        return "gke_container";
+      case GcpGceInstance:
+        return GCP_GCE_INSTANCE;
+      case GcpGkeContainer:
+        return GCP_GKE_CONTAINER;
       case AwsEc2Instance:
-        return "aws_ec2_instance";
+        return AWS_EC2_INSTANCE;
     }
     throw new IllegalArgumentException("Unknown resource type.");
   }
