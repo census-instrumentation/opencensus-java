@@ -54,6 +54,9 @@ public abstract class MonitoredResource {
     throw new NullPointerException("Both parameters are null");
   }
 
+  // TODO(songya): consider using a tagged union match() approach (that will introduce
+  // dependency on opencensus-api).
+
   /**
    * {@link MonitoredResource} for AWS EC2 instance.
    *

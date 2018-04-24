@@ -393,26 +393,33 @@ final class StackdriverExportUtils {
   private static void setMonitoredResourceLabelsForBuilder(
       MonitoredResource.Builder builder,
       io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource) {
-    if (autoDetectedResource instanceof AwsEc2MonitoredResource) {
-      AwsEc2MonitoredResource awsEc2MonitoredResource =
-          (AwsEc2MonitoredResource) autoDetectedResource;
-      builder.putLabels("aws_account", awsEc2MonitoredResource.getAccount());
-      builder.putLabels("instance_id", awsEc2MonitoredResource.getInstanceId());
-      builder.putLabels("region", "aws:" + awsEc2MonitoredResource.getRegion());
-    } else if (autoDetectedResource instanceof GcpGceInstanceMonitoredResource) {
-      GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
-          (GcpGceInstanceMonitoredResource) autoDetectedResource;
-      builder.putLabels("instance_id", gcpGceInstanceMonitoredResource.getInstanceId());
-      builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
-    } else if (autoDetectedResource instanceof GcpGkeContainerMonitoredResource) {
-      GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
-          (GcpGkeContainerMonitoredResource) autoDetectedResource;
-      builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
-      builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
-      builder.putLabels("namespace_id", gcpGkeContainerMonitoredResource.getNamespaceId());
-      builder.putLabels("instance_id", gcpGkeContainerMonitoredResource.getInstanceId());
-      builder.putLabels("pod_id", gcpGkeContainerMonitoredResource.getPodId());
-      builder.putLabels("zone", gcpGkeContainerMonitoredResource.getZone());
+    switch (autoDetectedResource.getResourceType()) {
+      case GcpGceInstance:
+        @SuppressWarnings("unchecked")
+        GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
+            (GcpGceInstanceMonitoredResource) autoDetectedResource;
+        builder.putLabels("instance_id", gcpGceInstanceMonitoredResource.getInstanceId());
+        builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
+        return;
+      case GcpGkeContainer:
+        @SuppressWarnings("unchecked")
+        GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
+            (GcpGkeContainerMonitoredResource) autoDetectedResource;
+        builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
+        builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
+        builder.putLabels("namespace_id", gcpGkeContainerMonitoredResource.getNamespaceId());
+        builder.putLabels("instance_id", gcpGkeContainerMonitoredResource.getInstanceId());
+        builder.putLabels("pod_id", gcpGkeContainerMonitoredResource.getPodId());
+        builder.putLabels("zone", gcpGkeContainerMonitoredResource.getZone());
+        return;
+      case AwsEc2Instance:
+        @SuppressWarnings("unchecked")
+        AwsEc2MonitoredResource awsEc2MonitoredResource =
+            (AwsEc2MonitoredResource) autoDetectedResource;
+        builder.putLabels("aws_account", awsEc2MonitoredResource.getAccount());
+        builder.putLabels("instance_id", awsEc2MonitoredResource.getInstanceId());
+        builder.putLabels("region", "aws:" + awsEc2MonitoredResource.getRegion());
+        return;
     }
     throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
   }
