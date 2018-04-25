@@ -96,6 +96,8 @@ public abstract class Span {
     // Not final because for performance reasons we want to override this in the implementation.
     // Also a default implementation is needed to not break the compatibility (users may extend this
     // for testing).
+    Utils.checkNotNull(key, "key");
+    Utils.checkNotNull(value, "value");
     putAttributes(Collections.singletonMap(key, value));
   }
 
@@ -110,6 +112,7 @@ public abstract class Span {
   public void putAttributes(Map<String, AttributeValue> attributes) {
     // Not final because we want to start overriding this method from the beginning, this will
     // allow us to remove the addAttributes faster. All implementations MUST override this method.
+    Utils.checkNotNull(attributes, "attributes");
     addAttributes(attributes);
   }
 
@@ -130,6 +133,7 @@ public abstract class Span {
    * @since 0.5
    */
   public final void addAnnotation(String description) {
+    Utils.checkNotNull(description, "description");
     addAnnotation(description, EMPTY_ATTRIBUTES);
   }
 
@@ -180,6 +184,7 @@ public abstract class Span {
   public void addMessageEvent(MessageEvent messageEvent) {
     // Default implementation by invoking addNetworkEvent() so that any existing derived classes,
     // including implementation and the mocked ones, do not need to override this method explicitly.
+    Utils.checkNotNull(messageEvent, "messageEvent");
     addNetworkEvent(BaseMessageEventUtils.asNetworkEvent(messageEvent));
   }
 
@@ -209,6 +214,7 @@ public abstract class Span {
   public void setStatus(Status status) {
     // Implemented as no-op for backwards compatibility (for example gRPC extends Span in tests).
     // Implementation must override this method.
+    Utils.checkNotNull(status, "status");
   }
 
   /**

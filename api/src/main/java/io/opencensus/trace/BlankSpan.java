@@ -16,6 +16,7 @@
 
 package io.opencensus.trace;
 
+import io.opencensus.internal.Utils;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
@@ -42,19 +43,29 @@ public final class BlankSpan extends Span {
 
   /** No-op implementation of the {@link Span#putAttribute(String, AttributeValue)} method. */
   @Override
-  public void putAttribute(String key, AttributeValue value) {}
+  public void putAttribute(String key, AttributeValue value) {
+    Utils.checkNotNull(key, "key");
+    Utils.checkNotNull(value, "value");
+  }
 
   /** No-op implementation of the {@link Span#putAttributes(Map)} method. */
   @Override
-  public void putAttributes(Map<String, AttributeValue> attributes) {}
+  public void putAttributes(Map<String, AttributeValue> attributes) {
+    Utils.checkNotNull(attributes, "attributes");
+  }
 
   /** No-op implementation of the {@link Span#addAnnotation(String, Map)} method. */
   @Override
-  public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
+  public void addAnnotation(String description, Map<String, AttributeValue> attributes) {
+    Utils.checkNotNull(description, "description");
+    Utils.checkNotNull(attributes, "attributes");
+  }
 
   /** No-op implementation of the {@link Span#addAnnotation(Annotation)} method. */
   @Override
-  public void addAnnotation(Annotation annotation) {}
+  public void addAnnotation(Annotation annotation) {
+    Utils.checkNotNull(annotation, "annotation");
+  }
 
   /** No-op implementation of the {@link Span#addNetworkEvent(NetworkEvent)} method. */
   @Override
@@ -63,14 +74,20 @@ public final class BlankSpan extends Span {
 
   /** No-op implementation of the {@link Span#addMessageEvent(MessageEvent)} method. */
   @Override
-  public void addMessageEvent(MessageEvent messageEvent) {}
+  public void addMessageEvent(MessageEvent messageEvent) {
+    Utils.checkNotNull(messageEvent, "messageEvent");
+  }
 
   /** No-op implementation of the {@link Span#addLink(Link)} method. */
   @Override
-  public void addLink(Link link) {}
+  public void addLink(Link link) {
+    Utils.checkNotNull(link, "link");
+  }
 
   @Override
-  public void setStatus(Status status) {}
+  public void setStatus(Status status) {
+    Utils.checkNotNull(status, "status");
+  }
 
   /** No-op implementation of the {@link Span#end(EndSpanOptions)} method. */
   @Override
