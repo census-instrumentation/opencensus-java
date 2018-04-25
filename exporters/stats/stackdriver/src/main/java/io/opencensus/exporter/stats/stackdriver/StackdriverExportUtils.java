@@ -363,15 +363,16 @@ final class StackdriverExportUtils {
   /* Return a self-configured Stackdriver monitored resource. */
   static MonitoredResource getDefaultResource() {
     MonitoredResource.Builder builder = MonitoredResource.newBuilder();
-    if (MetadataConfig.getProjectId() != null) {
-      // For default resource, always use the project id from MetadataConfig. This allows stats from
-      // other projects (e.g from GCE running in another project) to be collected.
-      builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
-    }
     io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
         MonitoredResourceUtils.getDefaultResource();
     if (autoDetectedResource == null) {
-      return builder.setType(GLOBAL).build();
+      builder.setType(GLOBAL);
+      if (MetadataConfig.getProjectId() != null) {
+        // For default global resource, always use the project id from MetadataConfig. This allows
+        // stats from other projects (e.g from GAE running in another project) to be collected.
+        builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
+      }
+      return builder.build();
     }
     builder.setType(mapToStackdriverResourceType(autoDetectedResource.getResourceType()));
     setMonitoredResourceLabelsForBuilder(builder, autoDetectedResource);
@@ -398,6 +399,7 @@ final class StackdriverExportUtils {
         @SuppressWarnings("unchecked")
         GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
             (GcpGceInstanceMonitoredResource) autoDetectedResource;
+        builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGceInstanceMonitoredResource.getAccount());
         builder.putLabels("instance_id", gcpGceInstanceMonitoredResource.getInstanceId());
         builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
         return;
@@ -405,6 +407,7 @@ final class StackdriverExportUtils {
         @SuppressWarnings("unchecked")
         GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
             (GcpGkeContainerMonitoredResource) autoDetectedResource;
+        builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGkeContainerMonitoredResource.getAccount());
         builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
         builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
         builder.putLabels("namespace_id", gcpGkeContainerMonitoredResource.getNamespaceId());

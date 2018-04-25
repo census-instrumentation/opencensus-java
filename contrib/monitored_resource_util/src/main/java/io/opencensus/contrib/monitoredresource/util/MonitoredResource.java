@@ -117,6 +117,7 @@ public abstract class MonitoredResource {
   @AutoValue
   public abstract static class GcpGceInstanceMonitoredResource extends MonitoredResource {
 
+    private static final String GCP_ACCOUNT_ID = firstNonNull(GcpMetadataConfig.getProjectId(), "");
     private static final String GCP_INSTANCE_ID =
         firstNonNull(GcpMetadataConfig.getInstanceId(), "");
     private static final String GCP_ZONE = firstNonNull(GcpMetadataConfig.getZone(), "");
@@ -125,6 +126,14 @@ public abstract class MonitoredResource {
     public ResourceType getResourceType() {
       return ResourceType.GCP_GCE_INSTANCE;
     }
+
+    /**
+     * Returns the GCP account number for the instance.
+     *
+     * @return the GCP account number for the instance.
+     * @since 0.13
+     */
+    public abstract String getAccount();
 
     /**
      * Returns the GCP GCE instance ID.
@@ -144,7 +153,7 @@ public abstract class MonitoredResource {
 
     static GcpGceInstanceMonitoredResource create() {
       return new AutoValue_MonitoredResource_GcpGceInstanceMonitoredResource(
-          GCP_INSTANCE_ID, GCP_ZONE);
+          GCP_ACCOUNT_ID, GCP_INSTANCE_ID, GCP_ZONE);
     }
   }
 
@@ -157,6 +166,7 @@ public abstract class MonitoredResource {
   @AutoValue
   public abstract static class GcpGkeContainerMonitoredResource extends MonitoredResource {
 
+    private static final String GCP_ACCOUNT_ID = firstNonNull(GcpMetadataConfig.getProjectId(), "");
     private static final String GCP_CLUSTER_NAME =
         firstNonNull(GcpMetadataConfig.getClusterName(), "");
     private static final String GCP_CONTAINER_NAME =
@@ -171,6 +181,14 @@ public abstract class MonitoredResource {
     public ResourceType getResourceType() {
       return ResourceType.GCP_GKE_CONTAINER;
     }
+
+    /**
+     * Returns the GCP account number for the instance.
+     *
+     * @return the GCP account number for the instance.
+     * @since 0.13
+     */
+    public abstract String getAccount();
 
     /**
      * Returns the GCP GKE cluster name.
@@ -222,6 +240,7 @@ public abstract class MonitoredResource {
 
     static GcpGkeContainerMonitoredResource create() {
       return new AutoValue_MonitoredResource_GcpGkeContainerMonitoredResource(
+          GCP_ACCOUNT_ID,
           GCP_CLUSTER_NAME,
           GCP_CONTAINER_NAME,
           GCP_NAMESPACE_ID,
