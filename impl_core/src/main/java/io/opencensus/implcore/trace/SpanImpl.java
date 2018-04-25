@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.CheckerFrameworkUtils;
@@ -281,6 +282,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   @Override
   public void putAttributes(Map<String, AttributeValue> attributes) {
+    Preconditions.checkNotNull(attributes, "attributes");
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
@@ -295,6 +297,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   @Override
   public void addAnnotation(String description, Map<String, AttributeValue> attributes) {
+    Preconditions.checkNotNull(description, "description");
+    Preconditions.checkNotNull(attributes, "attribute");
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
@@ -313,6 +317,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   @Override
   public void addAnnotation(Annotation annotation) {
+    Preconditions.checkNotNull(annotation, "annotation");
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
@@ -322,9 +327,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
         return;
       }
       getInitializedAnnotations()
-          .addEvent(
-              new EventWithNanoTime<Annotation>(
-                  clock.nowNanos(), checkNotNull(annotation, "annotation")));
+          .addEvent(new EventWithNanoTime<Annotation>(clock.nowNanos(), annotation));
     }
   }
 
@@ -348,6 +351,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   @Override
   public void addLink(Link link) {
+    Preconditions.checkNotNull(link, "link");
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
@@ -356,12 +360,13 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
         logger.log(Level.FINE, "Calling addLink() on an ended Span.");
         return;
       }
-      getInitializedLinks().addEvent(checkNotNull(link, "link"));
+      getInitializedLinks().addEvent(link);
     }
   }
 
   @Override
   public void setStatus(Status status) {
+    Preconditions.checkNotNull(status, "status");
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }

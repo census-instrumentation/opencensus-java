@@ -16,6 +16,7 @@
 
 package io.opencensus.trace;
 
+import io.opencensus.internal.Utils;
 import java.util.EnumSet;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -33,22 +34,33 @@ public class NoopSpan extends Span {
   }
 
   @Override
-  public void putAttributes(Map<String, AttributeValue> attributes) {}
+  public void putAttributes(Map<String, AttributeValue> attributes) {
+    Utils.checkNotNull(attributes, "attributes");
+  }
 
   @Override
-  public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
+  public void addAnnotation(String description, Map<String, AttributeValue> attributes) {
+    Utils.checkNotNull(description, "description");
+    Utils.checkNotNull(attributes, "attributes");
+  }
 
   @Override
-  public void addAnnotation(Annotation annotation) {}
+  public void addAnnotation(Annotation annotation) {
+    Utils.checkNotNull(annotation, "annotation");
+  }
 
   @Override
   public void addNetworkEvent(NetworkEvent networkEvent) {}
 
   @Override
-  public void addMessageEvent(MessageEvent messageEvent) {}
+  public void addMessageEvent(MessageEvent messageEvent) {
+    Utils.checkNotNull(messageEvent, "messageEvent");
+  }
 
   @Override
-  public void addLink(Link link) {}
+  public void addLink(Link link) {
+    Utils.checkNotNull(link, "link");
+  }
 
   @Override
   public void end(EndSpanOptions options) {}
