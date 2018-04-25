@@ -22,19 +22,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link MonitoredResourceUtil}. */
+/** Tests for {@link MonitoredResourceUtils}. */
 @RunWith(JUnit4.class)
-public class MonitoredResourceUtilTest {
+public class MonitoredResourceUtilsTest {
 
   @Test
   public void testGetDefaultResource() {
-    MonitoredResource resource = MonitoredResourceUtil.getDefaultResource();
+    MonitoredResource resource = MonitoredResourceUtils.getDefaultResource();
     if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GcpGkeContainer);
+      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GCP_GKE_CONTAINER);
     } else if (GcpMetadataConfig.getInstanceId() != null) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GcpGceInstance);
+      assertThat(resource.getResourceType()).isEqualTo(ResourceType.GCP_GCE_INSTANCE);
     } else if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      assertThat(resource.getResourceType()).isEqualTo(ResourceType.AwsEc2Instance);
+      assertThat(resource.getResourceType()).isEqualTo(ResourceType.AWS_EC2_INSTANCE);
     } else {
       assertThat(resource).isNull();
     }

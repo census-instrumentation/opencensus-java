@@ -41,7 +41,7 @@ import io.opencensus.common.Functions;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2MonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtil;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
 import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
@@ -369,7 +369,7 @@ final class StackdriverExportUtils {
       builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
     }
     io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
-        MonitoredResourceUtil.getDefaultResource();
+        MonitoredResourceUtils.getDefaultResource();
     if (autoDetectedResource == null) {
       return builder.setType(GLOBAL).build();
     }
@@ -380,11 +380,11 @@ final class StackdriverExportUtils {
 
   private static String mapToStackdriverResourceType(ResourceType resourceType) {
     switch (resourceType) {
-      case GcpGceInstance:
+      case GCP_GCE_INSTANCE:
         return GCP_GCE_INSTANCE;
-      case GcpGkeContainer:
+      case GCP_GKE_CONTAINER:
         return GCP_GKE_CONTAINER;
-      case AwsEc2Instance:
+      case AWS_EC2_INSTANCE:
         return AWS_EC2_INSTANCE;
     }
     throw new IllegalArgumentException("Unknown resource type.");
@@ -394,14 +394,14 @@ final class StackdriverExportUtils {
       MonitoredResource.Builder builder,
       io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource) {
     switch (autoDetectedResource.getResourceType()) {
-      case GcpGceInstance:
+      case GCP_GCE_INSTANCE:
         @SuppressWarnings("unchecked")
         GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
             (GcpGceInstanceMonitoredResource) autoDetectedResource;
         builder.putLabels("instance_id", gcpGceInstanceMonitoredResource.getInstanceId());
         builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
         return;
-      case GcpGkeContainer:
+      case GCP_GKE_CONTAINER:
         @SuppressWarnings("unchecked")
         GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
             (GcpGkeContainerMonitoredResource) autoDetectedResource;
@@ -412,7 +412,7 @@ final class StackdriverExportUtils {
         builder.putLabels("pod_id", gcpGkeContainerMonitoredResource.getPodId());
         builder.putLabels("zone", gcpGkeContainerMonitoredResource.getZone());
         return;
-      case AwsEc2Instance:
+      case AWS_EC2_INSTANCE:
         @SuppressWarnings("unchecked")
         AwsEc2MonitoredResource awsEc2MonitoredResource =
             (AwsEc2MonitoredResource) autoDetectedResource;

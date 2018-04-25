@@ -23,23 +23,25 @@ package io.opencensus.contrib.monitoredresource.util;
  * @since 0.13
  */
 public enum ResourceType {
-  GcpGkeContainer("GCP_GKE_CONTAINER"),
-  GcpGceInstance("GCP_GCE_INSTANCE"),
-  AwsEc2Instance("AWS_EC2_INSTANCE");
-
-  private final String type;
-
-  ResourceType(String type) {
-    this.type = type;
-  }
 
   /**
-   * Returns the type of {@link ResourceType}.
+   * Resource for GCP GKE container.
    *
-   * @return the type of {@link ResourceType}.
    * @since 0.13
    */
-  public String getType() {
-    return type;
-  }
+  GCP_GKE_CONTAINER,
+
+  /**
+   * Resource for GCP GCE instance.
+   *
+   * @since 0.13
+   */
+  GCP_GCE_INSTANCE,
+
+  /**
+   * Resource for AWS EC2 instance.
+   *
+   * @since 0.13
+   */
+  AWS_EC2_INSTANCE
 }

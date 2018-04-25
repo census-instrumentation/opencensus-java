@@ -75,7 +75,7 @@ public abstract class MonitoredResource {
 
     @Override
     public ResourceType getResourceType() {
-      return ResourceType.AwsEc2Instance;
+      return ResourceType.AWS_EC2_INSTANCE;
     }
 
     /**
@@ -123,7 +123,7 @@ public abstract class MonitoredResource {
 
     @Override
     public ResourceType getResourceType() {
-      return ResourceType.GcpGceInstance;
+      return ResourceType.GCP_GCE_INSTANCE;
     }
 
     /**
@@ -169,7 +169,7 @@ public abstract class MonitoredResource {
 
     @Override
     public ResourceType getResourceType() {
-      return ResourceType.GcpGkeContainer;
+      return ResourceType.GCP_GKE_CONTAINER;
     }
 
     /**

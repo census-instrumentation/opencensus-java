@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
  *
  * @since 0.13
  */
-public final class MonitoredResourceUtil {
+public final class MonitoredResourceUtils {
 
   /**
    * Returns a self-configured monitored resource, or {@code null} if the application is not running
@@ -50,5 +50,5 @@ public final class MonitoredResourceUtil {
     return null;
   }
 
-  private MonitoredResourceUtil() {}
+  private MonitoredResourceUtils() {}
 }
