@@ -64,7 +64,14 @@ public abstract class SpanExporter {
    *
    * @since 0.13
    */
-  public abstract void flush();
+  public void flush() {}
+
+  /**
+   * Stops any further data from being exported.
+   *
+   * @since 0.13
+   */
+  public void shutdown() {}
 
   /**
    * An abstract class that allows different tracing services to export recorded data for sampled
@@ -99,8 +106,5 @@ public abstract class SpanExporter {
 
     @Override
     public void unregisterHandler(String name) {}
-
-    @Override
-    public void flush() {}
   }
 }

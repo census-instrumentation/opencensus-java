@@ -66,7 +66,12 @@ public abstract class ExportComponent {
    */
   public abstract SampledSpanStore getSampledSpanStore();
 
-  public abstract void flushAndShutdown();
+  /**
+   * Will shutdown this ExportComponent after flushing any pending spans.
+   *
+   * @since 0.13
+   */
+  public void shutdown() {}
 
   private static final class NoopExportComponent extends ExportComponent {
     private final SampledSpanStore noopSampledSpanStore =
@@ -86,8 +91,5 @@ public abstract class ExportComponent {
     public SampledSpanStore getSampledSpanStore() {
       return noopSampledSpanStore;
     }
-
-    @Override
-    public void flushAndShutdown() {}
   }
 }

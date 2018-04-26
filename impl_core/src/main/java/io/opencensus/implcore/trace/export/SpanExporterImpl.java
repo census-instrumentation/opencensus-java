@@ -79,6 +79,12 @@ public final class SpanExporterImpl extends SpanExporter {
     worker.flush();
   }
 
+  @Override
+  public void shutdown() {
+    flush();
+    workerThread.interrupt();
+  }
+
   private SpanExporterImpl(Worker worker) {
     this.workerThread =
         new DaemonThreadFactory("ExportComponent.ServiceExporterThread").newThread(worker);

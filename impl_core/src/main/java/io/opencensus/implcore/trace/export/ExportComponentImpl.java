@@ -48,9 +48,9 @@ public final class ExportComponentImpl extends ExportComponent {
   }
 
   @Override
-  public void flushAndShutdown() {
+  public void shutdown() {
     sampledSpanStore.shutdown();
-    spanExporter.flush();
+    spanExporter.shutdown();
   }
 
   /**

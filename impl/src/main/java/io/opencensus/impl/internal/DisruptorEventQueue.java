@@ -143,14 +143,10 @@ public final class DisruptorEventQueue implements EventQueue {
     }
   }
 
-  /**
-   * Shuts down the underlying disruptor.
-   *
-   * <p>Unfortunately there is no underlying public flush mechanism, without it there is a race
-   * condition in the ring buffer where it can hold events into the jvm shutdown.
-   */
+  /** Shuts down the underlying disruptor. */
   @Override
   public void shutdown() {
+    // TODO(): Sort out a way to reliably test this
     disruptor.shutdown();
   }
 

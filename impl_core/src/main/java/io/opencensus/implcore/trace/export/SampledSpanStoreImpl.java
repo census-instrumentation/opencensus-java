@@ -60,9 +60,6 @@ public abstract class SampledSpanStoreImpl extends SampledSpanStore {
     public void considerForSampling(SpanImpl span) {}
 
     @Override
-    public void shutdown() {}
-
-    @Override
     public void registerSpanNamesForCollection(Collection<String> spanNames) {}
 
     @Override

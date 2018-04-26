@@ -137,7 +137,7 @@ public abstract class SampledSpanStore {
    *
    * @since 0.13
    */
-  public abstract void shutdown();
+  public void shutdown() {}
 
   /**
    * The summary of all available data.
@@ -527,8 +527,5 @@ public abstract class SampledSpanStore {
         return Collections.<String>unmodifiableSet(new HashSet<String>(registeredSpanNames));
       }
     }
-
-    @Override
-    public void shutdown() {}
   }
 }
