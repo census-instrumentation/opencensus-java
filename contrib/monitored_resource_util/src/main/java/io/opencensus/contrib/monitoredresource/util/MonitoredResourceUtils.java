@@ -16,7 +16,7 @@
 
 package io.opencensus.contrib.monitoredresource.util;
 
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2MonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import javax.annotation.Nullable;
@@ -45,7 +45,7 @@ public final class MonitoredResourceUtils {
       return GcpGceInstanceMonitoredResource.create();
     }
     if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      return AwsEc2MonitoredResource.create();
+      return AwsEc2InstanceMonitoredResource.create();
     }
     return null;
   }

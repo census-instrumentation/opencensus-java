@@ -64,7 +64,7 @@ public abstract class MonitoredResource {
    */
   @Immutable
   @AutoValue
-  public abstract static class AwsEc2MonitoredResource extends MonitoredResource {
+  public abstract static class AwsEc2InstanceMonitoredResource extends MonitoredResource {
 
     private static final String AWS_ACCOUNT =
         firstNonNull(AwsIdentityDocUtils.getValueFromAwsIdentityDocument("accountId"), "");
@@ -102,8 +102,8 @@ public abstract class MonitoredResource {
      */
     public abstract String getRegion();
 
-    static AwsEc2MonitoredResource create() {
-      return new AutoValue_MonitoredResource_AwsEc2MonitoredResource(
+    static AwsEc2InstanceMonitoredResource create() {
+      return new AutoValue_MonitoredResource_AwsEc2InstanceMonitoredResource(
           AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
     }
   }

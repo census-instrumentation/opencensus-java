@@ -38,7 +38,7 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2MonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
@@ -417,11 +417,11 @@ final class StackdriverExportUtils {
         return;
       case AWS_EC2_INSTANCE:
         @SuppressWarnings("unchecked")
-        AwsEc2MonitoredResource awsEc2MonitoredResource =
-            (AwsEc2MonitoredResource) autoDetectedResource;
-        builder.putLabels("aws_account", awsEc2MonitoredResource.getAccount());
-        builder.putLabels("instance_id", awsEc2MonitoredResource.getInstanceId());
-        builder.putLabels("region", "aws:" + awsEc2MonitoredResource.getRegion());
+        AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
+            (AwsEc2InstanceMonitoredResource) autoDetectedResource;
+        builder.putLabels("aws_account", awsEc2InstanceMonitoredResource.getAccount());
+        builder.putLabels("instance_id", awsEc2InstanceMonitoredResource.getInstanceId());
+        builder.putLabels("region", "aws:" + awsEc2InstanceMonitoredResource.getRegion());
         return;
     }
     throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
