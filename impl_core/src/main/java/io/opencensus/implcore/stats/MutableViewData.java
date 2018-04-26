@@ -498,6 +498,9 @@ abstract class MutableViewData {
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
 
+  // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+  // we need to continue supporting Mean, since it could still be used by users and some
+  // deprecated RPC views.
   private static final class AggregationDefaultFunction
       implements Function<Aggregation, MutableAggregation> {
     @Override

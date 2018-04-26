@@ -173,6 +173,9 @@ final class SignalFxSessionAdaptor {
         new Function<AggregationData, Void>() {
           @Override
           public Void apply(AggregationData arg) {
+            // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+            // we need to continue supporting Mean, since it could still be used by users and some
+            // deprecated RPC views.
             if (arg instanceof AggregationData.MeanData) {
               builder.setDoubleValue(((AggregationData.MeanData) arg).getMean());
               return null;

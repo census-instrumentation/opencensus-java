@@ -326,6 +326,11 @@ final class StatszZPageHandler extends ZPageHandler {
                 new Function<Aggregation, String>() {
                   @Override
                   public String apply(Aggregation arg) {
+                    // TODO(songya): remove this once Mean aggregation is completely removed. Before
+                    // that
+                    // we need to continue supporting Mean, since it could still be used by users
+                    // and some
+                    // deprecated RPC views.
                     if (arg instanceof Aggregation.Mean) {
                       return "Mean";
                     }
@@ -415,6 +420,11 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<Aggregation, Void>() {
               @Override
               public Void apply(Aggregation arg) {
+                // TODO(songya): remove this once Mean aggregation is completely removed. Before
+                // that
+                // we need to continue supporting Mean, since it could still be used by users and
+                // some
+                // deprecated RPC views.
                 if (arg instanceof Aggregation.Mean) {
                   formatter.format("<th class=\"l1\">%s, %s</th>", TABLE_HEADER_MEAN, unit);
                   formatter.format("<th class=\"l1\">%s</th>", TABLE_HEADER_COUNT);

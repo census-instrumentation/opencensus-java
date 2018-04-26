@@ -38,6 +38,7 @@ abstract class MutableAggregation {
    */
   abstract void add(double value);
 
+  // TODO(songya): remove this method once interval stats is completely removed.
   /**
    * Combine the internal values of this MutableAggregation and value of the given
    * MutableAggregation, with the given fraction. Then set the internal value of this
@@ -367,8 +368,10 @@ abstract class MutableAggregation {
   /** Calculate last value on aggregated {@code MeasureValue}s. */
   static final class MutableLastValue extends MutableAggregation {
 
-    // Initial "impossible" values, that will get reset as soon as first value is added.
+    // Initial value that will get reset as soon as first value is added.
     private double lastValue = Double.NaN;
+    // TODO(songya): remove this once interval stats is completely removed.
+    private boolean initialized = false;
 
     private MutableLastValue() {}
 
@@ -384,15 +387,19 @@ abstract class MutableAggregation {
     @Override
     void add(double value) {
       lastValue = value;
+      // TODO(songya): remove this once interval stats is completely removed.
+      if (!initialized) {
+        initialized = true;
+      }
     }
 
     @Override
     void combine(MutableAggregation other, double fraction) {
       checkArgument(other instanceof MutableLastValue, "MutableLastValue expected.");
-      Double otherValue = ((MutableLastValue) other).getLastValue();
+      MutableLastValue otherValue = (MutableLastValue) other;
       // Assume other is always newer than this, because we combined interval buckets in time order.
       // If there's a newer value, overwrite current value.
-      this.lastValue = otherValue.isNaN() ? this.lastValue : otherValue;
+      this.lastValue = otherValue.initialized ? otherValue.getLastValue() : this.lastValue;
     }
 
     /**
