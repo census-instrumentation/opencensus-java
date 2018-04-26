@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package io.opencensus.exporter.stats.stackdriver;
+package io.opencensus.contrib.monitoredresource.util;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,7 +23,8 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.CharBuffer;
-import java.util.List;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 
@@ -36,11 +33,10 @@ final class AwsIdentityDocUtils {
 
   private static final Object monitor = new Object();
   private static final int AWS_IDENTITY_DOC_BUF_SIZE = 0x800; // 2K chars (4K bytes)
-  private static final Splitter AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER = Splitter.on('\n');
-  private static final Splitter AWS_IDENTITY_DOC_COLON_SPLITTER = Splitter.on(':');
+  private static final String AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER = "\n";
+  private static final String AWS_IDENTITY_DOC_COLON_SPLITTER = ":";
 
-  @VisibleForTesting
-  static final URI AWS_INSTANCE_IDENTITY_DOCUMENT_URI =
+  private static final URI AWS_INSTANCE_IDENTITY_DOCUMENT_URI =
       URI.create("http://169.254.169.254/latest/dynamic/instance-identity/document");
 
   @GuardedBy("monitor")
@@ -67,7 +63,7 @@ final class AwsIdentityDocUtils {
     InputStream stream = null;
     try {
       stream = openStream(AWS_INSTANCE_IDENTITY_DOCUMENT_URI);
-      String awsIdentityDocument = slurp(new InputStreamReader(stream, Charsets.UTF_8));
+      String awsIdentityDocument = slurp(new InputStreamReader(stream, Charset.forName("UTF-8")));
       synchronized (monitor) {
         awsEnvVarMap = parseAwsIdentityDocument(awsIdentityDocument);
       }
@@ -110,17 +106,18 @@ final class AwsIdentityDocUtils {
 
   // AWS Instance Identity Document is a JSON file.
   // See docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html.
-  @VisibleForTesting
   static Map<String, String> parseAwsIdentityDocument(String awsIdentityDocument) {
-    Map<String, String> map = Maps.newHashMap();
-    List<String> lines = AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER.splitToList(awsIdentityDocument);
+    Map<String, String> map = new HashMap<String, String>();
+    @SuppressWarnings("StringSplitter")
+    String[] lines = awsIdentityDocument.split(AWS_IDENTITY_DOC_LINE_BREAK_SPLITTER, -1);
     for (String line : lines) {
-      List<String> keyValuePair = AWS_IDENTITY_DOC_COLON_SPLITTER.splitToList(line);
-      if (keyValuePair.size() != 2) {
+      @SuppressWarnings("StringSplitter")
+      String[] keyValuePair = line.split(AWS_IDENTITY_DOC_COLON_SPLITTER, -1);
+      if (keyValuePair.length != 2) {
         continue;
       }
-      String key = keyValuePair.get(0).replaceAll("[\" ]", "");
-      String value = keyValuePair.get(1).replaceAll("[\" ,]", "");
+      String key = keyValuePair[0].replaceAll("[\" ]", "");
+      String value = keyValuePair[1].replaceAll("[\" ,]", "");
       map.put(key, value);
     }
     return map;

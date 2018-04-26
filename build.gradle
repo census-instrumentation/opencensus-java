@@ -362,6 +362,7 @@ subprojects {
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
+                 'opencensus-contrib-monitored-resource-util',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',

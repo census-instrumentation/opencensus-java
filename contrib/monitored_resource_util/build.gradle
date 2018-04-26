@@ -1,0 +1,14 @@
+description = 'OpenCensus Monitored Resource Util'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+dependencies {
+    compileOnly libraries.auto_value
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}

@@ -29,7 +29,6 @@ import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
 import com.google.cloud.MetadataConfig;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.Point;
@@ -39,6 +38,11 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
+import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
@@ -72,10 +76,10 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
-  @VisibleForTesting static final String GCP_GKE_CONTAINER = "gke_container";
-  @VisibleForTesting static final String GCP_GCE_INSTANCE = "gce_instance";
-  @VisibleForTesting static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
-  @VisibleForTesting static final String GLOBAL = "global";
+  private static final String GCP_GKE_CONTAINER = "gke_container";
+  private static final String GCP_GCE_INSTANCE = "gce_instance";
+  private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
+  private static final String GLOBAL = "global";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
@@ -356,135 +360,71 @@ final class StackdriverExportUtils {
         .build();
   }
 
-  private enum Label {
-    GcpClusterName("cluster_name"),
-    GcpContainerName("container_name"),
-    GcpNamespaceId("namespace_id"),
-    GcpInstanceId("instance_id"),
-    GcpInstanceName("instance_name"),
-    GcpGkePodId("pod_id"),
-    GcpZone("zone"),
-    AwsAccount("aws_account"),
-    AwsInstanceId("instance_id"),
-    AwsRegion("region");
-
-    private final String key;
-
-    Label(String key) {
-      this.key = key;
-    }
-
-    String getKey() {
-      return key;
-    }
-  }
-
-  private enum Resource {
-    GkeContainer(GCP_GKE_CONTAINER),
-    GceInstance(GCP_GCE_INSTANCE),
-    AwsEc2Instance(AWS_EC2_INSTANCE),
-    Global(GLOBAL);
-
-    private final String key;
-
-    Resource(String key) {
-      this.key = key;
-    }
-
-    String getKey() {
-      return key;
-    }
-  }
-
-  private static final ImmutableMultimap<Resource, Label> RESOURCE_TYPE_WITH_LABELS =
-      ImmutableMultimap.<Resource, Label>builder()
-          .putAll(
-              Resource.GkeContainer,
-              Label.GcpClusterName,
-              Label.GcpContainerName,
-              Label.GcpNamespaceId,
-              Label.GcpInstanceId,
-              Label.GcpGkePodId,
-              Label.GcpZone)
-          .putAll(Resource.GceInstance, Label.GcpInstanceId, Label.GcpZone)
-          .putAll(Resource.AwsEc2Instance, Label.AwsAccount, Label.AwsInstanceId, Label.AwsRegion)
-          .build();
-
-  /* Return a self-configured monitored Resource. */
+  /* Return a self-configured Stackdriver monitored resource. */
   static MonitoredResource getDefaultResource() {
-    Resource detectedResourceType = getAutoDetectedResourceType();
-    String resourceType = detectedResourceType.getKey();
-    MonitoredResource.Builder builder = MonitoredResource.newBuilder().setType(resourceType);
-    if (MetadataConfig.getProjectId() != null) {
-      // For default resource, always use the project id from MetadataConfig. This allows stats from
-      // other projects (e.g from GCE running in another project) to be collected.
-      builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
-    }
-    for (Label label : RESOURCE_TYPE_WITH_LABELS.get(detectedResourceType)) {
-      String value = getValue(label);
-      if (value == null) {
-        value = "";
+    MonitoredResource.Builder builder = MonitoredResource.newBuilder();
+    io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource =
+        MonitoredResourceUtils.getDefaultResource();
+    if (autoDetectedResource == null) {
+      builder.setType(GLOBAL);
+      if (MetadataConfig.getProjectId() != null) {
+        // For default global resource, always use the project id from MetadataConfig. This allows
+        // stats from other projects (e.g from GAE running in another project) to be collected.
+        builder.putLabels(PROJECT_ID_LABEL_KEY, MetadataConfig.getProjectId());
       }
-      // Label values can be null or empty, but each label key must have an associated value.
-      builder.putLabels(label.getKey(), value);
+      return builder.build();
     }
+    builder.setType(mapToStackdriverResourceType(autoDetectedResource.getResourceType()));
+    setMonitoredResourceLabelsForBuilder(builder, autoDetectedResource);
     return builder.build();
   }
 
-  @javax.annotation.Nullable
-  private static String getValue(Label label) {
-    String value;
-    switch (label) {
-      case GcpClusterName:
-        value = MetadataConfig.getClusterName();
-        break;
-      case GcpInstanceId:
-        value = MetadataConfig.getInstanceId();
-        break;
-      case GcpInstanceName:
-        value = System.getenv("GAE_INSTANCE");
-        break;
-      case GcpGkePodId:
-        value = System.getenv("HOSTNAME");
-        break;
-      case GcpZone:
-        value = MetadataConfig.getZone();
-        break;
-      case GcpContainerName:
-        value = System.getenv("CONTAINER_NAME");
-        break;
-      case GcpNamespaceId:
-        value = System.getenv("NAMESPACE");
-        break;
-      case AwsAccount:
-        value = AwsIdentityDocUtils.getValueFromAwsIdentityDocument("accountId");
-        break;
-      case AwsInstanceId:
-        value = AwsIdentityDocUtils.getValueFromAwsIdentityDocument("instanceId");
-        break;
-      case AwsRegion:
-        value = "aws:" + AwsIdentityDocUtils.getValueFromAwsIdentityDocument("region");
-        break;
-      default:
-        value = null;
-        break;
+  private static String mapToStackdriverResourceType(ResourceType resourceType) {
+    switch (resourceType) {
+      case GCP_GCE_INSTANCE:
+        return GCP_GCE_INSTANCE;
+      case GCP_GKE_CONTAINER:
+        return GCP_GKE_CONTAINER;
+      case AWS_EC2_INSTANCE:
+        return AWS_EC2_INSTANCE;
     }
-    return value;
+    throw new IllegalArgumentException("Unknown resource type.");
   }
 
-  /* Detects monitored Resource type using environment variables, else return global as default. */
-  private static Resource getAutoDetectedResourceType() {
-    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      return Resource.GkeContainer;
+  private static void setMonitoredResourceLabelsForBuilder(
+      MonitoredResource.Builder builder,
+      io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource) {
+    switch (autoDetectedResource.getResourceType()) {
+      case GCP_GCE_INSTANCE:
+        @SuppressWarnings("unchecked")
+        GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
+            (GcpGceInstanceMonitoredResource) autoDetectedResource;
+        builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGceInstanceMonitoredResource.getAccount());
+        builder.putLabels("instance_id", gcpGceInstanceMonitoredResource.getInstanceId());
+        builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
+        return;
+      case GCP_GKE_CONTAINER:
+        @SuppressWarnings("unchecked")
+        GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
+            (GcpGkeContainerMonitoredResource) autoDetectedResource;
+        builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGkeContainerMonitoredResource.getAccount());
+        builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
+        builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
+        builder.putLabels("namespace_id", gcpGkeContainerMonitoredResource.getNamespaceId());
+        builder.putLabels("instance_id", gcpGkeContainerMonitoredResource.getInstanceId());
+        builder.putLabels("pod_id", gcpGkeContainerMonitoredResource.getPodId());
+        builder.putLabels("zone", gcpGkeContainerMonitoredResource.getZone());
+        return;
+      case AWS_EC2_INSTANCE:
+        @SuppressWarnings("unchecked")
+        AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
+            (AwsEc2InstanceMonitoredResource) autoDetectedResource;
+        builder.putLabels("aws_account", awsEc2InstanceMonitoredResource.getAccount());
+        builder.putLabels("instance_id", awsEc2InstanceMonitoredResource.getInstanceId());
+        builder.putLabels("region", "aws:" + awsEc2InstanceMonitoredResource.getRegion());
+        return;
     }
-    if (MetadataConfig.getInstanceId() != null) {
-      return Resource.GceInstance;
-    }
-    if (AwsIdentityDocUtils.isRunningOnAwsEc2()) {
-      return Resource.AwsEc2Instance;
-    }
-    // default Resource type
-    return Resource.Global;
+    throw new IllegalArgumentException("Unknown subclass of MonitoredResource.");
   }
 
   private StackdriverExportUtils() {}
