@@ -1,5 +1,6 @@
 ## Unreleased
 
+## 0.13.0 - 2018-04-27
 - Support building with Java 9.
 - Add a QuickStart example.
 - Remove extraneous dependencies from the Agent's `pom.xml`.
