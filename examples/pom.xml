@@ -105,8 +105,8 @@
         <configuration>
           <programs>
             <program>
-              <id>StatsRunner</id>
-              <mainClass>io.opencensus.examples.stats.StatsRunner</mainClass>
+              <id>TagContextExample</id>
+              <mainClass>io.opencensus.examples.tags.TagContextExample</mainClass>
             </program>
             <program>
               <id>MultiSpansTracing</id>
