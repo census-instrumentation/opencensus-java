@@ -4,7 +4,7 @@
   <groupId>io.opencensus</groupId>
   <artifactId>opencensus-examples</artifactId>
   <packaging>jar</packaging>
-  <version>0.13.0-SNAPSHOT</version><!-- CURRENT_OPENCENSUS_VERSION -->
+  <version>0.14.0-SNAPSHOT</version><!-- CURRENT_OPENCENSUS_VERSION -->
   <name>opencensus-examples</name>
   <url>http://maven.apache.org</url>
   <properties>
