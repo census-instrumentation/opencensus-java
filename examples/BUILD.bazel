@@ -92,8 +92,8 @@ java_library(
 )
 
 java_binary(
-    name = "StatsRunner",
-    main_class = "io.opencensus.examples.stats.StatsRunner",
+    name = "TagContextExample",
+    main_class = "io.opencensus.examples.tags.TagContextExample",
     runtime_deps = [
         ":opencensus_examples",
     ],

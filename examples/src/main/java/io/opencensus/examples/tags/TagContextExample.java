@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.examples.stats;
+package io.opencensus.examples.tags;
 
 import io.opencensus.common.Scope;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -26,8 +26,8 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 
-/** Simple program that uses Stats contexts. */
-public class StatsRunner {
+/** Simple program that uses {@link TagContext}. */
+public class TagContextExample {
 
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
@@ -46,7 +46,7 @@ public class StatsRunner {
   private static final Tagger tagger = Tags.getTagger();
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
-  private StatsRunner() {}
+  private TagContextExample() {}
 
   /**
    * Main method.

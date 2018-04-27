@@ -84,9 +84,9 @@ apply plugin: 'application'
 
 startScripts.enabled = false
 
-task statsRunner(type: CreateStartScripts) {
-    mainClassName = 'io.opencensus.examples.stats.StatsRunner'
-    applicationName = 'StatsRunner'
+task tagContextExample(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.tags.TagContextExample'
+    applicationName = 'TagContextExample'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime
 }
@@ -144,7 +144,7 @@ applicationDistribution.into('bin') {
     from(multiSpansTracing)
     from(multiSpansScopedTracing)
     from(multiSpansContextTracing)
-    from(statsRunner)
+    from(tagContextExample)
     from(zPagesTester)
     from(quickStart)
     from(helloWorldServer)
