@@ -91,7 +91,9 @@ public final class BlankSpan extends Span {
 
   /** No-op implementation of the {@link Span#end(EndSpanOptions)} method. */
   @Override
-  public void end(EndSpanOptions options) {}
+  public void end(EndSpanOptions options) {
+    Utils.checkNotNull(options, "options");
+  }
 
   @Override
   public String toString() {

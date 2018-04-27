@@ -268,6 +268,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   @Override
   public void putAttribute(String key, AttributeValue value) {
+    Preconditions.checkNotNull(key, "key");
+    Preconditions.checkNotNull(value, "value");
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
@@ -381,6 +383,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   @Override
   public void end(EndSpanOptions options) {
+    Preconditions.checkNotNull(options, "options");
     if (!getOptions().contains(Options.RECORD_EVENTS)) {
       return;
     }
