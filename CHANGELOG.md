@@ -20,6 +20,11 @@
 - Makes the trace and span ID fields mandatory in binary format.
 - Auto detect AWS EC2 resources.
 - Add `Duration.toMillis()`.
+- Make monitored resource utils a separate artifact `opencensus-contrib-monitored-resource-util`,
+  so that it can be reused across exporters.
+- Add `LastValue`, `LastValueDouble` and `LastValueLong`. Also support them in 
+  stats exporters and zpages. Please note that there is an API breaking change
+  in methods `Aggregation.match()` and `AggregationData.match()`.
 
 ## 0.12.3 - 2018-04-13
 - Substitute non-ascii characters in B3Format header key.
