@@ -198,7 +198,10 @@ page](https://github.com/census-instrumentation/opencensus-java/releases), press
 
 You can use `git log upstream/v$MAJOR.$((MINOR-1)).x..upstream/v$MAJOR.$MINOR.x --graph --first-parent`
 or the Github [compare tool](https://github.com/census-instrumentation/opencensus-java/compare/)
-to view a summary of all commits since last release as a reference.
+to view a summary of all commits since last release as a reference. In addition, you can refer to 
+[CHANGELOG.md](https://github.com/census-instrumentation/opencensus-java/blob/master/CHANGELOG.md)
+for a list of major changes since last release.
+
 Please pick major or important user-visible changes only.
 
 ## Update release versions in documentations and build files
