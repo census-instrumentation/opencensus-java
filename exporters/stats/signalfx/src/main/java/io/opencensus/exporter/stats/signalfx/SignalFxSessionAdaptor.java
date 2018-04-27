@@ -24,11 +24,12 @@ import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Datum;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.Dimension;
 import com.signalfx.metrics.protobuf.SignalFxProtocolBuffers.MetricType;
 import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View;
@@ -88,7 +89,7 @@ final class SignalFxSessionAdaptor {
   @javax.annotation.Nullable
   static MetricType getMetricTypeForAggregation(
       Aggregation aggregation, View.AggregationWindow window) {
-    if (aggregation instanceof Aggregation.Mean) {
+    if (aggregation instanceof Aggregation.Mean || aggregation instanceof Aggregation.LastValue) {
       return MetricType.GAUGE;
     } else if (aggregation instanceof Aggregation.Count || aggregation instanceof Aggregation.Sum) {
       if (window instanceof View.AggregationWindow.Cumulative) {
@@ -148,13 +149,6 @@ final class SignalFxSessionAdaptor {
             return null;
           }
         },
-        new Function<AggregationData.MeanData, Void>() {
-          @Override
-          public Void apply(AggregationData.MeanData arg) {
-            builder.setDoubleValue(arg.getMean());
-            return null;
-          }
-        },
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
@@ -162,7 +156,33 @@ final class SignalFxSessionAdaptor {
             throw new IllegalArgumentException("Distribution aggregations are not supported");
           }
         },
-        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
+        new Function<LastValueDataDouble, Void>() {
+          @Override
+          public Void apply(LastValueDataDouble arg) {
+            builder.setDoubleValue(arg.getLastValue());
+            return null;
+          }
+        },
+        new Function<LastValueDataLong, Void>() {
+          @Override
+          public Void apply(LastValueDataLong arg) {
+            builder.setIntValue(arg.getLastValue());
+            return null;
+          }
+        },
+        new Function<AggregationData, Void>() {
+          @Override
+          public Void apply(AggregationData arg) {
+            // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+            // we need to continue supporting Mean, since it could still be used by users and some
+            // deprecated RPC views.
+            if (arg instanceof AggregationData.MeanData) {
+              builder.setDoubleValue(((AggregationData.MeanData) arg).getMean());
+              return null;
+            }
+            throw new IllegalArgumentException("Unknown Aggregation.");
+          }
+        });
     return builder.build();
   }
 }

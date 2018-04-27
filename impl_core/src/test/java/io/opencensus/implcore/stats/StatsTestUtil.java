@@ -26,6 +26,8 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -117,14 +119,6 @@ final class StatsTestUtil {
             return null;
           }
         },
-        new Function<MeanData, Void>() {
-          @Override
-          public Void apply(MeanData arg) {
-            assertThat(actual).isInstanceOf(MeanData.class);
-            assertThat(((MeanData) actual).getMean()).isWithin(tolerance).of(arg.getMean());
-            return null;
-          }
-        },
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
@@ -133,7 +127,37 @@ final class StatsTestUtil {
             return null;
           }
         },
-        Functions.<Void>throwIllegalArgumentException());
+        new Function<LastValueDataDouble, Void>() {
+          @Override
+          public Void apply(LastValueDataDouble arg) {
+            assertThat(actual).isInstanceOf(LastValueDataDouble.class);
+            assertThat(((LastValueDataDouble) actual).getLastValue())
+                .isWithin(tolerance)
+                .of(arg.getLastValue());
+            return null;
+          }
+        },
+        new Function<LastValueDataLong, Void>() {
+          @Override
+          public Void apply(LastValueDataLong arg) {
+            assertThat(actual).isInstanceOf(LastValueDataLong.class);
+            assertThat(((LastValueDataLong) actual).getLastValue()).isEqualTo(arg.getLastValue());
+            return null;
+          }
+        },
+        new Function<AggregationData, Void>() {
+          @Override
+          public Void apply(AggregationData arg) {
+            if (arg instanceof MeanData) {
+              assertThat(actual).isInstanceOf(MeanData.class);
+              assertThat(((MeanData) actual).getMean())
+                  .isWithin(tolerance)
+                  .of(((MeanData) arg).getMean());
+              return null;
+            }
+            throw new IllegalArgumentException("Unknown Aggregation.");
+          }
+        });
   }
 
   // Create an empty ViewData with the given View.

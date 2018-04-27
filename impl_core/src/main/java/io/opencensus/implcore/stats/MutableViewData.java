@@ -19,7 +19,7 @@ package io.opencensus.implcore.stats;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import io.opencensus.common.Duration;
@@ -29,16 +29,20 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.CheckerFrameworkUtils;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
+import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
 import io.opencensus.implcore.tags.TagContextImpl;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
@@ -157,9 +161,9 @@ abstract class MutableViewData {
     return aggregation.match(
         CreateMutableSum.INSTANCE,
         CreateMutableCount.INSTANCE,
-        CreateMutableMean.INSTANCE,
         CreateMutableDistribution.INSTANCE,
-        Functions.<MutableAggregation>throwIllegalArgumentException());
+        CreateMutableLastValue.INSTANCE,
+        AggregationDefaultFunction.INSTANCE);
   }
 
   /**
@@ -175,7 +179,8 @@ abstract class MutableViewData {
         new CreateSumData(measure),
         CreateCountData.INSTANCE,
         CreateMeanData.INSTANCE,
-        CreateDistributionData.INSTANCE);
+        CreateDistributionData.INSTANCE,
+        new CreateLastValueData(measure));
   }
 
   // Covert a mapping from TagValues to MutableAggregation, to a mapping from TagValues to
@@ -389,7 +394,9 @@ abstract class MutableViewData {
     // tag values to aggregation data.
     private Map<List</*@Nullable*/ TagValue>, AggregationData> combineBucketsAndGetAggregationMap(
         Timestamp now) {
-      Multimap<List</*@Nullable*/ TagValue>, MutableAggregation> multimap = HashMultimap.create();
+      // Need to maintain the order of inserted MutableAggregations (inserted based on time order).
+      Multimap<List</*@Nullable*/ TagValue>, MutableAggregation> multimap =
+          LinkedHashMultimap.create();
 
       // TODO(sebright): Decide whether to use a different class instead of LinkedList.
       @SuppressWarnings("JdkObsolete")
@@ -491,14 +498,20 @@ abstract class MutableViewData {
     private static final CreateMutableCount INSTANCE = new CreateMutableCount();
   }
 
-  private static final class CreateMutableMean
-      implements Function<Aggregation.Mean, MutableAggregation> {
+  // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+  // we need to continue supporting Mean, since it could still be used by users and some
+  // deprecated RPC views.
+  private static final class AggregationDefaultFunction
+      implements Function<Aggregation, MutableAggregation> {
     @Override
-    public MutableAggregation apply(Aggregation.Mean arg) {
-      return MutableMean.create();
+    public MutableAggregation apply(Aggregation arg) {
+      if (arg instanceof Aggregation.Mean) {
+        return MutableMean.create();
+      }
+      throw new IllegalArgumentException("Unknown Aggregation.");
     }
 
-    private static final CreateMutableMean INSTANCE = new CreateMutableMean();
+    private static final AggregationDefaultFunction INSTANCE = new AggregationDefaultFunction();
   }
 
   private static final class CreateMutableDistribution
@@ -509,6 +522,16 @@ abstract class MutableViewData {
     }
 
     private static final CreateMutableDistribution INSTANCE = new CreateMutableDistribution();
+  }
+
+  private static final class CreateMutableLastValue
+      implements Function<LastValue, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(LastValue arg) {
+      return MutableLastValue.create();
+    }
+
+    private static final CreateMutableLastValue INSTANCE = new CreateMutableLastValue();
   }
 
   private static final class CreateSumData implements Function<MutableSum, AggregationData> {
@@ -564,6 +587,25 @@ abstract class MutableViewData {
     }
 
     private static final CreateDistributionData INSTANCE = new CreateDistributionData();
+  }
+
+  private static final class CreateLastValueData
+      implements Function<MutableLastValue, AggregationData> {
+
+    private final Measure measure;
+
+    private CreateLastValueData(Measure measure) {
+      this.measure = measure;
+    }
+
+    @Override
+    public AggregationData apply(final MutableLastValue arg) {
+      return measure.match(
+          Functions.<AggregationData>returnConstant(LastValueDataDouble.create(arg.getLastValue())),
+          Functions.<AggregationData>returnConstant(
+              LastValueDataLong.create(Math.round(arg.getLastValue()))),
+          Functions.<AggregationData>throwAssertionError());
+    }
   }
 
   private static final class CreateCumulative

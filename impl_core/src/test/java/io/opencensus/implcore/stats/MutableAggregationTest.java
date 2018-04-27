@@ -19,8 +19,10 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
+import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.BucketBoundaries;
@@ -48,6 +50,7 @@ public class MutableAggregationTest {
     assertThat(MutableSum.create().getSum()).isWithin(TOLERANCE).of(0);
     assertThat(MutableCount.create().getCount()).isEqualTo(0);
     assertThat(MutableMean.create().getMean()).isWithin(TOLERANCE).of(0);
+    assertThat(MutableLastValue.create().getLastValue()).isNaN();
 
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(0.1, 2.2, 33.3));
     MutableDistribution mutableDistribution = MutableDistribution.create(bucketBoundaries);
@@ -81,7 +84,8 @@ public class MutableAggregationTest {
             MutableSum.create(),
             MutableCount.create(),
             MutableMean.create(),
-            MutableDistribution.create(BUCKET_BOUNDARIES));
+            MutableDistribution.create(BUCKET_BOUNDARIES),
+            MutableLastValue.create());
 
     List<Double> values = Arrays.asList(-1.0, 1.0, -5.0, 20.0, 5.0);
 
@@ -120,6 +124,13 @@ public class MutableAggregationTest {
               assertThat(arg.getBucketCounts()).isEqualTo(new long[] {0, 2, 2, 1});
               return null;
             }
+          },
+          new Function<MutableLastValue, Void>() {
+            @Override
+            public Void apply(MutableLastValue arg) {
+              assertThat(arg.getLastValue()).isWithin(TOLERANCE).of(5.0);
+              return null;
+            }
           });
     }
   }
@@ -131,39 +142,22 @@ public class MutableAggregationTest {
             MutableSum.create(),
             MutableCount.create(),
             MutableMean.create(),
-            MutableDistribution.create(BUCKET_BOUNDARIES));
+            MutableDistribution.create(BUCKET_BOUNDARIES),
+            MutableLastValue.create());
 
     List<String> actual = new ArrayList<String>();
     for (MutableAggregation aggregation : aggregations) {
       actual.add(
           aggregation.match(
-              new Function<MutableSum, String>() {
-                @Override
-                public String apply(MutableSum arg) {
-                  return "SUM";
-                }
-              },
-              new Function<MutableCount, String>() {
-                @Override
-                public String apply(MutableCount arg) {
-                  return "COUNT";
-                }
-              },
-              new Function<MutableMean, String>() {
-                @Override
-                public String apply(MutableMean arg) {
-                  return "MEAN";
-                }
-              },
-              new Function<MutableDistribution, String>() {
-                @Override
-                public String apply(MutableDistribution arg) {
-                  return "DISTRIBUTION";
-                }
-              }));
+              Functions.returnConstant("SUM"),
+              Functions.returnConstant("COUNT"),
+              Functions.returnConstant("MEAN"),
+              Functions.returnConstant("DISTRIBUTION"),
+              Functions.returnConstant("LASTVALUE")));
     }
 
-    assertThat(actual).isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION"));
+    assertThat(actual)
+        .isEqualTo(Arrays.asList("SUM", "COUNT", "MEAN", "DISTRIBUTION", "LASTVALUE"));
   }
 
   @Test

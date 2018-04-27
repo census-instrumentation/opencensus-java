@@ -27,10 +27,13 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View.AggregationWindow;
@@ -216,6 +219,22 @@ public final class ViewDataTest {
             DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 0L)),
             Arrays.asList(V10, V20),
             CountData.create(100)));
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_LastValueDouble_LastValueLong() {
+    aggregationAndAggregationDataMismatch(
+        createView(LastValue.create(), MEASURE_DOUBLE),
+        ImmutableMap.<List<TagValue>, AggregationData>of(
+            Arrays.asList(V1, V2), LastValueDataLong.create(100)));
+  }
+
+  @Test
+  public void preventAggregationAndAggregationDataMismatch_LastValueLong_LastValueDouble() {
+    aggregationAndAggregationDataMismatch(
+        createView(LastValue.create(), MEASURE_LONG),
+        ImmutableMap.<List<TagValue>, AggregationData>of(
+            Arrays.asList(V1, V2), LastValueDataDouble.create(100)));
   }
 
   private static View createView(Aggregation aggregation) {

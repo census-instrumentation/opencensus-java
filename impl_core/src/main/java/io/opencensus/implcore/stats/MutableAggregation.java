@@ -38,6 +38,7 @@ abstract class MutableAggregation {
    */
   abstract void add(double value);
 
+  // TODO(songya): remove this method once interval stats is completely removed.
   /**
    * Combine the internal values of this MutableAggregation and value of the given
    * MutableAggregation, with the given fraction. Then set the internal value of this
@@ -55,7 +56,8 @@ abstract class MutableAggregation {
       Function<? super MutableSum, T> p0,
       Function<? super MutableCount, T> p1,
       Function<? super MutableMean, T> p2,
-      Function<? super MutableDistribution, T> p3);
+      Function<? super MutableDistribution, T> p3,
+      Function<? super MutableLastValue, T> p4);
 
   /** Calculate sum on aggregated {@code MeasureValue}s. */
   static final class MutableSum extends MutableAggregation {
@@ -98,7 +100,8 @@ abstract class MutableAggregation {
         Function<? super MutableSum, T> p0,
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3) {
+        Function<? super MutableDistribution, T> p3,
+        Function<? super MutableLastValue, T> p4) {
       return p0.apply(this);
     }
   }
@@ -144,7 +147,8 @@ abstract class MutableAggregation {
         Function<? super MutableSum, T> p0,
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3) {
+        Function<? super MutableDistribution, T> p3,
+        Function<? super MutableLastValue, T> p4) {
       return p1.apply(this);
     }
   }
@@ -212,7 +216,8 @@ abstract class MutableAggregation {
         Function<? super MutableSum, T> p0,
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3) {
+        Function<? super MutableDistribution, T> p3,
+        Function<? super MutableLastValue, T> p4) {
       return p2.apply(this);
     }
   }
@@ -354,8 +359,66 @@ abstract class MutableAggregation {
         Function<? super MutableSum, T> p0,
         Function<? super MutableCount, T> p1,
         Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3) {
+        Function<? super MutableDistribution, T> p3,
+        Function<? super MutableLastValue, T> p4) {
       return p3.apply(this);
+    }
+  }
+
+  /** Calculate last value on aggregated {@code MeasureValue}s. */
+  static final class MutableLastValue extends MutableAggregation {
+
+    // Initial value that will get reset as soon as first value is added.
+    private double lastValue = Double.NaN;
+    // TODO(songya): remove this once interval stats is completely removed.
+    private boolean initialized = false;
+
+    private MutableLastValue() {}
+
+    /**
+     * Construct a {@code MutableLastValue}.
+     *
+     * @return an empty {@code MutableLastValue}.
+     */
+    static MutableLastValue create() {
+      return new MutableLastValue();
+    }
+
+    @Override
+    void add(double value) {
+      lastValue = value;
+      // TODO(songya): remove this once interval stats is completely removed.
+      if (!initialized) {
+        initialized = true;
+      }
+    }
+
+    @Override
+    void combine(MutableAggregation other, double fraction) {
+      checkArgument(other instanceof MutableLastValue, "MutableLastValue expected.");
+      MutableLastValue otherValue = (MutableLastValue) other;
+      // Assume other is always newer than this, because we combined interval buckets in time order.
+      // If there's a newer value, overwrite current value.
+      this.lastValue = otherValue.initialized ? otherValue.getLastValue() : this.lastValue;
+    }
+
+    /**
+     * Returns the last value.
+     *
+     * @return the last value.
+     */
+    double getLastValue() {
+      return lastValue;
+    }
+
+    @Override
+    final <T> T match(
+        Function<? super MutableSum, T> p0,
+        Function<? super MutableCount, T> p1,
+        Function<? super MutableMean, T> p2,
+        Function<? super MutableDistribution, T> p3,
+        Function<? super MutableLastValue, T> p4) {
+      return p4.apply(this);
     }
   }
 }

@@ -35,10 +35,13 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -92,6 +95,7 @@ public class StackdriverExportUtilsTest {
   private static final Count COUNT = Count.create();
   private static final Mean MEAN = Mean.create();
   private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
+  private static final LastValue LAST_VALUE = LastValue.create();
   private static final String PROJECT_ID = "id";
   private static final MonitoredResource DEFAULT_RESOURCE =
       MonitoredResource.newBuilder().setType("global").build();
@@ -116,10 +120,14 @@ public class StackdriverExportUtilsTest {
 
   @Test
   public void createMetricKind() {
-    assertThat(StackdriverExportUtils.createMetricKind(CUMULATIVE))
+    assertThat(StackdriverExportUtils.createMetricKind(CUMULATIVE, SUM))
         .isEqualTo(MetricKind.CUMULATIVE);
-    assertThat(StackdriverExportUtils.createMetricKind(INTERVAL))
+    assertThat(StackdriverExportUtils.createMetricKind(INTERVAL, COUNT))
         .isEqualTo(MetricKind.UNRECOGNIZED);
+    assertThat(StackdriverExportUtils.createMetricKind(CUMULATIVE, LAST_VALUE))
+        .isEqualTo(MetricKind.GAUGE);
+    assertThat(StackdriverExportUtils.createMetricKind(INTERVAL, LAST_VALUE))
+        .isEqualTo(MetricKind.GAUGE);
   }
 
   @Test
@@ -140,6 +148,10 @@ public class StackdriverExportUtilsTest {
         .isEqualTo(MetricDescriptor.ValueType.DISTRIBUTION);
     assertThat(StackdriverExportUtils.createValueType(DISTRIBUTION, MEASURE_LONG))
         .isEqualTo(MetricDescriptor.ValueType.DISTRIBUTION);
+    assertThat(StackdriverExportUtils.createValueType(LAST_VALUE, MEASURE_DOUBLE))
+        .isEqualTo(MetricDescriptor.ValueType.DOUBLE);
+    assertThat(StackdriverExportUtils.createValueType(LAST_VALUE, MEASURE_LONG))
+        .isEqualTo(MetricDescriptor.ValueType.INT64);
   }
 
   @Test
@@ -148,6 +160,8 @@ public class StackdriverExportUtilsTest {
     assertThat(StackdriverExportUtils.createUnit(COUNT, MEASURE_DOUBLE)).isEqualTo("1");
     assertThat(StackdriverExportUtils.createUnit(MEAN, MEASURE_DOUBLE)).isEqualTo(MEASURE_UNIT);
     assertThat(StackdriverExportUtils.createUnit(DISTRIBUTION, MEASURE_DOUBLE))
+        .isEqualTo(MEASURE_UNIT);
+    assertThat(StackdriverExportUtils.createUnit(LAST_VALUE, MEASURE_DOUBLE))
         .isEqualTo(MEASURE_UNIT);
   }
 
@@ -288,6 +302,10 @@ public class StackdriverExportUtilsTest {
                 .setDistributionValue(
                     StackdriverExportUtils.createDistribution(distributionData, BUCKET_BOUNDARIES))
                 .build());
+    assertThat(StackdriverExportUtils.createTypedValue(LAST_VALUE, LastValueDataDouble.create(9.9)))
+        .isEqualTo(TypedValue.newBuilder().setDoubleValue(9.9).build());
+    assertThat(StackdriverExportUtils.createTypedValue(LAST_VALUE, LastValueDataLong.create(90000)))
+        .isEqualTo(TypedValue.newBuilder().setInt64Value(90000).build());
   }
 
   @Test

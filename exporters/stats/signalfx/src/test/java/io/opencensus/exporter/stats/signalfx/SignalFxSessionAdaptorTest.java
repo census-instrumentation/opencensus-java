@@ -34,6 +34,8 @@ import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -108,6 +110,14 @@ public class SignalFxSessionAdaptorTest {
         SignalFxSessionAdaptor.getMetricTypeForAggregation(
             Aggregation.Distribution.create(BucketBoundaries.create(ImmutableList.of(3.15d))),
             AggregationWindow.Cumulative.create()));
+    assertEquals(
+        MetricType.GAUGE,
+        SignalFxSessionAdaptor.getMetricTypeForAggregation(
+            Aggregation.LastValue.create(), AggregationWindow.Cumulative.create()));
+    assertEquals(
+        MetricType.GAUGE,
+        SignalFxSessionAdaptor.getMetricTypeForAggregation(
+            Aggregation.LastValue.create(), AggregationWindow.Interval.create(ONE_SECOND)));
   }
 
   @Test
@@ -203,6 +213,26 @@ public class SignalFxSessionAdaptorTest {
     thrown.expectMessage("Distribution aggregations are not supported");
     SignalFxSessionAdaptor.createDatum(
         DistributionData.create(5, 2, 0, 10, 40, ImmutableList.of(1L)));
+  }
+
+  @Test
+  public void createDatumFromLastValueDouble() {
+    LastValueDataDouble data = LastValueDataDouble.create(12.2);
+    Datum datum = SignalFxSessionAdaptor.createDatum(data);
+    assertTrue(datum.hasDoubleValue());
+    assertFalse(datum.hasIntValue());
+    assertFalse(datum.hasStrValue());
+    assertEquals(12.2, datum.getDoubleValue(), 0d);
+  }
+
+  @Test
+  public void createDatumFromLastValueLong() {
+    LastValueDataLong data = LastValueDataLong.create(100000);
+    Datum datum = SignalFxSessionAdaptor.createDatum(data);
+    assertFalse(datum.hasDoubleValue());
+    assertTrue(datum.hasIntValue());
+    assertFalse(datum.hasStrValue());
+    assertEquals(100000, datum.getIntValue());
   }
 
   @Test
