@@ -27,17 +27,17 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.12.3</version>
+    <version>0.13.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-exporter-trace-instana</artifactId>
-    <version>0.12.3</version>
+    <version>0.13.0</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.12.3</version>
+    <version>0.13.0</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -45,9 +45,9 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-compile 'io.opencensus:opencensus-api:0.12.3'
-compile 'io.opencensus:opencensus-exporter-trace-instana:0.12.3'
-runtime 'io.opencensus:opencensus-impl:0.12.3'
+compile 'io.opencensus:opencensus-api:0.13.0'
+compile 'io.opencensus:opencensus-exporter-trace-instana:0.13.0'
+runtime 'io.opencensus:opencensus-impl:0.13.0'
 ```
 
 #### Register the exporter
