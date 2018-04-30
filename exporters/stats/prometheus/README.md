@@ -79,3 +79,9 @@ and [Bridges](https://github.com/prometheus/client_java#bridges).
 Java 7 or above is required for using this exporter.
 
 ## FAQ
+
+### Why did I get an IllegalStateException when exporting histogram stats?
+
+If you want to export histogram stats, please make sure you don't have an "le" tag key in your 
+distribution views. 
+For Prometheus Histogram, ["le" is a reserved label for bucket boundaries](https://github.com/prometheus/client_java/blob/master/simpleclient/src/main/java/io/prometheus/client/Histogram.java#L88).

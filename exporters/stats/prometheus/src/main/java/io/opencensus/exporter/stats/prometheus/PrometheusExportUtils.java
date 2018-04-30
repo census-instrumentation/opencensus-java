@@ -16,6 +16,8 @@
 
 package io.opencensus.exporter.stats.prometheus;
 
+import static io.prometheus.client.Collector.doubleToGoString;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -86,6 +88,7 @@ final class PrometheusExportUtils {
   @VisibleForTesting static final String SAMPLE_SUFFIX_BUCKET = "_bucket";
   @VisibleForTesting static final String SAMPLE_SUFFIX_COUNT = "_count";
   @VisibleForTesting static final String SAMPLE_SUFFIX_SUM = "_sum";
+  @VisibleForTesting static final String LABEL_NAME_BUCKET_BOUND = "le";
 
   // Converts a ViewData to a Prometheus MetricFamilySamples.
   static MetricFamilySamples createMetricFamilySamples(ViewData viewData) {
@@ -96,7 +99,9 @@ final class PrometheusExportUtils {
     List<Sample> samples = Lists.newArrayList();
     for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
         viewData.getAggregationMap().entrySet()) {
-      samples.addAll(getSamples(name, view.getColumns(), entry.getKey(), entry.getValue()));
+      samples.addAll(
+          getSamples(
+              name, view.getColumns(), entry.getKey(), entry.getValue(), view.getAggregation()));
     }
     return new MetricFamilySamples(
         name, type, OPENCENSUS_HELP_MSG + view.getDescription(), samples);
@@ -138,7 +143,8 @@ final class PrometheusExportUtils {
       final String name,
       List<TagKey> tagKeys,
       List</*@Nullable*/ TagValue> tagValues,
-      AggregationData aggregationData) {
+      AggregationData aggregationData,
+      final Aggregation aggregation) {
     Preconditions.checkArgument(
         tagKeys.size() == tagValues.size(), "Tag keys and tag values have different sizes.");
     final List<Sample> samples = Lists.newArrayList();
@@ -177,11 +183,30 @@ final class PrometheusExportUtils {
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
-            for (long bucketCount : arg.getBucketCounts()) {
+            // For histogram buckets, manually add the bucket boundaries as "le" labels.
+            // See io.prometheus.client.Histogram.java#L329.
+            checkLeLabelInLabelNames(labelNames);
+            @SuppressWarnings("unchecked")
+            Distribution distribution = (Distribution) aggregation;
+            List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
+            List<String> labelNamesWithLe = new ArrayList<String>(labelNames);
+            labelNamesWithLe.add(LABEL_NAME_BUCKET_BOUND);
+            for (int i = 0; i < arg.getBucketCounts().size(); i++) {
+              List<String> labelValuesWithLe = new ArrayList<String>(labelValues);
+              // The label value of "le" is the upper inclusive bound.
+              // For the last bucket, it should be "+Inf".
+              String bucketBoundary =
+                  doubleToGoString(
+                      i < boundaries.size() ? boundaries.get(i) : Double.POSITIVE_INFINITY);
+              labelValuesWithLe.add(bucketBoundary);
               samples.add(
                   new MetricFamilySamples.Sample(
-                      name + SAMPLE_SUFFIX_BUCKET, labelNames, labelValues, bucketCount));
+                      name + SAMPLE_SUFFIX_BUCKET,
+                      labelNamesWithLe,
+                      labelValuesWithLe,
+                      arg.getBucketCounts().get(i)));
             }
+
             samples.add(
                 new MetricFamilySamples.Sample(
                     name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, arg.getCount()));
@@ -232,6 +257,15 @@ final class PrometheusExportUtils {
         });
 
     return samples;
+  }
+
+  // Similar check to io.prometheus.client.Histogram.java#L86.
+  private static void checkLeLabelInLabelNames(List<String> labelNames) {
+    for (String label : labelNames) {
+      if (LABEL_NAME_BUCKET_BOUND.equals(label)) {
+        throw new IllegalStateException("Prometheus Histogram cannot have a label named 'le'.");
+      }
+    }
   }
 
   private PrometheusExportUtils() {}

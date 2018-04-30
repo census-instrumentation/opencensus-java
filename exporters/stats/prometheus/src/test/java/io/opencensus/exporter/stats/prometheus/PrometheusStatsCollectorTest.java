@@ -94,13 +94,25 @@ public class PrometheusStatsCollectorTest {
                 "Opencensus Prometheus metrics: View description",
                 Arrays.asList(
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 0),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "-5.0"),
+                        0),
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 2),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "0.0"),
+                        2),
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 2),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "5.0"),
+                        2),
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 1),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "+Inf"),
+                        1),
                     new Sample(
                         name + "_count", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 5),
                     new Sample(
