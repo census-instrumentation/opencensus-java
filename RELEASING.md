@@ -155,8 +155,9 @@ from the project.
 
 ### Branch
 
-Before building/deploying, be sure to switch to the appropriate branch or tag.
-For the current release use:
+Before building/deploying, be sure to switch to the appropriate tag. The tag
+must reference a commit that has been pushed to the main repository, i.e., has
+gone through code review. For the current release use:
 
 ```bash
 $ git checkout -b v$MAJOR.$MINOR.$PATCH tags/v$MAJOR.$MINOR.$PATCH
