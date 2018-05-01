@@ -96,12 +96,13 @@ final class PrometheusExportUtils {
     String name =
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
+    List<String> labelNames = convertToLabelNames(view.getColumns());
+    checkLeLabelInLabelNames(labelNames, type);
     List<Sample> samples = Lists.newArrayList();
     for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
         viewData.getAggregationMap().entrySet()) {
       samples.addAll(
-          getSamples(
-              name, view.getColumns(), entry.getKey(), entry.getValue(), view.getAggregation()));
+          getSamples(name, labelNames, entry.getKey(), entry.getValue(), view.getAggregation()));
     }
     return new MetricFamilySamples(
         name, type, OPENCENSUS_HELP_MSG + view.getDescription(), samples);
@@ -113,6 +114,8 @@ final class PrometheusExportUtils {
     String name =
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
+    List<String> labelNames = convertToLabelNames(view.getColumns());
+    checkLeLabelInLabelNames(labelNames, type);
     return new MetricFamilySamples(
         name, type, OPENCENSUS_HELP_MSG + view.getDescription(), Collections.<Sample>emptyList());
   }
@@ -141,18 +144,14 @@ final class PrometheusExportUtils {
   @VisibleForTesting
   static List<Sample> getSamples(
       final String name,
-      List<TagKey> tagKeys,
+      final List<String> labelNames,
       List</*@Nullable*/ TagValue> tagValues,
       AggregationData aggregationData,
       final Aggregation aggregation) {
     Preconditions.checkArgument(
-        tagKeys.size() == tagValues.size(), "Tag keys and tag values have different sizes.");
+        labelNames.size() == tagValues.size(), "Label names and tag values have different sizes.");
     final List<Sample> samples = Lists.newArrayList();
-    final List<String> labelNames = new ArrayList<String>(tagKeys.size());
     final List<String> labelValues = new ArrayList<String>(tagValues.size());
-    for (TagKey tagKey : tagKeys) {
-      labelNames.add(Collector.sanitizeMetricName(tagKey.getName()));
-    }
     for (TagValue tagValue : tagValues) {
       String labelValue = tagValue == null ? "" : tagValue.asString();
       labelValues.add(labelValue);
@@ -184,8 +183,8 @@ final class PrometheusExportUtils {
           @Override
           public Void apply(DistributionData arg) {
             // For histogram buckets, manually add the bucket boundaries as "le" labels.
-            // See io.prometheus.client.Histogram.java#L329.
-            checkLeLabelInLabelNames(labelNames);
+            // See github.com/prometheus/client_java/blob/master/
+            // simpleclient/src/main/java/io/prometheus/client/Histogram.java#L329
             @SuppressWarnings("unchecked")
             Distribution distribution = (Distribution) aggregation;
             List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
@@ -259,8 +258,22 @@ final class PrometheusExportUtils {
     return samples;
   }
 
-  // Similar check to io.prometheus.client.Histogram.java#L86.
-  private static void checkLeLabelInLabelNames(List<String> labelNames) {
+  // Converts the list of tag keys to a list of string label names. Also sanitizes the tag keys.
+  @VisibleForTesting
+  static List<String> convertToLabelNames(List<TagKey> tagKeys) {
+    final List<String> labelNames = new ArrayList<String>(tagKeys.size());
+    for (TagKey tagKey : tagKeys) {
+      labelNames.add(Collector.sanitizeMetricName(tagKey.getName()));
+    }
+    return labelNames;
+  }
+
+  // Similar check to github.com/prometheus/client_java/blob/master/
+  // simpleclient/src/main/java/io/prometheus/client/Histogram.java#L88
+  private static void checkLeLabelInLabelNames(List<String> labelNames, Type type) {
+    if (!Type.HISTOGRAM.equals(type)) {
+      return;
+    }
     for (String label : labelNames) {
       if (LABEL_NAME_BUCKET_BOUND.equals(label)) {
         throw new IllegalStateException(
