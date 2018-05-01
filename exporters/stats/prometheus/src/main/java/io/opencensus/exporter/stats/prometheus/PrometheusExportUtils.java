@@ -263,7 +263,10 @@ final class PrometheusExportUtils {
   private static void checkLeLabelInLabelNames(List<String> labelNames) {
     for (String label : labelNames) {
       if (LABEL_NAME_BUCKET_BOUND.equals(label)) {
-        throw new IllegalStateException("Prometheus Histogram cannot have a label named 'le'.");
+        throw new IllegalStateException(
+            "Prometheus Histogram cannot have a label named 'le', "
+                + "because it is a reserved label for bucket boundaries. "
+                + "Please remove this tag key from your view.");
       }
     }
   }

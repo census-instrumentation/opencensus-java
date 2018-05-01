@@ -239,7 +239,10 @@ public class PrometheusExportUtilsTest {
   @Test
   public void getSamples_Histogram_DisallowLeLabelName() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Prometheus Histogram cannot have a label named 'le'.");
+    thrown.expectMessage(
+        "Prometheus Histogram cannot have a label named 'le', "
+            + "because it is a reserved label for bucket boundaries. "
+            + "Please remove this tag key from your view.");
     PrometheusExportUtils.getSamples(
         SAMPLE_NAME,
         Arrays.asList(K1, K2, TAG_KEY_LE),
