@@ -16,6 +16,10 @@
 
 package io.opencensus.exporter.stats.prometheus;
 
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.containsDisallowedLeLabelForHistogram;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.convertToLabelNames;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.getType;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -39,6 +43,7 @@ import java.util.logging.Logger;
  *
  * @since 0.12
  */
+@SuppressWarnings("deprecation")
 public final class PrometheusStatsCollector extends Collector implements Collector.Describable {
 
   private static final Logger logger = Logger.getLogger(PrometheusStatsCollector.class.getName());
@@ -90,6 +95,11 @@ public final class PrometheusStatsCollector extends Collector implements Collect
     span.addAnnotation("Collect Prometheus Metric Samples.");
     try (Scope scope = tracer.withSpan(span)) {
       for (View view : viewManager.getAllExportedViews()) {
+        if (containsDisallowedLeLabelForHistogram(
+            convertToLabelNames(view.getColumns()),
+            getType(view.getAggregation(), view.getWindow()))) {
+          continue; // silently skip Distribution views with "le" tag key
+        }
         try {
           ViewData viewData = viewManager.getView(view.getName());
           if (viewData == null) {

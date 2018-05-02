@@ -33,7 +33,6 @@ import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.LastValueDataDouble;
@@ -56,7 +55,6 @@ import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import io.prometheus.client.Collector.Type;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -275,18 +273,6 @@ public class PrometheusExportUtilsTest {
             + "because it is a reserved label for bucket boundaries. "
             + "Please remove this tag key from your view.");
     PrometheusExportUtils.createDescribableMetricFamilySamples(DISTRIBUTION_VIEW_WITH_LE_KEY);
-  }
-
-  @Test
-  public void createMetricFamilySamples_Histogram_SkipStatsWithLeLabelName() {
-    ViewData viewData =
-        ViewData.create(
-            DISTRIBUTION_VIEW_WITH_LE_KEY,
-            ImmutableMap.<List<TagValue>, AggregationData>of(
-                Arrays.asList(V1, V2), DISTRIBUTION_DATA),
-            CUMULATIVE_DATA);
-    MetricFamilySamples metricSamples = PrometheusExportUtils.createMetricFamilySamples(viewData);
-    assertThat(metricSamples.samples).isEmpty();
   }
 
   @Test

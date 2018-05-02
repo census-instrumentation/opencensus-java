@@ -114,7 +114,7 @@ final class PrometheusExportUtils {
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
     List<String> labelNames = convertToLabelNames(view.getColumns());
-    if (checkLeLabelInLabelNames(labelNames, type)) {
+    if (containsDisallowedLeLabelForHistogram(labelNames, type)) {
       throw new IllegalStateException(
           "Prometheus Histogram cannot have a label named 'le', "
               + "because it is a reserved label for bucket boundaries. "
@@ -145,6 +145,8 @@ final class PrometheusExportUtils {
         });
   }
 
+  // Converts a row in ViewData (a.k.a Entry<List<TagValue>, AggregationData>) to a list of
+  // Prometheus Samples.
   @VisibleForTesting
   static List<Sample> getSamples(
       final String name,
@@ -188,9 +190,6 @@ final class PrometheusExportUtils {
           public Void apply(DistributionData arg) {
             // For histogram buckets, manually add the bucket boundaries as "le" labels. See
             // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R241
-            if (checkLeLabelInLabelNames(labelNames, Type.HISTOGRAM)) {
-              return null; // silently skip histogram stats if there's an "le" label.
-            }
             @SuppressWarnings("unchecked")
             Distribution distribution = (Distribution) aggregation;
             List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
@@ -277,7 +276,7 @@ final class PrometheusExportUtils {
   // Returns true if there is an "le" label name in histogram label names, returns false otherwise.
   // Similar check to
   // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R78
-  private static boolean checkLeLabelInLabelNames(List<String> labelNames, Type type) {
+  static boolean containsDisallowedLeLabelForHistogram(List<String> labelNames, Type type) {
     if (!Type.HISTOGRAM.equals(type)) {
       return false;
     }
