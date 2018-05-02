@@ -182,7 +182,7 @@ final class PrometheusExportUtils {
           @Override
           public Void apply(DistributionData arg) {
             // For histogram buckets, manually add the bucket boundaries as "le" labels. See
-            // https://github.com/prometheus/client_java/blob/master/simpleclient/src/main/java/io/prometheus/client/Histogram.java#L329
+            // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R241
             @SuppressWarnings("unchecked")
             Distribution distribution = (Distribution) aggregation;
             List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
@@ -267,7 +267,7 @@ final class PrometheusExportUtils {
   }
 
   // Similar check to
-  // https://github.com/prometheus/client_java/blob/master/simpleclient/src/main/java/io/prometheus/client/Histogram.java#L88
+  // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R78
   private static void checkLeLabelInLabelNames(List<String> labelNames, Type type) {
     if (!Type.HISTOGRAM.equals(type)) {
       return;
