@@ -223,8 +223,8 @@ public class StatszZPageHandlerTest {
             .match(
                 Functions.returnConstant("Sum"),
                 Functions.returnConstant("Count"),
-                Functions.returnConstant("Last Value"),
                 Functions.returnConstant("Distribution"),
+                Functions.returnConstant("Last Value"),
                 new Function<Aggregation, String>() {
                   @Override
                   public String apply(Aggregation arg) {
