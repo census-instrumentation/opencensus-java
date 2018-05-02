@@ -114,7 +114,12 @@ final class PrometheusExportUtils {
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
     List<String> labelNames = convertToLabelNames(view.getColumns());
-    checkLeLabelInLabelNames(labelNames, type);
+    if (checkLeLabelInLabelNames(labelNames, type)) {
+      throw new IllegalStateException(
+          "Prometheus Histogram cannot have a label named 'le', "
+              + "because it is a reserved label for bucket boundaries. "
+              + "Please remove this tag key from your view.");
+    }
     return new MetricFamilySamples(
         name, type, OPENCENSUS_HELP_MSG + view.getDescription(), Collections.<Sample>emptyList());
   }
@@ -183,6 +188,9 @@ final class PrometheusExportUtils {
           public Void apply(DistributionData arg) {
             // For histogram buckets, manually add the bucket boundaries as "le" labels. See
             // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R241
+            if (checkLeLabelInLabelNames(labelNames, Type.HISTOGRAM)) {
+              return null; // silently skip histogram stats if there's an "le" label.
+            }
             @SuppressWarnings("unchecked")
             Distribution distribution = (Distribution) aggregation;
             List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
@@ -266,20 +274,19 @@ final class PrometheusExportUtils {
     return labelNames;
   }
 
+  // Returns true if there is an "le" label name in histogram label names, returns false otherwise.
   // Similar check to
   // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R78
-  private static void checkLeLabelInLabelNames(List<String> labelNames, Type type) {
+  private static boolean checkLeLabelInLabelNames(List<String> labelNames, Type type) {
     if (!Type.HISTOGRAM.equals(type)) {
-      return;
+      return false;
     }
     for (String label : labelNames) {
       if (LABEL_NAME_BUCKET_BOUND.equals(label)) {
-        throw new IllegalStateException(
-            "Prometheus Histogram cannot have a label named 'le', "
-                + "because it is a reserved label for bucket boundaries. "
-                + "Please remove this tag key from your view.");
+        return true;
       }
     }
+    return false;
   }
 
   private PrometheusExportUtils() {}
