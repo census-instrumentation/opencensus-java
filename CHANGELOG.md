@@ -1,6 +1,6 @@
 ## Unreleased
 - Fix a typo on displaying Aggregation Type for a View on StatsZ page.
-- Set bucket bounds as le labels for Prometheus Stats exporter.
+- Set bucket bounds as "le" labels for Prometheus Stats exporter.
 
 ## 0.13.0 - 2018-04-27
 - Support building with Java 9.
