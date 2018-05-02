@@ -97,7 +97,6 @@ final class PrometheusExportUtils {
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
     List<String> labelNames = convertToLabelNames(view.getColumns());
-    checkLeLabelInLabelNames(labelNames, type);
     List<Sample> samples = Lists.newArrayList();
     for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
         viewData.getAggregationMap().entrySet()) {
@@ -182,9 +181,8 @@ final class PrometheusExportUtils {
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
-            // For histogram buckets, manually add the bucket boundaries as "le" labels.
-            // See github.com/prometheus/client_java/blob/master/
-            // simpleclient/src/main/java/io/prometheus/client/Histogram.java#L329
+            // For histogram buckets, manually add the bucket boundaries as "le" labels. See
+            // https://github.com/prometheus/client_java/blob/master/simpleclient/src/main/java/io/prometheus/client/Histogram.java#L329
             @SuppressWarnings("unchecked")
             Distribution distribution = (Distribution) aggregation;
             List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
@@ -268,8 +266,8 @@ final class PrometheusExportUtils {
     return labelNames;
   }
 
-  // Similar check to github.com/prometheus/client_java/blob/master/
-  // simpleclient/src/main/java/io/prometheus/client/Histogram.java#L88
+  // Similar check to
+  // https://github.com/prometheus/client_java/blob/master/simpleclient/src/main/java/io/prometheus/client/Histogram.java#L88
   private static void checkLeLabelInLabelNames(List<String> labelNames, Type type) {
     if (!Type.HISTOGRAM.equals(type)) {
       return;

@@ -33,7 +33,6 @@ import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.LastValueDataDouble;
@@ -56,7 +55,6 @@ import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import io.prometheus.client.Collector.Type;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -265,20 +263,6 @@ public class PrometheusExportUtilsTest {
         Arrays.asList(V1, V2),
         DISTRIBUTION_DATA,
         DISTRIBUTION);
-  }
-
-  @Test
-  public void createMetricFamilySamples_Histogram_DisallowLeLabelName() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage(
-        "Prometheus Histogram cannot have a label named 'le', "
-            + "because it is a reserved label for bucket boundaries. "
-            + "Please remove this tag key from your view.");
-    PrometheusExportUtils.createMetricFamilySamples(
-        ViewData.create(
-            DISTRIBUTION_VIEW_WITH_LE_KEY,
-            Collections.<List<TagValue>, AggregationData>emptyMap(),
-            CUMULATIVE_DATA));
   }
 
   @Test
