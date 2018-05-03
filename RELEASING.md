@@ -285,6 +285,12 @@ $ sed -i 's/\(<version>\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
 
 3. Go through PR review and merge it to GitHub master branch.
 
+4. In addition, create a PR to mark the new release in 
+[CHANGELOG.md](https://github.com/census-instrumentation/opencensus-java/blob/master/CHANGELOG.md)
+on master branch. Once that PR is merged, cherry-pick the commit and create another PR to the 
+release branch (branch v$MAJOR.$MINOR.x).
+
+
 ## Known Issues
 
 ### Deployment for tag v0.5.0
