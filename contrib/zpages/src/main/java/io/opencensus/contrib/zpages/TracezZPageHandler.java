@@ -61,7 +61,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 // TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 /**
@@ -122,11 +125,12 @@ final class TracezZPageHandler extends ZPageHandler {
   // Map from LatencyBucketBoundaries to the human string displayed on the UI for each bucket.
   private static final Map<LatencyBucketBoundaries, String> LATENCY_BUCKET_BOUNDARIES_STRING_MAP =
       buildLatencyBucketBoundariesStringMap();
-  @Nullable private final RunningSpanStore runningSpanStore;
-  @Nullable private final SampledSpanStore sampledSpanStore;
+  @javax.annotation.Nullable private final RunningSpanStore runningSpanStore;
+  @javax.annotation.Nullable private final SampledSpanStore sampledSpanStore;
 
   private TracezZPageHandler(
-      @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
+      @javax.annotation.Nullable RunningSpanStore runningSpanStore,
+      @javax.annotation.Nullable SampledSpanStore sampledSpanStore) {
     this.runningSpanStore = runningSpanStore;
     this.sampledSpanStore = sampledSpanStore;
   }
@@ -139,7 +143,8 @@ final class TracezZPageHandler extends ZPageHandler {
    * @return a new {@code TracezZPageHandler}.
    */
   static TracezZPageHandler create(
-      @Nullable RunningSpanStore runningSpanStore, @Nullable SampledSpanStore sampledSpanStore) {
+      @javax.annotation.Nullable RunningSpanStore runningSpanStore,
+      @javax.annotation.Nullable SampledSpanStore sampledSpanStore) {
     return new TracezZPageHandler(runningSpanStore, sampledSpanStore);
   }
 
@@ -385,7 +390,7 @@ final class TracezZPageHandler extends ZPageHandler {
 
   // TODO(sebright): Remove this method.
   @SuppressWarnings("nullness")
-  private static <T> T castNonNull(@Nullable T arg) {
+  private static <T> T castNonNull(@javax.annotation.Nullable T arg) {
     return arg;
   }
 
@@ -630,27 +635,28 @@ final class TracezZPageHandler extends ZPageHandler {
     return stringBuilder.toString();
   }
 
+  @javax.annotation.Nullable
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        new Function<String, String>() {
+        new Function<String, /*@Nullable*/ String>() {
           @Override
           public String apply(String stringValue) {
             return stringValue;
           }
         },
-        new Function<Boolean, String>() {
+        new Function<Boolean, /*@Nullable*/ String>() {
           @Override
           public String apply(Boolean booleanValue) {
             return booleanValue.toString();
           }
         },
-        new Function<Long, String>() {
+        new Function<Long, /*@Nullable*/ String>() {
           @Override
           public String apply(Long longValue) {
             return longValue.toString();
           }
         },
-        Functions.<String>returnNull());
+        Functions.</*@Nullable*/ String>returnNull());
   }
 
   private static final class TimedEventComparator
