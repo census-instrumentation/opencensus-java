@@ -206,7 +206,7 @@ subprojects {
 
     dependencies {
         if (useCheckerFramework) {
-            ext.checkerFrameworkVersion = '2.5.0'
+            ext.checkerFrameworkVersion = '2.5.1'
 
             // 2.4.0 is the last version of the Checker Framework compiler that supports annotations
             // in comments, though it should continue to work with newer versions of the Checker Framework.

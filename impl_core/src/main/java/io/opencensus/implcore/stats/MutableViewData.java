@@ -227,7 +227,7 @@ abstract class MutableViewData {
         // If Stats state is DISABLED, return an empty ViewData.
         return ViewData.create(
             super.view,
-            Collections.<List<TagValue>, AggregationData>emptyMap(),
+            Collections.<List</*@Nullable*/ TagValue>, AggregationData>emptyMap(),
             ViewData.AggregationWindowData.CumulativeData.create(ZERO_TIMESTAMP, ZERO_TIMESTAMP));
       }
     }
@@ -320,7 +320,7 @@ abstract class MutableViewData {
         // If Stats state is DISABLED, return an empty ViewData.
         return ViewData.create(
             super.view,
-            Collections.<List<TagValue>, AggregationData>emptyMap(),
+            Collections.<List</*@Nullable*/ TagValue>, AggregationData>emptyMap(),
             ViewData.AggregationWindowData.IntervalData.create(ZERO_TIMESTAMP));
       }
     }
