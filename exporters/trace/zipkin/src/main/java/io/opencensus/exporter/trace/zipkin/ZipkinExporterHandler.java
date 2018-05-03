@@ -20,8 +20,6 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.google.common.io.BaseEncoding;
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
@@ -61,13 +59,6 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
 
   private static final String STATUS_CODE = "census.status_code";
   private static final String STATUS_DESCRIPTION = "census.status_description";
-  private static final Function<Object, String> RETURN_STRING =
-      new Function<Object, String>() {
-        @Override
-        public String apply(Object input) {
-          return input.toString();
-        }
-      };
   private final SpanBytesEncoder encoder;
   private final Sender sender;
   private final Endpoint localEndpoint;
@@ -185,8 +176,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
   }
 
   private static String attributeValueToString(AttributeValue attributeValue) {
-    return attributeValue.match(
-        RETURN_STRING, RETURN_STRING, RETURN_STRING, Functions.<String>returnNull());
+    return attributeValue.toString();
   }
 
   @Override
