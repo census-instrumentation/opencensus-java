@@ -213,29 +213,22 @@ public class SpanExporterImplTest {
     assertThat(exported).containsExactly(span2.toSpanData());
   }
 
-  @Test
+  @Test(timeout = 10000L)
   public void exportNotSampledSpansFlushed() {
-    // Set the export delay to a very long value in order to confirm the #flush() below works
-    SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(Long.MAX_VALUE, 0));
+    // Set the export delay to zero, for no timeout, in order to confirm the #flush() below works
+    SpanExporterImpl spanExporter = SpanExporterImpl.create(4, Duration.create(0, 0));
     StartEndHandler startEndHandler =
         new StartEndHandlerImpl(spanExporter, runningSpanStore, null, new SimpleEventQueue());
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
-    SpanImpl span1 = createNotSampledEndedSpan(startEndHandler, SPAN_NAME_1);
     SpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
 
     // Force a flush, without this, the #waitForExport() call below would block indefinitely.
     spanExporter.flush();
 
-    // Spans are recorded and exported in the same order as they are ended, we test that a non
-    // sampled span is not exported by creating and ending a sampled span after a non sampled span
-    // and checking that the first exported span is the sampled span (the non sampled did not get
-    // exported).
     List<SpanData> exported = serviceHandler.waitForExport(1);
-    // Need to check this because otherwise the variable span1 is unused, other option is to not
-    // have a span1 variable.
-    assertThat(exported).doesNotContain(span1.toSpanData());
+
     assertThat(exported).containsExactly(span2.toSpanData());
   }
 }
