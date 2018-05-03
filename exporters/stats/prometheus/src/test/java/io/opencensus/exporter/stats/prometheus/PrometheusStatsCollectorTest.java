@@ -17,6 +17,7 @@
 package io.opencensus.exporter.stats.prometheus;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.LABEL_NAME_BUCKET_BOUND;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.ImmutableMap;
@@ -60,6 +61,7 @@ public class PrometheusStatsCollectorTest {
       MeasureDouble.create("measure", "description", "1");
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
+  private static final TagKey LE_TAG_KEY = TagKey.create(LABEL_NAME_BUCKET_BOUND);
   private static final TagValue V1 = TagValue.create("v1");
   private static final TagValue V2 = TagValue.create("v2");
   private static final DistributionData DISTRIBUTION_DATA =
@@ -67,11 +69,24 @@ public class PrometheusStatsCollectorTest {
   private static final View VIEW =
       View.create(
           VIEW_NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(K1, K2), CUMULATIVE);
+  private static final View VIEW_WITH_LE_TAG_KEY =
+      View.create(
+          VIEW_NAME,
+          DESCRIPTION,
+          MEASURE_DOUBLE,
+          DISTRIBUTION,
+          Arrays.asList(K1, LE_TAG_KEY),
+          CUMULATIVE);
   private static final CumulativeData CUMULATIVE_DATA =
       CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
   private static final ViewData VIEW_DATA =
       ViewData.create(
           VIEW, ImmutableMap.of(Arrays.asList(V1, V2), DISTRIBUTION_DATA), CUMULATIVE_DATA);
+  private static final ViewData VIEW_DATA_WITH_LE_TAG_KEY =
+      ViewData.create(
+          VIEW_WITH_LE_TAG_KEY,
+          ImmutableMap.of(Arrays.asList(V1, V2), DISTRIBUTION_DATA),
+          CUMULATIVE_DATA);
 
   @Mock private ViewManager mockViewManager;
 
@@ -94,13 +109,25 @@ public class PrometheusStatsCollectorTest {
                 "Opencensus Prometheus metrics: View description",
                 Arrays.asList(
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 0),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "-5.0"),
+                        0),
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 2),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "0.0"),
+                        2),
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 2),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "5.0"),
+                        2),
                     new Sample(
-                        name + "_bucket", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 1),
+                        name + "_bucket",
+                        Arrays.asList("k1", "k2", "le"),
+                        Arrays.asList("v1", "v2", "+Inf"),
+                        1),
                     new Sample(
                         name + "_count", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 5),
                     new Sample(
@@ -108,6 +135,14 @@ public class PrometheusStatsCollectorTest {
                         Arrays.asList("k1", "k2"),
                         Arrays.asList("v1", "v2"),
                         22.0))));
+  }
+
+  @Test
+  public void testCollect_SkipDistributionViewWithLeTagKey() {
+    doReturn(ImmutableSet.of(VIEW_WITH_LE_TAG_KEY)).when(mockViewManager).getAllExportedViews();
+    doReturn(VIEW_DATA_WITH_LE_TAG_KEY).when(mockViewManager).getView(VIEW_NAME);
+    PrometheusStatsCollector collector = new PrometheusStatsCollector(mockViewManager);
+    assertThat(collector.collect()).isEmpty();
   }
 
   @Test

@@ -16,6 +16,10 @@
 
 package io.opencensus.exporter.stats.prometheus;
 
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.containsDisallowedLeLabelForHistogram;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.convertToLabelNames;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.getType;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -39,6 +43,7 @@ import java.util.logging.Logger;
  *
  * @since 0.12
  */
+@SuppressWarnings("deprecation")
 public final class PrometheusStatsCollector extends Collector implements Collector.Describable {
 
   private static final Logger logger = Logger.getLogger(PrometheusStatsCollector.class.getName());
@@ -90,20 +95,27 @@ public final class PrometheusStatsCollector extends Collector implements Collect
     span.addAnnotation("Collect Prometheus Metric Samples.");
     try (Scope scope = tracer.withSpan(span)) {
       for (View view : viewManager.getAllExportedViews()) {
-        ViewData viewData = viewManager.getView(view.getName());
-        if (viewData == null) {
-          continue;
-        } else {
-          samples.add(PrometheusExportUtils.createMetricFamilySamples(viewData));
+        if (containsDisallowedLeLabelForHistogram(
+            convertToLabelNames(view.getColumns()),
+            getType(view.getAggregation(), view.getWindow()))) {
+          continue; // silently skip Distribution views with "le" tag key
+        }
+        try {
+          ViewData viewData = viewManager.getView(view.getName());
+          if (viewData == null) {
+            continue;
+          } else {
+            samples.add(PrometheusExportUtils.createMetricFamilySamples(viewData));
+          }
+        } catch (Throwable e) {
+          logger.log(Level.WARNING, "Exception thrown when collecting metric samples.", e);
+          span.setStatus(
+              Status.UNKNOWN.withDescription(
+                  "Exception thrown when collecting Prometheus Metric Samples: "
+                      + exceptionMessage(e)));
         }
       }
       span.addAnnotation("Finish collecting Prometheus Metric Samples.");
-    } catch (Throwable e) {
-      logger.log(Level.WARNING, "Exception thrown when collecting metric samples.", e);
-      span.setStatus(
-          Status.UNKNOWN.withDescription(
-              "Exception thrown when collecting Prometheus Metric Samples: "
-                  + exceptionMessage(e)));
     } finally {
       span.end();
     }
@@ -118,14 +130,16 @@ public final class PrometheusStatsCollector extends Collector implements Collect
     span.addAnnotation("Describe Prometheus Metrics.");
     try (Scope scope = tracer.withSpan(span)) {
       for (View view : viewManager.getAllExportedViews()) {
-        samples.add(PrometheusExportUtils.createDescribableMetricFamilySamples(view));
+        try {
+          samples.add(PrometheusExportUtils.createDescribableMetricFamilySamples(view));
+        } catch (Throwable e) {
+          logger.log(Level.WARNING, "Exception thrown when describing metrics.", e);
+          span.setStatus(
+              Status.UNKNOWN.withDescription(
+                  "Exception thrown when describing Prometheus Metrics: " + exceptionMessage(e)));
+        }
       }
       span.addAnnotation("Finish describing Prometheus Metrics.");
-    } catch (Throwable e) {
-      logger.log(Level.WARNING, "Exception thrown when describing metrics.", e);
-      span.setStatus(
-          Status.UNKNOWN.withDescription(
-              "Exception thrown when describing Prometheus Metrics: " + exceptionMessage(e)));
     } finally {
       span.end();
     }
