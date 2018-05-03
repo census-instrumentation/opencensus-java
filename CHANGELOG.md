@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.13.1 - 2018-05-02
 - Fix a typo on displaying Aggregation Type for a View on StatsZ page.
 - Set bucket bounds as "le" labels for Prometheus Stats exporter.
 
