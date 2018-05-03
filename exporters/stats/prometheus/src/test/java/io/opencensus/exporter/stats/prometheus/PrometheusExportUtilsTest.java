@@ -17,11 +17,13 @@
 package io.opencensus.exporter.stats.prometheus;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.LABEL_NAME_BUCKET_BOUND;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.OPENCENSUS_HELP_MSG;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.OPENCENSUS_NAMESPACE;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_BUCKET;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_COUNT;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_SUM;
+import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.convertToLabelNames;
 
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.common.Duration;
@@ -85,6 +87,7 @@ public class PrometheusExportUtilsTest {
   private static final TagKey K1 = TagKey.create("k1");
   private static final TagKey K2 = TagKey.create("k2");
   private static final TagKey K3 = TagKey.create("k-3");
+  private static final TagKey TAG_KEY_LE = TagKey.create(LABEL_NAME_BUCKET_BOUND);
   private static final TagValue V1 = TagValue.create("v1");
   private static final TagValue V2 = TagValue.create("v2");
   private static final TagValue V3 = TagValue.create("v-3");
@@ -106,6 +109,14 @@ public class PrometheusExportUtilsTest {
           VIEW_NAME_3, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(K1), CUMULATIVE);
   private static final View VIEW4 =
       View.create(VIEW_NAME_4, DESCRIPTION, MEASURE_DOUBLE, COUNT, Arrays.asList(K1), INTERVAL);
+  private static final View DISTRIBUTION_VIEW_WITH_LE_KEY =
+      View.create(
+          VIEW_NAME_1,
+          DESCRIPTION,
+          MEASURE_DOUBLE,
+          DISTRIBUTION,
+          Arrays.asList(K1, TAG_KEY_LE),
+          CUMULATIVE);
   private static final CumulativeData CUMULATIVE_DATA =
       CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
   private static final IntervalData INTERVAL_DATA = IntervalData.create(Timestamp.fromMillis(1000));
@@ -118,6 +129,7 @@ public class PrometheusExportUtilsTest {
     assertThat(SAMPLE_SUFFIX_BUCKET).isEqualTo("_bucket");
     assertThat(SAMPLE_SUFFIX_COUNT).isEqualTo("_count");
     assertThat(SAMPLE_SUFFIX_SUM).isEqualTo("_sum");
+    assertThat(LABEL_NAME_BUCKET_BOUND).isEqualTo("le");
   }
 
   @Test
@@ -166,45 +178,77 @@ public class PrometheusExportUtilsTest {
   public void getSamples() {
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME, Arrays.asList(K1, K2), Arrays.asList(V1, V2), SUM_DATA_DOUBLE))
+                SAMPLE_NAME,
+                convertToLabelNames(Arrays.asList(K1, K2)),
+                Arrays.asList(V1, V2),
+                SUM_DATA_DOUBLE,
+                SUM))
         .containsExactly(
             new Sample(SAMPLE_NAME, Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), -5.5));
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME, Arrays.asList(K3), Arrays.asList(V3), SUM_DATA_LONG))
+                SAMPLE_NAME,
+                convertToLabelNames(Arrays.asList(K3)),
+                Arrays.asList(V3),
+                SUM_DATA_LONG,
+                SUM))
         .containsExactly(
             new Sample(SAMPLE_NAME, Arrays.asList("k_3"), Arrays.asList("v-3"), 123456789));
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME, Arrays.asList(K1, K3), Arrays.asList(V1, null), COUNT_DATA))
+                SAMPLE_NAME,
+                convertToLabelNames(Arrays.asList(K1, K3)),
+                Arrays.asList(V1, null),
+                COUNT_DATA,
+                COUNT))
         .containsExactly(
             new Sample(SAMPLE_NAME, Arrays.asList("k1", "k_3"), Arrays.asList("v1", ""), 12345));
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME, Arrays.asList(K3), Arrays.asList(V3), MEAN_DATA))
+                SAMPLE_NAME,
+                convertToLabelNames(Arrays.asList(K3)),
+                Arrays.asList(V3),
+                MEAN_DATA,
+                MEAN))
         .containsExactly(
             new Sample(SAMPLE_NAME + "_count", Arrays.asList("k_3"), Arrays.asList("v-3"), 22),
             new Sample(SAMPLE_NAME + "_sum", Arrays.asList("k_3"), Arrays.asList("v-3"), 74.8))
         .inOrder();
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME, Arrays.asList(K1), Arrays.asList(V1), DISTRIBUTION_DATA))
+                SAMPLE_NAME,
+                convertToLabelNames(Arrays.asList(K1)),
+                Arrays.asList(V1),
+                DISTRIBUTION_DATA,
+                DISTRIBUTION))
         .containsExactly(
-            new Sample(SAMPLE_NAME + "_bucket", Arrays.asList("k1"), Arrays.asList("v1"), 0),
-            new Sample(SAMPLE_NAME + "_bucket", Arrays.asList("k1"), Arrays.asList("v1"), 2),
-            new Sample(SAMPLE_NAME + "_bucket", Arrays.asList("k1"), Arrays.asList("v1"), 2),
-            new Sample(SAMPLE_NAME + "_bucket", Arrays.asList("k1"), Arrays.asList("v1"), 1),
+            new Sample(
+                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "-5.0"), 0),
+            new Sample(
+                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "0.0"), 2),
+            new Sample(
+                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "5.0"), 2),
+            new Sample(
+                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "+Inf"), 1),
             new Sample(SAMPLE_NAME + "_count", Arrays.asList("k1"), Arrays.asList("v1"), 5),
             new Sample(SAMPLE_NAME + "_sum", Arrays.asList("k1"), Arrays.asList("v1"), 22.0))
         .inOrder();
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME, Arrays.asList(K1, K2), Arrays.asList(V1, V2), LAST_VALUE_DATA_DOUBLE))
+                SAMPLE_NAME,
+                convertToLabelNames(Arrays.asList(K1, K2)),
+                Arrays.asList(V1, V2),
+                LAST_VALUE_DATA_DOUBLE,
+                LAST_VALUE))
         .containsExactly(
             new Sample(SAMPLE_NAME, Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 7.9));
     assertThat(
             PrometheusExportUtils.getSamples(
-                SAMPLE_NAME, Arrays.asList(K3), Arrays.asList(V3), LAST_VALUE_DATA_LONG))
+                SAMPLE_NAME,
+                convertToLabelNames(Arrays.asList(K3)),
+                Arrays.asList(V3),
+                LAST_VALUE_DATA_LONG,
+                LAST_VALUE))
         .containsExactly(
             new Sample(SAMPLE_NAME, Arrays.asList("k_3"), Arrays.asList("v-3"), 66666666));
   }
@@ -212,9 +256,23 @@ public class PrometheusExportUtilsTest {
   @Test
   public void getSamples_KeysAndValuesHaveDifferentSizes() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Tag keys and tag values have different sizes.");
+    thrown.expectMessage("Label names and tag values have different sizes.");
     PrometheusExportUtils.getSamples(
-        SAMPLE_NAME, Arrays.asList(K1, K2, K3), Arrays.asList(V1, V2), DISTRIBUTION_DATA);
+        SAMPLE_NAME,
+        convertToLabelNames(Arrays.asList(K1, K2, K3)),
+        Arrays.asList(V1, V2),
+        DISTRIBUTION_DATA,
+        DISTRIBUTION);
+  }
+
+  @Test
+  public void createDescribableMetricFamilySamples_Histogram_DisallowLeLabelName() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage(
+        "Prometheus Histogram cannot have a label named 'le', "
+            + "because it is a reserved label for bucket boundaries. "
+            + "Please remove this tag key from your view.");
+    PrometheusExportUtils.createDescribableMetricFamilySamples(DISTRIBUTION_VIEW_WITH_LE_KEY);
   }
 
   @Test
@@ -266,23 +324,23 @@ public class PrometheusExportUtilsTest {
                 Arrays.asList(
                     new Sample(
                         OPENCENSUS_NAMESPACE + "_view_3_bucket",
-                        Arrays.asList("k1"),
-                        Arrays.asList("v-3"),
+                        Arrays.asList("k1", "le"),
+                        Arrays.asList("v-3", "-5.0"),
                         0),
                     new Sample(
                         OPENCENSUS_NAMESPACE + "_view_3_bucket",
-                        Arrays.asList("k1"),
-                        Arrays.asList("v-3"),
+                        Arrays.asList("k1", "le"),
+                        Arrays.asList("v-3", "0.0"),
                         2),
                     new Sample(
                         OPENCENSUS_NAMESPACE + "_view_3_bucket",
-                        Arrays.asList("k1"),
-                        Arrays.asList("v-3"),
+                        Arrays.asList("k1", "le"),
+                        Arrays.asList("v-3", "5.0"),
                         2),
                     new Sample(
                         OPENCENSUS_NAMESPACE + "_view_3_bucket",
-                        Arrays.asList("k1"),
-                        Arrays.asList("v-3"),
+                        Arrays.asList("k1", "le"),
+                        Arrays.asList("v-3", "+Inf"),
                         1),
                     new Sample(
                         OPENCENSUS_NAMESPACE + "_view_3_count",
