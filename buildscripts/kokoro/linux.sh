@@ -15,7 +15,9 @@ cd $(dirname $0)/../..
 
 # Run tests
 ./gradlew clean build
-pushd examples
-./gradlew clean assemble check --stacktrace
-popd
 
+OS=`uname`
+# Check the example only on Linux.
+if [ "$OS" = "Linux" ] ; then
+    pushd examples; ./gradlew clean assemble check --stacktrace; popd
+fi
