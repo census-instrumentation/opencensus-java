@@ -133,13 +133,6 @@ public abstract class SampledSpanStore {
   public abstract Set<String> getRegisteredSpanNamesForCollection();
 
   /**
-   * This shuts down underlying event queue.
-   *
-   * @since 0.13
-   */
-  public void shutdown() {}
-
-  /**
    * The summary of all available data.
    *
    * @since 0.5

@@ -276,7 +276,7 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
   }
 
   @Override
-  public void shutdown() {
+  protected void shutdown() {
     eventQueue.shutdown();
   }
 

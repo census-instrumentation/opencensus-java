@@ -60,20 +60,6 @@ public abstract class SpanExporter {
   public abstract void unregisterHandler(String name);
 
   /**
-   * Flushes all pending spans.
-   *
-   * @since 0.13
-   */
-  public void flush() {}
-
-  /**
-   * Stops any further data from being exported.
-   *
-   * @since 0.13
-   */
-  public void shutdown() {}
-
-  /**
    * An abstract class that allows different tracing services to export recorded data for sampled
    * spans in their own format.
    *

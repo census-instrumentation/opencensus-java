@@ -146,7 +146,6 @@ public final class DisruptorEventQueue implements EventQueue {
   /** Shuts down the underlying disruptor. */
   @Override
   public void shutdown() {
-    // TODO(): Sort out a way to reliably test this
     disruptor.shutdown();
   }
 
