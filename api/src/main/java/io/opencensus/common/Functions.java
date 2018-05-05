@@ -16,6 +16,10 @@
 
 package io.opencensus.common;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /**
  * Commonly used {@link Function} instances.
  *
@@ -24,9 +28,10 @@ package io.opencensus.common;
 public final class Functions {
   private Functions() {}
 
-  private static final Function<Object, Void> RETURN_NULL =
-      new Function<Object, Void>() {
+  private static final Function<Object, /*@Nullable*/ Void> RETURN_NULL =
+      new Function<Object, /*@Nullable*/ Void>() {
         @Override
+        @javax.annotation.Nullable
         public Void apply(Object ignored) {
           return null;
         }
@@ -54,10 +59,10 @@ public final class Functions {
    * @return a {@code Function} that always ignores its argument and returns {@code null}.
    * @since 0.5
    */
-  public static <T> Function<Object, T> returnNull() {
+  public static <T> Function<Object, /*@Nullable*/ T> returnNull() {
     // It is safe to cast a producer of Void to anything, because Void is always null.
     @SuppressWarnings("unchecked")
-    Function<Object, T> function = (Function<Object, T>) RETURN_NULL;
+    Function<Object, /*@Nullable*/ T> function = (Function<Object, /*@Nullable*/ T>) RETURN_NULL;
     return function;
   }
 

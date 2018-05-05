@@ -28,13 +28,15 @@ import javax.annotation.concurrent.Immutable;
  * {@link AggregationData} is the result of applying a given {@link Aggregation} to a set of {@code
  * MeasureValue}s.
  *
- * <p>{@link AggregationData} currently supports 4 types of basic aggregation values:
+ * <p>{@link AggregationData} currently supports 6 types of basic aggregation values:
  *
  * <ul>
  *   <li>SumDataDouble
  *   <li>SumDataLong
  *   <li>CountData
  *   <li>DistributionData
+ *   <li>LastValueDataDouble
+ *   <li>LastValueDataLong
  * </ul>
  *
  * <p>{@link ViewData} will contain one {@link AggregationData}, corresponding to its {@link
@@ -50,29 +52,15 @@ public abstract class AggregationData {
   /**
    * Applies the given match function to the underlying data type.
    *
-   * @since 0.8
-   * @deprecated in favor of {@link #match(Function, Function, Function, Function, Function)}.
-   */
-  @Deprecated
-  public abstract <T> T match(
-      Function<? super SumDataDouble, T> p0,
-      Function<? super SumDataLong, T> p1,
-      Function<? super CountData, T> p2,
-      Function<? super MeanData, T> p3,
-      Function<? super DistributionData, T> p4,
-      Function<? super AggregationData, T> defaultFunction);
-
-  /**
-   * Applies the given match function to the underlying data type.
-   *
    * @since 0.13
    */
-  @SuppressWarnings("InconsistentOverloads")
   public abstract <T> T match(
       Function<? super SumDataDouble, T> p0,
       Function<? super SumDataLong, T> p1,
       Function<? super CountData, T> p2,
       Function<? super DistributionData, T> p3,
+      Function<? super LastValueDataDouble, T> p4,
+      Function<? super LastValueDataLong, T> p5,
       Function<? super AggregationData, T> defaultFunction);
 
   /**
@@ -110,18 +98,9 @@ public abstract class AggregationData {
         Function<? super SumDataDouble, T> p0,
         Function<? super SumDataLong, T> p1,
         Function<? super CountData, T> p2,
-        Function<? super MeanData, T> p3,
-        Function<? super DistributionData, T> p4,
-        Function<? super AggregationData, T> defaultFunction) {
-      return p0.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super SumDataDouble, T> p0,
-        Function<? super SumDataLong, T> p1,
-        Function<? super CountData, T> p2,
         Function<? super DistributionData, T> p3,
+        Function<? super LastValueDataDouble, T> p4,
+        Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return p0.apply(this);
     }
@@ -162,18 +141,9 @@ public abstract class AggregationData {
         Function<? super SumDataDouble, T> p0,
         Function<? super SumDataLong, T> p1,
         Function<? super CountData, T> p2,
-        Function<? super MeanData, T> p3,
-        Function<? super DistributionData, T> p4,
-        Function<? super AggregationData, T> defaultFunction) {
-      return p1.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super SumDataDouble, T> p0,
-        Function<? super SumDataLong, T> p1,
-        Function<? super CountData, T> p2,
         Function<? super DistributionData, T> p3,
+        Function<? super LastValueDataDouble, T> p4,
+        Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return p1.apply(this);
     }
@@ -214,18 +184,9 @@ public abstract class AggregationData {
         Function<? super SumDataDouble, T> p0,
         Function<? super SumDataLong, T> p1,
         Function<? super CountData, T> p2,
-        Function<? super MeanData, T> p3,
-        Function<? super DistributionData, T> p4,
-        Function<? super AggregationData, T> defaultFunction) {
-      return p2.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super SumDataDouble, T> p0,
-        Function<? super SumDataLong, T> p1,
-        Function<? super CountData, T> p2,
         Function<? super DistributionData, T> p3,
+        Function<? super LastValueDataDouble, T> p4,
+        Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return p2.apply(this);
     }
@@ -278,18 +239,9 @@ public abstract class AggregationData {
         Function<? super SumDataDouble, T> p0,
         Function<? super SumDataLong, T> p1,
         Function<? super CountData, T> p2,
-        Function<? super MeanData, T> p3,
-        Function<? super DistributionData, T> p4,
-        Function<? super AggregationData, T> defaultFunction) {
-      return p3.apply(this);
-    }
-
-    @Override
-    public final <T> T match(
-        Function<? super SumDataDouble, T> p0,
-        Function<? super SumDataLong, T> p1,
-        Function<? super CountData, T> p2,
         Function<? super DistributionData, T> p3,
+        Function<? super LastValueDataDouble, T> p4,
+        Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return defaultFunction.apply(this);
     }
@@ -394,11 +346,43 @@ public abstract class AggregationData {
         Function<? super SumDataDouble, T> p0,
         Function<? super SumDataLong, T> p1,
         Function<? super CountData, T> p2,
-        Function<? super MeanData, T> p3,
-        Function<? super DistributionData, T> p4,
+        Function<? super DistributionData, T> p3,
+        Function<? super LastValueDataDouble, T> p4,
+        Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
-      return p4.apply(this);
+      return p3.apply(this);
     }
+  }
+
+  /**
+   * The last value of aggregated {@code MeasureValueDouble}s.
+   *
+   * @since 0.13
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class LastValueDataDouble extends AggregationData {
+
+    LastValueDataDouble() {}
+
+    /**
+     * Creates a {@code LastValueDataDouble}.
+     *
+     * @param lastValue the last value.
+     * @return a {@code LastValueDataDouble}.
+     * @since 0.13
+     */
+    public static LastValueDataDouble create(double lastValue) {
+      return new AutoValue_AggregationData_LastValueDataDouble(lastValue);
+    }
+
+    /**
+     * Returns the last value.
+     *
+     * @return the last value.
+     * @since 0.13
+     */
+    public abstract double getLastValue();
 
     @Override
     public final <T> T match(
@@ -406,8 +390,53 @@ public abstract class AggregationData {
         Function<? super SumDataLong, T> p1,
         Function<? super CountData, T> p2,
         Function<? super DistributionData, T> p3,
+        Function<? super LastValueDataDouble, T> p4,
+        Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
-      return p3.apply(this);
+      return p4.apply(this);
+    }
+  }
+
+  /**
+   * The last value of aggregated {@code MeasureValueLong}s.
+   *
+   * @since 0.13
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class LastValueDataLong extends AggregationData {
+
+    LastValueDataLong() {}
+
+    /**
+     * Creates a {@code LastValueDataLong}.
+     *
+     * @param lastValue the last value.
+     * @return a {@code LastValueDataLong}.
+     * @since 0.13
+     */
+    public static LastValueDataLong create(long lastValue) {
+      return new AutoValue_AggregationData_LastValueDataLong(lastValue);
+    }
+
+    /**
+     * Returns the last value.
+     *
+     * @return the last value.
+     * @since 0.13
+     */
+    public abstract long getLastValue();
+
+    @Override
+    public final <T> T match(
+        Function<? super SumDataDouble, T> p0,
+        Function<? super SumDataLong, T> p1,
+        Function<? super CountData, T> p2,
+        Function<? super DistributionData, T> p3,
+        Function<? super LastValueDataDouble, T> p4,
+        Function<? super LastValueDataLong, T> p5,
+        Function<? super AggregationData, T> defaultFunction) {
+      return p5.apply(this);
     }
   }
 }

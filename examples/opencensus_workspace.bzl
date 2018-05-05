@@ -1,33 +1,19 @@
 # The following dependencies were calculated from:
 #
-# generate_workspace --artifact=io.opencensus:opencensus-api:0.12.2 --artifact=io.opencensus:opencensus-contrib-zpages:0.12.2 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.12.2 --artifact=io.opencensus:opencensus-impl:0.12.2 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.12.2 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.12.2 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.12.2 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.12.2 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --artifact=io.grpc:grpc-all:1.9.0 --artifact=com.google.guava:guava:23.0 --repositories=http://repo.maven.apache.org/maven2
+# generate_workspace --artifact=com.google.guava:guava:23.0 --artifact=io.grpc:grpc-all:1.9.0 --artifact=io.opencensus:opencensus-api:0.13.1 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.13.1 --artifact=io.opencensus:opencensus-contrib-zpages:0.13.1 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.13.1 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.13.1 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.13.1 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.13.1 --artifact=io.opencensus:opencensus-impl:0.13.1 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --repositories=http://repo.maven.apache.org/maven2
 
 
 def opencensus_maven_jars():
-  # io.opencensus:opencensus-impl-core:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-contrib-zpages:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-api:jar:0.12.2
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-impl:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.12.2 got requested version
+  # io.opencensus:opencensus-api:jar:0.10.0 wanted version 3.0.1
+  # io.grpc:grpc-core:jar:1.9.0 wanted version 3.0.0
+  # com.google.guava:guava:bundle:23.0
+  # com.google.instrumentation:instrumentation-api:jar:0.4.3 wanted version 3.0.0
+  # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.10.0 wanted version 3.0.1
   native.maven_jar(
       name = "com_google_code_findbugs_jsr305",
-      artifact = "com.google.code.findbugs:jsr305:3.0.1",
+      artifact = "com.google.code.findbugs:jsr305:2.0.2",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "f7be08ec23c21485b9b5a1cf1654c2ec8c58168d",
-  )
-
-
-  # com.google.api:gax-grpc:jar:1.17.0 got requested version
-  # com.google.api:gax:jar:1.17.0
-  native.maven_jar(
-      name = "com_google_auth_google_auth_library_oauth2_http",
-      artifact = "com.google.auth:google-auth-library-oauth2-http:0.9.0",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "04e6152c3aead24148627e84f5651e79698c00d9",
+      sha1 = "516c03b21d50a644d538de0f0369c620989cd8f0",
   )
 
 
@@ -42,9 +28,30 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_stats_prometheus",
-      artifact = "io.opencensus:opencensus-exporter-stats-prometheus:0.12.2",
+      artifact = "io.opencensus:opencensus-exporter-stats-prometheus:0.13.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "e7a2711b186ae7ca22f934b67c6d8a3d10bab5fa",
+      sha1 = "8a85e6c31f30d5a1a36617be22893f87302fa146",
+  )
+
+
+  # com.google.api:gax-grpc:jar:1.17.0 got requested version
+  # com.google.api:gax:jar:1.17.0
+  native.maven_jar(
+      name = "com_google_auth_google_auth_library_oauth2_http",
+      artifact = "com.google.auth:google-auth-library-oauth2-http:0.9.0",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "04e6152c3aead24148627e84f5651e79698c00d9",
+  )
+
+
+  # io.netty:netty-handler-proxy:jar:4.1.17.Final got requested version
+  # io.netty:netty-codec:jar:4.1.17.Final
+  # io.netty:netty-handler:jar:4.1.17.Final got requested version
+  native.maven_jar(
+      name = "io_netty_netty_transport",
+      artifact = "io.netty:netty-transport:4.1.17.Final",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "9585776b0a8153182412b5d5366061ff486914c1",
   )
 
 
@@ -66,7 +73,7 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.12.2
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.13.1
   native.maven_jar(
       name = "com_google_cloud_google_cloud_trace",
       artifact = "com.google.cloud:google-cloud-trace:0.34.0-beta",
@@ -84,12 +91,12 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl:jar:0.12.2
+  # io.opencensus:opencensus-impl:jar:0.13.1
   native.maven_jar(
       name = "io_opencensus_opencensus_impl_core",
-      artifact = "io.opencensus:opencensus-impl-core:0.12.2",
+      artifact = "io.opencensus:opencensus-impl-core:0.13.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "9e059704131a4455b3bd6d84cfa8e6875551d647",
+      sha1 = "98abd0fdfd18e47ada3c03600dc182385537b65d",
   )
 
 
@@ -112,32 +119,24 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl-core:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-contrib-zpages:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.12.2 got requested version
   # io.grpc:grpc-core:jar:1.9.0 wanted version 2.1.2
-  # io.opencensus:opencensus-api:jar:0.12.2
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-impl:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.12.2 got requested version
+  # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.10.0 wanted version 2.1.2
+  # com.google.guava:guava:bundle:23.0
+  # io.opencensus:opencensus-api:jar:0.10.0 wanted version 2.1.2
   native.maven_jar(
       name = "com_google_errorprone_error_prone_annotations",
-      artifact = "com.google.errorprone:error_prone_annotations:2.2.0",
+      artifact = "com.google.errorprone:error_prone_annotations:2.0.18",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "88e3c593e9b3586e1c6177f89267da6fc6986f0c",
+      sha1 = "5f65affce1684999e2f4024983835efc3504012e",
   )
 
 
-  # io.grpc:grpc-protobuf:jar:1.9.0 got requested version
-  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
-  # com.google.cloud:google-cloud-core:jar:1.16.0
+  # io.netty:netty-transport:jar:4.1.17.Final
   native.maven_jar(
-      name = "com_google_protobuf_protobuf_java_util",
-      artifact = "com.google.protobuf:protobuf-java-util:3.5.1",
+      name = "io_netty_netty_resolver",
+      artifact = "io.netty:netty-resolver:4.1.17.Final",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "6e40a6a3f52455bd633aa2a0dba1a416e62b4575",
+      sha1 = "8f386c80821e200f542da282ae1d3cde5cad8368",
   )
 
 
@@ -151,12 +150,23 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.12.2 got requested version
+  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
+  # io.grpc:grpc-protobuf:jar:1.9.0
+  # com.google.cloud:google-cloud-core:jar:1.16.0 got requested version
+  native.maven_jar(
+      name = "com_google_protobuf_protobuf_java_util",
+      artifact = "com.google.protobuf:protobuf-java-util:3.5.1",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "6e40a6a3f52455bd633aa2a0dba1a416e62b4575",
+  )
+
+
+  # io.grpc:grpc-auth:jar:1.9.0
   # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
   # com.google.api:gax-grpc:jar:1.17.0 got requested version
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.12.2
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.13.1 got requested version
   # com.google.auth:google-auth-library-oauth2-http:jar:0.9.0 got requested version
-  # io.grpc:grpc-auth:jar:1.9.0 got requested version
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.13.1 got requested version
   native.maven_jar(
       name = "com_google_auth_google_auth_library_credentials",
       artifact = "com.google.auth:google-auth-library-credentials:0.9.0",
@@ -180,12 +190,11 @@ def opencensus_maven_jars():
   )
 
 
-  # io.grpc:grpc-core:jar:1.9.0 wanted version 0.10.0
+  # io.opencensus:opencensus-contrib-zpages:jar:0.13.1 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_contrib_grpc_metrics",
-      artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.12.2",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "20dd982bd8942fc6d612fedd4466cda0461267ec",
+      artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.13.1",
+      sha1 = "fa3d653215c3201c9ba018c6f33c3476d2669367",
   )
 
 
@@ -195,6 +204,16 @@ def opencensus_maven_jars():
       artifact = "org.objenesis:objenesis:1.0",
       repository = "http://repo.maven.apache.org/maven2/",
       sha1 = "9b473564e792c2bdf1449da1f0b1b5bff9805704",
+  )
+
+
+  # io.netty:netty-buffer:jar:4.1.17.Final
+  # io.netty:netty-resolver:jar:4.1.17.Final got requested version
+  native.maven_jar(
+      name = "io_netty_netty_common",
+      artifact = "io.netty:netty-common:4.1.17.Final",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "581c8ee239e4dc0976c2405d155f475538325098",
   )
 
 
@@ -231,6 +250,15 @@ def opencensus_maven_jars():
       artifact = "org.hamcrest:hamcrest-core:1.3",
       repository = "http://repo.maven.apache.org/maven2/",
       sha1 = "42a25dc3219429f0e5d060061f71acb49bf010a0",
+  )
+
+
+  # io.netty:netty-codec-http2:jar:4.1.17.Final
+  native.maven_jar(
+      name = "io_netty_netty_handler",
+      artifact = "io.netty:netty-handler:4.1.17.Final",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "18c40ffb61a1d1979eca024087070762fdc4664a",
   )
 
 
@@ -271,14 +299,6 @@ def opencensus_maven_jars():
   )
 
 
-  native.maven_jar(
-      name = "io_opencensus_opencensus_exporter_trace_logging",
-      artifact = "io.opencensus:opencensus-exporter-trace-logging:0.12.2",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "15b8b3d2c9b3ffd2d8e242d252ee056a1c30d203",
-  )
-
-
   # com.google.auth:google-auth-library-oauth2-http:jar:0.9.0
   native.maven_jar(
       name = "com_google_http_client_google_http_client_jackson2",
@@ -288,9 +308,17 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0
+  native.maven_jar(
+      name = "io_opencensus_opencensus_exporter_trace_logging",
+      artifact = "io.opencensus:opencensus-exporter-trace-logging:0.13.1",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "5a3a4b395154b54b6d48e603541150be7cc3f93f",
+  )
+
+
+  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
   # com.google.api:gax-grpc:jar:1.17.0 wanted version 1.7.0
-  # io.grpc:grpc-all:jar:1.9.0 got requested version
+  # io.grpc:grpc-all:jar:1.9.0
   # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta got requested version
   # com.google.cloud:google-cloud-trace:jar:0.34.0-beta got requested version
   native.maven_jar(
@@ -322,26 +350,44 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_trace_stackdriver",
-      artifact = "io.opencensus:opencensus-exporter-trace-stackdriver:0.12.2",
+      artifact = "io.opencensus:opencensus-exporter-trace-stackdriver:0.13.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "d19f86b61dadfe0f101fff0d002ffae3142c3519",
+      sha1 = "84ddb991761d59352c57f287de19e1c67e63b5e0",
   )
 
 
-  # io.grpc:grpc-stub:jar:1.9.0 got requested version
+  # com.google.guava:guava:bundle:23.0
+  native.maven_jar(
+      name = "com_google_j2objc_j2objc_annotations",
+      artifact = "com.google.j2objc:j2objc-annotations:1.1",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "ed28ded51a8b1c6b112568def5f4b455e6809019",
+  )
+
+
+  # io.grpc:grpc-auth:jar:1.9.0
+  # io.grpc:grpc-protobuf:jar:1.9.0 got requested version
   # io.grpc:grpc-okhttp:jar:1.9.0 got requested version
+  # io.grpc:grpc-stub:jar:1.9.0 got requested version
   # io.grpc:grpc-protobuf-lite:jar:1.9.0 got requested version
   # io.grpc:grpc-all:jar:1.9.0 got requested version
   # io.grpc:grpc-protobuf-nano:jar:1.9.0 got requested version
   # io.grpc:grpc-testing:jar:1.9.0 got requested version
   # io.grpc:grpc-netty:jar:1.9.0 got requested version
-  # io.grpc:grpc-protobuf:jar:1.9.0
-  # io.grpc:grpc-auth:jar:1.9.0 got requested version
   native.maven_jar(
       name = "io_grpc_grpc_core",
       artifact = "io.grpc:grpc-core:1.9.0",
       repository = "http://repo.maven.apache.org/maven2/",
       sha1 = "cf76ab13d35e8bd5d0ffad6d82bb1ef1770f050c",
+  )
+
+
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.13.1
+  native.maven_jar(
+      name = "io_opencensus_opencensus_contrib_monitored_resource_util",
+      artifact = "io.opencensus:opencensus-contrib-monitored-resource-util:0.13.1",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "cce09b2a899890152da531c8a08d1e6e9152cbdb",
   )
 
 
@@ -354,15 +400,6 @@ def opencensus_maven_jars():
   )
 
 
-  # org.apache.httpcomponents:httpclient:jar:4.0.1
-  native.maven_jar(
-      name = "org_apache_httpcomponents_httpcore",
-      artifact = "org.apache.httpcomponents:httpcore:4.0.1",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "e813b8722c387b22e1adccf7914729db09bcb4a9",
-  )
-
-
   # io.grpc:grpc-testing:jar:1.9.0
   native.maven_jar(
       name = "org_mockito_mockito_core",
@@ -372,34 +409,31 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl:jar:0.12.2
+  # org.apache.httpcomponents:httpclient:jar:4.0.1
+  native.maven_jar(
+      name = "org_apache_httpcomponents_httpcore",
+      artifact = "org.apache.httpcomponents:httpcore:4.0.1",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "e813b8722c387b22e1adccf7914729db09bcb4a9",
+  )
+
+
+  # io.opencensus:opencensus-impl:jar:0.13.1
   native.maven_jar(
       name = "com_lmax_disruptor",
-      artifact = "com.lmax:disruptor:3.3.9",
+      artifact = "com.lmax:disruptor:3.4.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "7898f8e8dc2d908d4ae5240fbb17eb1a9c213b9b",
+      sha1 = "72fabfe8a183f53bf61e0303921b7a89d2e8daed",
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
-  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta got requested version
-  # com.google.cloud:google-cloud-trace:jar:0.34.0-beta
-  native.maven_jar(
-      name = "io_netty_netty_tcnative_boringssl_static",
-      artifact = "io.netty:netty-tcnative-boringssl-static:2.0.7.Final",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "a8ec0f0ee612fa89c709bdd3881c3f79fa00431d",
-  )
-
-
-  # io.grpc:grpc-protobuf:jar:1.9.0 got requested version
   # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:0.1.29 wanted version 3.4.0
   # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
   # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.1.29 wanted version 3.4.0
-  # com.google.api.grpc:proto-google-common-protos:jar:1.0.5 wanted version 3.4.0
   # com.google.api.grpc:proto-google-iam-v1:jar:0.1.29 wanted version 3.4.0
+  # io.grpc:grpc-protobuf:jar:1.9.0
   # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.1.29 wanted version 3.4.0
-  # com.google.protobuf:protobuf-java-util:bundle:3.5.1
+  # com.google.protobuf:protobuf-java-util:bundle:3.5.1 got requested version
   native.maven_jar(
       name = "com_google_protobuf_protobuf_java",
       artifact = "com.google.protobuf:protobuf-java:3.5.1",
@@ -408,17 +442,14 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0
-  # com.google.api:gax-grpc:jar:1.17.0 wanted version 1.7.0
-  # io.grpc:grpc-all:jar:1.9.0 got requested version
-  # io.grpc:grpc-testing:jar:1.9.0 got requested version
-  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta got requested version
+  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
   # com.google.cloud:google-cloud-trace:jar:0.34.0-beta got requested version
+  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta
   native.maven_jar(
-      name = "io_grpc_grpc_stub",
-      artifact = "io.grpc:grpc-stub:1.9.0",
+      name = "io_netty_netty_tcnative_boringssl_static",
+      artifact = "io.netty:netty-tcnative-boringssl-static:2.0.7.Final",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "20e310f888860a27dfa509a69eebb236417ee93f",
+      sha1 = "a8ec0f0ee612fa89c709bdd3881c3f79fa00431d",
   )
 
 
@@ -431,17 +462,31 @@ def opencensus_maven_jars():
   )
 
 
+  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
+  # com.google.api:gax-grpc:jar:1.17.0 wanted version 1.7.0
+  # io.grpc:grpc-testing:jar:1.9.0 got requested version
+  # io.grpc:grpc-all:jar:1.9.0
+  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta got requested version
+  # com.google.cloud:google-cloud-trace:jar:0.34.0-beta got requested version
   native.maven_jar(
-      name = "io_opencensus_opencensus_impl",
-      artifact = "io.opencensus:opencensus-impl:0.12.2",
+      name = "io_grpc_grpc_stub",
+      artifact = "io.grpc:grpc-stub:1.9.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "4e5cd57bddbd9b47cd16cc8b0b608b43355b223f",
+      sha1 = "20e310f888860a27dfa509a69eebb236417ee93f",
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0
+  native.maven_jar(
+      name = "io_opencensus_opencensus_impl",
+      artifact = "io.opencensus:opencensus-impl:0.13.1",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "c5cc0a1c52da6a99f0f7933220371699b67dbf7a",
+  )
+
+
+  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
   # com.google.api:gax-grpc:jar:1.17.0 wanted version 1.7.0
-  # io.grpc:grpc-all:jar:1.9.0 got requested version
+  # io.grpc:grpc-all:jar:1.9.0
   native.maven_jar(
       name = "io_grpc_grpc_protobuf",
       artifact = "io.grpc:grpc-protobuf:1.9.0",
@@ -450,8 +495,38 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta got requested version
-  # com.google.cloud:google-cloud-trace:jar:0.34.0-beta
+  # io.netty:netty-handler-proxy:jar:4.1.17.Final
+  native.maven_jar(
+      name = "io_netty_netty_codec_socks",
+      artifact = "io.netty:netty-codec-socks:4.1.17.Final",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "a159bf1f3d5019e0d561c92fbbec8400967471fa",
+  )
+
+
+  # io.netty:netty-codec-http:jar:4.1.17.Final
+  # io.netty:netty-codec-socks:jar:4.1.17.Final got requested version
+  # io.netty:netty-handler:jar:4.1.17.Final got requested version
+  native.maven_jar(
+      name = "io_netty_netty_codec",
+      artifact = "io.netty:netty-codec:4.1.17.Final",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "1d00f56dc9e55203a4bde5aae3d0828fdeb818e7",
+  )
+
+
+  # io.netty:netty-transport:jar:4.1.17.Final
+  # io.netty:netty-handler:jar:4.1.17.Final got requested version
+  native.maven_jar(
+      name = "io_netty_netty_buffer",
+      artifact = "io.netty:netty-buffer:4.1.17.Final",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "fdd68fb3defd7059a7392b9395ee941ef9bacc25",
+  )
+
+
+  # com.google.cloud:google-cloud-trace:jar:0.34.0-beta got requested version
+  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta
   native.maven_jar(
       name = "com_google_cloud_google_cloud_core_grpc",
       artifact = "com.google.cloud:google-cloud-core-grpc:1.16.0",
@@ -460,9 +535,9 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0
+  # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
   # com.google.api:gax-grpc:jar:1.17.0 wanted version 1.7.0
-  # io.grpc:grpc-all:jar:1.9.0 got requested version
+  # io.grpc:grpc-all:jar:1.9.0
   # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta got requested version
   # com.google.cloud:google-cloud-trace:jar:0.34.0-beta got requested version
   native.maven_jar(
@@ -482,30 +557,18 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl-core:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-contrib-zpages:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-impl:jar:0.12.2 got requested version
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.12.2 got requested version
+  # io.opencensus:opencensus-impl-core:jar:0.13.1 got requested version
+  # io.opencensus:opencensus-impl:jar:0.13.1 got requested version
+  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.13.1 got requested version
+  # io.opencensus:opencensus-contrib-zpages:jar:0.13.1 got requested version
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.13.1 got requested version
+  # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.10.0 wanted version 0.10.0
+  # io.opencensus:opencensus-exporter-trace-logging:jar:0.13.1 got requested version
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.13.1 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_api",
-      artifact = "io.opencensus:opencensus-api:0.12.2",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "a2d524b62869350942106ab8f9a1f5adb1212775",
-  )
-
-
-  # io.prometheus:simpleclient_common:bundle:0.2.0 wanted version 0.3.0
-  # io.prometheus:simpleclient_httpserver:bundle:0.2.0 wanted version 0.3.0
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.12.2
-  native.maven_jar(
-      name = "io_prometheus_simpleclient",
-      artifact = "io.prometheus:simpleclient:0.2.0",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "be8de6a5a01f25074be3b27a8db4448c9cce0168",
+      artifact = "io.opencensus:opencensus-api:0.13.1",
+      sha1 = "dec1ded6a2b4c83e8639af3f40bb54b4726d4a24",
   )
 
 
@@ -518,11 +581,41 @@ def opencensus_maven_jars():
   )
 
 
+  # io.prometheus:simpleclient_common:bundle:0.2.0 wanted version 0.3.0
+  # io.prometheus:simpleclient_httpserver:bundle:0.2.0 wanted version 0.3.0
+  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.13.1
+  native.maven_jar(
+      name = "io_prometheus_simpleclient",
+      artifact = "io.prometheus:simpleclient:0.2.0",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "be8de6a5a01f25074be3b27a8db4448c9cce0168",
+  )
+
+
+  # com.google.guava:guava:bundle:23.0
+  native.maven_jar(
+      name = "org_codehaus_mojo_animal_sniffer_annotations",
+      artifact = "org.codehaus.mojo:animal-sniffer-annotations:1.14",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "775b7e22fb10026eed3f86e8dc556dfafe35f2d5",
+  )
+
+
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_stats_stackdriver",
-      artifact = "io.opencensus:opencensus-exporter-stats-stackdriver:0.12.2",
+      artifact = "io.opencensus:opencensus-exporter-stats-stackdriver:0.13.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "266ce009bdf082b829fb18cbd21cd308f03a301b",
+      sha1 = "81198a8606ba88f9a7b24fa0acec8bada2de4d2c",
+  )
+
+
+  # io.netty:netty-handler-proxy:jar:4.1.17.Final got requested version
+  # io.netty:netty-codec-http2:jar:4.1.17.Final
+  native.maven_jar(
+      name = "io_netty_netty_codec_http",
+      artifact = "io.netty:netty-codec-http:4.1.17.Final",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "251d7edcb897122b9b23f24ff793cd0739056b9e",
   )
 
 
@@ -580,10 +673,10 @@ def opencensus_maven_jars():
   )
 
 
+  # io.opencensus:opencensus-api:jar:0.10.0 wanted version 1.8.0
   # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
   # io.grpc:grpc-all:jar:1.9.0 got requested version
-  # io.opencensus:opencensus-api:jar:0.12.2
-  # io.grpc:grpc-core:jar:1.9.0 got requested version
+  # io.grpc:grpc-core:jar:1.9.0
   native.maven_jar(
       name = "io_grpc_grpc_context",
       artifact = "io.grpc:grpc-context:1.9.0",
@@ -601,32 +694,43 @@ def opencensus_maven_jars():
   )
 
 
-  native.maven_jar(
-      name = "io_opencensus_opencensus_contrib_zpages",
-      artifact = "io.opencensus:opencensus-contrib-zpages:0.12.2",
-      repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "44f8d5b81b20f9f0d34091baecffd67c2ce0c952",
-  )
-
-
-  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:0.1.29 got requested version
-  # com.google.cloud:google-cloud-core:jar:1.16.0
-  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.1.29 got requested version
-  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.1.29 got requested version
-  # com.google.api.grpc:proto-google-iam-v1:jar:0.1.29 got requested version
-  # io.grpc:grpc-protobuf:jar:1.9.0 wanted version 1.0.0
-  # com.google.api:gax-grpc:jar:1.17.0 wanted version 1.0.0
+  # com.google.cloud:google-cloud-core:jar:1.16.0 wanted version 1.0.5
+  # com.google.api:gax-grpc:jar:1.17.0 got requested version
+  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:0.1.29 wanted version 1.0.5
+  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.1.29 wanted version 1.0.5
+  # io.grpc:grpc-protobuf:jar:1.9.0
+  # com.google.api.grpc:proto-google-iam-v1:jar:0.1.29 wanted version 1.0.5
+  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.1.29 wanted version 1.0.5
   native.maven_jar(
       name = "com_google_api_grpc_proto_google_common_protos",
-      artifact = "com.google.api.grpc:proto-google-common-protos:1.0.5",
+      artifact = "com.google.api.grpc:proto-google-common-protos:1.0.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "3a5e2e2849a918acbba69154c957c36679441fcf",
+      sha1 = "86f070507e28b930e50d218ee5b6788ef0dd05e6",
   )
 
 
+  native.maven_jar(
+      name = "io_opencensus_opencensus_contrib_zpages",
+      artifact = "io.opencensus:opencensus-contrib-zpages:0.13.1",
+      repository = "http://repo.maven.apache.org/maven2/",
+      sha1 = "54703ca557896defd3f655f6c3b21e85945e4604",
+  )
+
+
+  # io.grpc:grpc-protobuf-nano:jar:1.9.0 wanted version 19.0
+  # io.opencensus:opencensus-contrib-zpages:jar:0.13.1 wanted version 20.0
+  # io.opencensus:opencensus-impl-core:jar:0.13.1 wanted version 20.0
+  # io.grpc:grpc-core:jar:1.9.0 wanted version 19.0
+  # io.grpc:grpc-protobuf-lite:jar:1.9.0 wanted version 19.0
+  # io.opencensus:opencensus-exporter-trace-logging:jar:0.13.1 wanted version 20.0
+  # com.google.protobuf:protobuf-java-util:bundle:3.5.1 wanted version 19.0
+  # com.google.instrumentation:instrumentation-api:jar:0.4.3 wanted version 19.0
+  # io.opencensus:opencensus-api:jar:0.10.0 wanted version 19.0
+  # io.grpc:grpc-protobuf:jar:1.9.0 wanted version 19.0
   native.maven_jar(
       name = "com_google_guava_guava",
       artifact = "com.google.guava:guava:23.0",
+      repository = "http://repo.maven.apache.org/maven2/",
       sha1 = "c947004bb13d18182be60077ade044099e4f26f1",
   )
 
@@ -640,8 +744,8 @@ def opencensus_maven_jars():
 
 
   # com.google.cloud:google-cloud-core-grpc:jar:1.16.0 got requested version
-  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta got requested version
-  # com.google.cloud:google-cloud-trace:jar:0.34.0-beta
+  # com.google.cloud:google-cloud-trace:jar:0.34.0-beta got requested version
+  # com.google.cloud:google-cloud-monitoring:jar:0.34.0-beta
   native.maven_jar(
       name = "com_google_cloud_google_cloud_core",
       artifact = "com.google.cloud:google-cloud-core:1.16.0",
@@ -650,7 +754,7 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.12.2
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.13.1
   native.maven_jar(
       name = "com_google_cloud_google_cloud_monitoring",
       artifact = "com.google.cloud:google-cloud-monitoring:0.34.0-beta",
@@ -670,6 +774,28 @@ def opencensus_java_libraries():
 
 
   native.java_library(
+      name = "io_grpc_grpc_protobuf_lite",
+      visibility = ["//visibility:public"],
+      exports = ["@io_grpc_grpc_protobuf_lite//jar"],
+      runtime_deps = [
+          ":com_google_guava_guava",
+          ":io_grpc_grpc_core",
+      ],
+  )
+
+
+  native.java_library(
+      name = "io_opencensus_opencensus_exporter_stats_prometheus",
+      visibility = ["//visibility:public"],
+      exports = ["@io_opencensus_opencensus_exporter_stats_prometheus//jar"],
+      runtime_deps = [
+          ":io_opencensus_opencensus_api",
+          ":io_prometheus_simpleclient",
+      ],
+  )
+
+
+  native.java_library(
       name = "com_google_auth_google_auth_library_oauth2_http",
       visibility = ["//visibility:public"],
       exports = ["@com_google_auth_google_auth_library_oauth2_http//jar"],
@@ -683,24 +809,13 @@ def opencensus_java_libraries():
 
 
   native.java_library(
-      name = "io_grpc_grpc_protobuf_lite",
+      name = "io_netty_netty_transport",
       visibility = ["//visibility:public"],
-      exports = ["@io_grpc_grpc_protobuf_lite//jar"],
+      exports = ["@io_netty_netty_transport//jar"],
       runtime_deps = [
-          ":io_grpc_grpc_core",
-      ],
-  )
-
-
-  native.java_library(
-      name = "io_opencensus_opencensus_exporter_stats_prometheus",
-      visibility = ["//visibility:public"],
-      exports = ["@io_opencensus_opencensus_exporter_stats_prometheus//jar"],
-      runtime_deps = [
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_errorprone_error_prone_annotations",
-          ":io_opencensus_opencensus_api",
-          ":io_prometheus_simpleclient",
+          ":io_netty_netty_buffer",
+          ":io_netty_netty_common",
+          ":io_netty_netty_resolver",
       ],
   )
 
@@ -709,6 +824,12 @@ def opencensus_java_libraries():
       name = "io_netty_netty_handler_proxy",
       visibility = ["//visibility:public"],
       exports = ["@io_netty_netty_handler_proxy//jar"],
+      runtime_deps = [
+          ":io_netty_netty_codec",
+          ":io_netty_netty_codec_http",
+          ":io_netty_netty_codec_socks",
+          ":io_netty_netty_transport",
+      ],
   )
 
 
@@ -729,42 +850,17 @@ def opencensus_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@com_google_cloud_google_cloud_trace//jar"],
       runtime_deps = [
-          ":com_fasterxml_jackson_core_jackson_core",
           ":com_google_api_api_common",
-          ":com_google_api_gax",
-          ":com_google_api_gax_grpc",
           ":com_google_api_grpc_proto_google_cloud_trace_v1",
           ":com_google_api_grpc_proto_google_cloud_trace_v2",
           ":com_google_api_grpc_proto_google_common_protos",
-          ":com_google_api_grpc_proto_google_iam_v1",
-          ":com_google_auth_google_auth_library_credentials",
-          ":com_google_auth_google_auth_library_oauth2_http",
           ":com_google_cloud_google_cloud_core",
           ":com_google_cloud_google_cloud_core_grpc",
-          ":com_google_code_gson_gson",
-          ":com_google_errorprone_error_prone_annotations",
-          ":com_google_http_client_google_http_client",
-          ":com_google_http_client_google_http_client_jackson2",
-          ":com_google_instrumentation_instrumentation_api",
           ":com_google_protobuf_protobuf_java",
-          ":com_google_protobuf_protobuf_java_util",
-          ":commons_codec_commons_codec",
-          ":commons_logging_commons_logging",
           ":io_grpc_grpc_auth",
-          ":io_grpc_grpc_context",
-          ":io_grpc_grpc_core",
           ":io_grpc_grpc_netty",
-          ":io_grpc_grpc_protobuf",
-          ":io_grpc_grpc_protobuf_lite",
           ":io_grpc_grpc_stub",
-          ":io_netty_netty_codec_http2",
-          ":io_netty_netty_handler_proxy",
           ":io_netty_netty_tcnative_boringssl_static",
-          ":io_opencensus_opencensus_contrib_grpc_metrics",
-          ":joda_time_joda_time",
-          ":org_apache_httpcomponents_httpclient",
-          ":org_apache_httpcomponents_httpcore",
-          ":org_threeten_threetenbp",
       ],
   )
 
@@ -781,8 +877,6 @@ def opencensus_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@io_opencensus_opencensus_impl_core//jar"],
       runtime_deps = [
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_errorprone_error_prone_annotations",
           ":com_google_guava_guava",
           ":io_opencensus_opencensus_api",
       ],
@@ -814,12 +908,11 @@ def opencensus_java_libraries():
 
 
   native.java_library(
-      name = "com_google_protobuf_protobuf_java_util",
+      name = "io_netty_netty_resolver",
       visibility = ["//visibility:public"],
-      exports = ["@com_google_protobuf_protobuf_java_util//jar"],
+      exports = ["@io_netty_netty_resolver//jar"],
       runtime_deps = [
-          ":com_google_code_gson_gson",
-          ":com_google_protobuf_protobuf_java",
+          ":io_netty_netty_common",
       ],
   )
 
@@ -828,6 +921,18 @@ def opencensus_java_libraries():
       name = "com_squareup_okio_okio",
       visibility = ["//visibility:public"],
       exports = ["@com_squareup_okio_okio//jar"],
+  )
+
+
+  native.java_library(
+      name = "com_google_protobuf_protobuf_java_util",
+      visibility = ["//visibility:public"],
+      exports = ["@com_google_protobuf_protobuf_java_util//jar"],
+      runtime_deps = [
+          ":com_google_code_gson_gson",
+          ":com_google_guava_guava",
+          ":com_google_protobuf_protobuf_java",
+      ],
   )
 
 
@@ -861,6 +966,13 @@ def opencensus_java_libraries():
       name = "org_objenesis_objenesis",
       visibility = ["//visibility:public"],
       exports = ["@org_objenesis_objenesis//jar"],
+  )
+
+
+  native.java_library(
+      name = "io_netty_netty_common",
+      visibility = ["//visibility:public"],
+      exports = ["@io_netty_netty_common//jar"],
   )
 
 
@@ -908,6 +1020,18 @@ def opencensus_java_libraries():
 
 
   native.java_library(
+      name = "io_netty_netty_handler",
+      visibility = ["//visibility:public"],
+      exports = ["@io_netty_netty_handler//jar"],
+      runtime_deps = [
+          ":io_netty_netty_buffer",
+          ":io_netty_netty_codec",
+          ":io_netty_netty_transport",
+      ],
+  )
+
+
+  native.java_library(
       name = "com_google_api_grpc_proto_google_cloud_monitoring_v3",
       visibility = ["//visibility:public"],
       exports = ["@com_google_api_grpc_proto_google_cloud_monitoring_v3//jar"],
@@ -947,18 +1071,9 @@ def opencensus_java_libraries():
       name = "com_google_instrumentation_instrumentation_api",
       visibility = ["//visibility:public"],
       exports = ["@com_google_instrumentation_instrumentation_api//jar"],
-  )
-
-
-  native.java_library(
-      name = "io_opencensus_opencensus_exporter_trace_logging",
-      visibility = ["//visibility:public"],
-      exports = ["@io_opencensus_opencensus_exporter_trace_logging//jar"],
       runtime_deps = [
           ":com_google_code_findbugs_jsr305",
-          ":com_google_errorprone_error_prone_annotations",
           ":com_google_guava_guava",
-          ":io_opencensus_opencensus_api",
       ],
   )
 
@@ -975,12 +1090,30 @@ def opencensus_java_libraries():
 
 
   native.java_library(
+      name = "io_opencensus_opencensus_exporter_trace_logging",
+      visibility = ["//visibility:public"],
+      exports = ["@io_opencensus_opencensus_exporter_trace_logging//jar"],
+      runtime_deps = [
+          ":com_google_guava_guava",
+          ":io_opencensus_opencensus_api",
+      ],
+  )
+
+
+  native.java_library(
       name = "io_grpc_grpc_auth",
       visibility = ["//visibility:public"],
       exports = ["@io_grpc_grpc_auth//jar"],
       runtime_deps = [
           ":com_google_auth_google_auth_library_credentials",
+          ":com_google_code_findbugs_jsr305",
+          ":com_google_errorprone_error_prone_annotations",
+          ":com_google_guava_guava",
+          ":com_google_instrumentation_instrumentation_api",
+          ":io_grpc_grpc_context",
           ":io_grpc_grpc_core",
+          ":io_opencensus_opencensus_api",
+          ":io_opencensus_opencensus_contrib_grpc_metrics",
       ],
   )
 
@@ -1013,46 +1146,28 @@ def opencensus_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@io_opencensus_opencensus_exporter_trace_stackdriver//jar"],
       runtime_deps = [
-          ":com_fasterxml_jackson_core_jackson_core",
           ":com_google_api_api_common",
-          ":com_google_api_gax",
-          ":com_google_api_gax_grpc",
           ":com_google_api_grpc_proto_google_cloud_trace_v1",
           ":com_google_api_grpc_proto_google_cloud_trace_v2",
           ":com_google_api_grpc_proto_google_common_protos",
-          ":com_google_api_grpc_proto_google_iam_v1",
           ":com_google_auth_google_auth_library_credentials",
-          ":com_google_auth_google_auth_library_oauth2_http",
           ":com_google_cloud_google_cloud_core",
           ":com_google_cloud_google_cloud_core_grpc",
           ":com_google_cloud_google_cloud_trace",
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_code_gson_gson",
-          ":com_google_errorprone_error_prone_annotations",
-          ":com_google_http_client_google_http_client",
-          ":com_google_http_client_google_http_client_jackson2",
-          ":com_google_instrumentation_instrumentation_api",
           ":com_google_protobuf_protobuf_java",
-          ":com_google_protobuf_protobuf_java_util",
-          ":commons_codec_commons_codec",
-          ":commons_logging_commons_logging",
           ":io_grpc_grpc_auth",
-          ":io_grpc_grpc_context",
-          ":io_grpc_grpc_core",
           ":io_grpc_grpc_netty",
-          ":io_grpc_grpc_protobuf",
-          ":io_grpc_grpc_protobuf_lite",
           ":io_grpc_grpc_stub",
-          ":io_netty_netty_codec_http2",
-          ":io_netty_netty_handler_proxy",
           ":io_netty_netty_tcnative_boringssl_static",
           ":io_opencensus_opencensus_api",
-          ":io_opencensus_opencensus_contrib_grpc_metrics",
-          ":joda_time_joda_time",
-          ":org_apache_httpcomponents_httpclient",
-          ":org_apache_httpcomponents_httpcore",
-          ":org_threeten_threetenbp",
       ],
+  )
+
+
+  native.java_library(
+      name = "com_google_j2objc_j2objc_annotations",
+      visibility = ["//visibility:public"],
+      exports = ["@com_google_j2objc_j2objc_annotations//jar"],
   )
 
 
@@ -1061,11 +1176,21 @@ def opencensus_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@io_grpc_grpc_core//jar"],
       runtime_deps = [
+          ":com_google_code_findbugs_jsr305",
           ":com_google_errorprone_error_prone_annotations",
+          ":com_google_guava_guava",
           ":com_google_instrumentation_instrumentation_api",
           ":io_grpc_grpc_context",
+          ":io_opencensus_opencensus_api",
           ":io_opencensus_opencensus_contrib_grpc_metrics",
       ],
+  )
+
+
+  native.java_library(
+      name = "io_opencensus_opencensus_contrib_monitored_resource_util",
+      visibility = ["//visibility:public"],
+      exports = ["@io_opencensus_opencensus_contrib_monitored_resource_util//jar"],
   )
 
 
@@ -1073,13 +1198,6 @@ def opencensus_java_libraries():
       name = "joda_time_joda_time",
       visibility = ["//visibility:public"],
       exports = ["@joda_time_joda_time//jar"],
-  )
-
-
-  native.java_library(
-      name = "org_apache_httpcomponents_httpcore",
-      visibility = ["//visibility:public"],
-      exports = ["@org_apache_httpcomponents_httpcore//jar"],
   )
 
 
@@ -1094,16 +1212,16 @@ def opencensus_java_libraries():
 
 
   native.java_library(
-      name = "com_lmax_disruptor",
+      name = "org_apache_httpcomponents_httpcore",
       visibility = ["//visibility:public"],
-      exports = ["@com_lmax_disruptor//jar"],
+      exports = ["@org_apache_httpcomponents_httpcore//jar"],
   )
 
 
   native.java_library(
-      name = "io_netty_netty_tcnative_boringssl_static",
+      name = "com_lmax_disruptor",
       visibility = ["//visibility:public"],
-      exports = ["@io_netty_netty_tcnative_boringssl_static//jar"],
+      exports = ["@com_lmax_disruptor//jar"],
   )
 
 
@@ -1115,12 +1233,9 @@ def opencensus_java_libraries():
 
 
   native.java_library(
-      name = "io_grpc_grpc_stub",
+      name = "io_netty_netty_tcnative_boringssl_static",
       visibility = ["//visibility:public"],
-      exports = ["@io_grpc_grpc_stub//jar"],
-      runtime_deps = [
-          ":io_grpc_grpc_core",
-      ],
+      exports = ["@io_netty_netty_tcnative_boringssl_static//jar"],
   )
 
 
@@ -1135,12 +1250,20 @@ def opencensus_java_libraries():
 
 
   native.java_library(
+      name = "io_grpc_grpc_stub",
+      visibility = ["//visibility:public"],
+      exports = ["@io_grpc_grpc_stub//jar"],
+      runtime_deps = [
+          ":io_grpc_grpc_core",
+      ],
+  )
+
+
+  native.java_library(
       name = "io_opencensus_opencensus_impl",
       visibility = ["//visibility:public"],
       exports = ["@io_opencensus_opencensus_impl//jar"],
       runtime_deps = [
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_errorprone_error_prone_annotations",
           ":com_google_guava_guava",
           ":com_lmax_disruptor",
           ":io_opencensus_opencensus_api",
@@ -1155,14 +1278,45 @@ def opencensus_java_libraries():
       exports = ["@io_grpc_grpc_protobuf//jar"],
       runtime_deps = [
           ":com_google_api_grpc_proto_google_common_protos",
-          ":com_google_errorprone_error_prone_annotations",
-          ":com_google_instrumentation_instrumentation_api",
+          ":com_google_code_gson_gson",
+          ":com_google_guava_guava",
           ":com_google_protobuf_protobuf_java",
           ":com_google_protobuf_protobuf_java_util",
-          ":io_grpc_grpc_context",
           ":io_grpc_grpc_core",
           ":io_grpc_grpc_protobuf_lite",
-          ":io_opencensus_opencensus_contrib_grpc_metrics",
+      ],
+  )
+
+
+  native.java_library(
+      name = "io_netty_netty_codec_socks",
+      visibility = ["//visibility:public"],
+      exports = ["@io_netty_netty_codec_socks//jar"],
+      runtime_deps = [
+          ":io_netty_netty_codec",
+      ],
+  )
+
+
+  native.java_library(
+      name = "io_netty_netty_codec",
+      visibility = ["//visibility:public"],
+      exports = ["@io_netty_netty_codec//jar"],
+      runtime_deps = [
+          ":io_netty_netty_buffer",
+          ":io_netty_netty_common",
+          ":io_netty_netty_resolver",
+          ":io_netty_netty_transport",
+      ],
+  )
+
+
+  native.java_library(
+      name = "io_netty_netty_buffer",
+      visibility = ["//visibility:public"],
+      exports = ["@io_netty_netty_buffer//jar"],
+      runtime_deps = [
+          ":io_netty_netty_common",
       ],
   )
 
@@ -1179,21 +1333,14 @@ def opencensus_java_libraries():
           ":com_google_auth_google_auth_library_credentials",
           ":com_google_auth_google_auth_library_oauth2_http",
           ":com_google_cloud_google_cloud_core",
-          ":com_google_errorprone_error_prone_annotations",
-          ":com_google_instrumentation_instrumentation_api",
           ":com_google_protobuf_protobuf_java",
           ":com_google_protobuf_protobuf_java_util",
           ":io_grpc_grpc_auth",
           ":io_grpc_grpc_context",
-          ":io_grpc_grpc_core",
           ":io_grpc_grpc_netty",
           ":io_grpc_grpc_protobuf",
-          ":io_grpc_grpc_protobuf_lite",
           ":io_grpc_grpc_stub",
-          ":io_netty_netty_codec_http2",
-          ":io_netty_netty_handler_proxy",
           ":io_netty_netty_tcnative_boringssl_static",
-          ":io_opencensus_opencensus_contrib_grpc_metrics",
           ":org_threeten_threetenbp",
       ],
   )
@@ -1205,8 +1352,16 @@ def opencensus_java_libraries():
       exports = ["@io_grpc_grpc_netty//jar"],
       runtime_deps = [
           ":io_grpc_grpc_core",
+          ":io_netty_netty_buffer",
+          ":io_netty_netty_codec",
+          ":io_netty_netty_codec_http",
           ":io_netty_netty_codec_http2",
+          ":io_netty_netty_codec_socks",
+          ":io_netty_netty_common",
+          ":io_netty_netty_handler",
           ":io_netty_netty_handler_proxy",
+          ":io_netty_netty_resolver",
+          ":io_netty_netty_transport",
       ],
   )
 
@@ -1240,13 +1395,6 @@ def opencensus_java_libraries():
 
 
   native.java_library(
-      name = "io_prometheus_simpleclient",
-      visibility = ["//visibility:public"],
-      exports = ["@io_prometheus_simpleclient//jar"],
-  )
-
-
-  native.java_library(
       name = "junit_junit",
       visibility = ["//visibility:public"],
       exports = ["@junit_junit//jar"],
@@ -1257,25 +1405,68 @@ def opencensus_java_libraries():
 
 
   native.java_library(
+      name = "io_prometheus_simpleclient",
+      visibility = ["//visibility:public"],
+      exports = ["@io_prometheus_simpleclient//jar"],
+  )
+
+
+  native.java_library(
+      name = "org_codehaus_mojo_animal_sniffer_annotations",
+      visibility = ["//visibility:public"],
+      exports = ["@org_codehaus_mojo_animal_sniffer_annotations//jar"],
+  )
+
+
+  native.java_library(
       name = "io_opencensus_opencensus_exporter_stats_stackdriver",
       visibility = ["//visibility:public"],
       exports = ["@io_opencensus_opencensus_exporter_stats_stackdriver//jar"],
       runtime_deps = [
+          ":com_fasterxml_jackson_core_jackson_core",
           ":com_google_api_api_common",
+          ":com_google_api_gax",
+          ":com_google_api_gax_grpc",
           ":com_google_api_grpc_proto_google_cloud_monitoring_v3",
           ":com_google_api_grpc_proto_google_common_protos",
+          ":com_google_api_grpc_proto_google_iam_v1",
           ":com_google_auth_google_auth_library_credentials",
+          ":com_google_auth_google_auth_library_oauth2_http",
           ":com_google_cloud_google_cloud_core",
           ":com_google_cloud_google_cloud_core_grpc",
           ":com_google_cloud_google_cloud_monitoring",
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_errorprone_error_prone_annotations",
+          ":com_google_http_client_google_http_client",
+          ":com_google_http_client_google_http_client_jackson2",
           ":com_google_protobuf_protobuf_java",
+          ":com_google_protobuf_protobuf_java_util",
+          ":commons_codec_commons_codec",
+          ":commons_logging_commons_logging",
           ":io_grpc_grpc_auth",
+          ":io_grpc_grpc_context",
           ":io_grpc_grpc_netty",
+          ":io_grpc_grpc_protobuf",
           ":io_grpc_grpc_stub",
           ":io_netty_netty_tcnative_boringssl_static",
           ":io_opencensus_opencensus_api",
+          ":io_opencensus_opencensus_contrib_monitored_resource_util",
+          ":joda_time_joda_time",
+          ":org_apache_httpcomponents_httpclient",
+          ":org_apache_httpcomponents_httpcore",
+          ":org_threeten_threetenbp",
+      ],
+  )
+
+
+  native.java_library(
+      name = "io_netty_netty_codec_http",
+      visibility = ["//visibility:public"],
+      exports = ["@io_netty_netty_codec_http//jar"],
+      runtime_deps = [
+          ":io_netty_netty_buffer",
+          ":io_netty_netty_codec",
+          ":io_netty_netty_common",
+          ":io_netty_netty_resolver",
+          ":io_netty_netty_transport",
       ],
   )
 
@@ -1291,6 +1482,15 @@ def opencensus_java_libraries():
       name = "io_netty_netty_codec_http2",
       visibility = ["//visibility:public"],
       exports = ["@io_netty_netty_codec_http2//jar"],
+      runtime_deps = [
+          ":io_netty_netty_buffer",
+          ":io_netty_netty_codec",
+          ":io_netty_netty_codec_http",
+          ":io_netty_netty_common",
+          ":io_netty_netty_handler",
+          ":io_netty_netty_resolver",
+          ":io_netty_netty_transport",
+      ],
   )
 
 
@@ -1359,12 +1559,17 @@ def opencensus_java_libraries():
 
 
   native.java_library(
+      name = "com_google_api_grpc_proto_google_common_protos",
+      visibility = ["//visibility:public"],
+      exports = ["@com_google_api_grpc_proto_google_common_protos//jar"],
+  )
+
+
+  native.java_library(
       name = "io_opencensus_opencensus_contrib_zpages",
       visibility = ["//visibility:public"],
       exports = ["@io_opencensus_opencensus_contrib_zpages//jar"],
       runtime_deps = [
-          ":com_google_code_findbugs_jsr305",
-          ":com_google_errorprone_error_prone_annotations",
           ":com_google_guava_guava",
           ":io_opencensus_opencensus_api",
           ":io_opencensus_opencensus_contrib_grpc_metrics",
@@ -1373,19 +1578,15 @@ def opencensus_java_libraries():
 
 
   native.java_library(
-      name = "com_google_api_grpc_proto_google_common_protos",
-      visibility = ["//visibility:public"],
-      exports = ["@com_google_api_grpc_proto_google_common_protos//jar"],
-      runtime_deps = [
-          ":com_google_protobuf_protobuf_java",
-      ],
-  )
-
-
-  native.java_library(
       name = "com_google_guava_guava",
       visibility = ["//visibility:public"],
       exports = ["@com_google_guava_guava//jar"],
+      runtime_deps = [
+          ":com_google_code_findbugs_jsr305",
+          ":com_google_errorprone_error_prone_annotations",
+          ":com_google_j2objc_j2objc_annotations",
+          ":org_codehaus_mojo_animal_sniffer_annotations",
+      ],
   )
 
 
@@ -1394,8 +1595,16 @@ def opencensus_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@io_grpc_grpc_all//jar"],
       runtime_deps = [
+          ":com_google_api_grpc_proto_google_common_protos",
+          ":com_google_auth_google_auth_library_credentials",
+          ":com_google_code_findbugs_jsr305",
+          ":com_google_code_gson_gson",
+          ":com_google_errorprone_error_prone_annotations",
           ":com_google_guava_guava",
+          ":com_google_instrumentation_instrumentation_api",
           ":com_google_protobuf_nano_protobuf_javanano",
+          ":com_google_protobuf_protobuf_java",
+          ":com_google_protobuf_protobuf_java_util",
           ":com_squareup_okhttp_okhttp",
           ":com_squareup_okio_okio",
           ":io_grpc_grpc_auth",
@@ -1404,9 +1613,22 @@ def opencensus_java_libraries():
           ":io_grpc_grpc_netty",
           ":io_grpc_grpc_okhttp",
           ":io_grpc_grpc_protobuf",
+          ":io_grpc_grpc_protobuf_lite",
           ":io_grpc_grpc_protobuf_nano",
           ":io_grpc_grpc_stub",
           ":io_grpc_grpc_testing",
+          ":io_netty_netty_buffer",
+          ":io_netty_netty_codec",
+          ":io_netty_netty_codec_http",
+          ":io_netty_netty_codec_http2",
+          ":io_netty_netty_codec_socks",
+          ":io_netty_netty_common",
+          ":io_netty_netty_handler",
+          ":io_netty_netty_handler_proxy",
+          ":io_netty_netty_resolver",
+          ":io_netty_netty_transport",
+          ":io_opencensus_opencensus_api",
+          ":io_opencensus_opencensus_contrib_grpc_metrics",
           ":junit_junit",
           ":org_hamcrest_hamcrest_core",
           ":org_mockito_mockito_core",
@@ -1427,7 +1649,6 @@ def opencensus_java_libraries():
           ":com_google_api_grpc_proto_google_iam_v1",
           ":com_google_auth_google_auth_library_credentials",
           ":com_google_auth_google_auth_library_oauth2_http",
-          ":com_google_code_gson_gson",
           ":com_google_http_client_google_http_client",
           ":com_google_http_client_google_http_client_jackson2",
           ":com_google_protobuf_protobuf_java",
@@ -1447,16 +1668,33 @@ def opencensus_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@com_google_cloud_google_cloud_monitoring//jar"],
       runtime_deps = [
+          ":com_fasterxml_jackson_core_jackson_core",
           ":com_google_api_api_common",
+          ":com_google_api_gax",
+          ":com_google_api_gax_grpc",
           ":com_google_api_grpc_proto_google_cloud_monitoring_v3",
           ":com_google_api_grpc_proto_google_common_protos",
+          ":com_google_api_grpc_proto_google_iam_v1",
+          ":com_google_auth_google_auth_library_credentials",
+          ":com_google_auth_google_auth_library_oauth2_http",
           ":com_google_cloud_google_cloud_core",
           ":com_google_cloud_google_cloud_core_grpc",
+          ":com_google_http_client_google_http_client",
+          ":com_google_http_client_google_http_client_jackson2",
           ":com_google_protobuf_protobuf_java",
+          ":com_google_protobuf_protobuf_java_util",
+          ":commons_codec_commons_codec",
+          ":commons_logging_commons_logging",
           ":io_grpc_grpc_auth",
+          ":io_grpc_grpc_context",
           ":io_grpc_grpc_netty",
+          ":io_grpc_grpc_protobuf",
           ":io_grpc_grpc_stub",
           ":io_netty_netty_tcnative_boringssl_static",
+          ":joda_time_joda_time",
+          ":org_apache_httpcomponents_httpclient",
+          ":org_apache_httpcomponents_httpcore",
+          ":org_threeten_threetenbp",
       ],
   )
 

@@ -1,5 +1,10 @@
 ## Unreleased
 
+## 0.13.1 - 2018-05-02
+- Fix a typo on displaying Aggregation Type for a View on StatsZ page.
+- Set bucket bounds as "le" labels for Prometheus Stats exporter.
+
+## 0.13.0 - 2018-04-27
 - Support building with Java 9.
 - Add a QuickStart example.
 - Remove extraneous dependencies from the Agent's `pom.xml`.
@@ -20,6 +25,11 @@
 - Makes the trace and span ID fields mandatory in binary format.
 - Auto detect AWS EC2 resources.
 - Add `Duration.toMillis()`.
+- Make monitored resource utils a separate artifact `opencensus-contrib-monitored-resource-util`,
+  so that it can be reused across exporters.
+- Add `LastValue`, `LastValueDouble` and `LastValueLong`. Also support them in 
+  stats exporters and zpages. Please note that there is an API breaking change
+  in methods `Aggregation.match()` and `AggregationData.match()`.
 
 ## 0.12.3 - 2018-04-13
 - Substitute non-ascii characters in B3Format header key.

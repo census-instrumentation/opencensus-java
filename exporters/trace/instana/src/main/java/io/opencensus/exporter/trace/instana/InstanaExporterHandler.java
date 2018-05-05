@@ -47,6 +47,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /*
  * Exports to an Instana agent acting as proxy to the Instana backend (and handling authentication)
  * Uses the Trace SDK documented:
@@ -64,14 +68,6 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
   static final Logger logger = Logger.getLogger(InstanaExporterHandler.class.getName());
-
-  private static final Function<Object, String> RETURN_STRING =
-      new Function<Object, String>() {
-        @Override
-        public String apply(Object input) {
-          return input.toString();
-        }
-      };
 
   private final URL agentEndpoint;
 
@@ -114,9 +110,20 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
     return SECONDS.toMillis(duration.getSeconds()) + NANOSECONDS.toMillis(duration.getNanos());
   }
 
+  // The return type needs to be nullable when this function is used as an argument to 'match' in
+  // attributeValueToString, because 'match' doesn't allow covariant return types.
+  private static final Function<Object, /*@Nullable*/ String> RETURN_STRING =
+      new Function<Object, /*@Nullable*/ String>() {
+        @Override
+        public String apply(Object input) {
+          return input.toString();
+        }
+      };
+
+  @javax.annotation.Nullable
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        RETURN_STRING, RETURN_STRING, RETURN_STRING, Functions.<String>returnNull());
+        RETURN_STRING, RETURN_STRING, RETURN_STRING, Functions.</*@Nullable*/ String>returnNull());
   }
 
   static String convertToJson(Collection<SpanData> spanDataList) {

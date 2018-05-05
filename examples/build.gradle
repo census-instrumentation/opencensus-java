@@ -23,9 +23,9 @@ repositories {
 }
 
 group = "io.opencensus"
-version = "0.13.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+version = "0.14.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
-def opencensusVersion = "0.12.3" // LATEST_OPENCENSUS_RELEASE_VERSION
+def opencensusVersion = "0.13.1" // LATEST_OPENCENSUS_RELEASE_VERSION
 def grpcVersion = "1.9.0" // CURRENT_GRPC_VERSION
 def prometheusVersion = "0.3.0"
 
@@ -84,9 +84,9 @@ apply plugin: 'application'
 
 startScripts.enabled = false
 
-task statsRunner(type: CreateStartScripts) {
-    mainClassName = 'io.opencensus.examples.stats.StatsRunner'
-    applicationName = 'StatsRunner'
+task tagContextExample(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.examples.tags.TagContextExample'
+    applicationName = 'TagContextExample'
     outputDir = new File(project.buildDir, 'tmp')
     classpath = jar.outputs.files + project.configurations.runtime
 }
@@ -144,7 +144,7 @@ applicationDistribution.into('bin') {
     from(multiSpansTracing)
     from(multiSpansScopedTracing)
     from(multiSpansContextTracing)
-    from(statsRunner)
+    from(tagContextExample)
     from(zPagesTester)
     from(quickStart)
     from(helloWorldServer)

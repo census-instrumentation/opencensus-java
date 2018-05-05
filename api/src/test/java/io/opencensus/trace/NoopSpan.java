@@ -30,7 +30,7 @@ public class NoopSpan extends Span {
 
   /** Creates a new {@code NoopSpan}. */
   public NoopSpan(SpanContext context, @Nullable EnumSet<Options> options) {
-    super(context, options);
+    super(Utils.checkNotNull(context, "context"), options);
   }
 
   @Override
@@ -63,5 +63,7 @@ public class NoopSpan extends Span {
   }
 
   @Override
-  public void end(EndSpanOptions options) {}
+  public void end(EndSpanOptions options) {
+    Utils.checkNotNull(options, "options");
+  }
 }

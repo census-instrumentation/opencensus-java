@@ -44,7 +44,7 @@ subprojects {
     }
 
     group = "io.opencensus"
-    version = "0.13.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
+    version = "0.14.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
@@ -206,7 +206,7 @@ subprojects {
 
     dependencies {
         if (useCheckerFramework) {
-            ext.checkerFrameworkVersion = '2.5.0'
+            ext.checkerFrameworkVersion = '2.5.1'
 
             // 2.4.0 is the last version of the Checker Framework compiler that supports annotations
             // in comments, though it should continue to work with newer versions of the Checker Framework.

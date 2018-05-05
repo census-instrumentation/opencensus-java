@@ -17,21 +17,21 @@ $ mvn package appassembler:assemble
 $ bazel build :all
 ```
 
-## To run "StatsRunner" example use
+## To run "TagContextExample" use
 
 ### Gradle
 ```
-$ ./build/install/opencensus-examples/bin/StatsRunner
+$ ./build/install/opencensus-examples/bin/TagContextExample
 ```
 
 ### Maven
 ```
-$ ./target/appassembler/bin/StatsRunner
+$ ./target/appassembler/bin/TagContextExample
 ```
 
 ### Bazel
 ```
-$ ./bazel-bin/StatsRunner
+$ ./bazel-bin/TagContextExample
 ```
 
 ## To run "ZPagesTester"

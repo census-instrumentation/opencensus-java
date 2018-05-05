@@ -29,14 +29,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.12.3</version>
+    <version>0.13.1</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-api:0.12.3'
+compile 'io.opencensus:opencensus-api:0.13.1'
 ```
 
 ### Hello "OpenCensus" trace events
@@ -156,12 +156,12 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-api</artifactId>
-    <version>0.12.3</version>
+    <version>0.13.1</version>
   </dependency>
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-impl</artifactId>
-    <version>0.12.3</version>
+    <version>0.13.1</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -169,8 +169,8 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-api:0.12.3'
-runtime 'io.opencensus:opencensus-impl:0.12.3'
+compile 'io.opencensus:opencensus-api:0.13.1'
+runtime 'io.opencensus:opencensus-impl:0.13.1'
 ```
 
 ### How to setup exporters?

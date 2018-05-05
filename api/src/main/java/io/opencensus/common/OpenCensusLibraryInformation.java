@@ -29,7 +29,7 @@ public final class OpenCensusLibraryInformation {
    *
    * @since 0.8
    */
-  public static final String VERSION = "0.13.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
+  public static final String VERSION = "0.14.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
 
   private OpenCensusLibraryInformation() {}
 }

@@ -30,10 +30,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /** No-op implementations of stats classes. */
 final class NoopStats {
@@ -149,7 +152,7 @@ final class NoopStats {
 
     // Cached set of exported views. It must be set to null whenever a view is registered or
     // unregistered.
-    @Nullable private volatile Set<View> exportedViews;
+    @javax.annotation.Nullable private volatile Set<View> exportedViews;
 
     @Override
     public void registerView(View newView) {
@@ -167,7 +170,7 @@ final class NoopStats {
     }
 
     @Override
-    @Nullable
+    @javax.annotation.Nullable
     @SuppressWarnings("deprecation")
     public ViewData getView(View.Name name) {
       Utils.checkNotNull(name, "name");
@@ -178,7 +181,7 @@ final class NoopStats {
         } else {
           return ViewData.create(
               view,
-              Collections.<List<TagValue>, AggregationData>emptyMap(),
+              Collections.<List</*@Nullable*/ TagValue>, AggregationData>emptyMap(),
               view.getWindow()
                   .match(
                       Functions.<ViewData.AggregationWindowData>returnConstant(

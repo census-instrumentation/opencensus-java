@@ -16,6 +16,8 @@
 
 package io.opencensus.exporter.stats.prometheus;
 
+import static io.prometheus.client.Collector.doubleToGoString;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -28,6 +30,8 @@ import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.View;
@@ -56,17 +60,19 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * <p>{@link Aggregation} will be converted to a corresponding Prometheus {@link Type}. {@link Sum}
  * will be {@link Type#UNTYPED}, {@link Count} will be {@link Type#COUNTER}, {@link
- * Aggregation.Mean} will be {@link Type#SUMMARY} and {@link Distribution} will be {@link
- * Type#HISTOGRAM}. Please note we cannot set bucket boundaries for custom {@link Type#HISTOGRAM}.
+ * Aggregation.Mean} will be {@link Type#SUMMARY}, {@link Aggregation.LastValue} will be {@link
+ * Type#GAUGE} and {@link Distribution} will be {@link Type#HISTOGRAM}. Please note we cannot set
+ * bucket boundaries for custom {@link Type#HISTOGRAM}.
  *
  * <p>Each OpenCensus {@link ViewData} will be converted to a Prometheus {@link
  * MetricFamilySamples}, and each {@code Row} of the {@link ViewData} will be converted to
  * Prometheus {@link Sample}s.
  *
- * <p>{@link SumDataDouble}, {@link SumDataLong} and {@link CountData} will be converted to a single
- * {@link Sample}. {@link AggregationData.MeanData} will be converted to two {@link Sample}s sum and
- * count. {@link DistributionData} will be converted to a list of {@link Sample}s that have the sum,
- * count and histogram buckets.
+ * <p>{@link SumDataDouble}, {@link SumDataLong}, {@link LastValueDataDouble}, {@link
+ * LastValueDataLong} and {@link CountData} will be converted to a single {@link Sample}. {@link
+ * AggregationData.MeanData} will be converted to two {@link Sample}s sum and count. {@link
+ * DistributionData} will be converted to a list of {@link Sample}s that have the sum, count and
+ * histogram buckets.
  *
  * <p>{@link TagKey} and {@link TagValue} will be converted to Prometheus {@code LabelName} and
  * {@code LabelValue}. {@code Null} {@link TagValue} will be converted to an empty string.
@@ -82,6 +88,7 @@ final class PrometheusExportUtils {
   @VisibleForTesting static final String SAMPLE_SUFFIX_BUCKET = "_bucket";
   @VisibleForTesting static final String SAMPLE_SUFFIX_COUNT = "_count";
   @VisibleForTesting static final String SAMPLE_SUFFIX_SUM = "_sum";
+  @VisibleForTesting static final String LABEL_NAME_BUCKET_BOUND = "le";
 
   // Converts a ViewData to a Prometheus MetricFamilySamples.
   static MetricFamilySamples createMetricFamilySamples(ViewData viewData) {
@@ -89,10 +96,12 @@ final class PrometheusExportUtils {
     String name =
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
+    List<String> labelNames = convertToLabelNames(view.getColumns());
     List<Sample> samples = Lists.newArrayList();
     for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
         viewData.getAggregationMap().entrySet()) {
-      samples.addAll(getSamples(name, view.getColumns(), entry.getKey(), entry.getValue()));
+      samples.addAll(
+          getSamples(name, labelNames, entry.getKey(), entry.getValue(), view.getAggregation()));
     }
     return new MetricFamilySamples(
         name, type, OPENCENSUS_HELP_MSG + view.getDescription(), samples);
@@ -104,6 +113,13 @@ final class PrometheusExportUtils {
     String name =
         Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
+    List<String> labelNames = convertToLabelNames(view.getColumns());
+    if (containsDisallowedLeLabelForHistogram(labelNames, type)) {
+      throw new IllegalStateException(
+          "Prometheus Histogram cannot have a label named 'le', "
+              + "because it is a reserved label for bucket boundaries. "
+              + "Please remove this tag key from your view.");
+    }
     return new MetricFamilySamples(
         name, type, OPENCENSUS_HELP_MSG + view.getDescription(), Collections.<Sample>emptyList());
   }
@@ -116,25 +132,32 @@ final class PrometheusExportUtils {
     return aggregation.match(
         Functions.returnConstant(Type.UNTYPED), // SUM
         Functions.returnConstant(Type.COUNTER), // COUNT
-        Functions.returnConstant(Type.SUMMARY), // MEAN
         Functions.returnConstant(Type.HISTOGRAM), // DISTRIBUTION
-        Functions.returnConstant(Type.UNTYPED));
+        Functions.returnConstant(Type.GAUGE), // LAST VALUE
+        new Function<Aggregation, Type>() {
+          @Override
+          public Type apply(Aggregation arg) {
+            if (arg instanceof Aggregation.Mean) {
+              return Type.SUMMARY;
+            }
+            return Type.UNTYPED;
+          }
+        });
   }
 
+  // Converts a row in ViewData (a.k.a Entry<List<TagValue>, AggregationData>) to a list of
+  // Prometheus Samples.
   @VisibleForTesting
   static List<Sample> getSamples(
       final String name,
-      List<TagKey> tagKeys,
+      final List<String> labelNames,
       List</*@Nullable*/ TagValue> tagValues,
-      AggregationData aggregationData) {
+      AggregationData aggregationData,
+      final Aggregation aggregation) {
     Preconditions.checkArgument(
-        tagKeys.size() == tagValues.size(), "Tag keys and tag values have different sizes.");
+        labelNames.size() == tagValues.size(), "Label names and tag values have different sizes.");
     final List<Sample> samples = Lists.newArrayList();
-    final List<String> labelNames = new ArrayList<String>(tagKeys.size());
     final List<String> labelValues = new ArrayList<String>(tagValues.size());
-    for (TagKey tagKey : tagKeys) {
-      labelNames.add(Collector.sanitizeMetricName(tagKey.getName()));
-    }
     for (TagValue tagValue : tagValues) {
       String labelValue = tagValue == null ? "" : tagValue.asString();
       labelValues.add(labelValue);
@@ -162,29 +185,32 @@ final class PrometheusExportUtils {
             return null;
           }
         },
-        new Function<AggregationData.MeanData, Void>() {
-          @Override
-          public Void apply(AggregationData.MeanData arg) {
-            samples.add(
-                new MetricFamilySamples.Sample(
-                    name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, arg.getCount()));
-            samples.add(
-                new MetricFamilySamples.Sample(
-                    name + SAMPLE_SUFFIX_SUM,
-                    labelNames,
-                    labelValues,
-                    arg.getCount() * arg.getMean()));
-            return null;
-          }
-        },
         new Function<DistributionData, Void>() {
           @Override
           public Void apply(DistributionData arg) {
-            for (long bucketCount : arg.getBucketCounts()) {
+            // For histogram buckets, manually add the bucket boundaries as "le" labels. See
+            // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R241
+            @SuppressWarnings("unchecked")
+            Distribution distribution = (Distribution) aggregation;
+            List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
+            List<String> labelNamesWithLe = new ArrayList<String>(labelNames);
+            labelNamesWithLe.add(LABEL_NAME_BUCKET_BOUND);
+            for (int i = 0; i < arg.getBucketCounts().size(); i++) {
+              List<String> labelValuesWithLe = new ArrayList<String>(labelValues);
+              // The label value of "le" is the upper inclusive bound.
+              // For the last bucket, it should be "+Inf".
+              String bucketBoundary =
+                  doubleToGoString(
+                      i < boundaries.size() ? boundaries.get(i) : Double.POSITIVE_INFINITY);
+              labelValuesWithLe.add(bucketBoundary);
               samples.add(
                   new MetricFamilySamples.Sample(
-                      name + SAMPLE_SUFFIX_BUCKET, labelNames, labelValues, bucketCount));
+                      name + SAMPLE_SUFFIX_BUCKET,
+                      labelNamesWithLe,
+                      labelValuesWithLe,
+                      arg.getBucketCounts().get(i)));
             }
+
             samples.add(
                 new MetricFamilySamples.Sample(
                     name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, arg.getCount()));
@@ -197,9 +223,69 @@ final class PrometheusExportUtils {
             return null;
           }
         },
-        Functions.</*@Nullable*/ Void>throwAssertionError());
+        new Function<LastValueDataDouble, Void>() {
+          @Override
+          public Void apply(LastValueDataDouble arg) {
+            samples.add(new Sample(name, labelNames, labelValues, arg.getLastValue()));
+            return null;
+          }
+        },
+        new Function<LastValueDataLong, Void>() {
+          @Override
+          public Void apply(LastValueDataLong arg) {
+            samples.add(new Sample(name, labelNames, labelValues, arg.getLastValue()));
+            return null;
+          }
+        },
+        new Function<AggregationData, Void>() {
+          @Override
+          public Void apply(AggregationData arg) {
+            // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+            // we need to continue supporting Mean, since it could still be used by users and some
+            // deprecated RPC views.
+            if (arg instanceof AggregationData.MeanData) {
+              AggregationData.MeanData meanData = (AggregationData.MeanData) arg;
+              samples.add(
+                  new MetricFamilySamples.Sample(
+                      name + SAMPLE_SUFFIX_COUNT, labelNames, labelValues, meanData.getCount()));
+              samples.add(
+                  new MetricFamilySamples.Sample(
+                      name + SAMPLE_SUFFIX_SUM,
+                      labelNames,
+                      labelValues,
+                      meanData.getCount() * meanData.getMean()));
+              return null;
+            }
+            throw new IllegalArgumentException("Unknown Aggregation.");
+          }
+        });
 
     return samples;
+  }
+
+  // Converts the list of tag keys to a list of string label names. Also sanitizes the tag keys.
+  @VisibleForTesting
+  static List<String> convertToLabelNames(List<TagKey> tagKeys) {
+    final List<String> labelNames = new ArrayList<String>(tagKeys.size());
+    for (TagKey tagKey : tagKeys) {
+      labelNames.add(Collector.sanitizeMetricName(tagKey.getName()));
+    }
+    return labelNames;
+  }
+
+  // Returns true if there is an "le" label name in histogram label names, returns false otherwise.
+  // Similar check to
+  // https://github.com/prometheus/client_java/commit/ed184d8e50c82e98bb2706723fff764424840c3a#diff-c505abbde72dd6bf36e89917b3469404R78
+  static boolean containsDisallowedLeLabelForHistogram(List<String> labelNames, Type type) {
+    if (!Type.HISTOGRAM.equals(type)) {
+      return false;
+    }
+    for (String label : labelNames) {
+      if (LABEL_NAME_BUCKET_BOUND.equals(label)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private PrometheusExportUtils() {}

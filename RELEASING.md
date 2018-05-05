@@ -155,8 +155,9 @@ from the project.
 
 ### Branch
 
-Before building/deploying, be sure to switch to the appropriate branch or tag.
-For the current release use:
+Before building/deploying, be sure to switch to the appropriate tag. The tag
+must reference a commit that has been pushed to the main repository, i.e., has
+gone through code review. For the current release use:
 
 ```bash
 $ git checkout -b v$MAJOR.$MINOR.$PATCH tags/v$MAJOR.$MINOR.$PATCH
@@ -198,7 +199,10 @@ page](https://github.com/census-instrumentation/opencensus-java/releases), press
 
 You can use `git log upstream/v$MAJOR.$((MINOR-1)).x..upstream/v$MAJOR.$MINOR.x --graph --first-parent`
 or the Github [compare tool](https://github.com/census-instrumentation/opencensus-java/compare/)
-to view a summary of all commits since last release as a reference.
+to view a summary of all commits since last release as a reference. In addition, you can refer to 
+[CHANGELOG.md](https://github.com/census-instrumentation/opencensus-java/blob/master/CHANGELOG.md)
+for a list of major changes since last release.
+
 Please pick major or important user-visible changes only.
 
 ## Update release versions in documentations and build files
@@ -280,6 +284,12 @@ $ sed -i 's/\(<version>\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
     ```
 
 3. Go through PR review and merge it to GitHub master branch.
+
+4. In addition, create a PR to mark the new release in 
+[CHANGELOG.md](https://github.com/census-instrumentation/opencensus-java/blob/master/CHANGELOG.md)
+on master branch. Once that PR is merged, cherry-pick the commit and create another PR to the 
+release branch (branch v$MAJOR.$MINOR.x).
+
 
 ## Known Issues
 

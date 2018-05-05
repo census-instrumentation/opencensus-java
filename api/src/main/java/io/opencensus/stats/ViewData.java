@@ -24,9 +24,12 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure.MeasureDouble;
@@ -272,15 +275,6 @@ public abstract class ViewData {
             return null;
           }
         },
-        new Function<Aggregation.Mean, Void>() {
-          @Override
-          public Void apply(Aggregation.Mean arg) {
-            Utils.checkArgument(
-                aggregationData instanceof AggregationData.MeanData,
-                createErrorMessageForAggregation(aggregation, aggregationData));
-            return null;
-          }
-        },
         new Function<Distribution, Void>() {
           @Override
           public Void apply(Distribution arg) {
@@ -290,7 +284,47 @@ public abstract class ViewData {
             return null;
           }
         },
-        Functions.</*@Nullable*/ Void>throwAssertionError());
+        new Function<LastValue, Void>() {
+          @Override
+          public Void apply(LastValue arg) {
+            measure.match(
+                new Function<MeasureDouble, Void>() {
+                  @Override
+                  public Void apply(MeasureDouble arg) {
+                    Utils.checkArgument(
+                        aggregationData instanceof LastValueDataDouble,
+                        createErrorMessageForAggregation(aggregation, aggregationData));
+                    return null;
+                  }
+                },
+                new Function<MeasureLong, Void>() {
+                  @Override
+                  public Void apply(MeasureLong arg) {
+                    Utils.checkArgument(
+                        aggregationData instanceof LastValueDataLong,
+                        createErrorMessageForAggregation(aggregation, aggregationData));
+                    return null;
+                  }
+                },
+                Functions.</*@Nullable*/ Void>throwAssertionError());
+            return null;
+          }
+        },
+        new Function<Aggregation, Void>() {
+          @Override
+          public Void apply(Aggregation arg) {
+            // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+            // we need to continue supporting Mean, since it could still be used by users and some
+            // deprecated RPC views.
+            if (arg instanceof Aggregation.Mean) {
+              Utils.checkArgument(
+                  aggregationData instanceof AggregationData.MeanData,
+                  createErrorMessageForAggregation(aggregation, aggregationData));
+              return null;
+            }
+            throw new AssertionError();
+          }
+        });
   }
 
   private static String createErrorMessageForAggregation(

@@ -28,9 +28,12 @@ import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.tags.TagsComponentImplBase;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Distribution;
+import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.AggregationData.LastValueDataDouble;
+import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
@@ -109,6 +112,7 @@ public class ViewManagerImplTest {
   private static final Sum SUM = Sum.create();
   private static final Mean MEAN = Mean.create();
   private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
+  private static final LastValue LAST_VALUE = LastValue.create();
 
   private final TestClock clock = TestClock.create();
 
@@ -284,6 +288,16 @@ public class ViewManagerImplTest {
     testRecordCumulative(MEASURE_LONG, SUM, 1000, 2000, 3000, 4000);
   }
 
+  @Test
+  public void testRecordDouble_lastvalue_cumulative() {
+    testRecordCumulative(MEASURE_DOUBLE, LAST_VALUE, 11.1, 22.2, 33.3, 44.4);
+  }
+
+  @Test
+  public void testRecordLong_lastvalue_cumulative() {
+    testRecordCumulative(MEASURE_LONG, LAST_VALUE, 1000, 2000, 3000, 4000);
+  }
+
   private void testRecordCumulative(Measure measure, Aggregation aggregation, double... values) {
     View view = createCumulativeView(VIEW_NAME, measure, aggregation, Arrays.asList(KEY));
     clock.setTime(Timestamp.create(1, 2));
@@ -355,6 +369,32 @@ public class ViewManagerImplTest {
         SumDataLong.create(Math.round(3000 * 0.6 + 12000)),
         SumDataLong.create(-4000),
         SumDataLong.create(30));
+  }
+
+  @Test
+  public void testRecordDouble_lastvalue_interval() {
+    testRecordInterval(
+        MEASURE_DOUBLE,
+        LAST_VALUE,
+        new double[] {20.0, -1.0, 1.0, -5.0, 5.0},
+        9.0,
+        30.0,
+        LastValueDataDouble.create(5.0),
+        LastValueDataDouble.create(9.0),
+        LastValueDataDouble.create(30.0));
+  }
+
+  @Test
+  public void testRecordLong_lastvalue_interval() {
+    testRecordInterval(
+        MEASURE_LONG,
+        LAST_VALUE,
+        new double[] {1000, 2000, 3000, 4000, 5000},
+        -5000,
+        30,
+        LastValueDataLong.create(5000),
+        LastValueDataLong.create(-5000),
+        LastValueDataLong.create(30));
   }
 
   private void testRecordInterval(
