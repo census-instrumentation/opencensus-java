@@ -5,6 +5,7 @@ include ":opencensus-impl-core"
 include ":opencensus-impl-lite"
 include ":opencensus-impl"
 include ":opencensus-testing"
+include ":opencensus-exporter-trace-elasticsearch"
 include ":opencensus-exporter-trace-instana"
 include ":opencensus-exporter-trace-logging"
 include ":opencensus-exporter-trace-stackdriver"
@@ -30,6 +31,8 @@ project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_uti
 project(':opencensus-contrib-http-util').projectDir = "$rootDir/contrib/http_util" as File
 project(':opencensus-contrib-monitored-resource-util').projectDir =
         "$rootDir/contrib/monitored_resource_util" as File
+project(':opencensus-exporter-trace-elasticsearch').projectDir =
+        "$rootDir/exporters/trace/elasticsearch" as File
 project(':opencensus-exporter-trace-instana').projectDir =
         "$rootDir/exporters/trace/instana" as File
 project(':opencensus-exporter-trace-logging').projectDir =
