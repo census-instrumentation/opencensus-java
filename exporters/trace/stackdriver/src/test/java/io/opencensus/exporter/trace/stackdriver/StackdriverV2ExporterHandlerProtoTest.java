@@ -53,6 +53,7 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public final class StackdriverV2ExporterHandlerProtoTest {
+
   private static final Credentials FAKE_CREDENTIALS =
       GoogleCredentials.newBuilder().setAccessToken(new AccessToken("fake", new Date(100))).build();
   // OpenCensus constants
@@ -141,7 +142,6 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-
     TimeEvent annotationTimeEvent1 =
         TimeEvent.newBuilder()
             .setAnnotation(
@@ -254,5 +254,56 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .isEqualTo(com.google.protobuf.BoolValue.newBuilder().build());
     assertThat(span.getChildSpanCount())
         .isEqualTo(Int32Value.newBuilder().setValue(CHILD_SPAN_COUNT).build());
+  }
+
+  @Test
+  public void mapHttpAttributes() {
+    Map<String, io.opencensus.trace.AttributeValue> attributesMap =
+        new HashMap<String, io.opencensus.trace.AttributeValue>();
+
+    attributesMap.put("http.host", io.opencensus.trace.AttributeValue.stringAttributeValue("host"));
+    attributesMap.put(
+        "http.method", io.opencensus.trace.AttributeValue.stringAttributeValue("method"));
+    attributesMap.put("http.path", io.opencensus.trace.AttributeValue.stringAttributeValue("path"));
+    attributesMap.put(
+        "http.route", io.opencensus.trace.AttributeValue.stringAttributeValue("route"));
+    attributesMap.put(
+        "http.user_agent", io.opencensus.trace.AttributeValue.stringAttributeValue("user_agent"));
+    attributesMap.put(
+        "http.status_code", io.opencensus.trace.AttributeValue.longAttributeValue(200L));
+    SpanData.Attributes httpAttributes = SpanData.Attributes.create(attributesMap, 0);
+
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            startTimestamp,
+            httpAttributes,
+            annotations,
+            networkEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+
+    Span span = handler.generateSpan(spanData);
+    Map<String, AttributeValue> attributes = span.getAttributes().getAttributeMapMap();
+
+    assertThat(attributes).containsEntry("/http/host", toStringValue("host"));
+    assertThat(attributes).containsEntry("/http/method", toStringValue("method"));
+    assertThat(attributes).containsEntry("/http/path", toStringValue("path"));
+    assertThat(attributes).containsEntry("/http/route", toStringValue("route"));
+    assertThat(attributes).containsEntry("/http/user_agent", toStringValue("user_agent"));
+    assertThat(attributes)
+        .containsEntry("/http/status_code", AttributeValue.newBuilder().setIntValue(200L).build());
+  }
+
+  private static AttributeValue toStringValue(String value) {
+    return AttributeValue.newBuilder()
+        .setStringValue(
+            TruncatableString.newBuilder().setValue(value).setTruncatedByteCount(0).build())
+        .build();
   }
 }

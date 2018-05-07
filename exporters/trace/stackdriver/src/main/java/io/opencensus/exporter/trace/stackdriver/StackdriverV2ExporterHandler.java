@@ -23,6 +23,7 @@ import com.google.auth.Credentials;
 import com.google.cloud.trace.v2.TraceServiceClient;
 import com.google.cloud.trace.v2.TraceServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.BaseEncoding;
 import com.google.devtools.cloudtrace.v2.AttributeValue;
 import com.google.devtools.cloudtrace.v2.ProjectName;
@@ -75,6 +76,16 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static final AttributeValue AGENT_LABEL_VALUE =
       AttributeValue.newBuilder()
           .setStringValue(toTruncatableStringProto(AGENT_LABEL_VALUE_STRING))
+          .build();
+
+  private static final ImmutableMap<String, String> HTTP_ATTRIBUTE_MAPPING =
+      ImmutableMap.<String, String>builder()
+          .put("http.host", "/http/host")
+          .put("http.method", "/http/method")
+          .put("http.path", "/http/path")
+          .put("http.route", "/http/route")
+          .put("http.user_agent", "/http/user_agent")
+          .put("http.status_code", "/http/status_code")
           .build();
 
   private final String projectId;
@@ -222,9 +233,18 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     Attributes.Builder attributesBuilder =
         Attributes.newBuilder().setDroppedAttributesCount(droppedAttributesCount);
     for (Map.Entry<String, io.opencensus.trace.AttributeValue> label : attributes.entrySet()) {
-      attributesBuilder.putAttributeMap(label.getKey(), toAttributeValueProto(label.getValue()));
+      attributesBuilder.putAttributeMap(
+          mapKey(label.getKey()), toAttributeValueProto(label.getValue()));
     }
     return attributesBuilder;
+  }
+
+  private static String mapKey(String key) {
+    if (HTTP_ATTRIBUTE_MAPPING.containsKey(key)) {
+      return HTTP_ATTRIBUTE_MAPPING.get(key);
+    } else {
+      return key;
+    }
   }
 
   private static Status toStatusProto(io.opencensus.trace.Status status) {
