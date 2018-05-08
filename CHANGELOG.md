@@ -1,5 +1,8 @@
 ## Unreleased
 
+## 0.13.2 - 2018-05-08
+- Map http attributes to Stackdriver format (fix [#1153](https://github.com/census-instrumentation/opencensus-java/issues/1153)).
+
 ## 0.13.1 - 2018-05-02
 - Fix a typo on displaying Aggregation Type for a View on StatsZ page.
 - Set bucket bounds as "le" labels for Prometheus Stats exporter.
