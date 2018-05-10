@@ -24,6 +24,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -162,12 +163,11 @@ public final class DisruptorEventQueue implements EventQueue {
   public void shutdown() {
     enqueuer =
         new DisruptorEnqueuer() {
-          boolean logged = false;
+          final AtomicBoolean logged = new AtomicBoolean(false);
 
           @Override
           public void enqueue(Entry entry) {
-            if (!logged) {
-              logged = true;
+            if (!logged.getAndSet(true)) {
               logger.log(Level.INFO, "Attempted to enqueue entry after Disruptor shutdown.");
             }
           }
