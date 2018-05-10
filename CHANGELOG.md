@@ -1,7 +1,7 @@
 ## Unreleased
+- Adds Tracing.getExportComponent().shutdown() for use within application shutdown hooks.
 
 ## 0.13.2 - 2018-05-08
-- Adds Tracing.getExportComponent().shutdown() for use within application shutdown hooks.
 - Map http attributes to Stackdriver format (fix [#1153](https://github.com/census-instrumentation/opencensus-java/issues/1153)).
 
 ## 0.13.1 - 2018-05-02
@@ -9,7 +9,6 @@
 - Set bucket bounds as "le" labels for Prometheus Stats exporter.
 
 ## 0.13.0 - 2018-04-27
-=======
 - Support building with Java 9.
 - Add a QuickStart example.
 - Remove extraneous dependencies from the Agent's `pom.xml`.
