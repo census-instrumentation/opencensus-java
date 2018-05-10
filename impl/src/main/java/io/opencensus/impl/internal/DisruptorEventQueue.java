@@ -99,6 +99,8 @@ public final class DisruptorEventQueue implements EventQueue {
   // Ring Buffer for the {@link Disruptor} that underlies the queue.
   private final RingBuffer<DisruptorEvent> ringBuffer;
 
+  private DisruptorEnqueuer enqueuer = null;
+
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
   // Suppress warnings for disruptor.handleEventsWith.
   @SuppressWarnings({"unchecked"})
@@ -116,6 +118,20 @@ public final class DisruptorEventQueue implements EventQueue {
     disruptor.handleEventsWith(DisruptorEventHandler.INSTANCE);
     disruptor.start();
     ringBuffer = disruptor.getRingBuffer();
+
+    enqueuer =
+        new DisruptorEnqueuer() {
+          @Override
+          public void enqueue(Entry entry) {
+            long sequence = ringBuffer.next();
+            try {
+              DisruptorEvent event = ringBuffer.get(sequence);
+              event.setEntry(entry);
+            } finally {
+              ringBuffer.publish(sequence);
+            }
+          }
+        };
   }
 
   /**
@@ -134,19 +150,26 @@ public final class DisruptorEventQueue implements EventQueue {
    */
   @Override
   public void enqueue(Entry entry) {
-    long sequence = ringBuffer.next();
-    try {
-      DisruptorEvent event = ringBuffer.get(sequence);
-      event.setEntry(entry);
-    } finally {
-      ringBuffer.publish(sequence);
-    }
+    enqueuer.enqueue(entry);
   }
 
   /** Shuts down the underlying disruptor. */
   @Override
   public void shutdown() {
+    enqueuer =
+        new DisruptorEnqueuer() {
+          @Override
+          public void enqueue(Entry entry) {
+            // do nothing
+          }
+        };
+
     disruptor.shutdown();
+  }
+
+  // Allows this event queue to safely shutdown by not enqueuing events on the ring buffer
+  private abstract static class DisruptorEnqueuer {
+    public abstract void enqueue(Entry entry);
   }
 
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.
