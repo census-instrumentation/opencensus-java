@@ -24,6 +24,8 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -85,6 +87,8 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class DisruptorEventQueue implements EventQueue {
+  private static final Logger logger = Logger.getLogger(DisruptorEventQueue.class.getName());
+
   // Number of events that can be enqueued at any one time. If more than this are enqueued,
   // then subsequent attempts to enqueue new entries will block.
   // TODO(aveitch): consider making this a parameter to the constructor, so the queue can be
@@ -158,9 +162,14 @@ public final class DisruptorEventQueue implements EventQueue {
   public void shutdown() {
     enqueuer =
         new DisruptorEnqueuer() {
+          boolean logged = false;
+
           @Override
           public void enqueue(Entry entry) {
-            // do nothing
+            if (!logged) {
+              logged = true;
+              logger.log(Level.INFO, "Attempted to enqueue entry after Disruptor shutdown.");
+            }
           }
         };
 
