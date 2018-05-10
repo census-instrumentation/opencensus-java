@@ -104,7 +104,7 @@ public final class DisruptorEventQueue implements EventQueue {
   // Ring Buffer for the {@link Disruptor} that underlies the queue.
   private final RingBuffer<DisruptorEvent> ringBuffer;
 
-  private DisruptorEnqueuer enqueuer = null;
+  private volatile DisruptorEnqueuer enqueuer;
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
   // Suppress warnings for disruptor.handleEventsWith.
