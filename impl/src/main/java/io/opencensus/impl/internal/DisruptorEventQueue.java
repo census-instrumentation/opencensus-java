@@ -108,7 +108,7 @@ public final class DisruptorEventQueue implements EventQueue {
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
   // Suppress warnings for disruptor.handleEventsWith.
-  @SuppressWarnings({"unchecked"})
+  @SuppressWarnings({"unchecked","nullness"})
   private DisruptorEventQueue() {
     // Create new Disruptor for processing. Note that Disruptor creates a single thread per
     // consumer (see https://github.com/LMAX-Exchange/disruptor/issues/121 for details);
