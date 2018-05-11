@@ -88,6 +88,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class DisruptorEventQueue implements EventQueue {
+
   private static final Logger logger = Logger.getLogger(DisruptorEventQueue.class.getName());
 
   // Number of events that can be enqueued at any one time. If more than this are enqueued,
@@ -108,7 +109,7 @@ public final class DisruptorEventQueue implements EventQueue {
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
   // Suppress warnings for disruptor.handleEventsWith.
-  @SuppressWarnings({"unchecked","nullness"})
+  @SuppressWarnings({"unchecked", "nullness"})
   private DisruptorEventQueue() {
     // Create new Disruptor for processing. Note that Disruptor creates a single thread per
     // consumer (see https://github.com/LMAX-Exchange/disruptor/issues/121 for details);
@@ -158,7 +159,9 @@ public final class DisruptorEventQueue implements EventQueue {
     enqueuer.enqueue(entry);
   }
 
-  /** Shuts down the underlying disruptor. */
+  /**
+   * Shuts down the underlying disruptor.
+   */
   @Override
   public void shutdown() {
     enqueuer =
@@ -178,14 +181,17 @@ public final class DisruptorEventQueue implements EventQueue {
 
   // Allows this event queue to safely shutdown by not enqueuing events on the ring buffer
   private abstract static class DisruptorEnqueuer {
+
     public abstract void enqueue(Entry entry);
   }
 
   // An event in the {@link EventQueue}. Just holds a reference to an EventQueue.Entry.
   private static final class DisruptorEvent {
+
     // TODO(bdrutu): Investigate if volatile is needed. This object is shared between threads so
     // intuitively this variable must be volatile.
-    @Nullable private volatile Entry entry = null;
+    @Nullable
+    private volatile Entry entry = null;
 
     // Sets the EventQueueEntry associated with this DisruptorEvent.
     void setEntry(@Nullable Entry entry) {
