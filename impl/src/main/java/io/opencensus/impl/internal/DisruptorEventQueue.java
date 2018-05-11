@@ -159,9 +159,7 @@ public final class DisruptorEventQueue implements EventQueue {
     enqueuer.enqueue(entry);
   }
 
-  /**
-   * Shuts down the underlying disruptor.
-   */
+  /** Shuts down the underlying disruptor. */
   @Override
   public void shutdown() {
     enqueuer =
@@ -190,8 +188,7 @@ public final class DisruptorEventQueue implements EventQueue {
 
     // TODO(bdrutu): Investigate if volatile is needed. This object is shared between threads so
     // intuitively this variable must be volatile.
-    @Nullable
-    private volatile Entry entry = null;
+    @Nullable private volatile Entry entry = null;
 
     // Sets the EventQueueEntry associated with this DisruptorEvent.
     void setEntry(@Nullable Entry entry) {
