@@ -47,6 +47,12 @@ public final class ExportComponentImpl extends ExportComponent {
     return sampledSpanStore;
   }
 
+  @Override
+  public void shutdown() {
+    sampledSpanStore.shutdown();
+    spanExporter.shutdown();
+  }
+
   /**
    * Returns a new {@code ExportComponentImpl} that has valid instances for {@link RunningSpanStore}
    * and {@link SampledSpanStore}.

@@ -74,6 +74,15 @@ public final class SpanExporterImpl extends SpanExporter {
     worker.unregisterHandler(name);
   }
 
+  protected void flush() {
+    worker.flush();
+  }
+
+  protected void shutdown() {
+    flush();
+    workerThread.interrupt();
+  }
+
   private SpanExporterImpl(Worker worker) {
     this.workerThread =
         new DaemonThreadFactory("ExportComponent.ServiceExporterThread").newThread(worker);
@@ -186,6 +195,19 @@ public final class SpanExporterImpl extends SpanExporter {
         if (!spanDataList.isEmpty()) {
           onBatchExport(spanDataList);
         }
+      }
+    }
+
+    void flush() {
+      List<SpanImpl> spansCopy;
+      synchronized (monitor) {
+        spansCopy = new ArrayList<SpanImpl>(spans);
+        spans.clear();
+      }
+
+      final List<SpanData> spanDataList = fromSpanImplToSpanData(spansCopy);
+      if (!spanDataList.isEmpty()) {
+        onBatchExport(spanDataList);
       }
     }
   }

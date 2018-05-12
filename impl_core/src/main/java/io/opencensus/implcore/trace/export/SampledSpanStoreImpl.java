@@ -45,6 +45,8 @@ public abstract class SampledSpanStoreImpl extends SampledSpanStore {
    */
   public abstract void considerForSampling(SpanImpl span);
 
+  protected void shutdown() {}
+
   private static final class NoopSampledSpanStoreImpl extends SampledSpanStoreImpl {
     private static final Summary EMPTY_SUMMARY =
         Summary.create(Collections.<String, PerSpanNameSummary>emptyMap());
