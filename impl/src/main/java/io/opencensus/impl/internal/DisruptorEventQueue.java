@@ -98,7 +98,7 @@ public final class DisruptorEventQueue implements EventQueue {
   // large a queue.
   private static final int DISRUPTOR_BUFFER_SIZE = 8192;
   // The single instance of the class.
-  private static final DisruptorEventQueue eventQueue = new DisruptorEventQueue();
+  private static final DisruptorEventQueue eventQueue = create();
 
   // The event queue is built on this {@link Disruptor}.
   private final Disruptor<DisruptorEvent> disruptor;
@@ -108,13 +108,22 @@ public final class DisruptorEventQueue implements EventQueue {
   private volatile DisruptorEnqueuer enqueuer;
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
-  // Suppress warnings for disruptor.handleEventsWith.
-  @SuppressWarnings({"unchecked", "nullness"})
-  private DisruptorEventQueue() {
+  private DisruptorEventQueue(
+      Disruptor<DisruptorEvent> disruptor,
+      RingBuffer<DisruptorEvent> ringBuffer,
+      DisruptorEnqueuer enqueuer) {
+    this.disruptor = disruptor;
+    this.ringBuffer = ringBuffer;
+    this.enqueuer = enqueuer;
+  }
+
+  // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
+  @SuppressWarnings("unchecked")
+  private static DisruptorEventQueue create() {
     // Create new Disruptor for processing. Note that Disruptor creates a single thread per
     // consumer (see https://github.com/LMAX-Exchange/disruptor/issues/121 for details);
     // this ensures that the event handler can take unsynchronized actions whenever possible.
-    disruptor =
+    Disruptor<DisruptorEvent> disruptor =
         new Disruptor<>(
             DisruptorEventFactory.INSTANCE,
             DISRUPTOR_BUFFER_SIZE,
@@ -123,9 +132,9 @@ public final class DisruptorEventQueue implements EventQueue {
             new SleepingWaitStrategy());
     disruptor.handleEventsWith(DisruptorEventHandler.INSTANCE);
     disruptor.start();
-    ringBuffer = disruptor.getRingBuffer();
+    final RingBuffer<DisruptorEvent> ringBuffer = disruptor.getRingBuffer();
 
-    enqueuer =
+    DisruptorEnqueuer enqueuer =
         new DisruptorEnqueuer() {
           @Override
           public void enqueue(Entry entry) {
@@ -138,6 +147,7 @@ public final class DisruptorEventQueue implements EventQueue {
             }
           }
         };
+    return new DisruptorEventQueue(disruptor, ringBuffer, enqueuer);
   }
 
   /**
