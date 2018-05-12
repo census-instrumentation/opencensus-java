@@ -69,7 +69,7 @@ public abstract class ExportComponent {
   /**
    * Will shutdown this ExportComponent after flushing any pending spans.
    *
-   * @since 0.13
+   * @since 0.14
    */
   public void shutdown() {}
 
