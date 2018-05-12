@@ -118,7 +118,6 @@ public final class DisruptorEventQueue implements EventQueue {
   }
 
   // Creates a new EventQueue. Private to prevent creation of non-singleton instance.
-  @SuppressWarnings("unchecked")
   private static DisruptorEventQueue create() {
     // Create new Disruptor for processing. Note that Disruptor creates a single thread per
     // consumer (see https://github.com/LMAX-Exchange/disruptor/issues/121 for details);
@@ -130,7 +129,7 @@ public final class DisruptorEventQueue implements EventQueue {
             new DaemonThreadFactory("OpenCensus.Disruptor"),
             ProducerType.MULTI,
             new SleepingWaitStrategy());
-    disruptor.handleEventsWith(DisruptorEventHandler.INSTANCE);
+    disruptor.handleEventsWith(new DisruptorEventHandler[] {DisruptorEventHandler.INSTANCE});
     disruptor.start();
     final RingBuffer<DisruptorEvent> ringBuffer = disruptor.getRingBuffer();
 
