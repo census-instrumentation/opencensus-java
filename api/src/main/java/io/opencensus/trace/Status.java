@@ -16,7 +16,6 @@
 
 package io.opencensus.trace;
 
-import io.opencensus.internal.PublicForTesting;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -228,7 +227,6 @@ public final class Status {
      * @return the status that has the current {@code CanonicalCode}.
      * @since 0.5
      */
-    @PublicForTesting
     public Status toStatus() {
       return STATUS_LIST.get(value);
     }
