@@ -18,13 +18,17 @@ package io.opencensus.common;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link Timestamp}. */
 @RunWith(JUnit4.class)
 public class TimestampTest {
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void timestampCreate() {
     assertThat(Timestamp.create(24, 42).getSeconds()).isEqualTo(24);
@@ -38,13 +42,45 @@ public class TimestampTest {
   }
 
   @Test
-  public void timestampCreate_InvalidInput() {
-    assertThat(Timestamp.create(-315576000001L, 0)).isEqualTo(Timestamp.create(0, 0));
-    assertThat(Timestamp.create(315576000001L, 0)).isEqualTo(Timestamp.create(0, 0));
-    assertThat(Timestamp.create(1, 1000000000)).isEqualTo(Timestamp.create(0, 0));
-    assertThat(Timestamp.create(1, -1)).isEqualTo(Timestamp.create(0, 0));
-    assertThat(Timestamp.create(-1, 1000000000)).isEqualTo(Timestamp.create(0, 0));
-    assertThat(Timestamp.create(-1, -1)).isEqualTo(Timestamp.create(0, 0));
+  public void create_SecondsTooLow() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is less than minimum (-315576000000): -315576000001");
+    Timestamp.create(-315576000001L, 0);
+  }
+
+  @Test
+  public void create_SecondsTooHigh() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is greater than maximum (315576000000): 315576000001");
+    Timestamp.create(315576000001L, 0);
+  }
+
+  @Test
+  public void create_NanosTooLow_PositiveTime() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'nanos' is less than zero: -1");
+    Timestamp.create(1, -1);
+  }
+
+  @Test
+  public void create_NanosTooHigh_PositiveTime() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'nanos' is greater than maximum (999999999): 1000000000");
+    Timestamp.create(1, 1000000000);
+  }
+
+  @Test
+  public void create_NanosTooLow_NegativeTime() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'nanos' is less than zero: -1");
+    Timestamp.create(-1, -1);
+  }
+
+  @Test
+  public void create_NanosTooHigh_NegativeTime() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'nanos' is greater than maximum (999999999): 1000000000");
+    Timestamp.create(-1, 1000000000);
   }
 
   @Test
@@ -59,6 +95,20 @@ public class TimestampTest {
     assertThat(Timestamp.fromMillis(-1)).isEqualTo(Timestamp.create(-1, 999000000));
     assertThat(Timestamp.fromMillis(-999)).isEqualTo(Timestamp.create(-1, 1000000));
     assertThat(Timestamp.fromMillis(-3456)).isEqualTo(Timestamp.create(-4, 544000000));
+  }
+
+  @Test
+  public void fromMillis_TooLow() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is less than minimum (-315576000000): -315576000001");
+    Timestamp.fromMillis(-315576000001000L);
+  }
+
+  @Test
+  public void fromMillis_TooHigh() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is greater than maximum (315576000000): 315576000001");
+    Timestamp.fromMillis(315576000001000L);
   }
 
   @Test
