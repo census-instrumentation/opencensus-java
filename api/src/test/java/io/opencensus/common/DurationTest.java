@@ -18,13 +18,17 @@ package io.opencensus.common;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link Duration}. */
 @RunWith(JUnit4.class)
 public class DurationTest {
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void testDurationCreate() {
     assertThat(Duration.create(24, 42).getSeconds()).isEqualTo(24);
@@ -38,13 +42,45 @@ public class DurationTest {
   }
 
   @Test
-  public void testDurationCreateInvalidInput() {
-    assertThat(Duration.create(-315576000001L, 0)).isEqualTo(Duration.create(0, 0));
-    assertThat(Duration.create(315576000001L, 0)).isEqualTo(Duration.create(0, 0));
-    assertThat(Duration.create(0, 1000000000)).isEqualTo(Duration.create(0, 0));
-    assertThat(Duration.create(0, -1000000000)).isEqualTo(Duration.create(0, 0));
-    assertThat(Duration.create(-1, 1)).isEqualTo(Duration.create(0, 0));
-    assertThat(Duration.create(1, -1)).isEqualTo(Duration.create(0, 0));
+  public void create_SecondsTooLow() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is less than minimum (-315576000000): -315576000001");
+    Duration.create(-315576000001L, 0);
+  }
+
+  @Test
+  public void create_SecondsTooHigh() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is greater than maximum (315576000000): 315576000001");
+    Duration.create(315576000001L, 0);
+  }
+
+  @Test
+  public void create_NanosTooLow() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'nanos' is less than minimum (-999999999): -1000000000");
+    Duration.create(0, -1000000000);
+  }
+
+  @Test
+  public void create_NanosTooHigh() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'nanos' is greater than maximum (999999999): 1000000000");
+    Duration.create(0, 1000000000);
+  }
+
+  @Test
+  public void create_NegativeSecondsPositiveNanos() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' and 'nanos' have inconsistent sign: seconds=-1, nanos=1");
+    Duration.create(-1, 1);
+  }
+
+  @Test
+  public void create_PositiveSecondsNegativeNanos() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' and 'nanos' have inconsistent sign: seconds=1, nanos=-1");
+    Duration.create(1, -1);
   }
 
   @Test
@@ -60,6 +96,20 @@ public class DurationTest {
     assertThat(Duration.fromMillis(-999)).isEqualTo(Duration.create(0, -999000000));
     assertThat(Duration.fromMillis(-1000)).isEqualTo(Duration.create(-1, 0));
     assertThat(Duration.fromMillis(-3456)).isEqualTo(Duration.create(-3, -456000000));
+  }
+
+  @Test
+  public void fromMillis_TooLow() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is less than minimum (-315576000000): -315576000001");
+    Duration.fromMillis(-315576000001000L);
+  }
+
+  @Test
+  public void fromMillis_TooHigh() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("'seconds' is greater than maximum (315576000000): 315576000001");
+    Duration.fromMillis(315576000001000L);
   }
 
   @Test
