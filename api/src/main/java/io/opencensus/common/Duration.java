@@ -35,7 +35,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class Duration implements Comparable<Duration> {
-  private static final Duration ZERO = create(0, 0);
 
   /**
    * Creates a new time duration from given seconds and nanoseconds.
@@ -47,19 +46,30 @@ public abstract class Duration implements Comparable<Duration> {
    *     negative `nanos` field. For durations of one second or more, a non-zero value for the
    *     `nanos` field must be of the same sign as the `seconds` field. Must be from -999,999,999 to
    *     +999,999,999 inclusive.
-   * @return new {@code Duration} with specified fields. For invalid inputs, a {@code Duration} of
-   *     zero is returned.
+   * @return new {@code Duration} with specified fields.
+   * @throws IllegalArgumentException if the arguments are out of range or have inconsistent sign.
    * @since 0.5
    */
   public static Duration create(long seconds, int nanos) {
-    if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
-      return ZERO;
+    if (seconds < -MAX_SECONDS) {
+      throw new IllegalArgumentException(
+          "'seconds' is less than minimum (" + -MAX_SECONDS + "): " + seconds);
     }
-    if (nanos < -MAX_NANOS || nanos > MAX_NANOS) {
-      return ZERO;
+    if (seconds > MAX_SECONDS) {
+      throw new IllegalArgumentException(
+          "'seconds' is greater than maximum (" + MAX_SECONDS + "): " + seconds);
+    }
+    if (nanos < -MAX_NANOS) {
+      throw new IllegalArgumentException(
+          "'nanos' is less than minimum (" + -MAX_NANOS + "): " + nanos);
+    }
+    if (nanos > MAX_NANOS) {
+      throw new IllegalArgumentException(
+          "'nanos' is greater than maximum (" + MAX_NANOS + "): " + nanos);
     }
     if ((seconds < 0 && nanos > 0) || (seconds > 0 && nanos < 0)) {
-      return ZERO;
+      throw new IllegalArgumentException(
+          "'seconds' and 'nanos' have inconsistent sign: seconds=" + seconds + ", nanos=" + nanos);
     }
     return new AutoValue_Duration(seconds, nanos);
   }
@@ -68,8 +78,9 @@ public abstract class Duration implements Comparable<Duration> {
    * Creates a new {@code Duration} from given milliseconds.
    *
    * @param millis the duration in milliseconds.
-   * @return a new {@code Duration} from given milliseconds. For invalid inputs, a {@code Duration}
-   *     of zero is returned.
+   * @return a new {@code Duration} from given milliseconds.
+   * @throws IllegalArgumentException if the number of milliseconds is out of the range that can be
+   *     represented by {@code Duration}.
    * @since 0.5
    */
   public static Duration fromMillis(long millis) {
