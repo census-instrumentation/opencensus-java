@@ -39,7 +39,6 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 @AutoValue
 public abstract class Timestamp implements Comparable<Timestamp> {
-  private static final Timestamp EPOCH = new AutoValue_Timestamp(0, 0);
 
   Timestamp() {}
 
@@ -51,16 +50,25 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * @param nanos Non-negative fractions of a second at nanosecond resolution. Negative second
    *     values with fractions must still have non-negative nanos values that count forward in time.
    *     Must be from 0 to 999,999,999 inclusive.
-   * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@code Timestamp} of
-   *     zero is returned.
+   * @return new {@code Timestamp} with specified fields.
+   * @throws IllegalArgumentException if the arguments are out of range.
    * @since 0.5
    */
   public static Timestamp create(long seconds, int nanos) {
-    if (seconds < -MAX_SECONDS || seconds > MAX_SECONDS) {
-      return EPOCH;
+    if (seconds < -MAX_SECONDS) {
+      throw new IllegalArgumentException(
+          "'seconds' is less than minimum (" + -MAX_SECONDS + "): " + seconds);
     }
-    if (nanos < 0 || nanos > MAX_NANOS) {
-      return EPOCH;
+    if (seconds > MAX_SECONDS) {
+      throw new IllegalArgumentException(
+          "'seconds' is greater than maximum (" + MAX_SECONDS + "): " + seconds);
+    }
+    if (nanos < 0) {
+      throw new IllegalArgumentException("'nanos' is less than zero: " + nanos);
+    }
+    if (nanos > MAX_NANOS) {
+      throw new IllegalArgumentException(
+          "'nanos' is greater than maximum (" + MAX_NANOS + "): " + nanos);
     }
     return new AutoValue_Timestamp(seconds, nanos);
   }
@@ -69,8 +77,9 @@ public abstract class Timestamp implements Comparable<Timestamp> {
    * Creates a new timestamp from the given milliseconds.
    *
    * @param epochMilli the timestamp represented in milliseconds since epoch.
-   * @return new {@code Timestamp} with specified fields. For invalid inputs, a {@code Timestamp} of
-   *     zero is returned.
+   * @return new {@code Timestamp} with specified fields.
+   * @throws IllegalArgumentException if the number of milliseconds is out of the range that can be
+   *     represented by {@code Timestamp}.
    * @since 0.5
    */
   public static Timestamp fromMillis(long epochMilli) {

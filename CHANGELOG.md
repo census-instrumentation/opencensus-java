@@ -2,6 +2,8 @@
 - Adds Tracing.getExportComponent().shutdown() for use within application shutdown hooks.
 - `Duration.create` now throws an `IllegalArgumentException` instead of
   returning a zero `Duration` when the arguments are invalid.
+- `Timestamp.create` now throws an `IllegalArgumentException` instead of
+  returning a zero `Timestamp` when the arguments are invalid.
 
 ## 0.13.2 - 2018-05-08
 - Map http attributes to Stackdriver format (fix [#1153](https://github.com/census-instrumentation/opencensus-java/issues/1153)).
