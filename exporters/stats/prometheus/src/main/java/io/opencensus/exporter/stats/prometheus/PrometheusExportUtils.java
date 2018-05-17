@@ -83,8 +83,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @SuppressWarnings("deprecation")
 final class PrometheusExportUtils {
 
-  @VisibleForTesting static final String OPENCENSUS_NAMESPACE = "opencensus";
-  @VisibleForTesting static final String OPENCENSUS_HELP_MSG = "Opencensus Prometheus metrics: ";
   @VisibleForTesting static final String SAMPLE_SUFFIX_BUCKET = "_bucket";
   @VisibleForTesting static final String SAMPLE_SUFFIX_COUNT = "_count";
   @VisibleForTesting static final String SAMPLE_SUFFIX_SUM = "_sum";
@@ -93,8 +91,7 @@ final class PrometheusExportUtils {
   // Converts a ViewData to a Prometheus MetricFamilySamples.
   static MetricFamilySamples createMetricFamilySamples(ViewData viewData) {
     View view = viewData.getView();
-    String name =
-        Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
+    String name = Collector.sanitizeMetricName(view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
     List<String> labelNames = convertToLabelNames(view.getColumns());
     List<Sample> samples = Lists.newArrayList();
@@ -103,15 +100,13 @@ final class PrometheusExportUtils {
       samples.addAll(
           getSamples(name, labelNames, entry.getKey(), entry.getValue(), view.getAggregation()));
     }
-    return new MetricFamilySamples(
-        name, type, OPENCENSUS_HELP_MSG + view.getDescription(), samples);
+    return new MetricFamilySamples(name, type, view.getDescription(), samples);
   }
 
   // Converts a View to a Prometheus MetricFamilySamples.
   // Used only for Prometheus metric registry, should not contain any actual samples.
   static MetricFamilySamples createDescribableMetricFamilySamples(View view) {
-    String name =
-        Collector.sanitizeMetricName(OPENCENSUS_NAMESPACE + '_' + view.getName().asString());
+    String name = Collector.sanitizeMetricName(view.getName().asString());
     Type type = getType(view.getAggregation(), view.getWindow());
     List<String> labelNames = convertToLabelNames(view.getColumns());
     if (containsDisallowedLeLabelForHistogram(labelNames, type)) {
@@ -121,7 +116,7 @@ final class PrometheusExportUtils {
               + "Please remove this tag key from your view.");
     }
     return new MetricFamilySamples(
-        name, type, OPENCENSUS_HELP_MSG + view.getDescription(), Collections.<Sample>emptyList());
+        name, type, view.getDescription(), Collections.<Sample>emptyList());
   }
 
   @VisibleForTesting

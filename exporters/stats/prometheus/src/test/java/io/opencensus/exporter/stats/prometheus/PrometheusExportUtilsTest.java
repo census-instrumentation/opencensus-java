@@ -18,8 +18,6 @@ package io.opencensus.exporter.stats.prometheus;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.LABEL_NAME_BUCKET_BOUND;
-import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.OPENCENSUS_HELP_MSG;
-import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.OPENCENSUS_NAMESPACE;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_BUCKET;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_COUNT;
 import static io.opencensus.exporter.stats.prometheus.PrometheusExportUtils.SAMPLE_SUFFIX_SUM;
@@ -120,12 +118,10 @@ public class PrometheusExportUtilsTest {
   private static final CumulativeData CUMULATIVE_DATA =
       CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
   private static final IntervalData INTERVAL_DATA = IntervalData.create(Timestamp.fromMillis(1000));
-  private static final String SAMPLE_NAME = OPENCENSUS_NAMESPACE + "_view";
+  private static final String SAMPLE_NAME = "view";
 
   @Test
   public void testConstants() {
-    assertThat(OPENCENSUS_NAMESPACE).isEqualTo("opencensus");
-    assertThat(OPENCENSUS_HELP_MSG).isEqualTo("Opencensus Prometheus metrics: ");
     assertThat(SAMPLE_SUFFIX_BUCKET).isEqualTo("_bucket");
     assertThat(SAMPLE_SUFFIX_COUNT).isEqualTo("_count");
     assertThat(SAMPLE_SUFFIX_SUM).isEqualTo("_sum");
@@ -147,31 +143,19 @@ public class PrometheusExportUtilsTest {
     assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW1))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "_view1",
-                Type.COUNTER,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
-                Collections.<Sample>emptyList()));
+                "view1", Type.COUNTER, DESCRIPTION, Collections.<Sample>emptyList()));
     assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW2))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "_view2",
-                Type.SUMMARY,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
-                Collections.<Sample>emptyList()));
+                "view2", Type.SUMMARY, DESCRIPTION, Collections.<Sample>emptyList()));
     assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW3))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "_view_3",
-                Type.HISTOGRAM,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
-                Collections.<Sample>emptyList()));
+                "view_3", Type.HISTOGRAM, DESCRIPTION, Collections.<Sample>emptyList()));
     assertThat(PrometheusExportUtils.createDescribableMetricFamilySamples(VIEW4))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "__view4",
-                Type.UNTYPED,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
-                Collections.<Sample>emptyList()));
+                "_view4", Type.UNTYPED, DESCRIPTION, Collections.<Sample>emptyList()));
   }
 
   @Test
@@ -283,89 +267,60 @@ public class PrometheusExportUtilsTest {
                     VIEW1, ImmutableMap.of(Arrays.asList(V1, V2), COUNT_DATA), CUMULATIVE_DATA)))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "_view1",
+                "view1",
                 Type.COUNTER,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
+                DESCRIPTION,
                 Arrays.asList(
                     new Sample(
-                        OPENCENSUS_NAMESPACE + "_view1",
-                        Arrays.asList("k1", "k2"),
-                        Arrays.asList("v1", "v2"),
-                        12345))));
+                        "view1", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 12345))));
     assertThat(
             PrometheusExportUtils.createMetricFamilySamples(
                 ViewData.create(
                     VIEW2, ImmutableMap.of(Arrays.asList(V1), MEAN_DATA), CUMULATIVE_DATA)))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "_view2",
+                "view2",
                 Type.SUMMARY,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
+                DESCRIPTION,
                 Arrays.asList(
-                    new Sample(
-                        OPENCENSUS_NAMESPACE + "_view2_count",
-                        Arrays.asList("k_3"),
-                        Arrays.asList("v1"),
-                        22),
-                    new Sample(
-                        OPENCENSUS_NAMESPACE + "_view2_sum",
-                        Arrays.asList("k_3"),
-                        Arrays.asList("v1"),
-                        74.8))));
+                    new Sample("view2_count", Arrays.asList("k_3"), Arrays.asList("v1"), 22),
+                    new Sample("view2_sum", Arrays.asList("k_3"), Arrays.asList("v1"), 74.8))));
     assertThat(
             PrometheusExportUtils.createMetricFamilySamples(
                 ViewData.create(
                     VIEW3, ImmutableMap.of(Arrays.asList(V3), DISTRIBUTION_DATA), CUMULATIVE_DATA)))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "_view_3",
+                "view_3",
                 Type.HISTOGRAM,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
+                DESCRIPTION,
                 Arrays.asList(
                     new Sample(
-                        OPENCENSUS_NAMESPACE + "_view_3_bucket",
+                        "view_3_bucket",
                         Arrays.asList("k1", "le"),
                         Arrays.asList("v-3", "-5.0"),
                         0),
                     new Sample(
-                        OPENCENSUS_NAMESPACE + "_view_3_bucket",
-                        Arrays.asList("k1", "le"),
-                        Arrays.asList("v-3", "0.0"),
-                        2),
+                        "view_3_bucket", Arrays.asList("k1", "le"), Arrays.asList("v-3", "0.0"), 2),
                     new Sample(
-                        OPENCENSUS_NAMESPACE + "_view_3_bucket",
-                        Arrays.asList("k1", "le"),
-                        Arrays.asList("v-3", "5.0"),
-                        2),
+                        "view_3_bucket", Arrays.asList("k1", "le"), Arrays.asList("v-3", "5.0"), 2),
                     new Sample(
-                        OPENCENSUS_NAMESPACE + "_view_3_bucket",
+                        "view_3_bucket",
                         Arrays.asList("k1", "le"),
                         Arrays.asList("v-3", "+Inf"),
                         1),
-                    new Sample(
-                        OPENCENSUS_NAMESPACE + "_view_3_count",
-                        Arrays.asList("k1"),
-                        Arrays.asList("v-3"),
-                        5),
-                    new Sample(
-                        OPENCENSUS_NAMESPACE + "_view_3_sum",
-                        Arrays.asList("k1"),
-                        Arrays.asList("v-3"),
-                        22.0))));
+                    new Sample("view_3_count", Arrays.asList("k1"), Arrays.asList("v-3"), 5),
+                    new Sample("view_3_sum", Arrays.asList("k1"), Arrays.asList("v-3"), 22.0))));
     assertThat(
             PrometheusExportUtils.createMetricFamilySamples(
                 ViewData.create(
                     VIEW4, ImmutableMap.of(Arrays.asList(V1), COUNT_DATA), INTERVAL_DATA)))
         .isEqualTo(
             new MetricFamilySamples(
-                OPENCENSUS_NAMESPACE + "__view4",
+                "_view4",
                 Type.UNTYPED,
-                OPENCENSUS_HELP_MSG + DESCRIPTION,
+                DESCRIPTION,
                 Arrays.asList(
-                    new Sample(
-                        OPENCENSUS_NAMESPACE + "__view4",
-                        Arrays.asList("k1"),
-                        Arrays.asList("v1"),
-                        12345))));
+                    new Sample("_view4", Arrays.asList("k1"), Arrays.asList("v1"), 12345))));
   }
 }

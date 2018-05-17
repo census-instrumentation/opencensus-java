@@ -100,13 +100,13 @@ public class PrometheusStatsCollectorTest {
   @Test
   public void testCollect() {
     PrometheusStatsCollector collector = new PrometheusStatsCollector(mockViewManager);
-    String name = "opencensus_view1";
+    String name = "view1";
     assertThat(collector.collect())
         .containsExactly(
             new MetricFamilySamples(
-                "opencensus_view1",
+                "view1",
                 Type.HISTOGRAM,
-                "Opencensus Prometheus metrics: View description",
+                "View description",
                 Arrays.asList(
                     new Sample(
                         name + "_bucket",
@@ -151,10 +151,7 @@ public class PrometheusStatsCollectorTest {
     assertThat(collector.describe())
         .containsExactly(
             new MetricFamilySamples(
-                "opencensus_view1",
-                Type.HISTOGRAM,
-                "Opencensus Prometheus metrics: View description",
-                Collections.<Sample>emptyList()));
+                "view1", Type.HISTOGRAM, "View description", Collections.<Sample>emptyList()));
   }
 
   @Test
