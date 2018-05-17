@@ -4,6 +4,9 @@
   returning a zero `Duration` when the arguments are invalid.
 - `Timestamp.create` now throws an `IllegalArgumentException` instead of
   returning a zero `Timestamp` when the arguments are invalid.
+- Remove namespace and help message prefix for Prometheus exporter. This could be
+  a breaking change if you have Prometheus metrics from OpenCensus Prometheus exporter
+  of previous versions, please point to the new metrics with no namespace instead.
 
 ## 0.13.2 - 2018-05-08
 - Map http attributes to Stackdriver format (fix [#1153](https://github.com/census-instrumentation/opencensus-java/issues/1153)).
