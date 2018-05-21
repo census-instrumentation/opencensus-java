@@ -222,6 +222,7 @@ $ README_FILES=(
   README.md
   contrib/grpc_util/README.md
   contrib/http_util/README.md
+  contrib/monitored_resource_util/README.md
   contrib/zpages/README.md
   exporters/stats/prometheus/README.md
   exporters/stats/signalfx/README.md
