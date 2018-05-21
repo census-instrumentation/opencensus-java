@@ -93,6 +93,13 @@ If you prefer to manually set the project ID use:
 StackdriverTraceExporter.createAndRegisterWithProjectId("MyStackdriverProjectId");
 ```
 
+#### Enable Stackdriver Trace API access scope on Google Cloud Platform
+If your Stackdriver Trace Exporter is running on Kubernetes Engine or Compute Engine,
+you might need additional setup to explicitly enable the ```trace.append``` Stackdriver 
+Trace API access scope. To do that, please follow the instructions for 
+[GKE](https://cloud.google.com/trace/docs/setup/java#kubernetes_engine) or 
+[GCE](https://cloud.google.com/trace/docs/setup/java#compute_engine).
+
 #### Java Versions
 
 Java 7 or above is required for using this exporter.
@@ -102,6 +109,13 @@ Java 7 or above is required for using this exporter.
 In all the versions before '0.9.1' the Stackdriver Trace exporter was implemented using the [v1 
 API][stackdriver-v1-api-url] which is not fully compatible with the OpenCensus data model. Trace 
 events like Annotations and NetworkEvents will be dropped.
+
+### Why do I get a "StatusRuntimeException: NOT_FOUND: Requested entity was not found"?
+One of the possible reasons is you are using a project id with bad format for the exporter.
+Please double check the project id associated with the Stackdriver Trace exporter first. 
+Stackdriver Trace backend will not do any sanitization or trimming on the incoming project id.
+Project id with leading or trailing spaces will be treated as a separate non-existing project
+(e.g "project-id" vs "project-id "), and will cause a NOT_FOUND exception.
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
