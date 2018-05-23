@@ -4,7 +4,8 @@ import traceback
 
 def main(argv):
   # Only check the history if the build is running on a pull request.
-  if is_travis_pull_request():
+  # Build could be running on pull request using travis or kokoro.
+  if is_travis_pull_request() or is_kokoro_presubmit_request():
     # This function assumes that HEAD^1 is the base branch and HEAD^2 is the
     # pull request.
     exit_if_pull_request_has_merge_commits()
@@ -12,9 +13,17 @@ def main(argv):
   else:
     print 'Skipped history check.'
 
+def is_kokoro_presubmit_request():
+  '''Returns true if KOKORO_GITHUB_PULL_REQUEST_NUMBER is set.'''
+  if 'KOKORO_GITHUB_PULL_REQUEST_NUMBER' in os.environ:
+    return True
+  return False
+
 def is_travis_pull_request():
   '''Returns true if TRAVIS_PULL_REQUEST is set to indicate a pull request.'''
-  return os.environ['TRAVIS_PULL_REQUEST'] != 'false'
+  if 'TRAVIS_PULL_REQUEST' in os.environ:
+    return os.environ['TRAVIS_PULL_REQUEST'] != 'false'
+  return False
 
 def exit_if_pull_request_has_merge_commits():
   '''Exits with an error if any of the commits added by the pull request are
