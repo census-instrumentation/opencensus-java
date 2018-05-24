@@ -43,16 +43,22 @@ case "$TASK" in
     ./gradlew check :opencensus-all:jacocoTestReport
     ./gradlew verGJF
 
-    # Get token from file located at
-    # $KOKORO_KEYSTORE_DIR/73495_codecov-auth-token
-    if [ -f $KOKORO_KEYSTORE_DIR/73495_codecov-auth-token ] ; then
-      export CODECOV_TOKEN=`cat $KOKORO_KEYSTORE_DIR/73495_codecov-auth-token`
+    # Run codecoverage reporting only if the script is running
+    # as a part of KOKORO BUILD. If it is outside of kokoro
+    # then there is no access to the codecov token and hence
+    # there is no point in running it.
+    if [[ -v KOKORO_BUILD_NUMBER ]]; then
+      # Get token from file located at
+      # $KOKORO_KEYSTORE_DIR/73495_codecov-auth-token
+      if [ -f $KOKORO_KEYSTORE_DIR/73495_codecov-auth-token ] ; then
+        curl -s https://codecov.io/bash | bash -s -- -Z -t @$KOKORO_KEYSTORE_DIR/73495_codecov-auth-token
+      else
+        echo "Codecov token file not found"
+        exit 1
+      fi
+    else
+      echo "Skipping codecov reporting"
     fi
-    if [[ ! -v CODECOV_TOKEN ]]; then
-      echo "Environment variable CODECOV_TOKEN not set"
-      exit 1
-    fi
-    curl -s https://codecov.io/bash | bash
     ;;
   "CHECKER_FRAMEWORK")
     ./gradlew clean assemble -PcheckerFramework=true
