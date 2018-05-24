@@ -27,4 +27,5 @@
  * https://github.com/census-instrumentation/opencensus-proto/blob/master/opencensus/proto/stats/metrics/metrics.proto
  * for more details.
  */
+@io.opencensus.common.ExperimentalApi
 package io.opencensus.stats.metrics;
