@@ -18,6 +18,8 @@ include ":opencensus-contrib-appengine-standard-util"
 include ":opencensus-contrib-grpc-metrics"
 include ":opencensus-contrib-grpc-util"
 include ":opencensus-contrib-http-util"
+include ":opencensus-contrib-log-correlation-stackdriver"
+include ":opencensus-contrib-log-correlation-stackdriver-demo"
 include ":opencensus-contrib-monitored-resource-util"
 // TODO(songya): uncomment this once classes were added to Metrics library.
 //include ":opencensus-metrics"
@@ -33,6 +35,10 @@ project(':opencensus-contrib-appengine-standard-util').projectDir =
 project(':opencensus-contrib-grpc-metrics').projectDir = "$rootDir/contrib/grpc_metrics" as File
 project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_util" as File
 project(':opencensus-contrib-http-util').projectDir = "$rootDir/contrib/http_util" as File
+project(':opencensus-contrib-log-correlation-stackdriver').projectDir =
+        "$rootDir/contrib/log_correlation/stackdriver" as File
+project(':opencensus-contrib-log-correlation-stackdriver-demo').projectDir =
+        "$rootDir/contrib/log_correlation/stackdriver_demo" as File
 project(':opencensus-contrib-monitored-resource-util').projectDir =
         "$rootDir/contrib/monitored_resource_util" as File
 project(':opencensus-exporter-trace-instana').projectDir =

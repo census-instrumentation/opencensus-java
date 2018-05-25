@@ -1,0 +1,36 @@
+description = 'OpenCensus Stackdriver Log Correlation Demo'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.7
+    it.targetCompatibility = 1.7
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            project(':opencensus-contrib-log-correlation-stackdriver'),
+            project(':opencensus-exporter-trace-stackdriver'),
+            libraries.slf4j,
+            libraries.google_cloud_logging_logback
+
+    runtime project(':opencensus-impl-lite')
+
+    signature "org.codehaus.mojo.signature:java18:+@signature"
+}
+
+apply plugin: 'application'
+
+startScripts.enabled = false
+
+task openCensusLogCorrelationStackdriverDemo(type: CreateStartScripts) {
+    mainClassName = 'io.opencensus.contrib.logcorrelation.stackdriver.demo.OpenCensusTraceLoggingEnhancerDemo'
+    applicationName = 'OpenCensusTraceLoggingEnhancerDemo'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+applicationDistribution.into('bin') {
+    from(openCensusLogCorrelationStackdriverDemo)
+    fileMode = 0755
+}

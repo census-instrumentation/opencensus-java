@@ -1,0 +1,16 @@
+<!-- This configuration file is based on the example at
+     https://github.com/GoogleCloudPlatform/google-cloud-java/tree/master/google-cloud-clients/google-cloud-contrib/google-cloud-logging-logback#usage -->
+<configuration>
+  <appender name="CLOUD" class="com.google.cloud.logging.logback.LoggingAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+    <log>application.log</log>
+    <enhancer>io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer</enhancer>
+    <flushLevel>WARN</flushLevel>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="CLOUD" />
+  </root>
+</configuration>
