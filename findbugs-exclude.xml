@@ -2,38 +2,44 @@
   <Match>
     <!-- Reason: Null has a different meaning than a zero-length array in this case. -->
     <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
-    <Class name="io.opencensus.stats.MutableDistribution" />
-    <Method name="getInternalBucketCountsArray" />
+    <Class name="io.opencensus.stats.MutableDistribution"/>
+    <Method name="getInternalBucketCountsArray"/>
   </Match>
   <Match>
     <!-- Reason: Equal is implemented in the AutoValue generated class. -->
     <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
-    <Class name="io.opencensus.common.Timestamp" />
-    <Method name="compareTo" />
+    <Class name="io.opencensus.common.Timestamp"/>
+    <Method name="compareTo"/>
   </Match>
   <Match>
     <!-- Reason: Equal is implemented in the AutoValue generated class. -->
     <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
-    <Class name="io.opencensus.common.Duration" />
-    <Method name="compareTo" />
+    <Class name="io.opencensus.common.Duration"/>
+    <Method name="compareTo"/>
   </Match>
   <Match>
     <!-- Reason: BaseMessageEvent only has two visible subclasses. -->
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
-    <Class name="io.opencensus.trace.internal.BaseMessageEventUtils" />
+    <Class name="io.opencensus.trace.internal.BaseMessageEventUtils"/>
   </Match>
   <Match>
     <!-- Reason: This test is testing for a NPE. -->
     <Bug pattern="NP_NONNULL_PARAM_VIOLATION"/>
-    <Class name="io.opencensus.internal.UtilsTest" />
-    <Method name="checkNotNull" />
+    <Class name="io.opencensus.internal.UtilsTest"/>
+    <Method name="checkNotNull"/>
   </Match>
   <Match>
     <!-- Reason: It seems like FindBugs incorrectly assumes that all -->
     <!-- Throwables are subclasses of Error or Exception. -->
     <Bug pattern="BC_VACUOUS_INSTANCEOF"/>
-    <Class name="io.opencensus.trace.CurrentSpanUtils$CallableInSpan" />
-    <Method name="call" />
+    <Class name="io.opencensus.trace.CurrentSpanUtils$CallableInSpan"/>
+    <Method name="call"/>
+  </Match>
+  <Match>
+    <!-- Reason: Protobuf auto-generated code. -->
+    <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
+    <Class name="io.opencensus.contrib.appengine.standard.util.TraceIdProto$Builder"/>
+    <Method name="maybeForceBuilderInitialization"/>
   </Match>
 
   <!-- Suppress some FindBugs warnings related to performance or robustness -->
@@ -41,27 +47,27 @@
   <Match>
     <!-- Reason: Only needed for performance. -->
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
-    <Source name="~.*Test\.java" />
+    <Source name="~.*Test\.java"/>
   </Match>
   <Match>
     <!-- Reason: Only needed for performance. -->
     <Bug pattern="WMI_WRONG_MAP_ITERATOR"/>
-    <Source name="~.*Test\.java" />
+    <Source name="~.*Test\.java"/>
   </Match>
   <Match>
     <!-- Reason: Only needed for performance. -->
     <Bug pattern="UM_UNNECESSARY_MATH"/>
-    <Source name="~.*Test\.java" />
+    <Source name="~.*Test\.java"/>
   </Match>
   <Match>
     <!-- Reason: This is less important in a test environment. -->
     <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED"/>
-    <Source name="~.*Test\.java" />
+    <Source name="~.*Test\.java"/>
   </Match>
   <Match>
     <!-- Reason: Many classes initialize fields in @Before methods. -->
     <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
-    <Source name="~.*Test\.java" />
+    <Source name="~.*Test\.java"/>
   </Match>
 
   <!-- Suppress all FindBugs warnings about NullPointerExceptions in -->
@@ -71,19 +77,19 @@
   <Match>
     <Bug code="NP"/>
     <Not>
-      <Source name="~.*Test\.java" />
+      <Source name="~.*Test\.java"/>
     </Not>
   </Match>
   <Match>
     <Bug pattern="UR_UNINIT_READ"/>
     <Not>
-      <Source name="~.*Test\.java" />
+      <Source name="~.*Test\.java"/>
     </Not>
   </Match>
   <Match>
     <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     <Not>
-      <Source name="~.*Test\.java" />
+      <Source name="~.*Test\.java"/>
     </Not>
   </Match>
 </FindBugsFilter>

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.opencensus.contrib.appengine.standard.util";
+option java_outer_classname = "TraceProto";
+
+message TraceIdProto {
+  fixed64 hi = 1;
+  fixed64 lo = 2;
+}

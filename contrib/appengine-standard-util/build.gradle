@@ -1,0 +1,52 @@
+description = 'OpenCensus AppEngine Standard Util'
+
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+
+def protocVersion = '3.5.1-1'
+
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.5"
+    }
+}
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            libraries.appengine_api,
+            libraries.guava,
+            libraries.protobuf
+
+    signature "org.codehaus.mojo.signature:java18:+@signature"
+}
+
+protobuf {
+    protoc {
+        // The artifact spec for the Protobuf Compiler
+        artifact = "com.google.protobuf:protoc:${protocVersion}"
+    }
+
+    generatedFilesBaseDir = "$projectDir/gen_gradle/src"
+
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'annotate_code'
+                }
+            }
+        }
+    }
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
