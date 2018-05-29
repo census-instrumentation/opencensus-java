@@ -28,4 +28,4 @@
  * for more details.
  */
 @io.opencensus.common.ExperimentalApi
-package io.opencensus.stats.metrics;
+package io.opencensus.metrics;

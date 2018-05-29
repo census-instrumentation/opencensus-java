@@ -1,0 +1,11 @@
+description = 'OpenCensus Metrics Data Model'
+
+dependencies {
+    compile project(':opencensus-api')
+
+    compileOnly libraries.auto_value
+
+    testCompile project(':opencensus-api')
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}
