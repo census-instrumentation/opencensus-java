@@ -124,5 +124,7 @@ could mean that `import-control.xml` needs to be updated.
 Create a Pull Request with your changes. Please add any user-visible changes to
 CHANGELOG.md. The continuous integration build will run the tests and static
 analysis. It will also check that the pull request branch has no merge commits.
-When the changes are accepted, they will be merged or cherry-picked by an
-OpenCensus core developer.
+Try to respond to code review by pushing new commits to the branch, without
+force-pushing (unless rebasing is necessary to make the build pass), to make it
+easier for others to see the new changes. When the changes are accepted, they
+will be merged or cherry-picked by an OpenCensus core developer.
