@@ -159,7 +159,7 @@ subprojects {
         googleAuthVersion = '0.9.1'
         googleCloudVersion = '0.47.0-beta'
         signalfxVersion = '0.0.39'
-        prometheusVersion = '0.2.0'
+        prometheusVersion = '0.4.0'
         zipkinReporterVersion = '2.3.2'
         jaegerReporterVersion = '0.24.0'
 
