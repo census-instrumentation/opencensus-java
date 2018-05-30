@@ -69,7 +69,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /** Exporter to Stackdriver Trace API v2. */
 final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
-  private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
+  private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
   private static final String AGENT_LABEL_KEY = "g.co/agent";
   private static final String AGENT_LABEL_VALUE_STRING =
       "opencensus-java [" + OpenCensusLibraryInformation.VERSION + "]";
@@ -330,7 +330,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     try (Scope scope =
         tracer
             .spanBuilder("ExportStackdriverTraces")
-            .setSampler(probabilitySpampler)
+            .setSampler(probabilitySampler)
             .setRecordEvents(true)
             .startScopedSpan()) {
       List<Span> spans = new ArrayList<>(spanDataList.size());
