@@ -74,6 +74,8 @@ subprojects {
         if (useErrorProne) {
             if (JavaVersion.current().isJava8Compatible()) {
                 it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
+                // Exclude generated protobuf from error-prone checks.
+                it.options.compilerArgs += ["-XepExcludedPaths:.*/gen_gradle/.*"]
                 // TODO(bdrutu): Read files directly instead of reading from properties.
                 if (rootProject.hasProperty("errorProneWarnings")) {
                     it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
@@ -105,6 +107,9 @@ subprojects {
             ]
         }
         it.options.encoding = "UTF-8"
+        // Protobuf-generated code produces some warnings.
+        // https://github.com/google/protobuf/issues/2718
+        it.options.compilerArgs += ["-Xlint:-cast"]
         if (!JavaVersion.current().isJava9()) {
             // TODO(sebright): Enable -Werror for Java 9 once we upgrade AutoValue (issue #1017).
             it.options.compilerArgs += ["-Werror"]
@@ -151,6 +156,7 @@ subprojects {
     }
 
     ext {
+        appengineVersion = '1.9.63'
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
         errorProneVersion = '2.2.0'
@@ -160,10 +166,12 @@ subprojects {
         googleCloudVersion = '0.47.0-beta'
         signalfxVersion = '0.0.39'
         prometheusVersion = '0.4.0'
+        protobufVersion = '3.5.1'
         zipkinReporterVersion = '2.3.2'
         jaegerReporterVersion = '0.24.0'
 
         libraries = [
+                appengine_api: "com.google.appengine:appengine-api-1.0-sdk:${appengineVersion}",
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
                 auto_service: 'com.google.auto.service:auto-service:1.0-rc3',
                 byte_buddy: 'net.bytebuddy:byte-buddy:1.7.11',
@@ -183,6 +191,7 @@ subprojects {
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
                 signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
                 prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",
+                protobuf: "com.google.protobuf:protobuf-java:${protobufVersion}",
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
@@ -359,6 +368,7 @@ subprojects {
     uploadArchives.onlyIf {
         name in ['opencensus-api',
                  'opencensus-contrib-agent',
+                 'opencensus-contrib-appengine-standard-util',
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
@@ -397,7 +407,7 @@ subprojects {
                     compile.options.compilerArgs += [
                         '-Xmaxerrs', '10000',
                         "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
-                        "-AskipDefs=\\.AutoValue_",
+                        "-AskipDefs=[\\.AutoValue_|\\.TraceIdProto]",
                         "-AinvariantArrays"
                     ]
                     options.fork = true

@@ -5,6 +5,9 @@ gradle.properties
 local.properties
 out/
 
+# Protobuf
+gen_gradle
+
 # Bazel
 bazel-*
 
