@@ -19,6 +19,7 @@ package io.opencensus.contrib.appengine.standard.util;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.apphosting.api.CloudTraceContext;
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -36,6 +37,8 @@ public final class AppEngineCloudTraceContextUtils {
       TraceIdProto.newBuilder().setHi(0).setLo(0).build().toByteArray();
   private static final long INVALID_SPAN_ID = 0L;
   private static final long INVALID_TRACE_MASK = 0L;
+
+  @VisibleForTesting
   static final CloudTraceContext INVALID_CLOUD_TRACE_CONTEXT =
       new CloudTraceContext(INVALID_TRACE_ID, INVALID_SPAN_ID, INVALID_TRACE_MASK);
 

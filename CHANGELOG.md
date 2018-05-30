@@ -7,7 +7,7 @@
 - Remove namespace and help message prefix for Prometheus exporter. This could be
   a breaking change if you have Prometheus metrics from OpenCensus Prometheus exporter
   of previous versions, please point to the new metrics with no namespace instead.
-- Add a util artifact `opencensus-contrib-appengine-standard-util` to interact with the AppEngine
+- Add an util artifact `opencensus-contrib-appengine-standard-util` to interact with the AppEngine
   CloudTraceContext.
 
 ## 0.13.2 - 2018-05-08
