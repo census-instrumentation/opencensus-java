@@ -17,8 +17,12 @@ sourceSets {
 }
 
 dependencies {
-    compile project(':opencensus-api'),
-            libraries.jaeger_reporter
+    compile project(':opencensus-api')
+
+    compile (libraries.jaeger_reporter) {
+        // Prefer library version.
+        exclude group: 'com.google.guava', module: 'guava'
+    }
 
     testCompile project(':opencensus-api'),
                 'org.testcontainers:testcontainers:1.7.0',

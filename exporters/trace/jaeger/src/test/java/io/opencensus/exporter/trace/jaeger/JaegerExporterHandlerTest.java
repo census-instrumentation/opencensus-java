@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.uber.jaeger.exceptions.SenderException;
 import com.uber.jaeger.senders.HttpSender;
 import com.uber.jaeger.thriftjava.Log;
 import com.uber.jaeger.thriftjava.Process;
@@ -45,7 +46,6 @@ import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.export.SpanData;
 import java.util.List;
-import org.apache.thrift.TException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -63,7 +63,7 @@ public class JaegerExporterHandlerTest {
   @Captor private ArgumentCaptor<List<Span>> captor;
 
   @Test
-  public void exportShouldConvertFromSpanDataToJaegerThriftSpan() throws TException {
+  public void exportShouldConvertFromSpanDataToJaegerThriftSpan() throws SenderException {
     final long startTime = 1519629870001L;
     final long endTime = 1519630148002L;
     final SpanData spanData =
