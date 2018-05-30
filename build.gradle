@@ -368,6 +368,7 @@ subprojects {
     uploadArchives.onlyIf {
         name in ['opencensus-api',
                  'opencensus-contrib-agent',
+                 'opencensus-contrib-appengine-standard-util',
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
@@ -406,7 +407,7 @@ subprojects {
                     compile.options.compilerArgs += [
                         '-Xmaxerrs', '10000',
                         "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
-                        "-AskipDefs=\\.AutoValue_",
+                        "-AskipDefs=[\\.AutoValue_|\\.TraceIdProto]",
                         "-AinvariantArrays"
                     ]
                     options.fork = true

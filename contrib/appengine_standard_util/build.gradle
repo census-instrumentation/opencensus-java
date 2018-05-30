@@ -22,6 +22,7 @@ buildscript {
 dependencies {
     compile project(':opencensus-api'),
             libraries.appengine_api,
+            libraries.guava,
             libraries.protobuf
 
     signature "org.codehaus.mojo.signature:java18:+@signature"

@@ -16,6 +16,8 @@
 
 package io.opencensus.contrib.appengine.standard.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.apphosting.api.CloudTraceContext;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -42,11 +44,10 @@ public final class AppEngineCloudTraceContextUtils {
    *
    * @param cloudTraceContext the AppEngine {@code CloudTraceContext}.
    * @return the converted {@code SpanContext}.
+   * @since 0.14
    */
   public static SpanContext fromCloudTraceContext(CloudTraceContext cloudTraceContext) {
-    if (cloudTraceContext == null) {
-      return SpanContext.INVALID;
-    }
+    checkNotNull(cloudTraceContext, "cloudTraceContext");
 
     try {
       // Extract the trace ID from the binary protobuf CloudTraceContext#traceId.
@@ -71,11 +72,10 @@ public final class AppEngineCloudTraceContextUtils {
    *
    * @param spanContext the {@code SpanContext}.
    * @return the converted AppEngine {@code CloudTraceContext}.
+   * @since 0.14
    */
   public static CloudTraceContext toCloudTraceContext(SpanContext spanContext) {
-    if (spanContext == null) {
-      return INVALID_CLOUD_TRACE_CONTEXT;
-    }
+    checkNotNull(spanContext, "spanContext");
 
     ByteBuffer traceIdBuf = ByteBuffer.wrap(spanContext.getTraceId().getBytes());
     TraceIdProto traceIdProto =

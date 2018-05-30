@@ -107,7 +107,7 @@ public class AppEngineCloudTraceContextUtilsTest {
               (byte) 0x72
             },
             Long.MIN_VALUE,
-            // Trace enabled.
+            // Trace disabled.
             0L);
 
     SpanContext spanContext =
@@ -128,10 +128,9 @@ public class AppEngineCloudTraceContextUtilsTest {
         .isTrue();
   }
 
-  @Test
+  @Test(expected = NullPointerException.class)
   public void toCloudTraceContext_Null() {
-    assertThat(AppEngineCloudTraceContextUtils.fromCloudTraceContext(null))
-        .isEqualTo(SpanContext.INVALID);
+    AppEngineCloudTraceContextUtils.fromCloudTraceContext(null);
   }
 
   @Test
@@ -140,13 +139,9 @@ public class AppEngineCloudTraceContextUtilsTest {
         .isEqualTo(SpanContext.INVALID);
   }
 
-  @Test
+  @Test(expected = NullPointerException.class)
   public void fromCloudTraceContext_Null() {
-    assertThat(
-            cloudTraceContextEquals(
-                AppEngineCloudTraceContextUtils.toCloudTraceContext(null),
-                INVALID_CLOUD_TRACE_CONTEXT))
-        .isTrue();
+    AppEngineCloudTraceContextUtils.toCloudTraceContext(null);
   }
 
   @Test
