@@ -157,4 +157,12 @@ Stackdriver exporter adds a new `Metric` label for each custom `Metric` to ensur
 of the `Timeseries`. The format of the label is: `{LANGUAGE}-{PID}@{HOSTNAME}`, if `{PID}` is not
 available a random number will be used.
 
+### Why did I get an error "java.lang.NoSuchMethodError: com.google.common.base.Throwables.throwIfInstanceOf"?
+`com.google.common.base.Throwables.throwIfInstanceOf` is introduced to Guava 20.0. If your application
+has a dependency that bundles a Guava with version 19.0 or below (for example, gRPC 1.10.0), it
+might cause a `NoSuchMethodError` since `com.google.common.base.Throwables.throwIfInstanceOf` doesn't
+exist before Guava 20.0. In this case, please either add an explicit dependency on Guava 20.0 or
+above, or if possible, upgrade the dependency that depends on Guava to a newer version that depends
+on Guava 20.0 (for example, upgrade to gRPC 0.12.0).
+
 [stackdriver-monitoring]: https://cloud.google.com/monitoring/
