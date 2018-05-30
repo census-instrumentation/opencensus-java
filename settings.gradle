@@ -27,7 +27,7 @@ project(':opencensus-impl').projectDir = "$rootDir/impl" as File
 project(':opencensus-testing').projectDir = "$rootDir/testing" as File
 project(':opencensus-contrib-agent').projectDir = "$rootDir/contrib/agent" as File
 project(':opencensus-contrib-appengine-standard-util').projectDir =
-        "$rootDir/contrib/appengine-standard-util" as File
+        "$rootDir/contrib/appengine_standard_util" as File
 project(':opencensus-contrib-grpc-metrics').projectDir = "$rootDir/contrib/grpc_metrics" as File
 project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_util" as File
 project(':opencensus-contrib-http-util').projectDir = "$rootDir/contrib/http_util" as File

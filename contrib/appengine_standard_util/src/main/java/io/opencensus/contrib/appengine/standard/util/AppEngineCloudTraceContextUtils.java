@@ -29,11 +29,13 @@ import java.nio.ByteBuffer;
  *
  * @since 0.14
  */
-public final class AppEngineCloudTraceContextUtil {
+public final class AppEngineCloudTraceContextUtils {
   private static final byte[] INVALID_TRACE_ID =
       TraceIdProto.newBuilder().setHi(0).setLo(0).build().toByteArray();
   private static final long INVALID_SPAN_ID = 0L;
   private static final long INVALID_TRACE_MASK = 0L;
+  static final CloudTraceContext INVALID_CLOUD_TRACE_CONTEXT =
+      new CloudTraceContext(INVALID_TRACE_ID, INVALID_SPAN_ID, INVALID_TRACE_MASK);
 
   /**
    * Converts AppEngine {@code CloudTraceContext} to {@code SpanContext}.
@@ -41,7 +43,7 @@ public final class AppEngineCloudTraceContextUtil {
    * @param cloudTraceContext the AppEngine {@code CloudTraceContext}.
    * @return the converted {@code SpanContext}.
    */
-  public static SpanContext toSpanContext(CloudTraceContext cloudTraceContext) {
+  public static SpanContext fromCloudTraceContext(CloudTraceContext cloudTraceContext) {
     if (cloudTraceContext == null) {
       return SpanContext.INVALID;
     }
@@ -72,7 +74,7 @@ public final class AppEngineCloudTraceContextUtil {
    */
   public static CloudTraceContext toCloudTraceContext(SpanContext spanContext) {
     if (spanContext == null) {
-      return new CloudTraceContext(INVALID_TRACE_ID, INVALID_SPAN_ID, INVALID_TRACE_MASK);
+      return INVALID_CLOUD_TRACE_CONTEXT;
     }
 
     ByteBuffer traceIdBuf = ByteBuffer.wrap(spanContext.getTraceId().getBytes());
@@ -86,5 +88,5 @@ public final class AppEngineCloudTraceContextUtil {
         spanContext.getTraceOptions().isSampled() ? 1L : 0L);
   }
 
-  private AppEngineCloudTraceContextUtil() {}
+  private AppEngineCloudTraceContextUtils() {}
 }
