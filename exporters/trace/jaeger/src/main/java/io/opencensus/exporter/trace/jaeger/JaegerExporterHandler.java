@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import com.google.errorprone.annotations.MustBeClosed;
+import com.uber.jaeger.exceptions.SenderException;
 import com.uber.jaeger.senders.HttpSender;
 import com.uber.jaeger.thriftjava.Log;
 import com.uber.jaeger.thriftjava.Process;
@@ -57,7 +58,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.apache.thrift.TException;
 
 @NotThreadSafe
 final class JaegerExporterHandler extends SpanExporter.Handler {
@@ -139,7 +139,7 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     final Scope exportScope = newExportScope();
     try {
       doExport(spanDataList);
-    } catch (TException e) {
+    } catch (SenderException e) {
       tracer
           .getCurrentSpan() // exportScope above.
           .setStatus(Status.UNKNOWN.withDescription(getMessageOrDefault(e)));
@@ -157,12 +157,12 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     return tracer.spanBuilder(EXPORT_SPAN_NAME).setSampler(lowProbabilitySampler).startScopedSpan();
   }
 
-  private void doExport(final Collection<SpanData> spanDataList) throws TException {
+  private void doExport(final Collection<SpanData> spanDataList) throws SenderException {
     final List<Span> spans = spanDataToJaegerThriftSpans(spanDataList);
     sender.send(process, spans);
   }
 
-  private static String getMessageOrDefault(final TException e) {
+  private static String getMessageOrDefault(final SenderException e) {
     return e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
   }
 
