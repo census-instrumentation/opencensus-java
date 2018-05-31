@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.opencensus.common.Internal;
 
 /**
  * The {@code Settings} class provides access to user-configurable settings.
@@ -35,11 +36,8 @@ public class Settings {
 
   private final Config config;
 
-  /**
-   * Creates agent settings.
-   *
-   * @since 0.10
-   */
+  /** Creates agent settings. */
+  @Internal
   @VisibleForTesting
   public Settings(Config config) {
     this.config = checkNotNull(config);
