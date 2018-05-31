@@ -394,7 +394,7 @@ public final class Status {
    * @since 0.5
    */
   public Status withDescription(@Nullable String description) {
-    if (Objects.equal(this.description, description)) {
+    if (Utils.equalsObjects(this.description, description)) {
       return this;
     }
     return new Status(this.canonicalCode, description);

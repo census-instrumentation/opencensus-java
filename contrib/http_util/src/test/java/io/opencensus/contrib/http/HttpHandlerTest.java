@@ -26,6 +26,7 @@ import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
+import io.opencensus.trace.propagation.TextFormat;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,6 +46,7 @@ public class HttpHandlerTest {
   @Mock private Tracer tracer;
   @Mock private HttpExtractor<Object, Object> extractor;
   @Mock private HttpSpanCustomizer<Object, Object> customizer;
+  @Mock private TextFormat textFormat;
   private HttpHandler<Object, Object> handler;
 
   private final Object response = new Object();
@@ -56,7 +58,31 @@ public class HttpHandlerTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    handler = new HttpHandler<Object, Object>(tracer, extractor, customizer) {};
+    handler = new HttpHandler<Object, Object>(tracer, extractor, customizer, textFormat) {};
+  }
+
+  @Test
+  public void constructorDisallowNullTracer() {
+    thrown.expect(NullPointerException.class);
+    new HttpHandler<Object, Object>(null, extractor, customizer, textFormat) {};
+  }
+
+  @Test
+  public void constructorDisallowNullExtractor() {
+    thrown.expect(NullPointerException.class);
+    new HttpHandler<Object, Object>(tracer, null, customizer, textFormat) {};
+  }
+
+  @Test
+  public void constructorDisallowNullCustomizer() {
+    thrown.expect(NullPointerException.class);
+    new HttpHandler<Object, Object>(tracer, extractor, null, textFormat) {};
+  }
+
+  @Test
+  public void constructorDisallowNullTextFormat() {
+    thrown.expect(NullPointerException.class);
+    new HttpHandler<Object, Object>(tracer, extractor, customizer, null) {};
   }
 
   @Test

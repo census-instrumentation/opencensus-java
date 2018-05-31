@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.http.util;
 
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.Status;
 import javax.annotation.Nullable;
 
@@ -24,6 +25,7 @@ import javax.annotation.Nullable;
  *
  * @since 0.13.0
  */
+@ExperimentalApi
 public final class HttpTraceUtil {
 
   private HttpTraceUtil() {}

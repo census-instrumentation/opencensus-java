@@ -84,51 +84,6 @@ HttpExtractor<HttpRequest, HttpResponse> extractor =
     };
 ```
 
-### customization for span behaviors
-
-Users can implement `HttpSpanCustomizer` to customize how spans are created and what operations
-need to be done upon starting and ending of the span. This class also provides a default mapping
-from HTTP status code to OpenCensus span Status, and users can override to use their own parsing logic.
-
-Users can enable context propagation by specifying a valid `TextFormat`, which is used for
-context serialization/deserialization.
-
-Below is an example of how the customization for span behaviors should be done:
-
-```java
-// Use B3Format for propagation. You can also use other formats provided in
-// HttpPropagationUtil.
-TextFormat myTextFormat = Tracing.getPropagationComponent().getB3Format();
-HttpSpanCustomizer<HttpRequest, HttpResponse> customizer =
-    new HttpSpanCustomizer<HttpRequest, HttpResponse> {
-      @Override
-      public String getSpanName(
-          HttpRequest request,
-          HttpExtractor<HttpRequest, HttpResponse> extractor) {
-        // user-defined span name
-        return extractor.getPath() + " " + extractor.getMethod(request);
-      }
-
-      @Override
-      public SpanBuilder customizeSpanBuilder(
-          HttpRequest request,
-          SpanBuilder spanBuilder,
-          HttpExtractor<HttpRequest, HttpResponse> extractor) {
-        // do not sample API for heartbeat.
-        if ("/heartbeat".equals(extractor.getPath())) {
-          spanBuilder.setSampler(Samplers.neverSample());
-        }
-        // always record spans locally.
-        spanBuilder.setRecordEvents(true);
-      }
-
-      // other methods that need to be overridden.
-      // ...
-    };
-// The OpenCensus tracer. You can mock it for testing.
-Tracer tracer = Tracing.getTracer();
-```
-
 ### client
 
 Users can create a `HttpClientHandler` to help instrument client-side HTTP request/response.
@@ -136,11 +91,13 @@ Users can create a `HttpClientHandler` to help instrument client-side HTTP reque
 An example usage of the handler would be:
 
 ```java
-HttpClientHandler<HttpRequest, HttpResponse> handler =
-    new HttpClientHandler<HttpRequest, HttpResponse>(tracer, extractor, customizer);
+HttpClientHandler<HttpRequest, HttpResponse, HttpRequest> handler =
+    new HttpClientHandler<HttpRequest, HttpResponse>(
+        tracer, extractor, customizer, myTextFormat, myTextFormatSetter);
 
 // Use #handleStart in client to start a new span.
-Span span = handler.handleStart(myTextFormat, myTextFormatSetter, request, request);
+// Use `null` if you want to use current Span as the parent Span.
+Span span = handler.handleStart(null, request, request);
 HttpResponse response = null;
 Throwable error = null;
 try {
@@ -168,10 +125,11 @@ An example usage of the handler would be:
 
 ```java
 HttpServerHandler<HttpRequest, HttpResponse> handler =
-    new HttpServerHandler<HttpRequest, HttpResponse>(tracer, extractor, customizer);
+    new HttpServerHandler<HttpRequest, HttpResponse, HttpRequest>(
+        tracer, extractor, customizer, myTextFormat, myTextFormatGetter);
 
 // Use #handleStart in server to start a new span.
-Span span = handler.handleStart(myTextFormat, myTextFormatGetter, request, request);
+Span span = handler.handleStart(request, request);
 HttpResponse response = constructResponse();
 Throwable error = null;
 try (Scope scope = tracer.withSpan(span)) {

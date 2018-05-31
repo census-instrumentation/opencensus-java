@@ -18,11 +18,12 @@ package io.opencensus.contrib.http;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.trace.Annotation;
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Tracer;
+import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
 
 /**
@@ -30,9 +31,13 @@ import io.opencensus.trace.propagation.TextFormat;
  *
  * @param <Q> the HTTP request entity.
  * @param <P> the HTTP response entity.
+ * @param <C> the type of the carrier.
  * @since 0.13
  */
-public class HttpServerHandler<Q, P> extends HttpHandler<Q, P> {
+@ExperimentalApi
+public class HttpServerHandler<Q, P, C> extends HttpHandler<Q, P> {
+
+  private final TextFormat.Getter<C> getter;
 
   /**
    * Creates a {@link HttpServerHandler} with given parameters.
@@ -41,11 +46,19 @@ public class HttpServerHandler<Q, P> extends HttpHandler<Q, P> {
    * @param extractor the {@code HttpExtractor} used to extract information from the
    *     request/response.
    * @param customizer the {@link HttpSpanCustomizer} used to customize span behaviors.
+   * @param textFormat the {@code TextFormat} used in HTTP propagation.
+   * @param getter the getter used when extracting information from the {@code carrier}.
    * @since 0.13
    */
   public HttpServerHandler(
-      Tracer tracer, HttpExtractor<Q, P> extractor, HttpSpanCustomizer<Q, P> customizer) {
-    super(tracer, extractor, customizer);
+      Tracer tracer,
+      HttpExtractor<Q, P> extractor,
+      HttpSpanCustomizer<Q, P> customizer,
+      TextFormat textFormat,
+      TextFormat.Getter<C> getter) {
+    super(tracer, extractor, customizer, textFormat);
+    checkNotNull(getter, "getter");
+    this.getter = getter;
   }
 
   /**
@@ -61,18 +74,12 @@ public class HttpServerHandler<Q, P> extends HttpHandler<Q, P> {
    * <p>The generated span will NOT be set as current context. User can use the returned value to
    * control when to enter the scope of this span.
    *
-   * @param <C> the type of the carrier
-   * @param textFormat the {@code TextFormat} used in HTTP propagation.
-   * @param getter the getter used when extracting information from the {@code carrier}.
    * @param carrier the entity that holds the HTTP information.
    * @param request the request entity.
    * @return a span that represents the response handling process.
    * @since 0.13
    */
-  public <C> Span handleStart(
-      TextFormat textFormat, TextFormat.Getter<C> getter, C carrier, Q request) {
-    checkNotNull(textFormat, "textFormat");
-    checkNotNull(getter, "getter");
+  public Span handleStart(C carrier, Q request) {
     checkNotNull(carrier, "carrier");
     checkNotNull(request, "request");
     SpanBuilder spanBuilder = null;
@@ -82,18 +89,16 @@ public class HttpServerHandler<Q, P> extends HttpHandler<Q, P> {
     try {
       SpanContext spanContext = textFormat.extract(carrier, getter);
       spanBuilder = tracer.spanBuilderWithRemoteParent(spanName, spanContext);
-    } catch (Exception e) {
-      // record this exception
+    } catch (SpanContextParseException e) {
+      // TODO: Currently we cannot distinguish between context parse error and missing context.
+      // Logging would be annoying so we just ignore this error and do not even log a message.
+      // TODO: If we expose HttpSpanCustomizer to user in the future, we might consider checking
+      // the nullness of the spanName.
       spanBuilder = tracer.spanBuilder(spanName);
-      parseError = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
     }
 
     customizer.customizeSpanBuilder(request, spanBuilder, extractor);
     Span span = spanBuilder.startSpan();
-    // log an annotation to indicate the error
-    if (parseError != null) {
-      span.addAnnotation(Annotation.fromDescription("Error parsing span context: " + parseError));
-    }
     // user-defined behaviors
     customizer.customizeSpanStart(request, span, extractor);
     return span;

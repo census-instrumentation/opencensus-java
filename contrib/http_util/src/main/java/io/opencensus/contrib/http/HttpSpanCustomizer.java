@@ -16,7 +16,9 @@
 
 package io.opencensus.contrib.http;
 
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.contrib.http.util.HttpTraceUtil;
+import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import javax.annotation.Nullable;
@@ -34,7 +36,8 @@ import javax.annotation.Nullable;
  * @param <P> the HTTP response entity.
  * @since 0.13
  */
-public class HttpSpanCustomizer<Q, P> {
+@ExperimentalApi
+class HttpSpanCustomizer<Q, P> {
 
   /**
    * Returns customized span name according to the request.
@@ -47,7 +50,14 @@ public class HttpSpanCustomizer<Q, P> {
    */
   public String getSpanName(Q request, HttpExtractor<Q, P> extractor) {
     // default span name
-    return "/" + extractor.getPath(request);
+    String path = extractor.getPath(request);
+    if (path == null) {
+      path = "/";
+    }
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
+    return path;
   }
 
   /**
@@ -66,6 +76,12 @@ public class HttpSpanCustomizer<Q, P> {
     // do nothing by default.
   }
 
+  private static void putAttributeIfNotEmptyOrNull(Span span, String key, @Nullable String value) {
+    if (value != null && !value.isEmpty()) {
+      span.putAttribute(key, AttributeValue.stringAttributeValue(value));
+    }
+  }
+
   /**
    * Customize the span after it is started, but before sending (for client) or receiving (for
    * server) the message.
@@ -78,7 +94,10 @@ public class HttpSpanCustomizer<Q, P> {
    * @since 0.13
    */
   public void customizeSpanStart(Q request, Span span, HttpExtractor<Q, P> extractor) {
-    // do nothing by default.
+    putAttributeIfNotEmptyOrNull(span, "http.user_agent", extractor.getUserAgent(request));
+    putAttributeIfNotEmptyOrNull(span, "http.host", extractor.getHost(request));
+    putAttributeIfNotEmptyOrNull(span, "http.method", extractor.getMethod(request));
+    putAttributeIfNotEmptyOrNull(span, "http.path", extractor.getPath(request));
   }
 
   /**
@@ -96,6 +115,8 @@ public class HttpSpanCustomizer<Q, P> {
   public void customizeSpanEnd(
       @Nullable P response, @Nullable Throwable error, Span span, HttpExtractor<Q, P> extractor) {
     // set the status by default.
-    span.setStatus(HttpTraceUtil.parseResponseStatus(extractor.getStatusCode(response), error));
+    int statusCode = extractor.getStatusCode(response);
+    span.putAttribute("http.status_code", AttributeValue.longAttributeValue(statusCode));
+    span.setStatus(HttpTraceUtil.parseResponseStatus(statusCode, error));
   }
 }

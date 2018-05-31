@@ -19,10 +19,12 @@ package io.opencensus.contrib.http;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
+import io.opencensus.trace.propagation.TextFormat;
 import javax.annotation.Nullable;
 
 /**
@@ -32,6 +34,7 @@ import javax.annotation.Nullable;
  * @param <P> the HTTP response entity.
  * @since 0.13
  */
+@ExperimentalApi
 public abstract class HttpHandler<Q, P> {
 
   /** The Open Census tracing component. */
@@ -40,17 +43,26 @@ public abstract class HttpHandler<Q, P> {
   /** The {@link HttpExtractor} used to extract information from request/response. */
   @VisibleForTesting final HttpExtractor<Q, P> extractor;
 
-  /** The {@link HttpSpanCustomizer} used to customize span behaviors. * */
+  /** The {@link HttpSpanCustomizer} used to customize span behaviors. */
   @VisibleForTesting final HttpSpanCustomizer<Q, P> customizer;
 
-  /** Package-protected constructor to allow access from subclasses only. */
-  HttpHandler(Tracer tracer, HttpExtractor<Q, P> extractor, HttpSpanCustomizer<Q, P> customizer) {
+  /** The {@link TextFormat} used in the HTTP propagation. */
+  @VisibleForTesting final TextFormat textFormat;
+
+  /** Constructor to allow access from same package subclasses only. */
+  HttpHandler(
+      Tracer tracer,
+      HttpExtractor<Q, P> extractor,
+      HttpSpanCustomizer<Q, P> customizer,
+      TextFormat textFormat) {
     checkNotNull(tracer, "tracer");
     checkNotNull(extractor, "extractor");
     checkNotNull(customizer, "customizer");
+    checkNotNull(textFormat, "textFormat");
     this.tracer = tracer;
     this.extractor = extractor;
     this.customizer = customizer;
+    this.textFormat = textFormat;
   }
 
   /**

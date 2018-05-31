@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 
 import io.opencensus.common.Scope;
 import io.opencensus.contrib.http.testing.FakeSpan;
-import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -56,7 +55,7 @@ public class HttpClientHandlerTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private HttpClientHandler<Object, Object> handler;
+  private HttpClientHandler<Object, Object, Object> handler;
 
   private final Random random = new Random();
   private final SpanContext spanContext =
@@ -65,58 +64,68 @@ public class HttpClientHandlerTest {
   private final Object request = new Object();
   private final Object carrier = new Object();
   // TODO(hailongwen): use MockableSpan
-  @Spy private FakeSpan span = new FakeSpan(spanContext);
+  @Spy private FakeSpan parentSpan = new FakeSpan(spanContext);
+  private FakeSpan childSpan = new FakeSpan(parentSpan.getContext());
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    handler = new HttpClientHandler<Object, Object>(tracer, extractor, customizer);
-    when(tracer.spanBuilderWithExplicitParent(any(String.class), any(Span.class)))
+    handler =
+        new HttpClientHandler<Object, Object, Object>(
+            tracer, extractor, customizer, textFormat, textFormatSetter);
+    when(tracer.spanBuilderWithExplicitParent(any(String.class), same(parentSpan)))
         .thenReturn(spanBuilder);
-    when(spanBuilder.startSpan()).thenReturn(span);
+    when(spanBuilder.startSpan()).thenReturn(childSpan);
     doCallRealMethod()
         .when(customizer)
         .customizeSpanBuilder(same(request), same(spanBuilder), same(extractor));
   }
 
   @Test
-  public void handleStartDisallowNullSetter() {
+  public void constructorDisallowNullTextFormatSetter() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(textFormat, /*setter=*/ null, carrier, request);
+    new HttpClientHandler<Object, Object, Object>(tracer, extractor, customizer, textFormat, null);
   }
 
   @Test
   public void handleStartWithoutSpanDisallowNullCarrier() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(textFormat, textFormatSetter, /*carrier=*/ null, request);
+    handler.handleStart(parentSpan, /*carrier=*/ null, request);
   }
 
   @Test
   public void handleStartDisallowNullRequest() {
     thrown.expect(NullPointerException.class);
-    handler.<Object>handleStart(textFormat, textFormatSetter, carrier, /*request=*/ null);
+    handler.handleStart(parentSpan, carrier, /*request=*/ null);
   }
 
   @Test
   public void handleStartShouldCreateChildSpanInCurrentContext() {
-    Scope scope = tracer.withSpan(span);
+    Scope scope = tracer.withSpan(parentSpan);
     try {
-      handler.<Object>handleStart(textFormat, textFormatSetter, carrier, request);
-      verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(span));
+      handler.handleStart(null, carrier, request);
+      verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
     } finally {
       scope.close();
     }
   }
 
   @Test
+  public void handleStartCreateChildSpanInSpecifiedContext() {
+    // without scope
+    handler.handleStart(parentSpan, carrier, request);
+    verify(tracer).spanBuilderWithExplicitParent(any(String.class), same(parentSpan));
+  }
+
+  @Test
   public void handleStartShouldInjectCarrier() {
-    handler.<Object>handleStart(textFormat, textFormatSetter, carrier, request);
+    handler.handleStart(parentSpan, carrier, request);
     verify(textFormat).inject(same(spanContext), same(carrier), same(textFormatSetter));
   }
 
   @Test
   public void handleStartShouldInvokeCustomizer() {
-    handler.<Object>handleStart(textFormat, textFormatSetter, carrier, request);
-    verify(customizer).customizeSpanStart(same(request), same(span), same(extractor));
+    handler.handleStart(parentSpan, carrier, request);
+    verify(customizer).customizeSpanStart(same(request), same(childSpan), same(extractor));
   }
 }

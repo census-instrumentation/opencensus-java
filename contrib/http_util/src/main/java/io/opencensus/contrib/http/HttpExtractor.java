@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.http;
 
+import io.opencensus.common.ExperimentalApi;
 import javax.annotation.Nullable;
 
 /**
@@ -31,7 +32,8 @@ import javax.annotation.Nullable;
  * @param <P> the HTTP response entity.
  * @since 0.13
  */
-public class HttpExtractor<Q, P> {
+@ExperimentalApi
+public abstract class HttpExtractor<Q, P> {
 
   /**
    * Returns the request URL host.
@@ -40,9 +42,8 @@ public class HttpExtractor<Q, P> {
    * @return the request URL host.
    * @since 0.13
    */
-  public String getHost(Q request) {
-    return "host";
-  }
+  @Nullable
+  public abstract String getHost(Q request);
 
   /**
    * Returns the request method.
@@ -51,9 +52,8 @@ public class HttpExtractor<Q, P> {
    * @return the request method.
    * @since 0.13
    */
-  public String getMethod(Q request) {
-    return "method";
-  }
+  @Nullable
+  public abstract String getMethod(Q request);
 
   /**
    * Returns the request URL path.
@@ -62,9 +62,8 @@ public class HttpExtractor<Q, P> {
    * @return the request URL path.
    * @since 0.13
    */
-  public String getPath(Q request) {
-    return "path";
-  }
+  @Nullable
+  public abstract String getPath(Q request);
 
   /**
    * Returns the request user agent.
@@ -73,9 +72,8 @@ public class HttpExtractor<Q, P> {
    * @return the request user agent.
    * @since 0.13
    */
-  public String getUserAgent(Q request) {
-    return "userAgent";
-  }
+  @Nullable
+  public abstract String getUserAgent(Q request);
 
   /**
    * Returns the response status code. If the response is null, this method should return {@code 0}.
@@ -84,7 +82,5 @@ public class HttpExtractor<Q, P> {
    * @return the response status code.
    * @since 0.13
    */
-  public int getStatusCode(@Nullable P response) {
-    return 0;
-  }
+  public abstract int getStatusCode(@Nullable P response);
 }
