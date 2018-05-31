@@ -167,6 +167,6 @@ If your application has a dependency that bundles a Guava with version 19.0 or b
 
 In this case, please either add an explicit dependency on a newer version of Guava that has the 
 new method (20.0 in the previous example), or if possible, upgrade the dependency that depends on 
-Guava to a newer version that depends on the newer Guava (for example, upgrade to gRPC 0.12.0).
+Guava to a newer version that depends on the newer Guava (for example, upgrade to gRPC 1.12.0).
 
 [stackdriver-monitoring]: https://cloud.google.com/monitoring/
