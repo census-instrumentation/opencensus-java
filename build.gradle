@@ -154,14 +154,14 @@ subprojects {
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
         errorProneVersion = '2.2.0'
-        grpcVersion = '1.10.0'
+        grpcVersion = '1.12.0'
         guavaVersion = '20.0'
-        googleAuthVersion = '0.9.0'
-        googleCloudVersion = '0.34.0-beta'
+        googleAuthVersion = '0.9.1'
+        googleCloudVersion = '0.49.0-beta'
         signalfxVersion = '0.0.39'
-        prometheusVersion = '0.2.0'
+        prometheusVersion = '0.4.0'
         zipkinReporterVersion = '2.3.2'
-        jaegerReporterVersion = '0.24.0'
+        jaegerReporterVersion = '0.27.0'
 
         libraries = [
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
@@ -198,7 +198,8 @@ subprojects {
             // care for artifacts used as libraries by others.
             if (!(project.name in ['benchmarks', 'opencensus-all',
                                    'opencensus-exporter-stats-stackdriver',
-                                   'opencensus-exporter-trace-stackdriver'])) {
+                                   'opencensus-exporter-trace-stackdriver',
+                                   'opencensus-exporter-trace-jaeger'])) {
                 resolutionStrategy.failOnVersionConflict()
             }
         }

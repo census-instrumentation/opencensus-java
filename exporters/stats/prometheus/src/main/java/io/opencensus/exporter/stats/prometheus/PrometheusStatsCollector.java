@@ -28,10 +28,12 @@ import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.samplers.Samplers;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import java.util.List;
@@ -48,6 +50,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
 
   private static final Logger logger = Logger.getLogger(PrometheusStatsCollector.class.getName());
   private static final Tracer tracer = Tracing.getTracer();
+  private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
 
   private final ViewManager viewManager;
 
@@ -91,7 +94,12 @@ public final class PrometheusStatsCollector extends Collector implements Collect
   @Override
   public List<MetricFamilySamples> collect() {
     List<MetricFamilySamples> samples = Lists.newArrayList();
-    Span span = tracer.spanBuilder("ExportStatsToPrometheus").setRecordEvents(true).startSpan();
+    Span span =
+        tracer
+            .spanBuilder("ExportStatsToPrometheus")
+            .setSampler(probabilitySampler)
+            .setRecordEvents(true)
+            .startSpan();
     span.addAnnotation("Collect Prometheus Metric Samples.");
     try (Scope scope = tracer.withSpan(span)) {
       for (View view : viewManager.getAllExportedViews()) {
@@ -126,7 +134,11 @@ public final class PrometheusStatsCollector extends Collector implements Collect
   public List<MetricFamilySamples> describe() {
     List<MetricFamilySamples> samples = Lists.newArrayList();
     Span span =
-        tracer.spanBuilder("DescribeMetricsForPrometheus").setRecordEvents(true).startSpan();
+        tracer
+            .spanBuilder("DescribeMetricsForPrometheus")
+            .setSampler(probabilitySampler)
+            .setRecordEvents(true)
+            .startSpan();
     span.addAnnotation("Describe Prometheus Metrics.");
     try (Scope scope = tracer.withSpan(span)) {
       for (View view : viewManager.getAllExportedViews()) {

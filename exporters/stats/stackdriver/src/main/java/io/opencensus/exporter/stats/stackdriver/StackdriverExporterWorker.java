@@ -31,10 +31,12 @@ import io.opencensus.common.Scope;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.samplers.Samplers;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +74,7 @@ final class StackdriverExporterWorker implements Runnable {
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   private static final Tracer tracer = Tracing.getTracer();
+  private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
 
   StackdriverExporterWorker(
       String projectId,
@@ -204,6 +207,7 @@ final class StackdriverExporterWorker implements Runnable {
           tracer
               .spanBuilder("ExportStatsToStackdriverMonitoring")
               .setRecordEvents(true)
+              .setSampler(probabilitySampler)
               .startSpan();
       try (Scope scope = tracer.withSpan(span)) {
         export();
