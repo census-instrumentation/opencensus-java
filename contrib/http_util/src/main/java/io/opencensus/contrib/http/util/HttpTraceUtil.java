@@ -64,29 +64,60 @@ public final class HttpTraceUtil {
       } else {
         // error code, try parse it
         switch (statusCode) {
-          case 499:
-            return Status.CANCELLED.withDescription(message);
-          case 500:
-            return Status.INTERNAL.withDescription(message); // Can also be UNKNOWN, DATA_LOSS
+          case 100:
+            return Status.UNKNOWN.withDescription("Continue");
+          case 101:
+            return Status.UNKNOWN.withDescription("Switching Protocols");
           case 400:
-            return Status.INVALID_ARGUMENT.withDescription(
-                message); // Can also be FAILED_PRECONDITION, OUT_OF_RANGE
-          case 504:
-            return Status.DEADLINE_EXCEEDED.withDescription(message);
-          case 404:
-            return Status.NOT_FOUND.withDescription(message);
-          case 409:
-            return Status.ALREADY_EXISTS.withDescription(message); // Can also be ABORTED
-          case 403:
-            return Status.PERMISSION_DENIED.withDescription(message);
+            return Status.INVALID_ARGUMENT.withDescription(message);
           case 401:
             return Status.UNAUTHENTICATED.withDescription(message);
+          case 402:
+            return Status.UNKNOWN.withDescription("Payment Required");
+          case 403:
+            return Status.PERMISSION_DENIED.withDescription(message);
+          case 404:
+            return Status.NOT_FOUND.withDescription(message);
+          case 405:
+            return Status.UNKNOWN.withDescription("Method Not Allowed");
+          case 406:
+            return Status.UNKNOWN.withDescription("Not Acceptable");
+          case 407:
+            return Status.UNKNOWN.withDescription("Proxy Authentication Required");
+          case 408:
+            return Status.UNKNOWN.withDescription("Request Time-out");
+          case 409:
+            return Status.UNKNOWN.withDescription("Conflict");
+          case 410:
+            return Status.UNKNOWN.withDescription("Gone");
+          case 411:
+            return Status.UNKNOWN.withDescription("Length Required");
+          case 412:
+            return Status.UNKNOWN.withDescription("Precondition Failed");
+          case 413:
+            return Status.UNKNOWN.withDescription("Request Entity Too Large");
+          case 414:
+            return Status.UNKNOWN.withDescription("Request-URI Too Large");
+          case 415:
+            return Status.UNKNOWN.withDescription("Unsupported Media Type");
+          case 416:
+            return Status.UNKNOWN.withDescription("Requested range not satisfiable");
+          case 417:
+            return Status.UNKNOWN.withDescription("Expectation Failed");
           case 429:
             return Status.RESOURCE_EXHAUSTED.withDescription(message);
+          case 500:
+            return Status.UNKNOWN.withDescription("Internal Server Error");
           case 501:
             return Status.UNIMPLEMENTED.withDescription(message);
+          case 502:
+            return Status.UNKNOWN.withDescription("Bad Gateway");
           case 503:
             return Status.UNAVAILABLE.withDescription(message);
+          case 504:
+            return Status.DEADLINE_EXCEEDED.withDescription(message);
+          case 505:
+            return Status.UNKNOWN.withDescription("HTTP Version not supported");
           default:
             return Status.UNKNOWN.withDescription(message);
         }

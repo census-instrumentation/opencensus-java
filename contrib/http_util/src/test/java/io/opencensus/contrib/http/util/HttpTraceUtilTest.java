@@ -18,7 +18,6 @@ package io.opencensus.contrib.http.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableSet;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
 import org.junit.Test;
@@ -54,75 +53,146 @@ public class HttpTraceUtilTest {
         .isEqualTo("NullPointerException");
   }
 
-  @Test
-  public void parseResponseStatusError_499() {
-    assertThat(HttpTraceUtil.parseResponseStatus(499, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.CANCELLED);
+  private static void parseResponseStatus(
+      int code, CanonicalCode expectedCanonicalCode, String expectedDesc) {
+    Status status = HttpTraceUtil.parseResponseStatus(code, null);
+    assertThat(status.getCanonicalCode()).isEqualTo(expectedCanonicalCode);
+    assertThat(status.getDescription()).isEqualTo(expectedDesc);
   }
 
   @Test
-  public void parseResponseStatusError_500() {
-    assertThat(
-            ImmutableSet.of(CanonicalCode.INTERNAL, CanonicalCode.UNKNOWN, CanonicalCode.DATA_LOSS))
-        .contains(HttpTraceUtil.parseResponseStatus(500, null).getCanonicalCode());
+  public void parseResponseStatusCode_100() {
+    parseResponseStatus(100, CanonicalCode.UNKNOWN, "Continue");
+  }
+
+  @Test
+  public void parseResponseStatusCode_101() {
+    parseResponseStatus(101, CanonicalCode.UNKNOWN, "Switching Protocols");
   }
 
   @Test
   public void parseResponseStatusError_400() {
-    assertThat(
-            ImmutableSet.of(
-                CanonicalCode.FAILED_PRECONDITION,
-                CanonicalCode.OUT_OF_RANGE,
-                CanonicalCode.INVALID_ARGUMENT))
-        .contains(HttpTraceUtil.parseResponseStatus(400, null).getCanonicalCode());
-  }
-
-  @Test
-  public void parseResponseStatusError_504() {
-    assertThat(HttpTraceUtil.parseResponseStatus(504, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.DEADLINE_EXCEEDED);
-  }
-
-  @Test
-  public void parseResponseStatusError_404() {
-    assertThat(HttpTraceUtil.parseResponseStatus(404, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.NOT_FOUND);
-  }
-
-  @Test
-  public void parseResponseStatusError_409() {
-    assertThat(ImmutableSet.of(CanonicalCode.ALREADY_EXISTS, CanonicalCode.ABORTED))
-        .contains(HttpTraceUtil.parseResponseStatus(409, null).getCanonicalCode());
-  }
-
-  @Test
-  public void parseResponseStatusError_403() {
-    assertThat(HttpTraceUtil.parseResponseStatus(403, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.PERMISSION_DENIED);
+    parseResponseStatus(400, CanonicalCode.INVALID_ARGUMENT, null);
   }
 
   @Test
   public void parseResponseStatusError_401() {
-    assertThat(HttpTraceUtil.parseResponseStatus(401, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.UNAUTHENTICATED);
+    parseResponseStatus(401, CanonicalCode.UNAUTHENTICATED, null);
+  }
+
+  @Test
+  public void parseResponseStatusError_402() {
+    parseResponseStatus(402, CanonicalCode.UNKNOWN, "Payment Required");
+  }
+
+  @Test
+  public void parseResponseStatusError_403() {
+    parseResponseStatus(403, CanonicalCode.PERMISSION_DENIED, null);
+  }
+
+  @Test
+  public void parseResponseStatusError_404() {
+    parseResponseStatus(404, CanonicalCode.NOT_FOUND, null);
+  }
+
+  @Test
+  public void parseResponseStatusError_405() {
+    parseResponseStatus(405, CanonicalCode.UNKNOWN, "Method Not Allowed");
+  }
+
+  @Test
+  public void parseResponseStatusError_406() {
+    parseResponseStatus(406, CanonicalCode.UNKNOWN, "Not Acceptable");
+  }
+
+  @Test
+  public void parseResponseStatusError_407() {
+    parseResponseStatus(407, CanonicalCode.UNKNOWN, "Proxy Authentication Required");
+  }
+
+  @Test
+  public void parseResponseStatusError_408() {
+    parseResponseStatus(408, CanonicalCode.UNKNOWN, "Request Time-out");
+  }
+
+  @Test
+  public void parseResponseStatusError_409() {
+    parseResponseStatus(409, CanonicalCode.UNKNOWN, "Conflict");
+  }
+
+  @Test
+  public void parseResponseStatusError_410() {
+    parseResponseStatus(410, CanonicalCode.UNKNOWN, "Gone");
+  }
+
+  @Test
+  public void parseResponseStatusError_411() {
+    parseResponseStatus(411, CanonicalCode.UNKNOWN, "Length Required");
+  }
+
+  @Test
+  public void parseResponseStatusError_412() {
+    parseResponseStatus(412, CanonicalCode.UNKNOWN, "Precondition Failed");
+  }
+
+  @Test
+  public void parseResponseStatusError_413() {
+    parseResponseStatus(413, CanonicalCode.UNKNOWN, "Request Entity Too Large");
+  }
+
+  @Test
+  public void parseResponseStatusError_414() {
+    parseResponseStatus(414, CanonicalCode.UNKNOWN, "Request-URI Too Large");
+  }
+
+  @Test
+  public void parseResponseStatusError_415() {
+    parseResponseStatus(415, CanonicalCode.UNKNOWN, "Unsupported Media Type");
+  }
+
+  @Test
+  public void parseResponseStatusError_416() {
+    parseResponseStatus(416, CanonicalCode.UNKNOWN, "Requested range not satisfiable");
+  }
+
+  @Test
+  public void parseResponseStatusError_417() {
+    parseResponseStatus(417, CanonicalCode.UNKNOWN, "Expectation Failed");
   }
 
   @Test
   public void parseResponseStatusError_429() {
-    assertThat(HttpTraceUtil.parseResponseStatus(429, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.RESOURCE_EXHAUSTED);
+    parseResponseStatus(429, CanonicalCode.RESOURCE_EXHAUSTED, null);
+  }
+
+  @Test
+  public void parseResponseStatusError_500() {
+    parseResponseStatus(500, CanonicalCode.UNKNOWN, "Internal Server Error");
   }
 
   @Test
   public void parseResponseStatusError_501() {
-    assertThat(HttpTraceUtil.parseResponseStatus(501, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.UNIMPLEMENTED);
+    parseResponseStatus(501, CanonicalCode.UNIMPLEMENTED, null);
+  }
+
+  @Test
+  public void parseResponseStatusError_502() {
+    parseResponseStatus(502, CanonicalCode.UNKNOWN, "Bad Gateway");
   }
 
   @Test
   public void parseResponseStatusError_503() {
-    assertThat(HttpTraceUtil.parseResponseStatus(503, null).getCanonicalCode())
-        .isEqualTo(CanonicalCode.UNAVAILABLE);
+    parseResponseStatus(503, CanonicalCode.UNAVAILABLE, null);
+  }
+
+  @Test
+  public void parseResponseStatusError_504() {
+    parseResponseStatus(504, CanonicalCode.DEADLINE_EXCEEDED, null);
+  }
+
+  @Test
+  public void parseResponseStatusError_505() {
+    parseResponseStatus(505, CanonicalCode.UNKNOWN, "HTTP Version not supported");
   }
 
   @Test
