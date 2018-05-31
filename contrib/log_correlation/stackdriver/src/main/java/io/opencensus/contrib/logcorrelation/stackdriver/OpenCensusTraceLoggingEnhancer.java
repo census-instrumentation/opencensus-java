@@ -25,7 +25,11 @@ import io.opencensus.trace.TraceId;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 
-/** Stackdriver {@link LoggingEnhancer} that adds OpenCensus tracing data to log entries. */
+/**
+ * Stackdriver {@link LoggingEnhancer} that adds OpenCensus tracing data to log entries.
+ *
+ * <p>This feature is currently experimental.
+ */
 @ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   private static final String SPAN_ID_KEY = "span_id";
