@@ -66,6 +66,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   private final StartEndHandler startEndHandler;
   // The displayed name of the span.
   private final String name;
+  // The kind of the span.
+  @Nullable private final Kind kind;
   // The clock used to get the time.
   private final Clock clock;
   // The time converter used to convert nano time to Timestamp. This is needed because Java has
@@ -132,6 +134,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       SpanContext context,
       @Nullable EnumSet<Options> options,
       String name,
+      @Nullable Kind kind,
       @Nullable SpanId parentSpanId,
       @Nullable Boolean hasRemoteParent,
       TraceParams traceParams,
@@ -143,6 +146,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
             context,
             options,
             name,
+            kind,
             parentSpanId,
             hasRemoteParent,
             traceParams,
@@ -214,6 +218,15 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   /**
+   * Returns the kind of this {@code Span}.
+   *
+   * @return the kind of this {@code Span}.
+   */
+  public Kind getKind() {
+    return kind;
+  }
+
+  /**
    * Returns the {@code TimestampConverter} used by this {@code Span}.
    *
    * @return the {@code TimestampConverter} used by this {@code Span}.
@@ -253,6 +266,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           parentSpanId,
           hasRemoteParent,
           name,
+          kind,
           CheckerFrameworkUtils.castNonNull(timestampConverter).convertNanoTime(startNanoTime),
           attributesSpanData,
           annotationsSpanData,
@@ -575,6 +589,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       SpanContext context,
       @Nullable EnumSet<Options> options,
       String name,
+      @Nullable Kind kind,
       @Nullable SpanId parentSpanId,
       @Nullable Boolean hasRemoteParent,
       TraceParams traceParams,
@@ -585,6 +600,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     this.parentSpanId = parentSpanId;
     this.hasRemoteParent = hasRemoteParent;
     this.name = name;
+    this.kind = kind;
     this.traceParams = traceParams;
     this.startEndHandler = startEndHandler;
     this.clock = clock;

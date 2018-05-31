@@ -21,6 +21,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.opencensus.common.Scope;
+import io.opencensus.trace.Span.Kind;
+import io.opencensus.trace.samplers.Samplers;
+import java.util.Collections;
 import java.util.concurrent.Callable;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,5 +90,15 @@ public class SpanBuilderTest {
         .isEqualTo(ret);
     verify(span).end(EndSpanOptions.DEFAULT);
     assertThat(tracer.getCurrentSpan()).isSameAs(BlankSpan.INSTANCE);
+  }
+
+  @Test
+  public void doNotCrash_NoopImplementation() throws Exception {
+    SpanBuilder spanBuilder = tracer.spanBuilder("MySpanName");
+    spanBuilder.setParentLinks(Collections.<Span>emptyList());
+    spanBuilder.setRecordEvents(true);
+    spanBuilder.setSampler(Samplers.alwaysSample());
+    spanBuilder.setSpanKind(Kind.SERVER);
+    assertThat(spanBuilder.startSpan()).isSameAs(BlankSpan.INSTANCE);
   }
 }
