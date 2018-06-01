@@ -147,7 +147,9 @@ public abstract class SpanBuilder {
    * @return this.
    * @since 0.14
    */
-  public abstract SpanBuilder setSpanKind(Span.Kind spanKind);
+  public SpanBuilder setSpanKind(@Nullable Span.Kind spanKind) {
+    return this;
+  }
 
   /**
    * Starts a new {@link Span}.

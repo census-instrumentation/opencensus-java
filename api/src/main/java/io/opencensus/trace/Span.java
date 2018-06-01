@@ -268,13 +268,16 @@ public abstract class Span {
    */
   public enum Kind {
     /**
-     * Indicates that the span covers server-side handling of an RPC or other remote network
-     * request.
+     * Indicates that the span covers server-side handling of an RPC or other remote request.
+     *
+     * @since 0.14
      */
     SERVER,
 
     /**
      * Indicates that the span covers the client-side wrapper around an RPC or other remote request.
+     *
+     * @since 0.14
      */
     CLIENT
   }
