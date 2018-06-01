@@ -259,4 +259,23 @@ public abstract class Span {
   public final Set<Options> getOptions() {
     return options;
   }
+
+  /**
+   * Type of span. Can be used to specify additional relationships between spans in addition to a
+   * parent/child relationship.
+   *
+   * @since 0.14
+   */
+  public enum Kind {
+    /**
+     * Indicates that the span covers server-side handling of an RPC or other remote network
+     * request.
+     */
+    SERVER,
+
+    /**
+     * Indicates that the span covers the client-side wrapper around an RPC or other remote request.
+     */
+    CLIENT
+  }
 }

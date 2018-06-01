@@ -26,6 +26,7 @@ import io.opencensus.trace.Link;
 import io.opencensus.trace.Link.Type;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -113,6 +114,7 @@ public class SpanDataTest {
             parentSpanId,
             true,
             SPAN_NAME,
+            Kind.SERVER,
             startTimestamp,
             attributes,
             annotations,
@@ -125,6 +127,7 @@ public class SpanDataTest {
     assertThat(spanData.getParentSpanId()).isEqualTo(parentSpanId);
     assertThat(spanData.getHasRemoteParent()).isTrue();
     assertThat(spanData.getName()).isEqualTo(SPAN_NAME);
+    assertThat(spanData.getKind()).isEqualTo(Kind.SERVER);
     assertThat(spanData.getStartTimestamp()).isEqualTo(startTimestamp);
     assertThat(spanData.getAttributes()).isEqualTo(attributes);
     assertThat(spanData.getAnnotations()).isEqualTo(annotations);
@@ -144,6 +147,7 @@ public class SpanDataTest {
             parentSpanId,
             true,
             SPAN_NAME,
+            null,
             startTimestamp,
             attributes,
             annotations,
@@ -175,6 +179,7 @@ public class SpanDataTest {
             null,
             null,
             SPAN_NAME,
+            null,
             startTimestamp,
             attributes,
             annotations,
@@ -206,6 +211,7 @@ public class SpanDataTest {
             parentSpanId,
             false,
             SPAN_NAME,
+            null,
             startTimestamp,
             Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
             TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
@@ -237,6 +243,7 @@ public class SpanDataTest {
             parentSpanId,
             false,
             SPAN_NAME,
+            Kind.CLIENT,
             startTimestamp,
             attributes,
             annotations,
@@ -251,6 +258,7 @@ public class SpanDataTest {
             parentSpanId,
             false,
             SPAN_NAME,
+            Kind.CLIENT,
             startTimestamp,
             attributes,
             annotations,
@@ -265,6 +273,7 @@ public class SpanDataTest {
             parentSpanId,
             false,
             SPAN_NAME,
+            null,
             startTimestamp,
             Attributes.create(Collections.<String, AttributeValue>emptyMap(), 0),
             TimedEvents.create(Collections.<SpanData.TimedEvent<Annotation>>emptyList(), 0),
@@ -287,6 +296,7 @@ public class SpanDataTest {
                 parentSpanId,
                 false,
                 SPAN_NAME,
+                Kind.CLIENT,
                 startTimestamp,
                 attributes,
                 annotations,
@@ -299,6 +309,7 @@ public class SpanDataTest {
     assertThat(spanDataString).contains(spanContext.toString());
     assertThat(spanDataString).contains(parentSpanId.toString());
     assertThat(spanDataString).contains(SPAN_NAME);
+    assertThat(spanDataString).contains(Kind.CLIENT.toString());
     assertThat(spanDataString).contains(startTimestamp.toString());
     assertThat(spanDataString).contains(attributes.toString());
     assertThat(spanDataString).contains(annotations.toString());

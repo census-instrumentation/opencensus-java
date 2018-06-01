@@ -63,6 +63,7 @@ public class InProcessRunningSpanStoreImplTest {
         spanContext,
         recordSpanOptions,
         spanName,
+        null,
         SpanId.generateRandomId(random),
         false,
         TraceParams.DEFAULT,

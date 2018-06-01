@@ -111,7 +111,7 @@ public abstract class SpanBuilder {
   /**
    * Sets the {@link Sampler} to use. If not set, the implementation will provide a default.
    *
-   * @param sampler The {@code Sampler} to use when determining sampling for a {@code Span}.
+   * @param sampler the {@code Sampler} to use when determining sampling for a {@code Span}.
    * @return this.
    * @since 0.5
    */
@@ -122,7 +122,7 @@ public abstract class SpanBuilder {
    * traces. Used (for example) in batching operations, where a single batch handler processes
    * multiple requests from different traces.
    *
-   * @param parentLinks New links to be added.
+   * @param parentLinks new links to be added.
    * @return this.
    * @throws NullPointerException if {@code parentLinks} is {@code null}.
    * @since 0.5
@@ -133,11 +133,21 @@ public abstract class SpanBuilder {
    * Sets the option {@link Span.Options#RECORD_EVENTS} for the newly created {@code Span}. If not
    * called, the implementation will provide a default.
    *
-   * @param recordEvents New value determining if this {@code Span} should have events recorded.
+   * @param recordEvents new value determining if this {@code Span} should have events recorded.
    * @return this.
    * @since 0.5
    */
   public abstract SpanBuilder setRecordEvents(boolean recordEvents);
+
+  /**
+   * Sets the {@link Span.Kind} for the newly created {@code Span}. If not called, the
+   * implementation will provide a default.
+   *
+   * @param spanKind the kind of the newly created {@code Span}.
+   * @return this.
+   * @since 0.14
+   */
+  public abstract SpanBuilder setSpanKind(Span.Kind spanKind);
 
   /**
    * Starts a new {@link Span}.
@@ -319,6 +329,11 @@ public abstract class SpanBuilder {
 
     @Override
     public SpanBuilder setRecordEvents(boolean recordEvents) {
+      return this;
+    }
+
+    @Override
+    public SpanBuilder setSpanKind(Span.Kind spanKind) {
       return this;
     }
 

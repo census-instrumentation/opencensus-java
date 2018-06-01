@@ -23,6 +23,7 @@ import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.internal.RandomHandler;
 import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -59,6 +60,24 @@ public class SpanBuilderImplTest {
     spanBuilderOptions =
         new SpanBuilderImpl.Options(randomHandler, startEndHandler, testClock, traceConfig);
     when(traceConfig.getActiveTraceParams()).thenReturn(alwaysSampleTraceParams);
+  }
+
+  @Test
+  public void setSpanKind_NotNull() {
+    SpanImpl span =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+            .setSpanKind(Kind.CLIENT)
+            .startSpan();
+    assertThat(span.getKind()).isEqualTo(Kind.CLIENT);
+    assertThat(span.toSpanData().getKind()).isEqualTo(Kind.CLIENT);
+  }
+
+  @Test
+  public void setSpanKind_DefaultNull() {
+    SpanImpl span =
+        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
+    assertThat(span.getKind()).isNull();
+    assertThat(span.toSpanData().getKind()).isNull();
   }
 
   @Test

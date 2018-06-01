@@ -28,6 +28,7 @@ import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -91,6 +92,7 @@ public class SpanImplTest {
             spanContext,
             noRecordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -116,6 +118,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -151,6 +154,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -170,6 +174,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             true,
             TraceParams.DEFAULT,
@@ -229,6 +234,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -290,6 +296,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -312,6 +319,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -337,6 +345,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             traceParams,
@@ -385,6 +394,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             traceParams,
@@ -443,6 +453,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             traceParams,
@@ -486,6 +497,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             traceParams,
@@ -529,6 +541,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             traceParams,
@@ -561,6 +574,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -575,6 +589,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -593,6 +608,7 @@ public class SpanImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             parentSpanId,
             false,
             TraceParams.DEFAULT,
@@ -602,5 +618,22 @@ public class SpanImplTest {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Running span does not have the SampleToLocalSpanStore set.");
     span.getSampleToLocalSpanStore();
+  }
+
+  @Test
+  public void getSpanKind() {
+    SpanImpl span =
+        SpanImpl.startSpan(
+            spanContext,
+            recordSpanOptions,
+            SPAN_NAME,
+            Kind.SERVER,
+            parentSpanId,
+            false,
+            TraceParams.DEFAULT,
+            startEndHandler,
+            timestampConverter,
+            testClock);
+    assertThat(span.getKind()).isEqualTo(Kind.SERVER);
   }
 }

@@ -41,7 +41,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link NoopRunningSpanStoreImpl}. */
+/** Unit tests for {@link RunningSpanStoreImpl.NoopRunningSpanStoreImpl}. */
 @RunWith(JUnit4.class)
 public class NoopRunningSpanStoreImplTest {
 
@@ -71,6 +71,7 @@ public class NoopRunningSpanStoreImplTest {
             spanContext,
             recordSpanOptions,
             SPAN_NAME,
+            null,
             null,
             false,
             TraceParams.DEFAULT,

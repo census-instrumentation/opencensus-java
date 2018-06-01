@@ -25,6 +25,7 @@ import io.opencensus.trace.Link;
 import io.opencensus.trace.Link.Type;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -48,6 +49,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   @Nullable private Sampler sampler;
   private List<Span> parentLinks = Collections.<Span>emptyList();
   @Nullable private Boolean recordEvents;
+  @Nullable private Kind kind;
 
   private SpanImpl startSpanInternal(
       @Nullable SpanContext parent,
@@ -56,6 +58,7 @@ final class SpanBuilderImpl extends SpanBuilder {
       @Nullable Sampler sampler,
       List<Span> parentLinks,
       @Nullable Boolean recordEvents,
+      @Nullable Kind kind,
       @Nullable TimestampConverter timestampConverter) {
     TraceParams activeTraceParams = options.traceConfig.getActiveTraceParams();
     Random random = options.randomHandler.current();
@@ -95,6 +98,7 @@ final class SpanBuilderImpl extends SpanBuilder {
             SpanContext.create(traceId, spanId, traceOptions),
             spanOptions,
             name,
+            kind,
             parentSpanId,
             hasRemoteParent,
             activeTraceParams,
@@ -196,6 +200,7 @@ final class SpanBuilderImpl extends SpanBuilder {
         sampler,
         parentLinks,
         recordEvents,
+        kind,
         timestampConverter);
   }
 
@@ -232,6 +237,12 @@ final class SpanBuilderImpl extends SpanBuilder {
   @Override
   public SpanBuilderImpl setRecordEvents(boolean recordEvents) {
     this.recordEvents = recordEvents;
+    return this;
+  }
+
+  @Override
+  public SpanBuilderImpl setSpanKind(Kind kind) {
+    this.kind = kind;
     return this;
   }
 }

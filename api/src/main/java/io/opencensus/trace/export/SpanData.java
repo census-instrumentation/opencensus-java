@@ -24,6 +24,7 @@ import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.MessageEvent;
 import io.opencensus.trace.Span;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -52,12 +53,49 @@ public abstract class SpanData {
   /**
    * Returns a new immutable {@code SpanData}.
    *
+   * @deprecated Use {@link #create(SpanContext, SpanId, Boolean, String, Kind, Timestamp,
+   *     Attributes, TimedEvents, TimedEvents, Links, Integer, Status, Timestamp)}.
+   */
+  @Deprecated
+  public static SpanData create(
+      SpanContext context,
+      @Nullable SpanId parentSpanId,
+      @Nullable Boolean hasRemoteParent,
+      String name,
+      Timestamp startTimestamp,
+      Attributes attributes,
+      TimedEvents<Annotation> annotations,
+      TimedEvents<? extends io.opencensus.trace.BaseMessageEvent> messageOrNetworkEvents,
+      Links links,
+      @Nullable Integer childSpanCount,
+      @Nullable Status status,
+      @Nullable Timestamp endTimestamp) {
+    return create(
+        context,
+        parentSpanId,
+        hasRemoteParent,
+        name,
+        null,
+        startTimestamp,
+        attributes,
+        annotations,
+        messageOrNetworkEvents,
+        links,
+        childSpanCount,
+        status,
+        endTimestamp);
+  }
+
+  /**
+   * Returns a new immutable {@code SpanData}.
+   *
    * @param context the {@code SpanContext} of the {@code Span}.
    * @param parentSpanId the parent {@code SpanId} of the {@code Span}. {@code null} if the {@code
    *     Span} is a root.
    * @param hasRemoteParent {@code true} if the parent {@code Span} is remote. {@code null} if this
    *     is a root span.
    * @param name the name of the {@code Span}.
+   * @param kind the kind of the {@code Span}.
    * @param startTimestamp the start {@code Timestamp} of the {@code Span}.
    * @param attributes the attributes associated with the {@code Span}.
    * @param annotations the annotations associated with the {@code Span}.
@@ -70,14 +108,15 @@ public abstract class SpanData {
    * @param endTimestamp the end {@code Timestamp} of the {@code Span}. {@code null} if the {@code
    *     Span} is still active.
    * @return a new immutable {@code SpanData}.
-   * @since 0.5
+   * @since 0.14
    */
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({"deprecation", "InconsistentOverloads"})
   public static SpanData create(
       SpanContext context,
       @Nullable SpanId parentSpanId,
       @Nullable Boolean hasRemoteParent,
       String name,
+      @Nullable Kind kind,
       Timestamp startTimestamp,
       Attributes attributes,
       TimedEvents<Annotation> annotations,
@@ -111,6 +150,7 @@ public abstract class SpanData {
         parentSpanId,
         hasRemoteParent,
         name,
+        kind,
         startTimestamp,
         attributes,
         annotations,
@@ -157,6 +197,15 @@ public abstract class SpanData {
    * @since 0.5
    */
   public abstract String getName();
+
+  /**
+   * Returns the kind of this {@code Span}.
+   *
+   * @return the kind of this {@code Span}.
+   * @since 0.14
+   */
+  @Nullable
+  public abstract Kind getKind();
 
   /**
    * Returns the start {@code Timestamp} of this {@code Span}.
