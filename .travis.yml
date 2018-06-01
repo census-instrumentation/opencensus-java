@@ -60,6 +60,11 @@ matrix:
   - env: TASK=BUILD
     os: osx
 
+  # TODO: don't allow failure for this build once bazel is stable.
+  - jdk: oraclejdk8
+    env: TASK=BUILD_EXAMPLES_BAZEL
+    os: linux
+
 before_install:
   - git log --oneline --decorate --graph -30
   - if \[ "$TASK" == "BUILD" \]; then
