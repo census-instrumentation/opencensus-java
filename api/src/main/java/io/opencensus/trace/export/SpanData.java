@@ -53,7 +53,8 @@ public abstract class SpanData {
   /**
    * Returns a new immutable {@code SpanData}.
    *
-   * @deprecated Use the version that contains the {@code Kind}.
+   * @deprecated Use {@link #create(SpanContext, SpanId, Boolean, String, Kind, Timestamp,
+   *     Attributes, TimedEvents, TimedEvents, Links, Integer, Status, Timestamp)}.
    */
   @Deprecated
   public static SpanData create(
@@ -115,7 +116,7 @@ public abstract class SpanData {
       @Nullable SpanId parentSpanId,
       @Nullable Boolean hasRemoteParent,
       String name,
-      Kind kind,
+      @Nullable Kind kind,
       Timestamp startTimestamp,
       Attributes attributes,
       TimedEvents<Annotation> annotations,

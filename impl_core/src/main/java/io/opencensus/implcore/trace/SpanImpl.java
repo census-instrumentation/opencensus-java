@@ -222,6 +222,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    *
    * @return the kind of this {@code Span}.
    */
+  @Nullable
   public Kind getKind() {
     return kind;
   }
