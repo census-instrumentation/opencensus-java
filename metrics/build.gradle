@@ -1,4 +1,4 @@
-description = 'OpenCensus Metrics Data Model'
+description = 'OpenCensus Metrics'
 
 dependencies {
     compile project(':opencensus-api')
