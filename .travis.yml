@@ -43,9 +43,10 @@ matrix:
     env: TASK=BUILD_EXAMPLES_MAVEN
     os: linux
 
-  - jdk: oraclejdk8
-    env: TASK=BUILD_EXAMPLES_BAZEL
-    os: linux
+  # TODO(songya): re-enable this build once bazel is stable.
+  # - jdk: oraclejdk8
+  #   env: TASK=BUILD_EXAMPLES_BAZEL
+  #   os: linux
 
   - jdk: oraclejdk8
     env: TASK=CHECK_EXAMPLES_FORMAT
@@ -69,12 +70,13 @@ before_install:
       cat gradle/errorprone/experimental_warnings  >> $HOME/.gradle/gradle.properties ;
       cat gradle/errorprone/experimental_suggestions  >> $HOME/.gradle/gradle.properties ;
     fi
-  - if \[ "$TASK" == "BUILD_EXAMPLES_BAZEL" \]; then
-      echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list ;
-      curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add - ;
-      sudo apt-get update ;
-      sudo apt-get install bazel ;
-    fi
+  # TODO(songya): re-enable this build once bazel is stable.
+  # - if \[ "$TASK" == "BUILD_EXAMPLES_BAZEL" \]; then
+  #    echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list ;
+  #    curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add - ;
+  #    sudo apt-get update ;
+  #    sudo apt-get install bazel ;
+  #  fi
 
 # Skip Travis' default Gradle install step. See http://stackoverflow.com/a/26575080.
 install: true
