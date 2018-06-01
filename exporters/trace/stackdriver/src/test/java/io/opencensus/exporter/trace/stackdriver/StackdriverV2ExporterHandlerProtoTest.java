@@ -21,7 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.devtools.cloudtrace.v2.AttributeValue;
 import com.google.devtools.cloudtrace.v2.Span;
 import com.google.devtools.cloudtrace.v2.Span.TimeEvent;
@@ -32,7 +33,7 @@ import com.google.protobuf.Int32Value;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
-import io.opencensus.trace.NetworkEvent;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -81,10 +82,12 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   private static final int CHILD_SPAN_COUNT = 13;
 
   private static final Annotation annotation = Annotation.fromDescription(ANNOTATION_TEXT);
-  private static final NetworkEvent recvNetworkEvent =
-      NetworkEvent.builder(NetworkEvent.Type.RECV, 1).build();
-  private static final NetworkEvent sentNetworkEvent =
-      NetworkEvent.builder(NetworkEvent.Type.SENT, 1).build();
+  private static final io.opencensus.trace.MessageEvent recvMessageEvent =
+      io.opencensus.trace.MessageEvent.builder(io.opencensus.trace.MessageEvent.Type.RECEIVED, 1)
+          .build();
+  private static final io.opencensus.trace.MessageEvent sentMessageEvent =
+      io.opencensus.trace.MessageEvent.builder(io.opencensus.trace.MessageEvent.Type.SENT, 1)
+          .build();
   private static final Status status = Status.DEADLINE_EXCEEDED.withDescription("TooSlow");
   private static final SpanId parentSpanId = SpanId.fromLowerBase16(PARENT_SPAN_ID);
   private static final SpanId spanId = SpanId.fromLowerBase16(SPAN_ID);
@@ -92,37 +95,35 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   private static final TraceOptions traceOptions = TraceOptions.DEFAULT;
   private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
 
-  private final List<TimedEvent<Annotation>> annotationsList = Lists.newArrayList();
-  private final List<TimedEvent<NetworkEvent>> networkEventsList = Lists.newArrayList();
-  private final List<Link> linksList = Lists.newArrayList();
+  private static final List<TimedEvent<Annotation>> annotationsList =
+      ImmutableList.of(
+          SpanData.TimedEvent.create(eventTimestamp1, annotation),
+          SpanData.TimedEvent.create(eventTimestamp3, annotation));
+  private static final List<TimedEvent<io.opencensus.trace.MessageEvent>> networkEventsList =
+      ImmutableList.of(
+          SpanData.TimedEvent.create(eventTimestamp1, recvMessageEvent),
+          SpanData.TimedEvent.create(eventTimestamp2, sentMessageEvent));
+  private static final List<Link> linksList =
+      ImmutableList.of(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
 
-  private SpanData.Attributes attributes;
-  private TimedEvents<Annotation> annotations;
-  private TimedEvents<NetworkEvent> networkEvents;
-  private SpanData.Links links;
+  private static final SpanData.Attributes attributes =
+      SpanData.Attributes.create(
+          ImmutableMap.of(
+              ATTRIBUTE_KEY_1,
+              io.opencensus.trace.AttributeValue.longAttributeValue(10L),
+              ATTRIBUTE_KEY_2,
+              io.opencensus.trace.AttributeValue.booleanAttributeValue(true)),
+          DROPPED_ATTRIBUTES_COUNT);
+  private static final TimedEvents<Annotation> annotations =
+      TimedEvents.create(annotationsList, DROPPED_ANNOTATIONS_COUNT);
+  private static final TimedEvents<io.opencensus.trace.MessageEvent> messageEvents =
+      TimedEvents.create(networkEventsList, DROPPED_NETWORKEVENTS_COUNT);
+  private static final SpanData.Links links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
 
   private StackdriverV2ExporterHandler handler;
 
   @Before
   public void setUp() throws IOException {
-    Map<String, io.opencensus.trace.AttributeValue> attributesMap =
-        new HashMap<String, io.opencensus.trace.AttributeValue>();
-    attributesMap.put(ATTRIBUTE_KEY_1, io.opencensus.trace.AttributeValue.longAttributeValue(10L));
-    attributesMap.put(
-        ATTRIBUTE_KEY_2, io.opencensus.trace.AttributeValue.booleanAttributeValue(true));
-    attributes = SpanData.Attributes.create(attributesMap, DROPPED_ATTRIBUTES_COUNT);
-
-    annotationsList.add(SpanData.TimedEvent.create(eventTimestamp1, annotation));
-    annotationsList.add(SpanData.TimedEvent.create(eventTimestamp3, annotation));
-    annotations = TimedEvents.create(annotationsList, DROPPED_ANNOTATIONS_COUNT);
-
-    networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp1, recvNetworkEvent));
-    networkEventsList.add(SpanData.TimedEvent.create(eventTimestamp2, sentNetworkEvent));
-    networkEvents = TimedEvents.create(networkEventsList, DROPPED_NETWORKEVENTS_COUNT);
-
-    linksList.add(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
-    links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
-
     handler = StackdriverV2ExporterHandler.createWithCredentials(FAKE_CREDENTIALS, PROJECT_ID);
   }
 
@@ -134,10 +135,11 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             parentSpanId,
             /* hasRemoteParent= */ true,
             SPAN_NAME,
+            null,
             startTimestamp,
             attributes,
             annotations,
-            networkEvents,
+            messageEvents,
             links,
             CHILD_SPAN_COUNT,
             status,
@@ -176,7 +178,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             .setMessageEvent(
                 TimeEvent.MessageEvent.newBuilder()
                     .setType(MessageEvent.Type.SENT)
-                    .setId(sentNetworkEvent.getMessageId()))
+                    .setId(sentMessageEvent.getMessageId()))
             .setTime(
                 com.google.protobuf.Timestamp.newBuilder()
                     .setSeconds(eventTimestamp2.getSeconds())
@@ -188,7 +190,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             .setMessageEvent(
                 TimeEvent.MessageEvent.newBuilder()
                     .setType(MessageEvent.Type.RECEIVED)
-                    .setId(recvNetworkEvent.getMessageId()))
+                    .setId(recvMessageEvent.getMessageId()))
             .setTime(
                 com.google.protobuf.Timestamp.newBuilder()
                     .setSeconds(eventTimestamp1.getSeconds())
@@ -282,7 +284,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             startTimestamp,
             httpAttributes,
             annotations,
-            networkEvents,
+            messageEvents,
             links,
             CHILD_SPAN_COUNT,
             status,
@@ -298,6 +300,90 @@ public final class StackdriverV2ExporterHandlerProtoTest {
     assertThat(attributes).containsEntry("/http/user_agent", toStringValue("user_agent"));
     assertThat(attributes)
         .containsEntry("/http/status_code", AttributeValue.newBuilder().setIntValue(200L).build());
+  }
+
+  @Test
+  public void generateSpanName_ForServer() {
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            Kind.SERVER,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+        .isEqualTo("Recv." + SPAN_NAME);
+  }
+
+  @Test
+  public void generateSpanName_ForServerWithRecv() {
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            "Recv." + SPAN_NAME,
+            Kind.SERVER,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+        .isEqualTo("Recv." + SPAN_NAME);
+  }
+
+  @Test
+  public void generateSpanName_ForClient() {
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            Kind.CLIENT,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+        .isEqualTo("Sent." + SPAN_NAME);
+  }
+
+  @Test
+  public void generateSpanName_ForClientWithSent() {
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            "Sent." + SPAN_NAME,
+            Kind.CLIENT,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+        .isEqualTo("Sent." + SPAN_NAME);
   }
 
   private static AttributeValue toStringValue(String value) {

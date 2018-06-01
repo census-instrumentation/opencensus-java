@@ -27,6 +27,7 @@ import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Sampler;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -45,7 +46,6 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -67,8 +67,6 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
 
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySpampler = Samplers.probabilitySampler(0.0001);
-  static final Logger logger = Logger.getLogger(InstanaExporterHandler.class.getName());
-
   private final URL agentEndpoint;
 
   InstanaExporterHandler(URL agentEndpoint) {
@@ -88,13 +86,16 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
   }
 
   private static String toSpanType(SpanData spanData) {
-    if (spanData.getParentSpanId() == null || Boolean.TRUE.equals(spanData.getHasRemoteParent())) {
+    if (spanData.getKind() == Kind.SERVER
+        || (spanData.getKind() == null
+            && (spanData.getParentSpanId() == null
+                || Boolean.TRUE.equals(spanData.getHasRemoteParent())))) {
       return "ENTRY";
     }
 
-    // This is a hack because the v2 API does not have SpanKind. When switch to v2 this will be
-    // fixed.
-    if (spanData.getName().startsWith("Sent.")) {
+    // This is a hack because the Span API did not have SpanKind.
+    if (spanData.getKind() == Kind.CLIENT
+        || (spanData.getKind() == null && spanData.getName().startsWith("Sent."))) {
       return "EXIT";
     }
 

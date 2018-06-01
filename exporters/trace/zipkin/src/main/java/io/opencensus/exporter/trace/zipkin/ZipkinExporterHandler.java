@@ -19,16 +19,14 @@ package io.opencensus.exporter.trace.zipkin;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Sampler;
+import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
-import io.opencensus.trace.TraceId;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
@@ -51,11 +49,10 @@ import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.Sender;
 
-// TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
 final class ZipkinExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
-  static final Logger logger = Logger.getLogger(ZipkinExporterHandler.class.getName());
+  private static final Logger logger = Logger.getLogger(ZipkinExporterHandler.class.getName());
 
   private static final String STATUS_CODE = "census.status_code";
   private static final String STATUS_DESCRIPTION = "census.status_description";
@@ -110,8 +107,8 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     @SuppressWarnings("nullness")
     Span.Builder spanBuilder =
         Span.newBuilder()
-            .traceId(encodeTraceId(context.getTraceId()))
-            .id(encodeSpanId(context.getSpanId()))
+            .traceId(context.getTraceId().toLowerBase16())
+            .id(context.getSpanId().toLowerBase16())
             .kind(toSpanKind(spanData))
             .name(spanData.getName())
             .timestamp(toEpochMicros(spanData.getStartTimestamp()))
@@ -119,7 +116,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
             .localEndpoint(localEndpoint);
 
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
-      spanBuilder.parentId(encodeSpanId(spanData.getParentSpanId()));
+      spanBuilder.parentId(spanData.getParentSpanId().toLowerBase16());
     }
 
     for (Map.Entry<String, AttributeValue> label :
@@ -139,32 +136,25 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
           toEpochMicros(annotation.getTimestamp()), annotation.getEvent().getDescription());
     }
 
-    for (TimedEvent<io.opencensus.trace.NetworkEvent> networkEvent :
-        spanData.getNetworkEvents().getEvents()) {
+    for (TimedEvent<io.opencensus.trace.MessageEvent> messageEvent :
+        spanData.getMessageEvents().getEvents()) {
       spanBuilder.addAnnotation(
-          toEpochMicros(networkEvent.getTimestamp()), networkEvent.getEvent().getType().name());
+          toEpochMicros(messageEvent.getTimestamp()), messageEvent.getEvent().getType().name());
     }
 
     return spanBuilder.build();
   }
 
-  private static String encodeTraceId(TraceId traceId) {
-    return BaseEncoding.base16().lowerCase().encode(traceId.getBytes());
-  }
-
-  private static String encodeSpanId(SpanId spanId) {
-    return BaseEncoding.base16().lowerCase().encode(spanId.getBytes());
-  }
-
   @Nullable
   private static Span.Kind toSpanKind(SpanData spanData) {
-    if (Boolean.TRUE.equals(spanData.getHasRemoteParent())) {
+    // This is a hack because the Span API did not have SpanKind.
+    if (spanData.getKind() == Kind.SERVER
+        || (spanData.getKind() == null && Boolean.TRUE.equals(spanData.getHasRemoteParent()))) {
       return Span.Kind.SERVER;
     }
 
-    // This is a hack because the v2 API does not have SpanKind. When switch to v2 this will be
-    // fixed.
-    if (spanData.getName().startsWith("Sent.")) {
+    // This is a hack because the Span API did not have SpanKind.
+    if (spanData.getKind() == Kind.CLIENT || spanData.getName().startsWith("Sent.")) {
       return Span.Kind.CLIENT;
     }
 
