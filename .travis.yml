@@ -44,6 +44,10 @@ matrix:
     os: linux
 
   - jdk: oraclejdk8
+    env: TASK=BUILD_EXAMPLES_BAZEL
+    os: linux
+
+  - jdk: oraclejdk8
     env: TASK=CHECK_EXAMPLES_FORMAT
     os: linux
 
