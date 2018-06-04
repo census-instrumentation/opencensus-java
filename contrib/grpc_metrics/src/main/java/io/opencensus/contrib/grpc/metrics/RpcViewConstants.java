@@ -438,7 +438,7 @@ public final class RpcViewConstants {
           "Number of started client RPCs",
           GRPC_CLIENT_STARTED_RPCS,
           COUNT,
-          Arrays.asList(GRPC_CLIENT_METHOD, GRPC_CLIENT_STATUS));
+          Arrays.asList(GRPC_CLIENT_METHOD));
 
   // Rpc server cumulative views.
 
@@ -711,7 +711,7 @@ public final class RpcViewConstants {
           "Number of started server RPCs",
           GRPC_SERVER_STARTED_RPCS,
           COUNT,
-          Arrays.asList(GRPC_SERVER_METHOD, GRPC_SERVER_STATUS));
+          Arrays.asList(GRPC_SERVER_METHOD));
 
   // Interval Stats
 
