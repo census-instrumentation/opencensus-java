@@ -191,6 +191,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for number of started client RPCs.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_CLIENT_STARTED_RPCS}.
    */
   @Deprecated
   public static final MeasureLong RPC_CLIENT_STARTED_COUNT =
@@ -294,6 +295,16 @@ public final class RpcMeasureConstants {
       Measure.MeasureDouble.create(
           "grpc.io/client/server_latency", "Server latency in msecs", MILLISECOND);
 
+  /**
+   * {@link Measure} for total number of client RPCs ever opened, including those that have not
+   * completed.
+   *
+   * @since 0.14
+   */
+  public static final MeasureDouble GRPC_CLIENT_STARTED_RPCS =
+      Measure.MeasureDouble.create(
+          "grpc.io/client/started_rpcs", "Number of started client RPCs.", COUNT);
+
   // RPC server Measures.
 
   /**
@@ -375,6 +386,7 @@ public final class RpcMeasureConstants {
    * {@link Measure} for number of started server RPCs.
    *
    * @since 0.8
+   * @deprecated in favor of {@link #GRPC_SERVER_STARTED_RPCS}.
    */
   @Deprecated
   public static final MeasureLong RPC_SERVER_STARTED_COUNT =
@@ -468,6 +480,16 @@ public final class RpcMeasureConstants {
           "Time between first byte of request received to last byte of response sent, "
               + "or terminal error.",
           MILLISECOND);
+
+  /**
+   * {@link Measure} for total number of server RPCs ever opened, including those that have not
+   * completed.
+   *
+   * @since 0.14
+   */
+  public static final MeasureDouble GRPC_SERVER_STARTED_RPCS =
+      Measure.MeasureDouble.create(
+          "grpc.io/server/started_rpcs", "Number of started server RPCs.", COUNT);
 
   private RpcMeasureConstants() {}
 }

@@ -23,6 +23,7 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_BYTES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SENT_MESSAGES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_SERVER_LATENCY;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STARTED_RPCS;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_CLIENT_STATUS;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_METHOD;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC;
@@ -30,6 +31,7 @@ import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_SENT_BYTES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_SENT_MESSAGES_PER_RPC;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_SERVER_LATENCY;
+import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_STARTED_RPCS;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.GRPC_SERVER_STATUS;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT;
 import static io.opencensus.contrib.grpc.metrics.RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT;
@@ -302,6 +304,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for started client RPCs.
    *
    * @since 0.12
+   * @deprecated in favor of {@link #GRPC_CLIENT_STARTED_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_CLIENT_STARTED_COUNT_CUMULATIVE_VIEW =
@@ -421,6 +424,19 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/client/completed_rpcs"),
           "Number of completed client RPCs",
           GRPC_CLIENT_ROUNDTRIP_LATENCY,
+          COUNT,
+          Arrays.asList(GRPC_CLIENT_METHOD, GRPC_CLIENT_STATUS));
+
+  /**
+   * {@link View} for started client RPCs.
+   *
+   * @since 0.14
+   */
+  public static final View GRPC_CLIENT_STARTED_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/client/started_rpcs"),
+          "Number of started client RPCs",
+          GRPC_CLIENT_STARTED_RPCS,
           COUNT,
           Arrays.asList(GRPC_CLIENT_METHOD, GRPC_CLIENT_STATUS));
 
@@ -574,6 +590,7 @@ public final class RpcViewConstants {
    * Cumulative {@link View} for started server RPCs.
    *
    * @since 0.12
+   * @deprecated in favor of {@link #GRPC_SERVER_STARTED_RPC_VIEW}.
    */
   @Deprecated
   public static final View RPC_SERVER_STARTED_COUNT_CUMULATIVE_VIEW =
@@ -680,6 +697,19 @@ public final class RpcViewConstants {
           View.Name.create("grpc.io/server/completed_rpcs"),
           "Number of completed server RPCs",
           GRPC_SERVER_SERVER_LATENCY,
+          COUNT,
+          Arrays.asList(GRPC_SERVER_METHOD, GRPC_SERVER_STATUS));
+
+  /**
+   * {@link View} for started server RPCs.
+   *
+   * @since 0.14
+   */
+  public static final View GRPC_SERVER_STARTED_RPC_VIEW =
+      View.create(
+          View.Name.create("grpc.io/server/started_rpcs"),
+          "Number of started server RPCs",
+          GRPC_SERVER_STARTED_RPCS,
           COUNT,
           Arrays.asList(GRPC_SERVER_METHOD, GRPC_SERVER_STATUS));
 
