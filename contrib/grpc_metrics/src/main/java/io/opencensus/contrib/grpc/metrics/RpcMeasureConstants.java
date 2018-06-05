@@ -301,8 +301,8 @@ public final class RpcMeasureConstants {
    *
    * @since 0.14
    */
-  public static final MeasureDouble GRPC_CLIENT_STARTED_RPCS =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong GRPC_CLIENT_STARTED_RPCS =
+      Measure.MeasureLong.create(
           "grpc.io/client/started_rpcs", "Number of started client RPCs.", COUNT);
 
   // RPC server Measures.
@@ -487,8 +487,8 @@ public final class RpcMeasureConstants {
    *
    * @since 0.14
    */
-  public static final MeasureDouble GRPC_SERVER_STARTED_RPCS =
-      Measure.MeasureDouble.create(
+  public static final MeasureLong GRPC_SERVER_STARTED_RPCS =
+      Measure.MeasureLong.create(
           "grpc.io/server/started_rpcs", "Number of started server RPCs.", COUNT);
 
   private RpcMeasureConstants() {}
