@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.14.0 - 2018-06-04
 - Adds Tracing.getExportComponent().shutdown() for use within application shutdown hooks.
 - `Duration.create` now throws an `IllegalArgumentException` instead of
   returning a zero `Duration` when the arguments are invalid.
