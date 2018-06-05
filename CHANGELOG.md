@@ -10,6 +10,7 @@
 - Add an util artifact `opencensus-contrib-appengine-standard-util` to interact with the AppEngine
   CloudTraceContext.
 - Add support for Span kinds. (fix [#1054](https://github.com/census-instrumentation/opencensus-java/issues/1054)).
+- Add client/server started_rpcs measures and views to RPC constants.
 
 ## 0.13.2 - 2018-05-08
 - Map http attributes to Stackdriver format (fix [#1153](https://github.com/census-instrumentation/opencensus-java/issues/1153)).
