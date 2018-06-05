@@ -386,8 +386,7 @@ subprojects {
                  'opencensus-impl-core',
                  'opencensus-impl-lite',
                  'opencensus-impl',
-                 // TODO(songya): uncomment this once classes were added to Metrics library
-                 // 'opencensus-metrics',
+                 // TODO(songya): add the Export (or Metrics + SpanData) artifact once we agree on its name
                  'opencensus-testing']
     }
 
