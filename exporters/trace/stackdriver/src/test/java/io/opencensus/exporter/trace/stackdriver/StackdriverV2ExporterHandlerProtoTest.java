@@ -17,6 +17,8 @@
 package io.opencensus.exporter.trace.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.createResourceLabelKey;
+import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.toStringAttributeValueProto;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
@@ -31,6 +33,7 @@ import com.google.devtools.cloudtrace.v2.StackTrace;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.Int32Value;
 import io.opencensus.common.Timestamp;
+import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Span.Kind;
@@ -242,6 +245,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .containsEntry(ATTRIBUTE_KEY_1, AttributeValue.newBuilder().setIntValue(10L).build());
     assertThat(span.getAttributes().getAttributeMapMap())
         .containsEntry(ATTRIBUTE_KEY_2, AttributeValue.newBuilder().setBoolValue(true).build());
+    verifyResourceLabels(span.getAttributes().getAttributeMapMap());
     // TODO(@Hailong): add stack trace test in the future.
     assertThat(span.getStackTrace()).isEqualTo(StackTrace.newBuilder().build());
     assertThat(span.getTimeEvents().getDroppedMessageEventsCount())
@@ -256,6 +260,35 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .isEqualTo(com.google.protobuf.BoolValue.newBuilder().build());
     assertThat(span.getChildSpanCount())
         .isEqualTo(Int32Value.newBuilder().setValue(CHILD_SPAN_COUNT).build());
+  }
+
+  private static void verifyResourceLabels(Map<String, AttributeValue> attributeMap) {
+    if (StackdriverV2ExporterHandler.RESOURCE == null) {
+      return;
+    }
+    ResourceType resourceType = StackdriverV2ExporterHandler.RESOURCE.getResourceType();
+    switch (resourceType) {
+      case AWS_EC2_INSTANCE:
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "aws_account"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "region"));
+        return;
+      case GCP_GCE_INSTANCE:
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "project_id"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "zone"));
+        return;
+      case GCP_GKE_CONTAINER:
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "project_id"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "zone"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "cluster_name"));
+        assertThat(attributeMap)
+            .containsKey(createResourceLabelKey(resourceType, "container_name"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "namespace_id"));
+        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "pod_id"));
+        return;
+    }
   }
 
   @Test
@@ -293,11 +326,12 @@ public final class StackdriverV2ExporterHandlerProtoTest {
     Span span = handler.generateSpan(spanData);
     Map<String, AttributeValue> attributes = span.getAttributes().getAttributeMapMap();
 
-    assertThat(attributes).containsEntry("/http/host", toStringValue("host"));
-    assertThat(attributes).containsEntry("/http/method", toStringValue("method"));
-    assertThat(attributes).containsEntry("/http/path", toStringValue("path"));
-    assertThat(attributes).containsEntry("/http/route", toStringValue("route"));
-    assertThat(attributes).containsEntry("/http/user_agent", toStringValue("user_agent"));
+    assertThat(attributes).containsEntry("/http/host", toStringAttributeValueProto("host"));
+    assertThat(attributes).containsEntry("/http/method", toStringAttributeValueProto("method"));
+    assertThat(attributes).containsEntry("/http/path", toStringAttributeValueProto("path"));
+    assertThat(attributes).containsEntry("/http/route", toStringAttributeValueProto("route"));
+    assertThat(attributes)
+        .containsEntry("/http/user_agent", toStringAttributeValueProto("user_agent"));
     assertThat(attributes)
         .containsEntry("/http/status_code", AttributeValue.newBuilder().setIntValue(200L).build());
   }
@@ -384,12 +418,5 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             endTimestamp);
     assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
         .isEqualTo("Sent." + SPAN_NAME);
-  }
-
-  private static AttributeValue toStringValue(String value) {
-    return AttributeValue.newBuilder()
-        .setStringValue(
-            TruncatableString.newBuilder().setValue(value).setTruncatedByteCount(0).build())
-        .build();
   }
 }

@@ -42,6 +42,12 @@ import io.opencensus.common.Functions;
 import io.opencensus.common.OpenCensusLibraryInformation;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResourceUtils;
+import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Sampler;
@@ -90,6 +96,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           .put("http.user_agent", "/http/user_agent")
           .put("http.status_code", "/http/status_code")
           .build();
+
+  @VisibleForTesting @javax.annotation.Nullable
+  static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
 
   private final String projectId;
   private final TraceServiceClient traceServiceClient;
@@ -225,6 +234,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         toAttributesBuilderProto(
             attributes.getAttributeMap(), attributes.getDroppedAttributesCount());
     attributesBuilder.putAttributeMap(AGENT_LABEL_KEY, AGENT_LABEL_VALUE);
+    putResourceLabels(attributesBuilder, RESOURCE);
     return attributesBuilder.build();
   }
 
@@ -237,6 +247,90 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           mapKey(label.getKey()), toAttributeValueProto(label.getValue()));
     }
     return attributesBuilder;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void putResourceLabels(
+      Attributes.Builder attributesBuilder, MonitoredResource resource) {
+    if (resource == null) {
+      return;
+    }
+    ResourceType resourceType = resource.getResourceType();
+    switch (resourceType) {
+      case AWS_EC2_INSTANCE:
+        AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
+            (AwsEc2InstanceMonitoredResource) resource;
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "aws_account"),
+            toStringAttributeValueProto(awsEc2InstanceMonitoredResource.getAccount()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "instance_id"),
+            toStringAttributeValueProto(awsEc2InstanceMonitoredResource.getInstanceId()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "region"),
+            toStringAttributeValueProto("aws:" + awsEc2InstanceMonitoredResource.getAccount()));
+        return;
+      case GCP_GCE_INSTANCE:
+        GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
+            (GcpGceInstanceMonitoredResource) resource;
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "project_id"),
+            toStringAttributeValueProto(gcpGceInstanceMonitoredResource.getAccount()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "instance_id"),
+            toStringAttributeValueProto(gcpGceInstanceMonitoredResource.getInstanceId()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "zone"),
+            toStringAttributeValueProto(gcpGceInstanceMonitoredResource.getZone()));
+        return;
+      case GCP_GKE_CONTAINER:
+        GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
+            (GcpGkeContainerMonitoredResource) resource;
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "project_id"),
+            toStringAttributeValueProto(gcpGkeContainerMonitoredResource.getAccount()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "instance_id"),
+            toStringAttributeValueProto(gcpGkeContainerMonitoredResource.getInstanceId()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "zone"),
+            toStringAttributeValueProto(gcpGkeContainerMonitoredResource.getZone()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "cluster_name"),
+            toStringAttributeValueProto(gcpGkeContainerMonitoredResource.getClusterName()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "container_name"),
+            toStringAttributeValueProto(gcpGkeContainerMonitoredResource.getContainerName()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "namespace_id"),
+            toStringAttributeValueProto(gcpGkeContainerMonitoredResource.getNamespaceId()));
+        attributesBuilder.putAttributeMap(
+            createResourceLabelKey(resourceType, "pod_id"),
+            toStringAttributeValueProto(gcpGkeContainerMonitoredResource.getPodId()));
+        return;
+    }
+  }
+
+  @VisibleForTesting
+  static String createResourceLabelKey(ResourceType resourceType, String resourceAttribute) {
+    return String.format("g.co/r/%s/%s", mapToStringResourceType(resourceType), resourceAttribute);
+  }
+
+  private static String mapToStringResourceType(ResourceType resourceType) {
+    switch (resourceType) {
+      case GCP_GCE_INSTANCE:
+        return "gce_instance";
+      case GCP_GKE_CONTAINER:
+        return "gke_container";
+      case AWS_EC2_INSTANCE:
+        return "aws_ec2_instance";
+    }
+    throw new IllegalArgumentException("Unknown resource type.");
+  }
+
+  @VisibleForTesting
+  static AttributeValue toStringAttributeValueProto(String value) {
+    return AttributeValue.newBuilder().setStringValue(toTruncatableStringProto(value)).build();
   }
 
   private static String mapKey(String key) {
