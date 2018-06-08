@@ -17,8 +17,12 @@
 package io.opencensus.exporter.trace.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.contrib.monitoredresource.util.ResourceType.AWS_EC2_INSTANCE;
+import static io.opencensus.contrib.monitoredresource.util.ResourceType.GCP_GCE_INSTANCE;
+import static io.opencensus.contrib.monitoredresource.util.ResourceType.GCP_GKE_CONTAINER;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.createResourceLabelKey;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.toStringAttributeValueProto;
+import static org.mockito.Mockito.when;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.AccessToken;
@@ -33,7 +37,9 @@ import com.google.devtools.cloudtrace.v2.StackTrace;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.Int32Value;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.ResourceType;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Span.Kind;
@@ -54,6 +60,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public final class StackdriverV2ExporterHandlerProtoTest {
@@ -124,6 +132,18 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   private static final SpanData.Links links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
 
   private StackdriverV2ExporterHandler handler;
+
+  @Mock
+  private final AwsEc2InstanceMonitoredResource mockAwsEc2Resource =
+      Mockito.mock(AwsEc2InstanceMonitoredResource.class);
+
+  @Mock
+  private final GcpGceInstanceMonitoredResource mockGcpGceResource =
+      Mockito.mock(GcpGceInstanceMonitoredResource.class);
+
+  @Mock
+  private final GcpGkeContainerMonitoredResource mockGcpGkeResource =
+      Mockito.mock(GcpGkeContainerMonitoredResource.class);
 
   @Before
   public void setUp() throws IOException {
@@ -230,7 +250,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             .setNanos(endTimestamp.getNanos())
             .build();
 
-    Span span = handler.generateSpan(spanData);
+    Span span = handler.generateSpan(spanData, null);
     assertThat(span.getName()).isEqualTo(SD_SPAN_NAME);
     assertThat(span.getSpanId()).isEqualTo(SPAN_ID);
     assertThat(span.getParentSpanId()).isEqualTo(PARENT_SPAN_ID);
@@ -245,7 +265,6 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .containsEntry(ATTRIBUTE_KEY_1, AttributeValue.newBuilder().setIntValue(10L).build());
     assertThat(span.getAttributes().getAttributeMapMap())
         .containsEntry(ATTRIBUTE_KEY_2, AttributeValue.newBuilder().setBoolValue(true).build());
-    verifyResourceLabels(span.getAttributes().getAttributeMapMap());
     // TODO(@Hailong): add stack trace test in the future.
     assertThat(span.getStackTrace()).isEqualTo(StackTrace.newBuilder().build());
     assertThat(span.getTimeEvents().getDroppedMessageEventsCount())
@@ -262,33 +281,97 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .isEqualTo(Int32Value.newBuilder().setValue(CHILD_SPAN_COUNT).build());
   }
 
-  private static void verifyResourceLabels(Map<String, AttributeValue> attributeMap) {
-    if (StackdriverV2ExporterHandler.RESOURCE == null) {
-      return;
-    }
-    ResourceType resourceType = StackdriverV2ExporterHandler.RESOURCE.getResourceType();
-    switch (resourceType) {
-      case AWS_EC2_INSTANCE:
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "aws_account"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "region"));
-        return;
-      case GCP_GCE_INSTANCE:
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "project_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "zone"));
-        return;
-      case GCP_GKE_CONTAINER:
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "project_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "zone"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "cluster_name"));
-        assertThat(attributeMap)
-            .containsKey(createResourceLabelKey(resourceType, "container_name"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "namespace_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "pod_id"));
-        return;
-    }
+  @Test
+  public void generateSpan_AwsEc2Resource() {
+    when(mockAwsEc2Resource.getResourceType()).thenReturn(AWS_EC2_INSTANCE);
+    when(mockAwsEc2Resource.getAccount()).thenReturn("");
+    when(mockAwsEc2Resource.getInstanceId()).thenReturn("");
+    when(mockAwsEc2Resource.getRegion()).thenReturn("");
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            null,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    Span span = handler.generateSpan(spanData, mockAwsEc2Resource);
+    Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
+    assertThat(attributeMap).containsKey(createResourceLabelKey(AWS_EC2_INSTANCE, "aws_account"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(AWS_EC2_INSTANCE, "instance_id"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(AWS_EC2_INSTANCE, "region"));
+  }
+
+  @Test
+  public void generateSpan_GcpGceResource() {
+    when(mockGcpGceResource.getResourceType()).thenReturn(GCP_GCE_INSTANCE);
+    when(mockGcpGceResource.getAccount()).thenReturn("");
+    when(mockGcpGceResource.getInstanceId()).thenReturn("");
+    when(mockGcpGceResource.getZone()).thenReturn("");
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            null,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    Span span = handler.generateSpan(spanData, mockGcpGceResource);
+    Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GCE_INSTANCE, "project_id"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GCE_INSTANCE, "instance_id"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GCE_INSTANCE, "zone"));
+  }
+
+  @Test
+  public void generateSpan_GcpGkeResource() {
+    when(mockGcpGkeResource.getResourceType()).thenReturn(GCP_GKE_CONTAINER);
+    when(mockGcpGkeResource.getAccount()).thenReturn("");
+    when(mockGcpGkeResource.getInstanceId()).thenReturn("");
+    when(mockGcpGkeResource.getZone()).thenReturn("");
+    when(mockGcpGkeResource.getClusterName()).thenReturn("");
+    when(mockGcpGkeResource.getContainerName()).thenReturn("");
+    when(mockGcpGkeResource.getNamespaceId()).thenReturn("");
+    when(mockGcpGkeResource.getPodId()).thenReturn("");
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            null,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    Span span = handler.generateSpan(spanData, mockGcpGkeResource);
+    Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GKE_CONTAINER, "project_id"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GKE_CONTAINER, "instance_id"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GKE_CONTAINER, "zone"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GKE_CONTAINER, "cluster_name"));
+    assertThat(attributeMap)
+        .containsKey(createResourceLabelKey(GCP_GKE_CONTAINER, "container_name"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GKE_CONTAINER, "namespace_id"));
+    assertThat(attributeMap).containsKey(createResourceLabelKey(GCP_GKE_CONTAINER, "pod_id"));
   }
 
   @Test
@@ -323,7 +406,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             status,
             endTimestamp);
 
-    Span span = handler.generateSpan(spanData);
+    Span span = handler.generateSpan(spanData, null);
     Map<String, AttributeValue> attributes = span.getAttributes().getAttributeMapMap();
 
     assertThat(attributes).containsEntry("/http/host", toStringAttributeValueProto("host"));
@@ -353,7 +436,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, null).getDisplayName().getValue())
         .isEqualTo("Recv." + SPAN_NAME);
   }
 
@@ -374,7 +457,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, null).getDisplayName().getValue())
         .isEqualTo("Recv." + SPAN_NAME);
   }
 
@@ -395,7 +478,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, null).getDisplayName().getValue())
         .isEqualTo("Sent." + SPAN_NAME);
   }
 
@@ -416,7 +499,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, null).getDisplayName().getValue())
         .isEqualTo("Sent." + SPAN_NAME);
   }
 }
