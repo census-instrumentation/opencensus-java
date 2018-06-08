@@ -26,7 +26,7 @@ group = "io.opencensus"
 version = "0.15.0-SNAPSHOT" // CURRENT_OPENCENSUS_VERSION
 
 def opencensusVersion = "0.14.0" // LATEST_OPENCENSUS_RELEASE_VERSION
-def grpcVersion = "1.9.0" // CURRENT_GRPC_VERSION
+def grpcVersion = "1.10.1" // CURRENT_GRPC_VERSION
 def prometheusVersion = "0.3.0"
 
 tasks.withType(JavaCompile) {
@@ -35,7 +35,7 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-    compile "com.google.api.grpc:proto-google-common-protos:1.0.5",
+    compile "com.google.api.grpc:proto-google-common-protos:1.11.0",
             "io.opencensus:opencensus-api:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-zpages:${opencensusVersion}",
             "io.opencensus:opencensus-contrib-grpc-metrics:${opencensusVersion}",
@@ -48,7 +48,8 @@ dependencies {
             "io.grpc:grpc-netty:${grpcVersion}",
             "io.prometheus:simpleclient_httpserver:${prometheusVersion}"
 
-    runtime "io.opencensus:opencensus-impl:${opencensusVersion}"
+    runtime "io.opencensus:opencensus-impl:${opencensusVersion}",
+            "io.netty:netty-tcnative-boringssl-static:2.0.8.Final"
 }
 
 protobuf {
