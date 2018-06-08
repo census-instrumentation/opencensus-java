@@ -66,8 +66,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -100,6 +102,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   @VisibleForTesting @javax.annotation.Nullable
   static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
 
+  // Only initialize once.
+  private static final Map<String, AttributeValue> RESOURCE_LABELS = getResourceLabels(RESOURCE);
+
   private final String projectId;
   private final TraceServiceClient traceServiceClient;
   private final ProjectName projectName;
@@ -131,7 +136,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   }
 
   @VisibleForTesting
-  Span generateSpan(SpanData spanData, @javax.annotation.Nullable MonitoredResource resource) {
+  Span generateSpan(SpanData spanData) {
     SpanContext context = spanData.getContext();
     final String traceIdHex = encodeTraceId(context.getTraceId());
     final String spanIdHex = encodeSpanId(context.getSpanId());
@@ -144,7 +149,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             .setDisplayName(
                 toTruncatableStringProto(toDisplayName(spanData.getName(), spanData.getKind())))
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
-            .setAttributes(toAttributesProto(spanData.getAttributes(), resource))
+            .setAttributes(toAttributesProto(spanData.getAttributes()))
             .setTimeEvents(
                 toTimeEventsProto(spanData.getAnnotations(), spanData.getMessageEvents()));
     io.opencensus.trace.Status status = spanData.getStatus();
@@ -229,13 +234,14 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   // These are the attributes of the Span, where usually we may add more attributes like the agent.
   private static Attributes toAttributesProto(
-      io.opencensus.trace.export.SpanData.Attributes attributes,
-      @javax.annotation.Nullable MonitoredResource resource) {
+      io.opencensus.trace.export.SpanData.Attributes attributes) {
     Attributes.Builder attributesBuilder =
         toAttributesBuilderProto(
             attributes.getAttributeMap(), attributes.getDroppedAttributesCount());
     attributesBuilder.putAttributeMap(AGENT_LABEL_KEY, AGENT_LABEL_VALUE);
-    putResourceLabels(attributesBuilder, resource);
+    for (Entry<String, AttributeValue> entry : RESOURCE_LABELS.entrySet()) {
+      attributesBuilder.putAttributeMap(entry.getKey(), entry.getValue());
+    }
     return attributesBuilder.build();
   }
 
@@ -250,93 +256,96 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     return attributesBuilder;
   }
 
-  private static void putResourceLabels(
-      Attributes.Builder attributesBuilder, @javax.annotation.Nullable MonitoredResource resource) {
+  private static Map<String, AttributeValue> getResourceLabels(
+      @javax.annotation.Nullable MonitoredResource resource) {
     if (resource == null) {
-      return;
+      return Collections.emptyMap();
     }
+    Map<String, AttributeValue> resourceLabels = new HashMap<String, AttributeValue>();
     ResourceType resourceType = resource.getResourceType();
     switch (resourceType) {
       case AWS_EC2_INSTANCE:
         @SuppressWarnings("unchecked")
         AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
             (AwsEc2InstanceMonitoredResource) resource;
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "aws_account",
             awsEc2InstanceMonitoredResource.getAccount());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "instance_id",
             awsEc2InstanceMonitoredResource.getInstanceId());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "region",
             "aws:" + awsEc2InstanceMonitoredResource.getRegion());
-        return;
+        return Collections.unmodifiableMap(resourceLabels);
       case GCP_GCE_INSTANCE:
         @SuppressWarnings("unchecked")
         GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
             (GcpGceInstanceMonitoredResource) resource;
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "project_id",
             gcpGceInstanceMonitoredResource.getAccount());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "instance_id",
             gcpGceInstanceMonitoredResource.getInstanceId());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder, resourceType, "zone", gcpGceInstanceMonitoredResource.getZone());
-        return;
+        putToResourceAttributeMap(
+            resourceLabels, resourceType, "zone", gcpGceInstanceMonitoredResource.getZone());
+        return Collections.unmodifiableMap(resourceLabels);
       case GCP_GKE_CONTAINER:
         @SuppressWarnings("unchecked")
         GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
             (GcpGkeContainerMonitoredResource) resource;
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "project_id",
             gcpGkeContainerMonitoredResource.getAccount());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "instance_id",
             gcpGkeContainerMonitoredResource.getInstanceId());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder, resourceType, "zone", gcpGkeContainerMonitoredResource.getZone());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels, resourceType, "zone", gcpGkeContainerMonitoredResource.getZone());
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "cluster_name",
             gcpGkeContainerMonitoredResource.getClusterName());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "container_name",
             gcpGkeContainerMonitoredResource.getContainerName());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder,
+        putToResourceAttributeMap(
+            resourceLabels,
             resourceType,
             "namespace_id",
             gcpGkeContainerMonitoredResource.getNamespaceId());
-        putResourceAttributeMapToBuilder(
-            attributesBuilder, resourceType, "pod_id", gcpGkeContainerMonitoredResource.getPodId());
-        return;
+        putToResourceAttributeMap(
+            resourceLabels, resourceType, "pod_id", gcpGkeContainerMonitoredResource.getPodId());
+        return Collections.unmodifiableMap(resourceLabels);
+      default:
+        return Collections.emptyMap();
     }
   }
 
-  private static void putResourceAttributeMapToBuilder(
-      Attributes.Builder attributesBuilder,
+  private static void putToResourceAttributeMap(
+      Map<String, AttributeValue> map,
       ResourceType resourceType,
       String attributeName,
       String attributeValue) {
-    attributesBuilder.putAttributeMap(
+    map.put(
         createResourceLabelKey(resourceType, attributeName),
         toStringAttributeValueProto(attributeValue));
   }
@@ -471,7 +480,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             .startScopedSpan()) {
       List<Span> spans = new ArrayList<>(spanDataList.size());
       for (SpanData spanData : spanDataList) {
-        spans.add(generateSpan(spanData, RESOURCE));
+        spans.add(generateSpan(spanData));
       }
       // Sync call because it is already called for a batch of data, and on a separate thread.
       // TODO(bdrutu): Consider to make this async in the future.
