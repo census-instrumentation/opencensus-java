@@ -14,7 +14,5 @@
  * limitations under the License.
  */
 
-/**
- * Common API between different packages in this artifact.
- */
+/** Common API between different packages in this artifact. */
 package io.opencensus.common;

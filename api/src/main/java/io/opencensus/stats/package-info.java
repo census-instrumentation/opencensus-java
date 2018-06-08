@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * API for stats recording.
- */
+/** API for stats recording. */
 // TODO: Add more details.
 // TODO: Add code examples.
 package io.opencensus.stats;
