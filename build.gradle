@@ -181,7 +181,6 @@ subprojects {
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
                 google_auth: "com.google.auth:google-auth-library-credentials:${googleAuthVersion}",
                 google_cloud_logging: "com.google.cloud:google-cloud-logging:1.33.0",
-                google_cloud_logging_logback: "com.google.cloud:google-cloud-logging-logback:0.48.0-alpha",
                 google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudVersion}",
                 zipkin_reporter: "io.zipkin.reporter2:zipkin-reporter:${zipkinReporterVersion}",
                 zipkin_urlconnection: "io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}",
@@ -192,7 +191,6 @@ subprojects {
                 guava: "com.google.guava:guava:${guavaVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
                 signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
-                slf4j: "org.slf4j:slf4j-api:1.7.25",
                 prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",
                 protobuf: "com.google.protobuf:protobuf-java:${protobufVersion}",
 

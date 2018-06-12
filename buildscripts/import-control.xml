@@ -96,11 +96,6 @@ General guidelines on imports:
     <subpackage name="logcorrelation.stackdriver">
       <allow pkg="com.google.cloud"/>
       <allow pkg="io.opencensus.trace"/>
-      <subpackage name="demo">
-        <allow pkg="io.opencensus.contrib.logcorrelation.stackdriver"/>
-        <allow pkg="io.opencensus.exporter.trace.stackdriver"/>
-        <allow pkg="org.slf4j"/>
-      </subpackage>
     </subpackage>
     <subpackage name="zpages">
       <allow pkg="com.sun.net.httpserver"/>
