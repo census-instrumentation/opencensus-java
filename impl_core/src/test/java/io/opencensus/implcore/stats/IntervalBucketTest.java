@@ -82,9 +82,9 @@ public class IntervalBucketTest {
     IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN);
     List<TagValue> tagValues1 = Arrays.<TagValue>asList(TagValue.create("VALUE1"));
     List<TagValue> tagValues2 = Arrays.<TagValue>asList(TagValue.create("VALUE2"));
-    bucket.record(tagValues1, 5.0);
-    bucket.record(tagValues1, 15.0);
-    bucket.record(tagValues2, 10.0);
+    bucket.record(tagValues1, 5.0, null, START);
+    bucket.record(tagValues1, 15.0, null, START);
+    bucket.record(tagValues2, 10.0, null, START);
     assertThat(bucket.getTagValueAggregationMap().keySet()).containsExactly(tagValues1, tagValues2);
     MutableMean mutableMean1 = (MutableMean) bucket.getTagValueAggregationMap().get(tagValues1);
     MutableMean mutableMean2 = (MutableMean) bucket.getTagValueAggregationMap().get(tagValues2);

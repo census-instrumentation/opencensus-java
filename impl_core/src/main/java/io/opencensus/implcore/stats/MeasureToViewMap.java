@@ -32,6 +32,7 @@ import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
+import io.opencensus.trace.SpanContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -156,8 +157,8 @@ final class MeasureToViewMap {
       Collection<MutableViewData> views = mutableMap.get(measure.getName());
       for (MutableViewData view : views) {
         measurement.match(
-            new RecordDoubleValueFunc(tags, view, timestamp),
-            new RecordLongValueFunc(tags, view, timestamp),
+            new RecordDoubleValueFunc(tags, view, timestamp, stats.getSpanContext()),
+            new RecordLongValueFunc(tags, view, timestamp, stats.getSpanContext()),
             Functions.</*@Nullable*/ Void>throwAssertionError());
       }
     }
@@ -184,36 +185,48 @@ final class MeasureToViewMap {
   private static final class RecordDoubleValueFunc implements Function<MeasurementDouble, Void> {
     @Override
     public Void apply(MeasurementDouble arg) {
-      view.record(tags, arg.getValue(), timestamp);
+      view.record(tags, arg.getValue(), timestamp, spanContext);
       return null;
     }
 
     private final TagContext tags;
     private final MutableViewData view;
     private final Timestamp timestamp;
+    @javax.annotation.Nullable private final SpanContext spanContext;
 
-    private RecordDoubleValueFunc(TagContext tags, MutableViewData view, Timestamp timestamp) {
+    private RecordDoubleValueFunc(
+        TagContext tags,
+        MutableViewData view,
+        Timestamp timestamp,
+        @javax.annotation.Nullable SpanContext spanContext) {
       this.tags = tags;
       this.view = view;
       this.timestamp = timestamp;
+      this.spanContext = spanContext;
     }
   }
 
   private static final class RecordLongValueFunc implements Function<MeasurementLong, Void> {
     @Override
     public Void apply(MeasurementLong arg) {
-      view.record(tags, arg.getValue(), timestamp);
+      view.record(tags, arg.getValue(), timestamp, spanContext);
       return null;
     }
 
     private final TagContext tags;
     private final MutableViewData view;
     private final Timestamp timestamp;
+    @javax.annotation.Nullable private final SpanContext spanContext;
 
-    private RecordLongValueFunc(TagContext tags, MutableViewData view, Timestamp timestamp) {
+    private RecordLongValueFunc(
+        TagContext tags,
+        MutableViewData view,
+        Timestamp timestamp,
+        @javax.annotation.Nullable SpanContext spanContext) {
       this.tags = tags;
       this.view = view;
       this.timestamp = timestamp;
+      this.spanContext = spanContext;
     }
   }
 }

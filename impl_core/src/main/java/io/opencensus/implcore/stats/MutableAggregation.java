@@ -20,8 +20,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Function;
+import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.BucketBoundaries;
+import io.opencensus.trace.SpanContext;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */
 abstract class MutableAggregation {
@@ -35,8 +38,11 @@ abstract class MutableAggregation {
    * Put a new value into the MutableAggregation.
    *
    * @param value new value to be added to population
+   * @param spanContext the {@link SpanContext} to be recorded
+   * @param timestamp the timestamp when the value is recorded
    */
-  abstract void add(double value);
+  abstract void add(
+      double value, @javax.annotation.Nullable SpanContext spanContext, Timestamp timestamp);
 
   // TODO(songya): remove this method once interval stats is completely removed.
   /**
@@ -76,7 +82,8 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value) {
+    void add(
+        double value, @javax.annotation.Nullable SpanContext spanContext, Timestamp timestamp) {
       sum += value;
     }
 
@@ -123,7 +130,8 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value) {
+    void add(
+        double value, @javax.annotation.Nullable SpanContext spanContext, Timestamp timestamp) {
       count++;
     }
 
@@ -171,7 +179,8 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value) {
+    void add(
+        double value, @javax.annotation.Nullable SpanContext spanContext, Timestamp timestamp) {
       count++;
       sum += value;
     }
@@ -236,10 +245,13 @@ abstract class MutableAggregation {
 
     private final BucketBoundaries bucketBoundaries;
     private final long[] bucketCounts;
+    private final Exemplar[] exemplars;
 
     private MutableDistribution(BucketBoundaries bucketBoundaries) {
       this.bucketBoundaries = bucketBoundaries;
-      this.bucketCounts = new long[bucketBoundaries.getBoundaries().size() + 1];
+      int buckets = bucketBoundaries.getBoundaries().size() + 1;
+      this.bucketCounts = new long[buckets];
+      this.exemplars = new Exemplar[buckets];
     }
 
     /**
@@ -253,7 +265,8 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value) {
+    void add(
+        double value, @javax.annotation.Nullable SpanContext spanContext, Timestamp timestamp) {
       sum += value;
       count++;
 
@@ -277,13 +290,18 @@ abstract class MutableAggregation {
         max = value;
       }
 
-      for (int i = 0; i < bucketBoundaries.getBoundaries().size(); i++) {
-        if (value < bucketBoundaries.getBoundaries().get(i)) {
-          bucketCounts[i]++;
-          return;
+      int bucket = 0;
+      for (; bucket < bucketBoundaries.getBoundaries().size(); bucket++) {
+        if (value < bucketBoundaries.getBoundaries().get(bucket)) {
+          break;
         }
       }
-      bucketCounts[bucketCounts.length - 1]++;
+      bucketCounts[bucket]++;
+      if (spanContext != null) {
+        exemplars[bucket] =
+            Exemplar.create(
+                bucketCounts[bucket], timestamp, spanContext.getTraceId(), spanContext.getSpanId());
+      }
     }
 
     // We don't compute fractional MutableDistribution, it's either whole or none.
@@ -354,6 +372,10 @@ abstract class MutableAggregation {
       return bucketCounts;
     }
 
+    Exemplar[] getExemplars() {
+      return exemplars;
+    }
+
     @Override
     final <T> T match(
         Function<? super MutableSum, T> p0,
@@ -385,7 +407,8 @@ abstract class MutableAggregation {
     }
 
     @Override
-    void add(double value) {
+    void add(
+        double value, @javax.annotation.Nullable SpanContext spanContext, Timestamp timestamp) {
       lastValue = value;
       // TODO(songya): remove this once interval stats is completely removed.
       if (!initialized) {
