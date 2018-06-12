@@ -51,6 +51,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
 
   private static String formatTraceId(TraceId traceId) {
     // TODO(sebright): Cache the project ID.
+    // TODO(sebright): Add a way to override the project ID in the logging configuration.
     String projectId = ServiceOptions.getDefaultProjectId();
     return "projects/" + projectId + "/traces/" + traceId.toLowerBase16();
   }
