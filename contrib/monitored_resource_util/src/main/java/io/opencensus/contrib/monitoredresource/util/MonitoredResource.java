@@ -117,13 +117,7 @@ public abstract class MonitoredResource {
           account, instanceId, region);
     }
 
-    /**
-     * Returns an {@link AwsEc2InstanceMonitoredResource} with the default parameters.
-     *
-     * @return an {@code AwsEc2InstanceMonitoredResource}.
-     * @since 0.15
-     */
-    public static AwsEc2InstanceMonitoredResource create() {
+    static AwsEc2InstanceMonitoredResource create() {
       return create(AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
     }
   }
@@ -186,13 +180,7 @@ public abstract class MonitoredResource {
           account, instanceId, zone);
     }
 
-    /**
-     * Returns a {@link GcpGceInstanceMonitoredResource} with the default parameters.
-     *
-     * @return a {@code GcpGceInstanceMonitoredResource}.
-     * @since 0.15
-     */
-    public static GcpGceInstanceMonitoredResource create() {
+    static GcpGceInstanceMonitoredResource create() {
       return create(GCP_ACCOUNT_ID, GCP_INSTANCE_ID, GCP_ZONE);
     }
   }
@@ -303,13 +291,7 @@ public abstract class MonitoredResource {
           account, clusterName, containerName, namespaceId, instanceId, podId, zone);
     }
 
-    /**
-     * Returns a {@link GcpGkeContainerMonitoredResource} with the default parameters.
-     *
-     * @return a {@code GcpGkeContainerMonitoredResource}
-     * @since 0.15
-     */
-    public static GcpGkeContainerMonitoredResource create() {
+    static GcpGkeContainerMonitoredResource create() {
       return create(
           GCP_ACCOUNT_ID,
           GCP_CLUSTER_NAME,
