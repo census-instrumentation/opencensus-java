@@ -440,7 +440,6 @@ final class StackdriverExportUtils {
       io.opencensus.contrib.monitoredresource.util.MonitoredResource autoDetectedResource) {
     switch (autoDetectedResource.getResourceType()) {
       case GCP_GCE_INSTANCE:
-        @SuppressWarnings("unchecked")
         GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
             (GcpGceInstanceMonitoredResource) autoDetectedResource;
         builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGceInstanceMonitoredResource.getAccount());
@@ -448,7 +447,6 @@ final class StackdriverExportUtils {
         builder.putLabels("zone", gcpGceInstanceMonitoredResource.getZone());
         return;
       case GCP_GKE_CONTAINER:
-        @SuppressWarnings("unchecked")
         GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
             (GcpGkeContainerMonitoredResource) autoDetectedResource;
         builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGkeContainerMonitoredResource.getAccount());
@@ -460,7 +458,6 @@ final class StackdriverExportUtils {
         builder.putLabels("zone", gcpGkeContainerMonitoredResource.getZone());
         return;
       case AWS_EC2_INSTANCE:
-        @SuppressWarnings("unchecked")
         AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
             (AwsEc2InstanceMonitoredResource) autoDetectedResource;
         builder.putLabels("aws_account", awsEc2InstanceMonitoredResource.getAccount());
