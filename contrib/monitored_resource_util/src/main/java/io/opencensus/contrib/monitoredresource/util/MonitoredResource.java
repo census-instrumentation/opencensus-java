@@ -102,9 +102,29 @@ public abstract class MonitoredResource {
      */
     public abstract String getRegion();
 
-    static AwsEc2InstanceMonitoredResource create() {
+    /**
+     * Returns an {@link AwsEc2InstanceMonitoredResource}.
+     *
+     * @param account the AWS account ID.
+     * @param instanceId the AWS EC2 instance ID.
+     * @param region the AWS region.
+     * @return an {@code AwsEc2InstanceMonitoredResource}.
+     * @since 0.15
+     */
+    public static AwsEc2InstanceMonitoredResource create(
+        String account, String instanceId, String region) {
       return new AutoValue_MonitoredResource_AwsEc2InstanceMonitoredResource(
-          AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
+          account, instanceId, region);
+    }
+
+    /**
+     * Returns an {@link AwsEc2InstanceMonitoredResource} with the default parameters.
+     *
+     * @return an {@code AwsEc2InstanceMonitoredResource}.
+     * @since 0.15
+     */
+    public static AwsEc2InstanceMonitoredResource create() {
+      return create(AWS_ACCOUNT, AWS_INSTANCE_ID, AWS_REGION);
     }
   }
 
@@ -151,9 +171,29 @@ public abstract class MonitoredResource {
      */
     public abstract String getZone();
 
-    static GcpGceInstanceMonitoredResource create() {
+    /**
+     * Returns a {@link GcpGceInstanceMonitoredResource}.
+     *
+     * @param account the GCP account number.
+     * @param instanceId the GCP GCE instance ID.
+     * @param zone the GCP zone.
+     * @return a {@code GcpGceInstanceMonitoredResource}.
+     * @since 0.15
+     */
+    public static GcpGceInstanceMonitoredResource create(
+        String account, String instanceId, String zone) {
       return new AutoValue_MonitoredResource_GcpGceInstanceMonitoredResource(
-          GCP_ACCOUNT_ID, GCP_INSTANCE_ID, GCP_ZONE);
+          account, instanceId, zone);
+    }
+
+    /**
+     * Returns a {@link GcpGceInstanceMonitoredResource} with the default parameters.
+     *
+     * @return a {@code GcpGceInstanceMonitoredResource}.
+     * @since 0.15
+     */
+    public static GcpGceInstanceMonitoredResource create() {
+      return create(GCP_ACCOUNT_ID, GCP_INSTANCE_ID, GCP_ZONE);
     }
   }
 
@@ -238,8 +278,39 @@ public abstract class MonitoredResource {
      */
     public abstract String getZone();
 
-    static GcpGkeContainerMonitoredResource create() {
+    /**
+     * Returns a {@link GcpGkeContainerMonitoredResource}.
+     *
+     * @param account the GCP account number.
+     * @param clusterName the GCP GKE cluster name.
+     * @param containerName the GCP GKE container name.
+     * @param namespaceId the GCP GKE namespace ID.
+     * @param instanceId the GCP GKE instance ID.
+     * @param podId the GCP GKE Pod ID.
+     * @param zone the GCP zone.
+     * @return a {@code GcpGkeContainerMonitoredResource}.
+     * @since 0.15
+     */
+    public static GcpGkeContainerMonitoredResource create(
+        String account,
+        String clusterName,
+        String containerName,
+        String namespaceId,
+        String instanceId,
+        String podId,
+        String zone) {
       return new AutoValue_MonitoredResource_GcpGkeContainerMonitoredResource(
+          account, clusterName, containerName, namespaceId, instanceId, podId, zone);
+    }
+
+    /**
+     * Returns a {@link GcpGkeContainerMonitoredResource} with the default parameters.
+     *
+     * @return a {@code GcpGkeContainerMonitoredResource}
+     * @since 0.15
+     */
+    public static GcpGkeContainerMonitoredResource create() {
+      return create(
           GCP_ACCOUNT_ID,
           GCP_CLUSTER_NAME,
           GCP_CONTAINER_NAME,
