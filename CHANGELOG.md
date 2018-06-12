@@ -1,5 +1,5 @@
 ## Unreleased
-- Expose the constructor of MonitoredResource.
+- Expose the factory methods of MonitoredResource.
 
 ## 0.14.0 - 2018-06-04
 - Adds Tracing.getExportComponent().shutdown() for use within application shutdown hooks.
