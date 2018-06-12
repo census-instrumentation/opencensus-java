@@ -92,8 +92,6 @@ public class OpenCensusTraceLoggingEnhancerTest {
     }
   }
 
-  // TODO(sebright): Should the OpenCensusTraceLoggingEnhancer avoid adding tracing data when the
-  // span is blank?
   @Test
   public void enhanceLogEntry_BlankSpan() {
     System.setProperty(GOOGLE_CLOUD_PROJECT, "my-test-project-3");
