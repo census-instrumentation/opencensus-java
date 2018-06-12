@@ -265,7 +265,6 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     ResourceType resourceType = resource.getResourceType();
     switch (resourceType) {
       case AWS_EC2_INSTANCE:
-        @SuppressWarnings("unchecked")
         AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
             (AwsEc2InstanceMonitoredResource) resource;
         putToResourceAttributeMap(
@@ -285,7 +284,6 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             "aws:" + awsEc2InstanceMonitoredResource.getRegion());
         return Collections.unmodifiableMap(resourceLabels);
       case GCP_GCE_INSTANCE:
-        @SuppressWarnings("unchecked")
         GcpGceInstanceMonitoredResource gcpGceInstanceMonitoredResource =
             (GcpGceInstanceMonitoredResource) resource;
         putToResourceAttributeMap(
@@ -302,7 +300,6 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             resourceLabels, resourceType, "zone", gcpGceInstanceMonitoredResource.getZone());
         return Collections.unmodifiableMap(resourceLabels);
       case GCP_GKE_CONTAINER:
-        @SuppressWarnings("unchecked")
         GcpGkeContainerMonitoredResource gcpGkeContainerMonitoredResource =
             (GcpGkeContainerMonitoredResource) resource;
         putToResourceAttributeMap(
