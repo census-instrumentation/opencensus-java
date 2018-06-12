@@ -334,9 +334,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         putToResourceAttributeMap(
             resourceLabels, resourceType, "pod_id", gcpGkeContainerMonitoredResource.getPodId());
         return Collections.unmodifiableMap(resourceLabels);
-      default:
-        return Collections.emptyMap();
     }
+    return Collections.emptyMap();
   }
 
   private static void putToResourceAttributeMap(
