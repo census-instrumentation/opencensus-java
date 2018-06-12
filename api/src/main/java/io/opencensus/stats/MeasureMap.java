@@ -19,6 +19,7 @@ package io.opencensus.stats;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
+import io.opencensus.trace.SpanContext;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -50,6 +51,15 @@ public abstract class MeasureMap {
    * @since 0.8
    */
   public abstract MeasureMap put(MeasureLong measure, long value);
+
+  /**
+   * Associate measurements with a {@link SpanContext}.
+   *
+   * @param spanContext the {@link SpanContext}
+   * @return this
+   * @since 0.15
+   */
+  public abstract MeasureMap withSpanContext(SpanContext spanContext);
 
   /**
    * Records all of the measures at the same time, with the current {@link TagContext}.

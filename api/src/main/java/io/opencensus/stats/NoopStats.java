@@ -23,6 +23,7 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
+import io.opencensus.trace.SpanContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -131,6 +132,11 @@ final class NoopStats {
 
     @Override
     public MeasureMap put(MeasureLong measure, long value) {
+      return this;
+    }
+
+    @Override
+    public MeasureMap withSpanContext(SpanContext spanContext) {
       return this;
     }
 
