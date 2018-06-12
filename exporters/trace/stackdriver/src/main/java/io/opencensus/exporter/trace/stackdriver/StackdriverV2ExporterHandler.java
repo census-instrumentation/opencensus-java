@@ -99,8 +99,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           .put("http.status_code", "/http/status_code")
           .build();
 
-  @VisibleForTesting @javax.annotation.Nullable
-  static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
+  @javax.annotation.Nullable
+  private static final MonitoredResource RESOURCE = MonitoredResourceUtils.getDefaultResource();
 
   // Only initialize once.
   private static final Map<String, AttributeValue> RESOURCE_LABELS = getResourceLabels(RESOURCE);
@@ -136,7 +136,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   }
 
   @VisibleForTesting
-  Span generateSpan(SpanData spanData) {
+  Span generateSpan(SpanData spanData, Map<String, AttributeValue> resourceLabels) {
     SpanContext context = spanData.getContext();
     final String traceIdHex = encodeTraceId(context.getTraceId());
     final String spanIdHex = encodeSpanId(context.getSpanId());
@@ -149,7 +149,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             .setDisplayName(
                 toTruncatableStringProto(toDisplayName(spanData.getName(), spanData.getKind())))
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
-            .setAttributes(toAttributesProto(spanData.getAttributes()))
+            .setAttributes(toAttributesProto(spanData.getAttributes(), resourceLabels))
             .setTimeEvents(
                 toTimeEventsProto(spanData.getAnnotations(), spanData.getMessageEvents()));
     io.opencensus.trace.Status status = spanData.getStatus();
@@ -234,12 +234,13 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   // These are the attributes of the Span, where usually we may add more attributes like the agent.
   private static Attributes toAttributesProto(
-      io.opencensus.trace.export.SpanData.Attributes attributes) {
+      io.opencensus.trace.export.SpanData.Attributes attributes,
+      Map<String, AttributeValue> resourceLabels) {
     Attributes.Builder attributesBuilder =
         toAttributesBuilderProto(
             attributes.getAttributeMap(), attributes.getDroppedAttributesCount());
     attributesBuilder.putAttributeMap(AGENT_LABEL_KEY, AGENT_LABEL_VALUE);
-    for (Entry<String, AttributeValue> entry : RESOURCE_LABELS.entrySet()) {
+    for (Entry<String, AttributeValue> entry : resourceLabels.entrySet()) {
       attributesBuilder.putAttributeMap(entry.getKey(), entry.getValue());
     }
     return attributesBuilder.build();
@@ -256,6 +257,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     return attributesBuilder;
   }
 
+  // TODO(songya): make constructor of MonitoredResource public, and add unit tests for this method.
   private static Map<String, AttributeValue> getResourceLabels(
       @javax.annotation.Nullable MonitoredResource resource) {
     if (resource == null) {
@@ -477,7 +479,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             .startScopedSpan()) {
       List<Span> spans = new ArrayList<>(spanDataList.size());
       for (SpanData spanData : spanDataList) {
-        spans.add(generateSpan(spanData));
+        spans.add(generateSpan(spanData, RESOURCE_LABELS));
       }
       // Sync call because it is already called for a batch of data, and on a separate thread.
       // TODO(bdrutu): Consider to make this async in the future.

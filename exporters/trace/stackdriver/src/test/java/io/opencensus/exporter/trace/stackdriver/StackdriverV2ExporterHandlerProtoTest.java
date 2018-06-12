@@ -17,6 +17,7 @@
 package io.opencensus.exporter.trace.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.contrib.monitoredresource.util.ResourceType.GCP_GCE_INSTANCE;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.createResourceLabelKey;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.toStringAttributeValueProto;
 
@@ -33,7 +34,6 @@ import com.google.devtools.cloudtrace.v2.StackTrace;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.Int32Value;
 import io.opencensus.common.Timestamp;
-import io.opencensus.contrib.monitoredresource.util.ResourceType;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Span.Kind;
@@ -46,6 +46,7 @@ import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -122,6 +123,15 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   private static final TimedEvents<io.opencensus.trace.MessageEvent> messageEvents =
       TimedEvents.create(networkEventsList, DROPPED_NETWORKEVENTS_COUNT);
   private static final SpanData.Links links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
+  private static final Map<String, AttributeValue> EMPTY_RESOURCE_LABELS = Collections.emptyMap();
+  private static final ImmutableMap<String, AttributeValue> GCE_RESOURCE_LABELS =
+      ImmutableMap.of(
+          createResourceLabelKey(GCP_GCE_INSTANCE, "project-id"),
+          toStringAttributeValueProto("my-project"),
+          createResourceLabelKey(GCP_GCE_INSTANCE, "instance-id"),
+          toStringAttributeValueProto("my-instance"),
+          createResourceLabelKey(GCP_GCE_INSTANCE, "zone"),
+          toStringAttributeValueProto("us-east1"));
 
   private StackdriverV2ExporterHandler handler;
 
@@ -230,7 +240,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             .setNanos(endTimestamp.getNanos())
             .build();
 
-    Span span = handler.generateSpan(spanData);
+    Span span = handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS);
     assertThat(span.getName()).isEqualTo(SD_SPAN_NAME);
     assertThat(span.getSpanId()).isEqualTo(SPAN_ID);
     assertThat(span.getParentSpanId()).isEqualTo(PARENT_SPAN_ID);
@@ -245,7 +255,6 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .containsEntry(ATTRIBUTE_KEY_1, AttributeValue.newBuilder().setIntValue(10L).build());
     assertThat(span.getAttributes().getAttributeMapMap())
         .containsEntry(ATTRIBUTE_KEY_2, AttributeValue.newBuilder().setBoolValue(true).build());
-    verifyResourceLabels(span.getAttributes().getAttributeMapMap());
     // TODO(@Hailong): add stack trace test in the future.
     assertThat(span.getStackTrace()).isEqualTo(StackTrace.newBuilder().build());
     assertThat(span.getTimeEvents().getDroppedMessageEventsCount())
@@ -262,33 +271,37 @@ public final class StackdriverV2ExporterHandlerProtoTest {
         .isEqualTo(Int32Value.newBuilder().setValue(CHILD_SPAN_COUNT).build());
   }
 
-  private static void verifyResourceLabels(Map<String, AttributeValue> attributeMap) {
-    if (StackdriverV2ExporterHandler.RESOURCE == null) {
-      return;
-    }
-    ResourceType resourceType = StackdriverV2ExporterHandler.RESOURCE.getResourceType();
-    switch (resourceType) {
-      case AWS_EC2_INSTANCE:
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "aws_account"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "region"));
-        return;
-      case GCP_GCE_INSTANCE:
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "project_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "zone"));
-        return;
-      case GCP_GKE_CONTAINER:
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "project_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "instance_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "zone"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "cluster_name"));
-        assertThat(attributeMap)
-            .containsKey(createResourceLabelKey(resourceType, "container_name"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "namespace_id"));
-        assertThat(attributeMap).containsKey(createResourceLabelKey(resourceType, "pod_id"));
-        return;
-    }
+  @Test
+  public void generateSpan_WithResourceLabels() {
+    SpanData spanData =
+        SpanData.create(
+            spanContext,
+            parentSpanId,
+            /* hasRemoteParent= */ true,
+            SPAN_NAME,
+            null,
+            startTimestamp,
+            attributes,
+            annotations,
+            messageEvents,
+            links,
+            CHILD_SPAN_COUNT,
+            status,
+            endTimestamp);
+    Span span = handler.generateSpan(spanData, GCE_RESOURCE_LABELS);
+    Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
+    assertThat(attributeMap)
+        .containsEntry(
+            createResourceLabelKey(GCP_GCE_INSTANCE, "project-id"),
+            toStringAttributeValueProto("my-project"));
+    assertThat(attributeMap)
+        .containsEntry(
+            createResourceLabelKey(GCP_GCE_INSTANCE, "instance-id"),
+            toStringAttributeValueProto("my-instance"));
+    assertThat(attributeMap)
+        .containsEntry(
+            createResourceLabelKey(GCP_GCE_INSTANCE, "zone"),
+            toStringAttributeValueProto("us-east1"));
   }
 
   @Test
@@ -323,7 +336,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             status,
             endTimestamp);
 
-    Span span = handler.generateSpan(spanData);
+    Span span = handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS);
     Map<String, AttributeValue> attributes = span.getAttributes().getAttributeMapMap();
 
     assertThat(attributes).containsEntry("/http/host", toStringAttributeValueProto("host"));
@@ -353,7 +366,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS).getDisplayName().getValue())
         .isEqualTo("Recv." + SPAN_NAME);
   }
 
@@ -374,7 +387,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS).getDisplayName().getValue())
         .isEqualTo("Recv." + SPAN_NAME);
   }
 
@@ -395,7 +408,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS).getDisplayName().getValue())
         .isEqualTo("Sent." + SPAN_NAME);
   }
 
@@ -416,7 +429,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    assertThat(handler.generateSpan(spanData).getDisplayName().getValue())
+    assertThat(handler.generateSpan(spanData, EMPTY_RESOURCE_LABELS).getDisplayName().getValue())
         .isEqualTo("Sent." + SPAN_NAME);
   }
 }
