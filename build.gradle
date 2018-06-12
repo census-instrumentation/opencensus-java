@@ -376,7 +376,8 @@ subprojects {
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
-                 'opencensus-contrib-log-correlation-stackdriver',
+                 // TODO(sebright): Release 'opencensus-contrib-log-correlation-stackdriver' after
+                 // testing it with Logback and java.util.logging.
                  'opencensus-contrib-monitored-resource-util',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-stats-prometheus',
