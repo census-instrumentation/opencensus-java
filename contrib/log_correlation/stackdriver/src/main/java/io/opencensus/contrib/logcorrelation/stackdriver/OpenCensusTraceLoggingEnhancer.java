@@ -50,7 +50,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   }
 
   private static String formatTraceId(TraceId traceId) {
-    // TODO(sebright): Should we cache the project ID, for efficiency?
+    // TODO(sebright): Cache the project ID.
     String projectId = ServiceOptions.getDefaultProjectId();
     return "projects/" + projectId + "/traces/" + traceId.toLowerBase16();
   }
