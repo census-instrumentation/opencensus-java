@@ -21,16 +21,21 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.common.Timestamp;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.AggregationData.LastValueDataDouble;
 import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
 import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
+import io.opencensus.trace.SpanId;
+import io.opencensus.trace.TraceId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,6 +47,10 @@ import org.junit.runners.JUnit4;
 public class AggregationDataTest {
 
   private static final double TOLERANCE = 1e-6;
+  private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 0);
+  private static final Timestamp TIMESTAMP_2 = Timestamp.create(2, 0);
+  private static final TraceId TRACE_ID = TraceId.generateRandomId(new Random());
+  private static final SpanId SPAN_ID = SpanId.generateRandomId(new Random());
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -58,6 +67,25 @@ public class AggregationDataTest {
   }
 
   @Test
+  public void testCreateDistributionDataWithExemplar() {
+    Exemplar exemplar1 = Exemplar.create(4, TIMESTAMP_2, TRACE_ID, SPAN_ID);
+    Exemplar exemplar2 = Exemplar.create(1, TIMESTAMP_1, TRACE_ID, SPAN_ID);
+    DistributionData distributionData =
+        DistributionData.create(
+            7.7, 10, 1.1, 9.9, 32.2, Arrays.asList(4L, 1L), Arrays.asList(exemplar1, exemplar2));
+    assertThat(distributionData.getExemplars()).containsExactly(exemplar1, exemplar2).inOrder();
+  }
+
+  @Test
+  public void testExemplar() {
+    Exemplar exemplar = Exemplar.create(15, TIMESTAMP_1, TRACE_ID, SPAN_ID);
+    assertThat(exemplar.getValue()).isEqualTo(15);
+    assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP_1);
+    assertThat(exemplar.getTraceId()).isEqualTo(TRACE_ID);
+    assertThat(exemplar.getSpanId()).isEqualTo(SPAN_ID);
+  }
+
+  @Test
   public void preventNullBucketCountList() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket counts should not be null.");
@@ -69,6 +97,28 @@ public class AggregationDataTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket should not be null.");
     DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, null));
+  }
+
+  @Test
+  public void preventNullExemplarList() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Exemplar list should not be null.");
+    DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 1L), null);
+  }
+
+  @Test
+  public void preventBucketListAndExemplarListHaveDifferentSizes() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Exemplar list and bucket counts should have the same size.");
+    DistributionData.create(
+        1,
+        1,
+        1,
+        1,
+        0,
+        Arrays.asList(0L, 1L, 1L),
+        Arrays.asList(
+            Exemplar.create(0L, Timestamp.create(0, 0), TraceId.INVALID, SpanId.INVALID)));
   }
 
   @Test
