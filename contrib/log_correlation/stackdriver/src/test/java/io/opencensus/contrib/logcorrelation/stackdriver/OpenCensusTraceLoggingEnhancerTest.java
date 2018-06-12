@@ -81,9 +81,9 @@ public class OpenCensusTraceLoggingEnhancerTest {
         LogEntry.Builder builder = LogEntry.newBuilder(null);
         new OpenCensusTraceLoggingEnhancer().enhanceLogEntry(builder);
         LogEntry logEntry = builder.build();
-        assertThat(logEntry.getLabels().get("span_id")).isEqualTo(spanId);
         assertThat(logEntry.getLabels().get("sampled")).isEqualTo(isSampled ? "true" : "false");
         assertThat(logEntry.getTrace()).isEqualTo("projects/" + projectId + "/traces/" + traceId);
+        assertThat(logEntry.getSpanId()).isEqualTo(spanId);
       } finally {
         scope.close();
       }
@@ -101,10 +101,10 @@ public class OpenCensusTraceLoggingEnhancerTest {
         LogEntry.Builder builder = LogEntry.newBuilder(null);
         new OpenCensusTraceLoggingEnhancer().enhanceLogEntry(builder);
         LogEntry logEntry = builder.build();
-        assertThat(logEntry.getLabels().get("span_id")).isEqualTo("0000000000000000");
         assertThat(logEntry.getLabels().get("sampled")).isEqualTo("false");
         assertThat(logEntry.getTrace())
             .isEqualTo("projects/my-test-project-3/traces/00000000000000000000000000000000");
+        assertThat(logEntry.getSpanId()).isEqualTo("0000000000000000");
       } finally {
         scope.close();
       }

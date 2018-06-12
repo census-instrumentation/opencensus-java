@@ -32,7 +32,6 @@ import io.opencensus.trace.Tracing;
  */
 @ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
-  private static final String SPAN_ID_KEY = "span_id";
   private static final String SAMPLED_KEY = "sampled";
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -44,9 +43,9 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   public void enhanceLogEntry(LogEntry.Builder builder) {
     SpanContext span = tracer.getCurrentSpan().getContext();
     builder.setTrace(formatTraceId(span.getTraceId()));
+    builder.setSpanId(span.getSpanId().toLowerBase16());
 
-    // TODO(sebright): Find the correct way to add span ID and sampling decision.
-    builder.addLabel(SPAN_ID_KEY, span.getSpanId().toLowerBase16());
+    // TODO(sebright): Find the correct way to add the sampling decision.
     builder.addLabel(SAMPLED_KEY, Boolean.toString(span.getTraceOptions().isSampled()));
   }
 
