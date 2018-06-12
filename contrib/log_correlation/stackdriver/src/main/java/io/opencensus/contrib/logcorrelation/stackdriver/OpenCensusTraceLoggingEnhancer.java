@@ -30,6 +30,12 @@ import io.opencensus.trace.Tracing;
  *
  * <p>This feature is currently experimental.
  */
+
+// TODO(sebright): Allow configuring the LoggingEnhancer with Java properties. One property should
+// control the types of spans to correlate, with these three choices:
+// - off
+// - only add tracing data for sampled spans
+// - add tracing data for all spans
 @ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   private static final String SAMPLED_KEY = "sampled";
