@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
  * class MyClass {
  *   private static final Tracer tracer = Tracing.getTracer();
  *   void doWork() {
- *     try(Scope ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan) {
+ *     try(Scope ss = tracer.spanBuilder("MyClass.DoWork").startScopedSpan()) {
  *       tracer.getCurrentSpan().addAnnotation("Starting the work.");
  *       doWorkInternal();
  *       tracer.getCurrentSpan().addAnnotation("Finished working.");
@@ -174,7 +174,7 @@ public abstract class Tracer {
    * class MyClass {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
-   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     Span span = tracer.spanBuilder("MyRunnableSpan").startSpan();
    *     executor.execute(tracer.withSpan(span, new Runnable() {
    *      {@literal @}Override
    *       public void run() {
@@ -195,7 +195,7 @@ public abstract class Tracer {
    * class MyClass {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
-   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     Span span = tracer.spanBuilder("MyRunnableSpan").startSpan();
    *     executor.execute(Context.wrap(tracer.withSpan(span, new Runnable() {
    *      {@literal @}Override
    *       public void run() {
@@ -239,7 +239,7 @@ public abstract class Tracer {
    * class MyClass {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
-   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     Span span = tracer.spanBuilder("MyRunnableSpan").startSpan();
    *     executor.execute(tracer.withSpan(span, {@code new Callable<MyResult>()} {
    *      {@literal @}Override
    *       public MyResult call() throws Exception {
@@ -260,7 +260,7 @@ public abstract class Tracer {
    * class MyClass {
    *   private static Tracer tracer = Tracing.getTracer();
    *   void handleRequest(Executor executor) {
-   *     Span span = new Tracer.spanBuilder("MyRunnableSpan");
+   *     Span span = tracer.spanBuilder("MyRunnableSpan").startSpan();
    *     executor.execute(Context.wrap(tracer.withSpan(span, {@code new Callable<MyResult>()} {
    *      {@literal @}Override
    *       public MyResult call() throws Exception {
