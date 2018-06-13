@@ -47,7 +47,7 @@ import org.mockito.MockitoAnnotations;
 public class SpanBuilderImplTest {
   private static final String SPAN_NAME = "MySpanName";
   private SpanBuilderImpl.Options spanBuilderOptions;
-  private TraceParams alwaysSampleTraceParams =
+  private final TraceParams alwaysSampleTraceParams =
       TraceParams.DEFAULT.toBuilder().setSampler(Samplers.alwaysSample()).build();
   private final TestClock testClock = TestClock.create();
   private final RandomHandler randomHandler = new FakeRandomHandler();

@@ -73,30 +73,17 @@ subprojects {
         it.options.compilerArgs += ["-Xlint:all", "-Xlint:-try", "-Xlint:-processing"]
         if (useErrorProne) {
             if (JavaVersion.current().isJava8Compatible()) {
-                it.options.compilerArgs += ["-XepDisableWarningsInGeneratedCode"]
-                // Exclude generated protobuf from error-prone checks.
-                it.options.compilerArgs += ["-XepExcludedPaths:.*/gen_gradle/.*"]
-                // TODO(bdrutu): Read files directly instead of reading from properties.
-                if (rootProject.hasProperty("errorProneWarnings")) {
-                    it.options.compilerArgs += rootProject.properties["errorProneWarnings"].split(',').collect {
-                        it as String
-                    }
-                }
-                if (rootProject.hasProperty("errorProneExperimentalErrors")) {
-                    it.options.compilerArgs += rootProject.properties["errorProneExperimentalErrors"].split(',').collect {
-                        it as String
-                    }
-                }
-                if (rootProject.hasProperty("errorProneExperimentalWarnings")) {
-                    it.options.compilerArgs += rootProject.properties["errorProneExperimentalWarnings"].split(',').collect {
-                        it as String
-                    }
-                }
-                if (rootProject.hasProperty("errorProneExperimentalSuggestions")) {
-                    it.options.compilerArgs += rootProject.properties["errorProneExperimentalSuggestions"].split(',').collect {
-                        it as String
-                    }
-                }
+                it.options.compilerArgs += ["-XepAllDisabledChecksAsWarnings", "-XepDisableWarningsInGeneratedCode"]
+
+                // MutableMethodReturnType can suggest returning Guava types from
+                // API methods (https://github.com/google/error-prone/issues/982).
+                it.options.compilerArgs += ["-Xep:MutableMethodReturnType:OFF"]
+
+                // ReturnMissingNullable conflicts with Checker Framework null analysis.
+                it.options.compilerArgs += ["-Xep:ReturnMissingNullable:OFF"]
+
+                // OpenCensus doesn't currently use Var annotations.
+                it.options.compilerArgs += ["-Xep:Var:OFF"]
             }
         }
         if (useCheckerFramework) {
@@ -159,7 +146,7 @@ subprojects {
         appengineVersion = '1.9.63'
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
-        errorProneVersion = '2.2.0'
+        errorProneVersion = '2.3.1'
         grpcVersion = '1.12.0'
         guavaVersion = '20.0'
         googleAuthVersion = '0.9.1'

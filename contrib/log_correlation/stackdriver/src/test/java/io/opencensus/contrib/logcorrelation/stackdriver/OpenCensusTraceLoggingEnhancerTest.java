@@ -46,7 +46,7 @@ import org.junit.runners.JUnit4;
 public class OpenCensusTraceLoggingEnhancerTest {
   private static final String GOOGLE_CLOUD_PROJECT = "GOOGLE_CLOUD_PROJECT";
 
-  private static Tracer tracer = Tracing.getTracer();
+  private static final Tracer tracer = Tracing.getTracer();
 
   @Test
   public void enhanceLogEntry_Sampled() {

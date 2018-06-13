@@ -63,7 +63,8 @@ public class JaegerExporterHandlerIntegrationTest {
   private static final Logger logger =
       LoggerFactory.getLogger(JaegerExporterHandlerIntegrationTest.class);
 
-  private HttpRequestFactory httpRequestFactory = new NetHttpTransport().createRequestFactory();
+  private final HttpRequestFactory httpRequestFactory =
+      new NetHttpTransport().createRequestFactory();
 
   private static GenericContainer<?> container;
 

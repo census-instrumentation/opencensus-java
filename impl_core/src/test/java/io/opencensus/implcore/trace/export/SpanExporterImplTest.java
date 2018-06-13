@@ -60,7 +60,7 @@ public class SpanExporterImplTest {
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final RunningSpanStoreImpl runningSpanStore = new InProcessRunningSpanStoreImpl();
-  private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
+  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final TestHandler serviceHandler = new TestHandler();
   @Mock private Handler mockServiceHandler;
 
