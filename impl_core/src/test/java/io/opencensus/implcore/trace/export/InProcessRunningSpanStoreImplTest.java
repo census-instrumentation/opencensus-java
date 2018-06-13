@@ -51,7 +51,7 @@ public class InProcessRunningSpanStoreImplTest {
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(
           sampledSpansServiceExporter, activeSpansExporter, null, new SimpleEventQueue());
-  private EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
+  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
 
   private SpanImpl createSpan(String spanName) {
     final SpanContext spanContext =

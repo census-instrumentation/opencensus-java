@@ -37,7 +37,7 @@ import org.mockito.MockitoAnnotations;
 // Need to suppress warnings for MustBeClosed because Java-6 does not support try-with-resources.
 @SuppressWarnings("MustBeClosedChecker")
 public class SpanBuilderTest {
-  private Tracer tracer = Tracing.getTracer();
+  private final Tracer tracer = Tracing.getTracer();
   @Mock private SpanBuilder spanBuilder;
   @Mock private Span span;
 

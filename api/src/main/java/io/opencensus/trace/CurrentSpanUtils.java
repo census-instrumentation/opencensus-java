@@ -78,7 +78,7 @@ final class CurrentSpanUtils {
   private static final class ScopeInSpan implements Scope {
     private final Context origContext;
     private final Span span;
-    private boolean endSpan;
+    private final boolean endSpan;
 
     /**
      * Constructs a new {@link ScopeInSpan}.

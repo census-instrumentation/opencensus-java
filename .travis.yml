@@ -67,13 +67,6 @@ matrix:
 
 before_install:
   - git log --oneline --decorate --graph -30
-  - if \[ "$TASK" == "BUILD" \]; then
-      mkdir -p $HOME/.gradle ;
-      cat gradle/errorprone/warnings > $HOME/.gradle/gradle.properties ;
-      cat gradle/errorprone/experimental_errors >> $HOME/.gradle/gradle.properties ;
-      cat gradle/errorprone/experimental_warnings  >> $HOME/.gradle/gradle.properties ;
-      cat gradle/errorprone/experimental_suggestions  >> $HOME/.gradle/gradle.properties ;
-    fi
   - if \[ "$TASK" == "BUILD_EXAMPLES_BAZEL" \]; then
       echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list ;
       curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add - ;
