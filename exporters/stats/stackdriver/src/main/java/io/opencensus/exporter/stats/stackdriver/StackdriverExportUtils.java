@@ -271,21 +271,24 @@ final class StackdriverExportUtils {
       ViewData.AggregationWindowData windowData,
       Aggregation aggregation) {
     Point.Builder builder = Point.newBuilder();
-    builder.setInterval(createTimeInterval(windowData));
+    builder.setInterval(createTimeInterval(windowData, aggregation));
     builder.setValue(createTypedValue(aggregation, aggregationData));
     return builder.build();
   }
 
   // Convert AggregationWindowData to TimeInterval, currently only support CumulativeData.
   @VisibleForTesting
-  static TimeInterval createTimeInterval(ViewData.AggregationWindowData windowData) {
+  static TimeInterval createTimeInterval(
+      ViewData.AggregationWindowData windowData, final Aggregation aggregation) {
     final TimeInterval.Builder builder = TimeInterval.newBuilder();
     windowData.match(
         new Function<ViewData.AggregationWindowData.CumulativeData, Void>() {
           @Override
           public Void apply(ViewData.AggregationWindowData.CumulativeData arg) {
-            builder.setStartTime(convertTimestamp(arg.getStart()));
             builder.setEndTime(convertTimestamp(arg.getEnd()));
+            if (!(aggregation instanceof LastValue)) {
+              builder.setStartTime(convertTimestamp(arg.getStart()));
+            }
             return null;
           }
         },

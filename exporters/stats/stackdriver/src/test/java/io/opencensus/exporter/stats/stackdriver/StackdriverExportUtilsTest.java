@@ -240,10 +240,17 @@ public class StackdriverExportUtilsTest {
     Timestamp censusTimestamp2 = Timestamp.create(200, 0);
     assertThat(
             StackdriverExportUtils.createTimeInterval(
-                CumulativeData.create(censusTimestamp1, censusTimestamp2)))
+                CumulativeData.create(censusTimestamp1, censusTimestamp2), DISTRIBUTION))
         .isEqualTo(
             TimeInterval.newBuilder()
                 .setStartTime(StackdriverExportUtils.convertTimestamp(censusTimestamp1))
+                .setEndTime(StackdriverExportUtils.convertTimestamp(censusTimestamp2))
+                .build());
+    assertThat(
+            StackdriverExportUtils.createTimeInterval(
+                CumulativeData.create(censusTimestamp1, censusTimestamp2), LAST_VALUE))
+        .isEqualTo(
+            TimeInterval.newBuilder()
                 .setEndTime(StackdriverExportUtils.convertTimestamp(censusTimestamp2))
                 .build());
   }
@@ -253,7 +260,7 @@ public class StackdriverExportUtilsTest {
     IntervalData intervalData = IntervalData.create(Timestamp.create(200, 0));
     // Only Cumulative view will supported in this version.
     thrown.expect(IllegalArgumentException.class);
-    StackdriverExportUtils.createTimeInterval(intervalData);
+    StackdriverExportUtils.createTimeInterval(intervalData, SUM);
   }
 
   @Test
@@ -318,7 +325,7 @@ public class StackdriverExportUtilsTest {
     assertThat(StackdriverExportUtils.createPoint(sumDataDouble, cumulativeData, SUM))
         .isEqualTo(
             Point.newBuilder()
-                .setInterval(StackdriverExportUtils.createTimeInterval(cumulativeData))
+                .setInterval(StackdriverExportUtils.createTimeInterval(cumulativeData, SUM))
                 .setValue(StackdriverExportUtils.createTypedValue(SUM, sumDataDouble))
                 .build());
   }
