@@ -32,6 +32,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/** Unit tests for exporting in {@link StackdriverV2ExporterHandler}. */
 @RunWith(JUnit4.class)
 public final class StackdriverV2ExporterHandlerExportTest {
   private static final String PROJECT_ID = "PROJECT_ID";

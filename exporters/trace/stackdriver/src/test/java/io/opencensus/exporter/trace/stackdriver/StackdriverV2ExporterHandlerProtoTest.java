@@ -36,6 +36,10 @@ import com.google.devtools.cloudtrace.v2.StackTrace;
 import com.google.devtools.cloudtrace.v2.TruncatableString;
 import com.google.protobuf.Int32Value;
 import io.opencensus.common.Timestamp;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.AwsEc2InstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGceInstanceMonitoredResource;
+import io.opencensus.contrib.monitoredresource.util.MonitoredResource.GcpGkeContainerMonitoredResource;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.Span.Kind;
@@ -58,6 +62,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+/** Unit tests for proto conversions in {@link StackdriverV2ExporterHandler}. */
 @RunWith(JUnit4.class)
 public final class StackdriverV2ExporterHandlerProtoTest {
 
@@ -126,6 +131,13 @@ public final class StackdriverV2ExporterHandlerProtoTest {
       TimedEvents.create(networkEventsList, DROPPED_NETWORKEVENTS_COUNT);
   private static final SpanData.Links links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
   private static final Map<String, AttributeValue> EMPTY_RESOURCE_LABELS = Collections.emptyMap();
+  private static final AwsEc2InstanceMonitoredResource AWS_EC2_INSTANCE_MONITORED_RESOURCE =
+      AwsEc2InstanceMonitoredResource.create("my-project", "my-instance", "us-east-1");
+  private static final GcpGceInstanceMonitoredResource GCP_GCE_INSTANCE_MONITORED_RESOURCE =
+      GcpGceInstanceMonitoredResource.create("my-project", "my-instance", "us-east1");
+  private static final GcpGkeContainerMonitoredResource GCP_GKE_CONTAINER_MONITORED_RESOURCE =
+      GcpGkeContainerMonitoredResource.create(
+          "my-project", "cluster", "container", "namespace", "my-instance", "pod", "us-east1");
   private static final ImmutableMap<String, AttributeValue> AWS_RESOURCE_LABELS =
       ImmutableMap.of(
           createResourceLabelKey(AWS_EC2_INSTANCE, "aws_account"),
@@ -133,7 +145,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
           createResourceLabelKey(AWS_EC2_INSTANCE, "instance_id"),
           toStringAttributeValueProto("my-instance"),
           createResourceLabelKey(AWS_EC2_INSTANCE, "region"),
-          toStringAttributeValueProto("us-east-1"));
+          toStringAttributeValueProto("aws:us-east-1"));
   private static final ImmutableMap<String, AttributeValue> GCE_RESOURCE_LABELS =
       ImmutableMap.of(
           createResourceLabelKey(GCP_GCE_INSTANCE, "project_id"),
@@ -306,21 +318,29 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   }
 
   @Test
-  public void generateSpan_WithAwsEc2ResourceLabels() {
-    generateSpan_WithResourceLabels(AWS_RESOURCE_LABELS);
+  public void getResourceLabels_AwsEc2ResourceLabels() {
+    testGetResourceLabels(AWS_EC2_INSTANCE_MONITORED_RESOURCE, AWS_RESOURCE_LABELS);
   }
 
   @Test
-  public void generateSpan_WithGceResourceLabels() {
-    generateSpan_WithResourceLabels(GCE_RESOURCE_LABELS);
+  public void getResourceLabels_GceResourceLabels() {
+    testGetResourceLabels(GCP_GCE_INSTANCE_MONITORED_RESOURCE, GCE_RESOURCE_LABELS);
   }
 
   @Test
-  public void generateSpan_WithGkeResourceLabels() {
-    generateSpan_WithResourceLabels(GKE_RESOURCE_LABELS);
+  public void getResourceLabels_GkeResourceLabels() {
+    testGetResourceLabels(GCP_GKE_CONTAINER_MONITORED_RESOURCE, GKE_RESOURCE_LABELS);
   }
 
-  private void generateSpan_WithResourceLabels(Map<String, AttributeValue> resourceLabels) {
+  private static void testGetResourceLabels(
+      MonitoredResource resource, Map<String, AttributeValue> expectedLabels) {
+    Map<String, AttributeValue> actualLabels =
+        StackdriverV2ExporterHandler.getResourceLabels(resource);
+    assertThat(actualLabels).containsExactlyEntriesIn(expectedLabels);
+  }
+
+  @Test
+  public void generateSpan_WithResourceLabels() {
     SpanData spanData =
         SpanData.create(
             spanContext,
@@ -336,9 +356,9 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    Span span = handler.generateSpan(spanData, resourceLabels);
+    Span span = handler.generateSpan(spanData, AWS_RESOURCE_LABELS);
     Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
-    assertThat(attributeMap.entrySet()).containsAllIn(resourceLabels.entrySet());
+    assertThat(attributeMap.entrySet()).containsAllIn(AWS_RESOURCE_LABELS.entrySet());
   }
 
   @Test

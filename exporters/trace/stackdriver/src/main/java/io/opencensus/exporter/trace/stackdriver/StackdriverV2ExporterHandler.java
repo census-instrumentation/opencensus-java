@@ -257,8 +257,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     return attributesBuilder;
   }
 
-  // TODO(songya): make constructor of MonitoredResource public, and add unit tests for this method.
-  private static Map<String, AttributeValue> getResourceLabels(
+  @VisibleForTesting
+  static Map<String, AttributeValue> getResourceLabels(
       @javax.annotation.Nullable MonitoredResource resource) {
     if (resource == null) {
       return Collections.emptyMap();
