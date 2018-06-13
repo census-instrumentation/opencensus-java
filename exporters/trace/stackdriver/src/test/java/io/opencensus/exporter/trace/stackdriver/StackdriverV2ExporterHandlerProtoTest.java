@@ -332,7 +332,7 @@ public final class StackdriverV2ExporterHandlerProtoTest {
     testGetResourceLabels(GCP_GKE_CONTAINER_MONITORED_RESOURCE, GKE_RESOURCE_LABELS);
   }
 
-  private void testGetResourceLabels(
+  private static void testGetResourceLabels(
       MonitoredResource resource, Map<String, AttributeValue> expectedLabels) {
     Map<String, AttributeValue> actualLabels =
         StackdriverV2ExporterHandler.getResourceLabels(resource);
