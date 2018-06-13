@@ -21,7 +21,6 @@ import static io.opencensus.contrib.monitoredresource.util.ResourceType.AWS_EC2_
 import static io.opencensus.contrib.monitoredresource.util.ResourceType.GCP_GCE_INSTANCE;
 import static io.opencensus.contrib.monitoredresource.util.ResourceType.GCP_GKE_CONTAINER;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.createResourceLabelKey;
-import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.getResourceLabels;
 import static io.opencensus.exporter.trace.stackdriver.StackdriverV2ExporterHandler.toStringAttributeValueProto;
 
 import com.google.auth.Credentials;
@@ -318,22 +317,29 @@ public final class StackdriverV2ExporterHandlerProtoTest {
   }
 
   @Test
-  public void generateSpan_WithAwsEc2ResourceLabels() {
-    generateSpan_WithResourceLabels(AWS_EC2_INSTANCE_MONITORED_RESOURCE, AWS_RESOURCE_LABELS);
+  public void getResourceLabels_AwsEc2ResourceLabels() {
+    testGetResourceLabels(AWS_EC2_INSTANCE_MONITORED_RESOURCE, AWS_RESOURCE_LABELS);
   }
 
   @Test
-  public void generateSpan_WithGceResourceLabels() {
-    generateSpan_WithResourceLabels(GCP_GCE_INSTANCE_MONITORED_RESOURCE, GCE_RESOURCE_LABELS);
+  public void getResourceLabels_GceResourceLabels() {
+    testGetResourceLabels(GCP_GCE_INSTANCE_MONITORED_RESOURCE, GCE_RESOURCE_LABELS);
   }
 
   @Test
-  public void generateSpan_WithGkeResourceLabels() {
-    generateSpan_WithResourceLabels(GCP_GKE_CONTAINER_MONITORED_RESOURCE, GKE_RESOURCE_LABELS);
+  public void getResourceLabels_GkeResourceLabels() {
+    testGetResourceLabels(GCP_GKE_CONTAINER_MONITORED_RESOURCE, GKE_RESOURCE_LABELS);
   }
 
-  private void generateSpan_WithResourceLabels(
+  private void testGetResourceLabels(
       MonitoredResource resource, Map<String, AttributeValue> expectedLabels) {
+    Map<String, AttributeValue> actualLabels =
+        StackdriverV2ExporterHandler.getResourceLabels(resource);
+    assertThat(actualLabels).containsExactlyEntriesIn(expectedLabels);
+  }
+
+  @Test
+  public void generateSpan_WithResourceLabels() {
     SpanData spanData =
         SpanData.create(
             spanContext,
@@ -349,9 +355,9 @@ public final class StackdriverV2ExporterHandlerProtoTest {
             CHILD_SPAN_COUNT,
             status,
             endTimestamp);
-    Span span = handler.generateSpan(spanData, getResourceLabels(resource));
+    Span span = handler.generateSpan(spanData, AWS_RESOURCE_LABELS);
     Map<String, AttributeValue> attributeMap = span.getAttributes().getAttributeMapMap();
-    assertThat(attributeMap.entrySet()).containsAllIn(expectedLabels.entrySet());
+    assertThat(attributeMap.entrySet()).containsAllIn(AWS_RESOURCE_LABELS.entrySet());
   }
 
   @Test
