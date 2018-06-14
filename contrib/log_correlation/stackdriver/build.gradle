@@ -6,5 +6,7 @@ dependencies {
     compile project(':opencensus-api'),
             libraries.google_cloud_logging
 
+    testCompile libraries.guava
+
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
