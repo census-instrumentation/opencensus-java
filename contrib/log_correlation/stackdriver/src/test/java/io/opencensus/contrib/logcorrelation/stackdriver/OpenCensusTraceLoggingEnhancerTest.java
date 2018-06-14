@@ -50,61 +50,53 @@ public class OpenCensusTraceLoggingEnhancerTest {
 
   @Test
   public void enhanceLogEntry_Sampled() {
-    String projectId = "my-test-project-1";
-    String traceId = "4c9874d0b41224cce77ff74ee10f5ee6";
-    String spanId = "592ae363e92cb3dd";
-    boolean isSampled = true;
-    testLoggingEnhancer(projectId, traceId, spanId, isSampled);
+    LogEntry logEntry =
+        getEnhancedLogEntry(
+            "my-test-project-1",
+            new TestSpan(
+                SpanContext.create(
+                    TraceId.fromLowerBase16("4c9874d0b41224cce77ff74ee10f5ee6"),
+                    SpanId.fromLowerBase16("592ae363e92cb3dd"),
+                    TraceOptions.builder().setIsSampled(true).build())));
+    assertThat(logEntry.getLabels().get("sampled")).isEqualTo("true");
+    assertThat(logEntry.getTrace())
+        .isEqualTo("projects/my-test-project-1/traces/4c9874d0b41224cce77ff74ee10f5ee6");
+    assertThat(logEntry.getSpanId()).isEqualTo("592ae363e92cb3dd");
   }
 
   @Test
   public void enhanceLogEntry_NotSampled() {
-    String projectId = "my-test-project-2";
-    String traceId = "7f4703d9bb02f4f2e67fb840103cdd34";
-    String spanId = "2d7d95a555557434";
-    boolean isSampled = false;
-    testLoggingEnhancer(projectId, traceId, spanId, isSampled);
-  }
-
-  private static void testLoggingEnhancer(
-      String projectId, String traceId, String spanId, boolean isSampled) {
-    System.setProperty(GOOGLE_CLOUD_PROJECT, projectId);
-    try {
-      Scope scope =
-          tracer.withSpan(
-              new TestSpan(
-                  SpanContext.create(
-                      TraceId.fromLowerBase16(traceId),
-                      SpanId.fromLowerBase16(spanId),
-                      TraceOptions.builder().setIsSampled(isSampled).build())));
-      try {
-        LogEntry.Builder builder = LogEntry.newBuilder(null);
-        new OpenCensusTraceLoggingEnhancer().enhanceLogEntry(builder);
-        LogEntry logEntry = builder.build();
-        assertThat(logEntry.getLabels().get("sampled")).isEqualTo(isSampled ? "true" : "false");
-        assertThat(logEntry.getTrace()).isEqualTo("projects/" + projectId + "/traces/" + traceId);
-        assertThat(logEntry.getSpanId()).isEqualTo(spanId);
-      } finally {
-        scope.close();
-      }
-    } finally {
-      System.clearProperty(GOOGLE_CLOUD_PROJECT);
-    }
+    LogEntry logEntry =
+        getEnhancedLogEntry(
+            "my-test-project-2",
+            new TestSpan(
+                SpanContext.create(
+                    TraceId.fromLowerBase16("7f4703d9bb02f4f2e67fb840103cdd34"),
+                    SpanId.fromLowerBase16("2d7d95a555557434"),
+                    TraceOptions.builder().setIsSampled(false).build())));
+    assertThat(logEntry.getLabels().get("sampled")).isEqualTo("false");
+    assertThat(logEntry.getTrace())
+        .isEqualTo("projects/my-test-project-2/traces/7f4703d9bb02f4f2e67fb840103cdd34");
+    assertThat(logEntry.getSpanId()).isEqualTo("2d7d95a555557434");
   }
 
   @Test
   public void enhanceLogEntry_BlankSpan() {
-    System.setProperty(GOOGLE_CLOUD_PROJECT, "my-test-project-3");
+    LogEntry logEntry = getEnhancedLogEntry("my-test-project-3", BlankSpan.INSTANCE);
+    assertThat(logEntry.getLabels().get("sampled")).isEqualTo("false");
+    assertThat(logEntry.getTrace())
+        .isEqualTo("projects/my-test-project-3/traces/00000000000000000000000000000000");
+    assertThat(logEntry.getSpanId()).isEqualTo("0000000000000000");
+  }
+
+  private static LogEntry getEnhancedLogEntry(String projectId, Span span) {
+    System.setProperty(GOOGLE_CLOUD_PROJECT, projectId);
     try {
-      Scope scope = tracer.withSpan(BlankSpan.INSTANCE);
+      Scope scope = tracer.withSpan(span);
       try {
         LogEntry.Builder builder = LogEntry.newBuilder(null);
         new OpenCensusTraceLoggingEnhancer().enhanceLogEntry(builder);
-        LogEntry logEntry = builder.build();
-        assertThat(logEntry.getLabels().get("sampled")).isEqualTo("false");
-        assertThat(logEntry.getTrace())
-            .isEqualTo("projects/my-test-project-3/traces/00000000000000000000000000000000");
-        assertThat(logEntry.getSpanId()).isEqualTo("0000000000000000");
+        return builder.build();
       } finally {
         scope.close();
       }
