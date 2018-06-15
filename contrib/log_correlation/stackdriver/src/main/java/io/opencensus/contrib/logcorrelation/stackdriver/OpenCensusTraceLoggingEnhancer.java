@@ -25,6 +25,7 @@ import io.opencensus.trace.TraceId;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import java.util.logging.LogManager;
+import javax.annotation.Nullable;
 
 /**
  * Stackdriver {@link LoggingEnhancer} that adds OpenCensus tracing data to log entries.
@@ -36,13 +37,21 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   private static final String SAMPLED_LABEL_KEY = "sampled";
   private static final SpanSelection DEFAULT_SPAN_SELECTION = SpanSelection.ALL_SPANS;
 
-  /** Name of the property that defines the {@link SpanSelection}. The value is {@value}. */
+  /**
+   * Name of the property that overrides the default cloud project ID (overrides the value returned
+   * by {@code com.google.cloud.ServiceOptions.getDefaultProjectId()}). The name is {@value}.
+   */
+  public static final String PROJECT_ID_PROPERTY_NAME =
+      "io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId";
+
+  /** Name of the property that defines the {@link SpanSelection}. The name is {@value}. */
   public static final String SPAN_SELECTION_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.stackdriver."
           + "OpenCensusTraceLoggingEnhancer.spanSelection";
 
   private static final Tracer tracer = Tracing.getTracer();
 
+  private final String projectId;
   private final SpanSelection spanSelection;
 
   /** How to decide whether to add tracing data from the current span to a log entry. */
@@ -66,17 +75,29 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   /**
    * Constructor to be called by Stackdriver logging.
    *
-   * <p>This constructor looks up the {@link SpanSelection} from the environment using the property
-   * name {@value SPAN_SELECTION_PROPERTY_NAME}. It looks for a {@link java.util.logging} property
-   * or a system property, giving preference to the logging property.
+   * <p>This constructor looks up the project ID and {@link SpanSelection SpanSelection} from the
+   * environment. It uses the default cloud project ID (the value returned by {@code
+   * com.google.cloud.ServiceOptions.getDefaultProjectId()}), unless the ID is overridden by the
+   * property {@value PROJECT_ID_PROPERTY_NAME}. It looks up the {@code SpanSelection} using the
+   * property {@value SPAN_SELECTION_PROPERTY_NAME}. Each property can be specified with a {@link
+   * java.util.logging} property or a system property, with preference given to the logging
+   * property.
    */
   public OpenCensusTraceLoggingEnhancer() {
-    this(lookUpSpanSelectionProperty());
+    this(lookUpProjectId(), lookUpSpanSelectionProperty());
   }
 
   /** Constructor used for testing. */
-  OpenCensusTraceLoggingEnhancer(SpanSelection spanSelection) {
+  OpenCensusTraceLoggingEnhancer(@Nullable String projectId, SpanSelection spanSelection) {
+    this.projectId = projectId == null ? "" : projectId;
     this.spanSelection = spanSelection;
+  }
+
+  private static String lookUpProjectId() {
+    String projectIdProperty = lookUpProperty(PROJECT_ID_PROPERTY_NAME);
+    return projectIdProperty == null || projectIdProperty.isEmpty()
+        ? ServiceOptions.getDefaultProjectId()
+        : projectIdProperty;
   }
 
   private static SpanSelection lookUpSpanSelectionProperty() {
@@ -102,6 +123,15 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   }
 
   /**
+   * Returns the Project ID setting for this instance.
+   *
+   * @return the Project ID setting for this instance.
+   */
+  public String getProjectId() {
+    return projectId;
+  }
+
+  /**
    * Returns the {@code SpanSelection} setting for this instance.
    *
    * @return the {@code SpanSelection} setting for this instance.
@@ -119,28 +149,25 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
       case SAMPLED_SPANS:
         SpanContext span = tracer.getCurrentSpan().getContext();
         if (span.getTraceOptions().isSampled()) {
-          addTracingData(span, builder);
+          addTracingData(projectId, span, builder);
         }
         return;
       case ALL_SPANS:
-        addTracingData(tracer.getCurrentSpan().getContext(), builder);
+        addTracingData(projectId, tracer.getCurrentSpan().getContext(), builder);
         return;
     }
     throw new AssertionError("Unknown spanSelection: " + spanSelection);
   }
 
-  private static void addTracingData(SpanContext span, LogEntry.Builder builder) {
-    builder.setTrace(formatTraceId(span.getTraceId()));
+  private static void addTracingData(String projectId, SpanContext span, LogEntry.Builder builder) {
+    builder.setTrace(formatTraceId(projectId, span.getTraceId()));
     builder.setSpanId(span.getSpanId().toLowerBase16());
 
     // TODO(sebright): Find the correct way to add the sampling decision.
     builder.addLabel(SAMPLED_LABEL_KEY, Boolean.toString(span.getTraceOptions().isSampled()));
   }
 
-  private static String formatTraceId(TraceId traceId) {
-    // TODO(sebright): Cache the project ID.
-    // TODO(sebright): Add a way to override the project ID in the logging configuration.
-    String projectId = ServiceOptions.getDefaultProjectId();
+  private static String formatTraceId(String projectId, TraceId traceId) {
     return "projects/" + projectId + "/traces/" + traceId.toLowerBase16();
   }
 }
