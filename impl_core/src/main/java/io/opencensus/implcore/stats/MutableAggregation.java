@@ -299,8 +299,7 @@ abstract class MutableAggregation {
       bucketCounts[bucket]++;
       if (spanContext != null) {
         exemplars[bucket] =
-            Exemplar.create(
-                bucketCounts[bucket], timestamp, spanContext.getTraceId(), spanContext.getSpanId());
+            Exemplar.create(value, timestamp, spanContext.getTraceId(), spanContext.getSpanId());
       }
     }
 

@@ -79,7 +79,7 @@ public class AggregationDataTest {
   @Test
   public void testExemplar() {
     Exemplar exemplar = Exemplar.create(15, TIMESTAMP_1, TRACE_ID, SPAN_ID);
-    assertThat(exemplar.getValue()).isEqualTo(15);
+    assertThat(exemplar.getValue()).isWithin(TOLERANCE).of(15);
     assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP_1);
     assertThat(exemplar.getTraceId()).isEqualTo(TRACE_ID);
     assertThat(exemplar.getSpanId()).isEqualTo(SPAN_ID);

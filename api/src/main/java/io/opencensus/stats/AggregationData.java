@@ -433,7 +433,7 @@ public abstract class AggregationData {
        * @return value of the {@code Exemplar} point.
        * @since 0.15
        */
-      public abstract long getValue();
+      public abstract double getValue();
 
       /**
        * Returns the observation (sampling) time of the above value.
@@ -470,7 +470,7 @@ public abstract class AggregationData {
        * @since 0.15
        */
       public static Exemplar create(
-          long value, Timestamp timestamp, TraceId traceId, SpanId spanId) {
+          double value, Timestamp timestamp, TraceId traceId, SpanId spanId) {
         return new AutoValue_AggregationData_DistributionData_Exemplar(
             value, timestamp, traceId, spanId);
       }
