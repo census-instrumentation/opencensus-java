@@ -54,6 +54,9 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   private final String projectId;
   private final SpanSelection spanSelection;
 
+  // This field caches the prefix used for the LogEntry.trace field and is derived from projectId.
+  private final String tracePrefix;
+
   /** How to decide whether to add tracing data from the current span to a log entry. */
   public enum SpanSelection {
 
@@ -91,6 +94,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   OpenCensusTraceLoggingEnhancer(@Nullable String projectId, SpanSelection spanSelection) {
     this.projectId = projectId == null ? "" : projectId;
     this.spanSelection = spanSelection;
+    this.tracePrefix = "projects/" + this.projectId + "/traces/";
   }
 
   private static String lookUpProjectId() {
@@ -149,25 +153,26 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
       case SAMPLED_SPANS:
         SpanContext span = tracer.getCurrentSpan().getContext();
         if (span.getTraceOptions().isSampled()) {
-          addTracingData(projectId, span, builder);
+          addTracingData(tracePrefix, span, builder);
         }
         return;
       case ALL_SPANS:
-        addTracingData(projectId, tracer.getCurrentSpan().getContext(), builder);
+        addTracingData(tracePrefix, tracer.getCurrentSpan().getContext(), builder);
         return;
     }
     throw new AssertionError("Unknown spanSelection: " + spanSelection);
   }
 
-  private static void addTracingData(String projectId, SpanContext span, LogEntry.Builder builder) {
-    builder.setTrace(formatTraceId(projectId, span.getTraceId()));
+  private static void addTracingData(
+      String tracePrefix, SpanContext span, LogEntry.Builder builder) {
+    builder.setTrace(formatTraceId(tracePrefix, span.getTraceId()));
     builder.setSpanId(span.getSpanId().toLowerBase16());
 
     // TODO(sebright): Find the correct way to add the sampling decision.
     builder.addLabel(SAMPLED_LABEL_KEY, Boolean.toString(span.getTraceOptions().isSampled()));
   }
 
-  private static String formatTraceId(String projectId, TraceId traceId) {
-    return "projects/" + projectId + "/traces/" + traceId.toLowerBase16();
+  private static String formatTraceId(String tracePrefix, TraceId traceId) {
+    return tracePrefix + traceId.toLowerBase16();
   }
 }
