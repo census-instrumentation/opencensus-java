@@ -42,6 +42,8 @@ public class LabelKeyTest {
 
   @Test
   public void create_NoLengthConstraint() {
+    // We have a length constraint of 256-characters for TagKey. That constraint doesn't apply to
+    // LabelKey.
     char[] chars = new char[300];
     Arrays.fill(chars, 'k');
     String key = new String(chars);
@@ -51,7 +53,10 @@ public class LabelKeyTest {
   @Test
   public void create_WithUnprintableChars() {
     String key = "\2ab\3cd";
-    assertThat(LabelKey.create(key, "").getKey()).isEqualTo(key);
+    String description = "\4ef\5gh";
+    LabelKey labelKey = LabelKey.create(key, description);
+    assertThat(labelKey.getKey()).isEqualTo(key);
+    assertThat(labelKey.getDescription()).isEqualTo(description);
   }
 
   @Test

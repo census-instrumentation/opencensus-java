@@ -48,6 +48,8 @@ public class LabelValueTest {
 
   @Test
   public void create_NoLengthConstraint() {
+    // We have a length constraint of 256-characters for TagValue. That constraint doesn't apply to
+    // LabelValue.
     char[] chars = new char[300];
     Arrays.fill(chars, 'v');
     String value = new String(chars);
