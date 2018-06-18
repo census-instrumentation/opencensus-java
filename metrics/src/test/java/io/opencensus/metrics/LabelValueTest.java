@@ -40,13 +40,6 @@ public class LabelValueTest {
   }
 
   @Test
-  public void testHasValue() {
-    assertThat(VALUE.hasValue()).isTrue();
-    assertThat(UNSET.hasValue()).isFalse();
-    assertThat(EMPTY.hasValue()).isTrue();
-  }
-
-  @Test
   public void create_NoLengthConstraint() {
     // We have a length constraint of 256-characters for TagValue. That constraint doesn't apply to
     // LabelValue.

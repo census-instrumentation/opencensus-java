@@ -42,26 +42,16 @@ public abstract class LabelValue {
    * @since 0.15
    */
   public static LabelValue create(@Nullable String value) {
-    boolean hasValue = value != null;
-    return new AutoValue_LabelValue(value, hasValue);
+    return new AutoValue_LabelValue(value);
   }
 
   /**
-   * Returns the value of this {@link LabelValue}.
-   *
-   * <p>If {@link #hasValue()} ()} returns {@code false}, value should be ignored.
+   * Returns the value of this {@link LabelValue}. Returns {@code null} if the value is unset and
+   * supposed to be ignored.
    *
    * @return the value.
    * @since 0.15
    */
   @Nullable
   public abstract String getValue();
-
-  /**
-   * Returns {@code true} if value field is set, {@code false} otherwise.
-   *
-   * @return {@code true} if value field is set, {@code false} otherwise.
-   * @since 0.15
-   */
-  public abstract boolean hasValue();
 }
