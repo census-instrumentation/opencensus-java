@@ -31,6 +31,8 @@ import javax.annotation.Nullable;
  * Stackdriver {@link LoggingEnhancer} that adds OpenCensus tracing data to log entries.
  *
  * <p>This feature is currently experimental.
+ *
+ * @since 0.15
  */
 @ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
@@ -40,11 +42,17 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   /**
    * Name of the property that overrides the default cloud project ID (overrides the value returned
    * by {@code com.google.cloud.ServiceOptions.getDefaultProjectId()}). The name is {@value}.
+   *
+   * @since 0.15
    */
   public static final String PROJECT_ID_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId";
 
-  /** Name of the property that defines the {@link SpanSelection}. The name is {@value}. */
+  /**
+   * Name of the property that defines the {@link SpanSelection}. The name is {@value}.
+   *
+   * @since 0.15
+   */
   public static final String SPAN_SELECTION_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.stackdriver."
           + "OpenCensusTraceLoggingEnhancer.spanSelection";
@@ -57,20 +65,32 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   // This field caches the prefix used for the LogEntry.trace field and is derived from projectId.
   private final String tracePrefix;
 
-  /** How to decide whether to add tracing data from the current span to a log entry. */
+  /**
+   * How to decide whether to add tracing data from the current span to a log entry.
+   *
+   * @since 0.15
+   */
   public enum SpanSelection {
 
     /**
      * Never add tracing data to log entries. This constant disables the log correlation feature.
+     *
+     * @since 0.15
      */
     NO_SPANS,
 
-    /** Add tracing data to a log entry iff the current span is sampled. */
+    /**
+     * Add tracing data to a log entry iff the current span is sampled.
+     *
+     * @since 0.15
+     */
     SAMPLED_SPANS,
 
     /**
      * Always add tracing data to log entries, even when the current span is not sampled. This is
      * the default.
+     *
+     * @since 0.15
      */
     ALL_SPANS
   }
@@ -85,6 +105,8 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
    * property {@value SPAN_SELECTION_PROPERTY_NAME}. Each property can be specified with a {@link
    * java.util.logging} property or a system property, with preference given to the logging
    * property.
+   *
+   * @since 0.15
    */
   public OpenCensusTraceLoggingEnhancer() {
     this(lookUpProjectId(), lookUpSpanSelectionProperty());
@@ -130,6 +152,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
    * Returns the Project ID setting for this instance.
    *
    * @return the Project ID setting for this instance.
+   * @since 0.15
    */
   public String getProjectId() {
     return projectId;
@@ -139,6 +162,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
    * Returns the {@code SpanSelection} setting for this instance.
    *
    * @return the {@code SpanSelection} setting for this instance.
+   * @since 0.15
    */
   public SpanSelection getSpanSelection() {
     return spanSelection;
