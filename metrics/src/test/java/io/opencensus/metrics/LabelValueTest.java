@@ -29,13 +29,13 @@ import org.junit.runners.JUnit4;
 public class LabelValueTest {
 
   private static final LabelValue VALUE = LabelValue.create("value");
-  private static final LabelValue UNSET = LabelValue.create();
+  private static final LabelValue UNSET = LabelValue.create(null);
   private static final LabelValue EMPTY = LabelValue.create("");
 
   @Test
   public void testGetValue() {
     assertThat(VALUE.getValue()).isEqualTo("value");
-    assertThat(UNSET.getValue()).isEmpty();
+    assertThat(UNSET.getValue()).isNull();
     assertThat(EMPTY.getValue()).isEmpty();
   }
 

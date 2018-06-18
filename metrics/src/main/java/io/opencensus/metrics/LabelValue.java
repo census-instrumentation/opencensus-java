@@ -18,6 +18,7 @@ package io.opencensus.metrics;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -35,30 +36,25 @@ public abstract class LabelValue {
   /**
    * Creates a {@link LabelValue}.
    *
-   * @param value the value of a {@code Label}.
+   * @param value the value of a {@code Label}. {@code null} value indicates an unset {@code
+   *     LabelValue}.
    * @return a {@code LabelValue}.
    * @since 0.15
    */
-  public static LabelValue create(String value) {
-    return new AutoValue_LabelValue(value, true);
-  }
-
-  /**
-   * Creates a {@link LabelValue} with unset value.
-   *
-   * @return a {@code LabelValue} with unset value.
-   * @since 0.15
-   */
-  public static LabelValue create() {
-    return new AutoValue_LabelValue("", false);
+  public static LabelValue create(@Nullable String value) {
+    boolean hasValue = value != null;
+    return new AutoValue_LabelValue(value, hasValue);
   }
 
   /**
    * Returns the value of this {@link LabelValue}.
    *
+   * <p>If {@link #hasValue()} ()} returns {@code false}, value should be ignored.
+   *
    * @return the value.
    * @since 0.15
    */
+  @Nullable
   public abstract String getValue();
 
   /**
