@@ -232,9 +232,9 @@ public abstract class ViewData {
       View.AggregationWindow window, AggregationWindowData windowData) {
     return "AggregationWindow and AggregationWindowData types mismatch. "
         + "AggregationWindow: "
-        + window
+        + window.getClass().getSimpleName()
         + " AggregationWindowData: "
-        + windowData;
+        + windowData.getClass().getSimpleName();
   }
 
   private static void checkAggregation(
@@ -331,9 +331,9 @@ public abstract class ViewData {
       Aggregation aggregation, AggregationData aggregationData) {
     return "Aggregation and AggregationData types mismatch. "
         + "Aggregation: "
-        + aggregation
+        + aggregation.getClass().getSimpleName()
         + " AggregationData: "
-        + aggregationData;
+        + aggregationData.getClass().getSimpleName();
   }
 
   /**
