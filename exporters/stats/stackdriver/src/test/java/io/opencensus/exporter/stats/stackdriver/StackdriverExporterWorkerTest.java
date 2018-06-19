@@ -264,6 +264,37 @@ public class StackdriverExporterWorkerTest {
   }
 
   @Test
+  public void overrideExistingMetrics_FailFastIfFailToDeleteMetricDescriptor() {
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE,
+            true);
+    View view1 =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    assertThat(worker.registerView(view1)).isTrue();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+
+    doThrow(new RuntimeException())
+        .when(mockDeleteMetricDescriptorCallable)
+        .call(any(DeleteMetricDescriptorRequest.class));
+    View view2 =
+        View.create(
+            VIEW_NAME,
+            "This is a different description.",
+            MEASURE,
+            SUM,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    assertThat(worker.registerView(view2)).isFalse();
+    verify(mockStub, times(1)).deleteMetricDescriptorCallable();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+  }
+
+  @Test
   public void doNotCreateMetricDescriptorForRegisteredView() {
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(

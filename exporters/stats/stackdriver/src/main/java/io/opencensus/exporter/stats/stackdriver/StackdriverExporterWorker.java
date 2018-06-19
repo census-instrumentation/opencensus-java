@@ -110,7 +110,11 @@ final class StackdriverExporterWorker implements Runnable {
         return true;
       } else {
         if (overrideExistingMetrics) {
-          deleteMetricDescriptor(view);
+          boolean succeeded = deleteMetricDescriptor(view);
+          if (!succeeded) {
+            // Failed to delete existing MetricDescriptor, fail fast here.
+            return false;
+          }
         } else {
           // If we upload a view that has the same name with a registered view but with different
           // attributes, Stackdriver client will throw an exception.
@@ -166,7 +170,7 @@ final class StackdriverExporterWorker implements Runnable {
     }
   }
 
-  private void deleteMetricDescriptor(View view) {
+  private boolean deleteMetricDescriptor(View view) {
     Span span = tracer.getCurrentSpan();
     span.addAnnotation("Delete Stackdriver Metric.");
     MetricDescriptorName metricName =
@@ -175,6 +179,7 @@ final class StackdriverExporterWorker implements Runnable {
     try (Scope scope = tracer.withSpan(span)) {
       metricServiceClient.deleteMetricDescriptor(metricName);
       span.addAnnotation("Finish deleting MetricDescriptor.");
+      return true;
     } catch (ApiException e) {
       logger.log(Level.WARNING, "ApiException thrown when deleting MetricDescriptor.", e);
       span.setStatus(
@@ -182,11 +187,13 @@ final class StackdriverExporterWorker implements Runnable {
               .toStatus()
               .withDescription(
                   "ApiException thrown when deleting MetricDescriptor: " + exceptionMessage(e)));
+      return false;
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Exception thrown when deleting MetricDescriptor.", e);
       span.setStatus(
           Status.UNKNOWN.withDescription(
               "Exception thrown when deleting MetricDescriptor: " + exceptionMessage(e)));
+      return false;
     }
   }
 
