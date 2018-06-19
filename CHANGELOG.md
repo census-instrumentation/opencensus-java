@@ -1,5 +1,6 @@
 ## Unreleased
 - Expose the factory methods of MonitoredResource.
+- Stackdriver Stats Exporter: allow user to force update existing Metric with new schema.
 
 ## 0.14.0 - 2018-06-04
 - Adds Tracing.getExportComponent().shutdown() for use within application shutdown hooks.
