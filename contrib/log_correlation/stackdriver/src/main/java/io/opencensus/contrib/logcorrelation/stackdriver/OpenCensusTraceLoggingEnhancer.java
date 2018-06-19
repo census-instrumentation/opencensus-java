@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  */
 @ExperimentalApi
 public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
-  private static final String SAMPLED_LABEL_KEY = "sampled";
+  private static final String SAMPLED_LABEL_KEY = "openCensusTraceSampled";
   private static final SpanSelection DEFAULT_SPAN_SELECTION = SpanSelection.ALL_SPANS;
 
   /**

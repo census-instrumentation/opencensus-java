@@ -78,7 +78,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
                     TraceId.fromLowerBase16("4c9874d0b41224cce77ff74ee10f5ee6"),
                     SpanId.fromLowerBase16("592ae363e92cb3dd"),
                     TraceOptions.builder().setIsSampled(true).build())));
-    assertThat(logEntry.getLabels()).containsEntry("sampled", "true");
+    assertThat(logEntry.getLabels()).containsEntry("openCensusTraceSampled", "true");
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-2/traces/4c9874d0b41224cce77ff74ee10f5ee6");
     assertThat(logEntry.getSpanId()).isEqualTo("592ae363e92cb3dd");
@@ -94,7 +94,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
                     TraceId.fromLowerBase16("4c6af40c499951eb7de2777ba1e4fefa"),
                     SpanId.fromLowerBase16("de52e84d13dd232d"),
                     TraceOptions.builder().setIsSampled(true).build())));
-    assertThat(logEntry.getLabels()).containsEntry("sampled", "true");
+    assertThat(logEntry.getLabels()).containsEntry("openCensusTraceSampled", "true");
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-3/traces/4c6af40c499951eb7de2777ba1e4fefa");
     assertThat(logEntry.getSpanId()).isEqualTo("de52e84d13dd232d");
@@ -136,7 +136,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
                     TraceId.fromLowerBase16("72c905c76f99e99974afd84dc053a480"),
                     SpanId.fromLowerBase16("731e102335b7a5a0"),
                     TraceOptions.builder().setIsSampled(false).build())));
-    assertThat(logEntry.getLabels()).containsEntry("sampled", "false");
+    assertThat(logEntry.getLabels()).containsEntry("openCensusTraceSampled", "false");
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-6/traces/72c905c76f99e99974afd84dc053a480");
     assertThat(logEntry.getSpanId()).isEqualTo("731e102335b7a5a0");
@@ -148,7 +148,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
         getEnhancedLogEntry(
             new OpenCensusTraceLoggingEnhancer("my-test-project-7", SpanSelection.ALL_SPANS),
             BlankSpan.INSTANCE);
-    assertThat(logEntry.getLabels().get("sampled")).isEqualTo("false");
+    assertThat(logEntry.getLabels().get("openCensusTraceSampled")).isEqualTo("false");
     assertThat(logEntry.getTrace())
         .isEqualTo("projects/my-test-project-7/traces/00000000000000000000000000000000");
     assertThat(logEntry.getSpanId()).isEqualTo("0000000000000000");
@@ -179,7 +179,7 @@ public class OpenCensusTraceLoggingEnhancerTest {
   }
 
   private static void assertContainsNoTracingData(LogEntry logEntry) {
-    assertThat(logEntry.getLabels()).doesNotContainKey("sampled");
+    assertThat(logEntry.getLabels()).doesNotContainKey("openCensusTraceSampled");
     assertThat(logEntry.getTrace()).isNull();
     assertThat(logEntry.getSpanId()).isNull();
   }
