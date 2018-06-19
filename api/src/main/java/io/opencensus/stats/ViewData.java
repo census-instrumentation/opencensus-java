@@ -21,7 +21,6 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.internal.Utils;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
@@ -210,22 +209,26 @@ public abstract class ViewData {
         new Function<View.AggregationWindow.Cumulative, Void>() {
           @Override
           public Void apply(View.AggregationWindow.Cumulative arg) {
-            Utils.checkArgument(
-                windowData instanceof AggregationWindowData.CumulativeData,
-                createErrorMessageForWindow(arg, windowData));
+            checkWindow(
+                windowData instanceof AggregationWindowData.CumulativeData, arg, windowData);
             return null;
           }
         },
         new Function<View.AggregationWindow.Interval, Void>() {
           @Override
           public Void apply(View.AggregationWindow.Interval arg) {
-            Utils.checkArgument(
-                windowData instanceof AggregationWindowData.IntervalData,
-                createErrorMessageForWindow(arg, windowData));
+            checkWindow(windowData instanceof AggregationWindowData.IntervalData, arg, windowData);
             return null;
           }
         },
         Functions.</*@Nullable*/ Void>throwAssertionError());
+  }
+
+  private static void checkWindow(
+      boolean isValid, View.AggregationWindow window, AggregationWindowData windowData) {
+    if (!isValid) {
+      throw new IllegalArgumentException(createErrorMessageForWindow(window, windowData));
+    }
   }
 
   private static String createErrorMessageForWindow(
@@ -247,18 +250,16 @@ public abstract class ViewData {
                 new Function<MeasureDouble, Void>() {
                   @Override
                   public Void apply(MeasureDouble arg) {
-                    Utils.checkArgument(
-                        aggregationData instanceof SumDataDouble,
-                        createErrorMessageForAggregation(aggregation, aggregationData));
+                    checkAggregation(
+                        aggregationData instanceof SumDataDouble, aggregation, aggregationData);
                     return null;
                   }
                 },
                 new Function<MeasureLong, Void>() {
                   @Override
                   public Void apply(MeasureLong arg) {
-                    Utils.checkArgument(
-                        aggregationData instanceof SumDataLong,
-                        createErrorMessageForAggregation(aggregation, aggregationData));
+                    checkAggregation(
+                        aggregationData instanceof SumDataLong, aggregation, aggregationData);
                     return null;
                   }
                 },
@@ -269,18 +270,15 @@ public abstract class ViewData {
         new Function<Count, Void>() {
           @Override
           public Void apply(Count arg) {
-            Utils.checkArgument(
-                aggregationData instanceof CountData,
-                createErrorMessageForAggregation(aggregation, aggregationData));
+            checkAggregation(aggregationData instanceof CountData, aggregation, aggregationData);
             return null;
           }
         },
         new Function<Distribution, Void>() {
           @Override
           public Void apply(Distribution arg) {
-            Utils.checkArgument(
-                aggregationData instanceof DistributionData,
-                createErrorMessageForAggregation(aggregation, aggregationData));
+            checkAggregation(
+                aggregationData instanceof DistributionData, aggregation, aggregationData);
             return null;
           }
         },
@@ -291,18 +289,18 @@ public abstract class ViewData {
                 new Function<MeasureDouble, Void>() {
                   @Override
                   public Void apply(MeasureDouble arg) {
-                    Utils.checkArgument(
+                    checkAggregation(
                         aggregationData instanceof LastValueDataDouble,
-                        createErrorMessageForAggregation(aggregation, aggregationData));
+                        aggregation,
+                        aggregationData);
                     return null;
                   }
                 },
                 new Function<MeasureLong, Void>() {
                   @Override
                   public Void apply(MeasureLong arg) {
-                    Utils.checkArgument(
-                        aggregationData instanceof LastValueDataLong,
-                        createErrorMessageForAggregation(aggregation, aggregationData));
+                    checkAggregation(
+                        aggregationData instanceof LastValueDataLong, aggregation, aggregationData);
                     return null;
                   }
                 },
@@ -317,14 +315,23 @@ public abstract class ViewData {
             // we need to continue supporting Mean, since it could still be used by users and some
             // deprecated RPC views.
             if (arg instanceof Aggregation.Mean) {
-              Utils.checkArgument(
+              checkAggregation(
                   aggregationData instanceof AggregationData.MeanData,
-                  createErrorMessageForAggregation(aggregation, aggregationData));
+                  aggregation,
+                  aggregationData);
               return null;
             }
             throw new AssertionError();
           }
         });
+  }
+
+  private static void checkAggregation(
+      boolean isValid, Aggregation aggregation, AggregationData aggregationData) {
+    if (!isValid) {
+      throw new IllegalArgumentException(
+          createErrorMessageForAggregation(aggregation, aggregationData));
+    }
   }
 
   private static String createErrorMessageForAggregation(
