@@ -145,8 +145,9 @@ public abstract class StackdriverStatsConfiguration {
      * Force update means delete the existing {@link com.google.api.MetricDescriptor} and create a
      * new one.
      *
-     * <p>Note that once a {@link com.google.api.MetricDescriptor} is deleted from Stackdriver, all
-     * the {@link com.google.monitoring.v3.TimeSeries} associated with it will also be deleted.
+     * <p>Historical {@link com.google.monitoring.v3.TimeSeries} associated with the old {@link
+     * com.google.api.MetricDescriptor} will not be deleted, but eventually they will expire. See
+     * https://cloud.google.com/monitoring/custom-metrics/creating-metrics#deleting_metrics.
      *
      * @param shouldOverrideExistingMetrics whether to force update existing {@link
      *     com.google.api.MetricDescriptor} or not.
