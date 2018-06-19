@@ -209,7 +209,7 @@ public abstract class ViewData {
         new Function<View.AggregationWindow.Cumulative, Void>() {
           @Override
           public Void apply(View.AggregationWindow.Cumulative arg) {
-            checkWindow(
+            throwIfWindowMismatch(
                 windowData instanceof AggregationWindowData.CumulativeData, arg, windowData);
             return null;
           }
@@ -217,14 +217,15 @@ public abstract class ViewData {
         new Function<View.AggregationWindow.Interval, Void>() {
           @Override
           public Void apply(View.AggregationWindow.Interval arg) {
-            checkWindow(windowData instanceof AggregationWindowData.IntervalData, arg, windowData);
+            throwIfWindowMismatch(
+                windowData instanceof AggregationWindowData.IntervalData, arg, windowData);
             return null;
           }
         },
         Functions.</*@Nullable*/ Void>throwAssertionError());
   }
 
-  private static void checkWindow(
+  private static void throwIfWindowMismatch(
       boolean isValid, View.AggregationWindow window, AggregationWindowData windowData) {
     if (!isValid) {
       throw new IllegalArgumentException(createErrorMessageForWindow(window, windowData));
@@ -250,7 +251,7 @@ public abstract class ViewData {
                 new Function<MeasureDouble, Void>() {
                   @Override
                   public Void apply(MeasureDouble arg) {
-                    checkAggregation(
+                    throwIfAggregationMismatch(
                         aggregationData instanceof SumDataDouble, aggregation, aggregationData);
                     return null;
                   }
@@ -258,7 +259,7 @@ public abstract class ViewData {
                 new Function<MeasureLong, Void>() {
                   @Override
                   public Void apply(MeasureLong arg) {
-                    checkAggregation(
+                    throwIfAggregationMismatch(
                         aggregationData instanceof SumDataLong, aggregation, aggregationData);
                     return null;
                   }
@@ -270,14 +271,15 @@ public abstract class ViewData {
         new Function<Count, Void>() {
           @Override
           public Void apply(Count arg) {
-            checkAggregation(aggregationData instanceof CountData, aggregation, aggregationData);
+            throwIfAggregationMismatch(
+                aggregationData instanceof CountData, aggregation, aggregationData);
             return null;
           }
         },
         new Function<Distribution, Void>() {
           @Override
           public Void apply(Distribution arg) {
-            checkAggregation(
+            throwIfAggregationMismatch(
                 aggregationData instanceof DistributionData, aggregation, aggregationData);
             return null;
           }
@@ -289,7 +291,7 @@ public abstract class ViewData {
                 new Function<MeasureDouble, Void>() {
                   @Override
                   public Void apply(MeasureDouble arg) {
-                    checkAggregation(
+                    throwIfAggregationMismatch(
                         aggregationData instanceof LastValueDataDouble,
                         aggregation,
                         aggregationData);
@@ -299,7 +301,7 @@ public abstract class ViewData {
                 new Function<MeasureLong, Void>() {
                   @Override
                   public Void apply(MeasureLong arg) {
-                    checkAggregation(
+                    throwIfAggregationMismatch(
                         aggregationData instanceof LastValueDataLong, aggregation, aggregationData);
                     return null;
                   }
@@ -315,7 +317,7 @@ public abstract class ViewData {
             // we need to continue supporting Mean, since it could still be used by users and some
             // deprecated RPC views.
             if (arg instanceof Aggregation.Mean) {
-              checkAggregation(
+              throwIfAggregationMismatch(
                   aggregationData instanceof AggregationData.MeanData,
                   aggregation,
                   aggregationData);
@@ -326,7 +328,7 @@ public abstract class ViewData {
         });
   }
 
-  private static void checkAggregation(
+  private static void throwIfAggregationMismatch(
       boolean isValid, Aggregation aggregation, AggregationData aggregationData) {
     if (!isValid) {
       throw new IllegalArgumentException(
