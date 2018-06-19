@@ -50,11 +50,13 @@ public class StackdriverStatsConfigurationTest {
             .setProjectId(PROJECT_ID)
             .setExportInterval(DURATION)
             .setMonitoredResource(RESOURCE)
+            .setOverrideExistingMetrics(true)
             .build();
     assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
     assertThat(configuration.getExportInterval()).isEqualTo(DURATION);
     assertThat(configuration.getMonitoredResource()).isEqualTo(RESOURCE);
+    assertThat(configuration.getOverrideExistingMetrics()).isTrue();
   }
 
   @Test
@@ -64,5 +66,6 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getProjectId()).isNull();
     assertThat(configuration.getExportInterval()).isNull();
     assertThat(configuration.getMonitoredResource()).isNull();
+    assertThat(configuration.getOverrideExistingMetrics()).isNull();
   }
 }

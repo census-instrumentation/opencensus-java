@@ -139,7 +139,7 @@ final class StackdriverExportUtils {
     return builder.build();
   }
 
-  private static String generateType(String viewName) {
+  static String generateType(String viewName) {
     return CUSTOM_OPENCENSUS_DOMAIN + viewName;
   }
 

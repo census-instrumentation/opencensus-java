@@ -24,6 +24,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
+import com.google.monitoring.v3.MetricDescriptorName;
 import com.google.monitoring.v3.ProjectName;
 import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.common.Duration;
@@ -71,6 +72,7 @@ final class StackdriverExporterWorker implements Runnable {
   private final MetricServiceClient metricServiceClient;
   private final ViewManager viewManager;
   private final MonitoredResource monitoredResource;
+  private final boolean overrideExistingMetrics;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -81,13 +83,15 @@ final class StackdriverExporterWorker implements Runnable {
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
       ViewManager viewManager,
-      MonitoredResource monitoredResource) {
+      MonitoredResource monitoredResource,
+      boolean overrideExistingMetrics) {
     this.scheduleDelayMillis = exportInterval.toMillis();
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
     this.monitoredResource = monitoredResource;
+    this.overrideExistingMetrics = overrideExistingMetrics;
 
     Tracing.getExportComponent()
         .getSampledSpanStore()
@@ -105,16 +109,23 @@ final class StackdriverExporterWorker implements Runnable {
         // Ignore views that are already registered.
         return true;
       } else {
-        // If we upload a view that has the same name with a registered view but with different
-        // attributes, Stackdriver client will throw an exception.
-        logger.log(
-            Level.WARNING,
-            "A different view with the same name is already registered: " + existing);
-        return false;
+        if (overrideExistingMetrics) {
+          deleteMetricDescriptor(view);
+        } else {
+          // If we upload a view that has the same name with a registered view but with different
+          // attributes, Stackdriver client will throw an exception.
+          logger.log(
+              Level.WARNING,
+              "A different view with the same name is already registered: " + existing);
+          return false;
+        }
       }
     }
     registeredViews.put(view.getName(), view);
+    return createMetricDescriptor(view);
+  }
 
+  private boolean createMetricDescriptor(View view) {
     Span span = tracer.getCurrentSpan();
     span.addAnnotation("Create Stackdriver Metric.");
     try (Scope scope = tracer.withSpan(span)) {
@@ -152,6 +163,30 @@ final class StackdriverExporterWorker implements Runnable {
                 "Exception thrown when creating MetricDescriptor: " + exceptionMessage(e)));
         return false;
       }
+    }
+  }
+
+  private void deleteMetricDescriptor(View view) {
+    Span span = tracer.getCurrentSpan();
+    span.addAnnotation("Delete Stackdriver Metric.");
+    MetricDescriptorName metricName =
+        MetricDescriptorName.of(
+            projectId, StackdriverExportUtils.generateType(view.getName().asString()));
+    try (Scope scope = tracer.withSpan(span)) {
+      metricServiceClient.deleteMetricDescriptor(metricName);
+      span.addAnnotation("Finish deleting MetricDescriptor.");
+    } catch (ApiException e) {
+      logger.log(Level.WARNING, "ApiException thrown when deleting MetricDescriptor.", e);
+      span.setStatus(
+          Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
+              .toStatus()
+              .withDescription(
+                  "ApiException thrown when deleting MetricDescriptor: " + exceptionMessage(e)));
+    } catch (Throwable e) {
+      logger.log(Level.WARNING, "Exception thrown when deleting MetricDescriptor.", e);
+      span.setStatus(
+          Status.UNKNOWN.withDescription(
+              "Exception thrown when deleting MetricDescriptor: " + exceptionMessage(e)));
     }
   }
 
