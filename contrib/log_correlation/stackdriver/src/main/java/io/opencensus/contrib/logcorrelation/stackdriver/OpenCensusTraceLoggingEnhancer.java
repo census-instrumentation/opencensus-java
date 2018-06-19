@@ -96,7 +96,8 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   }
 
   /**
-   * Constructor to be called by Stackdriver logging.
+   * Constructor to be called by reflection, e.g., by a google-cloud-java {@code LoggingHandler} or
+   * google-cloud-logging-logback {@code LoggingAppender}.
    *
    * <p>This constructor looks up the project ID and {@link SpanSelection SpanSelection} from the
    * environment. It uses the default cloud project ID (the value returned by {@code
@@ -112,8 +113,15 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
     this(lookUpProjectId(), lookUpSpanSelectionProperty());
   }
 
-  /** Constructor used for testing. */
-  OpenCensusTraceLoggingEnhancer(@Nullable String projectId, SpanSelection spanSelection) {
+  /**
+   * Constructs a {@code OpenCensusTraceLoggingEnhancer} with the given project ID and {@code
+   * SpanSelection}.
+   *
+   * @param projectId the project ID for this instance.
+   * @param spanSelection the {@code SpanSelection} for this instance.
+   * @since 0.15
+   */
+  public OpenCensusTraceLoggingEnhancer(@Nullable String projectId, SpanSelection spanSelection) {
     this.projectId = projectId == null ? "" : projectId;
     this.spanSelection = spanSelection;
     this.tracePrefix = "projects/" + this.projectId + "/traces/";
