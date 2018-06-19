@@ -71,6 +71,20 @@ public abstract class StackdriverStatsConfiguration {
   public abstract MonitoredResource getMonitoredResource();
 
   /**
+   * Returns {@code true} when you want to force update existing {@link
+   * com.google.api.MetricDescriptor}, returns {@code false} or {@code null} otherwise.
+   *
+   * <p>Force update means delete the existing {@link com.google.api.MetricDescriptor} and create a
+   * new one.
+   *
+   * @return {@code true} when you want to force update existing {@link
+   *     com.google.api.MetricDescriptor}, returns {@code false} or {@code null} otherwise.
+   * @since 0.15
+   */
+  @Nullable
+  public abstract Boolean getOverrideExistingMetrics();
+
+  /**
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
@@ -125,6 +139,21 @@ public abstract class StackdriverStatsConfiguration {
      * @since 0.11
      */
     public abstract Builder setMonitoredResource(MonitoredResource monitoredResource);
+
+    /**
+     * Decides whether to force update existing {@link com.google.api.MetricDescriptor} or not.
+     * Force update means delete the existing {@link com.google.api.MetricDescriptor} and create a
+     * new one.
+     *
+     * <p>Historical {@link com.google.monitoring.v3.TimeSeries} associated with the old {@link
+     * com.google.api.MetricDescriptor} will not be deleted, but eventually they will expire. See
+     * https://cloud.google.com/monitoring/custom-metrics/creating-metrics#deleting_metrics.
+     *
+     * @param shouldOverrideExistingMetrics whether to force update existing {@link
+     *     com.google.api.MetricDescriptor} or not.
+     * @return this
+     */
+    public abstract Builder setOverrideExistingMetrics(Boolean shouldOverrideExistingMetrics);
 
     /**
      * Builds a new {@link StackdriverStatsConfiguration} with current settings.

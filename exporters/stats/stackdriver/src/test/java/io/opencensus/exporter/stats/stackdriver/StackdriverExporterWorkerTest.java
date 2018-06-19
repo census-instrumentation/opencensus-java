@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
+import com.google.monitoring.v3.DeleteMetricDescriptorRequest;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.protobuf.Empty;
 import io.opencensus.common.Duration;
@@ -90,6 +91,9 @@ public class StackdriverExporterWorkerTest {
   private UnaryCallable<CreateMetricDescriptorRequest, MetricDescriptor>
       mockCreateMetricDescriptorCallable;
 
+  @Mock
+  private UnaryCallable<DeleteMetricDescriptorRequest, Empty> mockDeleteMetricDescriptorCallable;
+
   @Mock private UnaryCallable<CreateTimeSeriesRequest, Empty> mockCreateTimeSeriesCallable;
 
   @Before
@@ -97,10 +101,14 @@ public class StackdriverExporterWorkerTest {
     MockitoAnnotations.initMocks(this);
 
     doReturn(mockCreateMetricDescriptorCallable).when(mockStub).createMetricDescriptorCallable();
+    doReturn(mockDeleteMetricDescriptorCallable).when(mockStub).deleteMetricDescriptorCallable();
     doReturn(mockCreateTimeSeriesCallable).when(mockStub).createTimeSeriesCallable();
     doReturn(null)
         .when(mockCreateMetricDescriptorCallable)
         .call(any(CreateMetricDescriptorRequest.class));
+    doReturn(null)
+        .when(mockDeleteMetricDescriptorCallable)
+        .call(any(DeleteMetricDescriptorRequest.class));
     doReturn(null).when(mockCreateTimeSeriesCallable).call(any(CreateTimeSeriesRequest.class));
   }
 
@@ -127,7 +135,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            false);
     worker.export();
 
     verify(mockStub, times(1)).createMetricDescriptorCallable();
@@ -170,7 +179,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            false);
 
     worker.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
@@ -189,7 +199,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            false);
 
     assertThat(worker.registerView(view)).isFalse();
     worker.export();
@@ -198,14 +209,15 @@ public class StackdriverExporterWorkerTest {
   }
 
   @Test
-  public void skipDifferentViewWithSameName() throws IOException {
+  public void skipDifferentViewWithSameNameIfNotOverrideExistingMetrics() {
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            false);
     View view1 =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(worker.registerView(view1)).isTrue();
@@ -224,6 +236,65 @@ public class StackdriverExporterWorkerTest {
   }
 
   @Test
+  public void overrideExistingMetricsWithSameNameButDifferentAttributes() {
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE,
+            true);
+    View view1 =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    assertThat(worker.registerView(view1)).isTrue();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+
+    View view2 =
+        View.create(
+            VIEW_NAME,
+            "This is a different description.",
+            MEASURE,
+            SUM,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    assertThat(worker.registerView(view2)).isTrue();
+    verify(mockStub, times(1)).deleteMetricDescriptorCallable();
+    verify(mockStub, times(2)).createMetricDescriptorCallable();
+  }
+
+  @Test
+  public void overrideExistingMetrics_FailFastIfFailToDeleteMetricDescriptor() {
+    StackdriverExporterWorker worker =
+        new StackdriverExporterWorker(
+            PROJECT_ID,
+            new FakeMetricServiceClient(mockStub),
+            ONE_SECOND,
+            mockViewManager,
+            DEFAULT_RESOURCE,
+            true);
+    View view1 =
+        View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
+    assertThat(worker.registerView(view1)).isTrue();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+
+    doThrow(new RuntimeException())
+        .when(mockDeleteMetricDescriptorCallable)
+        .call(any(DeleteMetricDescriptorRequest.class));
+    View view2 =
+        View.create(
+            VIEW_NAME,
+            "This is a different description.",
+            MEASURE,
+            SUM,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    assertThat(worker.registerView(view2)).isFalse();
+    verify(mockStub, times(1)).deleteMetricDescriptorCallable();
+    verify(mockStub, times(1)).createMetricDescriptorCallable();
+  }
+
+  @Test
   public void doNotCreateMetricDescriptorForRegisteredView() {
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
@@ -231,7 +302,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            false);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(worker.registerView(view)).isTrue();
@@ -249,7 +321,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            false);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), INTERVAL);
     assertThat(worker.registerView(view)).isFalse();

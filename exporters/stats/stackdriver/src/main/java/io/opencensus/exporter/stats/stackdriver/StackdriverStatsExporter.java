@@ -79,11 +79,17 @@ public final class StackdriverStatsExporter {
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
       ViewManager viewManager,
-      MonitoredResource monitoredResource) {
+      MonitoredResource monitoredResource,
+      boolean overrideExistingMetrics) {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
-            projectId, metricServiceClient, exportInterval, viewManager, monitoredResource);
+            projectId,
+            metricServiceClient,
+            exportInterval,
+            viewManager,
+            monitoredResource,
+            overrideExistingMetrics);
     this.workerThread = new DaemonThreadFactory().newThread(worker);
   }
 
@@ -159,6 +165,10 @@ public final class StackdriverStatsExporter {
    * cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource for a list of valid
    * {@code MonitoredResource}s.
    *
+   * <p>If {@code shouldOverrideExistingMetrics} is set to true, the exporter will delete existing
+   * incompatible {@link com.google.api.MetricDescriptor}s and create new ones. Default value is
+   * false.
+   *
    * @param configuration the {@code StackdriverStatsConfiguration}.
    * @throws IllegalStateException if a Stackdriver exporter is already created.
    * @since 0.11.0
@@ -170,7 +180,8 @@ public final class StackdriverStatsExporter {
         configuration.getCredentials(),
         configuration.getProjectId(),
         configuration.getExportInterval(),
-        configuration.getMonitoredResource());
+        configuration.getMonitoredResource(),
+        configuration.getOverrideExistingMetrics());
   }
 
   /**
@@ -284,12 +295,27 @@ public final class StackdriverStatsExporter {
     createInternal(null, null, exportInterval, monitoredResource);
   }
 
-  // Use createInternal() (instead of constructor) to enforce singleton.
   private static void createInternal(
       @Nullable Credentials credentials,
       @Nullable String projectId,
       @Nullable Duration exportInterval,
       @Nullable MonitoredResource monitoredResource)
+      throws IOException {
+    createInternal(
+        credentials,
+        projectId,
+        exportInterval,
+        monitoredResource,
+        /* overrideExistingMetrics= */ false);
+  }
+
+  // Use createInternal() (instead of constructor) to enforce singleton.
+  private static void createInternal(
+      @Nullable Credentials credentials,
+      @Nullable String projectId,
+      @Nullable Duration exportInterval,
+      @Nullable MonitoredResource monitoredResource,
+      @Nullable Boolean overrideExistingMetrics)
       throws IOException {
     projectId = projectId == null ? ServiceOptions.getDefaultProjectId() : projectId;
     exportInterval = exportInterval == null ? DEFAULT_INTERVAL : exportInterval;
@@ -313,7 +339,8 @@ public final class StackdriverStatsExporter {
               metricServiceClient,
               exportInterval,
               Stats.getViewManager(),
-              monitoredResource);
+              monitoredResource,
+              overrideExistingMetrics != null && overrideExistingMetrics);
       exporter.workerThread.start();
     }
   }
