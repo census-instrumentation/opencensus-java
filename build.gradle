@@ -168,7 +168,7 @@ subprojects {
                 errorprone: "com.google.errorprone:error_prone_annotations:${errorProneVersion}",
                 findbugs_annotations: "com.google.code.findbugs:annotations:${findBugsVersion}",
                 google_auth: "com.google.auth:google-auth-library-credentials:${googleAuthVersion}",
-                google_cloud_logging: "com.google.cloud:google-cloud-logging:1.33.0",
+                google_cloud_logging: "com.google.cloud:google-cloud-logging:${googleCloudGaVersion}",
                 google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudBetaVersion}",
                 zipkin_reporter: "io.zipkin.reporter2:zipkin-reporter:${zipkinReporterVersion}",
                 zipkin_urlconnection: "io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}",
