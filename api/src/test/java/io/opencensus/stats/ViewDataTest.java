@@ -160,12 +160,19 @@ public final class ViewDataTest {
 
   @Test
   public void preventWindowAndAggregationWindowDataMismatch() {
+    CumulativeData cumulativeData =
+        CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("AggregationWindow and AggregationWindowData types mismatch. ");
+    thrown.expectMessage(
+        "AggregationWindow and AggregationWindowData types mismatch. "
+            + "AggregationWindow: "
+            + INTERVAL_HOUR.getClass().getSimpleName()
+            + " AggregationWindowData: "
+            + cumulativeData.getClass().getSimpleName());
     ViewData.create(
         View.create(NAME, DESCRIPTION, MEASURE_DOUBLE, DISTRIBUTION, TAG_KEYS, INTERVAL_HOUR),
         ENTRIES,
-        CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000)));
+        cumulativeData);
   }
 
   @Test
@@ -213,12 +220,7 @@ public final class ViewDataTest {
   @Test
   public void preventAggregationAndAggregationDataMismatch_Distribution_Count() {
     aggregationAndAggregationDataMismatch(
-        createView(DISTRIBUTION),
-        ImmutableMap.of(
-            Arrays.asList(V1, V2),
-            DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 0L)),
-            Arrays.asList(V10, V20),
-            CountData.create(100)));
+        createView(DISTRIBUTION), ImmutableMap.of(Arrays.asList(V10, V20), CountData.create(100)));
   }
 
   @Test
@@ -249,8 +251,15 @@ public final class ViewDataTest {
       View view, Map<List<TagValue>, ? extends AggregationData> entries) {
     CumulativeData cumulativeData =
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
+    Aggregation aggregation = view.getAggregation();
+    AggregationData aggregationData = entries.values().iterator().next();
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Aggregation and AggregationData types mismatch. ");
+    thrown.expectMessage(
+        "Aggregation and AggregationData types mismatch. "
+            + "Aggregation: "
+            + aggregation.getClass().getSimpleName()
+            + " AggregationData: "
+            + aggregationData.getClass().getSimpleName());
     ViewData.create(view, entries, cumulativeData);
   }
 
