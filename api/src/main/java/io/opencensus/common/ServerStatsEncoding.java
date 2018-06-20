@@ -30,7 +30,9 @@ import java.nio.ByteOrder;
  *
  * <p>Use {@code ServerStatsEncoding.parseBytes(byte[] serialized)} to decode.
  */
-public final class ServerStatsEncoding {
+final class ServerStatsEncoding {
+
+  private ServerStatsEncoding() {}
 
   /**
    * Encodes the {@link ServerStats} as per the Opencensus Summary Span specification.
@@ -84,9 +86,6 @@ public final class ServerStatsEncoding {
           case SERVER_STATS_TRACE_OPTION_ID:
             traceOption = bb.get();
             break;
-          default:
-            // Skip remaining
-            bb.position(bb.limit());
         }
       }
     }

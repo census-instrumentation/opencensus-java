@@ -27,7 +27,7 @@ import java.util.TreeMap;
  *
  * @since 0.15
  */
-public class ServerStatsFieldEnums {
+public final class ServerStatsFieldEnums {
 
   public enum Id {
     SERVER_STATS_LB_LATENCY_ID(0),
@@ -50,7 +50,7 @@ public class ServerStatsFieldEnums {
       return value;
     }
 
-    private static TreeMap<Integer, Id> map = new TreeMap<Integer, Id>();
+    private static final TreeMap<Integer, Id> map = new TreeMap<Integer, Id>();
 
     static {
       for (Id id : Id.values()) {
@@ -92,7 +92,9 @@ public class ServerStatsFieldEnums {
     }
   }
 
-  private static final int totalSize = computeTotalSize();
+  private static final int TOTALSIZE = computeTotalSize();
+
+  private ServerStatsFieldEnums() {}
 
   /**
    * Computes total size required to encode all fields in {@code ServerStats}
@@ -115,6 +117,6 @@ public class ServerStatsFieldEnums {
    * @return the total size required to encode all fields in {@code ServerStats}.
    */
   public static int getTotalSize() {
-    return totalSize;
+    return TOTALSIZE;
   }
 }
