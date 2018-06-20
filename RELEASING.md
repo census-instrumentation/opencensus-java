@@ -223,6 +223,7 @@ $ README_FILES=(
   contrib/appengine_standard_util/README.md
   contrib/grpc_util/README.md
   contrib/http_util/README.md
+  contrib/log_correlation/stackdriver/README.md
   contrib/monitored_resource_util/README.md
   contrib/zpages/README.md
   exporters/stats/prometheus/README.md
