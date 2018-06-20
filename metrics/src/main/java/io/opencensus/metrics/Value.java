@@ -37,7 +37,7 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Each {@link Point} contains exactly one of the three {@link Value} types.
  *
- * @since 0.15
+ * @since 0.16
  */
 @ExperimentalApi
 @Immutable
@@ -48,7 +48,7 @@ public abstract class Value {
   /**
    * Applies the given match function to the underlying data type.
    *
-   * @since 0.15
+   * @since 0.16
    */
   public abstract <T> T match(
       Function<? super DoubleValue, T> p0,
@@ -59,7 +59,7 @@ public abstract class Value {
   /**
    * A 64-bit double-precision floating-point {@link Value}.
    *
-   * @since 0.15
+   * @since 0.16
    */
   @AutoValue
   @Immutable
@@ -81,7 +81,7 @@ public abstract class Value {
      *
      * @param value the value in double.
      * @return a {@code DoubleValue}.
-     * @since 0.15
+     * @since 0.16
      */
     public static DoubleValue create(double value) {
       return new AutoValue_Value_DoubleValue(value);
@@ -91,7 +91,7 @@ public abstract class Value {
      * Returns the double value.
      *
      * @return the double value.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract double getValue();
   }
@@ -99,7 +99,7 @@ public abstract class Value {
   /**
    * A 64-bit integer {@link Value}.
    *
-   * @since 0.15
+   * @since 0.16
    */
   @AutoValue
   @Immutable
@@ -121,7 +121,7 @@ public abstract class Value {
      *
      * @param value the value in long.
      * @return a {@code LongValue}.
-     * @since 0.15
+     * @since 0.16
      */
     public static LongValue create(long value) {
       return new AutoValue_Value_LongValue(value);
@@ -131,7 +131,7 @@ public abstract class Value {
      * Returns the long value.
      *
      * @return the long value.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract long getValue();
   }
@@ -140,7 +140,7 @@ public abstract class Value {
    * {@link DistributionValue} contains summary statistics for a population of values. It optionally
    * contains a histogram representing the distribution of those values across a set of buckets.
    *
-   * @since 0.15
+   * @since 0.16
    */
   @AutoValue
   @Immutable
@@ -167,7 +167,7 @@ public abstract class Value {
      * @param bucketBoundaries bucket boundaries of a histogram.
      * @param buckets {@link Bucket}s of a histogram.
      * @return a {@code DistributionValue}.
-     * @since 0.15
+     * @since 0.16
      */
     public static DistributionValue create(
         double mean,
@@ -214,7 +214,7 @@ public abstract class Value {
      * Returns the aggregated mean.
      *
      * @return the aggregated mean.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract double getMean();
 
@@ -222,7 +222,7 @@ public abstract class Value {
      * Returns the aggregated count.
      *
      * @return the aggregated count.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract long getCount();
 
@@ -240,7 +240,7 @@ public abstract class Value {
      * <p>If count is zero then this field must be zero.
      *
      * @return the aggregated sum of squared deviations.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract double getSumOfSquaredDeviations();
 
@@ -248,7 +248,7 @@ public abstract class Value {
      * Returns the {@link Range} of the population values.
      *
      * @return the {@code Range} of the population values.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract Range getRange();
 
@@ -276,7 +276,7 @@ public abstract class Value {
      * when trying to modify it.
      *
      * @return the bucket boundaries of this distribution.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract List<Double> getBucketBoundaries();
 
@@ -285,14 +285,14 @@ public abstract class Value {
      * to update it will throw an {@code UnsupportedOperationException}.
      *
      * @return the the aggregated histogram buckets.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract List<Bucket> getBuckets();
 
     /**
      * The range of the population values.
      *
-     * @since 0.15
+     * @since 0.16
      */
     @AutoValue
     @Immutable
@@ -306,7 +306,7 @@ public abstract class Value {
        * @param min the minimum of the population values.
        * @param max the maximum of the population values.
        * @return a {@code Range}.
-       * @since 0.15
+       * @since 0.16
        */
       public static Range create(double min, double max) {
         if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
@@ -319,7 +319,7 @@ public abstract class Value {
        * Returns the minimum of the population values.
        *
        * @return the minimum of the population values.
-       * @since 0.15
+       * @since 0.16
        */
       public abstract double getMin();
 
@@ -327,7 +327,7 @@ public abstract class Value {
        * Returns the maximum of the population values.
        *
        * @return the maximum of the population values.
-       * @since 0.15
+       * @since 0.16
        */
       public abstract double getMax();
     }
@@ -335,7 +335,7 @@ public abstract class Value {
     /**
      * The histogram bucket of the population values.
      *
-     * @since 0.15
+     * @since 0.16
      */
     @AutoValue
     @Immutable
@@ -348,7 +348,7 @@ public abstract class Value {
        *
        * @param count the number of values in each bucket of the histogram.
        * @return a {@code Bucket}.
-       * @since 0.15
+       * @since 0.16
        */
       public static Bucket create(long count) {
         Utils.checkArgument(count >= 0, "bucket count should be non-negative.");
@@ -359,7 +359,7 @@ public abstract class Value {
        * Returns the number of values in each bucket of the histogram.
        *
        * @return the number of values in each bucket of the histogram.
-       * @since 0.15
+       * @since 0.16
        */
       public abstract long getCount();
 
