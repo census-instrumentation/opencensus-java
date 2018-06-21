@@ -66,7 +66,7 @@ public final class ServerStatsEncoding {
     bb.putLong(stats.getServiceLatencyNs());
 
     bb.put((byte) ServerStatsFieldEnums.Id.SERVER_STATS_TRACE_OPTION_ID.value());
-    bb.put(stats.traceOption());
+    bb.put(stats.getTraceOption());
     return bb.array();
   }
 

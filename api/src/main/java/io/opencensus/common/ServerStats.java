@@ -52,7 +52,7 @@ public abstract class ServerStats {
    * @return Trace options a set of bits indicating properties of trace.
    * @since 0.16
    */
-  public abstract byte traceOption();
+  public abstract byte getTraceOption();
 
   /**
    * Creates new {@link ServerStats} from specified parameters.

@@ -37,22 +37,22 @@ public class ServerStatsTest {
     serverStats = ServerStats.create(31, 22, (byte) 0);
     assertThat(serverStats.getLbLatencyNs()).isEqualTo(31);
     assertThat(serverStats.getServiceLatencyNs()).isEqualTo(22);
-    assertThat(serverStats.traceOption()).isEqualTo((byte) 0);
+    assertThat(serverStats.getTraceOption()).isEqualTo((byte) 0);
 
     serverStats = ServerStats.create(1000011L, 900022L, (byte) 1);
     assertThat(serverStats.getLbLatencyNs()).isEqualTo(1000011L);
     assertThat(serverStats.getServiceLatencyNs()).isEqualTo(900022L);
-    assertThat(serverStats.traceOption()).isEqualTo((byte) 1);
+    assertThat(serverStats.getTraceOption()).isEqualTo((byte) 1);
 
     serverStats = ServerStats.create(0, 22, (byte) 0);
     assertThat(serverStats.getLbLatencyNs()).isEqualTo(0);
     assertThat(serverStats.getServiceLatencyNs()).isEqualTo(22);
-    assertThat(serverStats.traceOption()).isEqualTo((byte) 0);
+    assertThat(serverStats.getTraceOption()).isEqualTo((byte) 0);
 
     serverStats = ServerStats.create(1010, 0, (byte) 0);
     assertThat(serverStats.getLbLatencyNs()).isEqualTo(1010);
     assertThat(serverStats.getServiceLatencyNs()).isEqualTo(0);
-    assertThat(serverStats.traceOption()).isEqualTo((byte) 0);
+    assertThat(serverStats.getTraceOption()).isEqualTo((byte) 0);
   }
 
   @Test

@@ -19,6 +19,7 @@ package io.opencensus.common;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.ServerStatsFieldEnums.Id;
+import io.opencensus.common.ServerStatsFieldEnums.Size;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,5 +40,17 @@ public class ServerStatsFieldEnumsTest {
     assertThat(Id.valueOf(-1)).isNull();
     assertThat(Id.valueOf(Id.values().length)).isNull();
     assertThat(Id.valueOf(Id.values().length + 1)).isNull();
+  }
+
+  @Test
+  public void enumSizeValueTest() {
+    assertThat(Size.SERVER_STATS_LB_LATENCY_SIZE.value()).isEqualTo(8);
+    assertThat(Size.SERVER_STATS_SERVICE_LATENCY_SIZE.value()).isEqualTo(8);
+    assertThat(Size.SERVER_STATS_TRACE_OPTION_SIZE.value()).isEqualTo(1);
+  }
+
+  @Test
+  public void totalSizeTest() {
+    assertThat(ServerStatsFieldEnums.getTotalSize()).isEqualTo(20);
   }
 }
