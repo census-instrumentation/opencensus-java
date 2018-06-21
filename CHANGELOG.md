@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.
 - Add an experimental artifact, `opencensus-contrib-log-correlation-stackdriver`, for
   correlating traces and logs with Stackdriver Logging.
