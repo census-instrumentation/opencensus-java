@@ -278,7 +278,7 @@ public abstract class AggregationData {
      * @param bucketCounts histogram bucket counts.
      * @param exemplars the exemplars associated with each histogram bucket.
      * @return a {@code DistributionData}.
-     * @since 0.15
+     * @since 0.16
      */
     public static DistributionData create(
         double mean,
@@ -399,7 +399,7 @@ public abstract class AggregationData {
      * Returns the {@link Exemplar}s associated with each histogram bucket.
      *
      * @return the {@code Exemplar}s associated with each histogram bucket.
-     * @since 0.15
+     * @since 0.16
      */
     public abstract List</*@Nullable*/ Exemplar> getExemplars();
 
@@ -419,7 +419,7 @@ public abstract class AggregationData {
      * Example points that may be used to annotate aggregated distribution values, associated with a
      * histogram.
      *
-     * @since 0.15
+     * @since 0.16
      */
     @Immutable
     @AutoValue
@@ -431,7 +431,7 @@ public abstract class AggregationData {
        * Returns value of the {@link Exemplar} point.
        *
        * @return value of the {@code Exemplar} point.
-       * @since 0.15
+       * @since 0.16
        */
       public abstract double getValue();
 
@@ -439,7 +439,7 @@ public abstract class AggregationData {
        * Returns the observation (sampling) time of the above value.
        *
        * @return the observation (sampling) time of the above value.
-       * @since 0.15
+       * @since 0.16
        */
       public abstract Timestamp getTimestamp();
 
@@ -447,7 +447,7 @@ public abstract class AggregationData {
        * Returns the {@link TraceId} associated with the example value.
        *
        * @return the {@code TraceId} associated with the example value.
-       * @since 0.15
+       * @since 0.16
        */
       public abstract TraceId getTraceId();
 
@@ -455,7 +455,7 @@ public abstract class AggregationData {
        * Returns the {@link SpanId} associated with the example value.
        *
        * @return the {@code SpanId} associated with the example value.
-       * @since 0.15
+       * @since 0.16
        */
       public abstract SpanId getSpanId();
 
@@ -467,7 +467,7 @@ public abstract class AggregationData {
        * @param traceId the {@link TraceId} associated with the example value.
        * @param spanId the {@link SpanId} associated with the example value.
        * @return an {@code Exemplar}.
-       * @since 0.15
+       * @since 0.16
        */
       public static Exemplar create(
           double value, Timestamp timestamp, TraceId traceId, SpanId spanId) {
