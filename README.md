@@ -19,7 +19,7 @@ project.
 
 Integrating OpenCensus with a new library means recording stats or traces and propagating context.
 
-The full quick start example can also be found on the [OpenCensus website](https://opencensus.io/java.html).
+The full quick start example can also be found on the [OpenCensus website](https://opencensus.io/java/index.html).
 
 ### Add the dependencies to your project
 
