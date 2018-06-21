@@ -1,6 +1,6 @@
 # The following dependencies were calculated from:
 #
-# generate_workspace --artifact=com.google.guava:guava:23.0 --artifact=io.grpc:grpc-all:1.9.0 --artifact=io.opencensus:opencensus-api:0.14.0 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.14.0 --artifact=io.opencensus:opencensus-contrib-zpages:0.14.0 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.14.0 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.14.0 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.14.0 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.14.0 --artifact=io.opencensus:opencensus-impl:0.14.0 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --repositories=http://repo.maven.apache.org/maven2
+# generate_workspace --artifact=com.google.guava:guava:23.0 --artifact=io.grpc:grpc-all:1.9.0 --artifact=io.opencensus:opencensus-api:0.15.0 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.15.0 --artifact=io.opencensus:opencensus-contrib-zpages:0.15.0 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.15.0 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.15.0 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.15.0 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.15.0 --artifact=io.opencensus:opencensus-impl:0.15.0 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --repositories=http://repo.maven.apache.org/maven2
 
 
 def opencensus_maven_jars():
@@ -28,14 +28,14 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_stats_prometheus",
-      artifact = "io.opencensus:opencensus-exporter-stats-prometheus:0.14.0",
+      artifact = "io.opencensus:opencensus-exporter-stats-prometheus:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "15042a73937e65128872ea4d83bb2cccfe7e702a",
+      sha1 = "bdd5f4b6648748a3187b2829bcc99a66cc013173",
   )
 
 
-  # com.google.api:gax:jar:1.25.0
-  # com.google.api:gax-grpc:jar:1.25.0 got requested version
+  # com.google.api:gax-grpc:jar:1.28.0 got requested version
+  # com.google.api:gax:jar:1.28.0
   native.maven_jar(
       name = "com_google_auth_google_auth_library_oauth2_http",
       artifact = "com.google.auth:google-auth-library-oauth2-http:0.9.1",
@@ -73,12 +73,12 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.14.0
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0
   native.maven_jar(
       name = "com_google_cloud_google_cloud_trace",
-      artifact = "com.google.cloud:google-cloud-trace:0.49.0-beta",
+      artifact = "com.google.cloud:google-cloud-trace:0.52.0-beta",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "f3590127135c239756fa0446def43261800b4647",
+      sha1 = "efdce9969d9b21e43151ed3f01694d14e8751065",
   )
 
 
@@ -91,12 +91,12 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl:jar:0.14.0
+  # io.opencensus:opencensus-impl:jar:0.15.0
   native.maven_jar(
       name = "io_opencensus_opencensus_impl_core",
-      artifact = "io.opencensus:opencensus-impl-core:0.14.0",
+      artifact = "io.opencensus:opencensus-impl-core:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "71a158988c6ab11e5557b9c9b52c23d441176309",
+      sha1 = "36c775926ba1e54af7c37d0503cfb99d986f6229",
   )
 
 
@@ -109,8 +109,8 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.api:gax:jar:1.25.0
-  # com.google.api:gax-grpc:jar:1.25.0 got requested version
+  # com.google.api:gax-grpc:jar:1.28.0 got requested version
+  # com.google.api:gax:jar:1.28.0
   native.maven_jar(
       name = "org_threeten_threetenbp",
       artifact = "org.threeten:threetenbp:1.3.3",
@@ -150,9 +150,9 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core:jar:1.31.0 got requested version
+  # com.google.cloud:google-cloud-core:jar:1.34.0 got requested version
   # io.grpc:grpc-protobuf:jar:1.9.0
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 got requested version
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 got requested version
   native.maven_jar(
       name = "com_google_protobuf_protobuf_java_util",
       artifact = "com.google.protobuf:protobuf-java-util:3.5.1",
@@ -162,11 +162,11 @@ def opencensus_maven_jars():
 
 
   # io.grpc:grpc-auth:jar:1.9.0
-  # com.google.api:gax-grpc:jar:1.25.0 wanted version 0.9.1
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.14.0 wanted version 0.9.1
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.14.0 wanted version 0.9.1
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0 wanted version 0.9.1
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0 wanted version 0.9.1
   # com.google.auth:google-auth-library-oauth2-http:jar:0.9.0 got requested version
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 wanted version 0.9.1
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 wanted version 0.9.1
+  # com.google.api:gax-grpc:jar:1.28.0 wanted version 0.9.1
   native.maven_jar(
       name = "com_google_auth_google_auth_library_credentials",
       artifact = "com.google.auth:google-auth-library-credentials:0.9.0",
@@ -175,26 +175,26 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core:jar:1.31.0
-  # com.google.api.grpc:proto-google-iam-v1:jar:0.12.0 got requested version
-  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.14.0 got requested version
-  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.14.0 got requested version
-  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:0.14.0 got requested version
-  # com.google.api:gax:jar:1.25.0 got requested version
-  # com.google.api:gax-grpc:jar:1.25.0 got requested version
+  # com.google.api:gax:jar:1.28.0 got requested version
+  # com.google.api:gax-grpc:jar:1.28.0 got requested version
+  # com.google.cloud:google-cloud-core:jar:1.34.0
+  # com.google.api.grpc:proto-google-iam-v1:jar:0.12.0 wanted version 1.5.0
+  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:1.16.0 got requested version
+  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.17.0 got requested version
+  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.17.0 got requested version
   native.maven_jar(
       name = "com_google_api_api_common",
-      artifact = "com.google.api:api-common:1.5.0",
+      artifact = "com.google.api:api-common:1.6.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "7e537338d40a57ad469239acb6d828fa544fb52b",
+      sha1 = "fea8ce6b7d8629f1646641e07a3ab712b56b901e",
   )
 
 
-  # io.opencensus:opencensus-contrib-zpages:jar:0.14.0 got requested version
+  # io.opencensus:opencensus-contrib-zpages:jar:0.15.0 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_contrib_grpc_metrics",
-      artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.14.0",
-      sha1 = "9cd197d7667e7a012cb7270351dc8325909df889",
+      artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.15.0",
+      sha1 = "092d8f796006619ce4e86d987f9d441c6155bef9",
   )
 
 
@@ -217,32 +217,32 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-trace:jar:0.49.0-beta
+  # com.google.cloud:google-cloud-trace:jar:0.52.0-beta
   native.maven_jar(
       name = "com_google_api_grpc_proto_google_cloud_trace_v2",
-      artifact = "com.google.api.grpc:proto-google-cloud-trace-v2:0.14.0",
+      artifact = "com.google.api.grpc:proto-google-cloud-trace-v2:0.17.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "f8a52fe45989f06c6de508648a46c10054e07762",
+      sha1 = "db2ce8862a095bd66e5b69919abc92981f7bb0bb",
   )
 
 
-  # com.google.cloud:google-cloud-trace:jar:0.49.0-beta got requested version
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0
-  # com.google.cloud:google-cloud-monitoring:jar:0.49.0-beta got requested version
+  # com.google.cloud:google-cloud-trace:jar:0.52.0-beta got requested version
+  # com.google.cloud:google-cloud-monitoring:jar:1.34.0 got requested version
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0
   native.maven_jar(
       name = "io_grpc_grpc_netty_shaded",
-      artifact = "io.grpc:grpc-netty-shaded:1.10.1",
+      artifact = "io.grpc:grpc-netty-shaded:1.12.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "52a002acf8f3965cf0179c769766138cc0bb50f0",
+      sha1 = "fe3cbfd3fe70ec3c68ddd628964b7051cd724145",
   )
 
 
-  # com.google.cloud:google-cloud-trace:jar:0.49.0-beta
+  # com.google.cloud:google-cloud-trace:jar:0.52.0-beta
   native.maven_jar(
       name = "com_google_api_grpc_proto_google_cloud_trace_v1",
-      artifact = "com.google.api.grpc:proto-google-cloud-trace-v1:0.14.0",
+      artifact = "com.google.api.grpc:proto-google-cloud-trace-v1:0.17.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "a87cb5ff9a3ff45a15fb70a79dc318947fca5af6",
+      sha1 = "736ee4b102ecac3bfd6efdcb4fd1ac1147b396a2",
   )
 
 
@@ -273,16 +273,16 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-monitoring:jar:0.49.0-beta
+  # com.google.cloud:google-cloud-monitoring:jar:1.34.0
   native.maven_jar(
       name = "com_google_api_grpc_proto_google_cloud_monitoring_v3",
-      artifact = "com.google.api.grpc:proto-google-cloud-monitoring-v3:0.14.0",
+      artifact = "com.google.api.grpc:proto-google-cloud-monitoring-v3:1.16.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "ad8cbaaa97cbaf4796e8aaa03b8fb44683afcef8",
+      sha1 = "81521a247a24d9be78c0a5d5c09b508d2ae683f6",
   )
 
 
-  # com.google.cloud:google-cloud-core:jar:1.31.0
+  # com.google.cloud:google-cloud-core:jar:1.34.0
   # com.google.http-client:google-http-client-jackson2:jar:1.23.0 got requested version
   # com.google.auth:google-auth-library-oauth2-http:jar:0.9.0 wanted version 1.19.0
   native.maven_jar(
@@ -321,17 +321,17 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_trace_logging",
-      artifact = "io.opencensus:opencensus-exporter-trace-logging:0.14.0",
+      artifact = "io.opencensus:opencensus-exporter-trace-logging:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "993315ff142e74b0a9e64cbb418f5d48d0be26be",
+      sha1 = "8b594af20be53cf05d6f7f0ddbe30fcaef4d67d2",
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 wanted version 1.10.1
-  # com.google.cloud:google-cloud-trace:jar:0.49.0-beta wanted version 1.10.1
+  # com.google.cloud:google-cloud-monitoring:jar:1.34.0 wanted version 1.12.0
   # io.grpc:grpc-all:jar:1.9.0
-  # com.google.api:gax-grpc:jar:1.25.0 wanted version 1.10.1
-  # com.google.cloud:google-cloud-monitoring:jar:0.49.0-beta wanted version 1.10.1
+  # com.google.api:gax-grpc:jar:1.28.0 wanted version 1.10.1
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 wanted version 1.12.0
+  # com.google.cloud:google-cloud-trace:jar:0.52.0-beta wanted version 1.12.0
   native.maven_jar(
       name = "io_grpc_grpc_auth",
       artifact = "io.grpc:grpc-auth:1.9.0",
@@ -340,13 +340,13 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core:jar:1.31.0
-  # com.google.api:gax-grpc:jar:1.25.0 got requested version
+  # com.google.api:gax-grpc:jar:1.28.0 got requested version
+  # com.google.cloud:google-cloud-core:jar:1.34.0
   native.maven_jar(
       name = "com_google_api_gax",
-      artifact = "com.google.api:gax:1.25.0",
+      artifact = "com.google.api:gax:1.28.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "36ab73c0b5d4a67447eb89a3174cc76ced150bd1",
+      sha1 = "932f570c06599f34729e0abb250e999ceb5c2c63",
   )
 
 
@@ -361,9 +361,9 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_trace_stackdriver",
-      artifact = "io.opencensus:opencensus-exporter-trace-stackdriver:0.14.0",
+      artifact = "io.opencensus:opencensus-exporter-trace-stackdriver:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "531ad0e41f7efd0ee2588ae301641f5ed1774862",
+      sha1 = "5de4ca15dc5bf4b861f9a6594e0b81388f9716f0",
   )
 
 
@@ -385,7 +385,7 @@ def opencensus_maven_jars():
   # io.grpc:grpc-protobuf-nano:jar:1.9.0 got requested version
   # io.grpc:grpc-testing:jar:1.9.0 got requested version
   # io.grpc:grpc-netty:jar:1.9.0 got requested version
-  # io.grpc:grpc-netty-shaded:jar:1.10.1 wanted version 1.10.1
+  # io.grpc:grpc-netty-shaded:jar:1.12.0 wanted version 1.12.0
   native.maven_jar(
       name = "io_grpc_grpc_core",
       artifact = "io.grpc:grpc-core:1.9.0",
@@ -394,16 +394,17 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.14.0
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_contrib_monitored_resource_util",
-      artifact = "io.opencensus:opencensus-contrib-monitored-resource-util:0.14.0",
+      artifact = "io.opencensus:opencensus-contrib-monitored-resource-util:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "f5826aeea5d200c1288518eac5fff673ec464a8d",
+      sha1 = "7e755d630cf025d0767a5f45dea39427ce5ba597",
   )
 
 
-  # com.google.cloud:google-cloud-core:jar:1.31.0
+  # com.google.cloud:google-cloud-core:jar:1.34.0
   native.maven_jar(
       name = "joda_time_joda_time",
       artifact = "joda-time:joda-time:2.9.2",
@@ -430,7 +431,7 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl:jar:0.14.0
+  # io.opencensus:opencensus-impl:jar:0.15.0
   native.maven_jar(
       name = "com_lmax_disruptor",
       artifact = "com.lmax:disruptor:3.4.1",
@@ -441,11 +442,11 @@ def opencensus_maven_jars():
 
   # io.grpc:grpc-protobuf:jar:1.9.0
   # com.google.api.grpc:proto-google-iam-v1:jar:0.12.0 got requested version
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 got requested version
-  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.14.0 got requested version
+  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:1.16.0 got requested version
   # com.google.protobuf:protobuf-java-util:bundle:3.5.1 got requested version
-  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.14.0 got requested version
-  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:0.14.0 got requested version
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 got requested version
+  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.17.0 got requested version
+  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.17.0 got requested version
   native.maven_jar(
       name = "com_google_protobuf_protobuf_java",
       artifact = "com.google.protobuf:protobuf-java:3.5.1",
@@ -463,12 +464,12 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 wanted version 1.10.1
-  # com.google.cloud:google-cloud-trace:jar:0.49.0-beta wanted version 1.10.1
+  # com.google.cloud:google-cloud-monitoring:jar:1.34.0 wanted version 1.12.0
   # io.grpc:grpc-testing:jar:1.9.0 got requested version
   # io.grpc:grpc-all:jar:1.9.0
-  # com.google.api:gax-grpc:jar:1.25.0 wanted version 1.10.1
-  # com.google.cloud:google-cloud-monitoring:jar:0.49.0-beta wanted version 1.10.1
+  # com.google.api:gax-grpc:jar:1.28.0 wanted version 1.10.1
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 wanted version 1.12.0
+  # com.google.cloud:google-cloud-trace:jar:0.52.0-beta wanted version 1.12.0
   native.maven_jar(
       name = "io_grpc_grpc_stub",
       artifact = "io.grpc:grpc-stub:1.9.0",
@@ -479,15 +480,15 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_impl",
-      artifact = "io.opencensus:opencensus-impl:0.14.0",
+      artifact = "io.opencensus:opencensus-impl:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "0039961d96271ab9da6a5abf6a4d0852bee7b71f",
+      sha1 = "d7bf0d7ee5a0594f840271c11c9f8d6f754f35d6",
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 wanted version 1.10.1
   # io.grpc:grpc-all:jar:1.9.0
-  # com.google.api:gax-grpc:jar:1.25.0 wanted version 1.10.1
+  # com.google.api:gax-grpc:jar:1.28.0 wanted version 1.10.1
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 wanted version 1.12.0
   native.maven_jar(
       name = "io_grpc_grpc_protobuf",
       artifact = "io.grpc:grpc-protobuf:1.9.0",
@@ -526,13 +527,13 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-monitoring:jar:0.49.0-beta
-  # com.google.cloud:google-cloud-trace:jar:0.49.0-beta got requested version
+  # com.google.cloud:google-cloud-trace:jar:0.52.0-beta got requested version
+  # com.google.cloud:google-cloud-monitoring:jar:1.34.0
   native.maven_jar(
       name = "com_google_cloud_google_cloud_core_grpc",
-      artifact = "com.google.cloud:google-cloud-core-grpc:1.31.0",
+      artifact = "com.google.cloud:google-cloud-core-grpc:1.34.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "01b6246f60b3ce140945ebe4ba71e72e6141fd5c",
+      sha1 = "22a601d6508fe82c3f856bc68564f90db9d70b07",
   )
 
 
@@ -554,18 +555,18 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl:jar:0.14.0 got requested version
-  # io.opencensus:opencensus-impl-core:jar:0.14.0 got requested version
-  # io.opencensus:opencensus-contrib-zpages:jar:0.14.0 got requested version
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.14.0 got requested version
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0 got requested version
+  # io.opencensus:opencensus-impl:jar:0.15.0 got requested version
+  # io.opencensus:opencensus-contrib-zpages:jar:0.15.0 got requested version
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0 got requested version
+  # io.opencensus:opencensus-impl-core:jar:0.15.0 got requested version
+  # io.opencensus:opencensus-exporter-trace-logging:jar:0.15.0 got requested version
   # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.10.0 wanted version 0.10.0
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.14.0 got requested version
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.14.0 got requested version
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.14.0 got requested version
+  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.15.0 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_api",
-      artifact = "io.opencensus:opencensus-api:0.14.0",
-      sha1 = "0c0f8c4d96e5ec83d13085bdbe01175ffd37d552",
+      artifact = "io.opencensus:opencensus-api:0.15.0",
+      sha1 = "9a098392b287d7924660837f4eba0ce252013683",
   )
 
 
@@ -579,8 +580,8 @@ def opencensus_maven_jars():
 
 
   # io.prometheus:simpleclient_httpserver:bundle:0.4.0 wanted version 0.3.0
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.14.0
   # io.prometheus:simpleclient_common:bundle:0.4.0 wanted version 0.3.0
+  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.15.0
   native.maven_jar(
       name = "io_prometheus_simpleclient",
       artifact = "io.prometheus:simpleclient:0.4.0",
@@ -600,9 +601,9 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_stats_stackdriver",
-      artifact = "io.opencensus:opencensus-exporter-stats-stackdriver:0.14.0",
+      artifact = "io.opencensus:opencensus-exporter-stats-stackdriver:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "00f485c6813be788e774f0b025823f71f186f829",
+      sha1 = "2f52d75b2ad4c24fc23f865cab1994c7a1eb727f",
   )
 
 
@@ -661,7 +662,7 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core:jar:1.31.0
+  # com.google.cloud:google-cloud-core:jar:1.34.0
   native.maven_jar(
       name = "com_google_api_grpc_proto_google_iam_v1",
       artifact = "com.google.api.grpc:proto-google-iam-v1:0.12.0",
@@ -670,9 +671,9 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 wanted version 1.10.1
   # io.opencensus:opencensus-api:jar:0.10.0 wanted version 1.8.0
   # io.grpc:grpc-all:jar:1.9.0 got requested version
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 wanted version 1.12.0
   # io.grpc:grpc-core:jar:1.9.0
   native.maven_jar(
       name = "io_grpc_grpc_context",
@@ -682,22 +683,22 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0
   native.maven_jar(
       name = "com_google_api_gax_grpc",
-      artifact = "com.google.api:gax-grpc:1.25.0",
+      artifact = "com.google.api:gax-grpc:1.28.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "10b0e7942fec9c8fa46f907517ca026bb647d7f8",
+      sha1 = "7cbeed0c7597fffa90d61c2e7f744c15bf613124",
   )
 
 
-  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.14.0 wanted version 1.11.0
   # com.google.api.grpc:proto-google-iam-v1:jar:0.12.0 wanted version 1.11.0
-  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:0.14.0 wanted version 1.11.0
+  # com.google.api:gax-grpc:jar:1.28.0 got requested version
+  # com.google.api.grpc:proto-google-cloud-monitoring-v3:jar:1.16.0 wanted version 1.11.0
+  # com.google.api.grpc:proto-google-cloud-trace-v1:jar:0.17.0 wanted version 1.11.0
+  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.17.0 wanted version 1.11.0
   # io.grpc:grpc-protobuf:jar:1.9.0
-  # com.google.cloud:google-cloud-core:jar:1.31.0 wanted version 1.11.0
-  # com.google.api.grpc:proto-google-cloud-trace-v2:jar:0.14.0 wanted version 1.11.0
-  # com.google.api:gax-grpc:jar:1.25.0 got requested version
+  # com.google.cloud:google-cloud-core:jar:1.34.0 wanted version 1.11.0
   native.maven_jar(
       name = "com_google_api_grpc_proto_google_common_protos",
       artifact = "com.google.api.grpc:proto-google-common-protos:1.0.0",
@@ -708,22 +709,22 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_contrib_zpages",
-      artifact = "io.opencensus:opencensus-contrib-zpages:0.14.0",
+      artifact = "io.opencensus:opencensus-contrib-zpages:0.15.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "aae71f690a0265a855a3685c61d53e1496dd7a7b",
+      sha1 = "f9748d0bf7d390a325d169fd44b4fdcf17dfe1b4",
   )
 
 
   # io.grpc:grpc-protobuf-nano:jar:1.9.0 wanted version 19.0
   # io.grpc:grpc-core:jar:1.9.0 wanted version 19.0
+  # io.opencensus:opencensus-exporter-trace-logging:jar:0.15.0 wanted version 20.0
   # io.grpc:grpc-protobuf-lite:jar:1.9.0 wanted version 19.0
   # com.google.protobuf:protobuf-java-util:bundle:3.5.1 wanted version 19.0
-  # io.opencensus:opencensus-contrib-zpages:jar:0.14.0 wanted version 20.0
-  # io.opencensus:opencensus-impl-core:jar:0.14.0 wanted version 20.0
   # com.google.instrumentation:instrumentation-api:jar:0.4.3 wanted version 19.0
+  # io.opencensus:opencensus-contrib-zpages:jar:0.15.0 wanted version 20.0
   # io.opencensus:opencensus-api:jar:0.10.0 wanted version 19.0
+  # io.opencensus:opencensus-impl-core:jar:0.15.0 wanted version 20.0
   # io.grpc:grpc-protobuf:jar:1.9.0 wanted version 19.0
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.14.0 wanted version 20.0
   native.maven_jar(
       name = "com_google_guava_guava",
       artifact = "com.google.guava:guava:23.0",
@@ -740,23 +741,23 @@ def opencensus_maven_jars():
   )
 
 
-  # com.google.cloud:google-cloud-monitoring:jar:0.49.0-beta
-  # com.google.cloud:google-cloud-trace:jar:0.49.0-beta got requested version
-  # com.google.cloud:google-cloud-core-grpc:jar:1.31.0 got requested version
+  # com.google.cloud:google-cloud-trace:jar:0.52.0-beta got requested version
+  # com.google.cloud:google-cloud-monitoring:jar:1.34.0
+  # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 got requested version
   native.maven_jar(
       name = "com_google_cloud_google_cloud_core",
-      artifact = "com.google.cloud:google-cloud-core:1.31.0",
+      artifact = "com.google.cloud:google-cloud-core:1.34.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "18ed477964585715f06ff6490d60493aa3c83c45",
+      sha1 = "6cf7ac3ed0a27ca28b5eb5203df7abd5d5ad61de",
   )
 
 
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.14.0
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0
   native.maven_jar(
       name = "com_google_cloud_google_cloud_monitoring",
-      artifact = "com.google.cloud:google-cloud-monitoring:0.49.0-beta",
+      artifact = "com.google.cloud:google-cloud-monitoring:1.34.0",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "b6b8ae7cec7d2a7b8706b7b06cc75278fc49b6e4",
+      sha1 = "5c023c42d0997f149b7138aca331d5a95b5d9dca",
   )
 
 
@@ -1165,6 +1166,7 @@ def opencensus_java_libraries():
           ":io_grpc_grpc_netty_shaded",
           ":io_grpc_grpc_stub",
           ":io_opencensus_opencensus_api",
+          ":io_opencensus_opencensus_contrib_monitored_resource_util",
       ],
   )
 
