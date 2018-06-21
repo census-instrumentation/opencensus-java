@@ -19,7 +19,11 @@ package io.opencensus.common;
 import com.google.auto.value.AutoValue;
 import javax.annotation.concurrent.Immutable;
 
-/** A representation of stats measured on the server side. */
+/**
+ * A representation of stats measured on the server side.
+ *
+ * @since 0.15
+ */
 @Immutable
 @AutoValue
 public abstract class ServerStats {
@@ -32,7 +36,7 @@ public abstract class ServerStats {
    * @return Load Balancer latency in nanoseconds.
    * @since 0.15
    */
-  public abstract long lbLatencyNs();
+  public abstract long getLbLatencyNs();
 
   /**
    * Returns Service latency, a latency observed at Server.
@@ -40,8 +44,14 @@ public abstract class ServerStats {
    * @return Service latency in nanoseconds.
    * @since 0.15
    */
-  public abstract long serviceLatencyNs();
+  public abstract long getServiceLatencyNs();
 
+  /**
+   * Returns Trace options, a set of bits indicating properties of trace.
+   *
+   * @return Trace options a set of bits indicating properties of trace.
+   * @since 0.15
+   */
   public abstract byte traceOption();
 
   /**
@@ -60,15 +70,15 @@ public abstract class ServerStats {
    * @throws IllegalArgumentException if the arguments are out of range.
    * @since 0.15
    */
-  static ServerStats create(long lbLatencyNs, long serviceLatencyNs, byte traceOption) {
+  public static ServerStats create(long lbLatencyNs, long serviceLatencyNs, byte traceOption) {
 
     if (lbLatencyNs < 0) {
-      throw new IllegalArgumentException("'lbLatencyNs' is less than zero: " + lbLatencyNs);
+      throw new IllegalArgumentException("'getLbLatencyNs' is less than zero: " + lbLatencyNs);
     }
 
     if (serviceLatencyNs < 0) {
       throw new IllegalArgumentException(
-          "'serviceLatencyNs' is less than zero: " + serviceLatencyNs);
+          "'getServiceLatencyNs' is less than zero: " + serviceLatencyNs);
     }
 
     return new AutoValue_ServerStats(lbLatencyNs, serviceLatencyNs, traceOption);

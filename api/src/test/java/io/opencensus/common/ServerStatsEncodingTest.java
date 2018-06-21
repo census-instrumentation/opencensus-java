@@ -20,7 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -28,8 +30,10 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ServerStatsEncodingTest {
 
+  @Rule public final ExpectedException thrown = ExpectedException.none();
+
   @Test
-  public void encodeDecodeTest() {
+  public void encodeDecodeTest() throws ServerStatsDeserializationException {
     ServerStats serverStatsToBeEncoded = null;
     ServerStats serverStatsDecoded = null;
     byte[] serialized = null;
@@ -51,7 +55,7 @@ public class ServerStatsEncodingTest {
   }
 
   @Test
-  public void skipUnknownFieldTest() {
+  public void skipUnknownFieldTest() throws ServerStatsDeserializationException {
     ServerStats serverStatsToBeEncoded = null;
     ServerStats serverStatsDecoded = null;
     byte[] serialized = null;
@@ -74,7 +78,7 @@ public class ServerStatsEncodingTest {
   }
 
   @Test
-  public void negativeLbLatencyValueTest() {
+  public void negativeLbLatencyValueTest() throws ServerStatsDeserializationException {
     ServerStats serverStatsToBeEncoded = null;
     ServerStats serverStatsDecoded = null;
     byte[] serialized = null;
@@ -85,16 +89,17 @@ public class ServerStatsEncodingTest {
     // update serialized byte[] with negative value for lbLatency.
     final ByteBuffer bb = ByteBuffer.wrap(serialized);
     bb.order(ByteOrder.LITTLE_ENDIAN);
-    bb.position(1);
+    bb.position(2);
     bb.putLong(-100L);
 
     byte[] newSerialized = bb.array();
-    serverStatsDecoded = ServerStatsEncoding.parseBytes(newSerialized);
-    assertThat(serverStatsDecoded).isNull();
+    thrown.expect(ServerStatsDeserializationException.class);
+    thrown.expectMessage("Serialized ServiceStats contains invalid values");
+    ServerStatsEncoding.parseBytes(newSerialized);
   }
 
   @Test
-  public void negativeServerLatencyValueTest() {
+  public void negativeServerLatencyValueTest() throws ServerStatsDeserializationException {
     ServerStats serverStatsToBeEncoded = null;
     ServerStats serverStatsDecoded = null;
     byte[] serialized = null;
@@ -105,11 +110,34 @@ public class ServerStatsEncodingTest {
     // update serialized byte[] with negative value for serviceLatency.
     final ByteBuffer bb = ByteBuffer.wrap(serialized);
     bb.order(ByteOrder.LITTLE_ENDIAN);
-    bb.position(10);
+    bb.position(11);
     bb.putLong(-101L);
 
     byte[] newSerialized = bb.array();
-    serverStatsDecoded = ServerStatsEncoding.parseBytes(newSerialized);
-    assertThat(serverStatsDecoded).isNull();
+    thrown.expect(ServerStatsDeserializationException.class);
+    thrown.expectMessage("Serialized ServiceStats contains invalid values");
+    ServerStatsEncoding.parseBytes(newSerialized);
+  }
+
+  @Test
+  public void emptySerializedBuffer() throws ServerStatsDeserializationException {
+    final ByteBuffer bb = ByteBuffer.allocate(0);
+    bb.order(ByteOrder.LITTLE_ENDIAN);
+
+    byte[] newSerialized = bb.array();
+    thrown.expect(ServerStatsDeserializationException.class);
+    thrown.expectMessage("Serialized ServerStats buffer is empty");
+    ServerStatsEncoding.parseBytes(newSerialized);
+  }
+
+  @Test
+  public void invalidVersion() throws ServerStatsDeserializationException {
+    final ByteBuffer bb = ByteBuffer.allocate(10);
+    bb.order(ByteOrder.LITTLE_ENDIAN);
+    bb.put((byte) 0);
+    byte[] newSerialized = bb.array();
+    thrown.expect(ServerStatsDeserializationException.class);
+    thrown.expectMessage("Invalid ServerStats version: 0");
+    ServerStatsEncoding.parseBytes(newSerialized);
   }
 }

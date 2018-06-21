@@ -29,28 +29,41 @@ import java.nio.ByteOrder;
  * <p>Use {@code ServerStatsEncoding.toBytes(ServerStats stats)} to encode.
  *
  * <p>Use {@code ServerStatsEncoding.parseBytes(byte[] serialized)} to decode.
+ *
+ * @since 0.15
  */
 final class ServerStatsEncoding {
 
   private ServerStatsEncoding() {}
 
   /**
+   * The current encoding version. The value is {@value #VERSION}
+   *
+   * @since 0.15
+   */
+  public static final byte VERSION = (byte) 1;
+
+  /**
    * Encodes the {@link ServerStats} as per the Opencensus Summary Span specification.
    *
    * @param stats {@code ServerStats} to encode.
    * @return encoded byte array.
+   * @since 0.15
    */
   public static byte[] toBytes(ServerStats stats) {
     // Should this be optimized to not include invalid values?
 
-    ByteBuffer bb = ByteBuffer.allocate(ServerStatsFieldEnums.getTotalSize());
+    ByteBuffer bb = ByteBuffer.allocate(ServerStatsFieldEnums.getTotalSize() + 1);
     bb.order(ByteOrder.LITTLE_ENDIAN);
 
+    // put version
+    bb.put(VERSION);
+
     bb.put((byte) ServerStatsFieldEnums.Id.SERVER_STATS_LB_LATENCY_ID.value());
-    bb.putLong(stats.lbLatencyNs());
+    bb.putLong(stats.getLbLatencyNs());
 
     bb.put((byte) ServerStatsFieldEnums.Id.SERVER_STATS_SERVICE_LATENCY_ID.value());
-    bb.putLong(stats.serviceLatencyNs());
+    bb.putLong(stats.getServiceLatencyNs());
 
     bb.put((byte) ServerStatsFieldEnums.Id.SERVER_STATS_TRACE_OPTION_ID.value());
     bb.put(stats.traceOption());
@@ -63,13 +76,24 @@ final class ServerStatsEncoding {
    *
    * @param serialized encoded {@code ServerStats} in byte array.
    * @return decoded {@code ServerStats}. null if decoding fails.
+   * @since 0.15
    */
-  public static ServerStats parseBytes(byte[] serialized) {
+  public static ServerStats parseBytes(byte[] serialized)
+      throws ServerStatsDeserializationException {
     final ByteBuffer bb = ByteBuffer.wrap(serialized);
     bb.order(ByteOrder.LITTLE_ENDIAN);
     long serviceLatencyNs = 0L;
     long lbLatencyNs = 0L;
     byte traceOption = (byte) 0;
+
+    // Check the version first.
+    if (!bb.hasRemaining()) {
+      throw new ServerStatsDeserializationException("Serialized ServerStats buffer is empty");
+    }
+    if (bb.get() == 0) {
+      throw new ServerStatsDeserializationException("Invalid ServerStats version: 0");
+    }
+
     while (bb.hasRemaining()) {
       ServerStatsFieldEnums.Id id = ServerStatsFieldEnums.Id.valueOf((int) bb.get() & 0xFF);
       if (id == null) {
@@ -92,7 +116,8 @@ final class ServerStatsEncoding {
     try {
       return ServerStats.create(lbLatencyNs, serviceLatencyNs, traceOption);
     } catch (IllegalArgumentException e) {
-      return null;
+      throw new ServerStatsDeserializationException(
+          "Serialized ServiceStats contains invalid values: " + e.getMessage());
     }
   }
 }
