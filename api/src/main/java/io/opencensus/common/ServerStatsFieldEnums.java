@@ -25,32 +25,32 @@ import java.util.TreeMap;
  * href="https://github.com/census-instrumentation/opencensus-specs/blob/master/encodings/CensusServerStatsEncoding.md">opencensus-server-stats-specs</a>
  * for the field ids and their length defined for Server Stats
  *
- * @since 0.15
+ * @since 0.16
  */
 public final class ServerStatsFieldEnums {
 
   /**
    * Available Ids for {@code ServerStats} attributes.
    *
-   * @since 0.15
+   * @since 0.16
    */
   public enum Id {
     /**
      * Id for Latency observed at Load Balancer.
      *
-     * @since 0.15
+     * @since 0.16
      */
     SERVER_STATS_LB_LATENCY_ID(0),
     /**
      * Id for Latency observed at Server.
      *
-     * @since 0.15
+     * @since 0.16
      */
     SERVER_STATS_SERVICE_LATENCY_ID(1),
     /**
      * Id for Trace options.
      *
-     * @since 0.15
+     * @since 0.16
      */
     SERVER_STATS_TRACE_OPTION_ID(2);
 
@@ -64,7 +64,7 @@ public final class ServerStatsFieldEnums {
      * Returns the numerical value of the {@link Id}.
      *
      * @return the numerical value of the {@code Id}.
-     * @since 0.15
+     * @since 0.16
      */
     public int value() {
       return value;
@@ -83,7 +83,7 @@ public final class ServerStatsFieldEnums {
      *
      * @param value integer value for which {@code Id} is being requested.
      * @return the numerical value of the id. null if the id is not valid
-     * @since 0.15
+     * @since 0.16
      */
     public static Id valueOf(int value) {
       return (Id) map.get(value);
@@ -93,25 +93,25 @@ public final class ServerStatsFieldEnums {
   /**
    * Size for each attributes in {@code ServerStats}.
    *
-   * @since 0.15
+   * @since 0.16
    */
   public enum Size {
     /**
      * Number of bytes used to represent latency observed at Load Balancer
      *
-     * @since 0.15
+     * @since 0.16
      */
     SERVER_STATS_LB_LATENCY_SIZE(8),
     /**
      * Number of bytes used to represent latency observed at Server
      *
-     * @since 0.15
+     * @since 0.16
      */
     SERVER_STATS_SERVICE_LATENCY_SIZE(8),
     /**
      * Number of bytes used to represent Trace option
      *
-     * @since 0.15
+     * @since 0.16
      */
     SERVER_STATS_TRACE_OPTION_SIZE(1);
 
@@ -125,7 +125,7 @@ public final class ServerStatsFieldEnums {
      * Returns the numerical value of the {@link Size}.
      *
      * @return the numerical value of the {@code Size}.
-     * @since 0.15
+     * @since 0.16
      */
     public int value() {
       return value;
@@ -149,7 +149,7 @@ public final class ServerStatsFieldEnums {
    * Returns the total size required to encode the {@code ServerStats}
    *
    * @return the total size required to encode all fields in {@code ServerStats}.
-   * @since 0.15
+   * @since 0.16
    */
   public static int getTotalSize() {
     return TOTALSIZE;

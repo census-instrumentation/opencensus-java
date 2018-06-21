@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2018, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package io.opencensus.common;
 /**
  * Exception thrown when a {@link ServerStats} cannot be parsed.
  *
- * @since 0.8
+ * @since 0.16
  */
 public final class ServerStatsDeserializationException extends Exception {
   private static final long serialVersionUID = 0L;
@@ -28,7 +28,7 @@ public final class ServerStatsDeserializationException extends Exception {
    * Constructs a new {@code ServerStatsDeserializationException} with the given message.
    *
    * @param message a message describing the error.
-   * @since 0.15
+   * @since 0.16
    */
   public ServerStatsDeserializationException(String message) {
     super(message);
@@ -39,7 +39,7 @@ public final class ServerStatsDeserializationException extends Exception {
    *
    * @param message a message describing the error.
    * @param cause the cause of the error.
-   * @since 0.15
+   * @since 0.16
    */
   public ServerStatsDeserializationException(String message, Throwable cause) {
     super(message, cause);

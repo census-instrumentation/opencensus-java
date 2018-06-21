@@ -30,25 +30,25 @@ import java.nio.ByteOrder;
  *
  * <p>Use {@code ServerStatsEncoding.parseBytes(byte[] serialized)} to decode.
  *
- * @since 0.15
+ * @since 0.16
  */
 final class ServerStatsEncoding {
 
   private ServerStatsEncoding() {}
 
   /**
-   * The current encoding version. The value is {@value #VERSION}
+   * The current encoding version. The value is {@value #CURRENT_VERSION}
    *
-   * @since 0.15
+   * @since 0.16
    */
-  public static final byte VERSION = (byte) 1;
+  public static final byte CURRENT_VERSION = (byte) 0;
 
   /**
    * Encodes the {@link ServerStats} as per the Opencensus Summary Span specification.
    *
    * @param stats {@code ServerStats} to encode.
    * @return encoded byte array.
-   * @since 0.15
+   * @since 0.16
    */
   public static byte[] toBytes(ServerStats stats) {
     // Should this be optimized to not include invalid values?
@@ -57,7 +57,7 @@ final class ServerStatsEncoding {
     bb.order(ByteOrder.LITTLE_ENDIAN);
 
     // put version
-    bb.put(VERSION);
+    bb.put(CURRENT_VERSION);
 
     bb.put((byte) ServerStatsFieldEnums.Id.SERVER_STATS_LB_LATENCY_ID.value());
     bb.putLong(stats.getLbLatencyNs());
@@ -76,7 +76,7 @@ final class ServerStatsEncoding {
    *
    * @param serialized encoded {@code ServerStats} in byte array.
    * @return decoded {@code ServerStats}. null if decoding fails.
-   * @since 0.15
+   * @since 0.16
    */
   public static ServerStats parseBytes(byte[] serialized)
       throws ServerStatsDeserializationException {
@@ -90,8 +90,10 @@ final class ServerStatsEncoding {
     if (!bb.hasRemaining()) {
       throw new ServerStatsDeserializationException("Serialized ServerStats buffer is empty");
     }
-    if (bb.get() == 0) {
-      throw new ServerStatsDeserializationException("Invalid ServerStats version: 0");
+    byte version = bb.get();
+
+    if (version > CURRENT_VERSION || version < 0) {
+      throw new ServerStatsDeserializationException("Invalid ServerStats version: " + version);
     }
 
     while (bb.hasRemaining()) {

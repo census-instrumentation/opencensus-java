@@ -22,7 +22,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A representation of stats measured on the server side.
  *
- * @since 0.15
+ * @since 0.16
  */
 @Immutable
 @AutoValue
@@ -34,7 +34,7 @@ public abstract class ServerStats {
    * Returns Load Balancer latency, a latency observed at Load Balancer.
    *
    * @return Load Balancer latency in nanoseconds.
-   * @since 0.15
+   * @since 0.16
    */
   public abstract long getLbLatencyNs();
 
@@ -42,7 +42,7 @@ public abstract class ServerStats {
    * Returns Service latency, a latency observed at Server.
    *
    * @return Service latency in nanoseconds.
-   * @since 0.15
+   * @since 0.16
    */
   public abstract long getServiceLatencyNs();
 
@@ -50,7 +50,7 @@ public abstract class ServerStats {
    * Returns Trace options, a set of bits indicating properties of trace.
    *
    * @return Trace options a set of bits indicating properties of trace.
-   * @since 0.15
+   * @since 0.16
    */
   public abstract byte traceOption();
 
@@ -68,7 +68,7 @@ public abstract class ServerStats {
    *     Other bits are ignored.
    * @return new {@code ServerStats} with specified fields.
    * @throws IllegalArgumentException if the arguments are out of range.
-   * @since 0.15
+   * @since 0.16
    */
   public static ServerStats create(long lbLatencyNs, long serviceLatencyNs, byte traceOption) {
 

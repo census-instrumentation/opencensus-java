@@ -131,13 +131,25 @@ public class ServerStatsEncodingTest {
   }
 
   @Test
-  public void invalidVersion() throws ServerStatsDeserializationException {
+  public void invalidNegativeVersion() throws ServerStatsDeserializationException {
     final ByteBuffer bb = ByteBuffer.allocate(10);
     bb.order(ByteOrder.LITTLE_ENDIAN);
-    bb.put((byte) 0);
+    bb.put((byte) -1);
     byte[] newSerialized = bb.array();
     thrown.expect(ServerStatsDeserializationException.class);
-    thrown.expectMessage("Invalid ServerStats version: 0");
+    thrown.expectMessage("Invalid ServerStats version: -1");
+    ServerStatsEncoding.parseBytes(newSerialized);
+  }
+
+  @Test
+  public void invalidCompatibleVersion() throws ServerStatsDeserializationException {
+    final ByteBuffer bb = ByteBuffer.allocate(10);
+    bb.order(ByteOrder.LITTLE_ENDIAN);
+    bb.put((byte) (ServerStatsEncoding.CURRENT_VERSION + 1));
+    byte[] newSerialized = bb.array();
+    thrown.expect(ServerStatsDeserializationException.class);
+    thrown.expectMessage(
+        "Invalid ServerStats version: " + (ServerStatsEncoding.CURRENT_VERSION + 1));
     ServerStatsEncoding.parseBytes(newSerialized);
   }
 }
