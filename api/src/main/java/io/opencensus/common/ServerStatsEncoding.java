@@ -32,7 +32,7 @@ import java.nio.ByteOrder;
  *
  * @since 0.16
  */
-final class ServerStatsEncoding {
+public final class ServerStatsEncoding {
 
   private ServerStatsEncoding() {}
 
