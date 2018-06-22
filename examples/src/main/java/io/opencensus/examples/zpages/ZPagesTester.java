@@ -41,10 +41,9 @@ public class ZPagesTester {
   private static final Tracer tracer = Tracing.getTracer();
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
-  private static final String SPAN_NAME = "SampleSpan";
+  private static final String SPAN_NAME = "ExampleSpan";
 
-  /** Main method. */
-  public static void main(String[] args) throws Exception {
+  private static void recordExampleData() throws InterruptedException {
     Tracing.getExportComponent()
         .getSampledSpanStore()
         .registerSpanNamesForCollection(Collections.singletonList(SPAN_NAME));
@@ -96,7 +95,11 @@ public class ZPagesTester {
       Thread.sleep(200); // sleep for fake work.
       tracer.getCurrentSpan().addAnnotation("Finish recording.");
     }
+  }
 
+  /** Main method. */
+  public static void main(String[] args) throws Exception {
     ZPageHandlers.startHttpServerAndRegisterAll(8080);
+    recordExampleData();
   }
 }
