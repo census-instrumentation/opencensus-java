@@ -46,42 +46,47 @@ public class ZPagesTester {
   /** Main method. */
   public static void main(String[] args) throws Exception {
     Tracing.getExportComponent()
-        .getSampledSpanStore().registerSpanNamesForCollection(Collections.singletonList(SPAN_NAME));
+        .getSampledSpanStore()
+        .registerSpanNamesForCollection(Collections.singletonList(SPAN_NAME));
     RpcViews.registerAllViews(); // Use old RPC constants to get interval stats.
     SpanBuilder spanBuilder =
         tracer.spanBuilder(SPAN_NAME).setRecordEvents(true).setSampler(Samplers.alwaysSample());
 
     try (Scope scope = spanBuilder.startScopedSpan()) {
       tracer.getCurrentSpan().addAnnotation("Starts recording.");
-      MeasureMap measureMap = statsRecorder.newMeasureMap()
-          // Client measurements.
-          .put(RpcMeasureConstants.RPC_CLIENT_STARTED_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 1.0)
-          .put(RpcMeasureConstants.RPC_CLIENT_REQUEST_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_CLIENT_RESPONSE_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_CLIENT_REQUEST_BYTES, 1e5)
-          .put(RpcMeasureConstants.RPC_CLIENT_RESPONSE_BYTES, 1e5)
-          .put(RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES, 1e5)
-          .put(RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES, 1e5)
-          // Server measurements.
-          .put(RpcMeasureConstants.RPC_SERVER_STARTED_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_SERVER_FINISHED_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_SERVER_SERVER_LATENCY, 1.0)
-          .put(RpcMeasureConstants.RPC_SERVER_REQUEST_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_SERVER_RESPONSE_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_SERVER_REQUEST_BYTES, 1e5)
-          .put(RpcMeasureConstants.RPC_SERVER_RESPONSE_BYTES, 1e5)
-          .put(RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES, 1e5)
-          .put(RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES, 1e5);
+      MeasureMap measureMap =
+          statsRecorder
+              .newMeasureMap()
+              // Client measurements.
+              .put(RpcMeasureConstants.RPC_CLIENT_STARTED_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_CLIENT_FINISHED_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_CLIENT_ROUNDTRIP_LATENCY, 1.0)
+              .put(RpcMeasureConstants.RPC_CLIENT_REQUEST_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_CLIENT_RESPONSE_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_CLIENT_REQUEST_BYTES, 1e5)
+              .put(RpcMeasureConstants.RPC_CLIENT_RESPONSE_BYTES, 1e5)
+              .put(RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_REQUEST_BYTES, 1e5)
+              .put(RpcMeasureConstants.RPC_CLIENT_UNCOMPRESSED_RESPONSE_BYTES, 1e5)
+              // Server measurements.
+              .put(RpcMeasureConstants.RPC_SERVER_STARTED_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_SERVER_FINISHED_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_SERVER_SERVER_LATENCY, 1.0)
+              .put(RpcMeasureConstants.RPC_SERVER_REQUEST_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_SERVER_RESPONSE_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_SERVER_REQUEST_BYTES, 1e5)
+              .put(RpcMeasureConstants.RPC_SERVER_RESPONSE_BYTES, 1e5)
+              .put(RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_REQUEST_BYTES, 1e5)
+              .put(RpcMeasureConstants.RPC_SERVER_UNCOMPRESSED_RESPONSE_BYTES, 1e5);
       measureMap.record(
           tagger
               .currentBuilder()
               .put(RpcMeasureConstants.RPC_STATUS, TagValue.create("OK"))
               .build());
-      MeasureMap measureMapErrors = statsRecorder.newMeasureMap()
-          .put(RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT, 1)
-          .put(RpcMeasureConstants.RPC_SERVER_ERROR_COUNT, 1);
+      MeasureMap measureMapErrors =
+          statsRecorder
+              .newMeasureMap()
+              .put(RpcMeasureConstants.RPC_CLIENT_ERROR_COUNT, 1)
+              .put(RpcMeasureConstants.RPC_SERVER_ERROR_COUNT, 1);
       measureMapErrors.record(
           tagger
               .currentBuilder()
