@@ -137,8 +137,13 @@ public final class RpcViews {
    * @since 0.13
    */
   public static void registerAllGrpcViews() {
-    registerClientGrpcViews(Stats.getViewManager());
-    registerServerGrpcViews(Stats.getViewManager());
+    registerAllGrpcViews(Stats.getViewManager());
+  }
+
+  @VisibleForTesting
+  static void registerAllGrpcViews(ViewManager viewManager) {
+    registerClientGrpcViews(viewManager);
+    registerServerGrpcViews(viewManager);
   }
 
   /**

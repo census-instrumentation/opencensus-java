@@ -66,8 +66,7 @@ public class RpcViewsTest {
   @Test
   public void registerAllGrpcViews() {
     FakeViewManager fakeViewManager = new FakeViewManager();
-    RpcViews.registerClientGrpcViews(fakeViewManager);
-    RpcViews.registerServerGrpcViews(fakeViewManager);
+    RpcViews.registerAllGrpcViews(fakeViewManager);
     assertThat(fakeViewManager.getRegisteredViews())
         .containsExactlyElementsIn(
             ImmutableSet.builder()
