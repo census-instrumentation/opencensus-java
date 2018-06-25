@@ -18,10 +18,12 @@ package io.opencensus.contrib.grpc.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -37,60 +39,56 @@ public class RpcViewsTest {
   public void registerCumulative() {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerAllCumulativeViews(fakeViewManager);
-    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
-    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(RpcViews.RPC_CUMULATIVE_VIEWS_SET);
   }
 
   @Test
   public void registerInterval() {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerAllIntervalViews(fakeViewManager);
-    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-  }
-
-  @Test
-  public void registerGrpcViews() {
-    FakeViewManager fakeViewManager = new FakeViewManager();
-    RpcViews.registerAllGrpcViews(fakeViewManager);
-    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(RpcViews.RPC_INTERVAL_VIEWS_SET);
   }
 
   @Test
   public void registerAll() {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerAllViews(fakeViewManager);
-    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
-    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(
+            ImmutableSet.builder()
+                .addAll(RpcViews.RPC_CUMULATIVE_VIEWS_SET)
+                .addAll(RpcViews.RPC_INTERVAL_VIEWS_SET)
+                .build());
+  }
+
+  @Test
+  public void registerAllGrpcViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerAllGrpcViews(fakeViewManager);
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(
+            ImmutableSet.builder()
+                .addAll(RpcViews.GRPC_CLIENT_VIEWS_SET)
+                .addAll(RpcViews.GRPC_SERVER_VIEWS_SET)
+                .build());
+  }
+
+  @Test
+  public void registerClientGrpcViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerClientGrpcViews(fakeViewManager);
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(RpcViews.GRPC_CLIENT_VIEWS_SET);
+  }
+
+  @Test
+  public void registerServerGrpcViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerServerGrpcViews(fakeViewManager);
+    assertThat(fakeViewManager.getRegisteredViews())
+        .containsExactlyElementsIn(RpcViews.GRPC_SERVER_VIEWS_SET);
   }
 
   // TODO(bdrutu): Test with reflection that all defined gRPC views are registered.
@@ -105,10 +103,6 @@ public class RpcViewsTest {
       registeredViews.put(view.getName(), view);
     }
 
-    private boolean isRegistered(View view) {
-      return registeredViews.containsKey(view.getName());
-    }
-
     @Nullable
     @Override
     public ViewData getView(View.Name view) {
@@ -118,6 +112,10 @@ public class RpcViewsTest {
     @Override
     public Set<View> getAllExportedViews() {
       throw new UnsupportedOperationException();
+    }
+
+    private Collection<View> getRegisteredViews() {
+      return registeredViews.values();
     }
   }
 }
