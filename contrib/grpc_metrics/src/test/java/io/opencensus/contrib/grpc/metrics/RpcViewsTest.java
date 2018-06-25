@@ -37,59 +37,92 @@ public class RpcViewsTest {
   public void registerCumulative() {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerAllCumulativeViews(fakeViewManager);
-    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
-    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
+    verifyRegistration(
+        fakeViewManager,
+        /* isOldRpcCumulativeViewsRegistered= */ true,
+        /* isOldRpcIntervalViewsRegistered= */ false,
+        /* isNewRpcClientViewsRegistered= */ false,
+        /* isNewRpcServerViewsRegistered= */ false);
   }
 
   @Test
   public void registerInterval() {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerAllIntervalViews(fakeViewManager);
-    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
+    verifyRegistration(
+        fakeViewManager,
+        /* isOldRpcCumulativeViewsRegistered= */ false,
+        /* isOldRpcIntervalViewsRegistered= */ true,
+        /* isNewRpcClientViewsRegistered= */ false,
+        /* isNewRpcServerViewsRegistered= */ false);
   }
 
   @Test
-  public void registerGrpcViews() {
+  public void registerAllGrpcViews() {
     FakeViewManager fakeViewManager = new FakeViewManager();
-    RpcViews.registerAllGrpcViews(fakeViewManager);
-    for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
-    }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
-    }
+    RpcViews.registerClientGrpcViews(fakeViewManager);
+    RpcViews.registerServerGrpcViews(fakeViewManager);
+    verifyRegistration(
+        fakeViewManager,
+        /* isOldRpcCumulativeViewsRegistered= */ false,
+        /* isOldRpcIntervalViewsRegistered= */ false,
+        /* isNewRpcClientViewsRegistered= */ true,
+        /* isNewRpcServerViewsRegistered= */ true);
+  }
+
+  @Test
+  public void registerClientGrpcViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerClientGrpcViews(fakeViewManager);
+    verifyRegistration(
+        fakeViewManager,
+        /* isOldRpcCumulativeViewsRegistered= */ false,
+        /* isOldRpcIntervalViewsRegistered= */ false,
+        /* isNewRpcClientViewsRegistered= */ true,
+        /* isNewRpcServerViewsRegistered= */ false);
+  }
+
+  @Test
+  public void registerServerGrpcViews() {
+    FakeViewManager fakeViewManager = new FakeViewManager();
+    RpcViews.registerServerGrpcViews(fakeViewManager);
+    verifyRegistration(
+        fakeViewManager,
+        /* isOldRpcCumulativeViewsRegistered= */ false,
+        /* isOldRpcIntervalViewsRegistered= */ false,
+        /* isNewRpcClientViewsRegistered= */ false,
+        /* isNewRpcServerViewsRegistered= */ true);
   }
 
   @Test
   public void registerAll() {
     FakeViewManager fakeViewManager = new FakeViewManager();
     RpcViews.registerAllViews(fakeViewManager);
+    verifyRegistration(
+        fakeViewManager,
+        /* isOldRpcCumulativeViewsRegistered= */ true,
+        /* isOldRpcIntervalViewsRegistered= */ true,
+        /* isNewRpcClientViewsRegistered= */ false,
+        /* isNewRpcServerViewsRegistered= */ false);
+  }
+
+  private static void verifyRegistration(
+      FakeViewManager fakeViewManager,
+      boolean isOldRpcCumulativeViewsRegistered,
+      boolean isOldRpcIntervalViewsRegistered,
+      boolean isNewRpcClientViewsRegistered,
+      boolean isNewRpcServerViewsRegistered) {
     for (View view : RpcViews.RPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
+      assertThat(fakeViewManager.isRegistered(view)).isEqualTo(isOldRpcCumulativeViewsRegistered);
     }
     for (View view : RpcViews.RPC_INTERVAL_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isTrue();
+      assertThat(fakeViewManager.isRegistered(view)).isEqualTo(isOldRpcIntervalViewsRegistered);
     }
-    for (View view : RpcViews.GRPC_CUMULATIVE_VIEWS_SET) {
-      assertThat(fakeViewManager.isRegistered(view)).isFalse();
+    for (View view : RpcViews.GRPC_CLIENT_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isEqualTo(isNewRpcClientViewsRegistered);
+    }
+    for (View view : RpcViews.GRPC_SERVER_VIEWS_SET) {
+      assertThat(fakeViewManager.isRegistered(view)).isEqualTo(isNewRpcServerViewsRegistered);
     }
   }
 

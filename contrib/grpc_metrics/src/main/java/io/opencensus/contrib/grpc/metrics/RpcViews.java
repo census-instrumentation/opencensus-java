@@ -56,7 +56,7 @@ public final class RpcViews {
           RpcViewConstants.RPC_SERVER_FINISHED_COUNT_CUMULATIVE_VIEW);
 
   @VisibleForTesting
-  static final ImmutableSet<View> GRPC_CUMULATIVE_VIEWS_SET =
+  static final ImmutableSet<View> GRPC_CLIENT_VIEWS_SET =
       ImmutableSet.of(
           RpcViewConstants.GRPC_CLIENT_ROUNDTRIP_LATENCY_VIEW,
           RpcViewConstants.GRPC_CLIENT_SENT_BYTES_PER_RPC_VIEW,
@@ -65,7 +65,11 @@ public final class RpcViews {
           RpcViewConstants.GRPC_CLIENT_RECEIVED_MESSAGES_PER_RPC_VIEW,
           RpcViewConstants.GRPC_CLIENT_SERVER_LATENCY_VIEW,
           RpcViewConstants.GRPC_CLIENT_COMPLETED_RPC_VIEW,
-          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW,
+          RpcViewConstants.GRPC_CLIENT_STARTED_RPC_VIEW);
+
+  @VisibleForTesting
+  static final ImmutableSet<View> GRPC_SERVER_VIEWS_SET =
+      ImmutableSet.of(
           RpcViewConstants.GRPC_SERVER_SERVER_LATENCY_VIEW,
           RpcViewConstants.GRPC_SERVER_SENT_BYTES_PER_RPC_VIEW,
           RpcViewConstants.GRPC_SERVER_RECEIVED_BYTES_PER_RPC_VIEW,
@@ -127,15 +131,48 @@ public final class RpcViews {
    *
    * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
    *
+   * <p>This is equivalent with calling {@link #registerClientGrpcViews()} and {@link
+   * #registerServerGrpcViews()}.
+   *
    * @since 0.13
    */
   public static void registerAllGrpcViews() {
-    registerAllGrpcViews(Stats.getViewManager());
+    registerClientGrpcViews(Stats.getViewManager());
+    registerServerGrpcViews(Stats.getViewManager());
+  }
+
+  /**
+   * Registers all standard client gRPC views.
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
+   *
+   * @since 0.16
+   */
+  public static void registerClientGrpcViews() {
+    registerClientGrpcViews(Stats.getViewManager());
   }
 
   @VisibleForTesting
-  static void registerAllGrpcViews(ViewManager viewManager) {
-    for (View view : GRPC_CUMULATIVE_VIEWS_SET) {
+  static void registerClientGrpcViews(ViewManager viewManager) {
+    for (View view : GRPC_CLIENT_VIEWS_SET) {
+      viewManager.registerView(view);
+    }
+  }
+
+  /**
+   * Registers all standard server gRPC views.
+   *
+   * <p>It is recommended to call this method before doing any RPC call to avoid missing stats.
+   *
+   * @since 0.16
+   */
+  public static void registerServerGrpcViews() {
+    registerServerGrpcViews(Stats.getViewManager());
+  }
+
+  @VisibleForTesting
+  static void registerServerGrpcViews(ViewManager viewManager) {
+    for (View view : GRPC_SERVER_VIEWS_SET) {
       viewManager.registerView(view);
     }
   }
