@@ -1,4 +1,5 @@
 ## Unreleased
+- Add APIs to register gRPC client and server views separately.
 
 ## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.
