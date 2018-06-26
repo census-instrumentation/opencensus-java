@@ -20,9 +20,11 @@ import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.Measurement;
+import io.opencensus.trace.SpanContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 // TODO(songya): consider combining MeasureMapImpl and this class.
 /** A map from {@link Measure}'s to measured values. */
@@ -41,10 +43,18 @@ final class MeasureMapInternal {
     return new MeasureMapInternalIterator();
   }
 
-  private final ArrayList<Measurement> measurements;
+  @Nullable
+  SpanContext getSpanContext() {
+    return spanContext;
+  }
 
-  private MeasureMapInternal(ArrayList<Measurement> measurements) {
+  private final ArrayList<Measurement> measurements;
+  @Nullable private final SpanContext spanContext;
+
+  private MeasureMapInternal(
+      ArrayList<Measurement> measurements, @Nullable SpanContext spanContext) {
     this.measurements = measurements;
+    this.spanContext = spanContext;
   }
 
   /** Builder for the {@link MeasureMapInternal} class. */
@@ -75,6 +85,11 @@ final class MeasureMapInternal {
       return this;
     }
 
+    Builder setSpanContext(SpanContext spanContext) {
+      this.spanContext = spanContext;
+      return this;
+    }
+
     /** Constructs a {@link MeasureMapInternal} from the current measurements. */
     MeasureMapInternal build() {
       // Note: this makes adding measurements quadratic but is fastest for the sizes of
@@ -88,10 +103,11 @@ final class MeasureMapInternal {
           }
         }
       }
-      return new MeasureMapInternal(measurements);
+      return new MeasureMapInternal(measurements, spanContext);
     }
 
     private final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
+    @Nullable private SpanContext spanContext;
 
     private Builder() {}
   }
