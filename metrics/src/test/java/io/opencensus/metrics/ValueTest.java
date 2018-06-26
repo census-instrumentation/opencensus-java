@@ -41,11 +41,9 @@ public class ValueTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final double EPSILON = 1e-7;
-
   @Test
   public void createAndGet_DoubleValue() {
-    assertThat(DoubleValue.create(-34.56).getValue()).isWithin(EPSILON).of(-34.56);
+    assertThat(DoubleValue.create(-34.56).getValue()).isEqualTo(-34.56);
   }
 
   @Test
@@ -56,8 +54,8 @@ public class ValueTest {
   @Test
   public void createAndGet_Range() {
     Range range = Range.create(-5.5, 6.6);
-    assertThat(range.getMax()).isWithin(EPSILON).of(6.6);
-    assertThat(range.getMin()).isWithin(EPSILON).of(-5.5);
+    assertThat(range.getMax()).isEqualTo(6.6);
+    assertThat(range.getMin()).isEqualTo(-5.5);
   }
 
   @Test
@@ -74,21 +72,14 @@ public class ValueTest {
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     DistributionValue distributionValue =
         DistributionValue.create(6.6, 10, 678.54, range, bucketBounds, buckets);
-    assertThat(distributionValue.getMean()).isWithin(EPSILON).of(6.6);
+    assertThat(distributionValue.getMean()).isEqualTo(6.6);
     assertThat(distributionValue.getCount()).isEqualTo(10);
-    assertThat(distributionValue.getSumOfSquaredDeviations()).isWithin(EPSILON).of(678.54);
+    assertThat(distributionValue.getSumOfSquaredDeviations()).isEqualTo(678.54);
     assertThat(distributionValue.getRange()).isEqualTo(range);
     assertThat(distributionValue.getBucketBoundaries())
         .containsExactlyElementsIn(bucketBounds)
         .inOrder();
     assertThat(distributionValue.getBuckets()).containsExactlyElementsIn(buckets).inOrder();
-  }
-
-  @Test
-  public void createRange_InitialImpossibleValue() {
-    Range range = Range.create(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
-    assertThat(range.getMax()).isNegativeInfinity();
-    assertThat(range.getMin()).isPositiveInfinity();
   }
 
   @Test
@@ -114,6 +105,47 @@ public class ValueTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("count should be non-negative.");
     DistributionValue.create(6.6, -10, 678.54, range, bucketBounds, buckets);
+  }
+
+  @Test
+  public void createDistribution_NegativeSumOfSquaredDeviations() {
+    List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
+    List<Bucket> buckets =
+        Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("sum of squared deviations should be non-negative.");
+    DistributionValue.create(6.6, 0, -678.54, null, bucketBounds, buckets);
+  }
+
+  @Test
+  public void createDistribution_ZeroCountAndNonNullRange() {
+    Range range = Range.create(-3.4, 5.6);
+    List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
+    List<Bucket> buckets =
+        Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("range should not be present if count is 0.");
+    DistributionValue.create(6.6, 0, 0, range, bucketBounds, buckets);
+  }
+
+  @Test
+  public void createDistribution_ZeroCountAndSumOfSquaredDeviations() {
+    List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
+    List<Bucket> buckets =
+        Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("sum of squared deviations should be 0 if count is 0.");
+    DistributionValue.create(6.6, 0, 678.54, null, bucketBounds, buckets);
+  }
+
+  @Test
+  public void createDistribution_PositiveCountAndNullRange() {
+    List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
+    List<Bucket> buckets =
+        Arrays.asList(Bucket.create(0), Bucket.create(1), Bucket.create(0), Bucket.create(0));
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("range should be present if count is not 0.");
+    DistributionValue.create(6.6, 1, 0, null, bucketBounds, buckets);
   }
 
   @Test

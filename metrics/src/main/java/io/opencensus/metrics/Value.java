@@ -22,6 +22,7 @@ import io.opencensus.common.Function;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -163,7 +164,7 @@ public abstract class Value {
      * @param mean mean of the population values.
      * @param count count of the population values.
      * @param sumOfSquaredDeviations sum of squared deviations of the population values.
-     * @param range {@link Range} of the population values.
+     * @param range {@link Range} of the population values, or {@code null} if count is 0.
      * @param bucketBoundaries bucket boundaries of a histogram.
      * @param buckets {@link Bucket}s of a histogram.
      * @return a {@code DistributionValue}.
@@ -173,10 +174,19 @@ public abstract class Value {
         double mean,
         long count,
         double sumOfSquaredDeviations,
-        Range range,
+        @Nullable Range range,
         List<Double> bucketBoundaries,
         List<Bucket> buckets) {
       Utils.checkArgument(count >= 0, "count should be non-negative.");
+      Utils.checkArgument(
+          sumOfSquaredDeviations >= 0, "sum of squared deviations should be non-negative.");
+      if (count == 0) {
+        Utils.checkArgument(range == null, "range should not be present if count is 0.");
+        Utils.checkArgument(
+            sumOfSquaredDeviations == 0, "sum of squared deviations should be 0 if count is 0.");
+      } else {
+        Utils.checkArgument(range != null, "range should be present if count is not 0.");
+      }
       return new AutoValue_Value_DistributionValue(
           mean,
           count,
@@ -229,14 +239,6 @@ public abstract class Value {
     /**
      * Returns the aggregated sum of squared deviations.
      *
-     * <p>The sum of squared deviations from the mean of the values in the population. For values
-     * x_i this is:
-     *
-     * <p>Sum[i=1..n]((x_i - mean)^2)
-     *
-     * <p>Knuth, "The Art of Computer Programming", Vol. 2, page 323, 3rd edition describes
-     * Welford's method for accumulating this sum in one pass.
-     *
      * <p>If count is zero then this field must be zero.
      *
      * @return the aggregated sum of squared deviations.
@@ -245,11 +247,13 @@ public abstract class Value {
     public abstract double getSumOfSquaredDeviations();
 
     /**
-     * Returns the {@link Range} of the population values.
+     * Returns the {@link Range} of the population values, or returns {@code null} if there are no
+     * population values.
      *
      * @return the {@code Range} of the population values.
      * @since 0.16
      */
+    @Nullable
     public abstract Range getRange();
 
     /**
@@ -272,17 +276,13 @@ public abstract class Value {
      * that single element is the common boundary of the overflow and underflow buckets. The values
      * must be monotonically increasing.
      *
-     * <p>The returned list is immutable, an {@link UnsupportedOperationException} will be thrown
-     * when trying to modify it.
-     *
      * @return the bucket boundaries of this distribution.
      * @since 0.16
      */
     public abstract List<Double> getBucketBoundaries();
 
     /**
-     * Returns the the aggregated histogram {@link Bucket}s. The returned list is immutable, trying
-     * to update it will throw an {@code UnsupportedOperationException}.
+     * Returns the the aggregated histogram {@link Bucket}s.
      *
      * @return the the aggregated histogram buckets.
      * @since 0.16
@@ -309,9 +309,7 @@ public abstract class Value {
        * @since 0.16
        */
       public static Range create(double min, double max) {
-        if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
-          Utils.checkArgument(min <= max, "max should be greater or equal to min.");
-        }
+        Utils.checkArgument(min <= max, "max should be greater or equal to min.");
         return new AutoValue_Value_DistributionValue_Range(min, max);
       }
 
