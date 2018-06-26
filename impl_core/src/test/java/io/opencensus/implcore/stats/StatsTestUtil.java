@@ -22,6 +22,7 @@ import static io.opencensus.implcore.stats.MutableViewData.ZERO_TIMESTAMP;
 import com.google.common.collect.Iterables;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
@@ -48,6 +49,8 @@ import javax.annotation.Nullable;
 /** Stats test utilities. */
 final class StatsTestUtil {
 
+  private static final Timestamp EMPTY = Timestamp.create(60, 0);
+
   private StatsTestUtil() {}
 
   /**
@@ -62,7 +65,7 @@ final class StatsTestUtil {
       Aggregation aggregation, Measure measure, double... values) {
     MutableAggregation mutableAggregation = MutableViewData.createMutableAggregation(aggregation);
     for (double value : values) {
-      mutableAggregation.add(value);
+      mutableAggregation.add(value, null, EMPTY);
     }
     return MutableViewData.createAggregationData(mutableAggregation, measure);
   }

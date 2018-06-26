@@ -25,6 +25,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.io.BaseEncoding;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -36,6 +37,7 @@ import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.AggregationData.LastValueDataDouble;
 import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.SumDataDouble;
@@ -112,6 +114,8 @@ final class StatszZPageHandler extends ZPageHandler {
   private static final String TABLE_HEADER_HISTOGRAM = "Histogram";
   private static final String TABLE_HEADER_RANGE = "Range";
   private static final String TABLE_HEADER_BUCKET_SIZE = "Bucket Size";
+  private static final String TABLE_HEADER_TRACE_ID = "Trace ID";
+  private static final String TABLE_HEADER_SPAN_ID = "Span ID";
   private static final String TABLE_HEADER_LAST_VALUE = "Last Value";
   private static final long MILLIS_PER_SECOND = 1000;
   private static final long NANOS_PER_MILLISECOND = 1000 * 1000;
@@ -484,6 +488,7 @@ final class StatszZPageHandler extends ZPageHandler {
                 emitHistogramBuckets(
                     ((Distribution) view.getAggregation()).getBucketBoundaries().getBoundaries(),
                     arg.getBucketCounts(),
+                    arg.getExemplars(),
                     out,
                     formatter);
                 return null;
@@ -521,6 +526,7 @@ final class StatszZPageHandler extends ZPageHandler {
   private static void emitHistogramBuckets(
       List<Double> bucketBoundaries,
       List<Long> bucketCounts,
+      List<Exemplar> exemplars,
       PrintWriter out,
       Formatter formatter) {
     checkArgument(
@@ -529,8 +535,8 @@ final class StatszZPageHandler extends ZPageHandler {
     out.write("<td>");
     out.write("<table>");
     formatter.format(
-        "<thead><tr><th>%s</th><th>%s</th></tr></thead>",
-        TABLE_HEADER_RANGE, TABLE_HEADER_BUCKET_SIZE);
+        "<thead><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></thead>",
+        TABLE_HEADER_RANGE, TABLE_HEADER_BUCKET_SIZE, TABLE_HEADER_TRACE_ID, TABLE_HEADER_SPAN_ID);
     out.write("<tbody>");
     for (int i = 0; i < bucketCounts.size(); i++) {
       double low = i == 0 ? Double.NEGATIVE_INFINITY : bucketBoundaries.get(i - 1);
@@ -539,6 +545,16 @@ final class StatszZPageHandler extends ZPageHandler {
       out.write("<tr>");
       formatter.format("<td>[%.3f...%.3f)</td>", low, high);
       formatter.format("<td>%d</td>", bucketCounts.get(i));
+      formatter.format(
+          "<td>%s</td>",
+          exemplars.get(i) == null
+              ? ""
+              : BaseEncoding.base16().lowerCase().encode(exemplars.get(i).getTraceId().getBytes()));
+      formatter.format(
+          "<td>%s</td>",
+          exemplars.get(i) == null
+              ? ""
+              : BaseEncoding.base16().lowerCase().encode(exemplars.get(i).getSpanId().getBytes()));
       out.write("</tr>");
     }
     out.write("</tbody>");

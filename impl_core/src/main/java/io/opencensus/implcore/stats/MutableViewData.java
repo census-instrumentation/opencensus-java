@@ -54,7 +54,9 @@ import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
+import io.opencensus.trace.SpanContext;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -100,13 +102,21 @@ abstract class MutableViewData {
     return view;
   }
 
-  /** Record double stats with the given tags. */
-  abstract void record(TagContext context, double value, Timestamp timestamp);
+  /** Record double stats with the given tags and span context. */
+  abstract void record(
+      TagContext context,
+      double value,
+      Timestamp timestamp,
+      @javax.annotation.Nullable SpanContext spanContext);
 
-  /** Record long stats with the given tags. */
-  void record(TagContext tags, long value, Timestamp timestamp) {
+  /** Record long stats with the given tags and span context. */
+  void record(
+      TagContext tags,
+      long value,
+      Timestamp timestamp,
+      @javax.annotation.Nullable SpanContext spanContext) {
     // TODO(songya): shall we check for precision loss here?
-    record(tags, (double) value, timestamp);
+    record(tags, (double) value, timestamp, spanContext);
   }
 
   /** Convert this {@link MutableViewData} to {@link ViewData}. */
@@ -206,14 +216,18 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(TagContext context, double value, Timestamp timestamp) {
+    void record(
+        TagContext context,
+        double value,
+        Timestamp timestamp,
+        @javax.annotation.Nullable SpanContext spanContext) {
       List</*@Nullable*/ TagValue> tagValues =
           getTagValues(getTagMap(context), super.view.getColumns());
       if (!tagValueAggregationMap.containsKey(tagValues)) {
         tagValueAggregationMap.put(
             tagValues, createMutableAggregation(super.view.getAggregation()));
       }
-      tagValueAggregationMap.get(tagValues).add(value);
+      tagValueAggregationMap.get(tagValues).add(value, spanContext, timestamp);
     }
 
     @Override
@@ -300,12 +314,17 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(TagContext context, double value, Timestamp timestamp) {
+    void record(
+        TagContext context,
+        double value,
+        Timestamp timestamp,
+        @javax.annotation.Nullable SpanContext spanContext) {
       List</*@Nullable*/ TagValue> tagValues =
           getTagValues(getTagMap(context), super.view.getColumns());
       refreshBucketList(timestamp);
       // It is always the last bucket that does the recording.
-      CheckerFrameworkUtils.castNonNull(buckets.peekLast()).record(tagValues, value);
+      CheckerFrameworkUtils.castNonNull(buckets.peekLast())
+          .record(tagValues, value, spanContext, timestamp);
     }
 
     @Override
@@ -577,13 +596,17 @@ abstract class MutableViewData {
       for (long bucketCount : arg.getBucketCounts()) {
         boxedBucketCounts.add(bucketCount);
       }
-      return DistributionData.create(
-          arg.getMean(),
-          arg.getCount(),
-          arg.getMin(),
-          arg.getMax(),
-          arg.getSumOfSquaredDeviations(),
-          boxedBucketCounts);
+      @SuppressWarnings("nullness")
+      DistributionData data =
+          DistributionData.create(
+              arg.getMean(),
+              arg.getCount(),
+              arg.getMin(),
+              arg.getMax(),
+              arg.getSumOfSquaredDeviations(),
+              boxedBucketCounts,
+              Arrays.asList(arg.getExemplars()));
+      return data;
     }
 
     private static final CreateDistributionData INSTANCE = new CreateDistributionData();

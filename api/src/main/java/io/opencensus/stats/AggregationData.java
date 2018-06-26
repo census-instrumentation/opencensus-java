@@ -18,11 +18,19 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
+import io.opencensus.trace.SpanId;
+import io.opencensus.trace.TraceId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /**
  * {@link AggregationData} is the result of applying a given {@link Aggregation} to a set of {@code
@@ -268,8 +276,9 @@ public abstract class AggregationData {
      * @param max max value.
      * @param sumOfSquaredDeviations sum of squared deviations.
      * @param bucketCounts histogram bucket counts.
+     * @param exemplars the exemplars associated with each histogram bucket.
      * @return a {@code DistributionData}.
-     * @since 0.8
+     * @since 0.16
      */
     public static DistributionData create(
         double mean,
@@ -277,7 +286,8 @@ public abstract class AggregationData {
         double min,
         double max,
         double sumOfSquaredDeviations,
-        List<Long> bucketCounts) {
+        List<Long> bucketCounts,
+        List</*@Nullable*/ Exemplar> exemplars) {
       if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
         Utils.checkArgument(min <= max, "max should be greater or equal to min.");
       }
@@ -288,8 +298,52 @@ public abstract class AggregationData {
         Utils.checkNotNull(bucket, "bucket should not be null.");
       }
 
-      return new AutoValue_AggregationData_DistributionData(
-          mean, count, min, max, sumOfSquaredDeviations, bucketCountsCopy);
+      Utils.checkNotNull(exemplars, "Exemplar list should not be null.");
+      Utils.checkArgument(
+          bucketCounts.size() == exemplars.size(),
+          "Exemplar list and bucket counts should have the same size.");
+
+      @SuppressWarnings("nullness")
+      DistributionData data =
+          new AutoValue_AggregationData_DistributionData(
+              mean,
+              count,
+              min,
+              max,
+              sumOfSquaredDeviations,
+              bucketCountsCopy,
+              Collections.</*@Nullable*/ Exemplar>unmodifiableList(exemplars));
+      return data;
+    }
+
+    /**
+     * Creates a {@code DistributionData}.
+     *
+     * @param mean mean value.
+     * @param count count value.
+     * @param min min value.
+     * @param max max value.
+     * @param sumOfSquaredDeviations sum of squared deviations.
+     * @param bucketCounts histogram bucket counts.
+     * @return a {@code DistributionData}.
+     * @since 0.8
+     */
+    public static DistributionData create(
+        double mean,
+        long count,
+        double min,
+        double max,
+        double sumOfSquaredDeviations,
+        List<Long> bucketCounts) {
+      Utils.checkNotNull(bucketCounts, "bucket counts should not be null.");
+      return create(
+          mean,
+          count,
+          min,
+          max,
+          sumOfSquaredDeviations,
+          bucketCounts,
+          Arrays.</*@Nullable*/ Exemplar>asList(new Exemplar[bucketCounts.size()]));
     }
 
     /**
@@ -341,6 +395,14 @@ public abstract class AggregationData {
      */
     public abstract List<Long> getBucketCounts();
 
+    /**
+     * Returns the {@link Exemplar}s associated with each histogram bucket.
+     *
+     * @return the {@code Exemplar}s associated with each histogram bucket.
+     * @since 0.16
+     */
+    public abstract List</*@Nullable*/ Exemplar> getExemplars();
+
     @Override
     public final <T> T match(
         Function<? super SumDataDouble, T> p0,
@@ -351,6 +413,67 @@ public abstract class AggregationData {
         Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return p3.apply(this);
+    }
+
+    /**
+     * Example points that may be used to annotate aggregated distribution values, associated with a
+     * histogram.
+     *
+     * @since 0.16
+     */
+    @Immutable
+    @AutoValue
+    public abstract static class Exemplar {
+
+      Exemplar() {}
+
+      /**
+       * Returns value of the {@link Exemplar} point.
+       *
+       * @return value of the {@code Exemplar} point.
+       * @since 0.16
+       */
+      public abstract double getValue();
+
+      /**
+       * Returns the observation (sampling) time of the above value.
+       *
+       * @return the observation (sampling) time of the above value.
+       * @since 0.16
+       */
+      public abstract Timestamp getTimestamp();
+
+      /**
+       * Returns the {@link TraceId} associated with the example value.
+       *
+       * @return the {@code TraceId} associated with the example value.
+       * @since 0.16
+       */
+      public abstract TraceId getTraceId();
+
+      /**
+       * Returns the {@link SpanId} associated with the example value.
+       *
+       * @return the {@code SpanId} associated with the example value.
+       * @since 0.16
+       */
+      public abstract SpanId getSpanId();
+
+      /**
+       * Creates an {@link Exemplar}.
+       *
+       * @param value value of the {@link Exemplar} point.
+       * @param timestamp the observation (sampling) time of the above value.
+       * @param traceId the {@link TraceId} associated with the example value.
+       * @param spanId the {@link SpanId} associated with the example value.
+       * @return an {@code Exemplar}.
+       * @since 0.16
+       */
+      public static Exemplar create(
+          double value, Timestamp timestamp, TraceId traceId, SpanId spanId) {
+        return new AutoValue_AggregationData_DistributionData_Exemplar(
+            value, timestamp, traceId, spanId);
+      }
     }
   }
 

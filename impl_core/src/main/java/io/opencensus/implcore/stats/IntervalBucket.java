@@ -24,6 +24,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.tags.TagValue;
+import io.opencensus.trace.SpanContext;
 import java.util.List;
 import java.util.Map;
 
@@ -61,11 +62,15 @@ final class IntervalBucket {
   }
 
   // Puts a new value into the internal MutableAggregations, based on the TagValues.
-  void record(List</*@Nullable*/ TagValue> tagValues, double value) {
+  void record(
+      List</*@Nullable*/ TagValue> tagValues,
+      double value,
+      @javax.annotation.Nullable SpanContext spanContext,
+      Timestamp timestamp) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       tagValueAggregationMap.put(tagValues, MutableViewData.createMutableAggregation(aggregation));
     }
-    tagValueAggregationMap.get(tagValues).add(value);
+    tagValueAggregationMap.get(tagValues).add(value, spanContext, timestamp);
   }
 
   /*

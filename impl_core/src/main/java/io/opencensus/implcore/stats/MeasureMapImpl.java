@@ -21,6 +21,7 @@ import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.unsafe.ContextUtils;
+import io.opencensus.trace.SpanContext;
 
 /** Implementation of {@link MeasureMap}. */
 final class MeasureMapImpl extends MeasureMap {
@@ -44,6 +45,12 @@ final class MeasureMapImpl extends MeasureMap {
   @Override
   public MeasureMapImpl put(MeasureLong measure, long value) {
     builder.put(measure, value);
+    return this;
+  }
+
+  @Override
+  public MeasureMap withSpanContext(SpanContext spanContext) {
+    builder.setSpanContext(spanContext);
     return this;
   }
 

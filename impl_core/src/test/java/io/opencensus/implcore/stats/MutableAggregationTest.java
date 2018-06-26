@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
@@ -44,6 +45,7 @@ public class MutableAggregationTest {
   private static final double TOLERANCE = 1e-6;
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0));
+  private static final Timestamp TIMESTAMP = Timestamp.create(60, 0);
 
   @Test
   public void testCreateEmpty() {
@@ -91,7 +93,7 @@ public class MutableAggregationTest {
 
     for (double value : values) {
       for (MutableAggregation aggregation : aggregations) {
-        aggregation.add(value);
+        aggregation.add(value, null, TIMESTAMP);
       }
     }
 
@@ -170,12 +172,12 @@ public class MutableAggregationTest {
 
     for (double val : Arrays.asList(-1.0, -5.0)) {
       for (MutableAggregation aggregation : aggregations1) {
-        aggregation.add(val);
+        aggregation.add(val, null, TIMESTAMP);
       }
     }
     for (double val : Arrays.asList(10.0, 50.0)) {
       for (MutableAggregation aggregation : aggregations2) {
-        aggregation.add(val);
+        aggregation.add(val, null, TIMESTAMP);
       }
     }
 
@@ -201,13 +203,13 @@ public class MutableAggregationTest {
     MutableDistribution distribution3 = MutableDistribution.create(BUCKET_BOUNDARIES);
 
     for (double val : Arrays.asList(5.0, -5.0)) {
-      distribution1.add(val);
+      distribution1.add(val, null, TIMESTAMP);
     }
     for (double val : Arrays.asList(10.0, 20.0)) {
-      distribution2.add(val);
+      distribution2.add(val, null, TIMESTAMP);
     }
     for (double val : Arrays.asList(-10.0, 15.0, -15.0, -20.0)) {
-      distribution3.add(val);
+      distribution3.add(val, null, TIMESTAMP);
     }
 
     MutableDistribution combined = MutableDistribution.create(BUCKET_BOUNDARIES);
