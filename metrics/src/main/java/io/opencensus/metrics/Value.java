@@ -182,6 +182,7 @@ public abstract class Value {
           sumOfSquaredDeviations >= 0, "sum of squared deviations should be non-negative.");
       if (count == 0) {
         Utils.checkArgument(range == null, "range should not be present if count is 0.");
+        Utils.checkArgument(mean == 0, "mean should be 0 if count is 0.");
         Utils.checkArgument(
             sumOfSquaredDeviations == 0, "sum of squared deviations should be 0 if count is 0.");
       } else {

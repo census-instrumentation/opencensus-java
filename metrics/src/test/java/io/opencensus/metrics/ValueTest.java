@@ -125,7 +125,17 @@ public class ValueTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("range should not be present if count is 0.");
-    DistributionValue.create(6.6, 0, 0, range, bucketBounds, buckets);
+    DistributionValue.create(0, 0, 0, range, bucketBounds, buckets);
+  }
+
+  @Test
+  public void createDistribution_ZeroCountAndPositiveMean() {
+    List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
+    List<Bucket> buckets =
+        Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("mean should be 0 if count is 0.");
+    DistributionValue.create(6.6, 0, 0, null, bucketBounds, buckets);
   }
 
   @Test
@@ -135,7 +145,7 @@ public class ValueTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("sum of squared deviations should be 0 if count is 0.");
-    DistributionValue.create(6.6, 0, 678.54, null, bucketBounds, buckets);
+    DistributionValue.create(0, 0, 678.54, null, bucketBounds, buckets);
   }
 
   @Test
