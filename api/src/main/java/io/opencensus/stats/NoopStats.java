@@ -138,8 +138,19 @@ final class NoopStats {
     public void record() {}
 
     @Override
+    public void record(Map<String, String> attachments) {
+      Utils.checkNotNull(attachments, "attachments");
+    }
+
+    @Override
     public void record(TagContext tags) {
       Utils.checkNotNull(tags, "tags");
+    }
+
+    @Override
+    public void record(TagContext tags, Map<String, String> attachments) {
+      Utils.checkNotNull(tags, "tags");
+      Utils.checkNotNull(attachments, "attachments");
     }
   }
 

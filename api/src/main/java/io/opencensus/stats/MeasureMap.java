@@ -19,6 +19,7 @@ package io.opencensus.stats;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
+import java.util.Map;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -61,6 +62,17 @@ public abstract class MeasureMap {
   public abstract void record();
 
   /**
+   * Records all of the measures at the same time, with the current {@link TagContext} and given
+   * contextual information of an {@code Exemplar}.
+   *
+   * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
+   *
+   * @param attachments contextual information of an {@code Exemplar}.
+   * @since 0.16
+   */
+  public abstract void record(Map<String, String> attachments);
+
+  /**
    * Records all of the measures at the same time, with an explicit {@link TagContext}.
    *
    * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
@@ -69,4 +81,16 @@ public abstract class MeasureMap {
    * @since 0.8
    */
   public abstract void record(TagContext tags);
+
+  /**
+   * Records all of the measures at the same time, with an explicit {@link TagContext} and given
+   * contextual information of an {@code Exemplar}.
+   *
+   * <p>This method records all of the stats in the {@code MeasureMap} every time it is called.
+   *
+   * @param tags the tags associated with the measurements.
+   * @param attachments contextual information of an {@code Exemplar}.
+   * @since 0.16
+   */
+  public abstract void record(TagContext tags, Map<String, String> attachments);
 }
