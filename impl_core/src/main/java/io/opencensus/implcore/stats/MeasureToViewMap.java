@@ -144,7 +144,11 @@ final class MeasureToViewMap {
   }
 
   // Records stats with a set of tags.
-  synchronized void record(TagContext tags, MeasureMapInternal stats, Timestamp timestamp) {
+  synchronized void record(
+      TagContext tags,
+      MeasureMapInternal stats,
+      Timestamp timestamp,
+      @javax.annotation.Nullable Map<String, String> attachments) {
     Iterator<Measurement> iterator = stats.iterator();
     while (iterator.hasNext()) {
       Measurement measurement = iterator.next();
@@ -156,8 +160,8 @@ final class MeasureToViewMap {
       Collection<MutableViewData> views = mutableMap.get(measure.getName());
       for (MutableViewData view : views) {
         measurement.match(
-            new RecordDoubleValueFunc(tags, view, timestamp),
-            new RecordLongValueFunc(tags, view, timestamp),
+            new RecordDoubleValueFunc(tags, view, timestamp, attachments),
+            new RecordLongValueFunc(tags, view, timestamp, attachments),
             Functions.</*@Nullable*/ Void>throwAssertionError());
       }
     }
@@ -184,36 +188,48 @@ final class MeasureToViewMap {
   private static final class RecordDoubleValueFunc implements Function<MeasurementDouble, Void> {
     @Override
     public Void apply(MeasurementDouble arg) {
-      view.record(tags, arg.getValue(), timestamp);
+      view.record(tags, arg.getValue(), timestamp, attachments);
       return null;
     }
 
     private final TagContext tags;
     private final MutableViewData view;
     private final Timestamp timestamp;
+    @javax.annotation.Nullable private final Map<String, String> attachments;
 
-    private RecordDoubleValueFunc(TagContext tags, MutableViewData view, Timestamp timestamp) {
+    private RecordDoubleValueFunc(
+        TagContext tags,
+        MutableViewData view,
+        Timestamp timestamp,
+        @javax.annotation.Nullable Map<String, String> attachments) {
       this.tags = tags;
       this.view = view;
       this.timestamp = timestamp;
+      this.attachments = attachments;
     }
   }
 
   private static final class RecordLongValueFunc implements Function<MeasurementLong, Void> {
     @Override
     public Void apply(MeasurementLong arg) {
-      view.record(tags, arg.getValue(), timestamp);
+      view.record(tags, arg.getValue(), timestamp, attachments);
       return null;
     }
 
     private final TagContext tags;
     private final MutableViewData view;
     private final Timestamp timestamp;
+    @javax.annotation.Nullable private final Map<String, String> attachments;
 
-    private RecordLongValueFunc(TagContext tags, MutableViewData view, Timestamp timestamp) {
+    private RecordLongValueFunc(
+        TagContext tags,
+        MutableViewData view,
+        Timestamp timestamp,
+        @javax.annotation.Nullable Map<String, String> attachments) {
       this.tags = tags;
       this.view = view;
       this.timestamp = timestamp;
+      this.attachments = attachments;
     }
   }
 }

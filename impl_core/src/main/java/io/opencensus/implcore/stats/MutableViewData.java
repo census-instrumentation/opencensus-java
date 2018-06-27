@@ -101,12 +101,20 @@ abstract class MutableViewData {
   }
 
   /** Record double stats with the given tags. */
-  abstract void record(TagContext context, double value, Timestamp timestamp);
+  abstract void record(
+      TagContext context,
+      double value,
+      Timestamp timestamp,
+      @javax.annotation.Nullable Map<String, String> attachments);
 
   /** Record long stats with the given tags. */
-  void record(TagContext tags, long value, Timestamp timestamp) {
+  void record(
+      TagContext tags,
+      long value,
+      Timestamp timestamp,
+      @javax.annotation.Nullable Map<String, String> attachments) {
     // TODO(songya): shall we check for precision loss here?
-    record(tags, (double) value, timestamp);
+    record(tags, (double) value, timestamp, attachments);
   }
 
   /** Convert this {@link MutableViewData} to {@link ViewData}. */
@@ -206,7 +214,11 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(TagContext context, double value, Timestamp timestamp) {
+    void record(
+        TagContext context,
+        double value,
+        Timestamp timestamp,
+        @javax.annotation.Nullable Map<String, String> attachments) {
       List</*@Nullable*/ TagValue> tagValues =
           getTagValues(getTagMap(context), super.view.getColumns());
       if (!tagValueAggregationMap.containsKey(tagValues)) {
@@ -300,7 +312,11 @@ abstract class MutableViewData {
     }
 
     @Override
-    void record(TagContext context, double value, Timestamp timestamp) {
+    void record(
+        TagContext context,
+        double value,
+        Timestamp timestamp,
+        @javax.annotation.Nullable Map<String, String> attachments) {
       List</*@Nullable*/ TagValue> tagValues =
           getTagValues(getTagMap(context), super.view.getColumns());
       refreshBucketList(timestamp);
