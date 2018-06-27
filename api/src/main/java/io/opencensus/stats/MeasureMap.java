@@ -16,6 +16,7 @@
 
 package io.opencensus.stats;
 
+import io.opencensus.internal.Utils;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
@@ -55,13 +56,19 @@ public abstract class MeasureMap {
   /**
    * Associate the contextual information of an {@code Exemplar} to this {@link MeasureMap}.
    *
-   * <p>If this method is called multiple times, only the last string map will be kept.
+   * <p>If this method is called multiple times, the string maps should be merged. If there are
+   * multiple values with the same key in the maps, only the last value will be kept. I.e equivalent
+   * to {@code new HashMap<>().putAll(map1).putAll(map2)}.
    *
    * @param attachments contextual information of an {@code Exemplar}.
    * @return this
    * @since 0.16
    */
-  public abstract MeasureMap withAttachments(Map<String, String> attachments);
+  public MeasureMap putAttachments(Map<String, String> attachments) {
+    // Provides a default no-op implementation to avoid breaking other existing sub-classes.
+    Utils.checkNotNull(attachments, "attachments");
+    return this;
+  }
 
   /**
    * Records all of the measures at the same time, with the current {@link TagContext}.

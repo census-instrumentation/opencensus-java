@@ -49,8 +49,8 @@ final class MeasureMapImpl extends MeasureMap {
   }
 
   @Override
-  public MeasureMap withAttachments(Map<String, String> attachments) {
-    builder.withAttachments(attachments);
+  public MeasureMap putAttachments(Map<String, String> attachments) {
+    builder.putAttachments(attachments);
     return this;
   }
 

@@ -101,6 +101,7 @@ abstract class MutableViewData {
   }
 
   /** Record double stats with the given tags. */
+  // TODO(songya): store the attachments in MutableDistribution.
   abstract void record(
       TagContext context,
       double value,

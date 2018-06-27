@@ -135,12 +135,6 @@ final class NoopStats {
     }
 
     @Override
-    public MeasureMap withAttachments(Map<String, String> attachments) {
-      Utils.checkNotNull(attachments, "attachments");
-      return this;
-    }
-
-    @Override
     public void record() {}
 
     @Override
