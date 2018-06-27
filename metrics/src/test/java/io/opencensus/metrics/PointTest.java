@@ -20,11 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.Value.DistributionValue;
-import io.opencensus.metrics.Value.DistributionValue.Bucket;
-import io.opencensus.metrics.Value.DistributionValue.Range;
-import io.opencensus.metrics.Value.DoubleValue;
-import io.opencensus.metrics.Value.LongValue;
+import io.opencensus.metrics.Distribution.Bucket;
+import io.opencensus.metrics.Distribution.Range;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,16 +31,18 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class PointTest {
 
-  private static final DoubleValue DOUBLE_VALUE = DoubleValue.create(55.5);
-  private static final LongValue LONG_VALUE = LongValue.create(9876543210L);
-  private static final DistributionValue DISTRIBUTION_VALUE =
-      DistributionValue.create(
-          6.6,
-          10,
-          678.54,
-          Range.create(-3.4, 5.6),
-          Arrays.asList(-1.0, 0.0, 1.0),
-          Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)));
+  private static final Value DOUBLE_VALUE = Value.doubleValue(55.5);
+  private static final Value LONG_VALUE = Value.longValue(9876543210L);
+  private static final Value DISTRIBUTION_VALUE =
+      Value.distributionValue(
+          Distribution.create(
+              6.6,
+              10,
+              678.54,
+              Range.create(-3.4, 5.6),
+              Arrays.asList(-1.0, 0.0, 1.0),
+              Arrays.asList(
+                  Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))));
   private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 2);
   private static final Timestamp TIMESTAMP_2 = Timestamp.create(3, 4);
   private static final Timestamp TIMESTAMP_3 = Timestamp.create(5, 6);
