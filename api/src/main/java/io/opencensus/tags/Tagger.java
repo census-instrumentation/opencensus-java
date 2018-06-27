@@ -73,9 +73,9 @@ public abstract class Tagger {
   public abstract TagContextBuilder currentBuilder();
 
   /**
-   * Enters the scope of code where the given {@code TagContext} is in the current context and
-   * returns an object that represents that scope. The scope is exited when the returned object is
-   * closed.
+   * Enters the scope of code where the given {@code TagContext} is in the current context
+   * (replacing the previous {@code TagContext}) and returns an object that represents that scope.
+   * The scope is exited when the returned object is closed.
    *
    * @param tags the {@code TagContext} to be set to the current context.
    * @return an object that defines a scope where the given {@code TagContext} is set to the current
