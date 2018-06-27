@@ -20,7 +20,6 @@ import io.opencensus.internal.Utils;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
-import java.util.Map;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -55,18 +54,19 @@ public abstract class MeasureMap {
 
   /**
    * Associate the contextual information of an {@code Exemplar} to this {@link MeasureMap}.
+   * Contextual information is represented as {@code String} key-value pairs.
    *
-   * <p>If this method is called multiple times, the string maps should be merged. If there are
-   * multiple values with the same key in the maps, only the last value will be kept. I.e equivalent
-   * to {@code new HashMap<>().putAll(map1).putAll(map2)}.
+   * <p>If this method is called multiple times with the same key, only the last value will be kept.
    *
-   * @param attachments contextual information of an {@code Exemplar}.
+   * @param key the key of contextual information of an {@code Exemplar}.
+   * @param value the string representation of contextual information of an {@code Exemplar}.
    * @return this
    * @since 0.16
    */
-  public MeasureMap putAttachments(Map<String, String> attachments) {
+  public MeasureMap putAttachement(String key, String value) {
     // Provides a default no-op implementation to avoid breaking other existing sub-classes.
-    Utils.checkNotNull(attachments, "attachments");
+    Utils.checkNotNull(key, "key");
+    Utils.checkNotNull(value, "value");
     return this;
   }
 

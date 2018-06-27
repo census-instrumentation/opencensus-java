@@ -90,11 +90,11 @@ final class MeasureMapInternal {
       return this;
     }
 
-    Builder putAttachments(Map<String, String> attachments) {
+    Builder putAttachment(String key, String value) {
       if (this.attachments == null) {
         this.attachments = new HashMap<String, String>();
       }
-      this.attachments.putAll(attachments);
+      this.attachments.put(key, value);
       return this;
     }
 

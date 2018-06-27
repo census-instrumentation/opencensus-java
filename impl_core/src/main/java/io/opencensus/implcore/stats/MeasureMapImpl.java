@@ -21,7 +21,6 @@ import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.unsafe.ContextUtils;
-import java.util.Map;
 
 /** Implementation of {@link MeasureMap}. */
 final class MeasureMapImpl extends MeasureMap {
@@ -49,8 +48,8 @@ final class MeasureMapImpl extends MeasureMap {
   }
 
   @Override
-  public MeasureMap putAttachments(Map<String, String> attachments) {
-    builder.putAttachments(attachments);
+  public MeasureMap putAttachement(String key, String value) {
+    builder.putAttachment(key, value);
     return this;
   }
 
