@@ -99,6 +99,7 @@ public final class NoopStatsTest {
   public void noopStatsRecorder_Record_DisallowNullTagContext() {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tags");
     measureMap.record((TagContext) null);
   }
 
@@ -106,6 +107,7 @@ public final class NoopStatsTest {
   public void noopStatsRecorder_Record_DisallowNullAttachments() {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
+    thrown.expectMessage("attachments");
     measureMap.record((Map<String, String>) null);
   }
 
@@ -113,6 +115,7 @@ public final class NoopStatsTest {
   public void noopStatsRecorder_RecordWithAttachments_DisallowNullTagContext() {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tags");
     measureMap.record(null, ATTACHMENTS);
   }
 
@@ -120,12 +123,12 @@ public final class NoopStatsTest {
   public void noopStatsRecorder_RecordWithAttachments_DisallowNullAttachments() {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
+    thrown.expectMessage("attachments");
     measureMap.record(tagContext, null);
   }
 
   // The NoopStatsRecorder should do nothing, so the tests below just checks that record doesn't
-  // throw an
-  // exception.
+  // throw an exception.
   @Test
   public void noopStatsRecorder_Record() {
     NoopStats.getNoopStatsRecorder().newMeasureMap().put(MEASURE, 5).record(tagContext);
