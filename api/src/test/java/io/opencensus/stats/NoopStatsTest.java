@@ -98,7 +98,7 @@ public final class NoopStatsTest {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key");
-    measureMap.putAttachement(null, "value");
+    measureMap.putAttachment(null, "value");
   }
 
   @Test
@@ -106,7 +106,7 @@ public final class NoopStatsTest {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value");
-    measureMap.putAttachement("key", null);
+    measureMap.putAttachment("key", null);
   }
 
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an

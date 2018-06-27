@@ -63,7 +63,8 @@ public abstract class MeasureMap {
    * @return this
    * @since 0.16
    */
-  public MeasureMap putAttachement(String key, String value) {
+  // TODO(songya): make this method abstract in the 0.17 release.
+  public MeasureMap putAttachment(String key, String value) {
     // Provides a default no-op implementation to avoid breaking other existing sub-classes.
     Utils.checkNotNull(key, "key");
     Utils.checkNotNull(value, "value");
