@@ -25,6 +25,7 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,6 +41,7 @@ public final class NoopStatsTest {
   private static final Tag TAG = Tag.create(TagKey.create("key"), TagValue.create("value"));
   private static final MeasureDouble MEASURE =
       Measure.MeasureDouble.create("my measure", "description", "s");
+  private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
 
   private final TagContext tagContext =
       new TagContext() {
@@ -93,24 +95,60 @@ public final class NoopStatsTest {
     noopStatsComponent.setState(StatsCollectionState.ENABLED);
   }
 
-  // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
-  // exception.
+  @Test
+  public void noopStatsRecorder_Record_DisallowNullTagContext() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tags");
+    measureMap.record((TagContext) null);
+  }
+
+  @Test
+  public void noopStatsRecorder_Record_DisallowNullAttachments() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("attachments");
+    measureMap.record((Map<String, String>) null);
+  }
+
+  @Test
+  public void noopStatsRecorder_RecordWithAttachments_DisallowNullTagContext() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tags");
+    measureMap.record(null, ATTACHMENTS);
+  }
+
+  @Test
+  public void noopStatsRecorder_RecordWithAttachments_DisallowNullAttachments() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("attachments");
+    measureMap.record(tagContext, null);
+  }
+
+  // The NoopStatsRecorder should do nothing, so the tests below just checks that record doesn't
+  // throw an exception.
   @Test
   public void noopStatsRecorder_Record() {
     NoopStats.getNoopStatsRecorder().newMeasureMap().put(MEASURE, 5).record(tagContext);
   }
 
-  // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
-  // exception.
   @Test
   public void noopStatsRecorder_RecordWithCurrentContext() {
     NoopStats.getNoopStatsRecorder().newMeasureMap().put(MEASURE, 6).record();
   }
 
   @Test
-  public void noopStatsRecorder_Record_DisallowNullTagContext() {
-    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
-    thrown.expect(NullPointerException.class);
-    measureMap.record(null);
+  public void noopStatsRecorder_RecordWithAttachments() {
+    NoopStats.getNoopStatsRecorder()
+        .newMeasureMap()
+        .put(MEASURE, 5)
+        .record(tagContext, ATTACHMENTS);
+  }
+
+  @Test
+  public void noopStatsRecorder_RecordWithCurrentContextAndAttachments() {
+    NoopStats.getNoopStatsRecorder().newMeasureMap().put(MEASURE, 6).record(ATTACHMENTS);
   }
 }

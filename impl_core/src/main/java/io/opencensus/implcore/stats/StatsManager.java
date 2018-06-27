@@ -24,6 +24,7 @@ import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -64,7 +65,14 @@ final class StatsManager {
     // TODO(songya): consider exposing No-op MeasureMap and use it when stats state is DISABLED, so
     // that we don't need to create actual MeasureMapImpl.
     if (state.getInternal() == StatsCollectionState.ENABLED) {
-      queue.enqueue(new StatsEvent(this, tags, measurementValues));
+      queue.enqueue(new StatsEvent(this, tags, measurementValues, null));
+    }
+  }
+
+  void record(
+      TagContext tags, MeasureMapInternal measurementValues, Map<String, String> attachments) {
+    if (state.getInternal() == StatsCollectionState.ENABLED) {
+      queue.enqueue(new StatsEvent(this, tags, measurementValues, attachments));
     }
   }
 
@@ -81,17 +89,23 @@ final class StatsManager {
     private final TagContext tags;
     private final MeasureMapInternal stats;
     private final StatsManager statsManager;
+    @Nullable private final Map<String, String> attachments;
 
-    StatsEvent(StatsManager statsManager, TagContext tags, MeasureMapInternal stats) {
+    StatsEvent(
+        StatsManager statsManager,
+        TagContext tags,
+        MeasureMapInternal stats,
+        @Nullable Map<String, String> attachments) {
       this.statsManager = statsManager;
       this.tags = tags;
       this.stats = stats;
+      this.attachments = attachments;
     }
 
     @Override
     public void process() {
       // Add Timestamp to value after it went through the DisruptorQueue.
-      statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now());
+      statsManager.measureToViewMap.record(tags, stats, statsManager.clock.now(), attachments);
     }
   }
 }
