@@ -10,8 +10,8 @@
 OpenCensus is a toolkit for collecting application performance and behavior data. It currently
 includes 3 apis: stats, tracing and tags.
 
-The library is in [Beta][cloud-versioning] stage and APIs are expected to be mostly stable. The 
-library is expected to move to [GA][cloud-versioning] stage after v1.0.0 major release.
+The library is in [Beta](#versioning) stage and APIs are expected to be mostly stable. The 
+library is expected to move to [GA](#versioning) stage after v1.0.0 major release.
 
 Please join [gitter](https://gitter.im/census-instrumentation/Lobby) for help or feedback on this
 project.
@@ -193,6 +193,20 @@ runtime 'io.opencensus:opencensus-impl:0.15.0'
 If the application owner wants to export in-process tracing and stats data via HTML debugging pages
 see this [link](https://github.com/census-instrumentation/opencensus-java/tree/master/contrib/zpages#quickstart).
 
+## Versioning
+  
+This library follows [Semantic Versioning][semver].
+  
+**GA**: Libraries defined at a GA quality level are stable, and will not introduce 
+backwards-incompatible changes in any minor or patch releases. We will address issues and requests 
+with the highest priority.
+  
+**Beta**: Libraries defined at a Beta quality level are expected to be mostly stable and we're 
+working towards their release candidate. We will address issues and requests with a higher priority.
+  
+**Alpha**: Libraries defined at an Alpha quality level are still a work-in-progress and are more 
+likely to get backwards-incompatible updates.
+
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/hxthmpkxar4jq4be/branch/master?svg=true
@@ -203,9 +217,9 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-api
 [gitter-image]: https://badges.gitter.im/census-instrumentation/lobby.svg
 [gitter-url]: https://gitter.im/census-instrumentation/lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-[cloud-versioning]: https://github.com/GoogleCloudPlatform/google-cloud-java#versioning
 [codecov-image]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/
+[semver]: http://semver.org/
 [TraceExporterInstana]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/instana#quickstart
 [TraceExporterJaeger]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/jaeger#quickstart
 [TraceExporterLogging]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/logging#quickstart
