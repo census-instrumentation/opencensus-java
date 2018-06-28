@@ -302,16 +302,14 @@ public abstract class AggregationData {
         Utils.checkNotNull(exemplar, "exemplar should not be null.");
       }
 
-      DistributionData data =
-          new AutoValue_AggregationData_DistributionData(
-              mean,
-              count,
-              min,
-              max,
-              sumOfSquaredDeviations,
-              bucketCountsCopy,
-              Collections.<Exemplar>unmodifiableList(exemplars));
-      return data;
+      return new AutoValue_AggregationData_DistributionData(
+          mean,
+          count,
+          min,
+          max,
+          sumOfSquaredDeviations,
+          bucketCountsCopy,
+          Collections.<Exemplar>unmodifiableList(exemplars));
     }
 
     /**
