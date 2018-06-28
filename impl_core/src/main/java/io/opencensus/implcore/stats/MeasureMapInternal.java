@@ -21,8 +21,12 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.Measurement;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 // TODO(songya): consider combining MeasureMapImpl and this class.
 /** A map from {@link Measure}'s to measured values. */
@@ -41,10 +45,21 @@ final class MeasureMapInternal {
     return new MeasureMapInternalIterator();
   }
 
-  private final ArrayList<Measurement> measurements;
+  // Returns the contextual information associated with an example value.
+  Map<String, String> getAttachments() {
+    return attachments;
+  }
 
-  private MeasureMapInternal(ArrayList<Measurement> measurements) {
+  private final ArrayList<Measurement> measurements;
+  @Nullable private final Map<String, String> attachments;
+
+  private MeasureMapInternal(
+      ArrayList<Measurement> measurements, @Nullable Map<String, String> attachments) {
     this.measurements = measurements;
+    this.attachments =
+        attachments == null
+            ? null
+            : Collections.unmodifiableMap(new HashMap<String, String>(attachments));
   }
 
   /** Builder for the {@link MeasureMapInternal} class. */
@@ -75,6 +90,14 @@ final class MeasureMapInternal {
       return this;
     }
 
+    Builder putAttachment(String key, String value) {
+      if (this.attachments == null) {
+        this.attachments = new HashMap<String, String>();
+      }
+      this.attachments.put(key, value);
+      return this;
+    }
+
     /** Constructs a {@link MeasureMapInternal} from the current measurements. */
     MeasureMapInternal build() {
       // Note: this makes adding measurements quadratic but is fastest for the sizes of
@@ -88,10 +111,11 @@ final class MeasureMapInternal {
           }
         }
       }
-      return new MeasureMapInternal(measurements);
+      return new MeasureMapInternal(measurements, attachments);
     }
 
     private final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
+    @Nullable private Map<String, String> attachments;
 
     private Builder() {}
   }

@@ -93,6 +93,22 @@ public final class NoopStatsTest {
     noopStatsComponent.setState(StatsCollectionState.ENABLED);
   }
 
+  @Test
+  public void noopStatsRecorder_PutAttachmentNullKey() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key");
+    measureMap.putAttachment(null, "value");
+  }
+
+  @Test
+  public void noopStatsRecorder_PutAttachmentNullValue() {
+    MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("value");
+    measureMap.putAttachment("key", null);
+  }
+
   // The NoopStatsRecorder should do nothing, so this test just checks that record doesn't throw an
   // exception.
   @Test
@@ -111,6 +127,7 @@ public final class NoopStatsTest {
   public void noopStatsRecorder_Record_DisallowNullTagContext() {
     MeasureMap measureMap = NoopStats.getNoopStatsRecorder().newMeasureMap();
     thrown.expect(NullPointerException.class);
+    thrown.expectMessage("tags");
     measureMap.record(null);
   }
 }

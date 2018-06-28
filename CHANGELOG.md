@@ -1,5 +1,6 @@
 ## Unreleased
 - Add APIs to register gRPC client and server views separately.
+- Add an API MeasureMap.putAttachment() for recording exemplars.
 
 ## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.

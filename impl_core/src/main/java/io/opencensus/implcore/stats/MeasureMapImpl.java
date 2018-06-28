@@ -48,6 +48,12 @@ final class MeasureMapImpl extends MeasureMap {
   }
 
   @Override
+  public MeasureMap putAttachment(String key, String value) {
+    builder.putAttachment(key, value);
+    return this;
+  }
+
+  @Override
   public void record() {
     // Use the context key directly, to avoid depending on the tags implementation.
     record(ContextUtils.TAG_CONTEXT_KEY.get());
