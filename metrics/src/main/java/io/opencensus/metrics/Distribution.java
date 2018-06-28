@@ -119,6 +119,11 @@ public abstract class Distribution {
   /**
    * Returns the aggregated sum of squared deviations.
    *
+   * <p>The sum of squared deviations from the mean of the values in the population. For values x_i
+   * this is:
+   *
+   * <p>Sum[i=1..n]((x_i - mean)^2)
+   *
    * <p>If count is zero then this field must be zero.
    *
    * @return the aggregated sum of squared deviations.

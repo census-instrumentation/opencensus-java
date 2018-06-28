@@ -27,9 +27,9 @@ import javax.annotation.concurrent.Immutable;
  * <p>Currently there are three types of {@link Value}:
  *
  * <ul>
- *   <li>{@link ValueDouble}
- *   <li>{@link ValueLong}
- *   <li>{@link ValueDistribution}
+ *   <li>{@code double}
+ *   <li>{@code long}
+ *   <li>{@link Distribution}
  * </ul>
  *
  * <p>Each {@link Point} contains exactly one of the three {@link Value} types.
