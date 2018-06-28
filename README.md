@@ -199,13 +199,15 @@ This library follows [Semantic Versioning][semver].
   
 **GA**: Libraries defined at a GA quality level are stable, and will not introduce 
 backwards-incompatible changes in any minor or patch releases. We will address issues and requests 
-with the highest priority.
+with the highest priority. If we were to make a backwards-incompatible changes on an API, we will 
+first mark the existing API as deprecated and keep it for 18 months before removing it.
   
 **Beta**: Libraries defined at a Beta quality level are expected to be mostly stable and we're 
 working towards their release candidate. We will address issues and requests with a higher priority.
-  
-**Alpha**: Libraries defined at an Alpha quality level are still a work-in-progress and are more 
-likely to get backwards-incompatible updates.
+There may be backwards incompatible changes in a minor version release, though not in a patch 
+release. If an element is part of an API that is only meant to be used by exporters or other 
+opencensus libraries, then there is no deprecation period. Otherwise, we will deprecate it for 18 
+months before removing it, if possible.
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
 [travis-url]: https://travis-ci.org/census-instrumentation/opencensus-java
