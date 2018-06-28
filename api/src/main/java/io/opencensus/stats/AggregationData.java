@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -294,10 +295,6 @@ public abstract class AggregationData {
       }
 
       Utils.checkNotNull(exemplars, "exemplar list should not be null.");
-      Utils.checkArgument(
-          exemplars.size() <= bucketCounts.size(),
-          "each histogram bucket can have up to one exemplar, "
-              + "so the length of exemplar list should be no greater than that of bucket list.");
       for (Exemplar exemplar : exemplars) {
         Utils.checkNotNull(exemplar, "exemplar should not be null.");
       }
@@ -309,7 +306,7 @@ public abstract class AggregationData {
           max,
           sumOfSquaredDeviations,
           bucketCountsCopy,
-          Collections.<Exemplar>unmodifiableList(exemplars));
+          Collections.<Exemplar>unmodifiableList(new ArrayList<Exemplar>(exemplars)));
     }
 
     /**
@@ -411,8 +408,8 @@ public abstract class AggregationData {
     }
 
     /**
-     * Example points that may be used to annotate aggregated distribution values, associated with a
-     * histogram.
+     * An example point that may be used to annotate aggregated distribution values, associated with
+     * a histogram bucket.
      *
      * @since 0.16
      */
@@ -431,9 +428,9 @@ public abstract class AggregationData {
       public abstract double getValue();
 
       /**
-       * Returns the observation (sampling) time of the above value.
+       * Returns the time that this {@link Exemplar}'s value was recorded.
        *
-       * @return the observation (sampling) time of the above value.
+       * @return the time that this {@code Exemplar}'s value was recorded.
        * @since 0.16
        */
       public abstract Timestamp getTimestamp();
@@ -458,10 +455,14 @@ public abstract class AggregationData {
       public static Exemplar create(
           double value, Timestamp timestamp, Map<String, String> attachments) {
         Utils.checkNotNull(attachments, "attachments");
+        Map<String, String> attachmentsCopy =
+            Collections.unmodifiableMap(new HashMap<String, String>(attachments));
+        for (Entry<String, String> entry : attachmentsCopy.entrySet()) {
+          Utils.checkNotNull(entry.getKey(), "key of attachments");
+          Utils.checkNotNull(entry.getValue(), "value of attachments");
+        }
         return new AutoValue_AggregationData_DistributionData_Exemplar(
-            value,
-            timestamp,
-            Collections.unmodifiableMap(new HashMap<String, String>(attachments)));
+            value, timestamp, attachmentsCopy);
       }
     }
   }

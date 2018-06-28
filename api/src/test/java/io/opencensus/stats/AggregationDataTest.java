@@ -90,6 +90,22 @@ public class AggregationDataTest {
   }
 
   @Test
+  public void testExemplar_PreventNullAttachmentKey() {
+    Map<String, String> attachments = Collections.singletonMap(null, "value");
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key of attachment");
+    Exemplar.create(15, TIMESTAMP_1, attachments);
+  }
+
+  @Test
+  public void testExemplar_PreventNullAttachmentValue() {
+    Map<String, String> attachments = Collections.singletonMap("key", null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("value of attachment");
+    Exemplar.create(15, TIMESTAMP_1, attachments);
+  }
+
+  @Test
   public void preventNullBucketCountList() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket counts should not be null.");
@@ -116,26 +132,6 @@ public class AggregationDataTest {
     thrown.expectMessage("exemplar should not be null.");
     DistributionData.create(
         1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 1L), Collections.<Exemplar>singletonList(null));
-  }
-
-  @Test
-  public void disallowMoreExemplarsThanBuckets() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(
-        "each histogram bucket can have up to one exemplar, "
-            + "so the length of exemplar list should be no greater than that of bucket list.");
-    DistributionData.create(
-        1,
-        1,
-        1,
-        1,
-        0,
-        Arrays.asList(0L, 1L, 1L),
-        Arrays.asList(
-            Exemplar.create(-5L, Timestamp.create(0, 0), Collections.<String, String>emptyMap()),
-            Exemplar.create(0L, Timestamp.create(1, 0), Collections.<String, String>emptyMap()),
-            Exemplar.create(5L, Timestamp.create(3, 0), Collections.<String, String>emptyMap()),
-            Exemplar.create(15L, Timestamp.create(2, 0), Collections.<String, String>emptyMap())));
   }
 
   @Test
