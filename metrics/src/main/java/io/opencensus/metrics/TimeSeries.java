@@ -63,8 +63,8 @@ public abstract class TimeSeries {
    * @since 0.16
    */
   public abstract <T> T match(
-      Function<? super GaugeTimeSeries, T> p0,
-      Function<? super CumulativeTimeSeries, T> p1,
+      Function<? super TimeSeriesGauge, T> p0,
+      Function<? super TimeSeriesCumulative, T> p1,
       Function<? super TimeSeries, T> defaultFunction);
 
   /**
@@ -75,28 +75,28 @@ public abstract class TimeSeries {
   @ExperimentalApi
   @Immutable
   @AutoValue
-  public abstract static class GaugeTimeSeries extends TimeSeries {
+  public abstract static class TimeSeriesGauge extends TimeSeries {
 
-    GaugeTimeSeries() {}
+    TimeSeriesGauge() {}
 
     @Override
     public final <T> T match(
-        Function<? super GaugeTimeSeries, T> p0,
-        Function<? super CumulativeTimeSeries, T> p1,
+        Function<? super TimeSeriesGauge, T> p0,
+        Function<? super TimeSeriesCumulative, T> p1,
         Function<? super TimeSeries, T> defaultFunction) {
       return p0.apply(this);
     }
 
     /**
-     * Creates a {@link GaugeTimeSeries}.
+     * Creates a {@link TimeSeriesGauge}.
      *
      * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
      * @param points the data {@code Point}s of this {@code TimeSeries}.
-     * @return a {@code GaugeTimeSeries}.
+     * @return a {@code TimeSeriesGauge}.
      * @since 0.16
      */
-    public static GaugeTimeSeries create(List<LabelValue> labelValues, List<Point> points) {
-      return new AutoValue_TimeSeries_GaugeTimeSeries(
+    public static TimeSeriesGauge create(List<LabelValue> labelValues, List<Point> points) {
+      return new AutoValue_TimeSeries_TimeSeriesGauge(
           Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
           Collections.unmodifiableList(new ArrayList<Point>(points)));
     }
@@ -111,37 +111,37 @@ public abstract class TimeSeries {
   @ExperimentalApi
   @Immutable
   @AutoValue
-  public abstract static class CumulativeTimeSeries extends TimeSeries {
+  public abstract static class TimeSeriesCumulative extends TimeSeries {
 
-    CumulativeTimeSeries() {}
+    TimeSeriesCumulative() {}
 
     @Override
     public final <T> T match(
-        Function<? super GaugeTimeSeries, T> p0,
-        Function<? super CumulativeTimeSeries, T> p1,
+        Function<? super TimeSeriesGauge, T> p0,
+        Function<? super TimeSeriesCumulative, T> p1,
         Function<? super TimeSeries, T> defaultFunction) {
       return p1.apply(this);
     }
 
     /**
-     * Creates a {@link CumulativeTimeSeries}.
+     * Creates a {@link TimeSeriesCumulative}.
      *
      * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
      * @param points the data {@code Point}s of this {@code TimeSeries}.
-     * @param startTimestamp the start {@code Timestamp} of this {@code CumulativeTimeSeries}.
-     * @return a {@code CumulativeTimeSeries}.
+     * @param startTimestamp the start {@code Timestamp} of this {@code TimeSeriesCumulative}.
+     * @return a {@code TimeSeriesCumulative}.
      * @since 0.16
      */
-    public static CumulativeTimeSeries create(
+    public static TimeSeriesCumulative create(
         List<LabelValue> labelValues, List<Point> points, Timestamp startTimestamp) {
-      return new AutoValue_TimeSeries_CumulativeTimeSeries(
+      return new AutoValue_TimeSeries_TimeSeriesCumulative(
           Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
           Collections.unmodifiableList(new ArrayList<Point>(points)),
           startTimestamp);
     }
 
     /**
-     * Returns the start {@link Timestamp} of this {@link CumulativeTimeSeries}.
+     * Returns the start {@link Timestamp} of this {@link TimeSeriesCumulative}.
      *
      * @return the start {@code Timestamp}.
      * @since 0.16

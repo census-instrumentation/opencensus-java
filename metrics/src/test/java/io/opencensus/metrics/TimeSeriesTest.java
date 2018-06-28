@@ -21,8 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.TimeSeries.CumulativeTimeSeries;
-import io.opencensus.metrics.TimeSeries.GaugeTimeSeries;
+import io.opencensus.metrics.TimeSeries.TimeSeriesCumulative;
+import io.opencensus.metrics.TimeSeries.TimeSeriesGauge;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,9 +46,9 @@ public class TimeSeriesTest {
   private static final Point POINT_2 = Point.create(VALUE_LONG, TIMESTAMP_3);
 
   @Test
-  public void testGet_GaugeTimeSeries() {
-    GaugeTimeSeries gaugeTimeSeries =
-        GaugeTimeSeries.create(
+  public void testGet_TimeSeriesGauge() {
+    TimeSeriesGauge gaugeTimeSeries =
+        TimeSeriesGauge.create(
             Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2));
     assertThat(gaugeTimeSeries.getLabelValues())
         .containsExactly(LABEL_VALUE_1, LABEL_VALUE_2)
@@ -57,9 +57,9 @@ public class TimeSeriesTest {
   }
 
   @Test
-  public void testGet_CumulativeTimeSeries() {
-    CumulativeTimeSeries cumulativeTimeSeries =
-        CumulativeTimeSeries.create(
+  public void testGet_TimeSeriesCumulative() {
+    TimeSeriesCumulative cumulativeTimeSeries =
+        TimeSeriesCumulative.create(
             Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY), Arrays.asList(POINT_1), TIMESTAMP_1);
     assertThat(cumulativeTimeSeries.getStartTimestamp()).isEqualTo(TIMESTAMP_1);
     assertThat(cumulativeTimeSeries.getLabelValues())
@@ -72,9 +72,9 @@ public class TimeSeriesTest {
   public void testMatch() {
     List<TimeSeries> timeSeriesList =
         Arrays.asList(
-            GaugeTimeSeries.create(
+            TimeSeriesGauge.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2)),
-            CumulativeTimeSeries.create(
+            TimeSeriesCumulative.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY),
                 Arrays.asList(POINT_1),
                 TIMESTAMP_1));
@@ -94,22 +94,22 @@ public class TimeSeriesTest {
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            GaugeTimeSeries.create(
+            TimeSeriesGauge.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2)),
-            GaugeTimeSeries.create(
+            TimeSeriesGauge.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2)))
         .addEqualityGroup(
-            GaugeTimeSeries.create(
+            TimeSeriesGauge.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1)))
         .addEqualityGroup(
-            GaugeTimeSeries.create(Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1)))
+            TimeSeriesGauge.create(Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1)))
         .addEqualityGroup(
-            CumulativeTimeSeries.create(
+            TimeSeriesCumulative.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY),
                 Arrays.asList(POINT_1),
                 TIMESTAMP_1))
         .addEqualityGroup(
-            CumulativeTimeSeries.create(
+            TimeSeriesCumulative.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY),
                 Arrays.asList(POINT_1),
                 TIMESTAMP_2))
