@@ -10,7 +10,8 @@
 OpenCensus is a toolkit for collecting application performance and behavior data. It currently
 includes 3 apis: stats, tracing and tags.
 
-The library is in alpha stage and the API is subject to change.
+The library is in [Beta][cloud-versioning] stage and APIs are expected to be mostly stable. The 
+library is expected to move to [GA][cloud-versioning] stage after v1.0.0 major release.
 
 Please join [gitter](https://gitter.im/census-instrumentation/Lobby) for help or feedback on this
 project.
@@ -202,6 +203,7 @@ see this [link](https://github.com/census-instrumentation/opencensus-java/tree/m
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-api
 [gitter-image]: https://badges.gitter.im/census-instrumentation/lobby.svg
 [gitter-url]: https://gitter.im/census-instrumentation/lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+[cloud-versioning]: https://github.com/GoogleCloudPlatform/google-cloud-java#versioning
 [codecov-image]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/census-instrumentation/opencensus-java/branch/master/
 [TraceExporterInstana]: https://github.com/census-instrumentation/opencensus-java/tree/master/exporters/trace/instana#quickstart
