@@ -447,7 +447,7 @@ public abstract class AggregationData {
        * Creates an {@link Exemplar}.
        *
        * @param value value of the {@link Exemplar} point.
-       * @param timestamp the observation (sampling) time of the above value.
+       * @param timestamp the time that this {@code Exemplar}'s value was recorded.
        * @param attachments the contextual information about the example value.
        * @return an {@code Exemplar}.
        * @since 0.16
