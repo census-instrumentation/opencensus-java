@@ -25,8 +25,11 @@ import io.opencensus.metrics.TimeSeries.TimeSeriesCumulative;
 import io.opencensus.metrics.TimeSeries.TimeSeriesGauge;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -34,8 +37,10 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TimeSeriesTest {
 
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
   private static final LabelValue LABEL_VALUE_1 = LabelValue.create("value1");
-  private static final LabelValue LABEL_VALUE_2 = LabelValue.create("value1");
+  private static final LabelValue LABEL_VALUE_2 = LabelValue.create("value2");
   private static final LabelValue LABEL_VALUE_EMPTY = LabelValue.create("");
   private static final Value VALUE_LONG = Value.longValue(12345678);
   private static final Value VALUE_DOUBLE = Value.doubleValue(-345.77);
@@ -66,6 +71,36 @@ public class TimeSeriesTest {
         .containsExactly(LABEL_VALUE_1, LABEL_VALUE_EMPTY)
         .inOrder();
     assertThat(cumulativeTimeSeries.getPoints()).containsExactly(POINT_1).inOrder();
+  }
+
+  @Test
+  public void create_WithNullLabelValueList() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelValues");
+    TimeSeriesCumulative.create(null, Collections.<Point>emptyList(), TIMESTAMP_1);
+  }
+
+  @Test
+  public void create_WithNullLabelValue() {
+    List<LabelValue> labelValues = Arrays.asList(LABEL_VALUE_1, null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelValue");
+    TimeSeriesCumulative.create(labelValues, Collections.<Point>emptyList(), TIMESTAMP_1);
+  }
+
+  @Test
+  public void create_WithNullPointList() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("points");
+    TimeSeriesCumulative.create(Collections.<LabelValue>emptyList(), null, TIMESTAMP_1);
+  }
+
+  @Test
+  public void create_WithNullPoint() {
+    List<Point> points = Arrays.asList(POINT_1, null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("point");
+    TimeSeriesCumulative.create(Collections.<LabelValue>emptyList(), points, TIMESTAMP_1);
   }
 
   @Test

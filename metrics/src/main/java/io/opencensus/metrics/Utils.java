@@ -20,6 +20,8 @@ package io.opencensus.metrics;
 import org.checkerframework.checker.nullness.qual.NonNull;
 */
 
+import java.util.List;
+
 /** General internal utility methods. */
 // TODO(songya): remove this class and use shared Utils instead.
 final class Utils {
@@ -52,5 +54,20 @@ final class Utils {
       throw new NullPointerException(message);
     }
     return arg;
+  }
+
+  /**
+   * Throws a {@link NullPointerException} if any of the list elements is null.
+   *
+   * @param list the argument list to check for null.
+   * @param message the message to use for the exception.
+   */
+  static <T /*>>> extends @NonNull Object*/> void checkListElementNotNull(
+      List<T> list, String message) {
+    for (T element : list) {
+      if (element == null) {
+        throw new NullPointerException(message);
+      }
+    }
   }
 }

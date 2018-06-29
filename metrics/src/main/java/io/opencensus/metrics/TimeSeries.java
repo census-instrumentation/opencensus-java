@@ -99,6 +99,8 @@ public abstract class TimeSeries {
       // Fail fast on null lists to prevent NullPointerException when copying the lists.
       Utils.checkNotNull(labelValues, "labelValues");
       Utils.checkNotNull(points, "points");
+      Utils.checkListElementNotNull(labelValues, "labelValue");
+      Utils.checkListElementNotNull(points, "point");
       return new AutoValue_TimeSeries_TimeSeriesGauge(
           Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
           Collections.unmodifiableList(new ArrayList<Point>(points)));
@@ -140,6 +142,8 @@ public abstract class TimeSeries {
       // Fail fast on null lists to prevent NullPointerException when copying the lists.
       Utils.checkNotNull(labelValues, "labelValues");
       Utils.checkNotNull(points, "points");
+      Utils.checkListElementNotNull(labelValues, "labelValue");
+      Utils.checkListElementNotNull(points, "point");
       return new AutoValue_TimeSeries_TimeSeriesCumulative(
           Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
           Collections.unmodifiableList(new ArrayList<Point>(points)),
