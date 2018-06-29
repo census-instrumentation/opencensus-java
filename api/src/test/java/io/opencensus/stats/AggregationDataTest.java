@@ -21,8 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.common.Timestamp;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.AggregationData.LastValueDataDouble;
 import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
@@ -30,7 +32,9 @@ import io.opencensus.stats.AggregationData.SumDataDouble;
 import io.opencensus.stats.AggregationData.SumDataLong;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,6 +46,9 @@ import org.junit.runners.JUnit4;
 public class AggregationDataTest {
 
   private static final double TOLERANCE = 1e-6;
+  private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 0);
+  private static final Timestamp TIMESTAMP_2 = Timestamp.create(2, 0);
+  private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -58,6 +65,47 @@ public class AggregationDataTest {
   }
 
   @Test
+  public void testCreateDistributionDataWithExemplar() {
+    Exemplar exemplar1 = Exemplar.create(4, TIMESTAMP_2, ATTACHMENTS);
+    Exemplar exemplar2 = Exemplar.create(1, TIMESTAMP_1, ATTACHMENTS);
+    DistributionData distributionData =
+        DistributionData.create(
+            7.7, 10, 1.1, 9.9, 32.2, Arrays.asList(4L, 1L), Arrays.asList(exemplar1, exemplar2));
+    assertThat(distributionData.getExemplars()).containsExactly(exemplar1, exemplar2).inOrder();
+  }
+
+  @Test
+  public void testExemplar() {
+    Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP_1, ATTACHMENTS);
+    assertThat(exemplar.getValue()).isEqualTo(15.0);
+    assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP_1);
+    assertThat(exemplar.getAttachments()).isEqualTo(ATTACHMENTS);
+  }
+
+  @Test
+  public void testExemplar_PreventNullAttachments() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("attachments");
+    Exemplar.create(15, TIMESTAMP_1, null);
+  }
+
+  @Test
+  public void testExemplar_PreventNullAttachmentKey() {
+    Map<String, String> attachments = Collections.singletonMap(null, "value");
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key of attachment");
+    Exemplar.create(15, TIMESTAMP_1, attachments);
+  }
+
+  @Test
+  public void testExemplar_PreventNullAttachmentValue() {
+    Map<String, String> attachments = Collections.singletonMap("key", null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("value of attachment");
+    Exemplar.create(15, TIMESTAMP_1, attachments);
+  }
+
+  @Test
   public void preventNullBucketCountList() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket counts should not be null.");
@@ -69,6 +117,21 @@ public class AggregationDataTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket should not be null.");
     DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, null));
+  }
+
+  @Test
+  public void preventNullExemplarList() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("exemplar list should not be null.");
+    DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 1L), null);
+  }
+
+  @Test
+  public void preventNullExemplar() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("exemplar should not be null.");
+    DistributionData.create(
+        1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 1L), Collections.<Exemplar>singletonList(null));
   }
 
   @Test

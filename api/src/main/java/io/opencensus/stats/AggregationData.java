@@ -18,10 +18,14 @@ package io.opencensus.stats;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.Function;
+import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -268,8 +272,9 @@ public abstract class AggregationData {
      * @param max max value.
      * @param sumOfSquaredDeviations sum of squared deviations.
      * @param bucketCounts histogram bucket counts.
+     * @param exemplars the exemplars associated with histogram buckets.
      * @return a {@code DistributionData}.
-     * @since 0.8
+     * @since 0.16
      */
     public static DistributionData create(
         double mean,
@@ -277,7 +282,8 @@ public abstract class AggregationData {
         double min,
         double max,
         double sumOfSquaredDeviations,
-        List<Long> bucketCounts) {
+        List<Long> bucketCounts,
+        List<Exemplar> exemplars) {
       if (min != Double.POSITIVE_INFINITY || max != Double.NEGATIVE_INFINITY) {
         Utils.checkArgument(min <= max, "max should be greater or equal to min.");
       }
@@ -288,8 +294,48 @@ public abstract class AggregationData {
         Utils.checkNotNull(bucket, "bucket should not be null.");
       }
 
+      Utils.checkNotNull(exemplars, "exemplar list should not be null.");
+      for (Exemplar exemplar : exemplars) {
+        Utils.checkNotNull(exemplar, "exemplar should not be null.");
+      }
+
       return new AutoValue_AggregationData_DistributionData(
-          mean, count, min, max, sumOfSquaredDeviations, bucketCountsCopy);
+          mean,
+          count,
+          min,
+          max,
+          sumOfSquaredDeviations,
+          bucketCountsCopy,
+          Collections.<Exemplar>unmodifiableList(new ArrayList<Exemplar>(exemplars)));
+    }
+
+    /**
+     * Creates a {@code DistributionData}.
+     *
+     * @param mean mean value.
+     * @param count count value.
+     * @param min min value.
+     * @param max max value.
+     * @param sumOfSquaredDeviations sum of squared deviations.
+     * @param bucketCounts histogram bucket counts.
+     * @return a {@code DistributionData}.
+     * @since 0.8
+     */
+    public static DistributionData create(
+        double mean,
+        long count,
+        double min,
+        double max,
+        double sumOfSquaredDeviations,
+        List<Long> bucketCounts) {
+      return create(
+          mean,
+          count,
+          min,
+          max,
+          sumOfSquaredDeviations,
+          bucketCounts,
+          Collections.<Exemplar>emptyList());
     }
 
     /**
@@ -341,6 +387,14 @@ public abstract class AggregationData {
      */
     public abstract List<Long> getBucketCounts();
 
+    /**
+     * Returns the {@link Exemplar}s associated with histogram buckets.
+     *
+     * @return the {@code Exemplar}s associated with histogram buckets.
+     * @since 0.16
+     */
+    public abstract List<Exemplar> getExemplars();
+
     @Override
     public final <T> T match(
         Function<? super SumDataDouble, T> p0,
@@ -351,6 +405,65 @@ public abstract class AggregationData {
         Function<? super LastValueDataLong, T> p5,
         Function<? super AggregationData, T> defaultFunction) {
       return p3.apply(this);
+    }
+
+    /**
+     * An example point that may be used to annotate aggregated distribution values, associated with
+     * a histogram bucket.
+     *
+     * @since 0.16
+     */
+    @Immutable
+    @AutoValue
+    public abstract static class Exemplar {
+
+      Exemplar() {}
+
+      /**
+       * Returns value of the {@link Exemplar} point.
+       *
+       * @return value of the {@code Exemplar} point.
+       * @since 0.16
+       */
+      public abstract double getValue();
+
+      /**
+       * Returns the time that this {@link Exemplar}'s value was recorded.
+       *
+       * @return the time that this {@code Exemplar}'s value was recorded.
+       * @since 0.16
+       */
+      public abstract Timestamp getTimestamp();
+
+      /**
+       * Returns the contextual information about the example value, represented as a string map.
+       *
+       * @return the contextual information about the example value.
+       * @since 0.16
+       */
+      public abstract Map<String, String> getAttachments();
+
+      /**
+       * Creates an {@link Exemplar}.
+       *
+       * @param value value of the {@link Exemplar} point.
+       * @param timestamp the time that this {@code Exemplar}'s value was recorded.
+       * @param attachments the contextual information about the example value.
+       * @return an {@code Exemplar}.
+       * @since 0.16
+       */
+      public static Exemplar create(
+          double value, Timestamp timestamp, Map<String, String> attachments) {
+        Utils.checkNotNull(attachments, "attachments");
+        Map<String, String> attachmentsCopy =
+            Collections.unmodifiableMap(new HashMap<String, String>(attachments));
+        for (Entry<String, String> entry : attachmentsCopy.entrySet()) {
+          Utils.checkNotNull(entry.getKey(), "key of attachments");
+          Utils.checkNotNull(entry.getValue(), "value of attachments");
+        }
+        return new AutoValue_AggregationData_DistributionData_Exemplar(
+            value, timestamp, attachmentsCopy);
+      }
     }
   }
 
