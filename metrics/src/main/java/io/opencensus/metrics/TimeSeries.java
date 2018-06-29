@@ -96,6 +96,9 @@ public abstract class TimeSeries {
      * @since 0.16
      */
     public static TimeSeriesGauge create(List<LabelValue> labelValues, List<Point> points) {
+      // Fail fast on null lists to prevent NullPointerException when copying the lists.
+      Utils.checkNotNull(labelValues, "labelValues");
+      Utils.checkNotNull(points, "points");
       return new AutoValue_TimeSeries_TimeSeriesGauge(
           Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
           Collections.unmodifiableList(new ArrayList<Point>(points)));
@@ -134,6 +137,9 @@ public abstract class TimeSeries {
      */
     public static TimeSeriesCumulative create(
         List<LabelValue> labelValues, List<Point> points, Timestamp startTimestamp) {
+      // Fail fast on null lists to prevent NullPointerException when copying the lists.
+      Utils.checkNotNull(labelValues, "labelValues");
+      Utils.checkNotNull(points, "points");
       return new AutoValue_TimeSeries_TimeSeriesCumulative(
           Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
           Collections.unmodifiableList(new ArrayList<Point>(points)),
