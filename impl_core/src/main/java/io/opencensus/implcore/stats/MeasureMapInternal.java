@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import javax.annotation.Nullable;
 
 // TODO(songya): consider combining MeasureMapImpl and this class.
 /** A map from {@link Measure}'s to measured values. */
@@ -51,15 +50,11 @@ final class MeasureMapInternal {
   }
 
   private final ArrayList<Measurement> measurements;
-  @Nullable private final Map<String, String> attachments;
+  private final Map<String, String> attachments;
 
-  private MeasureMapInternal(
-      ArrayList<Measurement> measurements, @Nullable Map<String, String> attachments) {
+  private MeasureMapInternal(ArrayList<Measurement> measurements, Map<String, String> attachments) {
     this.measurements = measurements;
-    this.attachments =
-        attachments == null
-            ? null
-            : Collections.unmodifiableMap(new HashMap<String, String>(attachments));
+    this.attachments = Collections.unmodifiableMap(new HashMap<String, String>(attachments));
   }
 
   /** Builder for the {@link MeasureMapInternal} class. */
@@ -91,9 +86,6 @@ final class MeasureMapInternal {
     }
 
     Builder putAttachment(String key, String value) {
-      if (this.attachments == null) {
-        this.attachments = new HashMap<String, String>();
-      }
       this.attachments.put(key, value);
       return this;
     }
@@ -115,7 +107,7 @@ final class MeasureMapInternal {
     }
 
     private final ArrayList<Measurement> measurements = new ArrayList<Measurement>();
-    @Nullable private Map<String, String> attachments;
+    private final Map<String, String> attachments = new HashMap<String, String>();
 
     private Builder() {}
   }

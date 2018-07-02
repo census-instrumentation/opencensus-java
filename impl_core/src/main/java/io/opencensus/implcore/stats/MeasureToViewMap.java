@@ -192,13 +192,13 @@ final class MeasureToViewMap {
     private final TagContext tags;
     private final MutableViewData view;
     private final Timestamp timestamp;
-    @javax.annotation.Nullable private final Map<String, String> attachments;
+    private final Map<String, String> attachments;
 
     private RecordDoubleValueFunc(
         TagContext tags,
         MutableViewData view,
         Timestamp timestamp,
-        @javax.annotation.Nullable Map<String, String> attachments) {
+        Map<String, String> attachments) {
       this.tags = tags;
       this.view = view;
       this.timestamp = timestamp;
@@ -216,13 +216,13 @@ final class MeasureToViewMap {
     private final TagContext tags;
     private final MutableViewData view;
     private final Timestamp timestamp;
-    @javax.annotation.Nullable private final Map<String, String> attachments;
+    private final Map<String, String> attachments;
 
     private RecordLongValueFunc(
         TagContext tags,
         MutableViewData view,
         Timestamp timestamp,
-        @javax.annotation.Nullable Map<String, String> attachments) {
+        Map<String, String> attachments) {
       this.tags = tags;
       this.view = view;
       this.timestamp = timestamp;

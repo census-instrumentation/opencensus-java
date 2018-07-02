@@ -47,6 +47,18 @@ public class MeasureMapInternalTest {
   }
 
   @Test
+  public void testPutAttachment() {
+    MeasureMapInternal metrics =
+        MeasureMapInternal.builder()
+            .putAttachment("k1", "v1")
+            .putAttachment("k2", "v2")
+            .putAttachment("k1", "v3")
+            .build();
+    assertThat(metrics.getAttachments()).containsExactly("k1", "v3", "k2", "v2");
+    assertContains(metrics);
+  }
+
+  @Test
   public void testCombination() {
     MeasureMapInternal metrics =
         MeasureMapInternal.builder()

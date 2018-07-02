@@ -61,11 +61,15 @@ final class IntervalBucket {
   }
 
   // Puts a new value into the internal MutableAggregations, based on the TagValues.
-  void record(List</*@Nullable*/ TagValue> tagValues, double value) {
+  void record(
+      List</*@Nullable*/ TagValue> tagValues,
+      double value,
+      Map<String, String> attachments,
+      Timestamp timestamp) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
       tagValueAggregationMap.put(tagValues, MutableViewData.createMutableAggregation(aggregation));
     }
-    tagValueAggregationMap.get(tagValues).add(value);
+    tagValueAggregationMap.get(tagValues).add(value, attachments, timestamp);
   }
 
   /*
