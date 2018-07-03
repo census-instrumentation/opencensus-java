@@ -130,9 +130,11 @@ final class StatszZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>StatsZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
-	out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
-	out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
-	out.write("<style>body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1{color:#3D3D3D;text-align:center; margin-bottom:20px;} p.view{font-size:20px;margin-bottom:0;} h2{line-height:2.0;padding:0 0.5em;} h3{font-size:16px;padding:0 0.5em;margin-top:4px;margin-bottom:25px;} p{padding:0 0.5em;color:#3D3D3D} p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span{color:#3D3D3D;} img.oc{vertical-align:middle;} table{color:#FFF;width:100%;margin-bottom:30px;} tr.border-bottom td{border-bottom:1px solid #3D3D3D} table.borders{border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;} th{line-height:3.0;padding:0 0.5em;text-align:left;} tr:nth-child(even) {background-color:#F2F2F2;} td.border-left{border-left:1px solid #3D3D3D;} tr.smaller{font-size:16px;padding:0 0.5em;background-color:#F2F4EC;} td{color:#3D3D3D;line-height:2.0;padding:0 0.5em;text-align:left;} th.l1{border-left:1px solid #FFF} a{color:#A94442;}</style>\n");
+    out.write(
+        "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
+    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
+    out.write(
+        "<style>body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1{color:#3D3D3D;text-align:center; margin-bottom:20px;} p.view{font-size:20px;margin-bottom:0;} h2{line-height:2.0;padding:0 0.5em;} h3{font-size:16px;padding:0 0.5em;margin-top:4px;margin-bottom:25px;} p{padding:0 0.5em;color:#3D3D3D} p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span{color:#3D3D3D;} img.oc{vertical-align:middle;} table{color:#FFF;width:100%;margin-bottom:30px;} tr.border-bottom td{border-bottom:1px solid #3D3D3D} table.borders{border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;} th{line-height:3.0;padding:0 0.5em;text-align:left;} tr:nth-child(even) {background-color:#F2F2F2;} td.border-left{border-left:1px solid #3D3D3D;} tr.smaller{font-size:16px;padding:0 0.5em;background-color:#F2F4EC;} td{color:#3D3D3D;line-height:2.0;padding:0 0.5em;text-align:left;} th.l1{border-left:1px solid #FFF} a{color:#A94442;}</style>\n");
     Formatter formatter = new Formatter(out, Locale.US);
     emitStyles(out, formatter);
     out.write("</head>\n");
@@ -160,7 +162,8 @@ final class StatszZPageHandler extends ZPageHandler {
     synchronized (monitor) {
       groupViewsByDirectoriesAndGetMeasures(
           viewManager.getAllExportedViews(), root, measures, cachedViews);
-	  out.write("<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>");
+      out.write(
+          "<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>");
       out.write("<h1><a href='?'>StatsZ</a></h1>");
       out.write("<p></p>");
       String path = queryMap.get(QUERY_PATH);
@@ -232,7 +235,7 @@ final class StatszZPageHandler extends ZPageHandler {
       if (child.viewName == null) { // Directory node, emit a row for directory.
         formatter.format(
             "<tr class=\"smaller\"><td>Directory: <a href='?%s=%s'>%s</a> (%d %s)</td></tr>",
-			QUERY_PATH,
+            QUERY_PATH,
             path + '/' + relativePath,
             relativePath,
             child.views,
@@ -295,8 +298,7 @@ final class StatszZPageHandler extends ZPageHandler {
     }
     View view = viewData.getView();
     emitViewInfo(view, viewData.getWindowData(), out, formatter);
-    formatter.format(
-        "<p class=\"view\">Stats for View %s</p>", view.getName().asString());
+    formatter.format("<p class=\"view\">Stats for View %s</p>", view.getName().asString());
 
     formatter.format("<table class=\"borders\" cellspacing=0 cellpadding=0>");
     emitViewDataTableHeader(view, out, formatter);
@@ -403,7 +405,8 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<Distribution, Void>() {
               @Override
               public Void apply(Distribution arg) {
-                formatter.format("<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_MEAN, unit);
+                formatter.format(
+                    "<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_MEAN, unit);
                 formatter.format("<th class=\"l1\" align=left>%s</th>", TABLE_HEADER_COUNT);
                 formatter.format("<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_MAX, unit);
                 formatter.format("<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_MIN, unit);
@@ -415,7 +418,8 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<LastValue, Void>() {
               @Override
               public Void apply(LastValue arg) {
-                formatter.format("<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_LAST_VALUE, unit);
+                formatter.format(
+                    "<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_LAST_VALUE, unit);
                 return null;
               }
             },
@@ -428,7 +432,8 @@ final class StatszZPageHandler extends ZPageHandler {
                 // some
                 // deprecated RPC views.
                 if (arg instanceof Aggregation.Mean) {
-                  formatter.format("<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_MEAN, unit);
+                  formatter.format(
+                      "<th class=\"l1\" align=left>%s, %s</th>", TABLE_HEADER_MEAN, unit);
                   formatter.format("<th class=\"l1\" align=left>%s</th>", TABLE_HEADER_COUNT);
                   return null;
                 }
@@ -455,7 +460,8 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<SumDataDouble, Void>() {
               @Override
               public Void apply(SumDataDouble arg) {
-                formatter.format("<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getSum());
+                formatter.format(
+                    "<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getSum());
                 return null;
               }
             },
@@ -469,7 +475,8 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<CountData, Void>() {
               @Override
               public Void apply(CountData arg) {
-                formatter.format("<td class=\"border-left\" %s>%d</td>", ALIGN_LEFT, arg.getCount());
+                formatter.format(
+                    "<td class=\"border-left\" %s>%d</td>", ALIGN_LEFT, arg.getCount());
                 return null;
               }
             },
@@ -478,11 +485,17 @@ final class StatszZPageHandler extends ZPageHandler {
               public Void apply(DistributionData arg) {
                 checkArgument(
                     view.getAggregation() instanceof Distribution, "Distribution expected.");
-                formatter.format("<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getMean());
-                formatter.format("<td class=\"border-left\" %s>%d</td>", ALIGN_LEFT, arg.getCount());
-                formatter.format("<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getMax());
-                formatter.format("<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getMin());
-                formatter.format("<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getSumOfSquaredDeviations());
+                formatter.format(
+                    "<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getMean());
+                formatter.format(
+                    "<td class=\"border-left\" %s>%d</td>", ALIGN_LEFT, arg.getCount());
+                formatter.format(
+                    "<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getMax());
+                formatter.format(
+                    "<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, arg.getMin());
+                formatter.format(
+                    "<td class=\"border-left\" %s>%.3f</td>",
+                    ALIGN_LEFT, arg.getSumOfSquaredDeviations());
                 emitHistogramBuckets(
                     ((Distribution) view.getAggregation()).getBucketBoundaries().getBoundaries(),
                     arg.getBucketCounts(),
@@ -510,8 +523,10 @@ final class StatszZPageHandler extends ZPageHandler {
               public Void apply(AggregationData arg) {
                 if (arg instanceof AggregationData.MeanData) {
                   AggregationData.MeanData meanData = (AggregationData.MeanData) arg;
-                  formatter.format("<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, meanData.getMean());
-                  formatter.format("<td class=\"border-left\" %s>%d</td>", ALIGN_LEFT, meanData.getCount());
+                  formatter.format(
+                      "<td class=\"border-left\" %s>%.3f</td>", ALIGN_LEFT, meanData.getMean());
+                  formatter.format(
+                      "<td class=\"border-left\" %s>%d</td>", ALIGN_LEFT, meanData.getCount());
                   return null;
                 }
                 throw new IllegalArgumentException("Unknown Aggregation.");
@@ -570,7 +585,8 @@ final class StatszZPageHandler extends ZPageHandler {
     formatter.format("<th colspan=1>%s</th>", TABLE_HEADER_MEASURE);
     formatter.format("<th colspan=1 class=\"l1\" align=\"left\">%s</th>", TABLE_HEADER_DESCRIPTION);
     formatter.format("<th colspan=1 class=\"l1\" align=\"left\">%s</th>", TABLE_HEADER_UNIT);
-    formatter.format("<th colspan=1 class=\"l1\" align=\"left\">%s</th>", TABLE_HEADER_MEASURE_TYPE);
+    formatter.format(
+        "<th colspan=1 class=\"l1\" align=\"left\">%s</th>", TABLE_HEADER_MEASURE_TYPE);
     out.write("</tr>");
     out.write("</thead>");
   }
@@ -578,7 +594,8 @@ final class StatszZPageHandler extends ZPageHandler {
   private static void emitMeasureTableRow(Measure measure, PrintWriter out, Formatter formatter) {
     out.write("<tr class=\"border-bottom\">");
     formatter.format("<td><b>%s</b></td>", measure.getName());
-    formatter.format("<td class=\"border-left\" align=\"left\">%s&nbsp;</td>", measure.getDescription());
+    formatter.format(
+        "<td class=\"border-left\" align=\"left\">%s&nbsp;</td>", measure.getDescription());
     formatter.format("<td class=\"border-left\" align=\"left\">%s&nbsp;</td>", measure.getUnit());
     String measureType =
         measure.match(

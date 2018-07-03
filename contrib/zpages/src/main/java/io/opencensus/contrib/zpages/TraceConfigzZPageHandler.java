@@ -100,13 +100,16 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>TraceConfigZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
-	out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
-	out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
-	out.write("<style>body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1{color:#3D3D3D;text-align:left;margin-left:20px;margin-bottom:20px;} p{padding:0 0.5em;color:#3D3D3D} p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span{color:#3D3D3D;} img.oc {vertical-align:middle;} table{width:40%;background-color:#FFF;margin-left:20px;} td{line-height:2.0;padding:0 0.5em;} td.col_head{font-size:16px;font-weight:bold;line-height:3.0;color:#FFF;} td.col_head_red{background-color:#A94442;font-size:16px;font-weight:bold;line-height:3.0;color:#FFF} b.title{margin-left:20px;font-weight:bold;line-height:2.0;} input.button{margin-left:20px;margin-top:4px;font-size:20px;width:80px;height:60px;} table.margin-btm{margin-bottom:30px;}table.borders{border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;border-bottom:1px solid #3D3D3D;} table.borders-all{border:1px solid #3D3D3D;}</style>\n");
+    out.write(
+        "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
+    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
+    out.write(
+        "<style>body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1{color:#3D3D3D;text-align:left;margin-left:20px;margin-bottom:20px;} p{padding:0 0.5em;color:#3D3D3D} p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span{color:#3D3D3D;} img.oc {vertical-align:middle;} table{width:40%;background-color:#FFF;margin-left:20px;} td{line-height:2.0;padding:0 0.5em;} td.col_head{font-size:16px;font-weight:bold;line-height:3.0;color:#FFF;} td.col_head_red{background-color:#A94442;font-size:16px;font-weight:bold;line-height:3.0;color:#FFF} b.title{margin-left:20px;font-weight:bold;line-height:2.0;} input.button{margin-left:20px;margin-top:4px;font-size:20px;width:80px;height:60px;} table.margin-btm{margin-bottom:30px;}table.borders{border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;border-bottom:1px solid #3D3D3D;} table.borders-all{border:1px solid #3D3D3D;}</style>\n");
     out.write("</head>\n");
     out.write("<body>\n");
-	out.write("<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>\n");
-	out.write("<h1>Trace Configuration</h1>");
+    out.write(
+        "<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>\n");
+    out.write("<h1>Trace Configuration</h1>");
     out.write("<p></p>");
     try {
       // Work that can throw exceptions.
