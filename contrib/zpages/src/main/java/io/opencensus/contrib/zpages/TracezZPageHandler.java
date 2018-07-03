@@ -109,9 +109,9 @@ final class TracezZPageHandler extends ZPageHandler {
   private static final String TRACEZ_URL = "/tracez";
   private static final Tracer tracer = Tracing.getTracer();
   // Color to use for zebra-striping.
-  private static final String ZEBRA_STRIPE_COLOR = "#eee";
+  private static final String ZEBRA_STRIPE_COLOR = "#F2F2F2";
   // Color for sampled traceIds.
-  private static final String SAMPLED_TRACE_ID_COLOR = "blue";
+  private static final String SAMPLED_TRACE_ID_COLOR = "#C1272D";
   // Color for not sampled traceIds
   private static final String NOT_SAMPLED_TRACE_ID_COLOR = "black";
   // The header for span name.
@@ -162,6 +162,9 @@ final class TracezZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>TraceZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
+	out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
+	out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
+	out.write("<style>body {font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1{color:#3D3D3D;text-align:center; margin-bottom:20px;} p{padding:0 0.5em;color: #3D3D3D} p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span{color:#3D3D3D;} img.oc{ vertical-align:middle;} table{color:#FFF;background-color:#FFF;overflow:hidden;width:100%;margin-bottom:30px;} th{line-height:3.0;padding:0 0.5em;} tr.border td{border-bottom:1px solid #3D3D3D;} tr.bgcolor_red{background-color:#A94442;} td.column_head{text-align:center;color:#FFF;line-height:3.0;} td {color:#3D3D3D;line-height:2.0;padding:0 0.5em;} a{color:#A94442;} td.border-right{border-right:1px solid #FFF;} td.border-left{border-left:1px solid #FFF;} td.border-left-blk{border-left:1px solid #000} td.border-right-blk{border-right:1px solid #000}</style>\n");
     out.write("</head>\n");
     out.write("<body>\n");
     try {
@@ -403,24 +406,24 @@ final class TracezZPageHandler extends ZPageHandler {
     RunningSpanStore.Summary runningSpanStoreSummary = runningSpanStore.getSummary();
     SampledSpanStore.Summary sampledSpanStoreSummary = sampledSpanStore.getSummary();
 
-    out.write("<table style='border-spacing: 0'>\n");
+    out.write("<table style='border-spacing: 0;border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;'>\n");
     emitSummaryTableHeader(out, formatter);
 
     Set<String> spanNames = new TreeSet<>(runningSpanStoreSummary.getPerSpanNameSummary().keySet());
     spanNames.addAll(sampledSpanStoreSummary.getPerSpanNameSummary().keySet());
     boolean zebraColor = true;
     for (String spanName : spanNames) {
-      out.write("<tr>\n");
+      out.write("<tr class=\"border\">\n");
       if (!zebraColor) {
-        out.write("<tr>\n");
+        out.write("<tr class=\"border\">\n");
       } else {
-        formatter.format("<tr style=\"background: %s\">%n", ZEBRA_STRIPE_COLOR);
+        formatter.format("<tr class=\"border\" style=\"background: %s\">%n", ZEBRA_STRIPE_COLOR);
       }
       zebraColor = !zebraColor;
       formatter.format("<td>%s</td>%n", htmlEscaper().escape(spanName));
 
       // Running
-      out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
+      out.write("<td class=\"border-right-blk\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
       RunningSpanStore.PerSpanNameSummary runningSpanStorePerSpanNameSummary =
           runningSpanStoreSummary.getPerSpanNameSummary().get(spanName);
 
@@ -439,7 +442,7 @@ final class TracezZPageHandler extends ZPageHandler {
           sampledSpanStoreSummary.getPerSpanNameSummary().get(spanName);
 
       // Latency based samples
-      out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
+      out.write("<td class=\"border-left-blk\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
       Map<LatencyBucketBoundaries, Integer> latencyBucketsSummaries =
           sampledSpanStorePerSpanNameSummary != null
               ? sampledSpanStorePerSpanNameSummary.getNumbersOfLatencySampledSpans()
@@ -459,7 +462,7 @@ final class TracezZPageHandler extends ZPageHandler {
       }
 
       // Error based samples.
-      out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
+      out.write("<td class=\"border-right-blk\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
       if (sampledSpanStorePerSpanNameSummary != null) {
         Map<CanonicalCode, Integer> errorBucketsSummaries =
             sampledSpanStorePerSpanNameSummary.getNumbersOfErrorSampledSpans();
@@ -480,31 +483,30 @@ final class TracezZPageHandler extends ZPageHandler {
   }
 
   private static void emitSummaryTableHeader(PrintWriter out, Formatter formatter) {
-    out.write(
-        "<tr><td colspan=25 align=\"center\"><font size=\"5\"><b>TraceZ "
-            + "Summary</b></font></td></tr>\n");
+	out.write("<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>\n");
+    out.write("<h1>TraceZ Summary</h1>\n");
     // First line.
-    out.write("<tr>\n");
-    out.write("<td colspan=1 align=\"center\"><b>Span Name</b></td>\n");
-    out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
-    out.write("<td colspan=1 align=\"center\"><b>Running</b></td>\n");
-    out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
-    out.write("<td colspan=9 align=\"center\"><b>Latency Samples</b></td>\n");
-    out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
-    out.write("<td colspan=1 align=\"center\"><b>Error Samples</b></td>\n");
+    out.write("<tr class=\"bgcolor_red\">\n");
+    out.write("<td colspan=1 class=\"column_head\"><b>Span Name</b></td>\n");
+    out.write("<td class=\"border-right\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
+    out.write("<td colspan=1 class=\"column_head\"><b>Running</b></td>\n");
+    out.write("<td class=\"border-left\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
+    out.write("<td colspan=9 class=\"column_head\"><b>Latency Samples</b></td>\n");
+    out.write("<td class=\"border-right\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
+    out.write("<td colspan=1 class=\"column_head\"><b>Error Samples</b></td>\n");
     out.write("</tr>\n");
     // Second line.
-    out.write("<tr>\n");
+    out.write("<tr class=\"bgcolor_red\">\n");
     out.write("<td colspan=1></td>\n");
-    out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
+    out.write("<td class=\"border-right\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
     out.write("<td colspan=1></td>\n");
-    out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
+    out.write("<td class=\"border-left\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
     for (LatencyBucketBoundaries latencyBucketsBoundaries : LatencyBucketBoundaries.values()) {
       formatter.format(
-          "<td colspan=1 align=\"center\"><b>[%s]</b></td>%n",
+          "<td colspan=1 align=\"center\" style=\"color:#FFF\"><b>[%s]</b></td>%n",
           LATENCY_BUCKET_BOUNDARIES_STRING_MAP.get(latencyBucketsBoundaries));
     }
-    out.write("<td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>");
+    out.write("<td class=\"border-right\">&nbsp;&nbsp;&nbsp;&nbsp;</td>");
     out.write("<td colspan=1></td>\n");
     out.write("</tr>\n");
   }

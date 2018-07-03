@@ -42,7 +42,7 @@ public class ZPagesTester {
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
   private static final String SPAN_NAME = "ExampleSpan";
-  private static final TagValue METHOD = TagValue.create("ExampleMethod");
+  private static final TagValue METHOD = TagValue.create("ExampleMethod/abc.123/xyz.890/example");
 
   private static void recordExampleData() throws InterruptedException {
     Tracing.getExportComponent()

@@ -53,32 +53,32 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACECONFIGZ_FORM_BODY =
       "<form action=/traceconfigz method=get>%n"
           // Permanently changes table.
-          + "<table>%n"
-          + "<td colspan=\"3\"><b>Permanently change</b> "
+          + "<table class=\"margin-btm\" rules=\"all\" frame=\"border\">%n"
+          + "<td colspan=\"3\" class=\"col_head_red\">Permanently change "
           + "<input type=\"hidden\" name=\"%s\" value=\"%s\"></td>%n"
           + "<tr><td>SamplingProbability to</td> "
-          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%s)</td>%n"
+          + "<td><input type=text size=15 name=%s value=\"\"></td> <td>(%s)</td>%n"
           + "<tr><td>MaxNumberOfAttributes to</td> "
-          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "<td><input type=text size=15 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "<tr><td>MaxNumberOfAnnotations to</td>"
-          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "<td><input type=text size=15 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "<tr><td>MaxNumberOfNetworkEvents to</td> "
-          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "<td><input type=text size=15 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "<tr><td>MaxNumberOfLinks to</td>"
-          + "<td><input type=text size=10 name=%s value=\"\"></td> <td>(%d)</td>%n"
+          + "<td><input type=text size=15 name=%s value=\"\"></td> <td>(%d)</td>%n"
           + "</table>%n"
           // Submit button.
-          + "<input type=submit value=Submit>%n"
+          + "<input class=\"button\" type=submit value=Submit>%n"
           + "</form>";
 
   private static final String RESTORE_DEFAULT_FORM_BODY =
       "<form action=/traceconfigz method=get>%n"
           // Restore to default.
-          + "<b>Restore default</b> %n"
+          + "<b class=\"title\">Restore default</b> %n"
           + "<input type=\"hidden\" name=\"%s\" value=\"%s\"></td>%n"
           + "</br>%n"
           // Reset button.
-          + "<input type=submit value=Reset>%n"
+          + "<input class=\"button\" type=submit value=Reset>%n"
           + "</form>";
 
   static TraceConfigzZPageHandler create(TraceConfig traceConfig) {
@@ -100,8 +100,14 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>TraceConfigZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
+	out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
+	out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
+	out.write("<style>body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1{color:#3D3D3D;text-align:left;margin-left:20px;margin-bottom:20px;} p{padding:0 0.5em;color:#3D3D3D} p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span{color:#3D3D3D;} img.oc {vertical-align:middle;} table{width:40%;background-color:#FFF;margin-left:20px;} td{line-height:2.0;padding:0 0.5em;} td.col_head{font-size:16px;font-weight:bold;line-height:3.0;color:#FFF;} td.col_head_red{background-color:#A94442;font-size:16px;font-weight:bold;line-height:3.0;color:#FFF} b.title{margin-left:20px;font-weight:bold;line-height:2.0;} input.button{margin-left:20px;margin-top:4px;font-size:20px;width:80px;height:60px;} table.margin-btm{margin-bottom:30px;}table.borders{border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;border-bottom:1px solid #3D3D3D;} table.borders-all{border:1px solid #3D3D3D;}</style>\n");
     out.write("</head>\n");
     out.write("<body>\n");
+	out.write("<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>\n");
+	out.write("<h1>Trace Configuration</h1>");
+    out.write("<p></p>");
     try {
       // Work that can throw exceptions.
       maybeApplyChanges(queryMap);
@@ -174,11 +180,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   @SuppressWarnings("deprecation")
   private static void emitTraceParamsTable(TraceParams params, PrintWriter out) {
     out.write(
-        "<b>Active tracing parameters:</b><br>\n"
-            + "<table rules=\"all\" frame=\"border\">\n"
-            + "  <tr style=\"background: #eee\">\n"
-            + "    <td><b>Name</b></td>\n"
-            + "    <td><b>Value</b></td>\n"
+        "<b class=\"title\">Active tracing parameters:</b><br>\n"
+            + "<table class=\"margin-btm\" rules=\"all\" frame=\"border\">\n"
+            + "  <tr style=\"background:#A94442;border=1\">\n"
+            + "    <td class=\"col_head\">Name</td>\n"
+            + "    <td class=\"col_head\">Value</td>\n"
             + "  </tr>\n");
     out.printf(
         "  <tr>%n    <td>Sampler</td>%n    <td>%s</td>%n  </tr>%n",

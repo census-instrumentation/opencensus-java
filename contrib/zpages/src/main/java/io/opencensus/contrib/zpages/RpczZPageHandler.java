@@ -113,9 +113,9 @@ final class RpczZPageHandler extends ZPageHandler {
   private static final String RPCZ_URL = "/rpcz";
   private static final String SENT = "Sent";
   private static final String RECEIVED = "Received";
-  private static final String TITLE_COLOR = "\"#eeeeff\"";
-  private static final String TABLE_HEADER_COLOR = "\"#fff5ee\"";
-  private static final String TABLE_ROW_COLOR = "\"#eee5de\"";
+  private static final String TITLE_COLOR = "\"#FFF\"";
+  private static final String TABLE_HEADER_COLOR = "\"#A94442\"";
+  private static final String TABLE_ROW_COLOR = "\"#FFF\"";
   private static final double SECONDS_PER_MINUTE = 60.0;
   private static final double SECONDS_PER_HOUR = 3600.0;
   private static final double NANOS_PER_SECOND = 1e9;
@@ -233,6 +233,9 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>RpcZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
+	out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
+	out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
+	out.write("<style>body {font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1 {color:#3D3D3D;text-align:center; margin-bottom:20px;} p {padding:0 0.5em;color:#3D3D3D} table {width:100%;color:#FFF;overflow:hidden;margin-bottom:30px;margin-top:0;} tr:nth-child(even) {background-color:#F2F2F2;} tr.border-bottom td{border-bottom:1px solid #3D3D3D} td.border-right,th.border-right{border-right:1px solid #3D3D3D;} td.border-left{border-left:1px solid #3D3D3D} td {color:#3D3D3D;line-height:2.0;} p.title {margin-bottom:0;} p.header {font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span {color:#3D3D3D;} img.oc {vertical-align:middle;} th.l1{border-left:1px solid #FFF;border-bottom:1px solid #FFF;margin:0 10px;} td.l2{border-left:1px solid #3D3D3D;text-align:center;} th.border-bottom,td.border-bottom{border-bottom:1px solid #FFF;}</style>\n");
     out.write("</head>\n");
     out.write("<body>\n");
     try {
@@ -247,6 +250,7 @@ final class RpczZPageHandler extends ZPageHandler {
 
   private void emitHtmlBody(PrintWriter out) {
     Formatter formatter = new Formatter(out, Locale.US);
+	out.write("<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>");
     out.write("<h1>RPC Stats</h1>");
     out.write("<p></p>");
     emitSummaryTable(out, formatter, /* isReceived= */ false);
@@ -255,41 +259,35 @@ final class RpczZPageHandler extends ZPageHandler {
 
   private void emitSummaryTable(PrintWriter out, Formatter formatter, boolean isReceived) {
     formatter.format(
-        "<p><table bgcolor=%s width=100%%><tr align=center><td><font size=+2>"
+        "<p class=\"title\"><table bgcolor=%s width=100%%><tr align=left><td><font size=+2>"
             + "%s</font></td></tr></table></p>",
         TITLE_COLOR, (isReceived ? RECEIVED : SENT));
     formatter.format(
-        "<table bgcolor=%s frame=box cellspacing=0 cellpadding=2>", TABLE_HEADER_COLOR);
+        "<table bgcolor=%s frame=box cellspacing=0 cellpadding=2>", TABLE_ROW_COLOR);
     emitSummaryTableHeader(out, formatter);
     Map<String, StatsSnapshot> snapshots = getStatsSnapshots(isReceived);
     for (Entry<String, StatsSnapshot> entry : snapshots.entrySet()) {
       emitSummaryTableRows(out, formatter, entry.getValue(), entry.getKey());
     }
     out.write("</table>");
+	out.write("<br />");
   }
 
   private static void emitSummaryTableHeader(PrintWriter out, Formatter formatter) {
     // First line.
-    formatter.format("<tr bgcolor=%s>", TABLE_ROW_COLOR);
+    formatter.format("<tr bgcolor=%s>", TABLE_HEADER_COLOR);
     out.write("<th></th><td></td>");
     for (String rpcStatsType : RPC_STATS_TYPES) {
-      formatter.format("<th class=\"l1\" colspan=3>%s</th><td></td>", rpcStatsType);
+      formatter.format("<th class=\"l1\" colspan=3>%s</th>", rpcStatsType);
     }
     out.write("</tr>");
 
     // Second line.
-    formatter.format("<tr bgcolor=%s>", TABLE_ROW_COLOR);
-    out.write("<th align=left>Method</th><td>&nbsp;&nbsp;&nbsp;&nbsp;</td>");
+    formatter.format("<tr bgcolor=%s>", TABLE_HEADER_COLOR);
+    out.write("<th class=\"border-bottom\" bgcolor=#A94442 align=left>Method</th><td class=\"border-bottom\" bgcolor=#A94442>&nbsp;&nbsp;&nbsp;&nbsp;</td>");
     for (int i = 0; i < RPC_STATS_TYPES.size(); i++) {
-      out.write("<th align=right>Min.</th><th align=right>Hr.</th><th align=right>Tot.</th>");
-      if (i != RPC_STATS_TYPES.size() - 1) { // Add spaces between each column.
-        out.write("<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>");
-      }
+      out.write("<th class=\"l1\" bgcolor=#A94442 align=center>Min.</th><th class=\"l1\" bgcolor=#A94442 align=center>Hr.</th><th class=\"l1\" bgcolor=#A94442 align=center>Tot.</th>");
     }
-    out.write("</tr>");
-
-    // Empty line.
-    out.write("<tr><td colspan=33><font size=-2>&nbsp;</font></td></tr>");
   }
 
   private static void emitSummaryTableRows(
@@ -297,24 +295,24 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<tr>");
     formatter.format("<td><b>%s</b></td>", method);
     out.write("<td></td>");
-    formatter.format("<td align=\"right\">%d</td>", snapshot.countLastMinute);
-    formatter.format("<td align=\"right\">%d</td>", snapshot.countLastHour);
-    formatter.format("<td align=\"right\">%d</td><td></td>", snapshot.countTotal);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastMinute);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.avgLatencyLastHour);
-    formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.avgLatencyTotal);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.rpcRateLastMinute);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.rpcRateLastHour);
-    formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.rpcRateTotal);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateLastMinute);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.inputRateLastHour);
-    formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.inputRateTotal);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.outputRateLastMinute);
-    formatter.format("<td align=\"right\">%.3f</td>", snapshot.outputRateLastHour);
-    formatter.format("<td align=\"right\">%.3f</td><td></td>", snapshot.outputRateTotal);
-    formatter.format("<td align=\"right\">%d</td>", snapshot.errorsLastMinute);
-    formatter.format("<td align=\"right\">%d</td>", snapshot.errorsLastHour);
-    formatter.format("<td align=\"right\">%d</td><td></td>", snapshot.errorsTotal);
+    formatter.format("<td class=\"l2\">%d</td>", snapshot.countLastMinute);
+    formatter.format("<td class=\"l2\">%d</td>", snapshot.countLastHour);
+    formatter.format("<td class=\"l2\">%d</td>", snapshot.countTotal);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.avgLatencyLastMinute);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.avgLatencyLastHour);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.avgLatencyTotal);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.rpcRateLastMinute);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.rpcRateLastHour);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.rpcRateTotal);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.inputRateLastMinute);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.inputRateLastHour);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.inputRateTotal);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.outputRateLastMinute);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.outputRateLastHour);
+    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.outputRateTotal);
+    formatter.format("<td class=\"l2\">%d</td>", snapshot.errorsLastMinute);
+    formatter.format("<td class=\"l2\">%d</td>", snapshot.errorsLastHour);
+    formatter.format("<td class=\"l2\">%d</td>", snapshot.errorsTotal);
     out.write("</tr>");
   }
 
