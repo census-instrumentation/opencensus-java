@@ -90,6 +90,30 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     return TRACE_CONFIGZ_URL;
   }
 
+  public static void emitStyle(PrintWriter out) {
+    out.write("<style>\n");
+    out.write("body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;}\n");
+    out.write("h1{color:#3D3D3D;text-align:left;margin-left:20px;margin-bottom:20px;}\n");
+    out.write("p{padding:0 0.5em;color:#3D3D3D}\n");
+    out.write("p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;\n");
+    out.write("vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
+    out.write(".header span{color:#3D3D3D;}\n");
+    out.write("img.oc {vertical-align:middle;}\n");
+    out.write("table{width:40%;background-color:#FFF;margin-left:20px;}\n");
+    out.write("td{line-height:2.0;padding:0 0.5em;}\n");
+    out.write("td.col_head{font-size:16px;font-weight:bold;line-height:3.0;color:#FFF;}\n");
+    out.write("td.col_head_red{background-color:#A94442;font-size:16px;\n");
+    out.write("font-weight:bold;line-height:3.0;color:#FFF;}\n");
+    out.write("b.title{margin-left:20px;font-weight:bold;line-height:2.0;}\n");
+    out.write("input.button{margin-left:20px;margin-top:4px;\n");
+    out.write("font-size:20px;width:80px;height:60px;}\n");
+    out.write("table.margin-btm{margin-bottom:30px;}\n");
+    out.write("table.borders{border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;\n");
+    out.write("border-bottom:1px solid #3D3D3D;}\n");
+    out.write("table.borders-all{border:1px solid #3D3D3D;}\n");
+    out.write("</style>\n");
+  }
+
   @Override
   @SuppressWarnings("deprecation")
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
@@ -100,11 +124,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>TraceConfigZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
-    out.write(
-        "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
-    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
-    out.write(
-        "<style>body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1{color:#3D3D3D;text-align:left;margin-left:20px;margin-bottom:20px;} p{padding:0 0.5em;color:#3D3D3D} p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span{color:#3D3D3D;} img.oc {vertical-align:middle;} table{width:40%;background-color:#FFF;margin-left:20px;} td{line-height:2.0;padding:0 0.5em;} td.col_head{font-size:16px;font-weight:bold;line-height:3.0;color:#FFF;} td.col_head_red{background-color:#A94442;font-size:16px;font-weight:bold;line-height:3.0;color:#FFF} b.title{margin-left:20px;font-weight:bold;line-height:2.0;} input.button{margin-left:20px;margin-top:4px;font-size:20px;width:80px;height:60px;} table.margin-btm{margin-bottom:30px;}table.borders{border-left:1px solid #3D3D3D;border-right:1px solid #3D3D3D;border-bottom:1px solid #3D3D3D;} table.borders-all{border:1px solid #3D3D3D;}</style>\n");
+    out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\"\n");
+    out.write("rel=\"stylesheet\">\n");
+    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\"\n");
+    out.write("rel=\"stylesheet\">\n");
+    emitStyle(out);
     out.write("</head>\n");
     out.write("<body>\n");
     out.write(

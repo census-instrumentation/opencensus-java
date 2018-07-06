@@ -224,6 +224,28 @@ final class RpczZPageHandler extends ZPageHandler {
     return RPCZ_URL;
   }
 
+  public static void emitStyle(PrintWriter out) {
+    out.write("<style>\n");
+    out.write("body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;}\n");
+    out.write("h1{color:#3D3D3D;text-align:center; margin-bottom:20px;}\n");
+    out.write("p{padding:0 0.5em;color:#3D3D3D}\n");
+    out.write("table{width:100%;color:#FFF;overflow:hidden;margin-bottom:30px;margin-top:0;}\n");
+    out.write("tr:nth-child(even){background-color:#F2F2F2;}\n");
+    out.write("tr.border-bottom td{border-bottom:1px solid #3D3D3D}\n");
+    out.write("td.border-right,th.border-right{border-right:1px solid #3D3D3D;}\n");
+    out.write("td.border-left{border-left:1px solid #3D3D3D}\n");
+    out.write("td{color:#3D3D3D;line-height:2.0;}\n");
+    out.write("p.title{margin-bottom:0;}\n");
+    out.write("p.header {font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;\n");
+    out.write("height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
+    out.write(".header span{color:#3D3D3D;}\n");
+    out.write("img.oc {vertical-align:middle;}\n");
+    out.write("th.l1{border-left:1px solid #FFF;border-bottom:1px solid #FFF;margin:0 10px;}\n");
+    out.write("td.l2{border-left:1px solid #3D3D3D;text-align:center;}\n");
+    out.write("th.border-bottom,td.border-bottom{border-bottom:1px solid #FFF;}\n");
+    out.write("</style>\n");
+  }
+
   @Override
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
     PrintWriter out =
@@ -233,11 +255,11 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>RpcZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
-    out.write(
-        "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\" rel=\"stylesheet\">");
-    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
-    out.write(
-        "<style>body {font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;} h1 {color:#3D3D3D;text-align:center; margin-bottom:20px;} p {padding:0 0.5em;color:#3D3D3D} table {width:100%;color:#FFF;overflow:hidden;margin-bottom:30px;margin-top:0;} tr:nth-child(even) {background-color:#F2F2F2;} tr.border-bottom td{border-bottom:1px solid #3D3D3D} td.border-right,th.border-right{border-right:1px solid #3D3D3D;} td.border-left{border-left:1px solid #3D3D3D} td {color:#3D3D3D;line-height:2.0;} p.title {margin-bottom:0;} p.header {font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;} .header span {color:#3D3D3D;} img.oc {vertical-align:middle;} th.l1{border-left:1px solid #FFF;border-bottom:1px solid #FFF;margin:0 10px;} td.l2{border-left:1px solid #3D3D3D;text-align:center;} th.border-bottom,td.border-bottom{border-bottom:1px solid #FFF;}</style>\n");
+    out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\"\n");
+    out.write("rel=\"stylesheet\">\n");
+    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\"\n");
+    out.write("rel=\"stylesheet\">\n");
+    emitStyle(out);
     out.write("</head>\n");
     out.write("<body>\n");
     try {
@@ -286,11 +308,12 @@ final class RpczZPageHandler extends ZPageHandler {
 
     // Second line.
     formatter.format("<tr bgcolor=%s>", TABLE_HEADER_COLOR);
-    out.write(
-        "<th class=\"border-bottom\" bgcolor=#A94442 align=left>Method</th><td class=\"border-bottom\" bgcolor=#A94442>&nbsp;&nbsp;&nbsp;&nbsp;</td>");
+    out.write("<th class=\"border-bottom\" bgcolor=#A94442 align=left>Method</th>\n");
+    out.write("<td class=\"border-bottom\" bgcolor=#A94442>&nbsp;&nbsp;&nbsp;&nbsp;</td>");
     for (int i = 0; i < RPC_STATS_TYPES.size(); i++) {
-      out.write(
-          "<th class=\"l1\" bgcolor=#A94442 align=center>Min.</th><th class=\"l1\" bgcolor=#A94442 align=center>Hr.</th><th class=\"l1\" bgcolor=#A94442 align=center>Tot.</th>");
+      out.write("<th class=\"l1\" bgcolor=#A94442 align=center>Min.</th>\n");
+      out.write("<th class=\"l1\" bgcolor=#A94442 align=center>Hr.</th>\n");
+      out.write("<th class=\"l1\" bgcolor=#A94442 align=center>Tot.</th>");
     }
   }
 
