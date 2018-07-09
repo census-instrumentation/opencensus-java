@@ -417,6 +417,20 @@ public abstract class AggregationData {
     @AutoValue
     public abstract static class Exemplar {
 
+      /**
+       * Key for {@code TraceId} in the contextual information of an {@link Exemplar}.
+       *
+       * @since 0.16
+       */
+      public static final String ATTACHMENT_KEY_TRACE_ID = "TraceId";
+
+      /**
+       * Key for {@code SpanId} in the contextual information of an {@link Exemplar}.
+       *
+       * @since 0.16
+       */
+      public static final String ATTACHMENT_KEY_SPAN_ID = "SpanId";
+
       Exemplar() {}
 
       /**
