@@ -242,9 +242,9 @@ abstract class MutableAggregation {
     private final BucketBoundaries bucketBoundaries;
     private final long[] bucketCounts;
     // If there's a histogram (i.e bucket boundaries are not empty) in this MutableDistribution,
-    // exemplars will have the same size to bucketCounts; otherwise exemplars are empty.
+    // exemplars will have the same size to bucketCounts; otherwise exemplars are null.
     // Only the newest exemplar will be kept at each index.
-    private final Exemplar[] exemplars;
+    @javax.annotation.Nullable private final Exemplar[] exemplars;
 
     private MutableDistribution(BucketBoundaries bucketBoundaries) {
       this.bucketBoundaries = bucketBoundaries;
@@ -253,8 +253,7 @@ abstract class MutableAggregation {
       // In the implementation, each histogram bucket can have up to one exemplar, and the exemplar
       // array is guaranteed to be in ascending order.
       // If there's no histogram, don't record exemplars.
-      this.exemplars =
-          bucketBoundaries.getBoundaries().isEmpty() ? new Exemplar[0] : new Exemplar[buckets];
+      this.exemplars = bucketBoundaries.getBoundaries().isEmpty() ? null : new Exemplar[buckets];
     }
 
     /**
@@ -302,7 +301,7 @@ abstract class MutableAggregation {
 
       // No implicit recording for exemplars - if there are no attachments (contextual information),
       // don't record exemplars.
-      if (!attachments.isEmpty() && exemplars.length > 0) {
+      if (!attachments.isEmpty() && exemplars != null) {
         exemplars[bucket] = Exemplar.create(value, timestamp, attachments);
       }
     }
@@ -349,13 +348,15 @@ abstract class MutableAggregation {
         this.bucketCounts[i] += bucketCounts[i];
       }
 
-      for (int i = 0; i < mutableDistribution.getExemplars().length; i++) {
-        Exemplar exemplar = mutableDistribution.getExemplars()[i];
-        // Assume other is always newer than this, because we combined interval buckets in time
-        // order.
-        // If there's a newer exemplar, overwrite current value.
-        if (exemplar != null) {
-          this.exemplars[i] = exemplar;
+      if (exemplars != null) {
+        for (int i = 0; i < mutableDistribution.getExemplars().length; i++) {
+          Exemplar exemplar = mutableDistribution.getExemplars()[i];
+          // Assume other is always newer than this, because we combined interval buckets in time
+          // order.
+          // If there's a newer exemplar, overwrite current value.
+          if (exemplar != null) {
+            this.exemplars[i] = exemplar;
+          }
         }
       }
     }
@@ -385,6 +386,7 @@ abstract class MutableAggregation {
       return bucketCounts;
     }
 
+    @javax.annotation.Nullable
     Exemplar[] getExemplars() {
       return exemplars;
     }

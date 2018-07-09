@@ -583,9 +583,11 @@ abstract class MutableViewData {
         boxedBucketCounts.add(bucketCount);
       }
       List<Exemplar> exemplars = new ArrayList<Exemplar>();
-      for (Exemplar exemplar : arg.getExemplars()) {
-        if (exemplar != null) {
-          exemplars.add(exemplar);
+      if (arg.getExemplars() != null) {
+        for (Exemplar exemplar : arg.getExemplars()) {
+          if (exemplar != null) {
+            exemplars.add(exemplar);
+          }
         }
       }
       return DistributionData.create(

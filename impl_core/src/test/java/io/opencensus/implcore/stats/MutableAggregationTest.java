@@ -18,6 +18,7 @@ package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -48,6 +49,8 @@ public class MutableAggregationTest {
   private static final double TOLERANCE = 1e-6;
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0));
+  private static final BucketBoundaries BUCKET_BOUNDARIES_EMPTY =
+      BucketBoundaries.create(Collections.<Double>emptyList());
   private static final Timestamp TIMESTAMP = Timestamp.create(60, 0);
 
   @Test
@@ -65,6 +68,11 @@ public class MutableAggregationTest {
     assertThat(mutableDistribution.getMax()).isNegativeInfinity();
     assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(0);
     assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[4]);
+    assertThat(mutableDistribution.getExemplars()).isEqualTo(new Exemplar[4]);
+
+    MutableDistribution mutableDistributionNoHistogram =
+        MutableDistribution.create(BUCKET_BOUNDARIES_EMPTY);
+    assertThat(mutableDistributionNoHistogram.getExemplars()).isNull();
   }
 
   @Test
@@ -143,10 +151,11 @@ public class MutableAggregationTest {
   @Test
   public void testAdd_DistributionWithExemplarAttachments() {
     MutableDistribution mutableDistribution = MutableDistribution.create(BUCKET_BOUNDARIES);
+    MutableDistribution mutableDistributionNoHistogram =
+        MutableDistribution.create(BUCKET_BOUNDARIES_EMPTY);
     List<Double> values = Arrays.asList(-1.0, 1.0, -5.0, 20.0, 5.0);
-    @SuppressWarnings("unchecked")
     List<Map<String, String>> attachmentsList =
-        Arrays.<Map<String, String>>asList(
+        ImmutableList.<Map<String, String>>of(
             Collections.<String, String>singletonMap("k1", "v1"),
             Collections.<String, String>singletonMap("k2", "v2"),
             Collections.<String, String>singletonMap("k3", "v3"),
@@ -161,6 +170,7 @@ public class MutableAggregationTest {
             Timestamp.fromMillis(4000));
     for (int i = 0; i < values.size(); i++) {
       mutableDistribution.add(values.get(i), attachmentsList.get(i), timestamps.get(i));
+      mutableDistributionNoHistogram.add(values.get(i), attachmentsList.get(i), timestamps.get(i));
     }
 
     // Each bucket can only have up to one exemplar. If there are more than one exemplars in a
@@ -175,6 +185,7 @@ public class MutableAggregationTest {
         .asList()
         .containsExactlyElementsIn(expected)
         .inOrder();
+    assertThat(mutableDistributionNoHistogram.getExemplars()).isNull();
   }
 
   @Test
