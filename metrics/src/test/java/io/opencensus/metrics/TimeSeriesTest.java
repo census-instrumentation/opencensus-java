@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -76,7 +77,7 @@ public class TimeSeriesTest {
   @Test
   public void create_WithNullLabelValueList() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues");
+    thrown.expectMessage(CoreMatchers.equalTo("labelValues"));
     TimeSeriesCumulative.create(null, Collections.<Point>emptyList(), TIMESTAMP_1);
   }
 
@@ -84,14 +85,14 @@ public class TimeSeriesTest {
   public void create_WithNullLabelValue() {
     List<LabelValue> labelValues = Arrays.asList(LABEL_VALUE_1, null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValue");
+    thrown.expectMessage(CoreMatchers.equalTo("labelValue"));
     TimeSeriesCumulative.create(labelValues, Collections.<Point>emptyList(), TIMESTAMP_1);
   }
 
   @Test
   public void create_WithNullPointList() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("points");
+    thrown.expectMessage(CoreMatchers.equalTo("points"));
     TimeSeriesCumulative.create(Collections.<LabelValue>emptyList(), null, TIMESTAMP_1);
   }
 
@@ -99,7 +100,7 @@ public class TimeSeriesTest {
   public void create_WithNullPoint() {
     List<Point> points = Arrays.asList(POINT_1, null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("point");
+    thrown.expectMessage(CoreMatchers.equalTo("point"));
     TimeSeriesCumulative.create(Collections.<LabelValue>emptyList(), points, TIMESTAMP_1);
   }
 

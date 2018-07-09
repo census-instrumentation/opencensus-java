@@ -22,6 +22,7 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.metrics.MetricDescriptor.Type;
 import java.util.Arrays;
 import java.util.List;
+import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -56,7 +57,7 @@ public class MetricDescriptorTest {
   @Test
   public void preventNullLabelKeyList() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKeys");
+    thrown.expectMessage(CoreMatchers.equalTo("labelKeys"));
     MetricDescriptor.create(METRIC_NAME_1, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, null);
   }
 
@@ -64,7 +65,7 @@ public class MetricDescriptorTest {
   public void preventNullLabelKey() {
     List<LabelKey> keys = Arrays.asList(KEY_1, null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey");
+    thrown.expectMessage(CoreMatchers.equalTo("labelKey"));
     MetricDescriptor.create(METRIC_NAME_1, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, keys);
   }
 

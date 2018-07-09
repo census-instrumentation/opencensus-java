@@ -110,12 +110,6 @@ public abstract class MetricDescriptor {
    * @since 0.16
    */
   public enum Type {
-    /**
-     * Unspecified type. Do not use this as default value.
-     *
-     * @since 0.16
-     */
-    UNSPECIFIED,
 
     /**
      * An instantaneous measurement of an int64 value.
