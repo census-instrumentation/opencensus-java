@@ -42,6 +42,7 @@ public class ZPagesTester {
   private static final StatsRecorder statsRecorder = Stats.getStatsRecorder();
 
   private static final String SPAN_NAME = "ExampleSpan";
+  private static final TagValue METHOD = TagValue.create("ExampleMethod");
 
   private static void recordExampleData() throws InterruptedException {
     Tracing.getExportComponent()
@@ -80,6 +81,7 @@ public class ZPagesTester {
           tagger
               .currentBuilder()
               .put(RpcMeasureConstants.RPC_STATUS, TagValue.create("OK"))
+              .put(RpcMeasureConstants.RPC_METHOD, METHOD)
               .build());
       MeasureMap measureMapErrors =
           statsRecorder
@@ -90,6 +92,7 @@ public class ZPagesTester {
           tagger
               .currentBuilder()
               .put(RpcMeasureConstants.RPC_STATUS, TagValue.create("UNKNOWN"))
+              .put(RpcMeasureConstants.RPC_METHOD, METHOD)
               .build());
 
       Thread.sleep(200); // sleep for fake work.
