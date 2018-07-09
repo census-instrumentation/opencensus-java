@@ -155,16 +155,18 @@ final class TracezZPageHandler extends ZPageHandler {
 
   public static void emitStyle(PrintWriter out) {
     out.write("<style>\n");
-    out.write("body {font-family:'Roboto',sans-serif;font-size:14px;\n");
-    out.write("background-color:#F2F4EC;}\n");
+    out.write(
+        "body {font-family:'Roboto',sans-serif;font-size:14px;" + "background-color:#F2F4EC;}\n");
     out.write("h1{color:#3D3D3D;text-align:center; margin-bottom:20px;}\n");
     out.write("p{padding:0 0.5em;color: #3D3D3D}\n");
-    out.write("p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;\n");
-    out.write("height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
+    out.write(
+        "p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;"
+            + "height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
     out.write(".header span{color:#3D3D3D;}\n");
     out.write("img.oc{ vertical-align:middle;}\n");
-    out.write("table{color:#FFF;background-color:#FFF;overflow:hidden;\n");
-    out.write("width:100%;margin-bottom:30px;}\n");
+    out.write(
+        "table{color:#FFF;background-color:#FFF;overflow:hidden;"
+            + "width:100%;margin-bottom:30px;}\n");
     out.write("th{line-height:3.0;padding:0 0.5em;}\n");
     out.write("tr.border td{border-bottom:1px solid #3D3D3D;}\n");
     out.write("tr.bgcolor_red{background-color:#A94442;}\n");
@@ -187,16 +189,18 @@ final class TracezZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>TraceZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
-    out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\"\n");
-    out.write("rel=\"stylesheet\">\n");
-    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\"\n");
-    out.write("rel=\"stylesheet\">\n");
+    out.write(
+        "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
+            + "rel=\"stylesheet\">\n");
+    out.write(
+        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" + "rel=\"stylesheet\">\n");
     emitStyle(out);
     out.write("</head>\n");
     out.write("<body>\n");
-    out.write("<p class=\"header\">\n");
-    out.write("<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />\n");
-    out.write("Open<span>Census</span></p>\n");
+    out.write(
+        "<p class=\"header\">"
+            + "<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />"
+            + "Open<span>Census</span></p>");
     out.write("<h1>TraceZ Summary</h1>\n");
 
     try {

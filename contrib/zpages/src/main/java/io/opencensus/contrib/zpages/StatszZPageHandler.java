@@ -146,8 +146,8 @@ final class StatszZPageHandler extends ZPageHandler {
 
   private static void emitStyles(PrintWriter out, Formatter formatter) {
     out.write("<style>");
-    out.write("body{font-family:'Roboto',sans-serif;font-size:14px;\n");
-    out.write("background-color:#F2F4EC;}\n");
+    out.write(
+        "body{font-family:'Roboto',sans-serif;font-size:14px;" + "background-color:#F2F4EC;}\n");
     out.write("h1{color:#3D3D3D;text-align:center; margin-bottom:20px;}\n");
     out.write("p.view{font-size:20px;margin-bottom:0;}\n");
     out.write("h2{line-height:2.0;padding:0 0.5em;}\n");
@@ -178,13 +178,16 @@ final class StatszZPageHandler extends ZPageHandler {
     synchronized (monitor) {
       groupViewsByDirectoriesAndGetMeasures(
           viewManager.getAllExportedViews(), root, measures, cachedViews);
-      out.write("<p class=\"header\">\n");
-      out.write("<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />\n");
-      out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\"\n");
-      out.write("rel=\"stylesheet\">\n");
-      out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\"\n");
-      out.write("rel=\"stylesheet\">\n");
-      out.write("Open<span>Census</span></p>");
+      out.write(
+          "<p class=\"header\">"
+              + "<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />"
+              + "Open<span>Census</span></p>");
+      out.write(
+          "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
+              + "rel=\"stylesheet\">\n");
+      out.write(
+          "<link href=\"https://fonts.googleapis.com/css?family=Roboto\""
+              + "rel=\"stylesheet\">\n");
       out.write("<h1><a href='?'>StatsZ</a></h1>");
       out.write("<p></p>");
       String path = queryMap.get(QUERY_PATH);

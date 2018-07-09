@@ -226,21 +226,25 @@ final class RpczZPageHandler extends ZPageHandler {
 
   public static void emitStyle(PrintWriter out) {
     out.write("<style>\n");
-    out.write("body{font-family:'Roboto',sans-serif;font-size:14px;background-color:#F2F4EC;}\n");
+    out.write(
+        "body{font-family:'Roboto',sans-serif;font-size:14px;" + "background-color:#F2F4EC;}\n");
     out.write("h1{color:#3D3D3D;text-align:center; margin-bottom:20px;}\n");
     out.write("p{padding:0 0.5em;color:#3D3D3D}\n");
-    out.write("table{width:100%;color:#FFF;overflow:hidden;margin-bottom:30px;margin-top:0;}\n");
+    out.write(
+        "table{width:100%;color:#FFF;overflow:hidden;" + "margin-bottom:30px;margin-top:0;}\n");
     out.write("tr:nth-child(even){background-color:#F2F2F2;}\n");
     out.write("tr.border-bottom td{border-bottom:1px solid #3D3D3D}\n");
     out.write("td.border-right,th.border-right{border-right:1px solid #3D3D3D;}\n");
     out.write("td.border-left{border-left:1px solid #3D3D3D}\n");
     out.write("td{color:#3D3D3D;line-height:2.0;}\n");
     out.write("p.title{margin-bottom:0;}\n");
-    out.write("p.header {font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;\n");
-    out.write("height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
+    out.write(
+        "p.header {font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;"
+            + "height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
     out.write(".header span{color:#3D3D3D;}\n");
     out.write("img.oc {vertical-align:middle;}\n");
-    out.write("th.l1{border-left:1px solid #FFF;border-bottom:1px solid #FFF;margin:0 10px;}\n");
+    out.write(
+        "th.l1{border-left:1px solid #FFF;border-bottom:1px solid #FFF;" + "margin:0 10px;}\n");
     out.write("td.l2{border-left:1px solid #3D3D3D;text-align:center;}\n");
     out.write("th.border-bottom,td.border-bottom{border-bottom:1px solid #FFF;}\n");
     out.write("</style>\n");
@@ -255,10 +259,11 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>RpcZ</title>\n");
     out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
-    out.write("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\"\n");
-    out.write("rel=\"stylesheet\">\n");
-    out.write("<link href=\"https://fonts.googleapis.com/css?family=Roboto\"\n");
-    out.write("rel=\"stylesheet\">\n");
+    out.write(
+        "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
+            + "rel=\"stylesheet\">\n");
+    out.write(
+        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" + "rel=\"stylesheet\">\n");
     emitStyle(out);
     out.write("</head>\n");
     out.write("<body>\n");
@@ -275,7 +280,9 @@ final class RpczZPageHandler extends ZPageHandler {
   private void emitHtmlBody(PrintWriter out) {
     Formatter formatter = new Formatter(out, Locale.US);
     out.write(
-        "<p class=\"header\"><img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" /> Open<span>Census</span></p>");
+        "<p class=\"header\">"
+            + "<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />"
+            + "Open<span>Census</span></p>");
     out.write("<h1>RPC Stats</h1>");
     out.write("<p></p>");
     emitSummaryTable(out, formatter, /* isReceived= */ false);
