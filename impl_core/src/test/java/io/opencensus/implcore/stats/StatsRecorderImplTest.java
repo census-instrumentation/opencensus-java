@@ -75,6 +75,8 @@ public final class StatsRecorderImplTest {
   private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
   private static final Distribution DISTRIBUTION_NO_HISTOGRAM =
       Distribution.create(BucketBoundaries.create(Collections.<Double>emptyList()));
+  private static final Timestamp START_TIME = Timestamp.fromMillis(0);
+  private static final Duration ONE_SECOND = Duration.fromMillis(1000);
 
   private final TestClock testClock = TestClock.create();
   private final StatsComponent statsComponent =
@@ -158,7 +160,7 @@ public final class StatsRecorderImplTest {
 
   @Test
   public void record_WithAttachments_Distribution() {
-    testClock.setTime(Timestamp.fromMillis(0));
+    testClock.setTime(START_TIME);
     View view =
         View.create(VIEW_NAME, "description", MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
     viewManager.registerView(view);
@@ -178,7 +180,7 @@ public final class StatsRecorderImplTest {
 
   @Test
   public void record_WithAttachments_DistributionNoHistogram() {
-    testClock.setTime(Timestamp.fromMillis(0));
+    testClock.setTime(START_TIME);
     View view =
         View.create(
             VIEW_NAME,
@@ -198,7 +200,7 @@ public final class StatsRecorderImplTest {
 
   @Test
   public void record_WithAttachments_Count() {
-    testClock.setTime(Timestamp.fromMillis(0));
+    testClock.setTime(START_TIME);
     View view =
         View.create(VIEW_NAME, "description", MEASURE_DOUBLE, Count.create(), Arrays.asList(KEY));
     viewManager.registerView(view);
@@ -208,47 +210,58 @@ public final class StatsRecorderImplTest {
     CountData countData =
         (CountData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
     // Recording exemplar does not affect views with an aggregation other than distribution.
-    assertThat(countData.getCount()).isEqualTo(5L);
+    assertThat(countData.getCount()).isEqualTo(6L);
   }
 
   private void recordWithAttachments() {
     TagContext context = new SimpleTagContext(Tag.create(KEY, VALUE));
 
-    testClock.advanceTime(Duration.fromMillis(1000));
+    // The test Distribution has bucket boundaries [-10.0, 0.0, 10.0].
+
+    testClock.advanceTime(ONE_SECOND); // 1st second.
+    // -1.0 is in the 2nd bucket [-10.0, 0.0).
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, -1.0)
         .putAttachment("k1", "v1")
         .record(context);
 
-    testClock.advanceTime(Duration.fromMillis(1000));
+    testClock.advanceTime(ONE_SECOND); // 2nd second.
+    // 1.0 is in the 3rd bucket [0.0, 10.0).
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, 1.0)
         .putAttachment("k2", "v2")
         .record(context);
 
-    testClock.advanceTime(Duration.fromMillis(1000));
+    testClock.advanceTime(ONE_SECOND); // 3rd second.
+    // 12.0 is in the 4th bucket [10.0, +Inf).
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, 12.0)
         .putAttachment("k1", "v3")
         .record(context);
 
-    testClock.advanceTime(Duration.fromMillis(1000));
+    testClock.advanceTime(ONE_SECOND); // 4th second.
+    // -20.0 is in the 1st bucket [-Inf, -10.0).
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, -20.0)
         .putAttachment("k3", "v1")
         .record(context);
 
-    testClock.advanceTime(Duration.fromMillis(1000));
-    // -5.0 is in bucket [-10.0, 0), should overwrite the previous exemplar -1.0.
+    testClock.advanceTime(ONE_SECOND); // 5th second.
+    // -5.0 is in the 2nd bucket [-10.0, 0), should overwrite the previous exemplar -1.0.
     statsRecorder
         .newMeasureMap()
         .put(MEASURE_DOUBLE, -5.0)
         .putAttachment("k3", "v3")
         .record(context);
+
+    testClock.advanceTime(ONE_SECOND); // 6th second.
+    // -3.0 is in the 2nd bucket [-10.0, 0), but this value doesn't come with attachments, so it
+    // shouldn't overwrite the previous exemplar (-5.0).
+    statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, -3.0).record(context);
   }
 
   @Test

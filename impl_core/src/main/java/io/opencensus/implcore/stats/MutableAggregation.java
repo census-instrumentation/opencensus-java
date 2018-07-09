@@ -241,6 +241,9 @@ abstract class MutableAggregation {
 
     private final BucketBoundaries bucketBoundaries;
     private final long[] bucketCounts;
+    // If there's a histogram (i.e bucket boundaries are not empty) in this MutableDistribution,
+    // exemplars will have the same size to bucketCounts; otherwise exemplars are empty.
+    // Only the newest exemplar will be kept at each index.
     private final Exemplar[] exemplars;
 
     private MutableDistribution(BucketBoundaries bucketBoundaries) {
@@ -348,6 +351,9 @@ abstract class MutableAggregation {
 
       for (int i = 0; i < mutableDistribution.getExemplars().length; i++) {
         Exemplar exemplar = mutableDistribution.getExemplars()[i];
+        // Assume other is always newer than this, because we combined interval buckets in time
+        // order.
+        // If there's a newer exemplar, overwrite current value.
         if (exemplar != null) {
           this.exemplars[i] = exemplar;
         }
