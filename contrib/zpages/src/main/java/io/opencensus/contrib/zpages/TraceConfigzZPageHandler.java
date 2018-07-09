@@ -90,7 +90,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     return TRACE_CONFIGZ_URL;
   }
 
-  public static void emitStyle(PrintWriter out) {
+  private static void emitStyle(PrintWriter out) {
     out.write("<style>\n");
     out.write(
         "body{font-family:'Roboto',sans-serif;font-size:14px;" + "background-color:#F2F4EC;}\n");
