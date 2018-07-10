@@ -17,7 +17,6 @@
 package io.opencensus.trace.export;
 
 import com.google.auto.value.AutoValue;
-import io.opencensus.internal.PublicForTesting;
 import io.opencensus.internal.Utils;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
@@ -123,13 +122,15 @@ public abstract class SampledSpanStore {
   public abstract void unregisterSpanNamesForCollection(Collection<String> spanNames);
 
   /**
-   * Returns the set of unique span names registered to the library. For this set of span names the
-   * library will collect latency based sampled spans and error based sampled spans.
+   * Returns the set of unique span names registered to the library, for use in tests. For this set
+   * of span names the library will collect latency based sampled spans and error based sampled
+   * spans.
+   *
+   * <p>This method is only meant for testing code that uses OpenCensus, and it is not performant.
    *
    * @return the set of unique span names registered to the library.
    * @since 0.7
    */
-  @PublicForTesting
   public abstract Set<String> getRegisteredSpanNamesForCollection();
 
   /**
