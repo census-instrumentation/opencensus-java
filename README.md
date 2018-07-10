@@ -48,7 +48,7 @@ maven_jar(
     sha1 = "9a098392b287d7924660837f4eba0ce252013683",
 )
 ```
-Then targets can specify @io_opencensus_opencensus_api//jar as a dependency to depend on this jar:
+Then targets can specify `@io_opencensus_opencensus_api//jar` as a dependency to depend on this jar:
 ```bazel
 deps = [
     "@io_opencensus_opencensus_api//jar",
