@@ -24,6 +24,7 @@ import io.opencensus.metrics.MetricDescriptor.Type;
 import io.opencensus.metrics.TimeSeries.TimeSeriesCumulative;
 import io.opencensus.metrics.TimeSeries.TimeSeriesGauge;
 import java.util.Arrays;
+import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -78,14 +79,14 @@ public class MetricTest {
   @Test
   public void preventNullTimeSeriesList() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("timeSeriesList");
+    thrown.expectMessage(CoreMatchers.equalTo("timeSeriesList"));
     Metric.create(METRIC_DESCRIPTOR_1, null);
   }
 
   @Test
   public void preventNullTimeSeries() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("timeSeries");
+    thrown.expectMessage(CoreMatchers.equalTo("timeSeries"));
     Metric.create(METRIC_DESCRIPTOR_1, Arrays.asList(GAUGE_TIME_SERIES_1, null));
   }
 
