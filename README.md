@@ -40,6 +40,23 @@ For Gradle add to your dependencies:
 compile 'io.opencensus:opencensus-api:0.15.0'
 ```
 
+For Bazel add the following lines to the WORKSPACE file:
+```
+maven_jar(
+    name = "io_opencensus_opencensus_api",
+    artifact = "io.opencensus:opencensus-api:0.15.0",
+    sha1 = "9a098392b287d7924660837f4eba0ce252013683",
+)
+```
+Then targets can specify @io_opencensus_opencensus_api//jar as a dependency to depend on this jar:
+```bazel
+deps = [
+    "@io_opencensus_opencensus_api//jar",
+]
+```
+You may also need to import the transitive dependencies. See [generate external dependencies from 
+Maven projects](https://docs.bazel.build/versions/master/generate-workspace.html).
+
 ### Hello "OpenCensus" trace events
 
 Here's an example of creating a Span and record some trace annotations. Notice that recording the
@@ -173,6 +190,32 @@ For Gradle add to your dependencies:
 compile 'io.opencensus:opencensus-api:0.15.0'
 runtime 'io.opencensus:opencensus-impl:0.15.0'
 ```
+
+For Bazel add the following lines to the WORKSPACE file:
+```
+maven_jar(
+    name = "io_opencensus_opencensus_api",
+    artifact = "io.opencensus:opencensus-api:0.15.0",
+    sha1 = "9a098392b287d7924660837f4eba0ce252013683",
+)
+
+maven_jar(
+    name = "io_opencensus_opencensus_impl",
+    artifact = "io.opencensus:opencensus-impl:0.15.0",
+    sha1 = "d7bf0d7ee5a0594f840271c11c9f8d6f754f35d6",
+)
+```
+Then add the following lines to BUILD.bazel file:
+```bazel
+deps = [
+    "@io_opencensus_opencensus_api//jar",
+]
+runtime_deps = [
+    "@io_opencensus_opencensus_impl//jar",    
+]
+```
+Again you may need to import the transitive dependencies. See [generate external dependencies from 
+Maven projects](https://docs.bazel.build/versions/master/generate-workspace.html).
 
 ### How to setup exporters?
 
