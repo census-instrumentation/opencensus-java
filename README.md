@@ -200,6 +200,12 @@ maven_jar(
 )
 
 maven_jar(
+    name = "io_opencensus_opencensus_impl_core",
+    artifact = "io.opencensus:opencensus-impl-core:0.15.0",
+    sha1 = "36c775926ba1e54af7c37d0503cfb99d986f6229",
+)
+
+maven_jar(
     name = "io_opencensus_opencensus_impl",
     artifact = "io.opencensus:opencensus-impl:0.15.0",
     sha1 = "d7bf0d7ee5a0594f840271c11c9f8d6f754f35d6",
@@ -211,7 +217,8 @@ deps = [
     "@io_opencensus_opencensus_api//jar",
 ]
 runtime_deps = [
-    "@io_opencensus_opencensus_impl//jar",    
+    "@io_opencensus_opencensus_impl_core//jar",
+    "@io_opencensus_opencensus_impl//jar",
 ]
 ```
 Again you may need to import the transitive dependencies. See [generate external dependencies from 
