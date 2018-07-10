@@ -18,17 +18,22 @@ package io.opencensus.implcore.stats;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
+import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
 import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
+import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.BucketBoundaries;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,6 +49,9 @@ public class MutableAggregationTest {
   private static final double TOLERANCE = 1e-6;
   private static final BucketBoundaries BUCKET_BOUNDARIES =
       BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0));
+  private static final BucketBoundaries BUCKET_BOUNDARIES_EMPTY =
+      BucketBoundaries.create(Collections.<Double>emptyList());
+  private static final Timestamp TIMESTAMP = Timestamp.create(60, 0);
 
   @Test
   public void testCreateEmpty() {
@@ -60,6 +68,11 @@ public class MutableAggregationTest {
     assertThat(mutableDistribution.getMax()).isNegativeInfinity();
     assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(0);
     assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[4]);
+    assertThat(mutableDistribution.getExemplars()).isEqualTo(new Exemplar[4]);
+
+    MutableDistribution mutableDistributionNoHistogram =
+        MutableDistribution.create(BUCKET_BOUNDARIES_EMPTY);
+    assertThat(mutableDistributionNoHistogram.getExemplars()).isNull();
   }
 
   @Test
@@ -91,7 +104,7 @@ public class MutableAggregationTest {
 
     for (double value : values) {
       for (MutableAggregation aggregation : aggregations) {
-        aggregation.add(value);
+        aggregation.add(value, Collections.<String, String>emptyMap(), TIMESTAMP);
       }
     }
 
@@ -136,6 +149,46 @@ public class MutableAggregationTest {
   }
 
   @Test
+  public void testAdd_DistributionWithExemplarAttachments() {
+    MutableDistribution mutableDistribution = MutableDistribution.create(BUCKET_BOUNDARIES);
+    MutableDistribution mutableDistributionNoHistogram =
+        MutableDistribution.create(BUCKET_BOUNDARIES_EMPTY);
+    List<Double> values = Arrays.asList(-1.0, 1.0, -5.0, 20.0, 5.0);
+    List<Map<String, String>> attachmentsList =
+        ImmutableList.<Map<String, String>>of(
+            Collections.<String, String>singletonMap("k1", "v1"),
+            Collections.<String, String>singletonMap("k2", "v2"),
+            Collections.<String, String>singletonMap("k3", "v3"),
+            Collections.<String, String>singletonMap("k4", "v4"),
+            Collections.<String, String>singletonMap("k5", "v5"));
+    List<Timestamp> timestamps =
+        Arrays.asList(
+            Timestamp.fromMillis(500),
+            Timestamp.fromMillis(1000),
+            Timestamp.fromMillis(2000),
+            Timestamp.fromMillis(3000),
+            Timestamp.fromMillis(4000));
+    for (int i = 0; i < values.size(); i++) {
+      mutableDistribution.add(values.get(i), attachmentsList.get(i), timestamps.get(i));
+      mutableDistributionNoHistogram.add(values.get(i), attachmentsList.get(i), timestamps.get(i));
+    }
+
+    // Each bucket can only have up to one exemplar. If there are more than one exemplars in a
+    // bucket, only the last one will be kept.
+    List<Exemplar> expected =
+        Arrays.<Exemplar>asList(
+            null,
+            Exemplar.create(values.get(2), timestamps.get(2), attachmentsList.get(2)),
+            Exemplar.create(values.get(4), timestamps.get(4), attachmentsList.get(4)),
+            Exemplar.create(values.get(3), timestamps.get(3), attachmentsList.get(3)));
+    assertThat(mutableDistribution.getExemplars())
+        .asList()
+        .containsExactlyElementsIn(expected)
+        .inOrder();
+    assertThat(mutableDistributionNoHistogram.getExemplars()).isNull();
+  }
+
+  @Test
   public void testMatch() {
     List<MutableAggregation> aggregations =
         Arrays.asList(
@@ -170,12 +223,12 @@ public class MutableAggregationTest {
 
     for (double val : Arrays.asList(-1.0, -5.0)) {
       for (MutableAggregation aggregation : aggregations1) {
-        aggregation.add(val);
+        aggregation.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
       }
     }
     for (double val : Arrays.asList(10.0, 50.0)) {
       for (MutableAggregation aggregation : aggregations2) {
-        aggregation.add(val);
+        aggregation.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
       }
     }
 
@@ -201,13 +254,13 @@ public class MutableAggregationTest {
     MutableDistribution distribution3 = MutableDistribution.create(BUCKET_BOUNDARIES);
 
     for (double val : Arrays.asList(5.0, -5.0)) {
-      distribution1.add(val);
+      distribution1.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
     }
     for (double val : Arrays.asList(10.0, 20.0)) {
-      distribution2.add(val);
+      distribution2.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
     }
     for (double val : Arrays.asList(-10.0, 15.0, -15.0, -20.0)) {
-      distribution3.add(val);
+      distribution3.add(val, Collections.<String, String>emptyMap(), TIMESTAMP);
     }
 
     MutableDistribution combined = MutableDistribution.create(BUCKET_BOUNDARIES);

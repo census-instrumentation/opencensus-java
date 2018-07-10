@@ -23,8 +23,16 @@ import static io.opencensus.implcore.stats.StatsTestUtil.createEmptyViewData;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.grpc.Context;
+import io.opencensus.common.Duration;
+import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.SimpleEventQueue;
+import io.opencensus.stats.Aggregation.Count;
+import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Sum;
+import io.opencensus.stats.AggregationData.CountData;
+import io.opencensus.stats.AggregationData.DistributionData;
+import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
+import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsCollectionState;
@@ -62,9 +70,17 @@ public final class StatsRecorderImplTest {
   private static final MeasureDouble MEASURE_DOUBLE_NO_VIEW_2 =
       MeasureDouble.create("my measurement no view 2", "description", "us");
   private static final View.Name VIEW_NAME = View.Name.create("my view");
+  private static final BucketBoundaries BUCKET_BOUNDARIES =
+      BucketBoundaries.create(Arrays.asList(-10.0, 0.0, 10.0));
+  private static final Distribution DISTRIBUTION = Distribution.create(BUCKET_BOUNDARIES);
+  private static final Distribution DISTRIBUTION_NO_HISTOGRAM =
+      Distribution.create(BucketBoundaries.create(Collections.<Double>emptyList()));
+  private static final Timestamp START_TIME = Timestamp.fromMillis(0);
+  private static final Duration ONE_SECOND = Duration.fromMillis(1000);
 
+  private final TestClock testClock = TestClock.create();
   private final StatsComponent statsComponent =
-      new StatsComponentImplBase(new SimpleEventQueue(), TestClock.create());
+      new StatsComponentImplBase(new SimpleEventQueue(), testClock);
 
   private final ViewManager viewManager = statsComponent.getViewManager();
   private final StatsRecorder statsRecorder = statsComponent.getStatsRecorder();
@@ -140,6 +156,112 @@ public final class StatsRecorderImplTest {
             Arrays.asList(VALUE),
             StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 2.0)),
         1e-6);
+  }
+
+  @Test
+  public void record_WithAttachments_Distribution() {
+    testClock.setTime(START_TIME);
+    View view =
+        View.create(VIEW_NAME, "description", MEASURE_DOUBLE, DISTRIBUTION, Arrays.asList(KEY));
+    viewManager.registerView(view);
+    recordWithAttachments();
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+    assertThat(viewData).isNotNull();
+    DistributionData distributionData =
+        (DistributionData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
+    List<Exemplar> expected =
+        Arrays.asList(
+            Exemplar.create(-20.0, Timestamp.create(4, 0), Collections.singletonMap("k3", "v1")),
+            Exemplar.create(-5.0, Timestamp.create(5, 0), Collections.singletonMap("k3", "v3")),
+            Exemplar.create(1.0, Timestamp.create(2, 0), Collections.singletonMap("k2", "v2")),
+            Exemplar.create(12.0, Timestamp.create(3, 0), Collections.singletonMap("k1", "v3")));
+    assertThat(distributionData.getExemplars()).containsExactlyElementsIn(expected).inOrder();
+  }
+
+  @Test
+  public void record_WithAttachments_DistributionNoHistogram() {
+    testClock.setTime(START_TIME);
+    View view =
+        View.create(
+            VIEW_NAME,
+            "description",
+            MEASURE_DOUBLE,
+            DISTRIBUTION_NO_HISTOGRAM,
+            Arrays.asList(KEY));
+    viewManager.registerView(view);
+    recordWithAttachments();
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+    assertThat(viewData).isNotNull();
+    DistributionData distributionData =
+        (DistributionData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
+    // Recording exemplar has no effect if there's no histogram.
+    assertThat(distributionData.getExemplars()).isEmpty();
+  }
+
+  @Test
+  public void record_WithAttachments_Count() {
+    testClock.setTime(START_TIME);
+    View view =
+        View.create(VIEW_NAME, "description", MEASURE_DOUBLE, Count.create(), Arrays.asList(KEY));
+    viewManager.registerView(view);
+    recordWithAttachments();
+    ViewData viewData = viewManager.getView(VIEW_NAME);
+    assertThat(viewData).isNotNull();
+    CountData countData =
+        (CountData) viewData.getAggregationMap().get(Collections.singletonList(VALUE));
+    // Recording exemplar does not affect views with an aggregation other than distribution.
+    assertThat(countData.getCount()).isEqualTo(6L);
+  }
+
+  private void recordWithAttachments() {
+    TagContext context = new SimpleTagContext(Tag.create(KEY, VALUE));
+
+    // The test Distribution has bucket boundaries [-10.0, 0.0, 10.0].
+
+    testClock.advanceTime(ONE_SECOND); // 1st second.
+    // -1.0 is in the 2nd bucket [-10.0, 0.0).
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, -1.0)
+        .putAttachment("k1", "v1")
+        .record(context);
+
+    testClock.advanceTime(ONE_SECOND); // 2nd second.
+    // 1.0 is in the 3rd bucket [0.0, 10.0).
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 1.0)
+        .putAttachment("k2", "v2")
+        .record(context);
+
+    testClock.advanceTime(ONE_SECOND); // 3rd second.
+    // 12.0 is in the 4th bucket [10.0, +Inf).
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, 12.0)
+        .putAttachment("k1", "v3")
+        .record(context);
+
+    testClock.advanceTime(ONE_SECOND); // 4th second.
+    // -20.0 is in the 1st bucket [-Inf, -10.0).
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, -20.0)
+        .putAttachment("k3", "v1")
+        .record(context);
+
+    testClock.advanceTime(ONE_SECOND); // 5th second.
+    // -5.0 is in the 2nd bucket [-10.0, 0), should overwrite the previous exemplar -1.0.
+    statsRecorder
+        .newMeasureMap()
+        .put(MEASURE_DOUBLE, -5.0)
+        .putAttachment("k3", "v3")
+        .record(context);
+
+    testClock.advanceTime(ONE_SECOND); // 6th second.
+    // -3.0 is in the 2nd bucket [-10.0, 0), but this value doesn't come with attachments, so it
+    // shouldn't overwrite the previous exemplar (-5.0).
+    statsRecorder.newMeasureMap().put(MEASURE_DOUBLE, -3.0).record(context);
   }
 
   @Test
