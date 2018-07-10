@@ -24,6 +24,7 @@ import static io.opencensus.contrib.http.util.CloudTraceFormat.SPAN_ID_DELIMITER
 import static io.opencensus.contrib.http.util.CloudTraceFormat.TRACE_OPTION_DELIMITER;
 
 import com.google.common.primitives.UnsignedLong;
+import io.opencensus.testing.propagation.HttpUtils;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -280,6 +281,13 @@ public final class CloudTraceFormatTest {
   @Test
   public void fieldsShouldMatch() {
     assertThat(cloudTraceFormat.fields()).containsExactly(HEADER_NAME);
+  }
+
+  @Test
+  public void fieldsShouldBeValid() {
+    for (String header : cloudTraceFormat.fields()) {
+      HttpUtils.assertHeaderNameIsValid(header);
+    }
   }
 
   @Test

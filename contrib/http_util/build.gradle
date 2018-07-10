@@ -11,5 +11,7 @@ dependencies {
     compile project(':opencensus-api'),
             libraries.guava
 
+    testCompile project(':opencensus-testing')
+
     signature "org.codehaus.mojo.signature:java16:+@signature"
 }
