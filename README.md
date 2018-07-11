@@ -64,18 +64,24 @@ annotations is possible because we propagate scope. 3rd parties libraries like S
 the same way.
 
 ```java
+import io.opencensus.common.Scope;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
+import io.opencensus.trace.samplers.Samplers;
+
 public final class MyClassWithTracing {
   private static final Tracer tracer = Tracing.getTracer();
 
   public static void doWork() {
-    // Create a child Span of the current Span. Always record events for this span and force it to 
-    // be sampled. This makes it easier to try out the example, but unless you have a clear use 
+    // Create a child Span of the current Span. Always record events for this span and force it to
+    // be sampled. This makes it easier to try out the example, but unless you have a clear use
     // case, you don't need to explicitly set record events or sampler.
-    try (Scope ss = 
-         tracer.spanBuilder("MyChildWorkSpan")
-           .setRecordEvents(true)
-           .setSampler(Samplers.alwaysSample())
-           .startScopedSpan()) {
+    try (Scope ss =
+        tracer
+            .spanBuilder("MyChildWorkSpan")
+            .setRecordEvents(true)
+            .setSampler(Samplers.alwaysSample())
+            .startScopedSpan()) {
       doInitialWork();
       tracer.getCurrentSpan().addAnnotation("Finished initial work");
       doFinalWork();
