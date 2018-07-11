@@ -19,11 +19,7 @@ package io.opencensus.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.TimeSeries.TimeSeriesCumulative;
-import io.opencensus.metrics.TimeSeries.TimeSeriesGauge;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -102,28 +98,6 @@ public class TimeSeriesTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage(CoreMatchers.equalTo("point"));
     TimeSeriesCumulative.create(Collections.<LabelValue>emptyList(), points, TIMESTAMP_1);
-  }
-
-  @Test
-  public void testMatch() {
-    List<TimeSeries> timeSeriesList =
-        Arrays.asList(
-            TimeSeriesGauge.create(
-                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2)),
-            TimeSeriesCumulative.create(
-                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY),
-                Arrays.asList(POINT_1),
-                TIMESTAMP_1));
-    List<String> expected = Arrays.asList("Gauge", "Cumulative");
-    List<String> actual = new ArrayList<String>();
-    for (TimeSeries timeSeries : timeSeriesList) {
-      actual.add(
-          timeSeries.match(
-              Functions.returnConstant("Gauge"),
-              Functions.returnConstant("Cumulative"),
-              Functions.<String>throwAssertionError()));
-    }
-    assertThat(actual).containsExactlyElementsIn(expected).inOrder();
   }
 
   @Test
