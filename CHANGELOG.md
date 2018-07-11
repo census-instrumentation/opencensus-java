@@ -3,6 +3,8 @@
 - Add an API MeasureMap.putAttachment() for recording exemplars.
 - Add Exemplar class and an API to get Exemplar list to DistributionData.
 - Improve the styling of Rpcz, Statsz, Tracez, and Traceconfigz pages.
+- Add an artifact `opencensus-contrib-exemplar-util` that has helper utilities 
+  on recording exemplars.
 
 ## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.
