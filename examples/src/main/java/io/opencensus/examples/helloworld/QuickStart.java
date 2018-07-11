@@ -24,7 +24,6 @@ import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.stats.View;
-import io.opencensus.stats.View.AggregationWindow.Cumulative;
 import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.TagContextBuilder;
@@ -72,8 +71,7 @@ public final class QuickStart {
           VIDEO_SIZE,
           Aggregation.Distribution.create(
               BucketBoundaries.create(Arrays.asList(0.0, 16.0 * MiB, 256.0 * MiB))),
-          Collections.singletonList(FRONTEND_KEY),
-          Cumulative.create());
+          Collections.singletonList(FRONTEND_KEY));
 
   /** Main launcher for the QuickStart example. */
   public static void main(String[] args) throws InterruptedException {
