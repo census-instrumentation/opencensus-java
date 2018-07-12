@@ -211,9 +211,9 @@ public class PrometheusExportUtilsTest {
             new Sample(
                 SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "0.0"), 2),
             new Sample(
-                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "5.0"), 2),
+                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "5.0"), 4),
             new Sample(
-                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "+Inf"), 1),
+                SAMPLE_NAME + "_bucket", Arrays.asList("k1", "le"), Arrays.asList("v1", "+Inf"), 5),
             new Sample(SAMPLE_NAME + "_count", Arrays.asList("k1"), Arrays.asList("v1"), 5),
             new Sample(SAMPLE_NAME + "_sum", Arrays.asList("k1"), Arrays.asList("v1"), 22.0))
         .inOrder();
@@ -303,12 +303,12 @@ public class PrometheusExportUtilsTest {
                     new Sample(
                         "view_3_bucket", Arrays.asList("k1", "le"), Arrays.asList("v-3", "0.0"), 2),
                     new Sample(
-                        "view_3_bucket", Arrays.asList("k1", "le"), Arrays.asList("v-3", "5.0"), 2),
+                        "view_3_bucket", Arrays.asList("k1", "le"), Arrays.asList("v-3", "5.0"), 4),
                     new Sample(
                         "view_3_bucket",
                         Arrays.asList("k1", "le"),
                         Arrays.asList("v-3", "+Inf"),
-                        1),
+                        5),
                     new Sample("view_3_count", Arrays.asList("k1"), Arrays.asList("v-3"), 5),
                     new Sample("view_3_sum", Arrays.asList("k1"), Arrays.asList("v-3"), 22.0))));
     assertThat(

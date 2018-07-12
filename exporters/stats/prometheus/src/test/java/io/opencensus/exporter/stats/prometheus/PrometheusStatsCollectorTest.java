@@ -122,12 +122,12 @@ public class PrometheusStatsCollectorTest {
                         name + "_bucket",
                         Arrays.asList("k1", "k2", "le"),
                         Arrays.asList("v1", "v2", "5.0"),
-                        2),
+                        4),
                     new Sample(
                         name + "_bucket",
                         Arrays.asList("k1", "k2", "le"),
                         Arrays.asList("v1", "v2", "+Inf"),
-                        1),
+                        5),
                     new Sample(
                         name + "_count", Arrays.asList("k1", "k2"), Arrays.asList("v1", "v2"), 5),
                     new Sample(
