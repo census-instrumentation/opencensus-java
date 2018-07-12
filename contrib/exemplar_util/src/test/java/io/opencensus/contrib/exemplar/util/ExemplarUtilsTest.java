@@ -39,8 +39,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ExemplarUtilsTest {
 
-  private static final TraceId TRACE_ID = TraceId.generateRandomId(new Random());
-  private static final SpanId SPAN_ID = SpanId.generateRandomId(new Random());
+  private static final TraceId TRACE_ID = TraceId.generateRandomId(new Random(1234));
+  private static final SpanId SPAN_ID = SpanId.generateRandomId(new Random(1234));
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 

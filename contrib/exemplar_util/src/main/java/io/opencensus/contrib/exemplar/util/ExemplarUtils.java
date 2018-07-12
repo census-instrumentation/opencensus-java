@@ -23,7 +23,7 @@ import io.opencensus.trace.TraceId;
 import javax.annotation.Nullable;
 
 /**
- * Utils for encoding and putting special contextual information of {@link Exemplar}s.
+ * Utils for recording {@link Exemplar}s for OpenCensus stats.
  *
  * @since 0.16
  */

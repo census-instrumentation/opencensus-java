@@ -4,8 +4,8 @@
 [![Windows Build Status][appveyor-image]][appveyor-url]
 [![Maven Central][maven-image]][maven-url]
 
-The *OpenCensus Exemplar Util for Java* is a collection of utilities for encoding and putting 
-special contextual information of `Exemplar`s.
+The *OpenCensus Exemplar Util for Java* is a collection of utilities for recording Exemplars for 
+OpenCensus stats.
 
 ## Quickstart
 
