@@ -18,6 +18,7 @@ package io.opencensus.contrib.exemplar.util;
 
 import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.MeasureMap;
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import javax.annotation.Nullable;
@@ -50,31 +51,20 @@ public final class ExemplarUtils {
   public static final String ATTACHMENT_KEY_SPAN_ID = "SpanId";
 
   /**
-   * Encodes a {@link TraceId} to a string in base 16 lower case encoding, and puts the encoded
-   * string into the attachments of the given {@link MeasureMap}.
+   * Puts a {@link SpanContext} into the attachments of the given {@link MeasureMap}.
+   *
+   * <p>{@link TraceId} and {@link SpanId} of the {@link SpanContext} will be encoded in base 16
+   * lower case encoding.
    *
    * @param measureMap the {@code MeasureMap}
-   * @param traceId the {@code TraceId} to be encoded and put.
+   * @param spanContext the {@code SpanContext} to be put as attachments.
    * @since 0.16
    */
-  public static void putTraceIdAsAttachment(MeasureMap measureMap, TraceId traceId) {
+  public static void putSpanContextAsAttachment(MeasureMap measureMap, SpanContext spanContext) {
     checkNotNull(measureMap, "measureMap");
-    checkNotNull(traceId, "traceId");
-    measureMap.putAttachment(ATTACHMENT_KEY_TRACE_ID, traceId.toLowerBase16());
-  }
-
-  /**
-   * Encodes a {@link SpanId} to a string in base 16 lower case encoding, and puts the encoded
-   * string into the attachments of the given {@link MeasureMap}.
-   *
-   * @param measureMap the {@code MeasureMap}
-   * @param spanId the {@code SpanId} to be encoded and put.
-   * @since 0.16
-   */
-  public static void putSpanIdAsAttachment(MeasureMap measureMap, SpanId spanId) {
-    checkNotNull(measureMap, "measureMap");
-    checkNotNull(spanId, "spanId");
-    measureMap.putAttachment(ATTACHMENT_KEY_SPAN_ID, spanId.toLowerBase16());
+    checkNotNull(spanContext, "spanContext");
+    measureMap.putAttachment(ATTACHMENT_KEY_TRACE_ID, spanContext.getTraceId().toLowerBase16());
+    measureMap.putAttachment(ATTACHMENT_KEY_SPAN_ID, spanContext.getSpanId().toLowerBase16());
   }
 
   // TODO: reuse this method from shared artifact.

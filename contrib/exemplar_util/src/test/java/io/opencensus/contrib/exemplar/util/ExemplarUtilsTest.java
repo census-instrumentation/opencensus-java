@@ -24,8 +24,10 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.tags.TagContext;
+import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
+import io.opencensus.trace.TraceOptions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -39,55 +41,39 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ExemplarUtilsTest {
 
-  private static final TraceId TRACE_ID = TraceId.generateRandomId(new Random(1234));
-  private static final SpanId SPAN_ID = SpanId.generateRandomId(new Random(1234));
+  private static final Random RANDOM = new Random(1234);
+  private static final TraceId TRACE_ID = TraceId.generateRandomId(RANDOM);
+  private static final SpanId SPAN_ID = SpanId.generateRandomId(RANDOM);
+  private static final SpanContext SPAN_CONTEXT =
+      SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT);
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void putTraceId() {
+  public void putSpanContext() {
     FakeMeasureMap measureMap = new FakeMeasureMap();
-    ExemplarUtils.putTraceIdAsAttachment(measureMap, TRACE_ID);
+    ExemplarUtils.putSpanContextAsAttachment(measureMap, SPAN_CONTEXT);
     assertThat(measureMap.attachments)
-        .containsExactly(ATTACHMENT_KEY_TRACE_ID, TRACE_ID.toLowerBase16());
+        .containsExactly(
+            ATTACHMENT_KEY_TRACE_ID,
+            TRACE_ID.toLowerBase16(),
+            ATTACHMENT_KEY_SPAN_ID,
+            SPAN_ID.toLowerBase16());
   }
 
   @Test
-  public void putSpanId() {
-    FakeMeasureMap measureMap = new FakeMeasureMap();
-    ExemplarUtils.putSpanIdAsAttachment(measureMap, SPAN_ID);
-    assertThat(measureMap.attachments)
-        .containsExactly(ATTACHMENT_KEY_SPAN_ID, SPAN_ID.toLowerBase16());
-  }
-
-  @Test
-  public void putTraceId_PreventNullMeasureMap() {
+  public void putSpanContext_PreventNullMeasureMap() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("measureMap");
-    ExemplarUtils.putTraceIdAsAttachment(null, TRACE_ID);
+    ExemplarUtils.putSpanContextAsAttachment(null, SPAN_CONTEXT);
   }
 
   @Test
-  public void putTraceId_PreventNullTraceId() {
+  public void putSpanContext_PreventNullSpanContext() {
     FakeMeasureMap measureMap = new FakeMeasureMap();
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("traceId");
-    ExemplarUtils.putTraceIdAsAttachment(measureMap, null);
-  }
-
-  @Test
-  public void putSpanId_PreventNullMeasureMap() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("measureMap");
-    ExemplarUtils.putSpanIdAsAttachment(null, SPAN_ID);
-  }
-
-  @Test
-  public void putSpanId_PreventNullSpanId() {
-    FakeMeasureMap measureMap = new FakeMeasureMap();
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("spanId");
-    ExemplarUtils.putSpanIdAsAttachment(measureMap, null);
+    thrown.expectMessage("spanContext");
+    ExemplarUtils.putSpanContextAsAttachment(measureMap, null);
   }
 
   private static final class FakeMeasureMap extends MeasureMap {
