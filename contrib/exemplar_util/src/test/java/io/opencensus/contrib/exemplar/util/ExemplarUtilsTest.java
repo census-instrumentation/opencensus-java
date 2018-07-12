@@ -52,7 +52,7 @@ public class ExemplarUtilsTest {
   @Test
   public void putSpanContext() {
     FakeMeasureMap measureMap = new FakeMeasureMap();
-    ExemplarUtils.putSpanContextAsAttachment(measureMap, SPAN_CONTEXT);
+    ExemplarUtils.putSpanContextAttachments(measureMap, SPAN_CONTEXT);
     assertThat(measureMap.attachments)
         .containsExactly(
             ATTACHMENT_KEY_TRACE_ID,
@@ -65,7 +65,7 @@ public class ExemplarUtilsTest {
   public void putSpanContext_PreventNullMeasureMap() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("measureMap");
-    ExemplarUtils.putSpanContextAsAttachment(null, SPAN_CONTEXT);
+    ExemplarUtils.putSpanContextAttachments(null, SPAN_CONTEXT);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class ExemplarUtilsTest {
     FakeMeasureMap measureMap = new FakeMeasureMap();
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("spanContext");
-    ExemplarUtils.putSpanContextAsAttachment(measureMap, null);
+    ExemplarUtils.putSpanContextAttachments(measureMap, null);
   }
 
   private static final class FakeMeasureMap extends MeasureMap {

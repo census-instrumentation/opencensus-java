@@ -60,7 +60,7 @@ public final class ExemplarUtils {
    * @param spanContext the {@code SpanContext} to be put as attachments.
    * @since 0.16
    */
-  public static void putSpanContextAsAttachment(MeasureMap measureMap, SpanContext spanContext) {
+  public static void putSpanContextAttachments(MeasureMap measureMap, SpanContext spanContext) {
     checkNotNull(measureMap, "measureMap");
     checkNotNull(spanContext, "spanContext");
     measureMap.putAttachment(ATTACHMENT_KEY_TRACE_ID, spanContext.getTraceId().toLowerBase16());
