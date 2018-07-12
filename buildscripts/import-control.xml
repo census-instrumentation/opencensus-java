@@ -82,6 +82,10 @@ General guidelines on imports:
       <allow pkg="com.google.apphosting"/>
       <allow pkg="io.opencensus.trace"/>
     </subpackage>
+    <subpackage name="exemplar.util">
+      <allow pkg="io.opencensus.stats"/>
+      <allow pkg="io.opencensus.trace"/>
+    </subpackage>
     <subpackage name="grpc.metrics">
       <allow pkg="io.opencensus.contrib.grpc.metrics"/>
       <allow pkg="io.opencensus.stats"/>

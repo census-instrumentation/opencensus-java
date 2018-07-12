@@ -359,6 +359,7 @@ subprojects {
         name in ['opencensus-api',
                  'opencensus-contrib-agent',
                  'opencensus-contrib-appengine-standard-util',
+                 'opencensus-contrib-exemplar-util',
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
