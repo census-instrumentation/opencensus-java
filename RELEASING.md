@@ -221,6 +221,7 @@ $ BUILD_FILES=(
 $ README_FILES=(
   README.md
   contrib/appengine_standard_util/README.md
+  contrib/exemplar_util/README.md
   contrib/grpc_util/README.md
   contrib/http_util/README.md
   contrib/log_correlation/stackdriver/README.md
