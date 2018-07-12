@@ -190,7 +190,7 @@ final class PrometheusExportUtils {
             List<Double> boundaries = distribution.getBucketBoundaries().getBoundaries();
             List<String> labelNamesWithLe = new ArrayList<String>(labelNames);
             labelNamesWithLe.add(LABEL_NAME_BUCKET_BOUND);
-            long sum = 0;
+            long cumulativeCount = 0;
             for (int i = 0; i < arg.getBucketCounts().size(); i++) {
               List<String> labelValuesWithLe = new ArrayList<String>(labelValues);
               // The label value of "le" is the upper inclusive bound.
@@ -199,13 +199,13 @@ final class PrometheusExportUtils {
                   doubleToGoString(
                       i < boundaries.size() ? boundaries.get(i) : Double.POSITIVE_INFINITY);
               labelValuesWithLe.add(bucketBoundary);
-              sum += arg.getBucketCounts().get(i);
+              cumulativeCount += arg.getBucketCounts().get(i);
               samples.add(
                   new MetricFamilySamples.Sample(
                       name + SAMPLE_SUFFIX_BUCKET,
                       labelNamesWithLe,
                       labelValuesWithLe,
-                      sum));
+                      cumulativeCount));
             }
 
             samples.add(
