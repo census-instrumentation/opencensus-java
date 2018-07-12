@@ -30,15 +30,14 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TimeSeries}. */
+/** Unit tests for {@link TimeSeriesCumulative}. */
 @RunWith(JUnit4.class)
-public class TimeSeriesTest {
+public class TimeSeriesCumulativeTest {
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   private static final LabelValue LABEL_VALUE_1 = LabelValue.create("value1");
   private static final LabelValue LABEL_VALUE_2 = LabelValue.create("value2");
-  private static final LabelValue LABEL_VALUE_EMPTY = LabelValue.create("");
   private static final Value VALUE_LONG = Value.longValue(12345678);
   private static final Value VALUE_DOUBLE = Value.doubleValue(-345.77);
   private static final Timestamp TIMESTAMP_1 = Timestamp.fromMillis(1000);
@@ -48,24 +47,13 @@ public class TimeSeriesTest {
   private static final Point POINT_2 = Point.create(VALUE_LONG, TIMESTAMP_3);
 
   @Test
-  public void testGet_TimeSeriesGauge() {
-    TimeSeriesGauge gaugeTimeSeries =
-        TimeSeriesGauge.create(
-            Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2));
-    assertThat(gaugeTimeSeries.getLabelValues())
-        .containsExactly(LABEL_VALUE_1, LABEL_VALUE_2)
-        .inOrder();
-    assertThat(gaugeTimeSeries.getPoints()).containsExactly(POINT_1, POINT_2).inOrder();
-  }
-
-  @Test
   public void testGet_TimeSeriesCumulative() {
     TimeSeriesCumulative cumulativeTimeSeries =
         TimeSeriesCumulative.create(
-            Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY), Arrays.asList(POINT_1), TIMESTAMP_1);
+            Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_1);
     assertThat(cumulativeTimeSeries.getStartTimestamp()).isEqualTo(TIMESTAMP_1);
     assertThat(cumulativeTimeSeries.getLabelValues())
-        .containsExactly(LABEL_VALUE_1, LABEL_VALUE_EMPTY)
+        .containsExactly(LABEL_VALUE_1, LABEL_VALUE_2)
         .inOrder();
     assertThat(cumulativeTimeSeries.getPoints()).containsExactly(POINT_1).inOrder();
   }
@@ -104,25 +92,22 @@ public class TimeSeriesTest {
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            TimeSeriesGauge.create(
-                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2)),
-            TimeSeriesGauge.create(
-                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1, POINT_2)))
-        .addEqualityGroup(
-            TimeSeriesGauge.create(
-                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1)))
-        .addEqualityGroup(
-            TimeSeriesGauge.create(Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1)))
+            TimeSeriesCumulative.create(
+                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_1),
+            TimeSeriesCumulative.create(
+                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_1))
         .addEqualityGroup(
             TimeSeriesCumulative.create(
-                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY),
-                Arrays.asList(POINT_1),
-                TIMESTAMP_1))
+                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_2))
         .addEqualityGroup(
             TimeSeriesCumulative.create(
-                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_EMPTY),
-                Arrays.asList(POINT_1),
-                TIMESTAMP_2))
+                Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1), TIMESTAMP_2))
+        .addEqualityGroup(
+            TimeSeriesCumulative.create(
+                Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_2), TIMESTAMP_2))
+        .addEqualityGroup(
+            TimeSeriesCumulative.create(
+                Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1, POINT_2), TIMESTAMP_2))
         .testEquals();
   }
 }
