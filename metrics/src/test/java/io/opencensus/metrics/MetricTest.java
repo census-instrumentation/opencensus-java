@@ -82,20 +82,28 @@ public class MetricTest {
 
   @Test
   public void typeMismatch_GaugeDouble_TimeSeriesCumulative() {
-    typeMismatch(METRIC_DESCRIPTOR_1, TIME_SERIES_CUMULATIVE_LIST);
+    typeMismatch(
+        METRIC_DESCRIPTOR_1,
+        TIME_SERIES_CUMULATIVE_LIST,
+        String.format(
+            "Type mismatch: %s, %s.",
+            Type.GAUGE_DOUBLE, TIME_SERIES_CUMULATIVE_LIST.getClass().getSimpleName()));
   }
 
   @Test
   public void typeMismatch_CumulativeInt64_TimeSeriesGauge() {
-    typeMismatch(METRIC_DESCRIPTOR_2, TIME_SERIES_GAUGE_LIST);
-  }
-
-  private void typeMismatch(MetricDescriptor metricDescriptor, TimeSeriesList timeSeriesList) {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(
+    typeMismatch(
+        METRIC_DESCRIPTOR_2,
+        TIME_SERIES_GAUGE_LIST,
         String.format(
             "Type mismatch: %s, %s.",
-            metricDescriptor.getType(), timeSeriesList.getClass().getSimpleName()));
+            Type.CUMULATIVE_INT64, TIME_SERIES_GAUGE_LIST.getClass().getSimpleName()));
+  }
+
+  private void typeMismatch(
+      MetricDescriptor metricDescriptor, TimeSeriesList timeSeriesList, String errorMessage) {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(errorMessage);
     Metric.create(metricDescriptor, timeSeriesList);
   }
 
