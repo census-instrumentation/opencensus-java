@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018, OpenCensus Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.opencensus.contrib.spring.aop;
 
 import io.opencensus.trace.SpanBuilder;
@@ -10,12 +26,18 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Configurable;
 
 /**
+ * CensusSpringSqlAspect captures span from all SQL invocations that utilize
+ * java.sql.Statement.execute*
  */
 @Aspect
 @Configurable
-public class CensusSpringSQLAspect {
+public class CensusSpringSqlAspect {
   private static final Tracer tracer = Tracing.getTracer();
 
+  /**
+   * trace handles invocations of java.sql.Statement.execute*. A new span will be created whose name
+   * is (execute|executeQuery|executeQuery)-(hash of sql).
+   */
   @Around("execute() || testing()")
   public Object trace(ProceedingJoinPoint call) throws Throwable {
     if (call.getArgs().length == 0 || call.getArgs()[0] == null) {
@@ -30,16 +52,14 @@ public class CensusSpringSQLAspect {
   }
 
   /**
-   * execute creates spans around all invocations of Statement.execute*.  The raw SQL
-   * will be stored in an annotation associated with the Span
+   * execute creates spans around all invocations of Statement.execute*. The raw SQL will be stored
+   * in an annotation associated with the Span
    */
   @Pointcut("execution(public !void java.sql.Statement.execute*(java.lang.String))")
-  protected void execute() {
-  }
+  protected void execute() {}
 
-  @Pointcut("execution(public void io.opencensus.contrib.spring.aop.Sample.execute*(java.lang.String))")
-  protected void testing() {
-  }
+  @Pointcut("execution(public void Sample.execute*(java.lang.String))")
+  protected void testing() {}
 
   private static String makeSpanName(ProceedingJoinPoint call, String sql) {
     String hash = Integer.toHexString(hashCode(sql.toCharArray()));

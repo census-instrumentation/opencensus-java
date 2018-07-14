@@ -1,4 +1,22 @@
+/*
+ * Copyright 2018, OpenCensus Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.opencensus.contrib.spring.aop;
+
+import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.testing.export.TestHandler;
 import io.opencensus.trace.Annotation;
@@ -7,6 +25,7 @@ import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.samplers.Samplers;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,12 +34,6 @@ import org.junit.runners.JUnit4;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
-
-/**
- */
 @RunWith(JUnit4.class)
 public class CensusSpringInterceptorTest {
   ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
@@ -34,12 +47,12 @@ public class CensusSpringInterceptorTest {
     SpanExporter exporter = Tracing.getExportComponent().getSpanExporter();
     exporter.registerHandler("testing", handler);
 
-    TraceParams params = Tracing
-        .getTraceConfig()
-        .getActiveTraceParams()
-        .toBuilder()
-        .setSampler(Samplers.alwaysSample())
-        .build();
+    TraceParams params =
+        Tracing.getTraceConfig()
+            .getActiveTraceParams()
+            .toBuilder()
+            .setSampler(Samplers.alwaysSample())
+            .build();
     Tracing.getTraceConfig().updateActiveTraceParams(params);
   }
 
@@ -76,7 +89,7 @@ public class CensusSpringInterceptorTest {
   }
 
   @Test
-  public void testSQLExecute() throws Exception {
+  public void testSqlExecute() throws Exception {
     // When
     String sql = "select 1";
     Sample sample = (Sample) context.getBean("sample");
@@ -94,7 +107,7 @@ public class CensusSpringInterceptorTest {
   }
 
   @Test
-  public void testSQLQuery() throws Exception {
+  public void testSqlQuery() throws Exception {
     // When
     String sql = "select 2";
     Sample sample = (Sample) context.getBean("sample");
@@ -104,15 +117,16 @@ public class CensusSpringInterceptorTest {
     List<SpanData> data = handler.waitForExport(1);
     assertThat(data).isNotNull();
     assertThat(data.size()).isEqualTo(1);
-    assertThat(data.get(0).getName()).isEqualTo("executeQuery-4705ea0e"); // sql-{hash of sql statement}
+    assertThat(data.get(0).getName()).isEqualTo("executeQuery-4705ea0e");
 
-    List<SpanData.TimedEvent<Annotation>> events = data.get(0).getAnnotations().getEvents();
+    SpanData.TimedEvents<Annotation> annotations = data.get(0).getAnnotations();
+    List<SpanData.TimedEvent<Annotation>> events = annotations.getEvents();
     assertThat(events.size()).isEqualTo(1);
     assertThat(events.get(0).getEvent().getDescription()).isEqualTo(sql);
   }
 
   @Test
-  public void testSQLUpdate() throws Exception {
+  public void testSqlUpdate() throws Exception {
     // When
     String sql = "update content set value = 1";
     Sample sample = (Sample) context.getBean("sample");
@@ -122,7 +136,7 @@ public class CensusSpringInterceptorTest {
     List<SpanData> data = handler.waitForExport(1);
     assertThat(data).isNotNull();
     assertThat(data.size()).isEqualTo(1);
-    assertThat(data.get(0).getName()).isEqualTo("executeUpdate-acaeb423"); // sql-{hash of sql statement}
+    assertThat(data.get(0).getName()).isEqualTo("executeUpdate-acaeb423");
 
     List<SpanData.TimedEvent<Annotation>> events = data.get(0).getAnnotations().getEvents();
     assertThat(events.size()).isEqualTo(1);

@@ -12,5 +12,5 @@
   <bean id="censusAspect" class="io.opencensus.contrib.spring.aop.CensusSpringAspect"/>
 
   <!-- traces all SQL calls -->
-  <bean id="censusSQLAspect" class="io.opencensus.contrib.spring.aop.CensusSpringSQLAspect"/>
+  <bean id="censusSQLAspect" class="io.opencensus.contrib.spring.aop.CensusSpringSqlAspect"/>
 </beans>
