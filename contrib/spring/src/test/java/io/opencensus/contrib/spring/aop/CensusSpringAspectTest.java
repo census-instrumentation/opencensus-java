@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.testing.export.TestHandler;
 import io.opencensus.trace.Annotation;
+import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
@@ -35,7 +36,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 @RunWith(JUnit4.class)
-public class CensusSpringInterceptorTest {
+public class CensusSpringAspectTest {
   ApplicationContext context = new ClassPathXmlApplicationContext("spring.xml");
 
   private TestHandler handler;
@@ -86,6 +87,34 @@ public class CensusSpringInterceptorTest {
     assertThat(data).isNotNull();
     assertThat(data.size()).isEqualTo(1);
     assertThat(data.get(0).getName()).isEqualTo("blah");
+  }
+
+  @Test
+  public void testHandlesException() {
+    // When
+    Sample sample = (Sample) context.getBean("sample");
+    try {
+      sample.boom();
+    } catch (Exception ignored) {
+      //  ok
+    }
+
+    // Then
+    List<SpanData> spanList = handler.waitForExport(1);
+    assertThat(spanList).isNotNull();
+    assertThat(spanList.size()).isEqualTo(1);
+
+    SpanData spanData = spanList.get(0);
+    assertThat(spanData.getName()).isEqualTo("boom");
+    assertThat(spanData.getStatus()).isEqualTo(Status.UNKNOWN);
+
+    SpanData.TimedEvents<Annotation> annotations = spanData.getAnnotations();
+    assertThat(annotations).isNotNull();
+
+    List<SpanData.TimedEvent<Annotation>> events = annotations.getEvents();
+    assertThat(events.size()).isEqualTo(1);
+    System.out.println(events.get(0).getEvent().getDescription());
+    assertThat(events.get(0).getEvent().getDescription()).isEqualTo("exception");
   }
 
   @Test

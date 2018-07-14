@@ -17,10 +17,16 @@
 package io.opencensus.contrib.spring.aop;
 
 import io.opencensus.common.Scope;
+import io.opencensus.trace.AttributeValue;
+import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 /** Handler defines common logic for wrapping a span around the specified JoinPoint. */
@@ -32,18 +38,26 @@ final class Handler {
   static Object proceed(ProceedingJoinPoint call, SpanBuilder builder, String... annotations)
       throws Throwable {
     try (Scope scope = builder.startScopedSpan()) {
+      try {
+        for (String annotation : annotations) {
+          tracer.getCurrentSpan().addAnnotation(annotation);
+        }
 
-      for (String annotation : annotations) {
-        tracer.getCurrentSpan().addAnnotation(annotation);
+        return call.proceed();
+
+      } catch (Throwable t) {
+        StringWriter sw = new StringWriter(512);
+        t.printStackTrace(new PrintWriter(sw));
+
+        Map<String, AttributeValue> attributes = new HashMap<>();
+        attributes.put("message", AttributeValue.stringAttributeValue(t.getMessage()));
+        attributes.put("stackTrace", AttributeValue.stringAttributeValue(sw.toString()));
+
+        Span span = tracer.getCurrentSpan();
+        span.addAnnotation("exception", attributes);
+        span.setStatus(Status.UNKNOWN);
+        throw t;
       }
-
-      return call.proceed();
-
-    } catch (Throwable t) {
-      io.opencensus.trace.Span span = tracer.getCurrentSpan();
-      span.addAnnotation(t.getMessage());
-      span.setStatus(Status.UNKNOWN);
-      throw t;
     }
   }
 }

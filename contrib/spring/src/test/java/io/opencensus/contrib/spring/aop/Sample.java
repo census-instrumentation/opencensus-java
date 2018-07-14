@@ -39,6 +39,11 @@ public class Sample {
     Thread.sleep(delay);
   }
 
+  @Trace()
+  void boom() throws Exception {
+    throw new Exception("boom");
+  }
+
   public void execute(String sql) throws SQLException {}
 
   public void executeQuery(String sql) throws SQLException {}
