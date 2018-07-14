@@ -1,0 +1,21 @@
+description = 'OpenCensus Spring'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.8
+    it.targetCompatibility = 1.8
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            project(':opencensus-impl'),
+            project(':opencensus-testing'),
+            libraries.aspectj,
+            libraries.spring_aspects,
+            libraries.spring_context,
+            libraries.spring_context_support,
+            libraries.spring_test
+
+    signature "org.codehaus.mojo.signature:java18:+@signature"
+}

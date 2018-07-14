@@ -57,9 +57,11 @@ project(':opencensus-metrics').projectDir = "$rootDir/metrics" as File
 if (JavaVersion.current().isJava8Compatible()) {
     include ":opencensus-all"
     include ":opencensus-benchmarks"
+    include ":opencensus-contrib-spring"
     include ":opencensus-contrib-zpages"
 
     project(':opencensus-all').projectDir = "$rootDir/all" as File
     project(':opencensus-benchmarks').projectDir = "$rootDir/benchmarks" as File
+    project(':opencensus-contrib-spring').projectDir = "$rootDir/contrib/spring" as File
     project(':opencensus-contrib-zpages').projectDir = "$rootDir/contrib/zpages" as File
 }
