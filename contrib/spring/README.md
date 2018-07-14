@@ -61,7 +61,7 @@ spring xml configuration.
   <!-- traces explicit calls to @Trace -->
   <bean id="censusAspect" class="io.opencensus.contrib.spring.aop.CensusSpringAspect"/>
 
-  <!-- traces all SQL calls e.g. New Relic -->
+  <!-- traces all SQL calls -->
   <bean id="censusSQLAspect" class="io.opencensus.contrib.spring.aop.CensusSpringSQLAspect"/>
 ```
 
