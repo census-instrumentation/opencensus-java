@@ -40,7 +40,7 @@ public abstract class TraceParams {
   private static final int DEFAULT_SPAN_MAX_NUM_ATTRIBUTES = 32;
   private static final int DEFAULT_SPAN_MAX_NUM_ANNOTATIONS = 32;
   private static final int DEFAULT_SPAN_MAX_NUM_MESSAGE_EVENTS = 128;
-  private static final int DEFAULT_SPAN_MAX_NUM_LINKS = 128;
+  private static final int DEFAULT_SPAN_MAX_NUM_LINKS = 32;
 
   /**
    * Default {@code TraceParams}.
