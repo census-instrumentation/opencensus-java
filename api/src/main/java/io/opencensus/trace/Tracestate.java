@@ -16,6 +16,7 @@
 
 package io.opencensus.trace;
 
+import com.google.auto.value.AutoValue;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,20 +40,13 @@ import javax.annotation.concurrent.Immutable;
  * @since 0.16
  */
 @Immutable
-public final class TraceState {
+@AutoValue
+public abstract class Tracestate {
   private static final int KEY_MAX_SIZE = 256;
   private static final int VALUE_MAX_SIZE = 256;
-  private static final int MAX_KEY_VALUE_PAIRS = 128;
+  private static final int MAX_KEY_VALUE_PAIRS = 32;
 
-  // Immutable list of key-value pairs.
-  private final List<Entry> entries;
-
-  public static final TraceState EMPTY =
-      new TraceState(Collections.unmodifiableList(new ArrayList<Entry>()));
-
-  private TraceState(List<Entry> entries) {
-    this.entries = entries;
-  }
+  public static final Tracestate EMPTY = Tracestate.create(new ArrayList<Entry>());
 
   /**
    * Returns the value to which the specified key is mapped, or null if this map contains no mapping
@@ -61,12 +55,13 @@ public final class TraceState {
    * @param key with which the specified value is to be associated
    * @return the value to which the specified key is mapped, or null if this map contains no mapping
    *     for the key.
+   * @since 0.16
    */
   @Nullable
   public String get(String key) {
-    for (Entry entry : entries) {
-      if (entry.key.equals(key)) {
-        return entry.value;
+    for (Entry entry : getEntries()) {
+      if (entry.getKey().equals(key)) {
+        return entry.getValue();
       }
     }
     return null;
@@ -76,60 +71,124 @@ public final class TraceState {
    * Returns a {@link List} view of the mappings contained in this {@code TraceState}.
    *
    * @return a {@link List} view of the mappings contained in this {@code TraceState}.
+   * @since 0.16
    */
-  public List<Entry> entryList() {
-    return entries;
+  public abstract List<Entry> getEntries();
+
+  /**
+   * Returns a builder based on this {@code Tracestate}.
+   *
+   * @return a builder based on this {@code Tracestate}.
+   * @since 0.16
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
   }
 
   /**
-   * Creates a TraceState by appending the extra entries to the {@code parent} in front of the
-   * key-value pairs list and removing duplicate entries.
+   * Builder class for {@link MessageEvent}.
    *
-   * @param parent the parent {@code TraceState}.
-   * @param extraEntries the list of extra entries.
-   * @return a TraceState by appending the extra entries to the {@code parent}.
+   * @since 0.16
    */
-  public static TraceState create(TraceState parent, List<Entry> extraEntries) {
-    Utils.checkNotNull(parent, "parent");
-    Utils.checkNotNull(extraEntries, "extraEntries");
-    if (extraEntries.size() == 0) {
-      return parent;
+  public static final class Builder {
+    private final Tracestate parent;
+    private List<Entry> toAdd;
+
+    private Builder(Tracestate parent) {
+      this.parent = parent;
     }
 
-    for (Entry entry : extraEntries) {
-      Utils.checkArgument(validateKey(entry.key), "Invalid key " + entry.key);
-      Utils.checkArgument(validateKey(entry.value), "Invalid value " + entry.value);
+    /**
+     * Adds a key-value pair.
+     *
+     * @param key the key for the {@code Entry}.
+     * @param value the value for the {@code Entry}.
+     * @return this.
+     */
+    public Builder add(String key, String value) {
+      if (toAdd == null) {
+        toAdd = new ArrayList<Entry>();
+      }
+      // Inserts the element at the front of this list.
+      toAdd.add(0, Entry.create(key, value));
+      return this;
     }
 
-    List<Entry> ret = new ArrayList<Entry>(extraEntries.size() + parent.entries.size());
-    ret.addAll(extraEntries);
-    for (Entry entry : parent.entries) {
-      boolean isPresent = false;
-      for (Entry entryExtra : extraEntries) {
-        if (entryExtra.key.equals(entry.key)) {
-          isPresent = true;
-          break;
+    /**
+     * Builds a TraceState by adding the entries to the parent in front of the key-value pairs list
+     * and removing duplicate entries.
+     *
+     * @return a TraceState with the new entries.
+     */
+    public Tracestate build() {
+      return create(parent, toAdd);
+    }
+
+    private static Tracestate create(Tracestate parent, List<Entry> toAdd) {
+      Utils.checkNotNull(parent, "parent");
+      if (toAdd == null || toAdd.size() == 0) {
+        return parent;
+      }
+
+      List<Entry> ret = new ArrayList<Entry>(toAdd.size() + parent.getEntries().size());
+      ret.addAll(toAdd);
+      for (Entry entry : parent.getEntries()) {
+        boolean isPresent = false;
+        for (Entry entryExtra : toAdd) {
+          if (entryExtra.getKey().equals(entry.getKey())) {
+            isPresent = true;
+            break;
+          }
+        }
+        if (!isPresent) {
+          ret.add(entry);
         }
       }
-      if (!isPresent) {
-        ret.add(entry);
-      }
+
+      return Tracestate.create(ret);
     }
-
-    Utils.checkState(ret.size() <= MAX_KEY_VALUE_PAIRS, "Invalid size");
-
-    return new TraceState(Collections.unmodifiableList(ret));
   }
 
+  /**
+   * Immutable key-value pair for {@code Tracestate}.
+   *
+   * @since 0.16
+   */
   @Immutable
-  public static final class Entry {
-    private final String key;
-    private final String value;
-
-    private Entry(String key, String value) {
-      this.key = key;
-      this.value = value;
+  @AutoValue
+  public abstract static class Entry {
+    /**
+     * Creates a new {@code Entry} for the {@code Tracestate}.
+     *
+     * @param key the Entry's key.
+     * @param value the Entry's value.
+     * @since 0.16
+     */
+    public static Entry create(String key, String value) {
+      Utils.checkNotNull(key, "key");
+      Utils.checkNotNull(value, "value");
+      Utils.checkArgument(validateKey(key), "Invalid key " + key);
+      Utils.checkArgument(validateValue(value), "Invalid value " + value);
+      return new AutoValue_Tracestate_Entry(key, value);
     }
+
+    /**
+     * Returns the key {@code String}.
+     *
+     * @return the key {@code String}.
+     * @since 0.16
+     */
+    public abstract String getKey();
+
+    /**
+     * Returns the value {@code String}.
+     *
+     * @return the value {@code String}.
+     * @since 0.16
+     */
+    public abstract String getValue();
+
+    Entry() {}
   }
 
   // Key is opaque string up to 256 characters printable. It MUST begin with a lowercase letter, and
@@ -170,4 +229,11 @@ public final class TraceState {
     }
     return false;
   }
+
+  private static Tracestate create(List<Entry> entries) {
+    Utils.checkState(entries.size() <= MAX_KEY_VALUE_PAIRS, "Invalid size");
+    return new AutoValue_Tracestate(Collections.unmodifiableList(entries));
+  }
+
+  Tracestate() {}
 }
