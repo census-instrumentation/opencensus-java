@@ -6,6 +6,7 @@
 - Add an artifact `opencensus-contrib-exemplar-util` that has helper utilities 
   on recording exemplars.
 - Reduce the default limit on `Link`s per `Span` to 32 (was 128 before).
+- Add two new APIs `defaultTagContext()` and `defaultBuilder()` to `Tagger`.
 
 ## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.
