@@ -24,7 +24,7 @@ public class Sample {
     // do work
   }
 
-  @Trace(name = "custom-label")
+  @Trace(name = "custom-span-name")
   void example2() {
     // do moar work
   }

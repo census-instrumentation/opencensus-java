@@ -76,7 +76,7 @@ Once configured, you can use the `@Trace` annotation to indicate that a method s
   }
   
   // a custom span name can also be provided to @Trace  
-  @Trace(name = "custom-label")
+  @Trace(name = "custom-span-name")
   void example2() {
     // do moar work
   }
