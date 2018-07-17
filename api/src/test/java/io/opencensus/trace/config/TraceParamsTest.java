@@ -33,7 +33,7 @@ public class TraceParamsTest {
     assertThat(TraceParams.DEFAULT.getMaxNumberOfAnnotations()).isEqualTo(32);
     assertThat(TraceParams.DEFAULT.getMaxNumberOfNetworkEvents()).isEqualTo(128);
     assertThat(TraceParams.DEFAULT.getMaxNumberOfMessageEvents()).isEqualTo(128);
-    assertThat(TraceParams.DEFAULT.getMaxNumberOfLinks()).isEqualTo(128);
+    assertThat(TraceParams.DEFAULT.getMaxNumberOfLinks()).isEqualTo(32);
   }
 
   @Test(expected = NullPointerException.class)
