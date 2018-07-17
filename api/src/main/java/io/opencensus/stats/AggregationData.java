@@ -22,6 +22,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -463,6 +464,24 @@ public abstract class AggregationData {
         }
         return new AutoValue_AggregationData_DistributionData_Exemplar(
             value, timestamp, attachmentsCopy);
+      }
+
+      private static final Comparator<Exemplar> EXEMPLAR_COMPARATOR =
+          new Comparator<Exemplar>() {
+            @Override
+            public int compare(Exemplar o1, Exemplar o2) {
+              return Double.compare(o1.getValue(), o2.getValue());
+            }
+          };
+
+      /**
+       * Returns a {@link Comparator} of {@link Exemplar} that compares the double value.
+       *
+       * @return a {@code Comparator} of {@code Exemplar}
+       * @since 0.16
+       */
+      public static Comparator<Exemplar> getComparator() {
+        return EXEMPLAR_COMPARATOR;
       }
     }
   }
