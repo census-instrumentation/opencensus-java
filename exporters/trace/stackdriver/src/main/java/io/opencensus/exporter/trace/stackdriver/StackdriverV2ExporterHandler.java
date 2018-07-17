@@ -24,7 +24,6 @@ import com.google.cloud.trace.v2.TraceServiceClient;
 import com.google.cloud.trace.v2.TraceServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.BaseEncoding;
 import com.google.devtools.cloudtrace.v2.AttributeValue;
 import com.google.devtools.cloudtrace.v2.ProjectName;
 import com.google.devtools.cloudtrace.v2.Span;
@@ -53,8 +52,6 @@ import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.SpanId;
-import io.opencensus.trace.TraceId;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
@@ -113,7 +110,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   StackdriverV2ExporterHandler(String projectId, TraceServiceClient traceServiceClient) {
     this.projectId = checkNotNull(projectId, "projectId");
     this.traceServiceClient = traceServiceClient;
-    projectName = ProjectName.newBuilder().setProject(projectId).build();
+    projectName = ProjectName.of(this.projectId);
 
     Tracing.getExportComponent()
         .getSampledSpanStore()
@@ -131,21 +128,20 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         projectId, TraceServiceClient.create(traceServiceSettings));
   }
 
-  static StackdriverV2ExporterHandler create(String projectId) throws IOException {
-    return new StackdriverV2ExporterHandler(projectId, TraceServiceClient.create());
-  }
-
   @VisibleForTesting
   Span generateSpan(SpanData spanData, Map<String, AttributeValue> resourceLabels) {
     SpanContext context = spanData.getContext();
-    final String traceIdHex = encodeTraceId(context.getTraceId());
-    final String spanIdHex = encodeSpanId(context.getSpanId());
+    final String spanIdHex = context.getSpanId().toLowerBase16();
     SpanName spanName =
-        SpanName.newBuilder().setProject(projectId).setTrace(traceIdHex).setSpan(spanIdHex).build();
+        SpanName.newBuilder()
+            .setProject(projectId)
+            .setTrace(context.getTraceId().toLowerBase16())
+            .setSpan(spanIdHex)
+            .build();
     Span.Builder spanBuilder =
         Span.newBuilder()
             .setName(spanName.toString())
-            .setSpanId(encodeSpanId(context.getSpanId()))
+            .setSpanId(spanIdHex)
             .setDisplayName(
                 toTruncatableStringProto(toDisplayName(spanData.getName(), spanData.getKind())))
             .setStartTime(toTimestampProto(spanData.getStartTimestamp()))
@@ -166,18 +162,10 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       spanBuilder.setChildSpanCount(Int32Value.newBuilder().setValue(childSpanCount).build());
     }
     if (spanData.getParentSpanId() != null && spanData.getParentSpanId().isValid()) {
-      spanBuilder.setParentSpanId(encodeSpanId(spanData.getParentSpanId()));
+      spanBuilder.setParentSpanId(spanData.getParentSpanId().toLowerBase16());
     }
 
     return spanBuilder.build();
-  }
-
-  private static String encodeSpanId(SpanId spanId) {
-    return BaseEncoding.base16().lowerCase().encode(spanId.getBytes());
-  }
-
-  private static String encodeTraceId(TraceId traceId) {
-    return BaseEncoding.base16().lowerCase().encode(traceId.getBytes());
   }
 
   private static Span.TimeEvents toTimeEventsProto(
@@ -449,8 +437,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static Link toLinkProto(io.opencensus.trace.Link link) {
     checkNotNull(link);
     return Link.newBuilder()
-        .setTraceId(encodeTraceId(link.getTraceId()))
-        .setSpanId(encodeSpanId(link.getSpanId()))
+        .setTraceId(link.getTraceId().toLowerBase16())
+        .setSpanId(link.getSpanId().toLowerBase16())
         .setType(toLinkTypeProto(link.getType()))
         .setAttributes(toAttributesBuilderProto(link.getAttributes(), 0))
         .build();
