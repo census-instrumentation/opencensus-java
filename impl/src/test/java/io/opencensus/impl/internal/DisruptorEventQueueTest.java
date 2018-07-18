@@ -18,9 +18,8 @@ package io.opencensus.impl.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.util.ServiceLoader;
-
 import io.opencensus.implcore.internal.EventQueue;
+import java.util.ServiceLoader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -107,7 +106,7 @@ public class DisruptorEventQueueTest {
   @Test
   public void loadCustomDisruptorConfig() {
     // ensure that your environment properly processes test/resources/META-INF
-    DisruptorConfigSPI config = ServiceLoader.load(DisruptorConfigSPI.class).iterator().next();
+    DisruptorConfig config = ServiceLoader.load(DisruptorConfig.class).iterator().next();
 
     assertThat(config).isInstanceOf(DisruptorTestConfig.class);
   }

@@ -24,7 +24,6 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
 import io.opencensus.implcore.internal.EventQueue;
-
 import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -124,20 +123,20 @@ public final class DisruptorEventQueue implements EventQueue {
   private static DisruptorEventQueue create() {
 
     // User configured Disruptor. #1099
-    Iterator<DisruptorConfigSPI> configurers = ServiceLoader.load(DisruptorConfigSPI.class)
-        .iterator();
-    DisruptorConfigSPI configSPI =
+    Iterator<DisruptorConfig> configurers = ServiceLoader.load(DisruptorConfig.class).iterator();
+    DisruptorConfig configService =
         configurers.hasNext() ? configurers.next() : new DisruptorDefaultConfig();
 
     // Create new Disruptor for processing. Note that Disruptor creates a single thread per
     // consumer (see https://github.com/LMAX-Exchange/disruptor/issues/121 for details);
     // this ensures that the event handler can take unsynchronized actions whenever possible.
-    Disruptor<DisruptorEvent> disruptor = configSPI.createDisruptor(
-        DisruptorEventFactory.INSTANCE,
-        DISRUPTOR_BUFFER_SIZE,
-        new DaemonThreadFactory("OpenCensus.Disruptor"),
-        ProducerType.MULTI,
-        new SleepingWaitStrategy());
+    Disruptor<DisruptorEvent> disruptor =
+        configService.createDisruptor(
+            DisruptorEventFactory.INSTANCE,
+            DISRUPTOR_BUFFER_SIZE,
+            new DaemonThreadFactory("OpenCensus.Disruptor"),
+            ProducerType.MULTI,
+            new SleepingWaitStrategy());
     disruptor.handleEventsWith(new DisruptorEventHandler[] {DisruptorEventHandler.INSTANCE});
     disruptor.start();
     final RingBuffer<DisruptorEvent> ringBuffer = disruptor.getRingBuffer();
