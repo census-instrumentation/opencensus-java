@@ -17,5 +17,5 @@ dependencies {
             libraries.spring_context_support,
             libraries.spring_test
 
-    signature "org.codehaus.mojo.signature:java18:+@signature"
+    signature "org.codehaus.mojo.signature:java16:+@signature"
 }
