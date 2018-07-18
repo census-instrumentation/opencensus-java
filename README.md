@@ -32,12 +32,19 @@ For Maven add to your `pom.xml`:
     <artifactId>opencensus-api</artifactId>
     <version>0.15.0</version>
   </dependency>
+  <dependency>
+    <groupId>io.opencensus</groupId>
+    <artifactId>opencensus-impl</artifactId>
+    <version>0.15.0</version>
+    <scope>runtime</scope>
+  </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```gradle
 compile 'io.opencensus:opencensus-api:0.15.0'
+runtime 'io.opencensus:opencensus-impl:0.15.0'
 ```
 
 For Bazel add the following lines to the WORKSPACE file:
@@ -47,14 +54,30 @@ maven_jar(
     artifact = "io.opencensus:opencensus-api:0.15.0",
     sha1 = "9a098392b287d7924660837f4eba0ce252013683",
 )
+
+maven_jar(
+    name = "io_opencensus_opencensus_impl_core",
+    artifact = "io.opencensus:opencensus-impl-core:0.15.0",
+    sha1 = "36c775926ba1e54af7c37d0503cfb99d986f6229",
+)
+
+maven_jar(
+    name = "io_opencensus_opencensus_impl",
+    artifact = "io.opencensus:opencensus-impl:0.15.0",
+    sha1 = "d7bf0d7ee5a0594f840271c11c9f8d6f754f35d6",
+)
 ```
-Then targets can specify `@io_opencensus_opencensus_api//jar` as a dependency to depend on this jar:
+Then add the following lines to BUILD.bazel file:
 ```bazel
 deps = [
     "@io_opencensus_opencensus_api//jar",
 ]
+runtime_deps = [
+    "@io_opencensus_opencensus_impl_core//jar",
+    "@io_opencensus_opencensus_impl//jar",
+]
 ```
-You may also need to import the transitive dependencies. See [generate external dependencies from 
+You may need to import the transitive dependencies. See [generate external dependencies from 
 Maven projects](https://docs.bazel.build/versions/master/generate-workspace.html).
 
 ### Hello "OpenCensus" trace events
@@ -188,64 +211,6 @@ public final class MyClassWithStats {
 
 Besides recording tracing/stats events the application also need to link the implementation,
 setup exporters, and debugging [Z-Pages](https://github.com/census-instrumentation/opencensus-java/tree/master/contrib/zpages).
-
-### Add the dependencies to your project
-
-For Maven add to your `pom.xml`:
-```xml
-<dependencies>
-  <dependency>
-    <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-api</artifactId>
-    <version>0.15.0</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-impl</artifactId>
-    <version>0.15.0</version>
-    <scope>runtime</scope>
-  </dependency>
-</dependencies>
-```
-
-For Gradle add to your dependencies:
-```gradle
-compile 'io.opencensus:opencensus-api:0.15.0'
-runtime 'io.opencensus:opencensus-impl:0.15.0'
-```
-
-For Bazel add the following lines to the WORKSPACE file:
-```
-maven_jar(
-    name = "io_opencensus_opencensus_api",
-    artifact = "io.opencensus:opencensus-api:0.15.0",
-    sha1 = "9a098392b287d7924660837f4eba0ce252013683",
-)
-
-maven_jar(
-    name = "io_opencensus_opencensus_impl_core",
-    artifact = "io.opencensus:opencensus-impl-core:0.15.0",
-    sha1 = "36c775926ba1e54af7c37d0503cfb99d986f6229",
-)
-
-maven_jar(
-    name = "io_opencensus_opencensus_impl",
-    artifact = "io.opencensus:opencensus-impl:0.15.0",
-    sha1 = "d7bf0d7ee5a0594f840271c11c9f8d6f754f35d6",
-)
-```
-Then add the following lines to BUILD.bazel file:
-```bazel
-deps = [
-    "@io_opencensus_opencensus_api//jar",
-]
-runtime_deps = [
-    "@io_opencensus_opencensus_impl_core//jar",
-    "@io_opencensus_opencensus_impl//jar",
-]
-```
-Again you may need to import the transitive dependencies. See [generate external dependencies from 
-Maven projects](https://docs.bazel.build/versions/master/generate-workspace.html).
 
 ### How to setup exporters?
 
