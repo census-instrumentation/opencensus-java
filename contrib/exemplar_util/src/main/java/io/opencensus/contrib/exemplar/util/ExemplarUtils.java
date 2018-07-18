@@ -21,6 +21,7 @@ import io.opencensus.stats.MeasureMap;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
+import java.util.Comparator;
 import javax.annotation.Nullable;
 
 /**
@@ -65,6 +66,24 @@ public final class ExemplarUtils {
     checkNotNull(spanContext, "spanContext");
     measureMap.putAttachment(ATTACHMENT_KEY_TRACE_ID, spanContext.getTraceId().toLowerBase16());
     measureMap.putAttachment(ATTACHMENT_KEY_SPAN_ID, spanContext.getSpanId().toLowerBase16());
+  }
+
+  private static final Comparator<Exemplar> EXEMPLAR_COMPARATOR =
+      new Comparator<Exemplar>() {
+        @Override
+        public int compare(Exemplar o1, Exemplar o2) {
+          return Double.compare(o1.getValue(), o2.getValue());
+        }
+      };
+
+  /**
+   * Returns a {@link Comparator} of {@link Exemplar} that compares the double value.
+   *
+   * @return a {@code Comparator} of {@code Exemplar}
+   * @since 0.16
+   */
+  public static Comparator<Exemplar> getComparator() {
+    return EXEMPLAR_COMPARATOR;
   }
 
   // TODO: reuse this method from shared artifact.
