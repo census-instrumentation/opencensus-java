@@ -41,6 +41,16 @@ public abstract class Tagger {
   public abstract TagContext empty();
 
   /**
+   * Returns the default {@code TagContext}.
+   *
+   * @return the default {@code TagContext}.
+   * @since 0.16
+   */
+  public TagContext defaultTagContext() {
+    return empty();
+  }
+
+  /**
    * Returns the current {@code TagContext}.
    *
    * @return the current {@code TagContext}.
@@ -55,6 +65,16 @@ public abstract class Tagger {
    * @since 0.8
    */
   public abstract TagContextBuilder emptyBuilder();
+
+  /**
+   * Returns a new {@code Builder} for default {@code TagContext}.
+   *
+   * @return a new {@code Builder} for default {@code TagContext}.
+   * @since 0.16
+   */
+  public TagContextBuilder defaultBuilder() {
+    return emptyBuilder();
+  }
 
   /**
    * Returns a builder based on this {@code TagContext}.

@@ -1,0 +1,462 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "opencensus-impl-lite",
+                "projectName": "opencensus-impl-lite",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/impl_lite",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-logging",
+                "projectName": "opencensus-exporter-trace-logging",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/logging",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-metrics",
+                "projectName": "opencensus-metrics",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/metrics",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-stats-prometheus",
+                "projectName": "opencensus-exporter-stats-prometheus",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/stats/prometheus",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-instana",
+                "projectName": "opencensus-exporter-trace-instana",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/instana",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-impl-core",
+                "projectName": "opencensus-impl-core",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/impl_core",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-stats-stackdriver",
+                "projectName": "opencensus-exporter-stats-stackdriver",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/stats/stackdriver",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-jaeger",
+                "projectName": "opencensus-exporter-trace-jaeger",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/jaeger",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-grpc-util",
+                "projectName": "opencensus-contrib-grpc-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/grpc_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-stats-signalfx",
+                "projectName": "opencensus-exporter-stats-signalfx",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/stats/signalfx",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-zpages",
+                "projectName": "opencensus-contrib-zpages",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/zpages",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-zipkin",
+                "projectName": "opencensus-exporter-trace-zipkin",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/zipkin",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-all",
+                "projectName": "opencensus-all",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/all",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-monitored-resource-util",
+                "projectName": "opencensus-contrib-monitored-resource-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/monitored_resource_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-http-util",
+                "projectName": "opencensus-contrib-http-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/http_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-impl",
+                "projectName": "opencensus-impl",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/impl",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-exemplar-util",
+                "projectName": "opencensus-contrib-exemplar-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/exemplar_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-stackdriver",
+                "projectName": "opencensus-exporter-trace-stackdriver",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/stackdriver",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-agent",
+                "projectName": "opencensus-contrib-agent",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/agent",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-api",
+                "projectName": "opencensus-api",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/api",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-log-correlation-stackdriver",
+                "projectName": "opencensus-contrib-log-correlation-stackdriver",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/log_correlation/stackdriver",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-benchmarks",
+                "projectName": "opencensus-benchmarks",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/benchmarks",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-appengine-standard-util",
+                "projectName": "opencensus-contrib-appengine-standard-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/appengine_standard_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-grpc-metrics",
+                "projectName": "opencensus-contrib-grpc-metrics",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/grpc_metrics",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-testing",
+                "projectName": "opencensus-testing",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/testing",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "opencensus-impl-lite",
+                "projectName": "opencensus-impl-lite",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/impl_lite",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-logging",
+                "projectName": "opencensus-exporter-trace-logging",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/logging",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-metrics",
+                "projectName": "opencensus-metrics",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/metrics",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-stats-prometheus",
+                "projectName": "opencensus-exporter-stats-prometheus",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/stats/prometheus",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-instana",
+                "projectName": "opencensus-exporter-trace-instana",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/instana",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-impl-core",
+                "projectName": "opencensus-impl-core",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/impl_core",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-stats-stackdriver",
+                "projectName": "opencensus-exporter-stats-stackdriver",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/stats/stackdriver",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-jaeger",
+                "projectName": "opencensus-exporter-trace-jaeger",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/jaeger",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-grpc-util",
+                "projectName": "opencensus-contrib-grpc-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/grpc_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-stats-signalfx",
+                "projectName": "opencensus-exporter-stats-signalfx",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/stats/signalfx",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-zpages",
+                "projectName": "opencensus-contrib-zpages",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/zpages",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-zipkin",
+                "projectName": "opencensus-exporter-trace-zipkin",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/zipkin",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-all",
+                "projectName": "opencensus-all",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/all",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-monitored-resource-util",
+                "projectName": "opencensus-contrib-monitored-resource-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/monitored_resource_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-http-util",
+                "projectName": "opencensus-contrib-http-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/http_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-impl",
+                "projectName": "opencensus-impl",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/impl",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-exemplar-util",
+                "projectName": "opencensus-contrib-exemplar-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/exemplar_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-exporter-trace-stackdriver",
+                "projectName": "opencensus-exporter-trace-stackdriver",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/exporters/trace/stackdriver",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-agent",
+                "projectName": "opencensus-contrib-agent",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/agent",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-api",
+                "projectName": "opencensus-api",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/api",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-log-correlation-stackdriver",
+                "projectName": "opencensus-contrib-log-correlation-stackdriver",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/log_correlation/stackdriver",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-benchmarks",
+                "projectName": "opencensus-benchmarks",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/benchmarks",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-appengine-standard-util",
+                "projectName": "opencensus-contrib-appengine-standard-util",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/appengine_standard_util",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-contrib-grpc-metrics",
+                "projectName": "opencensus-contrib-grpc-metrics",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/contrib/grpc_metrics",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            },
+            {
+                "name": "opencensus-testing",
+                "projectName": "opencensus-testing",
+                "workingDirectory": "/Users/songya/Google/opencensus-java/testing",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}

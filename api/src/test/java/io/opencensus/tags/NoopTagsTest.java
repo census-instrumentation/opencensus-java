@@ -89,8 +89,10 @@ public final class NoopTagsTest {
   public void noopTagger() {
     Tagger noopTagger = NoopTags.getNoopTagger();
     assertThat(noopTagger.empty()).isSameAs(NoopTags.getNoopTagContext());
+    assertThat(noopTagger.defaultTagContext()).isSameAs(NoopTags.getNoopTagContext());
     assertThat(noopTagger.getCurrentTagContext()).isSameAs(NoopTags.getNoopTagContext());
     assertThat(noopTagger.emptyBuilder()).isSameAs(NoopTags.getNoopTagContextBuilder());
+    assertThat(noopTagger.defaultBuilder()).isSameAs(NoopTags.getNoopTagContextBuilder());
     assertThat(noopTagger.toBuilder(TAG_CONTEXT)).isSameAs(NoopTags.getNoopTagContextBuilder());
     assertThat(noopTagger.currentBuilder()).isSameAs(NoopTags.getNoopTagContextBuilder());
     assertThat(noopTagger.withTagContext(TAG_CONTEXT)).isSameAs(NoopScope.getInstance());
