@@ -58,7 +58,7 @@ spring xml configuration.
   <!-- Enable @AspectJ annotation support  -->
   <aop:aspectj-autoproxy/>
 
-  <!-- traces explicit calls to @Trace -->
+  <!-- traces explicit calls to @Traced -->
   <bean id="censusAspect" class="io.opencensus.contrib.spring.aop.CensusSpringAspect"/>
 
   <!-- traces all SQL calls -->
@@ -67,16 +67,16 @@ spring xml configuration.
 
 ### Usage 
 
-Once configured, you can use the `@Trace` annotation to indicate that a method should be traces.
+Once configured, you can use the `@Traced` annotation to indicate that a method should be traces.
 
 ```java
-  @Trace()
+  @Traced()
   void example1() {
     // do work
   }
   
-  // a custom span name can also be provided to @Trace  
-  @Trace(name = "custom-span-name")
+  // a custom span name can also be provided to @Traced
+  @Traced(name = "custom-span-name")
   void example2() {
     // do moar work
   }

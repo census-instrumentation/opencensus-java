@@ -7,7 +7,7 @@
 
   <aop:aspectj-autoproxy/>
 
-  <!-- traces explicit calls to @Trace -->
+  <!-- traces explicit calls to @Traced -->
   <bean id="censusAspect" class="io.opencensus.contrib.spring.aop.CensusSpringAspect">
     <constructor-arg ref="tracer"/>
   </bean>

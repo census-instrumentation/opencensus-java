@@ -64,7 +64,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testTraceUsesMethodAsSpanName() throws Exception {
+  public void testTracedUsesMethodAsSpanName() throws Exception {
     // When
     Sample sample = (Sample) context.getBean("sample");
     sample.call(100);
@@ -77,7 +77,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testTraceAcceptsCustomSpanName() throws Exception {
+  public void testTracedAcceptsCustomSpanName() throws Exception {
     // When
     Sample sample = (Sample) context.getBean("sample");
     sample.custom(100);

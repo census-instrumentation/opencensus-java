@@ -19,27 +19,27 @@ package io.opencensus.contrib.spring.aop;
 import java.sql.SQLException;
 
 public class Sample {
-  @Trace()
+  @Traced()
   void example1() {
     // do work
   }
 
-  @Trace(name = "custom-span-name")
+  @Traced(name = "custom-span-name")
   void example2() {
     // do moar work
   }
 
-  @Trace()
+  @Traced()
   void call(long delay) throws Exception {
     Thread.sleep(delay);
   }
 
-  @Trace(name = "blah")
+  @Traced(name = "blah")
   void custom(long delay) throws Exception {
     Thread.sleep(delay);
   }
 
-  @Trace()
+  @Traced()
   void boom() throws Exception {
     throw new Exception("boom");
   }
