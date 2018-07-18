@@ -23,7 +23,6 @@ import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +46,6 @@ final class Handler {
 
     } catch (Throwable t) {
       StringWriter sw = new StringWriter(512);
-      t.printStackTrace(new PrintWriter(sw));
 
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
       attributes.put("message", AttributeValue.stringAttributeValue(t.getMessage()));
