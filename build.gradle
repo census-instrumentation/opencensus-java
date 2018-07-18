@@ -185,7 +185,6 @@ subprojects {
                 spring_aspects: "org.springframework:spring-aspects:${springVersion}",
                 spring_context: "org.springframework:spring-context:${springVersion}",
                 spring_context_support: "org.springframework:spring-context-support:${springVersion}",
-                spring_test: "org.springframework:spring-test:${springVersion}",
                 prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",
                 protobuf: "com.google.protobuf:protobuf-java:${protobufVersion}",
 
@@ -193,6 +192,7 @@ subprojects {
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
                 junit: 'junit:junit:4.12',
                 mockito: 'org.mockito:mockito-core:1.9.5',
+                spring_test: "org.springframework:spring-test:${springVersion}",
                 truth: 'com.google.truth:truth:0.30',
         ]
     }
