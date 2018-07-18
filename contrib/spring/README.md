@@ -9,6 +9,8 @@ Provides annotation support for projects that use Spring.
 
 ### Add the dependencies to your project.
 
+Replace `SPRING_VERSION` with the version of spring you're using.
+
 For Maven add to your `pom.xml`:
 ```xml
 <dependencies>
@@ -43,7 +45,7 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-api:c'
+compile 'io.opencensus:opencensus-api:0.16.0'
 compile 'io.opencensus:opencensus-contrib-spring:0.16.0'
 runtime 'io.opencensus:opencensus-impl:0.16.0'
 runtime 'org.springframework:spring-aspects:SPRING_VERSION'
