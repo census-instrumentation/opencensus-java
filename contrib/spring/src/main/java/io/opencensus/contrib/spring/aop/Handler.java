@@ -52,7 +52,7 @@ final class Handler {
       attributes.put("stackTrace", AttributeValue.stringAttributeValue(sw.toString()));
 
       Span span = tracer.getCurrentSpan();
-      span.addAnnotation("exception", attributes);
+      span.addAnnotation("error", attributes);
       span.setStatus(Status.UNKNOWN);
       throw t;
     } finally {

@@ -51,7 +51,7 @@ runtime 'org.springframework:spring-aspects:SPRING_VERSION'
 
 ### Features
 
-#### @Traced Annotation
+#### Traced Annotation
 
 The `opencensus-contrib-spring` package provides support for a `@Traced` annotation 
 that can be applied to methods.  When applied, the method will be wrapped in a 
@@ -63,7 +63,7 @@ and the stack trace will be added to the span as an annotation.
 To enable the `@Traced` annotation, include the `CensusSpringAspect` bean.
 
 ```xml
-  <!-- traces explicit calls to @Traced -->
+  <!-- traces explicit calls to Traced -->
   <bean id="censusAspect" class="io.opencensus.contrib.spring.aop.CensusSpringAspect">
     <constructor-arg ref="tracer"/>
   </bean>
@@ -102,7 +102,7 @@ need to be done separately.
 
   <aop:aspectj-autoproxy/>
 
-  <!-- traces explicit calls to @Traced -->
+  <!-- traces explicit calls to Traced -->
   <bean id="censusAspect" class="io.opencensus.contrib.spring.aop.CensusSpringAspect">
     <constructor-arg ref="tracer"/>
   </bean>
@@ -117,7 +117,7 @@ need to be done separately.
 </beans>
 ```
 
-### @Traced Usage 
+### Traced Usage 
 
 Once configured, you can use the `@Traced` annotation to indicate that a method should 
 be wrapped with a `Span`.  By default, `@Traced` will use the name of the method as the
@@ -130,7 +130,7 @@ span name to be specified.
     // do work
   }
   
-  // a custom span name can also be provided to @Traced
+  // a custom span name can also be provided to Traced
   @Traced(name = "custom-span-name")
   void example2() {
     // do moar work

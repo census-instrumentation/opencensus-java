@@ -25,7 +25,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Configurable;
 
-/** CensusSpringAspect handles logic for the @Traced annotation. */
+/** CensusSpringAspect handles logic for the `@Traced` annotation. */
 @Aspect
 @Configurable
 public class CensusSpringAspect {
@@ -36,8 +36,8 @@ public class CensusSpringAspect {
   }
 
   /**
-   * trace handles methods executed with the @Traced annotation. A new span will be created with an
-   * optionally customizable span name.
+   * trace handles methods executed with the `@Traced` annotation. A new span will be
+   * created with an optionally customizable span name.
    *
    * @param call the join point to execute
    * @return the result of the invocation

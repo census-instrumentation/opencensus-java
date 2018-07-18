@@ -127,7 +127,7 @@ public class CensusSpringAspectTest {
 
     List<SpanData.TimedEvent<Annotation>> events = annotations.getEvents();
     assertThat(events.size()).isEqualTo(1);
-    assertThat(events.get(0).getEvent().getDescription()).isEqualTo("exception");
+    assertThat(events.get(0).getEvent().getDescription()).isEqualTo("error");
   }
 
   @Test
