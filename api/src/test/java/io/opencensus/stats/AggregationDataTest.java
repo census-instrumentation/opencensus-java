@@ -33,7 +33,6 @@ import io.opencensus.stats.AggregationData.SumDataLong;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.junit.Rule;
@@ -104,18 +103,6 @@ public class AggregationDataTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value of attachment");
     Exemplar.create(15, TIMESTAMP_1, attachments);
-  }
-
-  @Test
-  public void testExemplar_Compare() {
-    Comparator<Exemplar> comparator = Exemplar.getComparator();
-    Exemplar exemplar1 = Exemplar.create(15.0, TIMESTAMP_1, ATTACHMENTS);
-    Exemplar exemplar2 = Exemplar.create(10.0, TIMESTAMP_1, ATTACHMENTS);
-    Exemplar exemplar3 = Exemplar.create(20.0, TIMESTAMP_2, ATTACHMENTS);
-    Exemplar exemplar4 = Exemplar.create(15.0, TIMESTAMP_1, Collections.<String, String>emptyMap());
-    assertThat(comparator.compare(exemplar1, exemplar2)).isEqualTo(1);
-    assertThat(comparator.compare(exemplar1, exemplar3)).isEqualTo(-1);
-    assertThat(comparator.compare(exemplar1, exemplar4)).isEqualTo(0);
   }
 
   @Test

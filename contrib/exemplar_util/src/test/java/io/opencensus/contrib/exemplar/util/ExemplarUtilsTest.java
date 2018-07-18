@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.contrib.exemplar.util.ExemplarUtils.ATTACHMENT_KEY_SPAN_ID;
 import static io.opencensus.contrib.exemplar.util.ExemplarUtils.ATTACHMENT_KEY_TRACE_ID;
 
+import io.opencensus.common.Timestamp;
+import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.MeasureMap;
@@ -28,6 +30,8 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -46,6 +50,9 @@ public class ExemplarUtilsTest {
   private static final SpanId SPAN_ID = SpanId.generateRandomId(RANDOM);
   private static final SpanContext SPAN_CONTEXT =
       SpanContext.create(TRACE_ID, SPAN_ID, TraceOptions.DEFAULT);
+  private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 0);
+  private static final Timestamp TIMESTAMP_2 = Timestamp.create(2, 0);
+  private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -74,6 +81,18 @@ public class ExemplarUtilsTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("spanContext");
     ExemplarUtils.putSpanContextAttachments(measureMap, null);
+  }
+
+  @Test
+  public void testCompare() {
+    Comparator<Exemplar> comparator = ExemplarUtils.getComparator();
+    Exemplar exemplar1 = Exemplar.create(15.0, TIMESTAMP_1, ATTACHMENTS);
+    Exemplar exemplar2 = Exemplar.create(10.0, TIMESTAMP_1, ATTACHMENTS);
+    Exemplar exemplar3 = Exemplar.create(20.0, TIMESTAMP_2, ATTACHMENTS);
+    Exemplar exemplar4 = Exemplar.create(15.0, TIMESTAMP_1, Collections.<String, String>emptyMap());
+    assertThat(comparator.compare(exemplar1, exemplar2)).isEqualTo(1);
+    assertThat(comparator.compare(exemplar1, exemplar3)).isEqualTo(-1);
+    assertThat(comparator.compare(exemplar1, exemplar4)).isEqualTo(0);
   }
 
   private static final class FakeMeasureMap extends MeasureMap {
