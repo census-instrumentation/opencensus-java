@@ -21,6 +21,7 @@ include ":opencensus-contrib-grpc-util"
 include ":opencensus-contrib-http-util"
 include ":opencensus-contrib-log-correlation-stackdriver"
 include ":opencensus-contrib-monitored-resource-util"
+include ":opencensus-contrib-spring"
 include ":opencensus-metrics"
 
 project(':opencensus-api').projectDir = "$rootDir/api" as File
@@ -39,6 +40,7 @@ project(':opencensus-contrib-log-correlation-stackdriver').projectDir =
         "$rootDir/contrib/log_correlation/stackdriver" as File
 project(':opencensus-contrib-monitored-resource-util').projectDir =
         "$rootDir/contrib/monitored_resource_util" as File
+project(':opencensus-contrib-spring').projectDir = "$rootDir/contrib/spring" as File
 project(':opencensus-exporter-trace-instana').projectDir =
         "$rootDir/exporters/trace/instana" as File
 project(':opencensus-exporter-trace-logging').projectDir =
@@ -57,11 +59,9 @@ project(':opencensus-metrics').projectDir = "$rootDir/metrics" as File
 if (JavaVersion.current().isJava8Compatible()) {
     include ":opencensus-all"
     include ":opencensus-benchmarks"
-    include ":opencensus-contrib-spring"
     include ":opencensus-contrib-zpages"
 
     project(':opencensus-all').projectDir = "$rootDir/all" as File
     project(':opencensus-benchmarks').projectDir = "$rootDir/benchmarks" as File
-    project(':opencensus-contrib-spring').projectDir = "$rootDir/contrib/spring" as File
     project(':opencensus-contrib-zpages').projectDir = "$rootDir/contrib/zpages" as File
 }
