@@ -36,25 +36,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * CensusSpringAspectTest verifies the weaving and application of the spring
- * aop annotations.
+ * CensusSpringAspectTest verifies the weaving and application of the spring aop annotations.
  *
- * <p>Test Logic:</p>
+ * <p>Test Logic:
+ *
  * <ol>
- *   <li>Configure a simple bean, Sample, via spring.xml</li>
- *   <li>Include spring annotation support in spring.xml</li>
- *   <li>
- *      Use spring to load the Sample bean which will weave the census aspects
- *      into the bean.
- *   </li>
- *   <li>
- *      Use the TestHandler (defined in @Before and @After) to capture
- *      generated span.
- *   </li>
- *   <li>
- *      In each test, we verify the pointcuts are applied correctly by
- *      inspecting the span captured in the TestHandler.
- *   </li>
+ *   <li>Configure a simple bean, Sample, via spring.xml
+ *   <li>Include spring annotation support in spring.xml
+ *   <li>Use spring to load the Sample bean which will weave the census aspects into the bean.
+ *   <li>Use the TestHandler (defined in @Before and @After) to capture generated span.
+ *   <li>In each test, we verify the pointcuts are applied correctly by inspecting the span captured
+ *       in the TestHandler.
  * </ol>
  */
 @RunWith(JUnit4.class)
