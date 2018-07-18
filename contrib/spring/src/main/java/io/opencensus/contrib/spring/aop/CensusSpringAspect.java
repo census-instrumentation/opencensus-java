@@ -17,7 +17,7 @@
 package io.opencensus.contrib.spring.aop;
 
 import io.opencensus.trace.SpanBuilder;
-import io.opencensus.trace.Tracing;
+import io.opencensus.trace.Tracer;
 import java.lang.reflect.Method;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -29,6 +29,12 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Aspect
 @Configurable
 public class CensusSpringAspect {
+  private final Tracer tracer;
+
+  public CensusSpringAspect(Tracer tracer) {
+    this.tracer = tracer;
+  }
+
   /**
    * trace handles methods executed with the @Trace annotation. A new span will be created with an
    * optionally customizable span name.
@@ -48,7 +54,7 @@ public class CensusSpringAspect {
       spanName = method.getName();
     }
 
-    SpanBuilder builder = Tracing.getTracer().spanBuilder(spanName);
+    SpanBuilder builder = tracer.spanBuilder(spanName);
 
     return Handler.proceed(call, builder);
   }

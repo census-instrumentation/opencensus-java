@@ -18,7 +18,6 @@ package io.opencensus.contrib.spring.aop;
 
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,7 +31,11 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Aspect
 @Configurable
 public class CensusSpringSqlAspect {
-  private static final Tracer tracer = Tracing.getTracer();
+  private final Tracer tracer;
+
+  public CensusSpringSqlAspect(Tracer tracer) {
+    this.tracer = tracer;
+  }
 
   /**
    * trace handles invocations of java.sql.Statement.execute*. A new span will be created whose name
