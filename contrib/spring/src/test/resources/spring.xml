@@ -3,6 +3,7 @@
        xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
+  <!-- register the bean we'll use for testing -->
   <bean id="sample" class="io.opencensus.contrib.spring.aop.Sample"/>
 
   <aop:aspectj-autoproxy/>
