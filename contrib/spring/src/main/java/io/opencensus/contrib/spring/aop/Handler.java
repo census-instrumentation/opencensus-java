@@ -37,27 +37,28 @@ final class Handler {
 
   static Object proceed(ProceedingJoinPoint call, SpanBuilder builder, String... annotations)
       throws Throwable {
-    try (Scope scope = builder.startScopedSpan()) {
-      try {
-        for (String annotation : annotations) {
-          tracer.getCurrentSpan().addAnnotation(annotation);
-        }
-
-        return call.proceed();
-
-      } catch (Throwable t) {
-        StringWriter sw = new StringWriter(512);
-        t.printStackTrace(new PrintWriter(sw));
-
-        Map<String, AttributeValue> attributes = new HashMap<>();
-        attributes.put("message", AttributeValue.stringAttributeValue(t.getMessage()));
-        attributes.put("stackTrace", AttributeValue.stringAttributeValue(sw.toString()));
-
-        Span span = tracer.getCurrentSpan();
-        span.addAnnotation("exception", attributes);
-        span.setStatus(Status.UNKNOWN);
-        throw t;
+    Scope scope = builder.startScopedSpan();
+    try {
+      for (String annotation : annotations) {
+        tracer.getCurrentSpan().addAnnotation(annotation);
       }
+
+      return call.proceed();
+
+    } catch (Throwable t) {
+      StringWriter sw = new StringWriter(512);
+      t.printStackTrace(new PrintWriter(sw));
+
+      Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
+      attributes.put("message", AttributeValue.stringAttributeValue(t.getMessage()));
+      attributes.put("stackTrace", AttributeValue.stringAttributeValue(sw.toString()));
+
+      Span span = tracer.getCurrentSpan();
+      span.addAnnotation("exception", attributes);
+      span.setStatus(Status.UNKNOWN);
+      throw t;
+    } finally {
+      scope.close();
     }
   }
 }

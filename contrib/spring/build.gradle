@@ -3,8 +3,8 @@ description = 'OpenCensus Spring'
 apply plugin: 'java'
 
 [compileJava, compileTestJava].each() {
-    it.sourceCompatibility = 1.8
-    it.targetCompatibility = 1.8
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
 }
 
 dependencies {
