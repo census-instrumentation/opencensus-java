@@ -23,7 +23,6 @@ import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -45,11 +44,9 @@ final class Handler {
       return call.proceed();
 
     } catch (Throwable t) {
-      StringWriter sw = new StringWriter(512);
-
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
       attributes.put("message", AttributeValue.stringAttributeValue(t.getMessage()));
-      attributes.put("stackTrace", AttributeValue.stringAttributeValue(sw.toString()));
+      attributes.put("type", AttributeValue.stringAttributeValue(t.getClass().toString()));
 
       Span span = tracer.getCurrentSpan();
       span.addAnnotation("error", attributes);

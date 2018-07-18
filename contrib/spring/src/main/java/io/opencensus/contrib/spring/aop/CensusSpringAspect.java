@@ -36,8 +36,8 @@ public class CensusSpringAspect {
   }
 
   /**
-   * trace handles methods executed with the `@Traced` annotation. A new span will be
-   * created with an optionally customizable span name.
+   * trace handles methods executed with the `@Traced` annotation. A new span will be created with
+   * an optionally customizable span name.
    *
    * @param call the join point to execute
    * @return the result of the invocation
