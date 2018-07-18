@@ -18,9 +18,13 @@ package io.opencensus.metrics;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.common.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -46,6 +50,7 @@ public abstract class Distribution {
    * @param range {@link Range} of the population values, or {@code null} if count is 0.
    * @param bucketBoundaries bucket boundaries of a histogram.
    * @param buckets {@link Bucket}s of a histogram.
+   * @param exemplars the exemplars associated with histogram buckets.
    * @return a {@code Distribution}.
    * @since 0.16
    */
@@ -55,7 +60,8 @@ public abstract class Distribution {
       double sumOfSquaredDeviations,
       @Nullable Range range,
       List<Double> bucketBoundaries,
-      List<Bucket> buckets) {
+      List<Bucket> buckets,
+      List<Exemplar> exemplars) {
     Utils.checkArgument(count >= 0, "count should be non-negative.");
     Utils.checkArgument(
         sumOfSquaredDeviations >= 0, "sum of squared deviations should be non-negative.");
@@ -67,13 +73,16 @@ public abstract class Distribution {
     } else {
       Utils.checkArgument(range != null, "range should be present if count is not 0.");
     }
+    Utils.checkNotNull(exemplars, "exemplar list should not be null.");
+    Utils.checkListElementNotNull(exemplars, "exemplar should not be null.");
     return new AutoValue_Distribution(
         mean,
         count,
         sumOfSquaredDeviations,
         range,
         copyBucketBounds(bucketBoundaries),
-        copyBucketCount(buckets));
+        copyBucketCount(buckets),
+        Collections.<Exemplar>unmodifiableList(new ArrayList<Exemplar>(exemplars)));
   }
 
   private static List<Double> copyBucketBounds(List<Double> bucketBoundaries) {
@@ -175,6 +184,14 @@ public abstract class Distribution {
   public abstract List<Bucket> getBuckets();
 
   /**
+   * Returns the {@link Exemplar}s associated with histogram buckets.
+   *
+   * @return the {@code Exemplar}s associated with histogram buckets.
+   * @since 0.16
+   */
+  public abstract List<Exemplar> getExemplars();
+
+  /**
    * The range of the population values.
    *
    * @since 0.16
@@ -247,5 +264,61 @@ public abstract class Distribution {
     public abstract long getCount();
   }
 
-  // TODO(songya): add support for exemplars.
+  /**
+   * An example point that may be used to annotate aggregated distribution values, associated with a
+   * histogram bucket.
+   *
+   * @since 0.16
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class Exemplar {
+
+    Exemplar() {}
+
+    /**
+     * Returns value of the {@link Exemplar} point.
+     *
+     * @return value of the {@code Exemplar} point.
+     * @since 0.16
+     */
+    public abstract double getValue();
+
+    /**
+     * Returns the time that this {@link Exemplar}'s value was recorded.
+     *
+     * @return the time that this {@code Exemplar}'s value was recorded.
+     * @since 0.16
+     */
+    public abstract Timestamp getTimestamp();
+
+    /**
+     * Returns the contextual information about the example value, represented as a string map.
+     *
+     * @return the contextual information about the example value.
+     * @since 0.16
+     */
+    public abstract Map<String, String> getAttachments();
+
+    /**
+     * Creates an {@link Exemplar}.
+     *
+     * @param value value of the {@link Exemplar} point.
+     * @param timestamp the time that this {@code Exemplar}'s value was recorded.
+     * @param attachments the contextual information about the example value.
+     * @return an {@code Exemplar}.
+     * @since 0.16
+     */
+    public static Exemplar create(
+        double value, Timestamp timestamp, Map<String, String> attachments) {
+      Utils.checkNotNull(attachments, "attachments");
+      Map<String, String> attachmentsCopy =
+          Collections.unmodifiableMap(new HashMap<String, String>(attachments));
+      for (Entry<String, String> entry : attachmentsCopy.entrySet()) {
+        Utils.checkNotNull(entry.getKey(), "key of attachments");
+        Utils.checkNotNull(entry.getValue(), "value of attachments");
+      }
+      return new AutoValue_Distribution_Exemplar(value, timestamp, attachmentsCopy);
+    }
+  }
 }

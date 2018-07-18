@@ -22,12 +22,14 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.metrics.Distribution.Bucket;
+import io.opencensus.metrics.Distribution.Exemplar;
 import io.opencensus.metrics.Distribution.Range;
 import io.opencensus.metrics.Value.ValueDistribution;
 import io.opencensus.metrics.Value.ValueDouble;
 import io.opencensus.metrics.Value.ValueLong;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +46,8 @@ public class ValueTest {
           1,
           Range.create(1, 5),
           Arrays.asList(-5.0, 0.0, 5.0),
-          Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)));
+          Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
+          Collections.<Exemplar>emptyList());
 
   @Test
   public void createAndGet_ValueDouble() {
@@ -83,7 +86,8 @@ public class ValueTest {
                     Range.create(-19.1, 19.2),
                     Arrays.asList(-5.0, 0.0, 5.0),
                     Arrays.asList(
-                        Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)))))
+                        Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
+                    Collections.<Exemplar>emptyList())))
         .testEquals();
   }
 
