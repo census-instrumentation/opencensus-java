@@ -52,7 +52,7 @@ public final class Metrics {
     } catch (ClassNotFoundException e) {
       logger.log(
           Level.FINE,
-          "Couldn't load full implementation for TraceComponent, now trying to load lite "
+          "Couldn't load full implementation for MetricsComponent, now trying to load lite "
               + "implementation.",
           e);
     }
@@ -67,8 +67,8 @@ public final class Metrics {
     } catch (ClassNotFoundException e) {
       logger.log(
           Level.FINE,
-          "Couldn't load lite implementation for TraceComponent, now using "
-              + "default implementation for TraceComponent.",
+          "Couldn't load lite implementation for MetricsComponent, now using default "
+              + "implementation for TraceComponent.",
           e);
     }
     return MetricsComponent.newNoopMetricsComponent();

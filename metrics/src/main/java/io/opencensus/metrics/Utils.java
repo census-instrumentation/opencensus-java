@@ -24,7 +24,7 @@ import java.util.List;
 
 /** General internal utility methods. */
 // TODO(songya): remove this class and use shared Utils instead.
-public final class Utils {
+final class Utils {
 
   private Utils() {}
 
@@ -49,7 +49,7 @@ public final class Utils {
    * @param message the message to use for the exception.
    * @return the argument, if it passes the null check.
    */
-  public static <T /*>>> extends @NonNull Object*/> T checkNotNull(T arg, String message) {
+  static <T /*>>> extends @NonNull Object*/> T checkNotNull(T arg, String message) {
     if (arg == null) {
       throw new NullPointerException(message);
     }

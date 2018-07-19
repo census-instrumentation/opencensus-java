@@ -17,7 +17,7 @@
 package io.opencensus.metrics.export;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.metrics.Utils;
+import io.opencensus.internal.Utils;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -35,7 +35,7 @@ public final class MetricProducerManager {
       Collections.unmodifiableSet(new LinkedHashSet<MetricProducer>());
 
   /**
-   * Adds the {@link MetricProducer} to the manager it is not already present.
+   * Adds the {@link MetricProducer} to the manager if it is not already present.
    *
    * @param metricProducer the {@code MetricProducer} to be added to the manager.
    * @since 0.16
