@@ -11,6 +11,7 @@ def subprojects = [
         project(':opencensus-impl-core'),
         project(':opencensus-impl'),
         project(':opencensus-impl-lite'),
+        project(':opencensus-metrics'),
         project(':opencensus-testing'),
         project(':opencensus-contrib-agent'),
         project(':opencensus-contrib-appengine-standard-util'),
