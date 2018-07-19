@@ -16,9 +16,10 @@ library is expected to move to [GA](#versioning) stage after v1.0.0 major releas
 Please join [gitter](https://gitter.im/census-instrumentation/Lobby) for help or feedback on this
 project.
 
-## OpenCensus Quickstart
+## OpenCensus Quickstart for Libraries
 
 Integrating OpenCensus with a new library means recording stats or traces and propagating context.
+For application integration please see [Quickstart for Applications](https://github.com/census-instrumentation/opencensus-java#quickstart-for-applications).
 
 The full quick start example can also be found on the [OpenCensus website](https://opencensus.io/java/index.html).
 
@@ -184,7 +185,7 @@ public final class MyClassWithStats {
 }
 ```
 
-## Quickstart for Applications
+## OpenCensus Quickstart for Applications
 
 Besides recording tracing/stats events the application also need to link the implementation,
 setup exporters, and debugging [Z-Pages](https://github.com/census-instrumentation/opencensus-java/tree/master/contrib/zpages).
