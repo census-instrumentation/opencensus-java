@@ -226,6 +226,7 @@ $ README_FILES=(
   contrib/http_util/README.md
   contrib/log_correlation/stackdriver/README.md
   contrib/monitored_resource_util/README.md
+  contrib/spring/README.md
   contrib/zpages/README.md
   exporters/stats/prometheus/README.md
   exporters/stats/signalfx/README.md
