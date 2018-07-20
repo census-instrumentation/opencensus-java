@@ -19,6 +19,7 @@ package io.opencensus.metrics;
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.common.Timestamp;
+import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

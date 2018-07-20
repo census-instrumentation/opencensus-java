@@ -16,6 +16,7 @@
 
 package io.opencensus.internal;
 
+import java.util.List;
 import javax.annotation.Nullable;
 
 /*>>>
@@ -84,6 +85,21 @@ public final class Utils {
       throw new NullPointerException(message);
     }
     return arg;
+  }
+
+  /**
+   * Throws a {@link NullPointerException} if any of the list elements is null.
+   *
+   * @param list the argument list to check for null.
+   * @param message the message to use for the exception.
+   */
+  public static <T /*>>> extends @NonNull Object*/> void checkListElementNotNull(
+      List<T> list, String message) {
+    for (T element : list) {
+      if (element == null) {
+        throw new NullPointerException(message);
+      }
+    }
   }
 
   /**
