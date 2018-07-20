@@ -149,3 +149,12 @@ span name to be specified.
 [appveyor-url]: https://ci.appveyor.com/project/opencensusjavateam/opencensus-java/branch/master
 [maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-spring/badge.svg
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-spring
+
+#### Java Versions
+
+Java 6 or above is required for using this artifact.
+
+#### About the `aop` package
+
+`opencensus-contrib-spring` makes heavy use of Aspect Oriented Programming [AOP](https://en.wikipedia.org/wiki/Aspect-oriented_programming) to 
+add behavior to annotations.  Fortunately, Spring supports this natively so we can leverage the capabilities they've already built in. 

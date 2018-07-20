@@ -78,7 +78,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testTracedUsesMethodAsSpanName() throws Exception {
+  public void tracedUsesMethodAsSpanName() throws Exception {
     // When
     Sample sample = (Sample) context.getBean("sample");
     sample.call(100);
@@ -91,7 +91,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testTracedAcceptsCustomSpanName() throws Exception {
+  public void tracedAcceptsCustomSpanName() throws Exception {
     // When
     Sample sample = (Sample) context.getBean("sample");
     sample.custom(100);
@@ -104,7 +104,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testHandlesException() {
+  public void handlesException() {
     // When
     Sample sample = (Sample) context.getBean("sample");
     try {
@@ -131,7 +131,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testSqlExecute() throws Exception {
+  public void sqlExecute() throws Exception {
     // When
     String sql = "select 1";
     Sample sample = (Sample) context.getBean("sample");
@@ -149,7 +149,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testSqlQuery() throws Exception {
+  public void sqlQuery() throws Exception {
     // When
     String sql = "select 2";
     Sample sample = (Sample) context.getBean("sample");
@@ -168,7 +168,7 @@ public class CensusSpringAspectTest {
   }
 
   @Test
-  public void testSqlUpdate() throws Exception {
+  public void sqlUpdate() throws Exception {
     // When
     String sql = "update content set value = 1";
     Sample sample = (Sample) context.getBean("sample");
