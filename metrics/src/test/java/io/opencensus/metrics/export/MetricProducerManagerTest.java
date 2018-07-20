@@ -106,7 +106,7 @@ public class MetricProducerManagerTest {
   }
 
   @Test
-  public void getAllMetricProducer__empty() {
+  public void getAllMetricProducer_empty() {
     assertThat(metricProducerManager.getAllMetricProducer()).isEmpty();
   }
 }

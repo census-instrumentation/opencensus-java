@@ -40,7 +40,7 @@ public final class Metrics {
     return metricsComponent.getExportComponent();
   }
 
-  // Any provider that may be used for TraceComponent can be added here.
+  // Any provider that may be used for MetricsComponent can be added here.
   @DefaultVisibilityForTesting
   static MetricsComponent loadMetricsComponent(@Nullable ClassLoader classLoader) {
     try {
@@ -68,7 +68,7 @@ public final class Metrics {
       logger.log(
           Level.FINE,
           "Couldn't load lite implementation for MetricsComponent, now using default "
-              + "implementation for TraceComponent.",
+              + "implementation for MetricsComponent.",
           e);
     }
     return MetricsComponent.newNoopMetricsComponent();

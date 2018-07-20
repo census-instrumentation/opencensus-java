@@ -24,7 +24,8 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Keeps a set of {@link MetricProducer} that is used by all exporters to
+ * Keeps a set of {@link MetricProducer} that is used by exporters to determine the metrics that
+ * need to be exported.
  *
  * @since 0.16
  */

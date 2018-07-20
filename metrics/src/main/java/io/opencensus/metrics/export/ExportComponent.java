@@ -38,8 +38,8 @@ public abstract class ExportComponent {
   }
 
   /**
-   * Returns the {@link MetricProducerManager} which can be used to register handlers to export all
-   * the recorded metrics.
+   * Returns the global {@link MetricProducerManager} which can be used to register handlers to
+   * export all the recorded metrics.
    *
    * @return the implementation of the {@code MetricExporter} or no-op if no implementation linked
    *     in the binary.
