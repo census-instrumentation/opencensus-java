@@ -27,12 +27,18 @@ import org.springframework.beans.factory.annotation.Configurable;
 /**
  * CensusSpringSqlAspect captures span from all SQL invocations that utilize
  * java.sql.Statement.execute*
+ *
+ * @since 0.16.0
  */
 @Aspect
 @Configurable
 public final class CensusSpringSqlAspect {
   private final Tracer tracer;
 
+  /**
+   * @param tracer the tracer responsible for building new spans
+   * @since 0.16.0
+   */
   public CensusSpringSqlAspect(Tracer tracer) {
     this.tracer = tracer;
   }
@@ -40,6 +46,8 @@ public final class CensusSpringSqlAspect {
   /**
    * trace handles invocations of java.sql.Statement.execute*. A new span will be created whose name
    * is (execute|executeQuery|executeQuery)-(hash of sql).
+   *
+   * @since 0.16.0
    */
   @Around("execute() || testing()")
   public Object trace(ProceedingJoinPoint call) throws Throwable {

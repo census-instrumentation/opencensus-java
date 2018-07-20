@@ -25,12 +25,20 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Configurable;
 
-/** CensusSpringAspect handles logic for the `@Traced` annotation. */
+/**
+ * CensusSpringAspect handles logic for the `@Traced` annotation.
+ *
+ * @since 0.16.0
+ */
 @Aspect
 @Configurable
 public final class CensusSpringAspect {
   private final Tracer tracer;
 
+  /**
+   * @param tracer the tracer responsible for building new spans
+   * @since 0.16.0
+   */
   public CensusSpringAspect(Tracer tracer) {
     this.tracer = tracer;
   }
@@ -42,6 +50,7 @@ public final class CensusSpringAspect {
    * @param call the join point to execute
    * @return the result of the invocation
    * @throws Throwable if the underlying target throws an exception
+   * @since 0.16.0
    */
   @Around("@annotation(io.opencensus.contrib.spring.aop.Traced)")
   public Object trace(ProceedingJoinPoint call) throws Throwable {

@@ -26,6 +26,8 @@ import java.lang.annotation.Target;
  *
  * <p>By default, the name of the method will be used for the span name. However, the span name can
  * be explicitly set via the name interface.
+ *
+ * @since 0.16.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
