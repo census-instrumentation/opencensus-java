@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 /** CensusSpringAspect handles logic for the `@Traced` annotation. */
 @Aspect
 @Configurable
-public class CensusSpringAspect {
+public final class CensusSpringAspect {
   private final Tracer tracer;
 
   public CensusSpringAspect(Tracer tracer) {

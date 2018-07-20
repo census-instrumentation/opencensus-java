@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Configurable;
  */
 @Aspect
 @Configurable
-public class CensusSpringSqlAspect {
+public final class CensusSpringSqlAspect {
   private final Tracer tracer;
 
   public CensusSpringSqlAspect(Tracer tracer) {
