@@ -18,6 +18,7 @@ package io.opencensus.metrics;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.internal.Utils;
 import io.opencensus.metrics.TimeSeriesList.TimeSeriesCumulativeList;
 import io.opencensus.metrics.TimeSeriesList.TimeSeriesGaugeList;
 import javax.annotation.concurrent.Immutable;
