@@ -92,25 +92,61 @@ public abstract class Tracestate {
    */
   public static final class Builder {
     private final Tracestate parent;
-    private List<Entry> toAdd;
+    private ArrayList<Entry> toAdd;
 
     private Builder(Tracestate parent) {
+      Utils.checkNotNull(parent, "parent");
       this.parent = parent;
     }
 
     /**
-     * Adds a key-value pair.
+     * Adds or updates the {@code Entry} that has the given {@code key} if it is present. The new
+     * {@code Entry} will always be added in the front of the list of entries.
      *
-     * @param key the key for the {@code Entry}.
-     * @param value the value for the {@code Entry}.
+     * @param key the key for the {@code Entry} to be added.
+     * @param value the value for the {@code Entry} to be added.
      * @return this.
+     * @since 0.16
      */
-    public Builder add(String key, String value) {
+    public Builder addOrUpdate(String key, String value) {
+      // Initially create the Entry to validate input.
+      Entry entry = Entry.create(key, value);
       if (toAdd == null) {
-        toAdd = new ArrayList<Entry>();
+        // Copy entries from the parent.
+        toAdd = new ArrayList<Entry>(parent.getEntries());
+      }
+      for (int i = 0; i < toAdd.size(); i++) {
+        if (toAdd.get(i).getKey().equals(entry.getKey())) {
+          toAdd.remove(i);
+          // Exit now because the toAdd list cannot contain duplicates.
+          break;
+        }
       }
       // Inserts the element at the front of this list.
-      toAdd.add(0, Entry.create(key, value));
+      toAdd.add(0, entry);
+      return this;
+    }
+
+    /**
+     * Removes the {@code Entry} that has the given {@code key} if it is present.
+     *
+     * @param key the key for the {@code Entry} to be removed.
+     * @return this.
+     * @since 0.16
+     */
+    public Builder remove(String key) {
+      Utils.checkNotNull(key, "key");
+      if (toAdd == null) {
+        // Copy entries from the parent.
+        toAdd = new ArrayList<Entry>(parent.getEntries());
+      }
+      for (int i = 0; i < toAdd.size(); i++) {
+        if (toAdd.get(i).getKey().equals(key)) {
+          toAdd.remove(i);
+          // Exit now because the toAdd list cannot contain duplicates.
+          break;
+        }
+      }
       return this;
     }
 
@@ -119,33 +155,13 @@ public abstract class Tracestate {
      * and removing duplicate entries.
      *
      * @return a TraceState with the new entries.
+     * @since 0.16
      */
     public Tracestate build() {
-      return create(parent, toAdd);
-    }
-
-    private static Tracestate create(Tracestate parent, List<Entry> toAdd) {
-      Utils.checkNotNull(parent, "parent");
-      if (toAdd == null || toAdd.size() == 0) {
+      if (toAdd == null) {
         return parent;
       }
-
-      List<Entry> ret = new ArrayList<Entry>(toAdd.size() + parent.getEntries().size());
-      ret.addAll(toAdd);
-      for (Entry entry : parent.getEntries()) {
-        boolean isPresent = false;
-        for (Entry entryExtra : toAdd) {
-          if (entryExtra.getKey().equals(entry.getKey())) {
-            isPresent = true;
-            break;
-          }
-        }
-        if (!isPresent) {
-          ret.add(entry);
-        }
-      }
-
-      return Tracestate.create(ret);
+      return Tracestate.create(toAdd);
     }
   }
 
@@ -201,7 +217,7 @@ public abstract class Tracestate {
         || key.charAt(0) > 'z') {
       return false;
     }
-    for (int i = 0; i < key.length(); i++) {
+    for (int i = 1; i < key.length(); i++) {
       char c = key.charAt(i);
       if (!(c >= 'a' && c <= 'z')
           && !(c >= '0' && c <= '9')
@@ -212,7 +228,7 @@ public abstract class Tracestate {
         return false;
       }
     }
-    return false;
+    return true;
   }
 
   // Value is opaque string up to 256 characters printable ASCII RFC0020 characters (i.e., the range
@@ -227,7 +243,7 @@ public abstract class Tracestate {
         return false;
       }
     }
-    return false;
+    return true;
   }
 
   private static Tracestate create(List<Entry> entries) {
