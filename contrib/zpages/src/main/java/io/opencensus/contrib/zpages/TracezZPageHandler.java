@@ -685,7 +685,10 @@ final class TracezZPageHandler extends ZPageHandler {
   @javax.annotation.Nullable
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        returnToString, returnToString, returnToString, Functions.</*@Nullable*/ String>returnNull());
+        returnToString,
+        returnToString,
+        returnToString,
+        Functions.</*@Nullable*/ String>returnNull());
   }
 
   private static final class TimedEventComparator
