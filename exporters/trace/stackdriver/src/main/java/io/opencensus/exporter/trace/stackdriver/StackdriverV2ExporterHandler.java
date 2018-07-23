@@ -105,7 +105,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static final Map<String, AttributeValue> RESOURCE_LABELS = getResourceLabels(RESOURCE);
 
   // Constant functions for AttributeValue.
-  private static final Function<String, AttributeValue> STRING_ATTRIBUTE_VALUE_FUNCTION =
+  private static final Function<String, AttributeValue> stringAttributeValueFunction =
       new Function<String, AttributeValue>() {
         @Override
         public AttributeValue apply(String stringValue) {
@@ -114,7 +114,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           return attributeValueBuilder.build();
         }
       };
-  private static final Function<Boolean, AttributeValue> BOOLEAN_ATTRIBUTE_VALUE_FUNCTION =
+  private static final Function<Boolean, AttributeValue> booleanAttributeValueFunction =
       new Function<Boolean, AttributeValue>() {
         @Override
         public AttributeValue apply(Boolean booleanValue) {
@@ -123,7 +123,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           return attributeValueBuilder.build();
         }
       };
-  private static final Function<Long, AttributeValue> LONG_ATTRIBUTE_VALUE_FUNCTION =
+  private static final Function<Long, AttributeValue> longAttributeValueFunction =
       new Function<Long, AttributeValue>() {
         @Override
         public AttributeValue apply(Long longValue) {
@@ -419,9 +419,9 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static AttributeValue toAttributeValueProto(
       io.opencensus.trace.AttributeValue attributeValue) {
     return attributeValue.match(
-        STRING_ATTRIBUTE_VALUE_FUNCTION,
-        BOOLEAN_ATTRIBUTE_VALUE_FUNCTION,
-        LONG_ATTRIBUTE_VALUE_FUNCTION,
+        stringAttributeValueFunction,
+        booleanAttributeValueFunction,
+        longAttributeValueFunction,
         Functions.</*@Nullable*/ AttributeValue>returnNull());
   }
 
