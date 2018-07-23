@@ -672,28 +672,20 @@ final class TracezZPageHandler extends ZPageHandler {
     return stringBuilder.toString();
   }
 
+  // The return type needs to be nullable when this function is used as an argument to 'match' in
+  // attributeValueToString, because 'match' doesn't allow covariant return types.
+  private static final Function<Object, /*@Nullable*/ String> RETURN_STRING =
+      new Function<Object, /*@Nullable*/ String>() {
+        @Override
+        public String apply(Object input) {
+          return input.toString();
+        }
+      };
+
   @javax.annotation.Nullable
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        new Function<String, /*@Nullable*/ String>() {
-          @Override
-          public String apply(String stringValue) {
-            return stringValue;
-          }
-        },
-        new Function<Boolean, /*@Nullable*/ String>() {
-          @Override
-          public String apply(Boolean booleanValue) {
-            return booleanValue.toString();
-          }
-        },
-        new Function<Long, /*@Nullable*/ String>() {
-          @Override
-          public String apply(Long longValue) {
-            return longValue.toString();
-          }
-        },
-        Functions.</*@Nullable*/ String>returnNull());
+        RETURN_STRING, RETURN_STRING, RETURN_STRING, Functions.</*@Nullable*/ String>returnNull());
   }
 
   private static final class TimedEventComparator

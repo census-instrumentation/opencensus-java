@@ -167,36 +167,19 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     return SECONDS.toMicros(timestamp.getSeconds()) + NANOSECONDS.toMicros(timestamp.getNanos());
   }
 
-  private static final Function<String, String> STRING_ATTRIBUTE_FUNCTION =
-      new Function<String, String>() {
+  // The return type needs to be nullable when this function is used as an argument to 'match' in
+  // attributeValueToString, because 'match' doesn't allow covariant return types.
+  private static final Function<Object, /*@Nullable*/ String> RETURN_STRING =
+      new Function<Object, /*@Nullable*/ String>() {
         @Override
-        public String apply(String stringValue) {
-          return stringValue;
-        }
-      };
-
-  private static final Function<Boolean, String> BOOLEAN_ATTRIBUTE_FUNCTION =
-      new Function<Boolean, String>() {
-        @Override
-        public String apply(Boolean booleanValue) {
-          return booleanValue.toString();
-        }
-      };
-
-  private static final Function<Long, String> LONG_ATTRIBUTE_FUNCTION =
-      new Function<Long, String>() {
-        @Override
-        public String apply(Long longValue) {
-          return longValue.toString();
+        public String apply(Object input) {
+          return input.toString();
         }
       };
 
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        STRING_ATTRIBUTE_FUNCTION,
-        BOOLEAN_ATTRIBUTE_FUNCTION,
-        LONG_ATTRIBUTE_FUNCTION,
-        Functions.<String>returnConstant(""));
+        RETURN_STRING, RETURN_STRING, RETURN_STRING, Functions.<String>returnConstant(""));
   }
 
   @Override
