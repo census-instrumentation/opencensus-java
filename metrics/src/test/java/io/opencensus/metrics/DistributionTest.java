@@ -22,7 +22,6 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.Distribution.Bucket;
 import io.opencensus.metrics.Distribution.Exemplar;
-import io.opencensus.metrics.Distribution.Range;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,13 +45,6 @@ public class DistributionTest {
   private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
 
   @Test
-  public void createAndGet_Range() {
-    Range range = Range.create(-5.5, 6.6);
-    assertThat(range.getMax()).isEqualTo(6.6);
-    assertThat(range.getMin()).isEqualTo(-5.5);
-  }
-
-  @Test
   public void createAndGet_Bucket() {
     Bucket bucket = Bucket.create(98);
     assertThat(bucket.getCount()).isEqualTo(98);
@@ -68,30 +60,21 @@ public class DistributionTest {
 
   @Test
   public void createAndGet_Distribution() {
-    Range range = Range.create(-3.4, 5.6);
     Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP_1, ATTACHMENTS);
     List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     Distribution distribution =
         Distribution.create(
-            6.6, 10, 678.54, range, bucketBounds, buckets, Collections.singletonList(exemplar));
+            6.6, 10, 678.54, bucketBounds, buckets, Collections.singletonList(exemplar));
     assertThat(distribution.getMean()).isEqualTo(6.6);
     assertThat(distribution.getCount()).isEqualTo(10);
     assertThat(distribution.getSumOfSquaredDeviations()).isEqualTo(678.54);
-    assertThat(distribution.getRange()).isEqualTo(range);
     assertThat(distribution.getBucketBoundaries())
         .containsExactlyElementsIn(bucketBounds)
         .inOrder();
     assertThat(distribution.getBuckets()).containsExactlyElementsIn(buckets).inOrder();
     assertThat(distribution.getExemplars()).containsExactly(exemplar);
-  }
-
-  @Test
-  public void createRange_MinGreaterThanMax() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("max should be greater or equal to min.");
-    Range.create(1.0, -1.0);
   }
 
   @Test
@@ -126,13 +109,12 @@ public class DistributionTest {
 
   @Test
   public void createDistribution_NegativeCount() {
-    Range range = Range.create(-3.4, 5.6);
     List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("count should be non-negative.");
-    Distribution.create(6.6, -10, 678.54, range, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, -10, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
@@ -142,18 +124,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("sum of squared deviations should be non-negative.");
-    Distribution.create(6.6, 0, -678.54, null, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
-  }
-
-  @Test
-  public void createDistribution_ZeroCountAndNonNullRange() {
-    Range range = Range.create(-3.4, 5.6);
-    List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
-    List<Bucket> buckets =
-        Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("range should not be present if count is 0.");
-    Distribution.create(0, 0, 0, range, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 0, -678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
@@ -163,7 +134,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("mean should be 0 if count is 0.");
-    Distribution.create(6.6, 0, 0, null, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 0, 0, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
@@ -173,78 +144,61 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("sum of squared deviations should be 0 if count is 0.");
-    Distribution.create(0, 0, 678.54, null, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
-  }
-
-  @Test
-  public void createDistribution_PositiveCountAndNullRange() {
-    List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
-    List<Bucket> buckets =
-        Arrays.asList(Bucket.create(0), Bucket.create(1), Bucket.create(0), Bucket.create(0));
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("range should be present if count is not 0.");
-    Distribution.create(6.6, 1, 0, null, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(0, 0, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
   public void createDistribution_NullBucketBounds() {
-    Range range = Range.create(-3.4, 5.6);
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucketBoundaries list should not be null.");
-    Distribution.create(6.6, 10, 678.54, range, null, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 10, 678.54, null, buckets, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
   public void createDistribution_UnorderedBucketBounds() {
-    Range range = Range.create(-3.4, 5.6);
     List<Double> bucketBounds = Arrays.asList(0.0, -1.0, 1.0);
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("bucket boundaries not sorted.");
-    Distribution.create(6.6, 10, 678.54, range, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 10, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
   public void createDistribution_NullBucketList() {
-    Range range = Range.create(-3.4, 5.6);
     List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket list should not be null.");
-    Distribution.create(6.6, 10, 678.54, range, bucketBounds, null, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 10, 678.54, bucketBounds, null, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
   public void createDistribution_NullBucket() {
-    Range range = Range.create(-3.4, 5.6);
     List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), null, Bucket.create(4));
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket should not be null.");
-    Distribution.create(6.6, 10, 678.54, range, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 10, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
   }
 
   @Test
   public void preventNullExemplarList() {
-    Range range = Range.create(1, 1);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("exemplar list should not be null.");
-    Distribution.create(1, 1, 1, range, Collections.<Double>emptyList(), EMPTY_BUCKET_LIST, null);
+    Distribution.create(1, 1, 1, Collections.<Double>emptyList(), EMPTY_BUCKET_LIST, null);
   }
 
   @Test
   public void preventNullExemplar() {
-    Range range = Range.create(1, 1);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("exemplar should not be null.");
     Distribution.create(
         1,
         1,
         1,
-        range,
         Collections.<Double>emptyList(),
         EMPTY_BUCKET_LIST,
         Collections.<Exemplar>singletonList(null));
@@ -258,7 +212,6 @@ public class DistributionTest {
                 10,
                 10,
                 1,
-                Range.create(1, 5),
                 Arrays.asList(-5.0, 0.0, 5.0),
                 Arrays.asList(
                     Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
@@ -267,7 +220,6 @@ public class DistributionTest {
                 10,
                 10,
                 1,
-                Range.create(1, 5),
                 Arrays.asList(-5.0, 0.0, 5.0),
                 Arrays.asList(
                     Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
@@ -277,7 +229,6 @@ public class DistributionTest {
                 -7,
                 10,
                 23.456,
-                Range.create(-19.1, 19.2),
                 Arrays.asList(-5.0, 0.0, 5.0),
                 Arrays.asList(
                     Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
@@ -287,7 +238,6 @@ public class DistributionTest {
                 -7,
                 10,
                 23.456,
-                Range.create(-19.1, 19.2),
                 Arrays.asList(-5.0, 0.0, 5.0),
                 Arrays.asList(
                     Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
