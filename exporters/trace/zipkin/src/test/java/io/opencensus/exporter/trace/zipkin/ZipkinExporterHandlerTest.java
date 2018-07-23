@@ -37,6 +37,7 @@ import io.opencensus.trace.export.SpanData.Links;
 import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
@@ -184,6 +185,54 @@ public class ZipkinExporterHandlerTest {
                 .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
                 .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
                 .putTag("census.status_code", "OK")
+                .build());
+  }
+
+  @Test
+  public void generateSpan_WithAttributes() {
+    Map<String, AttributeValue> attributeMap = new HashMap<String, AttributeValue>();
+    attributeMap.put("string", AttributeValue.stringAttributeValue("string value"));
+    attributeMap.put("boolean", AttributeValue.booleanAttributeValue(false));
+    attributeMap.put("long", AttributeValue.longAttributeValue(9999L));
+    SpanData data =
+        SpanData.create(
+            SpanContext.create(
+                TraceId.fromLowerBase16(TRACE_ID),
+                SpanId.fromLowerBase16(SPAN_ID),
+                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+            // TODO SpanId.fromLowerBase16
+            SpanId.fromLowerBase16(PARENT_SPAN_ID),
+            true, /* hasRemoteParent */
+            "Sent.helloworld.Greeter.SayHello", /* name */
+            Kind.CLIENT, /* kind */
+            Timestamp.create(1505855794, 194009601) /* startTimestamp */,
+            Attributes.create(attributeMap, 0 /* droppedAttributesCount */),
+            TimedEvents.create(annotations, 0 /* droppedEventsCount */),
+            TimedEvents.create(messageEvents, 0 /* droppedEventsCount */),
+            Links.create(Collections.<Link>emptyList(), 0 /* droppedLinksCount */),
+            null, /* childSpanCount */
+            Status.OK,
+            Timestamp.create(1505855799, 465726528) /* endTimestamp */);
+
+    assertThat(ZipkinExporterHandler.generateSpan(data, localEndpoint))
+        .isEqualTo(
+            Span.newBuilder()
+                .traceId(TRACE_ID)
+                .parentId(PARENT_SPAN_ID)
+                .id(SPAN_ID)
+                .kind(Span.Kind.CLIENT)
+                .name(data.getName())
+                .timestamp(1505855794000000L + 194009601L / 1000)
+                .duration(
+                    (1505855799000000L + 465726528L / 1000)
+                        - (1505855794000000L + 194009601L / 1000))
+                .localEndpoint(localEndpoint)
+                .addAnnotation(1505855799000000L + 433901068L / 1000, "RECEIVED")
+                .addAnnotation(1505855799000000L + 459486280L / 1000, "SENT")
+                .putTag("census.status_code", "OK")
+                .putTag("string", "string value")
+                .putTag("boolean", "false")
+                .putTag("long", "9999")
                 .build());
   }
 }

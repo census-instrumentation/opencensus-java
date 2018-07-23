@@ -19,6 +19,8 @@ package io.opencensus.exporter.trace.zipkin;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Scope;
 import io.opencensus.common.Timestamp;
 import io.opencensus.trace.Annotation;
@@ -165,8 +167,36 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     return SECONDS.toMicros(timestamp.getSeconds()) + NANOSECONDS.toMicros(timestamp.getNanos());
   }
 
+  private static final Function<String, String> STRING_ATTRIBUTE_FUNCTION =
+      new Function<String, String>() {
+        @Override
+        public String apply(String stringValue) {
+          return stringValue;
+        }
+      };
+
+  private static final Function<Boolean, String> BOOLEAN_ATTRIBUTE_FUNCTION =
+      new Function<Boolean, String>() {
+        @Override
+        public String apply(Boolean booleanValue) {
+          return booleanValue.toString();
+        }
+      };
+
+  private static final Function<Long, String> LONG_ATTRIBUTE_FUNCTION =
+      new Function<Long, String>() {
+        @Override
+        public String apply(Long longValue) {
+          return longValue.toString();
+        }
+      };
+
   private static String attributeValueToString(AttributeValue attributeValue) {
-    return attributeValue.toString();
+    return attributeValue.match(
+        STRING_ATTRIBUTE_FUNCTION,
+        BOOLEAN_ATTRIBUTE_FUNCTION,
+        LONG_ATTRIBUTE_FUNCTION,
+        Functions.<String>returnConstant(""));
   }
 
   @Override
