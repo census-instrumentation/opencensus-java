@@ -88,6 +88,15 @@ final class PrometheusExportUtils {
   @VisibleForTesting static final String SAMPLE_SUFFIX_SUM = "_sum";
   @VisibleForTesting static final String LABEL_NAME_BUCKET_BOUND = "le";
 
+  private static final Function<Object, Type> TYPE_UNTYPED_FUNCTION =
+      Functions.returnConstant(Type.UNTYPED);
+  private static final Function<Object, Type> TYPE_COUNTER_FUNCTION =
+      Functions.returnConstant(Type.COUNTER);
+  private static final Function<Object, Type> TYPE_HISTOGRAM_FUNCTION =
+      Functions.returnConstant(Type.HISTOGRAM);
+  private static final Function<Object, Type> TYPE_GAUGE_FUNCTION =
+      Functions.returnConstant(Type.GAUGE);
+
   // Converts a ViewData to a Prometheus MetricFamilySamples.
   static MetricFamilySamples createMetricFamilySamples(ViewData viewData) {
     View view = viewData.getView();
@@ -125,10 +134,10 @@ final class PrometheusExportUtils {
       return Type.UNTYPED;
     }
     return aggregation.match(
-        Functions.returnConstant(Type.UNTYPED), // SUM
-        Functions.returnConstant(Type.COUNTER), // COUNT
-        Functions.returnConstant(Type.HISTOGRAM), // DISTRIBUTION
-        Functions.returnConstant(Type.GAUGE), // LAST VALUE
+        TYPE_UNTYPED_FUNCTION, // SUM
+        TYPE_COUNTER_FUNCTION, // COUNT
+        TYPE_HISTOGRAM_FUNCTION, // DISTRIBUTION
+        TYPE_GAUGE_FUNCTION, // LAST VALUE
         new Function<Aggregation, Type>() {
           @Override
           public Type apply(Aggregation arg) {
