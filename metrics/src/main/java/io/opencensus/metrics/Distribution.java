@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -48,7 +47,6 @@ public abstract class Distribution {
    * @param mean mean of the population values.
    * @param count count of the population values.
    * @param sumOfSquaredDeviations sum of squared deviations of the population values.
-   * @param range {@link Range} of the population values, or {@code null} if count is 0.
    * @param bucketBoundaries bucket boundaries of a histogram.
    * @param buckets {@link Bucket}s of a histogram.
    * @param exemplars the exemplars associated with histogram buckets.
@@ -59,7 +57,6 @@ public abstract class Distribution {
       double mean,
       long count,
       double sumOfSquaredDeviations,
-      @Nullable Range range,
       List<Double> bucketBoundaries,
       List<Bucket> buckets,
       List<Exemplar> exemplars) {
@@ -67,12 +64,9 @@ public abstract class Distribution {
     Utils.checkArgument(
         sumOfSquaredDeviations >= 0, "sum of squared deviations should be non-negative.");
     if (count == 0) {
-      Utils.checkArgument(range == null, "range should not be present if count is 0.");
       Utils.checkArgument(mean == 0, "mean should be 0 if count is 0.");
       Utils.checkArgument(
           sumOfSquaredDeviations == 0, "sum of squared deviations should be 0 if count is 0.");
-    } else {
-      Utils.checkArgument(range != null, "range should be present if count is not 0.");
     }
     Utils.checkNotNull(exemplars, "exemplar list should not be null.");
     Utils.checkListElementNotNull(exemplars, "exemplar should not be null.");
@@ -80,7 +74,6 @@ public abstract class Distribution {
         mean,
         count,
         sumOfSquaredDeviations,
-        range,
         copyBucketBounds(bucketBoundaries),
         copyBucketCount(buckets),
         Collections.<Exemplar>unmodifiableList(new ArrayList<Exemplar>(exemplars)));
@@ -142,16 +135,6 @@ public abstract class Distribution {
   public abstract double getSumOfSquaredDeviations();
 
   /**
-   * Returns the {@link Range} of the population values, or returns {@code null} if there are no
-   * population values.
-   *
-   * @return the {@code Range} of the population values.
-   * @since 0.16
-   */
-  @Nullable
-  public abstract Range getRange();
-
-  /**
    * Returns the bucket boundaries of this distribution.
    *
    * <p>The bucket boundaries for that histogram are described by bucket_bounds. This defines
@@ -191,47 +174,6 @@ public abstract class Distribution {
    * @since 0.16
    */
   public abstract List<Exemplar> getExemplars();
-
-  /**
-   * The range of the population values.
-   *
-   * @since 0.16
-   */
-  @AutoValue
-  @Immutable
-  public abstract static class Range {
-
-    Range() {}
-
-    /**
-     * Creates a {@link Range}.
-     *
-     * @param min the minimum of the population values.
-     * @param max the maximum of the population values.
-     * @return a {@code Range}.
-     * @since 0.16
-     */
-    public static Range create(double min, double max) {
-      Utils.checkArgument(min <= max, "max should be greater or equal to min.");
-      return new AutoValue_Distribution_Range(min, max);
-    }
-
-    /**
-     * Returns the minimum of the population values.
-     *
-     * @return the minimum of the population values.
-     * @since 0.16
-     */
-    public abstract double getMin();
-
-    /**
-     * Returns the maximum of the population values.
-     *
-     * @return the maximum of the population values.
-     * @since 0.16
-     */
-    public abstract double getMax();
-  }
 
   /**
    * The histogram bucket of the population values.
