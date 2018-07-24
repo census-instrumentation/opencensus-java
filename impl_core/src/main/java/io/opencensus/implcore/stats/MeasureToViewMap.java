@@ -60,6 +60,9 @@ final class MeasureToViewMap {
   @GuardedBy("this")
   private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
 
+  @GuardedBy("this")
+  private final MetricMap metricMap = new MetricMap();
+
   // Cached set of exported views. It must be set to null whenever a view is registered or
   // unregistered.
   @javax.annotation.Nullable private volatile Set<View> exportedViews;
@@ -115,7 +118,9 @@ final class MeasureToViewMap {
     if (registeredMeasure == null) {
       registeredMeasures.put(measure.getName(), measure);
     }
-    mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
+    Timestamp now = clock.now();
+    metricMap.registerMetricDescriptor(MetricUtils.viewToMetricDescriptor(view), now);
+    mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, now, metricMap));
   }
 
   @javax.annotation.Nullable
@@ -139,7 +144,7 @@ final class MeasureToViewMap {
             + mutableMap);
   }
 
-  // Records stats with a set of tags.
+  // Records stats with a set of tags, and returns a list of updated MutableViewData.
   synchronized void record(TagContext tags, MeasureMapInternal stats, Timestamp timestamp) {
     Iterator<Measurement> iterator = stats.iterator();
     Map<String, String> attachments = stats.getAttachments();
@@ -165,6 +170,7 @@ final class MeasureToViewMap {
         mutableViewData.clearStats();
       }
     }
+    metricMap.clearStats();
   }
 
   // Resume stats collection for all MutableViewData.
@@ -174,5 +180,6 @@ final class MeasureToViewMap {
         mutableViewData.resumeStatsCollection(now);
       }
     }
+    metricMap.resumeStatsCollection(now);
   }
 }

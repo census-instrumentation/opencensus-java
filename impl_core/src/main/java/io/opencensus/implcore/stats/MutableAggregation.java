@@ -387,6 +387,10 @@ abstract class MutableAggregation {
       return bucketCounts;
     }
 
+    BucketBoundaries getBucketBoundaries() {
+      return bucketBoundaries;
+    }
+
     @javax.annotation.Nullable
     Exemplar[] getExemplars() {
       return exemplars;
