@@ -106,6 +106,10 @@ It specifies the `LoggingEnhancer` class and sets both optional properties:
 </configuration>
 ```
 
+See
+https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/stackdriver/logback
+for a full example.
+
 #### `java.util.logging` with `google-cloud-logging` `LoggingHandler`
 
 The `LoggingHandler` should already be configured in a logging `.properties` file, as described in
@@ -127,6 +131,10 @@ com.google.cloud.logging.LoggingHandler.enhancers=io.opencensus.contrib.logcorre
 io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.spanSelection=SAMPLED_SPANS
 io.opencensus.contrib.logcorrelation.stackdriver.OpenCensusTraceLoggingEnhancer.projectId=my-project-id
 ```
+
+See
+https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/stackdriver/java_util_logging
+for a full example.
 
 #### Custom `google-cloud-logging` adapter
 
