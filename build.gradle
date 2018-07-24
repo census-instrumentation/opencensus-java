@@ -144,6 +144,7 @@ subprojects {
 
     ext {
         appengineVersion = '1.9.64'
+        aspectjVersion = '1.8.11'
         autoValueVersion = '1.4'
         findBugsVersion = '3.0.1'
         errorProneVersion = '2.3.1'
@@ -153,6 +154,7 @@ subprojects {
         googleCloudBetaVersion = '0.54.0-beta'
         googleCloudGaVersion = '1.36.0'
         signalfxVersion = '0.0.39'
+        springVersion = '4.3.12.RELEASE'
         prometheusVersion = '0.4.0'
         protobufVersion = '3.5.1'
         zipkinReporterVersion = '2.3.2'
@@ -160,6 +162,7 @@ subprojects {
 
         libraries = [
                 appengine_api: "com.google.appengine:appengine-api-1.0-sdk:${appengineVersion}",
+                aspectj: "org.aspectj:aspectjrt:${aspectjVersion}",
                 auto_value: "com.google.auto.value:auto-value:${autoValueVersion}",
                 auto_service: 'com.google.auto.service:auto-service:1.0-rc3',
                 byte_buddy: 'net.bytebuddy:byte-buddy:1.7.11',
@@ -179,6 +182,9 @@ subprojects {
                 guava: "com.google.guava:guava:${guavaVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsVersion}",
                 signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
+                spring_aspects: "org.springframework:spring-aspects:${springVersion}",
+                spring_context: "org.springframework:spring-context:${springVersion}",
+                spring_context_support: "org.springframework:spring-context-support:${springVersion}",
                 prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",
                 protobuf: "com.google.protobuf:protobuf-java:${protobufVersion}",
 
@@ -186,6 +192,7 @@ subprojects {
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
                 junit: 'junit:junit:4.12',
                 mockito: 'org.mockito:mockito-core:1.9.5',
+                spring_test: "org.springframework:spring-test:${springVersion}",
                 truth: 'com.google.truth:truth:0.30',
         ]
     }
@@ -365,6 +372,7 @@ subprojects {
                  'opencensus-contrib-http-util',
                  'opencensus-contrib-log-correlation-stackdriver',
                  'opencensus-contrib-monitored-resource-util',
+                 'opencensus-contrib-spring',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',

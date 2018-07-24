@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+  <!-- register the bean we'll use for testing -->
+  <bean id="sample" class="io.opencensus.contrib.spring.aop.Sample"/>
+
+  <aop:aspectj-autoproxy/>
+
+  <!-- traces explicit calls to @Traced -->
+  <bean id="censusAspect" class="io.opencensus.contrib.spring.aop.CensusSpringAspect">
+    <constructor-arg ref="tracer"/>
+  </bean>
+
+  <!-- traces all SQL calls -->
+  <bean id="censusSQLAspect" class="io.opencensus.contrib.spring.aop.CensusSpringSqlAspect">
+    <constructor-arg ref="tracer"/>
+  </bean>
+
+  <!-- global tracer -->
+  <bean id="tracer" class="io.opencensus.trace.Tracing" factory-method="getTracer"/>
+</beans>
