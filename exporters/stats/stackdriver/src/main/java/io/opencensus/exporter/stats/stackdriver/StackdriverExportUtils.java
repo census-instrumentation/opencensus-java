@@ -35,6 +35,7 @@ import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
+import com.google.monitoring.v3.TypedValue.Builder;
 import com.google.protobuf.Timestamp;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
@@ -75,6 +76,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /** Util methods to convert OpenCensus Stats data models to StackDriver monitoring data models. */
 @SuppressWarnings("deprecation")
 final class StackdriverExportUtils {
+
   // TODO(songya): do we want these constants to be customizable?
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
@@ -89,6 +91,99 @@ final class StackdriverExportUtils {
   private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
   private static final String PROJECT_ID_LABEL_KEY = "project_id";
+
+  // Constant functions for ValueType.
+  private static final Function<Object, MetricDescriptor.ValueType> VALUE_TYPE_DOUBLE_FUNCTION =
+      Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE);
+  private static final Function<Object, MetricDescriptor.ValueType> VALUE_TYPE_INT64_FUNCTION =
+      Functions.returnConstant(MetricDescriptor.ValueType.INT64);
+  private static final Function<Object, MetricDescriptor.ValueType>
+      VALUE_TYPE_UNRECOGNIZED_FUNCTION =
+          Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED);
+  private static final Function<Object, MetricDescriptor.ValueType>
+      VALUE_TYPE_DISTRIBUTION_FUNCTION =
+          Functions.returnConstant(MetricDescriptor.ValueType.DISTRIBUTION);
+  private static final Function<Aggregation, MetricDescriptor.ValueType> valueTypeMeanFunction =
+      new Function<Aggregation, MetricDescriptor.ValueType>() {
+        @Override
+        public MetricDescriptor.ValueType apply(Aggregation arg) {
+          // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+          // we need to continue supporting Mean, since it could still be used by users and some
+          // deprecated RPC views.
+          if (arg instanceof Aggregation.Mean) {
+            return MetricDescriptor.ValueType.DOUBLE;
+          }
+          return MetricDescriptor.ValueType.UNRECOGNIZED;
+        }
+      };
+
+  // Constant functions for MetricKind.
+  private static final Function<Object, MetricKind> METRIC_KIND_CUMULATIVE_FUNCTION =
+      Functions.returnConstant(MetricKind.CUMULATIVE);
+  private static final Function<Object, MetricKind> METRIC_KIND_UNRECOGNIZED_FUNCTION =
+      Functions.returnConstant(MetricKind.UNRECOGNIZED);
+
+  // Constant functions for TypedValue.
+  private static final Function<SumDataDouble, TypedValue> typedValueSumDoubleFunction =
+      new Function<SumDataDouble, TypedValue>() {
+        @Override
+        public TypedValue apply(SumDataDouble arg) {
+          Builder builder = TypedValue.newBuilder();
+          builder.setDoubleValue(arg.getSum());
+          return builder.build();
+        }
+      };
+  private static final Function<SumDataLong, TypedValue> typedValueSumLongFunction =
+      new Function<SumDataLong, TypedValue>() {
+        @Override
+        public TypedValue apply(SumDataLong arg) {
+          Builder builder = TypedValue.newBuilder();
+          builder.setInt64Value(arg.getSum());
+          return builder.build();
+        }
+      };
+  private static final Function<CountData, TypedValue> typedValueCountFunction =
+      new Function<CountData, TypedValue>() {
+        @Override
+        public TypedValue apply(CountData arg) {
+          Builder builder = TypedValue.newBuilder();
+          builder.setInt64Value(arg.getCount());
+          return builder.build();
+        }
+      };
+  private static final Function<LastValueDataDouble, TypedValue> typedValueLastValueDoubleFunction =
+      new Function<LastValueDataDouble, TypedValue>() {
+        @Override
+        public TypedValue apply(LastValueDataDouble arg) {
+          Builder builder = TypedValue.newBuilder();
+          builder.setDoubleValue(arg.getLastValue());
+          return builder.build();
+        }
+      };
+  private static final Function<LastValueDataLong, TypedValue> typedValueLastValueLongFunction =
+      new Function<LastValueDataLong, TypedValue>() {
+        @Override
+        public TypedValue apply(LastValueDataLong arg) {
+          Builder builder = TypedValue.newBuilder();
+          builder.setInt64Value(arg.getLastValue());
+          return builder.build();
+        }
+      };
+  private static final Function<AggregationData, TypedValue> typedValueMeanFunction =
+      new Function<AggregationData, TypedValue>() {
+        @Override
+        public TypedValue apply(AggregationData arg) {
+          Builder builder = TypedValue.newBuilder();
+          // TODO(songya): remove this once Mean aggregation is completely removed. Before that
+          // we need to continue supporting Mean, since it could still be used by users and some
+          // deprecated RPC views.
+          if (arg instanceof AggregationData.MeanData) {
+            builder.setDoubleValue(((AggregationData.MeanData) arg).getMean());
+            return builder.build();
+          }
+          throw new IllegalArgumentException("Unknown Aggregation");
+        }
+      };
 
   private static String generateDefaultTaskValue() {
     // Something like '<pid>@<hostname>', at least in Oracle and OpenJdk JVMs
@@ -161,21 +256,19 @@ final class StackdriverExportUtils {
       return MetricKind.GAUGE;
     }
     return window.match(
-        Functions.returnConstant(MetricKind.CUMULATIVE), // Cumulative
+        METRIC_KIND_CUMULATIVE_FUNCTION, // Cumulative
         // TODO(songya): We don't support exporting Interval stats to StackDriver in this version.
-        Functions.returnConstant(MetricKind.UNRECOGNIZED), // Interval
-        Functions.returnConstant(MetricKind.UNRECOGNIZED));
+        METRIC_KIND_UNRECOGNIZED_FUNCTION, // Interval
+        METRIC_KIND_UNRECOGNIZED_FUNCTION);
   }
 
   // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
   @VisibleForTesting
   static String createUnit(Aggregation aggregation, final Measure measure) {
-    return aggregation.match(
-        Functions.returnConstant(measure.getUnit()),
-        Functions.returnConstant("1"), // Count
-        Functions.returnConstant(measure.getUnit()), // Distribution
-        Functions.returnConstant(measure.getUnit()), // LastValue
-        Functions.returnConstant(measure.getUnit()));
+    if (aggregation instanceof Aggregation.Count) {
+      return "1";
+    }
+    return measure.getUnit();
   }
 
   // Construct a MetricDescriptor.ValueType from an Aggregation and a Measure
@@ -185,28 +278,17 @@ final class StackdriverExportUtils {
     return aggregation.match(
         Functions.returnConstant(
             measure.match(
-                Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE), // Sum Double
-                Functions.returnConstant(MetricDescriptor.ValueType.INT64), // Sum Long
-                Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED))),
-        Functions.returnConstant(MetricDescriptor.ValueType.INT64), // Count
-        Functions.returnConstant(MetricDescriptor.ValueType.DISTRIBUTION), // Distribution
+                VALUE_TYPE_DOUBLE_FUNCTION, // Sum Double
+                VALUE_TYPE_INT64_FUNCTION, // Sum Long
+                VALUE_TYPE_UNRECOGNIZED_FUNCTION)),
+        VALUE_TYPE_INT64_FUNCTION, // Count
+        VALUE_TYPE_DISTRIBUTION_FUNCTION, // Distribution
         Functions.returnConstant(
             measure.match(
-                Functions.returnConstant(MetricDescriptor.ValueType.DOUBLE), // LastValue Double
-                Functions.returnConstant(MetricDescriptor.ValueType.INT64), // LastValue Long
-                Functions.returnConstant(MetricDescriptor.ValueType.UNRECOGNIZED))),
-        new Function<Aggregation, MetricDescriptor.ValueType>() {
-          @Override
-          public MetricDescriptor.ValueType apply(Aggregation arg) {
-            // TODO(songya): remove this once Mean aggregation is completely removed. Before that
-            // we need to continue supporting Mean, since it could still be used by users and some
-            // deprecated RPC views.
-            if (arg instanceof Aggregation.Mean) {
-              return MetricDescriptor.ValueType.DOUBLE;
-            }
-            return MetricDescriptor.ValueType.UNRECOGNIZED;
-          }
-        });
+                VALUE_TYPE_DOUBLE_FUNCTION, // LastValue Double
+                VALUE_TYPE_INT64_FUNCTION, // LastValue Long
+                VALUE_TYPE_UNRECOGNIZED_FUNCTION)),
+        valueTypeMeanFunction);
   }
 
   // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
@@ -280,21 +362,20 @@ final class StackdriverExportUtils {
   @VisibleForTesting
   static TimeInterval createTimeInterval(
       ViewData.AggregationWindowData windowData, final Aggregation aggregation) {
-    final TimeInterval.Builder builder = TimeInterval.newBuilder();
-    windowData.match(
-        new Function<ViewData.AggregationWindowData.CumulativeData, Void>() {
+    return windowData.match(
+        new Function<ViewData.AggregationWindowData.CumulativeData, TimeInterval>() {
           @Override
-          public Void apply(ViewData.AggregationWindowData.CumulativeData arg) {
+          public TimeInterval apply(ViewData.AggregationWindowData.CumulativeData arg) {
+            TimeInterval.Builder builder = TimeInterval.newBuilder();
             builder.setEndTime(convertTimestamp(arg.getEnd()));
             if (!(aggregation instanceof LastValue)) {
               builder.setStartTime(convertTimestamp(arg.getStart()));
             }
-            return null;
+            return builder.build();
           }
         },
-        Functions.</*@Nullable*/ Void>throwIllegalArgumentException(),
-        Functions.</*@Nullable*/ Void>throwIllegalArgumentException());
-    return builder.build();
+        Functions.</*@Nullable*/ TimeInterval>throwIllegalArgumentException(),
+        Functions.</*@Nullable*/ TimeInterval>throwIllegalArgumentException());
   }
 
   // Create a TypedValue using AggregationData and Aggregation
@@ -302,69 +383,26 @@ final class StackdriverExportUtils {
   @VisibleForTesting
   static TypedValue createTypedValue(
       final Aggregation aggregation, AggregationData aggregationData) {
-    final TypedValue.Builder builder = TypedValue.newBuilder();
-    aggregationData.match(
-        new Function<SumDataDouble, Void>() {
+    return aggregationData.match(
+        typedValueSumDoubleFunction,
+        typedValueSumLongFunction,
+        typedValueCountFunction,
+        new Function<DistributionData, TypedValue>() {
           @Override
-          public Void apply(SumDataDouble arg) {
-            builder.setDoubleValue(arg.getSum());
-            return null;
-          }
-        },
-        new Function<SumDataLong, Void>() {
-          @Override
-          public Void apply(SumDataLong arg) {
-            builder.setInt64Value(arg.getSum());
-            return null;
-          }
-        },
-        new Function<CountData, Void>() {
-          @Override
-          public Void apply(CountData arg) {
-            builder.setInt64Value(arg.getCount());
-            return null;
-          }
-        },
-        new Function<DistributionData, Void>() {
-          @Override
-          public Void apply(DistributionData arg) {
+          public TypedValue apply(DistributionData arg) {
+            TypedValue.Builder builder = TypedValue.newBuilder();
             checkArgument(
                 aggregation instanceof Aggregation.Distribution,
                 "Aggregation and AggregationData mismatch.");
             builder.setDistributionValue(
                 createDistribution(
                     arg, ((Aggregation.Distribution) aggregation).getBucketBoundaries()));
-            return null;
+            return builder.build();
           }
         },
-        new Function<LastValueDataDouble, Void>() {
-          @Override
-          public Void apply(LastValueDataDouble arg) {
-            builder.setDoubleValue(arg.getLastValue());
-            return null;
-          }
-        },
-        new Function<LastValueDataLong, Void>() {
-          @Override
-          public Void apply(LastValueDataLong arg) {
-            builder.setInt64Value(arg.getLastValue());
-            return null;
-          }
-        },
-        new Function<AggregationData, Void>() {
-          @Override
-          public Void apply(AggregationData arg) {
-            // TODO(songya): remove this once Mean aggregation is completely removed. Before that
-            // we need to continue supporting Mean, since it could still be used by users and some
-            // deprecated RPC views.
-            if (arg instanceof AggregationData.MeanData) {
-              builder.setDoubleValue(((AggregationData.MeanData) arg).getMean());
-              return null;
-            }
-            throw new IllegalArgumentException("Unknown Aggregation");
-          }
-        });
-    return builder.build();
+        typedValueLastValueDoubleFunction,
+        typedValueLastValueLongFunction,
+        typedValueMeanFunction);
   }
 
   // Create a StackDriver Distribution from DistributionData and BucketBoundaries

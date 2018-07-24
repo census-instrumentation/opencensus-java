@@ -113,7 +113,7 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
 
   // The return type needs to be nullable when this function is used as an argument to 'match' in
   // attributeValueToString, because 'match' doesn't allow covariant return types.
-  private static final Function<Object, /*@Nullable*/ String> RETURN_STRING =
+  private static final Function<Object, /*@Nullable*/ String> returnToString =
       new Function<Object, /*@Nullable*/ String>() {
         @Override
         public String apply(Object input) {
@@ -124,7 +124,10 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
   @javax.annotation.Nullable
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        RETURN_STRING, RETURN_STRING, RETURN_STRING, Functions.</*@Nullable*/ String>returnNull());
+        returnToString,
+        returnToString,
+        returnToString,
+        Functions.</*@Nullable*/ String>returnNull());
   }
 
   static String convertToJson(Collection<SpanData> spanDataList) {

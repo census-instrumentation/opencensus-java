@@ -25,6 +25,7 @@ import com.google.cloud.trace.v2.TraceServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.devtools.cloudtrace.v2.AttributeValue;
+import com.google.devtools.cloudtrace.v2.AttributeValue.Builder;
 import com.google.devtools.cloudtrace.v2.ProjectName;
 import com.google.devtools.cloudtrace.v2.Span;
 import com.google.devtools.cloudtrace.v2.Span.Attributes;
@@ -74,6 +75,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Exporter to Stackdriver Trace API v2. */
 final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
+
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
   private static final String AGENT_LABEL_KEY = "g.co/agent";
@@ -101,6 +103,35 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   // Only initialize once.
   private static final Map<String, AttributeValue> RESOURCE_LABELS = getResourceLabels(RESOURCE);
+
+  // Constant functions for AttributeValue.
+  private static final Function<String, AttributeValue> stringAttributeValueFunction =
+      new Function<String, AttributeValue>() {
+        @Override
+        public AttributeValue apply(String stringValue) {
+          Builder attributeValueBuilder = AttributeValue.newBuilder();
+          attributeValueBuilder.setStringValue(toTruncatableStringProto(stringValue));
+          return attributeValueBuilder.build();
+        }
+      };
+  private static final Function<Boolean, AttributeValue> booleanAttributeValueFunction =
+      new Function<Boolean, AttributeValue>() {
+        @Override
+        public AttributeValue apply(Boolean booleanValue) {
+          Builder attributeValueBuilder = AttributeValue.newBuilder();
+          attributeValueBuilder.setBoolValue(booleanValue);
+          return attributeValueBuilder.build();
+        }
+      };
+  private static final Function<Long, AttributeValue> longAttributeValueFunction =
+      new Function<Long, AttributeValue>() {
+        @Override
+        public AttributeValue apply(Long longValue) {
+          Builder attributeValueBuilder = AttributeValue.newBuilder();
+          attributeValueBuilder.setIntValue(longValue);
+          return attributeValueBuilder.build();
+        }
+      };
 
   private final String projectId;
   private final TraceServiceClient traceServiceClient;
@@ -387,31 +418,11 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
 
   private static AttributeValue toAttributeValueProto(
       io.opencensus.trace.AttributeValue attributeValue) {
-    final AttributeValue.Builder attributeValueBuilder = AttributeValue.newBuilder();
-    attributeValue.match(
-        new Function<String, Void>() {
-          @Override
-          public Void apply(String stringValue) {
-            attributeValueBuilder.setStringValue(toTruncatableStringProto(stringValue));
-            return null;
-          }
-        },
-        new Function<Boolean, Void>() {
-          @Override
-          public Void apply(Boolean booleanValue) {
-            attributeValueBuilder.setBoolValue(booleanValue);
-            return null;
-          }
-        },
-        new Function<Long, Void>() {
-          @Override
-          public Void apply(Long longValue) {
-            attributeValueBuilder.setIntValue(longValue);
-            return null;
-          }
-        },
-        Functions.</*@Nullable*/ Void>returnNull());
-    return attributeValueBuilder.build();
+    return attributeValue.match(
+        stringAttributeValueFunction,
+        booleanAttributeValueFunction,
+        longAttributeValueFunction,
+        Functions.</*@Nullable*/ AttributeValue>returnNull());
   }
 
   private static Link.Type toLinkTypeProto(io.opencensus.trace.Link.Type type) {

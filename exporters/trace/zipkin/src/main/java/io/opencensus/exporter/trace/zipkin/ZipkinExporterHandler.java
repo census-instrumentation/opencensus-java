@@ -45,11 +45,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.Sender;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 final class ZipkinExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
@@ -147,7 +150,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     return spanBuilder.build();
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private static Span.Kind toSpanKind(SpanData spanData) {
     // This is a hack because the Span API did not have SpanKind.
     if (spanData.getKind() == Kind.SERVER
@@ -167,36 +170,19 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     return SECONDS.toMicros(timestamp.getSeconds()) + NANOSECONDS.toMicros(timestamp.getNanos());
   }
 
-  private static final Function<String, String> STRING_ATTRIBUTE_FUNCTION =
-      new Function<String, String>() {
+  // The return type needs to be nullable when this function is used as an argument to 'match' in
+  // attributeValueToString, because 'match' doesn't allow covariant return types.
+  private static final Function<Object, /*@Nullable*/ String> returnToString =
+      new Function<Object, /*@Nullable*/ String>() {
         @Override
-        public String apply(String stringValue) {
-          return stringValue;
-        }
-      };
-
-  private static final Function<Boolean, String> BOOLEAN_ATTRIBUTE_FUNCTION =
-      new Function<Boolean, String>() {
-        @Override
-        public String apply(Boolean booleanValue) {
-          return booleanValue.toString();
-        }
-      };
-
-  private static final Function<Long, String> LONG_ATTRIBUTE_FUNCTION =
-      new Function<Long, String>() {
-        @Override
-        public String apply(Long longValue) {
-          return longValue.toString();
+        public String apply(Object input) {
+          return input.toString();
         }
       };
 
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        STRING_ATTRIBUTE_FUNCTION,
-        BOOLEAN_ATTRIBUTE_FUNCTION,
-        LONG_ATTRIBUTE_FUNCTION,
-        Functions.<String>returnConstant(""));
+        returnToString, returnToString, returnToString, Functions.<String>returnConstant(""));
   }
 
   @Override
