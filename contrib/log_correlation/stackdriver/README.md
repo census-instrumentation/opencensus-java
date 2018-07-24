@@ -14,9 +14,6 @@ ID to each log entry, which allows Stackdriver to display the log entries associ
 trace, or filter logs based on trace or span ID. It currently also adds the sampling decision using
 the label "`openCensusTraceSampled`".
 
-TODO(sebright): Add a demo to https://github.com/census-ecosystem/opencensus-experiments and link to
-it.
-
 ## Instructions
 
 ### Prerequisites
