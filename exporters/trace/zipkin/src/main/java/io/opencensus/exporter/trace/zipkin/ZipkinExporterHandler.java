@@ -45,11 +45,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.reporter.Sender;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 final class ZipkinExporterHandler extends SpanExporter.Handler {
   private static final Tracer tracer = Tracing.getTracer();
@@ -147,7 +150,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
     return spanBuilder.build();
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   private static Span.Kind toSpanKind(SpanData spanData) {
     // This is a hack because the Span API did not have SpanKind.
     if (spanData.getKind() == Kind.SERVER
