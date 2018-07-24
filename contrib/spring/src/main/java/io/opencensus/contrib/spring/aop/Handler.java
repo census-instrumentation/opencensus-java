@@ -19,23 +19,20 @@ package io.opencensus.contrib.spring.aop;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
 import java.util.HashMap;
 import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 /** Handler defines common logic for wrapping a span around the specified JoinPoint. */
 final class Handler {
-  private static final Tracer tracer = Tracing.getTracer();
-
   private Handler() {}
 
-  static Object proceed(ProceedingJoinPoint call, SpanBuilder builder, String... annotations)
+  static Object proceed(
+      ProceedingJoinPoint call, Tracer tracer, String spanName, String... annotations)
       throws Throwable {
-    Scope scope = builder.startScopedSpan();
+    Scope scope = tracer.spanBuilder(spanName).startScopedSpan();
     try {
       for (String annotation : annotations) {
         tracer.getCurrentSpan().addAnnotation(annotation);

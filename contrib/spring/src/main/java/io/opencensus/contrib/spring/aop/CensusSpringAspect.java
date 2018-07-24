@@ -16,7 +16,6 @@
 
 package io.opencensus.contrib.spring.aop;
 
-import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Tracer;
 import java.lang.reflect.Method;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -63,8 +62,6 @@ public final class CensusSpringAspect {
       spanName = method.getName();
     }
 
-    SpanBuilder builder = tracer.spanBuilder(spanName);
-
-    return Handler.proceed(call, builder);
+    return Handler.proceed(call, tracer, spanName);
   }
 }
