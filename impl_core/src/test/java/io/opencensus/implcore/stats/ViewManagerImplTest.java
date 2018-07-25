@@ -634,7 +634,7 @@ public class ViewManagerImplTest {
         ImmutableMap.of(
             // Tag is missing for associated measureValues, should use default tag value
             // "unknown/not set".
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
+            Arrays.asList(RecordUtils.UNKNOWN_TAG_VALUE),
             // Should record stats with default tag value: "KEY" : "unknown/not set".
             createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 10.0)),
         EPSILON);
@@ -682,7 +682,7 @@ public class ViewManagerImplTest {
         ImmutableMap.of(
             // Won't record the unregistered tag key, for missing registered keys will use default
             // tag value : "unknown/not set".
-            Arrays.asList(MutableViewData.UNKNOWN_TAG_VALUE),
+            Arrays.asList(RecordUtils.UNKNOWN_TAG_VALUE),
             // Should record stats with default tag value: "KEY" : "unknown/not set".
             createAggregationData(DISTRIBUTION, MEASURE_DOUBLE, 10.0, 50.0)),
         EPSILON);

@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.implcore.stats.MutableViewData.ZERO_TIMESTAMP;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
@@ -38,9 +39,12 @@ import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewData.AggregationWindowData;
 import io.opencensus.stats.ViewData.AggregationWindowData.CumulativeData;
 import io.opencensus.stats.ViewData.AggregationWindowData.IntervalData;
+import io.opencensus.tags.Tag;
+import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -63,11 +67,11 @@ final class StatsTestUtil {
    */
   static AggregationData createAggregationData(
       Aggregation aggregation, Measure measure, double... values) {
-    MutableAggregation mutableAggregation = MutableViewData.createMutableAggregation(aggregation);
+    MutableAggregation mutableAggregation = RecordUtils.createMutableAggregation(aggregation);
     for (double value : values) {
       mutableAggregation.add(value, Collections.<String, String>emptyMap(), EMPTY);
     }
-    return MutableViewData.createAggregationData(mutableAggregation, measure);
+    return RecordUtils.createAggregationData(mutableAggregation, measure);
   }
 
   /**
@@ -210,5 +214,18 @@ final class StatsTestUtil {
       truncated.remove(truncated.size() - 1);
     }
     return truncated;
+  }
+
+  static final class SimpleTagContext extends TagContext {
+    private final List<Tag> tags;
+
+    SimpleTagContext(Tag... tags) {
+      this.tags = Collections.unmodifiableList(Lists.newArrayList(tags));
+    }
+
+    @Override
+    protected Iterator<Tag> getIterator() {
+      return tags.iterator();
+    }
   }
 }

@@ -21,11 +21,11 @@ import static io.opencensus.implcore.stats.MutableViewData.ZERO_TIMESTAMP;
 import static io.opencensus.implcore.stats.StatsTestUtil.createEmptyViewData;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import io.grpc.Context;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.SimpleEventQueue;
+import io.opencensus.implcore.stats.StatsTestUtil.SimpleTagContext;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Sum;
@@ -51,7 +51,6 @@ import io.opencensus.tags.unsafe.ContextUtils;
 import io.opencensus.testing.common.TestClock;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -346,18 +345,5 @@ public final class StatsRecorderImplTest {
             Arrays.asList(VALUE),
             StatsTestUtil.createAggregationData(Sum.create(), MEASURE_DOUBLE, 4.0)),
         1e-6);
-  }
-
-  private static final class SimpleTagContext extends TagContext {
-    private final List<Tag> tags;
-
-    SimpleTagContext(Tag... tags) {
-      this.tags = Collections.unmodifiableList(Lists.newArrayList(tags));
-    }
-
-    @Override
-    protected Iterator<Tag> getIterator() {
-      return tags.iterator();
-    }
   }
 }
