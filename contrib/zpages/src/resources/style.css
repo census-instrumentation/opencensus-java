@@ -1,0 +1,102 @@
+/* ================================================
+    Zpages CSS                          04/10/2018
+===================================================
+
+    1. TYPOGRAPHY
+    2. GLOBAL STYLES
+    3. HEADER
+    4. TABLE
+
+=================================================== */
+
+/* -------------------------------------------
+    1. TYPOGRAPHY
+---------------------------------------------- */
+/* FONTS */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto');
+
+/* -------------------------------------------
+    2. GLOBAL STYLES
+---------------------------------------------- */
+body {
+  font-family: 'Roboto',sans-serif;
+  font-size: 14px;
+  background-color: #F2F4EC;
+}
+h1 {
+  color: #3D3D3D;
+  text-align: center;
+  margin-bottom: 20px;
+}
+p {
+  padding: 0 0.5em;
+  color: #3D3D3D;
+}
+h2 {
+  color: #3D3D3D;
+  font-size: 1.5em;
+  background-color: #FFF;
+  line-height: 2.0;
+  margin-bottom: 0;
+  padding: 0 0.5em;
+}
+h3 {
+  font-size:16px;
+  padding:0 0.5em;
+  margin-top:4px;
+  margin-bottom:25px;
+}
+a {
+  color:#A94442;
+}
+
+/* -------------------------------------------
+    3. HEADER
+---------------------------------------------- */
+p.header {
+  font-family: 'Open Sans', sans-serif;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  vertical-align: middle;
+  color: #C1272D;
+  font-size: 22pt;
+}
+.header span {
+  color: #3D3D3D;
+}
+img.oc {
+  vertical-align: middle;
+}
+
+/* -------------------------------------------
+    4. TABLE
+---------------------------------------------- */
+table {
+  width: 100%;
+  color: #FFF;
+  background-color: #FFF;
+  overflow: hidden;
+  margin-bottom: 30px;
+  margin-top: 0;
+  border-bottom: 1px solid #3D3D3D;
+  border-left: 1px solid #3D3D3D;
+  border-right: 1px solid #3D3D3D;
+}
+thead {
+  background-color: #A94442;
+}
+th {
+  background-color: #A94442;
+}
+tr:nth-child(even) {
+  background-color: #F2F2F2;
+}
+td {
+  color: #3D3D3D;
+  line-height: 2.0;
+  text-align: left;
+  padding: 0 0.5em;
+}
+
