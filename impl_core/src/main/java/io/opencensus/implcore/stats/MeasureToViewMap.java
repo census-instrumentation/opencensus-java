@@ -21,13 +21,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
-import io.opencensus.common.Function;
-import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
-import io.opencensus.stats.Measurement.MeasurementDouble;
-import io.opencensus.stats.Measurement.MeasurementLong;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -156,10 +152,8 @@ final class MeasureToViewMap {
       }
       Collection<MutableViewData> views = mutableMap.get(measure.getName());
       for (MutableViewData view : views) {
-        measurement.match(
-            new RecordDoubleValueFunc(tags, view, timestamp, attachments),
-            new RecordLongValueFunc(tags, view, timestamp, attachments),
-            Functions.</*@Nullable*/ Void>throwAssertionError());
+        view.record(
+            tags, RecordUtils.getDoubleValueFromMeasurement(measurement), timestamp, attachments);
       }
     }
   }
@@ -179,54 +173,6 @@ final class MeasureToViewMap {
       for (MutableViewData mutableViewData : entry.getValue()) {
         mutableViewData.resumeStatsCollection(now);
       }
-    }
-  }
-
-  private static final class RecordDoubleValueFunc implements Function<MeasurementDouble, Void> {
-    @Override
-    public Void apply(MeasurementDouble arg) {
-      view.record(tags, arg.getValue(), timestamp, attachments);
-      return null;
-    }
-
-    private final TagContext tags;
-    private final MutableViewData view;
-    private final Timestamp timestamp;
-    private final Map<String, String> attachments;
-
-    private RecordDoubleValueFunc(
-        TagContext tags,
-        MutableViewData view,
-        Timestamp timestamp,
-        Map<String, String> attachments) {
-      this.tags = tags;
-      this.view = view;
-      this.timestamp = timestamp;
-      this.attachments = attachments;
-    }
-  }
-
-  private static final class RecordLongValueFunc implements Function<MeasurementLong, Void> {
-    @Override
-    public Void apply(MeasurementLong arg) {
-      view.record(tags, arg.getValue(), timestamp, attachments);
-      return null;
-    }
-
-    private final TagContext tags;
-    private final MutableViewData view;
-    private final Timestamp timestamp;
-    private final Map<String, String> attachments;
-
-    private RecordLongValueFunc(
-        TagContext tags,
-        MutableViewData view,
-        Timestamp timestamp,
-        Map<String, String> attachments) {
-      this.tags = tags;
-      this.view = view;
-      this.timestamp = timestamp;
-      this.attachments = attachments;
     }
   }
 }

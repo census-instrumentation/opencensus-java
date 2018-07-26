@@ -67,7 +67,7 @@ final class IntervalBucket {
       Map<String, String> attachments,
       Timestamp timestamp) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
-      tagValueAggregationMap.put(tagValues, MutableViewData.createMutableAggregation(aggregation));
+      tagValueAggregationMap.put(tagValues, RecordUtils.createMutableAggregation(aggregation));
     }
     tagValueAggregationMap.get(tagValues).add(value, attachments, timestamp);
   }
