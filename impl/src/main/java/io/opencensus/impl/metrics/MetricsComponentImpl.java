@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.metrics;
+package io.opencensus.impl.metrics;
 
-import io.opencensus.implcore.metrics.export.ExportComponentImpl;
+import io.opencensus.implcore.metrics.MetricsComponentImplBase;
 import io.opencensus.metrics.MetricsComponent;
 
 /** Implementation of {@link MetricsComponent}. */
-public class MetricsComponentImplBase extends MetricsComponent {
-
-  private final ExportComponentImpl exportComponent;
-
-  @Override
-  public ExportComponentImpl getExportComponent() {
-    return exportComponent;
-  }
-
-  public MetricsComponentImplBase() {
-    exportComponent = new ExportComponentImpl();
-  }
-}
+public final class MetricsComponentImpl extends MetricsComponentImplBase {}

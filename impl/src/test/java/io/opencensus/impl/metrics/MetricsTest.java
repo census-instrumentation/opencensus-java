@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.metrics;
+package io.opencensus.impl.metrics;
+
+import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
+import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.MetricsComponent;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-/** Implementation of {@link MetricsComponent}. */
-public class MetricsComponentImplBase extends MetricsComponent {
+/** Test for accessing the {@link MetricsComponent} through the {@link Metrics} class. */
+@RunWith(JUnit4.class)
+public class MetricsTest {
 
-  private final ExportComponentImpl exportComponent;
-
-  @Override
-  public ExportComponentImpl getExportComponent() {
-    return exportComponent;
-  }
-
-  public MetricsComponentImplBase() {
-    exportComponent = new ExportComponentImpl();
+  @Test
+  public void getExportComponent() {
+    assertThat(Metrics.getExportComponent()).isInstanceOf(ExportComponentImpl.class);
   }
 }

@@ -179,6 +179,7 @@ General guidelines on imports:
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.impl"/>
     <allow pkg="io.opencensus.implcore"/>
+    <allow pkg="io.opencensus.metrics"/>
     <allow pkg="io.opencensus.stats"/>
     <allow pkg="io.opencensus.tags"/>
     <allow pkg="io.opencensus.trace"/>
@@ -187,6 +188,7 @@ General guidelines on imports:
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.implcore"/>
     <allow pkg="io.opencensus.impllite"/>
+    <allow pkg="io.opencensus.metrics"/>
     <allow pkg="io.opencensus.stats"/>
     <allow pkg="io.opencensus.tags"/>
     <allow pkg="io.opencensus.trace"/>
