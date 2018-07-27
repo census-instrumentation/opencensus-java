@@ -120,7 +120,7 @@ public class JaegerExporterHandlerIntegrationTest {
 
     logger.info("Wait longer than the reporting duration...");
     // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
-    long timeWaitingForSpansToBeExportedInMillis = 5100L;
+    long timeWaitingForSpansToBeExportedInMillis = 10000L;
     Thread.sleep(timeWaitingForSpansToBeExportedInMillis);
     JaegerTraceExporter.unregister();
     final long endTimeInMillis = currentTimeMillis();
