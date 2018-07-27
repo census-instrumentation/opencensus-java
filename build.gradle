@@ -386,8 +386,6 @@ subprojects {
                  'opencensus-impl-core',
                  'opencensus-impl-lite',
                  'opencensus-impl',
-                 // TODO(songya): add the Export (or Metrics + SpanData) artifact once we agree on its name.
-                 // TODO(bdrutu): Fix dependencies on the api internal subpackage for the metrics artifact.
                  'opencensus-testing']
     }
 
