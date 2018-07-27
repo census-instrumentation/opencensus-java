@@ -19,6 +19,8 @@ package io.opencensus.stats;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
+import io.opencensus.metrics.Metric;
+import io.opencensus.metrics.MetricProducer;
 import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagContext;
@@ -81,6 +83,15 @@ final class NoopStats {
     return new NoopViewManager();
   }
 
+  /**
+   * Returns a {@code MetricProducer} that always return an empty list of {@link Metric}s.
+   *
+   * @return a {@code MetricProducer} that always return an empty list of {@code Metric}s.
+   */
+  static MetricProducer getNoopMetricProducer() {
+    return NoopMetricProducer.INSTANCE;
+  }
+
   @ThreadSafe
   private static final class NoopStatsComponent extends StatsComponent {
     private final ViewManager viewManager = newNoopViewManager();
@@ -94,6 +105,11 @@ final class NoopStats {
     @Override
     public StatsRecorder getStatsRecorder() {
       return getNoopStatsRecorder();
+    }
+
+    @Override
+    public MetricProducer getMetricProducer() {
+      return getNoopMetricProducer();
     }
 
     @Override
@@ -216,6 +232,16 @@ final class NoopStats {
         views.add(view);
       }
       return Collections.unmodifiableSet(views);
+    }
+  }
+
+  @ThreadSafe
+  private static final class NoopMetricProducer extends MetricProducer {
+    static final NoopMetricProducer INSTANCE = new NoopMetricProducer();
+
+    @Override
+    public Collection<Metric> getMetrics() {
+      return Collections.<Metric>emptyList();
     }
   }
 }

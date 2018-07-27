@@ -22,6 +22,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.Metric;
 import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
@@ -33,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -165,6 +167,10 @@ final class MeasureToViewMap {
             tags, RecordUtils.getDoubleValueFromMeasurement(measurement), timestamp, attachments);
       }
     }
+  }
+
+  synchronized List<Metric> getMetrics() {
+    return metricMap.toMetrics();
   }
 
   // Clear stats for all the current MutableViewData

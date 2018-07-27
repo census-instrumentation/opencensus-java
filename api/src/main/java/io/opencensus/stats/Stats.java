@@ -16,8 +16,10 @@
 
 package io.opencensus.stats;
 
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.Provider;
+import io.opencensus.metrics.MetricProducer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -49,6 +51,31 @@ public final class Stats {
    */
   public static ViewManager getViewManager() {
     return statsComponent.getViewManager();
+  }
+
+  /**
+   * Returns the default {@link MetricProducer}.
+   *
+   * <p>Example usage:
+   *
+   * <pre>{@code
+   * class MyClass {
+   *   private static final MetricProducer metricProducer = Stats.getMetricProducer();
+   *   private static final MetricProducerManager metricProducerManager =
+   *       Metrics.getMetricProducerManager();
+   *
+   *   static {
+   *     metricProducerManager.add(metricProducer);
+   *   }
+   * }
+   * }</pre>
+   *
+   * @return the {@code MetricProducer}.
+   * @since 0.16
+   */
+  @ExperimentalApi
+  public static MetricProducer getMetricProducer() {
+    return statsComponent.getMetricProducer();
   }
 
   /**
