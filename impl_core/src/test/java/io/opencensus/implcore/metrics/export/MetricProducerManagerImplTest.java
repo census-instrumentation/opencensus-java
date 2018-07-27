@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics.export;
+package io.opencensus.implcore.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.metrics.MetricProducer;
-import io.opencensus.metrics.export.MetricProducerManager.NoopMetricProducerManager;
+import io.opencensus.metrics.export.MetricProducer;
+import io.opencensus.metrics.export.MetricProducerManager;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,11 +30,13 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link MetricProducerManager}. */
+/** Unit tests for {@link MetricProducerManagerImpl}. */
 @RunWith(JUnit4.class)
-public class MetricProducerManagerTest {
-  private final MetricProducerManager metricProducerManager = new NoopMetricProducerManager();
+public class MetricProducerManagerImplTest {
+
+  private final MetricProducerManager metricProducerManager = new MetricProducerManagerImpl();
   @Mock private MetricProducer metricProducer;
+  @Mock private MetricProducer metricProducerOther;
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -51,13 +54,34 @@ public class MetricProducerManagerTest {
   @Test
   public void add() {
     metricProducerManager.add(metricProducer);
-    assertThat(metricProducerManager.getAllMetricProducer()).isEmpty();
+    assertThat(metricProducerManager.getAllMetricProducer()).containsExactly(metricProducer);
+  }
+
+  @Test
+  public void add_DuplicateElement() {
+    metricProducerManager.add(metricProducer);
+    Set<MetricProducer> metricProducerSet = metricProducerManager.getAllMetricProducer();
+    assertThat(metricProducerSet).containsExactly(metricProducer);
+    metricProducerManager.add(metricProducer);
+    // Returns the same object.
+    assertThat(metricProducerManager.getAllMetricProducer()).isSameAs(metricProducerSet);
+  }
+
+  @Test
+  public void add_MultipleElements() {
+    metricProducerManager.add(metricProducer);
+    Set<MetricProducer> metricProducerSet = metricProducerManager.getAllMetricProducer();
+    assertThat(metricProducerSet).containsExactly(metricProducer);
+    metricProducerManager.add(metricProducerOther);
+    // Returns the same object.
+    assertThat(metricProducerManager.getAllMetricProducer())
+        .containsExactly(metricProducer, metricProducerOther);
   }
 
   @Test
   public void addAndRemove() {
     metricProducerManager.add(metricProducer);
-    assertThat(metricProducerManager.getAllMetricProducer()).isEmpty();
+    assertThat(metricProducerManager.getAllMetricProducer()).containsExactly(metricProducer);
     metricProducerManager.remove(metricProducer);
     assertThat(metricProducerManager.getAllMetricProducer()).isEmpty();
   }
@@ -72,6 +96,16 @@ public class MetricProducerManagerTest {
   public void remove_FromEmpty() {
     metricProducerManager.remove(metricProducer);
     assertThat(metricProducerManager.getAllMetricProducer()).isEmpty();
+  }
+
+  @Test
+  public void remove_NotPresent() {
+    metricProducerManager.add(metricProducer);
+    Set<MetricProducer> metricProducerSet = metricProducerManager.getAllMetricProducer();
+    assertThat(metricProducerSet).containsExactly(metricProducer);
+    metricProducerManager.remove(metricProducerOther);
+    // Returns the same object.
+    assertThat(metricProducerManager.getAllMetricProducer()).isSameAs(metricProducerSet);
   }
 
   @Test

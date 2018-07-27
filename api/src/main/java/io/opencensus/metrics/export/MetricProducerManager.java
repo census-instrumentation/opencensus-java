@@ -20,7 +20,6 @@ import io.opencensus.common.ExperimentalApi;
 import io.opencensus.internal.Utils;
 import io.opencensus.metrics.MetricProducer;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -32,9 +31,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ExperimentalApi
 @ThreadSafe
-public final class MetricProducerManager {
-  private volatile Set<MetricProducer> metricProducers =
-      Collections.unmodifiableSet(new LinkedHashSet<MetricProducer>());
+public abstract class MetricProducerManager {
 
   /**
    * Adds the {@link MetricProducer} to the manager if it is not already present.
@@ -42,34 +39,14 @@ public final class MetricProducerManager {
    * @param metricProducer the {@code MetricProducer} to be added to the manager.
    * @since 0.16
    */
-  public synchronized void add(MetricProducer metricProducer) {
-    Utils.checkNotNull(metricProducer, "metricProducer");
-    // Updating the set of MetricProducers happens under a lock to avoid multiple add or remove
-    // operations to happen in the same time.
-    Set<MetricProducer> newMetricProducers = new LinkedHashSet<MetricProducer>(metricProducers);
-    if (!newMetricProducers.add(metricProducer)) {
-      // The element already present, no need to update the current set of MetricProducers.
-      return;
-    }
-    metricProducers = Collections.unmodifiableSet(newMetricProducers);
-  }
+  public abstract void add(MetricProducer metricProducer);
 
   /**
    * Removes the {@link MetricProducer} to the manager if it is present.
    *
    * @param metricProducer the {@code MetricProducer} to be removed from the manager.
    */
-  public synchronized void remove(MetricProducer metricProducer) {
-    Utils.checkNotNull(metricProducer, "metricProducer");
-    // Updating the set of MetricProducers happens under a lock to avoid multiple add or remove
-    // operations to happen in the same time.
-    Set<MetricProducer> newMetricProducers = new LinkedHashSet<MetricProducer>(metricProducers);
-    if (!newMetricProducers.remove(metricProducer)) {
-      // The element not present, no need to update the current set of MetricProducers.
-      return;
-    }
-    metricProducers = Collections.unmodifiableSet(newMetricProducers);
-  }
+  public abstract void remove(MetricProducer metricProducer);
 
   /**
    * Returns all registered {@link MetricProducer}s that should be exported.
@@ -79,11 +56,23 @@ public final class MetricProducerManager {
    *
    * @return all registered {@code MetricProducer}s that should be exported.
    */
-  public Set<MetricProducer> getAllMetricProducer() {
-    return metricProducers;
-  }
+  public abstract Set<MetricProducer> getAllMetricProducer();
 
-  // Package protected to allow us to possibly change this to an abstract class in the future. This
-  // ensures that nobody can create an instance of this class except ExportComponent.
-  MetricProducerManager() {}
+  static final class NoopMetricProducerManager extends MetricProducerManager {
+
+    @Override
+    public void add(MetricProducer metricProducer) {
+      Utils.checkNotNull(metricProducer, "metricProducer");
+    }
+
+    @Override
+    public void remove(MetricProducer metricProducer) {
+      Utils.checkNotNull(metricProducer, "metricProducer");
+    }
+
+    @Override
+    public Set<MetricProducer> getAllMetricProducer() {
+      return Collections.emptySet();
+    }
+  }
 }
