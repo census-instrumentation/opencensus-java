@@ -390,7 +390,7 @@ public class StackdriverExportUtilsTest {
             Arrays.asList(KEY),
             CUMULATIVE);
     MetricDescriptor metricDescriptor =
-        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID, "OpenCensus");
     assertThat(metricDescriptor.getName())
         .isEqualTo(
             "projects/"
