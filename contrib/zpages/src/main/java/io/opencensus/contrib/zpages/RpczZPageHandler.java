@@ -113,9 +113,6 @@ final class RpczZPageHandler extends ZPageHandler {
   private static final String RPCZ_URL = "/rpcz";
   private static final String SENT = "Sent";
   private static final String RECEIVED = "Received";
-  private static final String TITLE_COLOR = "\"#FFF\"";
-  private static final String TABLE_HEADER_COLOR = "\"#A94442\"";
-  private static final String TABLE_ROW_COLOR = "\"#FFF\"";
   private static final double SECONDS_PER_MINUTE = 60.0;
   private static final double SECONDS_PER_HOUR = 3600.0;
   private static final double NANOS_PER_SECOND = 1e9;
@@ -226,27 +223,7 @@ final class RpczZPageHandler extends ZPageHandler {
 
   private static void emitStyle(PrintWriter out) {
     out.write("<style>\n");
-    out.write(
-        "body{font-family:'Roboto',sans-serif;font-size:14px;" + "background-color:#F2F4EC;}\n");
-    out.write("h1{color:#3D3D3D;text-align:center; margin-bottom:20px;}\n");
-    out.write("p{padding:0 0.5em;color:#3D3D3D}\n");
-    out.write(
-        "table{width:100%;color:#FFF;overflow:hidden;" + "margin-bottom:30px;margin-top:0;}\n");
-    out.write("tr:nth-child(even){background-color:#F2F2F2;}\n");
-    out.write("tr.border-bottom td{border-bottom:1px solid #3D3D3D}\n");
-    out.write("td.border-right,th.border-right{border-right:1px solid #3D3D3D;}\n");
-    out.write("td.border-left{border-left:1px solid #3D3D3D}\n");
-    out.write("td{color:#3D3D3D;line-height:2.0;}\n");
-    out.write("p.title{margin-bottom:0;}\n");
-    out.write(
-        "p.header {font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;"
-            + "height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
-    out.write(".header span{color:#3D3D3D;}\n");
-    out.write("img.oc {vertical-align:middle;}\n");
-    out.write(
-        "th.l1{border-left:1px solid #FFF;border-bottom:1px solid #FFF;" + "margin:0 10px;}\n");
-    out.write("td.l2{border-left:1px solid #3D3D3D;text-align:center;}\n");
-    out.write("th.border-bottom,td.border-bottom{border-bottom:1px solid #FFF;}\n");
+    out.write(Style.STYLE);
     out.write("</style>\n");
   }
 
@@ -258,7 +235,7 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<html lang=\"en\"><head>\n");
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>RpcZ</title>\n");
-    out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
+    out.write("<link rel=\"shortcut icon\" href=\"https://opencensus.io/images/favicon.ico\"/>\n");
     out.write(
         "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
             + "rel=\"stylesheet\">\n");
@@ -291,10 +268,10 @@ final class RpczZPageHandler extends ZPageHandler {
 
   private void emitSummaryTable(PrintWriter out, Formatter formatter, boolean isReceived) {
     formatter.format(
-        "<p class=\"title\"><table bgcolor=%s width=100%%><tr align=left><td><font size=+2>"
-            + "%s</font></td></tr></table></p>",
-        TITLE_COLOR, (isReceived ? RECEIVED : SENT));
-    formatter.format("<table bgcolor=%s frame=box cellspacing=0 cellpadding=2>", TABLE_ROW_COLOR);
+        "<h2><table class=\"title\"><tr align=left><td><font size=+2>"
+            + "%s</font></td></tr></table></h2>",
+        (isReceived ? RECEIVED : SENT));
+    formatter.format("<table frame=box cellspacing=0 cellpadding=2>");
     emitSummaryTableHeader(out, formatter);
     Map<String, StatsSnapshot> snapshots = getStatsSnapshots(isReceived);
     for (Entry<String, StatsSnapshot> entry : snapshots.entrySet()) {
@@ -306,21 +283,21 @@ final class RpczZPageHandler extends ZPageHandler {
 
   private static void emitSummaryTableHeader(PrintWriter out, Formatter formatter) {
     // First line.
-    formatter.format("<tr bgcolor=%s>", TABLE_HEADER_COLOR);
+    formatter.format("<tr bgcolor=#A94442>");
     out.write("<th></th><td></td>");
     for (String rpcStatsType : RPC_STATS_TYPES) {
-      formatter.format("<th class=\"l1\" colspan=3>%s</th>", rpcStatsType);
+      formatter.format("<th class=\"borderLB\" colspan=3>%s</th>", rpcStatsType);
     }
     out.write("</tr>");
 
     // Second line.
-    formatter.format("<tr bgcolor=%s>", TABLE_HEADER_COLOR);
-    out.write("<th class=\"border-bottom\" bgcolor=#A94442 align=left>Method</th>\n");
-    out.write("<td class=\"border-bottom\" bgcolor=#A94442>&nbsp;&nbsp;&nbsp;&nbsp;</td>");
+    formatter.format("<tr bgcolor=#A94442>");
+    out.write("<th align=left>Method</th>\n");
+    out.write("<td bgcolor=#A94442>&nbsp;&nbsp;&nbsp;&nbsp;</td>");
     for (int i = 0; i < RPC_STATS_TYPES.size(); i++) {
-      out.write("<th class=\"l1\" bgcolor=#A94442 align=center>Min.</th>\n");
-      out.write("<th class=\"l1\" bgcolor=#A94442 align=center>Hr.</th>\n");
-      out.write("<th class=\"l1\" bgcolor=#A94442 align=center>Tot.</th>");
+      out.write("<th class=\"borderLB\" align=center>Min.</th>\n");
+      out.write("<th class=\"borderLB\" align=center>Hr.</th>\n");
+      out.write("<th class=\"borderLB\" align=center>Tot.</th>");
     }
   }
 
@@ -329,24 +306,24 @@ final class RpczZPageHandler extends ZPageHandler {
     out.write("<tr>");
     formatter.format("<td><b>%s</b></td>", method);
     out.write("<td></td>");
-    formatter.format("<td class=\"l2\">%d</td>", snapshot.countLastMinute);
-    formatter.format("<td class=\"l2\">%d</td>", snapshot.countLastHour);
-    formatter.format("<td class=\"l2\">%d</td>", snapshot.countTotal);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.avgLatencyLastMinute);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.avgLatencyLastHour);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.avgLatencyTotal);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.rpcRateLastMinute);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.rpcRateLastHour);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.rpcRateTotal);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.inputRateLastMinute);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.inputRateLastHour);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.inputRateTotal);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.outputRateLastMinute);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.outputRateLastHour);
-    formatter.format("<td class=\"l2\">%.3f</td>", snapshot.outputRateTotal);
-    formatter.format("<td class=\"l2\">%d</td>", snapshot.errorsLastMinute);
-    formatter.format("<td class=\"l2\">%d</td>", snapshot.errorsLastHour);
-    formatter.format("<td class=\"l2\">%d</td>", snapshot.errorsTotal);
+    formatter.format("<td class=\"borderLC\">%d</td>", snapshot.countLastMinute);
+    formatter.format("<td class=\"borderLC\">%d</td>", snapshot.countLastHour);
+    formatter.format("<td class=\"borderLC\">%d</td>", snapshot.countTotal);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.avgLatencyLastMinute);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.avgLatencyLastHour);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.avgLatencyTotal);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.rpcRateLastMinute);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.rpcRateLastHour);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.rpcRateTotal);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.inputRateLastMinute);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.inputRateLastHour);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.inputRateTotal);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.outputRateLastMinute);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.outputRateLastHour);
+    formatter.format("<td class=\"borderLC\">%.3f</td>", snapshot.outputRateTotal);
+    formatter.format("<td class=\"borderLC\">%d</td>", snapshot.errorsLastMinute);
+    formatter.format("<td class=\"borderLC\">%d</td>", snapshot.errorsLastHour);
+    formatter.format("<td class=\"borderLC\">%d</td>", snapshot.errorsTotal);
     out.write("</tr>");
   }
 

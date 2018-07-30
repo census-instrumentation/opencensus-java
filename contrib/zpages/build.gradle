@@ -14,6 +14,3 @@ dependencies {
 
     signature "org.codehaus.mojo.signature:java18:+@signature"
 }
-
-sourceSets.main.resources.srcDirs = [ "src/resources/" ]
-sourceSets.main.resources.includes = [ "**/*.css" ]
