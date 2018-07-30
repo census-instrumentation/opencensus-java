@@ -74,7 +74,7 @@ public abstract class StackdriverStatsConfiguration {
    * Returns the name prefix for Stackdriver metrics.
    *
    * @return the metric name prefix.
-   * @since 0.13
+   * @since 0.16
    */
   @Nullable
   public abstract String getMetricNamePrefix();
@@ -138,9 +138,13 @@ public abstract class StackdriverStatsConfiguration {
     /**
      * Sets the the name prefix for Stackdriver metrics.
      *
+     * <p>It is suggested to use prefix with custom or external domain name, for example
+     * "custom.googleapis.com/myorg/" or "external.googleapis.com/prometheus/". If the given prefix
+     * doesn't start with a valid domain, we will add "custom.googleapis.com/" before the prefix.
+     *
      * @param prefix the metric name prefix.
      * @return this.
-     * @since 0.13
+     * @since 0.16
      */
     public abstract Builder setMetricNamePrefix(String prefix);
 

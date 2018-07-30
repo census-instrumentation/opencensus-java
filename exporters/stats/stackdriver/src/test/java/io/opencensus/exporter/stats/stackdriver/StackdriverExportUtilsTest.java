@@ -105,7 +105,7 @@ public class StackdriverExportUtilsTest {
   @Test
   public void testConstant() {
     assertThat(StackdriverExportUtils.LABEL_DESCRIPTION).isEqualTo("OpenCensus TagKey");
-    assertThat(StackdriverExportUtils.DEFAULT_DISPLAY_NAME_PREFIX).isEqualTo("OpenCensus  ");
+    assertThat(StackdriverExportUtils.DEFAULT_DISPLAY_NAME_PREFIX).isEqualTo("OpenCensus");
   }
 
   @Test
@@ -180,6 +180,26 @@ public class StackdriverExportUtilsTest {
         .isEqualTo(
             Metric.newBuilder()
                 .setType("custom.googleapis.com/opencensus/" + VIEW_NAME)
+                .putLabels("KEY", "VALUE1")
+                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
+                .build());
+  }
+
+  @Test
+  public void createMetric_WithExternalMetricDomain() {
+    View view =
+        View.create(
+            Name.create(VIEW_NAME),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    String prometheusDomain = "external.googleapis.com/prometheus/";
+    assertThat(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1), prometheusDomain))
+        .isEqualTo(
+            Metric.newBuilder()
+                .setType(prometheusDomain + VIEW_NAME)
                 .putLabels("KEY", "VALUE1")
                 .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
                 .build());
@@ -357,12 +377,11 @@ public class StackdriverExportUtilsTest {
         .isEqualTo(
             "projects/"
                 + PROJECT_ID
-                + "/metricDescriptors/custom.googleapis.com/opencensus/"
+                + "/metricDescriptors/custom.googleapis.com/myorg/"
                 + VIEW_NAME);
     assertThat(metricDescriptor.getDescription()).isEqualTo(VIEW_DESCRIPTION);
     assertThat(metricDescriptor.getDisplayName()).isEqualTo("myorg/" + VIEW_NAME);
-    assertThat(metricDescriptor.getType())
-        .isEqualTo("custom.googleapis.com/opencensus/" + VIEW_NAME);
+    assertThat(metricDescriptor.getType()).isEqualTo("custom.googleapis.com/myorg/" + VIEW_NAME);
     assertThat(metricDescriptor.getUnit()).isEqualTo(MEASURE_UNIT);
     assertThat(metricDescriptor.getMetricKind()).isEqualTo(MetricKind.CUMULATIVE);
     assertThat(metricDescriptor.getValueType()).isEqualTo(MetricDescriptor.ValueType.DISTRIBUTION);
@@ -391,7 +410,7 @@ public class StackdriverExportUtilsTest {
             Arrays.asList(KEY),
             CUMULATIVE);
     MetricDescriptor metricDescriptor =
-        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID, "OpenCensus");
+        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID, null);
     assertThat(metricDescriptor.getName())
         .isEqualTo(
             "projects/"

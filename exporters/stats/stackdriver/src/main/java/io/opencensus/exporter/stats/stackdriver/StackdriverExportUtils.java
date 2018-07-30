@@ -89,6 +89,7 @@ final class StackdriverExportUtils {
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
   private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
+  private static final String EXTERNAL_METRIC_DOMAIN = "external.googleapis.com";
   private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
   private static final String PROJECT_ID_LABEL_KEY = "project_id";
@@ -242,10 +243,17 @@ final class StackdriverExportUtils {
 
   private static String generateType(
       String viewName, @javax.annotation.Nullable String metricNamePrefix) {
-    String domain =
-        metricNamePrefix == null
-            ? CUSTOM_OPENCENSUS_DOMAIN
-            : CUSTOM_METRIC_DOMAIN + '/' + metricNamePrefix + '/';
+    String domain;
+    if (metricNamePrefix == null) {
+      domain = CUSTOM_OPENCENSUS_DOMAIN;
+    } else {
+      if (metricNamePrefix.startsWith(CUSTOM_METRIC_DOMAIN)
+          || metricNamePrefix.startsWith(EXTERNAL_METRIC_DOMAIN)) {
+        domain = metricNamePrefix;
+      } else {
+        domain = String.format("%s/%s/", CUSTOM_METRIC_DOMAIN, metricNamePrefix);
+      }
+    }
     return domain + viewName;
   }
 
