@@ -17,7 +17,6 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.exporter.stats.stackdriver.StackdriverStatsExporter.DEFAULT_DISPLAY_NAME_PREFIX;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -129,17 +128,16 @@ public class StackdriverExporterWorkerTest {
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE,
-            DEFAULT_DISPLAY_NAME_PREFIX);
+            null);
     worker.export();
 
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(1)).createTimeSeriesCallable();
 
     MetricDescriptor descriptor =
-        StackdriverExportUtils.createMetricDescriptor(
-            view, PROJECT_ID, DEFAULT_DISPLAY_NAME_PREFIX);
+        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID, null);
     List<TimeSeries> timeSeries =
-        StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE);
+        StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE, null);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
             eq(
@@ -175,7 +173,7 @@ public class StackdriverExporterWorkerTest {
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE,
-            DEFAULT_DISPLAY_NAME_PREFIX);
+            null);
 
     worker.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
@@ -195,7 +193,7 @@ public class StackdriverExporterWorkerTest {
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE,
-            DEFAULT_DISPLAY_NAME_PREFIX);
+            null);
 
     assertThat(worker.registerView(view)).isFalse();
     worker.export();
@@ -212,7 +210,7 @@ public class StackdriverExporterWorkerTest {
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE,
-            DEFAULT_DISPLAY_NAME_PREFIX);
+            null);
     View view1 =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(worker.registerView(view1)).isTrue();
@@ -239,7 +237,7 @@ public class StackdriverExporterWorkerTest {
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE,
-            DEFAULT_DISPLAY_NAME_PREFIX);
+            null);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(worker.registerView(view)).isTrue();
@@ -258,7 +256,7 @@ public class StackdriverExporterWorkerTest {
             ONE_SECOND,
             mockViewManager,
             DEFAULT_RESOURCE,
-            DEFAULT_DISPLAY_NAME_PREFIX);
+            null);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), INTERVAL);
     assertThat(worker.registerView(view)).isFalse();

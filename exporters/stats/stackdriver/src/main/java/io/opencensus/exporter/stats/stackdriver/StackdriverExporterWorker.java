@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /*>>>
@@ -71,7 +72,7 @@ final class StackdriverExporterWorker implements Runnable {
   private final MetricServiceClient metricServiceClient;
   private final ViewManager viewManager;
   private final MonitoredResource monitoredResource;
-  private final String displayNamePrefix;
+  @Nullable private final String metricNamePrefix;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -83,14 +84,14 @@ final class StackdriverExporterWorker implements Runnable {
       Duration exportInterval,
       ViewManager viewManager,
       MonitoredResource monitoredResource,
-      String displayNamePrefix) {
+      @Nullable String metricNamePrefix) {
     this.scheduleDelayMillis = exportInterval.toMillis();
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
     this.monitoredResource = monitoredResource;
-    this.displayNamePrefix = displayNamePrefix;
+    this.metricNamePrefix = metricNamePrefix;
 
     Tracing.getExportComponent()
         .getSampledSpanStore()
@@ -125,7 +126,7 @@ final class StackdriverExporterWorker implements Runnable {
       // canonical metrics. Registration is required only for custom view definitions. Canonical
       // views should be pre-registered.
       MetricDescriptor metricDescriptor =
-          StackdriverExportUtils.createMetricDescriptor(view, projectId, displayNamePrefix);
+          StackdriverExportUtils.createMetricDescriptor(view, projectId, metricNamePrefix);
       if (metricDescriptor == null) {
         // Don't register interval views in this version.
         return false;
@@ -173,7 +174,8 @@ final class StackdriverExporterWorker implements Runnable {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     for (/*@Nullable*/ ViewData viewData : viewDataList) {
       timeSeriesList.addAll(
-          StackdriverExportUtils.createTimeSeriesList(viewData, monitoredResource));
+          StackdriverExportUtils.createTimeSeriesList(
+              viewData, monitoredResource, metricNamePrefix));
     }
     for (List<TimeSeries> batchedTimeSeries :
         Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {

@@ -51,13 +51,13 @@ public class StackdriverStatsConfigurationTest {
             .setProjectId(PROJECT_ID)
             .setExportInterval(DURATION)
             .setMonitoredResource(RESOURCE)
-            .setDisplayNamePrefix(CUSTOM_PREFIX)
+            .setMetricNamePrefix(CUSTOM_PREFIX)
             .build();
     assertThat(configuration.getCredentials()).isEqualTo(FAKE_CREDENTIALS);
     assertThat(configuration.getProjectId()).isEqualTo(PROJECT_ID);
     assertThat(configuration.getExportInterval()).isEqualTo(DURATION);
     assertThat(configuration.getMonitoredResource()).isEqualTo(RESOURCE);
-    assertThat(configuration.getDisplayNamePrefix()).isEqualTo(CUSTOM_PREFIX);
+    assertThat(configuration.getMetricNamePrefix()).isEqualTo(CUSTOM_PREFIX);
   }
 
   @Test
@@ -67,6 +67,6 @@ public class StackdriverStatsConfigurationTest {
     assertThat(configuration.getProjectId()).isNull();
     assertThat(configuration.getExportInterval()).isNull();
     assertThat(configuration.getMonitoredResource()).isNull();
-    assertThat(configuration.getDisplayNamePrefix()).isNull();
+    assertThat(configuration.getMetricNamePrefix()).isNull();
   }
 }

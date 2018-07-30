@@ -81,6 +81,7 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
+  @VisibleForTesting static final String DEFAULT_DISPLAY_NAME_PREFIX = "OpenCensus";
   private static final String GCP_GKE_CONTAINER = "gke_container";
   private static final String GCP_GCE_INSTANCE = "gce_instance";
   private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
@@ -205,7 +206,7 @@ final class StackdriverExportUtils {
   // Construct a MetricDescriptor using a View.
   @javax.annotation.Nullable
   static MetricDescriptor createMetricDescriptor(
-      View view, String projectId, String displayNamePrefix) {
+      View view, String projectId, @javax.annotation.Nullable String metricNamePrefix) {
     if (!(view.getWindow() instanceof View.AggregationWindow.Cumulative)) {
       // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
       return null;
@@ -213,13 +214,17 @@ final class StackdriverExportUtils {
 
     MetricDescriptor.Builder builder = MetricDescriptor.newBuilder();
     String viewName = view.getName().asString();
-    String type = generateType(viewName);
+    String type = generateType(viewName, metricNamePrefix);
     // Name format refers to
     // cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/create
     builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
     builder.setType(type);
     builder.setDescription(view.getDescription());
-    builder.setDisplayName(displayNamePrefix + '/' + viewName);
+    String displayName =
+        metricNamePrefix == null
+            ? DEFAULT_DISPLAY_NAME_PREFIX + '/' + viewName
+            : metricNamePrefix + '/' + viewName;
+    builder.setDisplayName(displayName);
     for (TagKey tagKey : view.getColumns()) {
       builder.addLabels(createLabelDescriptor(tagKey));
     }
@@ -235,8 +240,13 @@ final class StackdriverExportUtils {
     return builder.build();
   }
 
-  private static String generateType(String viewName) {
-    return CUSTOM_OPENCENSUS_DOMAIN + viewName;
+  private static String generateType(
+      String viewName, @javax.annotation.Nullable String metricNamePrefix) {
+    String domain =
+        metricNamePrefix == null
+            ? CUSTOM_OPENCENSUS_DOMAIN
+            : CUSTOM_METRIC_DOMAIN + '/' + metricNamePrefix + '/';
+    return domain + viewName;
   }
 
   // Construct a LabelDescriptor from a TagKey
@@ -294,7 +304,9 @@ final class StackdriverExportUtils {
 
   // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
   static List<TimeSeries> createTimeSeriesList(
-      @javax.annotation.Nullable ViewData viewData, MonitoredResource monitoredResource) {
+      @javax.annotation.Nullable ViewData viewData,
+      MonitoredResource monitoredResource,
+      @javax.annotation.Nullable String metricNamePrefix) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     if (viewData == null) {
       return timeSeriesList;
@@ -315,7 +327,7 @@ final class StackdriverExportUtils {
     for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
         viewData.getAggregationMap().entrySet()) {
       TimeSeries.Builder builder = shared.clone();
-      builder.setMetric(createMetric(view, entry.getKey()));
+      builder.setMetric(createMetric(view, entry.getKey(), metricNamePrefix));
       builder.addPoints(
           createPoint(entry.getValue(), viewData.getWindowData(), view.getAggregation()));
       timeSeriesList.add(builder.build());
@@ -326,10 +338,13 @@ final class StackdriverExportUtils {
 
   // Create a Metric using the TagKeys and TagValues.
   @VisibleForTesting
-  static Metric createMetric(View view, List</*@Nullable*/ TagValue> tagValues) {
+  static Metric createMetric(
+      View view,
+      List</*@Nullable*/ TagValue> tagValues,
+      @javax.annotation.Nullable String metricNamePrefix) {
     Metric.Builder builder = Metric.newBuilder();
     // TODO(songya): use pre-defined metrics for canonical views
-    builder.setType(generateType(view.getName().asString()));
+    builder.setType(generateType(view.getName().asString(), metricNamePrefix));
     Map<String, String> stringTagMap = Maps.newHashMap();
     List<TagKey> columns = view.getColumns();
     checkArgument(

@@ -73,8 +73,6 @@ public final class StackdriverStatsExporter {
   private static final MonitoredResource DEFAULT_RESOURCE =
       StackdriverExportUtils.getDefaultResource();
 
-  @VisibleForTesting static final String DEFAULT_DISPLAY_NAME_PREFIX = "OpenCensus";
-
   @VisibleForTesting
   StackdriverStatsExporter(
       String projectId,
@@ -82,7 +80,7 @@ public final class StackdriverStatsExporter {
       Duration exportInterval,
       ViewManager viewManager,
       MonitoredResource monitoredResource,
-      String displayNamePrefix) {
+      @Nullable String metricNamePrefix) {
     checkArgument(exportInterval.compareTo(ZERO) > 0, "Duration must be positive");
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
@@ -91,7 +89,7 @@ public final class StackdriverStatsExporter {
             exportInterval,
             viewManager,
             monitoredResource,
-            displayNamePrefix);
+            metricNamePrefix);
     this.workerThread = new DaemonThreadFactory().newThread(worker);
   }
 
@@ -167,7 +165,7 @@ public final class StackdriverStatsExporter {
    * cloud.google.com/monitoring/custom-metrics/creating-metrics#which-resource for a list of valid
    * {@code MonitoredResource}s.
    *
-   * <p>If {@code displayNamePrefix} of the configuration is not set, the exporter will use the
+   * <p>If {@code metricNamePrefix} of the configuration is not set, the exporter will use the
    * default prefix "OpenCensus".
    *
    * @param configuration the {@code StackdriverStatsConfiguration}.
@@ -182,7 +180,7 @@ public final class StackdriverStatsExporter {
         configuration.getProjectId(),
         configuration.getExportInterval(),
         configuration.getMonitoredResource(),
-        configuration.getDisplayNamePrefix());
+        configuration.getMetricNamePrefix());
   }
 
   /**
@@ -304,12 +302,11 @@ public final class StackdriverStatsExporter {
       @Nullable String projectId,
       @Nullable Duration exportInterval,
       @Nullable MonitoredResource monitoredResource,
-      @Nullable String displayNamePrefix)
+      @Nullable String metricNamePrefix)
       throws IOException {
     projectId = projectId == null ? ServiceOptions.getDefaultProjectId() : projectId;
     exportInterval = exportInterval == null ? DEFAULT_INTERVAL : exportInterval;
     monitoredResource = monitoredResource == null ? DEFAULT_RESOURCE : monitoredResource;
-    displayNamePrefix = displayNamePrefix == null ? DEFAULT_DISPLAY_NAME_PREFIX : displayNamePrefix;
     synchronized (monitor) {
       checkState(exporter == null, "Stackdriver stats exporter is already created.");
       MetricServiceClient metricServiceClient;
@@ -330,7 +327,7 @@ public final class StackdriverStatsExporter {
               exportInterval,
               Stats.getViewManager(),
               monitoredResource,
-              displayNamePrefix);
+              metricNamePrefix);
       exporter.workerThread.start();
     }
   }
