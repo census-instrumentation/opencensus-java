@@ -155,7 +155,7 @@ final class TracezZPageHandler extends ZPageHandler {
 
   private static void emitStyle(PrintWriter out) {
     out.write("<style>\n");
-    out.write(Style.STYLE);
+    out.write(Style.style);
     out.write("</style>\n");
   }
 

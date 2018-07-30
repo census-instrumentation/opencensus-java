@@ -147,7 +147,7 @@ final class StatszZPageHandler extends ZPageHandler {
 
   private static void emitStyles(PrintWriter out, Formatter formatter) {
     out.write("<style>");
-    out.write(Style.STYLE);
+    out.write(Style.style);
     formatter.format(".%s{font-size:150%%}", CLASS_LARGER_TR);
     out.write("</style>");
   }
