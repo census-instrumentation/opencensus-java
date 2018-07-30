@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /*>>>
@@ -72,7 +71,7 @@ final class StackdriverExporterWorker implements Runnable {
   private final MetricServiceClient metricServiceClient;
   private final ViewManager viewManager;
   private final MonitoredResource monitoredResource;
-  @Nullable private final String metricNamePrefix;
+  @javax.annotation.Nullable private final String metricNamePrefix;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -84,7 +83,7 @@ final class StackdriverExporterWorker implements Runnable {
       Duration exportInterval,
       ViewManager viewManager,
       MonitoredResource monitoredResource,
-      @Nullable String metricNamePrefix) {
+      @javax.annotation.Nullable String metricNamePrefix) {
     this.scheduleDelayMillis = exportInterval.toMillis();
     this.projectId = projectId;
     projectName = ProjectName.newBuilder().setProject(projectId).build();
