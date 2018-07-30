@@ -110,15 +110,14 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
             + "rel=\"stylesheet\">\n");
     out.write(
-        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" 
-            + "rel=\"stylesheet\">\n");
+        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" + "rel=\"stylesheet\">\n");
     emitStyle(out);
     out.write("</head>\n");
     out.write("<body>\n");
     out.write(
         "<p class=\"header\">"
-      + "<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />"
-      + "Open<span>Census</span></p>");
+            + "<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />"
+            + "Open<span>Census</span></p>");
     out.write("<h1 class=\"left\">Trace Configuration</h1>");
     out.write("<p></p>");
     try {

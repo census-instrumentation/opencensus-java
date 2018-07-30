@@ -130,8 +130,7 @@ final class StatszZPageHandler extends ZPageHandler {
         "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
             + "rel=\"stylesheet\">\n");
     out.write(
-        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" 
-            + "rel=\"stylesheet\">\n");
+        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" + "rel=\"stylesheet\">\n");
     Formatter formatter = new Formatter(out, Locale.US);
     emitStyles(out, formatter);
     out.write("</head>\n");
@@ -295,8 +294,7 @@ final class StatszZPageHandler extends ZPageHandler {
   private static void emitViewData(
       /*@Nullable*/ ViewData viewData, View.Name viewName, PrintWriter out, Formatter formatter) {
     if (viewData == null) {
-      formatter.format(
-          "<p class=\"view\">No Stats found for View: %s.</p>", viewName.asString());
+      formatter.format("<p class=\"view\">No Stats found for View: %s.</p>", viewName.asString());
       return;
     }
     View view = viewData.getView();
@@ -408,8 +406,7 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<Distribution, Void>() {
               @Override
               public Void apply(Distribution arg) {
-                formatter.format(
-                    "<th>%s, %s</th>", TABLE_HEADER_MEAN, unit);
+                formatter.format("<th>%s, %s</th>", TABLE_HEADER_MEAN, unit);
                 formatter.format("<th class=\"borderL\">%s</th>", TABLE_HEADER_COUNT);
                 formatter.format("<th class=\"borderL\">%s, %s</th>", TABLE_HEADER_MAX, unit);
                 formatter.format("<th class=\"borderL\">%s, %s</th>", TABLE_HEADER_MIN, unit);
@@ -435,8 +432,7 @@ final class StatszZPageHandler extends ZPageHandler {
                 // some
                 // deprecated RPC views.
                 if (arg instanceof Aggregation.Mean) {
-                  formatter.format(
-                      "<th>%s, %s</th>", TABLE_HEADER_MEAN, unit);
+                  formatter.format("<th>%s, %s</th>", TABLE_HEADER_MEAN, unit);
                   formatter.format("<th class=\"borderL\">%s</th>", TABLE_HEADER_COUNT);
                   return null;
                 }
@@ -463,8 +459,7 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<SumDataDouble, Void>() {
               @Override
               public Void apply(SumDataDouble arg) {
-                formatter.format(
-                    "<td class=\"borderLL\">%.3f</td>", arg.getSum());
+                formatter.format("<td class=\"borderLL\">%.3f</td>", arg.getSum());
                 return null;
               }
             },
@@ -478,8 +473,7 @@ final class StatszZPageHandler extends ZPageHandler {
             new Function<CountData, Void>() {
               @Override
               public Void apply(CountData arg) {
-                formatter.format(
-                    "<td class=\"borderLL\">%d</td>", arg.getCount());
+                formatter.format("<td class=\"borderLL\">%d</td>", arg.getCount());
                 return null;
               }
             },
@@ -488,17 +482,12 @@ final class StatszZPageHandler extends ZPageHandler {
               public Void apply(DistributionData arg) {
                 checkArgument(
                     view.getAggregation() instanceof Distribution, "Distribution expected.");
+                formatter.format("<td>%.3f</td>", arg.getMean());
+                formatter.format("<td class=\"borderLL\">%d</td>", arg.getCount());
+                formatter.format("<td class=\"borderLL\">%.3f</td>", arg.getMax());
+                formatter.format("<td class=\"borderLL\">%.3f</td>", arg.getMin());
                 formatter.format(
-                    "<td>%.3f</td>", arg.getMean());
-                formatter.format(
-                    "<td class=\"borderLL\">%d</td>", arg.getCount());
-                formatter.format(
-                    "<td class=\"borderLL\">%.3f</td>", arg.getMax());
-                formatter.format(
-                    "<td class=\"borderLL\">%.3f</td>", arg.getMin());
-                formatter.format(
-                    "<td class=\"borderLL\">%.3f</td>",
-                    arg.getSumOfSquaredDeviations());
+                    "<td class=\"borderLL\">%.3f</td>", arg.getSumOfSquaredDeviations());
                 emitHistogramBuckets(
                     ((Distribution) view.getAggregation()).getBucketBoundaries().getBoundaries(),
                     arg.getBucketCounts(),
@@ -526,10 +515,8 @@ final class StatszZPageHandler extends ZPageHandler {
               public Void apply(AggregationData arg) {
                 if (arg instanceof AggregationData.MeanData) {
                   AggregationData.MeanData meanData = (AggregationData.MeanData) arg;
-                  formatter.format(
-                      "<td>%.3f</td>", meanData.getMean());
-                  formatter.format(
-                      "<td class=\"borderLL\">%d</td>", meanData.getCount());
+                  formatter.format("<td>%.3f</td>", meanData.getMean());
+                  formatter.format("<td class=\"borderLL\">%d</td>", meanData.getCount());
                   return null;
                 }
                 throw new IllegalArgumentException("Unknown Aggregation.");
@@ -588,8 +575,7 @@ final class StatszZPageHandler extends ZPageHandler {
     formatter.format("<th colspan=1>%s</th>", TABLE_HEADER_MEASURE);
     formatter.format("<th colspan=1 class=\"borderL\">%s</th>", TABLE_HEADER_DESCRIPTION);
     formatter.format("<th colspan=1 class=\"borderL\">%s</th>", TABLE_HEADER_UNIT);
-    formatter.format(
-        "<th colspan=1 class=\"borderL\">%s</th>", TABLE_HEADER_MEASURE_TYPE);
+    formatter.format("<th colspan=1 class=\"borderL\">%s</th>", TABLE_HEADER_MEASURE_TYPE);
     out.write("</tr>");
     out.write("</thead>");
   }
@@ -597,8 +583,7 @@ final class StatszZPageHandler extends ZPageHandler {
   private static void emitMeasureTableRow(Measure measure, PrintWriter out, Formatter formatter) {
     out.write("<tr>");
     formatter.format("<td><b>%s</b></td>", measure.getName());
-    formatter.format(
-        "<td class=\"borderLL\">%s&nbsp;</td>", measure.getDescription());
+    formatter.format("<td class=\"borderLL\">%s&nbsp;</td>", measure.getDescription());
     formatter.format("<td class=\"borderLL\">%s&nbsp;</td>", measure.getUnit());
     String measureType =
         measure.match(

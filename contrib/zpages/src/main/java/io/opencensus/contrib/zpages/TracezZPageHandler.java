@@ -172,8 +172,7 @@ final class TracezZPageHandler extends ZPageHandler {
         "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
             + "rel=\"stylesheet\">\n");
     out.write(
-        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" 
-            + "rel=\"stylesheet\">\n");
+        "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" + "rel=\"stylesheet\">\n");
     emitStyle(out);
     out.write("</head>\n");
     out.write("<body>\n");
