@@ -19,7 +19,7 @@ package io.opencensus.contrib.zpages;
 final class Style {
   private Style() {}
 
-  static final String STYLE =
+  static String STYLE =
       "body {font-family: 'Roboto',sans-serif;"
           + "font-size: 14px;background-color: #F2F4EC;}"
           + "h1 {color: #3D3D3D;text-align: center;margin-bottom: 20px;}"
