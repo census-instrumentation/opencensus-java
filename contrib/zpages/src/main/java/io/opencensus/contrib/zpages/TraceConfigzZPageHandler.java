@@ -53,8 +53,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACECONFIGZ_FORM_BODY =
       "<form action=/traceconfigz method=get>%n"
           // Permanently changes table.
-          + "<table class=\"margin-btm\" rules=\"all\" frame=\"border\">%n"
-          + "<td colspan=\"3\" class=\"col_head_red\">Permanently change "
+          + "<table class=\"small\" rules=\"all\">%n"
+          + "<td colspan=\"3\" class=\"col_head\">Permanently change "
           + "<input type=\"hidden\" name=\"%s\" value=\"%s\"></td>%n"
           + "<tr><td>SamplingProbability to</td> "
           + "<td><input type=text size=15 name=%s value=\"\"></td> <td>(%s)</td>%n"
@@ -92,27 +92,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
 
   private static void emitStyle(PrintWriter out) {
     out.write("<style>\n");
-    out.write(
-        "body{font-family:'Roboto',sans-serif;font-size:14px;" + "background-color:#F2F4EC;}\n");
-    out.write("h1{color:#3D3D3D;text-align:left;margin-left:20px;" + "margin-bottom:20px;}\n");
-    out.write("p{padding:0 0.5em;color:#3D3D3D}\n");
-    out.write(
-        "p.header{font-family:'Open Sans',sans-serif;top:0;left:0;width:100%;"
-            + "height:60px;vertical-align:middle;color:#C1272D;font-size:22pt;}\n");
-    out.write(".header span{color:#3D3D3D;}\n");
-    out.write("img.oc {vertical-align:middle;}\n");
-    out.write("table{width:40%;background-color:#FFF;margin-left:20px;}\n");
-    out.write("td{line-height:2.0;padding:0 0.5em;}\n");
-    out.write("td.col_head{font-size:16px;font-weight:bold;" + "line-height:3.0;color:#FFF;}\n");
-    out.write("td.col_head_red{background-color:#A94442;font-size:16px;\n");
-    out.write("font-weight:bold;line-height:3.0;color:#FFF;}\n");
-    out.write("b.title{margin-left:20px;font-weight:bold;line-height:2.0;}\n");
-    out.write("input.button{margin-left:20px;margin-top:4px;\n");
-    out.write("font-size:20px;width:80px;height:60px;}\n");
-    out.write("table.margin-btm{margin-bottom:30px;}\n");
-    out.write("table.borders{border-left:1px solid #3D3D3D;" + "border-right:1px solid #3D3D3D;\n");
-    out.write("border-bottom:1px solid #3D3D3D;}\n");
-    out.write("table.borders-all{border:1px solid #3D3D3D;}\n");
+    out.write(Style.style);
     out.write("</style>\n");
   }
 
@@ -125,7 +105,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.write("<html lang=\"en\"><head>\n");
     out.write("<meta charset=\"utf-8\">\n");
     out.write("<title>TraceConfigZ</title>\n");
-    out.write("<link rel=\"shortcut icon\" href=\"//www.opencensus.io/favicon.ico\"/>\n");
+    out.write("<link rel=\"shortcut icon\" href=\"https://opencensus.io/images/favicon.ico\"/>\n");
     out.write(
         "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
             + "rel=\"stylesheet\">\n");
@@ -138,7 +118,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         "<p class=\"header\">"
             + "<img class=\"oc\" src=\"https://opencensus.io/img/logo-sm.svg\" />"
             + "Open<span>Census</span></p>");
-    out.write("<h1>Trace Configuration</h1>");
+    out.write("<h1 class=\"left\">Trace Configuration</h1>");
     out.write("<p></p>");
     try {
       // Work that can throw exceptions.
@@ -213,9 +193,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   private static void emitTraceParamsTable(TraceParams params, PrintWriter out) {
     out.write(
         "<b class=\"title\">Active tracing parameters:</b><br>\n"
-            + "<table class=\"margin-btm\" rules=\"all\" frame=\"border\">\n"
-            + "  <tr style=\"background:#A94442;border=1\">\n"
-            + "    <td class=\"col_head\">Name</td>\n"
+            + "<table class=\"small\" rules=\"all\">\n"
+            + "  <tr>\n"
+            + "    <td class=\"col_headR\">Name</td>\n"
             + "    <td class=\"col_head\">Value</td>\n"
             + "  </tr>\n");
     out.printf(
