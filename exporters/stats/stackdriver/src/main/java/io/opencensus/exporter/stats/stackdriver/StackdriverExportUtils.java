@@ -221,10 +221,7 @@ final class StackdriverExportUtils {
     builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
     builder.setType(type);
     builder.setDescription(view.getDescription());
-    String displayName =
-        metricNamePrefix == null
-            ? DEFAULT_DISPLAY_NAME_PREFIX + '/' + viewName
-            : metricNamePrefix + '/' + viewName;
+    String displayName = createDisplayName(viewName, metricNamePrefix);
     builder.setDisplayName(displayName);
     for (TagKey tagKey : view.getColumns()) {
       builder.addLabels(createLabelDescriptor(tagKey));
@@ -255,6 +252,18 @@ final class StackdriverExportUtils {
       }
     }
     return domain + viewName;
+  }
+
+  private static String createDisplayName(
+      String viewName, @javax.annotation.Nullable String metricNamePrefix) {
+    if (metricNamePrefix == null) {
+      return DEFAULT_DISPLAY_NAME_PREFIX + '/' + viewName;
+    } else {
+      if (!metricNamePrefix.endsWith("/")) {
+        metricNamePrefix += '/';
+      }
+      return metricNamePrefix + viewName;
+    }
   }
 
   // Construct a LabelDescriptor from a TagKey
