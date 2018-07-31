@@ -294,7 +294,7 @@ final class StatszZPageHandler extends ZPageHandler {
   private static void emitViewData(
       /*@Nullable*/ ViewData viewData, View.Name viewName, PrintWriter out, Formatter formatter) {
     if (viewData == null) {
-      formatter.format("<p class=\"view\">No Stats found for View: %s.</p>", viewName.asString());
+      formatter.format("<p class=\"%s\">No Stats found for View %s.</p>", CLASS_LARGER_TR, viewName.asString());
       return;
     }
     View view = viewData.getView();
