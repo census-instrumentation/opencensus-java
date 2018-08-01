@@ -20,6 +20,7 @@ import io.grpc.Context;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.unsafe.ContextUtils;
 import java.util.concurrent.Callable;
+import javax.annotation.Nullable;
 
 /** Util methods/functionality to interact with the {@link Span} in the {@link io.grpc.Context}. */
 final class CurrentSpanUtils {
@@ -31,6 +32,7 @@ final class CurrentSpanUtils {
    *
    * @return The {@code Span} from the current context.
    */
+  @Nullable
   static Span getCurrentSpan() {
     return ContextUtils.CONTEXT_SPAN_KEY.get();
   }
