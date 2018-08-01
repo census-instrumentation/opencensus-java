@@ -348,9 +348,10 @@ abstract class MutableAggregation {
         this.bucketCounts[i] += bucketCounts[i];
       }
 
-      if (exemplars != null) {
-        for (int i = 0; i < mutableDistribution.getExemplars().length; i++) {
-          Exemplar exemplar = mutableDistribution.getExemplars()[i];
+      Exemplar[] otherExemplars = mutableDistribution.getExemplars();
+      if (exemplars != null && otherExemplars != null) {
+        for (int i = 0; i < otherExemplars.length; i++) {
+          Exemplar exemplar = otherExemplars[i];
           // Assume other is always newer than this, because we combined interval buckets in time
           // order.
           // If there's a newer exemplar, overwrite current value.

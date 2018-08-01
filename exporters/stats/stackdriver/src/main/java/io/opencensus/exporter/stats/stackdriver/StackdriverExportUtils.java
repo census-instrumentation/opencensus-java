@@ -374,8 +374,8 @@ final class StackdriverExportUtils {
             return builder.build();
           }
         },
-        Functions.</*@Nullable*/ TimeInterval>throwIllegalArgumentException(),
-        Functions.</*@Nullable*/ TimeInterval>throwIllegalArgumentException());
+        Functions.<TimeInterval>throwIllegalArgumentException(),
+        Functions.<TimeInterval>throwIllegalArgumentException());
   }
 
   // Create a TypedValue using AggregationData and Aggregation

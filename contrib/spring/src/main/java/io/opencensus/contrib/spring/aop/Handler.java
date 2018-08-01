@@ -42,7 +42,9 @@ final class Handler {
 
     } catch (Throwable t) {
       Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-      attributes.put("message", AttributeValue.stringAttributeValue(t.getMessage()));
+      String message = t.getMessage();
+      attributes.put(
+          "message", AttributeValue.stringAttributeValue(message == null ? "null" : message));
       attributes.put("type", AttributeValue.stringAttributeValue(t.getClass().toString()));
 
       Span span = tracer.getCurrentSpan();

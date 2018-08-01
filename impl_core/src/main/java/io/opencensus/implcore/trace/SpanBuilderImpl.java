@@ -241,7 +241,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   }
 
   @Override
-  public SpanBuilderImpl setSpanKind(Kind kind) {
+  public SpanBuilderImpl setSpanKind(@Nullable Kind kind) {
     this.kind = kind;
     return this;
   }
