@@ -17,6 +17,7 @@
 package io.opencensus.trace;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,12 +42,11 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @AutoValue
+@ExperimentalApi
 public abstract class Tracestate {
   private static final int KEY_MAX_SIZE = 256;
   private static final int VALUE_MAX_SIZE = 256;
   private static final int MAX_KEY_VALUE_PAIRS = 32;
-
-  public static final Tracestate EMPTY = Tracestate.create(new ArrayList<Entry>());
 
   /**
    * Returns the value to which the specified key is mapped, or null if this map contains no mapping
@@ -90,9 +90,16 @@ public abstract class Tracestate {
    *
    * @since 0.16
    */
+  @ExperimentalApi
   public static final class Builder {
     private final Tracestate parent;
     private ArrayList<Entry> toAdd;
+
+    private static final Tracestate EMPTY = create(Collections.<Entry>emptyList());
+
+    public Builder() {
+      this(EMPTY);
+    }
 
     private Builder(Tracestate parent) {
       Utils.checkNotNull(parent, "parent");
@@ -108,7 +115,7 @@ public abstract class Tracestate {
      * @return this.
      * @since 0.16
      */
-    public Builder addOrUpdate(String key, String value) {
+    public Builder set(String key, String value) {
       // Initially create the Entry to validate input.
       Entry entry = Entry.create(key, value);
       if (toAdd == null) {
@@ -172,6 +179,7 @@ public abstract class Tracestate {
    */
   @Immutable
   @AutoValue
+  @ExperimentalApi
   public abstract static class Entry {
     /**
      * Creates a new {@code Entry} for the {@code Tracestate}.
@@ -234,7 +242,7 @@ public abstract class Tracestate {
   // Value is opaque string up to 256 characters printable ASCII RFC0020 characters (i.e., the range
   // 0x20 to 0x7E) except comma , and =.
   private static boolean validateValue(String value) {
-    if (value.length() > VALUE_MAX_SIZE) {
+    if (value.length() > VALUE_MAX_SIZE || value.charAt(value.length() - 1) == ' ' /* '\u0020' */) {
       return false;
     }
     for (int i = 0; i < value.length(); i++) {
