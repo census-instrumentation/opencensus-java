@@ -38,35 +38,47 @@ public class DistributionTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final List<Bucket> EMPTY_BUCKET_LIST = Collections.<Bucket>emptyList();
-  private static final List<Exemplar> EMPTY_EXEMPLAR_LIST = Collections.<Exemplar>emptyList();
-  private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 0);
-  private static final Timestamp TIMESTAMP_2 = Timestamp.create(2, 0);
+  private static final Timestamp TIMESTAMP = Timestamp.create(1, 0);
   private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
 
   @Test
   public void createAndGet_Bucket() {
     Bucket bucket = Bucket.create(98);
     assertThat(bucket.getCount()).isEqualTo(98);
+    assertThat(bucket.getExemplar()).isNull();
+  }
+
+  @Test
+  public void createAndGet_BucketWithExemplar() {
+    Exemplar exemplar = Exemplar.create(12.2, TIMESTAMP, ATTACHMENTS);
+    Bucket bucket = Bucket.create(7, exemplar);
+    assertThat(bucket.getCount()).isEqualTo(7);
+    assertThat(bucket.getExemplar()).isEqualTo(exemplar);
+  }
+
+  @Test
+  public void createBucket_preventNullExemplar() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("exemplar");
+    Bucket.create(1, null);
   }
 
   @Test
   public void createAndGet_Exemplar() {
-    Exemplar exemplar = Exemplar.create(-9.9, TIMESTAMP_1, ATTACHMENTS);
+    Exemplar exemplar = Exemplar.create(-9.9, TIMESTAMP, ATTACHMENTS);
     assertThat(exemplar.getValue()).isEqualTo(-9.9);
-    assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP_1);
+    assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP);
     assertThat(exemplar.getAttachments()).isEqualTo(ATTACHMENTS);
   }
 
   @Test
   public void createAndGet_Distribution() {
-    Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP_1, ATTACHMENTS);
+    Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP, ATTACHMENTS);
     List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
     List<Bucket> buckets =
-        Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
-    Distribution distribution =
-        Distribution.create(
-            6.6, 10, 678.54, bucketBounds, buckets, Collections.singletonList(exemplar));
+        Arrays.asList(
+            Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4, exemplar));
+    Distribution distribution = Distribution.create(6.6, 10, 678.54, bucketBounds, buckets);
     assertThat(distribution.getMean()).isEqualTo(6.6);
     assertThat(distribution.getCount()).isEqualTo(10);
     assertThat(distribution.getSumOfSquaredDeviations()).isEqualTo(678.54);
@@ -74,7 +86,6 @@ public class DistributionTest {
         .containsExactlyElementsIn(bucketBounds)
         .inOrder();
     assertThat(distribution.getBuckets()).containsExactlyElementsIn(buckets).inOrder();
-    assertThat(distribution.getExemplars()).containsExactly(exemplar);
   }
 
   @Test
@@ -88,7 +99,7 @@ public class DistributionTest {
   public void createExemplar_PreventNullAttachments() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("attachments");
-    Exemplar.create(15, TIMESTAMP_1, null);
+    Exemplar.create(15, TIMESTAMP, null);
   }
 
   @Test
@@ -96,7 +107,7 @@ public class DistributionTest {
     Map<String, String> attachments = Collections.singletonMap(null, "value");
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key of attachment");
-    Exemplar.create(15, TIMESTAMP_1, attachments);
+    Exemplar.create(15, TIMESTAMP, attachments);
   }
 
   @Test
@@ -104,7 +115,7 @@ public class DistributionTest {
     Map<String, String> attachments = Collections.singletonMap("key", null);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value of attachment");
-    Exemplar.create(15, TIMESTAMP_1, attachments);
+    Exemplar.create(15, TIMESTAMP, attachments);
   }
 
   @Test
@@ -114,7 +125,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("count should be non-negative.");
-    Distribution.create(6.6, -10, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, -10, 678.54, bucketBounds, buckets);
   }
 
   @Test
@@ -124,7 +135,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("sum of squared deviations should be non-negative.");
-    Distribution.create(6.6, 0, -678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 0, -678.54, bucketBounds, buckets);
   }
 
   @Test
@@ -134,7 +145,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("mean should be 0 if count is 0.");
-    Distribution.create(6.6, 0, 0, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 0, 0, bucketBounds, buckets);
   }
 
   @Test
@@ -144,7 +155,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("sum of squared deviations should be 0 if count is 0.");
-    Distribution.create(0, 0, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(0, 0, 678.54, bucketBounds, buckets);
   }
 
   @Test
@@ -153,7 +164,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucketBoundaries list should not be null.");
-    Distribution.create(6.6, 10, 678.54, null, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 10, 678.54, null, buckets);
   }
 
   @Test
@@ -163,7 +174,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("bucket boundaries not sorted.");
-    Distribution.create(6.6, 10, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 10, 678.54, bucketBounds, buckets);
   }
 
   @Test
@@ -171,7 +182,7 @@ public class DistributionTest {
     List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket list should not be null.");
-    Distribution.create(6.6, 10, 678.54, bucketBounds, null, EMPTY_EXEMPLAR_LIST);
+    Distribution.create(6.6, 10, 678.54, bucketBounds, null);
   }
 
   @Test
@@ -181,27 +192,7 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(3), Bucket.create(1), null, Bucket.create(4));
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket should not be null.");
-    Distribution.create(6.6, 10, 678.54, bucketBounds, buckets, EMPTY_EXEMPLAR_LIST);
-  }
-
-  @Test
-  public void preventNullExemplarList() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("exemplar list should not be null.");
-    Distribution.create(1, 1, 1, Collections.<Double>emptyList(), EMPTY_BUCKET_LIST, null);
-  }
-
-  @Test
-  public void preventNullExemplar() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("exemplar should not be null.");
-    Distribution.create(
-        1,
-        1,
-        1,
-        Collections.<Double>emptyList(),
-        EMPTY_BUCKET_LIST,
-        Collections.<Exemplar>singletonList(null));
+    Distribution.create(6.6, 10, 678.54, bucketBounds, buckets);
   }
 
   @Test
@@ -214,16 +205,14 @@ public class DistributionTest {
                 1,
                 Arrays.asList(-5.0, 0.0, 5.0),
                 Arrays.asList(
-                    Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
-                EMPTY_EXEMPLAR_LIST),
+                    Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))),
             Distribution.create(
                 10,
                 10,
                 1,
                 Arrays.asList(-5.0, 0.0, 5.0),
                 Arrays.asList(
-                    Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
-                EMPTY_EXEMPLAR_LIST))
+                    Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))))
         .addEqualityGroup(
             Distribution.create(
                 -7,
@@ -231,17 +220,7 @@ public class DistributionTest {
                 23.456,
                 Arrays.asList(-5.0, 0.0, 5.0),
                 Arrays.asList(
-                    Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
-                EMPTY_EXEMPLAR_LIST))
-        .addEqualityGroup(
-            Distribution.create(
-                -7,
-                10,
-                23.456,
-                Arrays.asList(-5.0, 0.0, 5.0),
-                Arrays.asList(
-                    Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)),
-                Collections.singletonList(Exemplar.create(1.0, TIMESTAMP_2, ATTACHMENTS))))
+                    Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))))
         .testEquals();
   }
 }

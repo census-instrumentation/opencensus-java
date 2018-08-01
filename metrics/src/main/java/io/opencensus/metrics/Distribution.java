@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -49,7 +50,6 @@ public abstract class Distribution {
    * @param sumOfSquaredDeviations sum of squared deviations of the population values.
    * @param bucketBoundaries bucket boundaries of a histogram.
    * @param buckets {@link Bucket}s of a histogram.
-   * @param exemplars the exemplars associated with histogram buckets.
    * @return a {@code Distribution}.
    * @since 0.16
    */
@@ -58,8 +58,7 @@ public abstract class Distribution {
       long count,
       double sumOfSquaredDeviations,
       List<Double> bucketBoundaries,
-      List<Bucket> buckets,
-      List<Exemplar> exemplars) {
+      List<Bucket> buckets) {
     Utils.checkArgument(count >= 0, "count should be non-negative.");
     Utils.checkArgument(
         sumOfSquaredDeviations >= 0, "sum of squared deviations should be non-negative.");
@@ -68,15 +67,12 @@ public abstract class Distribution {
       Utils.checkArgument(
           sumOfSquaredDeviations == 0, "sum of squared deviations should be 0 if count is 0.");
     }
-    Utils.checkNotNull(exemplars, "exemplar list should not be null.");
-    Utils.checkListElementNotNull(exemplars, "exemplar should not be null.");
     return new AutoValue_Distribution(
         mean,
         count,
         sumOfSquaredDeviations,
         copyBucketBounds(bucketBoundaries),
-        copyBucketCount(buckets),
-        Collections.<Exemplar>unmodifiableList(new ArrayList<Exemplar>(exemplars)));
+        copyBucketCount(buckets));
   }
 
   private static List<Double> copyBucketBounds(List<Double> bucketBoundaries) {
@@ -168,14 +164,6 @@ public abstract class Distribution {
   public abstract List<Bucket> getBuckets();
 
   /**
-   * Returns the {@link Exemplar}s associated with histogram buckets.
-   *
-   * @return the {@code Exemplar}s associated with histogram buckets.
-   * @since 0.16
-   */
-  public abstract List<Exemplar> getExemplars();
-
-  /**
    * The histogram bucket of the population values.
    *
    * @since 0.16
@@ -195,7 +183,21 @@ public abstract class Distribution {
      */
     public static Bucket create(long count) {
       Utils.checkArgument(count >= 0, "bucket count should be non-negative.");
-      return new AutoValue_Distribution_Bucket(count);
+      return new AutoValue_Distribution_Bucket(count, null);
+    }
+
+    /**
+     * Creates a {@link Bucket} with an {@link Exemplar}.
+     *
+     * @param count the number of values in each bucket of the histogram.
+     * @param exemplar the {@code Exemplar} of this {@code Bucket}.
+     * @return a {@code Bucket}.
+     * @since 0.16
+     */
+    public static Bucket create(long count, Exemplar exemplar) {
+      Utils.checkArgument(count >= 0, "bucket count should be non-negative.");
+      Utils.checkNotNull(exemplar, "exemplar");
+      return new AutoValue_Distribution_Bucket(count, exemplar);
     }
 
     /**
@@ -205,6 +207,17 @@ public abstract class Distribution {
      * @since 0.16
      */
     public abstract long getCount();
+
+    /**
+     * Returns the {@link Exemplar} associated with the {@link Bucket}, or {@code null} if there
+     * isn't one.
+     *
+     * @return the {@code Exemplar} associated with the {@code Bucket}, or {@code null} if there
+     *     isn't one.
+     * @since 0.16
+     */
+    @Nullable
+    public abstract Exemplar getExemplar();
   }
 
   /**
