@@ -38,16 +38,11 @@ public class TracestateTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final Tracestate EMPTY = new Tracestate.Builder().build();
-  private final Tracestate firstTracestate =
-      EMPTY.toBuilder().set(FIRST_KEY, FIRST_VALUE).build();
+  private final Tracestate firstTracestate = EMPTY.toBuilder().set(FIRST_KEY, FIRST_VALUE).build();
   private final Tracestate secondTracestate =
       EMPTY.toBuilder().set(SECOND_KEY, SECOND_VALUE).build();
   private final Tracestate multiValueTracestate =
-      EMPTY
-          .toBuilder()
-          .set(FIRST_KEY, FIRST_VALUE)
-          .set(SECOND_KEY, SECOND_VALUE)
-          .build();
+      EMPTY.toBuilder().set(FIRST_KEY, FIRST_VALUE).set(SECOND_KEY, SECOND_VALUE).build();
 
   @Test
   public void get() {
@@ -167,8 +162,7 @@ public class TracestateTest {
 
   @Test
   public void updateEntry() {
-    assertThat(
-            firstTracestate.toBuilder().set(FIRST_KEY, SECOND_VALUE).build().get(FIRST_KEY))
+    assertThat(firstTracestate.toBuilder().set(FIRST_KEY, SECOND_VALUE).build().get(FIRST_KEY))
         .isEqualTo(SECOND_VALUE);
     Tracestate updatedMultiValueTracestate =
         multiValueTracestate.toBuilder().set(FIRST_KEY, SECOND_VALUE).build();
@@ -228,8 +222,7 @@ public class TracestateTest {
   public void tracestate_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(EMPTY, EMPTY);
-    tester.addEqualityGroup(
-        firstTracestate, EMPTY.toBuilder().set(FIRST_KEY, FIRST_VALUE).build());
+    tester.addEqualityGroup(firstTracestate, EMPTY.toBuilder().set(FIRST_KEY, FIRST_VALUE).build());
     tester.addEqualityGroup(
         secondTracestate, EMPTY.toBuilder().set(SECOND_KEY, SECOND_VALUE).build());
     tester.testEquals();
