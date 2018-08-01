@@ -17,7 +17,6 @@ In order to be able to push your stats to [Stackdriver Monitoring][stackdriver-m
 1. [Create a Cloud project](https://support.google.com/cloud/answer/6251787?hl=en).
 2. [Enable billing](https://support.google.com/cloud/answer/6288653#new-billing).
 3. [Enable the Stackdriver Monitoring API](https://console.cloud.google.com/apis/dashboard).
-4. [Make sure you have a Premium Stackdriver account](https://cloud.google.com/monitoring/accounts/tiers).
 
 These steps enable the API but don't require that your app is hosted on Google Cloud Platform.
 
@@ -144,11 +143,11 @@ Java 7 or above is required for using this exporter.
 
 ## FAQ
 ### Why did I get a PERMISSION_DENIED error from Stackdriver when using this exporter?
-To use our Stackdriver Stats exporter, your Stackdriver account needs to have permission to [create
-custom metrics](https://cloud.google.com/monitoring/custom-metrics/creating-metrics), and that 
-requires a [Premium tier Stackdriver account](https://cloud.google.com/monitoring/accounts/tiers#this_request_is_only_available_in_the_premium_tier). 
-Please note that by default all new Stackdriver accounts are Basic tier. To upgrade to a Premium 
-tier Stackdriver account, follow the instructions [here](https://cloud.google.com/monitoring/accounts/tiers#start-premium).
+To use our Stackdriver Stats exporter, you need to set up billing for your cloud project, since
+creating and uploading custom metrics to Stackdriver Monitoring is
+[not free](https://cloud.google.com/stackdriver/pricing_v2#monitoring-costs).
+
+To enable billing, follow the instructions [here](https://support.google.com/cloud/answer/6288653#new-billing).
 
 ### What is "opencensus_task" metric label ?
 Stackdriver requires that each Timeseries to be updated only by one task at a time. A
