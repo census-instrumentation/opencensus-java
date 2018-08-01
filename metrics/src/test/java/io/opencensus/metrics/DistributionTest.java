@@ -38,14 +38,22 @@ public class DistributionTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 0);
-  private static final Timestamp TIMESTAMP_2 = Timestamp.create(2, 0);
+  private static final Timestamp TIMESTAMP = Timestamp.create(1, 0);
   private static final Map<String, String> ATTACHMENTS = Collections.singletonMap("key", "value");
 
   @Test
   public void createAndGet_Bucket() {
     Bucket bucket = Bucket.create(98);
     assertThat(bucket.getCount()).isEqualTo(98);
+    assertThat(bucket.getExemplar()).isNull();
+  }
+
+  @Test
+  public void createAndGet_BucketWithExemplar() {
+    Exemplar exemplar = Exemplar.create(12.2, TIMESTAMP, ATTACHMENTS);
+    Bucket bucket = Bucket.create(7, exemplar);
+    assertThat(bucket.getCount()).isEqualTo(7);
+    assertThat(bucket.getExemplar()).isEqualTo(exemplar);
   }
 
   @Test
@@ -57,15 +65,15 @@ public class DistributionTest {
 
   @Test
   public void createAndGet_Exemplar() {
-    Exemplar exemplar = Exemplar.create(-9.9, TIMESTAMP_1, ATTACHMENTS);
+    Exemplar exemplar = Exemplar.create(-9.9, TIMESTAMP, ATTACHMENTS);
     assertThat(exemplar.getValue()).isEqualTo(-9.9);
-    assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP_1);
+    assertThat(exemplar.getTimestamp()).isEqualTo(TIMESTAMP);
     assertThat(exemplar.getAttachments()).isEqualTo(ATTACHMENTS);
   }
 
   @Test
   public void createAndGet_Distribution() {
-    Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP_1, ATTACHMENTS);
+    Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP, ATTACHMENTS);
     List<Double> bucketBounds = Arrays.asList(-1.0, 0.0, 1.0);
     List<Bucket> buckets =
         Arrays.asList(
@@ -91,7 +99,7 @@ public class DistributionTest {
   public void createExemplar_PreventNullAttachments() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("attachments");
-    Exemplar.create(15, TIMESTAMP_1, null);
+    Exemplar.create(15, TIMESTAMP, null);
   }
 
   @Test
@@ -99,7 +107,7 @@ public class DistributionTest {
     Map<String, String> attachments = Collections.singletonMap(null, "value");
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key of attachment");
-    Exemplar.create(15, TIMESTAMP_1, attachments);
+    Exemplar.create(15, TIMESTAMP, attachments);
   }
 
   @Test
@@ -107,7 +115,7 @@ public class DistributionTest {
     Map<String, String> attachments = Collections.singletonMap("key", null);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("value of attachment");
-    Exemplar.create(15, TIMESTAMP_1, attachments);
+    Exemplar.create(15, TIMESTAMP, attachments);
   }
 
   @Test
