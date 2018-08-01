@@ -410,7 +410,7 @@ subprojects {
                     compile.options.compilerArgs += [
                         '-Xmaxerrs', '10000',
                         "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}",
-                        "-AskipDefs=[\\.AutoValue_|\\.TraceIdProto]",
+                        "-AskipDefs=\\.AutoValue_|^io.opencensus.contrib.appengine.standard.util.TraceIdProto\$|^io.opencensus.contrib.appengine.standard.util.TraceProto\$",
                         "-AinvariantArrays"
                     ]
                     options.fork = true

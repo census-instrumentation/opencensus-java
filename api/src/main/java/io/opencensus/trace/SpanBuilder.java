@@ -335,7 +335,7 @@ public abstract class SpanBuilder {
     }
 
     @Override
-    public SpanBuilder setSpanKind(Span.Kind spanKind) {
+    public SpanBuilder setSpanKind(@Nullable Span.Kind spanKind) {
       return this;
     }
 

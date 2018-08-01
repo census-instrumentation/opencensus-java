@@ -172,8 +172,8 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
 
   // The return type needs to be nullable when this function is used as an argument to 'match' in
   // attributeValueToString, because 'match' doesn't allow covariant return types.
-  private static final Function<Object, /*@Nullable*/ String> returnToString =
-      new Function<Object, /*@Nullable*/ String>() {
+  private static final Function<Object, String> returnToString =
+      new Function<Object, String>() {
         @Override
         public String apply(Object input) {
           return input.toString();

@@ -105,8 +105,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
   private static final Map<String, AttributeValue> RESOURCE_LABELS = getResourceLabels(RESOURCE);
 
   // Constant functions for AttributeValue.
-  private static final Function<String, AttributeValue> stringAttributeValueFunction =
-      new Function<String, AttributeValue>() {
+  private static final Function<String, /*@Nullable*/ AttributeValue> stringAttributeValueFunction =
+      new Function<String, /*@Nullable*/ AttributeValue>() {
         @Override
         public AttributeValue apply(String stringValue) {
           Builder attributeValueBuilder = AttributeValue.newBuilder();
@@ -114,17 +114,18 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           return attributeValueBuilder.build();
         }
       };
-  private static final Function<Boolean, AttributeValue> booleanAttributeValueFunction =
-      new Function<Boolean, AttributeValue>() {
-        @Override
-        public AttributeValue apply(Boolean booleanValue) {
-          Builder attributeValueBuilder = AttributeValue.newBuilder();
-          attributeValueBuilder.setBoolValue(booleanValue);
-          return attributeValueBuilder.build();
-        }
-      };
-  private static final Function<Long, AttributeValue> longAttributeValueFunction =
-      new Function<Long, AttributeValue>() {
+  private static final Function<Boolean, /*@Nullable*/ AttributeValue>
+      booleanAttributeValueFunction =
+          new Function<Boolean, /*@Nullable*/ AttributeValue>() {
+            @Override
+            public AttributeValue apply(Boolean booleanValue) {
+              Builder attributeValueBuilder = AttributeValue.newBuilder();
+              attributeValueBuilder.setBoolValue(booleanValue);
+              return attributeValueBuilder.build();
+            }
+          };
+  private static final Function<Long, /*@Nullable*/ AttributeValue> longAttributeValueFunction =
+      new Function<Long, /*@Nullable*/ AttributeValue>() {
         @Override
         public AttributeValue apply(Long longValue) {
           Builder attributeValueBuilder = AttributeValue.newBuilder();
@@ -270,8 +271,10 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     Attributes.Builder attributesBuilder =
         Attributes.newBuilder().setDroppedAttributesCount(droppedAttributesCount);
     for (Map.Entry<String, io.opencensus.trace.AttributeValue> label : attributes.entrySet()) {
-      attributesBuilder.putAttributeMap(
-          mapKey(label.getKey()), toAttributeValueProto(label.getValue()));
+      AttributeValue value = toAttributeValueProto(label.getValue());
+      if (value != null) {
+        attributesBuilder.putAttributeMap(mapKey(label.getKey()), value);
+      }
     }
     return attributesBuilder;
   }
@@ -416,6 +419,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         .build();
   }
 
+  @javax.annotation.Nullable
   private static AttributeValue toAttributeValueProto(
       io.opencensus.trace.AttributeValue attributeValue) {
     return attributeValue.match(
@@ -433,7 +437,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     }
   }
 
-  private static String toDisplayName(String spanName, Kind spanKind) {
+  private static String toDisplayName(String spanName, @javax.annotation.Nullable Kind spanKind) {
     if (spanKind == Kind.SERVER && !spanName.startsWith(SERVER_PREFIX)) {
       return SERVER_PREFIX + spanName;
     }

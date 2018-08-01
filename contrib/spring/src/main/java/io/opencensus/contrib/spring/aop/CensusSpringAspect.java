@@ -57,6 +57,9 @@ public final class CensusSpringAspect {
     Method method = signature.getMethod();
 
     Traced annotation = method.getAnnotation(Traced.class);
+    if (annotation == null) {
+      return call.proceed();
+    }
     String spanName = annotation.name();
     if (spanName.isEmpty()) {
       spanName = method.getName();

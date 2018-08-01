@@ -17,6 +17,7 @@
 package io.opencensus.common;
 
 import java.util.TreeMap;
+import javax.annotation.Nullable;
 
 /**
  * A Enum representation for Ids and Size for attributes of {@code ServerStats}.
@@ -85,8 +86,9 @@ public final class ServerStatsFieldEnums {
      * @return the numerical value of the id. null if the id is not valid
      * @since 0.16
      */
+    @Nullable
     public static Id valueOf(int value) {
-      return (Id) map.get(value);
+      return map.get(value);
     }
   }
 

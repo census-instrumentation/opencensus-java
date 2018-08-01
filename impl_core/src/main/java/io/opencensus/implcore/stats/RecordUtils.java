@@ -143,7 +143,7 @@ final class RecordUtils {
     return measurement.match(
         GET_VALUE_FROM_MEASUREMENT_DOUBLE,
         GET_VALUE_FROM_MEASUREMENT_LONG,
-        Functions.</*@Nullable*/ Double>throwAssertionError());
+        Functions.<Double>throwAssertionError());
   }
 
   // static inner Function classes
@@ -263,8 +263,9 @@ final class RecordUtils {
         boxedBucketCounts.add(bucketCount);
       }
       List<Exemplar> exemplars = new ArrayList<Exemplar>();
-      if (arg.getExemplars() != null) {
-        for (Exemplar exemplar : arg.getExemplars()) {
+      Exemplar[] exemplarArray = arg.getExemplars();
+      if (exemplarArray != null) {
+        for (Exemplar exemplar : exemplarArray) {
           if (exemplar != null) {
             exemplars.add(exemplar);
           }

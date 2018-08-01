@@ -151,6 +151,7 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
 
   // An OpenCensusTraceLoggingEnhancer property can be set with a logging property or a system
   // property.
+  @Nullable
   private static String lookUpProperty(String name) {
     String property = LogManager.getLogManager().getProperty(name);
     return property == null || property.isEmpty() ? System.getProperty(name) : property;
