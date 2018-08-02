@@ -37,7 +37,7 @@ public class TracestateTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  private static final Tracestate EMPTY = new Tracestate.Builder().build();
+  private static final Tracestate EMPTY = Tracestate.builder().build();
   private final Tracestate firstTracestate = EMPTY.toBuilder().set(FIRST_KEY, FIRST_VALUE).build();
   private final Tracestate secondTracestate =
       EMPTY.toBuilder().set(SECOND_KEY, SECOND_VALUE).build();

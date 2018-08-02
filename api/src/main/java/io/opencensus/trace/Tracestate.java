@@ -75,9 +75,19 @@ public abstract class Tracestate {
   public abstract List<Entry> getEntries();
 
   /**
-   * Returns a builder based on this {@code Tracestate}.
+   * Returns a {@code Builder} based on an empty {@code Tracestate}.
    *
-   * @return a builder based on this {@code Tracestate}.
+   * @return a {@code Builder} based on an empty {@code Tracestate}.
+   * @since 0.16
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  /**
+   * Returns a {@code Builder} based on this {@code Tracestate}.
+   *
+   * @return a {@code Builder} based on this {@code Tracestate}.
    * @since 0.16
    */
   public Builder toBuilder() {
@@ -94,9 +104,11 @@ public abstract class Tracestate {
     private final Tracestate parent;
     @javax.annotation.Nullable private ArrayList<Entry> entries;
 
+    // Needs to be in this class to avoid initialization deadlock because super class depends on
+    // subclass (the auto-value generate class).
     private static final Tracestate EMPTY = create(Collections.<Entry>emptyList());
 
-    public Builder() {
+    private Builder() {
       this(EMPTY);
     }
 
