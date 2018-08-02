@@ -22,7 +22,6 @@ import io.opencensus.internal.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -57,7 +56,7 @@ public abstract class Tracestate {
    *     for the key.
    * @since 0.16
    */
-  @Nullable
+  @javax.annotation.Nullable
   public String get(String key) {
     for (Entry entry : getEntries()) {
       if (entry.getKey().equals(key)) {
@@ -93,7 +92,7 @@ public abstract class Tracestate {
   @ExperimentalApi
   public static final class Builder {
     private final Tracestate parent;
-    private ArrayList<Entry> toAdd;
+    @javax.annotation.Nullable private ArrayList<Entry> entries;
 
     private static final Tracestate EMPTY = create(Collections.<Entry>emptyList());
 
@@ -104,6 +103,7 @@ public abstract class Tracestate {
     private Builder(Tracestate parent) {
       Utils.checkNotNull(parent, "parent");
       this.parent = parent;
+      this.entries = null;
     }
 
     /**
@@ -115,22 +115,23 @@ public abstract class Tracestate {
      * @return this.
      * @since 0.16
      */
+    @SuppressWarnings("nullness")
     public Builder set(String key, String value) {
       // Initially create the Entry to validate input.
       Entry entry = Entry.create(key, value);
-      if (toAdd == null) {
+      if (entries == null) {
         // Copy entries from the parent.
-        toAdd = new ArrayList<Entry>(parent.getEntries());
+        entries = new ArrayList<Entry>(parent.getEntries());
       }
-      for (int i = 0; i < toAdd.size(); i++) {
-        if (toAdd.get(i).getKey().equals(entry.getKey())) {
-          toAdd.remove(i);
-          // Exit now because the toAdd list cannot contain duplicates.
+      for (int i = 0; i < entries.size(); i++) {
+        if (entries.get(i).getKey().equals(entry.getKey())) {
+          entries.remove(i);
+          // Exit now because the entries list cannot contain duplicates.
           break;
         }
       }
       // Inserts the element at the front of this list.
-      toAdd.add(0, entry);
+      entries.add(0, entry);
       return this;
     }
 
@@ -141,16 +142,17 @@ public abstract class Tracestate {
      * @return this.
      * @since 0.16
      */
+    @SuppressWarnings("nullness")
     public Builder remove(String key) {
       Utils.checkNotNull(key, "key");
-      if (toAdd == null) {
+      if (entries == null) {
         // Copy entries from the parent.
-        toAdd = new ArrayList<Entry>(parent.getEntries());
+        entries = new ArrayList<Entry>(parent.getEntries());
       }
-      for (int i = 0; i < toAdd.size(); i++) {
-        if (toAdd.get(i).getKey().equals(key)) {
-          toAdd.remove(i);
-          // Exit now because the toAdd list cannot contain duplicates.
+      for (int i = 0; i < entries.size(); i++) {
+        if (entries.get(i).getKey().equals(key)) {
+          entries.remove(i);
+          // Exit now because the entries list cannot contain duplicates.
           break;
         }
       }
@@ -165,10 +167,10 @@ public abstract class Tracestate {
      * @since 0.16
      */
     public Tracestate build() {
-      if (toAdd == null) {
+      if (entries == null) {
         return parent;
       }
-      return Tracestate.create(toAdd);
+      return Tracestate.create(entries);
     }
   }
 
