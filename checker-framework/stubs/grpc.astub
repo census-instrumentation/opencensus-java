@@ -1,0 +1,12 @@
+package io.grpc;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+class Context {
+  static <T> Key<@Nullable T> key(String name);
+  static <T> Key<T> keyWithDefault(String name, T defaultValue);
+  class Key<T> {
+    T get(Context context);
+    T get();
+  }
+}
