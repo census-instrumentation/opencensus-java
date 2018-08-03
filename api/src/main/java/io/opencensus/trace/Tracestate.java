@@ -81,7 +81,7 @@ public abstract class Tracestate {
    * @since 0.16
    */
   public static Builder builder() {
-    return new Builder();
+    return new Builder(Builder.EMPTY);
   }
 
   /**
@@ -107,10 +107,6 @@ public abstract class Tracestate {
     // Needs to be in this class to avoid initialization deadlock because super class depends on
     // subclass (the auto-value generate class).
     private static final Tracestate EMPTY = create(Collections.<Entry>emptyList());
-
-    private Builder() {
-      this(EMPTY);
-    }
 
     private Builder(Tracestate parent) {
       Utils.checkNotNull(parent, "parent");
