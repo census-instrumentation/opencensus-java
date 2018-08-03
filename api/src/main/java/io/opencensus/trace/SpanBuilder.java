@@ -233,6 +233,16 @@ public abstract class SpanBuilder {
    * }
    * }</pre>
    *
+   * <p>WARNING: The try-with-resources feature to auto-close spans as described above can sound
+   * very tempting due to its convenience, but it comes with an important and easy-to-miss
+   * trade-off: the span will be closed before any {@code catch} or {@code finally} blocks get a
+   * chance to execute. So if you need to catch any exceptions and log information about them (for
+   * example), then you do not want to use the try-with-resources shortcut because that logging will
+   * not be tagged with the span info of the span it logically falls under, and if you try to
+   * retrieve {@code Tracer.getCurrentSpan()} then you'll either get the parent span if one exists
+   * or {@code BlankSpan} if there was no parent span. This can be confusing and seem
+   * counter-intuitive, but it's the way try-with-resources works.
+   *
    * @return an object that defines a scope where the newly created {@code Span} will be set to the
    *     current Context.
    * @since 0.5
