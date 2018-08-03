@@ -24,6 +24,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import java.nio.ByteBuffer;
 
 /**
@@ -37,6 +38,7 @@ public final class AppEngineCloudTraceContextUtils {
       TraceIdProto.newBuilder().setHi(0).setLo(0).build().toByteArray();
   private static final long INVALID_SPAN_ID = 0L;
   private static final long INVALID_TRACE_MASK = 0L;
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
 
   @VisibleForTesting
   static final CloudTraceContext INVALID_CLOUD_TRACE_CONTEXT =
@@ -64,7 +66,8 @@ public final class AppEngineCloudTraceContextUtils {
       return SpanContext.create(
           TraceId.fromBytes(traceIdBuf.array()),
           SpanId.fromBytes(spanIdBuf.array()),
-          TraceOptions.builder().setIsSampled(cloudTraceContext.isTraceEnabled()).build());
+          TraceOptions.builder().setIsSampled(cloudTraceContext.isTraceEnabled()).build(),
+          TRACESTATE_DEFAULT);
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
       throw new RuntimeException(e);
     }

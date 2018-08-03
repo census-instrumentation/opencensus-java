@@ -23,6 +23,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.propagation.BinaryFormat;
 import io.opencensus.trace.propagation.SpanContextParseException;
 
@@ -61,6 +62,7 @@ import io.opencensus.trace.propagation.SpanContextParseException;
  * </ul>
  */
 final class BinaryFormatImpl extends BinaryFormat {
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
   private static final byte VERSION_ID = 0;
   private static final int VERSION_ID_OFFSET = 0;
   // The version_id/field_id size in bytes.
@@ -141,6 +143,6 @@ final class BinaryFormatImpl extends BinaryFormat {
       }
       traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
     }
-    return SpanContext.create(traceId, spanId, traceOptions);
+    return SpanContext.create(traceId, spanId, traceOptions, TRACESTATE_DEFAULT);
   }
 }

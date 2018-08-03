@@ -20,6 +20,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.BinaryFormat;
 import io.opencensus.trace.propagation.SpanContextParseException;
@@ -41,7 +42,8 @@ public class BinaryPropagationImplBenchmark {
   private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
   private static final byte[] traceOptionsBytes = new byte[] {1};
   private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
-  private static final SpanContext spanContext = SpanContext.create(traceId, spanId, traceOptions);
+  private static final SpanContext spanContext =
+      SpanContext.create(traceId, spanId, traceOptions, Tracestate.builder().build());
   private static final BinaryFormat binaryFormat =
       Tracing.getPropagationComponent().getBinaryFormat();
   private static final byte[] spanContextBinary = binaryFormat.toByteArray(spanContext);

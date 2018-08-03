@@ -30,9 +30,11 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public final class SpanContext {
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
   private final TraceId traceId;
   private final SpanId spanId;
   private final TraceOptions traceOptions;
+  private final Tracestate tracestate;
 
   /**
    * The invalid {@code SpanContext}.
@@ -40,7 +42,7 @@ public final class SpanContext {
    * @since 0.5
    */
   public static final SpanContext INVALID =
-      new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT);
+      new SpanContext(TraceId.INVALID, SpanId.INVALID, TraceOptions.DEFAULT, TRACESTATE_DEFAULT);
 
   /**
    * Creates a new {@code SpanContext} with the given identifiers and options.
@@ -49,10 +51,26 @@ public final class SpanContext {
    * @param spanId the span identifier of the span context.
    * @param traceOptions the trace options for the span context.
    * @return a new {@code SpanContext} with the given identifiers and options.
-   * @since 0.5
+   * @deprecated use {@link #create(TraceId, SpanId, TraceOptions, Tracestate)}.
    */
+  @Deprecated
   public static SpanContext create(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
-    return new SpanContext(traceId, spanId, traceOptions);
+    return create(traceId, spanId, traceOptions, TRACESTATE_DEFAULT);
+  }
+
+  /**
+   * Creates a new {@code SpanContext} with the given identifiers and options.
+   *
+   * @param traceId the trace identifier of the span context.
+   * @param spanId the span identifier of the span context.
+   * @param traceOptions the trace options for the span context.
+   * @param tracestate the trace state for the span context.
+   * @return a new {@code SpanContext} with the given identifiers and options.
+   * @since 0.16
+   */
+  public static SpanContext create(
+      TraceId traceId, SpanId spanId, TraceOptions traceOptions, Tracestate tracestate) {
+    return new SpanContext(traceId, spanId, traceOptions, tracestate);
   }
 
   /**
@@ -76,13 +94,23 @@ public final class SpanContext {
   }
 
   /**
-   * Returns the trace options associated with this {@code SpanContext}.
+   * Returns the {@code TraceOptions} associated with this {@code SpanContext}.
    *
-   * @return the trace options associated with this {@code SpanContext}.
+   * @return the {@code TraceOptions} associated with this {@code SpanContext}.
    * @since 0.5
    */
   public TraceOptions getTraceOptions() {
     return traceOptions;
+  }
+
+  /**
+   * Returns the {@code Tracestate} associated with this {@code SpanContext}.
+   *
+   * @return the {@code Tracestate} associated with this {@code SpanContext}.
+   * @since 0.5
+   */
+  public Tracestate getTracestate() {
+    return tracestate;
   }
 
   /**
@@ -127,9 +155,11 @@ public final class SpanContext {
         + "}";
   }
 
-  private SpanContext(TraceId traceId, SpanId spanId, TraceOptions traceOptions) {
+  private SpanContext(
+      TraceId traceId, SpanId spanId, TraceOptions traceOptions, Tracestate tracestate) {
     this.traceId = traceId;
     this.spanId = spanId;
     this.traceOptions = traceOptions;
+    this.tracestate = tracestate;
   }
 }

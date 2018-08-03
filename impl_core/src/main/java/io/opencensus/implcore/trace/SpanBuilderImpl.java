@@ -31,6 +31,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import java.util.Collections;
@@ -41,8 +42,9 @@ import javax.annotation.Nullable;
 
 /** Implementation of the {@link SpanBuilder}. */
 final class SpanBuilderImpl extends SpanBuilder {
-  private final Options options;
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
 
+  private final Options options;
   private final String name;
   @Nullable private final Span parent;
   @Nullable private final SpanContext remoteParentSpanContext;
@@ -66,6 +68,8 @@ final class SpanBuilderImpl extends SpanBuilder {
     SpanId spanId = SpanId.generateRandomId(random);
     SpanId parentSpanId = null;
     TraceOptions.Builder traceOptionsBuilder;
+    // TODO(bdrutu): Handle tracestate correctly not just propagate.
+    Tracestate tracestate = TRACESTATE_DEFAULT;
     if (parent == null || !parent.isValid()) {
       // New root span.
       traceId = TraceId.generateRandomId(random);
@@ -77,6 +81,7 @@ final class SpanBuilderImpl extends SpanBuilder {
       traceId = parent.getTraceId();
       parentSpanId = parent.getSpanId();
       traceOptionsBuilder = TraceOptions.builder(parent.getTraceOptions());
+      tracestate = parent.getTracestate();
     }
     traceOptionsBuilder.setIsSampled(
         makeSamplingDecision(
@@ -95,7 +100,7 @@ final class SpanBuilderImpl extends SpanBuilder {
     }
     SpanImpl span =
         SpanImpl.startSpan(
-            SpanContext.create(traceId, spanId, traceOptions),
+            SpanContext.create(traceId, spanId, traceOptions, tracestate),
             spanOptions,
             name,
             kind,

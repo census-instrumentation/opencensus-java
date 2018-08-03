@@ -23,6 +23,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
  * href=https://github.com/openzipkin/b3-propagation>b3-propagation</a>.
  */
 final class B3Format extends TextFormat {
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
   @VisibleForTesting static final String X_B3_TRACE_ID = "X-B3-TraceId";
   @VisibleForTesting static final String X_B3_SPAN_ID = "X-B3-SpanId";
   @VisibleForTesting static final String X_B3_PARENT_SPAN_ID = "X-B3-ParentSpanId";
@@ -103,7 +105,7 @@ final class B3Format extends TextFormat {
           || FLAGS_VALUE.equals(getter.get(carrier, X_B3_FLAGS))) {
         traceOptions = TraceOptions.builder().setIsSampled(true).build();
       }
-      return SpanContext.create(traceId, spanId, traceOptions);
+      return SpanContext.create(traceId, spanId, traceOptions, TRACESTATE_DEFAULT);
     } catch (IllegalArgumentException e) {
       throw new SpanContextParseException("Invalid input.", e);
     }
