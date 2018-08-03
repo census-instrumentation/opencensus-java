@@ -53,7 +53,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 
 public class JaegerExporterHandlerIntegrationTest {
-  private static final String JAEGER_IMAGE = "jaegertracing/all-in-one:1.3";
+  private static final String JAEGER_IMAGE = "jaegertracing/all-in-one:1.6";
   private static final int JAEGER_HTTP_PORT = 16686;
   private static final int JAEGER_HTTP_PORT_THRIFT = 14268;
   private static final String SERVICE_NAME = "test";
@@ -97,7 +97,7 @@ public class JaegerExporterHandlerIntegrationTest {
   }
 
   @Test
-  public void exportToJaeger() throws IOException {
+  public void exportToJaeger() throws IOException, InterruptedException {
     Tracer tracer = Tracing.getTracer();
     final long startTimeInMicros = MILLISECONDS.toMicros(currentTimeMillis());
     final long startNanoTime = System.nanoTime();
@@ -126,6 +126,11 @@ public class JaegerExporterHandlerIntegrationTest {
     // Shutdown the export component to force a flush. This will cause problems if multiple tests
     // are added in this class, but this is not the case for the moment.
     Tracing.getExportComponent().shutdown();
+    JaegerTraceExporter.unregister();
+
+    logger.info("Wait for Jaeger to process the span...");
+    long timeWaitingForSpansToBeExportedInMillis = 1100L;
+    Thread.sleep(timeWaitingForSpansToBeExportedInMillis);
 
     // Get traces recorded by Jaeger:
     HttpRequest request =
