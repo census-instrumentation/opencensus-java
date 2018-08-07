@@ -107,6 +107,8 @@ abstract class MutableViewData {
     // Cache a MetricDescriptor to avoid converting View to MetricDescriptor in the future.
     private final MetricDescriptor metricDescriptor;
 
+    // TODO: remove this once nullness checker works with Preconditions.checkNotNull()
+    @SuppressWarnings("nullness")
     private CumulativeMutableViewData(View view, Timestamp start, MetricMap metricMap) {
       super(view);
       this.start = start;

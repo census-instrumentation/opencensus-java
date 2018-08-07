@@ -161,6 +161,8 @@ final class MetricMap {
       map.get(labelValues).add(point);
     }
 
+    // TODO: remove this once nullness checker works with Preconditions.checkNotNull()
+    @SuppressWarnings("nullness")
     private TimeSeriesList toTimeSeriesList() {
       switch (type) {
         case CUMULATIVE:
