@@ -21,6 +21,7 @@ import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
@@ -65,13 +66,21 @@ final class StackdriverExporterWorker implements Runnable {
   // Stackdriver Monitoring v3 only accepts up to 200 TimeSeries per CreateTimeSeries call.
   @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
 
+  @VisibleForTesting static final String DEFAULT_DISPLAY_NAME_PREFIX = "OpenCensus/";
+  @VisibleForTesting static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com/";
+  @VisibleForTesting static final String EXTERNAL_METRIC_DOMAIN = "external.googleapis.com/";
+
+  @VisibleForTesting
+  static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "opencensus/";
+
   private final long scheduleDelayMillis;
   private final String projectId;
   private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final ViewManager viewManager;
   private final MonitoredResource monitoredResource;
-  @javax.annotation.Nullable private final String metricNamePrefix;
+  private final String domain;
+  private final String displayNamePrefix;
   private final Map<View.Name, View> registeredViews = new HashMap<View.Name, View>();
 
   private static final Tracer tracer = Tracing.getTracer();
@@ -90,7 +99,8 @@ final class StackdriverExporterWorker implements Runnable {
     this.metricServiceClient = metricServiceClient;
     this.viewManager = viewManager;
     this.monitoredResource = monitoredResource;
-    this.metricNamePrefix = metricNamePrefix;
+    this.domain = getDomain(metricNamePrefix);
+    this.displayNamePrefix = getDisplayNamePrefix(metricNamePrefix);
 
     Tracing.getExportComponent()
         .getSampledSpanStore()
@@ -125,7 +135,7 @@ final class StackdriverExporterWorker implements Runnable {
       // canonical metrics. Registration is required only for custom view definitions. Canonical
       // views should be pre-registered.
       MetricDescriptor metricDescriptor =
-          StackdriverExportUtils.createMetricDescriptor(view, projectId, metricNamePrefix);
+          StackdriverExportUtils.createMetricDescriptor(view, projectId, domain, displayNamePrefix);
       if (metricDescriptor == null) {
         // Don't register interval views in this version.
         return false;
@@ -173,8 +183,7 @@ final class StackdriverExporterWorker implements Runnable {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     for (/*@Nullable*/ ViewData viewData : viewDataList) {
       timeSeriesList.addAll(
-          StackdriverExportUtils.createTimeSeriesList(
-              viewData, monitoredResource, metricNamePrefix));
+          StackdriverExportUtils.createTimeSeriesList(viewData, monitoredResource, domain));
     }
     for (List<TimeSeries> batchedTimeSeries :
         Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {
@@ -234,5 +243,33 @@ final class StackdriverExporterWorker implements Runnable {
 
   private static String exceptionMessage(Throwable e) {
     return e.getMessage() != null ? e.getMessage() : e.getClass().getName();
+  }
+
+  @VisibleForTesting
+  static String getDomain(@javax.annotation.Nullable String metricNamePrefix) {
+    String domain;
+    if (Strings.isNullOrEmpty(metricNamePrefix)) {
+      domain = CUSTOM_OPENCENSUS_DOMAIN;
+    } else {
+      if (metricNamePrefix.startsWith(CUSTOM_METRIC_DOMAIN)
+          || metricNamePrefix.startsWith(EXTERNAL_METRIC_DOMAIN)) {
+        domain = metricNamePrefix;
+      } else {
+        domain = CUSTOM_METRIC_DOMAIN + metricNamePrefix + '/';
+      }
+    }
+    return domain;
+  }
+
+  @VisibleForTesting
+  static String getDisplayNamePrefix(@javax.annotation.Nullable String metricNamePrefix) {
+    if (metricNamePrefix == null) {
+      return DEFAULT_DISPLAY_NAME_PREFIX;
+    } else {
+      if (!metricNamePrefix.endsWith("/") && !metricNamePrefix.isEmpty()) {
+        metricNamePrefix += '/';
+      }
+      return metricNamePrefix;
+    }
   }
 }
