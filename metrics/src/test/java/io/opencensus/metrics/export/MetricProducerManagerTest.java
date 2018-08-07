@@ -18,6 +18,7 @@ package io.opencensus.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.metrics.MetricProducer;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;

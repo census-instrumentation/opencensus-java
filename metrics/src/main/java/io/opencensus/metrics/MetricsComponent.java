@@ -37,6 +37,14 @@ public abstract class MetricsComponent {
   public abstract ExportComponent getExportComponent();
 
   /**
+   * Returns the {@link MetricRegistry} with the provided implementation.
+   *
+   * @return the {@link MetricRegistry} implementation.
+   * @since 0.16
+   */
+  public abstract MetricRegistry getMetricRegistry();
+
+  /**
    * Returns an instance that contains no-op implementations for all the instances.
    *
    * @return an instance that contains no-op implementations for all the instances.
@@ -48,10 +56,16 @@ public abstract class MetricsComponent {
   private static final class NoopMetricsComponent extends MetricsComponent {
     private static final ExportComponent EXPORT_COMPONENT =
         ExportComponent.newNoopExportComponent();
+    private static final MetricRegistry METRIC_REGISTRY = MetricRegistry.newNoopMetricRegistry();
 
     @Override
     public ExportComponent getExportComponent() {
       return EXPORT_COMPONENT;
+    }
+
+    @Override
+    public MetricRegistry getMetricRegistry() {
+      return METRIC_REGISTRY;
     }
   }
 }
