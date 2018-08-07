@@ -74,11 +74,11 @@ public final class SpanExporterImpl extends SpanExporter {
     worker.unregisterHandler(name);
   }
 
-  protected void flush() {
+  void flush() {
     worker.flush();
   }
 
-  protected void shutdown() {
+  void shutdown() {
     flush();
     workerThread.interrupt();
   }
