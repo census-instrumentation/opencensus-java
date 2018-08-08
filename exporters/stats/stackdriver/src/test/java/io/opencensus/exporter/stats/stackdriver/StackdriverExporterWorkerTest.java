@@ -17,6 +17,8 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.CUSTOM_OPENCENSUS_DOMAIN;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.DEFAULT_DISPLAY_NAME_PREFIX;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -107,6 +109,12 @@ public class StackdriverExporterWorkerTest {
   @Test
   public void testConstants() {
     assertThat(StackdriverExporterWorker.MAX_BATCH_EXPORT_SIZE).isEqualTo(200);
+    assertThat(StackdriverExporterWorker.CUSTOM_METRIC_DOMAIN).isEqualTo("custom.googleapis.com/");
+    assertThat(StackdriverExporterWorker.EXTERNAL_METRIC_DOMAIN)
+        .isEqualTo("external.googleapis.com/");
+    assertThat(StackdriverExporterWorker.CUSTOM_OPENCENSUS_DOMAIN)
+        .isEqualTo("custom.googleapis.com/opencensus/");
+    assertThat(StackdriverExporterWorker.DEFAULT_DISPLAY_NAME_PREFIX).isEqualTo("OpenCensus/");
   }
 
   @Test
@@ -127,15 +135,19 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            null);
     worker.export();
 
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(1)).createTimeSeriesCallable();
 
-    MetricDescriptor descriptor = StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+    MetricDescriptor descriptor =
+        StackdriverExportUtils.createMetricDescriptor(
+            view, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX);
     List<TimeSeries> timeSeries =
-        StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE);
+        StackdriverExportUtils.createTimeSeriesList(
+            viewData, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
     verify(mockCreateMetricDescriptorCallable, times(1))
         .call(
             eq(
@@ -170,7 +182,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            null);
 
     worker.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
@@ -189,7 +202,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            null);
 
     assertThat(worker.registerView(view)).isFalse();
     worker.export();
@@ -205,7 +219,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            null);
     View view1 =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(worker.registerView(view1)).isTrue();
@@ -231,7 +246,8 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            null);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), CUMULATIVE);
     assertThat(worker.registerView(view)).isTrue();
@@ -249,11 +265,38 @@ public class StackdriverExporterWorkerTest {
             new FakeMetricServiceClient(mockStub),
             ONE_SECOND,
             mockViewManager,
-            DEFAULT_RESOURCE);
+            DEFAULT_RESOURCE,
+            null);
     View view =
         View.create(VIEW_NAME, VIEW_DESCRIPTION, MEASURE, SUM, Arrays.asList(KEY), INTERVAL);
     assertThat(worker.registerView(view)).isFalse();
     verify(mockStub, times(0)).createMetricDescriptorCallable();
+  }
+
+  @Test
+  public void getDomain() {
+    assertThat(StackdriverExporterWorker.getDomain(null))
+        .isEqualTo("custom.googleapis.com/opencensus/");
+    assertThat(StackdriverExporterWorker.getDomain(""))
+        .isEqualTo("custom.googleapis.com/opencensus/");
+    assertThat(StackdriverExporterWorker.getDomain("custom.googleapis.com/myorg/"))
+        .isEqualTo("custom.googleapis.com/myorg/");
+    assertThat(StackdriverExporterWorker.getDomain("external.googleapis.com/prometheus/"))
+        .isEqualTo("external.googleapis.com/prometheus/");
+    assertThat(StackdriverExporterWorker.getDomain("myorg"))
+        .isEqualTo("custom.googleapis.com/myorg/");
+  }
+
+  @Test
+  public void getDisplayNamePrefix() {
+    assertThat(StackdriverExporterWorker.getDisplayNamePrefix(null)).isEqualTo("OpenCensus/");
+    assertThat(StackdriverExporterWorker.getDisplayNamePrefix("")).isEqualTo("");
+    assertThat(StackdriverExporterWorker.getDisplayNamePrefix("custom.googleapis.com/myorg/"))
+        .isEqualTo("custom.googleapis.com/myorg/");
+    assertThat(
+            StackdriverExporterWorker.getDisplayNamePrefix("external.googleapis.com/prometheus/"))
+        .isEqualTo("external.googleapis.com/prometheus/");
+    assertThat(StackdriverExporterWorker.getDisplayNamePrefix("myorg")).isEqualTo("myorg/");
   }
 
   /*

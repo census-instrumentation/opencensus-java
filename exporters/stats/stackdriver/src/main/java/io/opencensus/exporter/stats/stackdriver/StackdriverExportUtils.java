@@ -87,8 +87,6 @@ final class StackdriverExportUtils {
   private static final String GLOBAL = "global";
 
   private static final Logger logger = Logger.getLogger(StackdriverExportUtils.class.getName());
-  private static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com";
-  private static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "/opencensus/";
   private static final String OPENCENSUS_TASK_VALUE_DEFAULT = generateDefaultTaskValue();
   private static final String PROJECT_ID_LABEL_KEY = "project_id";
 
@@ -204,7 +202,8 @@ final class StackdriverExportUtils {
 
   // Construct a MetricDescriptor using a View.
   @javax.annotation.Nullable
-  static MetricDescriptor createMetricDescriptor(View view, String projectId) {
+  static MetricDescriptor createMetricDescriptor(
+      View view, String projectId, String domain, String displayNamePrefix) {
     if (!(view.getWindow() instanceof View.AggregationWindow.Cumulative)) {
       // TODO(songya): Only Cumulative view will be exported to Stackdriver in this version.
       return null;
@@ -212,13 +211,14 @@ final class StackdriverExportUtils {
 
     MetricDescriptor.Builder builder = MetricDescriptor.newBuilder();
     String viewName = view.getName().asString();
-    String type = generateType(viewName);
+    String type = generateType(viewName, domain);
     // Name format refers to
     // cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/create
     builder.setName(String.format("projects/%s/metricDescriptors/%s", projectId, type));
     builder.setType(type);
     builder.setDescription(view.getDescription());
-    builder.setDisplayName("OpenCensus/" + viewName);
+    String displayName = createDisplayName(viewName, displayNamePrefix);
+    builder.setDisplayName(displayName);
     for (TagKey tagKey : view.getColumns()) {
       builder.addLabels(createLabelDescriptor(tagKey));
     }
@@ -234,8 +234,12 @@ final class StackdriverExportUtils {
     return builder.build();
   }
 
-  private static String generateType(String viewName) {
-    return CUSTOM_OPENCENSUS_DOMAIN + viewName;
+  private static String generateType(String viewName, String domain) {
+    return domain + viewName;
+  }
+
+  private static String createDisplayName(String viewName, String displayNamePrefix) {
+    return displayNamePrefix + viewName;
   }
 
   // Construct a LabelDescriptor from a TagKey
@@ -293,7 +297,9 @@ final class StackdriverExportUtils {
 
   // Convert ViewData to a list of TimeSeries, so that ViewData can be uploaded to Stackdriver.
   static List<TimeSeries> createTimeSeriesList(
-      @javax.annotation.Nullable ViewData viewData, MonitoredResource monitoredResource) {
+      @javax.annotation.Nullable ViewData viewData,
+      MonitoredResource monitoredResource,
+      String domain) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
     if (viewData == null) {
       return timeSeriesList;
@@ -314,7 +320,7 @@ final class StackdriverExportUtils {
     for (Entry<List</*@Nullable*/ TagValue>, AggregationData> entry :
         viewData.getAggregationMap().entrySet()) {
       TimeSeries.Builder builder = shared.clone();
-      builder.setMetric(createMetric(view, entry.getKey()));
+      builder.setMetric(createMetric(view, entry.getKey(), domain));
       builder.addPoints(
           createPoint(entry.getValue(), viewData.getWindowData(), view.getAggregation()));
       timeSeriesList.add(builder.build());
@@ -325,10 +331,10 @@ final class StackdriverExportUtils {
 
   // Create a Metric using the TagKeys and TagValues.
   @VisibleForTesting
-  static Metric createMetric(View view, List</*@Nullable*/ TagValue> tagValues) {
+  static Metric createMetric(View view, List</*@Nullable*/ TagValue> tagValues, String domain) {
     Metric.Builder builder = Metric.newBuilder();
     // TODO(songya): use pre-defined metrics for canonical views
-    builder.setType(generateType(view.getName().asString()));
+    builder.setType(generateType(view.getName().asString(), domain));
     Map<String, String> stringTagMap = Maps.newHashMap();
     List<TagKey> columns = view.getColumns();
     checkArgument(

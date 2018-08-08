@@ -17,6 +17,8 @@
 package io.opencensus.exporter.stats.stackdriver;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.CUSTOM_OPENCENSUS_DOMAIN;
+import static io.opencensus.exporter.stats.stackdriver.StackdriverExporterWorker.DEFAULT_DISPLAY_NAME_PREFIX;
 
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
@@ -175,10 +177,32 @@ public class StackdriverExportUtilsTest {
             DISTRIBUTION,
             Arrays.asList(KEY),
             CUMULATIVE);
-    assertThat(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
+    assertThat(
+            StackdriverExportUtils.createMetric(
+                view, Arrays.asList(VALUE_1), CUSTOM_OPENCENSUS_DOMAIN))
         .isEqualTo(
             Metric.newBuilder()
                 .setType("custom.googleapis.com/opencensus/" + VIEW_NAME)
+                .putLabels("KEY", "VALUE1")
+                .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
+                .build());
+  }
+
+  @Test
+  public void createMetric_WithExternalMetricDomain() {
+    View view =
+        View.create(
+            Name.create(VIEW_NAME),
+            VIEW_DESCRIPTION,
+            MEASURE_DOUBLE,
+            DISTRIBUTION,
+            Arrays.asList(KEY),
+            CUMULATIVE);
+    String prometheusDomain = "external.googleapis.com/prometheus/";
+    assertThat(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1), prometheusDomain))
+        .isEqualTo(
+            Metric.newBuilder()
+                .setType(prometheusDomain + VIEW_NAME)
                 .putLabels("KEY", "VALUE1")
                 .putLabels(StackdriverExportUtils.OPENCENSUS_TASK, DEFAULT_TASK_VALUE)
                 .build());
@@ -194,7 +218,9 @@ public class StackdriverExportUtilsTest {
             DISTRIBUTION,
             Arrays.asList(KEY, KEY_2, KEY_3),
             CUMULATIVE);
-    assertThat(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1, null, VALUE_2)))
+    assertThat(
+            StackdriverExportUtils.createMetric(
+                view, Arrays.asList(VALUE_1, null, VALUE_2), CUSTOM_OPENCENSUS_DOMAIN))
         .isEqualTo(
             Metric.newBuilder()
                 .setType("custom.googleapis.com/opencensus/" + VIEW_NAME)
@@ -217,7 +243,7 @@ public class StackdriverExportUtilsTest {
     List<TagValue> tagValues = Arrays.asList(VALUE_1, null);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("TagKeys and TagValues don't have same size.");
-    StackdriverExportUtils.createMetric(view, tagValues);
+    StackdriverExportUtils.createMetric(view, tagValues, CUSTOM_OPENCENSUS_DOMAIN);
   }
 
   @Test
@@ -350,17 +376,17 @@ public class StackdriverExportUtilsTest {
             Arrays.asList(KEY),
             CUMULATIVE);
     MetricDescriptor metricDescriptor =
-        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+        StackdriverExportUtils.createMetricDescriptor(
+            view, PROJECT_ID, "custom.googleapis.com/myorg/", "myorg/");
     assertThat(metricDescriptor.getName())
         .isEqualTo(
             "projects/"
                 + PROJECT_ID
-                + "/metricDescriptors/custom.googleapis.com/opencensus/"
+                + "/metricDescriptors/custom.googleapis.com/myorg/"
                 + VIEW_NAME);
     assertThat(metricDescriptor.getDescription()).isEqualTo(VIEW_DESCRIPTION);
-    assertThat(metricDescriptor.getDisplayName()).isEqualTo("OpenCensus/" + VIEW_NAME);
-    assertThat(metricDescriptor.getType())
-        .isEqualTo("custom.googleapis.com/opencensus/" + VIEW_NAME);
+    assertThat(metricDescriptor.getDisplayName()).isEqualTo("myorg/" + VIEW_NAME);
+    assertThat(metricDescriptor.getType()).isEqualTo("custom.googleapis.com/myorg/" + VIEW_NAME);
     assertThat(metricDescriptor.getUnit()).isEqualTo(MEASURE_UNIT);
     assertThat(metricDescriptor.getMetricKind()).isEqualTo(MetricKind.CUMULATIVE);
     assertThat(metricDescriptor.getValueType()).isEqualTo(MetricDescriptor.ValueType.DISTRIBUTION);
@@ -389,7 +415,8 @@ public class StackdriverExportUtilsTest {
             Arrays.asList(KEY),
             CUMULATIVE);
     MetricDescriptor metricDescriptor =
-        StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID);
+        StackdriverExportUtils.createMetricDescriptor(
+            view, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX);
     assertThat(metricDescriptor.getName())
         .isEqualTo(
             "projects/"
@@ -427,7 +454,10 @@ public class StackdriverExportUtilsTest {
             DISTRIBUTION,
             Arrays.asList(KEY),
             INTERVAL);
-    assertThat(StackdriverExportUtils.createMetricDescriptor(view, PROJECT_ID)).isNull();
+    assertThat(
+            StackdriverExportUtils.createMetricDescriptor(
+                view, PROJECT_ID, CUSTOM_OPENCENSUS_DOMAIN, DEFAULT_DISPLAY_NAME_PREFIX))
+        .isNull();
   }
 
   @Test
@@ -451,13 +481,16 @@ public class StackdriverExportUtilsTest {
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
     ViewData viewData = ViewData.create(view, aggregationMap, cumulativeData);
     List<TimeSeries> timeSeriesList =
-        StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE);
+        StackdriverExportUtils.createTimeSeriesList(
+            viewData, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN);
     assertThat(timeSeriesList).hasSize(2);
     TimeSeries expected1 =
         TimeSeries.newBuilder()
             .setMetricKind(MetricKind.CUMULATIVE)
             .setValueType(MetricDescriptor.ValueType.DISTRIBUTION)
-            .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
+            .setMetric(
+                StackdriverExportUtils.createMetric(
+                    view, Arrays.asList(VALUE_1), CUSTOM_OPENCENSUS_DOMAIN))
             .setResource(MonitoredResource.newBuilder().setType("global"))
             .addPoints(
                 StackdriverExportUtils.createPoint(distributionData1, cumulativeData, DISTRIBUTION))
@@ -466,7 +499,9 @@ public class StackdriverExportUtilsTest {
         TimeSeries.newBuilder()
             .setMetricKind(MetricKind.CUMULATIVE)
             .setValueType(MetricDescriptor.ValueType.DISTRIBUTION)
-            .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_2)))
+            .setMetric(
+                StackdriverExportUtils.createMetric(
+                    view, Arrays.asList(VALUE_2), CUSTOM_OPENCENSUS_DOMAIN))
             .setResource(MonitoredResource.newBuilder().setType("global"))
             .addPoints(
                 StackdriverExportUtils.createPoint(distributionData2, cumulativeData, DISTRIBUTION))
@@ -492,7 +527,10 @@ public class StackdriverExportUtilsTest {
             DistributionData.create(-1, 1, -1, -1, 0, Arrays.asList(1L, 0L, 0L, 0L, 0L)));
     ViewData viewData =
         ViewData.create(view, aggregationMap, IntervalData.create(Timestamp.fromMillis(2000)));
-    assertThat(StackdriverExportUtils.createTimeSeriesList(viewData, DEFAULT_RESOURCE)).isEmpty();
+    assertThat(
+            StackdriverExportUtils.createTimeSeriesList(
+                viewData, DEFAULT_RESOURCE, CUSTOM_OPENCENSUS_DOMAIN))
+        .isEmpty();
   }
 
   @Test
@@ -514,13 +552,15 @@ public class StackdriverExportUtilsTest {
         CumulativeData.create(Timestamp.fromMillis(1000), Timestamp.fromMillis(2000));
     ViewData viewData = ViewData.create(view, aggregationMap, cumulativeData);
     List<TimeSeries> timeSeriesList =
-        StackdriverExportUtils.createTimeSeriesList(viewData, resource);
+        StackdriverExportUtils.createTimeSeriesList(viewData, resource, CUSTOM_OPENCENSUS_DOMAIN);
     assertThat(timeSeriesList)
         .containsExactly(
             TimeSeries.newBuilder()
                 .setMetricKind(MetricKind.CUMULATIVE)
                 .setValueType(MetricDescriptor.ValueType.DOUBLE)
-                .setMetric(StackdriverExportUtils.createMetric(view, Arrays.asList(VALUE_1)))
+                .setMetric(
+                    StackdriverExportUtils.createMetric(
+                        view, Arrays.asList(VALUE_1), CUSTOM_OPENCENSUS_DOMAIN))
                 .setResource(resource)
                 .addPoints(StackdriverExportUtils.createPoint(sumData, cumulativeData, SUM))
                 .build());
