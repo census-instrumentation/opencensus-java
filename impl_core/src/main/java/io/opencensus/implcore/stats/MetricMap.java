@@ -160,6 +160,7 @@ final class MetricMap {
         this.startTime = startTime;
       }
 
+      @Override
       TimeSeriesList toTimeSeriesList() {
         List<TimeSeriesCumulative> timeSeriesCumulatives = new ArrayList<TimeSeriesCumulative>();
         for (Entry<List<LabelValue>, List<Point>> entry : super.map.entrySet()) {
@@ -178,6 +179,7 @@ final class MetricMap {
 
     private static final class MutableMetricRowsGauge extends MutableMetricRows {
 
+      @Override
       TimeSeriesList toTimeSeriesList() {
         List<TimeSeriesGauge> timeSeriesGauges = new ArrayList<TimeSeriesGauge>();
         for (Entry<List<LabelValue>, List<Point>> entry : super.map.entrySet()) {
