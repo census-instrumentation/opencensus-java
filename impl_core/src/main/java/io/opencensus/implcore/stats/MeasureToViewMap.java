@@ -22,6 +22,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.StatsCollectionState;
@@ -59,6 +60,9 @@ final class MeasureToViewMap {
   // TODO(songya): consider adding a Measure.Name class
   @GuardedBy("this")
   private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
+
+  @GuardedBy("this")
+  private final MetricMap metricMap = new MetricMap();
 
   // Cached set of exported views. It must be set to null whenever a view is registered or
   // unregistered.
@@ -115,7 +119,12 @@ final class MeasureToViewMap {
     if (registeredMeasure == null) {
       registeredMeasures.put(measure.getName(), measure);
     }
-    mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, clock.now()));
+    Timestamp now = clock.now();
+    mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, now, metricMap));
+    MetricDescriptor metricDescriptor = MetricUtils.viewToMetricDescriptor(view);
+    if (metricDescriptor != null) {
+      metricMap.registerMetricDescriptor(metricDescriptor, now);
+    }
   }
 
   @javax.annotation.Nullable
@@ -165,6 +174,7 @@ final class MeasureToViewMap {
         mutableViewData.clearStats();
       }
     }
+    metricMap.clearStats();
   }
 
   // Resume stats collection for all MutableViewData.
@@ -174,5 +184,6 @@ final class MeasureToViewMap {
         mutableViewData.resumeStatsCollection(now);
       }
     }
+    metricMap.resumeStatsCollection(now);
   }
 }
