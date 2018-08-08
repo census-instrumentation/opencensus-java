@@ -22,6 +22,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.StatsCollectionState;
@@ -119,8 +120,11 @@ final class MeasureToViewMap {
       registeredMeasures.put(measure.getName(), measure);
     }
     Timestamp now = clock.now();
-    metricMap.registerMetricDescriptor(MetricUtils.viewToMetricDescriptor(view), now);
     mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, now, metricMap));
+    MetricDescriptor metricDescriptor = MetricUtils.viewToMetricDescriptor(view);
+    if (metricDescriptor != null) {
+      metricMap.registerMetricDescriptor(metricDescriptor, now);
+    }
   }
 
   @javax.annotation.Nullable

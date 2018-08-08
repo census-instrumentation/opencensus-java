@@ -50,19 +50,21 @@ final class MetricMap {
   // Registers a MetricDescriptor, creates an entry in the map.
   // This method should only be called from MeasureToMap.registerView().
   synchronized void registerMetricDescriptor(
-      @javax.annotation.Nullable MetricDescriptor metricDescriptor, Timestamp timestamp) {
-    if (metricDescriptor == null || map.containsKey(metricDescriptor)) {
+      MetricDescriptor metricDescriptor, Timestamp timestamp) {
+    if (map.containsKey(metricDescriptor)) {
       return;
     }
     map.put(metricDescriptor, MutableMetricRows.create(metricDescriptor.getType(), timestamp));
   }
 
+  // Records a data point to this MetricMap.
+  // This method should only be called from CumulativeMutableViewData.record().
   synchronized void record(
       MetricDescriptor metricDescriptor,
       List</*@Nullable*/ TagValue> tagValues,
       MutableAggregation mutableAggregation,
       Timestamp now) {
-    if (metricDescriptor == null || !map.containsKey(metricDescriptor)) {
+    if (!map.containsKey(metricDescriptor)) {
       return;
     }
     map.get(metricDescriptor)
