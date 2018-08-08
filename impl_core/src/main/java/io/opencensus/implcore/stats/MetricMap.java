@@ -16,7 +16,6 @@
 
 package io.opencensus.implcore.stats;
 
-import com.google.common.base.Preconditions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.Metric;
@@ -78,10 +77,7 @@ final class MetricMap {
 
   synchronized void resumeStatsCollection(Timestamp now) {
     for (Entry<MetricDescriptor, MutableMetricRows> entry : map.entrySet()) {
-      MutableMetricRows mutableMetricRows = entry.getValue();
-      if (MutableMetricRows.RowType.CUMULATIVE.equals(mutableMetricRows.type)) {
-        mutableMetricRows.startTime = now;
-      }
+      entry.getValue().resumeStatsCollection(now);
     }
   }
 
@@ -103,7 +99,7 @@ final class MetricMap {
   // A class that stores a mapping from lists of label values to lists of points.
   // Each MutableMetricRows correspond to one MetricDescriptor.
   // Think of this class as a set of mutable time series.
-  private static final class MutableMetricRows {
+  private abstract static class MutableMetricRows {
 
     /*
      * Each entry in this map is a list of rows, for example:
@@ -113,17 +109,6 @@ final class MetricMap {
      */
     private final Map<List<LabelValue>, List<Point>> map =
         new LinkedHashMap<List<LabelValue>, List<Point>>();
-
-    // Only cumulative time series has a start timestamp.
-    @javax.annotation.Nullable private Timestamp startTime;
-
-    // Type of the metric rows.
-    private final RowType type;
-
-    private MutableMetricRows(@javax.annotation.Nullable Timestamp startTime, RowType type) {
-      this.startTime = startTime;
-      this.type = type;
-    }
 
     // Create MutableMetricRows based on the given type.
     private static MutableMetricRows create(Type type, Timestamp timestamp) {
@@ -140,12 +125,11 @@ final class MetricMap {
     }
 
     private static MutableMetricRows createCumulative(Timestamp timestamp) {
-      Preconditions.checkNotNull(timestamp, "timestamp");
-      return new MutableMetricRows(timestamp, RowType.CUMULATIVE);
+      return new MutableMetricRowsCumulative(timestamp);
     }
 
     private static MutableMetricRows createGauge() {
-      return new MutableMetricRows(null, RowType.GAUGE);
+      return new MutableMetricRowsGauge();
     }
 
     private void record(
@@ -161,30 +145,49 @@ final class MetricMap {
       map.get(labelValues).add(point);
     }
 
-    // TODO: remove this once nullness checker works with Preconditions.checkNotNull()
-    @SuppressWarnings("nullness")
-    private TimeSeriesList toTimeSeriesList() {
-      switch (type) {
-        case CUMULATIVE:
-          List<TimeSeriesCumulative> timeSeriesCumulatives = new ArrayList<TimeSeriesCumulative>();
-          for (Entry<List<LabelValue>, List<Point>> entry : map.entrySet()) {
-            timeSeriesCumulatives.add(
-                TimeSeriesCumulative.create(entry.getKey(), entry.getValue(), startTime));
-          }
-          return TimeSeriesCumulativeList.create(timeSeriesCumulatives);
-        case GAUGE:
-          List<TimeSeriesGauge> timeSeriesGauges = new ArrayList<TimeSeriesGauge>();
-          for (Entry<List<LabelValue>, List<Point>> entry : map.entrySet()) {
-            timeSeriesGauges.add(TimeSeriesGauge.create(entry.getKey(), entry.getValue()));
-          }
-          return TimeSeriesGaugeList.create(timeSeriesGauges);
+    abstract TimeSeriesList toTimeSeriesList();
+
+    abstract void resumeStatsCollection(Timestamp now);
+
+    private static final class MutableMetricRowsCumulative extends MutableMetricRows {
+
+      // Only cumulative time series has a start timestamp.
+      private Timestamp startTime;
+
+      private MutableMetricRowsCumulative(Timestamp startTime) {
+        this.startTime = startTime;
       }
-      throw new AssertionError();
+
+      TimeSeriesList toTimeSeriesList() {
+        List<TimeSeriesCumulative> timeSeriesCumulatives = new ArrayList<TimeSeriesCumulative>();
+        for (Entry<List<LabelValue>, List<Point>> entry : super.map.entrySet()) {
+          timeSeriesCumulatives.add(
+              TimeSeriesCumulative.create(entry.getKey(), entry.getValue(), startTime));
+        }
+        return TimeSeriesCumulativeList.create(timeSeriesCumulatives);
+      }
+
+      @Override
+      void resumeStatsCollection(Timestamp now) {
+        // Reset start time to current time.
+        this.startTime = now;
+      }
     }
 
-    private enum RowType {
-      CUMULATIVE,
-      GAUGE
+    private static final class MutableMetricRowsGauge extends MutableMetricRows {
+
+      TimeSeriesList toTimeSeriesList() {
+        List<TimeSeriesGauge> timeSeriesGauges = new ArrayList<TimeSeriesGauge>();
+        for (Entry<List<LabelValue>, List<Point>> entry : super.map.entrySet()) {
+          timeSeriesGauges.add(TimeSeriesGauge.create(entry.getKey(), entry.getValue()));
+        }
+        return TimeSeriesGaugeList.create(timeSeriesGauges);
+      }
+
+      @Override
+      void resumeStatsCollection(Timestamp now) {
+        // Do nothing for Gauge stats.
+      }
     }
   }
 }
