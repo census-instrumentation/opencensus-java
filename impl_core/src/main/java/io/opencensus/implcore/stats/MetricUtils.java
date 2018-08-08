@@ -149,11 +149,11 @@ final class MetricUtils {
 
   private static Value toDistributionValue(MutableAggregation.MutableDistribution distribution) {
     List<Distribution.Bucket> buckets = new ArrayList<Distribution.Bucket>();
+    @javax.annotation.Nullable
+    AggregationData.DistributionData.Exemplar[] exemplars = distribution.getExemplars();
     for (int bucket = 0; bucket < distribution.getBucketCounts().length; bucket++) {
       long bucketCount = distribution.getBucketCounts()[bucket];
       @javax.annotation.Nullable AggregationData.DistributionData.Exemplar exemplar = null;
-      @javax.annotation.Nullable
-      AggregationData.DistributionData.Exemplar[] exemplars = distribution.getExemplars();
       if (exemplars != null) {
         exemplar = exemplars[bucket];
       }
