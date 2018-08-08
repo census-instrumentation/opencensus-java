@@ -144,7 +144,7 @@ final class MeasureToViewMap {
             + mutableMap);
   }
 
-  // Records stats with a set of tags, and returns a list of updated MutableViewData.
+  // Records stats with a set of tags.
   synchronized void record(TagContext tags, MeasureMapInternal stats, Timestamp timestamp) {
     Iterator<Measurement> iterator = stats.iterator();
     Map<String, String> attachments = stats.getAttachments();

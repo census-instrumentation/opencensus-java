@@ -23,7 +23,6 @@ import static io.opencensus.implcore.stats.RecordUtils.getTagMap;
 import static io.opencensus.implcore.stats.RecordUtils.getTagValues;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -107,15 +106,17 @@ abstract class MutableViewData {
     // Cache a MetricDescriptor to avoid converting View to MetricDescriptor in the future.
     private final MetricDescriptor metricDescriptor;
 
-    // TODO: remove this once nullness checker works with Preconditions.checkNotNull()
-    @SuppressWarnings("nullness")
     private CumulativeMutableViewData(View view, Timestamp start, MetricMap metricMap) {
       super(view);
       this.start = start;
       this.metricMap = metricMap;
-      this.metricDescriptor =
-          Preconditions.checkNotNull(
-              MetricUtils.viewToMetricDescriptor(view), "Cumulative view expected.");
+      MetricDescriptor metricDescriptor = MetricUtils.viewToMetricDescriptor(view);
+      if (metricDescriptor == null) {
+        throw new AssertionError(
+            "Cumulative view should be converted to a non-null MetricDescriptor.");
+      } else {
+        this.metricDescriptor = metricDescriptor;
+      }
     }
 
     @Override
