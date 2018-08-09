@@ -32,16 +32,20 @@ public class SpanContextTest {
       new byte[] {0, 0, 0, 0, 0, 0, 0, '0', 0, 0, 0, 0, 0, 0, 0, 0};
   private static final byte[] firstSpanIdBytes = new byte[] {0, 0, 0, 0, 0, 0, 0, 'a'};
   private static final byte[] secondSpanIdBytes = new byte[] {'0', 0, 0, 0, 0, 0, 0, 0};
+  private static final Tracestate firstTracestate = Tracestate.builder().set("foo", "bar").build();
+  private static final Tracestate secondTracestate = Tracestate.builder().set("foo", "baz").build();
   private static final SpanContext first =
       SpanContext.create(
           TraceId.fromBytes(firstTraceIdBytes),
           SpanId.fromBytes(firstSpanIdBytes),
-          TraceOptions.DEFAULT);
+          TraceOptions.DEFAULT,
+          firstTracestate);
   private static final SpanContext second =
       SpanContext.create(
           TraceId.fromBytes(secondTraceIdBytes),
           SpanId.fromBytes(secondSpanIdBytes),
-          TraceOptions.builder().setIsSampled(true).build());
+          TraceOptions.builder().setIsSampled(true).build(),
+          secondTracestate);
 
   @Test
   public void invalidSpanContext() {
@@ -87,6 +91,12 @@ public class SpanContextTest {
   }
 
   @Test
+  public void getTracestate() {
+    assertThat(first.getTracestate()).isEqualTo(firstTracestate);
+    assertThat(second.getTracestate()).isEqualTo(secondTracestate);
+  }
+
+  @Test
   public void spanContext_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(
@@ -98,13 +108,15 @@ public class SpanContextTest {
         SpanContext.create(
             TraceId.fromBytes(firstTraceIdBytes),
             SpanId.fromBytes(firstSpanIdBytes),
-            TraceOptions.builder().setIsSampled(false).build()));
+            TraceOptions.builder().setIsSampled(false).build(),
+            firstTracestate));
     tester.addEqualityGroup(
         second,
         SpanContext.create(
             TraceId.fromBytes(secondTraceIdBytes),
             SpanId.fromBytes(secondSpanIdBytes),
-            TraceOptions.builder().setIsSampled(true).build()));
+            TraceOptions.builder().setIsSampled(true).build(),
+            secondTracestate));
     tester.testEquals();
   }
 

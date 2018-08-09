@@ -25,6 +25,7 @@ import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
 import java.nio.ByteBuffer;
@@ -77,6 +78,7 @@ final class CloudTraceFormat extends TextFormat {
   // 32-digit TRACE_ID + 1 digit SPAN_ID_DELIMITER + at least 1 digit SPAN_ID
   static final int MIN_HEADER_SIZE = SPAN_ID_START_POS + 1;
   static final int CLOUD_TRACE_IS_SAMPLED = 0x1;
+  private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
 
   @Override
   public List<String> fields() {
@@ -125,7 +127,7 @@ final class CloudTraceFormat extends TextFormat {
           traceOptions = OPTIONS_SAMPLED;
         }
       }
-      return SpanContext.create(traceId, spanId, traceOptions);
+      return SpanContext.create(traceId, spanId, traceOptions, TRACESTATE_DEFAULT);
     } catch (IllegalArgumentException e) {
       throw new SpanContextParseException("Invalid input", e);
     }
