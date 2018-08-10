@@ -22,7 +22,6 @@ include ":opencensus-contrib-http-util"
 include ":opencensus-contrib-log-correlation-stackdriver"
 include ":opencensus-contrib-monitored-resource-util"
 include ":opencensus-contrib-spring"
-include ":opencensus-metrics"
 
 project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
@@ -52,7 +51,6 @@ project(':opencensus-exporter-trace-jaeger').projectDir = "$rootDir/exporters/tr
 project(':opencensus-exporter-stats-signalfx').projectDir = "$rootDir/exporters/stats/signalfx" as File
 project(':opencensus-exporter-stats-stackdriver').projectDir = "$rootDir/exporters/stats/stackdriver" as File
 project(':opencensus-exporter-stats-prometheus').projectDir = "$rootDir/exporters/stats/prometheus" as File
-project(':opencensus-metrics').projectDir = "$rootDir/metrics" as File
 
 
 // Java8 projects only

@@ -16,11 +16,12 @@
 
 /**
  * This package describes the Metrics data model. Metrics are a data model for what stats exporters
- * take as input.
+ * take as input. This data model may eventually become the wire format for metrics.
  *
- * <p>Currently all the public classes under this package are marked as {@link
- * io.opencensus.common.ExperimentalApi}. This data model may eventually become the wire format for
- * metrics.
+ * <p>WARNING: Currently all the public classes under this package are marked as {@link
+ * io.opencensus.common.ExperimentalApi}. The classes and APIs under {@link io.opencensus.metrics}
+ * are likely to get backwards-incompatible updates in the future. DO NOT USE except for
+ * experimental purposes.
  *
  * <p>Please see
  * https://github.com/census-instrumentation/opencensus-specs/blob/master/stats/Metrics.md and
