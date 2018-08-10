@@ -18,6 +18,7 @@ package io.opencensus.impl.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.implcore.metrics.MetricRegistryImpl;
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
 import io.opencensus.metrics.Metrics;
 import io.opencensus.metrics.MetricsComponent;
@@ -32,5 +33,10 @@ public class MetricsTest {
   @Test
   public void getExportComponent() {
     assertThat(Metrics.getExportComponent()).isInstanceOf(ExportComponentImpl.class);
+  }
+
+  @Test
+  public void getMetricRegistry() {
+    assertThat(Metrics.getMetricRegistry()).isInstanceOf(MetricRegistryImpl.class);
   }
 }
