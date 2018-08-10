@@ -57,6 +57,8 @@ public class OpenCensusSleuthSpan extends Span {
   @Override
   public void end(EndSpanOptions endSpanOptions) {}
 
+  // TODO: upgrade to new SpanContext.create() once it has been released.
+  @SuppressWarnings("deprecation")
   private static SpanContext fromSleuthSpan(org.springframework.cloud.sleuth.Span span) {
     return SpanContext.create(
         TraceId.fromBytes(

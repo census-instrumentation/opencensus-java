@@ -94,7 +94,7 @@ public class OpenCensusSleuthSpanContextHolderTest {
     for (int i = sleuthSpans.length - 1; i >= 0; i--) {
       final int index = i;
       OpenCensusSleuthSpanContextHolder.close(
-          new OpenCensusSleuth SpanContextHolder.SpanFunction() {
+          new OpenCensusSleuthSpanContextHolder.SpanFunction() {
             @Override public void apply(org.springframework.cloud.sleuth.Span span) {
               assertThat(span).isEqualTo(sleuthSpans[index]);
             }
