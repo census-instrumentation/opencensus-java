@@ -40,6 +40,19 @@ public final class Metrics {
     return metricsComponent.getExportComponent();
   }
 
+  /**
+   * Returns the global {@link MetricRegistry}.
+   *
+   * <p>This {@code MetricRegistry} is already added to the global {@link
+   * io.opencensus.metrics.export.MetricProducerManager}.
+   *
+   * @return the global {@code MetricRegistry}.
+   * @since 0.16
+   */
+  public static MetricRegistry getMetricRegistry() {
+    return metricsComponent.getMetricRegistry();
+  }
+
   // Any provider that may be used for MetricsComponent can be added here.
   @DefaultVisibilityForTesting
   static MetricsComponent loadMetricsComponent(@Nullable ClassLoader classLoader) {
