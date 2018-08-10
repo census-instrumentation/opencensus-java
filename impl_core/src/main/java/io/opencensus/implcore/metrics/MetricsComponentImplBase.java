@@ -17,6 +17,7 @@
 package io.opencensus.implcore.metrics;
 
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
+import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.MetricsComponent;
 
 /** Implementation of {@link MetricsComponent}. */
@@ -27,6 +28,12 @@ public class MetricsComponentImplBase extends MetricsComponent {
   @Override
   public ExportComponentImpl getExportComponent() {
     return exportComponent;
+  }
+
+  @Override
+  public MetricRegistry getMetricRegistry() {
+    // TODO: implement this method
+    throw new UnsupportedOperationException("not implemented");
   }
 
   public MetricsComponentImplBase() {
