@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 
 /**
- * Creates and manages your application's set of metrics. Exporters use the meter registry to
+ * Creates and manages your application's set of metrics. Exporters use the metric registry to
  * iterate over the set of metrics instrumenting your application, and then further export each
  * metric to the backend of choice.
  *

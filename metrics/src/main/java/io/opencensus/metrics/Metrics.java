@@ -43,7 +43,8 @@ public final class Metrics {
   /**
    * Returns the global {@link MetricRegistry}.
    *
-   * <p>This {@code MetricRegistry} is already added to t
+   * <p>This {@code MetricRegistry} is already added to the global {@link
+   * io.opencensus.metrics.export.MetricProducerManager}.
    *
    * @return the global {@code MetricRegistry}.
    * @since 0.16
