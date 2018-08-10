@@ -1,0 +1,21 @@
+description = 'OpenCensus Spring Sleuth'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.6
+    it.targetCompatibility = 1.6
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+	    libraries.spring_boot_starter_web,
+	    libraries.spring_cloud_build,
+	    libraries.spring_cloud_starter_sleuth
+
+    testCompile project(':opencensus-impl'),
+            project(':opencensus-testing'),
+            libraries.spring_test
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}
