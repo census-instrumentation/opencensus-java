@@ -62,4 +62,10 @@ public class MetricsTest {
     assertThat(Metrics.getExportComponent())
         .isInstanceOf(ExportComponent.newNoopExportComponent().getClass());
   }
+
+  @Test
+  public void defaultMetricRegistry() {
+    assertThat(Metrics.getMetricRegistry())
+        .isInstanceOf(MetricRegistry.newNoopMetricRegistry().getClass());
+  }
 }
