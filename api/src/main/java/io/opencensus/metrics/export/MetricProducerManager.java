@@ -45,6 +45,7 @@ public abstract class MetricProducerManager {
    * Removes the {@link MetricProducer} to the manager if it is present.
    *
    * @param metricProducer the {@code MetricProducer} to be removed from the manager.
+   * @since 0.16
    */
   public abstract void remove(MetricProducer metricProducer);
 
@@ -55,10 +56,20 @@ public abstract class MetricProducerManager {
    * {@code MetricProducer} registered with the {@code MetricProducerManager}.
    *
    * @return all registered {@code MetricProducer}s that should be exported.
+   * @since 0.16
    */
   public abstract Set<MetricProducer> getAllMetricProducer();
 
-  static final class NoopMetricProducerManager extends MetricProducerManager {
+  /**
+   * Returns a no-op implementation for {@link MetricProducerManager}.
+   *
+   * @return a no-op implementation for {@code MetricProducerManager}.
+   */
+  static MetricProducerManager newNoopMetricProducerManager() {
+    return new NoopMetricProducerManager();
+  }
+
+  private static final class NoopMetricProducerManager extends MetricProducerManager {
 
     @Override
     public void add(MetricProducer metricProducer) {

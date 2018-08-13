@@ -17,7 +17,6 @@
 package io.opencensus.metrics.export;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.metrics.export.MetricProducerManager.NoopMetricProducerManager;
 
 /**
  * Class that holds the implementation instance for {@link MetricProducerManager}.
@@ -51,7 +50,7 @@ public abstract class ExportComponent {
   private static final class NoopExportComponent extends ExportComponent {
 
     private static final MetricProducerManager METRIC_PRODUCER_MANAGER =
-        new NoopMetricProducerManager();
+        MetricProducerManager.newNoopMetricProducerManager();
 
     @Override
     public MetricProducerManager getMetricProducerManager() {

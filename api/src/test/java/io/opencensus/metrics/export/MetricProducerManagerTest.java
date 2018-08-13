@@ -19,7 +19,6 @@ package io.opencensus.metrics.export;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.metrics.MetricProducer;
-import io.opencensus.metrics.export.MetricProducerManager.NoopMetricProducerManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +31,8 @@ import org.mockito.MockitoAnnotations;
 /** Unit tests for {@link MetricProducerManager}. */
 @RunWith(JUnit4.class)
 public class MetricProducerManagerTest {
-  private final MetricProducerManager metricProducerManager = new NoopMetricProducerManager();
+  private final MetricProducerManager metricProducerManager =
+      MetricProducerManager.newNoopMetricProducerManager();
   @Mock private MetricProducer metricProducer;
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
