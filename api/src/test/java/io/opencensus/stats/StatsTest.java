@@ -61,6 +61,7 @@ public final class StatsTest {
   public void defaultValues() {
     assertThat(Stats.getStatsRecorder()).isEqualTo(NoopStats.getNoopStatsRecorder());
     assertThat(Stats.getViewManager()).isInstanceOf(NoopStats.newNoopViewManager().getClass());
+    assertThat(Stats.getMetricProducer()).isEqualTo(NoopStats.getNoopMetricProducer());
   }
 
   @Test

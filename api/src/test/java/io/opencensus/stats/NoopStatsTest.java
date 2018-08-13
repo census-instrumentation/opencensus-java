@@ -130,4 +130,9 @@ public final class NoopStatsTest {
     thrown.expectMessage("tags");
     measureMap.record(null);
   }
+
+  @Test
+  public void noopNoopMetricProducer_GetMetrics() {
+    assertThat(NoopStats.getNoopMetricProducer().getMetrics()).isEmpty();
+  }
 }
