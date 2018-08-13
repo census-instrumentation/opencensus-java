@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package io.opencensus.common;
+package io.opencensus.implcore.metrics.export;
 
-/**
- * Represents a function that produces a long-valued result. See {@link
- * io.opencensus.metrics.MetricRegistry} for an example of its use.
- *
- * <p>Note: This class is based on the java.util.ToLongFunction class added in Java 1.8. We cannot
- * use the Function from Java 1.8 because this library is Java 1.6 compatible.
- *
- * @since 0.16
- */
-public interface ToLongFunction<T> {
-  /**
-   * Applies this function to the given argument.
-   *
-   * @param value the function argument.
-   * @return the function result.
-   */
-  long applyAsLong(T value);
+import static com.google.common.truth.Truth.assertThat;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+/** Unit tests for {@link ExportComponentImpl}. */
+@RunWith(JUnit4.class)
+public class ExportComponentImplTest {
+
+  @Test
+  public void getMetricProducerManager() {
+    ExportComponentImpl exportComponent = new ExportComponentImpl();
+    assertThat(exportComponent.getMetricProducerManager())
+        .isInstanceOf(MetricProducerManagerImpl.class);
+  }
 }
