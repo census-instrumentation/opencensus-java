@@ -19,7 +19,7 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
-import io.opencensus.internal.ZeroTimeClock;
+import io.opencensus.testing.common.TestClock;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class MetricsComponentImplBaseTest {
   private final MetricsComponentImplBase metricsComponentImplBase =
-      new MetricsComponentImplBase(ZeroTimeClock.getInstance());
+      new MetricsComponentImplBase(TestClock.create());
 
   @Test
   public void getExportComponent() {
