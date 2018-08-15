@@ -69,8 +69,9 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
   }
 
   @VisibleForTesting
-  void export() {
-    try (Session session = sender.createSession()) {
+  void export() throws IOException {
+    Session session = sender.createSession();
+    try {
       for (View view : views.getAllExportedViews()) {
         ViewData data = views.getView(view.getName());
         if (data == null) {
@@ -81,8 +82,8 @@ final class SignalFxStatsExporterWorkerThread extends Thread {
           session.setDatapoint(datapoint);
         }
       }
-    } catch (IOException e) {
-      // Does not happen, flush/close errors are communicated through the sender's error handlers.
+    } finally {
+      session.close();
     }
   }
 

@@ -130,41 +130,39 @@ final class StackdriverExporterWorker implements Runnable {
 
     Span span = tracer.getCurrentSpan();
     span.addAnnotation("Create Stackdriver Metric.");
-    try (Scope scope = tracer.withSpan(span)) {
-      // TODO(songya): don't need to create MetricDescriptor for RpcViewConstants once we defined
-      // canonical metrics. Registration is required only for custom view definitions. Canonical
-      // views should be pre-registered.
-      MetricDescriptor metricDescriptor =
-          StackdriverExportUtils.createMetricDescriptor(view, projectId, domain, displayNamePrefix);
-      if (metricDescriptor == null) {
-        // Don't register interval views in this version.
-        return false;
-      }
+    // TODO(songya): don't need to create MetricDescriptor for RpcViewConstants once we defined
+    // canonical metrics. Registration is required only for custom view definitions. Canonical
+    // views should be pre-registered.
+    MetricDescriptor metricDescriptor =
+        StackdriverExportUtils.createMetricDescriptor(view, projectId, domain, displayNamePrefix);
+    if (metricDescriptor == null) {
+      // Don't register interval views in this version.
+      return false;
+    }
 
-      CreateMetricDescriptorRequest request =
-          CreateMetricDescriptorRequest.newBuilder()
-              .setName(projectName.toString())
-              .setMetricDescriptor(metricDescriptor)
-              .build();
-      try {
-        metricServiceClient.createMetricDescriptor(request);
-        span.addAnnotation("Finish creating MetricDescriptor.");
-        return true;
-      } catch (ApiException e) {
-        logger.log(Level.WARNING, "ApiException thrown when creating MetricDescriptor.", e);
-        span.setStatus(
-            Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
-                .toStatus()
-                .withDescription(
-                    "ApiException thrown when creating MetricDescriptor: " + exceptionMessage(e)));
-        return false;
-      } catch (Throwable e) {
-        logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", e);
-        span.setStatus(
-            Status.UNKNOWN.withDescription(
-                "Exception thrown when creating MetricDescriptor: " + exceptionMessage(e)));
-        return false;
-      }
+    CreateMetricDescriptorRequest request =
+        CreateMetricDescriptorRequest.newBuilder()
+            .setName(projectName.toString())
+            .setMetricDescriptor(metricDescriptor)
+            .build();
+    try {
+      metricServiceClient.createMetricDescriptor(request);
+      span.addAnnotation("Finish creating MetricDescriptor.");
+      return true;
+    } catch (ApiException e) {
+      logger.log(Level.WARNING, "ApiException thrown when creating MetricDescriptor.", e);
+      span.setStatus(
+          Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
+              .toStatus()
+              .withDescription(
+                  "ApiException thrown when creating MetricDescriptor: " + exceptionMessage(e)));
+      return false;
+    } catch (Throwable e) {
+      logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", e);
+      span.setStatus(
+          Status.UNKNOWN.withDescription(
+              "Exception thrown when creating MetricDescriptor: " + exceptionMessage(e)));
+      return false;
     }
   }
 
@@ -189,7 +187,7 @@ final class StackdriverExporterWorker implements Runnable {
         Lists.partition(timeSeriesList, MAX_BATCH_EXPORT_SIZE)) {
       Span span = tracer.getCurrentSpan();
       span.addAnnotation("Export Stackdriver TimeSeries.");
-      try (Scope scope = tracer.withSpan(span)) {
+      try {
         CreateTimeSeriesRequest request =
             CreateTimeSeriesRequest.newBuilder()
                 .setName(projectName.toString())
@@ -222,15 +220,18 @@ final class StackdriverExporterWorker implements Runnable {
               .setRecordEvents(true)
               .setSampler(probabilitySampler)
               .startSpan();
-      try (Scope scope = tracer.withSpan(span)) {
+      Scope scope = tracer.withSpan(span);
+      try {
         export();
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown by the Stackdriver stats exporter.", e);
         span.setStatus(
             Status.UNKNOWN.withDescription(
                 "Exception from Stackdriver Exporter: " + exceptionMessage(e)));
+      } finally {
+        scope.close();
+        span.end();
       }
-      span.end();
       try {
         Thread.sleep(scheduleDelayMillis);
       } catch (InterruptedException ie) {
