@@ -10,7 +10,6 @@
   tracing.
 - Allow custom prefix for Stackdriver metrics in `StackdriverStatsConfiguration`.
 - Add support to handle the Tracestate in the SpanContext.
-- Add an API `Stats.getMetricProducer()` to get the default OpenCensus metric producer.
 
 ## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.

@@ -16,9 +16,6 @@
 
 package io.opencensus.stats;
 
-import io.opencensus.common.ExperimentalApi;
-import io.opencensus.metrics.MetricProducer;
-
 /**
  * Class that holds the implementations for {@link ViewManager} and {@link StatsRecorder}.
  *
@@ -41,15 +38,6 @@ public abstract class StatsComponent {
    * @since 0.8
    */
   public abstract StatsRecorder getStatsRecorder();
-
-  /**
-   * Returns the default {@link MetricProducer}.
-   *
-   * @return the {@code MetricProducer}.
-   * @since 0.16
-   */
-  @ExperimentalApi
-  public abstract MetricProducer getMetricProducer();
 
   /**
    * Returns the current {@code StatsCollectionState}.

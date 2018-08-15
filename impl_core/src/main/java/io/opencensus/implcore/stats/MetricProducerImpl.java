@@ -23,7 +23,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /** Implementation of {@link MetricProducer}. */
 @ThreadSafe
-public final class MetricProducerImpl extends MetricProducer {
+final class MetricProducerImpl extends MetricProducer {
 
   private final StatsManager statsManager;
 
