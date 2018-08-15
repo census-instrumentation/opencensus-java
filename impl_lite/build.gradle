@@ -7,5 +7,6 @@ dependencies {
     testCompile project(':opencensus-api'),
             project(':opencensus-impl-core')
 
+    signature "org.codehaus.mojo.signature:java17:+@signature"
     signature "net.sf.androidscents.signature:android-api-level-14:+@signature"
 }

@@ -17,5 +17,5 @@ dependencies {
             libraries.aspectj,
             libraries.spring_test
 
-    signature "org.codehaus.mojo.signature:java16:+@signature"
+    signature "org.codehaus.mojo.signature:java17:+@signature"
 }
