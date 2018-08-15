@@ -16,8 +16,14 @@
 
 package io.opencensus.impllite.metrics;
 
+import io.opencensus.implcore.common.MillisClock;
 import io.opencensus.implcore.metrics.MetricsComponentImplBase;
 import io.opencensus.metrics.MetricsComponent;
 
 /** Android-compatible implementation of {@link MetricsComponent}. */
-public final class MetricsComponentImplLite extends MetricsComponentImplBase {}
+public final class MetricsComponentImplLite extends MetricsComponentImplBase {
+
+  public MetricsComponentImplLite() {
+    super(MillisClock.getInstance());
+  }
+}

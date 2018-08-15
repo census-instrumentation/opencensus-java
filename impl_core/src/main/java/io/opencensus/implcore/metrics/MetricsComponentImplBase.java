@@ -16,6 +16,7 @@
 
 package io.opencensus.implcore.metrics;
 
+import io.opencensus.common.Clock;
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
 import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.MetricsComponent;
@@ -24,6 +25,7 @@ import io.opencensus.metrics.MetricsComponent;
 public class MetricsComponentImplBase extends MetricsComponent {
 
   private final ExportComponentImpl exportComponent;
+  private final MetricRegistryImpl metricRegistry;
 
   @Override
   public ExportComponentImpl getExportComponent() {
@@ -32,11 +34,11 @@ public class MetricsComponentImplBase extends MetricsComponent {
 
   @Override
   public MetricRegistry getMetricRegistry() {
-    // TODO: implement this method
-    throw new UnsupportedOperationException("not implemented");
+    return metricRegistry;
   }
 
-  public MetricsComponentImplBase() {
+  protected MetricsComponentImplBase(Clock clock) {
     exportComponent = new ExportComponentImpl();
+    metricRegistry = new MetricRegistryImpl(clock);
   }
 }
