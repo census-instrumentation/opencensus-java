@@ -19,6 +19,8 @@ package io.opencensus.implcore.stats;
 import com.google.common.base.Preconditions;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.metrics.MetricProducer;
+import io.opencensus.metrics.Metrics;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
 
@@ -41,6 +43,11 @@ public class StatsComponentImplBase extends StatsComponent {
     StatsManager statsManager = new StatsManager(queue, clock, state);
     this.viewManager = new ViewManagerImpl(statsManager);
     this.statsRecorder = new StatsRecorderImpl(statsManager);
+
+    // Create a new MetricProducerImpl and register it to MetricProducerManager when
+    // StatsComponentImplBase is initialized.
+    MetricProducer metricProducer = new MetricProducerImpl(statsManager);
+    Metrics.getExportComponent().getMetricProducerManager().add(metricProducer);
   }
 
   @Override

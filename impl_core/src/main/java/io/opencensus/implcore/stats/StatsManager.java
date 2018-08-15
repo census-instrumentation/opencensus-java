@@ -20,10 +20,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
+import io.opencensus.metrics.Metric;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
+import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -66,6 +68,10 @@ final class StatsManager {
     if (state.getInternal() == StatsCollectionState.ENABLED) {
       queue.enqueue(new StatsEvent(this, tags, measurementValues));
     }
+  }
+
+  Collection<Metric> getMetrics() {
+    return measureToViewMap.getMetrics();
   }
 
   void clearStats() {
