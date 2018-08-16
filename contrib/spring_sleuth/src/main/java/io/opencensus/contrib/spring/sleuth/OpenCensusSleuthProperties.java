@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.spring.sleuth;
+package io.opencensus.contrib.spring.sleuth;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

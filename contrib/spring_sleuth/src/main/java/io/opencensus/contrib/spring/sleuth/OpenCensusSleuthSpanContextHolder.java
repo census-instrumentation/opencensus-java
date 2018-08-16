@@ -1,4 +1,4 @@
-package io.opencensus.spring.sleuth;
+package io.opencensus.contrib.spring.sleuth;
 
 import io.grpc.Context;
 import io.opencensus.trace.unsafe.ContextUtils;

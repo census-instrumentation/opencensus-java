@@ -1,4 +1,4 @@
-package io.opencensus.spring.sleuth;
+package io.opencensus.contrib.spring.sleuth;
 
 import static com.google.common.truth.Truth.assertThat;
 
