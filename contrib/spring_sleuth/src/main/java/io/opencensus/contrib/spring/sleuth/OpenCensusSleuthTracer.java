@@ -16,16 +16,15 @@
 
 package io.opencensus.contrib.spring.sleuth;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.sleuth.Sampler;
+import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.SpanNamer;
 import org.springframework.cloud.sleuth.SpanReporter;
-import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.TraceKeys;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.cloud.sleuth.instrument.async.SpanContinuingTraceCallable;
@@ -38,20 +37,13 @@ import org.springframework.cloud.sleuth.util.SpanNameUtil;
  * This class is a copy of the Sleuth's {@code DefaultTracer}.
  */
 public class OpenCensusSleuthTracer implements Tracer {
-  private static final Log log = LogFactory.getLog(MethodHandles.lookup().lookupClass());
-
+  private static final Log log = LogFactory.getLog(OpenCensusSleuthTracer.class);
   private final Sampler defaultSampler;
-
   private final Random random;
-
   private final SpanNamer spanNamer;
-
   private final SpanLogger spanLogger;
-
   private final SpanReporter spanReporter;
-
   private final TraceKeys traceKeys;
-
   private final boolean traceId128;
 
   public OpenCensusSleuthTracer(Sampler defaultSampler, Random random, SpanNamer spanNamer,
@@ -60,6 +52,9 @@ public class OpenCensusSleuthTracer implements Tracer {
         traceKeys, /* traceId128= */false);
   }
 
+  /**
+   * Basic constructor holding components for implementing Sleuth's {@link Tracer} interface.
+   */
   public OpenCensusSleuthTracer(Sampler defaultSampler, Random random, SpanNamer spanNamer,
       SpanLogger spanLogger, SpanReporter spanReporter,
       TraceKeys traceKeys, boolean traceId128) {
@@ -206,15 +201,12 @@ public class OpenCensusSleuthTracer implements Tracer {
     return span;
   }
 
-  /**
-   * Encodes a timestamp into the upper 32-bits, so that it can be converted to an Amazon trace ID.
-   *
-   * <p>For example, an Amazon trace ID is composed of the following: {@code |-- 32 bits for epoch
-   * seconds -- | -- 96 bits for random data -- |}
-   *
-   * <p>To support this, {@link Span#getTraceIdHigh() traceIdHigh} holds the epoch seconds and first
-   * 32 random bits: and {@link Span#getTraceId()} traceId} holds the remaining 64 random bits.
-   */
+  // Encodes a timestamp into the upper 32-bits, so that it can be converted to an Amazon trace ID.
+  // For example, an Amazon trace ID is composed of the following:
+  //  |-- 32 bits for epoch seconds -- | -- 96 bits for random data -- |
+  //
+  // To support this, Span#getTraceIdHigh() holds the epoch seconds and first 32 random bits: and
+  // Span#getTraceId() holds the remaining 64 random bits.
   private long createTraceIdHigh() {
     long epochSeconds = System.currentTimeMillis() / 1000;
     int random = this.random.nextInt();
@@ -237,7 +229,7 @@ public class OpenCensusSleuthTracer implements Tracer {
     return newSpan;
   }
 
-  @SuppressWarnings( "deprecation" )
+  @SuppressWarnings("deprecation")
   private static Span createContinuedSpan(Span span, Span saved) {
     if (saved == null && span.getSavedSpan() != null) {
       saved = span.getSavedSpan();

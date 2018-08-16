@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018, OpenCensus Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.opencensus.contrib.spring.sleuth;
 
 import io.grpc.Context;
@@ -15,12 +31,12 @@ final class OpenCensusSleuthSpanContextHolder {
   private static final ThreadLocal<SpanContext> CURRENT_SPAN =
       new NamedThreadLocal<SpanContext>("Trace Context");
 
-  /** Get the current span out of the thread context */
+  // Get the current span out of the thread context.
   static Span getCurrentSpan() {
     return isTracing() ? CURRENT_SPAN.get().span : null;
   }
 
-  /** Set the current span in the thread context */
+  // Set the current span in the thread context
   static void setCurrentSpan(Span span) {
     if (log.isTraceEnabled()) {
       log.trace("Setting current span " + span);
@@ -28,25 +44,20 @@ final class OpenCensusSleuthSpanContextHolder {
     push(span, /* autoClose= */false);
   }
 
-  /**
-   * Remove all thread context relating to spans (useful for testing).
-   *
-   * @see #close() for a better alternative in instrumetation
-   */
+  // Remove all thread context relating to spans (useful for testing).
+  // See close() for a better alternative in instrumetation
   static void removeCurrentSpan() {
     CURRENT_SPAN.remove();
     Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, null).attach();
   }
 
-  /** Check if there is already a span in the current thread */
+  // Check if there is already a span in the current thread.
   static boolean isTracing() {
     return CURRENT_SPAN.get() != null;
   }
 
-  /**
-   * Close the current span and all parents that can be auto closed. On every iteration a function
-   * will be applied on the closed Span.
-   */
+  // Close the current span and all parents that can be auto closed. On every iteration a function
+  // will be applied on the closed Span.
   static void close(SpanFunction spanFunction) {
     SpanContext current = CURRENT_SPAN.get();
     removeCurrentSpan();
@@ -62,7 +73,7 @@ final class OpenCensusSleuthSpanContextHolder {
     }
   }
 
-  /** Close the current span and all parents that can be auto closed. */
+  // Close the current span and all parents that can be auto closed.
   static void close() {
     close(NO_OP_FUNCTION);
   }

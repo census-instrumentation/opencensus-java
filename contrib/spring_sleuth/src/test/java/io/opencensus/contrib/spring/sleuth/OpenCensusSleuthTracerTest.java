@@ -1,8 +1,25 @@
+/*
+ * Copyright 2018, OpenCensus Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.opencensus.contrib.spring.sleuth;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,18 +27,18 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.springframework.cloud.sleuth.DefaultSpanNamer;
 import org.springframework.cloud.sleuth.NoOpSpanReporter;
-import org.springframework.cloud.sleuth.log.NoOpSpanLogger;
-import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.TraceKeys;
 import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.log.NoOpSpanLogger;
+import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 
 /** Unit tests for {@link OpenCensusSleuthTracer}. */
 @RunWith(JUnit4.class)
 public class OpenCensusSleuthTracerTest {
   private static final Tracer tracer = new OpenCensusSleuthTracer(
       new AlwaysSampler(),
-      ThreadLocalRandom.current(),
+      new Random(),
       new DefaultSpanNamer(),
       new NoOpSpanLogger(),
       new NoOpSpanReporter(),
@@ -46,7 +63,7 @@ public class OpenCensusSleuthTracerTest {
   public void testSpanStackAndClose() {
     Span[] spans = createSpansAndAssertCurrent(3);
     // pop the stack
-    for(int i = spans.length - 1; i >= 0; i--) {
+    for (int i = spans.length - 1; i >= 0; i--) {
       assertCurrentSpanIs(spans[i]);
       Span parent = tracer.close(spans[i]);
       assertThat(parent).isEqualTo(spans[i].getSavedSpan());
@@ -60,7 +77,7 @@ public class OpenCensusSleuthTracerTest {
     tracer.close(spans[spans.length - 2]);
     assertCurrentSpanIs(spans[spans.length - 1]);
     // pop the stack
-    for(int i = spans.length - 1; i >= 0; i--) {
+    for (int i = spans.length - 1; i >= 0; i--) {
       tracer.close(spans[i]);
     }
   }
@@ -132,7 +149,7 @@ public class OpenCensusSleuthTracerTest {
 
   @Test
   public void testSpanStackAndCreateAndContinue() {
-    Span[] spans = createSpansAndAssertCurrent(3);
+    createSpansAndAssertCurrent(3);
     Span original = tracer.getCurrentSpan();
     tracer.detach(original);
     Span root = tracer.createSpan("root");
