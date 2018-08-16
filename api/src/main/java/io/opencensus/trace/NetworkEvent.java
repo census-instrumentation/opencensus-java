@@ -118,6 +118,8 @@ public abstract class NetworkEvent extends io.opencensus.trace.BaseMessageEvent 
   public abstract long getCompressedMessageSize();
 
   /**
+   * Returns the uncompressed size in bytes of the {@code NetworkEvent}.
+   *
    * @deprecated Use {@link #getUncompressedMessageSize}.
    * @return the uncompressed size in bytes of the {@code NetworkEvent}.
    * @since 0.5
@@ -153,6 +155,8 @@ public abstract class NetworkEvent extends io.opencensus.trace.BaseMessageEvent 
     public abstract Builder setKernelTimestamp(@Nullable Timestamp kernelTimestamp);
 
     /**
+     * Sets the uncompressed message size.
+     *
      * @deprecated Use {@link #setUncompressedMessageSize}.
      * @param messageSize represents the uncompressed size in bytes of this message.
      * @return this.

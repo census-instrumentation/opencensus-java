@@ -35,6 +35,8 @@ public final class CensusSpringAspect {
   private final Tracer tracer;
 
   /**
+   * Creates a {@code CensusSpringAspect} with the given tracer.
+   *
    * @param tracer the tracer responsible for building new spans
    * @since 0.16.0
    */

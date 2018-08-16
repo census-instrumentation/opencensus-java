@@ -32,7 +32,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Traced {
+
   /**
+   * The optional custom span name.
+   *
    * @return the optional custom span name; if not specified the method name will be used as the
    *     span name
    */

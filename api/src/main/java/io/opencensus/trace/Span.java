@@ -117,6 +117,10 @@ public abstract class Span {
   }
 
   /**
+   * Sets a set of attributes to the {@code Span}. The effect of this call is equivalent to that of
+   * calling {@link #putAttribute(String, AttributeValue)} once for each element in the specified
+   * map.
+   *
    * @deprecated Use {@link #putAttributes(Map)}
    * @param attributes the attributes that will be added and associated with the {@code Span}.
    * @since 0.5

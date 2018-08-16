@@ -33,6 +33,8 @@ import javax.annotation.concurrent.Immutable;
 public abstract class BucketBoundaries {
 
   /**
+   * Returns a {@code BucketBoundaries} with the given buckets.
+   *
    * @param bucketBoundaries the boundaries for the buckets in the underlying histogram.
    * @return a new {@code BucketBoundaries} with the specified boundaries.
    * @throws NullPointerException if {@code bucketBoundaries} is null.

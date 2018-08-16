@@ -35,6 +35,8 @@ public final class CensusSpringSqlAspect {
   private final Tracer tracer;
 
   /**
+   * Creates a {@code CensusSpringSqlAspect} with the given tracer.
+   *
    * @param tracer the tracer responsible for building new spans
    * @since 0.16.0
    */
