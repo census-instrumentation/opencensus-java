@@ -23,13 +23,13 @@ import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.Metric;
-import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,9 +62,6 @@ final class MeasureToViewMap {
   // TODO(songya): consider adding a Measure.Name class
   @GuardedBy("this")
   private final Map<String, Measure> registeredMeasures = Maps.newHashMap();
-
-  @GuardedBy("this")
-  private final MetricMap metricMap = new MetricMap();
 
   // Cached set of exported views. It must be set to null whenever a view is registered or
   // unregistered.
@@ -122,11 +119,7 @@ final class MeasureToViewMap {
       registeredMeasures.put(measure.getName(), measure);
     }
     Timestamp now = clock.now();
-    mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, now, metricMap));
-    MetricDescriptor metricDescriptor = MetricUtils.viewToMetricDescriptor(view);
-    if (metricDescriptor != null) {
-      metricMap.registerMetricDescriptor(metricDescriptor, now);
-    }
+    mutableMap.put(view.getMeasure().getName(), MutableViewData.create(view, now));
   }
 
   @javax.annotation.Nullable
@@ -161,16 +154,24 @@ final class MeasureToViewMap {
         // unregistered measures will be ignored.
         continue;
       }
-      Collection<MutableViewData> views = mutableMap.get(measure.getName());
-      for (MutableViewData view : views) {
-        view.record(
+      Collection<MutableViewData> viewDataCollection = mutableMap.get(measure.getName());
+      for (MutableViewData viewData : viewDataCollection) {
+        viewData.record(
             tags, RecordUtils.getDoubleValueFromMeasurement(measurement), timestamp, attachments);
       }
     }
   }
 
-  synchronized List<Metric> getMetrics() {
-    return metricMap.toMetrics();
+  synchronized List<Metric> getMetrics(Clock clock, StatsCollectionState state) {
+    List<Metric> metrics = new ArrayList<Metric>();
+    Timestamp now = clock.now();
+    for (Entry<String, MutableViewData> entry : mutableMap.entries()) {
+      Metric metric = entry.getValue().toMetric(now, state);
+      if (metric != null) {
+        metrics.add(metric);
+      }
+    }
+    return metrics;
   }
 
   // Clear stats for all the current MutableViewData
@@ -180,7 +181,6 @@ final class MeasureToViewMap {
         mutableViewData.clearStats();
       }
     }
-    metricMap.clearStats();
   }
 
   // Resume stats collection for all MutableViewData.
@@ -190,6 +190,5 @@ final class MeasureToViewMap {
         mutableViewData.resumeStatsCollection(now);
       }
     }
-    metricMap.resumeStatsCollection(now);
   }
 }

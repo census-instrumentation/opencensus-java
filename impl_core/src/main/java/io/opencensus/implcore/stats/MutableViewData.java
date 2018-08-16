@@ -31,7 +31,12 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.CheckerFrameworkUtils;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.Metric;
 import io.opencensus.metrics.MetricDescriptor;
+import io.opencensus.metrics.Point;
+import io.opencensus.metrics.TimeSeriesCumulative;
+import io.opencensus.metrics.TimeSeriesList.TimeSeriesCumulativeList;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.StatsCollectionState;
@@ -39,11 +44,13 @@ import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 
 /*>>>
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -66,13 +73,12 @@ abstract class MutableViewData {
    *
    * @param view the {@code View} linked with this {@code MutableViewData}.
    * @param start the start {@code Timestamp}.
-   * @param metricMap a reference to {@code MetricMap}.
    * @return a {@code MutableViewData}.
    */
-  static MutableViewData create(final View view, final Timestamp start, final MetricMap metricMap) {
+  static MutableViewData create(final View view, final Timestamp start) {
     return view.getWindow()
         .match(
-            new CreateCumulative(view, start, metricMap),
+            new CreateCumulative(view, start),
             new CreateInterval(view, start),
             Functions.<MutableViewData>throwAssertionError());
   }
@@ -81,6 +87,9 @@ abstract class MutableViewData {
   View getView() {
     return view;
   }
+
+  @Nullable
+  abstract Metric toMetric(Timestamp now, StatsCollectionState state);
 
   /** Record stats with the given tags. */
   abstract void record(
@@ -101,15 +110,12 @@ abstract class MutableViewData {
     private Timestamp start;
     private final Map<List</*@Nullable*/ TagValue>, MutableAggregation> tagValueAggregationMap =
         Maps.newHashMap();
-    private final MetricMap metricMap;
-
     // Cache a MetricDescriptor to avoid converting View to MetricDescriptor in the future.
     private final MetricDescriptor metricDescriptor;
 
-    private CumulativeMutableViewData(View view, Timestamp start, MetricMap metricMap) {
+    private CumulativeMutableViewData(View view, Timestamp start) {
       super(view);
       this.start = start;
-      this.metricMap = metricMap;
       MetricDescriptor metricDescriptor = MetricUtils.viewToMetricDescriptor(view);
       if (metricDescriptor == null) {
         throw new AssertionError(
@@ -117,6 +123,23 @@ abstract class MutableViewData {
       } else {
         this.metricDescriptor = metricDescriptor;
       }
+    }
+
+    @Override
+    Metric toMetric(Timestamp now, StatsCollectionState state) {
+      if (state == StatsCollectionState.DISABLED) {
+        return null;
+      }
+      MetricDescriptor.Type type = metricDescriptor.getType();
+      List<TimeSeriesCumulative> timeSeriesCumulatives = new ArrayList<TimeSeriesCumulative>();
+      for (Entry<List<TagValue>, MutableAggregation> entry : tagValueAggregationMap.entrySet()) {
+        List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
+        Point point = MetricUtils.mutableAggregationToPoint(entry.getValue(), now, type);
+        timeSeriesCumulatives.add(
+            TimeSeriesCumulative.create(labelValues, Collections.singletonList(point), start));
+      }
+      return Metric.create(
+          metricDescriptor, TimeSeriesCumulativeList.create(timeSeriesCumulatives));
     }
 
     @Override
@@ -128,9 +151,7 @@ abstract class MutableViewData {
         tagValueAggregationMap.put(
             tagValues, createMutableAggregation(super.view.getAggregation()));
       }
-      MutableAggregation mutableAggregation = tagValueAggregationMap.get(tagValues);
-      mutableAggregation.add(value, attachments, timestamp);
-      metricMap.record(metricDescriptor, tagValues, mutableAggregation, timestamp);
+      tagValueAggregationMap.get(tagValues).add(value, attachments, timestamp);
     }
 
     @Override
@@ -214,6 +235,12 @@ abstract class MutableViewData {
       // When initializing. add N empty buckets prior to the start timestamp of this
       // IntervalMutableViewData, so that the last bucket will be the current one in effect.
       shiftBucketList(N + 1, start);
+    }
+
+    @Nullable
+    @Override
+    Metric toMetric(Timestamp now, StatsCollectionState state) {
+      return null;
     }
 
     @Override
@@ -401,17 +428,15 @@ abstract class MutableViewData {
       implements Function<View.AggregationWindow.Cumulative, MutableViewData> {
     @Override
     public MutableViewData apply(View.AggregationWindow.Cumulative arg) {
-      return new CumulativeMutableViewData(view, start, metricMap);
+      return new CumulativeMutableViewData(view, start);
     }
 
     private final View view;
     private final Timestamp start;
-    private final MetricMap metricMap;
 
-    private CreateCumulative(View view, Timestamp start, MetricMap metricMap) {
+    private CreateCumulative(View view, Timestamp start) {
       this.view = view;
       this.start = start;
-      this.metricMap = metricMap;
     }
   }
 
