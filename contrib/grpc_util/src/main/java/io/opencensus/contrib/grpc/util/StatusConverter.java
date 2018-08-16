@@ -17,7 +17,7 @@
 package io.opencensus.contrib.grpc.util;
 
 /**
- * Utility class to convert between {@link io.opencensus.trace.Status} and {@link io.grpc.Status}
+ * Utility class to convert between {@link io.opencensus.trace.Status} and {@link io.grpc.Status}.
  *
  * @since 0.6
  */

@@ -202,6 +202,8 @@ public final class TraceOptions {
     }
 
     /**
+     * Sets the sampling bit in the options to true.
+     *
      * @deprecated Use {@code Builder.setIsSampled(true)}.
      * @return this.
      * @since 0.5

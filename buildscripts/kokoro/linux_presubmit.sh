@@ -64,8 +64,8 @@ case "$TASK" in
     ./gradlew clean assemble -PcheckerFramework=true
     ;;
   "CHECK_EXAMPLES_LICENSE")
-    curl -L -o checkstyle-8.0-all.jar https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.0/checkstyle-8.0-all.jar
-    java -DrootDir=. -jar checkstyle-8.0-all.jar -c buildscripts/checkstyle.xml examples/src/
+    curl -L -o checkstyle-8.12-all.jar https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.12/checkstyle-8.12-all.jar
+    java -DrootDir=. -jar checkstyle-8.12-all.jar -c buildscripts/checkstyle.xml examples/src/
     ;;
   "CHECK_EXAMPLES_FORMAT")
     curl -L -o google-java-format-1.5-all-deps.jar \

@@ -66,6 +66,8 @@ public abstract class BinaryFormat {
   static final NoopBinaryFormat NOOP_BINARY_FORMAT = new NoopBinaryFormat();
 
   /**
+   * Serializes a {@link SpanContext} into a byte array using the binary format.
+   *
    * @deprecated use {@link #toByteArray(SpanContext)}.
    * @param spanContext the {@code SpanContext} to serialize.
    * @return the serialized binary value.
@@ -91,6 +93,8 @@ public abstract class BinaryFormat {
   }
 
   /**
+   * Parses the {@link SpanContext} from a byte array using the binary format.
+   *
    * @deprecated use {@link #fromByteArray(byte[])}.
    * @param bytes a binary encoded buffer from which the {@code SpanContext} will be parsed.
    * @return the parsed {@code SpanContext}.

@@ -234,63 +234,63 @@ public abstract class SampledSpanStore {
    */
   public enum LatencyBucketBoundaries {
     /**
-     * Stores finished successful requests of duration within the interval [0, 10us)
+     * Stores finished successful requests of duration within the interval [0, 10us).
      *
      * @since 0.5
      */
     ZERO_MICROSx10(0, TimeUnit.MICROSECONDS.toNanos(10)),
 
     /**
-     * Stores finished successful requests of duration within the interval [10us, 100us)
+     * Stores finished successful requests of duration within the interval [10us, 100us).
      *
      * @since 0.5
      */
     MICROSx10_MICROSx100(TimeUnit.MICROSECONDS.toNanos(10), TimeUnit.MICROSECONDS.toNanos(100)),
 
     /**
-     * Stores finished successful requests of duration within the interval [100us, 1ms)
+     * Stores finished successful requests of duration within the interval [100us, 1ms).
      *
      * @since 0.5
      */
     MICROSx100_MILLIx1(TimeUnit.MICROSECONDS.toNanos(100), TimeUnit.MILLISECONDS.toNanos(1)),
 
     /**
-     * Stores finished successful requests of duration within the interval [1ms, 10ms)
+     * Stores finished successful requests of duration within the interval [1ms, 10ms).
      *
      * @since 0.5
      */
     MILLIx1_MILLIx10(TimeUnit.MILLISECONDS.toNanos(1), TimeUnit.MILLISECONDS.toNanos(10)),
 
     /**
-     * Stores finished successful requests of duration within the interval [10ms, 100ms)
+     * Stores finished successful requests of duration within the interval [10ms, 100ms).
      *
      * @since 0.5
      */
     MILLIx10_MILLIx100(TimeUnit.MILLISECONDS.toNanos(10), TimeUnit.MILLISECONDS.toNanos(100)),
 
     /**
-     * Stores finished successful requests of duration within the interval [100ms, 1sec)
+     * Stores finished successful requests of duration within the interval [100ms, 1sec).
      *
      * @since 0.5
      */
     MILLIx100_SECONDx1(TimeUnit.MILLISECONDS.toNanos(100), TimeUnit.SECONDS.toNanos(1)),
 
     /**
-     * Stores finished successful requests of duration within the interval [1sec, 10sec)
+     * Stores finished successful requests of duration within the interval [1sec, 10sec).
      *
      * @since 0.5
      */
     SECONDx1_SECONDx10(TimeUnit.SECONDS.toNanos(1), TimeUnit.SECONDS.toNanos(10)),
 
     /**
-     * Stores finished successful requests of duration within the interval [10sec, 100sec)
+     * Stores finished successful requests of duration within the interval [10sec, 100sec).
      *
      * @since 0.5
      */
     SECONDx10_SECONDx100(TimeUnit.SECONDS.toNanos(10), TimeUnit.SECONDS.toNanos(100)),
 
     /**
-     * Stores finished successful requests of duration &gt;= 100sec
+     * Stores finished successful requests of duration &gt;= 100sec.
      *
      * @since 0.5
      */

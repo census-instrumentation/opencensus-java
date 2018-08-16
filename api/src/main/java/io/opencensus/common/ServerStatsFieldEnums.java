@@ -99,19 +99,19 @@ public final class ServerStatsFieldEnums {
    */
   public enum Size {
     /**
-     * Number of bytes used to represent latency observed at Load Balancer
+     * Number of bytes used to represent latency observed at Load Balancer.
      *
      * @since 0.16
      */
     SERVER_STATS_LB_LATENCY_SIZE(8),
     /**
-     * Number of bytes used to represent latency observed at Server
+     * Number of bytes used to represent latency observed at Server.
      *
      * @since 0.16
      */
     SERVER_STATS_SERVICE_LATENCY_SIZE(8),
     /**
-     * Number of bytes used to represent Trace option
+     * Number of bytes used to represent Trace option.
      *
      * @since 0.16
      */
@@ -148,7 +148,7 @@ public final class ServerStatsFieldEnums {
   }
 
   /**
-   * Returns the total size required to encode the {@code ServerStats}
+   * Returns the total size required to encode the {@code ServerStats}.
    *
    * @return the total size required to encode all fields in {@code ServerStats}.
    * @since 0.16
