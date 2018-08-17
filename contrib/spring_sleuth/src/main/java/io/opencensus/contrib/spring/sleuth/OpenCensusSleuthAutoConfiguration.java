@@ -54,6 +54,6 @@ public class OpenCensusSleuthAutoConfiguration {
       SpanReporter spanReporter,
       TraceKeys traceKeys) {
     return new OpenCensusSleuthTracer(
-        sampler, random, spanNamer, spanLogger, spanReporter, traceKeys, /* traceId128= */true);
+        sampler, random, spanNamer, spanLogger, spanReporter, traceKeys, /* traceId128= */ true);
   }
 }

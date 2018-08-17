@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class OpenCensusSleuthSpanContextHolderTest {
   @Test
   public void testFromSleuthSampled() {
     org.springframework.cloud.sleuth.Span sleuthSpan =
-        createSleuthSpan(21, 22, 23, /* exportable= */true);
+        createSleuthSpan(21, 22, 23, /* exportable= */ true);
     OpenCensusSleuthSpanContextHolder.setCurrentSpan(sleuthSpan);
     assertThat(OpenCensusSleuthSpanContextHolder.isTracing()).isTrue();
     assertThat(OpenCensusSleuthSpanContextHolder.getCurrentSpan()).isEqualTo(sleuthSpan);
@@ -55,7 +54,7 @@ public class OpenCensusSleuthSpanContextHolderTest {
   @Test
   public void testFromSleuthUnsampled() {
     org.springframework.cloud.sleuth.Span sleuthSpan =
-        createSleuthSpan(21, 22, 23, /* exportable= */false);
+        createSleuthSpan(21, 22, 23, /* exportable= */ false);
     OpenCensusSleuthSpanContextHolder.setCurrentSpan(sleuthSpan);
     assertThat(OpenCensusSleuthSpanContextHolder.isTracing()).isTrue();
     assertThat(OpenCensusSleuthSpanContextHolder.getCurrentSpan()).isEqualTo(sleuthSpan);
@@ -69,7 +68,7 @@ public class OpenCensusSleuthSpanContextHolderTest {
     org.springframework.cloud.sleuth.Span[] sleuthSpans = createSleuthSpans(4);
     // push all the spans
     for (int i = 0; i < sleuthSpans.length; i++) {
-      OpenCensusSleuthSpanContextHolder.push(sleuthSpans[i], /* autoClose= */false);
+      OpenCensusSleuthSpanContextHolder.push(sleuthSpans[i], /* autoClose= */ false);
       assertThat(OpenCensusSleuthSpanContextHolder.getCurrentSpan()).isEqualTo(sleuthSpans[i]);
       assertSpanEquals(tracer.getCurrentSpan(), sleuthSpans[i]);
     }
@@ -79,7 +78,7 @@ public class OpenCensusSleuthSpanContextHolderTest {
       assertSpanEquals(tracer.getCurrentSpan(), sleuthSpans[i]);
       OpenCensusSleuthSpanContextHolder.close();
     }
-   }
+  }
 
   @Test
   public void testSpanStackAutoClose() {
@@ -87,7 +86,7 @@ public class OpenCensusSleuthSpanContextHolderTest {
     // push all the spans
     for (int i = 0; i < sleuthSpans.length; i++) {
       // set autoclose for all the spans except 2
-      OpenCensusSleuthSpanContextHolder.push(sleuthSpans[i], /* autoClose= */i != 2);
+      OpenCensusSleuthSpanContextHolder.push(sleuthSpans[i], /* autoClose= */ i != 2);
       assertThat(OpenCensusSleuthSpanContextHolder.getCurrentSpan()).isEqualTo(sleuthSpans[i]);
       assertSpanEquals(tracer.getCurrentSpan(), sleuthSpans[i]);
     }
@@ -104,14 +103,15 @@ public class OpenCensusSleuthSpanContextHolderTest {
     final org.springframework.cloud.sleuth.Span[] sleuthSpans = createSleuthSpans(4);
     // push all the spans
     for (int i = 0; i < sleuthSpans.length; i++) {
-      OpenCensusSleuthSpanContextHolder.push(sleuthSpans[i], /* autoClose= */false);
+      OpenCensusSleuthSpanContextHolder.push(sleuthSpans[i], /* autoClose= */ false);
     }
     // pop all the spans, verify that given SpanFunction is called on the closed span.
     for (int i = sleuthSpans.length - 1; i >= 0; i--) {
       final int index = i;
       OpenCensusSleuthSpanContextHolder.close(
           new OpenCensusSleuthSpanContextHolder.SpanFunction() {
-            @Override public void apply(org.springframework.cloud.sleuth.Span span) {
+            @Override
+            public void apply(org.springframework.cloud.sleuth.Span span) {
               assertThat(span).isEqualTo(sleuthSpans[index]);
             }
           });
@@ -121,7 +121,7 @@ public class OpenCensusSleuthSpanContextHolderTest {
   org.springframework.cloud.sleuth.Span[] createSleuthSpans(int len) {
     org.springframework.cloud.sleuth.Span[] spans = new org.springframework.cloud.sleuth.Span[len];
     for (int i = 0; i < len; i++) {
-      spans[i] = createSleuthSpan(i * 10 + 1, i * 10 + 2, i * 10 + 3, /* exportable= */true);
+      spans[i] = createSleuthSpan(i * 10 + 1, i * 10 + 2, i * 10 + 3, /* exportable= */ true);
     }
     return spans;
   }
@@ -129,7 +129,12 @@ public class OpenCensusSleuthSpanContextHolderTest {
   private static org.springframework.cloud.sleuth.Span createSleuthSpan(
       long tidHi, long tidLo, long sid, boolean exportable) {
     return org.springframework.cloud.sleuth.Span.builder()
-        .name("name").traceIdHigh(tidHi).traceId(tidLo).spanId(sid).exportable(exportable).build();
+        .name("name")
+        .traceIdHigh(tidHi)
+        .traceId(tidLo)
+        .spanId(sid)
+        .exportable(exportable)
+        .build();
   }
 
   private static void assertSpanEquals(

@@ -28,25 +28,27 @@ import org.springframework.cloud.sleuth.Span;
 public class OpenCensusSleuthSpanTest {
   @Test
   public void testFromSleuthSampled() {
-    Span sleuthSpan = Span.builder()
-                      .name("name")
-                      .traceIdHigh(12L)
-                      .traceId(22L)
-                      .spanId(23L)
-                      .exportable(true)
-                      .build();
+    Span sleuthSpan =
+        Span.builder()
+            .name("name")
+            .traceIdHigh(12L)
+            .traceId(22L)
+            .spanId(23L)
+            .exportable(true)
+            .build();
     assertSpanEquals(new OpenCensusSleuthSpan(sleuthSpan), sleuthSpan);
   }
 
   @Test
   public void testFromSleuthNotSampled() {
-    Span sleuthSpan = Span.builder()
-                      .name("name")
-                      .traceIdHigh(12L)
-                      .traceId(22L)
-                      .spanId(23L)
-                      .exportable(false)
-                      .build();
+    Span sleuthSpan =
+        Span.builder()
+            .name("name")
+            .traceIdHigh(12L)
+            .traceId(22L)
+            .spanId(23L)
+            .exportable(false)
+            .build();
     assertSpanEquals(new OpenCensusSleuthSpan(sleuthSpan), sleuthSpan);
   }
 
@@ -61,5 +63,4 @@ public class OpenCensusSleuthSpanTest {
     assertThat(span.getContext().getTraceOptions().isSampled())
         .isEqualTo(sleuthSpan.isExportable());
   }
-
 }

@@ -22,9 +22,7 @@ import org.apache.commons.logging.Log;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.core.NamedThreadLocal;
 
-/**
- * Inspired by the Sleuth's {@code SpanContextHolder}.
- */
+/** Inspired by the Sleuth's {@code SpanContextHolder}. */
 final class OpenCensusSleuthSpanContextHolder {
   private static final Log log =
       org.apache.commons.logging.LogFactory.getLog(OpenCensusSleuthSpanContextHolder.class);
@@ -41,7 +39,7 @@ final class OpenCensusSleuthSpanContextHolder {
     if (log.isTraceEnabled()) {
       log.trace("Setting current span " + span);
     }
-    push(span, /* autoClose= */false);
+    push(span, /* autoClose= */ false);
   }
 
   // Remove all thread context relating to spans (useful for testing).
@@ -94,9 +92,11 @@ final class OpenCensusSleuthSpanContextHolder {
     void apply(Span span);
   }
 
-  private static final SpanFunction NO_OP_FUNCTION = new SpanFunction() {
-      @Override public void apply(Span span) {}
-    };
+  private static final SpanFunction NO_OP_FUNCTION =
+      new SpanFunction() {
+        @Override
+        public void apply(Span span) {}
+      };
 
   private static void setSpanContext(SpanContext spanContext) {
     CURRENT_SPAN.set(spanContext);
@@ -124,6 +124,5 @@ final class OpenCensusSleuthSpanContextHolder {
     }
   }
 
-  private OpenCensusSleuthSpanContextHolder() {
-  }
+  private OpenCensusSleuthSpanContextHolder() {}
 }

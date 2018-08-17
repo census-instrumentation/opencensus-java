@@ -19,7 +19,6 @@ package io.opencensus.contrib.spring.sleuth;
 import static com.google.common.truth.Truth.assertThat;
 
 import java.util.Random;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,13 +35,14 @@ import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 /** Unit tests for {@link OpenCensusSleuthTracer}. */
 @RunWith(JUnit4.class)
 public class OpenCensusSleuthTracerTest {
-  private static final Tracer tracer = new OpenCensusSleuthTracer(
-      new AlwaysSampler(),
-      new Random(),
-      new DefaultSpanNamer(),
-      new NoOpSpanLogger(),
-      new NoOpSpanReporter(),
-      new TraceKeys());
+  private static final Tracer tracer =
+      new OpenCensusSleuthTracer(
+          new AlwaysSampler(),
+          new Random(),
+          new DefaultSpanNamer(),
+          new NoOpSpanLogger(),
+          new NoOpSpanReporter(),
+          new TraceKeys());
 
   @After
   @Before
@@ -130,7 +130,6 @@ public class OpenCensusSleuthTracerTest {
     tracer.detach(span);
   }
 
-
   @Test
   public void testSpanStackAndContinue() {
     Span[] spans = createSpansAndAssertCurrent(3);
@@ -183,5 +182,4 @@ public class OpenCensusSleuthTracerTest {
     }
     return spans;
   }
-
 }

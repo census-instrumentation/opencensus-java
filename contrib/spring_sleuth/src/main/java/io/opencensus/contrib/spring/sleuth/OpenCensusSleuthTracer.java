@@ -16,9 +16,9 @@
 
 package io.opencensus.contrib.spring.sleuth;
 
+import io.opencensus.common.ExperimentalApi;
 import java.util.Random;
 import java.util.concurrent.Callable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.sleuth.Sampler;
@@ -33,9 +33,8 @@ import org.springframework.cloud.sleuth.log.SpanLogger;
 import org.springframework.cloud.sleuth.util.ExceptionUtils;
 import org.springframework.cloud.sleuth.util.SpanNameUtil;
 
-/**
- * This class is a copy of the Sleuth's {@code DefaultTracer}.
- */
+/** This class is a copy of the Sleuth's {@code DefaultTracer}. */
+@ExperimentalApi
 public class OpenCensusSleuthTracer implements Tracer {
   private static final Log log = LogFactory.getLog(OpenCensusSleuthTracer.class);
   private final Sampler defaultSampler;
@@ -46,18 +45,33 @@ public class OpenCensusSleuthTracer implements Tracer {
   private final TraceKeys traceKeys;
   private final boolean traceId128;
 
-  public OpenCensusSleuthTracer(Sampler defaultSampler, Random random, SpanNamer spanNamer,
-      SpanLogger spanLogger, SpanReporter spanReporter, TraceKeys traceKeys) {
-    this(defaultSampler, random, spanNamer, spanLogger, spanReporter,
-        traceKeys, /* traceId128= */false);
+  /** Basic constructor holding components for implementing Sleuth's {@link Tracer} interface. */
+  public OpenCensusSleuthTracer(
+      Sampler defaultSampler,
+      Random random,
+      SpanNamer spanNamer,
+      SpanLogger spanLogger,
+      SpanReporter spanReporter,
+      TraceKeys traceKeys) {
+    this(
+        defaultSampler,
+        random,
+        spanNamer,
+        spanLogger,
+        spanReporter,
+        traceKeys,
+        /* traceId128= */ false);
   }
 
-  /**
-   * Basic constructor holding components for implementing Sleuth's {@link Tracer} interface.
-   */
-  public OpenCensusSleuthTracer(Sampler defaultSampler, Random random, SpanNamer spanNamer,
-      SpanLogger spanLogger, SpanReporter spanReporter,
-      TraceKeys traceKeys, boolean traceId128) {
+  /** Basic constructor holding components for implementing Sleuth's {@link Tracer} interface. */
+  public OpenCensusSleuthTracer(
+      Sampler defaultSampler,
+      Random random,
+      SpanNamer spanNamer,
+      SpanLogger spanLogger,
+      SpanReporter spanReporter,
+      TraceKeys traceKeys,
+      boolean traceId128) {
     this.defaultSampler = defaultSampler;
     this.random = random;
     this.spanNamer = spanNamer;
@@ -88,10 +102,13 @@ public class OpenCensusSleuthTracer implements Tracer {
       span = createChild(getCurrentSpan(), shortenedName);
     } else {
       long id = createId();
-      span = Span.builder().name(shortenedName)
-          .traceIdHigh(this.traceId128 ? createTraceIdHigh() : 0L)
-          .traceId(id)
-          .spanId(id).build();
+      span =
+          Span.builder()
+              .name(shortenedName)
+              .traceIdHigh(this.traceId128 ? createTraceIdHigh() : 0L)
+              .traceId(id)
+              .spanId(id)
+              .build();
       if (sampler == null) {
         sampler = this.defaultSampler;
       }
@@ -109,15 +126,19 @@ public class OpenCensusSleuthTracer implements Tracer {
     Span current = OpenCensusSleuthSpanContextHolder.getCurrentSpan();
     if (current == null) {
       if (log.isTraceEnabled()) {
-        log.trace("Span in the context is null so something has already detached the span. "
-            + "Won't do anything about it");
+        log.trace(
+            "Span in the context is null so something has already detached the span. "
+                + "Won't do anything about it");
       }
       return null;
     }
     if (!span.equals(current)) {
-      ExceptionUtils.warn("Tried to detach trace span but "
-          + "it is not the current span: " + span
-          + ". You may have forgotten to close or detach " + current);
+      ExceptionUtils.warn(
+          "Tried to detach trace span but "
+              + "it is not the current span: "
+              + span
+              + ". You may have forgotten to close or detach "
+              + current);
     } else {
       OpenCensusSleuthSpanContextHolder.removeCurrentSpan();
     }
@@ -133,8 +154,10 @@ public class OpenCensusSleuthTracer implements Tracer {
     Span current = OpenCensusSleuthSpanContextHolder.getCurrentSpan();
     if (!span.equals(current)) {
       ExceptionUtils.warn(
-          "Tried to close span but it is not the current span: " + span
-              + ".  You may have forgotten to close or detach " + current);
+          "Tried to close span but it is not the current span: "
+              + span
+              + ".  You may have forgotten to close or detach "
+              + current);
     } else {
       span.stop();
       if (savedSpan != null && span.getParents().contains(savedSpan.getSpanId())) {
@@ -148,7 +171,8 @@ public class OpenCensusSleuthTracer implements Tracer {
       }
       OpenCensusSleuthSpanContextHolder.close(
           new OpenCensusSleuthSpanContextHolder.SpanFunction() {
-            @Override public void apply(Span closedSpan) {
+            @Override
+            public void apply(Span closedSpan) {
               // Note: hasn't this already been done?
               OpenCensusSleuthTracer.this.spanLogger.logStoppedSpan(savedSpan, closedSpan);
             }
@@ -161,27 +185,32 @@ public class OpenCensusSleuthTracer implements Tracer {
     String shortenedName = SpanNameUtil.shorten(name);
     long id = createId();
     if (parent == null) {
-      Span span = Span.builder().name(shortenedName)
-          .traceIdHigh(this.traceId128 ? createTraceIdHigh() : 0L)
-          .traceId(id)
-          .spanId(id).build();
+      Span span =
+          Span.builder()
+              .name(shortenedName)
+              .traceIdHigh(this.traceId128 ? createTraceIdHigh() : 0L)
+              .traceId(id)
+              .spanId(id)
+              .build();
       span = sampledSpan(span, this.defaultSampler);
       this.spanLogger.logStartedSpan(null, span);
       return span;
     } else {
       if (!isTracing()) {
-        OpenCensusSleuthSpanContextHolder.push(parent, /* autoClose= */true);
+        OpenCensusSleuthSpanContextHolder.push(parent, /* autoClose= */ true);
       }
-      Span span = Span.builder().name(shortenedName)
-          .traceIdHigh(parent.getTraceIdHigh())
-          .traceId(parent.getTraceId())
-          .parent(parent.getSpanId())
-          .spanId(id)
-          .processId(parent.getProcessId())
-          .savedSpan(parent)
-          .exportable(parent.isExportable())
-          .baggage(parent.getBaggage())
-          .build();
+      Span span =
+          Span.builder()
+              .name(shortenedName)
+              .traceIdHigh(parent.getTraceIdHigh())
+              .traceId(parent.getTraceId())
+              .parent(parent.getSpanId())
+              .spanId(id)
+              .processId(parent.getProcessId())
+              .savedSpan(parent)
+              .exportable(parent.isExportable())
+              .baggage(parent.getBaggage())
+              .build();
       this.spanLogger.logStartedSpan(parent, span);
       return span;
     }
@@ -196,7 +225,8 @@ public class OpenCensusSleuthTracer implements Tracer {
           .traceId(span.getTraceId())
           .spanId(span.getSpanId())
           .name(span.getName())
-          .exportable(false).build();
+          .exportable(false)
+          .build();
     }
     return span;
   }
