@@ -17,12 +17,14 @@
 package io.opencensus.contrib.spring.sleuth;
 
 import io.grpc.Context;
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.unsafe.ContextUtils;
 import org.apache.commons.logging.Log;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.core.NamedThreadLocal;
 
 /** Inspired by the Sleuth's {@code SpanContextHolder}. */
+@ExperimentalApi
 final class OpenCensusSleuthSpanContextHolder {
   private static final Log log =
       org.apache.commons.logging.LogFactory.getLog(OpenCensusSleuthSpanContextHolder.class);

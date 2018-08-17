@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.spring.sleuth;
 
+import io.opencensus.common.ExperimentalApi;
 import java.util.Random;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -37,6 +38,7 @@ import org.springframework.context.annotation.Role;
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration Auto-configuration} that
  * allows inter-operation between Sleuth(Brave) and OpenCensus.
  */
+@ExperimentalApi
 @Configuration
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @ConditionalOnProperty(name = "spring.opencensus.sleuth.enabled", matchIfMissing = true)

@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.spring.sleuth;
 
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;
@@ -29,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Map;
 
+@ExperimentalApi
 public class OpenCensusSleuthSpan extends Span {
 
   private static final EnumSet<Options> recordOptions = EnumSet.of(Options.RECORD_EVENTS);

@@ -16,9 +16,11 @@
 
 package io.opencensus.contrib.spring.sleuth;
 
+import io.opencensus.common.ExperimentalApi;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /** Sleuth annotation settings. */
+@ExperimentalApi
 @ConfigurationProperties("spring.opencensus.sleuth")
 public class OpenCensusSleuthProperties {
 
