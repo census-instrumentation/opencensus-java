@@ -147,9 +147,12 @@ abstract class MutableViewData {
         return Metric.create(metricDescriptor, TimeSeriesGaugeList.create(timeSeriesGauges));
       } else {
         List<TimeSeriesCumulative> timeSeriesCumulatives = new ArrayList<TimeSeriesCumulative>();
-        for (Entry<List</*@Nullable*/
-            TagValue>, MutableAggregation> entry :
-            tagValueAggregationMap.entrySet()) {
+        for (Entry<
+                List<
+                    /*@Nullable*/
+                    TagValue>,
+                MutableAggregation>
+            entry : tagValueAggregationMap.entrySet()) {
           List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
           Point point = MetricUtils.mutableAggregationToPoint(entry.getValue(), now, type);
           timeSeriesCumulatives.add(
