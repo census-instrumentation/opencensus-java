@@ -127,6 +127,7 @@ abstract class MutableViewData {
       }
     }
 
+    @javax.annotation.Nullable
     @Override
     Metric toMetric(Timestamp now, StatsCollectionState state) {
       if (state == StatsCollectionState.DISABLED) {
@@ -136,7 +137,8 @@ abstract class MutableViewData {
       Type type = metricDescriptor.getType();
       if (type == Type.GAUGE_INT64 || type == Type.GAUGE_DOUBLE) {
         List<TimeSeriesGauge> timeSeriesGauges = new ArrayList<TimeSeriesGauge>();
-        for (Entry<List<TagValue>, MutableAggregation> entry : tagValueAggregationMap.entrySet()) {
+        for (Entry<List</*@Nullable*/ TagValue>, MutableAggregation> entry :
+            tagValueAggregationMap.entrySet()) {
           List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
           Point point = MetricUtils.mutableAggregationToPoint(entry.getValue(), now, type);
           timeSeriesGauges.add(
@@ -145,7 +147,9 @@ abstract class MutableViewData {
         return Metric.create(metricDescriptor, TimeSeriesGaugeList.create(timeSeriesGauges));
       } else {
         List<TimeSeriesCumulative> timeSeriesCumulatives = new ArrayList<TimeSeriesCumulative>();
-        for (Entry<List<TagValue>, MutableAggregation> entry : tagValueAggregationMap.entrySet()) {
+        for (Entry<List</*@Nullable*/
+            TagValue>, MutableAggregation> entry :
+            tagValueAggregationMap.entrySet()) {
           List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
           Point point = MetricUtils.mutableAggregationToPoint(entry.getValue(), now, type);
           timeSeriesCumulatives.add(
