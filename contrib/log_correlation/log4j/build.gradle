@@ -1,0 +1,30 @@
+description = 'OpenCensus Log4j Log Correlation'
+
+apply plugin: 'java'
+
+animalsniffer {
+    sourceSets = [sourceSets.main]
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            libraries.log4j
+
+    testCompile libraries.guava
+
+    signature "org.codehaus.mojo.signature:java16:+@signature"
+}
+
+compileTestJava {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+}
+
+test {
+    systemProperties['log4j2.contextDataInjector'] =
+        'io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector'
+
+    // Each test class should run in a separate JVM. See the comment in
+    // AbstractOpenCensusLog4jLogCorrelationTest.
+    forkEvery = 1
+}
