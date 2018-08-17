@@ -29,7 +29,7 @@ dependencies {
   compile libraries.findbugs_annotations
   compile libraries.guava
 
-  signature 'org.codehaus.mojo.signature:java17:+@signature'
+  signature 'org.codehaus.mojo.signature:java17:1.0@signature'
 }
 
 jar {
