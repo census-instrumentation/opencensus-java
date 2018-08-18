@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.Measure;
 import io.opencensus.tags.TagValue;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +40,16 @@ final class IntervalBucket {
   private final Timestamp start;
   private final Duration duration;
   private final Aggregation aggregation;
+  private final Measure measure;
   private final Map<List</*@Nullable*/ TagValue>, MutableAggregation> tagValueAggregationMap =
       Maps.newHashMap();
 
-  IntervalBucket(Timestamp start, Duration duration, Aggregation aggregation) {
-    checkNotNull(start, "Start");
-    checkNotNull(duration, "Duration");
+  IntervalBucket(Timestamp start, Duration duration, Aggregation aggregation, Measure measure) {
+    this.start = checkNotNull(start, "Start");
+    this.duration = checkNotNull(duration, "Duration");
     checkArgument(duration.compareTo(ZERO) > 0, "Duration must be positive");
-    checkNotNull(aggregation, "Aggregation");
-    this.start = start;
-    this.duration = duration;
-    this.aggregation = aggregation;
+    this.aggregation = checkNotNull(aggregation, "Aggregation");
+    this.measure = checkNotNull(measure, "measure");
   }
 
   Map<List</*@Nullable*/ TagValue>, MutableAggregation> getTagValueAggregationMap() {
@@ -67,7 +67,8 @@ final class IntervalBucket {
       Map<String, String> attachments,
       Timestamp timestamp) {
     if (!tagValueAggregationMap.containsKey(tagValues)) {
-      tagValueAggregationMap.put(tagValues, RecordUtils.createMutableAggregation(aggregation));
+      tagValueAggregationMap.put(
+          tagValues, RecordUtils.createMutableAggregation(aggregation, measure));
     }
     tagValueAggregationMap.get(tagValues).add(value, attachments, timestamp);
   }

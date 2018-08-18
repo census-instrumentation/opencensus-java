@@ -42,6 +42,7 @@ import io.opencensus.metrics.TimeSeriesList.TimeSeriesCumulativeList;
 import io.opencensus.metrics.TimeSeriesList.TimeSeriesGaugeList;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -140,7 +141,7 @@ abstract class MutableViewData {
         for (Entry<List</*@Nullable*/ TagValue>, MutableAggregation> entry :
             tagValueAggregationMap.entrySet()) {
           List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
-          Point point = MetricUtils.mutableAggregationToPoint(entry.getValue(), now, type);
+          Point point = entry.getValue().toPoint(now);
           timeSeriesGauges.add(
               TimeSeriesGauge.create(labelValues, Collections.singletonList(point)));
         }
@@ -154,7 +155,7 @@ abstract class MutableViewData {
                 MutableAggregation>
             entry : tagValueAggregationMap.entrySet()) {
           List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
-          Point point = MetricUtils.mutableAggregationToPoint(entry.getValue(), now, type);
+          Point point = entry.getValue().toPoint(now);
           timeSeriesCumulatives.add(
               TimeSeriesCumulative.create(labelValues, Collections.singletonList(point), start));
         }
@@ -170,7 +171,8 @@ abstract class MutableViewData {
           getTagValues(getTagMap(context), super.view.getColumns());
       if (!tagValueAggregationMap.containsKey(tagValues)) {
         tagValueAggregationMap.put(
-            tagValues, createMutableAggregation(super.view.getAggregation()));
+            tagValues,
+            createMutableAggregation(super.view.getAggregation(), super.getView().getMeasure()));
       }
       tagValueAggregationMap.get(tagValues).add(value, attachments, timestamp);
     }
@@ -347,7 +349,11 @@ abstract class MutableViewData {
 
       for (int i = 0; i < numOfPadBuckets; i++) {
         buckets.add(
-            new IntervalBucket(startOfNewBucket, bucketDuration, super.view.getAggregation()));
+            new IntervalBucket(
+                startOfNewBucket,
+                bucketDuration,
+                super.view.getAggregation(),
+                super.view.getMeasure()));
         startOfNewBucket = startOfNewBucket.addDuration(bucketDuration);
       }
 
@@ -370,9 +376,10 @@ abstract class MutableViewData {
       LinkedList<IntervalBucket> shallowCopy = new LinkedList<IntervalBucket>(buckets);
 
       Aggregation aggregation = super.view.getAggregation();
-      putBucketsIntoMultiMap(shallowCopy, multimap, aggregation, now);
+      Measure measure = super.view.getMeasure();
+      putBucketsIntoMultiMap(shallowCopy, multimap, aggregation, measure, now);
       Map<List</*@Nullable*/ TagValue>, MutableAggregation> singleMap =
-          aggregateOnEachTagValueList(multimap, aggregation);
+          aggregateOnEachTagValueList(multimap, aggregation, measure);
       return createAggregationMap(singleMap, super.getView().getMeasure());
     }
 
@@ -382,6 +389,7 @@ abstract class MutableViewData {
         LinkedList<IntervalBucket> buckets,
         Multimap<List</*@Nullable*/ TagValue>, MutableAggregation> multimap,
         Aggregation aggregation,
+        Measure measure,
         Timestamp now) {
       // Put fractional stats of the head (oldest) bucket.
       IntervalBucket head = CheckerFrameworkUtils.castNonNull(buckets.peekFirst());
@@ -393,7 +401,7 @@ abstract class MutableViewData {
           "Fraction " + fractionTail + " should be within [0.0, 1.0].");
       double fractionHead = 1.0 - fractionTail;
       putFractionalMutableAggregationsToMultiMap(
-          head.getTagValueAggregationMap(), multimap, aggregation, fractionHead);
+          head.getTagValueAggregationMap(), multimap, aggregation, measure, fractionHead);
 
       // Put whole data of other buckets.
       boolean shouldSkipFirst = true;
@@ -414,10 +422,11 @@ abstract class MutableViewData {
         Map<T, MutableAggregation> mutableAggrMap,
         Multimap<T, MutableAggregation> multimap,
         Aggregation aggregation,
+        Measure measure,
         double fraction) {
       for (Entry<T, MutableAggregation> entry : mutableAggrMap.entrySet()) {
         // Initially empty MutableAggregations.
-        MutableAggregation fractionalMutableAgg = createMutableAggregation(aggregation);
+        MutableAggregation fractionalMutableAgg = createMutableAggregation(aggregation, measure);
         fractionalMutableAgg.combine(entry.getValue(), fraction);
         multimap.put(entry.getKey(), fractionalMutableAgg);
       }
@@ -426,11 +435,11 @@ abstract class MutableViewData {
     // For each tag value list (key of AggregationMap), combine mutable aggregations into one
     // mutable aggregation, thus convert the multimap into a single map.
     private static <T> Map<T, MutableAggregation> aggregateOnEachTagValueList(
-        Multimap<T, MutableAggregation> multimap, Aggregation aggregation) {
+        Multimap<T, MutableAggregation> multimap, Aggregation aggregation, Measure measure) {
       Map<T, MutableAggregation> map = Maps.newHashMap();
       for (T tagValues : multimap.keySet()) {
         // Initially empty MutableAggregations.
-        MutableAggregation combinedAggregation = createMutableAggregation(aggregation);
+        MutableAggregation combinedAggregation = createMutableAggregation(aggregation, measure);
         for (MutableAggregation mutableAggregation : multimap.get(tagValues)) {
           combinedAggregation.combine(mutableAggregation, 1.0);
         }

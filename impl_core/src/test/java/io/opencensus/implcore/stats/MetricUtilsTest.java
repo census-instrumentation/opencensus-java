@@ -20,18 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
-import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
-import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
-import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
-import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
-import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
-import io.opencensus.metrics.Distribution.Bucket;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.metrics.MetricDescriptor.Type;
-import io.opencensus.metrics.Point;
-import io.opencensus.metrics.Value;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
@@ -133,43 +125,5 @@ public class MetricUtilsTest {
             LabelValue.create(VALUE.asString()),
             LabelValue.create(VALUE_2.asString()),
             LabelValue.create(null));
-  }
-
-  @Test
-  public void mutableAggregationToPoint() {
-    MutableSum sum = MutableSum.create();
-    MutableCount count = MutableCount.create();
-    MutableMean mean = MutableMean.create();
-    MutableLastValue lastValue = MutableLastValue.create();
-    MutableDistribution distribution = MutableDistribution.create(BUCKET_BOUNDARIES);
-
-    assertThat(MetricUtils.mutableAggregationToPoint(sum, TIMESTAMP, Type.CUMULATIVE_INT64))
-        .isEqualTo(Point.create(Value.longValue(0), TIMESTAMP));
-    assertThat(MetricUtils.mutableAggregationToPoint(sum, TIMESTAMP, Type.CUMULATIVE_DOUBLE))
-        .isEqualTo(Point.create(Value.doubleValue(0), TIMESTAMP));
-    assertThat(MetricUtils.mutableAggregationToPoint(count, TIMESTAMP, Type.CUMULATIVE_INT64))
-        .isEqualTo(Point.create(Value.longValue(0), TIMESTAMP));
-    assertThat(MetricUtils.mutableAggregationToPoint(mean, TIMESTAMP, Type.CUMULATIVE_DOUBLE))
-        .isEqualTo(Point.create(Value.doubleValue(0), TIMESTAMP));
-    assertThat(MetricUtils.mutableAggregationToPoint(lastValue, TIMESTAMP, Type.GAUGE_DOUBLE))
-        .isEqualTo(Point.create(Value.doubleValue(Double.NaN), TIMESTAMP));
-    assertThat(MetricUtils.mutableAggregationToPoint(lastValue, TIMESTAMP, Type.GAUGE_INT64))
-        .isEqualTo(Point.create(Value.longValue(0), TIMESTAMP));
-
-    assertThat(MetricUtils.mutableAggregationToPoint(distribution, TIMESTAMP, Type.GAUGE_DOUBLE))
-        .isEqualTo(
-            Point.create(
-                Value.distributionValue(
-                    io.opencensus.metrics.Distribution.create(
-                        0,
-                        0,
-                        0,
-                        Arrays.asList(-10.0, 0.0, 10.0),
-                        Arrays.asList(
-                            Bucket.create(0),
-                            Bucket.create(0),
-                            Bucket.create(0),
-                            Bucket.create(0)))),
-                TIMESTAMP));
   }
 }
