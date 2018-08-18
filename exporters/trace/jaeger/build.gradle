@@ -19,17 +19,18 @@ sourceSets {
 dependencies {
     compile project(':opencensus-api')
 
-    compile (libraries.jaeger_reporter) {
+    compile(libraries.jaeger_reporter) {
         // Prefer library version.
         exclude group: 'com.google.guava', module: 'guava'
     }
 
     testCompile project(':opencensus-api'),
-                'org.testcontainers:testcontainers:1.7.0',
-                'com.google.http-client:google-http-client-gson:1.23.0'
+            'org.testcontainers:testcontainers:1.7.0',
+            'com.google.http-client:google-http-client-gson:1.23.0'
 
     // Unless linked to impl, spans will be blank and not exported during integration tests.
     testRuntime project(':opencensus-impl')
 
-    signature "org.codehaus.mojo.signature:java16:+@signature"
+    signature "org.codehaus.mojo.signature:java17:1.0@signature"
+    signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature"
 }

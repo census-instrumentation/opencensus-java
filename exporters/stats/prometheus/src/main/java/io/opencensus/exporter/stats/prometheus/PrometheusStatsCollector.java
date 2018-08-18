@@ -101,7 +101,8 @@ public final class PrometheusStatsCollector extends Collector implements Collect
             .setRecordEvents(true)
             .startSpan();
     span.addAnnotation("Collect Prometheus Metric Samples.");
-    try (Scope scope = tracer.withSpan(span)) {
+    Scope scope = tracer.withSpan(span);
+    try {
       for (View view : viewManager.getAllExportedViews()) {
         if (containsDisallowedLeLabelForHistogram(
             convertToLabelNames(view.getColumns()),
@@ -125,6 +126,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
       }
       span.addAnnotation("Finish collecting Prometheus Metric Samples.");
     } finally {
+      scope.close();
       span.end();
     }
     return samples;
@@ -140,7 +142,8 @@ public final class PrometheusStatsCollector extends Collector implements Collect
             .setRecordEvents(true)
             .startSpan();
     span.addAnnotation("Describe Prometheus Metrics.");
-    try (Scope scope = tracer.withSpan(span)) {
+    Scope scope = tracer.withSpan(span);
+    try {
       for (View view : viewManager.getAllExportedViews()) {
         try {
           samples.add(PrometheusExportUtils.createDescribableMetricFamilySamples(view));
@@ -153,6 +156,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
       }
       span.addAnnotation("Finish describing Prometheus Metrics.");
     } finally {
+      scope.close();
       span.end();
     }
     return samples;

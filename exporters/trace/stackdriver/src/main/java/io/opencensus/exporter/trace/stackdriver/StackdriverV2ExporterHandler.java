@@ -473,12 +473,13 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
     // Start a new span with explicit 1/10000 sampling probability to avoid the case when user
     // sets the default sampler to always sample and we get the gRPC span of the stackdriver
     // export call always sampled and go to an infinite loop.
-    try (Scope scope =
+    Scope scope =
         tracer
             .spanBuilder("ExportStackdriverTraces")
             .setSampler(probabilitySampler)
             .setRecordEvents(true)
-            .startScopedSpan()) {
+            .startScopedSpan();
+    try {
       List<Span> spans = new ArrayList<>(spanDataList.size());
       for (SpanData spanData : spanDataList) {
         spans.add(generateSpan(spanData, RESOURCE_LABELS));
@@ -486,6 +487,8 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       // Sync call because it is already called for a batch of data, and on a separate thread.
       // TODO(bdrutu): Consider to make this async in the future.
       traceServiceClient.batchWriteSpans(projectName, spans);
+    } finally {
+      scope.close();
     }
   }
 }
