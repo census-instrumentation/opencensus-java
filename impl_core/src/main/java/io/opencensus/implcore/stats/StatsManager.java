@@ -71,7 +71,7 @@ final class StatsManager {
   }
 
   Collection<Metric> getMetrics() {
-    return measureToViewMap.getMetrics(clock, state.get());
+    return measureToViewMap.getMetrics(clock, state.getInternal());
   }
 
   void clearStats() {
