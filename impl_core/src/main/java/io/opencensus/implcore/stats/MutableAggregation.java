@@ -67,7 +67,7 @@ abstract class MutableAggregation {
 
   abstract Point toPoint(Timestamp timestamp);
 
-  /** Calculate sum on aggregated {@code MeasureValue}s. */
+  /** Calculate sum of doubles on aggregated {@code MeasureValue}s. */
   static class MutableSumDouble extends MutableAggregation {
 
     private double sum = 0.0;
@@ -110,16 +110,16 @@ abstract class MutableAggregation {
     }
   }
 
-  /** Calculate sum on aggregated {@code MeasureValue}s. */
+  /** Calculate sum of longs on aggregated {@code MeasureValue}s. */
   static final class MutableSumLong extends MutableSumDouble {
     private MutableSumLong() {
       super();
     }
 
     /**
-     * Construct a {@code MutableSumDouble}.
+     * Construct a {@code MutableSumLong}.
      *
-     * @return an empty {@code MutableSumDouble}.
+     * @return an empty {@code MutableSumLong}.
      */
     static MutableSumLong create() {
       return new MutableSumLong();
@@ -469,7 +469,7 @@ abstract class MutableAggregation {
     }
   }
 
-  /** Calculate last value on aggregated {@code MeasureValue}s. */
+  /** Calculate double last value on aggregated {@code MeasureValue}s. */
   static class MutableLastValueDouble extends MutableAggregation {
 
     // Initial value that will get reset as soon as first value is added.
@@ -522,15 +522,16 @@ abstract class MutableAggregation {
     }
   }
 
+  /** Calculate last long value on aggregated {@code MeasureValue}s. */
   static final class MutableLastValueLong extends MutableLastValueDouble {
     private MutableLastValueLong() {
       super();
     }
 
     /**
-     * Construct a {@code MutableLastValueDouble}.
+     * Construct a {@code MutableLastValueLong}.
      *
-     * @return an empty {@code MutableLastValueDouble}.
+     * @return an empty {@code MutableLastValueLong}.
      */
     static MutableLastValueLong create() {
       return new MutableLastValueLong();
