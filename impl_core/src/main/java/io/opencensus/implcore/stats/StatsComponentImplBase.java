@@ -32,6 +32,8 @@ public class StatsComponentImplBase extends StatsComponent {
   private final ViewManagerImpl viewManager;
   private final StatsRecorderImpl statsRecorder;
 
+  private final Object setStateLock = new Object();
+
   /**
    * Creates a new {@code StatsComponentImplBase}.
    *
@@ -66,15 +68,17 @@ public class StatsComponentImplBase extends StatsComponent {
 
   @Override
   @SuppressWarnings("deprecation")
-  // Synchronized because needs to ensure that the call to resume/clear are happening atomically
-  // with the change of the state.
   public synchronized void setState(StatsCollectionState newState) {
-    boolean stateChanged = currentState.set(newState);
-    if (stateChanged) {
-      if (newState == StatsCollectionState.DISABLED) {
-        viewManager.clearStats();
-      } else {
-        viewManager.resumeStatsCollection();
+    // Synchronized because needs to ensure that the call to resume/clear are happening atomically
+    // with the change of the state.
+    synchronized (setStateLock) {
+      boolean stateChanged = currentState.set(newState);
+      if (stateChanged) {
+        if (newState == StatsCollectionState.DISABLED) {
+          viewManager.clearStats();
+        } else {
+          viewManager.resumeStatsCollection();
+        }
       }
     }
   }
