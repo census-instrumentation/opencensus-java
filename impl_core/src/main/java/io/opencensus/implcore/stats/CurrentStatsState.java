@@ -40,7 +40,7 @@ final class CurrentStatsState {
 
   // Sets current state to the given state. Returns true if the current state is changed, false
   // otherwise.
-  boolean set(StatsCollectionState state) {
-    return state != currentState.getAndSet(checkNotNull(state, "state"));
+  boolean set(StatsCollectionState newState) {
+    return newState != currentState.getAndSet(checkNotNull(newState, "newState"));
   }
 }

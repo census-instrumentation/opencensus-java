@@ -50,7 +50,7 @@ public final class CurrentStatsStateTest {
   public void preventNull() {
     CurrentStatsState state = new CurrentStatsState();
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("state");
+    thrown.expectMessage("newState");
     state.set(null);
   }
 }
