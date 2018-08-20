@@ -64,25 +64,17 @@ final class MetricUtils {
     return aggregation.match(
         Functions.returnConstant(
             measure.match(
-                Functions.returnConstant(Type.CUMULATIVE_DOUBLE), // Sum Double
-                Functions.returnConstant(Type.CUMULATIVE_INT64), // Sum Int64
-                Functions.<Type>throwAssertionError())),
-        Functions.returnConstant(Type.CUMULATIVE_INT64), // Count
-        Functions.returnConstant(Type.CUMULATIVE_DISTRIBUTION), // Distribution
+                TYPE_CUMULATIVE_DOUBLE_FUNCTION, // Sum Double
+                TYPE_CUMULATIVE_INT64_FUNCTION, // Sum Int64
+                TYPE_UNRECOGNIZED_FUNCTION)),
+        TYPE_CUMULATIVE_INT64_FUNCTION, // Count
+        TYPE_CUMULATIVE_DISTRIBUTION_FUNCTION, // Distribution
         Functions.returnConstant(
             measure.match(
-                Functions.returnConstant(Type.GAUGE_DOUBLE), // LastValue Double
-                Functions.returnConstant(Type.GAUGE_INT64), // LastValue Long
-                Functions.<Type>throwAssertionError())),
-        new Function<Aggregation, Type>() {
-          @Override
-          public Type apply(Aggregation arg) {
-            if (arg instanceof Aggregation.Mean) {
-              return Type.CUMULATIVE_DOUBLE; // Mean
-            }
-            throw new AssertionError();
-          }
-        });
+                TYPE_GAUGE_DOUBLE_FUNCTION, // LastValue Double
+                TYPE_GAUGE_INT64_FUNCTION, // LastValue Long
+                TYPE_UNRECOGNIZED_FUNCTION)),
+        AGGREGATION_TYPE_DEFAULT_FUNCTION);
   }
 
   static List<LabelValue> tagValuesToLabelValues(List</*@Nullable*/ TagValue> tagValues) {
@@ -92,6 +84,35 @@ final class MetricUtils {
     }
     return labelValues;
   }
+
+  private static final Function<Object, Type> TYPE_CUMULATIVE_DOUBLE_FUNCTION =
+      Functions.returnConstant(Type.CUMULATIVE_DOUBLE);
+
+  private static final Function<Object, Type> TYPE_CUMULATIVE_INT64_FUNCTION =
+      Functions.returnConstant(Type.CUMULATIVE_INT64);
+
+  private static final Function<Object, Type> TYPE_CUMULATIVE_DISTRIBUTION_FUNCTION =
+      Functions.returnConstant(Type.CUMULATIVE_DISTRIBUTION);
+
+  private static final Function<Object, Type> TYPE_GAUGE_DOUBLE_FUNCTION =
+      Functions.returnConstant(Type.GAUGE_DOUBLE);
+
+  private static final Function<Object, Type> TYPE_GAUGE_INT64_FUNCTION =
+      Functions.returnConstant(Type.GAUGE_INT64);
+
+  private static final Function<Object, Type> TYPE_UNRECOGNIZED_FUNCTION =
+      Functions.<Type>throwAssertionError();
+
+  private static final Function<Aggregation, Type> AGGREGATION_TYPE_DEFAULT_FUNCTION =
+      new Function<Aggregation, Type>() {
+        @Override
+        public Type apply(Aggregation arg) {
+          if (arg instanceof Aggregation.Mean) {
+            return Type.CUMULATIVE_DOUBLE; // Mean
+          }
+          throw new AssertionError();
+        }
+      };
 
   private MetricUtils() {}
 }
