@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
-import javax.annotation.concurrent.GuardedBy;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -29,34 +29,78 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <p>This class allows different stats classes to share the state in a thread-safe way.
  */
-// TODO(sebright): Remove the locking from this class, since it is used as global state.
 @ThreadSafe
-public final class CurrentStatsState {
+final class CurrentStatsState {
+  private static final StatsCollectionState DEFAULT_STATE = StatsCollectionState.ENABLED;
 
-  @GuardedBy("this")
-  private StatsCollectionState currentState = StatsCollectionState.ENABLED;
+  private enum StatsCollectionStateInternal {
+    // Enabled and not read.
+    ENABLED_NOT_READ(StatsCollectionState.ENABLED, false),
 
-  @GuardedBy("this")
-  private boolean isRead;
+    // Enabled and read.
+    ENABLED_READ(StatsCollectionState.ENABLED, true),
 
-  public synchronized StatsCollectionState get() {
-    isRead = true;
-    return getInternal();
+    // Disable and not read.
+    DISABLED_NOT_READ(StatsCollectionState.DISABLED, false),
+
+    // Disable and read.
+    DISABLED_READ(StatsCollectionState.DISABLED, true);
+
+    private final StatsCollectionState state;
+    private final boolean isRead;
+
+    StatsCollectionStateInternal(StatsCollectionState state, boolean isRead) {
+      this.state = state;
+      this.isRead = isRead;
+    }
   }
 
-  synchronized StatsCollectionState getInternal() {
-    return currentState;
+  private final AtomicReference<StatsCollectionStateInternal> currentInternalState =
+      new AtomicReference<StatsCollectionStateInternal>(
+          DEFAULT_STATE == StatsCollectionState.ENABLED
+              ? StatsCollectionStateInternal.ENABLED_NOT_READ
+              : StatsCollectionStateInternal.DISABLED_NOT_READ);
+
+  StatsCollectionState get() {
+    StatsCollectionStateInternal internalState = currentInternalState.get();
+    while (!internalState.isRead) {
+      // Slow path, the state is first time read. Change the state only if no other changes
+      // happened between the moment initialState is read and this moment. This ensures that this
+      // method only changes the isRead part of the internal state.
+      currentInternalState.compareAndSet(
+          internalState,
+          internalState.state == StatsCollectionState.ENABLED
+              ? StatsCollectionStateInternal.ENABLED_READ
+              : StatsCollectionStateInternal.DISABLED_READ);
+      internalState = currentInternalState.get();
+    }
+    return internalState.state;
+  }
+
+  StatsCollectionState getInternal() {
+    return currentInternalState.get().state;
   }
 
   // Sets current state to the given state. Returns true if the current state is changed, false
   // otherwise.
-  synchronized boolean set(StatsCollectionState state) {
-    checkState(!isRead, "State was already read, cannot set state.");
-    if (state == currentState) {
-      return false;
-    } else {
-      currentState = checkNotNull(state, "state");
-      return true;
+  boolean set(StatsCollectionState state) {
+    while (true) {
+      StatsCollectionStateInternal internalState = currentInternalState.get();
+      checkState(!internalState.isRead, "State was already read, cannot set state.");
+      if (checkNotNull(state, "state") == internalState.state) {
+        return false;
+      } else {
+        if (!currentInternalState.compareAndSet(
+            internalState,
+            state == StatsCollectionState.ENABLED
+                ? StatsCollectionStateInternal.ENABLED_NOT_READ
+                : StatsCollectionStateInternal.DISABLED_NOT_READ)) {
+          // The state was changed between the moment the internalState was read and this point.
+          // Some conditions may be not correct, reset at the beginning and recheck all conditions.
+          continue;
+        }
+        return true;
+      }
     }
   }
 }
