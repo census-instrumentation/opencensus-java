@@ -55,7 +55,7 @@ final class StatsManager {
 
   @Nullable
   ViewData getView(View.Name viewName) {
-    return measureToViewMap.getView(viewName, clock, state.getInternal());
+    return measureToViewMap.getView(viewName, clock, state.get());
   }
 
   Set<View> getExportedViews() {
@@ -65,13 +65,13 @@ final class StatsManager {
   void record(TagContext tags, MeasureMapInternal measurementValues) {
     // TODO(songya): consider exposing No-op MeasureMap and use it when stats state is DISABLED, so
     // that we don't need to create actual MeasureMapImpl.
-    if (state.getInternal() == StatsCollectionState.ENABLED) {
+    if (state.get() == StatsCollectionState.ENABLED) {
       queue.enqueue(new StatsEvent(this, tags, measurementValues));
     }
   }
 
   Collection<Metric> getMetrics() {
-    return measureToViewMap.getMetrics(clock, state.getInternal());
+    return measureToViewMap.getMetrics(clock, state.get());
   }
 
   void clearStats() {

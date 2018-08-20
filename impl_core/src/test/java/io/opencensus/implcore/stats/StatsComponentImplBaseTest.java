@@ -51,8 +51,9 @@ public final class StatsComponentImplBaseTest {
 
   @Test
   @SuppressWarnings("deprecation")
-  public void setState_Enabled() {
+  public void setState_ReEnabled() {
     statsComponent.setState(StatsCollectionState.DISABLED);
+    assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.DISABLED);
     statsComponent.setState(StatsCollectionState.ENABLED);
     assertThat(statsComponent.getState()).isEqualTo(StatsCollectionState.ENABLED);
   }
@@ -63,15 +64,5 @@ public final class StatsComponentImplBaseTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("newState");
     statsComponent.setState(null);
-  }
-
-  @Test
-  @SuppressWarnings("deprecation")
-  public void preventSettingStateAfterGettingState() {
-    statsComponent.setState(StatsCollectionState.DISABLED);
-    statsComponent.getState();
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("State was already read, cannot set state.");
-    statsComponent.setState(StatsCollectionState.ENABLED);
   }
 }
