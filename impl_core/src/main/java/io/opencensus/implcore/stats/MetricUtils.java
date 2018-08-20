@@ -74,15 +74,7 @@ final class MetricUtils {
                 Functions.returnConstant(Type.GAUGE_DOUBLE), // LastValue Double
                 Functions.returnConstant(Type.GAUGE_INT64), // LastValue Long
                 Functions.<Type>throwAssertionError())),
-        new Function<Aggregation, Type>() {
-          @Override
-          public Type apply(Aggregation arg) {
-            if (arg instanceof Aggregation.Mean) {
-              return Type.CUMULATIVE_DOUBLE; // Mean
-            }
-            throw new AssertionError();
-          }
-        });
+        AGGREGATION_TYPE_DEFAULT_FUNCTION);
   }
 
   static List<LabelValue> tagValuesToLabelValues(List</*@Nullable*/ TagValue> tagValues) {
@@ -92,6 +84,17 @@ final class MetricUtils {
     }
     return labelValues;
   }
+
+  private static final Function<Aggregation, Type> AGGREGATION_TYPE_DEFAULT_FUNCTION =
+      new Function<Aggregation, Type>() {
+        @Override
+        public Type apply(Aggregation arg) {
+          if (arg instanceof Aggregation.Mean) {
+            return Type.CUMULATIVE_DOUBLE; // Mean
+          }
+          throw new AssertionError();
+        }
+      };
 
   private MetricUtils() {}
 }
