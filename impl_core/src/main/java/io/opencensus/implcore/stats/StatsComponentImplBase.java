@@ -70,7 +70,8 @@ public class StatsComponentImplBase extends StatsComponent {
   @SuppressWarnings("deprecation")
   public synchronized void setState(StatsCollectionState newState) {
     // Synchronized because needs to ensure that the call to resume/clear are happening atomically
-    // with the change of the state.
+    // with the change of the state. Use a different object to make sure that if this class needs
+    // synchronization in the future this logic does not contend with that.
     synchronized (setStateLock) {
       boolean stateChanged = currentState.set(newState);
       if (stateChanged) {

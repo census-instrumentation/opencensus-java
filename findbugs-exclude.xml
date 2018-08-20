@@ -41,6 +41,11 @@
     <Class name="io.opencensus.contrib.appengine.standard.util.TraceIdProto$Builder"/>
     <Method name="maybeForceBuilderInitialization"/>
   </Match>
+  <Match>
+    <!-- Reason: The synchronization in the setState is for the side effects not for the state. -->
+    <Bug pattern="UG_SYNC_SET_UNSYNC_GET"/>
+    <Class name="io.opencensus.implcore.stats.StatsComponentImplBase"/>
+  </Match>
 
   <!-- Suppress some FindBugs warnings related to performance or robustness -->
   <!-- in test classes, where those issues are less important. -->
