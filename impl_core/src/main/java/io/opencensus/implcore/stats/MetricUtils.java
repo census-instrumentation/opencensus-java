@@ -19,16 +19,11 @@ package io.opencensus.implcore.stats;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.Distribution;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.metrics.MetricDescriptor.Type;
-import io.opencensus.metrics.Point;
-import io.opencensus.metrics.Value;
 import io.opencensus.stats.Aggregation;
-import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.View;
 import io.opencensus.tags.TagKey;
@@ -96,89 +91,6 @@ final class MetricUtils {
       labelValues.add(LabelValue.create(tagValue == null ? null : tagValue.asString()));
     }
     return labelValues;
-  }
-
-  static Point mutableAggregationToPoint(
-      MutableAggregation mutableAggregation, final Timestamp timestamp, final Type type) {
-    return mutableAggregation.match(
-        new Function<MutableAggregation.MutableSum, Point>() {
-          @Override
-          public Point apply(MutableAggregation.MutableSum arg) {
-            return Point.create(toDoubleOrInt64Value(arg.getSum(), type), timestamp);
-          }
-        },
-        new Function<MutableAggregation.MutableCount, Point>() {
-          @Override
-          public Point apply(MutableAggregation.MutableCount arg) {
-            return Point.create(Value.longValue(arg.getCount()), timestamp);
-          }
-        },
-        new Function<MutableAggregation.MutableMean, Point>() {
-          @Override
-          public Point apply(MutableAggregation.MutableMean arg) {
-            return Point.create(toDoubleOrInt64Value(arg.getMean(), type), timestamp);
-          }
-        },
-        new Function<MutableAggregation.MutableDistribution, Point>() {
-          @Override
-          public Point apply(MutableAggregation.MutableDistribution arg) {
-            return Point.create(toDistributionValue(arg), timestamp);
-          }
-        },
-        new Function<MutableAggregation.MutableLastValue, Point>() {
-          @Override
-          public Point apply(MutableAggregation.MutableLastValue arg) {
-            return Point.create(toDoubleOrInt64Value(arg.getLastValue(), type), timestamp);
-          }
-        });
-  }
-
-  private static Value toDoubleOrInt64Value(double valueInDouble, Type type) {
-    switch (type) {
-      case CUMULATIVE_INT64:
-      case GAUGE_INT64:
-        return Value.longValue(Math.round(valueInDouble));
-      case CUMULATIVE_DOUBLE:
-      case GAUGE_DOUBLE:
-        return Value.doubleValue(valueInDouble);
-      case CUMULATIVE_DISTRIBUTION:
-        throw new AssertionError();
-    }
-    throw new AssertionError();
-  }
-
-  private static Value toDistributionValue(MutableAggregation.MutableDistribution distribution) {
-    List<Distribution.Bucket> buckets = new ArrayList<Distribution.Bucket>();
-    @javax.annotation.Nullable
-    AggregationData.DistributionData.Exemplar[] exemplars = distribution.getExemplars();
-    for (int bucket = 0; bucket < distribution.getBucketCounts().length; bucket++) {
-      long bucketCount = distribution.getBucketCounts()[bucket];
-      @javax.annotation.Nullable AggregationData.DistributionData.Exemplar exemplar = null;
-      if (exemplars != null) {
-        exemplar = exemplars[bucket];
-      }
-
-      Distribution.Bucket metricBucket;
-      if (exemplar != null) {
-        // Bucket with an Exemplar.
-        metricBucket =
-            Distribution.Bucket.create(
-                bucketCount,
-                Distribution.Exemplar.create(
-                    exemplar.getValue(), exemplar.getTimestamp(), exemplar.getAttachments()));
-      } else {
-        // Bucket with no Exemplar.
-        metricBucket = Distribution.Bucket.create(bucketCount);
-      }
-      buckets.add(metricBucket);
-    }
-    return Value.distributionValue(
-        Distribution.create(
-            distribution.getMean(),
-            distribution.getCount(),
-            distribution.getSumOfSquaredDeviations(),
-            distribution.getBucketBoundaries().getBoundaries(),
-            buckets));
   }
 
   private MetricUtils() {}

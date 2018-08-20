@@ -363,11 +363,11 @@ public class ViewManagerImplTest {
     testRecordInterval(
         MEASURE_LONG,
         SUM,
-        new double[] {1000, 2000, 3000, 4000, 5000},
-        -5000,
+        new double[] {10, 24, 30, 40, 50},
+        -50,
         30,
-        SumDataLong.create(Math.round(3000 * 0.6 + 12000)),
-        SumDataLong.create(-4000),
+        SumDataLong.create(Math.round(34 * 0.6 + 120)),
+        SumDataLong.create(-40),
         SumDataLong.create(30));
   }
 
@@ -397,7 +397,7 @@ public class ViewManagerImplTest {
         LastValueDataLong.create(30));
   }
 
-  private void testRecordInterval(
+  private final void testRecordInterval(
       Measure measure,
       Aggregation aggregation,
       double[] initialValues, /* There are 5 initial values recorded before we call getView(). */

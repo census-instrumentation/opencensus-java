@@ -22,9 +22,11 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
-import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
+import io.opencensus.implcore.stats.MutableAggregation.MutableLastValueDouble;
+import io.opencensus.implcore.stats.MutableAggregation.MutableLastValueLong;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
-import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
+import io.opencensus.implcore.stats.MutableAggregation.MutableSumDouble;
+import io.opencensus.implcore.stats.MutableAggregation.MutableSumLong;
 import io.opencensus.implcore.tags.TagContextImpl;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.Aggregation.Count;
@@ -32,14 +34,9 @@ import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.AggregationData;
-import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.DistributionData;
-import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
-import io.opencensus.stats.AggregationData.LastValueDataDouble;
-import io.opencensus.stats.AggregationData.LastValueDataLong;
-import io.opencensus.stats.AggregationData.SumDataDouble;
-import io.opencensus.stats.AggregationData.SumDataLong;
 import io.opencensus.stats.Measure;
+import io.opencensus.stats.Measure.MeasureDouble;
+import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.Measurement.MeasurementDouble;
 import io.opencensus.stats.Measurement.MeasurementLong;
@@ -102,30 +99,30 @@ final class RecordUtils {
    * @return an empty {@code MutableAggregation}.
    */
   @VisibleForTesting
-  static MutableAggregation createMutableAggregation(Aggregation aggregation) {
+  static MutableAggregation createMutableAggregation(
+      Aggregation aggregation, final Measure measure) {
     return aggregation.match(
-        CreateMutableSum.INSTANCE,
+        new Function<Sum, MutableAggregation>() {
+          @Override
+          public MutableAggregation apply(Sum arg) {
+            return measure.match(
+                CreateMutableSumDouble.INSTANCE,
+                CreateMutableSumLong.INSTANCE,
+                Functions.<MutableAggregation>throwAssertionError());
+          }
+        },
         CreateMutableCount.INSTANCE,
         CreateMutableDistribution.INSTANCE,
-        CreateMutableLastValue.INSTANCE,
+        new Function<LastValue, MutableAggregation>() {
+          @Override
+          public MutableAggregation apply(LastValue arg) {
+            return measure.match(
+                CreateMutableLastValueDouble.INSTANCE,
+                CreateMutableLastValueLong.INSTANCE,
+                Functions.<MutableAggregation>throwAssertionError());
+          }
+        },
         AggregationDefaultFunction.INSTANCE);
-  }
-
-  /**
-   * Create an {@link AggregationData} snapshot based on the given {@link MutableAggregation}.
-   *
-   * @param aggregation {@code MutableAggregation}
-   * @param measure {@code Measure}
-   * @return an {@code AggregationData} which is the snapshot of current summary statistics.
-   */
-  @VisibleForTesting
-  static AggregationData createAggregationData(MutableAggregation aggregation, Measure measure) {
-    return aggregation.match(
-        new CreateSumData(measure),
-        CreateCountData.INSTANCE,
-        CreateMeanData.INSTANCE,
-        CreateDistributionData.INSTANCE,
-        new CreateLastValueData(measure));
   }
 
   // Covert a mapping from TagValues to MutableAggregation, to a mapping from TagValues to
@@ -134,7 +131,7 @@ final class RecordUtils {
       Map<T, MutableAggregation> tagValueAggregationMap, Measure measure) {
     Map<T, AggregationData> map = Maps.newHashMap();
     for (Entry<T, MutableAggregation> entry : tagValueAggregationMap.entrySet()) {
-      map.put(entry.getKey(), createAggregationData(entry.getValue(), measure));
+      map.put(entry.getKey(), entry.getValue().toAggregationData());
     }
     return map;
   }
@@ -165,13 +162,24 @@ final class RecordUtils {
         }
       };
 
-  private static final class CreateMutableSum implements Function<Sum, MutableAggregation> {
+  private static final class CreateMutableSumDouble
+      implements Function<MeasureDouble, MutableAggregation> {
     @Override
-    public MutableAggregation apply(Sum arg) {
-      return MutableSum.create();
+    public MutableAggregation apply(MeasureDouble arg) {
+      return MutableSumDouble.create();
     }
 
-    private static final CreateMutableSum INSTANCE = new CreateMutableSum();
+    private static final CreateMutableSumDouble INSTANCE = new CreateMutableSumDouble();
+  }
+
+  private static final class CreateMutableSumLong
+      implements Function<MeasureLong, MutableAggregation> {
+    @Override
+    public MutableAggregation apply(MeasureLong arg) {
+      return MutableSumLong.create();
+    }
+
+    private static final CreateMutableSumLong INSTANCE = new CreateMutableSumLong();
   }
 
   private static final class CreateMutableCount implements Function<Count, MutableAggregation> {
@@ -209,98 +217,24 @@ final class RecordUtils {
     private static final CreateMutableDistribution INSTANCE = new CreateMutableDistribution();
   }
 
-  private static final class CreateMutableLastValue
-      implements Function<LastValue, MutableAggregation> {
+  private static final class CreateMutableLastValueDouble
+      implements Function<MeasureDouble, MutableAggregation> {
     @Override
-    public MutableAggregation apply(LastValue arg) {
-      return MutableLastValue.create();
+    public MutableAggregation apply(MeasureDouble arg) {
+      return MutableLastValueDouble.create();
     }
 
-    private static final CreateMutableLastValue INSTANCE = new CreateMutableLastValue();
+    private static final CreateMutableLastValueDouble INSTANCE = new CreateMutableLastValueDouble();
   }
 
-  private static final class CreateSumData implements Function<MutableSum, AggregationData> {
-
-    private final Measure measure;
-
-    private CreateSumData(Measure measure) {
-      this.measure = measure;
-    }
-
+  private static final class CreateMutableLastValueLong
+      implements Function<MeasureLong, MutableAggregation> {
     @Override
-    public AggregationData apply(final MutableSum arg) {
-      return measure.match(
-          Functions.<AggregationData>returnConstant(SumDataDouble.create(arg.getSum())),
-          Functions.<AggregationData>returnConstant(SumDataLong.create(Math.round(arg.getSum()))),
-          Functions.<AggregationData>throwAssertionError());
-    }
-  }
-
-  private static final class CreateCountData implements Function<MutableCount, AggregationData> {
-    @Override
-    public AggregationData apply(MutableCount arg) {
-      return CountData.create(arg.getCount());
+    public MutableAggregation apply(MeasureLong arg) {
+      return MutableLastValueLong.create();
     }
 
-    private static final CreateCountData INSTANCE = new CreateCountData();
-  }
-
-  private static final class CreateMeanData implements Function<MutableMean, AggregationData> {
-    @Override
-    public AggregationData apply(MutableMean arg) {
-      return AggregationData.MeanData.create(arg.getMean(), arg.getCount());
-    }
-
-    private static final CreateMeanData INSTANCE = new CreateMeanData();
-  }
-
-  private static final class CreateDistributionData
-      implements Function<MutableDistribution, AggregationData> {
-    @Override
-    public AggregationData apply(MutableDistribution arg) {
-      List<Long> boxedBucketCounts = new ArrayList<Long>();
-      for (long bucketCount : arg.getBucketCounts()) {
-        boxedBucketCounts.add(bucketCount);
-      }
-      List<Exemplar> exemplars = new ArrayList<Exemplar>();
-      Exemplar[] exemplarArray = arg.getExemplars();
-      if (exemplarArray != null) {
-        for (Exemplar exemplar : exemplarArray) {
-          if (exemplar != null) {
-            exemplars.add(exemplar);
-          }
-        }
-      }
-      return DistributionData.create(
-          arg.getMean(),
-          arg.getCount(),
-          arg.getMin(),
-          arg.getMax(),
-          arg.getSumOfSquaredDeviations(),
-          boxedBucketCounts,
-          exemplars);
-    }
-
-    private static final CreateDistributionData INSTANCE = new CreateDistributionData();
-  }
-
-  private static final class CreateLastValueData
-      implements Function<MutableLastValue, AggregationData> {
-
-    private final Measure measure;
-
-    private CreateLastValueData(Measure measure) {
-      this.measure = measure;
-    }
-
-    @Override
-    public AggregationData apply(final MutableLastValue arg) {
-      return measure.match(
-          Functions.<AggregationData>returnConstant(LastValueDataDouble.create(arg.getLastValue())),
-          Functions.<AggregationData>returnConstant(
-              LastValueDataLong.create(Math.round(arg.getLastValue()))),
-          Functions.<AggregationData>throwAssertionError());
-    }
+    private static final CreateMutableLastValueLong INSTANCE = new CreateMutableLastValueLong();
   }
 
   private RecordUtils() {}

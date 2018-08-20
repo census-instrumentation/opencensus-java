@@ -67,11 +67,12 @@ final class StatsTestUtil {
    */
   static AggregationData createAggregationData(
       Aggregation aggregation, Measure measure, double... values) {
-    MutableAggregation mutableAggregation = RecordUtils.createMutableAggregation(aggregation);
+    MutableAggregation mutableAggregation =
+        RecordUtils.createMutableAggregation(aggregation, measure);
     for (double value : values) {
       mutableAggregation.add(value, Collections.<String, String>emptyMap(), EMPTY);
     }
-    return RecordUtils.createAggregationData(mutableAggregation, measure);
+    return mutableAggregation.toAggregationData();
   }
 
   /**

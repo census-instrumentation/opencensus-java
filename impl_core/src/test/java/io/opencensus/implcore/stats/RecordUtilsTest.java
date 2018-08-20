@@ -19,19 +19,13 @@ package io.opencensus.implcore.stats;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import io.opencensus.implcore.stats.MutableAggregation.MutableCount;
 import io.opencensus.implcore.stats.MutableAggregation.MutableDistribution;
-import io.opencensus.implcore.stats.MutableAggregation.MutableLastValue;
-import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
-import io.opencensus.implcore.stats.MutableAggregation.MutableSum;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
 import io.opencensus.stats.Aggregation.Mean;
 import io.opencensus.stats.Aggregation.Sum;
-import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
-import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.LastValueDataDouble;
 import io.opencensus.stats.AggregationData.LastValueDataLong;
 import io.opencensus.stats.AggregationData.MeanData;
@@ -42,7 +36,6 @@ import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -84,61 +77,40 @@ public class RecordUtilsTest {
   public void createMutableAggregation() {
     BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
 
-    assertThat(((MutableSum) RecordUtils.createMutableAggregation(Sum.create())).getSum())
-        .isWithin(EPSILON)
-        .of(0.0);
-    assertThat(((MutableCount) RecordUtils.createMutableAggregation(Count.create())).getCount())
-        .isEqualTo(0L);
-    assertThat(((MutableMean) RecordUtils.createMutableAggregation(Mean.create())).getMean())
-        .isWithin(EPSILON)
-        .of(0D);
     assertThat(
-            ((MutableLastValue) RecordUtils.createMutableAggregation(LastValue.create()))
-                .getLastValue())
-        .isNaN();
+            RecordUtils.createMutableAggregation(Sum.create(), MEASURE_DOUBLE).toAggregationData())
+        .isEqualTo(SumDataDouble.create(0));
+    assertThat(RecordUtils.createMutableAggregation(Sum.create(), MEASURE_LONG).toAggregationData())
+        .isEqualTo(SumDataLong.create(0));
+    assertThat(
+            RecordUtils.createMutableAggregation(Count.create(), MEASURE_DOUBLE)
+                .toAggregationData())
+        .isEqualTo(CountData.create(0));
+    assertThat(
+            RecordUtils.createMutableAggregation(Count.create(), MEASURE_LONG).toAggregationData())
+        .isEqualTo(CountData.create(0));
+    assertThat(
+            RecordUtils.createMutableAggregation(Mean.create(), MEASURE_DOUBLE).toAggregationData())
+        .isEqualTo(MeanData.create(0, 0));
+    assertThat(
+            RecordUtils.createMutableAggregation(Mean.create(), MEASURE_LONG).toAggregationData())
+        .isEqualTo(MeanData.create(0, 0));
+    assertThat(
+            RecordUtils.createMutableAggregation(LastValue.create(), MEASURE_DOUBLE)
+                .toAggregationData())
+        .isEqualTo(LastValueDataDouble.create(Double.NaN));
+    assertThat(
+            RecordUtils.createMutableAggregation(LastValue.create(), MEASURE_LONG)
+                .toAggregationData())
+        .isEqualTo(LastValueDataLong.create(0));
 
     MutableDistribution mutableDistribution =
         (MutableDistribution)
-            RecordUtils.createMutableAggregation(Distribution.create(bucketBoundaries));
+            RecordUtils.createMutableAggregation(
+                Distribution.create(bucketBoundaries), MEASURE_DOUBLE);
     assertThat(mutableDistribution.getMin()).isPositiveInfinity();
     assertThat(mutableDistribution.getMax()).isNegativeInfinity();
     assertThat(mutableDistribution.getSumOfSquaredDeviations()).isWithin(EPSILON).of(0);
     assertThat(mutableDistribution.getBucketCounts()).isEqualTo(new long[4]);
-  }
-
-  @Test
-  public void createAggregationData() {
-    BucketBoundaries bucketBoundaries = BucketBoundaries.create(Arrays.asList(-1.0, 0.0, 1.0));
-    List<AggregationData> aggregates = new ArrayList<AggregationData>();
-    aggregates.add(RecordUtils.createAggregationData(MutableSum.create(), MEASURE_DOUBLE));
-    aggregates.add(RecordUtils.createAggregationData(MutableSum.create(), MEASURE_LONG));
-    aggregates.add(RecordUtils.createAggregationData(MutableLastValue.create(), MEASURE_DOUBLE));
-    aggregates.add(RecordUtils.createAggregationData(MutableLastValue.create(), MEASURE_LONG));
-
-    List<MutableAggregation> mutableAggregations =
-        Arrays.asList(
-            MutableCount.create(),
-            MutableMean.create(),
-            MutableDistribution.create(bucketBoundaries));
-    for (MutableAggregation mutableAggregation : mutableAggregations) {
-      aggregates.add(RecordUtils.createAggregationData(mutableAggregation, MEASURE_DOUBLE));
-    }
-
-    assertThat(aggregates)
-        .containsExactly(
-            SumDataDouble.create(0),
-            SumDataLong.create(0),
-            LastValueDataDouble.create(Double.NaN),
-            LastValueDataLong.create(0),
-            CountData.create(0),
-            MeanData.create(0, 0),
-            DistributionData.create(
-                0,
-                0,
-                Double.POSITIVE_INFINITY,
-                Double.NEGATIVE_INFINITY,
-                0,
-                Arrays.asList(0L, 0L, 0L, 0L)))
-        .inOrder();
   }
 }

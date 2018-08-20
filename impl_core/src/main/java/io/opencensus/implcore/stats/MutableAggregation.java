@@ -19,11 +19,18 @@ package io.opencensus.implcore.stats;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.opencensus.common.Function;
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.Distribution;
+import io.opencensus.metrics.Point;
+import io.opencensus.metrics.Value;
 import io.opencensus.stats.Aggregation;
+import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.BucketBoundaries;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /** Mutable version of {@link Aggregation} that supports adding values. */
@@ -56,28 +63,24 @@ abstract class MutableAggregation {
    */
   abstract void combine(MutableAggregation other, double fraction);
 
-  /** Applies the given match function to the underlying data type. */
-  abstract <T> T match(
-      Function<? super MutableSum, T> p0,
-      Function<? super MutableCount, T> p1,
-      Function<? super MutableMean, T> p2,
-      Function<? super MutableDistribution, T> p3,
-      Function<? super MutableLastValue, T> p4);
+  abstract AggregationData toAggregationData();
 
-  /** Calculate sum on aggregated {@code MeasureValue}s. */
-  static final class MutableSum extends MutableAggregation {
+  abstract Point toPoint(Timestamp timestamp);
+
+  /** Calculate sum of doubles on aggregated {@code MeasureValue}s. */
+  static class MutableSumDouble extends MutableAggregation {
 
     private double sum = 0.0;
 
-    private MutableSum() {}
+    private MutableSumDouble() {}
 
     /**
-     * Construct a {@code MutableSum}.
+     * Construct a {@code MutableSumDouble}.
      *
-     * @return an empty {@code MutableSum}.
+     * @return an empty {@code MutableSumDouble}.
      */
-    static MutableSum create() {
-      return new MutableSum();
+    static MutableSumDouble create() {
+      return new MutableSumDouble();
     }
 
     @Override
@@ -87,27 +90,49 @@ abstract class MutableAggregation {
 
     @Override
     void combine(MutableAggregation other, double fraction) {
-      checkArgument(other instanceof MutableSum, "MutableSum expected.");
-      this.sum += fraction * ((MutableSum) other).getSum();
-    }
-
-    /**
-     * Returns the aggregated sum.
-     *
-     * @return the aggregated sum.
-     */
-    double getSum() {
-      return sum;
+      checkArgument(other instanceof MutableSumDouble, "MutableSumDouble expected.");
+      this.sum += fraction * ((MutableSumDouble) other).sum;
     }
 
     @Override
-    final <T> T match(
-        Function<? super MutableSum, T> p0,
-        Function<? super MutableCount, T> p1,
-        Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3,
-        Function<? super MutableLastValue, T> p4) {
-      return p0.apply(this);
+    AggregationData toAggregationData() {
+      return AggregationData.SumDataDouble.create(sum);
+    }
+
+    @Override
+    Point toPoint(Timestamp timestamp) {
+      return Point.create(Value.doubleValue(sum), timestamp);
+    }
+
+    @VisibleForTesting
+    double getSum() {
+      return sum;
+    }
+  }
+
+  /** Calculate sum of longs on aggregated {@code MeasureValue}s. */
+  static final class MutableSumLong extends MutableSumDouble {
+    private MutableSumLong() {
+      super();
+    }
+
+    /**
+     * Construct a {@code MutableSumLong}.
+     *
+     * @return an empty {@code MutableSumLong}.
+     */
+    static MutableSumLong create() {
+      return new MutableSumLong();
+    }
+
+    @Override
+    AggregationData toAggregationData() {
+      return AggregationData.SumDataLong.create(Math.round(getSum()));
+    }
+
+    @Override
+    Point toPoint(Timestamp timestamp) {
+      return Point.create(Value.longValue(Math.round(getSum())), timestamp);
     }
   }
 
@@ -138,6 +163,16 @@ abstract class MutableAggregation {
       this.count += Math.round(fraction * ((MutableCount) other).getCount());
     }
 
+    @Override
+    AggregationData toAggregationData() {
+      return AggregationData.CountData.create(count);
+    }
+
+    @Override
+    Point toPoint(Timestamp timestamp) {
+      return Point.create(Value.longValue(count), timestamp);
+    }
+
     /**
      * Returns the aggregated count.
      *
@@ -145,16 +180,6 @@ abstract class MutableAggregation {
      */
     long getCount() {
       return count;
-    }
-
-    @Override
-    final <T> T match(
-        Function<? super MutableSum, T> p0,
-        Function<? super MutableCount, T> p1,
-        Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3,
-        Function<? super MutableLastValue, T> p4) {
-      return p1.apply(this);
     }
   }
 
@@ -189,13 +214,24 @@ abstract class MutableAggregation {
       this.sum += mutableMean.sum * fraction;
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    AggregationData toAggregationData() {
+      return AggregationData.MeanData.create(getMean(), count);
+    }
+
+    @Override
+    Point toPoint(Timestamp timestamp) {
+      return Point.create(Value.doubleValue(getMean()), timestamp);
+    }
+
     /**
      * Returns the aggregated mean.
      *
      * @return the aggregated mean.
      */
     double getMean() {
-      return getCount() == 0 ? 0 : getSum() / getCount();
+      return count == 0 ? 0 : sum / count;
     }
 
     /**
@@ -207,23 +243,9 @@ abstract class MutableAggregation {
       return count;
     }
 
-    /**
-     * Returns the aggregated sum.
-     *
-     * @return the aggregated sum.
-     */
+    @VisibleForTesting
     double getSum() {
       return sum;
-    }
-
-    @Override
-    final <T> T match(
-        Function<? super MutableSum, T> p0,
-        Function<? super MutableCount, T> p1,
-        Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3,
-        Function<? super MutableLastValue, T> p4) {
-      return p2.apply(this);
     }
   }
 
@@ -241,6 +263,7 @@ abstract class MutableAggregation {
 
     private final BucketBoundaries bucketBoundaries;
     private final long[] bucketCounts;
+
     // If there's a histogram (i.e bucket boundaries are not empty) in this MutableDistribution,
     // exemplars will have the same size to bucketCounts; otherwise exemplars are null.
     // Only the newest exemplar will be kept at each index.
@@ -362,6 +385,55 @@ abstract class MutableAggregation {
       }
     }
 
+    @Override
+    AggregationData toAggregationData() {
+      List<Long> boxedBucketCounts = new ArrayList<Long>();
+      for (long bucketCount : bucketCounts) {
+        boxedBucketCounts.add(bucketCount);
+      }
+      List<Exemplar> exemplarList = new ArrayList<Exemplar>();
+      if (exemplars != null) {
+        for (Exemplar exemplar : exemplars) {
+          if (exemplar != null) {
+            exemplarList.add(exemplar);
+          }
+        }
+      }
+      return DistributionData.create(
+          mean, count, min, max, sumOfSquaredDeviations, boxedBucketCounts, exemplarList);
+    }
+
+    @Override
+    Point toPoint(Timestamp timestamp) {
+      List<Distribution.Bucket> buckets = new ArrayList<Distribution.Bucket>();
+      for (int bucket = 0; bucket < bucketCounts.length; bucket++) {
+        long bucketCount = bucketCounts[bucket];
+        @javax.annotation.Nullable AggregationData.DistributionData.Exemplar exemplar = null;
+        if (exemplars != null) {
+          exemplar = exemplars[bucket];
+        }
+
+        Distribution.Bucket metricBucket;
+        if (exemplar != null) {
+          // Bucket with an Exemplar.
+          metricBucket =
+              Distribution.Bucket.create(
+                  bucketCount,
+                  Distribution.Exemplar.create(
+                      exemplar.getValue(), exemplar.getTimestamp(), exemplar.getAttachments()));
+        } else {
+          // Bucket with no Exemplar.
+          metricBucket = Distribution.Bucket.create(bucketCount);
+        }
+        buckets.add(metricBucket);
+      }
+      return Point.create(
+          Value.distributionValue(
+              Distribution.create(
+                  mean, count, sumOfSquaredDeviations, bucketBoundaries.getBoundaries(), buckets)),
+          timestamp);
+    }
+
     double getMean() {
       return mean;
     }
@@ -395,35 +467,25 @@ abstract class MutableAggregation {
     Exemplar[] getExemplars() {
       return exemplars;
     }
-
-    @Override
-    final <T> T match(
-        Function<? super MutableSum, T> p0,
-        Function<? super MutableCount, T> p1,
-        Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3,
-        Function<? super MutableLastValue, T> p4) {
-      return p3.apply(this);
-    }
   }
 
-  /** Calculate last value on aggregated {@code MeasureValue}s. */
-  static final class MutableLastValue extends MutableAggregation {
+  /** Calculate double last value on aggregated {@code MeasureValue}s. */
+  static class MutableLastValueDouble extends MutableAggregation {
 
     // Initial value that will get reset as soon as first value is added.
     private double lastValue = Double.NaN;
     // TODO(songya): remove this once interval stats is completely removed.
     private boolean initialized = false;
 
-    private MutableLastValue() {}
+    private MutableLastValueDouble() {}
 
     /**
-     * Construct a {@code MutableLastValue}.
+     * Construct a {@code MutableLastValueDouble}.
      *
-     * @return an empty {@code MutableLastValue}.
+     * @return an empty {@code MutableLastValueDouble}.
      */
-    static MutableLastValue create() {
-      return new MutableLastValue();
+    static MutableLastValueDouble create() {
+      return new MutableLastValueDouble();
     }
 
     @Override
@@ -437,30 +499,52 @@ abstract class MutableAggregation {
 
     @Override
     void combine(MutableAggregation other, double fraction) {
-      checkArgument(other instanceof MutableLastValue, "MutableLastValue expected.");
-      MutableLastValue otherValue = (MutableLastValue) other;
+      checkArgument(other instanceof MutableLastValueDouble, "MutableLastValueDouble expected.");
+      MutableLastValueDouble otherValue = (MutableLastValueDouble) other;
       // Assume other is always newer than this, because we combined interval buckets in time order.
       // If there's a newer value, overwrite current value.
       this.lastValue = otherValue.initialized ? otherValue.getLastValue() : this.lastValue;
     }
 
-    /**
-     * Returns the last value.
-     *
-     * @return the last value.
-     */
-    double getLastValue() {
-      return lastValue;
+    @Override
+    AggregationData toAggregationData() {
+      return AggregationData.LastValueDataDouble.create(lastValue);
     }
 
     @Override
-    final <T> T match(
-        Function<? super MutableSum, T> p0,
-        Function<? super MutableCount, T> p1,
-        Function<? super MutableMean, T> p2,
-        Function<? super MutableDistribution, T> p3,
-        Function<? super MutableLastValue, T> p4) {
-      return p4.apply(this);
+    Point toPoint(Timestamp timestamp) {
+      return Point.create(Value.doubleValue(lastValue), timestamp);
+    }
+
+    @VisibleForTesting
+    double getLastValue() {
+      return lastValue;
+    }
+  }
+
+  /** Calculate last long value on aggregated {@code MeasureValue}s. */
+  static final class MutableLastValueLong extends MutableLastValueDouble {
+    private MutableLastValueLong() {
+      super();
+    }
+
+    /**
+     * Construct a {@code MutableLastValueLong}.
+     *
+     * @return an empty {@code MutableLastValueLong}.
+     */
+    static MutableLastValueLong create() {
+      return new MutableLastValueLong();
+    }
+
+    @Override
+    AggregationData toAggregationData() {
+      return AggregationData.LastValueDataLong.create(Math.round(getLastValue()));
+    }
+
+    @Override
+    Point toPoint(Timestamp timestamp) {
+      return Point.create(Value.longValue(Math.round(getLastValue())), timestamp);
     }
   }
 }

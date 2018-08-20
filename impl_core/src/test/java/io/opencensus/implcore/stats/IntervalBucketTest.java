@@ -22,6 +22,7 @@ import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.stats.Aggregation.Mean;
+import io.opencensus.stats.Measure.MeasureDouble;
 import io.opencensus.tags.TagValue;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +40,8 @@ public class IntervalBucketTest {
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   private static final double TOLERANCE = 1e-6;
+  private static final MeasureDouble MEASURE_DOUBLE =
+      MeasureDouble.create("measure1", "description", "1");
   private static final Duration MINUTE = Duration.create(60, 0);
   private static final Duration NEGATIVE_TEN_SEC = Duration.create(-10, 0);
   private static final Timestamp START = Timestamp.create(60, 0);
@@ -47,40 +50,47 @@ public class IntervalBucketTest {
   @Test
   public void preventNullStartTime() {
     thrown.expect(NullPointerException.class);
-    new IntervalBucket(null, MINUTE, MEAN);
+    new IntervalBucket(null, MINUTE, MEAN, MEASURE_DOUBLE);
   }
 
   @Test
   public void preventNullDuration() {
     thrown.expect(NullPointerException.class);
-    new IntervalBucket(START, null, MEAN);
+    new IntervalBucket(START, null, MEAN, MEASURE_DOUBLE);
   }
 
   @Test
   public void preventNegativeDuration() {
     thrown.expect(IllegalArgumentException.class);
-    new IntervalBucket(START, NEGATIVE_TEN_SEC, MEAN);
+    new IntervalBucket(START, NEGATIVE_TEN_SEC, MEAN, MEASURE_DOUBLE);
   }
 
   @Test
-  public void preventNullAggregationList() {
+  public void preventNullAggregation() {
     thrown.expect(NullPointerException.class);
-    new IntervalBucket(START, MINUTE, null);
+    new IntervalBucket(START, MINUTE, null, MEASURE_DOUBLE);
+  }
+
+  @Test
+  public void preventNullMeasure() {
+    thrown.expect(NullPointerException.class);
+    new IntervalBucket(START, MINUTE, MEAN, null);
   }
 
   @Test
   public void testGetTagValueAggregationMap_empty() {
-    assertThat(new IntervalBucket(START, MINUTE, MEAN).getTagValueAggregationMap()).isEmpty();
+    assertThat(new IntervalBucket(START, MINUTE, MEAN, MEASURE_DOUBLE).getTagValueAggregationMap())
+        .isEmpty();
   }
 
   @Test
   public void testGetStart() {
-    assertThat(new IntervalBucket(START, MINUTE, MEAN).getStart()).isEqualTo(START);
+    assertThat(new IntervalBucket(START, MINUTE, MEAN, MEASURE_DOUBLE).getStart()).isEqualTo(START);
   }
 
   @Test
   public void testRecord() {
-    IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN);
+    IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN, MEASURE_DOUBLE);
     List<TagValue> tagValues1 = Arrays.<TagValue>asList(TagValue.create("VALUE1"));
     List<TagValue> tagValues2 = Arrays.<TagValue>asList(TagValue.create("VALUE2"));
     bucket.record(tagValues1, 5.0, Collections.<String, String>emptyMap(), START);
@@ -98,14 +108,16 @@ public class IntervalBucketTest {
   @Test
   public void testGetFraction() {
     Timestamp thirtySecondsAfterStart = Timestamp.create(90, 0);
-    assertThat(new IntervalBucket(START, MINUTE, MEAN).getFraction(thirtySecondsAfterStart))
+    assertThat(
+            new IntervalBucket(START, MINUTE, MEAN, MEASURE_DOUBLE)
+                .getFraction(thirtySecondsAfterStart))
         .isWithin(TOLERANCE)
         .of(0.5);
   }
 
   @Test
   public void preventCallingGetFractionOnPastBuckets() {
-    IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN);
+    IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN, MEASURE_DOUBLE);
     Timestamp twoMinutesAfterStart = Timestamp.create(180, 0);
     thrown.expect(IllegalArgumentException.class);
     bucket.getFraction(twoMinutesAfterStart);
@@ -113,7 +125,7 @@ public class IntervalBucketTest {
 
   @Test
   public void preventCallingGetFractionOnFutureBuckets() {
-    IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN);
+    IntervalBucket bucket = new IntervalBucket(START, MINUTE, MEAN, MEASURE_DOUBLE);
     Timestamp thirtySecondsBeforeStart = Timestamp.create(30, 0);
     thrown.expect(IllegalArgumentException.class);
     bucket.getFraction(thirtySecondsBeforeStart);
