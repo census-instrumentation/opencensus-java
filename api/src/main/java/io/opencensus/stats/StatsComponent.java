@@ -45,8 +45,8 @@ public abstract class StatsComponent {
    * <p>When no implementation is available, {@code getState} always returns {@link
    * StatsCollectionState#DISABLED}.
    *
-   * <p>Once {@link #getState()} is called, subsequent calls to {@link
-   * #setState(StatsCollectionState)} will throw an {@code IllegalStateException}.
+   * <p>IMPORTANT: The returned value cannot be cached because subsequent calls to {@link
+   * #setState(StatsCollectionState)} can change the current value.
    *
    * @return the current {@code StatsCollectionState}.
    * @since 0.8
@@ -62,11 +62,9 @@ public abstract class StatsComponent {
    * recorded will be cleared.
    *
    * @param state the new {@code StatsCollectionState}.
-   * @throws IllegalStateException if {@link #getState()} was previously called.
    * @deprecated This method is deprecated because other libraries could cache the result of {@link
    *     #getState()}, use a stale value, and behave incorrectly. It is only safe to call early in
-   *     initialization. This method throws {@link IllegalStateException} after {@code getState()}
-   *     has been called, in order to limit changes to the result of {@code getState()}.
+   *     initialization.
    * @since 0.8
    */
   @Deprecated

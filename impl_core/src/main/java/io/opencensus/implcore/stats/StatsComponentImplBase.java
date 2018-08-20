@@ -16,7 +16,6 @@
 
 package io.opencensus.implcore.stats;
 
-import com.google.common.base.Preconditions;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.metrics.MetricProducer;
@@ -28,7 +27,7 @@ import io.opencensus.stats.StatsComponent;
 public class StatsComponentImplBase extends StatsComponent {
 
   // The StatsCollectionState shared between the StatsComponent, StatsRecorder and ViewManager.
-  private final CurrentStatsState state = new CurrentStatsState();
+  private final CurrentStatsState currentState = new CurrentStatsState();
 
   private final ViewManagerImpl viewManager;
   private final StatsRecorderImpl statsRecorder;
@@ -40,7 +39,7 @@ public class StatsComponentImplBase extends StatsComponent {
    * @param clock the clock to use when recording stats.
    */
   public StatsComponentImplBase(EventQueue queue, Clock clock) {
-    StatsManager statsManager = new StatsManager(queue, clock, state);
+    StatsManager statsManager = new StatsManager(queue, clock, currentState);
     this.viewManager = new ViewManagerImpl(statsManager);
     this.statsRecorder = new StatsRecorderImpl(statsManager);
 
@@ -62,13 +61,15 @@ public class StatsComponentImplBase extends StatsComponent {
 
   @Override
   public StatsCollectionState getState() {
-    return state.get();
+    return currentState.get();
   }
 
   @Override
   @SuppressWarnings("deprecation")
-  public void setState(StatsCollectionState newState) {
-    boolean stateChanged = state.set(Preconditions.checkNotNull(newState, "newState"));
+  // Synchronized because needs to ensure that the call to resume/clear are happening atomically
+  // with the change of the state.
+  public synchronized void setState(StatsCollectionState newState) {
+    boolean stateChanged = currentState.set(newState);
     if (stateChanged) {
       if (newState == StatsCollectionState.DISABLED) {
         viewManager.clearStats();

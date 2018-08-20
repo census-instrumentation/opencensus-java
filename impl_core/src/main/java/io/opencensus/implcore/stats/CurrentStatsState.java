@@ -17,11 +17,10 @@
 package io.opencensus.implcore.stats;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
-import javax.annotation.concurrent.GuardedBy;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -29,34 +28,19 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * <p>This class allows different stats classes to share the state in a thread-safe way.
  */
-// TODO(sebright): Remove the locking from this class, since it is used as global state.
 @ThreadSafe
-public final class CurrentStatsState {
+final class CurrentStatsState {
+  private static final StatsCollectionState DEFAULT_STATE = StatsCollectionState.ENABLED;
+  private final AtomicReference<StatsCollectionState> currentState =
+      new AtomicReference<StatsCollectionState>(DEFAULT_STATE);
 
-  @GuardedBy("this")
-  private StatsCollectionState currentState = StatsCollectionState.ENABLED;
-
-  @GuardedBy("this")
-  private boolean isRead;
-
-  public synchronized StatsCollectionState get() {
-    isRead = true;
-    return getInternal();
-  }
-
-  synchronized StatsCollectionState getInternal() {
-    return currentState;
+  StatsCollectionState get() {
+    return currentState.get();
   }
 
   // Sets current state to the given state. Returns true if the current state is changed, false
   // otherwise.
-  synchronized boolean set(StatsCollectionState state) {
-    checkState(!isRead, "State was already read, cannot set state.");
-    if (state == currentState) {
-      return false;
-    } else {
-      currentState = checkNotNull(state, "state");
-      return true;
-    }
+  boolean set(StatsCollectionState state) {
+    return state != currentState.getAndSet(checkNotNull(state, "state"));
   }
 }
