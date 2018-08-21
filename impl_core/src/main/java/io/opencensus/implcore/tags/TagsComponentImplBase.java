@@ -18,6 +18,8 @@ package io.opencensus.implcore.tags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.opencensus.implcore.internal.CurrentState;
+import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.implcore.tags.propagation.TagPropagationComponentImpl;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.TaggingState;
@@ -26,13 +28,14 @@ import io.opencensus.tags.propagation.TagPropagationComponent;
 
 /** Base implementation of {@link TagsComponent}. */
 public class TagsComponentImplBase extends TagsComponent {
+  private static final State DEFAULT_STATE = State.ENABLED;
 
-  // The TaggingState shared between the TagsComponent, Tagger, and TagPropagationComponent
-  private final CurrentTaggingState state = new CurrentTaggingState();
+  // The State shared between the TagsComponent, Tagger, and TagPropagationComponent
+  private final CurrentState currentState = new CurrentState(DEFAULT_STATE);
 
-  private final Tagger tagger = new TaggerImpl(state);
+  private final Tagger tagger = new TaggerImpl(currentState);
   private final TagPropagationComponent tagPropagationComponent =
-      new TagPropagationComponentImpl(state);
+      new TagPropagationComponentImpl(currentState);
 
   @Override
   public Tagger getTagger() {
@@ -46,12 +49,20 @@ public class TagsComponentImplBase extends TagsComponent {
 
   @Override
   public TaggingState getState() {
-    return state.get();
+    return stateToTaggingState(currentState.get());
   }
 
   @Override
   @Deprecated
   public void setState(TaggingState newState) {
-    state.set(checkNotNull(newState, "newState"));
+    currentState.set(taggingStateToState(checkNotNull(newState, "newState")));
+  }
+
+  private static State taggingStateToState(TaggingState taggingState) {
+    return taggingState == TaggingState.ENABLED ? State.ENABLED : State.DISABLED;
+  }
+
+  private static TaggingState stateToTaggingState(State state) {
+    return state == State.ENABLED ? TaggingState.ENABLED : TaggingState.DISABLED;
   }
 }

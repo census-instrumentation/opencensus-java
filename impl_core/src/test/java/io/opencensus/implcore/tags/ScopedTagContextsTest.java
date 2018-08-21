@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.implcore.tags.TagsTestUtil.tagContextToList;
 
 import io.opencensus.common.Scope;
+import io.opencensus.implcore.internal.CurrentState;
+import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagKey;
@@ -41,7 +43,7 @@ public class ScopedTagContextsTest {
   private static final TagValue VALUE_1 = TagValue.create("value 1");
   private static final TagValue VALUE_2 = TagValue.create("value 2");
 
-  private final Tagger tagger = new TaggerImpl(new CurrentTaggingState());
+  private final Tagger tagger = new TaggerImpl(new CurrentState(State.ENABLED));
 
   @Test
   public void defaultTagContext() {
