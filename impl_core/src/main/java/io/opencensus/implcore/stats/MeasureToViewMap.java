@@ -22,10 +22,10 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.metrics.Metric;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
-import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
@@ -69,7 +69,7 @@ final class MeasureToViewMap {
 
   /** Returns a {@link ViewData} corresponding to the given {@link View.Name}. */
   @javax.annotation.Nullable
-  synchronized ViewData getView(View.Name viewName, Clock clock, StatsCollectionState state) {
+  synchronized ViewData getView(View.Name viewName, Clock clock, State state) {
     MutableViewData view = getMutableViewData(viewName);
     return view == null ? null : view.toViewData(clock.now(), state);
   }
@@ -162,7 +162,7 @@ final class MeasureToViewMap {
     }
   }
 
-  synchronized List<Metric> getMetrics(Clock clock, StatsCollectionState state) {
+  synchronized List<Metric> getMetrics(Clock clock, State state) {
     List<Metric> metrics = new ArrayList<Metric>();
     Timestamp now = clock.now();
     for (Entry<String, MutableViewData> entry : mutableMap.entries()) {

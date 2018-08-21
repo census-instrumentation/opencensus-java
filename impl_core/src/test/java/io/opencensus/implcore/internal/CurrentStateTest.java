@@ -1,5 +1,5 @@
 /*
- * Copyright 2017, OpenCensus Authors
+ * Copyright 2018, OpenCensus Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,52 +14,44 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.stats;
+package io.opencensus.implcore.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.stats.StatsCollectionState;
+import io.opencensus.implcore.internal.CurrentState.State;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link CurrentStatsState}. */
+/** Tests for {@link CurrentState}. */
 @RunWith(JUnit4.class)
-public final class CurrentStatsStateTest {
+public final class CurrentStateTest {
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void defaultState() {
-    assertThat(new CurrentStatsState().get()).isEqualTo(StatsCollectionState.ENABLED);
+    assertThat(new CurrentState(State.ENABLED).get()).isEqualTo(State.ENABLED);
   }
 
   @Test
   public void setState() {
-    CurrentStatsState state = new CurrentStatsState();
-    assertThat(state.set(StatsCollectionState.DISABLED)).isTrue();
-    assertThat(state.getInternal()).isEqualTo(StatsCollectionState.DISABLED);
-    assertThat(state.set(StatsCollectionState.ENABLED)).isTrue();
-    assertThat(state.getInternal()).isEqualTo(StatsCollectionState.ENABLED);
-    assertThat(state.set(StatsCollectionState.ENABLED)).isFalse();
-  }
-
-  @Test
-  public void preventNull() {
-    CurrentStatsState state = new CurrentStatsState();
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("state");
-    state.set(null);
+    CurrentState currentState = new CurrentState(State.ENABLED);
+    assertThat(currentState.set(State.DISABLED)).isTrue();
+    assertThat(currentState.getInternal()).isEqualTo(State.DISABLED);
+    assertThat(currentState.set(State.ENABLED)).isTrue();
+    assertThat(currentState.getInternal()).isEqualTo(State.ENABLED);
+    assertThat(currentState.set(State.ENABLED)).isFalse();
   }
 
   @Test
   public void preventSettingStateAfterReadingState() {
-    CurrentStatsState state = new CurrentStatsState();
-    state.get();
+    CurrentState currentState = new CurrentState(State.ENABLED);
+    currentState.get();
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("State was already read, cannot set state.");
-    state.set(StatsCollectionState.DISABLED);
+    currentState.set(State.DISABLED);
   }
 }

@@ -17,13 +17,14 @@
 package io.opencensus.implcore.tags;
 
 import io.opencensus.common.Scope;
+import io.opencensus.implcore.internal.CurrentState;
+import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.implcore.internal.NoopScope;
 import io.opencensus.tags.InternalUtils;
 import io.opencensus.tags.Tag;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.Tagger;
-import io.opencensus.tags.TaggingState;
 import java.util.Iterator;
 
 public final class TaggerImpl extends Tagger {
@@ -31,9 +32,9 @@ public final class TaggerImpl extends Tagger {
   // withTagContext(...) always puts a TagContextImpl into scope, even if the argument is another
   // TagContext subclass.
 
-  private final CurrentTaggingState state;
+  private final CurrentState state;
 
-  TaggerImpl(CurrentTaggingState state) {
+  TaggerImpl(CurrentState state) {
     this.state = state;
   }
 
@@ -44,35 +45,35 @@ public final class TaggerImpl extends Tagger {
 
   @Override
   public TagContextImpl getCurrentTagContext() {
-    return state.getInternal() == TaggingState.DISABLED
+    return state.getInternal() == State.DISABLED
         ? TagContextImpl.EMPTY
         : toTagContextImpl(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   @Override
   public TagContextBuilder emptyBuilder() {
-    return state.getInternal() == TaggingState.DISABLED
+    return state.getInternal() == State.DISABLED
         ? NoopTagContextBuilder.INSTANCE
         : new TagContextBuilderImpl();
   }
 
   @Override
   public TagContextBuilder currentBuilder() {
-    return state.getInternal() == TaggingState.DISABLED
+    return state.getInternal() == State.DISABLED
         ? NoopTagContextBuilder.INSTANCE
         : toBuilder(CurrentTagContextUtils.getCurrentTagContext());
   }
 
   @Override
   public TagContextBuilder toBuilder(TagContext tags) {
-    return state.getInternal() == TaggingState.DISABLED
+    return state.getInternal() == State.DISABLED
         ? NoopTagContextBuilder.INSTANCE
         : toTagContextBuilderImpl(tags);
   }
 
   @Override
   public Scope withTagContext(TagContext tags) {
-    return state.getInternal() == TaggingState.DISABLED
+    return state.getInternal() == State.DISABLED
         ? NoopScope.getInstance()
         : CurrentTagContextUtils.withTagContext(toTagContextImpl(tags));
   }

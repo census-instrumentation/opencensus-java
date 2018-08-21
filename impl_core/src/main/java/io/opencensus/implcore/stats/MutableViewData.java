@@ -31,6 +31,7 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.CheckerFrameworkUtils;
+import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.Metric;
 import io.opencensus.metrics.MetricDescriptor;
@@ -43,7 +44,6 @@ import io.opencensus.metrics.TimeSeriesList.TimeSeriesGaugeList;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.Measure;
-import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
@@ -92,14 +92,14 @@ abstract class MutableViewData {
   }
 
   @javax.annotation.Nullable
-  abstract Metric toMetric(Timestamp now, StatsCollectionState state);
+  abstract Metric toMetric(Timestamp now, State state);
 
   /** Record stats with the given tags. */
   abstract void record(
       TagContext context, double value, Timestamp timestamp, Map<String, String> attachments);
 
   /** Convert this {@link MutableViewData} to {@link ViewData}. */
-  abstract ViewData toViewData(Timestamp now, StatsCollectionState state);
+  abstract ViewData toViewData(Timestamp now, State state);
 
   // Clear recorded stats.
   abstract void clearStats();
@@ -130,8 +130,8 @@ abstract class MutableViewData {
 
     @javax.annotation.Nullable
     @Override
-    Metric toMetric(Timestamp now, StatsCollectionState state) {
-      if (state == StatsCollectionState.DISABLED) {
+    Metric toMetric(Timestamp now, State state) {
+      if (state == State.DISABLED) {
         return null;
       }
       // TODO(bdrutu): Refactor this after TimeSeriesGauge and TimeSeriesCumulative are combined.
@@ -178,8 +178,8 @@ abstract class MutableViewData {
     }
 
     @Override
-    ViewData toViewData(Timestamp now, StatsCollectionState state) {
-      if (state == StatsCollectionState.ENABLED) {
+    ViewData toViewData(Timestamp now, State state) {
+      if (state == State.ENABLED) {
         return ViewData.create(
             super.view,
             createAggregationMap(tagValueAggregationMap, super.view.getMeasure()),
@@ -262,7 +262,7 @@ abstract class MutableViewData {
 
     @javax.annotation.Nullable
     @Override
-    Metric toMetric(Timestamp now, StatsCollectionState state) {
+    Metric toMetric(Timestamp now, State state) {
       return null;
     }
 
@@ -278,9 +278,9 @@ abstract class MutableViewData {
     }
 
     @Override
-    ViewData toViewData(Timestamp now, StatsCollectionState state) {
+    ViewData toViewData(Timestamp now, State state) {
       refreshBucketList(now);
-      if (state == StatsCollectionState.ENABLED) {
+      if (state == State.ENABLED) {
         return ViewData.create(
             super.view,
             combineBucketsAndGetAggregationMap(now),

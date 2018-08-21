@@ -18,6 +18,8 @@ package io.opencensus.implcore.stats;
 
 import com.google.common.base.Preconditions;
 import io.opencensus.common.Clock;
+import io.opencensus.implcore.internal.CurrentState;
+import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.metrics.MetricProducer;
 import io.opencensus.metrics.Metrics;
@@ -26,9 +28,10 @@ import io.opencensus.stats.StatsComponent;
 
 /** Base implementation of {@link StatsComponent}. */
 public class StatsComponentImplBase extends StatsComponent {
+  private static final State DEFAULT_STATE = State.ENABLED;
 
-  // The StatsCollectionState shared between the StatsComponent, StatsRecorder and ViewManager.
-  private final CurrentStatsState state = new CurrentStatsState();
+  // The State shared between the StatsComponent, StatsRecorder and ViewManager.
+  private final CurrentState currentState = new CurrentState(DEFAULT_STATE);
 
   private final ViewManagerImpl viewManager;
   private final StatsRecorderImpl statsRecorder;
@@ -40,7 +43,7 @@ public class StatsComponentImplBase extends StatsComponent {
    * @param clock the clock to use when recording stats.
    */
   public StatsComponentImplBase(EventQueue queue, Clock clock) {
-    StatsManager statsManager = new StatsManager(queue, clock, state);
+    StatsManager statsManager = new StatsManager(queue, clock, currentState);
     this.viewManager = new ViewManagerImpl(statsManager);
     this.statsRecorder = new StatsRecorderImpl(statsManager);
 
@@ -62,13 +65,14 @@ public class StatsComponentImplBase extends StatsComponent {
 
   @Override
   public StatsCollectionState getState() {
-    return state.get();
+    return stateToStatsState(currentState.get());
   }
 
   @Override
   @SuppressWarnings("deprecation")
   public synchronized void setState(StatsCollectionState newState) {
-    boolean stateChanged = state.set(Preconditions.checkNotNull(newState, "newState"));
+    boolean stateChanged =
+        currentState.set(statsStateToState(Preconditions.checkNotNull(newState, "newState")));
     if (stateChanged) {
       if (newState == StatsCollectionState.DISABLED) {
         viewManager.clearStats();
@@ -76,5 +80,13 @@ public class StatsComponentImplBase extends StatsComponent {
         viewManager.resumeStatsCollection();
       }
     }
+  }
+
+  private static State statsStateToState(StatsCollectionState statsCollectionState) {
+    return statsCollectionState == StatsCollectionState.ENABLED ? State.ENABLED : State.DISABLED;
+  }
+
+  private static StatsCollectionState stateToStatsState(State state) {
+    return state == State.ENABLED ? StatsCollectionState.ENABLED : StatsCollectionState.DISABLED;
   }
 }

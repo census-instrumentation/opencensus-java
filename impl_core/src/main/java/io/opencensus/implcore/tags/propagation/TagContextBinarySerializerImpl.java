@@ -16,10 +16,10 @@
 
 package io.opencensus.implcore.tags.propagation;
 
-import io.opencensus.implcore.tags.CurrentTaggingState;
+import io.opencensus.implcore.internal.CurrentState;
+import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.implcore.tags.TagContextImpl;
 import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TaggingState;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagContextDeserializationException;
 import io.opencensus.tags.propagation.TagContextSerializationException;
@@ -27,22 +27,22 @@ import io.opencensus.tags.propagation.TagContextSerializationException;
 final class TagContextBinarySerializerImpl extends TagContextBinarySerializer {
   private static final byte[] EMPTY_BYTE_ARRAY = {};
 
-  private final CurrentTaggingState state;
+  private final CurrentState state;
 
-  TagContextBinarySerializerImpl(CurrentTaggingState state) {
+  TagContextBinarySerializerImpl(CurrentState state) {
     this.state = state;
   }
 
   @Override
   public byte[] toByteArray(TagContext tags) throws TagContextSerializationException {
-    return state.getInternal() == TaggingState.DISABLED
+    return state.getInternal() == State.DISABLED
         ? EMPTY_BYTE_ARRAY
         : SerializationUtils.serializeBinary(tags);
   }
 
   @Override
   public TagContext fromByteArray(byte[] bytes) throws TagContextDeserializationException {
-    return state.getInternal() == TaggingState.DISABLED
+    return state.getInternal() == State.DISABLED
         ? TagContextImpl.EMPTY
         : SerializationUtils.deserializeBinary(bytes);
   }
