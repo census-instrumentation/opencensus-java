@@ -21,10 +21,11 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.MetricDescriptor.Type;
-import io.opencensus.metrics.TimeSeriesList.TimeSeriesCumulativeList;
-import io.opencensus.metrics.TimeSeriesList.TimeSeriesGaugeList;
+import io.opencensus.metrics.Value.ValueDouble;
+import io.opencensus.metrics.Value.ValueLong;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -61,47 +62,43 @@ public class MetricTest {
   private static final Point POINT_1 = Point.create(VALUE_DOUBLE_1, TIMESTAMP_2);
   private static final Point POINT_2 = Point.create(VALUE_DOUBLE_2, TIMESTAMP_3);
   private static final Point POINT_3 = Point.create(VALUE_LONG, TIMESTAMP_3);
-  private static final TimeSeriesGauge GAUGE_TIME_SERIES_1 =
-      TimeSeriesGauge.create(Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1));
-  private static final TimeSeriesGauge GAUGE_TIME_SERIES_2 =
-      TimeSeriesGauge.create(Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_2));
-  private static final TimeSeriesCumulative CUMULATIVE_TIME_SERIES =
-      TimeSeriesCumulative.create(
-          Arrays.asList(LABEL_VALUE_EMPTY), Arrays.asList(POINT_3), TIMESTAMP_1);
-  private static final TimeSeriesGaugeList TIME_SERIES_GAUGE_LIST =
-      TimeSeriesGaugeList.create(Arrays.asList(GAUGE_TIME_SERIES_1, GAUGE_TIME_SERIES_2));
-  private static final TimeSeriesCumulativeList TIME_SERIES_CUMULATIVE_LIST =
-      TimeSeriesCumulativeList.create(Arrays.asList(CUMULATIVE_TIME_SERIES));
+  private static final TimeSeries GAUGE_TIME_SERIES_1 =
+      TimeSeries.create(Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), null);
+  private static final TimeSeries GAUGE_TIME_SERIES_2 =
+      TimeSeries.create(Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_2), null);
+  private static final TimeSeries CUMULATIVE_TIME_SERIES =
+      TimeSeries.create(Arrays.asList(LABEL_VALUE_EMPTY), Arrays.asList(POINT_3), TIMESTAMP_1);
 
   @Test
   public void testGet() {
-    Metric metric = Metric.create(METRIC_DESCRIPTOR_1, TIME_SERIES_GAUGE_LIST);
+    Metric metric =
+        Metric.create(METRIC_DESCRIPTOR_1, Arrays.asList(GAUGE_TIME_SERIES_1, GAUGE_TIME_SERIES_2));
     assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR_1);
-    assertThat(metric.getTimeSeriesList()).isEqualTo(TIME_SERIES_GAUGE_LIST);
+    assertThat(metric.getTimeSeriesList())
+        .containsExactly(GAUGE_TIME_SERIES_1, GAUGE_TIME_SERIES_2)
+        .inOrder();
   }
 
   @Test
-  public void typeMismatch_GaugeDouble_TimeSeriesCumulative() {
+  public void typeMismatch_GaugeDouble_Long() {
     typeMismatch(
         METRIC_DESCRIPTOR_1,
-        TIME_SERIES_CUMULATIVE_LIST,
+        Arrays.asList(CUMULATIVE_TIME_SERIES),
         String.format(
-            "Type mismatch: %s, %s.",
-            Type.GAUGE_DOUBLE, TIME_SERIES_CUMULATIVE_LIST.getClass().getSimpleName()));
+            "Type mismatch: %s, %s.", Type.GAUGE_DOUBLE, ValueLong.class.getSimpleName()));
   }
 
   @Test
-  public void typeMismatch_CumulativeInt64_TimeSeriesGauge() {
+  public void typeMismatch_CumulativeInt64_Double() {
     typeMismatch(
         METRIC_DESCRIPTOR_2,
-        TIME_SERIES_GAUGE_LIST,
+        Arrays.asList(GAUGE_TIME_SERIES_1),
         String.format(
-            "Type mismatch: %s, %s.",
-            Type.CUMULATIVE_INT64, TIME_SERIES_GAUGE_LIST.getClass().getSimpleName()));
+            "Type mismatch: %s, %s.", Type.CUMULATIVE_INT64, ValueDouble.class.getSimpleName()));
   }
 
   private void typeMismatch(
-      MetricDescriptor metricDescriptor, TimeSeriesList timeSeriesList, String errorMessage) {
+      MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList, String errorMessage) {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(errorMessage);
     Metric.create(metricDescriptor, timeSeriesList);
@@ -111,17 +108,13 @@ public class MetricTest {
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            Metric.create(METRIC_DESCRIPTOR_1, TIME_SERIES_GAUGE_LIST),
-            Metric.create(METRIC_DESCRIPTOR_1, TIME_SERIES_GAUGE_LIST))
-        .addEqualityGroup(
             Metric.create(
-                METRIC_DESCRIPTOR_1,
-                TimeSeriesGaugeList.create(Collections.<TimeSeriesGauge>emptyList())))
-        .addEqualityGroup(Metric.create(METRIC_DESCRIPTOR_2, TIME_SERIES_CUMULATIVE_LIST))
-        .addEqualityGroup(
+                METRIC_DESCRIPTOR_1, Arrays.asList(GAUGE_TIME_SERIES_1, GAUGE_TIME_SERIES_2)),
             Metric.create(
-                METRIC_DESCRIPTOR_2,
-                TimeSeriesCumulativeList.create(Collections.<TimeSeriesCumulative>emptyList())))
+                METRIC_DESCRIPTOR_1, Arrays.asList(GAUGE_TIME_SERIES_1, GAUGE_TIME_SERIES_2)))
+        .addEqualityGroup(Metric.create(METRIC_DESCRIPTOR_1, Collections.<TimeSeries>emptyList()))
+        .addEqualityGroup(Metric.create(METRIC_DESCRIPTOR_2, Arrays.asList(CUMULATIVE_TIME_SERIES)))
+        .addEqualityGroup(Metric.create(METRIC_DESCRIPTOR_2, Collections.<TimeSeries>emptyList()))
         .testEquals();
   }
 }
