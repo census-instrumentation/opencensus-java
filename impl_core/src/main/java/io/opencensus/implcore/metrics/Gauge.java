@@ -27,8 +27,7 @@ import io.opencensus.metrics.Metric;
 import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.metrics.MetricDescriptor.Type;
 import io.opencensus.metrics.Point;
-import io.opencensus.metrics.TimeSeriesGauge;
-import io.opencensus.metrics.TimeSeriesList;
+import io.opencensus.metrics.TimeSeries;
 import io.opencensus.metrics.Value;
 import java.util.Collections;
 import java.util.List;
@@ -38,13 +37,10 @@ abstract class Gauge {
   private final List<LabelValue> labelValues;
 
   final Metric getMetric(Clock clock) {
-    return Metric.create(
-        metricDescriptor,
-        TimeSeriesList.TimeSeriesGaugeList.create(
-            Collections.singletonList(getTimeSeriesGauge(clock))));
+    return Metric.create(metricDescriptor, Collections.singletonList(getTimeSeries(clock)));
   }
 
-  abstract TimeSeriesGauge getTimeSeriesGauge(Clock clock);
+  abstract TimeSeries getTimeSeries(Clock clock);
 
   static final class DoubleGauge<T> extends Gauge {
     private final T obj;
@@ -66,11 +62,12 @@ abstract class Gauge {
     }
 
     @Override
-    TimeSeriesGauge getTimeSeriesGauge(Clock clock) {
-      return TimeSeriesGauge.create(
+    TimeSeries getTimeSeries(Clock clock) {
+      return TimeSeries.create(
           getLabelValues(),
           Collections.singletonList(
-              Point.create(Value.doubleValue(function.applyAsDouble(obj)), clock.now())));
+              Point.create(Value.doubleValue(function.applyAsDouble(obj)), clock.now())),
+          null);
     }
   }
 
@@ -94,11 +91,12 @@ abstract class Gauge {
     }
 
     @Override
-    TimeSeriesGauge getTimeSeriesGauge(Clock clock) {
-      return TimeSeriesGauge.create(
+    TimeSeries getTimeSeries(Clock clock) {
+      return TimeSeries.create(
           getLabelValues(),
           Collections.singletonList(
-              Point.create(Value.longValue(function.applyAsLong(obj)), clock.now())));
+              Point.create(Value.longValue(function.applyAsLong(obj)), clock.now())),
+          null);
     }
   }
 

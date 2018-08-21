@@ -36,10 +36,7 @@ import io.opencensus.metrics.Metric;
 import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.metrics.MetricDescriptor.Type;
 import io.opencensus.metrics.Point;
-import io.opencensus.metrics.TimeSeriesCumulative;
-import io.opencensus.metrics.TimeSeriesGauge;
-import io.opencensus.metrics.TimeSeriesList.TimeSeriesCumulativeList;
-import io.opencensus.metrics.TimeSeriesList.TimeSeriesGaugeList;
+import io.opencensus.metrics.TimeSeries;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.Measure;
@@ -134,34 +131,18 @@ abstract class MutableViewData {
       if (state == StatsCollectionState.DISABLED) {
         return null;
       }
-      // TODO(bdrutu): Refactor this after TimeSeriesGauge and TimeSeriesCumulative are combined.
       Type type = metricDescriptor.getType();
-      if (type == Type.GAUGE_INT64 || type == Type.GAUGE_DOUBLE) {
-        List<TimeSeriesGauge> timeSeriesGauges = new ArrayList<TimeSeriesGauge>();
-        for (Entry<List</*@Nullable*/ TagValue>, MutableAggregation> entry :
-            tagValueAggregationMap.entrySet()) {
-          List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
-          Point point = entry.getValue().toPoint(now);
-          timeSeriesGauges.add(
-              TimeSeriesGauge.create(labelValues, Collections.singletonList(point)));
-        }
-        return Metric.create(metricDescriptor, TimeSeriesGaugeList.create(timeSeriesGauges));
-      } else {
-        List<TimeSeriesCumulative> timeSeriesCumulatives = new ArrayList<TimeSeriesCumulative>();
-        for (Entry<
-                List<
-                    /*@Nullable*/
-                    TagValue>,
-                MutableAggregation>
-            entry : tagValueAggregationMap.entrySet()) {
-          List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
-          Point point = entry.getValue().toPoint(now);
-          timeSeriesCumulatives.add(
-              TimeSeriesCumulative.create(labelValues, Collections.singletonList(point), start));
-        }
-        return Metric.create(
-            metricDescriptor, TimeSeriesCumulativeList.create(timeSeriesCumulatives));
+      @javax.annotation.Nullable
+      Timestamp startTime = type == Type.GAUGE_INT64 || type == Type.GAUGE_DOUBLE ? null : start;
+      List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>();
+      for (Entry<List</*@Nullable*/ TagValue>, MutableAggregation> entry :
+          tagValueAggregationMap.entrySet()) {
+        List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
+        Point point = entry.getValue().toPoint(now);
+        timeSeriesList.add(
+            TimeSeries.create(labelValues, Collections.singletonList(point), startTime));
       }
+      return Metric.create(metricDescriptor, timeSeriesList);
     }
 
     @Override
