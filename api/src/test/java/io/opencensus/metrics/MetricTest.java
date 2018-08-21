@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.MetricDescriptor.Type;
-import io.opencensus.metrics.Value.ValueDouble;
-import io.opencensus.metrics.Value.ValueLong;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -85,7 +83,8 @@ public class MetricTest {
         METRIC_DESCRIPTOR_1,
         Arrays.asList(CUMULATIVE_TIME_SERIES),
         String.format(
-            "Type mismatch: %s, %s.", Type.GAUGE_DOUBLE, ValueLong.class.getSimpleName()));
+            "Type mismatch: %s, %s.",
+            Type.GAUGE_DOUBLE, POINT_3.getClass().getSuperclass().getSimpleName()));
   }
 
   @Test
@@ -94,7 +93,8 @@ public class MetricTest {
         METRIC_DESCRIPTOR_2,
         Arrays.asList(GAUGE_TIME_SERIES_1),
         String.format(
-            "Type mismatch: %s, %s.", Type.CUMULATIVE_INT64, ValueDouble.class.getSimpleName()));
+            "Type mismatch: %s, %s.",
+            Type.CUMULATIVE_INT64, POINT_1.getClass().getSuperclass().getSimpleName()));
   }
 
   private void typeMismatch(

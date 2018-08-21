@@ -72,29 +72,28 @@ public abstract class Metric {
     for (TimeSeries timeSeries : timeSeriesList) {
       for (Point point : timeSeries.getPoints()) {
         Value value = point.getValue();
+        String valueClassName = "";
+        if (value.getClass().getSuperclass() != null) { // work around nullness check
+          // AutoValue classes should always have a super class.
+          valueClassName = value.getClass().getSuperclass().getName();
+        }
         switch (type) {
           case GAUGE_INT64:
           case CUMULATIVE_INT64:
             Utils.checkArgument(
                 value instanceof ValueLong,
-                String.format(
-                    "Type mismatch: %s, %s.",
-                    type, value.getClass().getSuperclass().getSimpleName()));
+                String.format("Type mismatch: %s, %s.", type, valueClassName));
             break;
           case CUMULATIVE_DOUBLE:
           case GAUGE_DOUBLE:
             Utils.checkArgument(
                 value instanceof ValueDouble,
-                String.format(
-                    "Type mismatch: %s, %s.",
-                    type, value.getClass().getSuperclass().getSimpleName()));
+                String.format("Type mismatch: %s, %s.", type, valueClassName));
             break;
           case CUMULATIVE_DISTRIBUTION:
             Utils.checkArgument(
                 value instanceof ValueDistribution,
-                String.format(
-                    "Type mismatch: %s, %s.",
-                    type, value.getClass().getSuperclass().getSimpleName()));
+                String.format("Type mismatch: %s, %s.", type, valueClassName));
         }
       }
     }
