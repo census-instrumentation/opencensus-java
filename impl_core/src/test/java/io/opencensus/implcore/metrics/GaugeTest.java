@@ -29,8 +29,7 @@ import io.opencensus.metrics.Metric;
 import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.metrics.MetricDescriptor.Type;
 import io.opencensus.metrics.Point;
-import io.opencensus.metrics.TimeSeriesGauge;
-import io.opencensus.metrics.TimeSeriesList;
+import io.opencensus.metrics.TimeSeries;
 import io.opencensus.metrics.Value;
 import io.opencensus.testing.common.TestClock;
 import java.util.Collections;
@@ -89,12 +88,12 @@ public class GaugeTest {
         .isEqualTo(
             Metric.create(
                 MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEYS),
-                TimeSeriesList.TimeSeriesGaugeList.create(
-                    Collections.singletonList(
-                        TimeSeriesGauge.create(
-                            LABEL_VALUES,
-                            Collections.singletonList(
-                                Point.create(Value.longValue(OBJ.hashCode()), TEST_TIME)))))));
+                Collections.singletonList(
+                    TimeSeries.create(
+                        LABEL_VALUES,
+                        Collections.singletonList(
+                            Point.create(Value.longValue(OBJ.hashCode()), TEST_TIME)),
+                        null))));
   }
 
   @Test
@@ -103,11 +102,11 @@ public class GaugeTest {
         .isEqualTo(
             Metric.create(
                 MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEYS),
-                TimeSeriesList.TimeSeriesGaugeList.create(
-                    Collections.singletonList(
-                        TimeSeriesGauge.create(
-                            LABEL_VALUES,
-                            Collections.singletonList(
-                                Point.create(Value.doubleValue(OBJ.hashCode()), TEST_TIME)))))));
+                Collections.singletonList(
+                    TimeSeries.create(
+                        LABEL_VALUES,
+                        Collections.singletonList(
+                            Point.create(Value.doubleValue(OBJ.hashCode()), TEST_TIME)),
+                        null))));
   }
 }

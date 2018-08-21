@@ -19,8 +19,10 @@ package io.opencensus.metrics;
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.internal.Utils;
-import io.opencensus.metrics.TimeSeriesList.TimeSeriesCumulativeList;
-import io.opencensus.metrics.TimeSeriesList.TimeSeriesGaugeList;
+import io.opencensus.metrics.Value.ValueDistribution;
+import io.opencensus.metrics.Value.ValueDouble;
+import io.opencensus.metrics.Value.ValueLong;
+import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -39,11 +41,11 @@ public abstract class Metric {
    * Creates a {@link Metric}.
    *
    * @param metricDescriptor the {@link MetricDescriptor}.
-   * @param timeSeriesList the {@link TimeSeriesList} for this metric.
+   * @param timeSeriesList the {@link TimeSeries} list for this metric.
    * @return a {@code Metric}.
    * @since 0.16
    */
-  public static Metric create(MetricDescriptor metricDescriptor, TimeSeriesList timeSeriesList) {
+  public static Metric create(MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
     checkTypeMatch(metricDescriptor.getType(), timeSeriesList);
     return new AutoValue_Metric(metricDescriptor, timeSeriesList);
   }
@@ -57,32 +59,43 @@ public abstract class Metric {
   public abstract MetricDescriptor getMetricDescriptor();
 
   /**
-   * Returns the {@link TimeSeriesList} for this metric.
+   * Returns the {@link TimeSeries} list for this metric.
    *
-   * <p>The type of the {@link TimeSeriesList} must match {@link MetricDescriptor.Type}.
+   * <p>The type of the {@link TimeSeries#getPoints()} must match {@link MetricDescriptor.Type}.
    *
    * @return the {@code TimeSeriesList} for this metric.
    * @since 0.16
    */
-  public abstract TimeSeriesList getTimeSeriesList();
+  public abstract List<TimeSeries> getTimeSeriesList();
 
-  private static void checkTypeMatch(MetricDescriptor.Type type, TimeSeriesList timeSeriesList) {
-    switch (type) {
-      case GAUGE_INT64:
-      case GAUGE_DOUBLE:
-        Utils.checkArgument(
-            timeSeriesList instanceof TimeSeriesGaugeList,
-            String.format(
-                "Type mismatch: %s, %s.", type, timeSeriesList.getClass().getSimpleName()));
-        break;
-      case CUMULATIVE_DISTRIBUTION:
-      case CUMULATIVE_DOUBLE:
-      case CUMULATIVE_INT64:
-        Utils.checkArgument(
-            timeSeriesList instanceof TimeSeriesCumulativeList,
-            String.format(
-                "Type mismatch: %s, %s.", type, timeSeriesList.getClass().getSimpleName()));
-        break;
+  private static void checkTypeMatch(MetricDescriptor.Type type, List<TimeSeries> timeSeriesList) {
+    for (TimeSeries timeSeries : timeSeriesList) {
+      for (Point point : timeSeries.getPoints()) {
+        Value value = point.getValue();
+        String valueClassName = "";
+        if (value.getClass().getSuperclass() != null) { // work around nullness check
+          // AutoValue classes should always have a super class.
+          valueClassName = value.getClass().getSuperclass().getSimpleName();
+        }
+        switch (type) {
+          case GAUGE_INT64:
+          case CUMULATIVE_INT64:
+            Utils.checkArgument(
+                value instanceof ValueLong,
+                String.format("Type mismatch: %s, %s.", type, valueClassName));
+            break;
+          case CUMULATIVE_DOUBLE:
+          case GAUGE_DOUBLE:
+            Utils.checkArgument(
+                value instanceof ValueDouble,
+                String.format("Type mismatch: %s, %s.", type, valueClassName));
+            break;
+          case CUMULATIVE_DISTRIBUTION:
+            Utils.checkArgument(
+                value instanceof ValueDistribution,
+                String.format("Type mismatch: %s, %s.", type, valueClassName));
+        }
+      }
     }
   }
 }

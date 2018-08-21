@@ -30,9 +30,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TimeSeriesCumulative}. */
+/** Unit tests for {@link TimeSeries}. */
 @RunWith(JUnit4.class)
-public class TimeSeriesCumulativeTest {
+public class TimeSeriesTest {
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -47,9 +47,9 @@ public class TimeSeriesCumulativeTest {
   private static final Point POINT_2 = Point.create(VALUE_LONG, TIMESTAMP_3);
 
   @Test
-  public void testGet_TimeSeriesCumulative() {
-    TimeSeriesCumulative cumulativeTimeSeries =
-        TimeSeriesCumulative.create(
+  public void testGet_TimeSeries() {
+    TimeSeries cumulativeTimeSeries =
+        TimeSeries.create(
             Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_1);
     assertThat(cumulativeTimeSeries.getStartTimestamp()).isEqualTo(TIMESTAMP_1);
     assertThat(cumulativeTimeSeries.getLabelValues())
@@ -62,7 +62,7 @@ public class TimeSeriesCumulativeTest {
   public void create_WithNullLabelValueList() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage(CoreMatchers.equalTo("labelValues"));
-    TimeSeriesCumulative.create(null, Collections.<Point>emptyList(), TIMESTAMP_1);
+    TimeSeries.create(null, Collections.<Point>emptyList(), TIMESTAMP_1);
   }
 
   @Test
@@ -70,14 +70,14 @@ public class TimeSeriesCumulativeTest {
     List<LabelValue> labelValues = Arrays.asList(LABEL_VALUE_1, null);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage(CoreMatchers.equalTo("labelValue"));
-    TimeSeriesCumulative.create(labelValues, Collections.<Point>emptyList(), TIMESTAMP_1);
+    TimeSeries.create(labelValues, Collections.<Point>emptyList(), TIMESTAMP_1);
   }
 
   @Test
   public void create_WithNullPointList() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage(CoreMatchers.equalTo("points"));
-    TimeSeriesCumulative.create(Collections.<LabelValue>emptyList(), null, TIMESTAMP_1);
+    TimeSeries.create(Collections.<LabelValue>emptyList(), null, TIMESTAMP_1);
   }
 
   @Test
@@ -85,28 +85,31 @@ public class TimeSeriesCumulativeTest {
     List<Point> points = Arrays.asList(POINT_1, null);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage(CoreMatchers.equalTo("point"));
-    TimeSeriesCumulative.create(Collections.<LabelValue>emptyList(), points, TIMESTAMP_1);
+    TimeSeries.create(Collections.<LabelValue>emptyList(), points, TIMESTAMP_1);
   }
 
   @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
-            TimeSeriesCumulative.create(
+            TimeSeries.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_1),
-            TimeSeriesCumulative.create(
+            TimeSeries.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_1))
         .addEqualityGroup(
-            TimeSeriesCumulative.create(
+            TimeSeries.create(
+                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), null),
+            TimeSeries.create(
+                Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), null))
+        .addEqualityGroup(
+            TimeSeries.create(
                 Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), TIMESTAMP_2))
         .addEqualityGroup(
-            TimeSeriesCumulative.create(
-                Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1), TIMESTAMP_2))
+            TimeSeries.create(Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1), TIMESTAMP_2))
         .addEqualityGroup(
-            TimeSeriesCumulative.create(
-                Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_2), TIMESTAMP_2))
+            TimeSeries.create(Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_2), TIMESTAMP_2))
         .addEqualityGroup(
-            TimeSeriesCumulative.create(
+            TimeSeries.create(
                 Arrays.asList(LABEL_VALUE_1), Arrays.asList(POINT_1, POINT_2), TIMESTAMP_2))
         .testEquals();
   }

@@ -16,14 +16,50 @@
 
 package io.opencensus.metrics;
 
+import com.google.auto.value.AutoValue;
+import io.opencensus.common.ExperimentalApi;
+import io.opencensus.common.Timestamp;
+import io.opencensus.internal.Utils;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-/** A collection of data points that describes the time-varying values of a {@code Metric}. */
+/**
+ * A collection of data points that describes the time-varying values of a {@code Metric}.
+ *
+ * @since 0.16
+ */
+@ExperimentalApi
 @Immutable
-abstract class TimeSeries {
+@AutoValue
+public abstract class TimeSeries {
 
   TimeSeries() {}
+
+  /**
+   * Creates a {@link TimeSeries}.
+   *
+   * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
+   * @param points the data {@code Point}s of this {@code TimeSeries}.
+   * @param startTimestamp the start {@code Timestamp} of this {@code TimeSeries}. Must be non-null
+   *     for cumulative {@code Point}s.
+   * @return a {@code TimeSeries}.
+   * @since 0.16
+   */
+  public static TimeSeries create(
+      List<LabelValue> labelValues, List<Point> points, @Nullable Timestamp startTimestamp) {
+    // Fail fast on null lists to prevent NullPointerException when copying the lists.
+    Utils.checkNotNull(labelValues, "labelValues");
+    Utils.checkNotNull(points, "points");
+    Utils.checkListElementNotNull(labelValues, "labelValue");
+    Utils.checkListElementNotNull(points, "point");
+    return new AutoValue_TimeSeries(
+        Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
+        Collections.unmodifiableList(new ArrayList<Point>(points)),
+        startTimestamp);
+  }
 
   /**
    * Returns the set of {@link LabelValue}s that uniquely identify this {@link TimeSeries}.
@@ -45,4 +81,14 @@ abstract class TimeSeries {
    * @since 0.16
    */
   public abstract List<Point> getPoints();
+
+  /**
+   * Returns the start {@link Timestamp} of this {@link TimeSeries} if the {@link Point}s are
+   * cumulative, or {@code null} if the {@link Point}s are gauge.
+   *
+   * @return the start {@code Timestamp} or {@code null}.
+   * @since 0.16
+   */
+  @Nullable
+  public abstract Timestamp getStartTimestamp();
 }

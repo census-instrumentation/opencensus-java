@@ -27,8 +27,7 @@ import io.opencensus.metrics.Metric;
 import io.opencensus.metrics.MetricDescriptor;
 import io.opencensus.metrics.MetricDescriptor.Type;
 import io.opencensus.metrics.Point;
-import io.opencensus.metrics.TimeSeriesGauge;
-import io.opencensus.metrics.TimeSeriesList;
+import io.opencensus.metrics.TimeSeries;
 import io.opencensus.metrics.Value;
 import io.opencensus.testing.common.TestClock;
 import java.util.Collections;
@@ -159,12 +158,11 @@ public class MetricRegistryImplTest {
                     UNIT,
                     Type.GAUGE_DOUBLE,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                TimeSeriesList.TimeSeriesGaugeList.create(
-                    Collections.singletonList(
-                        TimeSeriesGauge.create(
-                            Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                            Collections.singletonList(
-                                Point.create(Value.doubleValue(5.0), TEST_TIME)))))));
+                Collections.singletonList(
+                    TimeSeries.create(
+                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
+                        Collections.singletonList(Point.create(Value.doubleValue(5.0), TEST_TIME)),
+                        null))));
   }
 
   @Test
@@ -264,12 +262,11 @@ public class MetricRegistryImplTest {
                     UNIT,
                     Type.GAUGE_INT64,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                TimeSeriesList.TimeSeriesGaugeList.create(
-                    Collections.singletonList(
-                        TimeSeriesGauge.create(
-                            Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                            Collections.singletonList(
-                                Point.create(Value.longValue(7), TEST_TIME)))))));
+                Collections.singletonList(
+                    TimeSeries.create(
+                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
+                        Collections.singletonList(Point.create(Value.longValue(7), TEST_TIME)),
+                        null))));
   }
 
   @Test
@@ -307,12 +304,11 @@ public class MetricRegistryImplTest {
                     UNIT,
                     Type.GAUGE_INT64,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                TimeSeriesList.TimeSeriesGaugeList.create(
-                    Collections.singletonList(
-                        TimeSeriesGauge.create(
-                            Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                            Collections.singletonList(
-                                Point.create(Value.longValue(7), TEST_TIME)))))),
+                Collections.singletonList(
+                    TimeSeries.create(
+                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
+                        Collections.singletonList(Point.create(Value.longValue(7), TEST_TIME)),
+                        null))),
             Metric.create(
                 MetricDescriptor.create(
                     NAME,
@@ -320,12 +316,11 @@ public class MetricRegistryImplTest {
                     UNIT,
                     Type.GAUGE_DOUBLE,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                TimeSeriesList.TimeSeriesGaugeList.create(
-                    Collections.singletonList(
-                        TimeSeriesGauge.create(
-                            Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                            Collections.singletonList(
-                                Point.create(Value.doubleValue(5.0), TEST_TIME)))))));
+                Collections.singletonList(
+                    TimeSeries.create(
+                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
+                        Collections.singletonList(Point.create(Value.doubleValue(5.0), TEST_TIME)),
+                        null))));
   }
 
   @Test
