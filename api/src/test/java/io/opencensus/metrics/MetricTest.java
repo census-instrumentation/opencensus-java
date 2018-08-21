@@ -82,9 +82,7 @@ public class MetricTest {
     typeMismatch(
         METRIC_DESCRIPTOR_1,
         Arrays.asList(CUMULATIVE_TIME_SERIES),
-        String.format(
-            "Type mismatch: %s, %s.",
-            Type.GAUGE_DOUBLE, POINT_3.getClass().getSuperclass().getSimpleName()));
+        String.format("Type mismatch: %s, %s.", Type.GAUGE_DOUBLE, "ValueLong"));
   }
 
   @Test
@@ -92,9 +90,7 @@ public class MetricTest {
     typeMismatch(
         METRIC_DESCRIPTOR_2,
         Arrays.asList(GAUGE_TIME_SERIES_1),
-        String.format(
-            "Type mismatch: %s, %s.",
-            Type.CUMULATIVE_INT64, POINT_1.getClass().getSuperclass().getSimpleName()));
+        String.format("Type mismatch: %s, %s.", Type.CUMULATIVE_INT64, "ValueDouble"));
   }
 
   private void typeMismatch(

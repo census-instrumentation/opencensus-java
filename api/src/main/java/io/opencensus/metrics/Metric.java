@@ -75,7 +75,7 @@ public abstract class Metric {
         String valueClassName = "";
         if (value.getClass().getSuperclass() != null) { // work around nullness check
           // AutoValue classes should always have a super class.
-          valueClassName = value.getClass().getSuperclass().getName();
+          valueClassName = value.getClass().getSuperclass().getSimpleName();
         }
         switch (type) {
           case GAUGE_INT64:
