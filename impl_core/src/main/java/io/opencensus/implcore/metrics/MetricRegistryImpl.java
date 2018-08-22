@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/** Implementation of {@link MetricRegistry}. */
 public final class MetricRegistryImpl extends MetricRegistry {
   private final Clock clock;
   private volatile Set<Gauge> registeredGauges = Collections.emptySet();

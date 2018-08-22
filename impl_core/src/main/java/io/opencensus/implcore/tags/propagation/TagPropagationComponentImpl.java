@@ -20,6 +20,7 @@ import io.opencensus.implcore.internal.CurrentState;
 import io.opencensus.tags.propagation.TagContextBinarySerializer;
 import io.opencensus.tags.propagation.TagPropagationComponent;
 
+/** Implementation of {@link TagPropagationComponent}. */
 public final class TagPropagationComponentImpl extends TagPropagationComponent {
   private final TagContextBinarySerializer tagContextBinarySerializer;
 

@@ -156,9 +156,9 @@ public abstract class Distribution {
   public abstract List<Double> getBucketBoundaries();
 
   /**
-   * Returns the the aggregated histogram {@link Bucket}s.
+   * Returns the aggregated histogram {@link Bucket}s.
    *
-   * @return the the aggregated histogram buckets.
+   * @return the aggregated histogram buckets.
    * @since 0.16
    */
   public abstract List<Bucket> getBuckets();

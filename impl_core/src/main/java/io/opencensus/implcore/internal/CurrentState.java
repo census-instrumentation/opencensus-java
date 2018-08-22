@@ -25,9 +25,12 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public final class CurrentState {
 
+  /** Current state for stats or tags. */
   public enum State {
+    /** State that fully enables stats collection or tag propagation. */
     ENABLED,
 
+    /** State that disables stats collection or tag propagation. */
     DISABLED
   }
 
