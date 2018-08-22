@@ -5,7 +5,7 @@
       <JsonLayout compact="true" eventEol="true">
 
         <!--
-        This section reads the trace ID, span ID, and sampled fields from the Log4j context and add
+        This section reads the trace ID, span ID, and sampled fields from the Log4j context and adds
         them to the JSON log entry as key-value pairs. It uses the special JSON keys that the
         Stackdriver Logging agent converts to "trace" and "spanId" in the Stackdriver LogEntry
         (https://cloud.google.com/logging/docs/agent/configuration#special_fields_in_structured_payloads).
