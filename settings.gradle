@@ -20,6 +20,7 @@ include ":opencensus-contrib-grpc-metrics"
 include ":opencensus-contrib-grpc-util"
 include ":opencensus-contrib-http-util"
 include ":opencensus-contrib-log-correlation-log4j"
+include ":opencensus-contrib-log-correlation-log4j-demo"
 include ":opencensus-contrib-log-correlation-stackdriver"
 include ":opencensus-contrib-monitored-resource-util"
 include ":opencensus-contrib-spring"
@@ -38,6 +39,8 @@ project(':opencensus-contrib-grpc-util').projectDir = "$rootDir/contrib/grpc_uti
 project(':opencensus-contrib-http-util').projectDir = "$rootDir/contrib/http_util" as File
 project(':opencensus-contrib-log-correlation-log4j').projectDir =
         "$rootDir/contrib/log_correlation/log4j" as File
+project(':opencensus-contrib-log-correlation-log4j-demo').projectDir =
+        "$rootDir/contrib/log_correlation/log4j_demo" as File
 project(':opencensus-contrib-log-correlation-stackdriver').projectDir =
         "$rootDir/contrib/log_correlation/stackdriver" as File
 project(':opencensus-contrib-monitored-resource-util').projectDir =
