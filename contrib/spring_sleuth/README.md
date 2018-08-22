@@ -6,7 +6,9 @@
 The *OpenCensus Spring Sleuth for Java* is a library for automatically
 propagating the OpenCensus trace context when working with [Spring Sleuth][spring-sleuth-url].
 
-This is an __experimental component__.
+This is an __experimental component__, please bring feedback to
+https://gitter.im/census-instrumentation/Lobby not the usual
+sleuth channel https://gitter.im/spring-cloud/spring-cloud-sleuth 
 
 This version is compatible with [Spring Boot 1.5.x][spring-boot-1.5-url].
 
