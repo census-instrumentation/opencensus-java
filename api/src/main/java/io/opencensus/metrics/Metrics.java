@@ -24,6 +24,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
+/**
+ * Class for accessing the default {@link MetricsComponent}.
+ *
+ * @since 0.16
+ */
 @ExperimentalApi
 public final class Metrics {
   private static final Logger logger = Logger.getLogger(Metrics.class.getName());

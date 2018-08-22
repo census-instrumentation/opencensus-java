@@ -27,6 +27,7 @@ import io.opencensus.tags.TagContextBuilder;
 import io.opencensus.tags.Tagger;
 import java.util.Iterator;
 
+/** Implementation of {@link Tagger}. */
 public final class TaggerImpl extends Tagger {
   // All methods in this class use TagContextImpl and TagContextBuilderImpl. For example,
   // withTagContext(...) always puts a TagContextImpl into scope, even if the argument is another
