@@ -30,6 +30,11 @@ import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Map;
 
+/**
+ * Implementaion of Span that is created from a Sleuth Span.
+ *
+ * @since 0.16
+ */
 @ExperimentalApi
 public class OpenCensusSleuthSpan extends Span {
 

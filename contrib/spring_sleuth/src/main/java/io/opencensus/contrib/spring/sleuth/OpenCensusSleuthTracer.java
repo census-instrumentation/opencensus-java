@@ -33,7 +33,12 @@ import org.springframework.cloud.sleuth.log.SpanLogger;
 import org.springframework.cloud.sleuth.util.ExceptionUtils;
 import org.springframework.cloud.sleuth.util.SpanNameUtil;
 
-/** This class is a copy of the Sleuth's {@code DefaultTracer}. */
+/**
+ * Sleuth Tracer that keeps a synchronized OpenCensus Span. This class is based on Sleuth's
+ * {@code DefaultTracer}.
+ *
+ * @since 0.16
+ */
 @ExperimentalApi
 public class OpenCensusSleuthTracer implements Tracer {
   private static final Log log = LogFactory.getLog(OpenCensusSleuthTracer.class);

@@ -37,6 +37,8 @@ import org.springframework.context.annotation.Role;
 /**
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration Auto-configuration} that
  * allows inter-operation between Sleuth(Brave) and OpenCensus.
+ *
+ * @since 0.16
  */
 @ExperimentalApi
 @Configuration

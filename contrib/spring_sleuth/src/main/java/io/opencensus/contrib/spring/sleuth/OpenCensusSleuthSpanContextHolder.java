@@ -23,17 +23,23 @@ import org.apache.commons.logging.Log;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.core.NamedThreadLocal;
 
+/*>>>
+  import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /** Inspired by the Sleuth's {@code SpanContextHolder}. */
 @ExperimentalApi
 final class OpenCensusSleuthSpanContextHolder {
   private static final Log log =
       org.apache.commons.logging.LogFactory.getLog(OpenCensusSleuthSpanContextHolder.class);
-  private static final ThreadLocal<SpanContext> CURRENT_SPAN =
-      new NamedThreadLocal<SpanContext>("Trace Context");
+  private static final ThreadLocal</*@Nullable*/ SpanContext> CURRENT_SPAN =
+      new NamedThreadLocal</*@Nullable*/ SpanContext>("Trace Context");
 
   // Get the current span out of the thread context.
+  @javax.annotation.Nullable
   static Span getCurrentSpan() {
-    return isTracing() ? CURRENT_SPAN.get().span : null;
+    SpanContext currentSpanContext = CURRENT_SPAN.get();
+    return currentSpanContext != null ? currentSpanContext.span : null;
   }
 
   // Set the current span in the thread context
@@ -106,15 +112,17 @@ final class OpenCensusSleuthSpanContextHolder {
   }
 
   private static boolean isCurrent(Span span) {
-    if (span == null || CURRENT_SPAN.get() == null) {
+    if (span == null) {
       return false;
     }
-    return span.equals(CURRENT_SPAN.get().span);
+    SpanContext currentSpanContext = CURRENT_SPAN.get();
+    return currentSpanContext != null && span.equals(currentSpanContext.span);
   }
 
   private static class SpanContext {
     final Span span;
     final boolean autoClose;
+    @javax.annotation.Nullable
     final SpanContext parent;
     final OpenCensusSleuthSpan ocSpan;
 
