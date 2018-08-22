@@ -23,7 +23,6 @@ include ":opencensus-contrib-log-correlation-stackdriver"
 include ":opencensus-contrib-monitored-resource-util"
 include ":opencensus-contrib-spring"
 include ":opencensus-contrib-spring-sleuth"
-include ":opencensus-metrics"
 
 project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File

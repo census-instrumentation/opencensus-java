@@ -156,8 +156,8 @@ subprojects {
         googleCloudGaVersion = '1.36.0'
         signalfxVersion = '0.0.39'
         springBootVersion = '1.5.15.RELEASE'
-	springCloudVersion = '1.3.4.RELEASE'
-	springVersion = '4.3.12.RELEASE'
+        springCloudVersion = '1.3.4.RELEASE'
+        springVersion = '4.3.12.RELEASE'
         prometheusVersion = '0.4.0'
         protobufVersion = '3.5.1'
         zipkinReporterVersion = '2.3.2'
@@ -186,8 +186,8 @@ subprojects {
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsJsr305Version}",
                 signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
                 spring_aspects: "org.springframework:spring-aspects:${springVersion}",
-		spring_boot_starter_web: "org.springframework.boot:spring-boot-starter-web:${springBootVersion}",
-		spring_cloud_build: "org.springframework.cloud:spring-cloud-build:${springCloudVersion}",
+                spring_boot_starter_web: "org.springframework.boot:spring-boot-starter-web:${springBootVersion}",
+                spring_cloud_build: "org.springframework.cloud:spring-cloud-build:${springCloudVersion}",
                 spring_cloud_starter_sleuth: "org.springframework.cloud:spring-cloud-starter-sleuth:${springCloudVersion}",
                 spring_context: "org.springframework:spring-context:${springVersion}",
                 spring_context_support: "org.springframework:spring-context-support:${springVersion}",
@@ -379,7 +379,7 @@ subprojects {
                  'opencensus-contrib-log-correlation-stackdriver',
                  'opencensus-contrib-monitored-resource-util',
                  'opencensus-contrib-spring',
-		 'opencensus-contrib-spring-sleuth',
+                 'opencensus-contrib-spring-sleuth',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',
