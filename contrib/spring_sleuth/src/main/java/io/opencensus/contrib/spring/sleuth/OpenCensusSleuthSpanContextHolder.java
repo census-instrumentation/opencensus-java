@@ -126,7 +126,7 @@ final class OpenCensusSleuthSpanContextHolder {
     final SpanContext parent;
     final OpenCensusSleuthSpan ocSpan;
 
-    public SpanContext(Span span, boolean autoClose) {
+    private SpanContext(Span span, boolean autoClose) {
       this.span = span;
       this.autoClose = autoClose;
       this.parent = CURRENT_SPAN.get();

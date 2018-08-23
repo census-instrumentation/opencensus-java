@@ -30,10 +30,16 @@ public class OpenCensusSleuthProperties {
 
   private boolean enabled = true;
 
+  /**
+   * Returns whether OpenCensus trace propagation is enabled.
+   */
   public boolean isEnabled() {
     return this.enabled;
   }
 
+  /**
+   * Enables OpenCensus trace propagation.
+   */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
