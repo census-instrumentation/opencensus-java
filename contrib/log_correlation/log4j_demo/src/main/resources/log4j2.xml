@@ -11,8 +11,10 @@
         (https://cloud.google.com/logging/docs/agent/configuration#special_fields_in_structured_payloads).
         It also converts the trace ID into the format expected by Stackdriver
         (https://cloud.google.com/trace/docs/viewing-details#log_entries).
+        TODO(sebright): Allow fluent-plugin-google-cloud to format the trace ID once
+        https://github.com/GoogleCloudPlatform/fluent-plugin-google-cloud/issues/239 is implemented.
         -->
-        <KeyValuePair key="logging.googleapis.com/trace" value="projects/${env:GOOGLE_CLOUD_PROJECT}/traces/$${ctx:openCensusTraceId}"/>
+        <KeyValuePair key="logging.googleapis.com/trace" value="projects/${env:DEMO_GOOGLE_CLOUD_PROJECT_ID}/traces/$${ctx:openCensusTraceId}"/>
         <KeyValuePair key="logging.googleapis.com/spanId" value="$${ctx:openCensusSpanId}"/>
 
         <!--
