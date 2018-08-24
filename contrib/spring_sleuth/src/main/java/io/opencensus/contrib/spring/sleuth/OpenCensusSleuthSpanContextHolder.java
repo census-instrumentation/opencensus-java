@@ -122,8 +122,7 @@ final class OpenCensusSleuthSpanContextHolder {
   private static class SpanContext {
     final Span span;
     final boolean autoClose;
-    @javax.annotation.Nullable
-    final SpanContext parent;
+    @javax.annotation.Nullable final SpanContext parent;
     final OpenCensusSleuthSpan ocSpan;
 
     private SpanContext(Span span, boolean autoClose) {

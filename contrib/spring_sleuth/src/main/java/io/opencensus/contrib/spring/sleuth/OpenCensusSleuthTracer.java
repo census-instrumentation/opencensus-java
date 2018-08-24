@@ -38,8 +38,8 @@ import org.springframework.cloud.sleuth.util.SpanNameUtil;
 */
 
 /**
- * Sleuth Tracer that keeps a synchronized OpenCensus Span. This class is based on Sleuth's
- * {@code DefaultTracer}.
+ * Sleuth Tracer that keeps a synchronized OpenCensus Span. This class is based on Sleuth's {@code
+ * DefaultTracer}.
  *
  * @since 0.16
  */
@@ -92,7 +92,7 @@ public class OpenCensusSleuthTracer implements Tracer {
 
   @Override
   @javax.annotation.Nullable
-  public Span createSpan(String name, /*@Nullable*/Span parent) {
+  public Span createSpan(String name, /*@Nullable*/ Span parent) {
     if (parent == null) {
       return createSpan(name);
     }
@@ -107,7 +107,7 @@ public class OpenCensusSleuthTracer implements Tracer {
 
   @Override
   @javax.annotation.Nullable
-  public Span createSpan(String name, /*@Nullable*/Sampler sampler) {
+  public Span createSpan(String name, /*@Nullable*/ Sampler sampler) {
     String shortenedName = SpanNameUtil.shorten(name);
     Span span;
     if (isTracing()) {
@@ -132,7 +132,7 @@ public class OpenCensusSleuthTracer implements Tracer {
 
   @Override
   @javax.annotation.Nullable
-  public Span detach(/*@Nullable*/Span span) {
+  public Span detach(/*@Nullable*/ Span span) {
     if (span == null) {
       return null;
     }
@@ -160,7 +160,7 @@ public class OpenCensusSleuthTracer implements Tracer {
 
   @Override
   @javax.annotation.Nullable
-  public Span close(/*@Nullable*/Span span) {
+  public Span close(/*@Nullable*/ Span span) {
     if (span == null) {
       return null;
     }
@@ -195,7 +195,7 @@ public class OpenCensusSleuthTracer implements Tracer {
     return savedSpan;
   }
 
-  Span createChild(/*@Nullable*/Span parent, String name) {
+  Span createChild(/*@Nullable*/ Span parent, String name) {
     String shortenedName = SpanNameUtil.shorten(name);
     long id = createId();
     if (parent == null) {
@@ -263,7 +263,7 @@ public class OpenCensusSleuthTracer implements Tracer {
 
   @Override
   @javax.annotation.Nullable
-  public Span continueSpan(/*@Nullable*/Span span) {
+  public Span continueSpan(/*@Nullable*/ Span span) {
     if (span != null) {
       this.spanLogger.logContinuedSpan(span);
     } else {
@@ -275,7 +275,7 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @SuppressWarnings("deprecation")
-  private static Span createContinuedSpan(Span span, /*@Nullable*/Span saved) {
+  private static Span createContinuedSpan(Span span, /*@Nullable*/ Span saved) {
     if (saved == null && span.getSavedSpan() != null) {
       saved = span.getSavedSpan();
     }
