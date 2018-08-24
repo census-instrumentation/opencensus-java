@@ -17,9 +17,9 @@
 package io.opencensus.contrib.logcorrelation.log4j;
 
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
+import io.opencensus.trace.unsafe.ContextUtils;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -94,8 +94,6 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
   public static final String SPAN_SELECTION_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.log4j."
           + "OpenCensusTraceContextDataInjector.spanSelection";
-
-  private final Tracer tracer = Tracing.getTracer();
 
   private final SpanSelection spanSelection;
 
@@ -190,16 +188,21 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
       case NO_SPANS:
         return getContextData();
       case SAMPLED_SPANS:
-        SpanContext spanContext = tracer.getCurrentSpan().getContext();
+        SpanContext spanContext = getCurrentSpanContext();
         if (spanContext.getTraceOptions().isSampled()) {
           return getContextAndTracingData(spanContext);
         } else {
           return getContextData();
         }
       case ALL_SPANS:
-        return getContextAndTracingData(tracer.getCurrentSpan().getContext());
+        return getContextAndTracingData(getCurrentSpanContext());
     }
     throw new AssertionError("Unknown spanSelection: " + spanSelection);
+  }
+
+  private static SpanContext getCurrentSpanContext() {
+    Span span = ContextUtils.CONTEXT_SPAN_KEY.get();
+    return span == null ? SpanContext.INVALID : span.getContext();
   }
 
   // TODO(sebright): Improve the implementation of this method, including handling null.
