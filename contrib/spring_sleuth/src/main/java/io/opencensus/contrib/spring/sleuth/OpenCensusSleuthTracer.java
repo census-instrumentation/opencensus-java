@@ -33,6 +33,10 @@ import org.springframework.cloud.sleuth.log.SpanLogger;
 import org.springframework.cloud.sleuth.util.ExceptionUtils;
 import org.springframework.cloud.sleuth.util.SpanNameUtil;
 
+/*>>>
+  import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /**
  * Sleuth Tracer that keeps a synchronized OpenCensus Span. This class is based on Sleuth's
  * {@code DefaultTracer}.
@@ -87,7 +91,8 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @Override
-  public Span createSpan(String name, Span parent) {
+  @javax.annotation.Nullable
+  public Span createSpan(String name, /*@Nullable*/Span parent) {
     if (parent == null) {
       return createSpan(name);
     }
@@ -95,12 +100,14 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @Override
+  @javax.annotation.Nullable
   public Span createSpan(String name) {
     return this.createSpan(name, this.defaultSampler);
   }
 
   @Override
-  public Span createSpan(String name, Sampler sampler) {
+  @javax.annotation.Nullable
+  public Span createSpan(String name, /*@Nullable*/Sampler sampler) {
     String shortenedName = SpanNameUtil.shorten(name);
     Span span;
     if (isTracing()) {
@@ -124,7 +131,8 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @Override
-  public Span detach(Span span) {
+  @javax.annotation.Nullable
+  public Span detach(/*@Nullable*/Span span) {
     if (span == null) {
       return null;
     }
@@ -151,13 +159,14 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @Override
-  public Span close(Span span) {
+  @javax.annotation.Nullable
+  public Span close(/*@Nullable*/Span span) {
     if (span == null) {
       return null;
     }
     final Span savedSpan = span.getSavedSpan();
     Span current = OpenCensusSleuthSpanContextHolder.getCurrentSpan();
-    if (!span.equals(current)) {
+    if (current == null || !span.equals(current)) {
       ExceptionUtils.warn(
           "Tried to close span but it is not the current span: "
               + span
@@ -186,7 +195,7 @@ public class OpenCensusSleuthTracer implements Tracer {
     return savedSpan;
   }
 
-  Span createChild(Span parent, String name) {
+  Span createChild(/*@Nullable*/Span parent, String name) {
     String shortenedName = SpanNameUtil.shorten(name);
     long id = createId();
     if (parent == null) {
@@ -253,7 +262,8 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @Override
-  public Span continueSpan(Span span) {
+  @javax.annotation.Nullable
+  public Span continueSpan(/*@Nullable*/Span span) {
     if (span != null) {
       this.spanLogger.logContinuedSpan(span);
     } else {
@@ -265,7 +275,7 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @SuppressWarnings("deprecation")
-  private static Span createContinuedSpan(Span span, Span saved) {
+  private static Span createContinuedSpan(Span span, /*@Nullable*/Span saved) {
     if (saved == null && span.getSavedSpan() != null) {
       saved = span.getSavedSpan();
     }
@@ -273,6 +283,7 @@ public class OpenCensusSleuthTracer implements Tracer {
   }
 
   @Override
+  @javax.annotation.Nullable
   public Span getCurrentSpan() {
     return OpenCensusSleuthSpanContextHolder.getCurrentSpan();
   }
