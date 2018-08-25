@@ -125,9 +125,7 @@ public abstract class SpanData {
       @Nullable Integer childSpanCount,
       @Nullable Status status,
       @Nullable Timestamp endTimestamp) {
-    if (messageOrNetworkEvents == null) {
-      throw new NullPointerException("Null messageOrNetworkEvents");
-    }
+    Utils.checkNotNull(messageOrNetworkEvents, "messageOrNetworkEvents");
     List<TimedEvent<MessageEvent>> messageEventsList = new ArrayList<TimedEvent<MessageEvent>>();
     for (TimedEvent<? extends io.opencensus.trace.BaseMessageEvent> timedEvent :
         messageOrNetworkEvents.getEvents()) {
