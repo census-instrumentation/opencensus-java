@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package io.opencensus.examples;
+package io.opencensus.examples.trace;
 
-public class Utils {
+import java.util.logging.Logger;
 
-  public static void sleep(int ms) {
+/** Util methods. */
+final class Utils {
+
+  private static Logger logger = Logger.getLogger(Utils.class.getName());
+
+  static void sleep(int ms) {
     // A helper to avoid try-catch when invoking Thread.sleep so that
     // sleeps can be succinct and not permeated by exception handling.
     try {
       Thread.sleep(ms);
-    } catch(Exception e) {
-      System.err.println(String.format("Failed to sleep for %dms. Exception: %s", ms, e));
+    } catch (Exception e) {
+      logger.warning((String.format("Failed to sleep for %dms. Exception: %s", ms, e)));
     }
   }
+
+  private Utils() {}
 }
