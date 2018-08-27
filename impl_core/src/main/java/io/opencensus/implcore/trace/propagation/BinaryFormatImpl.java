@@ -141,7 +141,7 @@ final class BinaryFormatImpl extends BinaryFormat {
       if (bytes.length < ALL_FORMAT_LENGTH) {
         throw new SpanContextParseException("Invalid input: truncated");
       }
-      traceOptions = TraceOptions.fromBytes(bytes, pos + ID_SIZE);
+      traceOptions = TraceOptions.fromByte(bytes[pos + ID_SIZE]);
     }
     return SpanContext.create(traceId, spanId, traceOptions, TRACESTATE_DEFAULT);
   }

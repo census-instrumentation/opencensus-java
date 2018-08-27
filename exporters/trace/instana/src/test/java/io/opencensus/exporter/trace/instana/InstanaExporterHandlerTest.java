@@ -69,7 +69,7 @@ public class InstanaExporterHandlerTest {
             SpanContext.create(
                 TraceId.fromLowerBase16(TRACE_ID),
                 SpanId.fromLowerBase16(SPAN_ID),
-                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+                TraceOptions.builder().setIsSampled(true).build()),
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
             true, /* hasRemoteParent */
             "SpanName", /* name */
@@ -107,7 +107,7 @@ public class InstanaExporterHandlerTest {
             SpanContext.create(
                 TraceId.fromLowerBase16(TRACE_ID),
                 SpanId.fromLowerBase16(SPAN_ID),
-                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+                TraceOptions.builder().setIsSampled(true).build()),
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
             true, /* hasRemoteParent */
             "SpanName", /* name */
@@ -145,7 +145,7 @@ public class InstanaExporterHandlerTest {
             SpanContext.create(
                 TraceId.fromLowerBase16(TRACE_ID),
                 SpanId.fromLowerBase16(SPAN_ID),
-                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+                TraceOptions.builder().setIsSampled(true).build()),
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
             true, /* hasRemoteParent */
             "SpanName", /* name */

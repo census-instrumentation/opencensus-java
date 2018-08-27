@@ -48,7 +48,7 @@ public final class TraceOptions {
    *
    * @since 0.5
    */
-  public static final TraceOptions DEFAULT = new TraceOptions(DEFAULT_OPTIONS);
+  public static final TraceOptions DEFAULT = fromByte(DEFAULT_OPTIONS);
 
   // The set of enabled features is determined by all the enabled bits.
   private final byte options;
@@ -72,13 +72,15 @@ public final class TraceOptions {
    * @throws NullPointerException if {@code buffer} is null.
    * @throws IllegalArgumentException if {@code buffer.length} is not {@link TraceOptions#SIZE}.
    * @since 0.5
+   * @deprecated use {@link #fromByte(byte)}.
    */
+  @Deprecated
   public static TraceOptions fromBytes(byte[] buffer) {
     Utils.checkNotNull(buffer, "buffer");
     Utils.checkArgument(
         buffer.length == SIZE,
         String.format("Invalid size: expected %s, got %s", SIZE, buffer.length));
-    return new TraceOptions(buffer[0]);
+    return fromByte(buffer[0]);
   }
 
   /**
@@ -93,10 +95,34 @@ public final class TraceOptions {
    * @throws IndexOutOfBoundsException if {@code srcOffset+TraceOptions.SIZE} is greater than {@code
    *     src.length}.
    * @since 0.5
+   * @deprecated use {@link #fromByte(byte)}.
    */
+  @Deprecated
   public static TraceOptions fromBytes(byte[] src, int srcOffset) {
     Utils.checkIndex(srcOffset, src.length);
-    return new TraceOptions(src[srcOffset]);
+    return fromByte(src[srcOffset]);
+  }
+
+  /**
+   * Returns a {@code TraceOptions} whose representation is {@code src}.
+   *
+   * @param src the byte representation of the {@code TraceOptions}.
+   * @return a {@code TraceOptions} whose representation is {@code src}.
+   * @since 0.16
+   */
+  public static TraceOptions fromByte(byte src) {
+    // TODO(bdrutu): OPTIMIZATION: Cache all the 256 possible objects and return from the cache.
+    return new TraceOptions(src);
+  }
+
+  /**
+   * Returns the one byte representation of the {@code TraceOptions}.
+   *
+   * @return the one byte representation of the {@code TraceOptions}.
+   * @since 0.16
+   */
+  public byte getByte() {
+    return options;
   }
 
   /**
@@ -104,7 +130,9 @@ public final class TraceOptions {
    *
    * @return the 1-byte array representation of the {@code TraceOptions}.
    * @since 0.5
+   * @deprecated use {@link #getByte()}.
    */
+  @Deprecated
   public byte[] getBytes() {
     byte[] bytes = new byte[SIZE];
     bytes[0] = options;
@@ -237,7 +265,7 @@ public final class TraceOptions {
      * @since 0.5
      */
     public TraceOptions build() {
-      return new TraceOptions(options);
+      return fromByte(options);
     }
   }
 
