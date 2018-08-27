@@ -51,16 +51,14 @@ public class B3FormatTest {
   private static final SpanId SPAN_ID = SpanId.fromLowerBase16(SPAN_ID_BASE16);
   private static final byte TRACE_OPTIONS_BYTE = 1;
   private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromByte(TRACE_OPTIONS_BYTE);
-  private final B3Format b3Format = new B3Format();
-  @Rule public ExpectedException thrown = ExpectedException.none();
-  private final Setter<Map<String, String>> setter =
+  private static final Setter<Map<String, String>> setter =
       new Setter<Map<String, String>>() {
         @Override
         public void put(Map<String, String> carrier, String key, String value) {
           carrier.put(key, value);
         }
       };
-  private final Getter<Map<String, String>> getter =
+  private static final Getter<Map<String, String>> getter =
       new Getter<Map<String, String>>() {
         @Nullable
         @Override
@@ -68,6 +66,8 @@ public class B3FormatTest {
           return carrier.get(key);
         }
       };
+  private final B3Format b3Format = new B3Format();
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void serialize_SampledContext() {

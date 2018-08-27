@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.7"
         classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.7.0"
     }
 }
