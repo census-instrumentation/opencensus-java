@@ -154,6 +154,7 @@ subprojects {
         googleAuthVersion = '0.10.0'
         googleCloudBetaVersion = '0.58.0-beta'
         googleCloudGaVersion = '1.40.0'
+        log4jVersion = '2.11.1'
         signalfxVersion = '0.0.39'
         springVersion = '4.3.12.RELEASE'
         prometheusVersion = '0.4.0'
@@ -174,6 +175,7 @@ subprojects {
                 google_auth: "com.google.auth:google-auth-library-credentials:${googleAuthVersion}",
                 google_cloud_logging: "com.google.cloud:google-cloud-logging:${googleCloudGaVersion}",
                 google_cloud_trace: "com.google.cloud:google-cloud-trace:${googleCloudBetaVersion}",
+                log4j: "org.apache.logging.log4j:log4j-core:${log4jVersion}",
                 zipkin_reporter: "io.zipkin.reporter2:zipkin-reporter:${zipkinReporterVersion}",
                 zipkin_urlconnection: "io.zipkin.reporter2:zipkin-sender-urlconnection:${zipkinReporterVersion}",
                 jaeger_reporter: "com.uber.jaeger:jaeger-core:${jaegerReporterVersion}",
@@ -371,6 +373,10 @@ subprojects {
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
+
+                 // TODO(sebright): Uncomment opencensus-contrib-log-correlation-log4j when it is complete.
+                 // 'opencensus-contrib-log-correlation-log4j',
+
                  'opencensus-contrib-log-correlation-stackdriver',
                  'opencensus-contrib-monitored-resource-util',
                  'opencensus-contrib-spring',
