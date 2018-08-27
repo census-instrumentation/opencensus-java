@@ -2,10 +2,6 @@ description = 'OpenCensus Log4j Log Correlation'
 
 apply plugin: 'java'
 
-animalsniffer {
-    sourceSets = [sourceSets.main]
-}
-
 dependencies {
     compile project(':opencensus-api'),
             libraries.log4j
@@ -16,8 +12,8 @@ dependencies {
 }
 
 compileTestJava {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
 }
 
 test {

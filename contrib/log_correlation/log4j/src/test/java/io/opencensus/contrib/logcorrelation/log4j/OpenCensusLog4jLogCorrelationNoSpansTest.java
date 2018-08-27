@@ -18,11 +18,13 @@ package io.opencensus.contrib.logcorrelation.log4j;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.common.Function;
 import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import org.apache.logging.log4j.core.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +36,7 @@ import org.junit.runners.JUnit4;
  * SpanSelection#NO_SPANS}.
  */
 @RunWith(JUnit4.class)
-public final class OpenCensusLog4jLogCorrelationTestNoSpans
+public final class OpenCensusLog4jLogCorrelationNoSpansTest
     extends AbstractOpenCensusLog4jLogCorrelationTest {
 
   @BeforeClass
@@ -52,8 +54,12 @@ public final class OpenCensusLog4jLogCorrelationTestNoSpans
                 SpanId.fromLowerBase16("ce5b1cf09fe58bcb"),
                 TraceOptions.builder().setIsSampled(true).build(),
                 EMPTY_TRACESTATE),
-            logger -> {
-              logger.trace("message #1");
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                logger.trace("message #1");
+                return null;
+              }
             });
     assertThat(log).isEqualTo("traceId= spanId= sampled= TRACE - message #1");
   }
@@ -68,8 +74,12 @@ public final class OpenCensusLog4jLogCorrelationTestNoSpans
                 SpanId.fromLowerBase16("a7203a50089a4029"),
                 TraceOptions.builder().setIsSampled(false).build(),
                 EMPTY_TRACESTATE),
-            logger -> {
-              logger.warn("message #2");
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                logger.warn("message #2");
+                return null;
+              }
             });
     assertThat(log).isEqualTo("traceId= spanId= sampled= WARN  - message #2");
   }

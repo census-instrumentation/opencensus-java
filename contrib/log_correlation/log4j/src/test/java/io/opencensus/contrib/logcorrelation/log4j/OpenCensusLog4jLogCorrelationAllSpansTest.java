@@ -18,12 +18,14 @@ package io.opencensus.contrib.logcorrelation.log4j;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.common.Function;
 import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import org.apache.logging.log4j.ThreadContext;
+import org.apache.logging.log4j.core.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +38,7 @@ import org.junit.runners.JUnit4;
  */
 // TODO(sebright): Add a test with non-empty configuration properties.
 @RunWith(JUnit4.class)
-public final class OpenCensusLog4jLogCorrelationTestAllSpans
+public final class OpenCensusLog4jLogCorrelationAllSpansTest
     extends AbstractOpenCensusLog4jLogCorrelationTest {
 
   @BeforeClass
@@ -54,8 +56,12 @@ public final class OpenCensusLog4jLogCorrelationTestAllSpans
                 SpanId.fromLowerBase16("75159dde8c503fee"),
                 TraceOptions.builder().setIsSampled(true).build(),
                 EMPTY_TRACESTATE),
-            logger -> {
-              logger.warn("message #1");
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                logger.warn("message #1");
+                return null;
+              }
             });
     assertThat(log)
         .isEqualTo(
@@ -73,8 +79,12 @@ public final class OpenCensusLog4jLogCorrelationTestAllSpans
                 SpanId.fromLowerBase16("117d42d4c7acd066"),
                 TraceOptions.builder().setIsSampled(false).build(),
                 EMPTY_TRACESTATE),
-            logger -> {
-              logger.info("message #2");
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                logger.info("message #2");
+                return null;
+              }
             });
     assertThat(log)
         .isEqualTo(
@@ -88,8 +98,12 @@ public final class OpenCensusLog4jLogCorrelationTestAllSpans
         logWithSpanAndLog4jConfiguration(
             TEST_PATTERN,
             SpanContext.INVALID,
-            logger -> {
-              logger.fatal("message #3");
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                logger.fatal("message #3");
+                return null;
+              }
             });
     assertThat(log)
         .isEqualTo(
@@ -107,13 +121,17 @@ public final class OpenCensusLog4jLogCorrelationTestAllSpans
                 SpanId.fromLowerBase16("bf22ea74d38eddad"),
                 TraceOptions.builder().setIsSampled(true).build(),
                 EMPTY_TRACESTATE),
-            logger -> {
-              String key = "myTestKey";
-              ThreadContext.put(key, "myTestValue");
-              try {
-                logger.error("message #4");
-              } finally {
-                ThreadContext.remove(key);
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                String key = "myTestKey";
+                ThreadContext.put(key, "myTestValue");
+                try {
+                  logger.error("message #4");
+                } finally {
+                  ThreadContext.remove(key);
+                }
+                return null;
               }
             });
     assertThat(log).isEqualTo("myTestValue ERROR - message #4");

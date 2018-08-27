@@ -18,11 +18,13 @@ package io.opencensus.contrib.logcorrelation.log4j;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opencensus.common.Function;
 import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
+import org.apache.logging.log4j.core.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +36,7 @@ import org.junit.runners.JUnit4;
  * SpanSelection#SAMPLED_SPANS}.
  */
 @RunWith(JUnit4.class)
-public final class OpenCensusLog4jLogCorrelationTestSampledSpans
+public final class OpenCensusLog4jLogCorrelationSampledSpansTest
     extends AbstractOpenCensusLog4jLogCorrelationTest {
 
   @BeforeClass
@@ -52,8 +54,12 @@ public final class OpenCensusLog4jLogCorrelationTestSampledSpans
                 SpanId.fromLowerBase16("d3f07c467ec2fbb2"),
                 TraceOptions.builder().setIsSampled(true).build(),
                 EMPTY_TRACESTATE),
-            logger -> {
-              logger.error("message #1");
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                logger.error("message #1");
+                return null;
+              }
             });
     assertThat(log)
         .isEqualTo(
@@ -71,8 +77,12 @@ public final class OpenCensusLog4jLogCorrelationTestSampledSpans
                 SpanId.fromLowerBase16("0fc9ef54c50a1816"),
                 TraceOptions.builder().setIsSampled(false).build(),
                 EMPTY_TRACESTATE),
-            logger -> {
-              logger.debug("message #2");
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                logger.debug("message #2");
+                return null;
+              }
             });
     assertThat(log).isEqualTo("traceId= spanId= sampled= DEBUG - message #2");
   }

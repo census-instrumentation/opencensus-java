@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.logcorrelation.log4j;
 
+import io.opencensus.common.Function;
 import io.opencensus.common.Scope;
 import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.Annotation;
@@ -30,7 +31,6 @@ import io.opencensus.trace.Tracing;
 import java.io.StringWriter;
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.function.Consumer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
@@ -71,7 +71,7 @@ abstract class AbstractOpenCensusLog4jLogCorrelationTest {
   // Reconfigures Log4j using the given arguments and runs the function with the given SpanContext
   // in scope.
   String logWithSpanAndLog4jConfiguration(
-      String log4jPattern, SpanContext spanContext, Consumer<Logger> loggingFunction) {
+      String log4jPattern, SpanContext spanContext, Function<Logger, Void> loggingFunction) {
     StringWriter output = new StringWriter();
     StringLayout layout = PatternLayout.newBuilder().withPattern(log4jPattern).build();
     Appender appender =
@@ -93,10 +93,10 @@ abstract class AbstractOpenCensusLog4jLogCorrelationTest {
   }
 
   private static void logWithSpan(
-      SpanContext spanContext, Consumer<Logger> loggingFunction, Logger logger) {
+      SpanContext spanContext, Function<Logger, Void> loggingFunction, Logger logger) {
     Scope scope = tracer.withSpan(new TestSpan(spanContext));
     try {
-      loggingFunction.accept(logger);
+      loggingFunction.apply(logger);
     } finally {
       scope.close();
     }
