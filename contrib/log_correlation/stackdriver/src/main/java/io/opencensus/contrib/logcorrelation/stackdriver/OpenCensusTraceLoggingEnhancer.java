@@ -20,10 +20,10 @@ import com.google.cloud.ServiceOptions;
 import com.google.cloud.logging.LogEntry;
 import com.google.cloud.logging.LoggingEnhancer;
 import io.opencensus.common.ExperimentalApi;
+import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.TraceId;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
+import io.opencensus.trace.unsafe.ContextUtils;
 import java.util.logging.LogManager;
 import javax.annotation.Nullable;
 
@@ -56,8 +56,6 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
   public static final String SPAN_SELECTION_PROPERTY_NAME =
       "io.opencensus.contrib.logcorrelation.stackdriver."
           + "OpenCensusTraceLoggingEnhancer.spanSelection";
-
-  private static final Tracer tracer = Tracing.getTracer();
 
   private final String projectId;
   private final SpanSelection spanSelection;
@@ -184,16 +182,21 @@ public final class OpenCensusTraceLoggingEnhancer implements LoggingEnhancer {
       case NO_SPANS:
         return;
       case SAMPLED_SPANS:
-        SpanContext span = tracer.getCurrentSpan().getContext();
+        SpanContext span = getCurrentSpanContext();
         if (span.getTraceOptions().isSampled()) {
           addTracingData(tracePrefix, span, builder);
         }
         return;
       case ALL_SPANS:
-        addTracingData(tracePrefix, tracer.getCurrentSpan().getContext(), builder);
+        addTracingData(tracePrefix, getCurrentSpanContext(), builder);
         return;
     }
     throw new AssertionError("Unknown spanSelection: " + spanSelection);
+  }
+
+  private static SpanContext getCurrentSpanContext() {
+    Span span = ContextUtils.CONTEXT_SPAN_KEY.get();
+    return span == null ? SpanContext.INVALID : span.getContext();
   }
 
   private static void addTracingData(
