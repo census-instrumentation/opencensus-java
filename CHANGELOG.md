@@ -11,6 +11,7 @@
 - Allow custom prefix for Stackdriver metrics in `StackdriverStatsConfiguration`.
 - Add support to handle the Tracestate in the SpanContext.
 - Remove global synchronization from the get current stats state.
+- Add get/from{Byte} methods on TraceOptions and deprecate get/from{Bytes}.
 
 ## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.
