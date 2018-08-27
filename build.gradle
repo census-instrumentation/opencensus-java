@@ -373,7 +373,10 @@ subprojects {
                  'opencensus-contrib-grpc-metrics',
                  'opencensus-contrib-grpc-util',
                  'opencensus-contrib-http-util',
-                 'opencensus-contrib-log-correlation-log4j',
+
+                 // TODO(sebright): Uncomment opencensus-contrib-log-correlation-log4j when it is complete.
+                 // 'opencensus-contrib-log-correlation-log4j',
+
                  'opencensus-contrib-log-correlation-stackdriver',
                  'opencensus-contrib-monitored-resource-util',
                  'opencensus-contrib-spring',
