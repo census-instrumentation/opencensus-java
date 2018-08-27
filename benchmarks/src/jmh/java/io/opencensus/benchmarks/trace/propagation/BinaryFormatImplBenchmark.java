@@ -24,29 +24,38 @@ import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.BinaryFormat;
 import io.opencensus.trace.propagation.SpanContextParseException;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
 /** Benchmarks for {@link BinaryFormat}. */
 @State(Scope.Benchmark)
-public class BinaryPropagationImplBenchmark {
-  private static final byte[] traceIdBytes =
-      new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'a'};
-  private static final TraceId traceId = TraceId.fromBytes(traceIdBytes);
-  private static final byte[] spanIdBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 0};
-  private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
-  private static final byte TRACE_OPTIONS_BYTE = 1;
-  private static final TraceOptions traceOptions = TraceOptions.fromByte(TRACE_OPTIONS_BYTE);
-  private static final SpanContext spanContext =
-      SpanContext.create(traceId, spanId, traceOptions, Tracestate.builder().build());
-  private static final BinaryFormat binaryFormat =
-      Tracing.getPropagationComponent().getBinaryFormat();
-  private static final byte[] spanContextBinary = binaryFormat.toByteArray(spanContext);
+public class BinaryFormatImplBenchmark {
+  @State(Scope.Thread)
+  public static class Data {
+    private BinaryFormat binaryFormat;
+    private SpanContext spanContext;
+    private byte[] spanContextBinary;
+
+    @Setup
+    public void setup() {
+      binaryFormat = Tracing.getPropagationComponent().getBinaryFormat();
+      Random random = new Random(1234);
+      spanContext =
+          SpanContext.create(
+              TraceId.generateRandomId(random),
+              SpanId.generateRandomId(random),
+              TraceOptions.builder().setIsSampled(random.nextBoolean()).build(),
+              Tracestate.builder().build());
+      spanContextBinary = binaryFormat.toByteArray(spanContext);
+    }
+  }
 
   /**
    * This benchmark attempts to measure performance of {@link
@@ -55,8 +64,8 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public byte[] toBinarySpanContext() {
-    return binaryFormat.toByteArray(spanContext);
+  public byte[] toBinarySpanContext(Data data) {
+    return data.binaryFormat.toByteArray(data.spanContext);
   }
 
   /**
@@ -65,8 +74,8 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext fromBinarySpanContext() throws SpanContextParseException {
-    return binaryFormat.fromByteArray(spanContextBinary);
+  public SpanContext fromBinarySpanContext(Data data) throws SpanContextParseException {
+    return data.binaryFormat.fromByteArray(data.spanContextBinary);
   }
 
   /**
@@ -76,7 +85,7 @@ public class BinaryPropagationImplBenchmark {
   @Benchmark
   @BenchmarkMode(Mode.SampleTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public SpanContext toFromBinarySpanContext() throws SpanContextParseException {
-    return binaryFormat.fromByteArray(binaryFormat.toByteArray(spanContext));
+  public SpanContext toFromBinarySpanContext(Data data) throws SpanContextParseException {
+    return data.binaryFormat.fromByteArray(data.binaryFormat.toByteArray(data.spanContext));
   }
 }
