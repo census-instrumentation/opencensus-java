@@ -21,6 +21,8 @@ import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.samplers.Samplers;
 
 /**
  * Example showing how to create a child {@link Span} using scoped Spans, install it in the current
@@ -49,15 +51,35 @@ public final class MultiSpansScopedTracing {
     tracer.getCurrentSpan().addAnnotation("Annotation to the root Span after child is ended.");
   }
 
+  private static void sleep(int ms) {
+    // A helper to avoid try-catch when invoking Thread.sleep so that
+    // sleeps can be succinct and not permeated by exception handling.
+    try {
+      Thread.sleep(ms);
+    } catch (Exception e) {
+      System.err.println(String.format("Failed to sleep for %dms. Exception: %s", ms, e));
+    }
+  }
+
   /**
    * Main method.
    *
    * @param args the main arguments.
    */
   public static void main(String[] args) {
+
+    // For demo purposes, lets always sample.
+    TraceConfig traceConfig = Tracing.getTraceConfig();
+    traceConfig.updateActiveTraceParams(
+            traceConfig.getActiveTraceParams().toBuilder().setSampler(Samplers.alwaysSample()).build());
+
     LoggingTraceExporter.register();
     try (Scope ss = tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startScopedSpan()) {
       doWork();
     }
+
+    // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
+    // Spans are exported every 5 seconds
+    sleep(5100);
   }
 }
