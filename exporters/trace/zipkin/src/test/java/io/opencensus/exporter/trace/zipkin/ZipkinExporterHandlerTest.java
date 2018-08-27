@@ -72,7 +72,7 @@ public class ZipkinExporterHandlerTest {
             SpanContext.create(
                 TraceId.fromLowerBase16(TRACE_ID),
                 SpanId.fromLowerBase16(SPAN_ID),
-                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+                TraceOptions.builder().setIsSampled(true).build()),
             // TODO SpanId.fromLowerBase16
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
             true, /* hasRemoteParent */
@@ -113,7 +113,7 @@ public class ZipkinExporterHandlerTest {
             SpanContext.create(
                 TraceId.fromLowerBase16(TRACE_ID),
                 SpanId.fromLowerBase16(SPAN_ID),
-                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+                TraceOptions.builder().setIsSampled(true).build()),
             // TODO SpanId.fromLowerBase16
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
             true, /* hasRemoteParent */
@@ -154,7 +154,7 @@ public class ZipkinExporterHandlerTest {
             SpanContext.create(
                 TraceId.fromLowerBase16(TRACE_ID),
                 SpanId.fromLowerBase16(SPAN_ID),
-                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+                TraceOptions.builder().setIsSampled(true).build()),
             // TODO SpanId.fromLowerBase16
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
             true, /* hasRemoteParent */
@@ -199,7 +199,7 @@ public class ZipkinExporterHandlerTest {
             SpanContext.create(
                 TraceId.fromLowerBase16(TRACE_ID),
                 SpanId.fromLowerBase16(SPAN_ID),
-                TraceOptions.fromBytes(new byte[] {1} /* sampled */)),
+                TraceOptions.builder().setIsSampled(true).build()),
             // TODO SpanId.fromLowerBase16
             SpanId.fromLowerBase16(PARENT_SPAN_ID),
             true, /* hasRemoteParent */

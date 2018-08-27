@@ -40,8 +40,8 @@ public class BinaryPropagationImplBenchmark {
   private static final TraceId traceId = TraceId.fromBytes(traceIdBytes);
   private static final byte[] spanIdBytes = new byte[] {(byte) 0xFF, 0, 0, 0, 0, 0, 0, 0};
   private static final SpanId spanId = SpanId.fromBytes(spanIdBytes);
-  private static final byte[] traceOptionsBytes = new byte[] {1};
-  private static final TraceOptions traceOptions = TraceOptions.fromBytes(traceOptionsBytes);
+  private static final byte TRACE_OPTIONS_BYTE = 1;
+  private static final TraceOptions traceOptions = TraceOptions.fromByte(TRACE_OPTIONS_BYTE);
   private static final SpanContext spanContext =
       SpanContext.create(traceId, spanId, traceOptions, Tracestate.builder().build());
   private static final BinaryFormat binaryFormat =

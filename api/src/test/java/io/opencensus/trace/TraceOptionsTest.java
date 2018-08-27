@@ -26,9 +26,9 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link TraceOptions}. */
 @RunWith(JUnit4.class)
 public class TraceOptionsTest {
-  private static final byte[] firstBytes = {(byte) 0xff};
-  private static final byte[] secondBytes = {1};
-  private static final byte[] thirdBytes = {6};
+  private static final byte FIRST_BYTE = (byte) 0xff;
+  private static final byte SECOND_BYTE = 1;
+  private static final byte THIRD_BYTE = 6;
 
   @Test
   public void getOptions() {
@@ -37,9 +37,9 @@ public class TraceOptionsTest {
     assertThat(TraceOptions.builder().setIsSampled(true).build().getOptions()).isEqualTo(1);
     assertThat(TraceOptions.builder().setIsSampled(true).setIsSampled(false).build().getOptions())
         .isEqualTo(0);
-    assertThat(TraceOptions.fromBytes(firstBytes).getOptions()).isEqualTo(-1);
-    assertThat(TraceOptions.fromBytes(secondBytes).getOptions()).isEqualTo(1);
-    assertThat(TraceOptions.fromBytes(thirdBytes).getOptions()).isEqualTo(6);
+    assertThat(TraceOptions.fromByte(FIRST_BYTE).getOptions()).isEqualTo(-1);
+    assertThat(TraceOptions.fromByte(SECOND_BYTE).getOptions()).isEqualTo(1);
+    assertThat(TraceOptions.fromByte(THIRD_BYTE).getOptions()).isEqualTo(6);
   }
 
   @Test
@@ -49,16 +49,30 @@ public class TraceOptionsTest {
   }
 
   @Test
-  public void toFromBytes() {
-    assertThat(TraceOptions.fromBytes(firstBytes).getBytes()).isEqualTo(firstBytes);
-    assertThat(TraceOptions.fromBytes(secondBytes).getBytes()).isEqualTo(secondBytes);
-    assertThat(TraceOptions.fromBytes(thirdBytes).getBytes()).isEqualTo(thirdBytes);
+  public void toFromByte() {
+    assertThat(TraceOptions.fromByte(FIRST_BYTE).getByte()).isEqualTo(FIRST_BYTE);
+    assertThat(TraceOptions.fromByte(SECOND_BYTE).getByte()).isEqualTo(SECOND_BYTE);
+    assertThat(TraceOptions.fromByte(THIRD_BYTE).getByte()).isEqualTo(THIRD_BYTE);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void deprecated_fromBytes() {
+    assertThat(TraceOptions.fromBytes(new byte[] {FIRST_BYTE}).getByte()).isEqualTo(FIRST_BYTE);
+    assertThat(TraceOptions.fromBytes(new byte[] {1, FIRST_BYTE}, 1).getByte())
+        .isEqualTo(FIRST_BYTE);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  public void deprecated_getBytes() {
+    assertThat(TraceOptions.fromByte(FIRST_BYTE).getBytes()).isEqualTo(new byte[] {FIRST_BYTE});
   }
 
   @Test
   public void builder_FromOptions() {
     assertThat(
-            TraceOptions.builder(TraceOptions.fromBytes(thirdBytes))
+            TraceOptions.builder(TraceOptions.fromByte(THIRD_BYTE))
                 .setIsSampled(true)
                 .build()
                 .getOptions())
@@ -70,8 +84,8 @@ public class TraceOptionsTest {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(TraceOptions.DEFAULT);
     tester.addEqualityGroup(
-        TraceOptions.fromBytes(secondBytes), TraceOptions.builder().setIsSampled(true).build());
-    tester.addEqualityGroup(TraceOptions.fromBytes(firstBytes));
+        TraceOptions.fromByte(SECOND_BYTE), TraceOptions.builder().setIsSampled(true).build());
+    tester.addEqualityGroup(TraceOptions.fromByte(FIRST_BYTE));
     tester.testEquals();
   }
 

@@ -39,8 +39,8 @@ public class BinaryFormatImplTest {
   private static final TraceId TRACE_ID = TraceId.fromBytes(TRACE_ID_BYTES);
   private static final byte[] SPAN_ID_BYTES = new byte[] {97, 98, 99, 100, 101, 102, 103, 104};
   private static final SpanId SPAN_ID = SpanId.fromBytes(SPAN_ID_BYTES);
-  private static final byte[] TRACE_OPTIONS_BYTES = new byte[] {1};
-  private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromBytes(TRACE_OPTIONS_BYTES);
+  private static final byte TRACE_OPTIONS_BYTES = 1;
+  private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromByte(TRACE_OPTIONS_BYTES);
   private static final byte[] EXAMPLE_BYTES =
       new byte[] {
         0, 0, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 1, 97, 98, 99, 100,

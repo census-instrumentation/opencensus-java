@@ -49,8 +49,8 @@ public class B3FormatTest {
       TraceId.fromLowerBase16("0000000000000000" + TRACE_ID_BASE16_EIGHT_BYTES);
   private static final String SPAN_ID_BASE16 = "ff00000000000041";
   private static final SpanId SPAN_ID = SpanId.fromLowerBase16(SPAN_ID_BASE16);
-  private static final byte[] TRACE_OPTIONS_BYTES = new byte[] {1};
-  private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromBytes(TRACE_OPTIONS_BYTES);
+  private static final byte TRACE_OPTIONS_BYTE = 1;
+  private static final TraceOptions TRACE_OPTIONS = TraceOptions.fromByte(TRACE_OPTIONS_BYTE);
   private final B3Format b3Format = new B3Format();
   @Rule public ExpectedException thrown = ExpectedException.none();
   private final Setter<Map<String, String>> setter =
