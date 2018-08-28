@@ -1,8 +1,7 @@
 description = 'OpenCensus API'
 
 dependencies {
-    compile libraries.grpc_context,
-            libraries.guava
+    compile libraries.grpc_context
 
     compileOnly libraries.auto_value
 

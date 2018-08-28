@@ -16,8 +16,8 @@
 
 package io.opencensus.trace;
 
-import com.google.common.io.BaseEncoding;
 import io.opencensus.internal.Utils;
+import io.opencensus.trace.internal.LowerCaseBase16Encoding;
 import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -109,8 +109,7 @@ public final class SpanId implements Comparable<SpanId> {
   public static SpanId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
         src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
-    byte[] bytes = BaseEncoding.base16().lowerCase().decode(src);
-    return new SpanId(bytes);
+    return new SpanId(LowerCaseBase16Encoding.getInstance().decodeToBytes(src));
   }
 
   /**
@@ -177,11 +176,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    return toLowerBase16(bytes);
-  }
-
-  private static String toLowerBase16(byte[] bytes) {
-    return BaseEncoding.base16().lowerCase().encode(bytes);
+    return LowerCaseBase16Encoding.getInstance().encodeToString(bytes);
   }
 
   @Override
@@ -205,7 +200,7 @@ public final class SpanId implements Comparable<SpanId> {
 
   @Override
   public String toString() {
-    return "SpanId{spanId=" + toLowerBase16(bytes) + "}";
+    return "SpanId{spanId=" + toLowerBase16() + "}";
   }
 
   @Override

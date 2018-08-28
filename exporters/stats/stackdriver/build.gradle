@@ -10,7 +10,8 @@ dependencies {
 
     compile project(':opencensus-api'),
             project(':opencensus-contrib-monitored-resource-util'),
-            libraries.google_auth
+            libraries.google_auth,
+            libraries.guava
 
     compile (libraries.google_cloud_monitoring) {
         // Prefer library version.

@@ -9,6 +9,7 @@ dependencies {
     compileOnly libraries.auto_value
 
     compile project(':opencensus-api'),
+            libraries.guava,
             libraries.prometheus_simpleclient
 
     testCompile project(':opencensus-api')
