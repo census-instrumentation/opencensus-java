@@ -1,7 +1,8 @@
 description = 'OpenCensus Testing'
 
 dependencies {
-    compile project(':opencensus-api')
+    compile project(':opencensus-api'),
+            libraries.guava
 
     testCompile project(':opencensus-api')
 

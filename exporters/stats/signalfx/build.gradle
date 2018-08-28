@@ -8,7 +8,8 @@ description = 'OpenCensus SignalFx Stats Exporter'
 dependencies {
     compileOnly libraries.auto_value
 
-    compile project(':opencensus-api')
+    compile project(':opencensus-api'),
+            libraries.guava
 
     compile (libraries.signalfx_java) {
         // Prefer library version.

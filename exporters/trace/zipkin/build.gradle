@@ -7,6 +7,7 @@ description = 'OpenCensus Trace Zipkin Exporter'
 
 dependencies {
     compile project(':opencensus-api'),
+            libraries.guava,
             libraries.zipkin_reporter,
             libraries.zipkin_urlconnection
 
