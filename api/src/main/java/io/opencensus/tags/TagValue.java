@@ -55,7 +55,7 @@ public abstract class TagValue {
    * @since 0.8
    */
   public static TagValue create(String value) {
-    Utils.checkArgument(isValid(value), "Invalid TagValue: " + value);
+    Utils.checkArgument(isValid(value), "Invalid TagValue: %s", value);
     return new AutoValue_TagValue(value);
   }
 

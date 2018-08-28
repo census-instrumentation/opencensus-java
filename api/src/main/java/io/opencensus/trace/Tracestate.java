@@ -201,8 +201,8 @@ public abstract class Tracestate {
     public static Entry create(String key, String value) {
       Utils.checkNotNull(key, "key");
       Utils.checkNotNull(value, "value");
-      Utils.checkArgument(validateKey(key), "Invalid key " + key);
-      Utils.checkArgument(validateValue(value), "Invalid value " + value);
+      Utils.checkArgument(validateKey(key), "Invalid key %s", key);
+      Utils.checkArgument(validateValue(value), "Invalid value %s", value);
       return new AutoValue_Tracestate_Entry(key, value);
     }
 
