@@ -78,8 +78,7 @@ public final class TraceOptions {
   public static TraceOptions fromBytes(byte[] buffer) {
     Utils.checkNotNull(buffer, "buffer");
     Utils.checkArgument(
-        buffer.length == SIZE,
-        String.format("Invalid size: expected %s, got %s", SIZE, buffer.length));
+        buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
     return fromByte(buffer[0]);
   }
 

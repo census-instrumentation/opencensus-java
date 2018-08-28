@@ -29,6 +29,12 @@
     <Method name="checkNotNull"/>
   </Match>
   <Match>
+    <!-- Reason: This test is testing for a NPE. -->
+    <Bug pattern="NP_NONNULL_PARAM_VIOLATION"/>
+    <Class name="io.opencensus.internal.UtilsTest"/>
+    <Method name="checkNotNull_NullErrorMessage"/>
+  </Match>
+  <Match>
     <!-- Reason: It seems like FindBugs incorrectly assumes that all -->
     <!-- Throwables are subclasses of Error or Exception. -->
     <Bug pattern="BC_VACUOUS_INSTANCEOF"/>

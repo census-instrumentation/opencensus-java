@@ -38,6 +38,8 @@ public final class SpanId implements Comparable<SpanId> {
    */
   public static final int SIZE = 8;
 
+  private static final int HEX_SIZE = 2 * SIZE;
+
   /**
    * The invalid {@code SpanId}. All bytes are 0.
    *
@@ -70,8 +72,7 @@ public final class SpanId implements Comparable<SpanId> {
   public static SpanId fromBytes(byte[] buffer) {
     Utils.checkNotNull(buffer, "buffer");
     Utils.checkArgument(
-        buffer.length == SIZE,
-        String.format("Invalid size: expected %s, got %s", SIZE, buffer.length));
+        buffer.length == SIZE, "Invalid size: expected %s, got %s", SIZE, buffer.length);
     byte[] bytesCopied = Arrays.copyOf(buffer, SIZE);
     return new SpanId(bytesCopied);
   }
@@ -107,8 +108,7 @@ public final class SpanId implements Comparable<SpanId> {
    */
   public static SpanId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
-        src.length() == 2 * SIZE,
-        String.format("Invalid size: expected %s, got %s", 2 * SIZE, src.length()));
+        src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
     byte[] bytes = BaseEncoding.base16().lowerCase().decode(src);
     return new SpanId(bytes);
   }

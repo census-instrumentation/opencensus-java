@@ -30,6 +30,10 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class UtilsTest {
   private static final String TEST_MESSAGE = "test message";
+  private static final String TEST_MESSAGE_TEMPLATE = "I ate %s eggs.";
+  private static final int TEST_MESSAGE_VALUE = 2;
+  private static final String FORMATED_SIMPLE_TEST_MESSAGE = "I ate 2 eggs.";
+  private static final String FORMATED_COMPLEX_TEST_MESSAGE = "I ate 2 eggs. [2]";
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -42,6 +46,27 @@ public final class UtilsTest {
   }
 
   @Test
+  public void checkArgument_NullErrorMessage() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("null");
+    Utils.checkArgument(false, null);
+  }
+
+  @Test
+  public void checkArgument_WithSimpleFormat() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(FORMATED_SIMPLE_TEST_MESSAGE);
+    Utils.checkArgument(false, TEST_MESSAGE_TEMPLATE, TEST_MESSAGE_VALUE);
+  }
+
+  @Test
+  public void checkArgument_WithComplexFormat() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(FORMATED_COMPLEX_TEST_MESSAGE);
+    Utils.checkArgument(false, TEST_MESSAGE_TEMPLATE, TEST_MESSAGE_VALUE, TEST_MESSAGE_VALUE);
+  }
+
+  @Test
   public void checkState() {
     Utils.checkNotNull(true, TEST_MESSAGE);
     thrown.expect(IllegalStateException.class);
@@ -50,11 +75,25 @@ public final class UtilsTest {
   }
 
   @Test
+  public void checkState_NullErrorMessage() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("null");
+    Utils.checkState(false, null);
+  }
+
+  @Test
   public void checkNotNull() {
     Utils.checkNotNull(new Object(), TEST_MESSAGE);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage(TEST_MESSAGE);
     Utils.checkNotNull(null, TEST_MESSAGE);
+  }
+
+  @Test
+  public void checkNotNull_NullErrorMessage() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("null");
+    Utils.checkNotNull(null, null);
   }
 
   @Test
