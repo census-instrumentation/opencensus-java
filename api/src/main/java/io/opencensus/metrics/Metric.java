@@ -81,19 +81,16 @@ public abstract class Metric {
           case GAUGE_INT64:
           case CUMULATIVE_INT64:
             Utils.checkArgument(
-                value instanceof ValueLong,
-                String.format("Type mismatch: %s, %s.", type, valueClassName));
+                value instanceof ValueLong, "Type mismatch: %s, %s.", type, valueClassName);
             break;
           case CUMULATIVE_DOUBLE:
           case GAUGE_DOUBLE:
             Utils.checkArgument(
-                value instanceof ValueDouble,
-                String.format("Type mismatch: %s, %s.", type, valueClassName));
+                value instanceof ValueDouble, "Type mismatch: %s, %s.", type, valueClassName);
             break;
           case CUMULATIVE_DISTRIBUTION:
             Utils.checkArgument(
-                value instanceof ValueDistribution,
-                String.format("Type mismatch: %s, %s.", type, valueClassName));
+                value instanceof ValueDistribution, "Type mismatch: %s, %s.", type, valueClassName);
         }
       }
     }
