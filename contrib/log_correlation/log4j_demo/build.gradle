@@ -1,0 +1,29 @@
+description = 'OpenCensus Log4j Log Correlation Demo'
+
+apply plugin: 'java'
+
+[compileJava, compileTestJava].each() {
+    it.sourceCompatibility = 1.7
+    it.targetCompatibility = 1.7
+}
+
+dependencies {
+    compile project(':opencensus-api'),
+            project(':opencensus-exporter-trace-stackdriver'),
+            libraries.log4j
+
+    runtime project(':opencensus-contrib-log-correlation-log4j'),
+            project(':opencensus-impl-lite'),
+            libraries.jackson_core,
+            libraries.jackson_databind
+
+    signature "org.codehaus.mojo.signature:java17:+@signature"
+}
+
+apply plugin: 'application'
+
+mainClassName =
+    'io.opencensus.contrib.logcorrelation.log4j.demo.OpenCensusLog4jLogCorrelationDemo'
+
+applicationDefaultJvmArgs =
+    ["-Dlog4j2.contextDataInjector=io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector"]
