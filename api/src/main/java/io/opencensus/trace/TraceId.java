@@ -110,7 +110,7 @@ public final class TraceId implements Comparable<TraceId> {
   public static TraceId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
         src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
-    return new TraceId(LowerCaseBase16Encoding.getInstance().decodeToBytes(src));
+    return new TraceId(LowerCaseBase16Encoding.decodeToBytes(src));
   }
 
   /**
@@ -177,7 +177,7 @@ public final class TraceId implements Comparable<TraceId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    return LowerCaseBase16Encoding.getInstance().encodeToString(bytes);
+    return LowerCaseBase16Encoding.encodeToString(bytes);
   }
 
   /**

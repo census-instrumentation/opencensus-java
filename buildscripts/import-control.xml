@@ -54,9 +54,6 @@ General guidelines on imports:
     <allow pkg="io.opencensus.internal"/>
     <allow pkg="io.opencensus.trace"/>
 
-    <!-- TODO(#1081): Remove this dependency on Guava. -->
-    <allow class="com.google.common.io.BaseEncoding"/>
-
     <!-- These dependencies on impl/implcore are only needed by -->
     <!-- io.opencensus.trace.TraceComponentImpl and io.opencensus.trace.TraceComponentImplLite, -->
     <!-- which are deprecated. -->

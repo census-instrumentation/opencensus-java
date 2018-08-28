@@ -48,7 +48,7 @@ public class LowerCaseBase16EncodingTest {
     // These contain bytes not in the decoding.
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Invalid character g");
-    LowerCaseBase16Encoding.getInstance().decodeToBytes("efhg");
+    LowerCaseBase16Encoding.decodeToBytes("efhg");
   }
 
   @Test
@@ -56,7 +56,7 @@ public class LowerCaseBase16EncodingTest {
     // Valid base16 strings always have an even length.
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Invalid input length 3");
-    LowerCaseBase16Encoding.getInstance().decodeToBytes("abc");
+    LowerCaseBase16Encoding.decodeToBytes("abc");
   }
 
   @Test
@@ -64,7 +64,7 @@ public class LowerCaseBase16EncodingTest {
     // These have a combination of invalid length and unrecognized characters.
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Invalid input length 1");
-    LowerCaseBase16Encoding.getInstance().decodeToBytes("?");
+    LowerCaseBase16Encoding.decodeToBytes("?");
   }
 
   private static void testEncoding(String decoded, String encoded) {
@@ -73,12 +73,11 @@ public class LowerCaseBase16EncodingTest {
   }
 
   private static void testEncodes(String decoded, String encoded) {
-    assertThat(LowerCaseBase16Encoding.getInstance().encodeToString(decoded.getBytes(CHARSET)))
+    assertThat(LowerCaseBase16Encoding.encodeToString(decoded.getBytes(CHARSET)))
         .isEqualTo(encoded);
   }
 
   private static void testDecodes(String encoded, String decoded) {
-    assertThat(LowerCaseBase16Encoding.getInstance().decodeToBytes(encoded))
-        .isEqualTo(decoded.getBytes(CHARSET));
+    assertThat(LowerCaseBase16Encoding.decodeToBytes(encoded)).isEqualTo(decoded.getBytes(CHARSET));
   }
 }

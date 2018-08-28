@@ -109,7 +109,7 @@ public final class SpanId implements Comparable<SpanId> {
   public static SpanId fromLowerBase16(CharSequence src) {
     Utils.checkArgument(
         src.length() == HEX_SIZE, "Invalid size: expected %s, got %s", HEX_SIZE, src.length());
-    return new SpanId(LowerCaseBase16Encoding.getInstance().decodeToBytes(src));
+    return new SpanId(LowerCaseBase16Encoding.decodeToBytes(src));
   }
 
   /**
@@ -176,7 +176,7 @@ public final class SpanId implements Comparable<SpanId> {
    * @since 0.11
    */
   public String toLowerBase16() {
-    return LowerCaseBase16Encoding.getInstance().encodeToString(bytes);
+    return LowerCaseBase16Encoding.encodeToString(bytes);
   }
 
   @Override

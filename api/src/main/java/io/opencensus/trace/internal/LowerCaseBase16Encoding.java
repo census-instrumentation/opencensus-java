@@ -23,23 +23,28 @@ import java.util.Arrays;
 /** Internal copy of the Guava implementation of the {@code BaseEncoding.base16().lowerCase()}. */
 @Internal
 public final class LowerCaseBase16Encoding {
-  private static final LowerCaseBase16Encoding INSTANCE = new LowerCaseBase16Encoding();
   private static final String ALPHABET = "0123456789abcdef";
   private static final int ASCII_CHARACTERS = 128;
-  private final char[] encoding = new char[512];
-  private final byte[] decoding = new byte[ASCII_CHARACTERS];
+  private static final char[] ENCODING = buildEncodingArray();
+  private static final byte[] DECODING = buildDecodingArray();
 
-  private LowerCaseBase16Encoding() {
+  private static char[] buildEncodingArray() {
+    char[] encoding = new char[512];
     for (int i = 0; i < 256; ++i) {
       encoding[i] = ALPHABET.charAt(i >>> 4);
       encoding[i | 0x100] = ALPHABET.charAt(i & 0xF);
     }
+    return encoding;
+  }
 
+  private static byte[] buildDecodingArray() {
+    byte[] decoding = new byte[ASCII_CHARACTERS];
     Arrays.fill(decoding, (byte) -1);
     for (int i = 0; i < ALPHABET.length(); i++) {
       char c = ALPHABET.charAt(i);
       decoding[c] = (byte) i;
     }
+    return decoding;
   }
 
   /**
@@ -48,12 +53,12 @@ public final class LowerCaseBase16Encoding {
    * @param bytes byte array to be encoded.
    * @return the encoded {@code String}.
    */
-  public String encodeToString(byte[] bytes) {
+  public static String encodeToString(byte[] bytes) {
     StringBuilder stringBuilder = new StringBuilder(bytes.length * 2);
     for (byte byteVal : bytes) {
       int b = byteVal & 0xFF;
-      stringBuilder.append(encoding[b]);
-      stringBuilder.append(encoding[b | 0x100]);
+      stringBuilder.append(ENCODING[b]);
+      stringBuilder.append(ENCODING[b | 0x100]);
     }
     return stringBuilder.toString();
   }
@@ -66,7 +71,7 @@ public final class LowerCaseBase16Encoding {
    * @throws IllegalArgumentException if the input is not a valid encoded string according to this
    *     encoding.
    */
-  public byte[] decodeToBytes(CharSequence chars) {
+  public static byte[] decodeToBytes(CharSequence chars) {
     Utils.checkArgument(chars.length() % 2 == 0, "Invalid input length " + chars.length());
     int bytesWritten = 0;
     byte[] bytes = new byte[chars.length() / 2];
@@ -76,14 +81,13 @@ public final class LowerCaseBase16Encoding {
     return bytes;
   }
 
-  private byte decodeByte(char hi, char lo) {
-    Utils.checkArgument(lo < ASCII_CHARACTERS && decoding[lo] != -1, "Invalid character " + lo);
-    Utils.checkArgument(hi < ASCII_CHARACTERS && decoding[hi] != -1, "Invalid character " + hi);
-    int decoded = decoding[hi] << 4 | decoding[lo];
+  private static byte decodeByte(char hi, char lo) {
+    Utils.checkArgument(lo < ASCII_CHARACTERS && DECODING[lo] != -1, "Invalid character " + lo);
+    Utils.checkArgument(hi < ASCII_CHARACTERS && DECODING[hi] != -1, "Invalid character " + hi);
+    int decoded = DECODING[hi] << 4 | DECODING[lo];
     return (byte) decoded;
   }
 
-  public static LowerCaseBase16Encoding getInstance() {
-    return INSTANCE;
-  }
+  // Private constructor to disallow instances.
+  private LowerCaseBase16Encoding() {}
 }
