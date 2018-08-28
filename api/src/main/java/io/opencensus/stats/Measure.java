@@ -30,8 +30,11 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public abstract class Measure {
-
   @DefaultVisibilityForTesting static final int NAME_MAX_LENGTH = 255;
+  private static final String ERROR_MESSAGE_INVALID_NAME =
+      "Name should be a ASCII string with a length no greater than "
+          + NAME_MAX_LENGTH
+          + " characters.";
 
   /**
    * Applies the given match function to the underlying data type.
@@ -105,9 +108,7 @@ public abstract class Measure {
     public static MeasureDouble create(String name, String description, String unit) {
       Utils.checkArgument(
           StringUtils.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than "
-              + NAME_MAX_LENGTH
-              + " characters.");
+          ERROR_MESSAGE_INVALID_NAME);
       return new AutoValue_Measure_MeasureDouble(name, description, unit);
     }
 
@@ -152,9 +153,7 @@ public abstract class Measure {
     public static MeasureLong create(String name, String description, String unit) {
       Utils.checkArgument(
           StringUtils.isPrintableString(name) && name.length() <= NAME_MAX_LENGTH,
-          "Name should be a ASCII string with a length no greater than "
-              + NAME_MAX_LENGTH
-              + " characters.");
+          ERROR_MESSAGE_INVALID_NAME);
       return new AutoValue_Measure_MeasureLong(name, description, unit);
     }
 

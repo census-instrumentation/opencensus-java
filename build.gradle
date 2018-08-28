@@ -251,6 +251,12 @@ subprojects {
             html.enabled = true
         }
     }
+    findbugsTest {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
 
     checkstyle {
         configFile = file("$rootDir/buildscripts/checkstyle.xml")
