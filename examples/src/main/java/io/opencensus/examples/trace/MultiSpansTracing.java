@@ -49,7 +49,13 @@ public final class MultiSpansTracing {
    */
   public static void main(String[] args) {
 
-    // For demo purposes, lets always sample.
+    // WARNING: Be careful before you set sampler value to always sample, especially in production environment.
+    // Trace data is often very large in size and is expensive to collect. This is why rather than collecting traces
+    // for every request(i.e. alwaysSample), downsampling is prefered.
+    // By default, OpenCensus provides a probabilistic sampler that will trace once in every 10,000 requests.
+    // If you prefer to use probabilistic sampler, you might not see trace data printed or exported and this is
+    // expected behavior.
+
     TraceConfig traceConfig = Tracing.getTraceConfig();
     traceConfig.updateActiveTraceParams(
             traceConfig
