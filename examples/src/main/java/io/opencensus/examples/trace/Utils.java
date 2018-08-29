@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 /** Util methods. */
 final class Utils {
 
-  private static Logger logger = Logger.getLogger(Utils.class.getName());
+  private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
   static void sleep(int ms) {
     // A helper to avoid try-catch when invoking Thread.sleep so that
