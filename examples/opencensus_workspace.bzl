@@ -1,6 +1,6 @@
 # The following dependencies were calculated from:
 #
-# generate_workspace --artifact=com.google.guava:guava:23.0 --artifact=io.grpc:grpc-all:1.9.0 --artifact=io.opencensus:opencensus-api:0.15.0 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.15.0 --artifact=io.opencensus:opencensus-contrib-zpages:0.15.0 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.15.0 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.15.0 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.15.0 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.15.0 --artifact=io.opencensus:opencensus-impl:0.15.0 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --repositories=http://repo.maven.apache.org/maven2
+# generate_workspace --artifact=com.google.guava:guava:23.0 --artifact=io.grpc:grpc-all:1.9.0 --artifact=io.opencensus:opencensus-api:0.15.1 --artifact=io.opencensus:opencensus-contrib-grpc-metrics:0.15.1 --artifact=io.opencensus:opencensus-contrib-zpages:0.15.1 --artifact=io.opencensus:opencensus-exporter-stats-prometheus:0.15.1 --artifact=io.opencensus:opencensus-exporter-stats-stackdriver:0.15.1 --artifact=io.opencensus:opencensus-exporter-trace-logging:0.15.1 --artifact=io.opencensus:opencensus-exporter-trace-stackdriver:0.15.1 --artifact=io.opencensus:opencensus-impl:0.15.1 --artifact=io.prometheus:simpleclient_httpserver:0.3.0 --repositories=http://repo.maven.apache.org/maven2
 
 
 def opencensus_maven_jars():
@@ -28,9 +28,9 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_stats_prometheus",
-      artifact = "io.opencensus:opencensus-exporter-stats-prometheus:0.15.0",
+      artifact = "io.opencensus:opencensus-exporter-stats-prometheus:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "bdd5f4b6648748a3187b2829bcc99a66cc013173",
+      sha1 = "4e0a8de8722155191cbf70c78e0f86ad9803e965",
   )
 
 
@@ -73,7 +73,7 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.1
   native.maven_jar(
       name = "com_google_cloud_google_cloud_trace",
       artifact = "com.google.cloud:google-cloud-trace:0.52.0-beta",
@@ -91,12 +91,12 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl:jar:0.15.0
+  # io.opencensus:opencensus-impl:jar:0.15.1
   native.maven_jar(
       name = "io_opencensus_opencensus_impl_core",
-      artifact = "io.opencensus:opencensus-impl-core:0.15.0",
+      artifact = "io.opencensus:opencensus-impl-core:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "36c775926ba1e54af7c37d0503cfb99d986f6229",
+      sha1 = "fbbc916e4f4234a55802bff316120d89dd52385b",
   )
 
 
@@ -162,10 +162,10 @@ def opencensus_maven_jars():
 
 
   # io.grpc:grpc-auth:jar:1.9.0
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0 wanted version 0.9.1
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0 wanted version 0.9.1
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.1 wanted version 0.9.1
   # com.google.auth:google-auth-library-oauth2-http:jar:0.9.0 got requested version
   # com.google.cloud:google-cloud-core-grpc:jar:1.34.0 wanted version 0.9.1
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.1 wanted version 0.9.1
   # com.google.api:gax-grpc:jar:1.28.0 wanted version 0.9.1
   native.maven_jar(
       name = "com_google_auth_google_auth_library_credentials",
@@ -190,11 +190,10 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-contrib-zpages:jar:0.15.0 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_contrib_grpc_metrics",
-      artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.15.0",
-      sha1 = "092d8f796006619ce4e86d987f9d441c6155bef9",
+      artifact = "io.opencensus:opencensus-contrib-grpc-metrics:0.15.1",
+      sha1 = "cd97d4ac251f716f6f571b43ce89187084c6058a",
   )
 
 
@@ -321,9 +320,9 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_trace_logging",
-      artifact = "io.opencensus:opencensus-exporter-trace-logging:0.15.0",
+      artifact = "io.opencensus:opencensus-exporter-trace-logging:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "8b594af20be53cf05d6f7f0ddbe30fcaef4d67d2",
+      sha1 = "83ec1173cd221b5ba280dd76f288474c381c473e",
   )
 
 
@@ -361,9 +360,9 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_trace_stackdriver",
-      artifact = "io.opencensus:opencensus-exporter-trace-stackdriver:0.15.0",
+      artifact = "io.opencensus:opencensus-exporter-trace-stackdriver:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "5de4ca15dc5bf4b861f9a6594e0b81388f9716f0",
+      sha1 = "3368625289380ba80f466abd47d3071e33dd5718",
   )
 
 
@@ -394,13 +393,13 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0 got requested version
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.1
+  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.1 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_contrib_monitored_resource_util",
-      artifact = "io.opencensus:opencensus-contrib-monitored-resource-util:0.15.0",
+      artifact = "io.opencensus:opencensus-contrib-monitored-resource-util:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "7e755d630cf025d0767a5f45dea39427ce5ba597",
+      sha1 = "b6aa0a49271a05389674e8d56772d30da6756ef9",
   )
 
 
@@ -431,7 +430,7 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-impl:jar:0.15.0
+  # io.opencensus:opencensus-impl:jar:0.15.1
   native.maven_jar(
       name = "com_lmax_disruptor",
       artifact = "com.lmax:disruptor:3.4.1",
@@ -480,9 +479,9 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_impl",
-      artifact = "io.opencensus:opencensus-impl:0.15.0",
+      artifact = "io.opencensus:opencensus-impl:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "d7bf0d7ee5a0594f840271c11c9f8d6f754f35d6",
+      sha1 = "90e9bfb7ba7943c77d02aeb01528421a1409e523",
   )
 
 
@@ -555,18 +554,11 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-trace-stackdriver:jar:0.15.0 got requested version
-  # io.opencensus:opencensus-impl:jar:0.15.0 got requested version
-  # io.opencensus:opencensus-contrib-zpages:jar:0.15.0 got requested version
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0 got requested version
-  # io.opencensus:opencensus-impl-core:jar:0.15.0 got requested version
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.15.0 got requested version
   # io.opencensus:opencensus-contrib-grpc-metrics:jar:0.10.0 wanted version 0.10.0
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.15.0 got requested version
   native.maven_jar(
       name = "io_opencensus_opencensus_api",
-      artifact = "io.opencensus:opencensus-api:0.15.0",
-      sha1 = "9a098392b287d7924660837f4eba0ce252013683",
+      artifact = "io.opencensus:opencensus-api:0.15.1",
+      sha1 = "c37adb67c3ec7eba10c75d4e3abae3d6478d0590",
   )
 
 
@@ -581,7 +573,7 @@ def opencensus_maven_jars():
 
   # io.prometheus:simpleclient_httpserver:bundle:0.4.0 wanted version 0.3.0
   # io.prometheus:simpleclient_common:bundle:0.4.0 wanted version 0.3.0
-  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.15.0
+  # io.opencensus:opencensus-exporter-stats-prometheus:jar:0.15.1
   native.maven_jar(
       name = "io_prometheus_simpleclient",
       artifact = "io.prometheus:simpleclient:0.4.0",
@@ -601,9 +593,9 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_exporter_stats_stackdriver",
-      artifact = "io.opencensus:opencensus-exporter-stats-stackdriver:0.15.0",
+      artifact = "io.opencensus:opencensus-exporter-stats-stackdriver:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "2f52d75b2ad4c24fc23f865cab1994c7a1eb727f",
+      sha1 = "216a37c1516d1998edf4daab5f4b5d5fd3993bf3",
   )
 
 
@@ -709,22 +701,22 @@ def opencensus_maven_jars():
 
   native.maven_jar(
       name = "io_opencensus_opencensus_contrib_zpages",
-      artifact = "io.opencensus:opencensus-contrib-zpages:0.15.0",
+      artifact = "io.opencensus:opencensus-contrib-zpages:0.15.1",
       repository = "http://repo.maven.apache.org/maven2/",
-      sha1 = "f9748d0bf7d390a325d169fd44b4fdcf17dfe1b4",
+      sha1 = "cb3c77c6a32b4ae33e400c568d795e9d9e8e0885",
   )
 
 
   # io.grpc:grpc-protobuf-nano:jar:1.9.0 wanted version 19.0
   # io.grpc:grpc-core:jar:1.9.0 wanted version 19.0
-  # io.opencensus:opencensus-exporter-trace-logging:jar:0.15.0 wanted version 20.0
+  # io.opencensus:opencensus-impl-core:jar:0.15.1 wanted version 20.0
   # io.grpc:grpc-protobuf-lite:jar:1.9.0 wanted version 19.0
   # com.google.protobuf:protobuf-java-util:bundle:3.5.1 wanted version 19.0
   # com.google.instrumentation:instrumentation-api:jar:0.4.3 wanted version 19.0
-  # io.opencensus:opencensus-contrib-zpages:jar:0.15.0 wanted version 20.0
   # io.opencensus:opencensus-api:jar:0.10.0 wanted version 19.0
-  # io.opencensus:opencensus-impl-core:jar:0.15.0 wanted version 20.0
+  # io.opencensus:opencensus-exporter-trace-logging:jar:0.15.1 wanted version 20.0
   # io.grpc:grpc-protobuf:jar:1.9.0 wanted version 19.0
+  # io.opencensus:opencensus-contrib-zpages:jar:0.15.1 wanted version 20.0
   native.maven_jar(
       name = "com_google_guava_guava",
       artifact = "com.google.guava:guava:23.0",
@@ -752,7 +744,7 @@ def opencensus_maven_jars():
   )
 
 
-  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.0
+  # io.opencensus:opencensus-exporter-stats-stackdriver:jar:0.15.1
   native.maven_jar(
       name = "com_google_cloud_google_cloud_monitoring",
       artifact = "com.google.cloud:google-cloud-monitoring:1.34.0",
@@ -787,7 +779,6 @@ def opencensus_java_libraries():
       visibility = ["//visibility:public"],
       exports = ["@io_opencensus_opencensus_exporter_stats_prometheus//jar"],
       runtime_deps = [
-          ":io_opencensus_opencensus_api",
           ":io_prometheus_simpleclient",
       ],
   )
@@ -875,7 +866,6 @@ def opencensus_java_libraries():
       exports = ["@io_opencensus_opencensus_impl_core//jar"],
       runtime_deps = [
           ":com_google_guava_guava",
-          ":io_opencensus_opencensus_api",
       ],
   )
 
@@ -1102,7 +1092,6 @@ def opencensus_java_libraries():
       exports = ["@io_opencensus_opencensus_exporter_trace_logging//jar"],
       runtime_deps = [
           ":com_google_guava_guava",
-          ":io_opencensus_opencensus_api",
       ],
   )
 
@@ -1165,7 +1154,6 @@ def opencensus_java_libraries():
           ":io_grpc_grpc_auth",
           ":io_grpc_grpc_netty_shaded",
           ":io_grpc_grpc_stub",
-          ":io_opencensus_opencensus_api",
           ":io_opencensus_opencensus_contrib_monitored_resource_util",
       ],
   )
@@ -1266,7 +1254,6 @@ def opencensus_java_libraries():
       runtime_deps = [
           ":com_google_guava_guava",
           ":com_lmax_disruptor",
-          ":io_opencensus_opencensus_api",
           ":io_opencensus_opencensus_impl_core",
       ],
   )
@@ -1447,7 +1434,6 @@ def opencensus_java_libraries():
           ":io_grpc_grpc_netty_shaded",
           ":io_grpc_grpc_protobuf",
           ":io_grpc_grpc_stub",
-          ":io_opencensus_opencensus_api",
           ":io_opencensus_opencensus_contrib_monitored_resource_util",
           ":joda_time_joda_time",
           ":org_apache_httpcomponents_httpclient",
@@ -1570,8 +1556,6 @@ def opencensus_java_libraries():
       exports = ["@io_opencensus_opencensus_contrib_zpages//jar"],
       runtime_deps = [
           ":com_google_guava_guava",
-          ":io_opencensus_opencensus_api",
-          ":io_opencensus_opencensus_contrib_grpc_metrics",
       ],
   )
 
