@@ -13,6 +13,9 @@
 - Remove global synchronization from the get current stats state.
 - Add get/from{Byte} methods on TraceOptions and deprecate get/from{Bytes}.
 
+## 0.15.1 - 2018-08-28
+- Improve propagation performance by avoiding doing string formatting when calling checkArgument.
+
 ## 0.15.0 - 2018-06-20
 - Expose the factory methods of MonitoredResource.
 - Add an experimental artifact, `opencensus-contrib-log-correlation-stackdriver`, for
