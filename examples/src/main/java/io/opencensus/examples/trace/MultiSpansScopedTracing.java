@@ -66,8 +66,8 @@ public final class MultiSpansScopedTracing {
     // downsampling is prefered.
     //
     // By default, OpenCensus provides a probabilistic sampler that will trace once in every
-    // 10,000 requests. If you prefer to use probabilistic sampler, you might not see trace data
-    // printed or exported and this is expected behavior.
+    // 10,000 requests, that's why if default probabilistic sampler is used
+    // you might not see trace data printed or exported and this is expected behavior.
 
     TraceConfig traceConfig = Tracing.getTraceConfig();
     traceConfig.updateActiveTraceParams(
