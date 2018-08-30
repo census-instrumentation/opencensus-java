@@ -149,7 +149,7 @@ subprojects {
         findBugsAnnotationsVersion = '3.0.1'
         findBugsJsr305Version = '3.0.2'
         errorProneVersion = '2.3.1'
-        grpcVersion = '1.12.0'
+        grpcVersion = '1.14.0'
         guavaVersion = '20.0'
         googleAuthVersion = '0.10.0'
         googleCloudBetaVersion = '0.58.0-beta'
