@@ -16,6 +16,7 @@
 
 package io.opencensus.contrib.agent.instrumentation;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.grpc.Context;
@@ -67,7 +68,10 @@ final class ContextStrategyImpl implements ContextStrategy {
       Context context = savedContexts.getIfPresent(thread);
       if (context != null) {
         savedContexts.invalidate(thread);
-        context.attach();
+        // Work around findbugs warning. Context.attach() is marked as @CheckReturnValue so we need
+        // to check the return
+        // value here, otherwise findbugs will fail.
+        Preconditions.checkNotNull(context.attach(), "context.attach()");
       }
     }
   }
