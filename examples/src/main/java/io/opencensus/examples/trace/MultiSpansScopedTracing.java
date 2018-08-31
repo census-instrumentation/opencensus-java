@@ -16,11 +16,15 @@
 
 package io.opencensus.examples.trace;
 
+import static io.opencensus.examples.trace.Utils.sleep;
+
 import io.opencensus.common.Scope;
 import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.config.TraceConfig;
+import io.opencensus.trace.samplers.Samplers;
 
 /**
  * Example showing how to create a child {@link Span} using scoped Spans, install it in the current
@@ -55,9 +59,27 @@ public final class MultiSpansScopedTracing {
    * @param args the main arguments.
    */
   public static void main(String[] args) {
+
+    // WARNING: Be careful before you set sampler value to always sample, especially in
+    // production environment. Trace data is often very large in size and is expensive to
+    // collect. This is why rather than collecting traces for every request(i.e. alwaysSample),
+    // downsampling is prefered.
+    //
+    // By default, OpenCensus provides a probabilistic sampler that will trace once in every
+    // 10,000 requests, that's why if default probabilistic sampler is used
+    // you might not see trace data printed or exported and this is expected behavior.
+
+    TraceConfig traceConfig = Tracing.getTraceConfig();
+    traceConfig.updateActiveTraceParams(
+        traceConfig.getActiveTraceParams().toBuilder().setSampler(Samplers.alwaysSample()).build());
+
     LoggingTraceExporter.register();
     try (Scope ss = tracer.spanBuilderWithExplicitParent("MyRootSpan", null).startScopedSpan()) {
       doWork();
     }
+
+    // Wait for a duration longer than reporting duration (5s) to ensure spans are exported.
+    // Spans are exported every 5 seconds
+    sleep(5100);
   }
 }

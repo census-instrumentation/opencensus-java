@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 /** Util methods. */
 final class HelloWorldUtils {
 
-  private static Logger logger = Logger.getLogger(HelloWorldUtils.class.getName());
+  private static final Logger logger = Logger.getLogger(HelloWorldUtils.class.getName());
 
   static int getPortOrDefaultFromArgs(String[] args, int index, int defaultPort) {
     int portNumber = defaultPort;
