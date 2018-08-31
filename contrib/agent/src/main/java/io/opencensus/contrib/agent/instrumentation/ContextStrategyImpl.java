@@ -68,7 +68,10 @@ final class ContextStrategyImpl implements ContextStrategy {
       Context context = savedContexts.getIfPresent(thread);
       if (context != null) {
         savedContexts.invalidate(thread);
-        Preconditions.checkNotNull(context.attach(), "context"); // Work around findbugs warning
+        // Work around findbugs warning. Context.attach() is marked as @CheckReturnValue so we need
+        // to check the return
+        // value here, otherwise findbugs will fail.
+        Preconditions.checkNotNull(context.attach(), "context.attach()");
       }
     }
   }

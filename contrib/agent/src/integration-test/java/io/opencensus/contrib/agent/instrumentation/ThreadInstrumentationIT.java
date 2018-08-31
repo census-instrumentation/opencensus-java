@@ -115,8 +115,10 @@ public class ThreadInstrumentationIT {
             // been wrapped in a different context (by automatic instrumentation of
             // Executor#execute), that context will be attached when executing the Runnable.
             Context context2 = Context.current().withValue(KEY, "wrong context");
-            // Work around findbugs warning
-            Preconditions.checkNotNull(context2.attach(), "context2");
+            // Work around findbugs warning. Context.attach() is marked as @CheckReturnValue so we
+            // need to check the return
+            // value here, otherwise findbugs will fail.
+            Preconditions.checkNotNull(context2.attach(), "context2.attach()");
             Thread thread = new Thread(command);
             thread.start();
             try {
