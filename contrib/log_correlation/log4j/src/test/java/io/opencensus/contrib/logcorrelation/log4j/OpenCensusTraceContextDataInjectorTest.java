@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
+import java.util.Collections;
 import java.util.Map;
 import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.util.BiConsumer;
@@ -117,7 +118,7 @@ public final class OpenCensusTraceContextDataInjectorTest {
   public void handleEmptyConfigurationProperties() {
     assertContainsOnlyDefaultTracingEntries(
         new OpenCensusTraceContextDataInjector()
-            .injectContextData(null, new SortedArrayStringMap()));
+            .injectContextData(Collections.<Property>emptyList(), new SortedArrayStringMap()));
   }
 
   @Test
