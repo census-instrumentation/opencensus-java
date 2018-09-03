@@ -1,7 +1,7 @@
 # OpenCensus Log4j Log Correlation
 
-This subproject is currently experimental, so it doesn't have any stability guarantees. It will
-remain experimental until we have a specification for a log correlation feature in
+This subproject is currently experimental, so it may be redesigned or removed in the future.  It
+will remain experimental until we have a specification for a log correlation feature in
 [opencensus-specs](https://github.com/census-instrumentation/opencensus-specs/)
 (issue [#123](https://github.com/census-instrumentation/opencensus-specs/issues/123)).
 
