@@ -36,7 +36,6 @@ import org.junit.runners.JUnit4;
  * OpenCensusTraceContextDataInjector#SPAN_SELECTION_PROPERTY_NAME} set to {@link
  * SpanSelection#ALL_SPANS}.
  */
-// TODO(sebright): Add a test with non-empty configuration properties.
 @RunWith(JUnit4.class)
 public final class OpenCensusLog4jLogCorrelationAllSpansTest
     extends AbstractOpenCensusLog4jLogCorrelationTest {

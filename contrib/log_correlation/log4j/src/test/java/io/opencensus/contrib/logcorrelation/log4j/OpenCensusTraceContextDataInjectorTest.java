@@ -18,7 +18,15 @@ package io.opencensus.contrib.logcorrelation.log4j;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
+import java.util.Collections;
+import java.util.Map;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.util.BiConsumer;
+import org.apache.logging.log4j.util.SortedArrayStringMap;
+import org.apache.logging.log4j.util.StringMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -81,5 +89,65 @@ public final class OpenCensusTraceContextDataInjectorTest {
     } finally {
       System.clearProperty(OpenCensusTraceContextDataInjector.SPAN_SELECTION_PROPERTY_NAME);
     }
+  }
+
+  @Test
+  public void insertConfigurationProperties() {
+    assertThat(
+            toMap(
+                new OpenCensusTraceContextDataInjector()
+                    .injectContextData(
+                        Lists.newArrayList(
+                            Property.createProperty("property1", "value1"),
+                            Property.createProperty("property2", "value2")),
+                        new SortedArrayStringMap())))
+        .containsExactly(
+            "property1",
+            "value1",
+            "property2",
+            "value2",
+            "openCensusTraceId",
+            "00000000000000000000000000000000",
+            "openCensusSpanId",
+            "0000000000000000",
+            "openCensusTraceSampled",
+            "false");
+  }
+
+  @Test
+  public void handleEmptyConfigurationProperties() {
+    assertContainsOnlyDefaultTracingEntries(
+        new OpenCensusTraceContextDataInjector()
+            .injectContextData(Collections.<Property>emptyList(), new SortedArrayStringMap()));
+  }
+
+  @Test
+  public void handleNullConfigurationProperties() {
+    assertContainsOnlyDefaultTracingEntries(
+        new OpenCensusTraceContextDataInjector()
+            .injectContextData(null, new SortedArrayStringMap()));
+  }
+
+  private static void assertContainsOnlyDefaultTracingEntries(StringMap stringMap) {
+    assertThat(toMap(stringMap))
+        .containsExactly(
+            "openCensusTraceId",
+            "00000000000000000000000000000000",
+            "openCensusSpanId",
+            "0000000000000000",
+            "openCensusTraceSampled",
+            "false");
+  }
+
+  private static Map<String, String> toMap(StringMap stringMap) {
+    final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    stringMap.forEach(
+        new BiConsumer<String, String>() {
+          @Override
+          public void accept(String key, String value) {
+            builder.put(key, value);
+          }
+        });
+    return builder.build();
   }
 }
