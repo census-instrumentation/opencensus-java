@@ -18,7 +18,6 @@ package io.opencensus.contrib.agent.instrumentation;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.base.Preconditions;
 import io.grpc.Context;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -115,10 +114,7 @@ public class ThreadInstrumentationIT {
             // been wrapped in a different context (by automatic instrumentation of
             // Executor#execute), that context will be attached when executing the Runnable.
             Context context2 = Context.current().withValue(KEY, "wrong context");
-            // Work around findbugs warning. Context.attach() is marked as @CheckReturnValue so we
-            // need to check the return
-            // value here, otherwise findbugs will fail.
-            Preconditions.checkNotNull(context2.attach(), "context2.attach()");
+            Context context3 = context2.attach();
             Thread thread = new Thread(command);
             thread.start();
             try {
@@ -126,7 +122,7 @@ public class ThreadInstrumentationIT {
             } catch (InterruptedException ex) {
               Thread.currentThread().interrupt();
             }
-            context2.detach(context);
+            context2.detach(context3);
           }
         };
 
