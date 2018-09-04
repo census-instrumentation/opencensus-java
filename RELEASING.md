@@ -224,6 +224,7 @@ $ README_FILES=(
   contrib/exemplar_util/README.md
   contrib/grpc_util/README.md
   contrib/http_util/README.md
+  contrib/log_correlation/log4j/README.md
   contrib/log_correlation/stackdriver/README.md
   contrib/monitored_resource_util/README.md
   contrib/spring/README.md
