@@ -107,7 +107,7 @@ final class OpenCensusSleuthSpanContextHolder {
         public void apply(Span span) {}
       };
 
-  @SuppressWarnings("")
+  @SuppressWarnings("CheckReturnValue")
   private static void setSpanContext(SpanContext spanContext) {
     CURRENT_SPAN.set(spanContext);
     Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, spanContext.ocSpan).attach();
