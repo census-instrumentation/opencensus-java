@@ -1,0 +1,19 @@
+package org.springframework.cloud.sleuth;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.cloud.sleuth.Sampler;
+import org.springframework.cloud.sleuth.Span;
+
+interface Tracer {
+  @Nullable Span close(@Nullable Span span);
+  @Nullable Span continueSpan(@Nullable Span span);
+  @Nullable Span createSpan(String name);
+  @Nullable Span createSpan(String name, @Nullable Sampler sampler);
+  @Nullable Span createSpan(String name, @Nullable Span parent);
+  @Nullable Span detach(@Nullable Span span);
+  @Nullable Span getCurrentSpan();
+}
+
+class Span {
+  Span (Span span, @Nullable Span parent);
+}

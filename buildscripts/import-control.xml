@@ -108,6 +108,18 @@ General guidelines on imports:
       <allow pkg="org.aspectj.lang.annotation"/>
       <allow pkg="org.aspectj.lang.reflect"/>
       <allow pkg="org.springframework.beans.factory.annotation"/>
+      <subpackage name="sleuth">
+        <allow pkg="io.opencensus.trace"/>
+        <allow pkg="org.apache.commons.logging"/>
+        <allow pkg="org.springframework.beans.factory.annotation"/>
+        <allow pkg="org.springframework.beans.factory.config"/>
+        <allow pkg="org.springframework.boot.autoconfigure"/>
+        <allow pkg="org.springframework.boot.context"/>
+        <allow pkg="org.springframework.context.annotation"/>
+        <allow pkg="org.springframework.boot.context.properties"/>
+        <allow pkg="org.springframework.cloud.sleuth"/>
+        <allow pkg="org.springframework.core"/>
+      </subpackage>
     </subpackage>
     <subpackage name="zpages">
       <allow pkg="com.sun.net.httpserver"/>

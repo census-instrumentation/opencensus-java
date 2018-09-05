@@ -228,6 +228,7 @@ $ README_FILES=(
   contrib/log_correlation/stackdriver/README.md
   contrib/monitored_resource_util/README.md
   contrib/spring/README.md
+  contrib/spring_sleuth/README.md
   contrib/zpages/README.md
   exporters/stats/prometheus/README.md
   exporters/stats/signalfx/README.md
