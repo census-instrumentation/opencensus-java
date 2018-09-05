@@ -115,14 +115,17 @@ public class ThreadInstrumentationIT {
             // Executor#execute), that context will be attached when executing the Runnable.
             Context context2 = Context.current().withValue(KEY, "wrong context");
             Context context3 = context2.attach();
-            Thread thread = new Thread(command);
-            thread.start();
             try {
-              thread.join();
-            } catch (InterruptedException ex) {
-              Thread.currentThread().interrupt();
+              Thread thread = new Thread(command);
+              thread.start();
+              try {
+                thread.join();
+              } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+              }
+            } finally {
+              context2.detach(context3);
             }
-            context2.detach(context3);
           }
         };
 
