@@ -129,19 +129,16 @@ public class ThreadInstrumentationIT {
         };
 
     final AtomicReference<Context> newThreadCtx = new AtomicReference<Context>();
-    final AtomicReference<String> newThreadCtxVal = new AtomicReference<String>();
     newThreadExecutor.execute(
         new Runnable() {
           @Override
           public void run() {
             newThreadCtx.set(Context.current());
-            newThreadCtxVal.set(KEY.get());
           }
         });
 
     // Assert that the automatic context propagation added by ThreadInstrumentation did not
     // interfere with the automatically propagated context from Executor#execute.
     assertThat(newThreadCtx.get()).isSameAs(context);
-    assertThat(newThreadCtxVal.get()).isEqualTo("myvalue");
   }
 }
