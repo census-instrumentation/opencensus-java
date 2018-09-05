@@ -8,7 +8,7 @@ propagating the OpenCensus trace context when working with [Spring Sleuth][sprin
 
 This is an __experimental component__, please bring feedback to
 https://gitter.im/census-instrumentation/Lobby not the usual
-sleuth channel https://gitter.im/spring-cloud/spring-cloud-sleuth 
+sleuth channel https://gitter.im/spring-cloud/spring-cloud-sleuth.
 
 This version is compatible with [Spring Boot 1.5.x][spring-boot-1.5-url].
 
@@ -22,7 +22,7 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-spring-sleuth</artifactId>
-    <version>0.15.0</version>
+    <version>0.16.0</version>
     <exclusions>
       <exclusion>
 	    <groupId>org.springframework.cloud</groupId>
@@ -39,7 +39,7 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-contrib-spring-sleuth:0.15.0'
+compile 'io.opencensus:opencensus-contrib-spring-sleuth:0.16.0'
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
@@ -48,5 +48,5 @@ compile 'io.opencensus:opencensus-contrib-spring-sleuth:0.15.0'
 [appveyor-url]: https://ci.appveyor.com/project/opencensusjavateam/opencensus-java/branch/master
 [maven-image]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-spring-sleuth/badge.svg
 [maven-url]: https://maven-badges.herokuapp.com/maven-central/io.opencensus/opencensus-contrib-spring-sleuth
-[sprint-boot-1.5-url]: https://github.com/spring-projects/spring-boot/tree/1.5.x
+[spring-boot-1.5-url]: https://github.com/spring-projects/spring-boot/tree/1.5.x
 [spring-sleuth-url]: https://github.com/spring-cloud/spring-cloud-sleuth
