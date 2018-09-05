@@ -12,6 +12,8 @@
 - Add support to handle the Tracestate in the SpanContext.
 - Remove global synchronization from the get current stats state.
 - Add get/from{Byte} methods on TraceOptions and deprecate get/from{Bytes}.
+- Add an API to `StackdriverTraceConfiguration` to allow setting a
+  `TraceServiceStub` instance to be used for export RPC calls.
 
 ## 0.15.1 - 2018-08-28
 - Improve propagation performance by avoiding doing string formatting when calling checkArgument.

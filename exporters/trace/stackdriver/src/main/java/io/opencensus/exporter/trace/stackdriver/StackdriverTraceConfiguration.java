@@ -18,6 +18,7 @@ package io.opencensus.exporter.trace.stackdriver;
 
 import com.google.auth.Credentials;
 import com.google.auto.value.AutoValue;
+import com.google.cloud.trace.v2.stub.TraceServiceStub;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -49,6 +50,15 @@ public abstract class StackdriverTraceConfiguration {
    */
   @Nullable
   public abstract String getProjectId();
+
+  /**
+   * Returns a TraceServiceStub instance used to make RPC calls.
+   *
+   * @return the trace service stub.
+   * @since 0.16
+   */
+  @Nullable
+  public abstract TraceServiceStub getTraceServiceStub();
 
   /**
    * Returns a new {@link Builder}.
@@ -87,6 +97,15 @@ public abstract class StackdriverTraceConfiguration {
      * @since 0.12
      */
     public abstract Builder setProjectId(String projectId);
+
+    /**
+     * Sets the trace service stub used to send gRPC calls.
+     *
+     * @param traceServiceStub the {@code TraceServiceStub}.
+     * @return this.
+     * @since 0.16
+     */
+    public abstract Builder setTraceServiceStub(TraceServiceStub traceServiceStub);
 
     /**
      * Builds a {@link StackdriverTraceConfiguration}.
