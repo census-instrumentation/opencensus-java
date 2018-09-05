@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import io.grpc.Context;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -103,8 +104,6 @@ public class ThreadInstrumentationIT {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
 
-    final AtomicBoolean tested = new AtomicBoolean(false);
-
     Executor newThreadExecutor =
         new Executor() {
           @Override
@@ -129,18 +128,20 @@ public class ThreadInstrumentationIT {
           }
         };
 
+    final AtomicReference<Context> newThreadCtx = new AtomicReference<Context>();
+    final AtomicReference<String> newThreadCtxVal = new AtomicReference<String>();
     newThreadExecutor.execute(
         new Runnable() {
           @Override
           public void run() {
-            // Assert that the automatic context propagation added by ThreadInstrumentation did not
-            // interfere with the automatically propagated context from Executor#execute.
-            assertThat(Context.current()).isSameAs(context);
-            assertThat(KEY.get()).isEqualTo("myvalue");
-            tested.set(true);
+            newThreadCtx.set(Context.current());
+            newThreadCtxVal.set(KEY.get());
           }
         });
 
-    assertThat(tested.get()).isTrue();
+    // Assert that the automatic context propagation added by ThreadInstrumentation did not
+    // interfere with the automatically propagated context from Executor#execute.
+    assertThat(newThreadCtx.get()).isSameAs(context);
+    assertThat(newThreadCtxVal.get()).isEqualTo("myvalue");
   }
 }
