@@ -18,10 +18,10 @@ package io.opencensus.contrib.agent.instrumentation;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.base.Preconditions;
 import io.grpc.Context;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -104,8 +104,6 @@ public class ThreadInstrumentationIT {
     final Context context = Context.current().withValue(KEY, "myvalue");
     previousContext = context.attach();
 
-    final AtomicBoolean tested = new AtomicBoolean(false);
-
     Executor newThreadExecutor =
         new Executor() {
           @Override
@@ -115,33 +113,32 @@ public class ThreadInstrumentationIT {
             // been wrapped in a different context (by automatic instrumentation of
             // Executor#execute), that context will be attached when executing the Runnable.
             Context context2 = Context.current().withValue(KEY, "wrong context");
-            // Work around findbugs warning. Context.attach() is marked as @CheckReturnValue so we
-            // need to check the return
-            // value here, otherwise findbugs will fail.
-            Preconditions.checkNotNull(context2.attach(), "context2.attach()");
-            Thread thread = new Thread(command);
-            thread.start();
+            Context context3 = context2.attach();
             try {
-              thread.join();
-            } catch (InterruptedException ex) {
-              Thread.currentThread().interrupt();
+              Thread thread = new Thread(command);
+              thread.start();
+              try {
+                thread.join();
+              } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+              }
+            } finally {
+              context2.detach(context3);
             }
-            context2.detach(context);
           }
         };
 
+    final AtomicReference<Context> newThreadCtx = new AtomicReference<Context>();
     newThreadExecutor.execute(
         new Runnable() {
           @Override
           public void run() {
-            // Assert that the automatic context propagation added by ThreadInstrumentation did not
-            // interfere with the automatically propagated context from Executor#execute.
-            assertThat(Context.current()).isSameAs(context);
-            assertThat(KEY.get()).isEqualTo("myvalue");
-            tested.set(true);
+            newThreadCtx.set(Context.current());
           }
         });
 
-    assertThat(tested.get()).isTrue();
+    // Assert that the automatic context propagation added by ThreadInstrumentation did not
+    // interfere with the automatically propagated context from Executor#execute.
+    assertThat(newThreadCtx.get()).isSameAs(context);
   }
 }
