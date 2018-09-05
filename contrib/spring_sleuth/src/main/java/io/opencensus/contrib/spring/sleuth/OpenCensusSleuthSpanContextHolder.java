@@ -52,6 +52,7 @@ final class OpenCensusSleuthSpanContextHolder {
 
   // Remove all thread context relating to spans (useful for testing).
   // See close() for a better alternative in instrumetation
+  @SuppressWarnings("CheckReturnValue")
   static void removeCurrentSpan() {
     CURRENT_SPAN.remove();
     Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, null).attach();
@@ -106,6 +107,7 @@ final class OpenCensusSleuthSpanContextHolder {
         public void apply(Span span) {}
       };
 
+  @SuppressWarnings("")
   private static void setSpanContext(SpanContext spanContext) {
     CURRENT_SPAN.set(spanContext);
     Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, spanContext.ocSpan).attach();
