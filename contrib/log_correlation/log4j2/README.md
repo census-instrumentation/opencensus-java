@@ -1,4 +1,4 @@
-# OpenCensus Log4j Log Correlation
+# OpenCensus Log4j 2 Log Correlation
 
 This subproject is currently experimental, so it may be redesigned or removed in the future.  It
 will remain experimental until we have a specification for a log correlation feature in

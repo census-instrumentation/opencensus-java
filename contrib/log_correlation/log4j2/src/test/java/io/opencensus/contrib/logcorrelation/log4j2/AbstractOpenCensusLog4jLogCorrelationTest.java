@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.logcorrelation.log4j;
+package io.opencensus.contrib.logcorrelation.log4j2;
 
 import io.opencensus.common.Function;
 import io.opencensus.common.Scope;
-import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
+import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.EndSpanOptions;

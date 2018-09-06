@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.logcorrelation.log4j;
+package io.opencensus.contrib.logcorrelation.log4j2;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Function;
-import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
+import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
