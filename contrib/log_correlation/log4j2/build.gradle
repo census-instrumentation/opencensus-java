@@ -1,10 +1,10 @@
-description = 'OpenCensus Log4j Log Correlation'
+description = 'OpenCensus Log4j 2 Log Correlation'
 
 apply plugin: 'java'
 
 dependencies {
     compile project(':opencensus-api'),
-            libraries.log4j
+            libraries.log4j2
 
     testCompile libraries.guava
 
@@ -18,7 +18,7 @@ compileTestJava {
 
 test {
     systemProperties['log4j2.contextDataInjector'] =
-        'io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector'
+        'io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector'
 
     // Each test class should run in a separate JVM. See the comment in
     // AbstractOpenCensusLog4jLogCorrelationTest.

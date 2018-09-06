@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.logcorrelation.log4j;
+package io.opencensus.contrib.logcorrelation.log4j2;
 
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.Span;
@@ -92,7 +92,7 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
    * @since 0.16
    */
   public static final String SPAN_SELECTION_PROPERTY_NAME =
-      "io.opencensus.contrib.logcorrelation.log4j."
+      "io.opencensus.contrib.logcorrelation.log4j2."
           + "OpenCensusTraceContextDataInjector.spanSelection";
 
   private final SpanSelection spanSelection;

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.logcorrelation.log4j;
+package io.opencensus.contrib.logcorrelation.log4j2;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.SpanSelection;
+import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.logging.log4j.core.config.Property;
