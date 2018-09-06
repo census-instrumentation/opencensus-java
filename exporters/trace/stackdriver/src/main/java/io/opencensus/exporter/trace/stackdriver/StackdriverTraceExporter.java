@@ -21,6 +21,8 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ServiceOptions;
+import com.google.cloud.trace.v2.TraceServiceClient;
+import com.google.cloud.trace.v2.stub.TraceServiceStub;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanExporter;
@@ -76,10 +78,20 @@ public final class StackdriverTraceExporter {
       checkState(handler == null, "Stackdriver exporter is already registered.");
       Credentials credentials = configuration.getCredentials();
       String projectId = configuration.getProjectId();
-      registerInternal(
-          StackdriverV2ExporterHandler.createWithCredentials(
-              credentials != null ? credentials : GoogleCredentials.getApplicationDefault(),
-              projectId != null ? projectId : ServiceOptions.getDefaultProjectId()));
+      projectId = projectId != null ? projectId : ServiceOptions.getDefaultProjectId();
+
+      StackdriverV2ExporterHandler handler;
+      TraceServiceStub stub = configuration.getTraceServiceStub();
+      if (stub == null) {
+        handler =
+            StackdriverV2ExporterHandler.createWithCredentials(
+                credentials != null ? credentials : GoogleCredentials.getApplicationDefault(),
+                projectId);
+      } else {
+        handler = new StackdriverV2ExporterHandler(projectId, TraceServiceClient.create(stub));
+      }
+
+      registerInternal(handler);
     }
   }
 
