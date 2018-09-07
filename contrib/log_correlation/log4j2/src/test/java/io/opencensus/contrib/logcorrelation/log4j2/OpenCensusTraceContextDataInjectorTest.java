@@ -45,19 +45,19 @@ public final class OpenCensusTraceContextDataInjectorTest {
   @Test
   public void traceIdKey() {
     assertThat(OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY)
-        .isEqualTo("openCensusTraceId");
+        .isEqualTo("opencensusTraceId");
   }
 
   @Test
   public void spanIdKey() {
     assertThat(OpenCensusTraceContextDataInjector.SPAN_ID_CONTEXT_KEY)
-        .isEqualTo("openCensusSpanId");
+        .isEqualTo("opencensusSpanId");
   }
 
   @Test
   public void traceSampledKey() {
     assertThat(OpenCensusTraceContextDataInjector.TRACE_SAMPLED_CONTEXT_KEY)
-        .isEqualTo("openCensusTraceSampled");
+        .isEqualTo("opencensusTraceSampled");
   }
 
   @Test
@@ -106,11 +106,11 @@ public final class OpenCensusTraceContextDataInjectorTest {
             "value1",
             "property2",
             "value2",
-            "openCensusTraceId",
+            "opencensusTraceId",
             "00000000000000000000000000000000",
-            "openCensusSpanId",
+            "opencensusSpanId",
             "0000000000000000",
-            "openCensusTraceSampled",
+            "opencensusTraceSampled",
             "false");
   }
 
@@ -131,11 +131,11 @@ public final class OpenCensusTraceContextDataInjectorTest {
   private static void assertContainsOnlyDefaultTracingEntries(StringMap stringMap) {
     assertThat(toMap(stringMap))
         .containsExactly(
-            "openCensusTraceId",
+            "opencensusTraceId",
             "00000000000000000000000000000000",
-            "openCensusSpanId",
+            "opencensusSpanId",
             "0000000000000000",
-            "openCensusTraceSampled",
+            "opencensusTraceSampled",
             "false");
   }
 

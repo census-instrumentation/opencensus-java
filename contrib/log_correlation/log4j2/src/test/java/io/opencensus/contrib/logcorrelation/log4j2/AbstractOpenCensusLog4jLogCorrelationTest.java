@@ -52,8 +52,8 @@ abstract class AbstractOpenCensusLog4jLogCorrelationTest {
   private static final Tracer tracer = Tracing.getTracer();
 
   static final String TEST_PATTERN =
-      "traceId=%X{openCensusTraceId} spanId=%X{openCensusSpanId} "
-          + "sampled=%X{openCensusTraceSampled} %-5level - %msg";
+      "traceId=%X{opencensusTraceId} spanId=%X{opencensusSpanId} "
+          + "sampled=%X{opencensusTraceSampled} %-5level - %msg";
 
   static final Tracestate EMPTY_TRACESTATE = Tracestate.builder().build();
 

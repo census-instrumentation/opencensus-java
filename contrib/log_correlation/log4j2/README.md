@@ -69,16 +69,16 @@ The allowed values are:
 `opencensus-contrib-log-correlation-log4j2` adds the following key-value pairs to the `LogEvent`
 context:
 
-* `openCensusTraceId` - the lowercase base16 encoding of the current trace ID
-* `openCensusSpanId` - the lowercase base16 encoding of the current span ID
-* `openCensusTraceSampled` - the sampling decision of the current span ("true" or "false")
+* `opencensusTraceId` - the lowercase base16 encoding of the current trace ID
+* `opencensusSpanId` - the lowercase base16 encoding of the current span ID
+* `opencensusTraceSampled` - the sampling decision of the current span ("true" or "false")
 
 These values can be accessed from layouts with
 [Context Map Lookup](http://logging.apache.org/log4j/2.x/manual/lookups.html#ContextMapLookup).  For
-example, the trace ID can be accessed with `$${ctx:openCensusTraceId}`.  The values can also be
+example, the trace ID can be accessed with `$${ctx:opencensusTraceId}`.  The values can also be
 accessed with the `X` conversion character in
 [`PatternLayout`](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), for
-example, `%X{openCensusTraceId}`.
+example, `%X{opencensusTraceId}`.
 
 See an example Log4j configuration file in the demo:
 https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/log4j/src/main/resources/log4j2.xml
