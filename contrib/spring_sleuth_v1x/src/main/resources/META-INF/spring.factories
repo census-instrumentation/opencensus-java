@@ -1,6 +1,6 @@
 # Auto Configuration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.opencensus.contrib.spring.sleuth.OpenCensusSleuthAutoConfiguration\
+io.opencensus.contrib.spring.sleuth.v1x.OpenCensusSleuthAutoConfiguration\
 
 # Environment Post Processor
 org.springframework.boot.env.EnvironmentPostProcessor=\

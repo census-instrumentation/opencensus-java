@@ -23,7 +23,7 @@ include ":opencensus-contrib-log-correlation-log4j2"
 include ":opencensus-contrib-log-correlation-stackdriver"
 include ":opencensus-contrib-monitored-resource-util"
 include ":opencensus-contrib-spring"
-include ":opencensus-contrib-spring-sleuth"
+include ":opencensus-contrib-spring-sleuth-v1x"
 
 project(':opencensus-api').projectDir = "$rootDir/api" as File
 project(':opencensus-impl-core').projectDir = "$rootDir/impl_core" as File
@@ -44,7 +44,14 @@ project(':opencensus-contrib-log-correlation-stackdriver').projectDir =
 project(':opencensus-contrib-monitored-resource-util').projectDir =
         "$rootDir/contrib/monitored_resource_util" as File
 project(':opencensus-contrib-spring').projectDir = "$rootDir/contrib/spring" as File
-project(':opencensus-contrib-spring-sleuth').projectDir = "$rootDir/contrib/spring_sleuth" as File
+project(':opencensus-contrib-spring-sleuth-v1x').projectDir =
+        "$rootDir/contrib/spring_sleuth_v1x" as File
+project(':opencensus-exporter-stats-signalfx').projectDir =
+        "$rootDir/exporters/stats/signalfx" as File
+project(':opencensus-exporter-stats-stackdriver').projectDir =
+        "$rootDir/exporters/stats/stackdriver" as File
+project(':opencensus-exporter-stats-prometheus').projectDir =
+        "$rootDir/exporters/stats/prometheus" as File
 project(':opencensus-exporter-trace-instana').projectDir =
         "$rootDir/exporters/trace/instana" as File
 project(':opencensus-exporter-trace-logging').projectDir =
@@ -53,9 +60,6 @@ project(':opencensus-exporter-trace-stackdriver').projectDir =
         "$rootDir/exporters/trace/stackdriver" as File
 project(':opencensus-exporter-trace-zipkin').projectDir = "$rootDir/exporters/trace/zipkin" as File
 project(':opencensus-exporter-trace-jaeger').projectDir = "$rootDir/exporters/trace/jaeger" as File
-project(':opencensus-exporter-stats-signalfx').projectDir = "$rootDir/exporters/stats/signalfx" as File
-project(':opencensus-exporter-stats-stackdriver').projectDir = "$rootDir/exporters/stats/stackdriver" as File
-project(':opencensus-exporter-stats-prometheus').projectDir = "$rootDir/exporters/stats/prometheus" as File
 
 
 // Java8 projects only
