@@ -12,7 +12,7 @@ that automatically adds tracing data to log entries. The class name is
 `OpenCensusTraceLoggingEnhancer`. `OpenCensusTraceLoggingEnhancer` adds the current trace and span
 ID to each log entry, which allows Stackdriver to display the log entries associated with each
 trace, or filter logs based on trace or span ID. It currently also adds the sampling decision using
-the label "`openCensusTraceSampled`".
+the label "`opencensusTraceSampled`".
 
 ## Instructions
 
