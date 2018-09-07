@@ -114,7 +114,7 @@ public final class OpenCensusLog4jLogCorrelationAllSpansTest
   public void preserveOtherKeyValuePairs() {
     String log =
         logWithSpanAndLog4jConfiguration(
-            "%X{myTestKey} %-5level - %msg",
+            "%X{opencensusTraceId} %X{myTestKey} %-5level - %msg",
             SpanContext.create(
                 TraceId.fromLowerBase16("c95329bb6b7de41afbc51a231c128f97"),
                 SpanId.fromLowerBase16("bf22ea74d38eddad"),
@@ -133,6 +133,6 @@ public final class OpenCensusLog4jLogCorrelationAllSpansTest
                 return null;
               }
             });
-    assertThat(log).isEqualTo("myTestValue ERROR - message #4");
+    assertThat(log).isEqualTo("c95329bb6b7de41afbc51a231c128f97 myTestValue ERROR - message #4");
   }
 }
