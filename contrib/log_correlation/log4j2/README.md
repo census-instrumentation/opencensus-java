@@ -5,7 +5,7 @@ will remain experimental until we have a specification for a log correlation fea
 [opencensus-specs](https://github.com/census-instrumentation/opencensus-specs/)
 (issue [#123](https://github.com/census-instrumentation/opencensus-specs/issues/123)).
 
-The `opencensus-contrib-log-correlation-log4j` artifact provides a
+The `opencensus-contrib-log-correlation-log4j2` artifact provides a
 [Log4j 2](https://logging.apache.org/log4j/2.x/)
 [`ContextDataInjector`](https://logging.apache.org/log4j/2.x/manual/extending.html#Custom_ContextDataInjector)
 that automatically adds tracing data to the context of Log4j
@@ -29,7 +29,7 @@ For Maven add to your `pom.xml`:
 <dependencies>
   <dependency>
     <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-contrib-log-correlation-log4j</artifactId>
+    <artifactId>opencensus-contrib-log-correlation-log4j2</artifactId>
     <version>0.15.1</version>
     <scope>runtime</scope>
   </dependency>
@@ -38,7 +38,7 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-runtime 'io.opencensus:opencensus-contrib-log-correlation-log4j:0.15.1'
+runtime 'io.opencensus:opencensus-contrib-log-correlation-log4j2:0.15.1'
 ```
 
 ### Configure the `OpenCensusTraceContextDataInjector`
@@ -47,14 +47,14 @@ runtime 'io.opencensus:opencensus-contrib-log-correlation-log4j:0.15.1'
 
 Override Log4j's default `ContextDataInjector` by setting the system property
 `log4j2.contextDataInjector` to the full name of the class,
-`io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector`.
+`io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector`.
 
 #### Choose when to add tracing data to log events
 
 The following system property controls the decision to add tracing data from the current span to a
 log event:
 
-`io.opencensus.contrib.logcorrelation.log4j.OpenCensusTraceContextDataInjector.spanSelection`
+`io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.spanSelection`
 
 The allowed values are:
 
@@ -66,7 +66,7 @@ The allowed values are:
 
 ### Add the tracing data to log entries
 
-`opencensus-contrib-log-correlation-log4j` adds the following key-value pairs to the `LogEvent`
+`opencensus-contrib-log-correlation-log4j2` adds the following key-value pairs to the `LogEvent`
 context:
 
 * `openCensusTraceId` - the lowercase base16 encoding of the current trace ID
