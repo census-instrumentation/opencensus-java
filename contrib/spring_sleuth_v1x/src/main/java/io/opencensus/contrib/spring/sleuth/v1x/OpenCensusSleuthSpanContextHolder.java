@@ -57,7 +57,9 @@ final class OpenCensusSleuthSpanContextHolder {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  private static SpanContext removeCurrentSpanInternal(SpanContext toRestore) {
+  @javax.annotation.Nullable
+  private static SpanContext removeCurrentSpanInternal(
+      @javax.annotation.Nullable SpanContext toRestore) {
     if (toRestore != null) {
       setSpanContextInternal(toRestore);
     } else {
