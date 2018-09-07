@@ -52,10 +52,24 @@ final class OpenCensusSleuthSpanContextHolder {
 
   // Remove all thread context relating to spans (useful for testing).
   // See close() for a better alternative in instrumetation
-  @SuppressWarnings("CheckReturnValue")
   static void removeCurrentSpan() {
-    CURRENT_SPAN.remove();
-    Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, null).attach();
+    removeCurrentSpanInternal(null);
+  }
+
+  @SuppressWarnings("CheckReturnValue")
+  @javax.annotation.Nullable
+  private static SpanContext removeCurrentSpanInternal(
+      @javax.annotation.Nullable SpanContext toRestore) {
+    if (toRestore != null) {
+      setSpanContextInternal(toRestore);
+    } else {
+      CURRENT_SPAN.remove();
+      // This is a big hack and can cause other data in the io.grpc.Context to be lost. But
+      // Spring 1.5 does not use io.grpc.Context and because the framework does not accept any
+      // gRPC context, the context will always be ROOT anyway.
+      Context.ROOT.attach();
+    }
+    return toRestore;
   }
 
   // Check if there is already a span in the current thread.
@@ -67,15 +81,11 @@ final class OpenCensusSleuthSpanContextHolder {
   // will be applied on the closed Span.
   static void close(SpanFunction spanFunction) {
     SpanContext current = CURRENT_SPAN.get();
-    removeCurrentSpan();
     while (current != null) {
       spanFunction.apply(current.span);
-      current = current.parent;
-      if (current != null) {
-        if (!current.autoClose) {
-          setSpanContext(current);
-          current = null;
-        }
+      current = removeCurrentSpanInternal(current.parent);
+      if (current == null || !current.autoClose) {
+        return;
       }
     }
   }
@@ -94,7 +104,7 @@ final class OpenCensusSleuthSpanContextHolder {
     if (isCurrent(span)) {
       return;
     }
-    setSpanContext(new SpanContext(span, autoClose));
+    setSpanContextInternal(new SpanContext(span, autoClose));
   }
 
   interface SpanFunction {
@@ -108,9 +118,9 @@ final class OpenCensusSleuthSpanContextHolder {
       };
 
   @SuppressWarnings("CheckReturnValue")
-  private static void setSpanContext(SpanContext spanContext) {
+  private static void setSpanContextInternal(SpanContext spanContext) {
     CURRENT_SPAN.set(spanContext);
-    Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, spanContext.ocSpan).attach();
+    spanContext.ocCurrentContext.attach();
   }
 
   private static boolean isCurrent(Span span) {
@@ -126,12 +136,15 @@ final class OpenCensusSleuthSpanContextHolder {
     final boolean autoClose;
     @javax.annotation.Nullable final SpanContext parent;
     final OpenCensusSleuthSpan ocSpan;
+    final Context ocCurrentContext;
 
     private SpanContext(Span span, boolean autoClose) {
       this.span = span;
       this.autoClose = autoClose;
       this.parent = CURRENT_SPAN.get();
       this.ocSpan = new OpenCensusSleuthSpan(span);
+      this.ocCurrentContext =
+          Context.current().withValue(ContextUtils.CONTEXT_SPAN_KEY, this.ocSpan);
     }
   }
 
