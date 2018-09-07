@@ -14,6 +14,8 @@
 - Add get/from{Byte} methods on TraceOptions and deprecate get/from{Bytes}.
 - Add an API to `StackdriverTraceConfiguration` to allow setting a
   `TraceServiceStub` instance to be used for export RPC calls.
+- Add an experimental artifact, `opencensus-contrib-log-correlation-log4j2`, for
+  adding tracing data to Log4j 2 LogEvents.
 
 ## 0.15.1 - 2018-08-28
 - Improve propagation performance by avoiding doing string formatting when calling checkArgument.
