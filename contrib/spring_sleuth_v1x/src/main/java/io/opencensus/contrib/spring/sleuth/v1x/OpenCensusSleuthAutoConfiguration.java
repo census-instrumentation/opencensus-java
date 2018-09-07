@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.spring.sleuth;
+package io.opencensus.contrib.spring.sleuth.v1x;
 
 import io.opencensus.common.ExperimentalApi;
 import java.util.Random;

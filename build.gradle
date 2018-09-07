@@ -391,7 +391,7 @@ subprojects {
                  'opencensus-contrib-log-correlation-stackdriver',
                  'opencensus-contrib-monitored-resource-util',
                  'opencensus-contrib-spring',
-                 'opencensus-contrib-spring-sleuth',
+                 'opencensus-contrib-spring-sleuth-v1x',
                  'opencensus-contrib-zpages',
                  'opencensus-exporter-stats-prometheus',
                  'opencensus-exporter-stats-signalfx',
