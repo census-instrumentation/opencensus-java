@@ -20,11 +20,21 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import io.opencensus.common.Scope;
 import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
+import io.opencensus.trace.SpanContext;
+import io.opencensus.trace.SpanId;
+import io.opencensus.trace.TraceId;
+import io.opencensus.trace.TraceOptions;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracestate;
+import io.opencensus.trace.Tracing;
 import java.util.Collections;
 import java.util.Map;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.util.BiConsumer;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
 import org.apache.logging.log4j.util.SortedArrayStringMap;
 import org.apache.logging.log4j.util.StringMap;
 import org.junit.Test;
@@ -34,6 +44,9 @@ import org.junit.runners.JUnit4;
 /** Tests for {@link OpenCensusTraceContextDataInjector}. */
 @RunWith(JUnit4.class)
 public final class OpenCensusTraceContextDataInjectorTest {
+  static final Tracestate EMPTY_TRACESTATE = Tracestate.builder().build();
+
+  private final Tracer tracer = Tracing.getTracer();
 
   @Test
   @SuppressWarnings("TruthConstantAsserts")
@@ -95,7 +108,7 @@ public final class OpenCensusTraceContextDataInjectorTest {
   public void insertConfigurationProperties() {
     assertThat(
             toMap(
-                new OpenCensusTraceContextDataInjector()
+                new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
                     .injectContextData(
                         Lists.newArrayList(
                             Property.createProperty("property1", "value1"),
@@ -117,14 +130,14 @@ public final class OpenCensusTraceContextDataInjectorTest {
   @Test
   public void handleEmptyConfigurationProperties() {
     assertContainsOnlyDefaultTracingEntries(
-        new OpenCensusTraceContextDataInjector()
+        new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
             .injectContextData(Collections.<Property>emptyList(), new SortedArrayStringMap()));
   }
 
   @Test
   public void handleNullConfigurationProperties() {
     assertContainsOnlyDefaultTracingEntries(
-        new OpenCensusTraceContextDataInjector()
+        new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
             .injectContextData(null, new SortedArrayStringMap()));
   }
 
@@ -139,7 +152,64 @@ public final class OpenCensusTraceContextDataInjectorTest {
             "false");
   }
 
-  private static Map<String, String> toMap(StringMap stringMap) {
+  @Test
+  public void rawContextDataWithTracingData() {
+    OpenCensusTraceContextDataInjector plugin =
+        new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS);
+    SpanContext spanContext =
+        SpanContext.create(
+            TraceId.fromLowerBase16("e17944156660f55b8cae5ce3f45d4a40"),
+            SpanId.fromLowerBase16("fc3d2ba0d283b66a"),
+            TraceOptions.builder().setIsSampled(true).build(),
+            EMPTY_TRACESTATE);
+    Scope scope = tracer.withSpan(new TestSpan(spanContext));
+    try {
+      String key = "myTestKey";
+      ThreadContext.put(key, "myTestValue");
+      try {
+        assertThat(toMap(plugin.rawContextData()))
+            .containsExactly(
+                "myTestKey",
+                "myTestValue",
+                "opencensusTraceId",
+                "e17944156660f55b8cae5ce3f45d4a40",
+                "opencensusSpanId",
+                "fc3d2ba0d283b66a",
+                "opencensusTraceSampled",
+                "true");
+      } finally {
+        ThreadContext.remove(key);
+      }
+    } finally {
+      scope.close();
+    }
+  }
+
+  @Test
+  public void rawContextDataWithoutTracingData() {
+    OpenCensusTraceContextDataInjector plugin =
+        new OpenCensusTraceContextDataInjector(SpanSelection.NO_SPANS);
+    SpanContext spanContext =
+        SpanContext.create(
+            TraceId.fromLowerBase16("ea236000f6d387fe7c06c5a6d6458b53"),
+            SpanId.fromLowerBase16("f3b39dbbadb73074"),
+            TraceOptions.builder().setIsSampled(true).build(),
+            EMPTY_TRACESTATE);
+    Scope scope = tracer.withSpan(new TestSpan(spanContext));
+    try {
+      String key = "myTestKey";
+      ThreadContext.put(key, "myTestValue");
+      try {
+        assertThat(toMap(plugin.rawContextData())).containsExactly("myTestKey", "myTestValue");
+      } finally {
+        ThreadContext.remove(key);
+      }
+    } finally {
+      scope.close();
+    }
+  }
+
+  private static Map<String, String> toMap(ReadOnlyStringMap stringMap) {
     final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
     stringMap.forEach(
         new BiConsumer<String, Object>() {
