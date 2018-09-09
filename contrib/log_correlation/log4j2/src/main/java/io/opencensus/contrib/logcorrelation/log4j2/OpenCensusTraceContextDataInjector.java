@@ -20,6 +20,7 @@ import io.opencensus.common.ExperimentalApi;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.unsafe.ContextUtils;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -28,7 +29,6 @@ import org.apache.logging.log4j.core.ContextDataInjector;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Property;
-import org.apache.logging.log4j.core.impl.ThreadContextDataInjector;
 import org.apache.logging.log4j.util.SortedArrayStringMap;
 import org.apache.logging.log4j.util.StringMap;
 
@@ -176,9 +176,15 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
       return rawContextData();
     }
     // Context data has precedence over configuration properties.
-    ThreadContextDataInjector.copyProperties(properties, reusable);
+    putProperties(properties, reusable);
     reusable.putAll(rawContextData());
     return reusable;
+  }
+
+  private static void putProperties(Collection<Property> properties, StringMap stringMap) {
+    for (Property property : properties) {
+      stringMap.putValue(property.getName(), property.getValue());
+    }
   }
 
   // This method avoids getting the current span when the feature is disabled, for efficiency.
