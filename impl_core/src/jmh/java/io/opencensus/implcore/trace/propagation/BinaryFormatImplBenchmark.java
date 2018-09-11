@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.benchmarks.trace.propagation;
+package io.opencensus.implcore.trace.propagation;
 
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracestate;
-import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.BinaryFormat;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import java.util.Random;
@@ -45,7 +44,7 @@ public class BinaryFormatImplBenchmark {
 
     @Setup
     public void setup() {
-      binaryFormat = Tracing.getPropagationComponent().getBinaryFormat();
+      binaryFormat = new BinaryFormatImpl();
       Random random = new Random(1234);
       spanContext =
           SpanContext.create(

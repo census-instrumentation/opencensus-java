@@ -1,11 +1,5 @@
 description = "OpenCensus All"
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 def subprojects = [
         project(':opencensus-api'),
         project(':opencensus-impl-core'),

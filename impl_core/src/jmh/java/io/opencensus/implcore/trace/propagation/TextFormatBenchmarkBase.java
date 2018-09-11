@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.benchmarks.trace.propagation;
+package io.opencensus.implcore.trace.propagation;
 
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.propagation.SpanContextParseException;

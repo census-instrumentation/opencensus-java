@@ -12,6 +12,8 @@ buildscript {
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
         classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.7.1"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.7"
+        classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.7.0"
     }
 }
 
@@ -35,6 +37,8 @@ subprojects {
     apply plugin: 'ru.vyarus.animalsniffer'
     apply plugin: 'findbugs'
     apply plugin: 'net.ltgt.apt'
+    apply plugin: "me.champeau.gradle.jmh"
+    apply plugin: "io.morethan.jmhreport"
     // Plugins that require java8
     if (JavaVersion.current().isJava8Compatible()) {
         if (useErrorProne) {
@@ -65,7 +69,7 @@ subprojects {
         }
     }
 
-    [compileJava, compileTestJava].each() {
+    [compileJava, compileTestJava, compileJmhJava].each() {
         // We suppress the "try" warning because it disallows managing an auto-closeable with
         // try-with-resources without referencing the auto-closeable within the try block.
         // We suppress the "processing" warning as suggested in
@@ -272,6 +276,12 @@ subprojects {
             html.enabled = true
         }
     }
+    findbugsJmh {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }
 
     checkstyle {
         configFile = file("$rootDir/buildscripts/checkstyle.xml")
@@ -286,6 +296,7 @@ subprojects {
     // Disable checkstyle if no java8.
     checkstyleMain.enabled = JavaVersion.current().isJava8Compatible()
     checkstyleTest.enabled = JavaVersion.current().isJava8Compatible()
+    checkstyleJmh.enabled = JavaVersion.current().isJava8Compatible()
 
     // Google formatter works only on java8.
     if (JavaVersion.current().isJava8Compatible()) {
@@ -324,6 +335,29 @@ subprojects {
     artifacts {
         archives javadocJar, sourcesJar
     }
+
+    jmh {
+        jmhVersion = '1.20'
+        warmupIterations = 10
+        iterations = 10
+        fork = 1
+        failOnError = true
+        resultFormat = 'JSON'
+        // Allow to run single benchmark class like:
+        // ./gradlew -PjmhIncludeSingleClass=StatsTraceContextBenchmark clean :grpc-core:jmh
+        if (project.hasProperty('jmhIncludeSingleClass')) {
+            include = [
+                    project.property('jmhIncludeSingleClass')
+            ]
+        }
+    }
+
+    jmhReport {
+        jmhResultPath = project.file("${project.buildDir}/reports/jmh/results.json")
+        jmhReportOutput = project.file("${project.buildDir}/reports/jmh")
+    }
+
+    tasks.jmh.finalizedBy tasks.jmhReport
 
     uploadArchives {
         repositories {

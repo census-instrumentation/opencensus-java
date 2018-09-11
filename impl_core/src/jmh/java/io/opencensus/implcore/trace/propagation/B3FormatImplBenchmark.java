@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.benchmarks.trace.propagation;
+package io.opencensus.implcore.trace.propagation;
 
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.Tracestate;
-import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
 import io.opencensus.trace.propagation.TextFormat.Getter;
@@ -49,7 +48,7 @@ public class B3FormatImplBenchmark {
 
     @Setup
     public void setup() {
-      textFormatBase = new TextFormatBenchmarkBase(Tracing.getPropagationComponent().getB3Format());
+      textFormatBase = new TextFormatBenchmarkBase(new B3Format());
       Random random = new Random(1234);
       spanContext =
           SpanContext.create(

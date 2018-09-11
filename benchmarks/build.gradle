@@ -1,47 +1,10 @@
 description = 'OpenCensus Benchmarks'
 
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.7"
-        classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.7.0"
-    }
-}
-
-apply plugin: "me.champeau.gradle.jmh"
-apply plugin: "io.morethan.jmhreport"
-
-jmh {
-    jmhVersion = '1.20'
-    warmupIterations = 10
-    iterations = 10
-    fork = 1
-    failOnError = true
-    resultFormat = 'JSON'
-}
-
 dependencies {
     compile project(':opencensus-api'),
             project(':opencensus-impl-core'),
             project(':opencensus-impl-lite'),
             project(':opencensus-impl')
-}
-
-compileJmhJava {
-    options.compilerArgs = compileJava.options.compilerArgs
-}
-
-// Generate html report for findbugsJmh.
-findbugsJmh {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
 }
 
 jmhReport {
