@@ -17,27 +17,14 @@
 package io.opencensus.contrib.logcorrelation.log4j2;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.unsafe.ContextUtils;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.ContextDataInjector;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Property;
-import org.apache.logging.log4j.spi.ReadOnlyThreadContextMap;
-import org.apache.logging.log4j.util.BiConsumer;
 import org.apache.logging.log4j.util.ReadOnlyStringMap;
-import org.apache.logging.log4j.util.SortedArrayStringMap;
 import org.apache.logging.log4j.util.StringMap;
-import org.apache.logging.log4j.util.TriConsumer;
 
 /**
  * A Log4j {@link ContextDataInjector} that adds OpenCensus tracing data to log events.
@@ -175,134 +162,15 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
     }
   }
 
-  // The implementation of this method is based on the example in the Javadocs for
-  // ContextDataInjector.injectContextData.
-  //
   // Note that this method must return an object that can be passed to another thread.
   @Override
   public StringMap injectContextData(@Nullable List<Property> properties, StringMap reusable) {
-    if (properties == null || properties.isEmpty()) {
-      return shareableRawContextData();
-    }
-    // Context data has precedence over configuration properties.
-    putProperties(properties, reusable);
-    reusable.putAll(rawContextData());
-    return reusable;
-  }
-
-  private static void putProperties(Collection<Property> properties, StringMap stringMap) {
-    for (Property property : properties) {
-      stringMap.putValue(property.getName(), property.getValue());
-    }
-  }
-
-  private StringMap shareableRawContextData() {
-    SpanContext spanContext = shouldAddTracingDataToLogEvent();
-    return spanContext == null
-        ? getShareableContextData()
-        : getShareableContextAndTracingData(spanContext);
+    return ContextDataUtils.injectContextData(spanSelection, properties, reusable);
   }
 
   // Note that this method does not need to return an object that can be passed to another thread.
   @Override
   public ReadOnlyStringMap rawContextData() {
-    SpanContext spanContext = shouldAddTracingDataToLogEvent();
-    return spanContext == null
-        ? getNonShareableContextData()
-        : getShareableContextAndTracingData(spanContext);
-  }
-
-  // This method returns the current span context iff tracing data should be added to the LogEvent.
-  // It avoids getting the current span when the feature is disabled, for efficiency.
-  @Nullable
-  private SpanContext shouldAddTracingDataToLogEvent() {
-    switch (spanSelection) {
-      case NO_SPANS:
-        return null;
-      case SAMPLED_SPANS:
-        SpanContext spanContext = getCurrentSpanContext();
-        if (spanContext.getTraceOptions().isSampled()) {
-          return spanContext;
-        } else {
-          return null;
-        }
-      case ALL_SPANS:
-        return getCurrentSpanContext();
-    }
-    throw new AssertionError("Unknown spanSelection: " + spanSelection);
-  }
-
-  private static StringMap getShareableContextData() {
-    ReadOnlyThreadContextMap contextMap = ThreadContext.getThreadContextMap();
-
-    // Return a new object, since StringMap is modifiable.
-    return contextMap == null
-        ? new SortedArrayStringMap()
-        : new SortedArrayStringMap(contextMap.getReadOnlyContextData());
-  }
-
-  private static ReadOnlyStringMap getNonShareableContextData() {
-    ReadOnlyThreadContextMap contextMap = ThreadContext.getThreadContextMap();
-    return contextMap == null
-        ? EmptyReadOnlyStringMap.INSTANCE
-        : contextMap.getReadOnlyContextData();
-  }
-
-  private static StringMap getShareableContextAndTracingData(SpanContext spanContext) {
-    ReadOnlyThreadContextMap contextMap = ThreadContext.getThreadContextMap();
-    Map<String, String> map =
-        contextMap == null ? new HashMap<String, String>() : contextMap.getCopy();
-    map.put(TRACE_ID_CONTEXT_KEY, spanContext.getTraceId().toLowerBase16());
-    map.put(SPAN_ID_CONTEXT_KEY, spanContext.getSpanId().toLowerBase16());
-    map.put(
-        TRACE_SAMPLED_CONTEXT_KEY, spanContext.getTraceOptions().isSampled() ? "true" : "false");
-    return new SortedArrayStringMap(map);
-  }
-
-  private static SpanContext getCurrentSpanContext() {
-    Span span = ContextUtils.CONTEXT_SPAN_KEY.get();
-    return span == null ? SpanContext.INVALID : span.getContext();
-  }
-
-  @Immutable
-  private static final class EmptyReadOnlyStringMap implements ReadOnlyStringMap {
-    private static final long serialVersionUID = 0L;
-
-    static final ReadOnlyStringMap INSTANCE = new EmptyReadOnlyStringMap();
-
-    private EmptyReadOnlyStringMap() {}
-
-    @Override
-    public boolean containsKey(String key) {
-      return false;
-    }
-
-    @Override
-    public <V> void forEach(BiConsumer<String, ? super V> action) {}
-
-    @Override
-    public <V, S> void forEach(TriConsumer<String, ? super V, S> action, S state) {}
-
-    @Override
-    @Nullable
-    @SuppressWarnings("TypeParameterUnusedInFormals") // This is an overridden method.
-    public <V> V getValue(String key) {
-      return null;
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return true;
-    }
-
-    @Override
-    public int size() {
-      return 0;
-    }
-
-    @Override
-    public Map<String, String> toMap() {
-      return Collections.<String, String>emptyMap();
-    }
+    return ContextDataUtils.nonShareableRawContextData(spanSelection);
   }
 }

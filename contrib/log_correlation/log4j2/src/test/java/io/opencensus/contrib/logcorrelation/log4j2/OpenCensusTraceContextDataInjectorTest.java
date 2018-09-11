@@ -142,10 +142,10 @@ public final class OpenCensusTraceContextDataInjectorTest {
   private static Map<String, String> toMap(StringMap stringMap) {
     final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
     stringMap.forEach(
-        new BiConsumer<String, String>() {
+        new BiConsumer<String, Object>() {
           @Override
-          public void accept(String key, String value) {
-            builder.put(key, value);
+          public void accept(String key, Object value) {
+            builder.put(key, String.valueOf(value));
           }
         });
     return builder.build();
