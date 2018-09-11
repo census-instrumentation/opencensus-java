@@ -18,7 +18,6 @@ package io.opencensus.contrib.logcorrelation.log4j2;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.opencensus.common.Scope;
 import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
@@ -30,11 +29,8 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.Tracing;
 import java.util.Collections;
-import java.util.Map;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.config.Property;
-import org.apache.logging.log4j.util.BiConsumer;
-import org.apache.logging.log4j.util.ReadOnlyStringMap;
 import org.apache.logging.log4j.util.SortedArrayStringMap;
 import org.apache.logging.log4j.util.StringMap;
 import org.junit.Test;
@@ -107,13 +103,13 @@ public final class OpenCensusTraceContextDataInjectorTest {
   @Test
   public void insertConfigurationProperties() {
     assertThat(
-            toMap(
-                new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
-                    .injectContextData(
-                        Lists.newArrayList(
-                            Property.createProperty("property1", "value1"),
-                            Property.createProperty("property2", "value2")),
-                        new SortedArrayStringMap())))
+            new OpenCensusTraceContextDataInjector(SpanSelection.ALL_SPANS)
+                .injectContextData(
+                    Lists.newArrayList(
+                        Property.createProperty("property1", "value1"),
+                        Property.createProperty("property2", "value2")),
+                    new SortedArrayStringMap())
+                .toMap())
         .containsExactly(
             "property1",
             "value1",
@@ -142,7 +138,7 @@ public final class OpenCensusTraceContextDataInjectorTest {
   }
 
   private static void assertContainsOnlyDefaultTracingEntries(StringMap stringMap) {
-    assertThat(toMap(stringMap))
+    assertThat(stringMap.toMap())
         .containsExactly(
             "opencensusTraceId",
             "00000000000000000000000000000000",
@@ -167,7 +163,7 @@ public final class OpenCensusTraceContextDataInjectorTest {
       String key = "myTestKey";
       ThreadContext.put(key, "myTestValue");
       try {
-        assertThat(toMap(plugin.rawContextData()))
+        assertThat(plugin.rawContextData().toMap())
             .containsExactly(
                 "myTestKey",
                 "myTestValue",
@@ -200,24 +196,12 @@ public final class OpenCensusTraceContextDataInjectorTest {
       String key = "myTestKey";
       ThreadContext.put(key, "myTestValue");
       try {
-        assertThat(toMap(plugin.rawContextData())).containsExactly("myTestKey", "myTestValue");
+        assertThat(plugin.rawContextData().toMap()).containsExactly("myTestKey", "myTestValue");
       } finally {
         ThreadContext.remove(key);
       }
     } finally {
       scope.close();
     }
-  }
-
-  private static Map<String, String> toMap(ReadOnlyStringMap stringMap) {
-    final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    stringMap.forEach(
-        new BiConsumer<String, Object>() {
-          @Override
-          public void accept(String key, Object value) {
-            builder.put(key, String.valueOf(value));
-          }
-        });
-    return builder.build();
   }
 }
