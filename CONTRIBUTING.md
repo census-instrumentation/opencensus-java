@@ -119,6 +119,36 @@ such as
 `Disallowed import - edu.umd.cs.findbugs.annotations.SuppressFBWarnings. [ImportControl]`
 could mean that `import-control.xml` needs to be updated.
 
+## Benchmarks
+
+### Invoke all benchmarks on a sub-project
+
+```bash
+$ ./gradlew clean :opencensus-impl-core:jmh
+```
+
+### Invoke on a single benchmark class
+
+```bash
+./gradlew -PjmhIncludeSingleClass=BinaryFormatImplBenchmark clean :opencensus-impl-core:jmh
+```
+
+### Debug compilation errors
+When you make incompatible changes in the Benchmarks classes you may get compilation errors which
+are related to the old code not being compatible with the new code. Some of the reasons are:
+* Any plugin cannot delete the generated code (jmh generates code) because if the user configured
+the directory as the same as source code the plugin will delete users source code.
+* After you run jmh, a gradle daemon will stay alive which may cache the generated code in memory
+and use use that generated code even if the files were changed. This is an issue for classes
+generated with auto-value.
+
+Run this commands to clean the Gradle's cache:
+```bash
+./gradlew --stop
+rm -fr .gradle/
+rm -fr benchmarks/build
+```
+
 ## Proposing changes
 
 Create a Pull Request with your changes. Please add any user-visible changes to

@@ -9,5 +9,7 @@ dependencies {
     signature "net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature"
 }
 
-javadoc.exclude 'io/opencensus/internal/**'
-javadoc.exclude 'io/opencensus/trace/internal/**'
+javadoc {
+    exclude 'io/opencensus/internal/**'
+    exclude 'io/opencensus/trace/internal/**'
+}
