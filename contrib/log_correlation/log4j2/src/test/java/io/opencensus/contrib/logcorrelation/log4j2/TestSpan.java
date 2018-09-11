@@ -25,6 +25,8 @@ import io.opencensus.trace.SpanContext;
 import java.util.EnumSet;
 import java.util.Map;
 
+// Simple test Span that holds a SpanContext. The tests cannot use Span directly, since it is
+// abstract.
 final class TestSpan extends Span {
   TestSpan(SpanContext context) {
     super(context, EnumSet.of(Options.RECORD_EVENTS));
