@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.implcore.metrics.MetricRegistryImpl;
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
-import io.opencensus.metrics.Metrics;
-import io.opencensus.metrics.MetricsComponent;
+import io.opencensus.implcore.temporary.metrics.Metrics;
+import io.opencensus.implcore.temporary.metrics.MetricsComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

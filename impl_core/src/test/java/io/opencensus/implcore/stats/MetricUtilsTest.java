@@ -20,10 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.LabelKey;
-import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.MetricDescriptor;
-import io.opencensus.metrics.MetricDescriptor.Type;
+import io.opencensus.implcore.temporary.metrics.LabelKey;
+import io.opencensus.implcore.temporary.metrics.LabelValue;
+import io.opencensus.implcore.temporary.metrics.MetricDescriptor;
+import io.opencensus.implcore.temporary.metrics.MetricDescriptor.Type;
 import io.opencensus.stats.Aggregation.Count;
 import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.LastValue;
