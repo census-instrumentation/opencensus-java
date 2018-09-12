@@ -17,8 +17,8 @@
 package io.opencensus.implcore.metrics.export;
 
 import com.google.common.base.Preconditions;
-import io.opencensus.temporary.metrics.MetricProducer;
-import io.opencensus.temporary.metrics.export.MetricProducerManager;
+import io.opencensus.implcore.temporary.metrics.MetricProducer;
+import io.opencensus.implcore.temporary.metrics.export.MetricProducerManager;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;

@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package io.opencensus.impllite.metrics;
+package io.opencensus.implcore.temporary.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.implcore.metrics.MetricRegistryImpl;
-import io.opencensus.implcore.metrics.export.ExportComponentImpl;
-import io.opencensus.implcore.temporary.metrics.Metrics;
-import io.opencensus.implcore.temporary.metrics.MetricsComponent;
+import io.opencensus.implcore.temporary.metrics.export.ExportComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Test for accessing the {@link MetricsComponent} through the {@link Metrics} class. */
+/** Unit tests for {@link MetricsComponent}. */
 @RunWith(JUnit4.class)
-public class MetricsTest {
-
+public class MetricsComponentTest {
   @Test
-  public void getExportComponent() {
-    assertThat(Metrics.getExportComponent()).isInstanceOf(ExportComponentImpl.class);
+  public void defaultExportComponent() {
+    assertThat(MetricsComponent.newNoopMetricsComponent().getExportComponent())
+        .isInstanceOf(ExportComponent.newNoopExportComponent().getClass());
   }
 
   @Test
-  public void getMetricRegistry() {
-    assertThat(Metrics.getMetricRegistry()).isInstanceOf(MetricRegistryImpl.class);
+  public void defaultMetricRegistry() {
+    assertThat(MetricsComponent.newNoopMetricsComponent().getMetricRegistry())
+        .isInstanceOf(MetricRegistry.newNoopMetricRegistry().getClass());
   }
 }

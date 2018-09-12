@@ -21,14 +21,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Timestamp;
+import io.opencensus.implcore.temporary.metrics.Distribution;
+import io.opencensus.implcore.temporary.metrics.Point;
+import io.opencensus.implcore.temporary.metrics.Value;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.DistributionData;
 import io.opencensus.stats.AggregationData.DistributionData.Exemplar;
 import io.opencensus.stats.BucketBoundaries;
-import io.opencensus.temporary.metrics.Distribution;
-import io.opencensus.temporary.metrics.Point;
-import io.opencensus.temporary.metrics.Value;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
