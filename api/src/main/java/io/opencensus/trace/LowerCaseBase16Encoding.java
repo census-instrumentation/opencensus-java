@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.internal;
+package io.opencensus.trace;
 
-import io.opencensus.common.Internal;
 import io.opencensus.internal.Utils;
 import java.util.Arrays;
 
 /** Internal copy of the Guava implementation of the {@code BaseEncoding.base16().lowerCase()}. */
-@Internal
-public final class LowerCaseBase16Encoding {
+final class LowerCaseBase16Encoding {
   private static final String ALPHABET = "0123456789abcdef";
   private static final int ASCII_CHARACTERS = 128;
   private static final char[] ENCODING = buildEncodingArray();
@@ -53,7 +51,7 @@ public final class LowerCaseBase16Encoding {
    * @param bytes byte array to be encoded.
    * @return the encoded {@code String}.
    */
-  public static String encodeToString(byte[] bytes) {
+  static String encodeToString(byte[] bytes) {
     StringBuilder stringBuilder = new StringBuilder(bytes.length * 2);
     for (byte byteVal : bytes) {
       int b = byteVal & 0xFF;
@@ -71,7 +69,7 @@ public final class LowerCaseBase16Encoding {
    * @throws IllegalArgumentException if the input is not a valid encoded string according to this
    *     encoding.
    */
-  public static byte[] decodeToBytes(CharSequence chars) {
+  static byte[] decodeToBytes(CharSequence chars) {
     Utils.checkArgument(chars.length() % 2 == 0, "Invalid input length " + chars.length());
     int bytesWritten = 0;
     byte[] bytes = new byte[chars.length() / 2];

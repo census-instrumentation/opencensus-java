@@ -17,7 +17,6 @@
 package io.opencensus.trace;
 
 import io.opencensus.internal.Utils;
-import io.opencensus.trace.internal.LowerCaseBase16Encoding;
 import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.Nullable;
