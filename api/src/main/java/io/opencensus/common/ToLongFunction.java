@@ -17,7 +17,7 @@
 package io.opencensus.common;
 
 /**
- * Represents a function that produces a long-valued result. See {@link
+ * Represents a function that produces a long-valued result. See {@code
  * io.opencensus.metrics.MetricRegistry} for an example of its use.
  *
  * <p>Note: This class is based on the java.util.ToLongFunction class added in Java 1.8. We cannot

@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.stats;
+package io.opencensus.temporary.metrics.export;
 
-import io.opencensus.temporary.metrics.Metric;
-import io.opencensus.temporary.metrics.MetricProducer;
-import java.util.Collection;
-import javax.annotation.concurrent.ThreadSafe;
+import static com.google.common.truth.Truth.assertThat;
 
-/** Implementation of {@link MetricProducer}. */
-@ThreadSafe
-final class MetricProducerImpl extends MetricProducer {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-  private final StatsManager statsManager;
-
-  MetricProducerImpl(StatsManager statsManager) {
-    this.statsManager = statsManager;
-  }
-
-  @Override
-  public Collection<Metric> getMetrics() {
-    return statsManager.getMetrics();
+/** Unit tests for {@link ExportComponent}. */
+@RunWith(JUnit4.class)
+public class ExportComponentTest {
+  @Test
+  public void defaultMetricExporter() {
+    assertThat(ExportComponent.newNoopExportComponent().getMetricProducerManager())
+        .isInstanceOf(MetricProducerManager.class);
   }
 }

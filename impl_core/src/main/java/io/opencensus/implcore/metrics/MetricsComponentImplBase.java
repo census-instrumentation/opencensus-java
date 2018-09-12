@@ -18,8 +18,8 @@ package io.opencensus.implcore.metrics;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
-import io.opencensus.metrics.MetricRegistry;
-import io.opencensus.metrics.MetricsComponent;
+import io.opencensus.temporary.metrics.MetricRegistry;
+import io.opencensus.temporary.metrics.MetricsComponent;
 
 /** Implementation of {@link MetricsComponent}. */
 public class MetricsComponentImplBase extends MetricsComponent {

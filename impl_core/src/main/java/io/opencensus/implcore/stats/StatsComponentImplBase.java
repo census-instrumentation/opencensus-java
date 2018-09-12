@@ -21,10 +21,10 @@ import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.CurrentState;
 import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.implcore.internal.EventQueue;
-import io.opencensus.metrics.MetricProducer;
-import io.opencensus.metrics.Metrics;
 import io.opencensus.stats.StatsCollectionState;
 import io.opencensus.stats.StatsComponent;
+import io.opencensus.temporary.metrics.MetricProducer;
+import io.opencensus.temporary.metrics.Metrics;
 
 /** Base implementation of {@link StatsComponent}. */
 public class StatsComponentImplBase extends StatsComponent {
