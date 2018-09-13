@@ -123,10 +123,14 @@ final class ContextDataUtils {
 
   private static StringMap getShareableContextAndTracingData(SpanContext spanContext) {
     ReadOnlyThreadContextMap context = ThreadContext.getThreadContextMap();
-    SortedArrayStringMap stringMap =
-        context == null
-            ? new SortedArrayStringMap(ThreadContext.getImmutableContext())
-            : new SortedArrayStringMap(context.getReadOnlyContextData());
+    SortedArrayStringMap stringMap;
+    if (context == null) {
+      stringMap = new SortedArrayStringMap(ThreadContext.getImmutableContext());
+    } else {
+      StringMap contextData = context.getReadOnlyContextData();
+      stringMap = new SortedArrayStringMap(contextData.size() + 3);
+      stringMap.putAll(contextData);
+    }
     stringMap.putValue(
         OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY,
         new TraceIdToLowerBase16Formatter(spanContext.getTraceId()));
