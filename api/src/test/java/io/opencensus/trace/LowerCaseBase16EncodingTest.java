@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.trace.internal;
+package io.opencensus.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link LowerCaseBase16Encoding}. */
+/** Unit tests for {@link io.opencensus.trace.LowerCaseBase16Encoding}. */
 @RunWith(JUnit4.class)
 public class LowerCaseBase16EncodingTest {
   private static final Charset CHARSET = Charset.forName("UTF-8");
