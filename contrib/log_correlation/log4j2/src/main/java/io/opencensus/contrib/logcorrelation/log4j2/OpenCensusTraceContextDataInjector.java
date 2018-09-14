@@ -17,19 +17,13 @@
 package io.opencensus.contrib.logcorrelation.log4j2;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.trace.Span;
-import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.unsafe.ContextUtils;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.ContextDataInjector;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Property;
-import org.apache.logging.log4j.util.SortedArrayStringMap;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
 import org.apache.logging.log4j.util.StringMap;
 
 /**
@@ -168,61 +162,15 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
     }
   }
 
-  // The implementation of this method is based on the example in the Javadocs for
-  // ContextDataInjector.injectContextData.
+  // Note that this method must return an object that can be passed to another thread.
   @Override
   public StringMap injectContextData(@Nullable List<Property> properties, StringMap reusable) {
-    if (properties == null || properties.isEmpty()) {
-      return rawContextData();
-    }
-    // Context data has precedence over configuration properties.
-    putProperties(properties, reusable);
-    reusable.putAll(rawContextData());
-    return reusable;
+    return ContextDataUtils.injectContextData(spanSelection, properties, reusable);
   }
 
-  private static void putProperties(Collection<Property> properties, StringMap stringMap) {
-    for (Property property : properties) {
-      stringMap.putValue(property.getName(), property.getValue());
-    }
-  }
-
-  // This method avoids getting the current span when the feature is disabled, for efficiency.
+  // Note that this method does not need to return an object that can be passed to another thread.
   @Override
-  public StringMap rawContextData() {
-    switch (spanSelection) {
-      case NO_SPANS:
-        return getContextData();
-      case SAMPLED_SPANS:
-        SpanContext spanContext = getCurrentSpanContext();
-        if (spanContext.getTraceOptions().isSampled()) {
-          return getContextAndTracingData(spanContext);
-        } else {
-          return getContextData();
-        }
-      case ALL_SPANS:
-        return getContextAndTracingData(getCurrentSpanContext());
-    }
-    throw new AssertionError("Unknown spanSelection: " + spanSelection);
-  }
-
-  private static SpanContext getCurrentSpanContext() {
-    Span span = ContextUtils.CONTEXT_SPAN_KEY.get();
-    return span == null ? SpanContext.INVALID : span.getContext();
-  }
-
-  // TODO(sebright): Improve the implementation of this method, including handling null.
-  private static StringMap getContextData() {
-    return ThreadContext.getThreadContextMap().getReadOnlyContextData();
-  }
-
-  // TODO(sebright): Improve the implementation of this method, including handling null.
-  private static StringMap getContextAndTracingData(SpanContext spanContext) {
-    Map<String, String> map = ThreadContext.getThreadContextMap().getCopy();
-    map.put(TRACE_ID_CONTEXT_KEY, spanContext.getTraceId().toLowerBase16());
-    map.put(SPAN_ID_CONTEXT_KEY, spanContext.getSpanId().toLowerBase16());
-    map.put(
-        TRACE_SAMPLED_CONTEXT_KEY, spanContext.getTraceOptions().isSampled() ? "true" : "false");
-    return new SortedArrayStringMap(map);
+  public ReadOnlyStringMap rawContextData() {
+    return ContextDataUtils.nonShareableRawContextData(spanSelection);
   }
 }

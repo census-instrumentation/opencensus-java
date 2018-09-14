@@ -114,7 +114,7 @@ public final class OpenCensusLog4jLogCorrelationAllSpansTest
   public void preserveOtherKeyValuePairs() {
     String log =
         logWithSpanAndLog4jConfiguration(
-            "%X{myTestKey} %-5level - %msg",
+            "%X{opencensusTraceId} %X{myTestKey} %-5level - %msg",
             SpanContext.create(
                 TraceId.fromLowerBase16("c95329bb6b7de41afbc51a231c128f97"),
                 SpanId.fromLowerBase16("bf22ea74d38eddad"),
@@ -133,6 +133,35 @@ public final class OpenCensusLog4jLogCorrelationAllSpansTest
                 return null;
               }
             });
-    assertThat(log).isEqualTo("myTestValue ERROR - message #4");
+    assertThat(log).isEqualTo("c95329bb6b7de41afbc51a231c128f97 myTestValue ERROR - message #4");
+  }
+
+  @Test
+  public void overwriteExistingTracingKey() {
+    String log =
+        logWithSpanAndLog4jConfiguration(
+            TEST_PATTERN,
+            SpanContext.create(
+                TraceId.fromLowerBase16("18e4ae44273a0c44e0c9ea4380792c66"),
+                SpanId.fromLowerBase16("199a7e16daa000a7"),
+                TraceOptions.builder().setIsSampled(true).build(),
+                EMPTY_TRACESTATE),
+            new Function<Logger, Void>() {
+              @Override
+              public Void apply(Logger logger) {
+                ThreadContext.put(
+                    OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY, "existingTraceId");
+                try {
+                  logger.error("message #5");
+                } finally {
+                  ThreadContext.remove(OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY);
+                }
+                return null;
+              }
+            });
+    assertThat(log)
+        .isEqualTo(
+            "traceId=18e4ae44273a0c44e0c9ea4380792c66 spanId=199a7e16daa000a7 "
+                + "sampled=true ERROR - message #5");
   }
 }
