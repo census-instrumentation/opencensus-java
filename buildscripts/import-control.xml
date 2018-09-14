@@ -38,10 +38,10 @@ General guidelines on imports:
     <allow pkg="io.opencensus.internal"/>
     <allow pkg="io.opencensus.tags"/>
   </subpackage>
-  <subpackage name="implcore.temporary.metrics">
+  <subpackage name="metrics">
     <allow pkg="io.opencensus.internal"/>
     <allow pkg="io.opencensus.common"/>
-    <allow pkg="io.opencensus.implcore.temporary.metrics"/>
+    <allow pkg="io.opencensus.metrics"/>
   </subpackage>
   <subpackage name="stats">
     <allow pkg="io.opencensus.common"/>
@@ -183,7 +183,7 @@ General guidelines on imports:
     <allow pkg="com.google.common"/>
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.implcore"/>
-    <allow pkg="io.opencensus.implcore.temporary.metrics"/>
+    <allow pkg="io.opencensus.metrics"/>
     <allow pkg="io.opencensus.stats"/>
     <allow pkg="io.opencensus.tags"/>
     <allow pkg="io.opencensus.trace"/>
@@ -193,7 +193,7 @@ General guidelines on imports:
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.impl"/>
     <allow pkg="io.opencensus.implcore"/>
-    <allow pkg="io.opencensus.implcore.temporary.metrics"/>
+    <allow pkg="io.opencensus.metrics"/>
     <allow pkg="io.opencensus.stats"/>
     <allow pkg="io.opencensus.tags"/>
     <allow pkg="io.opencensus.trace"/>
@@ -202,7 +202,7 @@ General guidelines on imports:
     <allow pkg="io.opencensus.common"/>
     <allow pkg="io.opencensus.implcore"/>
     <allow pkg="io.opencensus.impllite"/>
-    <allow pkg="io.opencensus.implcore.temporary.metrics"/>
+    <allow pkg="io.opencensus.metrics"/>
     <allow pkg="io.opencensus.stats"/>
     <allow pkg="io.opencensus.tags"/>
     <allow pkg="io.opencensus.trace"/>

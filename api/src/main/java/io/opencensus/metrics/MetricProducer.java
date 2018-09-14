@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package io.opencensus.implcore.metrics.export;
+package io.opencensus.metrics;
 
-import io.opencensus.metrics.export.ExportComponent;
+import io.opencensus.common.ExperimentalApi;
 import io.opencensus.metrics.export.MetricProducerManager;
+import java.util.Collection;
 
-/** Implementation of {@link ExportComponent}. */
-public final class ExportComponentImpl extends ExportComponent {
+/**
+ * A {@link io.opencensus.metrics.Metric} producer that can be registered for exporting using {@link
+ * MetricProducerManager}.
+ *
+ * <p>All implementation MUST be thread-safe.
+ */
+@ExperimentalApi
+public abstract class MetricProducer {
 
-  private final MetricProducerManager metricProducerManager = new MetricProducerManagerImpl();
-
-  @Override
-  public MetricProducerManager getMetricProducerManager() {
-    return metricProducerManager;
-  }
+  /**
+   * Returns a collection of produced {@link io.opencensus.metrics.Metric}s to be exported.
+   *
+   * @return a collection of produced {@link io.opencensus.metrics.Metric}s to be exported.
+   */
+  public abstract Collection<Metric> getMetrics();
 }

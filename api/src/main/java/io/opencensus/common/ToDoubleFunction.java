@@ -17,7 +17,7 @@
 package io.opencensus.common;
 
 /**
- * Represents a function that produces a double-valued result. See {@code
+ * Represents a function that produces a double-valued result. See {@link
  * io.opencensus.metrics.MetricRegistry} for an example of its use.
  *
  * <p>Note: This class is based on the java.util.ToDoubleFunction class added in Java 1.8. We cannot
