@@ -17,7 +17,7 @@ ID, span ID, and sampling decision to each `LogEvent`, so that they can be acces
 or included in a layout.
 
 See
-https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/log4j
+https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/log4j2
 for a demo that uses this library to correlate logs and traces in Stackdriver.
 
 ## Instructions
@@ -81,7 +81,7 @@ accessed with the `X` conversion character in
 example, `%X{opencensusTraceId}`.
 
 See an example Log4j configuration file in the demo:
-https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/log4j/src/main/resources/log4j2.xml
+https://github.com/census-ecosystem/opencensus-experiments/tree/master/java/log_correlation/log4j2/src/main/resources/log4j2.xml
 
 ### Java Versions
 
