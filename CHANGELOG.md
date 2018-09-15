@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.16.0 - 2018-09-14
 - Add APIs to register gRPC client and server views separately.
 - Add an API MeasureMap.putAttachment() for recording exemplars.
 - Add Exemplar class and an API to get Exemplar list to DistributionData.
