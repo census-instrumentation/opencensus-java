@@ -19,8 +19,6 @@ package io.opencensus.contrib.logcorrelation.log4j2;
 import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
-import io.opencensus.trace.SpanId;
-import io.opencensus.trace.TraceId;
 import io.opencensus.trace.unsafe.ContextUtils;
 import java.util.Collection;
 import java.util.Collections;
@@ -133,10 +131,10 @@ final class ContextDataUtils {
     }
     stringMap.putValue(
         OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY,
-        new TraceIdToLowerBase16Formatter(spanContext.getTraceId()));
+        spanContext.getTraceId().toLowerBase16());
     stringMap.putValue(
         OpenCensusTraceContextDataInjector.SPAN_ID_CONTEXT_KEY,
-        new SpanIdToLowerBase16Formatter(spanContext.getSpanId()));
+        spanContext.getSpanId().toLowerBase16());
     stringMap.putValue(
         OpenCensusTraceContextDataInjector.TRACE_SAMPLED_CONTEXT_KEY,
         spanContext.getTraceOptions().isSampled() ? "true" : "false");
@@ -146,32 +144,6 @@ final class ContextDataUtils {
   private static SpanContext getCurrentSpanContext() {
     Span span = ContextUtils.CONTEXT_SPAN_KEY.get();
     return span == null ? SpanContext.INVALID : span.getContext();
-  }
-
-  private static final class TraceIdToLowerBase16Formatter {
-    private final TraceId traceId;
-
-    private TraceIdToLowerBase16Formatter(TraceId traceId) {
-      this.traceId = traceId;
-    }
-
-    @Override
-    public String toString() {
-      return traceId.toLowerBase16();
-    }
-  }
-
-  private static final class SpanIdToLowerBase16Formatter {
-    private final SpanId spanId;
-
-    private SpanIdToLowerBase16Formatter(SpanId spanId) {
-      this.spanId = spanId;
-    }
-
-    @Override
-    public String toString() {
-      return spanId.toLowerBase16();
-    }
   }
 
   @Immutable
