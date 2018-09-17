@@ -172,21 +172,18 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
 
   // The return type needs to be nullable when this function is used as an argument to 'match' in
   // attributeValueToString, because 'match' doesn't allow covariant return types.
-  private static final Function<Object, String> returnToString =
-      new Function<Object, String>() {
-        @Override
-        public String apply(Object input) {
-          return input.toString();
-        }
-      };
+  private static final Function<Object, /*@Nullable*/ String> returnToString =
+      Functions.returnToString();
 
+  // TODO: Fix the Checker Framework warning.
+  @SuppressWarnings("nullness")
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
         returnToString,
         returnToString,
         returnToString,
         returnToString,
-        Functions.<String>returnConstant(""));
+        Functions.</*@Nullable*/ String>returnConstant(""));
   }
 
   @Override

@@ -53,6 +53,14 @@ public final class Functions {
         }
       };
 
+  private static final Function<Object, /*@Nullable*/ String> RETURN_TO_STRING =
+      new Function<Object, /*@Nullable*/ String>() {
+        @Override
+        public String apply(Object input) {
+          return input.toString();
+        }
+      };
+
   /**
    * A {@code Function} that always ignores its argument and returns {@code null}.
    *
@@ -79,6 +87,16 @@ public final class Functions {
         return constant;
       }
     };
+  }
+
+  /**
+   * A {@code Function} that always returns the {@link #toString()} value of the input.
+   *
+   * @return a {@code Function} that always returns the {@link #toString()} value of the input.
+   * @since 0.17
+   */
+  public static Function<Object, /*@Nullable*/ String> returnToString() {
+    return RETURN_TO_STRING;
   }
 
   /**
