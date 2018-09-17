@@ -1,4 +1,6 @@
 ## Unreleased
+- Allow users to report metrics for their registered domain (using custom prefix). This could be a
+  breaking change if you have custom prefix without (registered) domain.
 
 ## 0.16.0 - 2018-09-14
 - Add APIs to register gRPC client and server views separately.
