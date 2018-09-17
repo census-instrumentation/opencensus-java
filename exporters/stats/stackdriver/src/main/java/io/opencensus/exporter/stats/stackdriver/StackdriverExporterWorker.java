@@ -68,7 +68,6 @@ final class StackdriverExporterWorker implements Runnable {
 
   @VisibleForTesting static final String DEFAULT_DISPLAY_NAME_PREFIX = "OpenCensus/";
   @VisibleForTesting static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com/";
-  @VisibleForTesting static final String EXTERNAL_METRIC_DOMAIN = "external.googleapis.com/";
 
   @VisibleForTesting
   static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "opencensus/";
@@ -252,11 +251,10 @@ final class StackdriverExporterWorker implements Runnable {
     if (Strings.isNullOrEmpty(metricNamePrefix)) {
       domain = CUSTOM_OPENCENSUS_DOMAIN;
     } else {
-      if (metricNamePrefix.startsWith(CUSTOM_METRIC_DOMAIN)
-          || metricNamePrefix.startsWith(EXTERNAL_METRIC_DOMAIN)) {
-        domain = metricNamePrefix;
+      if (!metricNamePrefix.endsWith("/")) {
+        domain = metricNamePrefix + '/';
       } else {
-        domain = CUSTOM_METRIC_DOMAIN + metricNamePrefix + '/';
+        domain = metricNamePrefix;
       }
     }
     return domain;
