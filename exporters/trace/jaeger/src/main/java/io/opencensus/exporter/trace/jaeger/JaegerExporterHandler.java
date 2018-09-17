@@ -97,6 +97,17 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
         }
       };
 
+  private static final Function<? super Double, Tag> doubleAttributeConverter =
+      new Function<Double, Tag>() {
+        @Override
+        public Tag apply(final Double value) {
+          final Tag tag = new Tag();
+          tag.setVType(TagType.DOUBLE);
+          tag.setVDouble(value);
+          return tag;
+        }
+      };
+
   private static final Function<? super Long, Tag> longAttributeConverter =
       new Function<Long, Tag>() {
         @Override
@@ -281,6 +292,7 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
                   stringAttributeConverter,
                   booleanAttributeConverter,
                   longAttributeConverter,
+                  doubleAttributeConverter,
                   defaultAttributeConverter);
       tag.setKey(entry.getKey());
       tags.add(tag);

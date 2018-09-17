@@ -124,6 +124,83 @@ public class AttributeValueTest {
   }
 
   @Test
+  public void doubleAttributeValue() {
+    AttributeValue attribute = AttributeValue.doubleAttributeValue(1.23456);
+    attribute.match(
+        new Function<String, Object>() {
+          @Override
+          @Nullable
+          public Object apply(String stringValue) {
+            fail("Expected a Double");
+            return null;
+          }
+        },
+        new Function<Boolean, Object>() {
+          @Override
+          @Nullable
+          public Object apply(Boolean booleanValue) {
+            fail("Expected a Double");
+            return null;
+          }
+        },
+        new Function<Long, Object>() {
+          @Override
+          @Nullable
+          public Object apply(Long longValue) {
+            fail("Expected a Double");
+            return null;
+          }
+        },
+        new Function<Double, Object>() {
+          @Override
+          @Nullable
+          public Object apply(Double doubleValue) {
+            assertThat(doubleValue).isEqualTo(1.23456);
+            return null;
+          }
+        },
+        Functions.throwIllegalArgumentException());
+  }
+
+  @Test
+  public void doubleAttributeValue_DeprecatedMatchFunction() {
+    AttributeValue attribute = AttributeValue.doubleAttributeValue(1.23456);
+    attribute.match(
+        new Function<String, Object>() {
+          @Override
+          @Nullable
+          public Object apply(String stringValue) {
+            fail("Expected a Double");
+            return null;
+          }
+        },
+        new Function<Boolean, Object>() {
+          @Override
+          @Nullable
+          public Object apply(Boolean booleanValue) {
+            fail("Expected a Double");
+            return null;
+          }
+        },
+        new Function<Long, Object>() {
+          @Override
+          @Nullable
+          public Object apply(Long longValue) {
+            fail("Expected a Double");
+            return null;
+          }
+        },
+        new Function<Object, Object>() {
+          @Override
+          @Nullable
+          public Object apply(Object value) {
+            assertThat(value).isEqualTo(1.23456);
+            return null;
+          }
+        });
+  }
+
+  @Test
   public void attributeValue_EqualsAndHashCode() {
     EqualsTester tester = new EqualsTester();
     tester.addEqualityGroup(
@@ -136,6 +213,9 @@ public class AttributeValueTest {
     tester.addEqualityGroup(
         AttributeValue.longAttributeValue(123456L), AttributeValue.longAttributeValue(123456L));
     tester.addEqualityGroup(AttributeValue.longAttributeValue(1234567L));
+    tester.addEqualityGroup(
+        AttributeValue.doubleAttributeValue(1.23456), AttributeValue.doubleAttributeValue(1.23456));
+    tester.addEqualityGroup(AttributeValue.doubleAttributeValue(1.234567));
     tester.testEquals();
   }
 
@@ -147,5 +227,7 @@ public class AttributeValueTest {
     assertThat(attribute.toString()).contains("true");
     attribute = AttributeValue.longAttributeValue(123456L);
     assertThat(attribute.toString()).contains("123456");
+    attribute = AttributeValue.doubleAttributeValue(1.23456);
+    assertThat(attribute.toString()).contains("1.23456");
   }
 }

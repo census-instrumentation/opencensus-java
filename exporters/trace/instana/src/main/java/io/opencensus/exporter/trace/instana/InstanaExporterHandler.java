@@ -127,6 +127,7 @@ final class InstanaExporterHandler extends SpanExporter.Handler {
         returnToString,
         returnToString,
         returnToString,
+        returnToString,
         Functions.</*@Nullable*/ String>returnNull());
   }
 

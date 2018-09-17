@@ -1,4 +1,6 @@
 ## Unreleased
+- Add `AttributeValueDouble` to `AttributeValue`.
+
 
 ## 0.16.0 - 2018-09-14
 - Add APIs to register gRPC client and server views separately.
