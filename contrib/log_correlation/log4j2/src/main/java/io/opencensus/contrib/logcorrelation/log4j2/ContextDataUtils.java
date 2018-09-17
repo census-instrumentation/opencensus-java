@@ -129,6 +129,10 @@ final class ContextDataUtils {
       stringMap = new SortedArrayStringMap(contextData.size() + 3);
       stringMap.putAll(contextData);
     }
+    // TODO(sebright): Move the calls to TraceId.toLowerBase16() and SpanId.toLowerBase16() out of
+    // the critical path by wrapping the trace and span IDs in objects that call toLowerBase16() in
+    // their toString() methods, after there is a fix for
+    // https://github.com/census-instrumentation/opencensus-java/issues/1436.
     stringMap.putValue(
         OpenCensusTraceContextDataInjector.TRACE_ID_CONTEXT_KEY,
         spanContext.getTraceId().toLowerBase16());
