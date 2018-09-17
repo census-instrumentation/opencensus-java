@@ -68,9 +68,33 @@ public final class JaegerTraceExporter {
     }
   }
 
+  /**
+   * Creates and registers the Jaeger Trace exporter to the OpenCensus library using the provided
+   * HttpSender. Only one Jaeger exporter can be registered at any point.
+   *
+   * @param httpSender the pre-configured HttpSender to use with the exporter
+   * @param serviceName the local service name of the process.
+   * @throws IllegalStateException if a Jaeger exporter is already registered.
+   * @since 0.17
+   */
+  public static void createWithSender(final HttpSender httpSender, final String serviceName) {
+    synchronized (monitor) {
+      checkState(handler == null, "Jaeger exporter is already registered.");
+      final SpanExporter.Handler newHandler = newHandlerWithSender(httpSender, serviceName);
+      JaegerTraceExporter.handler = newHandler;
+      register(Tracing.getExportComponent().getSpanExporter(), newHandler);
+    }
+  }
+
   private static SpanExporter.Handler newHandler(
       final String thriftEndpoint, final String serviceName) {
     final HttpSender sender = new HttpSender(thriftEndpoint);
+    final Process process = new Process(serviceName);
+    return new JaegerExporterHandler(sender, process);
+  }
+
+  private static SpanExporter.Handler newHandlerWithSender(
+      final HttpSender sender, final String serviceName) {
     final Process process = new Process(serviceName);
     return new JaegerExporterHandler(sender, process);
   }
