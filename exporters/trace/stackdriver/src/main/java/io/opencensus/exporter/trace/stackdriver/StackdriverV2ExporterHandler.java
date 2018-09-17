@@ -133,6 +133,17 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
           return attributeValueBuilder.build();
         }
       };
+  private static final Function<Double, /*@Nullable*/ AttributeValue> doubleAttributeValueFunction =
+      new Function<Double, /*@Nullable*/ AttributeValue>() {
+        @Override
+        public AttributeValue apply(Double doubleValue) {
+          Builder attributeValueBuilder = AttributeValue.newBuilder();
+          // TODO: set double value if Stackdriver Trace support it in the future.
+          attributeValueBuilder.setStringValue(
+              toTruncatableStringProto(String.valueOf(doubleValue)));
+          return attributeValueBuilder.build();
+        }
+      };
 
   private final String projectId;
   private final TraceServiceClient traceServiceClient;
@@ -426,6 +437,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         stringAttributeValueFunction,
         booleanAttributeValueFunction,
         longAttributeValueFunction,
+        doubleAttributeValueFunction,
         Functions.</*@Nullable*/ AttributeValue>returnNull());
   }
 

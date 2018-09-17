@@ -667,6 +667,7 @@ final class TracezZPageHandler extends ZPageHandler {
         returnToString,
         returnToString,
         returnToString,
+        returnToString,
         Functions.</*@Nullable*/ String>returnNull());
   }
 

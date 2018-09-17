@@ -182,7 +182,11 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
 
   private static String attributeValueToString(AttributeValue attributeValue) {
     return attributeValue.match(
-        returnToString, returnToString, returnToString, Functions.<String>returnConstant(""));
+        returnToString,
+        returnToString,
+        returnToString,
+        returnToString,
+        Functions.<String>returnConstant(""));
   }
 
   @Override
