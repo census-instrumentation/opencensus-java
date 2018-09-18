@@ -40,6 +40,14 @@ public class FunctionsTest {
   }
 
   @Test
+  public void testReturnToString() {
+    assertThat(Functions.returnToString().apply("input")).isEqualTo("input");
+    assertThat(Functions.returnToString().apply(Boolean.FALSE)).isEqualTo("false");
+    assertThat(Functions.returnToString().apply(Double.valueOf(123.45))).isEqualTo("123.45");
+    assertThat(Functions.returnToString().apply(null)).isEqualTo(null);
+  }
+
+  @Test
   public void testThrowIllegalArgumentException() {
     Function<Object, Void> f = Functions.throwIllegalArgumentException();
     thrown.expect(IllegalArgumentException.class);

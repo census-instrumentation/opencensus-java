@@ -654,12 +654,7 @@ final class TracezZPageHandler extends ZPageHandler {
   // The return type needs to be nullable when this function is used as an argument to 'match' in
   // attributeValueToString, because 'match' doesn't allow covariant return types.
   private static final Function<Object, /*@Nullable*/ String> returnToString =
-      new Function<Object, /*@Nullable*/ String>() {
-        @Override
-        public String apply(Object input) {
-          return input.toString();
-        }
-      };
+      Functions.returnToString();
 
   @javax.annotation.Nullable
   private static String attributeValueToString(AttributeValue attributeValue) {

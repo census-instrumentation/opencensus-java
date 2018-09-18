@@ -2,6 +2,7 @@
 - Add `AttributeValueDouble` to `AttributeValue`.
 - Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
   with extra configurations
+- Add an API `Functions.returnToString()`.
 
 ## 0.16.1 - 2018-09-18
 - Fix ClassCastException in Log4j log correlation
