@@ -56,8 +56,8 @@ public final class Functions {
   private static final Function<Object, /*@Nullable*/ String> RETURN_TO_STRING =
       new Function<Object, /*@Nullable*/ String>() {
         @Override
-        public String apply(Object input) {
-          return input.toString();
+        public /*@Nullable*/ String apply(Object input) {
+          return input == null ? null : input.toString();
         }
       };
 

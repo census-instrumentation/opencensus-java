@@ -183,7 +183,7 @@ final class ZipkinExporterHandler extends SpanExporter.Handler {
         returnToString,
         returnToString,
         returnToString,
-        Functions.</*@Nullable*/ String>returnConstant(""));
+        Functions.<String>returnConstant(""));
   }
 
   @Override
