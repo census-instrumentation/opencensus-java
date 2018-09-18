@@ -1,13 +1,14 @@
 ## Unreleased
 - Add `AttributeValueDouble` to `AttributeValue`.
 - Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
-  with extra configurations
+  with extra configurations.
 - Add an API `Functions.returnToString()`.
 - Add `opencensus-contrib-opencensus-proto-util` that has helper utilities to convert between
   Java data models and protos.
 - Migrate to new Stackdriver Kubernetes monitored resource. This could be a breaking change
   if you are using `gke_container` resources. For more info,
   https://cloud.google.com/monitoring/kubernetes-engine/migration#incompatible
+- Add OpenCensus Java OC-Agent Trace Exporter.
 
 ## 0.16.1 - 2018-09-18
 - Fix ClassCastException in Log4j log correlation
