@@ -30,7 +30,7 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-log-correlation-log4j2</artifactId>
-    <version>0.16.0</version>
+    <version>0.16.1</version>
     <scope>runtime</scope>
   </dependency>
 </dependencies>
@@ -38,7 +38,7 @@ For Maven add to your `pom.xml`:
 
 For Gradle add to your dependencies:
 ```groovy
-runtime 'io.opencensus:opencensus-contrib-log-correlation-log4j2:0.16.0'
+runtime 'io.opencensus:opencensus-contrib-log-correlation-log4j2:0.16.1'
 ```
 
 ### Configure the `OpenCensusTraceContextDataInjector`
