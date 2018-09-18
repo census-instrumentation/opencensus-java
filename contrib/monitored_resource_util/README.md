@@ -16,14 +16,14 @@ For Maven add to your `pom.xml`:
   <dependency>
     <groupId>io.opencensus</groupId>
     <artifactId>opencensus-contrib-monitored-resource-util</artifactId>
-    <version>0.16.0</version>
+    <version>0.16.1</version>
   </dependency>
 </dependencies>
 ```
 
 For Gradle add to your dependencies:
 ```gradle
-compile 'io.opencensus:opencensus-contrib-monitored-resource-util:0.16.0'
+compile 'io.opencensus:opencensus-contrib-monitored-resource-util:0.16.1'
 ```
 
 [travis-image]: https://travis-ci.org/census-instrumentation/opencensus-java.svg?branch=master
