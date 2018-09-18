@@ -1,5 +1,9 @@
 ## Unreleased
 - Add `AttributeValueDouble` to `AttributeValue`.
+
+## 0.16.1 - 2018-09-18
+- Fix ClassCastException in Log4j log correlation
+  ([#1436](https://github.com/census-instrumentation/opencensus-java/issues/1436)).
 - Allow users to report metrics for their registered domain (using custom prefix). This could be a
   breaking change if you have custom prefix without (registered) domain.
 - Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
