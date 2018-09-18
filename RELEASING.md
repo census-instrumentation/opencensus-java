@@ -247,6 +247,7 @@ $ sed -i 's/\(<version>\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1'$MAJOR.$MINOR.$PATCH'/' \
 
     ```bash
     $ bazel run //generate_workspace -- \
+    --artifact=com.google.guava:guava-jdk5:23.0
     --artifact=com.google.guava:guava:23.0 \
     --artifact=io.grpc:grpc-all:1.9.0 \
     --artifact=io.opencensus:opencensus-api:$MAJOR.$MINOR.$PATCH \
