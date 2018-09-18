@@ -1,13 +1,13 @@
 ## Unreleased
 - Add `AttributeValueDouble` to `AttributeValue`.
+- Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
+  with extra configurations
 
 ## 0.16.1 - 2018-09-18
 - Fix ClassCastException in Log4j log correlation
   ([#1436](https://github.com/census-instrumentation/opencensus-java/issues/1436)).
 - Allow users to report metrics for their registered domain (using custom prefix). This could be a
   breaking change if you have custom prefix without (registered) domain.
-- Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
-  with extra configurations
 
 ## 0.16.0 - 2018-09-14
 - Add APIs to register gRPC client and server views separately.
