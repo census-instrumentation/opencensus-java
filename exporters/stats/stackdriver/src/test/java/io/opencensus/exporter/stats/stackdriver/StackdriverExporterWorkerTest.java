@@ -110,8 +110,6 @@ public class StackdriverExporterWorkerTest {
   public void testConstants() {
     assertThat(StackdriverExporterWorker.MAX_BATCH_EXPORT_SIZE).isEqualTo(200);
     assertThat(StackdriverExporterWorker.CUSTOM_METRIC_DOMAIN).isEqualTo("custom.googleapis.com/");
-    assertThat(StackdriverExporterWorker.EXTERNAL_METRIC_DOMAIN)
-        .isEqualTo("external.googleapis.com/");
     assertThat(StackdriverExporterWorker.CUSTOM_OPENCENSUS_DOMAIN)
         .isEqualTo("custom.googleapis.com/opencensus/");
     assertThat(StackdriverExporterWorker.DEFAULT_DISPLAY_NAME_PREFIX).isEqualTo("OpenCensus/");
@@ -283,8 +281,7 @@ public class StackdriverExporterWorkerTest {
         .isEqualTo("custom.googleapis.com/myorg/");
     assertThat(StackdriverExporterWorker.getDomain("external.googleapis.com/prometheus/"))
         .isEqualTo("external.googleapis.com/prometheus/");
-    assertThat(StackdriverExporterWorker.getDomain("myorg"))
-        .isEqualTo("custom.googleapis.com/myorg/");
+    assertThat(StackdriverExporterWorker.getDomain("myorg")).isEqualTo("myorg/");
   }
 
   @Test
