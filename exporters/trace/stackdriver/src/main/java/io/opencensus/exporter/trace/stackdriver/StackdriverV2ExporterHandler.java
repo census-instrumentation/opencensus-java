@@ -348,7 +348,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             "instance_id",
             gcpGkeContainerMonitoredResource.getInstanceId());
         putToResourceAttributeMap(
-            resourceLabels, resourceType, "zone", gcpGkeContainerMonitoredResource.getZone());
+            resourceLabels, resourceType, "location", gcpGkeContainerMonitoredResource.getZone());
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
@@ -362,10 +362,10 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
         putToResourceAttributeMap(
             resourceLabels,
             resourceType,
-            "namespace_id",
+            "namespace_name",
             gcpGkeContainerMonitoredResource.getNamespaceId());
         putToResourceAttributeMap(
-            resourceLabels, resourceType, "pod_id", gcpGkeContainerMonitoredResource.getPodId());
+            resourceLabels, resourceType, "pod_name", gcpGkeContainerMonitoredResource.getPodId());
         return Collections.unmodifiableMap(resourceLabels);
     }
     return Collections.emptyMap();
@@ -391,7 +391,7 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
       case GCP_GCE_INSTANCE:
         return "gce_instance";
       case GCP_GKE_CONTAINER:
-        return "gke_container";
+        return "k8s_container";
       case AWS_EC2_INSTANCE:
         return "aws_ec2_instance";
     }

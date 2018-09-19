@@ -166,16 +166,16 @@ public final class StackdriverV2ExporterHandlerProtoTest {
               createResourceLabelKey(GCP_GKE_CONTAINER, "container_name"),
               toStringAttributeValueProto("container"))
           .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "namespace_id"),
+              createResourceLabelKey(GCP_GKE_CONTAINER, "namespace_name"),
               toStringAttributeValueProto("namespace"))
           .put(
               createResourceLabelKey(GCP_GKE_CONTAINER, "instance_id"),
               toStringAttributeValueProto("my-instance"))
           .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "pod_id"),
+              createResourceLabelKey(GCP_GKE_CONTAINER, "pod_name"),
               toStringAttributeValueProto("pod"))
           .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "zone"),
+              createResourceLabelKey(GCP_GKE_CONTAINER, "location"),
               toStringAttributeValueProto("us-east1"))
           .build();
 
