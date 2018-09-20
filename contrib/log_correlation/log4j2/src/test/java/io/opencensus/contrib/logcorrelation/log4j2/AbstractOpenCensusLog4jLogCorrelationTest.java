@@ -19,18 +19,11 @@ package io.opencensus.contrib.logcorrelation.log4j2;
 import io.opencensus.common.Function;
 import io.opencensus.common.Scope;
 import io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector.SpanSelection;
-import io.opencensus.trace.Annotation;
-import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.EndSpanOptions;
-import io.opencensus.trace.Link;
-import io.opencensus.trace.Span;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.Tracing;
 import java.io.StringWriter;
-import java.util.EnumSet;
-import java.util.Map;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
@@ -100,23 +93,5 @@ abstract class AbstractOpenCensusLog4jLogCorrelationTest {
     } finally {
       scope.close();
     }
-  }
-
-  private static final class TestSpan extends Span {
-    TestSpan(SpanContext context) {
-      super(context, EnumSet.of(Options.RECORD_EVENTS));
-    }
-
-    @Override
-    public void end(EndSpanOptions options) {}
-
-    @Override
-    public void addLink(Link link) {}
-
-    @Override
-    public void addAnnotation(Annotation annotation) {}
-
-    @Override
-    public void addAnnotation(String description, Map<String, AttributeValue> attributes) {}
   }
 }
