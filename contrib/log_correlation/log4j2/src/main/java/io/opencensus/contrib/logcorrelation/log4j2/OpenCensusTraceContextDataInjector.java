@@ -143,7 +143,8 @@ public final class OpenCensusTraceContextDataInjector implements ContextDataInje
     this(lookUpSpanSelectionProperty());
   }
 
-  private OpenCensusTraceContextDataInjector(SpanSelection spanSelection) {
+  // visible for testing
+  OpenCensusTraceContextDataInjector(SpanSelection spanSelection) {
     this.spanSelection = spanSelection;
   }
 
