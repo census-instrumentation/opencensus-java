@@ -169,9 +169,6 @@ public final class StackdriverV2ExporterHandlerProtoTest {
               createResourceLabelKey(GCP_GKE_CONTAINER, "namespace_name"),
               toStringAttributeValueProto("namespace"))
           .put(
-              createResourceLabelKey(GCP_GKE_CONTAINER, "instance_id"),
-              toStringAttributeValueProto("my-instance"))
-          .put(
               createResourceLabelKey(GCP_GKE_CONTAINER, "pod_name"),
               toStringAttributeValueProto("pod"))
           .put(

@@ -343,11 +343,6 @@ final class StackdriverV2ExporterHandler extends SpanExporter.Handler {
             "project_id",
             gcpGkeContainerMonitoredResource.getAccount());
         putToResourceAttributeMap(
-            resourceLabels,
-            resourceType,
-            "instance_id",
-            gcpGkeContainerMonitoredResource.getInstanceId());
-        putToResourceAttributeMap(
             resourceLabels, resourceType, "location", gcpGkeContainerMonitoredResource.getZone());
         putToResourceAttributeMap(
             resourceLabels,

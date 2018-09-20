@@ -500,7 +500,6 @@ final class StackdriverExportUtils {
         builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
         builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
         builder.putLabels("namespace_name", gcpGkeContainerMonitoredResource.getNamespaceId());
-        builder.putLabels("instance_id", gcpGkeContainerMonitoredResource.getInstanceId());
         builder.putLabels("pod_name", gcpGkeContainerMonitoredResource.getPodId());
         builder.putLabels("location", gcpGkeContainerMonitoredResource.getZone());
         return;
