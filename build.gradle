@@ -167,6 +167,7 @@ subprojects {
         protobufVersion = '3.5.1'
         zipkinReporterVersion = '2.3.2'
         jaegerReporterVersion = '0.27.0'
+        opencensusProtoVersion = '0.0.2'
 
         libraries = [
                 appengine_api: "com.google.appengine:appengine-api-1.0-sdk:${appengineVersion}",
@@ -199,6 +200,7 @@ subprojects {
                 spring_context_support: "org.springframework:spring-context-support:${springVersion}",
                 prometheus_simpleclient: "io.prometheus:simpleclient:${prometheusVersion}",
                 protobuf: "com.google.protobuf:protobuf-java:${protobufVersion}",
+                opencensus_proto: "io.opencensus:opencensus-proto:${opencensusProtoVersion}",
 
                 // Test dependencies.
                 guava_testlib: "com.google.guava:guava-testlib:${guavaVersion}",
@@ -421,6 +423,7 @@ subprojects {
                  'opencensus-contrib-log-correlation-log4j2',
                  'opencensus-contrib-log-correlation-stackdriver',
                  'opencensus-contrib-monitored-resource-util',
+                 'opencensus-contrib-opencensus-proto-util',
                  'opencensus-contrib-spring',
                  'opencensus-contrib-spring-sleuth-v1x',
                  'opencensus-contrib-zpages',
