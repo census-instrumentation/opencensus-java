@@ -29,6 +29,9 @@ bin
 /.nb-gradle
 /.nb-gradle-properties
 
+# VS Code
+.vscode
+
 # OS X
 .DS_Store
 
