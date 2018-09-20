@@ -3,6 +3,8 @@
 - Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
   with extra configurations
 - Add an API `Functions.returnToString()`.
+- Add `opencensus-contrib-opencensus-proto-util` that has helper utilities on converting between
+  Java data models to protos.
 
 ## 0.16.1 - 2018-09-18
 - Fix ClassCastException in Log4j log correlation

@@ -134,6 +134,12 @@ General guidelines on imports:
     <subpackage name="monitoredresource.util">
       <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
     </subpackage>
+    <subpackage name="opencensus.proto.util">
+      <allow pkg="com.google.protobuf"/>
+      <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
+      <allow pkg="io.opencensus.proto"/>
+      <allow pkg="io.opencensus.trace"/>
+    </subpackage>
   </subpackage>
   <subpackage name="exporter">
     <allow pkg="com.google.common"/>
