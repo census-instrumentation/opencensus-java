@@ -44,6 +44,16 @@ import javax.annotation.Nullable;
 final class SpanBuilderImpl extends SpanBuilder {
   private static final Tracestate TRACESTATE_DEFAULT = Tracestate.builder().build();
 
+  private static final TraceOptions SAMPLED_TRACE_OPTIONS =
+      TraceOptions.builder().setIsSampled(true).build();
+  private static final TraceOptions NOT_SAMPLED_TRACE_OPTIONS =
+      TraceOptions.builder().setIsSampled(false).build();
+
+  private static final EnumSet<Span.Options> NOT_RECORD_EVENTS_SPAN_OPTIONS =
+      EnumSet.noneOf(Span.Options.class);
+  private static final EnumSet<Span.Options> RECORD_EVENTS_SPAN_OPTIONS =
+      EnumSet.of(Span.Options.RECORD_EVENTS);
+
   private final Options options;
   private final String name;
   @Nullable private final Span parent;
@@ -67,37 +77,35 @@ final class SpanBuilderImpl extends SpanBuilder {
     TraceId traceId;
     SpanId spanId = SpanId.generateRandomId(random);
     SpanId parentSpanId = null;
-    TraceOptions.Builder traceOptionsBuilder;
     // TODO(bdrutu): Handle tracestate correctly not just propagate.
     Tracestate tracestate = TRACESTATE_DEFAULT;
     if (parent == null || !parent.isValid()) {
       // New root span.
       traceId = TraceId.generateRandomId(random);
-      traceOptionsBuilder = TraceOptions.builder();
       // This is a root span so no remote or local parent.
       hasRemoteParent = null;
     } else {
       // New child span.
       traceId = parent.getTraceId();
       parentSpanId = parent.getSpanId();
-      traceOptionsBuilder = TraceOptions.builder(parent.getTraceOptions());
       tracestate = parent.getTracestate();
     }
-    traceOptionsBuilder.setIsSampled(
+    TraceOptions traceOptions =
         makeSamplingDecision(
-            parent,
-            hasRemoteParent,
-            name,
-            sampler,
-            parentLinks,
-            traceId,
-            spanId,
-            activeTraceParams));
-    TraceOptions traceOptions = traceOptionsBuilder.build();
-    EnumSet<Span.Options> spanOptions = EnumSet.noneOf(Span.Options.class);
-    if (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents)) {
-      spanOptions.add(Span.Options.RECORD_EVENTS);
-    }
+                parent,
+                hasRemoteParent,
+                name,
+                sampler,
+                parentLinks,
+                traceId,
+                spanId,
+                activeTraceParams)
+            ? SAMPLED_TRACE_OPTIONS
+            : NOT_SAMPLED_TRACE_OPTIONS;
+    EnumSet<Span.Options> spanOptions =
+        (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents))
+            ? RECORD_EVENTS_SPAN_OPTIONS
+            : NOT_RECORD_EVENTS_SPAN_OPTIONS;
     SpanImpl span =
         SpanImpl.startSpan(
             SpanContext.create(traceId, spanId, traceOptions, tracestate),
