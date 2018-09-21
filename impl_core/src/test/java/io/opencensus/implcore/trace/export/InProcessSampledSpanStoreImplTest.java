@@ -21,12 +21,11 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.SimpleEventQueue;
-import io.opencensus.implcore.trace.SpanImpl;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Span;
-import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -41,7 +40,6 @@ import io.opencensus.trace.export.SampledSpanStore.PerSpanNameSummary;
 import io.opencensus.trace.export.SpanData;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -66,19 +64,18 @@ public class InProcessSampledSpanStoreImplTest {
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final SpanId parentSpanId = SpanId.generateRandomId(random);
-  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final TestClock testClock = TestClock.create(Timestamp.create(12345, 54321));
   private final InProcessSampledSpanStoreImpl sampleStore =
       new InProcessSampledSpanStoreImpl(new SimpleEventQueue());
   private final StartEndHandler startEndHandler =
       new StartEndHandler() {
         @Override
-        public void onStart(SpanImpl span) {
+        public void onStart(RecordEventsSpanImpl span) {
           // Do nothing.
         }
 
         @Override
-        public void onEnd(SpanImpl span) {
+        public void onEnd(RecordEventsSpanImpl span) {
           sampleStore.considerForSampling(span);
         }
       };
@@ -88,10 +85,9 @@ public class InProcessSampledSpanStoreImplTest {
     sampleStore.registerSpanNamesForCollection(Collections.singletonList(REGISTERED_SPAN_NAME));
   }
 
-  private SpanImpl createSampledSpan(String spanName) {
-    return SpanImpl.startSpan(
+  private RecordEventsSpanImpl createSampledSpan(String spanName) {
+    return RecordEventsSpanImpl.startSpan(
         sampledSpanContext,
-        recordSpanOptions,
         spanName,
         null,
         parentSpanId,
@@ -102,10 +98,9 @@ public class InProcessSampledSpanStoreImplTest {
         testClock);
   }
 
-  private SpanImpl createNotSampledSpan(String spanName) {
-    return SpanImpl.startSpan(
+  private RecordEventsSpanImpl createNotSampledSpan(String spanName) {
+    return RecordEventsSpanImpl.startSpan(
         notSampledSpanContext,
-        recordSpanOptions,
         spanName,
         null,
         parentSpanId,
@@ -216,7 +211,7 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getErrorSampledSpans() {
-    SpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, 1000));
     span.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
     Collection<SpanData> samples =
@@ -228,12 +223,12 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getErrorSampledSpans_MaxSpansToReturn() {
-    SpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, 1000));
     span1.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
     // Advance time to allow other spans to be sampled.
     testClock.advanceTime(Duration.create(5, 0));
-    SpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, 1000));
     span2.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
     Collection<SpanData> samples =
@@ -246,10 +241,10 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getErrorSampledSpans_NullCode() {
-    SpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, 1000));
     span1.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
-    SpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, 1000));
     span2.end(EndSpanOptions.builder().setStatus(Status.UNKNOWN).build());
     Collection<SpanData> samples =
@@ -260,10 +255,10 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getErrorSampledSpans_NullCode_MaxSpansToReturn() {
-    SpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, 1000));
     span1.end(EndSpanOptions.builder().setStatus(Status.CANCELLED).build());
-    SpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, 1000));
     span2.end(EndSpanOptions.builder().setStatus(Status.UNKNOWN).build());
     Collection<SpanData> samples =
@@ -274,7 +269,7 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getLatencySampledSpans() {
-    SpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(20)));
     span.end();
     Collection<SpanData> samples =
@@ -290,7 +285,7 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getLatencySampledSpans_ExclusiveUpperBound() {
-    SpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(20)));
     span.end();
     Collection<SpanData> samples =
@@ -305,7 +300,7 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getLatencySampledSpans_InclusiveLowerBound() {
-    SpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(20)));
     span.end();
     Collection<SpanData> samples =
@@ -321,12 +316,12 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getLatencySampledSpans_QueryBetweenMultipleBuckets() {
-    SpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(20)));
     span1.end();
     // Advance time to allow other spans to be sampled.
     testClock.advanceTime(Duration.create(5, 0));
-    SpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(200)));
     span2.end();
     Collection<SpanData> samples =
@@ -341,12 +336,12 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void getLatencySampledSpans_MaxSpansToReturn() {
-    SpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span1 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(20)));
     span1.end();
     // Advance time to allow other spans to be sampled.
     testClock.advanceTime(Duration.create(5, 0));
-    SpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span2 = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(200)));
     span2.end();
     Collection<SpanData> samples =
@@ -362,7 +357,7 @@ public class InProcessSampledSpanStoreImplTest {
 
   @Test
   public void ignoreNegativeSpanLatency() {
-    SpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
+    RecordEventsSpanImpl span = createSampledSpan(REGISTERED_SPAN_NAME);
     testClock.advanceTime(Duration.create(0, (int) TimeUnit.MICROSECONDS.toNanos(-20)));
     span.end();
     Collection<SpanData> samples =

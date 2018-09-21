@@ -18,7 +18,7 @@ package io.opencensus.implcore.trace.export;
 
 import com.google.common.collect.EvictingQueue;
 import io.opencensus.implcore.internal.EventQueue;
-import io.opencensus.implcore.trace.SpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
 import io.opencensus.trace.Status;
 import io.opencensus.trace.Status.CanonicalCode;
 import io.opencensus.trace.export.SampledSpanStore;
@@ -59,8 +59,8 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
 
   private static final class Bucket {
 
-    private final EvictingQueue<SpanImpl> sampledSpansQueue;
-    private final EvictingQueue<SpanImpl> notSampledSpansQueue;
+    private final EvictingQueue<RecordEventsSpanImpl> sampledSpansQueue;
+    private final EvictingQueue<RecordEventsSpanImpl> notSampledSpansQueue;
     private long lastSampledNanoTime;
     private long lastNotSampledNanoTime;
 
@@ -69,7 +69,7 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
       notSampledSpansQueue = EvictingQueue.create(numSamples);
     }
 
-    private void considerForSampling(SpanImpl span) {
+    private void considerForSampling(RecordEventsSpanImpl span) {
       long spanEndNanoTime = span.getEndNanoTime();
       if (span.getContext().getTraceOptions().isSampled()) {
         // Need to compare by doing the subtraction all the time because in case of an overflow,
@@ -90,14 +90,16 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
       }
     }
 
-    private void getSamples(int maxSpansToReturn, List<SpanImpl> output) {
+    private void getSamples(int maxSpansToReturn, List<RecordEventsSpanImpl> output) {
       getSamples(maxSpansToReturn, output, sampledSpansQueue);
       getSamples(maxSpansToReturn, output, notSampledSpansQueue);
     }
 
     private static void getSamples(
-        int maxSpansToReturn, List<SpanImpl> output, EvictingQueue<SpanImpl> queue) {
-      for (SpanImpl span : queue) {
+        int maxSpansToReturn,
+        List<RecordEventsSpanImpl> output,
+        EvictingQueue<RecordEventsSpanImpl> queue) {
+      for (RecordEventsSpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
           break;
         }
@@ -106,7 +108,10 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
     }
 
     private void getSamplesFilteredByLatency(
-        long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn, List<SpanImpl> output) {
+        long latencyLowerNs,
+        long latencyUpperNs,
+        int maxSpansToReturn,
+        List<RecordEventsSpanImpl> output) {
       getSamplesFilteredByLatency(
           latencyLowerNs, latencyUpperNs, maxSpansToReturn, output, sampledSpansQueue);
       getSamplesFilteredByLatency(
@@ -117,9 +122,9 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
         long latencyLowerNs,
         long latencyUpperNs,
         int maxSpansToReturn,
-        List<SpanImpl> output,
-        EvictingQueue<SpanImpl> queue) {
-      for (SpanImpl span : queue) {
+        List<RecordEventsSpanImpl> output,
+        EvictingQueue<RecordEventsSpanImpl> queue) {
+      for (RecordEventsSpanImpl span : queue) {
         if (output.size() >= maxSpansToReturn) {
           break;
         }
@@ -173,7 +178,7 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
       return errorBuckets[code.value() - 1];
     }
 
-    private void considerForSampling(SpanImpl span) {
+    private void considerForSampling(RecordEventsSpanImpl span) {
       Status status = span.getStatus();
       // Null status means running Span, this should not happen in production, but the library
       // should not crash because of this.
@@ -208,8 +213,10 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
       return errorBucketSummaries;
     }
 
-    private List<SpanImpl> getErrorSamples(@Nullable CanonicalCode code, int maxSpansToReturn) {
-      ArrayList<SpanImpl> output = new ArrayList<SpanImpl>(maxSpansToReturn);
+    private List<RecordEventsSpanImpl> getErrorSamples(
+        @Nullable CanonicalCode code, int maxSpansToReturn) {
+      ArrayList<RecordEventsSpanImpl> output =
+          new ArrayList<RecordEventsSpanImpl>(maxSpansToReturn);
       if (code != null) {
         getErrorBucket(code).getSamples(maxSpansToReturn, output);
       } else {
@@ -220,9 +227,10 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
       return output;
     }
 
-    private List<SpanImpl> getLatencySamples(
+    private List<RecordEventsSpanImpl> getLatencySamples(
         long latencyLowerNs, long latencyUpperNs, int maxSpansToReturn) {
-      ArrayList<SpanImpl> output = new ArrayList<SpanImpl>(maxSpansToReturn);
+      ArrayList<RecordEventsSpanImpl> output =
+          new ArrayList<RecordEventsSpanImpl>(maxSpansToReturn);
       for (int i = 0; i < NUM_LATENCY_BUCKETS; i++) {
         LatencyBucketBoundaries boundaries = LatencyBucketBoundaries.values()[i];
         if (latencyUpperNs >= boundaries.getLatencyLowerNs()
@@ -257,7 +265,7 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
   }
 
   @Override
-  public void considerForSampling(SpanImpl span) {
+  public void considerForSampling(RecordEventsSpanImpl span) {
     synchronized (samples) {
       String spanName = span.getName();
       if (span.getSampleToLocalSpanStore() && !samples.containsKey(spanName)) {
@@ -346,8 +354,9 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
         filter.getMaxSpansToReturn() == 0
             ? MAX_PER_SPAN_NAME_SAMPLES
             : filter.getMaxSpansToReturn();
-    List<SpanImpl> spans = Collections.emptyList();
-    // Try to not keep the lock to much, do the SpanImpl -> SpanData conversion outside the lock.
+    List<RecordEventsSpanImpl> spans = Collections.emptyList();
+    // Try to not keep the lock to much, do the RecordEventsSpanImpl -> SpanData conversion outside
+    // the lock.
     synchronized (samples) {
       PerSpanNameSamples perSpanNameSamples = samples.get(filter.getSpanName());
       if (perSpanNameSamples != null) {
@@ -355,7 +364,7 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
       }
     }
     List<SpanData> ret = new ArrayList<SpanData>(spans.size());
-    for (SpanImpl span : spans) {
+    for (RecordEventsSpanImpl span : spans) {
       ret.add(span.toSpanData());
     }
     return Collections.unmodifiableList(ret);
@@ -367,8 +376,9 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
         filter.getMaxSpansToReturn() == 0
             ? MAX_PER_SPAN_NAME_SAMPLES
             : filter.getMaxSpansToReturn();
-    List<SpanImpl> spans = Collections.emptyList();
-    // Try to not keep the lock to much, do the SpanImpl -> SpanData conversion outside the lock.
+    List<RecordEventsSpanImpl> spans = Collections.emptyList();
+    // Try to not keep the lock to much, do the RecordEventsSpanImpl -> SpanData conversion outside
+    // the lock.
     synchronized (samples) {
       PerSpanNameSamples perSpanNameSamples = samples.get(filter.getSpanName());
       if (perSpanNameSamples != null) {
@@ -378,7 +388,7 @@ public final class InProcessSampledSpanStoreImpl extends SampledSpanStoreImpl {
       }
     }
     List<SpanData> ret = new ArrayList<SpanData>(spans.size());
-    for (SpanImpl span : spans) {
+    for (RecordEventsSpanImpl span : spans) {
       ret.add(span.toSpanData());
     }
     return Collections.unmodifiableList(ret);

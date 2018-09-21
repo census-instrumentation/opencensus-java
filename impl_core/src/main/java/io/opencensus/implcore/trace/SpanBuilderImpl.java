@@ -35,7 +35,6 @@ import io.opencensus.trace.Tracestate;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.config.TraceParams;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
@@ -49,11 +48,6 @@ final class SpanBuilderImpl extends SpanBuilder {
   private static final TraceOptions NOT_SAMPLED_TRACE_OPTIONS =
       TraceOptions.builder().setIsSampled(false).build();
 
-  private static final EnumSet<Span.Options> NOT_RECORD_EVENTS_SPAN_OPTIONS =
-      EnumSet.noneOf(Span.Options.class);
-  private static final EnumSet<Span.Options> RECORD_EVENTS_SPAN_OPTIONS =
-      EnumSet.of(Span.Options.RECORD_EVENTS);
-
   private final Options options;
   private final String name;
   @Nullable private final Span parent;
@@ -63,7 +57,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   @Nullable private Boolean recordEvents;
   @Nullable private Kind kind;
 
-  private SpanImpl startSpanInternal(
+  private Span startSpanInternal(
       @Nullable SpanContext parent,
       @Nullable Boolean hasRemoteParent,
       String name,
@@ -102,22 +96,20 @@ final class SpanBuilderImpl extends SpanBuilder {
                 activeTraceParams)
             ? SAMPLED_TRACE_OPTIONS
             : NOT_SAMPLED_TRACE_OPTIONS;
-    EnumSet<Span.Options> spanOptions =
+    Span span =
         (traceOptions.isSampled() || Boolean.TRUE.equals(recordEvents))
-            ? RECORD_EVENTS_SPAN_OPTIONS
-            : NOT_RECORD_EVENTS_SPAN_OPTIONS;
-    SpanImpl span =
-        SpanImpl.startSpan(
-            SpanContext.create(traceId, spanId, traceOptions, tracestate),
-            spanOptions,
-            name,
-            kind,
-            parentSpanId,
-            hasRemoteParent,
-            activeTraceParams,
-            options.startEndHandler,
-            timestampConverter,
-            options.clock);
+            ? RecordEventsSpanImpl.startSpan(
+                SpanContext.create(traceId, spanId, traceOptions, tracestate),
+                name,
+                kind,
+                parentSpanId,
+                hasRemoteParent,
+                activeTraceParams,
+                options.startEndHandler,
+                timestampConverter,
+                options.clock)
+            : NoRecordEventsSpanImpl.create(
+                SpanContext.create(traceId, spanId, traceOptions, tracestate));
     linkSpans(span, parentLinks);
     return span;
   }
@@ -186,7 +178,7 @@ final class SpanBuilderImpl extends SpanBuilder {
   }
 
   @Override
-  public SpanImpl startSpan() {
+  public Span startSpan() {
     SpanContext parentContext = remoteParentSpanContext;
     Boolean hasRemoteParent = Boolean.TRUE;
     TimestampConverter timestampConverter = null;
@@ -199,8 +191,8 @@ final class SpanBuilderImpl extends SpanBuilder {
         parentContext = parent.getContext();
         // Pass the timestamp converter from the parent to ensure that the recorded events are in
         // the right order. Implementation uses System.nanoTime() which is monotonically increasing.
-        if (parent instanceof SpanImpl) {
-          timestampConverter = ((SpanImpl) parent).getTimestampConverter();
+        if (parent instanceof RecordEventsSpanImpl) {
+          timestampConverter = ((RecordEventsSpanImpl) parent).getTimestampConverter();
         }
       } else {
         hasRemoteParent = null;
@@ -219,13 +211,13 @@ final class SpanBuilderImpl extends SpanBuilder {
 
   static final class Options {
     private final RandomHandler randomHandler;
-    private final SpanImpl.StartEndHandler startEndHandler;
+    private final RecordEventsSpanImpl.StartEndHandler startEndHandler;
     private final Clock clock;
     private final TraceConfig traceConfig;
 
     Options(
         RandomHandler randomHandler,
-        SpanImpl.StartEndHandler startEndHandler,
+        RecordEventsSpanImpl.StartEndHandler startEndHandler,
         Clock clock,
         TraceConfig traceConfig) {
       this.randomHandler = checkNotNull(randomHandler, "randomHandler");

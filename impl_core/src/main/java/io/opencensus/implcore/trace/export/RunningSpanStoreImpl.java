@@ -16,11 +16,8 @@
 
 package io.opencensus.implcore.trace.export;
 
-import io.opencensus.implcore.trace.SpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
 import io.opencensus.trace.export.RunningSpanStore;
-import io.opencensus.trace.export.RunningSpanStore.Filter;
-import io.opencensus.trace.export.RunningSpanStore.PerSpanNameSummary;
-import io.opencensus.trace.export.RunningSpanStore.Summary;
 import io.opencensus.trace.export.SpanData;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,14 +38,14 @@ public abstract class RunningSpanStoreImpl extends RunningSpanStore {
    *
    * @param span the {@code Span} that started.
    */
-  public abstract void onStart(SpanImpl span);
+  public abstract void onStart(RecordEventsSpanImpl span);
 
   /**
    * Removes the {@code Span} from the running spans list when the {@code Span} ends.
    *
    * @param span the {@code Span} that ended.
    */
-  public abstract void onEnd(SpanImpl span);
+  public abstract void onEnd(RecordEventsSpanImpl span);
 
   private static final class NoopRunningSpanStoreImpl extends RunningSpanStoreImpl {
 
@@ -56,10 +53,10 @@ public abstract class RunningSpanStoreImpl extends RunningSpanStore {
         RunningSpanStore.Summary.create(Collections.<String, PerSpanNameSummary>emptyMap());
 
     @Override
-    public void onStart(SpanImpl span) {}
+    public void onStart(RecordEventsSpanImpl span) {}
 
     @Override
-    public void onEnd(SpanImpl span) {}
+    public void onEnd(RecordEventsSpanImpl span) {}
 
     @Override
     public Summary getSummary() {

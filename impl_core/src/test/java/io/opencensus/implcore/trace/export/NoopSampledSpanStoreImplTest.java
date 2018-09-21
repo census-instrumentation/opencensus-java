@@ -22,10 +22,9 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.internal.TimestampConverter;
-import io.opencensus.implcore.trace.SpanImpl;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.testing.common.TestClock;
-import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -35,7 +34,6 @@ import io.opencensus.trace.export.SampledSpanStore.ErrorFilter;
 import io.opencensus.trace.export.SampledSpanStore.LatencyFilter;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,9 +57,8 @@ public final class NoopSampledSpanStoreImplTest {
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final TestClock testClock = TestClock.create(timestamp);
   private final TimestampConverter timestampConverter = TimestampConverter.now(testClock);
-  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   @Mock private StartEndHandler startEndHandler;
-  private SpanImpl spanImpl;
+  private RecordEventsSpanImpl recordEventsSpanImpl;
   // maxSpansToReturn=0 means all
   private final ErrorFilter errorFilter =
       ErrorFilter.create(SPAN_NAME, null /* canonicalCode */, 0 /* maxSpansToReturn */);
@@ -99,10 +96,9 @@ public final class NoopSampledSpanStoreImplTest {
 
     // considerForSampling() should do nothing and do not affect the result.
     // It should be called after registerSpanNamesForCollection.
-    spanImpl =
-        SpanImpl.startSpan(
+    recordEventsSpanImpl =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             null,
@@ -111,8 +107,8 @@ public final class NoopSampledSpanStoreImplTest {
             startEndHandler,
             timestampConverter,
             testClock);
-    spanImpl.end();
-    sampledSpanStoreImpl.considerForSampling(spanImpl);
+    recordEventsSpanImpl.end();
+    sampledSpanStoreImpl.considerForSampling(recordEventsSpanImpl);
     getMethodsShouldReturnEmpty();
 
     // unregisterSpanNamesForCollection() should do nothing and do not affect the result.

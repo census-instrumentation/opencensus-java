@@ -22,17 +22,15 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.implcore.internal.SimpleEventQueue;
 import io.opencensus.implcore.internal.TimestampConverter;
-import io.opencensus.implcore.trace.SpanImpl;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.testing.common.TestClock;
-import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.RunningSpanStore.Filter;
-import java.util.EnumSet;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,9 +52,8 @@ public class NoopRunningSpanStoreImplTest {
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final TestClock testClock = TestClock.create(timestamp);
   private final TimestampConverter timestampConverter = TimestampConverter.now(testClock);
-  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   @Mock private StartEndHandler startEndHandler;
-  private SpanImpl spanImpl;
+  private RecordEventsSpanImpl recordEventsSpanImpl;
   // maxSpansToReturn=0 means all
   private final Filter filter = Filter.create(SPAN_NAME, 0 /* maxSpansToReturn */);
   private final EventQueue eventQueue = new SimpleEventQueue();
@@ -66,10 +63,9 @@ public class NoopRunningSpanStoreImplTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    spanImpl =
-        SpanImpl.startSpan(
+    recordEventsSpanImpl =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             null,
@@ -90,10 +86,10 @@ public class NoopRunningSpanStoreImplTest {
   public void noopImplementation() {
     getMethodsShouldReturnEmpty();
     // onStart() does not affect the result.
-    runningSpanStoreImpl.onStart(spanImpl);
+    runningSpanStoreImpl.onStart(recordEventsSpanImpl);
     getMethodsShouldReturnEmpty();
     // onEnd() does not affect the result.
-    runningSpanStoreImpl.onEnd(spanImpl);
+    runningSpanStoreImpl.onEnd(recordEventsSpanImpl);
     getMethodsShouldReturnEmpty();
   }
 }

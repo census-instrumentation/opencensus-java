@@ -16,12 +16,8 @@
 
 package io.opencensus.implcore.trace.export;
 
-import io.opencensus.implcore.trace.SpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
 import io.opencensus.trace.export.SampledSpanStore;
-import io.opencensus.trace.export.SampledSpanStore.ErrorFilter;
-import io.opencensus.trace.export.SampledSpanStore.LatencyFilter;
-import io.opencensus.trace.export.SampledSpanStore.PerSpanNameSummary;
-import io.opencensus.trace.export.SampledSpanStore.Summary;
 import io.opencensus.trace.export.SpanData;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +39,7 @@ public abstract class SampledSpanStoreImpl extends SampledSpanStore {
    *
    * @param span the span to be consider for storing into the store buckets.
    */
-  public abstract void considerForSampling(SpanImpl span);
+  public abstract void considerForSampling(RecordEventsSpanImpl span);
 
   protected void shutdown() {}
 
@@ -59,7 +55,7 @@ public abstract class SampledSpanStoreImpl extends SampledSpanStore {
     }
 
     @Override
-    public void considerForSampling(SpanImpl span) {}
+    public void considerForSampling(RecordEventsSpanImpl span) {}
 
     @Override
     public void registerSpanNamesForCollection(Collection<String> spanNames) {}

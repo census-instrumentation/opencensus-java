@@ -19,7 +19,7 @@ package io.opencensus.implcore.trace;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.when;
 
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.internal.RandomHandler;
 import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.Span;
@@ -63,27 +63,55 @@ public class SpanBuilderImplTest {
   }
 
   @Test
+  public void startSpan_CreatesTheCorrectSpanImplInstance() {
+    assertThat(
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setSampler(Samplers.alwaysSample())
+                .startSpan())
+        .isInstanceOf(RecordEventsSpanImpl.class);
+    assertThat(
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setRecordEvents(true)
+                .setSampler(Samplers.neverSample())
+                .startSpan())
+        .isInstanceOf(RecordEventsSpanImpl.class);
+    assertThat(
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setSampler(Samplers.neverSample())
+                .startSpan())
+        .isInstanceOf(NoRecordEventsSpanImpl.class);
+  }
+
+  @Test
   public void setSpanKind_NotNull() {
-    SpanImpl span =
-        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
-            .setSpanKind(Kind.CLIENT)
-            .startSpan();
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setSpanKind(Kind.CLIENT)
+                .setRecordEvents(true)
+                .startSpan();
     assertThat(span.getKind()).isEqualTo(Kind.CLIENT);
     assertThat(span.toSpanData().getKind()).isEqualTo(Kind.CLIENT);
   }
 
   @Test
   public void setSpanKind_DefaultNull() {
-    SpanImpl span =
-        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setRecordEvents(true)
+                .startSpan();
     assertThat(span.getKind()).isNull();
     assertThat(span.toSpanData().getKind()).isNull();
   }
 
   @Test
   public void startSpanNullParent() {
-    SpanImpl span =
-        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setRecordEvents(true)
+                .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
@@ -96,11 +124,12 @@ public class SpanBuilderImplTest {
 
   @Test
   public void startSpanNullParentWithRecordEvents() {
-    SpanImpl span =
-        SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
-            .setSampler(Samplers.neverSample())
-            .setRecordEvents(true)
-            .startSpan();
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithParent(SPAN_NAME, null, spanBuilderOptions)
+                .setSampler(Samplers.neverSample())
+                .setRecordEvents(true)
+                .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isFalse();
@@ -127,22 +156,25 @@ public class SpanBuilderImplTest {
     assertThat(rootSpan.getContext().isValid()).isTrue();
     assertThat(rootSpan.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(rootSpan.getContext().getTraceOptions().isSampled()).isTrue();
-    assertThat(((SpanImpl) rootSpan).toSpanData().getHasRemoteParent()).isNull();
+    assertThat(((RecordEventsSpanImpl) rootSpan).toSpanData().getHasRemoteParent()).isNull();
     Span childSpan =
         SpanBuilderImpl.createWithParent(SPAN_NAME, rootSpan, spanBuilderOptions).startSpan();
     assertThat(childSpan.getContext().isValid()).isTrue();
     assertThat(childSpan.getContext().getTraceId()).isEqualTo(rootSpan.getContext().getTraceId());
-    assertThat(((SpanImpl) childSpan).toSpanData().getParentSpanId())
+    assertThat(((RecordEventsSpanImpl) childSpan).toSpanData().getParentSpanId())
         .isEqualTo(rootSpan.getContext().getSpanId());
-    assertThat(((SpanImpl) childSpan).toSpanData().getHasRemoteParent()).isFalse();
-    assertThat(((SpanImpl) childSpan).getTimestampConverter())
-        .isEqualTo(((SpanImpl) rootSpan).getTimestampConverter());
+    assertThat(((RecordEventsSpanImpl) childSpan).toSpanData().getHasRemoteParent()).isFalse();
+    assertThat(((RecordEventsSpanImpl) childSpan).getTimestampConverter())
+        .isEqualTo(((RecordEventsSpanImpl) rootSpan).getTimestampConverter());
   }
 
   @Test
   public void startRemoteSpan_NullParent() {
-    SpanImpl span =
-        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, null, spanBuilderOptions).startSpan();
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, null, spanBuilderOptions)
+                .setRecordEvents(true)
+                .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
@@ -153,9 +185,11 @@ public class SpanBuilderImplTest {
 
   @Test
   public void startRemoteSpanInvalidParent() {
-    SpanImpl span =
-        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, SpanContext.INVALID, spanBuilderOptions)
-            .startSpan();
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithRemoteParent(
+                    SPAN_NAME, SpanContext.INVALID, spanBuilderOptions)
+                .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getOptions().contains(Options.RECORD_EVENTS)).isTrue();
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();
@@ -171,9 +205,11 @@ public class SpanBuilderImplTest {
             TraceId.generateRandomId(randomHandler.current()),
             SpanId.generateRandomId(randomHandler.current()),
             TraceOptions.DEFAULT);
-    SpanImpl span =
-        SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, spanContext, spanBuilderOptions)
-            .startSpan();
+    RecordEventsSpanImpl span =
+        (RecordEventsSpanImpl)
+            SpanBuilderImpl.createWithRemoteParent(SPAN_NAME, spanContext, spanBuilderOptions)
+                .setRecordEvents(true)
+                .startSpan();
     assertThat(span.getContext().isValid()).isTrue();
     assertThat(span.getContext().getTraceId()).isEqualTo(spanContext.getTraceId());
     assertThat(span.getContext().getTraceOptions().isSampled()).isTrue();

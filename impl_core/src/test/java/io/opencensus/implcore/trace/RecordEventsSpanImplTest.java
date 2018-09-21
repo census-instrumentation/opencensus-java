@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.common.Duration;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.TimestampConverter;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
@@ -29,7 +29,6 @@ import io.opencensus.trace.EndSpanOptions;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.NetworkEvent;
 import io.opencensus.trace.Span.Kind;
-import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.Status;
@@ -37,7 +36,6 @@ import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -51,9 +49,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link SpanImpl}. */
+/** Unit tests for {@link RecordEventsSpanImpl}. */
 @RunWith(JUnit4.class)
-public class SpanImplTest {
+public class RecordEventsSpanImplTest {
   private static final String SPAN_NAME = "MySpanName";
   private static final String ANNOTATION_DESCRIPTION = "MyAnnotation";
   private final Random random = new Random(1234);
@@ -64,8 +62,6 @@ public class SpanImplTest {
   private final Timestamp timestamp = Timestamp.create(1234, 5678);
   private final TestClock testClock = TestClock.create(timestamp);
   private final TimestampConverter timestampConverter = TimestampConverter.now(testClock);
-  private final EnumSet<Options> noRecordSpanOptions = EnumSet.noneOf(Options.class);
-  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
   private final Map<String, AttributeValue> expectedAttributes =
       new HashMap<String, AttributeValue>();
@@ -86,37 +82,10 @@ public class SpanImplTest {
   }
 
   @Test
-  public void toSpanData_NoRecordEvents() {
-    SpanImpl span =
-        SpanImpl.startSpan(
-            spanContext,
-            noRecordSpanOptions,
-            SPAN_NAME,
-            null,
-            parentSpanId,
-            false,
-            TraceParams.DEFAULT,
-            startEndHandler,
-            timestampConverter,
-            testClock);
-    // Check that adding trace events after Span#end() does not throw any exception.
-    span.putAttributes(attributes);
-    span.addAnnotation(Annotation.fromDescription(ANNOTATION_DESCRIPTION));
-    span.addAnnotation(ANNOTATION_DESCRIPTION, attributes);
-    span.addNetworkEvent(
-        NetworkEvent.builder(NetworkEvent.Type.RECV, 1).setUncompressedMessageSize(3).build());
-    span.addLink(Link.fromSpanContext(spanContext, Link.Type.CHILD_LINKED_SPAN));
-    span.end();
-    exception.expect(IllegalStateException.class);
-    span.toSpanData();
-  }
-
-  @Test
   public void noEventsRecordedAfterEnd() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -149,10 +118,9 @@ public class SpanImplTest {
 
   @Test
   public void deprecatedAddAttributesStillWorks() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -169,10 +137,9 @@ public class SpanImplTest {
 
   @Test
   public void toSpanData_ActiveSpan() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -229,10 +196,9 @@ public class SpanImplTest {
 
   @Test
   public void toSpanData_EndedSpan() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -291,10 +257,9 @@ public class SpanImplTest {
 
   @Test
   public void status_ViaSetStatus() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -314,10 +279,9 @@ public class SpanImplTest {
 
   @Test
   public void status_ViaEndSpanOptions() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -340,10 +304,9 @@ public class SpanImplTest {
     final int maxNumberOfAttributes = 8;
     TraceParams traceParams =
         TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(maxNumberOfAttributes).build();
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -389,10 +352,9 @@ public class SpanImplTest {
     final int maxNumberOfAttributes = 8;
     TraceParams traceParams =
         TraceParams.DEFAULT.toBuilder().setMaxNumberOfAttributes(maxNumberOfAttributes).build();
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -448,10 +410,9 @@ public class SpanImplTest {
     final int maxNumberOfAnnotations = 8;
     TraceParams traceParams =
         TraceParams.DEFAULT.toBuilder().setMaxNumberOfAnnotations(maxNumberOfAnnotations).build();
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -492,10 +453,9 @@ public class SpanImplTest {
             .toBuilder()
             .setMaxNumberOfNetworkEvents(maxNumberOfNetworkEvents)
             .build();
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -536,10 +496,9 @@ public class SpanImplTest {
     final int maxNumberOfLinks = 8;
     TraceParams traceParams =
         TraceParams.DEFAULT.toBuilder().setMaxNumberOfLinks(maxNumberOfLinks).build();
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -569,10 +528,9 @@ public class SpanImplTest {
 
   @Test
   public void sampleToLocalSpanStore() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -585,9 +543,8 @@ public class SpanImplTest {
     Mockito.verify(startEndHandler, Mockito.times(1)).onEnd(span);
     assertThat(span.getSampleToLocalSpanStore()).isTrue();
     span =
-        SpanImpl.startSpan(
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -603,10 +560,9 @@ public class SpanImplTest {
 
   @Test
   public void sampleToLocalSpanStore_RunningSpan() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             null,
             parentSpanId,
@@ -622,10 +578,9 @@ public class SpanImplTest {
 
   @Test
   public void getSpanKind() {
-    SpanImpl span =
-        SpanImpl.startSpan(
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             spanContext,
-            recordSpanOptions,
             SPAN_NAME,
             Kind.SERVER,
             parentSpanId,

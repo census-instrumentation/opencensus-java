@@ -21,17 +21,15 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.common.Duration;
 import io.opencensus.implcore.common.MillisClock;
 import io.opencensus.implcore.internal.SimpleEventQueue;
-import io.opencensus.implcore.trace.SpanImpl;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.StartEndHandlerImpl;
-import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
 import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.RunningSpanStore.Filter;
-import java.util.EnumSet;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,17 +49,15 @@ public class InProcessRunningSpanStoreImplTest {
   private final StartEndHandler startEndHandler =
       new StartEndHandlerImpl(
           sampledSpansServiceExporter, activeSpansExporter, null, new SimpleEventQueue());
-  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
 
-  private SpanImpl createSpan(String spanName) {
+  private RecordEventsSpanImpl createSpan(String spanName) {
     final SpanContext spanContext =
         SpanContext.create(
             TraceId.generateRandomId(random),
             SpanId.generateRandomId(random),
             TraceOptions.DEFAULT);
-    return SpanImpl.startSpan(
+    return RecordEventsSpanImpl.startSpan(
         spanContext,
-        recordSpanOptions,
         spanName,
         null,
         SpanId.generateRandomId(random),
@@ -74,8 +70,8 @@ public class InProcessRunningSpanStoreImplTest {
 
   @Test
   public void getSummary_SpansWithDifferentNames() {
-    final SpanImpl span1 = createSpan(SPAN_NAME_1);
-    final SpanImpl span2 = createSpan(SPAN_NAME_2);
+    final RecordEventsSpanImpl span1 = createSpan(SPAN_NAME_1);
+    final RecordEventsSpanImpl span2 = createSpan(SPAN_NAME_2);
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(2);
     assertThat(
             activeSpansExporter
@@ -107,9 +103,9 @@ public class InProcessRunningSpanStoreImplTest {
 
   @Test
   public void getSummary_SpansWithSameName() {
-    final SpanImpl span1 = createSpan(SPAN_NAME_1);
-    final SpanImpl span2 = createSpan(SPAN_NAME_1);
-    final SpanImpl span3 = createSpan(SPAN_NAME_1);
+    final RecordEventsSpanImpl span1 = createSpan(SPAN_NAME_1);
+    final RecordEventsSpanImpl span2 = createSpan(SPAN_NAME_1);
+    final RecordEventsSpanImpl span3 = createSpan(SPAN_NAME_1);
     assertThat(activeSpansExporter.getSummary().getPerSpanNameSummary().size()).isEqualTo(1);
     assertThat(
             activeSpansExporter
@@ -142,8 +138,8 @@ public class InProcessRunningSpanStoreImplTest {
 
   @Test
   public void getActiveSpans_SpansWithDifferentNames() {
-    SpanImpl span1 = createSpan(SPAN_NAME_1);
-    SpanImpl span2 = createSpan(SPAN_NAME_2);
+    RecordEventsSpanImpl span1 = createSpan(SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSpan(SPAN_NAME_2);
     assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 0)))
         .containsExactly(span1.toSpanData());
     assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 2)))
@@ -156,9 +152,9 @@ public class InProcessRunningSpanStoreImplTest {
 
   @Test
   public void getActiveSpans_SpansWithSameName() {
-    SpanImpl span1 = createSpan(SPAN_NAME_1);
-    SpanImpl span2 = createSpan(SPAN_NAME_1);
-    SpanImpl span3 = createSpan(SPAN_NAME_1);
+    RecordEventsSpanImpl span1 = createSpan(SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSpan(SPAN_NAME_1);
+    RecordEventsSpanImpl span3 = createSpan(SPAN_NAME_1);
     assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 0)))
         .containsExactly(span1.toSpanData(), span2.toSpanData(), span3.toSpanData());
     assertThat(activeSpansExporter.getRunningSpans(Filter.create(SPAN_NAME_1, 2)).size())

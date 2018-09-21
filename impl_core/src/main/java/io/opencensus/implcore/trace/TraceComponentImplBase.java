@@ -19,7 +19,7 @@ package io.opencensus.implcore.trace;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.EventQueue;
 import io.opencensus.implcore.internal.SimpleEventQueue;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.config.TraceConfigImpl;
 import io.opencensus.implcore.trace.export.ExportComponentImpl;
 import io.opencensus.implcore.trace.internal.RandomHandler;

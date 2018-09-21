@@ -19,7 +19,7 @@ package io.opencensus.implcore.trace.export;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Duration;
 import io.opencensus.implcore.internal.DaemonThreadFactory;
-import io.opencensus.implcore.trace.SpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
 import io.opencensus.trace.export.ExportComponent;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
@@ -60,7 +60,7 @@ public final class SpanExporterImpl extends SpanExporter {
    *
    * @param span the {@code Span} to be added.
    */
-  public void addSpan(SpanImpl span) {
+  public void addSpan(RecordEventsSpanImpl span) {
     worker.addSpan(span);
   }
 
@@ -108,14 +108,14 @@ public final class SpanExporterImpl extends SpanExporter {
     private final Object monitor = new Object();
 
     @GuardedBy("monitor")
-    private final List<SpanImpl> spans;
+    private final List<RecordEventsSpanImpl> spans;
 
     private final Map<String, Handler> serviceHandlers = new ConcurrentHashMap<String, Handler>();
     private final int bufferSize;
     private final long scheduleDelayMillis;
 
     // See SpanExporterImpl#addSpan.
-    private void addSpan(SpanImpl span) {
+    private void addSpan(RecordEventsSpanImpl span) {
       synchronized (monitor) {
         this.spans.add(span);
         if (spans.size() > bufferSize) {
@@ -152,16 +152,16 @@ public final class SpanExporterImpl extends SpanExporter {
     }
 
     private Worker(int bufferSize, Duration scheduleDelay) {
-      spans = new ArrayList<SpanImpl>(bufferSize);
+      spans = new ArrayList<RecordEventsSpanImpl>(bufferSize);
       this.bufferSize = bufferSize;
       this.scheduleDelayMillis = scheduleDelay.toMillis();
     }
 
     // Returns an unmodifiable list of all buffered spans data to ensure that any registered
     // service handler cannot modify the list.
-    private static List<SpanData> fromSpanImplToSpanData(List<SpanImpl> spans) {
+    private static List<SpanData> fromSpanImplToSpanData(List<RecordEventsSpanImpl> spans) {
       List<SpanData> spanDatas = new ArrayList<SpanData>(spans.size());
-      for (SpanImpl span : spans) {
+      for (RecordEventsSpanImpl span : spans) {
         spanDatas.add(span.toSpanData());
       }
       return Collections.unmodifiableList(spanDatas);
@@ -172,7 +172,7 @@ public final class SpanExporterImpl extends SpanExporter {
       while (true) {
         // Copy all the batched spans in a separate list to release the monitor lock asap to
         // avoid blocking the producer thread.
-        List<SpanImpl> spansCopy;
+        List<RecordEventsSpanImpl> spansCopy;
         synchronized (monitor) {
           if (spans.size() < bufferSize) {
             do {
@@ -187,7 +187,7 @@ public final class SpanExporterImpl extends SpanExporter {
               }
             } while (spans.isEmpty());
           }
-          spansCopy = new ArrayList<SpanImpl>(spans);
+          spansCopy = new ArrayList<RecordEventsSpanImpl>(spans);
           spans.clear();
         }
         // Execute the batch export outside the synchronized to not block all producers.
@@ -199,9 +199,9 @@ public final class SpanExporterImpl extends SpanExporter {
     }
 
     void flush() {
-      List<SpanImpl> spansCopy;
+      List<RecordEventsSpanImpl> spansCopy;
       synchronized (monitor) {
-        spansCopy = new ArrayList<SpanImpl>(spans);
+        spansCopy = new ArrayList<RecordEventsSpanImpl>(spans);
         spans.clear();
       }
 
