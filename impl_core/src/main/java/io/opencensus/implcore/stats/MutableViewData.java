@@ -45,9 +45,9 @@ import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;
 import io.opencensus.tags.TagValue;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -223,9 +223,7 @@ abstract class MutableViewData {
     // TODO(songya): allow customizable bucket size in the future.
     private static final int N = 4; // IntervalView has N + 1 buckets
 
-    // TODO(sebright): Decide whether to use a different class instead of LinkedList.
-    @SuppressWarnings("JdkObsolete")
-    private final LinkedList<IntervalBucket> buckets = new LinkedList<IntervalBucket>();
+    private final ArrayDeque<IntervalBucket> buckets = new ArrayDeque<IntervalBucket>();
 
     private final Duration totalDuration; // Duration of the whole interval.
     private final Duration bucketDuration; // Duration of a single bucket (totalDuration / N)
@@ -352,9 +350,7 @@ abstract class MutableViewData {
       Multimap<List</*@Nullable*/ TagValue>, MutableAggregation> multimap =
           LinkedHashMultimap.create();
 
-      // TODO(sebright): Decide whether to use a different class instead of LinkedList.
-      @SuppressWarnings("JdkObsolete")
-      LinkedList<IntervalBucket> shallowCopy = new LinkedList<IntervalBucket>(buckets);
+      ArrayDeque<IntervalBucket> shallowCopy = new ArrayDeque<IntervalBucket>(buckets);
 
       Aggregation aggregation = super.view.getAggregation();
       Measure measure = super.view.getMeasure();
@@ -367,7 +363,7 @@ abstract class MutableViewData {
     // Put stats within each bucket to a multimap. Each tag value list (map key) could have multiple
     // mutable aggregations (map value) from different buckets.
     private static void putBucketsIntoMultiMap(
-        LinkedList<IntervalBucket> buckets,
+        ArrayDeque<IntervalBucket> buckets,
         Multimap<List</*@Nullable*/ TagValue>, MutableAggregation> multimap,
         Aggregation aggregation,
         Measure measure,
