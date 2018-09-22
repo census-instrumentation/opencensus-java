@@ -51,10 +51,13 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 // TODO(hailongwen): remove the usage of `NetworkEvent` in the future.
-/** Implementation for the {@link Span} class. */
+/** Implementation for the {@link Span} class that records trace events. */
 @ThreadSafe
-public final class SpanImpl extends Span implements Element<SpanImpl> {
+public final class RecordEventsSpanImpl extends Span implements Element<RecordEventsSpanImpl> {
   private static final Logger logger = Logger.getLogger(Tracer.class.getName());
+
+  private static final EnumSet<Span.Options> RECORD_EVENTS_SPAN_OPTIONS =
+      EnumSet.of(Span.Options.RECORD_EVENTS);
 
   // The parent SpanId of this span. Null if this is a root span.
   @Nullable private final SpanId parentSpanId;
@@ -73,8 +76,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   // The time converter used to convert nano time to Timestamp. This is needed because Java has
   // millisecond granularity for Timestamp and tracing events are recorded more often.
   @Nullable private final TimestampConverter timestampConverter;
-  // The start time of the span. Set when the span is created iff the RECORD_EVENTS options is
-  // set, otherwise 0.
+  // The start time of the span.
   private final long startNanoTime;
   // Set of recorded attributes. DO NOT CALL any other method that changes the ordering of events.
   @GuardedBy("this")
@@ -87,18 +89,16 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   // List of recorded network events.
   @GuardedBy("this")
   @Nullable
-  @SuppressWarnings("deprecation")
-  private TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>> networkEvents;
+  private TraceEvents<EventWithNanoTime<io.opencensus.trace.MessageEvent>> messageEvents;
   // List of recorded links to parent and child spans.
   @GuardedBy("this")
   @Nullable
   private TraceEvents<Link> links;
-  // The status of the span. Set when the span is ended iff the RECORD_EVENTS options is set.
+  // The status of the span.
   @GuardedBy("this")
   @Nullable
   private Status status;
-  // The end time of the span. Set when the span is ended iff the RECORD_EVENTS options is set,
-  // otherwise 0.
+  // The end time of the span.
   @GuardedBy("this")
   private long endNanoTime;
   // True if the span is ended.
@@ -109,14 +109,13 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   private boolean sampleToLocalSpanStore;
 
   // Pointers for the ConcurrentIntrusiveList$Element. Guarded by the ConcurrentIntrusiveList.
-  @Nullable private SpanImpl next = null;
-  @Nullable private SpanImpl prev = null;
+  @Nullable private RecordEventsSpanImpl next = null;
+  @Nullable private RecordEventsSpanImpl prev = null;
 
   /**
    * Creates and starts a span with the given configuration.
    *
    * @param context supplies the trace_id and span_id for the newly started span.
-   * @param options the options for the new span, importantly Options.RECORD_EVENTS.
    * @param name the displayed name for the new span.
    * @param parentSpanId the span_id of the parent span, or null if the new span is a root span.
    * @param hasRemoteParent {@code true} if the parentContext is remote. {@code null} if this is a
@@ -130,9 +129,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    * @return a new and started span.
    */
   @VisibleForTesting
-  public static SpanImpl startSpan(
+  public static RecordEventsSpanImpl startSpan(
       SpanContext context,
-      @Nullable EnumSet<Options> options,
       String name,
       @Nullable Kind kind,
       @Nullable SpanId parentSpanId,
@@ -141,10 +139,9 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
-    SpanImpl span =
-        new SpanImpl(
+    RecordEventsSpanImpl span =
+        new RecordEventsSpanImpl(
             context,
-            options,
             name,
             kind,
             parentSpanId,
@@ -155,9 +152,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
             clock);
     // Call onStart here instead of calling in the constructor to make sure the span is completely
     // initialized.
-    if (span.getOptions().contains(Options.RECORD_EVENTS)) {
-      startEndHandler.onStart(span);
-    }
+    startEndHandler.onStart(span);
     return span;
   }
 
@@ -244,9 +239,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    * @throws IllegalStateException if the Span doesn't have RECORD_EVENTS option.
    */
   public SpanData toSpanData() {
-    checkState(
-        getOptions().contains(Options.RECORD_EVENTS),
-        "Getting SpanData for a Span without RECORD_EVENTS option.");
     synchronized (this) {
       SpanData.Attributes attributesSpanData =
           attributes == null
@@ -254,8 +246,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
               : SpanData.Attributes.create(attributes, attributes.getNumberOfDroppedAttributes());
       SpanData.TimedEvents<Annotation> annotationsSpanData =
           createTimedEvents(getInitializedAnnotations(), timestampConverter);
-      @SuppressWarnings("deprecation")
-      SpanData.TimedEvents<io.opencensus.trace.NetworkEvent> networkEventsSpanData =
+      SpanData.TimedEvents<io.opencensus.trace.MessageEvent> messageEventsSpanData =
           createTimedEvents(getInitializedNetworkEvents(), timestampConverter);
       SpanData.Links linksSpanData =
           links == null
@@ -271,7 +262,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
           CheckerFrameworkUtils.castNonNull(timestampConverter).convertNanoTime(startNanoTime),
           attributesSpanData,
           annotationsSpanData,
-          networkEventsSpanData,
+          messageEventsSpanData,
           linksSpanData,
           null, // Not supported yet.
           hasBeenEnded ? getStatusWithDefault() : null,
@@ -285,9 +276,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   public void putAttribute(String key, AttributeValue value) {
     Preconditions.checkNotNull(key, "key");
     Preconditions.checkNotNull(value, "value");
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling putAttributes() on an ended Span.");
@@ -300,9 +288,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   @Override
   public void putAttributes(Map<String, AttributeValue> attributes) {
     Preconditions.checkNotNull(attributes, "attributes");
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling putAttributes() on an ended Span.");
@@ -316,9 +301,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   public void addAnnotation(String description, Map<String, AttributeValue> attributes) {
     Preconditions.checkNotNull(description, "description");
     Preconditions.checkNotNull(attributes, "attribute");
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling addAnnotation() on an ended Span.");
@@ -335,9 +317,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   @Override
   public void addAnnotation(Annotation annotation) {
     Preconditions.checkNotNull(annotation, "annotation");
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling addAnnotation() on an ended Span.");
@@ -349,11 +328,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public void addNetworkEvent(io.opencensus.trace.NetworkEvent networkEvent) {
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
+  public void addMessageEvent(io.opencensus.trace.MessageEvent messageEvent) {
+    Preconditions.checkNotNull(messageEvent, "messageEvent");
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling addNetworkEvent() on an ended Span.");
@@ -361,17 +337,14 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       }
       getInitializedNetworkEvents()
           .addEvent(
-              new EventWithNanoTime<io.opencensus.trace.NetworkEvent>(
-                  clock.nowNanos(), checkNotNull(networkEvent, "networkEvent")));
+              new EventWithNanoTime<io.opencensus.trace.MessageEvent>(
+                  clock.nowNanos(), checkNotNull(messageEvent, "networkEvent")));
     }
   }
 
   @Override
   public void addLink(Link link) {
     Preconditions.checkNotNull(link, "link");
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling addLink() on an ended Span.");
@@ -384,9 +357,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   @Override
   public void setStatus(Status status) {
     Preconditions.checkNotNull(status, "status");
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling setStatus() on an ended Span.");
@@ -399,9 +369,6 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   @Override
   public void end(EndSpanOptions options) {
     Preconditions.checkNotNull(options, "options");
-    if (!getOptions().contains(Options.RECORD_EVENTS)) {
-      return;
-    }
     synchronized (this) {
       if (hasBeenEnded) {
         logger.log(Level.FINE, "Calling end() on an ended Span.");
@@ -435,15 +402,14 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
   }
 
   @GuardedBy("this")
-  @SuppressWarnings("deprecation")
-  private TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>>
+  private TraceEvents<EventWithNanoTime<io.opencensus.trace.MessageEvent>>
       getInitializedNetworkEvents() {
-    if (networkEvents == null) {
-      networkEvents =
-          new TraceEvents<EventWithNanoTime<io.opencensus.trace.NetworkEvent>>(
-              traceParams.getMaxNumberOfNetworkEvents());
+    if (messageEvents == null) {
+      messageEvents =
+          new TraceEvents<EventWithNanoTime<io.opencensus.trace.MessageEvent>>(
+              traceParams.getMaxNumberOfMessageEvents());
     }
-    return networkEvents;
+    return messageEvents;
   }
 
   @GuardedBy("this")
@@ -474,23 +440,23 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
 
   @Override
   @Nullable
-  public SpanImpl getNext() {
+  public RecordEventsSpanImpl getNext() {
     return next;
   }
 
   @Override
-  public void setNext(@Nullable SpanImpl element) {
+  public void setNext(@Nullable RecordEventsSpanImpl element) {
     next = element;
   }
 
   @Override
   @Nullable
-  public SpanImpl getPrev() {
+  public RecordEventsSpanImpl getPrev() {
     return prev;
   }
 
   @Override
-  public void setPrev(@Nullable SpanImpl element) {
+  public void setPrev(@Nullable RecordEventsSpanImpl element) {
     prev = element;
   }
 
@@ -505,9 +471,9 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
    * be thread-safe.
    */
   public interface StartEndHandler {
-    void onStart(SpanImpl span);
+    void onStart(RecordEventsSpanImpl span);
 
-    void onEnd(SpanImpl span);
+    void onEnd(RecordEventsSpanImpl span);
   }
 
   // A map implementation with a fixed capacity that drops events when the map gets full. Eviction
@@ -586,9 +552,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     }
   }
 
-  private SpanImpl(
+  private RecordEventsSpanImpl(
       SpanContext context,
-      @Nullable EnumSet<Options> options,
       String name,
       @Nullable Kind kind,
       @Nullable SpanId parentSpanId,
@@ -597,7 +562,7 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
       StartEndHandler startEndHandler,
       @Nullable TimestampConverter timestampConverter,
       Clock clock) {
-    super(context, options);
+    super(context, RECORD_EVENTS_SPAN_OPTIONS);
     this.parentSpanId = parentSpanId;
     this.hasRemoteParent = hasRemoteParent;
     this.name = name;
@@ -607,13 +572,8 @@ public final class SpanImpl extends Span implements Element<SpanImpl> {
     this.clock = clock;
     this.hasBeenEnded = false;
     this.sampleToLocalSpanStore = false;
-    if (options != null && options.contains(Options.RECORD_EVENTS)) {
-      this.timestampConverter =
-          timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
-      startNanoTime = clock.nowNanos();
-    } else {
-      this.startNanoTime = 0;
-      this.timestampConverter = timestampConverter;
-    }
+    this.timestampConverter =
+        timestampConverter != null ? timestampConverter : TimestampConverter.now(clock);
+    startNanoTime = clock.nowNanos();
   }
 }

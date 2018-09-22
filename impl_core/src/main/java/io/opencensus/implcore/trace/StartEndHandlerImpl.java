@@ -17,7 +17,7 @@
 package io.opencensus.implcore.trace;
 
 import io.opencensus.implcore.internal.EventQueue;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.export.RunningSpanStoreImpl;
 import io.opencensus.implcore.trace.export.SampledSpanStoreImpl;
 import io.opencensus.implcore.trace.export.SpanExporterImpl;
@@ -61,14 +61,14 @@ public final class StartEndHandlerImpl implements StartEndHandler {
   }
 
   @Override
-  public void onStart(SpanImpl span) {
+  public void onStart(RecordEventsSpanImpl span) {
     if (span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans) {
       eventQueue.enqueue(new SpanStartEvent(span, runningSpanStore));
     }
   }
 
   @Override
-  public void onEnd(SpanImpl span) {
+  public void onEnd(RecordEventsSpanImpl span) {
     if ((span.getOptions().contains(Options.RECORD_EVENTS) && enqueueEventForNonSampledSpans)
         || span.getContext().getTraceOptions().isSampled()) {
       eventQueue.enqueue(new SpanEndEvent(span, spanExporter, runningSpanStore, sampledSpanStore));
@@ -77,10 +77,10 @@ public final class StartEndHandlerImpl implements StartEndHandler {
 
   // An EventQueue entry that records the start of the span event.
   private static final class SpanStartEvent implements EventQueue.Entry {
-    private final SpanImpl span;
+    private final RecordEventsSpanImpl span;
     @Nullable private final RunningSpanStoreImpl activeSpansExporter;
 
-    SpanStartEvent(SpanImpl span, @Nullable RunningSpanStoreImpl activeSpansExporter) {
+    SpanStartEvent(RecordEventsSpanImpl span, @Nullable RunningSpanStoreImpl activeSpansExporter) {
       this.span = span;
       this.activeSpansExporter = activeSpansExporter;
     }
@@ -95,13 +95,13 @@ public final class StartEndHandlerImpl implements StartEndHandler {
 
   // An EventQueue entry that records the end of the span event.
   private static final class SpanEndEvent implements EventQueue.Entry {
-    private final SpanImpl span;
+    private final RecordEventsSpanImpl span;
     @Nullable private final RunningSpanStoreImpl runningSpanStore;
     private final SpanExporterImpl spanExporter;
     @Nullable private final SampledSpanStoreImpl sampledSpanStore;
 
     SpanEndEvent(
-        SpanImpl span,
+        RecordEventsSpanImpl span,
         SpanExporterImpl spanExporter,
         @Nullable RunningSpanStoreImpl runningSpanStore,
         @Nullable SampledSpanStoreImpl sampledSpanStore) {

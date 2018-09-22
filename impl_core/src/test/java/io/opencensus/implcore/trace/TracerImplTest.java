@@ -18,7 +18,7 @@ package io.opencensus.implcore.trace;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.internal.RandomHandler.SecureRandomHandler;
 import io.opencensus.testing.common.TestClock;
 import io.opencensus.trace.BlankSpan;

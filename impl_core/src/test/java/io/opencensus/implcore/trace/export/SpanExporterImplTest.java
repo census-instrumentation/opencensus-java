@@ -23,11 +23,10 @@ import static org.mockito.Mockito.doThrow;
 import io.opencensus.common.Duration;
 import io.opencensus.implcore.common.MillisClock;
 import io.opencensus.implcore.internal.SimpleEventQueue;
-import io.opencensus.implcore.trace.SpanImpl;
-import io.opencensus.implcore.trace.SpanImpl.StartEndHandler;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl.StartEndHandler;
 import io.opencensus.implcore.trace.StartEndHandlerImpl;
 import io.opencensus.testing.export.TestHandler;
-import io.opencensus.trace.Span.Options;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
@@ -35,7 +34,6 @@ import io.opencensus.trace.TraceOptions;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter.Handler;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import org.junit.Before;
@@ -60,7 +58,6 @@ public class SpanExporterImplTest {
       SpanContext.create(
           TraceId.generateRandomId(random), SpanId.generateRandomId(random), TraceOptions.DEFAULT);
   private final RunningSpanStoreImpl runningSpanStore = new InProcessRunningSpanStoreImpl();
-  private final EnumSet<Options> recordSpanOptions = EnumSet.of(Options.RECORD_EVENTS);
   private final TestHandler serviceHandler = new TestHandler();
   @Mock private Handler mockServiceHandler;
 
@@ -69,11 +66,11 @@ public class SpanExporterImplTest {
     MockitoAnnotations.initMocks(this);
   }
 
-  private SpanImpl createSampledEndedSpan(StartEndHandler startEndHandler, String spanName) {
-    SpanImpl span =
-        SpanImpl.startSpan(
+  private RecordEventsSpanImpl createSampledEndedSpan(
+      StartEndHandler startEndHandler, String spanName) {
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             sampledSpanContext,
-            recordSpanOptions,
             spanName,
             null,
             null,
@@ -86,11 +83,11 @@ public class SpanExporterImplTest {
     return span;
   }
 
-  private SpanImpl createNotSampledEndedSpan(StartEndHandler startEndHandler, String spanName) {
-    SpanImpl span =
-        SpanImpl.startSpan(
+  private RecordEventsSpanImpl createNotSampledEndedSpan(
+      StartEndHandler startEndHandler, String spanName) {
+    RecordEventsSpanImpl span =
+        RecordEventsSpanImpl.startSpan(
             notSampledSpanContext,
-            recordSpanOptions,
             spanName,
             null,
             null,
@@ -111,8 +108,8 @@ public class SpanExporterImplTest {
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
-    SpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
+    RecordEventsSpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
     List<SpanData> exported = serviceHandler.waitForExport(2);
     assertThat(exported).containsExactly(span1.toSpanData(), span2.toSpanData());
   }
@@ -125,12 +122,12 @@ public class SpanExporterImplTest {
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
-    SpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span3 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span4 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span5 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span6 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span3 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span4 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span5 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span6 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(6);
     assertThat(exported)
         .containsExactly(
@@ -167,11 +164,11 @@ public class SpanExporterImplTest {
     spanExporter.registerHandler("test.service", serviceHandler);
 
     spanExporter.registerHandler("mock.service", mockServiceHandler);
-    SpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
     List<SpanData> exported = serviceHandler.waitForExport(1);
     assertThat(exported).containsExactly(span1.toSpanData());
     // Continue to export after the exception was received.
-    SpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
     exported = serviceHandler.waitForExport(1);
     assertThat(exported).containsExactly(span2.toSpanData());
   }
@@ -186,8 +183,8 @@ public class SpanExporterImplTest {
 
     TestHandler serviceHandler2 = new TestHandler();
     spanExporter.registerHandler("test.service2", serviceHandler2);
-    SpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
+    RecordEventsSpanImpl span1 = createSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
     List<SpanData> exported1 = serviceHandler.waitForExport(2);
     List<SpanData> exported2 = serviceHandler2.waitForExport(2);
     assertThat(exported1).containsExactly(span1.toSpanData(), span2.toSpanData());
@@ -202,8 +199,8 @@ public class SpanExporterImplTest {
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
-    SpanImpl span1 = createNotSampledEndedSpan(startEndHandler, SPAN_NAME_1);
-    SpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
+    RecordEventsSpanImpl span1 = createNotSampledEndedSpan(startEndHandler, SPAN_NAME_1);
+    RecordEventsSpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
     // Spans are recorded and exported in the same order as they are ended, we test that a non
     // sampled span is not exported by creating and ending a sampled span after a non sampled span
     // and checking that the first exported span is the sampled span (the non sampled did not get
@@ -224,7 +221,7 @@ public class SpanExporterImplTest {
 
     spanExporter.registerHandler("test.service", serviceHandler);
 
-    SpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
+    RecordEventsSpanImpl span2 = createSampledEndedSpan(startEndHandler, SPAN_NAME_2);
 
     // Force a flush, without this, the #waitForExport() call below would block indefinitely.
     spanExporter.flush();

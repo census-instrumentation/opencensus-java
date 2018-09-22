@@ -16,7 +16,7 @@
 
 package io.opencensus.implcore.trace.export;
 
-import io.opencensus.implcore.trace.SpanImpl;
+import io.opencensus.implcore.trace.RecordEventsSpanImpl;
 import io.opencensus.implcore.trace.internal.ConcurrentIntrusiveList;
 import io.opencensus.trace.export.RunningSpanStore;
 import io.opencensus.trace.export.SpanData;
@@ -30,27 +30,27 @@ import javax.annotation.concurrent.ThreadSafe;
 /** In-process implementation of the {@link RunningSpanStore}. */
 @ThreadSafe
 public final class InProcessRunningSpanStoreImpl extends RunningSpanStoreImpl {
-  private final ConcurrentIntrusiveList<SpanImpl> runningSpans;
+  private final ConcurrentIntrusiveList<RecordEventsSpanImpl> runningSpans;
 
   public InProcessRunningSpanStoreImpl() {
-    runningSpans = new ConcurrentIntrusiveList<SpanImpl>();
+    runningSpans = new ConcurrentIntrusiveList<RecordEventsSpanImpl>();
   }
 
   @Override
-  public void onStart(SpanImpl span) {
+  public void onStart(RecordEventsSpanImpl span) {
     runningSpans.addElement(span);
   }
 
   @Override
-  public void onEnd(SpanImpl span) {
+  public void onEnd(RecordEventsSpanImpl span) {
     runningSpans.removeElement(span);
   }
 
   @Override
   public Summary getSummary() {
-    Collection<SpanImpl> allRunningSpans = runningSpans.getAll();
+    Collection<RecordEventsSpanImpl> allRunningSpans = runningSpans.getAll();
     Map<String, Integer> numSpansPerName = new HashMap<String, Integer>();
-    for (SpanImpl span : allRunningSpans) {
+    for (RecordEventsSpanImpl span : allRunningSpans) {
       Integer prevValue = numSpansPerName.get(span.getName());
       numSpansPerName.put(span.getName(), prevValue != null ? prevValue + 1 : 1);
     }
@@ -64,11 +64,11 @@ public final class InProcessRunningSpanStoreImpl extends RunningSpanStoreImpl {
 
   @Override
   public Collection<SpanData> getRunningSpans(Filter filter) {
-    Collection<SpanImpl> allRunningSpans = runningSpans.getAll();
+    Collection<RecordEventsSpanImpl> allRunningSpans = runningSpans.getAll();
     int maxSpansToReturn =
         filter.getMaxSpansToReturn() == 0 ? allRunningSpans.size() : filter.getMaxSpansToReturn();
     List<SpanData> ret = new ArrayList<SpanData>(maxSpansToReturn);
-    for (SpanImpl span : allRunningSpans) {
+    for (RecordEventsSpanImpl span : allRunningSpans) {
       if (ret.size() == maxSpansToReturn) {
         break;
       }
