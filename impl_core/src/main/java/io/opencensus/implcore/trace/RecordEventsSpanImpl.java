@@ -89,7 +89,6 @@ public final class RecordEventsSpanImpl extends Span implements Element<RecordEv
   // List of recorded network events.
   @GuardedBy("this")
   @Nullable
-  @SuppressWarnings("deprecation")
   private TraceEvents<EventWithNanoTime<io.opencensus.trace.MessageEvent>> messageEvents;
   // List of recorded links to parent and child spans.
   @GuardedBy("this")
