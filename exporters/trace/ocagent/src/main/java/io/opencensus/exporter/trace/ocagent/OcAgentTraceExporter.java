@@ -20,10 +20,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.trace.Tracing;
-import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
-import java.util.Collection;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -55,8 +53,8 @@ public final class OcAgentTraceExporter {
   private OcAgentTraceExporter() {}
 
   /**
-   * Creates a {@code OcAgentTraceExporterHandler} with default settings and registers it to the
-   * OpenCensus library.
+   * Creates a {@code OcAgentTraceExporterHandler} with default configurations and registers it to
+   * the OpenCensus library.
    *
    * @since 0.17
    */
@@ -64,6 +62,26 @@ public final class OcAgentTraceExporter {
     synchronized (monitor) {
       checkState(handler == null, "OC-Agent exporter is already registered.");
       OcAgentTraceExporterHandler newHandler = new OcAgentTraceExporterHandler();
+      registerInternal(newHandler);
+    }
+  }
+
+  /**
+   * Creates a {@code OcAgentTraceExporterHandler} with the given configurations and registers it to
+   * the OpenCensus library.
+   *
+   * @param configuration the {@code OcAgentTraceExporterConfiguration}.
+   * @since 0.17
+   */
+  public static void createAndRegister(OcAgentTraceExporterConfiguration configuration) {
+    synchronized (monitor) {
+      checkState(handler == null, "OC-Agent exporter is already registered.");
+      OcAgentTraceExporterHandler newHandler =
+          new OcAgentTraceExporterHandler(
+              configuration.getHost(),
+              configuration.getPort(),
+              configuration.getServiceName(),
+              configuration.getUseInsecure());
       registerInternal(newHandler);
     }
   }
@@ -103,15 +121,5 @@ public final class OcAgentTraceExporter {
   @VisibleForTesting
   static void unregister(SpanExporter spanExporter) {
     spanExporter.unregisterHandler(REGISTER_NAME);
-  }
-
-  @VisibleForTesting
-  static final class OcAgentTraceExporterHandler extends Handler {
-    @Override
-    public void export(Collection<SpanData> spanDataList) {
-      // TODO(songya): implement this.
-      // for (SpanData spanData : spanDataList) {
-      // }
-    }
   }
 }

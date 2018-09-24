@@ -6,6 +6,8 @@ description = 'OpenCensus Java OC-Agent Trace Exporter'
 }
 
 dependencies {
+    compileOnly libraries.auto_value
+
     compile project(':opencensus-api'),
             project(':opencensus-contrib-monitored-resource-util'),
             libraries.opencensus_proto

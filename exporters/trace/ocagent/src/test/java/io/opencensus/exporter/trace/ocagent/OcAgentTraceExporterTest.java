@@ -20,7 +20,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
-import io.opencensus.exporter.trace.ocagent.OcAgentTraceExporter.OcAgentTraceExporterHandler;
 import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import org.junit.Before;
