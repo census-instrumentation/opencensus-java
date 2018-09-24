@@ -81,7 +81,7 @@ final class StackdriverExportUtils {
   @VisibleForTesting static final String LABEL_DESCRIPTION = "OpenCensus TagKey";
   @VisibleForTesting static final String OPENCENSUS_TASK = "opencensus_task";
   @VisibleForTesting static final String OPENCENSUS_TASK_DESCRIPTION = "Opencensus task identifier";
-  private static final String GCP_GKE_CONTAINER = "gke_container";
+  private static final String GCP_GKE_CONTAINER = "k8s_container";
   private static final String GCP_GCE_INSTANCE = "gce_instance";
   private static final String AWS_EC2_INSTANCE = "aws_ec2_instance";
   private static final String GLOBAL = "global";
@@ -499,10 +499,9 @@ final class StackdriverExportUtils {
         builder.putLabels(PROJECT_ID_LABEL_KEY, gcpGkeContainerMonitoredResource.getAccount());
         builder.putLabels("cluster_name", gcpGkeContainerMonitoredResource.getClusterName());
         builder.putLabels("container_name", gcpGkeContainerMonitoredResource.getContainerName());
-        builder.putLabels("namespace_id", gcpGkeContainerMonitoredResource.getNamespaceId());
-        builder.putLabels("instance_id", gcpGkeContainerMonitoredResource.getInstanceId());
-        builder.putLabels("pod_id", gcpGkeContainerMonitoredResource.getPodId());
-        builder.putLabels("zone", gcpGkeContainerMonitoredResource.getZone());
+        builder.putLabels("namespace_name", gcpGkeContainerMonitoredResource.getNamespaceId());
+        builder.putLabels("pod_name", gcpGkeContainerMonitoredResource.getPodId());
+        builder.putLabels("location", gcpGkeContainerMonitoredResource.getZone());
         return;
       case AWS_EC2_INSTANCE:
         AwsEc2InstanceMonitoredResource awsEc2InstanceMonitoredResource =
