@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.opencensus.proto.util;
+package io.opencensus.exporter.trace.ocagent;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.BoolValue;

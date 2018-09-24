@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.opencensus.contrib.opencensus.proto.util;
+package io.opencensus.exporter.trace.ocagent;
 
 import static com.google.common.truth.Truth.assertThat;
-import static io.opencensus.contrib.opencensus.proto.util.TraceProtoUtils.toByteString;
-import static io.opencensus.contrib.opencensus.proto.util.TraceProtoUtils.toTruncatableStringProto;
+import static io.opencensus.exporter.trace.ocagent.TraceProtoUtils.toByteString;
+import static io.opencensus.exporter.trace.ocagent.TraceProtoUtils.toTruncatableStringProto;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
