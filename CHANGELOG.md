@@ -3,8 +3,6 @@
 - Add `createWithSender` to `JaegerTraceExporter` to allow use of `HttpSender`
   with extra configurations.
 - Add an API `Functions.returnToString()`.
-- Add `opencensus-contrib-opencensus-proto-util` that has helper utilities to convert between
-  Java data models and protos.
 - Migrate to new Stackdriver Kubernetes monitored resource. This could be a breaking change
   if you are using `gke_container` resources. For more info,
   https://cloud.google.com/monitoring/kubernetes-engine/migration#incompatible

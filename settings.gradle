@@ -23,7 +23,6 @@ include ":opencensus-contrib-http-util"
 include ":opencensus-contrib-log-correlation-log4j2"
 include ":opencensus-contrib-log-correlation-stackdriver"
 include ":opencensus-contrib-monitored-resource-util"
-include ":opencensus-contrib-opencensus-proto-util"
 include ":opencensus-contrib-spring"
 include ":opencensus-contrib-spring-sleuth-v1x"
 
@@ -45,8 +44,6 @@ project(':opencensus-contrib-log-correlation-stackdriver').projectDir =
         "$rootDir/contrib/log_correlation/stackdriver" as File
 project(':opencensus-contrib-monitored-resource-util').projectDir =
         "$rootDir/contrib/monitored_resource_util" as File
-project(':opencensus-contrib-opencensus-proto-util').projectDir =
-        "$rootDir/contrib/opencensus_proto_util" as File
 project(':opencensus-contrib-spring').projectDir = "$rootDir/contrib/spring" as File
 project(':opencensus-contrib-spring-sleuth-v1x').projectDir =
         "$rootDir/contrib/spring_sleuth_v1x" as File
