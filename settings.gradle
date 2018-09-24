@@ -7,6 +7,7 @@ include ":opencensus-impl"
 include ":opencensus-testing"
 include ":opencensus-exporter-trace-instana"
 include ":opencensus-exporter-trace-logging"
+include ":opencensus-exporter-trace-ocagent"
 include ":opencensus-exporter-trace-stackdriver"
 include ":opencensus-exporter-trace-zipkin"
 include ":opencensus-exporter-trace-jaeger"
@@ -59,6 +60,8 @@ project(':opencensus-exporter-trace-instana').projectDir =
         "$rootDir/exporters/trace/instana" as File
 project(':opencensus-exporter-trace-logging').projectDir =
         "$rootDir/exporters/trace/logging" as File
+project(':opencensus-exporter-trace-ocagent').projectDir =
+        "$rootDir/exporters/trace/ocagent" as File
 project(':opencensus-exporter-trace-stackdriver').projectDir =
         "$rootDir/exporters/trace/stackdriver" as File
 project(':opencensus-exporter-trace-zipkin').projectDir = "$rootDir/exporters/trace/zipkin" as File
