@@ -78,8 +78,7 @@ public final class OcAgentTraceExporter {
       checkState(handler == null, "OC-Agent exporter is already registered.");
       OcAgentTraceExporterHandler newHandler =
           new OcAgentTraceExporterHandler(
-              configuration.getHost(),
-              configuration.getPort(),
+              configuration.getEndPoint(),
               configuration.getServiceName(),
               configuration.getUseInsecure());
       registerInternal(newHandler);

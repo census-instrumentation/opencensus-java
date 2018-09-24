@@ -32,22 +32,13 @@ public abstract class OcAgentTraceExporterConfiguration {
   OcAgentTraceExporterConfiguration() {}
 
   /**
-   * Returns the host address of OC-Agent.
+   * Returns the end point of OC-Agent. The end point can be dns, ip:port, etc.
    *
-   * @return the host address of OC-Agent.
+   * @return the end point of OC-Agent.
    * @since 0.17
    */
   @Nullable
-  public abstract String getHost();
-
-  /**
-   * Returns the port number of OC-Agent.
-   *
-   * @return the port number of OC-Agent.
-   * @since 0.17
-   */
-  @Nullable
-  public abstract Integer getPort();
+  public abstract String getEndPoint();
 
   /**
    * Returns whether to disable client transport security for the exporter's gRPC connection or not.
@@ -88,22 +79,13 @@ public abstract class OcAgentTraceExporterConfiguration {
     Builder() {}
 
     /**
-     * Sets the host address of OC-Agent server.
+     * Sets the end point of OC-Agent server.
      *
-     * @param host the host address of OC-Agent.
+     * @param endPoint the end point of OC-Agent.
      * @return this.
      * @since 0.17
      */
-    public abstract Builder setHost(String host);
-
-    /**
-     * Sets the port number of OC-Agent server.
-     *
-     * @param port the port number of OC-Agent.
-     * @return this.
-     * @since 0.17
-     */
-    public abstract Builder setPort(Integer port);
+    public abstract Builder setEndPoint(String endPoint);
 
     /**
      * Sets whether to disable client transport security for the exporter's gRPC connection or not.

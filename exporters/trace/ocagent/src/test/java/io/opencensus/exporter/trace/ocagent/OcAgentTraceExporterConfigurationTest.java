@@ -30,8 +30,7 @@ public class OcAgentTraceExporterConfigurationTest {
   public void defaultConfiguration() {
     OcAgentTraceExporterConfiguration configuration =
         OcAgentTraceExporterConfiguration.builder().build();
-    assertThat(configuration.getHost()).isNull();
-    assertThat(configuration.getPort()).isNull();
+    assertThat(configuration.getEndPoint()).isNull();
     assertThat(configuration.getServiceName()).isNull();
     assertThat(configuration.getUseInsecure()).isNull();
   }
@@ -40,13 +39,11 @@ public class OcAgentTraceExporterConfigurationTest {
   public void setAndGet() {
     OcAgentTraceExporterConfiguration configuration =
         OcAgentTraceExporterConfiguration.builder()
-            .setHost("host")
-            .setPort(50051)
+            .setEndPoint("192.168.0.1:50051")
             .setServiceName("service")
             .setUseInsecure(true)
             .build();
-    assertThat(configuration.getHost()).isEqualTo("host");
-    assertThat(configuration.getPort()).isEqualTo(50051);
+    assertThat(configuration.getEndPoint()).isEqualTo("192.168.0.1:50051");
     assertThat(configuration.getServiceName()).isEqualTo("service");
     assertThat(configuration.getUseInsecure()).isTrue();
   }

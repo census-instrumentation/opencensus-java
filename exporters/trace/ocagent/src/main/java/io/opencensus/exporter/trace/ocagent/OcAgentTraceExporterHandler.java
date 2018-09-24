@@ -24,26 +24,20 @@ import javax.annotation.Nullable;
 /** Exporting handler for OC-Agent Tracing. */
 final class OcAgentTraceExporterHandler extends Handler {
 
-  private static final String DEFAULT_HOST = "localhost";
-  private static final int DEFAULT_PORT = 55678;
+  private static final String DEFAULT_END_POINT = "localhost:55678";
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
 
-  // private final String host;
-  // private final int port;
+  // private final String endPoint;
   // private final String serviceName;
   // private final boolean useInsecure;
 
   OcAgentTraceExporterHandler() {
-    this(null, null, null, null);
+    this(null, null, null);
   }
 
   OcAgentTraceExporterHandler(
-      @Nullable String host,
-      @Nullable Integer port,
-      @Nullable String serviceName,
-      @Nullable Boolean useInsecure) {
-    // this.host = host == null ? DEFAULT_HOST : host;
-    // this.port = port == null ? DEFAULT_PORT : port;
+      @Nullable String endPoint, @Nullable String serviceName, @Nullable Boolean useInsecure) {
+    // this.endPoint = endPoint == null ? DEFAULT_END_POINT : endPoint;
     // this.serviceName = serviceName == null ? DEFAULT_SERVICE_NAME : serviceName;
     // this.useInsecure = useInsecure == null ? false : useInsecure;
   }
