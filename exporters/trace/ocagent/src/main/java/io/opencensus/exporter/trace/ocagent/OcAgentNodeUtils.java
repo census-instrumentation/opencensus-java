@@ -123,7 +123,7 @@ final class OcAgentNodeUtils {
   // TODO: update this once we have an agreement on
   // https://github.com/census-instrumentation/opencensus-specs/pull/162.
   @VisibleForTesting
-  static Map<String, String> getAttributeMap(MonitoredResource resource) {
+  static Map<String, String> getAttributeMap(@Nullable MonitoredResource resource) {
     if (resource == null) {
       return Collections.emptyMap();
     } else {
