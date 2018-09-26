@@ -41,6 +41,10 @@ import javax.annotation.Nullable;
 /** Utilities for detecting and creating {@link Node}. */
 final class OcAgentNodeUtils {
 
+  // The current version of the OpenCensus OC-Agent Exporter.
+  @VisibleForTesting
+  static final String OC_AGENT_EXPORTER_VERSION = "0.17.0-SNAPSHOT"; // CURRENT_OPENCENSUS_VERSION
+
   @VisibleForTesting static final String RESOURCE_TYPE_ATTRIBUTE_KEY = "OPENCENSUS_SOURCE_TYPE";
   @VisibleForTesting static final String RESOURCE_LABEL_ATTRIBUTE_KEY = "OPENCENSUS_SOURCE_LABELS";
 
@@ -93,13 +97,12 @@ final class OcAgentNodeUtils {
   }
 
   // Creates library info with the given OpenCensus Java version.
-  // Note that in Java, the versions between exporters and core library are the same.
   @VisibleForTesting
   static LibraryInfo getLibraryInfo(String currentOcJavaVersion) {
     return LibraryInfo.newBuilder()
         .setLanguage(Language.JAVA)
         .setCoreLibraryVersion(currentOcJavaVersion)
-        .setExporterVersion(currentOcJavaVersion)
+        .setExporterVersion(OC_AGENT_EXPORTER_VERSION)
         .build();
   }
 
@@ -120,7 +123,7 @@ final class OcAgentNodeUtils {
    *   A comma-separated list of labels describing the source in more detail,
    *   e.g. “key1=val1,key2=val2”. The allowed character set is appropriately constrained.
    */
-  // TODO: update this once we have an agreement on
+  // TODO: update the resource attributes once we have an agreement on the resource specs:
   // https://github.com/census-instrumentation/opencensus-specs/pull/162.
   @VisibleForTesting
   static Map<String, String> getAttributeMap(@Nullable MonitoredResource resource) {

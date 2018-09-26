@@ -17,6 +17,7 @@
 package io.opencensus.exporter.trace.ocagent;
 
 import static com.google.common.truth.Truth.assertThat;
+import static io.opencensus.exporter.trace.ocagent.OcAgentNodeUtils.OC_AGENT_EXPORTER_VERSION;
 import static io.opencensus.exporter.trace.ocagent.OcAgentNodeUtils.RESOURCE_LABEL_ATTRIBUTE_KEY;
 import static io.opencensus.exporter.trace.ocagent.OcAgentNodeUtils.RESOURCE_TYPE_ATTRIBUTE_KEY;
 
@@ -47,6 +48,7 @@ public class OcAgentNodeUtilsTest {
 
   @Test
   public void testConstants() {
+    assertThat(OC_AGENT_EXPORTER_VERSION).isEqualTo("0.17.0-SNAPSHOT");
     assertThat(RESOURCE_TYPE_ATTRIBUTE_KEY).isEqualTo("OPENCENSUS_SOURCE_TYPE");
     assertThat(RESOURCE_LABEL_ATTRIBUTE_KEY).isEqualTo("OPENCENSUS_SOURCE_LABELS");
   }
@@ -64,11 +66,11 @@ public class OcAgentNodeUtilsTest {
 
   @Test
   public void getLibraryInfo() {
-    String currentOcJavaVersion = "0.17.0";
+    String currentOcJavaVersion = "0.16.0";
     LibraryInfo libraryInfo = OcAgentNodeUtils.getLibraryInfo(currentOcJavaVersion);
     assertThat(libraryInfo.getLanguage()).isEqualTo(Language.JAVA);
     assertThat(libraryInfo.getCoreLibraryVersion()).isEqualTo(currentOcJavaVersion);
-    assertThat(libraryInfo.getExporterVersion()).isEqualTo(currentOcJavaVersion);
+    assertThat(libraryInfo.getExporterVersion()).isEqualTo(OC_AGENT_EXPORTER_VERSION);
   }
 
   @Test
