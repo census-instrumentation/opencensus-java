@@ -283,7 +283,7 @@ public final class TraceProtoUtils {
     return TruncatableString.newBuilder().setValue(string).setTruncatedByteCount(0).build();
   }
 
-  private static com.google.protobuf.Timestamp toTimestampProto(Timestamp timestamp) {
+  static com.google.protobuf.Timestamp toTimestampProto(Timestamp timestamp) {
     return com.google.protobuf.Timestamp.newBuilder()
         .setSeconds(timestamp.getSeconds())
         .setNanos(timestamp.getNanos())

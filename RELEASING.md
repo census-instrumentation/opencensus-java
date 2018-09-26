@@ -65,6 +65,7 @@ token](https://help.github.com/articles/creating-a-personal-access-token-for-the
       examples/build.gradle
       examples/pom.xml
       api/src/main/java/io/opencensus/common/OpenCensusLibraryInformation.java
+      exporters/trace/ocagent/src/main/java/io/opencensus/exporter/trace/ocagent/OcAgentNodeUtils.java
       )
     $ git checkout -b v$MAJOR.$MINOR.x master
     $ git push upstream v$MAJOR.$MINOR.x

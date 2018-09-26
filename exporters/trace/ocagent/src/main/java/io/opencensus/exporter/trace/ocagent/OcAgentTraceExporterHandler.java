@@ -28,7 +28,7 @@ final class OcAgentTraceExporterHandler extends Handler {
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
 
   // private final String endPoint;
-  // private final String serviceName;
+  // private final Node node;
   // private final boolean useInsecure;
 
   OcAgentTraceExporterHandler() {
@@ -38,7 +38,10 @@ final class OcAgentTraceExporterHandler extends Handler {
   OcAgentTraceExporterHandler(
       @Nullable String endPoint, @Nullable String serviceName, @Nullable Boolean useInsecure) {
     // this.endPoint = endPoint == null ? DEFAULT_END_POINT : endPoint;
-    // this.serviceName = serviceName == null ? DEFAULT_SERVICE_NAME : serviceName;
+    // if (serviceName == null) {
+    //   serviceName = DEFAULT_SERVICE_NAME;
+    // }
+    // this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
     // this.useInsecure = useInsecure == null ? false : useInsecure;
   }
 
