@@ -7,10 +7,10 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.4.2'
-        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.10"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.17.0'
+        classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.4.6'
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.16'
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.18"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
         classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.7.1"
         classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.7"
         classpath "gradle.plugin.io.morethan.jmhreport:gradle-jmh-report:0.7.0"
