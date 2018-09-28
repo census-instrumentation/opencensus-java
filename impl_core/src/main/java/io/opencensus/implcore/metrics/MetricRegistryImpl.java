@@ -19,20 +19,18 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.common.ToLongFunction;
-import io.opencensus.implcore.metrics.Gauge.DoubleGauge;
-import io.opencensus.implcore.metrics.Gauge.LongGauge;
+import io.opencensus.metrics.DoubleGaugeMetric;
+import io.opencensus.metrics.Gauge;
 import io.opencensus.metrics.LabelKey;
-import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.LongGaugeMetric;
 import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /** Implementation of {@link MetricRegistry}. */
@@ -46,43 +44,34 @@ public final class MetricRegistryImpl extends MetricRegistry {
   }
 
   @Override
-  public <T> void addLongGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToLongFunction<T> function) {
-    checkNotNull(labels, "labels");
-    registeredMeters.registerMeter(
-        new LongGauge<T>(
+
+  public <T> LongGaugeMetric<T> addLongGaugeMetric(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    checkNotNull(labelKeys, "labelKeys");
+
+    LongGaugeMetric<T> longGaugeMetric =
+        new LongGaugeMetricImp<T>(
             checkNotNull(name, "name"),
             checkNotNull(description, "description"),
             checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labels.keySet())),
-            Collections.unmodifiableList(new ArrayList<LabelValue>(labels.values())),
-            obj,
-            checkNotNull(function, "function")));
+            Collections.unmodifiableList(labelKeys));
+
+    return longGaugeMetric;
   }
 
   @Override
-  public <T> void addDoubleGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToDoubleFunction<T> function) {
-    checkNotNull(labels, "labels");
-    registeredMeters.registerMeter(
-        new DoubleGauge<T>(
+  public <T> DoubleGaugeMetric<T> addDoubleGaugeMetric(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    checkNotNull(labelKeys, "labelKeys");
+
+    DoubleGaugeMetric<T> doubleGaugeMetric =
+        new DoubleGaugeMetricImp<T>(
             checkNotNull(name, "name"),
             checkNotNull(description, "description"),
             checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labels.keySet())),
-            Collections.unmodifiableList(new ArrayList<LabelValue>(labels.values())),
-            obj,
-            checkNotNull(function, "function")));
+            Collections.unmodifiableList(labelKeys));
+
+    return doubleGaugeMetric;
   }
 
   private static final class RegisteredMeters {
@@ -111,12 +100,12 @@ public final class MetricRegistryImpl extends MetricRegistry {
     @Override
     public Collection<Metric> getMetrics() {
       // Get a snapshot of the current registered gauges.
-      Set<Gauge> gaguges = registeredMeters.getRegisteredMeters();
-      if (gaguges.isEmpty()) {
+      Set<Gauge> gauges = registeredMeters.getRegisteredMeters();
+      if (gauges.isEmpty()) {
         return Collections.emptyList();
       }
       ArrayList<Metric> metrics = new ArrayList<Metric>();
-      for (Gauge gauge : gaguges) {
+      for (Gauge gauge : gauges) {
         metrics.add(gauge.getMetric(clock));
       }
       return metrics;
