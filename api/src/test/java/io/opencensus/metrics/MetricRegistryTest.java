@@ -16,6 +16,9 @@
 
 package io.opencensus.metrics;
 
+import io.opencensus.common.ToDoubleFunction;
+import io.opencensus.common.ToLongFunction;
+import io.opencensus.metrics.LongGaugeMetric.Point;
 import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,6 +59,29 @@ public class MetricRegistryTest {
   }
 
   @Test
+  public void addDoubleGauge_NoopPoint() {
+    DoubleGaugeMetric doubleGaugeMetric =
+        metricRegistry.addDoubleGaugeMetric("name", "description", "1", new ArrayList<LabelKey>());
+    DoubleGaugeMetric.Point dp = doubleGaugeMetric.addPoint(new ArrayList<LabelValue>());
+    dp.inc();
+    dp.inc(12);
+    dp.set(12);
+    dp.dec(12);
+    dp.dec();
+
+    doubleGaugeMetric.getDefaultPoint();
+    doubleGaugeMetric.addPoint(
+        new ArrayList<LabelValue>(),
+        null,
+        new ToDoubleFunction<Object>() {
+          @Override
+          public double applyAsDouble(Object value) {
+            return 10.0;
+          }
+        });
+  }
+
+  @Test
   public void addLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
     metricRegistry.addLongGaugeMetric(null, "description", "1", new ArrayList<LabelKey>());
@@ -77,5 +103,28 @@ public class MetricRegistryTest {
   public void addLongGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
     metricRegistry.addLongGaugeMetric("name", "description", "1", null);
+  }
+
+  @Test
+  public void addLongGauge_NoopPoint() {
+    LongGaugeMetric longGaugeMetric =
+        metricRegistry.addLongGaugeMetric("name", "description", "1", new ArrayList<LabelKey>());
+    Point dp = longGaugeMetric.addPoint(new ArrayList<LabelValue>());
+    dp.inc();
+    dp.inc(12);
+    dp.set(12);
+    dp.dec(12);
+    dp.dec();
+
+    longGaugeMetric.getDefaultPoint();
+    longGaugeMetric.addPoint(
+        new ArrayList<LabelValue>(),
+        null,
+        new ToLongFunction<Object>() {
+          @Override
+          public long applyAsLong(Object value) {
+            return 10;
+          }
+        });
   }
 }

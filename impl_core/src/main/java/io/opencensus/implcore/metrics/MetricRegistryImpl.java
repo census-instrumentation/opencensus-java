@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.metrics.DoubleGaugeMetric;
-import io.opencensus.metrics.Gauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LongGaugeMetric;
 import io.opencensus.metrics.MetricRegistry;
@@ -29,6 +28,7 @@ import io.opencensus.metrics.export.MetricProducer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +37,7 @@ import java.util.Set;
 public final class MetricRegistryImpl extends MetricRegistry {
   private final RegisteredMeters registeredMeters;
   private final MetricProducer metricProducer;
+  private final Set<String> registeredMetric = new HashSet<String>();
 
   MetricRegistryImpl(Clock clock) {
     registeredMeters = new RegisteredMeters();
@@ -44,47 +45,61 @@ public final class MetricRegistryImpl extends MetricRegistry {
   }
 
   @Override
-
-  public <T> LongGaugeMetric<T> addLongGaugeMetric(
+  public LongGaugeMetric addLongGaugeMetric(
       String name, String description, String unit, List<LabelKey> labelKeys) {
+    checkNotNull(name, "name");
     checkNotNull(labelKeys, "labelKeys");
+    checkDuplicateMetric(name);
 
-    LongGaugeMetric<T> longGaugeMetric =
-        new LongGaugeMetricImp<T>(
-            checkNotNull(name, "name"),
+    LongGaugeMetricImpl longGaugeMetric =
+        new LongGaugeMetricImpl(
+            name,
             checkNotNull(description, "description"),
             checkNotNull(unit, "unit"),
             Collections.unmodifiableList(labelKeys));
 
+    registeredMeters.registerMeter(longGaugeMetric);
     return longGaugeMetric;
   }
 
   @Override
-  public <T> DoubleGaugeMetric<T> addDoubleGaugeMetric(
+  public DoubleGaugeMetric addDoubleGaugeMetric(
       String name, String description, String unit, List<LabelKey> labelKeys) {
+    checkNotNull(name, "name");
     checkNotNull(labelKeys, "labelKeys");
+    checkDuplicateMetric(name);
 
-    DoubleGaugeMetric<T> doubleGaugeMetric =
-        new DoubleGaugeMetricImp<T>(
-            checkNotNull(name, "name"),
+    DoubleGaugeMetricImpl doubleGaugeMetric =
+        new DoubleGaugeMetricImpl(
+            name,
             checkNotNull(description, "description"),
             checkNotNull(unit, "unit"),
             Collections.unmodifiableList(labelKeys));
 
+    registeredMeters.registerMeter(doubleGaugeMetric);
     return doubleGaugeMetric;
   }
 
-  private static final class RegisteredMeters {
-    private volatile Set<Gauge> registeredGauges = Collections.emptySet();
+  private synchronized void checkDuplicateMetric(String metricName) {
+    boolean isExists = registeredMetric.contains(metricName);
+    if (isExists) {
+      throw new IllegalArgumentException(
+          "A different metric with the same name is already registered.");
+    }
+    registeredMetric.add(metricName);
+  }
 
-    private Set<Gauge> getRegisteredMeters() {
+  private static final class RegisteredMeters {
+    private volatile Set<Meter> registeredGauges = Collections.emptySet();
+
+    private Set<Meter> getRegisteredMeters() {
       return registeredGauges;
     }
 
-    private synchronized void registerMeter(Gauge gauge) {
-      Set<Gauge> newGaguesList = new LinkedHashSet<Gauge>(registeredGauges);
-      newGaguesList.add(gauge);
-      registeredGauges = Collections.unmodifiableSet(newGaguesList);
+    private synchronized void registerMeter(Meter meter) {
+      Set<Meter> newGaugesList = new LinkedHashSet<Meter>(registeredGauges);
+      newGaugesList.add(meter);
+      registeredGauges = Collections.unmodifiableSet(newGaugesList);
     }
   }
 
@@ -100,12 +115,12 @@ public final class MetricRegistryImpl extends MetricRegistry {
     @Override
     public Collection<Metric> getMetrics() {
       // Get a snapshot of the current registered gauges.
-      Set<Gauge> gauges = registeredMeters.getRegisteredMeters();
+      Set<Meter> gauges = registeredMeters.getRegisteredMeters();
       if (gauges.isEmpty()) {
         return Collections.emptyList();
       }
       ArrayList<Metric> metrics = new ArrayList<Metric>();
-      for (Gauge gauge : gauges) {
+      for (Meter gauge : gauges) {
         metrics.add(gauge.getMetric(clock));
       }
       return metrics;

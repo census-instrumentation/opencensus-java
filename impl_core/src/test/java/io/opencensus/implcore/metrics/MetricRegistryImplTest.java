@@ -21,8 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.common.Timestamp;
 import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.common.ToLongFunction;
+import io.opencensus.metrics.DoubleGaugeMetric;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.LongGaugeMetric;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -30,8 +32,9 @@ import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.testing.common.TestClock;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,100 +56,62 @@ public class MetricRegistryImplTest {
 
   private final TestClock testClock = TestClock.create(TEST_TIME);
   private final MetricRegistryImpl metricRegistry = new MetricRegistryImpl(testClock);
-  private final LinkedHashMap<LabelKey, LabelValue> labels =
-      new LinkedHashMap<LabelKey, LabelValue>();
+  private final List<LabelKey> labelKeys = new ArrayList<LabelKey>();
+  private final List<LabelValue> labelValues = new ArrayList<LabelValue>();
 
   @Before
   public void setUp() {
-    labels.put(LABEL_KEY, LABEL_VALUES);
+    labelKeys.add(LABEL_KEY);
+    labelValues.add(LABEL_VALUES);
+  }
+
+  // helper class
+  public static class TotalMemory {
+    public double getUsed() {
+      return 2.13;
+    }
+
+    public long getAvailable() {
+      return 7;
+    }
   }
 
   @Test
   public void addDoubleGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        null,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
+    metricRegistry.addDoubleGaugeMetric(null, DESCRIPTION, UNIT, labelKeys);
   }
 
   @Test
   public void addDoubleGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        NAME,
-        null,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
+    metricRegistry.addDoubleGaugeMetric(NAME, null, UNIT, labelKeys);
   }
 
   @Test
   public void addDoubleGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        null,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
+    metricRegistry.addDoubleGaugeMetric(NAME, DESCRIPTION, null, labelKeys);
   }
 
   @Test
   public void addDoubleGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        null,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
-  }
-
-  @Test
-  public void addDoubleGauge_NullFunction() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(NAME, DESCRIPTION, UNIT, labels, null, null);
+    metricRegistry.addDoubleGaugeMetric(NAME, DESCRIPTION, UNIT, null);
   }
 
   @Test
   public void addDoubleGauge_GetMetrics() {
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
+    DoubleGaugeMetric doubleGaugeMetric =
+        metricRegistry.addDoubleGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+
+    doubleGaugeMetric.addPoint(
+        labelValues,
+        new TotalMemory(),
+        new ToDoubleFunction<TotalMemory>() {
           @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
+          public double applyAsDouble(TotalMemory memory) {
+            return memory.getUsed();
           }
         });
     assertThat(metricRegistry.getMetricProducer().getMetrics())
@@ -168,89 +133,38 @@ public class MetricRegistryImplTest {
   @Test
   public void addLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        null,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 7;
-          }
-        });
+    metricRegistry.addLongGaugeMetric(null, DESCRIPTION, UNIT, labelKeys);
   }
 
   @Test
   public void addLongGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        NAME,
-        null,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
+    metricRegistry.addLongGaugeMetric(NAME, null, UNIT, labelKeys);
   }
 
   @Test
   public void addLongGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        null,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
+    metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, null, labelKeys);
   }
 
   @Test
   public void addLongGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        null,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
-  }
-
-  @Test
-  public void addLongGauge_NullFunction() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge("name", DESCRIPTION, UNIT, labels, null, null);
+    metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, null);
   }
 
   @Test
   public void addLongGauge_GetMetrics() {
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
+    LongGaugeMetric longGaugeMetric =
+        metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+    longGaugeMetric.addPoint(
+        labelValues,
+        new TotalMemory(),
+        new ToLongFunction<TotalMemory>() {
           @Override
-          public long applyAsLong(Object value) {
-            return 7;
+          public long applyAsLong(TotalMemory memory) {
+            return memory.getAvailable();
           }
         });
     assertThat(metricRegistry.getMetricProducer().getMetrics())
@@ -270,29 +184,36 @@ public class MetricRegistryImplTest {
   }
 
   @Test
+  public void addLongGauge_SameMetricName() {
+    metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+    thrown.expect(IllegalArgumentException.class);
+    metricRegistry.addDoubleGaugeMetric(NAME, "desc", UNIT, labelKeys);
+  }
+
+  @Test
   public void multipleMetrics_GetMetrics() {
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
+    LongGaugeMetric longGaugeMetric =
+        metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+    longGaugeMetric.addPoint(
+        labelValues,
+        new TotalMemory(),
+        new ToLongFunction<TotalMemory>() {
           @Override
-          public long applyAsLong(Object value) {
-            return 7;
+          public long applyAsLong(TotalMemory memory) {
+            return memory.getAvailable();
           }
         });
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
+
+    DoubleGaugeMetric doubleGaugeMetric =
+        metricRegistry.addDoubleGaugeMetric("name1", DESCRIPTION, UNIT, labelKeys);
+
+    doubleGaugeMetric.addPoint(
+        labelValues,
+        new TotalMemory(),
+        new ToDoubleFunction<TotalMemory>() {
           @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
+          public double applyAsDouble(TotalMemory memory) {
+            return memory.getUsed();
           }
         });
     assertThat(metricRegistry.getMetricProducer().getMetrics())
@@ -311,7 +232,7 @@ public class MetricRegistryImplTest {
                         null))),
             Metric.create(
                 MetricDescriptor.create(
-                    NAME,
+                    "name1",
                     DESCRIPTION,
                     UNIT,
                     Type.GAUGE_DOUBLE,
