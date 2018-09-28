@@ -23,6 +23,9 @@ import com.google.protobuf.UInt32Value;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.proto.agent.common.v1.Node;
+import io.opencensus.proto.agent.trace.v1.CurrentLibraryConfig;
+import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
 import io.opencensus.proto.trace.v1.ProbabilitySampler;
@@ -45,6 +48,7 @@ import io.opencensus.trace.Span.Kind;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
 import io.opencensus.trace.TraceId;
+import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceParams;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanData.TimedEvent;
@@ -63,7 +67,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * @since 0.17
  */
-public final class TraceProtoUtils {
+final class TraceProtoUtils {
 
   // Constant functions for AttributeValue.
   private static final Function<String, /*@Nullable*/ AttributeValue> stringAttributeValueFunction =
@@ -109,7 +113,7 @@ public final class TraceProtoUtils {
    * @since 0.17
    */
   @SuppressWarnings("DefaultCharset")
-  public static Span toSpanProto(SpanData spanData) {
+  static Span toSpanProto(SpanData spanData) {
     SpanContext spanContext = spanData.getContext();
     TraceId traceId = spanContext.getTraceId();
     SpanId spanId = spanContext.getSpanId();
@@ -324,7 +328,7 @@ public final class TraceProtoUtils {
    * @return {@code TraceConfig}.
    * @since 0.17
    */
-  public static TraceConfig toTraceConfigProto(TraceParams traceParams) {
+  static TraceConfig toTraceConfigProto(TraceParams traceParams) {
     TraceConfig.Builder traceConfigProtoBuilder = TraceConfig.newBuilder();
     Sampler librarySampler = traceParams.getSampler();
 
@@ -360,7 +364,7 @@ public final class TraceProtoUtils {
    * @return updated {@code TraceParams}.
    * @since 0.17
    */
-  public static TraceParams fromTraceConfigProto(
+  static TraceParams fromTraceConfigProto(
       TraceConfig traceConfigProto, TraceParams currentTraceParams) {
     TraceParams.Builder builder = currentTraceParams.toBuilder();
     if (traceConfigProto.hasConstantSampler()) {
@@ -376,6 +380,25 @@ public final class TraceProtoUtils {
               traceConfigProto.getProbabilitySampler().getSamplingProbability()));
     } // TODO: add support for RateLimitingSampler.
     return builder.build();
+  }
+
+  // Creates a CurrentLibraryConfig message with the given Node and current TraceParams.
+  static CurrentLibraryConfig getCurrentLibraryConfig(@javax.annotation.Nullable Node node) {
+    TraceParams traceParams = Tracing.getTraceConfig().getActiveTraceParams();
+    TraceConfig traceConfigProto = toTraceConfigProto(traceParams);
+    CurrentLibraryConfig.Builder builder =
+        CurrentLibraryConfig.newBuilder().setConfig(traceConfigProto);
+    // Node is only required for the first message.
+    return node == null ? builder.build() : builder.setNode(node).build();
+  }
+
+  // Creates an updated TraceParams with the given UpdatedLibraryConfig message and current
+  // TraceParams, then applies the updated TraceParams.
+  static void applyUpdatedConfig(UpdatedLibraryConfig config) {
+    TraceParams currentParams = Tracing.getTraceConfig().getActiveTraceParams();
+    TraceConfig traceConfigProto = config.getConfig();
+    TraceParams updatedParams = fromTraceConfigProto(traceConfigProto, currentParams);
+    Tracing.getTraceConfig().updateActiveTraceParams(updatedParams);
   }
 
   private TraceProtoUtils() {}

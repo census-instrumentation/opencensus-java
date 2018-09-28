@@ -27,9 +27,7 @@ final class OcAgentTraceExporterHandler extends Handler {
   private static final String DEFAULT_END_POINT = "localhost:55678";
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
 
-  // private final String endPoint;
-  // private final Node node;
-  // private final boolean useInsecure;
+  @Nullable private final OcAgentTraceServiceClients.ExportServiceClient client;
 
   OcAgentTraceExporterHandler() {
     this(null, null, null);
@@ -37,18 +35,23 @@ final class OcAgentTraceExporterHandler extends Handler {
 
   OcAgentTraceExporterHandler(
       @Nullable String endPoint, @Nullable String serviceName, @Nullable Boolean useInsecure) {
-    // this.endPoint = endPoint == null ? DEFAULT_END_POINT : endPoint;
-    // if (serviceName == null) {
-    //   serviceName = DEFAULT_SERVICE_NAME;
-    // }
-    // this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
-    // this.useInsecure = useInsecure == null ? false : useInsecure;
+    if (endPoint == null) {
+      endPoint = DEFAULT_END_POINT;
+    }
+    if (serviceName == null) {
+      serviceName = DEFAULT_SERVICE_NAME;
+    }
+    if (useInsecure == null) {
+      useInsecure = false;
+    }
+    client = OcAgentTraceServiceClients.openStreams(endPoint, useInsecure, serviceName);
   }
 
   @Override
   public void export(Collection<SpanData> spanDataList) {
-    // TODO(songya): implement this.
-    // for (SpanData spanData : spanDataList) {
-    // }
+    if (client == null) {
+      return;
+    }
+    client.onExport(spanDataList);
   }
 }
