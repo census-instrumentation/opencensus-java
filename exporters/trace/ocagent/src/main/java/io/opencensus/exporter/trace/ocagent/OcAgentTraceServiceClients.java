@@ -250,7 +250,6 @@ final class OcAgentTraceServiceClients {
         return;
       }
       currentConfigObserverRef.set(currentConfigObserver);
-      currentConfigObserver.onNext(firstConfig);
       try {
         finishedLatch.await();
       } catch (InterruptedException e) {
