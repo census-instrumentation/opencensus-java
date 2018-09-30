@@ -24,7 +24,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A timestamped measurement of a {@code TimeSeries}.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 @AutoValue
@@ -39,7 +39,7 @@ public abstract class Point {
    * @param value the {@link Value} of this {@link Point}.
    * @param timestamp the {@link Timestamp} when this {@link Point} was recorded.
    * @return a {@code Point}.
-   * @since 0.16
+   * @since 0.17
    */
   public static Point create(Value value, Timestamp timestamp) {
     return new AutoValue_Point(value, timestamp);
@@ -49,7 +49,7 @@ public abstract class Point {
    * Returns the {@link Value}.
    *
    * @return the {@code Value}.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract Value getValue();
 
@@ -57,7 +57,7 @@ public abstract class Point {
    * Returns the {@link Timestamp} when this {@link Point} was recorded.
    *
    * @return the {@code Timestamp}.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract Timestamp getTimestamp();
 }

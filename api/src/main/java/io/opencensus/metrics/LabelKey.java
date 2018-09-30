@@ -38,7 +38,7 @@ public abstract class LabelKey {
    * @param key the key of a {@code Label}.
    * @param description a human-readable description of what this label key represents.
    * @return a {@code LabelKey}.
-   * @since 0.15
+   * @since 0.17
    */
   public static LabelKey create(String key, String description) {
     return new AutoValue_LabelKey(key, description);
@@ -48,7 +48,7 @@ public abstract class LabelKey {
    * Returns the key of this {@link LabelKey}.
    *
    * @return the key.
-   * @since 0.15
+   * @since 0.17
    */
   public abstract String getKey();
 
@@ -56,7 +56,7 @@ public abstract class LabelKey {
    * Returns the description of this {@link LabelKey}.
    *
    * @return the description.
-   * @since 0.15
+   * @since 0.17
    */
   public abstract String getDescription();
 }

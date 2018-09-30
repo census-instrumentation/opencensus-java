@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 /**
  * Class for accessing the default {@link MetricsComponent}.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 public final class Metrics {
@@ -39,7 +39,7 @@ public final class Metrics {
    * Returns the global {@link ExportComponent}.
    *
    * @return the global {@code ExportComponent}.
-   * @since 0.16
+   * @since 0.17
    */
   public static ExportComponent getExportComponent() {
     return metricsComponent.getExportComponent();
@@ -52,7 +52,7 @@ public final class Metrics {
    * io.opencensus.metrics.export.MetricProducerManager}.
    *
    * @return the global {@code MetricRegistry}.
-   * @since 0.16
+   * @since 0.17
    */
   public static MetricRegistry getMetricRegistry() {
     return metricsComponent.getMetricRegistry();

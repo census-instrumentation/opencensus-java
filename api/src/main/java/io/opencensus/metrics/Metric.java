@@ -28,7 +28,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A {@link Metric} with one or more {@link TimeSeries}.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 @Immutable
@@ -43,7 +43,7 @@ public abstract class Metric {
    * @param metricDescriptor the {@link MetricDescriptor}.
    * @param timeSeriesList the {@link TimeSeries} list for this metric.
    * @return a {@code Metric}.
-   * @since 0.16
+   * @since 0.17
    */
   public static Metric create(MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
     checkTypeMatch(metricDescriptor.getType(), timeSeriesList);
@@ -54,7 +54,7 @@ public abstract class Metric {
    * Returns the {@link MetricDescriptor} of this metric.
    *
    * @return the {@code MetricDescriptor} of this metric.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract MetricDescriptor getMetricDescriptor();
 
@@ -64,7 +64,7 @@ public abstract class Metric {
    * <p>The type of the {@link TimeSeries#getPoints()} must match {@link MetricDescriptor.Type}.
    *
    * @return the {@code TimeSeriesList} for this metric.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract List<TimeSeries> getTimeSeriesList();
 

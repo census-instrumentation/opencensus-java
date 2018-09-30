@@ -27,7 +27,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * Keeps a set of {@link MetricProducer} that is used by exporters to determine the metrics that
  * need to be exported.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 @ThreadSafe
@@ -37,7 +37,7 @@ public abstract class MetricProducerManager {
    * Adds the {@link MetricProducer} to the manager if it is not already present.
    *
    * @param metricProducer the {@code MetricProducer} to be added to the manager.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract void add(MetricProducer metricProducer);
 
@@ -45,7 +45,7 @@ public abstract class MetricProducerManager {
    * Removes the {@link MetricProducer} to the manager if it is present.
    *
    * @param metricProducer the {@code MetricProducer} to be removed from the manager.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract void remove(MetricProducer metricProducer);
 
@@ -56,7 +56,7 @@ public abstract class MetricProducerManager {
    * {@code MetricProducer} registered with the {@code MetricProducerManager}.
    *
    * @return all registered {@code MetricProducer}s that should be exported.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract Set<MetricProducer> getAllMetricProducer();
 

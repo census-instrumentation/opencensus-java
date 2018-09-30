@@ -33,7 +33,7 @@ import javax.annotation.concurrent.Immutable;
  * {@link Distribution} contains summary statistics for a population of values. It optionally
  * contains a histogram representing the distribution of those values across a set of buckets.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 @AutoValue
@@ -51,7 +51,7 @@ public abstract class Distribution {
    * @param bucketBoundaries bucket boundaries of a histogram.
    * @param buckets {@link Bucket}s of a histogram.
    * @return a {@code Distribution}.
-   * @since 0.16
+   * @since 0.17
    */
   public static Distribution create(
       double mean,
@@ -103,7 +103,7 @@ public abstract class Distribution {
    * Returns the aggregated mean.
    *
    * @return the aggregated mean.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract double getMean();
 
@@ -111,7 +111,7 @@ public abstract class Distribution {
    * Returns the aggregated count.
    *
    * @return the aggregated count.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract long getCount();
 
@@ -126,7 +126,7 @@ public abstract class Distribution {
    * <p>If count is zero then this field must be zero.
    *
    * @return the aggregated sum of squared deviations.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract double getSumOfSquaredDeviations();
 
@@ -151,7 +151,7 @@ public abstract class Distribution {
    * monotonically increasing.
    *
    * @return the bucket boundaries of this distribution.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract List<Double> getBucketBoundaries();
 
@@ -159,14 +159,14 @@ public abstract class Distribution {
    * Returns the aggregated histogram {@link Bucket}s.
    *
    * @return the aggregated histogram buckets.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract List<Bucket> getBuckets();
 
   /**
    * The histogram bucket of the population values.
    *
-   * @since 0.16
+   * @since 0.17
    */
   @AutoValue
   @Immutable
@@ -179,7 +179,7 @@ public abstract class Distribution {
      *
      * @param count the number of values in each bucket of the histogram.
      * @return a {@code Bucket}.
-     * @since 0.16
+     * @since 0.17
      */
     public static Bucket create(long count) {
       Utils.checkArgument(count >= 0, "bucket count should be non-negative.");
@@ -192,7 +192,7 @@ public abstract class Distribution {
      * @param count the number of values in each bucket of the histogram.
      * @param exemplar the {@code Exemplar} of this {@code Bucket}.
      * @return a {@code Bucket}.
-     * @since 0.16
+     * @since 0.17
      */
     public static Bucket create(long count, Exemplar exemplar) {
       Utils.checkArgument(count >= 0, "bucket count should be non-negative.");
@@ -204,7 +204,7 @@ public abstract class Distribution {
      * Returns the number of values in each bucket of the histogram.
      *
      * @return the number of values in each bucket of the histogram.
-     * @since 0.16
+     * @since 0.17
      */
     public abstract long getCount();
 
@@ -214,7 +214,7 @@ public abstract class Distribution {
      *
      * @return the {@code Exemplar} associated with the {@code Bucket}, or {@code null} if there
      *     isn't one.
-     * @since 0.16
+     * @since 0.17
      */
     @Nullable
     public abstract Exemplar getExemplar();
@@ -224,7 +224,7 @@ public abstract class Distribution {
    * An example point that may be used to annotate aggregated distribution values, associated with a
    * histogram bucket.
    *
-   * @since 0.16
+   * @since 0.17
    */
   @Immutable
   @AutoValue
@@ -236,7 +236,7 @@ public abstract class Distribution {
      * Returns value of the {@link Exemplar} point.
      *
      * @return value of the {@code Exemplar} point.
-     * @since 0.16
+     * @since 0.17
      */
     public abstract double getValue();
 
@@ -244,7 +244,7 @@ public abstract class Distribution {
      * Returns the time that this {@link Exemplar}'s value was recorded.
      *
      * @return the time that this {@code Exemplar}'s value was recorded.
-     * @since 0.16
+     * @since 0.17
      */
     public abstract Timestamp getTimestamp();
 
@@ -252,7 +252,7 @@ public abstract class Distribution {
      * Returns the contextual information about the example value, represented as a string map.
      *
      * @return the contextual information about the example value.
-     * @since 0.16
+     * @since 0.17
      */
     public abstract Map<String, String> getAttachments();
 
@@ -263,7 +263,7 @@ public abstract class Distribution {
      * @param timestamp the time that this {@code Exemplar}'s value was recorded.
      * @param attachments the contextual information about the example value.
      * @return an {@code Exemplar}.
-     * @since 0.16
+     * @since 0.17
      */
     public static Exemplar create(
         double value, Timestamp timestamp, Map<String, String> attachments) {

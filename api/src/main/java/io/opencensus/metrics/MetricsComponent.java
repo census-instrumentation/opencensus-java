@@ -22,7 +22,7 @@ import io.opencensus.metrics.export.ExportComponent;
 /**
  * Class that holds the implementation instance for {@link ExportComponent}.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 public abstract class MetricsComponent {
@@ -32,7 +32,7 @@ public abstract class MetricsComponent {
    * provided then no-op implementations will be used.
    *
    * @return the {@link ExportComponent} implementation.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract ExportComponent getExportComponent();
 
@@ -40,7 +40,7 @@ public abstract class MetricsComponent {
    * Returns the {@link MetricRegistry} with the provided implementation.
    *
    * @return the {@link MetricRegistry} implementation.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract MetricRegistry getMetricRegistry();
 

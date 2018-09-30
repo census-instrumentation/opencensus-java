@@ -27,7 +27,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * {@link MetricDescriptor} defines a {@code Metric} type and its schema.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 @Immutable
@@ -45,7 +45,7 @@ public abstract class MetricDescriptor {
    * @param type type of {@code MetricDescriptor}.
    * @param labelKeys the label keys associated with the {@code MetricDescriptor}.
    * @return a {@code MetricDescriptor}.
-   * @since 0.16
+   * @since 0.17
    */
   public static MetricDescriptor create(
       String name, String description, String unit, Type type, List<LabelKey> labelKeys) {
@@ -63,7 +63,7 @@ public abstract class MetricDescriptor {
    * Returns the metric descriptor name.
    *
    * @return the metric descriptor name.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract String getName();
 
@@ -71,7 +71,7 @@ public abstract class MetricDescriptor {
    * Returns the description of this metric descriptor.
    *
    * @return the description of this metric descriptor.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract String getDescription();
 
@@ -79,7 +79,7 @@ public abstract class MetricDescriptor {
    * Returns the unit of this metric descriptor.
    *
    * @return the unit of this metric descriptor.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract String getUnit();
 
@@ -87,7 +87,7 @@ public abstract class MetricDescriptor {
    * Returns the type of this metric descriptor.
    *
    * @return the type of this metric descriptor.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract Type getType();
 
@@ -95,7 +95,7 @@ public abstract class MetricDescriptor {
    * Returns the label keys associated with this metric descriptor.
    *
    * @return the label keys associated with this metric descriptor.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract List<LabelKey> getLabelKeys();
 
@@ -108,42 +108,42 @@ public abstract class MetricDescriptor {
    * cumulative measurements should have the same start time and increasing end times, until an
    * event resets the cumulative value to zero and sets a new start time for the following points.
    *
-   * @since 0.16
+   * @since 0.17
    */
   public enum Type {
 
     /**
      * An instantaneous measurement of an int64 value.
      *
-     * @since 0.16
+     * @since 0.17
      */
     GAUGE_INT64,
 
     /**
      * An instantaneous measurement of a double value.
      *
-     * @since 0.16
+     * @since 0.17
      */
     GAUGE_DOUBLE,
 
     /**
      * An cumulative measurement of an int64 value.
      *
-     * @since 0.16
+     * @since 0.17
      */
     CUMULATIVE_INT64,
 
     /**
      * An cumulative measurement of a double value.
      *
-     * @since 0.16
+     * @since 0.17
      */
     CUMULATIVE_DOUBLE,
 
     /**
      * An cumulative measurement of a distribution value.
      *
-     * @since 0.16
+     * @since 0.17
      */
     CUMULATIVE_DISTRIBUTION,
   }
