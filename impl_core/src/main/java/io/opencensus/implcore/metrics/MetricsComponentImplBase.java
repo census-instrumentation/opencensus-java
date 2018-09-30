@@ -39,6 +39,7 @@ public class MetricsComponentImplBase extends MetricsComponent {
   protected MetricsComponentImplBase(Clock clock) {
     exportComponent = new ExportComponentImpl();
     metricRegistry = new MetricRegistryImpl(clock);
+    // Register the MetricRegistry's MetricProducer to the global MetricProducerManager.
     exportComponent.getMetricProducerManager().add(metricRegistry.getMetricProducer());
   }
 }
