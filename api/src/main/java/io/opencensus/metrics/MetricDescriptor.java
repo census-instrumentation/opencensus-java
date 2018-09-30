@@ -127,6 +127,15 @@ public abstract class MetricDescriptor {
     GAUGE_DOUBLE,
 
     /**
+     * An instantaneous measurement of a distribution value. The count and sum can go both up and
+     * down. Used in scenarios like a snapshot of time the current items in a queue have spent
+     * there.
+     *
+     * @since 0.17
+     */
+    GAUGE_DISTRIBUTION,
+
+    /**
      * An cumulative measurement of an int64 value.
      *
      * @since 0.17
@@ -141,10 +150,23 @@ public abstract class MetricDescriptor {
     CUMULATIVE_DOUBLE,
 
     /**
-     * An cumulative measurement of a distribution value.
+     * An cumulative measurement of a distribution value. The count and sum can only go up, if
+     * resets then the start_time should also be reset.
      *
      * @since 0.17
      */
     CUMULATIVE_DISTRIBUTION,
+
+    /**
+     * Some frameworks implemented DISTRIBUTION as a summary of observations (usually things like
+     * request durations and response sizes). While it also provides a total count of observations
+     * and a sum of all observed values, it calculates configurable quantiles over a sliding time
+     * window.
+     *
+     * <p>This is not recommended, since it cannot be aggregated.
+     *
+     * @since 0.17
+     */
+    SUMMARY,
   }
 }

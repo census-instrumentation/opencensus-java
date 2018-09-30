@@ -22,6 +22,7 @@ import io.opencensus.internal.Utils;
 import io.opencensus.metrics.Value.ValueDistribution;
 import io.opencensus.metrics.Value.ValueDouble;
 import io.opencensus.metrics.Value.ValueLong;
+import io.opencensus.metrics.Value.ValueSummary;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
@@ -88,9 +89,14 @@ public abstract class Metric {
             Utils.checkArgument(
                 value instanceof ValueDouble, "Type mismatch: %s, %s.", type, valueClassName);
             break;
+          case GAUGE_DISTRIBUTION:
           case CUMULATIVE_DISTRIBUTION:
             Utils.checkArgument(
                 value instanceof ValueDistribution, "Type mismatch: %s, %s.", type, valueClassName);
+            break;
+          case SUMMARY:
+            Utils.checkArgument(
+                value instanceof ValueSummary, "Type mismatch: %s, %s.", type, valueClassName);
         }
       }
     }

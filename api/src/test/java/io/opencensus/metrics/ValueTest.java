@@ -22,11 +22,15 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.metrics.Distribution.Bucket;
+import io.opencensus.metrics.Summary.Snapshot;
+import io.opencensus.metrics.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.Value.ValueDistribution;
 import io.opencensus.metrics.Value.ValueDouble;
 import io.opencensus.metrics.Value.ValueLong;
+import io.opencensus.metrics.Value.ValueSummary;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +39,7 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link Value}. */
 @RunWith(JUnit4.class)
 public class ValueTest {
+  private static final double TOLERANCE = 1e-6;
 
   private static final Distribution DISTRIBUTION =
       Distribution.create(
@@ -43,12 +48,18 @@ public class ValueTest {
           1,
           Arrays.asList(-5.0, 0.0, 5.0),
           Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)));
+  private static final Summary SUMMARY =
+      Summary.create(
+          10L,
+          10.0,
+          Snapshot.create(
+              10L, 87.07, Collections.singletonList(ValueAtPercentile.create(0.98, 10.2))));
 
   @Test
   public void createAndGet_ValueDouble() {
     Value value = Value.doubleValue(-34.56);
     assertThat(value).isInstanceOf(ValueDouble.class);
-    assertThat(((ValueDouble) value).getValue()).isEqualTo(-34.56);
+    assertThat(((ValueDouble) value).getValue()).isWithin(TOLERANCE).of(-34.56);
   }
 
   @Test
@@ -66,6 +77,13 @@ public class ValueTest {
   }
 
   @Test
+  public void createAndGet_ValueSummary() {
+    Value value = Value.summaryValue(SUMMARY);
+    assertThat(value).isInstanceOf(ValueSummary.class);
+    assertThat(((ValueSummary) value).getValue()).isEqualTo(SUMMARY);
+  }
+
+  @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(Value.doubleValue(1.0), Value.doubleValue(1.0))
@@ -75,7 +93,7 @@ public class ValueTest {
         .addEqualityGroup(
             Value.distributionValue(
                 Distribution.create(
-                    -7,
+                    7,
                     10,
                     23.456,
                     Arrays.asList(-5.0, 0.0, 5.0),
@@ -88,7 +106,10 @@ public class ValueTest {
   public void testMatch() {
     List<Value> values =
         Arrays.asList(
-            ValueDouble.create(1.0), ValueLong.create(-1), ValueDistribution.create(DISTRIBUTION));
+            ValueDouble.create(1.0),
+            ValueLong.create(-1),
+            ValueDistribution.create(DISTRIBUTION),
+            ValueSummary.create(SUMMARY));
     List<Number> expected =
         Arrays.<Number>asList(1.0, -1L, 10.0, 10L, 1.0, -5.0, 0.0, 5.0, 3L, 1L, 2L, 4L);
     final List<Number> actual = new ArrayList<Number>();
@@ -111,13 +132,19 @@ public class ValueTest {
           new Function<Distribution, Object>() {
             @Override
             public Object apply(Distribution arg) {
-              actual.add(arg.getMean());
+              actual.add(arg.getSum());
               actual.add(arg.getCount());
               actual.add(arg.getSumOfSquaredDeviations());
               actual.addAll(arg.getBucketBoundaries());
               for (Bucket bucket : arg.getBuckets()) {
                 actual.add(bucket.getCount());
               }
+              return null;
+            }
+          },
+          new Function<Summary, Object>() {
+            @Override
+            public Object apply(Summary arg) {
               return null;
             }
           },
