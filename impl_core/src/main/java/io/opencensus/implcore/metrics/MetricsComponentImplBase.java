@@ -18,7 +18,6 @@ package io.opencensus.implcore.metrics;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.metrics.export.ExportComponentImpl;
-import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.MetricsComponent;
 
 /** Implementation of {@link MetricsComponent}. */
@@ -33,12 +32,13 @@ public class MetricsComponentImplBase extends MetricsComponent {
   }
 
   @Override
-  public MetricRegistry getMetricRegistry() {
+  public MetricRegistryImpl getMetricRegistry() {
     return metricRegistry;
   }
 
   protected MetricsComponentImplBase(Clock clock) {
     exportComponent = new ExportComponentImpl();
     metricRegistry = new MetricRegistryImpl(clock);
+    exportComponent.getMetricProducerManager().add(metricRegistry.getMetricProducer());
   }
 }

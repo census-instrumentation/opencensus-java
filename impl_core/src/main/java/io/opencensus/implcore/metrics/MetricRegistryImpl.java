@@ -26,6 +26,7 @@ import io.opencensus.implcore.metrics.Gauge.LongGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.Metric;
+import io.opencensus.metrics.MetricProducer;
 import io.opencensus.metrics.MetricRegistry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,11 +37,12 @@ import java.util.Set;
 
 /** Implementation of {@link MetricRegistry}. */
 public final class MetricRegistryImpl extends MetricRegistry {
-  private final Clock clock;
-  private volatile Set<Gauge> registeredGauges = Collections.emptySet();
+  private final RegisteredMeters registeredMeters;
+  private final MetricProducer metricProducer;
 
   MetricRegistryImpl(Clock clock) {
-    this.clock = clock;
+    registeredMeters = new RegisteredMeters();
+    metricProducer = new MetricProducerForRegistry(registeredMeters, clock);
   }
 
   @Override
@@ -52,7 +54,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
       T obj,
       ToLongFunction<T> function) {
     checkNotNull(labels, "labels");
-    registerGauge(
+    registeredMeters.registerMeter(
         new LongGauge<T>(
             checkNotNull(name, "name"),
             checkNotNull(description, "description"),
@@ -72,7 +74,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
       T obj,
       ToDoubleFunction<T> function) {
     checkNotNull(labels, "labels");
-    registerGauge(
+    registeredMeters.registerMeter(
         new DoubleGauge<T>(
             checkNotNull(name, "name"),
             checkNotNull(description, "description"),
@@ -83,23 +85,45 @@ public final class MetricRegistryImpl extends MetricRegistry {
             checkNotNull(function, "function")));
   }
 
-  @Override
-  public Collection<Metric> getMetrics() {
-    // Get a snapshot of the current registered gauges.
-    Set<Gauge> gaguges = registeredGauges;
-    if (gaguges.isEmpty()) {
-      return Collections.emptyList();
+  private static final class RegisteredMeters {
+    private volatile Set<Gauge> registeredGauges = Collections.emptySet();
+
+    private Set<Gauge> getRegisteredMeters() {
+      return registeredGauges;
     }
-    ArrayList<Metric> metrics = new ArrayList<Metric>();
-    for (Gauge gauge : gaguges) {
-      metrics.add(gauge.getMetric(clock));
+
+    private synchronized void registerMeter(Gauge gauge) {
+      Set<Gauge> newGaguesList = new LinkedHashSet<Gauge>(registeredGauges);
+      newGaguesList.add(gauge);
+      registeredGauges = Collections.unmodifiableSet(newGaguesList);
     }
-    return metrics;
   }
 
-  private synchronized void registerGauge(Gauge gauge) {
-    Set<Gauge> newGaguesList = new LinkedHashSet<Gauge>(registeredGauges);
-    newGaguesList.add(gauge);
-    registeredGauges = Collections.unmodifiableSet(newGaguesList);
+  private static final class MetricProducerForRegistry extends MetricProducer {
+    private final RegisteredMeters registeredMeters;
+    private final Clock clock;
+
+    private MetricProducerForRegistry(RegisteredMeters registeredMeters, Clock clock) {
+      this.registeredMeters = registeredMeters;
+      this.clock = clock;
+    }
+
+    @Override
+    public Collection<Metric> getMetrics() {
+      // Get a snapshot of the current registered gauges.
+      Set<Gauge> gaguges = registeredMeters.getRegisteredMeters();
+      if (gaguges.isEmpty()) {
+        return Collections.emptyList();
+      }
+      ArrayList<Metric> metrics = new ArrayList<Metric>();
+      for (Gauge gauge : gaguges) {
+        metrics.add(gauge.getMetric(clock));
+      }
+      return metrics;
+    }
+  }
+
+  MetricProducer getMetricProducer() {
+    return metricProducer;
   }
 }

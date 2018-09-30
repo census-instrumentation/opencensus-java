@@ -40,4 +40,14 @@ public class MetricsComponentImplBaseTest {
   public void getMetricRegistry() {
     assertThat(metricsComponentImplBase.getMetricRegistry()).isInstanceOf(MetricRegistryImpl.class);
   }
+
+  @Test
+  public void metricRegistry_InstalledToMetricProducerManger() {
+    assertThat(
+            metricsComponentImplBase
+                .getExportComponent()
+                .getMetricProducerManager()
+                .getAllMetricProducer())
+        .containsExactly(metricsComponentImplBase.getMetricRegistry().getMetricProducer());
+  }
 }
