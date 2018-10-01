@@ -149,7 +149,7 @@ public class MetricRegistryImplTest {
             return 5.0;
           }
         });
-    assertThat(metricRegistry.getMetrics())
+    assertThat(metricRegistry.getMetricProducer().getMetrics())
         .containsExactly(
             Metric.create(
                 MetricDescriptor.create(
@@ -253,7 +253,7 @@ public class MetricRegistryImplTest {
             return 7;
           }
         });
-    assertThat(metricRegistry.getMetrics())
+    assertThat(metricRegistry.getMetricProducer().getMetrics())
         .containsExactly(
             Metric.create(
                 MetricDescriptor.create(
@@ -295,7 +295,7 @@ public class MetricRegistryImplTest {
             return 5.0;
           }
         });
-    assertThat(metricRegistry.getMetrics())
+    assertThat(metricRegistry.getMetricProducer().getMetrics())
         .containsExactly(
             Metric.create(
                 MetricDescriptor.create(
@@ -325,6 +325,6 @@ public class MetricRegistryImplTest {
 
   @Test
   public void empty_GetMetrics() {
-    assertThat(metricRegistry.getMetrics()).isEmpty();
+    assertThat(metricRegistry.getMetricProducer().getMetrics()).isEmpty();
   }
 }

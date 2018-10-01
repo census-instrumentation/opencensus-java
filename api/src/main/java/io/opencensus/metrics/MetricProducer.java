@@ -21,18 +21,20 @@ import io.opencensus.metrics.export.MetricProducerManager;
 import java.util.Collection;
 
 /**
- * A {@link io.opencensus.metrics.Metric} producer that can be registered for exporting using {@link
+ * A {@link Metric} producer that can be registered for exporting using {@link
  * MetricProducerManager}.
  *
  * <p>All implementation MUST be thread-safe.
+ *
+ * @since 0.17
  */
 @ExperimentalApi
 public abstract class MetricProducer {
 
   /**
-   * Returns a collection of produced {@link io.opencensus.metrics.Metric}s to be exported.
+   * Returns a collection of produced {@link Metric}s to be exported.
    *
-   * @return a collection of produced {@link io.opencensus.metrics.Metric}s to be exported.
+   * @return a collection of produced {@link Metric}s to be exported.
    */
   public abstract Collection<Metric> getMetrics();
 }

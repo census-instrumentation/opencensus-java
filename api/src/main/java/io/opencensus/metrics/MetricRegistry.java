@@ -20,19 +20,17 @@ import io.opencensus.common.ExperimentalApi;
 import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.common.ToLongFunction;
 import io.opencensus.internal.Utils;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 
 /**
- * Creates and manages your application's set of metrics. Exporters use the metric registry to
- * iterate over the set of metrics instrumenting your application, and then further export each
- * metric to the backend of choice.
+ * Creates and manages your application's set of metrics. The default implementation of this creates
+ * a {@link MetricProducer} and registers it to the global {@link
+ * io.opencensus.metrics.export.MetricProducerManager}.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
-public abstract class MetricRegistry extends MetricProducer {
+public abstract class MetricRegistry {
   /**
    * Build a new long gauge to be added to the registry.
    *
@@ -43,7 +41,7 @@ public abstract class MetricRegistry extends MetricProducer {
    * @param unit the unit of the metric.
    * @param obj the function argument.
    * @param function the function to be called.
-   * @since 0.16 @ExperimentalApi
+   * @since 0.17
    */
   public abstract <T> void addLongGauge(
       String name,
@@ -63,7 +61,7 @@ public abstract class MetricRegistry extends MetricProducer {
    * @param unit the unit of the metric.
    * @param obj the function argument.
    * @param function the function to be called.
-   * @since 0.16 @ExperimentalApi
+   * @since 0.17
    */
   public abstract <T> void addDoubleGauge(
       String name,
@@ -107,11 +105,6 @@ public abstract class MetricRegistry extends MetricProducer {
       Utils.checkNotNull(unit, "unit");
       Utils.checkNotNull(labels, "labels");
       Utils.checkNotNull(function, "function");
-    }
-
-    @Override
-    public Collection<Metric> getMetrics() {
-      return Collections.emptyList();
     }
   }
 }
