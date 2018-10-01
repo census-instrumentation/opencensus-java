@@ -39,7 +39,7 @@ public abstract class LabelValue {
    * @param value the value of a {@code Label}. {@code null} value indicates an unset {@code
    *     LabelValue}.
    * @return a {@code LabelValue}.
-   * @since 0.15
+   * @since 0.17
    */
   public static LabelValue create(@Nullable String value) {
     return new AutoValue_LabelValue(value);
@@ -50,7 +50,7 @@ public abstract class LabelValue {
    * supposed to be ignored.
    *
    * @return the value.
-   * @since 0.15
+   * @since 0.17
    */
   @Nullable
   public abstract String getValue();

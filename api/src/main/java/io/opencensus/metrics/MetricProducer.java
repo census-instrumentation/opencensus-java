@@ -35,6 +35,7 @@ public abstract class MetricProducer {
    * Returns a collection of produced {@link Metric}s to be exported.
    *
    * @return a collection of produced {@link Metric}s to be exported.
+   * @since 0.17
    */
   public abstract Collection<Metric> getMetrics();
 }

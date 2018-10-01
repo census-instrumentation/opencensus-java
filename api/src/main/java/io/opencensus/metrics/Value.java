@@ -34,7 +34,7 @@ import javax.annotation.concurrent.Immutable;
  *
  * <p>Each {@link Point} contains exactly one of the three {@link Value} types.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 @Immutable
@@ -47,7 +47,7 @@ public abstract class Value {
    *
    * @param value value in double.
    * @return a double {@code Value}.
-   * @since 0.16
+   * @since 0.17
    */
   public static Value doubleValue(double value) {
     return ValueDouble.create(value);
@@ -58,7 +58,7 @@ public abstract class Value {
    *
    * @param value value in long.
    * @return a long {@code Value}.
-   * @since 0.16
+   * @since 0.17
    */
   public static Value longValue(long value) {
     return ValueLong.create(value);
@@ -69,7 +69,7 @@ public abstract class Value {
    *
    * @param value value in {@link Distribution}.
    * @return a {@code Distribution} {@code Value}.
-   * @since 0.16
+   * @since 0.17
    */
   public static Value distributionValue(Distribution value) {
     return ValueDistribution.create(value);
@@ -78,7 +78,7 @@ public abstract class Value {
   /**
    * Applies the given match function to the underlying data type.
    *
-   * @since 0.16
+   * @since 0.17
    */
   public abstract <T> T match(
       Function<? super Double, T> doubleFunction,

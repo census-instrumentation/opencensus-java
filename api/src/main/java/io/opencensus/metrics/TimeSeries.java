@@ -29,7 +29,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  * A collection of data points that describes the time-varying values of a {@code Metric}.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 @Immutable
@@ -46,7 +46,7 @@ public abstract class TimeSeries {
    * @param startTimestamp the start {@code Timestamp} of this {@code TimeSeries}. Must be non-null
    *     for cumulative {@code Point}s.
    * @return a {@code TimeSeries}.
-   * @since 0.16
+   * @since 0.17
    */
   public static TimeSeries create(
       List<LabelValue> labelValues, List<Point> points, @Nullable Timestamp startTimestamp) {
@@ -70,7 +70,7 @@ public abstract class TimeSeries {
    * MetricDescriptor}.
    *
    * @return the {@code LabelValue}s.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract List<LabelValue> getLabelValues();
 
@@ -78,7 +78,7 @@ public abstract class TimeSeries {
    * Returns the data {@link Point}s of this {@link TimeSeries}.
    *
    * @return the data {@code Point}s.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract List<Point> getPoints();
 
@@ -87,7 +87,7 @@ public abstract class TimeSeries {
    * cumulative, or {@code null} if the {@link Point}s are gauge.
    *
    * @return the start {@code Timestamp} or {@code null}.
-   * @since 0.16
+   * @since 0.17
    */
   @Nullable
   public abstract Timestamp getStartTimestamp();

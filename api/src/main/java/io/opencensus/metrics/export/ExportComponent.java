@@ -23,7 +23,7 @@ import io.opencensus.common.ExperimentalApi;
  *
  * <p>Unless otherwise noted all methods (on component) results are cacheable.
  *
- * @since 0.16
+ * @since 0.17
  */
 @ExperimentalApi
 public abstract class ExportComponent {
@@ -31,7 +31,7 @@ public abstract class ExportComponent {
    * Returns the no-op implementation of the {@code ExportComponent}.
    *
    * @return the no-op implementation of the {@code ExportComponent}.
-   * @since 0.16
+   * @since 0.17
    */
   public static ExportComponent newNoopExportComponent() {
     return new NoopExportComponent();
@@ -43,7 +43,7 @@ public abstract class ExportComponent {
    *
    * @return the implementation of the {@code MetricExporter} or no-op if no implementation linked
    *     in the binary.
-   * @since 0.16
+   * @since 0.17
    */
   public abstract MetricProducerManager getMetricProducerManager();
 
