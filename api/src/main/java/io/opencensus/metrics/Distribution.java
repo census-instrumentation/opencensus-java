@@ -45,17 +45,17 @@ public abstract class Distribution {
   /**
    * Creates a {@link Distribution}.
    *
-   * @param mean mean of the population values.
-   * @param count count of the population values.
-   * @param sumOfSquaredDeviations sum of squared deviations of the population values.
+   * @param count the count of the population values.
+   * @param sum the sum of the population values.
+   * @param sumOfSquaredDeviations the sum of squared deviations of the population values.
    * @param bucketBoundaries bucket boundaries of a histogram.
    * @param buckets {@link Bucket}s of a histogram.
    * @return a {@code Distribution}.
    * @since 0.17
    */
   public static Distribution create(
-      double mean,
       long count,
+      double sum,
       double sumOfSquaredDeviations,
       List<Double> bucketBoundaries,
       List<Bucket> buckets) {
@@ -63,13 +63,13 @@ public abstract class Distribution {
     Utils.checkArgument(
         sumOfSquaredDeviations >= 0, "sum of squared deviations should be non-negative.");
     if (count == 0) {
-      Utils.checkArgument(mean == 0, "mean should be 0 if count is 0.");
+      Utils.checkArgument(sum == 0, "sum should be 0 if count is 0.");
       Utils.checkArgument(
           sumOfSquaredDeviations == 0, "sum of squared deviations should be 0 if count is 0.");
     }
     return new AutoValue_Distribution(
-        mean,
         count,
+        sum,
         sumOfSquaredDeviations,
         copyBucketBounds(bucketBoundaries),
         copyBucketCount(buckets));
@@ -100,20 +100,20 @@ public abstract class Distribution {
   }
 
   /**
-   * Returns the aggregated mean.
-   *
-   * @return the aggregated mean.
-   * @since 0.17
-   */
-  public abstract double getMean();
-
-  /**
    * Returns the aggregated count.
    *
    * @return the aggregated count.
    * @since 0.17
    */
   public abstract long getCount();
+
+  /**
+   * Returns the aggregated sum.
+   *
+   * @return the aggregated sum.
+   * @since 0.17
+   */
+  public abstract double getSum();
 
   /**
    * Returns the aggregated sum of squared deviations.

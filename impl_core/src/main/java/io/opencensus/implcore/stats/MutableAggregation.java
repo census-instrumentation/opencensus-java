@@ -430,7 +430,11 @@ abstract class MutableAggregation {
       return Point.create(
           Value.distributionValue(
               Distribution.create(
-                  mean, count, sumOfSquaredDeviations, bucketBoundaries.getBoundaries(), buckets)),
+                  count,
+                  mean * count,
+                  sumOfSquaredDeviations,
+                  bucketBoundaries.getBoundaries(),
+                  buckets)),
           timestamp);
     }
 

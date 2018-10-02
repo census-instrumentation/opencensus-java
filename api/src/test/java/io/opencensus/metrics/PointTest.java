@@ -35,8 +35,8 @@ public class PointTest {
   private static final Value DISTRIBUTION_VALUE =
       Value.distributionValue(
           Distribution.create(
-              6.6,
               10,
+              6.6,
               678.54,
               Arrays.asList(-1.0, 0.0, 1.0),
               Arrays.asList(

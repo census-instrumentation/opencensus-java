@@ -76,6 +76,17 @@ public abstract class Value {
   }
 
   /**
+   * Returns a {@link Summary} {@link Value}.
+   *
+   * @param value value in {@link Summary}.
+   * @return a {@code Summary} {@code Value}.
+   * @since 0.17
+   */
+  public static Value summaryValue(Summary value) {
+    return ValueSummary.create(value);
+  }
+
+  /**
    * Applies the given match function to the underlying data type.
    *
    * @since 0.17
@@ -84,6 +95,7 @@ public abstract class Value {
       Function<? super Double, T> doubleFunction,
       Function<? super Long, T> longFunction,
       Function<? super Distribution, T> distributionFunction,
+      Function<? super Summary, T> summaryFunction,
       Function<? super Value, T> defaultFunction);
 
   /** A 64-bit double-precision floating-point {@link Value}. */
@@ -98,6 +110,7 @@ public abstract class Value {
         Function<? super Double, T> doubleFunction,
         Function<? super Long, T> longFunction,
         Function<? super Distribution, T> distributionFunction,
+        Function<? super Summary, T> summaryFunction,
         Function<? super Value, T> defaultFunction) {
       return doubleFunction.apply(getValue());
     }
@@ -132,6 +145,7 @@ public abstract class Value {
         Function<? super Double, T> doubleFunction,
         Function<? super Long, T> longFunction,
         Function<? super Distribution, T> distributionFunction,
+        Function<? super Summary, T> summaryFunction,
         Function<? super Value, T> defaultFunction) {
       return longFunction.apply(getValue());
     }
@@ -169,6 +183,7 @@ public abstract class Value {
         Function<? super Double, T> doubleFunction,
         Function<? super Long, T> longFunction,
         Function<? super Distribution, T> distributionFunction,
+        Function<? super Summary, T> summaryFunction,
         Function<? super Value, T> defaultFunction) {
       return distributionFunction.apply(getValue());
     }
@@ -191,6 +206,41 @@ public abstract class Value {
     abstract Distribution getValue();
   }
 
-  // TODO(songya): Add support for Summary type.
-  // This is an aggregation that produces percentiles directly.
+  /**
+   * {@link ValueSummary} contains a snapshot representing values calculated over an arbitrary time
+   * window.
+   */
+  @AutoValue
+  @Immutable
+  abstract static class ValueSummary extends Value {
+
+    ValueSummary() {}
+
+    @Override
+    public final <T> T match(
+        Function<? super Double, T> doubleFunction,
+        Function<? super Long, T> longFunction,
+        Function<? super Distribution, T> distributionFunction,
+        Function<? super Summary, T> summaryFunction,
+        Function<? super Value, T> defaultFunction) {
+      return summaryFunction.apply(getValue());
+    }
+
+    /**
+     * Creates a {@link ValueSummary}.
+     *
+     * @param value the {@link Summary} value.
+     * @return a {@code ValueSummary}.
+     */
+    static ValueSummary create(Summary value) {
+      return new AutoValue_Value_ValueSummary(value);
+    }
+
+    /**
+     * Returns the {@link Summary} value.
+     *
+     * @return the {@code Summary} value.
+     */
+    abstract Summary getValue();
+  }
 }
