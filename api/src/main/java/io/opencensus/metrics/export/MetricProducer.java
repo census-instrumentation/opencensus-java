@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.metrics.export.MetricProducerManager;
 import java.util.Collection;
 
 /**

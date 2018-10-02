@@ -22,7 +22,7 @@ import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.CurrentState;
 import io.opencensus.implcore.internal.CurrentState.State;
 import io.opencensus.implcore.internal.EventQueue;
-import io.opencensus.metrics.Metric;
+import io.opencensus.metrics.export.Metric;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagContext;

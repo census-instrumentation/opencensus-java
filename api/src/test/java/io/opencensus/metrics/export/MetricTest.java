@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.MetricDescriptor.Type;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.internal.Utils;
-import io.opencensus.metrics.Value.ValueDistribution;
-import io.opencensus.metrics.Value.ValueDouble;
-import io.opencensus.metrics.Value.ValueLong;
-import io.opencensus.metrics.Value.ValueSummary;
+import io.opencensus.metrics.export.Value.ValueDistribution;
+import io.opencensus.metrics.export.Value.ValueDouble;
+import io.opencensus.metrics.export.Value.ValueLong;
+import io.opencensus.metrics.export.Value.ValueSummary;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 

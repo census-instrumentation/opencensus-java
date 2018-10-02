@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.metrics.Summary.Snapshot;
-import io.opencensus.metrics.Summary.Snapshot.ValueAtPercentile;
+import io.opencensus.metrics.export.Summary.Snapshot;
+import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;

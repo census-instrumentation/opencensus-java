@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.Distribution;
-import io.opencensus.metrics.Point;
-import io.opencensus.metrics.Value;
+import io.opencensus.metrics.export.Distribution;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.Value;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.DistributionData;

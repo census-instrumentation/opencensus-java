@@ -16,8 +16,8 @@
 
 package io.opencensus.implcore.stats;
 
-import io.opencensus.metrics.Metric;
-import io.opencensus.metrics.MetricProducer;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricProducer;
 import java.util.Collection;
 import javax.annotation.concurrent.ThreadSafe;
 

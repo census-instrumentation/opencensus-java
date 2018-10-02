@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.metrics.Distribution.Bucket;
-import io.opencensus.metrics.Summary.Snapshot;
-import io.opencensus.metrics.Summary.Snapshot.ValueAtPercentile;
-import io.opencensus.metrics.Value.ValueDistribution;
-import io.opencensus.metrics.Value.ValueDouble;
-import io.opencensus.metrics.Value.ValueLong;
-import io.opencensus.metrics.Value.ValueSummary;
+import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Summary.Snapshot;
+import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
+import io.opencensus.metrics.export.Value.ValueDistribution;
+import io.opencensus.metrics.export.Value.ValueDouble;
+import io.opencensus.metrics.export.Value.ValueLong;
+import io.opencensus.metrics.export.Value.ValueSummary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
