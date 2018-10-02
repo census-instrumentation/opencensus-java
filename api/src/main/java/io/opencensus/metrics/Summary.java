@@ -177,7 +177,7 @@ public abstract class Summary {
     }
   }
 
-  private static void checkCountAndSum(Long count, Double sum) {
+  private static void checkCountAndSum(@Nullable Long count, @Nullable Double sum) {
     Utils.checkArgument(count == null || count >= 0, "count must be non-negative.");
     Utils.checkArgument(sum == null || sum >= 0, "sum must be non-negative.");
     if (count != null && count == 0) {
