@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.opencensus.metrics.export.Point}. */
+/** Unit tests for {@link Point}. */
 @RunWith(JUnit4.class)
 public class PointTest {
 

@@ -28,7 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.opencensus.metrics.export.Summary}. */
+/** Unit tests for {@link Summary}. */
 @RunWith(JUnit4.class)
 public class SummaryTest {
 

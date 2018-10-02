@@ -32,7 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.opencensus.metrics.export.Distribution}. */
+/** Unit tests for {@link Distribution}. */
 @RunWith(JUnit4.class)
 public class DistributionTest {
 

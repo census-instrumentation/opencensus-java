@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link io.opencensus.metrics.export.Value}. */
+/** Unit tests for {@link Value}. */
 @RunWith(JUnit4.class)
 public class ValueTest {
   private static final double TOLERANCE = 1e-6;
