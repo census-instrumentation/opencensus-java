@@ -48,13 +48,9 @@ public abstract class Summary {
    * @since 0.17
    */
   public static Summary create(@Nullable Long count, @Nullable Double sum, Snapshot snapshot) {
-    Utils.checkArgument(count == null || count >= 0, "count must be non-negative.");
-    Utils.checkArgument(sum == null || sum >= 0, "sum must be non-negative.");
-    if (count != null && count == 0) {
-      Utils.checkArgument(sum == null || sum == 0, "sum must be 0 if count is 0.");
-    }
+    checkCountAndSum(count, sum);
     Utils.checkNotNull(snapshot, "snapshot");
-    return new AutoValue_Summary(count, sum, copySnapshot(snapshot));
+    return new AutoValue_Summary(count, sum, snapshot);
   }
 
   /**
@@ -128,11 +124,7 @@ public abstract class Summary {
      */
     public static Snapshot create(
         @Nullable Long count, @Nullable Double sum, List<ValueAtPercentile> valueAtPercentiles) {
-      Utils.checkArgument(count == null || count >= 0, "count must be non-negative.");
-      Utils.checkArgument(sum == null || sum >= 0, "sum must be non-negative.");
-      if (count != null && count == 0) {
-        Utils.checkArgument(sum == null || sum == 0, "sum must be 0 if count is 0.");
-      }
+      checkCountAndSum(count, sum);
       Utils.checkNotNull(valueAtPercentiles, "valueAtPercentiles");
       Utils.checkListElementNotNull(valueAtPercentiles, "value in valueAtPercentiles");
       return new AutoValue_Summary_Snapshot(
@@ -185,8 +177,11 @@ public abstract class Summary {
     }
   }
 
-  private static Snapshot copySnapshot(Snapshot snapshot) {
-    return Snapshot.create(
-        snapshot.getCount(), snapshot.getSum(), snapshot.getValueAtPercentiles());
+  private static void checkCountAndSum(Long count, Double sum) {
+    Utils.checkArgument(count == null || count >= 0, "count must be non-negative.");
+    Utils.checkArgument(sum == null || sum >= 0, "sum must be non-negative.");
+    if (count != null && count == 0) {
+      Utils.checkArgument(sum == null || sum == 0, "sum must be 0 if count is 0.");
+    }
   }
 }

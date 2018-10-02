@@ -78,8 +78,8 @@ public abstract class Value {
   /**
    * Returns a {@link Summary} {@link Value}.
    *
-   * @param value value in {@link Distribution}.
-   * @return a {@code Distribution} {@code Value}.
+   * @param value value in {@link Summary}.
+   * @return a {@code Summary} {@code Value}.
    * @since 0.17
    */
   public static Value summaryValue(Summary value) {
@@ -207,8 +207,8 @@ public abstract class Value {
   }
 
   /**
-   * {@link ValueDistribution} contains summary statistics for a population of values. It optionally
-   * contains a histogram representing the distribution of those values across a set of buckets.
+   * {@link ValueSummary} contains a snapshot representing values calculated over an arbitrary time
+   * window.
    */
   @AutoValue
   @Immutable
