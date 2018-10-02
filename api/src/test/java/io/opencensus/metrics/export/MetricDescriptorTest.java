@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
-import io.opencensus.metrics.MetricDescriptor.Type;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
 import java.util.Arrays;
 import java.util.List;
 import org.hamcrest.CoreMatchers;
@@ -29,7 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link MetricDescriptor}. */
+/** Unit tests for {@link io.opencensus.metrics.export.MetricDescriptor}. */
 @RunWith(JUnit4.class)
 public class MetricDescriptorTest {
 

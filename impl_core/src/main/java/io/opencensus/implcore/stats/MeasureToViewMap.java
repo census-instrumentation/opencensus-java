@@ -23,7 +23,7 @@ import com.google.common.collect.Sets;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
 import io.opencensus.implcore.internal.CurrentState.State;
-import io.opencensus.metrics.Metric;
+import io.opencensus.metrics.export.Metric;
 import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measurement;
 import io.opencensus.stats.View;

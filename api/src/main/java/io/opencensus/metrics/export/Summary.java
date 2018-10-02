@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;

@@ -28,9 +28,10 @@ import io.opencensus.implcore.stats.MutableAggregation.MutableLastValueLong;
 import io.opencensus.implcore.stats.MutableAggregation.MutableMean;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSumDouble;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSumLong;
-import io.opencensus.metrics.Distribution.Bucket;
-import io.opencensus.metrics.Point;
-import io.opencensus.metrics.Value;
+import io.opencensus.metrics.export.Distribution;
+import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.Value;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.AggregationData.CountData;
 import io.opencensus.stats.AggregationData.DistributionData;
@@ -300,7 +301,7 @@ public class MutableAggregationTest {
         .isEqualTo(
             Point.create(
                 Value.distributionValue(
-                    io.opencensus.metrics.Distribution.create(
+                    Distribution.create(
                         0,
                         0,
                         0,

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.LabelValue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link TimeSeries}. */
+/** Unit tests for {@link io.opencensus.metrics.export.TimeSeries}. */
 @RunWith(JUnit4.class)
 public class TimeSeriesTest {
 

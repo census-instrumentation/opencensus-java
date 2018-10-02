@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 
 /**
  * Creates and manages your application's set of metrics. The default implementation of this creates
- * a {@link MetricProducer} and registers it to the global {@link
+ * a {@link io.opencensus.metrics.export.MetricProducer} and registers it to the global {@link
  * io.opencensus.metrics.export.MetricProducerManager}.
  *
  * @since 0.17

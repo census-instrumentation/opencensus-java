@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import com.google.auto.value.AutoValue;
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.common.Timestamp;
 import io.opencensus.internal.Utils;
+import io.opencensus.metrics.LabelKey;
+import io.opencensus.metrics.LabelValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

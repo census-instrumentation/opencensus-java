@@ -18,7 +18,6 @@ package io.opencensus.metrics.export;
 
 import io.opencensus.common.ExperimentalApi;
 import io.opencensus.internal.Utils;
-import io.opencensus.metrics.MetricProducer;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;

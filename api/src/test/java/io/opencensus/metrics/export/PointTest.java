@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.metrics.export;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.Bucket;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link Point}. */
+/** Unit tests for {@link io.opencensus.metrics.export.Point}. */
 @RunWith(JUnit4.class)
 public class PointTest {
 
