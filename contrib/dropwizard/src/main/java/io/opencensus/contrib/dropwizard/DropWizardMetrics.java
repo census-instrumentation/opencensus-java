@@ -20,7 +20,6 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
-import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
 import io.opencensus.common.Clock;
 import io.opencensus.common.Timestamp;
@@ -29,13 +28,16 @@ import io.opencensus.internal.DefaultVisibilityForTesting;
 import io.opencensus.internal.Utils;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.Metric;
-import io.opencensus.metrics.MetricDescriptor;
-import io.opencensus.metrics.MetricDescriptor.Type;
-import io.opencensus.metrics.MetricProducer;
-import io.opencensus.metrics.Point;
-import io.opencensus.metrics.TimeSeries;
-import io.opencensus.metrics.Value;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor;
+import io.opencensus.metrics.export.MetricDescriptor.Type;
+import io.opencensus.metrics.export.MetricProducer;
+import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.Summary;
+import io.opencensus.metrics.export.Summary.Snapshot;
+import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
+import io.opencensus.metrics.export.TimeSeries;
+import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,12 +47,12 @@ import java.util.List;
 import java.util.Map.Entry;
 
 /**
- * Collect DropWizard metrics from a MetricRegistry.
+ * Collects DropWizard metrics from a MetricRegistry.
  *
- * <p>A {@link MetricProducer} that wraps a DropWizardMetrics {@link
+ * <p>A {@link io.opencensus.metrics.export.MetricProducer} that wraps a DropWizardMetrics {@link
  * com.codahale.metrics.MetricRegistry}.
  *
- * @since 0.16
+ * @since 0.17
  */
 public class DropWizardMetrics extends MetricProducer {
 
@@ -72,29 +74,6 @@ public class DropWizardMetrics extends MetricProducer {
   @DefaultVisibilityForTesting
   static final LabelValue RATE_FIFTEEN_MINUTE_LABEL_VALUE = LabelValue.create("m15_rate");
 
-  @DefaultVisibilityForTesting
-  static final LabelKey QUANTILE_LABEL_KEY =
-      LabelKey.create(
-          "quantile", "measures statistical distribution of values over a stream of data");
-
-  @DefaultVisibilityForTesting
-  static final LabelValue QUANTILE_50_LABEL_VALUE = LabelValue.create("PCT_50");
-
-  @DefaultVisibilityForTesting
-  static final LabelValue QUANTILE_75_LABEL_VALUE = LabelValue.create("PCT_75");
-
-  @DefaultVisibilityForTesting
-  static final LabelValue QUANTILE_95_LABEL_VALUE = LabelValue.create("PCT_95");
-
-  @DefaultVisibilityForTesting
-  static final LabelValue QUANTILE_98_LABEL_VALUE = LabelValue.create("PCT_98");
-
-  @DefaultVisibilityForTesting
-  static final LabelValue QUANTILE_99_LABEL_VALUE = LabelValue.create("PCT_99");
-
-  @DefaultVisibilityForTesting
-  static final LabelValue QUANTILE_999_LABEL_VALUE = LabelValue.create("PCT_999");
-
   private final com.codahale.metrics.MetricRegistry metricRegistry;
   private final Clock clock;
   private final Timestamp cumulativeStartTimestamp;
@@ -107,16 +86,16 @@ public class DropWizardMetrics extends MetricProducer {
   }
 
   /**
-   * Collect and transform a gauge metric as a opencensus metric.
+   * Returns a list of {@link Metric}s collected from {@link Gauge}.
    *
-   * @param name metric name
-   * @param gauge Gauge object to collect
-   * @return a list of metrics.
+   * @param dropwizardName the metric name.
+   * @param gauge the gauge object to collect.
+   * @return a list of {@link Metric}s.
    */
   @SuppressWarnings("rawtypes")
-  private List<Metric> collectGauge(String name, Gauge gauge) {
-    String metricName = DropWizardUtils.generateFullMetricName(name, "value");
-    String metricDescription = DropWizardUtils.generateFullMetricDescription("Gauge", "value");
+  private List<Metric> collectGauge(String dropwizardName, Gauge gauge) {
+    String metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "value");
+    String metricDescription = DropWizardUtils.generateFullMetricDescription(dropwizardName, gauge);
 
     // Figure out which gauge instance and call the right method to get value
     Type type;
@@ -143,19 +122,22 @@ public class DropWizardMetrics extends MetricProducer {
             Collections.<LabelValue>emptyList(),
             Collections.singletonList(Point.create(value, clock.now())),
             null);
-    return Arrays.asList(Metric.create(metricDescriptor, Collections.singletonList(timeSeries)));
+    return Arrays.asList(
+        Metric.create(
+            metricDescriptor, Collections.unmodifiableList(Collections.singletonList(timeSeries))));
   }
 
   /**
-   * Collect and transform a counter metric as a opencensus metric.
+   * Returns a list of {@link Metric}s collected from {@link Counter}.
    *
-   * @param name metric name
-   * @param counter Counter object to collect
-   * @return a list of metrics.
+   * @param dropwizardName the metric name.
+   * @param counter the counter object to collect.
+   * @return a list of {@link Metric}s.
    */
-  private List<Metric> collectCounter(String name, Counter counter) {
-    String metricName = DropWizardUtils.generateFullMetricName(name, "count");
-    String metricDescription = DropWizardUtils.generateFullMetricDescription("Counter", "count");
+  private List<Metric> collectCounter(String dropwizardName, Counter counter) {
+    String metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "count");
+    String metricDescription =
+        DropWizardUtils.generateFullMetricDescription(dropwizardName, counter);
 
     MetricDescriptor metricDescriptor =
         MetricDescriptor.create(
@@ -170,19 +152,21 @@ public class DropWizardMetrics extends MetricProducer {
             Collections.singletonList(
                 Point.create(Value.longValue(counter.getCount()), clock.now())),
             null);
-    return Arrays.asList(Metric.create(metricDescriptor, Collections.singletonList(timeSeries)));
+    return Arrays.asList(
+        Metric.create(
+            metricDescriptor, Collections.unmodifiableList(Collections.singletonList(timeSeries))));
   }
 
   /**
-   * Collect and transform a meter metric as a opencensus metric.
+   * Returns a list of {@link Metric}s collected from {@link Meter}.
    *
-   * @param name metric name
-   * @param meter Meter object to collect
-   * @return a list of metrics.
+   * @param dropwizardName the metric name.
+   * @param meter the meter object to collect
+   * @return a list of {@link Metric}s.
    */
-  private List<Metric> collectMeter(String name, Meter meter) {
-    String metricName = DropWizardUtils.generateFullMetricName(name, "count");
-    String metricDescription = DropWizardUtils.generateFullMetricDescription("Meter", "count");
+  private List<Metric> collectMeter(String dropwizardName, Meter meter) {
+    String metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "count");
+    String metricDescription = DropWizardUtils.generateFullMetricDescription(dropwizardName, meter);
 
     MetricDescriptor countMetricDescriptor =
         MetricDescriptor.create(
@@ -198,8 +182,8 @@ public class DropWizardMetrics extends MetricProducer {
             null);
 
     // Collect rate related metric
-    metricName = DropWizardUtils.generateFullMetricName(name, "rate");
-    metricDescription = DropWizardUtils.generateFullMetricDescription("Meter", "rate");
+    metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "rate");
+    metricDescription = DropWizardUtils.generateFullMetricDescription(dropwizardName, meter);
 
     MetricDescriptor rateMetricDescriptor =
         MetricDescriptor.create(
@@ -209,113 +193,109 @@ public class DropWizardMetrics extends MetricProducer {
             Type.GAUGE_DOUBLE,
             Collections.unmodifiableList(Collections.singletonList(RATE_LABEL_KEY)));
 
-    List<LabelValue> rateLabelValues =
+    List<TimeSeries> timeSeriesList =
         Arrays.asList(
-            RATE_MEAN_LABEL_VALUE,
-            RATE_ONE_MINUTE_LABEL_VALUE,
-            RATE_FIVE_MINUTE_LABEL_VALUE,
-            RATE_FIFTEEN_MINUTE_LABEL_VALUE);
-
-    List<Point> ratePoints =
-        Arrays.asList(
-            Point.create(Value.doubleValue(meter.getMeanRate()), clock.now()),
-            Point.create(Value.doubleValue(meter.getOneMinuteRate()), clock.now()),
-            Point.create(Value.doubleValue(meter.getFiveMinuteRate()), clock.now()),
-            Point.create(Value.doubleValue(meter.getFifteenMinuteRate()), clock.now()));
-
-    TimeSeries rateTimeSeries = TimeSeries.create(rateLabelValues, ratePoints, null);
+            TimeSeries.create(
+                Collections.singletonList(RATE_MEAN_LABEL_VALUE),
+                Collections.singletonList(
+                    Point.create(Value.doubleValue(meter.getMeanRate()), clock.now())),
+                null),
+            TimeSeries.create(
+                Collections.singletonList(RATE_ONE_MINUTE_LABEL_VALUE),
+                Collections.singletonList(
+                    Point.create(Value.doubleValue(meter.getOneMinuteRate()), clock.now())),
+                null),
+            TimeSeries.create(
+                Collections.singletonList(RATE_FIVE_MINUTE_LABEL_VALUE),
+                Collections.singletonList(
+                    Point.create(Value.doubleValue(meter.getFiveMinuteRate()), clock.now())),
+                null),
+            TimeSeries.create(
+                Collections.singletonList(RATE_FIFTEEN_MINUTE_LABEL_VALUE),
+                Collections.singletonList(
+                    Point.create(Value.doubleValue(meter.getFifteenMinuteRate()), clock.now())),
+                null));
 
     return Arrays.asList(
-        Metric.create(countMetricDescriptor, Collections.singletonList(countTimeSeries)),
-        Metric.create(rateMetricDescriptor, Collections.singletonList(rateTimeSeries)));
+        Metric.create(
+            countMetricDescriptor,
+            Collections.unmodifiableList(Collections.singletonList(countTimeSeries))),
+        Metric.create(rateMetricDescriptor, Collections.unmodifiableList(timeSeriesList)));
   }
 
   /**
-   * Collect and transform a histogram metric as a opencensus metric.
+   * Returns a list of {@link Metric}s collected from {@link Histogram}.
    *
-   * @param name metric name
-   * @param histogram Histogram object to collect
-   * @return a list of metrics.
+   * @param dropwizardName the metric name.
+   * @param histogram the histogram object to collect
+   * @return a list of {@link Metric}s.
    */
-  private List<Metric> collectHistogram(String name, Histogram histogram) {
-    return collectSnapshotAndCount(name, histogram.getSnapshot(), histogram.getCount());
+  private List<Metric> collectHistogram(String dropwizardName, Histogram histogram) {
+    String metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "percentile");
+    String metricDescription =
+        DropWizardUtils.generateFullMetricDescription(dropwizardName, histogram);
+    return collectSnapshotAndCount(
+        metricName, metricDescription, histogram.getSnapshot(), histogram.getCount());
   }
 
   /**
-   * Collect and transform a timer metric as a opencensus metric.
+   * Returns a list of {@link Metric}s collected from {@link Timer}.
    *
-   * @param name metric name
-   * @param timer Timer object to collect
-   * @return a list of metrics.
+   * @param dropwizardName the metric name.
+   * @param timer the timer object to collect
+   * @return a list of {@link Metric}s.
    */
-  private List<Metric> collectTimer(String name, Timer timer) {
-    return collectSnapshotAndCount(name, timer.getSnapshot(), timer.getCount());
+  private List<Metric> collectTimer(String dropwizardName, Timer timer) {
+    String metricName = DropWizardUtils.generateFullMetricName(dropwizardName, "percentile");
+    String metricDescription = DropWizardUtils.generateFullMetricDescription(dropwizardName, timer);
+    return collectSnapshotAndCount(
+        metricName, metricDescription, timer.getSnapshot(), timer.getCount());
   }
 
   /**
-   * Collect and transform a timer and histogram snapshot as a opencensus metric.
+   * Returns a list of {@link Metric}s collected from {@link Snapshot}.
    *
-   * @param name metric name
-   * @param snapshot Snapshot object to collect
+   * @param metricName the metric name.
+   * @param metricDescription the metric description.
+   * @param codahaleSnapshot the snapshot object to collect
    * @param count the value or count
-   * @return a list of metrics.
+   * @return a list of {@link Metric}s.
    */
-  private List<Metric> collectSnapshotAndCount(String name, Snapshot snapshot, long count) {
-    String metricName = DropWizardUtils.generateFullMetricName(name, "count");
-    String metricDescription = DropWizardUtils.generateFullMetricDescription("Snapshot", "count");
+  private List<Metric> collectSnapshotAndCount(
+      String metricName,
+      String metricDescription,
+      com.codahale.metrics.Snapshot codahaleSnapshot,
+      long count) {
+    List<ValueAtPercentile> valueAtPercentiles =
+        Arrays.asList(
+            ValueAtPercentile.create(50.0, codahaleSnapshot.getMedian()),
+            ValueAtPercentile.create(75.0, codahaleSnapshot.get75thPercentile()),
+            ValueAtPercentile.create(98.0, codahaleSnapshot.get98thPercentile()),
+            ValueAtPercentile.create(99.0, codahaleSnapshot.get99thPercentile()),
+            ValueAtPercentile.create(99.9, codahaleSnapshot.get999thPercentile()));
 
-    MetricDescriptor countMetricDescriptor =
+    Snapshot snapshot = Snapshot.create((long) codahaleSnapshot.size(), 0.0, valueAtPercentiles);
+    Point point =
+        Point.create(Value.summaryValue(Summary.create(count, 0.0, snapshot)), clock.now());
+
+    MetricDescriptor metricDescriptor =
         MetricDescriptor.create(
             metricName,
             metricDescription,
             DEFAULT_UNIT,
-            Type.CUMULATIVE_INT64,
+            Type.SUMMARY,
             Collections.<LabelKey>emptyList());
-    TimeSeries countTimeSeries =
+    TimeSeries timeSeries =
         TimeSeries.create(
             Collections.<LabelValue>emptyList(),
-            Collections.singletonList(Point.create(Value.longValue(count), clock.now())),
+            Collections.singletonList(point),
             cumulativeStartTimestamp);
 
-    // Collect quantile related metric
-    metricName = DropWizardUtils.generateFullMetricName(name, "quantile");
-    metricDescription = DropWizardUtils.generateFullMetricDescription("Snapshot", "quantile");
-
-    MetricDescriptor quantileMetricDescriptor =
-        MetricDescriptor.create(
-            metricName,
-            metricDescription,
-            DEFAULT_UNIT,
-            Type.GAUGE_DOUBLE,
-            Collections.unmodifiableList(Collections.singletonList(QUANTILE_LABEL_KEY)));
-
-    List<LabelValue> rateLabelValues =
-        Arrays.asList(
-            QUANTILE_50_LABEL_VALUE,
-            QUANTILE_75_LABEL_VALUE,
-            QUANTILE_95_LABEL_VALUE,
-            QUANTILE_98_LABEL_VALUE,
-            QUANTILE_99_LABEL_VALUE,
-            QUANTILE_999_LABEL_VALUE);
-    List<Point> ratePoints =
-        Arrays.asList(
-            Point.create(Value.doubleValue(snapshot.getMedian()), clock.now()),
-            Point.create(Value.doubleValue(snapshot.get75thPercentile()), clock.now()),
-            Point.create(Value.doubleValue(snapshot.get95thPercentile()), clock.now()),
-            Point.create(Value.doubleValue(snapshot.get98thPercentile()), clock.now()),
-            Point.create(Value.doubleValue(snapshot.get99thPercentile()), clock.now()),
-            Point.create(Value.doubleValue(snapshot.get999thPercentile()), clock.now()));
-    TimeSeries quantileTimeSeries = TimeSeries.create(rateLabelValues, ratePoints, null);
     return Arrays.asList(
-        Metric.create(countMetricDescriptor, Collections.singletonList(countTimeSeries)),
-        Metric.create(quantileMetricDescriptor, Collections.singletonList(quantileTimeSeries)));
+        Metric.create(
+            metricDescriptor, Collections.unmodifiableList(Collections.singletonList(timeSeries))));
   }
 
-  /**
-   * Collect and transform a dropwizard metric as a opencensus metric.
-   *
-   * @since 0.16
-   */
   @Override
   @SuppressWarnings("rawtypes")
   public Collection<Metric> getMetrics() {

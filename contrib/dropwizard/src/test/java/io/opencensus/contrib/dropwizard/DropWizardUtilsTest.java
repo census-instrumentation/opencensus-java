@@ -18,10 +18,8 @@ package io.opencensus.contrib.dropwizard;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
+import com.codahale.metrics.Counter;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -29,36 +27,15 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class DropWizardUtilsTest {
 
-  @Rule public final ExpectedException thrown = ExpectedException.none();
-
   @Test
   public void generateFullMetricName() {
     assertThat(DropWizardUtils.generateFullMetricName("requests", "count"))
         .isEqualTo("requests_count");
-
-    assertThat(DropWizardUtils.generateFullMetricName("requests", "")).isEqualTo("requests");
   }
 
   @Test
   public void generateFullMetricDescription() {
-    assertThat(DropWizardUtils.generateFullMetricDescription("Counter", "count"))
-        .isEqualTo("DropWizard Metric=Counter Data=count");
-
-    assertThat(DropWizardUtils.generateFullMetricDescription("Counter", null))
-        .isEqualTo("DropWizard Metric=Counter");
-  }
-
-  @Test
-  public void preventNullMetricName() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage(CoreMatchers.equalTo("name"));
-    DropWizardUtils.generateFullMetricName(null, "count");
-  }
-
-  @Test
-  public void preventNullMetricDescription() {
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage(CoreMatchers.equalTo("name"));
-    DropWizardUtils.generateFullMetricDescription(null, "count");
+    assertThat(DropWizardUtils.generateFullMetricDescription("Counter", new Counter()))
+        .isEqualTo("Collected from Dropwizard (metric=Counter, type=com.codahale.metrics.Counter)");
   }
 }
