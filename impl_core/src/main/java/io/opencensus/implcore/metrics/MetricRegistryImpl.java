@@ -32,12 +32,13 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /** Implementation of {@link MetricRegistry}. */
 public final class MetricRegistryImpl extends MetricRegistry {
   private final RegisteredMeters registeredMeters;
   private final MetricProducer metricProducer;
-  private final Set<String> registeredMetric = new HashSet<String>();
+  private volatile Set<String> registeredMetrics = new HashSet<String>();
 
   MetricRegistryImpl(Clock clock) {
     registeredMeters = new RegisteredMeters();
@@ -48,8 +49,9 @@ public final class MetricRegistryImpl extends MetricRegistry {
   public LongGaugeMetric addLongGaugeMetric(
       String name, String description, String unit, List<LabelKey> labelKeys) {
     checkNotNull(name, "name");
-    checkNotNull(labelKeys, "labelKeys");
-    checkDuplicateMetric(name);
+    checkNotNull(labelKeys, "labelKeys should not be null.");
+    checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
+    checkDuplicateMetric(name, "A different metric with the same name is already registered.");
 
     LongGaugeMetricImpl longGaugeMetric =
         new LongGaugeMetricImpl(
@@ -66,8 +68,9 @@ public final class MetricRegistryImpl extends MetricRegistry {
   public DoubleGaugeMetric addDoubleGaugeMetric(
       String name, String description, String unit, List<LabelKey> labelKeys) {
     checkNotNull(name, "name");
-    checkNotNull(labelKeys, "labelKeys");
-    checkDuplicateMetric(name);
+    checkNotNull(labelKeys, "labelKeys should not be null.");
+    checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
+    checkDuplicateMetric(name, "A different metric with the same name is already registered.");
 
     DoubleGaugeMetricImpl doubleGaugeMetric =
         new DoubleGaugeMetricImpl(
@@ -80,13 +83,23 @@ public final class MetricRegistryImpl extends MetricRegistry {
     return doubleGaugeMetric;
   }
 
-  private synchronized void checkDuplicateMetric(String metricName) {
-    boolean isExists = registeredMetric.contains(metricName);
-    if (isExists) {
-      throw new IllegalArgumentException(
-          "A different metric with the same name is already registered.");
+  private synchronized void checkDuplicateMetric(String metricName, @Nullable String errorMessage) {
+    // Updating the set of RegisteredMetrics happens under a lock to avoid multiple add operations
+    // to happen in the same time.
+    Set<String> newRegisteredMetrics = new LinkedHashSet<String>(registeredMetrics);
+    if (!newRegisteredMetrics.add(metricName)) {
+      throw new IllegalArgumentException(errorMessage);
     }
-    registeredMetric.add(metricName);
+    registeredMetrics = Collections.unmodifiableSet(newRegisteredMetrics);
+  }
+
+  private static void checkListElementNotNull(
+      List<LabelKey> labels, @Nullable String errorMessage) {
+    for (LabelKey label : labels) {
+      if (label == null) {
+        throw new NullPointerException(errorMessage);
+      }
+    }
   }
 
   private static final class RegisteredMeters {

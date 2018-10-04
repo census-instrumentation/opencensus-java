@@ -245,25 +245,8 @@ public class LongGaugeMetricImplTest {
     point.inc();
     point.inc();
 
-    Point point1 = longGaugeMetric.addPoint(labelValues);
-    point1.inc();
-
-    assertThat(longGaugeMetric.getMetric(testClock))
-        .isEqualTo(
-            Metric.create(
-                MetricDescriptor.create(
-                    METRIC_NAME,
-                    METRIC_DESCRIPTION,
-                    METRIC_UNIT,
-                    Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                Collections.singletonList(
-                    TimeSeries.create(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Collections.singletonList(
-                            io.opencensus.metrics.export.Point.create(
-                                Value.longValue(4), TEST_TIME)),
-                        null))));
+    thrown.expect(IllegalArgumentException.class);
+    longGaugeMetric.addPoint(labelValues);
   }
 
   @Test

@@ -152,6 +152,9 @@ public class DoubleGaugeMetricImplTest {
     point.dec(100);
     point.set(500.12);
 
+    Point point1 = doubleGaugeMetric.getDefaultPoint();
+    point1.dec(100);
+
     assertThat(doubleGaugeMetric.getMetric(testClock))
         .isEqualTo(
             Metric.create(
@@ -166,7 +169,7 @@ public class DoubleGaugeMetricImplTest {
                         Collections.unmodifiableList(Collections.<LabelValue>emptyList()),
                         Collections.singletonList(
                             io.opencensus.metrics.export.Point.create(
-                                Value.doubleValue(500.12), TEST_TIME)),
+                                Value.doubleValue(400.12), TEST_TIME)),
                         null))));
   }
 
@@ -230,25 +233,8 @@ public class DoubleGaugeMetricImplTest {
     point.inc();
     point.inc();
 
-    Point point1 = doubleGaugeMetric.addPoint(labelValues);
-    point1.inc();
-
-    assertThat(doubleGaugeMetric.getMetric(testClock))
-        .isEqualTo(
-            Metric.create(
-                MetricDescriptor.create(
-                    METRIC_NAME,
-                    METRIC_DESCRIPTION,
-                    METRIC_UNIT,
-                    Type.GAUGE_DOUBLE,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                Collections.singletonList(
-                    TimeSeries.create(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Collections.singletonList(
-                            io.opencensus.metrics.export.Point.create(
-                                Value.doubleValue(4), TEST_TIME)),
-                        null))));
+    thrown.expect(IllegalArgumentException.class);
+    doubleGaugeMetric.addPoint(labelValues);
   }
 
   @Test

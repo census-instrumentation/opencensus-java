@@ -19,6 +19,7 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.opencensus.common.Clock;
 import io.opencensus.common.ToDoubleFunction;
@@ -32,69 +33,79 @@ import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nullable;
 
 /** Implementation of {@link DoubleGaugeMetric}. */
 public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Meter {
   private final MetricDescriptor metricDescriptor;
-  private final ConcurrentMap<List<LabelValue>, Point> pointConcurrentHashMap =
-      new ConcurrentHashMap<List<LabelValue>, Point>();
-  private final List<LabelKey> labelKeys;
+  private volatile Map<List<LabelValue>, Point> points = Maps.newHashMap();
+  private final int labelKeysSize;
 
   DoubleGaugeMetricImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
+    this.labelKeysSize = labelKeys.size();
     this.metricDescriptor =
         MetricDescriptor.create(name, description, unit, Type.GAUGE_DOUBLE, labelKeys);
-    this.labelKeys = labelKeys;
   }
 
   @Override
   public Point addPoint(List<LabelValue> labelValues) {
     checkNotNull(labelValues, "labelValues should not be null.");
-    checkArgument(labelKeys.size() == labelValues.size(), "Incorrect number of labels.");
 
-    return addAndGetPoint(labelValues, null, null);
+    List<LabelValue> labelValuesCopy = new ArrayList<LabelValue>(labelValues); // Deep copy.
+    checkArgument(labelKeysSize == labelValuesCopy.size(), "Incorrect number of labels.");
+
+    return addAndGetPoint(labelValuesCopy, null, null);
   }
 
   @Override
   public <T> void addPoint(
       List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
     checkNotNull(labelValues, "labelValues should not be null.");
-    checkArgument(labelKeys.size() == labelValues.size(), "Incorrect number of labels.");
 
-    addAndGetPoint(labelValues, obj, checkNotNull(function, "function"));
+    List<LabelValue> labelValuesCopy = new ArrayList<LabelValue>(labelValues); // Deep copy.
+    checkArgument(labelKeysSize == labelValuesCopy.size(), "Incorrect number of labels.");
+
+    addAndGetPoint(labelValuesCopy, obj, checkNotNull(function, "function"));
   }
 
   @Override
-  public Point getDefaultPoint() {
-    List<LabelValue> labelValues = new ArrayList<LabelValue>(labelKeys.size());
+  public synchronized Point getDefaultPoint() {
+    List<LabelValue> labelValues = new ArrayList<LabelValue>(labelKeysSize);
+    Point existingPoint = points.get(labelValues);
+    if (existingPoint != null) {
+      return existingPoint;
+    }
 
     return addAndGetPoint(labelValues, null, null);
   }
 
-  private <T> Point addAndGetPoint(
+  private synchronized <T> Point addAndGetPoint(
       List<LabelValue> labelValues, @Nullable T obj, @Nullable ToDoubleFunction<T> function) {
-    Point currentPoint = pointConcurrentHashMap.get(labelValues);
-    if (currentPoint != null) {
-      return currentPoint;
-    } else {
-      Point newPoint =
-          function != null
-              ? new PointImpl<T>(labelValues, obj, function)
-              : new PointImpl<T>(labelValues);
 
-      pointConcurrentHashMap.put(labelValues, newPoint);
-      return newPoint;
+    Point existingPoint = points.get(labelValues);
+    if (existingPoint != null) {
+      throw new IllegalArgumentException("A different point with the same labels already exists");
     }
+    // Updating the map of Points happens under a lock to avoid multiple add operations
+    // to happen in the same time.
+    Map<List<LabelValue>, Point> pointsCopy = new HashMap<List<LabelValue>, Point>(points);
+    Point newPoint =
+        function != null
+            ? new PointImpl<T>(labelValues, obj, function)
+            : new PointImpl<T>(labelValues);
+
+    pointsCopy.put(labelValues, newPoint);
+    points = Collections.unmodifiableMap(pointsCopy);
+    return newPoint;
   }
 
   private List<TimeSeries> getTimeSeries(Clock clock) {
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(pointConcurrentHashMap.size());
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(points.size());
 
-    for (Map.Entry<List<LabelValue>, Point> pointEntry : pointConcurrentHashMap.entrySet()) {
+    for (Map.Entry<List<LabelValue>, Point> pointEntry : points.entrySet()) {
       timeSeriesList.add(
           TimeSeries.create(
               pointEntry.getKey(),
@@ -119,11 +130,11 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
     @Nullable private ToDoubleFunction<T> function;
 
     PointImpl(List<LabelValue> labelValues) {
-      this.labelValues = Collections.unmodifiableList(labelValues);
+      this.labelValues = labelValues;
     }
 
     PointImpl(List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
-      this.labelValues = Collections.unmodifiableList(labelValues);
+      this.labelValues = labelValues;
       this.obj = obj;
       this.function = function;
     }

@@ -65,15 +65,15 @@ public abstract class MetricRegistry {
   private static final class NoopMetricRegistry extends MetricRegistry {
 
     @Override
-    public NoopLongGaugeMetric addLongGaugeMetric(
+    public LongGaugeMetric addLongGaugeMetric(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      return NoopLongGaugeMetric.createInstance(name, description, unit, labelKeys);
+      return LongGaugeMetric.getNoopLongGaugeMetric(name, description, unit, labelKeys);
     }
 
     @Override
-    public NoopDoubleGaugeMetric addDoubleGaugeMetric(
+    public DoubleGaugeMetric addDoubleGaugeMetric(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      return NoopDoubleGaugeMetric.createInstance(name, description, unit, labelKeys);
+      return DoubleGaugeMetric.getNoopDoubleGaugeMetric(name, description, unit, labelKeys);
     }
   }
 }
