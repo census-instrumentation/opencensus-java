@@ -124,7 +124,7 @@ public abstract class LongGaugeMetric {
    * @since 0.17
    */
   static LongGaugeMetric getNoopLongGaugeMetric(
-    String name, String description, String unit, List<LabelKey> labelKeys) {
+      String name, String description, String unit, List<LabelKey> labelKeys) {
     return NoopLongGaugeMetric.getInstance(name, description, unit, labelKeys);
   }
 

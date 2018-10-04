@@ -116,7 +116,7 @@ public abstract class DoubleGaugeMetric {
    * @since 0.17
    */
   static DoubleGaugeMetric getNoopDoubleGaugeMetric(
-    String name, String description, String unit, List<LabelKey> labelKeys) {
+      String name, String description, String unit, List<LabelKey> labelKeys) {
     return NoopDoubleGaugeMetric.getInstance(name, description, unit, labelKeys);
   }
 
