@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.trace.ocagent;
 
+import io.opencensus.common.Duration;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import java.util.Collection;
@@ -26,15 +27,17 @@ final class OcAgentTraceExporterHandler extends Handler {
 
   private static final String DEFAULT_END_POINT = "localhost:55678";
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
-
-  @Nullable private final OcAgentTraceServiceClients.ExportServiceClient client;
+  private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
 
   OcAgentTraceExporterHandler() {
-    this(null, null, null);
+    this(null, null, null, null);
   }
 
   OcAgentTraceExporterHandler(
-      @Nullable String endPoint, @Nullable String serviceName, @Nullable Boolean useInsecure) {
+      @Nullable String endPoint,
+      @Nullable String serviceName,
+      @Nullable Boolean useInsecure,
+      @Nullable Duration retryInterval) {
     if (endPoint == null) {
       endPoint = DEFAULT_END_POINT;
     }
@@ -44,14 +47,15 @@ final class OcAgentTraceExporterHandler extends Handler {
     if (useInsecure == null) {
       useInsecure = false;
     }
-    client = OcAgentTraceServiceClients.openStreams(endPoint, useInsecure, serviceName);
+    if (retryInterval == null) {
+      retryInterval = DEFAULT_RETRY_INTERVAL;
+    }
+    OcAgentTraceServiceClients.startAttemptsToConnectToAgent(
+        endPoint, useInsecure, serviceName, retryInterval.toMillis());
   }
 
   @Override
   public void export(Collection<SpanData> spanDataList) {
-    if (client == null) {
-      return;
-    }
-    client.onExport(spanDataList);
+    OcAgentTraceServiceClients.onExport(spanDataList);
   }
 }
