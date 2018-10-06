@@ -20,29 +20,35 @@ import com.codahale.metrics.Metric;
 
 /** Util methods for generating the metric name(unique) and description. */
 final class DropWizardUtils {
+  static final String SOURCE = "codahale";
+  static final char DELIMITER = '_';
 
   /**
    * Returns the metric name.
    *
-   * @param name the metric name
-   * @param suffix the suffix, that we are interested in from current metric (eg. count, value,
-   *     rate).
-   * @return a string
+   * @param name the initial metric name
+   * @param type the initial type of the metric.
+   * @return a string the unique metric name
    */
-  static String generateFullMetricName(String name, String suffix) {
-    return String.format("%s_%s", name, suffix);
+  static String generateFullMetricName(String name, String type) {
+    return SOURCE + DELIMITER + name + DELIMITER + type;
   }
 
   /**
    * Returns the metric description.
    *
-   * @param metricName the metric name
-   * @param metric the dropwizard metric class.
-   * @return a String
+   * @param metricName the initial metric name
+   * @param metric the codahale metric class.
+   * @return a String the custom metric description
    */
   static String generateFullMetricDescription(String metricName, Metric metric) {
-    return String.format(
-        "Collected from Dropwizard (metric=%s, type=%s)", metricName, metric.getClass().getName());
+    return "Collected from "
+        + SOURCE
+        + " (metric="
+        + metricName
+        + ", type="
+        + metric.getClass().getName()
+        + ")";
   }
 
   private DropWizardUtils() {}

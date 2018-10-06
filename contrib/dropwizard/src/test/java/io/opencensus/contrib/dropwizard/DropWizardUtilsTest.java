@@ -29,13 +29,13 @@ public class DropWizardUtilsTest {
 
   @Test
   public void generateFullMetricName() {
-    assertThat(DropWizardUtils.generateFullMetricName("requests", "count"))
-        .isEqualTo("requests_count");
+    assertThat(DropWizardUtils.generateFullMetricName("requests", "gauge"))
+        .isEqualTo("codahale_requests_gauge");
   }
 
   @Test
   public void generateFullMetricDescription() {
     assertThat(DropWizardUtils.generateFullMetricDescription("Counter", new Counter()))
-        .isEqualTo("Collected from Dropwizard (metric=Counter, type=com.codahale.metrics.Counter)");
+        .isEqualTo("Collected from codahale (metric=Counter, type=com.codahale.metrics.Counter)");
   }
 }

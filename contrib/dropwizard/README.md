@@ -1,9 +1,14 @@
 # OpenCensus DropWizard Util for Java
 
-The *OpenCensus DropWizard Util for Java* provides an easy way to send metrics from your DropWizard
-project to OpenCensus.
+The *OpenCensus DropWizard Util for Java* provides an easy way to translate Dropwizard metrics to
+OpenCensus.
 
 ## Quickstart
+
+### Prerequisites
+
+Assuming, you already have both the OpenCensus and Dropwizard client libraries setup and working
+inside your application.
 
 ### Add the dependencies to your project
 
@@ -23,6 +28,34 @@ For Gradle add to your dependencies:
 compile 'io.opencensus:opencensus-dropwizard:0.17.0'
 ```
 
+### And the following code:
+
+```java
+import java.util.Collections;
+
+public class YourClass {
+  // Create registry for Dropwizard metrics.
+  static final com.codahale.metrics.MetricRegistry codahaleRegistry =
+    new com.codahale.metrics.MetricRegistry();
+
+  // Create a Dropwizard counter.
+  static final com.codahale.metrics.Counter requests = codahaleRegistry.counter("requests");
+
+  public static void main(String[] args) {
+
+    // Increment the requests.
+    requests.inc();
+
+    // Hook the Dropwizard registry into the OpenCensus registry
+    // via the DropWizardMetrics metric producer.
+    io.opencensus.metrics.Metrics.getExportComponent().getMetricProducerManager().add(
+          new io.opencensus.contrib.dropwizard.DropWizardMetrics(
+            Collections.singletonList(codahaleRegistry)));
+
+  }
+}
+```
+
 ## Translation to OpenCensus Metrics
 
 This section describes how each of the DropWizard metrics translate into OpenCensus metrics.
@@ -31,7 +64,7 @@ This section describes how each of the DropWizard metrics translate into OpenCen
 
 Given a DropWizard Counter with name `cache_evictions`, the following values are reported:
 
-* name: cache_evictions_count
+* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_cache_evictions_counter)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 (ex: Collected from Dropwizard (metric=cache_evictions, type=com.codahale.metrics.Counter))
 * type: GAUGE_INT64
@@ -44,7 +77,7 @@ DropWizard Counter goes up/down, it make sense to report them as OpenCensus GAUG
 
 Given a DropWizard Gauge with name `line_requests`, the following values are reported:
 
-* name: line_requests_value
+* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_line_requests_gauge)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: GAUGE_INT64 or GAUGE_DOUBLE
 * unit: 1
@@ -53,13 +86,13 @@ Given a DropWizard Gauge with name `line_requests`, the following values are rep
 
 Given a DropWizard Meter with name `get_requests`, the following values are reported:
 
-* name: get_requests_count
+* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_get_requests_meter)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
-* type: GAUGE_INT64
+* type: CUMULATIVE_INT64
 * unit: 1
 
 rate metrics:
-* name: get_requests_rate
+* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_get_requests_meter_rate)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: GAUGE_DOUBLE
 * unit: "events/second"
@@ -70,7 +103,7 @@ m5_rate m15_rate)
 
 Given a DropWizard Histogram with name `results`, the following values are reported:
 
-* name: results_count
+* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_results_histogram)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: SUMMARY
 * unit: 1
@@ -78,7 +111,7 @@ Given a DropWizard Histogram with name `results`, the following values are repor
 ### DropWizard Timers
 
 Given a DropWizard Timer with name `requests`, the following values are reported:
-* name: requests_count
+* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_requests_timer)
 * description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
 * type: SUMMARY
 * unit: 1
