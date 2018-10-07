@@ -41,6 +41,7 @@ import io.opencensus.trace.Annotation;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Link;
 import io.opencensus.trace.MessageEvent;
+import io.opencensus.trace.MessageEvent.Type;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.SpanContext;
 import io.opencensus.trace.SpanId;
@@ -55,7 +56,6 @@ import io.opencensus.trace.samplers.Samplers;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,11 +66,16 @@ import javax.annotation.concurrent.NotThreadSafe;
 final class JaegerExporterHandler extends SpanExporter.Handler {
   private static final String EXPORT_SPAN_NAME = "ExportJaegerTraces";
   private static final String SPAN_KIND = "span.kind";
-  private static final String DESCRIPTION = "annotation.description";
-  private static final String MESSAGE_EVENT_TYPE = "message_event.type";
-  private static final String MESSAGE_EVENT_ID = "message_event.id";
-  private static final String MESSAGE_EVENT_COMPRESSED_SIZE = "message_event.compressed_size";
-  private static final String MESSAGE_EVENT_UNCOMPRESSED_SIZE = "message_event.uncompressed_size";
+  private static final Tag SERVER_KIND_TAG = new Tag(SPAN_KIND, TagType.STRING).setVStr("server");
+  private static final Tag CLIENT_KIND_TAG = new Tag(SPAN_KIND, TagType.STRING).setVStr("client");
+  private static final String DESCRIPTION = "message";
+  private static final Tag RECEIVED_MESSAGE_EVENT_TAG =
+      new Tag(DESCRIPTION, TagType.STRING).setVStr("received message");
+  private static final Tag SENT_MESSAGE_EVENT_TAG =
+      new Tag(DESCRIPTION, TagType.STRING).setVStr("sent message");
+  private static final String MESSAGE_EVENT_ID = "id";
+  private static final String MESSAGE_EVENT_COMPRESSED_SIZE = "compressed_size";
+  private static final String MESSAGE_EVENT_UNCOMPRESSED_SIZE = "uncompressed_size";
 
   private static final Logger logger = Logger.getLogger(JaegerExporterHandler.class.getName());
 
@@ -332,9 +337,6 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     }
     for (final SpanData.TimedEvent<MessageEvent> event : messageEvents) {
       final long timestampsInMicros = timestampToMicros(event.getTimestamp());
-      final Tag tagMessageType =
-          new Tag(MESSAGE_EVENT_TYPE, TagType.STRING)
-              .setVStr(event.getEvent().getType().name().toLowerCase(Locale.US));
       final Tag tagMessageId =
           new Tag(MESSAGE_EVENT_ID, TagType.LONG).setVLong(event.getEvent().getMessageId());
       final Tag tagCompressedSize =
@@ -346,7 +348,13 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
       logs.add(
           new Log(
               timestampsInMicros,
-              Arrays.asList(tagMessageType, tagMessageId, tagCompressedSize, tagUncompressedSize)));
+              Arrays.asList(
+                  event.getEvent().getType() == Type.RECEIVED
+                      ? RECEIVED_MESSAGE_EVENT_TAG
+                      : SENT_MESSAGE_EVENT_TAG,
+                  tagMessageId,
+                  tagCompressedSize,
+                  tagUncompressedSize)));
     }
     return logs;
   }
@@ -361,8 +369,13 @@ final class JaegerExporterHandler extends SpanExporter.Handler {
     if (kind == null) {
       return null;
     }
-    final Tag tag = new Tag(SPAN_KIND, TagType.STRING);
-    tag.setVStr(kind.name().toLowerCase(Locale.US));
-    return tag;
+
+    switch (kind) {
+      case CLIENT:
+        return CLIENT_KIND_TAG;
+      case SERVER:
+        return SERVER_KIND_TAG;
+    }
+    return null;
   }
 }

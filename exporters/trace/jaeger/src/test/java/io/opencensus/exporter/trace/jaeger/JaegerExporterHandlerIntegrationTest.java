@@ -185,7 +185,7 @@ public class JaegerExporterHandlerIntegrationTest {
     JsonArray fields1 = log1.get("fields").getAsJsonArray();
     assertThat(fields1.size()).isEqualTo(1);
     JsonObject field1 = fields1.get(0).getAsJsonObject();
-    assertThat(field1.get("key").getAsString()).isEqualTo("description");
+    assertThat(field1.get("key").getAsString()).isEqualTo("message");
     assertThat(field1.get("type").getAsString()).isEqualTo("string");
     assertThat(field1.get("value").getAsString()).isEqualTo(START_PROCESSING_VIDEO);
 
@@ -197,7 +197,7 @@ public class JaegerExporterHandlerIntegrationTest {
     JsonArray fields2 = log2.get("fields").getAsJsonArray();
     assertThat(fields2.size()).isEqualTo(1);
     JsonObject field2 = fields2.get(0).getAsJsonObject();
-    assertThat(field2.get("key").getAsString()).isEqualTo("description");
+    assertThat(field2.get("key").getAsString()).isEqualTo("message");
     assertThat(field2.get("type").getAsString()).isEqualTo("string");
     assertThat(field2.get("value").getAsString()).isEqualTo(FINISHED_PROCESSING_VIDEO);
 

@@ -117,7 +117,7 @@ public class JaegerExporterHandlerTest {
     assertThat(log.fields.size()).isEqualTo(4);
     assertThat(log.fields)
         .containsExactly(
-            new Tag("annotation.description", TagType.STRING).setVStr("annotation #1"),
+            new Tag("message", TagType.STRING).setVStr("annotation #1"),
             new Tag("bool", TagType.BOOL).setVBool(true),
             new Tag("long", TagType.LONG).setVLong(1337L),
             new Tag("string", TagType.STRING)
@@ -127,10 +127,10 @@ public class JaegerExporterHandlerTest {
     assertThat(log.fields.size()).isEqualTo(4);
     assertThat(log.fields)
         .containsExactly(
-            new Tag("message_event.type", TagType.STRING).setVStr("sent"),
-            new Tag("message_event.id", TagType.LONG).setVLong(42L),
-            new Tag("message_event.compressed_size", TagType.LONG).setVLong(69),
-            new Tag("message_event.uncompressed_size", TagType.LONG).setVLong(96));
+            new Tag("message", TagType.STRING).setVStr("sent message"),
+            new Tag("id", TagType.LONG).setVLong(42L),
+            new Tag("compressed_size", TagType.LONG).setVLong(69),
+            new Tag("uncompressed_size", TagType.LONG).setVLong(96));
 
     assertThat(span.references.size()).isEqualTo(1);
     SpanRef reference = span.references.get(0);
