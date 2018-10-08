@@ -82,6 +82,9 @@ Given a DropWizard Gauge with name `line_requests`, the following values are rep
 * type: GAUGE_INT64 or GAUGE_DOUBLE
 * unit: 1
 
+Note: For simplicity, OpenCensus uses GAUGE_DOUBLE type for any Number and GAUGE_INT64
+type for Boolean values.
+
 ### DropWizard Meters
 
 Given a DropWizard Meter with name `get_requests`, the following values are reported:

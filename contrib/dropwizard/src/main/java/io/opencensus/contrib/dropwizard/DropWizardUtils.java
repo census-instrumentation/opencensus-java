@@ -20,8 +20,8 @@ import com.codahale.metrics.Metric;
 
 /** Util methods for generating the metric name(unique) and description. */
 final class DropWizardUtils {
-  static final String SOURCE = "codahale";
-  static final char DELIMITER = '_';
+  private static final String SOURCE = "codahale";
+  private static final char DELIMITER = '_';
 
   /**
    * Returns the metric name.

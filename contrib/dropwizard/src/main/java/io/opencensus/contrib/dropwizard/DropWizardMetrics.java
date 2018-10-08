@@ -59,25 +59,23 @@ public class DropWizardMetrics extends MetricProducer {
 
   @DefaultVisibilityForTesting
   static final List<LabelKey> RATE_LABEL_KEY =
-      Collections.unmodifiableList(
-          Collections.singletonList(
-              LabelKey.create("rate", "measures the rate of events over time")));
+      Collections.singletonList(LabelKey.create("rate", "measures the rate of events over time"));
 
   @DefaultVisibilityForTesting
   static final List<LabelValue> RATE_MEAN_LABEL_VALUE =
-      Collections.unmodifiableList(Collections.singletonList(LabelValue.create("mean_rate")));
+      Collections.singletonList(LabelValue.create("mean_rate"));
 
   @DefaultVisibilityForTesting
   static final List<LabelValue> RATE_ONE_MINUTE_LABEL_VALUE =
-      Collections.unmodifiableList(Collections.singletonList(LabelValue.create("m1_rate")));
+      Collections.singletonList(LabelValue.create("m1_rate"));
 
   @DefaultVisibilityForTesting
   static final List<LabelValue> RATE_FIVE_MINUTE_LABEL_VALUE =
-      Collections.unmodifiableList(Collections.singletonList(LabelValue.create("m5_rate")));
+      Collections.singletonList(LabelValue.create("m5_rate"));
 
   @DefaultVisibilityForTesting
   static final List<LabelValue> RATE_FIFTEEN_MINUTE_LABEL_VALUE =
-      Collections.unmodifiableList(Collections.singletonList(LabelValue.create("m15_rate")));
+      Collections.singletonList(LabelValue.create("m15_rate"));
 
   private final List<com.codahale.metrics.MetricRegistry> metricRegistryList;
   private final Clock clock;
@@ -133,8 +131,7 @@ public class DropWizardMetrics extends MetricProducer {
             Collections.<LabelValue>emptyList(),
             Collections.singletonList(Point.create(value, clock.now())),
             null);
-    return Metric.create(
-        metricDescriptor, Collections.unmodifiableList(Collections.singletonList(timeSeries)));
+    return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
   }
 
   /**
@@ -162,8 +159,7 @@ public class DropWizardMetrics extends MetricProducer {
             Collections.singletonList(
                 Point.create(Value.longValue(counter.getCount()), clock.now())),
             null);
-    return Metric.create(
-        metricDescriptor, Collections.unmodifiableList(Collections.singletonList(timeSeries)));
+    return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
   }
 
   /**
@@ -223,9 +219,7 @@ public class DropWizardMetrics extends MetricProducer {
 
     return Collections.unmodifiableList(
         Arrays.asList(
-            Metric.create(
-                countMetricDescriptor,
-                Collections.unmodifiableList(Collections.singletonList(countTimeSeries))),
+            Metric.create(countMetricDescriptor, Collections.singletonList(countTimeSeries)),
             Metric.create(rateMetricDescriptor, Collections.unmodifiableList(timeSeriesList))));
   }
 
@@ -298,8 +292,7 @@ public class DropWizardMetrics extends MetricProducer {
             Collections.singletonList(point),
             cumulativeStartTimestamp);
 
-    return Metric.create(
-        metricDescriptor, Collections.unmodifiableList(Collections.singletonList(timeSeries)));
+    return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
   }
 
   @Override
