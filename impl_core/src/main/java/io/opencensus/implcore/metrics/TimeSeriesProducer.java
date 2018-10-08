@@ -19,10 +19,10 @@ package io.opencensus.implcore.metrics;
 import io.opencensus.common.Clock;
 import io.opencensus.metrics.export.TimeSeries;
 
-public interface TimeSeriesCollector {
+public interface TimeSeriesProducer {
 
   /**
-   * Returns a {@code TimeSeries} that contains a {@code Point}, which is value of single gauge.
+   * Returns a {@code TimeSeries} that contains a {@code Point}.
    *
    * @param clock the clock used to get the time.
    * @return a {@code TimeSeries}.

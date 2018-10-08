@@ -77,8 +77,8 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void addPoint_WithObjFunction() {
-    longGaugeMetric.addPoint(
+  public void addTimeSeries_WithObjFunction() {
+    longGaugeMetric.addTimeSeries(
         labelValues,
         new JobsInQueue(),
         new ToLongFunction<JobsInQueue>() {
@@ -96,10 +96,10 @@ public class LongGaugeMetricImplTest {
                     METRIC_DESCRIPTION,
                     METRIC_UNIT,
                     Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
+                    Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
                     TimeSeries.create(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
+                        Collections.singletonList(LABEL_VALUES),
                         Collections.singletonList(
                             io.opencensus.metrics.export.Point.create(
                                 Value.longValue(7), TEST_TIME)),
@@ -117,8 +117,8 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void addPoint_WithLabels() {
-    Point point = longGaugeMetric.addPoint(labelValues);
+  public void addTimeSeries_WithLabels() {
+    Point point = longGaugeMetric.addTimeSeries(labelValues);
 
     point.inc();
     point.inc(120);
@@ -134,10 +134,10 @@ public class LongGaugeMetricImplTest {
                     METRIC_DESCRIPTION,
                     METRIC_UNIT,
                     Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
+                    Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
                     TimeSeries.create(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
+                        Collections.singletonList(LABEL_VALUES),
                         Collections.singletonList(
                             io.opencensus.metrics.export.Point.create(
                                 Value.longValue(500), TEST_TIME)),
@@ -145,8 +145,8 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void getDefaultPoint() {
-    Point point = longGaugeMetric.getDefaultPoint();
+  public void getDefaultTimeSeries() {
+    Point point = longGaugeMetric.getDefaultTimeSeries();
     point.inc();
     point.inc(120);
     point.dec();
@@ -161,10 +161,10 @@ public class LongGaugeMetricImplTest {
                     METRIC_DESCRIPTION,
                     METRIC_UNIT,
                     Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
+                    Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
                     TimeSeries.create(
-                        Collections.unmodifiableList(Collections.<LabelValue>emptyList()),
+                        Collections.<LabelValue>emptyList(),
                         Collections.singletonList(
                             io.opencensus.metrics.export.Point.create(
                                 Value.longValue(500), TEST_TIME)),
@@ -173,15 +173,15 @@ public class LongGaugeMetricImplTest {
 
   @Test
   public void multipleMetrics_GetMetric() {
-    Point point = longGaugeMetric.addPoint(labelValues);
+    Point point = longGaugeMetric.addTimeSeries(labelValues);
     point.inc();
     point.inc();
     point.inc();
 
-    Point point1 = longGaugeMetric.getDefaultPoint();
+    Point point1 = longGaugeMetric.getDefaultTimeSeries();
     point1.set(100);
 
-    longGaugeMetric.addPoint(
+    longGaugeMetric.addTimeSeries(
         labelValues1,
         new JobsInQueue(),
         new ToLongFunction<JobsInQueue>() {
@@ -219,20 +219,20 @@ public class LongGaugeMetricImplTest {
                 METRIC_DESCRIPTION,
                 METRIC_UNIT,
                 Type.GAUGE_INT64,
-                Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))));
+                Collections.singletonList(LABEL_KEY)));
 
     assertThat(metric.getTimeSeriesList()).containsExactlyElementsIn(timeSeriesList);
   }
 
   @Test
   public void multipleMetrics_GetMetricSamePoint() {
-    Point point = longGaugeMetric.addPoint(labelValues);
+    Point point = longGaugeMetric.addTimeSeries(labelValues);
     point.inc();
-    Point point1 = longGaugeMetric.addPoint(labelValues);
+    Point point1 = longGaugeMetric.addTimeSeries(labelValues);
     point1.inc();
 
     thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addPoint(
+    longGaugeMetric.addTimeSeries(
         labelValues,
         null,
         new ToLongFunction<JobsInQueue>() {
@@ -245,7 +245,7 @@ public class LongGaugeMetricImplTest {
 
   @Test
   public void multipleMetrics_GetMetricSamePoint_1() {
-    longGaugeMetric.addPoint(
+    longGaugeMetric.addTimeSeries(
         labelValues,
         null,
         new ToLongFunction<JobsInQueue>() {
@@ -255,7 +255,7 @@ public class LongGaugeMetricImplTest {
           }
         });
 
-    longGaugeMetric.addPoint(
+    longGaugeMetric.addTimeSeries(
         labelValues,
         null,
         new ToLongFunction<JobsInQueue>() {
@@ -266,19 +266,19 @@ public class LongGaugeMetricImplTest {
         });
 
     thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addPoint(labelValues);
+    longGaugeMetric.addTimeSeries(labelValues);
   }
 
   @Test
-  public void addPoint_IncorrectLabels() {
+  public void addTimeSeries_IncorrectLabels() {
     thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addPoint(new ArrayList<LabelValue>());
+    longGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
   }
 
   @Test
-  public void addPoint_IncorrectLabelsWithObjFunction() {
+  public void addTimeSeries_IncorrectLabelsWithObjFunction() {
     thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addPoint(
+    longGaugeMetric.addTimeSeries(
         new ArrayList<LabelValue>(),
         null,
         new ToLongFunction<JobsInQueue>() {

@@ -27,7 +27,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * and down. The gauges values can be negative. For example, the number of pending jobs in the
  * queue. See {@link io.opencensus.metrics.MetricRegistry} for an example of its use.
  *
- * <p>Example 1: Create a Gauge without a labels
+ * <p>Example 1: Create a Gauge with default labels.
  *
  * <pre>{@code
  * class YourClass {
@@ -36,7 +36,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *   LongGaugeMetric jobsInQueue = metricRegistry.addLongGaugeMetric(
  *       "Queue_Size", "Number of jobs in queue", "1", new ArrayList<LabelKey>());
  *
- *   Point defaultPoint = jobsInQueue.getDefaultPoint();
+ *   Point defaultPoint = jobsInQueue.getDefaultTimeSeries();
  *
  *   void doWork() {
  *      defaultPoint.inc();
@@ -58,10 +58,10 @@ import javax.annotation.concurrent.ThreadSafe;
  *       "Queue_Size", "Number of jobs in queue", "1", keys);
  *
  *   List<LabelValue> inboundQueue = Collections.singletonList(LabelValue.create("Inbound"));
- *   Point inboundQueuePoint = jobsInQueue.addPoint(inboundQueue);
+ *   Point inboundQueuePoint = jobsInQueue.addTimeSeries(inboundQueue);
  *
  *   List<LabelValue> callbackQueue = Collections.singletonList(LabelValue.create("Callback"));
- *   Point callbackQueuePoint = jobsInQueue.addPoint(callbackQueue);
+ *   Point callbackQueuePoint = jobsInQueue.addTimeSeries(callbackQueue);
  *
  *   void processInboundRequest() {
  *      inboundQueuePoint.inc();
@@ -91,7 +91,7 @@ public abstract class LongGaugeMetric {
    * @return a {@code Point} the value of single gauge.
    * @since 0.17
    */
-  public abstract Point addPoint(List<LabelValue> labelValues);
+  public abstract Point addTimeSeries(List<LabelValue> labelValues);
 
   /**
    * Adds and returns a {@code Point} that reports the value of the object after the function. This
@@ -106,7 +106,7 @@ public abstract class LongGaugeMetric {
    * @param <T> the type of the object upon which the function derives a measurement.
    * @since 0.17
    */
-  public abstract <T> void addPoint(
+  public abstract <T> void addTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function);
 
   /**
@@ -115,7 +115,7 @@ public abstract class LongGaugeMetric {
    * @return a {@code Point} the value of default gauge.
    * @since 0.17
    */
-  public abstract Point getDefaultPoint();
+  public abstract Point getDefaultTimeSeries();
 
   /**
    * Returns the no-op implementation of the {@code LongGaugeMetric}.
@@ -192,14 +192,14 @@ public abstract class LongGaugeMetric {
     }
 
     @Override
-    public NoopPoint addPoint(List<LabelValue> labelValues) {
+    public NoopPoint addTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
       return NoopPoint.getInstance();
     }
 
     @Override
-    public <T> void addPoint(
+    public <T> void addTimeSeries(
         List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
@@ -207,7 +207,7 @@ public abstract class LongGaugeMetric {
     }
 
     @Override
-    public NoopPoint getDefaultPoint() {
+    public NoopPoint getDefaultTimeSeries() {
       return NoopPoint.getInstance();
     }
 

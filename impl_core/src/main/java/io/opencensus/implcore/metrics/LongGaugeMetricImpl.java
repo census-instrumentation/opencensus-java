@@ -41,7 +41,8 @@ import javax.annotation.Nullable;
 /** Implementation of {@link LongGaugeMetric}. */
 public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter {
   private final MetricDescriptor metricDescriptor;
-  private volatile Map<List<LabelValue>, TimeSeriesCollector> registeredPoints = Maps.newHashMap();
+  private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeries =
+      Maps.newHashMap();
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
 
@@ -53,58 +54,61 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
   }
 
   @Override
-  public Point addPoint(List<LabelValue> labelValues) {
+  public Point addTimeSeries(List<LabelValue> labelValues) {
     checkValidLabelValues(labelValues);
 
-    return registerPoint(new ArrayList<LabelValue>(labelValues));
+    return registerTimeSeries(new ArrayList<LabelValue>(labelValues));
   }
 
   @Override
-  public <T> void addPoint(
+  public <T> void addTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
     checkValidLabelValues(labelValues);
 
-    registerPoint(new ArrayList<LabelValue>(labelValues), obj, checkNotNull(function, "function"));
+    registerTimeSeries(
+        new ArrayList<LabelValue>(labelValues), obj, checkNotNull(function, "function"));
   }
 
   @Override
-  public synchronized Point getDefaultPoint() {
-    // lock free default retrieve point
-    TimeSeriesCollector existingPoint = registeredPoints.get(defaultLabelValues);
-    if (existingPoint != null) {
-      return (PointImpl) existingPoint;
+  public synchronized Point getDefaultTimeSeries() {
+    // lock free default point retrieval
+    TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(defaultLabelValues);
+    if (existingTimeSeries != null) {
+      return (PointImpl) existingTimeSeries;
     }
-    return registerPoint(defaultLabelValues);
+    return registerTimeSeries(defaultLabelValues);
   }
 
-  private Point registerPoint(List<LabelValue> labelValues) {
-    return (PointImpl) registerPoint(labelValues, null, null);
+  private Point registerTimeSeries(List<LabelValue> labelValues) {
+    return (PointImpl) registerTimeSeries(labelValues, null, null);
   }
 
-  private synchronized <T> TimeSeriesCollector registerPoint(
+  private synchronized <T> TimeSeriesProducer registerTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, @Nullable ToLongFunction<T> function) {
-    TimeSeriesCollector existingPoint = registeredPoints.get(labelValues);
-    if (existingPoint != null) {
-      if ((function != null && existingPoint instanceof PointImpl)
-          || (function == null && existingPoint instanceof PointWithFunctionImpl)) {
-        throw new IllegalArgumentException("A different point with the same labels already exists");
+    TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(labelValues);
+    if (existingTimeSeries != null) {
+      if ((function != null && existingTimeSeries instanceof PointImpl)
+          || (function == null && existingTimeSeries instanceof PointWithFunctionImpl)) {
+        throw new IllegalArgumentException(
+            "A different time series with the same labels already exists");
       }
-      return existingPoint;
+      // Return TimeSeries that are already registered.
+      return existingTimeSeries;
     }
 
-    TimeSeriesCollector newPoint =
+    TimeSeriesProducer newTimeSeries =
         function == null
             ? new PointImpl(labelValues)
             : new PointWithFunctionImpl<T>(labelValues, obj, function);
 
-    // Updating the map of Points happens under a lock to avoid multiple add operations
+    // Updating the map of time series happens under a lock to avoid multiple add operations
     // to happen in the same time.
-    Map<List<LabelValue>, TimeSeriesCollector> registeredPointsCopy =
-        new HashMap<List<LabelValue>, TimeSeriesCollector>(registeredPoints);
-    registeredPointsCopy.put(labelValues, newPoint);
-    registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
+    Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeriesCopy =
+        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredTimeSeries);
+    registeredTimeSeriesCopy.put(labelValues, newTimeSeries);
+    registeredTimeSeries = Collections.unmodifiableMap(registeredTimeSeriesCopy);
 
-    return newPoint;
+    return newTimeSeries;
   }
 
   private void checkValidLabelValues(List<LabelValue> labelValues) {
@@ -118,15 +122,15 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
 
   @Override
   public Metric getMetric(Clock clock) {
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredPoints.size());
-    for (Map.Entry<List<LabelValue>, TimeSeriesCollector> pointEntry : registeredPoints.entrySet()) {
-      timeSeriesList.add(pointEntry.getValue().getTimeSeries(clock));
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredTimeSeries.size());
+    for (Map.Entry<List<LabelValue>, TimeSeriesProducer> entry : registeredTimeSeries.entrySet()) {
+      timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
   /** Implementation of {@link io.opencensus.metrics.LongGaugeMetric.Point}. */
-  public static final class PointImpl extends Point implements TimeSeriesCollector {
+  public static final class PointImpl extends Point implements TimeSeriesProducer {
 
     // TODO(mayurkale): Consider to use LongAdder here, once we upgrade to Java8.
     private final AtomicLong value = new AtomicLong(0);
@@ -174,10 +178,11 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
   /**
    * Implementation of {@link io.opencensus.metrics.LongGaugeMetric.Point} with a obj and function.
    */
-  public static final class PointWithFunctionImpl<T> implements TimeSeriesCollector {
+  public static final class PointWithFunctionImpl<T> implements TimeSeriesProducer {
     private final List<LabelValue> labelValues;
     @Nullable private final T obj;
     private final ToLongFunction<T> function;
+    private final long defaultValue = 0;
 
     PointWithFunctionImpl(
         List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
@@ -192,7 +197,8 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
           labelValues,
           Collections.singletonList(
               io.opencensus.metrics.export.Point.create(
-                  Value.longValue(function.applyAsLong(obj)), clock.now())),
+                  Value.longValue(obj != null ? function.applyAsLong(obj) : defaultValue),
+                  clock.now())),
           null);
     }
   }

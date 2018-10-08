@@ -62,15 +62,15 @@ public class MetricRegistryTest {
   public void addDoubleGauge_NoopPoint() {
     DoubleGaugeMetric doubleGaugeMetric =
         metricRegistry.addDoubleGaugeMetric("name", "description", "1", new ArrayList<LabelKey>());
-    DoubleGaugeMetric.Point dp = doubleGaugeMetric.addPoint(new ArrayList<LabelValue>());
+    DoubleGaugeMetric.Point dp = doubleGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
     dp.inc();
     dp.inc(12);
     dp.set(12);
     dp.dec(12);
     dp.dec();
 
-    doubleGaugeMetric.getDefaultPoint();
-    doubleGaugeMetric.addPoint(
+    doubleGaugeMetric.getDefaultTimeSeries();
+    doubleGaugeMetric.addTimeSeries(
         new ArrayList<LabelValue>(),
         null,
         new ToDoubleFunction<Object>() {
@@ -109,15 +109,15 @@ public class MetricRegistryTest {
   public void addLongGauge_NoopPoint() {
     LongGaugeMetric longGaugeMetric =
         metricRegistry.addLongGaugeMetric("name", "description", "1", new ArrayList<LabelKey>());
-    Point dp = longGaugeMetric.addPoint(new ArrayList<LabelValue>());
+    Point dp = longGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
     dp.inc();
     dp.inc(12);
     dp.set(12);
     dp.dec(12);
     dp.dec();
 
-    longGaugeMetric.getDefaultPoint();
-    longGaugeMetric.addPoint(
+    longGaugeMetric.getDefaultTimeSeries();
+    longGaugeMetric.addTimeSeries(
         new ArrayList<LabelValue>(),
         null,
         new ToLongFunction<Object>() {

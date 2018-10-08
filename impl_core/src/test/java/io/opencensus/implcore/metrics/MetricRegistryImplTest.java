@@ -105,7 +105,7 @@ public class MetricRegistryImplTest {
     DoubleGaugeMetric doubleGaugeMetric =
         metricRegistry.addDoubleGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
 
-    doubleGaugeMetric.addPoint(
+    doubleGaugeMetric.addTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToDoubleFunction<TotalMemory>() {
@@ -122,7 +122,7 @@ public class MetricRegistryImplTest {
                     DESCRIPTION,
                     UNIT,
                     Type.GAUGE_DOUBLE,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
+                    Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
@@ -158,7 +158,7 @@ public class MetricRegistryImplTest {
   public void addLongGauge_GetMetrics() {
     LongGaugeMetric longGaugeMetric =
         metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
-    longGaugeMetric.addPoint(
+    longGaugeMetric.addTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToLongFunction<TotalMemory>() {
@@ -175,7 +175,7 @@ public class MetricRegistryImplTest {
                     DESCRIPTION,
                     UNIT,
                     Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
+                    Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
@@ -194,7 +194,7 @@ public class MetricRegistryImplTest {
   public void multipleMetrics_GetMetrics() {
     LongGaugeMetric longGaugeMetric =
         metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
-    longGaugeMetric.addPoint(
+    longGaugeMetric.addTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToLongFunction<TotalMemory>() {
@@ -207,7 +207,7 @@ public class MetricRegistryImplTest {
     DoubleGaugeMetric doubleGaugeMetric =
         metricRegistry.addDoubleGaugeMetric("name1", DESCRIPTION, UNIT, labelKeys);
 
-    doubleGaugeMetric.addPoint(
+    doubleGaugeMetric.addTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToDoubleFunction<TotalMemory>() {
@@ -224,7 +224,7 @@ public class MetricRegistryImplTest {
                     DESCRIPTION,
                     UNIT,
                     Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
+                    Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
@@ -236,7 +236,7 @@ public class MetricRegistryImplTest {
                     DESCRIPTION,
                     UNIT,
                     Type.GAUGE_DOUBLE,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
+                    Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),

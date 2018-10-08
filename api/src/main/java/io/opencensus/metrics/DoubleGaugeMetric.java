@@ -27,7 +27,7 @@ import javax.annotation.concurrent.ThreadSafe;
  * and down. The gauges values can be negative. For example, Free memory or Total memory. See {@link
  * io.opencensus.metrics.MetricRegistry} for an example of its use.
  *
- * <p>Example 1: Create a Gauge without a labels
+ * <p>Example 1: Create a Gauge with default labels.
  *
  * <pre>{@code
  * class YourClass {
@@ -36,7 +36,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *   DoubleGaugeMetric totalMemory = metricRegistry.addDoubleGaugeMetric(
  *       "Total_memory", "Total CPU Memory", "1", new ArrayList<LabelKey>());
  *
- *   Point defaultPoint = totalMemory.getDefaultPoint();
+ *   Point defaultPoint = totalMemory.getDefaultTimeSeries();
  *
  *   void doWork() {
  *      defaultPoint.inc();
@@ -59,7 +59,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *       "Total_Memory", "Total CPU Memory", "1", keys);
  *
  *   List<LabelValue> usedMemory = Collections.singletonList(LabelValue.create("Used"));
- *   Point point = totalMemory.addPoint(usedMemory);
+ *   Point point = totalMemory.addTimeSeries(usedMemory);
  *
  *   void doSomeWork() {
  *      point.set(12.5);
@@ -83,7 +83,7 @@ public abstract class DoubleGaugeMetric {
    * @return a {@code Point} the value of single gauge.
    * @since 0.17
    */
-  public abstract Point addPoint(List<LabelValue> labelValues);
+  public abstract Point addTimeSeries(List<LabelValue> labelValues);
 
   /**
    * Adds and returns a {@code Point} that reports the value of the object after the function. This
@@ -98,7 +98,7 @@ public abstract class DoubleGaugeMetric {
    * @param <T> the type of the object upon which the function derives a measurement.
    * @since 0.17
    */
-  public abstract <T> void addPoint(
+  public abstract <T> void addTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function);
 
   /**
@@ -107,7 +107,7 @@ public abstract class DoubleGaugeMetric {
    * @return a {@code Point} the value of default gauge.
    * @since 0.17
    */
-  public abstract Point getDefaultPoint();
+  public abstract Point getDefaultTimeSeries();
 
   /**
    * Returns the no-op implementation of the {@code DoubleGaugeMetric}.
@@ -184,14 +184,14 @@ public abstract class DoubleGaugeMetric {
     }
 
     @Override
-    public NoopPoint addPoint(List<LabelValue> labelValues) {
+    public NoopPoint addTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
       return NoopPoint.getInstance();
     }
 
     @Override
-    public <T> void addPoint(
+    public <T> void addTimeSeries(
         List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
@@ -199,7 +199,7 @@ public abstract class DoubleGaugeMetric {
     }
 
     @Override
-    public NoopPoint getDefaultPoint() {
+    public NoopPoint getDefaultTimeSeries() {
       return NoopPoint.getInstance();
     }
 
