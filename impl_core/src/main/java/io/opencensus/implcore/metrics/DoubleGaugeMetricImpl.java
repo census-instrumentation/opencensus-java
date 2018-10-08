@@ -41,102 +41,100 @@ import javax.annotation.Nullable;
 /** Implementation of {@link DoubleGaugeMetric}. */
 public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Meter {
   private final MetricDescriptor metricDescriptor;
-  private volatile Map<List<LabelValue>, Point> points = Maps.newHashMap();
+  private volatile Map<List<LabelValue>, TimeSeriesCollector> registeredPoints = Maps.newHashMap();
   private final int labelKeysSize;
+  private final List<LabelValue> defaultLabelValues;
 
   DoubleGaugeMetricImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
-    this.labelKeysSize = labelKeys.size();
+    labelKeysSize = labelKeys.size();
+    defaultLabelValues = new ArrayList<LabelValue>(labelKeysSize);
     this.metricDescriptor =
         MetricDescriptor.create(name, description, unit, Type.GAUGE_DOUBLE, labelKeys);
   }
 
   @Override
   public Point addPoint(List<LabelValue> labelValues) {
-    checkNotNull(labelValues, "labelValues should not be null.");
+    checkValidLabelValues(labelValues);
 
-    List<LabelValue> labelValuesCopy = new ArrayList<LabelValue>(labelValues); // Deep copy.
-    checkArgument(labelKeysSize == labelValuesCopy.size(), "Incorrect number of labels.");
-
-    return addAndGetPoint(labelValuesCopy, null, null);
+    return registerPoint(new ArrayList<LabelValue>(labelValues));
   }
 
   @Override
   public <T> void addPoint(
       List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
-    checkNotNull(labelValues, "labelValues should not be null.");
+    checkValidLabelValues(labelValues);
 
-    List<LabelValue> labelValuesCopy = new ArrayList<LabelValue>(labelValues); // Deep copy.
-    checkArgument(labelKeysSize == labelValuesCopy.size(), "Incorrect number of labels.");
-
-    addAndGetPoint(labelValuesCopy, obj, checkNotNull(function, "function"));
+    registerPoint(new ArrayList<LabelValue>(labelValues), obj, checkNotNull(function, "function"));
   }
 
   @Override
-  public synchronized Point getDefaultPoint() {
-    List<LabelValue> labelValues = new ArrayList<LabelValue>(labelKeysSize);
-    Point existingPoint = points.get(labelValues);
+  public Point getDefaultPoint() {
+    // lock free default retrieve point
+    TimeSeriesCollector existingPoint = registeredPoints.get(defaultLabelValues);
     if (existingPoint != null) {
+      return (PointImpl) existingPoint;
+    }
+    return registerPoint(defaultLabelValues);
+  }
+
+  private Point registerPoint(List<LabelValue> labelValues) {
+    return (PointImpl) registerPoint(labelValues, null, null);
+  }
+
+  private synchronized <T> TimeSeriesCollector registerPoint(
+      List<LabelValue> labelValues, @Nullable T obj, @Nullable ToDoubleFunction<T> function) {
+    TimeSeriesCollector existingPoint = registeredPoints.get(labelValues);
+    if (existingPoint != null) {
+      if ((function != null && existingPoint instanceof PointImpl)
+          || (function == null && existingPoint instanceof PointWithFunctionImpl)) {
+        throw new IllegalArgumentException("A different point with the same labels already exists");
+      }
+      // Return point that are already registered.
       return existingPoint;
     }
 
-    return addAndGetPoint(labelValues, null, null);
-  }
+    TimeSeriesCollector newPoint =
+        function == null
+            ? new PointImpl(labelValues)
+            : new PointWithFunctionImpl<T>(labelValues, obj, function);
 
-  private synchronized <T> Point addAndGetPoint(
-      List<LabelValue> labelValues, @Nullable T obj, @Nullable ToDoubleFunction<T> function) {
-
-    Point existingPoint = points.get(labelValues);
-    if (existingPoint != null) {
-      throw new IllegalArgumentException("A different point with the same labels already exists");
-    }
     // Updating the map of Points happens under a lock to avoid multiple add operations
     // to happen in the same time.
-    Map<List<LabelValue>, Point> pointsCopy = new HashMap<List<LabelValue>, Point>(points);
-    Point newPoint =
-        function != null
-            ? new PointImpl<T>(labelValues, obj, function)
-            : new PointImpl<T>(labelValues);
+    Map<List<LabelValue>, TimeSeriesCollector> registeredPointsCopy =
+        new HashMap<List<LabelValue>, TimeSeriesCollector>(registeredPoints);
+    registeredPointsCopy.put(labelValues, newPoint);
+    registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
 
-    pointsCopy.put(labelValues, newPoint);
-    points = Collections.unmodifiableMap(pointsCopy);
     return newPoint;
   }
 
-  private List<TimeSeries> getTimeSeries(Clock clock) {
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(points.size());
+  private void checkValidLabelValues(List<LabelValue> labelValues) {
+    checkNotNull(labelValues, "labelValues should not be null.");
+    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
 
-    for (Map.Entry<List<LabelValue>, Point> pointEntry : points.entrySet()) {
-      timeSeriesList.add(
-          TimeSeries.create(
-              pointEntry.getKey(),
-              Collections.singletonList(
-                  io.opencensus.metrics.export.Point.create(
-                      Value.doubleValue(((PointImpl) pointEntry.getValue()).get()), clock.now())),
-              null));
+    for (LabelValue labelValue : labelValues) {
+      checkNotNull(labelValue, "labelValues element should not be null.");
     }
-    return timeSeriesList;
   }
 
   @Override
   public Metric getMetric(Clock clock) {
-    return Metric.create(metricDescriptor, getTimeSeries(clock));
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredPoints.size());
+    for (Map.Entry<List<LabelValue>, TimeSeriesCollector> pointEntry : registeredPoints.entrySet()) {
+      timeSeriesList.add(pointEntry.getValue().getTimeSeries(clock));
+    }
+    return Metric.create(metricDescriptor, timeSeriesList);
   }
 
   /** Implementation of {@link io.opencensus.metrics.DoubleGaugeMetric.Point}. */
-  public static final class PointImpl<T> extends Point {
+  public static final class PointImpl extends Point implements TimeSeriesCollector {
+
+    // TODO(mayurkale): Consider to use DoubleAdder here, once we upgrade to Java8.
     private final AtomicDouble value = new AtomicDouble(0);
     private final List<LabelValue> labelValues;
-    @Nullable private T obj;
-    @Nullable private ToDoubleFunction<T> function;
 
     PointImpl(List<LabelValue> labelValues) {
       this.labelValues = labelValues;
-    }
-
-    PointImpl(List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
-      this.labelValues = labelValues;
-      this.obj = obj;
-      this.function = function;
     }
 
     @Override
@@ -159,17 +157,46 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
       value.addAndGet(-amt);
     }
 
-    public double get() {
-      return obj != null && function != null ? function.applyAsDouble(obj) : value.get();
-    }
-
     @Override
     public void set(double val) {
       value.set(val);
     }
 
-    public List<LabelValue> getLabelValues() {
-      return labelValues;
+    @Override
+    public TimeSeries getTimeSeries(Clock clock) {
+      return TimeSeries.create(
+          labelValues,
+          Collections.singletonList(
+              io.opencensus.metrics.export.Point.create(
+                  Value.doubleValue(value.get()), clock.now())),
+          null);
+    }
+  }
+
+  /**
+   * Implementation of {@link io.opencensus.metrics.DoubleGaugeMetric.Point} with a obj and
+   * function.
+   */
+  public static final class PointWithFunctionImpl<T> implements TimeSeriesCollector {
+    private final List<LabelValue> labelValues;
+    @Nullable private final T obj;
+    private final ToDoubleFunction<T> function;
+
+    PointWithFunctionImpl(
+        List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
+      this.labelValues = labelValues;
+      this.obj = obj;
+      this.function = function;
+    }
+
+    @Override
+    public TimeSeries getTimeSeries(Clock clock) {
+      return TimeSeries.create(
+          labelValues,
+          Collections.singletonList(
+              io.opencensus.metrics.export.Point.create(
+                  Value.doubleValue(function.applyAsDouble(obj)), clock.now())),
+          null);
     }
   }
 }

@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
 import io.opencensus.common.ToLongFunction;
-import io.opencensus.implcore.metrics.LongGaugeMetricImpl.PointImpl;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.LongGaugeMetric.Point;
@@ -78,7 +77,7 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void addPoint_with_obj_function() {
+  public void addPoint_WithObjFunction() {
     longGaugeMetric.addPoint(
         labelValues,
         new JobsInQueue(),
@@ -118,20 +117,14 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void addPoint_only_with_labels() {
+  public void addPoint_WithLabels() {
     Point point = longGaugeMetric.addPoint(labelValues);
 
-    assertThat(((PointImpl) point).get()).isEqualTo(0);
     point.inc();
-    assertThat(((PointImpl) point).get()).isEqualTo(1);
     point.inc(120);
-    assertThat(((PointImpl) point).get()).isEqualTo(121);
     point.dec();
-    assertThat(((PointImpl) point).get()).isEqualTo(120);
     point.dec(100);
-    assertThat(((PointImpl) point).get()).isEqualTo(20);
     point.set(500);
-    assertThat(((PointImpl) point).get()).isEqualTo(500);
 
     assertThat(longGaugeMetric.getMetric(testClock))
         .isEqualTo(
@@ -154,18 +147,11 @@ public class LongGaugeMetricImplTest {
   @Test
   public void getDefaultPoint() {
     Point point = longGaugeMetric.getDefaultPoint();
-
-    assertThat(((PointImpl) point).get()).isEqualTo(0);
     point.inc();
-    assertThat(((PointImpl) point).get()).isEqualTo(1);
     point.inc(120);
-    assertThat(((PointImpl) point).get()).isEqualTo(121);
     point.dec();
-    assertThat(((PointImpl) point).get()).isEqualTo(120);
     point.dec(100);
-    assertThat(((PointImpl) point).get()).isEqualTo(20);
     point.set(500);
-    assertThat(((PointImpl) point).get()).isEqualTo(500);
 
     assertThat(longGaugeMetric.getMetric(testClock))
         .isEqualTo(
@@ -239,24 +225,58 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void multipleMetrics_GetMetric_samePoint() {
+  public void multipleMetrics_GetMetricSamePoint() {
     Point point = longGaugeMetric.addPoint(labelValues);
     point.inc();
-    point.inc();
-    point.inc();
+    Point point1 = longGaugeMetric.addPoint(labelValues);
+    point1.inc();
+
+    thrown.expect(IllegalArgumentException.class);
+    longGaugeMetric.addPoint(
+        labelValues,
+        null,
+        new ToLongFunction<JobsInQueue>() {
+          @Override
+          public long applyAsLong(JobsInQueue jobsInQueue) {
+            return jobsInQueue.getValue();
+          }
+        });
+  }
+
+  @Test
+  public void multipleMetrics_GetMetricSamePoint_1() {
+    longGaugeMetric.addPoint(
+        labelValues,
+        null,
+        new ToLongFunction<JobsInQueue>() {
+          @Override
+          public long applyAsLong(JobsInQueue jobsInQueue) {
+            return jobsInQueue.getValue();
+          }
+        });
+
+    longGaugeMetric.addPoint(
+        labelValues,
+        null,
+        new ToLongFunction<JobsInQueue>() {
+          @Override
+          public long applyAsLong(JobsInQueue jobsInQueue) {
+            return jobsInQueue.getValue();
+          }
+        });
 
     thrown.expect(IllegalArgumentException.class);
     longGaugeMetric.addPoint(labelValues);
   }
 
   @Test
-  public void addPoint_Incorrect_Labels() {
+  public void addPoint_IncorrectLabels() {
     thrown.expect(IllegalArgumentException.class);
     longGaugeMetric.addPoint(new ArrayList<LabelValue>());
   }
 
   @Test
-  public void addPoint_Incorrect_Labels_With_Obj() {
+  public void addPoint_IncorrectLabelsWithObjFunction() {
     thrown.expect(IllegalArgumentException.class);
     longGaugeMetric.addPoint(
         new ArrayList<LabelValue>(),

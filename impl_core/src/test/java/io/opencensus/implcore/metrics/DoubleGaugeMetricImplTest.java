@@ -77,7 +77,7 @@ public class DoubleGaugeMetricImplTest {
   }
 
   @Test
-  public void addPoint_with_obj_function() {
+  public void addPoint_WithObjFunction() {
     doubleGaugeMetric.addPoint(
         labelValues,
         new TotalMemory(),
@@ -117,7 +117,7 @@ public class DoubleGaugeMetricImplTest {
   }
 
   @Test
-  public void addPoint_only_with_labels() {
+  public void addPoint_WithLabels() {
     Point point = doubleGaugeMetric.addPoint(labelValues);
     point.inc();
     point.inc(120.2);
@@ -227,24 +227,59 @@ public class DoubleGaugeMetricImplTest {
   }
 
   @Test
-  public void multipleMetrics_GetMetric_samePoint() {
+  public void multipleMetrics_GetMetricSamePoint() {
     Point point = doubleGaugeMetric.addPoint(labelValues);
     point.inc();
-    point.inc();
-    point.inc();
+
+    Point point1 = doubleGaugeMetric.addPoint(labelValues);
+    point1.inc();
+
+    thrown.expect(IllegalArgumentException.class);
+    doubleGaugeMetric.addPoint(
+        labelValues,
+        null,
+        new ToDoubleFunction<TotalMemory>() {
+          @Override
+          public double applyAsDouble(TotalMemory memory) {
+            return memory.getValue();
+          }
+        });
+  }
+
+  @Test
+  public void multipleMetrics_GetMetricSamePoint_1() {
+    doubleGaugeMetric.addPoint(
+        labelValues,
+        null,
+        new ToDoubleFunction<TotalMemory>() {
+          @Override
+          public double applyAsDouble(TotalMemory memory) {
+            return memory.getValue();
+          }
+        });
+
+    doubleGaugeMetric.addPoint(
+        labelValues,
+        null,
+        new ToDoubleFunction<TotalMemory>() {
+          @Override
+          public double applyAsDouble(TotalMemory memory) {
+            return memory.getValue();
+          }
+        });
 
     thrown.expect(IllegalArgumentException.class);
     doubleGaugeMetric.addPoint(labelValues);
   }
 
   @Test
-  public void addPoint_Incorrect_Labels() {
+  public void addPoint_IncorrectLabels() {
     thrown.expect(IllegalArgumentException.class);
     doubleGaugeMetric.addPoint(new ArrayList<LabelValue>());
   }
 
   @Test
-  public void addPoint_Incorrect_Labels_With_Obj() {
+  public void addPoint_IncorrectLabelsWithObjFunction() {
     thrown.expect(IllegalArgumentException.class);
     doubleGaugeMetric.addPoint(
         new ArrayList<LabelValue>(),
