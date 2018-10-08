@@ -19,6 +19,7 @@ package io.opencensus.implcore.metrics;
 import io.opencensus.common.Clock;
 import io.opencensus.metrics.export.TimeSeries;
 
+/** This is an interface that must be implemented by {@code Point}, that returns a TimeSeries. */
 public interface TimeSeriesProducer {
 
   /**

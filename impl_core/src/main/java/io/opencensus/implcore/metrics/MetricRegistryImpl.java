@@ -96,9 +96,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
   private static void checkListElementNotNull(
       List<LabelKey> labels, @Nullable String errorMessage) {
     for (LabelKey label : labels) {
-      if (label == null) {
-        throw new NullPointerException(errorMessage);
-      }
+      checkNotNull(label, errorMessage);
     }
   }
 

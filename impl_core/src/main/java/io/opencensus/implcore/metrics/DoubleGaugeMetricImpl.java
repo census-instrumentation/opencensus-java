@@ -86,13 +86,18 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
   private synchronized <T> TimeSeriesProducer registerTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, @Nullable ToDoubleFunction<T> function) {
     TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(labelValues);
+
     if (existingTimeSeries != null) {
-      if ((function != null && existingTimeSeries instanceof PointImpl)
-          || (function == null && existingTimeSeries instanceof PointWithFunctionImpl)) {
+      boolean isRegisteredWithPoint = function != null && existingTimeSeries instanceof PointImpl;
+      boolean isRegisteredWithPointFunction =
+          function == null && existingTimeSeries instanceof PointWithFunctionImpl;
+
+      if (isRegisteredWithPoint || isRegisteredWithPointFunction) {
         throw new IllegalArgumentException(
             "A different time series with the same labels already exists");
       }
-      // Return TimeSeries that are already registered.
+
+      // Return a TimeSeries that are already registered.
       return existingTimeSeries;
     }
 

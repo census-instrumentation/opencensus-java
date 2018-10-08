@@ -83,9 +83,10 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class LongGaugeMetric {
 
   /**
-   * Adds and returns a {@code Point}. This is more convenient form when you can want to manually
-   * increase and decrease values as per your service requirements. The number of label values must
-   * be the same to that of the label keys passed to {@link MetricRegistry#addLongGaugeMetric}.
+   * Adds a TimeSeries and returns a {@code Point}, which is part of the TimeSeries. This is more
+   * convenient form when you can want to manually increase and decrease values as per your service
+   * requirements. The number of label values must be the same to that of the label keys passed to
+   * {@link MetricRegistry#addLongGaugeMetric}.
    *
    * @param labelValues the list of label values.
    * @return a {@code Point} the value of single gauge.
@@ -94,11 +95,11 @@ public abstract class LongGaugeMetric {
   public abstract Point addTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Adds and returns a {@code Point} that reports the value of the object after the function. This
-   * is a self sufficient gauge, slightly more common form of gauge is one that monitors some
-   * non-numeric object. The last argument establishes the function that is used to determine the
-   * value of the gauge when the gauge is collected. The number of label values must be the same to
-   * that of the label keys passed to {@link MetricRegistry#addLongGaugeMetric}.
+   * Adds a TimeSeries, that reports the value of the object after the function. This is a self
+   * sufficient gauge, slightly more common form of gauge is one that monitors some non-numeric
+   * object. The last argument establishes the function that is used to determine the value of the
+   * gauge when the gauge is collected. The number of label values must be the same to that of the
+   * label keys passed to {@link MetricRegistry#addLongGaugeMetric}.
    *
    * @param labelValues the list of label values.
    * @param obj the state object from which the function derives a measurement.

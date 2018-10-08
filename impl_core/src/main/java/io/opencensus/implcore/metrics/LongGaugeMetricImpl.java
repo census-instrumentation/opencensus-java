@@ -70,7 +70,7 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
   }
 
   @Override
-  public synchronized Point getDefaultTimeSeries() {
+  public Point getDefaultTimeSeries() {
     // lock free default point retrieval
     TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(defaultLabelValues);
     if (existingTimeSeries != null) {
@@ -86,13 +86,17 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
   private synchronized <T> TimeSeriesProducer registerTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, @Nullable ToLongFunction<T> function) {
     TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(labelValues);
+
     if (existingTimeSeries != null) {
-      if ((function != null && existingTimeSeries instanceof PointImpl)
-          || (function == null && existingTimeSeries instanceof PointWithFunctionImpl)) {
+      boolean isRegisteredWithPoint = function != null && existingTimeSeries instanceof PointImpl;
+      boolean isRegisteredWithPointFunction =
+          function == null && existingTimeSeries instanceof PointWithFunctionImpl;
+
+      if (isRegisteredWithPoint || isRegisteredWithPointFunction) {
         throw new IllegalArgumentException(
             "A different time series with the same labels already exists");
       }
-      // Return TimeSeries that are already registered.
+      // Return a TimeSeries that are already registered.
       return existingTimeSeries;
     }
 
