@@ -59,9 +59,7 @@ public abstract class MetricRegistry {
       String name, String description, String unit, List<LabelKey> labelKeys);
 
   /**
-   * Build a new double gauge to be added to the registry.
-   *
-   * <p>Must be called only once.
+   * Build a new derived double gauge to be added to the registry.
    *
    * @param name the name of the metric.
    * @param description the description of the metric.

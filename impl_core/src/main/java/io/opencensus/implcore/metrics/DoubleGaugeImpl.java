@@ -19,7 +19,6 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.Utils;
@@ -34,14 +33,15 @@ import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /** Implementation of {@link DoubleGauge}. */
 public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
-  private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeries =
-      Maps.newHashMap();
+  private volatile Map<List<LabelValue>, PointImpl> registeredPoints =
+      Collections.unmodifiableMap(new LinkedHashMap<List<LabelValue>, PointImpl>());
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
 
@@ -58,11 +58,21 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
     Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
+    // lock free point retrieval, if it is present
+    PointImpl existingPoint = registeredPoints.get(labelValues);
+    if (existingPoint != null) {
+      return existingPoint;
+    }
     return registerTimeSeries(new ArrayList<LabelValue>(labelValues));
   }
 
   @Override
   public Point getDefaultTimeSeries() {
+    // lock free default point retrieval, if it is present
+    PointImpl existingPoint = registeredPoints.get(defaultLabelValues);
+    if (existingPoint != null) {
+      return existingPoint;
+    }
     return registerTimeSeries(defaultLabelValues);
   }
 
@@ -76,41 +86,41 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
   @Override
   public synchronized void clear() {
-    registeredTimeSeries.clear();
+    registeredPoints.clear();
   }
 
   private synchronized void remove(List<LabelValue> labelValues) {
-    Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeriesCopy =
-        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredTimeSeries);
-    if (registeredTimeSeriesCopy.remove(labelValues) == null) {
-      // The element not present, no need to update the current map of time series.
+    Map<List<LabelValue>, PointImpl> registeredPointsCopy =
+        new HashMap<List<LabelValue>, PointImpl>(registeredPoints);
+    if (registeredPointsCopy.remove(labelValues) == null) {
+      // The element not present, no need to update the current map of points.
       return;
     }
-    registeredTimeSeries = Collections.unmodifiableMap(registeredTimeSeriesCopy);
+    registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
 
-  private synchronized <T> Point registerTimeSeries(List<LabelValue> labelValues) {
-    TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(labelValues);
-    if (existingTimeSeries != null) {
-      // Return a TimeSeries that are already registered.
-      return (PointImpl) existingTimeSeries;
+  private synchronized Point registerTimeSeries(List<LabelValue> labelValues) {
+    PointImpl existingPoint = registeredPoints.get(labelValues);
+    if (existingPoint != null) {
+      // Return a Point that are already registered.
+      return existingPoint;
     }
 
-    TimeSeriesProducer newTimeSeries = new PointImpl(labelValues);
-    // Updating the map of time series happens under a lock to avoid multiple add operations
+    PointImpl newPoint = new PointImpl(labelValues);
+    // Updating the map of points happens under a lock to avoid multiple add operations
     // to happen in the same time.
-    Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeriesCopy =
-        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredTimeSeries);
-    registeredTimeSeriesCopy.put(labelValues, newTimeSeries);
-    registeredTimeSeries = Collections.unmodifiableMap(registeredTimeSeriesCopy);
+    Map<List<LabelValue>, PointImpl> registeredPointsCopy =
+        new HashMap<List<LabelValue>, PointImpl>(registeredPoints);
+    registeredPointsCopy.put(labelValues, newPoint);
+    registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
 
-    return (PointImpl) newTimeSeries;
+    return newPoint;
   }
 
   @Override
   public Metric getMetric(Clock clock) {
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredTimeSeries.size());
-    for (Map.Entry<List<LabelValue>, TimeSeriesProducer> entry : registeredTimeSeries.entrySet()) {
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredPoints.size());
+    for (Map.Entry<List<LabelValue>, PointImpl> entry : registeredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }
     return Metric.create(metricDescriptor, timeSeriesList);

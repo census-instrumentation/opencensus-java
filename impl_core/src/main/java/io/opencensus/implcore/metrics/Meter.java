@@ -19,7 +19,7 @@ package io.opencensus.implcore.metrics;
 import io.opencensus.common.Clock;
 import io.opencensus.metrics.export.Metric;
 
-public interface Meter {
+interface Meter {
 
   /**
    * Provides a {@link io.opencensus.metrics.export.Metric} with one or more {@link

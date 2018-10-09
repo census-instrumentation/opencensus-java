@@ -32,11 +32,11 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class DerivedDoubleGauge {
 
   /**
-   * Creates a TimeSeries, that reports the value of the object after the function. This is, slightly
-   * more common form of gauge is one that monitors some non-numeric object. The last argument
-   * establishes the function that is used to determine the value of the gauge when the gauge is
-   * collected. The number of label values must be the same to that of the label keys passed to
-   * {@link MetricRegistry#addDerivedDoubleGauge}.
+   * Creates a TimeSeries, that reports the value of the object after the function. This is,
+   * slightly more common form of gauge is one that monitors some non-numeric object. The last
+   * argument establishes the function that is used to determine the value of the gauge when the
+   * gauge is collected. The number of label values must be the same to that of the label keys
+   * passed to {@link MetricRegistry#addDerivedDoubleGauge}.
    *
    * @param labelValues the list of label values.
    * @param obj the state object from which the function derives a measurement.
@@ -48,7 +48,8 @@ public abstract class DerivedDoubleGauge {
       List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function);
 
   /**
-   * Removes the {@code TimeSeries} from gauge metric, if it is present.
+   * Removes the {@code TimeSeries} from the gauge metric, if it is present. i.e. references to
+   * previous {@code Point} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
    * @since 0.17
@@ -56,7 +57,7 @@ public abstract class DerivedDoubleGauge {
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Removes all {@code TimeSeries}s from gauge metric.
+   * References to all previous {@code Point} objects are invalid (not part of the metric).
    *
    * @since 0.17
    */

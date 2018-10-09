@@ -93,7 +93,8 @@ public abstract class DoubleGauge {
   public abstract Point getDefaultTimeSeries();
 
   /**
-   * Removes the {@code TimeSeries} from gauge metric, if it is present.
+   * Removes the {@code TimeSeries} from the gauge metric, if it is present. i.e. references to
+   * previous {@code Point} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
    * @since 0.17
@@ -101,7 +102,7 @@ public abstract class DoubleGauge {
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Removes all {@code TimeSeries}s from gauge metric.
+   * References to all previous {@code Point} objects are invalid (not part of the metric).
    *
    * @since 0.17
    */

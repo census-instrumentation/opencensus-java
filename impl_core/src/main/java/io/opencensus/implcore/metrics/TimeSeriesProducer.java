@@ -20,7 +20,7 @@ import io.opencensus.common.Clock;
 import io.opencensus.metrics.export.TimeSeries;
 
 /** This is an interface that must be implemented by {@code Point}, that returns a TimeSeries. */
-public interface TimeSeriesProducer {
+interface TimeSeriesProducer {
 
   /**
    * Returns a {@code TimeSeries} that contains a {@code Point}.

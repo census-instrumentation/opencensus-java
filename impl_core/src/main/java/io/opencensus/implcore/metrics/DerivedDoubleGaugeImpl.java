@@ -19,7 +19,6 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.Maps;
 import io.opencensus.common.Clock;
 import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.implcore.internal.Utils;
@@ -34,6 +33,7 @@ import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -41,8 +41,8 @@ import javax.annotation.Nullable;
 /** Implementation of {@link DerivedDoubleGauge}. */
 public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
-  private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeries =
-      Maps.newHashMap();
+  private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredPoints =
+      Collections.unmodifiableMap(new LinkedHashMap<List<LabelValue>, TimeSeriesProducer>());
   private final int labelKeysSize;
 
   DerivedDoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
@@ -72,39 +72,40 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
 
   @Override
   public synchronized void clear() {
-    registeredTimeSeries.clear();
+    registeredPoints.clear();
   }
 
   private synchronized void remove(List<LabelValue> labelValues) {
-    Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeriesCopy =
-        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredTimeSeries);
-    if (registeredTimeSeriesCopy.remove(labelValues) == null) {
+    Map<List<LabelValue>, TimeSeriesProducer> registeredPointsCopy =
+        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredPoints);
+    if (registeredPointsCopy.remove(labelValues) == null) {
       // The element not present, no need to update the current map of time series.
       return;
     }
-    registeredTimeSeries = Collections.unmodifiableMap(registeredTimeSeriesCopy);
+    registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
 
   private synchronized <T> void registerTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
-    TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(labelValues);
+    TimeSeriesProducer existingTimeSeries = registeredPoints.get(labelValues);
     if (existingTimeSeries != null) {
-      return;
+      throw new IllegalArgumentException(
+          "A different time series with the same labels already exists.");
     }
 
     TimeSeriesProducer newTimeSeries = new PointWithFunction<T>(labelValues, obj, function);
     // Updating the map of time series happens under a lock to avoid multiple add operations
     // to happen in the same time.
-    Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeriesCopy =
-        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredTimeSeries);
-    registeredTimeSeriesCopy.put(labelValues, newTimeSeries);
-    registeredTimeSeries = Collections.unmodifiableMap(registeredTimeSeriesCopy);
+    Map<List<LabelValue>, TimeSeriesProducer> registeredPointsCopy =
+        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredPoints);
+    registeredPointsCopy.put(labelValues, newTimeSeries);
+    registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
 
   @Override
   public Metric getMetric(Clock clock) {
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredTimeSeries.size());
-    for (Map.Entry<List<LabelValue>, TimeSeriesProducer> entry : registeredTimeSeries.entrySet()) {
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredPoints.size());
+    for (Map.Entry<List<LabelValue>, TimeSeriesProducer> entry : registeredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }
     return Metric.create(metricDescriptor, timeSeriesList);
