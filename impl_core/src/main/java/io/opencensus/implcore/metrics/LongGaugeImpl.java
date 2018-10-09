@@ -22,9 +22,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.Maps;
 import io.opencensus.common.Clock;
 import io.opencensus.common.ToLongFunction;
+import io.opencensus.implcore.internal.Utils;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.LongGaugeMetric;
+import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -38,15 +39,15 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 
-/** Implementation of {@link LongGaugeMetric}. */
-public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter {
+/** Implementation of {@link LongGauge}. */
+public final class LongGaugeImpl extends LongGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
   private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeries =
       Maps.newHashMap();
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
 
-  LongGaugeMetricImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
+  LongGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
     defaultLabelValues = new ArrayList<LabelValue>(labelKeysSize);
     this.metricDescriptor =
@@ -119,9 +120,7 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
     checkNotNull(labelValues, "labelValues should not be null.");
     checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
 
-    for (LabelValue labelValue : labelValues) {
-      checkNotNull(labelValue, "labelValues element should not be null.");
-    }
+    Utils.checkListElementNotNull(labelValues, "labelKeys element should not be null.");
   }
 
   @Override
@@ -133,7 +132,7 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
-  /** Implementation of {@link io.opencensus.metrics.LongGaugeMetric.Point}. */
+  /** Implementation of {@link LongGauge.Point}. */
   public static final class PointImpl extends Point implements TimeSeriesProducer {
 
     // TODO(mayurkale): Consider to use LongAdder here, once we upgrade to Java8.
@@ -179,9 +178,7 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
     }
   }
 
-  /**
-   * Implementation of {@link io.opencensus.metrics.LongGaugeMetric.Point} with a obj and function.
-   */
+  /** Implementation of {@link LongGauge.Point} with a obj and function. */
   public static final class PointWithFunctionImpl<T> implements TimeSeriesProducer {
     private final List<LabelValue> labelValues;
     @Nullable private final T obj;

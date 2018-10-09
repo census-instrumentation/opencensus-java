@@ -16,9 +16,8 @@
 
 package io.opencensus.metrics;
 
-import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.common.ToLongFunction;
-import io.opencensus.metrics.LongGaugeMetric.Point;
+import io.opencensus.metrics.LongGauge.Point;
 import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,32 +36,32 @@ public class MetricRegistryTest {
   @Test
   public void addDoubleGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric(null, "description", "1", new ArrayList<LabelKey>());
+    metricRegistry.addDoubleGauge(null, "description", "1", new ArrayList<LabelKey>());
   }
 
   @Test
   public void addDoubleGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric("name", null, "1", new ArrayList<LabelKey>());
+    metricRegistry.addDoubleGauge("name", null, "1", new ArrayList<LabelKey>());
   }
 
   @Test
   public void addDoubleGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric("name", "description", null, new ArrayList<LabelKey>());
+    metricRegistry.addDoubleGauge("name", "description", null, new ArrayList<LabelKey>());
   }
 
   @Test
   public void addDoubleGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric("name", "description", "1", null);
+    metricRegistry.addDoubleGauge("name", "description", "1", null);
   }
 
   @Test
   public void addDoubleGauge_NoopPoint() {
-    DoubleGaugeMetric doubleGaugeMetric =
-        metricRegistry.addDoubleGaugeMetric("name", "description", "1", new ArrayList<LabelKey>());
-    DoubleGaugeMetric.Point dp = doubleGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
+    DoubleGauge doubleGaugeMetric =
+        metricRegistry.addDoubleGauge("name", "description", "1", new ArrayList<LabelKey>());
+    DoubleGauge.Point dp = doubleGaugeMetric.getOrCreateTimeSeries(new ArrayList<LabelValue>());
     dp.inc();
     dp.inc(12);
     dp.set(12);
@@ -70,45 +69,36 @@ public class MetricRegistryTest {
     dp.dec();
 
     doubleGaugeMetric.getDefaultTimeSeries();
-    doubleGaugeMetric.addTimeSeries(
-        new ArrayList<LabelValue>(),
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 10.0;
-          }
-        });
   }
 
   @Test
   public void addLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric(null, "description", "1", new ArrayList<LabelKey>());
+    metricRegistry.addLongGauge(null, "description", "1", new ArrayList<LabelKey>());
   }
 
   @Test
   public void addLongGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric("name", null, "1", new ArrayList<LabelKey>());
+    metricRegistry.addLongGauge("name", null, "1", new ArrayList<LabelKey>());
   }
 
   @Test
   public void addLongGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric("name", "description", null, new ArrayList<LabelKey>());
+    metricRegistry.addLongGauge("name", "description", null, new ArrayList<LabelKey>());
   }
 
   @Test
   public void addLongGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric("name", "description", "1", null);
+    metricRegistry.addLongGauge("name", "description", "1", null);
   }
 
   @Test
   public void addLongGauge_NoopPoint() {
-    LongGaugeMetric longGaugeMetric =
-        metricRegistry.addLongGaugeMetric("name", "description", "1", new ArrayList<LabelKey>());
+    LongGauge longGaugeMetric =
+        metricRegistry.addLongGauge("name", "description", "1", new ArrayList<LabelKey>());
     Point dp = longGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
     dp.inc();
     dp.inc(12);

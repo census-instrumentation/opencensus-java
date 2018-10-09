@@ -40,7 +40,7 @@ public abstract class MetricRegistry {
    * @since 0.17
    */
   @ExperimentalApi
-  public abstract LongGaugeMetric addLongGaugeMetric(
+  public abstract LongGauge addLongGauge(
       String name, String description, String unit, List<LabelKey> labelKeys);
 
   /**
@@ -55,7 +55,22 @@ public abstract class MetricRegistry {
    * @since 0.17
    */
   @ExperimentalApi
-  public abstract DoubleGaugeMetric addDoubleGaugeMetric(
+  public abstract DoubleGauge addDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
+
+  /**
+   * Build a new double gauge to be added to the registry.
+   *
+   * <p>Must be called only once.
+   *
+   * @param name the name of the metric.
+   * @param description the description of the metric.
+   * @param unit the unit of the metric.
+   * @param labelKeys the list of label keys.
+   * @since 0.17
+   */
+  @ExperimentalApi
+  public abstract DerivedDoubleGauge addDerivedDoubleGauge(
       String name, String description, String unit, List<LabelKey> labelKeys);
 
   static MetricRegistry newNoopMetricRegistry() {
@@ -65,15 +80,21 @@ public abstract class MetricRegistry {
   private static final class NoopMetricRegistry extends MetricRegistry {
 
     @Override
-    public LongGaugeMetric addLongGaugeMetric(
+    public LongGauge addLongGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      return LongGaugeMetric.getNoopLongGaugeMetric(name, description, unit, labelKeys);
+      return LongGauge.getNoopLongGauge(name, description, unit, labelKeys);
     }
 
     @Override
-    public DoubleGaugeMetric addDoubleGaugeMetric(
+    public DoubleGauge addDoubleGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      return DoubleGaugeMetric.getNoopDoubleGaugeMetric(name, description, unit, labelKeys);
+      return DoubleGauge.getNoopDoubleGauge(name, description, unit, labelKeys);
+    }
+
+    @Override
+    public DerivedDoubleGauge addDerivedDoubleGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      return DerivedDoubleGauge.getNoopDerivedDoubleGauge(name, description, unit, labelKeys);
     }
   }
 }

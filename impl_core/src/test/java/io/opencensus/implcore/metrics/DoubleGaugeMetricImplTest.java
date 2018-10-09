@@ -19,8 +19,7 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.metrics.DoubleGaugeMetric.Point;
+import io.opencensus.metrics.DoubleGauge.Point;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
@@ -39,7 +38,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link DoubleGaugeMetricImpl}. */
+/** Unit tests for {@link DoubleGaugeImpl}. */
 @RunWith(JUnit4.class)
 public class DoubleGaugeMetricImplTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
@@ -57,7 +56,7 @@ public class DoubleGaugeMetricImplTest {
   private static final Timestamp TEST_TIME = Timestamp.create(1234, 123);
   private final TestClock testClock = TestClock.create(TEST_TIME);
 
-  private DoubleGaugeMetricImpl doubleGaugeMetric;
+  private DoubleGaugeImpl doubleGaugeMetric;
 
   @Before
   public void setUp() {
@@ -66,44 +65,7 @@ public class DoubleGaugeMetricImplTest {
     labelValues1.add(LABEL_VALUES_1);
 
     doubleGaugeMetric =
-        new DoubleGaugeMetricImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
-  }
-
-  // helper class
-  public static class TotalMemory {
-    public double getValue() {
-      return 2.13;
-    }
-  }
-
-  @Test
-  public void addTimeSeries_WithObjFunction() {
-    doubleGaugeMetric.addTimeSeries(
-        labelValues,
-        new TotalMemory(),
-        new ToDoubleFunction<TotalMemory>() {
-          @Override
-          public double applyAsDouble(TotalMemory memory) {
-            return memory.getValue();
-          }
-        });
-
-    assertThat(doubleGaugeMetric.getMetric(testClock))
-        .isEqualTo(
-            Metric.create(
-                MetricDescriptor.create(
-                    METRIC_NAME,
-                    METRIC_DESCRIPTION,
-                    METRIC_UNIT,
-                    Type.GAUGE_DOUBLE,
-                    Collections.singletonList(LABEL_KEY)),
-                Collections.singletonList(
-                    TimeSeries.create(
-                        Collections.singletonList(LABEL_VALUES),
-                        Collections.singletonList(
-                            io.opencensus.metrics.export.Point.create(
-                                Value.doubleValue(2.13), TEST_TIME)),
-                        null))));
+        new DoubleGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
   }
 
   @Test
@@ -117,8 +79,8 @@ public class DoubleGaugeMetricImplTest {
   }
 
   @Test
-  public void addTimeSeries_WithLabels() {
-    Point point = doubleGaugeMetric.addTimeSeries(labelValues);
+  public void getOrCreateTimeSeries_WithLabels() {
+    Point point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
     point.inc();
     point.inc(120.2);
     point.dec();
@@ -175,23 +137,13 @@ public class DoubleGaugeMetricImplTest {
 
   @Test
   public void multipleMetrics_GetMetric() {
-    Point point = doubleGaugeMetric.addTimeSeries(labelValues);
+    Point point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
     point.inc();
     point.inc();
     point.inc();
 
     Point point1 = doubleGaugeMetric.getDefaultTimeSeries();
     point1.set(100);
-
-    doubleGaugeMetric.addTimeSeries(
-        labelValues1,
-        new TotalMemory(),
-        new ToDoubleFunction<TotalMemory>() {
-          @Override
-          public double applyAsDouble(TotalMemory memory) {
-            return memory.getValue();
-          }
-        });
 
     List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>();
     timeSeriesList.add(
@@ -205,12 +157,6 @@ public class DoubleGaugeMetricImplTest {
             Collections.<LabelValue>emptyList(),
             Collections.singletonList(
                 io.opencensus.metrics.export.Point.create(Value.doubleValue(100), TEST_TIME)),
-            null));
-    timeSeriesList.add(
-        TimeSeries.create(
-            Collections.singletonList(LABEL_VALUES_1),
-            Collections.singletonList(
-                io.opencensus.metrics.export.Point.create(Value.doubleValue(2.13), TEST_TIME)),
             null));
 
     Metric metric = doubleGaugeMetric.getMetric(testClock);
@@ -227,68 +173,8 @@ public class DoubleGaugeMetricImplTest {
   }
 
   @Test
-  public void multipleMetrics_GetMetricSamePoint() {
-    Point point = doubleGaugeMetric.addTimeSeries(labelValues);
-    point.inc();
-
-    Point point1 = doubleGaugeMetric.addTimeSeries(labelValues);
-    point1.inc();
-
+  public void getOrCreateTimeSeries_IncorrectLabels() {
     thrown.expect(IllegalArgumentException.class);
-    doubleGaugeMetric.addTimeSeries(
-        labelValues,
-        null,
-        new ToDoubleFunction<TotalMemory>() {
-          @Override
-          public double applyAsDouble(TotalMemory memory) {
-            return memory.getValue();
-          }
-        });
-  }
-
-  @Test
-  public void multipleMetrics_GetMetricSamePoint_1() {
-    doubleGaugeMetric.addTimeSeries(
-        labelValues,
-        null,
-        new ToDoubleFunction<TotalMemory>() {
-          @Override
-          public double applyAsDouble(TotalMemory memory) {
-            return memory.getValue();
-          }
-        });
-
-    doubleGaugeMetric.addTimeSeries(
-        labelValues,
-        null,
-        new ToDoubleFunction<TotalMemory>() {
-          @Override
-          public double applyAsDouble(TotalMemory memory) {
-            return memory.getValue();
-          }
-        });
-
-    thrown.expect(IllegalArgumentException.class);
-    doubleGaugeMetric.addTimeSeries(labelValues);
-  }
-
-  @Test
-  public void addTimeSeries_IncorrectLabels() {
-    thrown.expect(IllegalArgumentException.class);
-    doubleGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
-  }
-
-  @Test
-  public void addTimeSeries_IncorrectLabelsWithObjFunction() {
-    thrown.expect(IllegalArgumentException.class);
-    doubleGaugeMetric.addTimeSeries(
-        new ArrayList<LabelValue>(),
-        null,
-        new ToDoubleFunction<TotalMemory>() {
-          @Override
-          public double applyAsDouble(TotalMemory memory) {
-            return memory.getValue();
-          }
-        });
+    doubleGaugeMetric.getOrCreateTimeSeries(new ArrayList<LabelValue>());
   }
 }

@@ -19,9 +19,10 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
-import io.opencensus.metrics.DoubleGaugeMetric;
+import io.opencensus.metrics.DerivedDoubleGauge;
+import io.opencensus.metrics.DoubleGauge;
 import io.opencensus.metrics.LabelKey;
-import io.opencensus.metrics.LongGaugeMetric;
+import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
@@ -46,15 +47,15 @@ public final class MetricRegistryImpl extends MetricRegistry {
   }
 
   @Override
-  public LongGaugeMetric addLongGaugeMetric(
+  public LongGauge addLongGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
     checkNotNull(name, "name");
     checkNotNull(labelKeys, "labelKeys should not be null.");
     checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
     checkDuplicateMetric(name, "A different metric with the same name is already registered.");
 
-    LongGaugeMetricImpl longGaugeMetric =
-        new LongGaugeMetricImpl(
+    LongGaugeImpl longGaugeMetric =
+        new LongGaugeImpl(
             name,
             checkNotNull(description, "description"),
             checkNotNull(unit, "unit"),
@@ -65,15 +66,15 @@ public final class MetricRegistryImpl extends MetricRegistry {
   }
 
   @Override
-  public DoubleGaugeMetric addDoubleGaugeMetric(
+  public DoubleGauge addDoubleGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
     checkNotNull(name, "name");
     checkNotNull(labelKeys, "labelKeys should not be null.");
     checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
     checkDuplicateMetric(name, "A different metric with the same name is already registered.");
 
-    DoubleGaugeMetricImpl doubleGaugeMetric =
-        new DoubleGaugeMetricImpl(
+    DoubleGaugeImpl doubleGaugeMetric =
+        new DoubleGaugeImpl(
             name,
             checkNotNull(description, "description"),
             checkNotNull(unit, "unit"),
@@ -81,6 +82,25 @@ public final class MetricRegistryImpl extends MetricRegistry {
 
     registeredMeters.registerMeter(doubleGaugeMetric);
     return doubleGaugeMetric;
+  }
+
+  @Override
+  public DerivedDoubleGauge addDerivedDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    checkNotNull(name, "name");
+    checkNotNull(labelKeys, "labelKeys should not be null.");
+    checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
+    checkDuplicateMetric(name, "A different metric with the same name is already registered.");
+
+    DerivedDoubleGaugeImpl derivedDoubleGauge =
+        new DerivedDoubleGaugeImpl(
+            name,
+            checkNotNull(description, "description"),
+            checkNotNull(unit, "unit"),
+            Collections.unmodifiableList(labelKeys));
+
+    registeredMeters.registerMeter(derivedDoubleGauge);
+    return derivedDoubleGauge;
   }
 
   private synchronized void checkDuplicateMetric(String metricName, @Nullable String errorMessage) {

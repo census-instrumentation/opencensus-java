@@ -21,10 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import io.opencensus.common.Timestamp;
 import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.common.ToLongFunction;
-import io.opencensus.metrics.DoubleGaugeMetric;
+import io.opencensus.metrics.DerivedDoubleGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.LongGaugeMetric;
+import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -79,33 +79,33 @@ public class MetricRegistryImplTest {
   @Test
   public void addDoubleGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric(null, DESCRIPTION, UNIT, labelKeys);
+    metricRegistry.addDoubleGauge(null, DESCRIPTION, UNIT, labelKeys);
   }
 
   @Test
   public void addDoubleGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric(NAME, null, UNIT, labelKeys);
+    metricRegistry.addDoubleGauge(NAME, null, UNIT, labelKeys);
   }
 
   @Test
   public void addDoubleGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric(NAME, DESCRIPTION, null, labelKeys);
+    metricRegistry.addDoubleGauge(NAME, DESCRIPTION, null, labelKeys);
   }
 
   @Test
   public void addDoubleGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGaugeMetric(NAME, DESCRIPTION, UNIT, null);
+    metricRegistry.addDoubleGauge(NAME, DESCRIPTION, UNIT, null);
   }
 
   @Test
   public void addDoubleGauge_GetMetrics() {
-    DoubleGaugeMetric doubleGaugeMetric =
-        metricRegistry.addDoubleGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+    DerivedDoubleGauge doubleGaugeMetric =
+        metricRegistry.addDerivedDoubleGauge(NAME, DESCRIPTION, UNIT, labelKeys);
 
-    doubleGaugeMetric.addTimeSeries(
+    doubleGaugeMetric.createTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToDoubleFunction<TotalMemory>() {
@@ -133,31 +133,30 @@ public class MetricRegistryImplTest {
   @Test
   public void addLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric(null, DESCRIPTION, UNIT, labelKeys);
+    metricRegistry.addLongGauge(null, DESCRIPTION, UNIT, labelKeys);
   }
 
   @Test
   public void addLongGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric(NAME, null, UNIT, labelKeys);
+    metricRegistry.addLongGauge(NAME, null, UNIT, labelKeys);
   }
 
   @Test
   public void addLongGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, null, labelKeys);
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, null, labelKeys);
   }
 
   @Test
   public void addLongGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, null);
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, null);
   }
 
   @Test
   public void addLongGauge_GetMetrics() {
-    LongGaugeMetric longGaugeMetric =
-        metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+    LongGauge longGaugeMetric = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
     longGaugeMetric.addTimeSeries(
         labelValues,
         new TotalMemory(),
@@ -185,15 +184,14 @@ public class MetricRegistryImplTest {
 
   @Test
   public void addLongGauge_SameMetricName() {
-    metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
     thrown.expect(IllegalArgumentException.class);
-    metricRegistry.addDoubleGaugeMetric(NAME, "desc", UNIT, labelKeys);
+    metricRegistry.addDoubleGauge(NAME, "desc", UNIT, labelKeys);
   }
 
   @Test
   public void multipleMetrics_GetMetrics() {
-    LongGaugeMetric longGaugeMetric =
-        metricRegistry.addLongGaugeMetric(NAME, DESCRIPTION, UNIT, labelKeys);
+    LongGauge longGaugeMetric = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
     longGaugeMetric.addTimeSeries(
         labelValues,
         new TotalMemory(),
@@ -204,10 +202,10 @@ public class MetricRegistryImplTest {
           }
         });
 
-    DoubleGaugeMetric doubleGaugeMetric =
-        metricRegistry.addDoubleGaugeMetric("name1", DESCRIPTION, UNIT, labelKeys);
+    DerivedDoubleGauge derivedDoubleGauge =
+        metricRegistry.addDerivedDoubleGauge("name1", DESCRIPTION, UNIT, labelKeys);
 
-    doubleGaugeMetric.addTimeSeries(
+    derivedDoubleGauge.createTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToDoubleFunction<TotalMemory>() {

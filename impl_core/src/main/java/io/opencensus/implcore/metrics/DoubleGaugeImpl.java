@@ -22,8 +22,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.opencensus.common.Clock;
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.metrics.DoubleGaugeMetric;
+import io.opencensus.implcore.internal.Utils;
+import io.opencensus.metrics.DoubleGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
@@ -36,17 +36,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
-/** Implementation of {@link DoubleGaugeMetric}. */
-public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Meter {
+/** Implementation of {@link DoubleGauge}. */
+public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
   private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeries =
       Maps.newHashMap();
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
 
-  DoubleGaugeMetricImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
+  DoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
     defaultLabelValues = new ArrayList<LabelValue>(labelKeysSize);
     this.metricDescriptor =
@@ -54,58 +53,50 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
   }
 
   @Override
-  public Point addTimeSeries(List<LabelValue> labelValues) {
-    checkValidLabelValues(labelValues);
+  public Point getOrCreateTimeSeries(List<LabelValue> labelValues) {
+    checkNotNull(labelValues, "labelValues should not be null.");
+    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
+    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
     return registerTimeSeries(new ArrayList<LabelValue>(labelValues));
   }
 
   @Override
-  public <T> void addTimeSeries(
-      List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
-    checkValidLabelValues(labelValues);
-
-    registerTimeSeries(
-        new ArrayList<LabelValue>(labelValues), obj, checkNotNull(function, "function"));
-  }
-
-  @Override
   public Point getDefaultTimeSeries() {
-    // lock free default point retrieval
-    TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(defaultLabelValues);
-    if (existingTimeSeries != null) {
-      return (PointImpl) existingTimeSeries;
-    }
     return registerTimeSeries(defaultLabelValues);
   }
 
-  private Point registerTimeSeries(List<LabelValue> labelValues) {
-    return (PointImpl) registerTimeSeries(labelValues, null, null);
+  @Override
+  public void removeTimeSeries(List<LabelValue> labelValues) {
+    checkNotNull(labelValues, "labelValues should not be null.");
+    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+
+    remove(labelValues);
   }
 
-  private synchronized <T> TimeSeriesProducer registerTimeSeries(
-      List<LabelValue> labelValues, @Nullable T obj, @Nullable ToDoubleFunction<T> function) {
+  @Override
+  public synchronized void clear() {
+    registeredTimeSeries.clear();
+  }
+
+  private synchronized void remove(List<LabelValue> labelValues) {
+    Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeriesCopy =
+        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredTimeSeries);
+    if (registeredTimeSeriesCopy.remove(labelValues) == null) {
+      // The element not present, no need to update the current map of time series.
+      return;
+    }
+    registeredTimeSeries = Collections.unmodifiableMap(registeredTimeSeriesCopy);
+  }
+
+  private synchronized <T> Point registerTimeSeries(List<LabelValue> labelValues) {
     TimeSeriesProducer existingTimeSeries = registeredTimeSeries.get(labelValues);
-
     if (existingTimeSeries != null) {
-      boolean isRegisteredWithPoint = function != null && existingTimeSeries instanceof PointImpl;
-      boolean isRegisteredWithPointFunction =
-          function == null && existingTimeSeries instanceof PointWithFunctionImpl;
-
-      if (isRegisteredWithPoint || isRegisteredWithPointFunction) {
-        throw new IllegalArgumentException(
-            "A different time series with the same labels already exists");
-      }
-
       // Return a TimeSeries that are already registered.
-      return existingTimeSeries;
+      return (PointImpl) existingTimeSeries;
     }
 
-    TimeSeriesProducer newTimeSeries =
-        function == null
-            ? new PointImpl(labelValues)
-            : new PointWithFunctionImpl<T>(labelValues, obj, function);
-
+    TimeSeriesProducer newTimeSeries = new PointImpl(labelValues);
     // Updating the map of time series happens under a lock to avoid multiple add operations
     // to happen in the same time.
     Map<List<LabelValue>, TimeSeriesProducer> registeredTimeSeriesCopy =
@@ -113,16 +104,7 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
     registeredTimeSeriesCopy.put(labelValues, newTimeSeries);
     registeredTimeSeries = Collections.unmodifiableMap(registeredTimeSeriesCopy);
 
-    return newTimeSeries;
-  }
-
-  private void checkValidLabelValues(List<LabelValue> labelValues) {
-    checkNotNull(labelValues, "labelValues should not be null.");
-    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
-
-    for (LabelValue labelValue : labelValues) {
-      checkNotNull(labelValue, "labelValues element should not be null.");
-    }
+    return (PointImpl) newTimeSeries;
   }
 
   @Override
@@ -134,7 +116,7 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
-  /** Implementation of {@link io.opencensus.metrics.DoubleGaugeMetric.Point}. */
+  /** Implementation of {@link DoubleGauge.Point}. */
   public static final class PointImpl extends Point implements TimeSeriesProducer {
 
     // TODO(mayurkale): Consider to use DoubleAdder here, once we upgrade to Java8.
@@ -177,35 +159,6 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
           Collections.singletonList(
               io.opencensus.metrics.export.Point.create(
                   Value.doubleValue(value.get()), clock.now())),
-          null);
-    }
-  }
-
-  /**
-   * Implementation of {@link io.opencensus.metrics.DoubleGaugeMetric.Point} with a obj and
-   * function.
-   */
-  public static final class PointWithFunctionImpl<T> implements TimeSeriesProducer {
-    private final List<LabelValue> labelValues;
-    @Nullable private final T obj;
-    private final ToDoubleFunction<T> function;
-    private static final double DEFAULT_VALUE = 0.0;
-
-    PointWithFunctionImpl(
-        List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
-      this.labelValues = labelValues;
-      this.obj = obj;
-      this.function = function;
-    }
-
-    @Override
-    public TimeSeries getTimeSeries(Clock clock) {
-      return TimeSeries.create(
-          labelValues,
-          Collections.singletonList(
-              io.opencensus.metrics.export.Point.create(
-                  Value.doubleValue(obj != null ? function.applyAsDouble(obj) : DEFAULT_VALUE),
-                  clock.now())),
           null);
     }
   }

@@ -22,7 +22,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.common.ToLongFunction;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.LongGaugeMetric.Point;
+import io.opencensus.metrics.LongGauge.Point;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -39,7 +39,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link LongGaugeMetricImpl}. */
+/** Unit tests for {@link LongGaugeImpl}. */
 @RunWith(JUnit4.class)
 public class LongGaugeMetricImplTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
@@ -57,7 +57,7 @@ public class LongGaugeMetricImplTest {
   private static final Timestamp TEST_TIME = Timestamp.create(1234, 123);
   private final TestClock testClock = TestClock.create(TEST_TIME);
 
-  private LongGaugeMetricImpl longGaugeMetric;
+  private LongGaugeImpl longGaugeMetric;
 
   @Before
   public void setUp() {
@@ -65,8 +65,7 @@ public class LongGaugeMetricImplTest {
     labelValues.add(LABEL_VALUES);
     labelValues1.add(LABEL_VALUES_1);
 
-    longGaugeMetric =
-        new LongGaugeMetricImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
+    longGaugeMetric = new LongGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
   }
 
   // helper class

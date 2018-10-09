@@ -16,16 +16,16 @@
 
 package io.opencensus.metrics;
 
-import io.opencensus.common.ToDoubleFunction;
+import io.opencensus.common.ToLongFunction;
 import io.opencensus.internal.Utils;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Double Gauge metric, to report instantaneous measurement of a double value. Gauges can go both up
- * and down. The gauges values can be negative. For example, Free memory or Total memory. See {@link
- * io.opencensus.metrics.MetricRegistry} for an example of its use.
+ * Long Gauge metric, to report instantaneous measurement of an int64 value. Gauges can go both up
+ * and down. The gauges values can be negative. For example, the number of pending jobs in the
+ * queue. See {@link io.opencensus.metrics.MetricRegistry} for an example of its use.
  *
  * <p>Example 1: Create a Gauge with default labels.
  *
@@ -33,10 +33,10 @@ import javax.annotation.concurrent.ThreadSafe;
  * class YourClass {
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
- *   DoubleGaugeMetric totalMemory = metricRegistry.addDoubleGaugeMetric(
- *       "Total_memory", "Total CPU Memory", "1", new ArrayList<LabelKey>());
+ *   LongGauge jobsInQueue = metricRegistry.addLongGauge(
+ *       "Queue_Size", "Number of jobs in queue", "1", new ArrayList<LabelKey>());
  *
- *   Point defaultPoint = totalMemory.getDefaultTimeSeries();
+ *   Point defaultPoint = jobsInQueue.getDefaultTimeSeries();
  *
  *   void doWork() {
  *      defaultPoint.inc();
@@ -44,7 +44,6 @@ import javax.annotation.concurrent.ThreadSafe;
  *      defaultPoint.dec();
  *   }
  * }
- *
  * }</pre>
  *
  * <p>Example 2: You can also use labels(keys and values) to track different types of metric.
@@ -54,17 +53,26 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
  *
- *   List<LabelKey> keys = Collections.singletonList(LabelKey.create("Type","desc"));
- *   DoubleGaugeMetric totalMemory = metricRegistry.addDoubleGaugeMetric(
- *       "Total_Memory", "Total CPU Memory", "1", keys);
+ *   List<LabelKey> keys = Collections.singletonList(LabelKey.create("queue_name","desc"));
+ *   LongGauge jobsInQueue = metricRegistry.addLongGauge(
+ *       "Queue_Size", "Number of jobs in queue", "1", keys);
  *
- *   List<LabelValue> usedMemory = Collections.singletonList(LabelValue.create("Used"));
- *   Point point = totalMemory.addTimeSeries(usedMemory);
+ *   List<LabelValue> inboundQueue = Collections.singletonList(LabelValue.create("Inbound"));
+ *   Point inboundQueuePoint = jobsInQueue.addTimeSeries(inboundQueue);
  *
- *   void doSomeWork() {
- *      point.set(12.5);
+ *   List<LabelValue> callbackQueue = Collections.singletonList(LabelValue.create("Callback"));
+ *   Point callbackQueuePoint = jobsInQueue.addTimeSeries(callbackQueue);
+ *
+ *   void processInboundRequest() {
+ *      inboundQueuePoint.inc();
  *      // Your code here.
- *      point.dec();
+ *      inboundQueuePoint.dec();
+ *   }
+ *
+ *   void processCallbackRequest() {
+ *      callbackQueuePoint.inc();
+ *      // Your code here.
+ *      callbackQueuePoint.dec();
  *   }
  * }
  * }</pre>
@@ -72,13 +80,13 @@ import javax.annotation.concurrent.ThreadSafe;
  * @since 0.17
  */
 @ThreadSafe
-public abstract class DoubleGaugeMetric {
+public abstract class LongGauge {
 
   /**
    * Adds a TimeSeries and returns a {@code Point}, which is part of the TimeSeries. This is more
    * convenient form when you can want to manually increase and decrease values as per your service
    * requirements. The number of label values must be the same to that of the label keys passed to
-   * {@link MetricRegistry#addDoubleGaugeMetric}.
+   * {@link MetricRegistry#addLongGauge}.
    *
    * @param labelValues the list of label values.
    * @return a {@code Point} the value of single gauge.
@@ -87,11 +95,11 @@ public abstract class DoubleGaugeMetric {
   public abstract Point addTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Adds a TimeSeries, that reports the value of the object after the function. This is , slightly
-   * more common form of gauge is one that monitors some non-numeric object. The last argument
-   * establishes the function that is used to determine the value of the gauge when the gauge is
-   * collected. The number of label values must be the same to that of the label keys passed to
-   * {@link MetricRegistry#addDoubleGaugeMetric}.
+   * Adds a TimeSeries, that reports the value of the object after the function. This is a self
+   * sufficient gauge, slightly more common form of gauge is one that monitors some non-numeric
+   * object. The last argument establishes the function that is used to determine the value of the
+   * gauge when the gauge is collected. The number of label values must be the same to that of the
+   * label keys passed to {@link MetricRegistry#addLongGauge}.
    *
    * @param labelValues the list of label values.
    * @param obj the state object from which the function derives a measurement.
@@ -100,7 +108,7 @@ public abstract class DoubleGaugeMetric {
    * @since 0.17
    */
   public abstract <T> void addTimeSeries(
-      List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function);
+      List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function);
 
   /**
    * Returns a {@code Point} for a gauge with all labels not set, or default labels.
@@ -111,14 +119,14 @@ public abstract class DoubleGaugeMetric {
   public abstract Point getDefaultTimeSeries();
 
   /**
-   * Returns the no-op implementation of the {@code DoubleGaugeMetric}.
+   * Returns the no-op implementation of the {@code LongGauge}.
    *
-   * @return the no-op implementation of the {@code DoubleGaugeMetric}.
+   * @return the no-op implementation of the {@code LongGauge}.
    * @since 0.17
    */
-  static DoubleGaugeMetric getNoopDoubleGaugeMetric(
+  static LongGauge getNoopLongGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    return NoopDoubleGaugeMetric.getInstance(name, description, unit, labelKeys);
+    return NoopLongGauge.getInstance(name, description, unit, labelKeys);
   }
 
   /**
@@ -141,7 +149,7 @@ public abstract class DoubleGaugeMetric {
      * @param amt amount to add to the gauge.
      * @since 0.17
      */
-    public abstract void inc(double amt);
+    public abstract void inc(long amt);
 
     /**
      * Decrements the gauge value by one.
@@ -156,7 +164,7 @@ public abstract class DoubleGaugeMetric {
      * @param amt amount to subtract from the gauge.
      * @since 0.17
      */
-    public abstract void dec(double amt);
+    public abstract void dec(long amt);
 
     /**
      * Sets the gauge to the given value.
@@ -164,19 +172,19 @@ public abstract class DoubleGaugeMetric {
      * @param val to assign to the gauge.
      * @since 0.17
      */
-    public abstract void set(double val);
+    public abstract void set(long val);
   }
 
-  /** No-op implementations of DoubleGaugeMetric class. */
-  private static final class NoopDoubleGaugeMetric extends DoubleGaugeMetric {
+  /** No-op implementations of LongGauge class. */
+  private static final class NoopLongGauge extends LongGauge {
 
-    static NoopDoubleGaugeMetric getInstance(
+    static NoopLongGauge getInstance(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      return new NoopDoubleGaugeMetric(name, description, unit, labelKeys);
+      return new NoopLongGauge(name, description, unit, labelKeys);
     }
 
-    /** Creates a new {@code NoopDoubleGaugeMetric}. */
-    NoopDoubleGaugeMetric(String name, String description, String unit, List<LabelKey> labelKeys) {
+    /** Creates a new {@code NoopLongGauge}. */
+    NoopLongGauge(String name, String description, String unit, List<LabelKey> labelKeys) {
       Utils.checkNotNull(name, "name");
       Utils.checkNotNull(description, "description");
       Utils.checkNotNull(unit, "unit");
@@ -193,7 +201,7 @@ public abstract class DoubleGaugeMetric {
 
     @Override
     public <T> void addTimeSeries(
-        List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
+        List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
       Utils.checkNotNull(function, "function");
@@ -223,16 +231,16 @@ public abstract class DoubleGaugeMetric {
       public void inc() {}
 
       @Override
-      public void inc(double amt) {}
+      public void inc(long amt) {}
 
       @Override
       public void dec() {}
 
       @Override
-      public void dec(double amt) {}
+      public void dec(long amt) {}
 
       @Override
-      public void set(double val) {}
+      public void set(long val) {}
     }
   }
 }
