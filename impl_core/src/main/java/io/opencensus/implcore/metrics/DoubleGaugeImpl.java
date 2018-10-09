@@ -138,23 +138,8 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     }
 
     @Override
-    public void inc() {
-      inc(1);
-    }
-
-    @Override
-    public void inc(double amt) {
+    public void add(double amt) {
       value.addAndGet(amt);
-    }
-
-    @Override
-    public void dec() {
-      dec(1);
-    }
-
-    @Override
-    public void dec(double amt) {
-      value.addAndGet(-amt);
     }
 
     @Override

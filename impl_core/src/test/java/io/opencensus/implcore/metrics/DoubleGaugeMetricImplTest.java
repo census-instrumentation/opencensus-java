@@ -81,10 +81,8 @@ public class DoubleGaugeMetricImplTest {
   @Test
   public void getOrCreateTimeSeries_WithLabels() {
     Point point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
-    point.inc();
-    point.inc(120.2);
-    point.dec();
-    point.dec(100);
+    point.add(100);
+    point.add(-60);
     point.set(500.12);
 
     assertThat(doubleGaugeMetric.getMetric(testClock))
@@ -108,14 +106,11 @@ public class DoubleGaugeMetricImplTest {
   @Test
   public void getDefaultTimeSeries() {
     Point point = doubleGaugeMetric.getDefaultTimeSeries();
-    point.inc();
-    point.inc(120.2);
-    point.dec();
-    point.dec(100);
+    point.add(100);
     point.set(500.12);
 
     Point point1 = doubleGaugeMetric.getDefaultTimeSeries();
-    point1.dec(100);
+    point1.add(-100);
 
     assertThat(doubleGaugeMetric.getMetric(testClock))
         .isEqualTo(
@@ -138,9 +133,8 @@ public class DoubleGaugeMetricImplTest {
   @Test
   public void multipleMetrics_GetMetric() {
     Point point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
-    point.inc();
-    point.inc();
-    point.inc();
+    point.add(1);
+    point.add(2);
 
     Point point1 = doubleGaugeMetric.getDefaultTimeSeries();
     point1.set(100);

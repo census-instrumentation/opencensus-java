@@ -62,11 +62,7 @@ public class MetricRegistryTest {
     DoubleGauge doubleGaugeMetric =
         metricRegistry.addDoubleGauge("name", "description", "1", new ArrayList<LabelKey>());
     DoubleGauge.Point dp = doubleGaugeMetric.getOrCreateTimeSeries(new ArrayList<LabelValue>());
-    dp.inc();
-    dp.inc(12);
     dp.set(12);
-    dp.dec(12);
-    dp.dec();
 
     doubleGaugeMetric.getDefaultTimeSeries();
   }

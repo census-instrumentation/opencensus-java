@@ -26,6 +26,31 @@ import javax.annotation.concurrent.ThreadSafe;
  * Derived Double Gauge metric, to report instantaneous measurement of a double value. Gauges can go
  * both up and down. The gauges values can be negative.
  *
+ * <p>Example: Create a Gauge with object and function.
+ *
+ * <pre>{@code
+ * class YourClass {
+ *
+ *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
+ *   DoubleGauge requestQueue = metricRegistry.addDoubleGauge(
+ *       "Queue_Size", "Total Queue Size", "1", new ArrayList<LabelKey>());
+ *
+ *   void doWork() {
+ *      SimpleQueue simpleQueue = new SimpleQueue();
+ *      requestQueue.createTimeSeries(new ArrayList<LabelValue>(), simpleQueue,
+ *            new ToDoubleFunction<SimpleQueue>() {
+ *              @Override
+ *              public double applyAsDouble(SimpleQueue queue) {
+ *                return queue.getValue();
+ *              }
+ *            });
+ *
+ *      // Your code here.
+ *   }
+ * }
+ *
+ * }</pre>
+ *
  * @since 0.17
  */
 @ThreadSafe

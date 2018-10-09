@@ -37,9 +37,15 @@ import javax.annotation.concurrent.ThreadSafe;
  *   Point defaultPoint = totalMemory.getDefaultTimeSeries();
  *
  *   void doWork() {
- *      defaultPoint.inc();
+ *      // add values
+ *      totalMemory.getDefaultTimeSeries().add(10);
+ *
  *      // Your code here.
- *      defaultPoint.dec();
+ *      totalMemory.getDefaultTimeSeries().add(-4);
+ *
+ *      // Your code here.
+ *      // you can also use point objects to add/set values.
+ *      defaultPoint.set(100);
  *   }
  * }
  *
@@ -60,10 +66,11 @@ import javax.annotation.concurrent.ThreadSafe;
  *   Point point = totalMemory.getOrCreateTimeSeries(usedMemory);
  *
  *   void doSomeWork() {
- *      point.set(12.5);
+ *      totalMemory.getOrCreateTimeSeries(usedMemory).set(12.5);
  *      // Your code here.
- *      point.dec();
+ *      totalMemory.getOrCreateTimeSeries(usedMemory).add(-2.5);
  *   }
+ *
  * }
  * }</pre>
  *
@@ -127,39 +134,17 @@ public abstract class DoubleGauge {
   public abstract static class Point {
 
     /**
-     * Increments the gauge value by one.
+     * Adds the given value to the current value. The values can be negative.
      *
+     * @param amt the value to add
      * @since 0.17
      */
-    public abstract void inc();
+    public abstract void add(double amt);
 
     /**
-     * Increments the gauge by the given amount.
+     * Sets the given value.
      *
-     * @param amt amount to add to the gauge.
-     * @since 0.17
-     */
-    public abstract void inc(double amt);
-
-    /**
-     * Decrements the gauge value by one.
-     *
-     * @since 0.17
-     */
-    public abstract void dec();
-
-    /**
-     * Decrements the gauge by the given amount.
-     *
-     * @param amt amount to subtract from the gauge.
-     * @since 0.17
-     */
-    public abstract void dec(double amt);
-
-    /**
-     * Sets the gauge to the given value.
-     *
-     * @param val to assign to the gauge.
+     * @param val the new value.
      * @since 0.17
      */
     public abstract void set(double val);
@@ -219,16 +204,7 @@ public abstract class DoubleGauge {
       }
 
       @Override
-      public void inc() {}
-
-      @Override
-      public void inc(double amt) {}
-
-      @Override
-      public void dec() {}
-
-      @Override
-      public void dec(double amt) {}
+      public void add(double amt) {}
 
       @Override
       public void set(double val) {}
