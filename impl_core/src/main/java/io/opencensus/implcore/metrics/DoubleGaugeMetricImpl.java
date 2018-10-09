@@ -189,7 +189,7 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
     private final List<LabelValue> labelValues;
     @Nullable private final T obj;
     private final ToDoubleFunction<T> function;
-    private final double defaultValue = 0.0;
+    private static final double DEFAULT_VALUE = 0.0;
 
     PointWithFunctionImpl(
         List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
@@ -204,7 +204,7 @@ public final class DoubleGaugeMetricImpl extends DoubleGaugeMetric implements Me
           labelValues,
           Collections.singletonList(
               io.opencensus.metrics.export.Point.create(
-                  Value.doubleValue(obj != null ? function.applyAsDouble(obj) : defaultValue),
+                  Value.doubleValue(obj != null ? function.applyAsDouble(obj) : DEFAULT_VALUE),
                   clock.now())),
           null);
     }

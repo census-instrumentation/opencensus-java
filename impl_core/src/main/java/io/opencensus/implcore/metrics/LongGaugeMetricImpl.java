@@ -186,7 +186,7 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
     private final List<LabelValue> labelValues;
     @Nullable private final T obj;
     private final ToLongFunction<T> function;
-    private final long defaultValue = 0;
+    private static final long DEFAULT_VALUE = 0L;
 
     PointWithFunctionImpl(
         List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
@@ -197,11 +197,12 @@ public final class LongGaugeMetricImpl extends LongGaugeMetric implements Meter 
 
     @Override
     public TimeSeries getTimeSeries(Clock clock) {
+
       return TimeSeries.create(
           labelValues,
           Collections.singletonList(
               io.opencensus.metrics.export.Point.create(
-                  Value.longValue(obj != null ? function.applyAsLong(obj) : defaultValue),
+                  Value.longValue(obj != null ? function.applyAsLong(obj) : DEFAULT_VALUE),
                   clock.now())),
           null);
     }
