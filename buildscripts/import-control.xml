@@ -177,6 +177,7 @@ General guidelines on imports:
       </subpackage>
       <subpackage name="ocagent">
         <allow pkg="com.google.protobuf"/>
+        <allow pkg="io.grpc"/>
         <allow pkg="io.opencensus.contrib.monitoredresource.util"/>
         <allow pkg="io.opencensus.contrib.opencensus.proto.util"/>
         <allow pkg="io.opencensus.exporter.trace.ocagent"/>

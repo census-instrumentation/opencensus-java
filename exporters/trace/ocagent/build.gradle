@@ -10,6 +10,9 @@ dependencies {
 
     compile project(':opencensus-api'),
             project(':opencensus-contrib-monitored-resource-util'),
+            libraries.grpc_core,
+            libraries.grpc_netty,
+            libraries.grpc_stub,
             libraries.opencensus_proto
 
     testCompile project(':opencensus-api')

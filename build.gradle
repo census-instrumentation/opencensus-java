@@ -190,6 +190,8 @@ subprojects {
                 google_cloud_monitoring: "com.google.cloud:google-cloud-monitoring:${googleCloudGaVersion}",
                 grpc_context: "io.grpc:grpc-context:${grpcVersion}",
                 grpc_core: "io.grpc:grpc-core:${grpcVersion}",
+                grpc_netty: "io.grpc:grpc-netty:${grpcVersion}",
+                grpc_stub: "io.grpc:grpc-stub:${grpcVersion}",
                 guava: "com.google.guava:guava:${guavaVersion}",
                 jsr305: "com.google.code.findbugs:jsr305:${findBugsJsr305Version}",
                 signalfx_java: "com.signalfx.public:signalfx-java:${signalfxVersion}",
