@@ -31,6 +31,7 @@ import io.opencensus.proto.trace.v1.TraceConfig;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -111,12 +112,12 @@ final class FakeOcAgentTraceServiceGrpcImpl extends TraceServiceGrpc.TraceServic
 
   // Returns the stored CurrentLibraryConfigs.
   List<CurrentLibraryConfig> getCurrentLibraryConfigs() {
-    return currentLibraryConfigs;
+    return Collections.unmodifiableList(currentLibraryConfigs);
   }
 
   // Returns the stored ExportTraceServiceRequests.
   List<ExportTraceServiceRequest> getExportTraceServiceRequests() {
-    return exportTraceServiceRequests;
+    return Collections.unmodifiableList(exportTraceServiceRequests);
   }
 
   // Sets the UpdatedLibraryConfig that will be passed to client.
