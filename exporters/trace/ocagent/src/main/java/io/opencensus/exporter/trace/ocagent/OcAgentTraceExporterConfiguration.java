@@ -69,6 +69,15 @@ public abstract class OcAgentTraceExporterConfiguration {
   public abstract Duration getRetryInterval();
 
   /**
+   * Returns whether the {@link OcAgentTraceExporter} should handle the config streams.
+   *
+   * @return whether the {@code OcAgentTraceExporter} should handle the config streams.
+   * @since 0.17
+   */
+  @Nullable
+  public abstract Boolean getEnableConfig();
+
+  /**
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
@@ -124,6 +133,17 @@ public abstract class OcAgentTraceExporterConfiguration {
      * @since 0.17
      */
     public abstract Builder setRetryInterval(Duration retryInterval);
+
+    /**
+     * Sets whether {@link OcAgentTraceExporter} should handle the config streams.
+     *
+     * @param enableConfig whether {@code OcAgentTraceExporter} should handle the config streams.
+     * @return this.
+     * @since 0.17
+     */
+    public abstract Builder setEnableConfig(Boolean enableConfig);
+
+    // TODO(songya): add an option that controls whether to always keep the RPC connection alive.
 
     /**
      * Builds a {@link OcAgentTraceExporterConfiguration}.
