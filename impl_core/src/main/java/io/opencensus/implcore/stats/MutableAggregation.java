@@ -22,6 +22,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.export.Distribution;
+import io.opencensus.metrics.export.Distribution.BucketOptions;
+import io.opencensus.metrics.export.Distribution.Explicit;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.stats.Aggregation;
@@ -433,7 +435,7 @@ abstract class MutableAggregation {
                   count,
                   mean * count,
                   sumOfSquaredDeviations,
-                  bucketBoundaries.getBoundaries(),
+                  BucketOptions.create(Explicit.create(bucketBoundaries.getBoundaries())),
                   buckets)),
           timestamp);
     }

@@ -22,6 +22,8 @@ import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.BucketOptions;
+import io.opencensus.metrics.export.Distribution.Explicit;
 import io.opencensus.metrics.export.Summary.Snapshot;
 import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value.ValueDistribution;
@@ -46,7 +48,7 @@ public class ValueTest {
           10,
           10,
           1,
-          Arrays.asList(-5.0, 0.0, 5.0),
+          BucketOptions.create(Explicit.create(Arrays.asList(1.0, 2.0, 5.0))),
           Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)));
   private static final Summary SUMMARY =
       Summary.create(
@@ -96,7 +98,7 @@ public class ValueTest {
                     7,
                     10,
                     23.456,
-                    Arrays.asList(-5.0, 0.0, 5.0),
+                    BucketOptions.create(Explicit.create(Arrays.asList(1.0, 2.0, 5.0))),
                     Arrays.asList(
                         Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)))))
         .testEquals();
@@ -111,7 +113,7 @@ public class ValueTest {
             ValueDistribution.create(DISTRIBUTION),
             ValueSummary.create(SUMMARY));
     List<Number> expected =
-        Arrays.<Number>asList(1.0, -1L, 10.0, 10L, 1.0, -5.0, 0.0, 5.0, 3L, 1L, 2L, 4L);
+        Arrays.<Number>asList(1.0, -1L, 10.0, 10L, 1.0, 1.0, 2.0, 5.0, 3L, 1L, 2L, 4L);
     final List<Number> actual = new ArrayList<Number>();
     for (Value value : values) {
       value.match(
@@ -135,7 +137,7 @@ public class ValueTest {
               actual.add(arg.getSum());
               actual.add(arg.getCount());
               actual.add(arg.getSumOfSquaredDeviations());
-              actual.addAll(arg.getBucketBoundaries());
+              actual.addAll(arg.getBucketOptions().getExplicitBuckets().getBucketBoundaries());
               for (Bucket bucket : arg.getBuckets()) {
                 actual.add(bucket.getCount());
               }

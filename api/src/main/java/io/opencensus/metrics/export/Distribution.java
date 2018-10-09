@@ -48,7 +48,7 @@ public abstract class Distribution {
    * @param count the count of the population values.
    * @param sum the sum of the population values.
    * @param sumOfSquaredDeviations the sum of squared deviations of the population values.
-   * @param bucketBoundaries bucket boundaries of a histogram.
+   * @param bucketOptions the bucket boundaries used to create a histogram for the distribution.
    * @param buckets {@link Bucket}s of a histogram.
    * @return a {@code Distribution}.
    * @since 0.17
@@ -57,7 +57,7 @@ public abstract class Distribution {
       long count,
       double sum,
       double sumOfSquaredDeviations,
-      List<Double> bucketBoundaries,
+      BucketOptions bucketOptions,
       List<Bucket> buckets) {
     Utils.checkArgument(count >= 0, "count should be non-negative.");
     Utils.checkArgument(
@@ -67,27 +67,10 @@ public abstract class Distribution {
       Utils.checkArgument(
           sumOfSquaredDeviations == 0, "sum of squared deviations should be 0 if count is 0.");
     }
-    return new AutoValue_Distribution(
-        count,
-        sum,
-        sumOfSquaredDeviations,
-        copyBucketBounds(bucketBoundaries),
-        copyBucketCount(buckets));
-  }
+    Utils.checkNotNull(bucketOptions, "bucketOptions");
 
-  private static List<Double> copyBucketBounds(List<Double> bucketBoundaries) {
-    Utils.checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
-    List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries); // Deep copy.
-    // Check if sorted.
-    if (bucketBoundariesCopy.size() > 1) {
-      double lower = bucketBoundariesCopy.get(0);
-      for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
-        double next = bucketBoundariesCopy.get(i);
-        Utils.checkArgument(lower < next, "bucket boundaries not sorted.");
-        lower = next;
-      }
-    }
-    return Collections.unmodifiableList(bucketBoundariesCopy);
+    return new AutoValue_Distribution(
+        count, sum, sumOfSquaredDeviations, bucketOptions, copyBucketCount(buckets));
   }
 
   private static List<Bucket> copyBucketCount(List<Bucket> buckets) {
@@ -131,29 +114,13 @@ public abstract class Distribution {
   public abstract double getSumOfSquaredDeviations();
 
   /**
-   * Returns the bucket boundaries of this distribution.
+   * Returns bucket boundaries used to create a histogram for the distribution.
    *
-   * <p>The bucket boundaries for that histogram are described by bucket_bounds. This defines
-   * size(bucket_bounds) + 1 (= N) buckets. The boundaries for bucket index i are:
-   *
-   * <ul>
-   *   <li>{@code (-infinity, bucket_bounds[i]) for i == 0}
-   *   <li>{@code [bucket_bounds[i-1], bucket_bounds[i]) for 0 < i < N-2}
-   *   <li>{@code [bucket_bounds[i-1], +infinity) for i == N-1}
-   * </ul>
-   *
-   * <p>i.e. an underflow bucket (number 0), zero or more finite buckets (1 through N - 2, and an
-   * overflow bucket (N - 1), with inclusive lower bounds and exclusive upper bounds.
-   *
-   * <p>If bucket_bounds has no elements (zero size), then there is no histogram associated with the
-   * Distribution. If bucket_bounds has only one element, there are no finite buckets, and that
-   * single element is the common boundary of the overflow and underflow buckets. The values must be
-   * monotonically increasing.
-   *
-   * @return the bucket boundaries of this distribution.
+   * @return the {@code BucketOptions} associated with the {@code Distribution}, or {@code null} if
+   *     there isn't one.
    * @since 0.17
    */
-  public abstract List<Double> getBucketBoundaries();
+  public abstract BucketOptions getBucketOptions();
 
   /**
    * Returns the aggregated histogram {@link Bucket}s.
@@ -162,6 +129,103 @@ public abstract class Distribution {
    * @since 0.17
    */
   public abstract List<Bucket> getBuckets();
+
+  /**
+   * The bucket boundaries used to create a histogram for the distribution.
+   *
+   * @since 0.17
+   */
+  @AutoValue
+  @Immutable
+  public abstract static class BucketOptions {
+
+    BucketOptions() {}
+
+    /**
+     * Creates a {@link BucketOptions}.
+     *
+     * @param explicitBuckets the explicit buckets with arbitrary widths.
+     * @return a {@code BucketOptions}.
+     * @since 0.17
+     */
+    public static BucketOptions create(Explicit explicitBuckets) {
+      Utils.checkNotNull(explicitBuckets, "explicitBuckets");
+      return new AutoValue_Distribution_BucketOptions(explicitBuckets);
+    }
+
+    /**
+     * Returns the {@link Explicit} associated with the {@link BucketOptions}.
+     *
+     * @return the {@code Explicit} associated with the {@code BucketOptions}.
+     * @since 0.17
+     */
+    public abstract Explicit getExplicitBuckets();
+  }
+
+  /**
+   * A Bucket with explicit bounds.
+   *
+   * @since 0.17
+   */
+  @Immutable
+  @AutoValue
+  public abstract static class Explicit {
+
+    Explicit() {}
+
+    /**
+     * Creates a {@link Explicit}.
+     *
+     * @param bucketBoundaries the bucket boundaries of a distribution (given explicitly).
+     * @return a {@code Explicit}.
+     * @since 0.17
+     */
+    public static Explicit create(List<Double> bucketBoundaries) {
+      Utils.checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
+      return new AutoValue_Distribution_Explicit(copyBucketBounds(bucketBoundaries));
+    }
+
+    private static List<Double> copyBucketBounds(List<Double> bucketBoundaries) {
+      Utils.checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
+      List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries); // Deep copy.
+      // Check if sorted.
+      if (bucketBoundariesCopy.size() > 1) {
+        double lower = bucketBoundariesCopy.get(0);
+        Utils.checkArgument(lower > 0, "bucket boundaries should be > 0");
+        for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
+          double next = bucketBoundariesCopy.get(i);
+          Utils.checkArgument(lower < next, "bucket boundaries not sorted.");
+          lower = next;
+        }
+      }
+      return Collections.unmodifiableList(bucketBoundariesCopy);
+    }
+
+    /**
+     * Returns the bucket boundaries of this distribution.
+     *
+     * <p>The bucket boundaries for that histogram are described by bucket_bounds. This defines
+     * size(bucket_bounds) + 1 (= N) buckets. The boundaries for bucket index i are:
+     *
+     * <ul>
+     *   <li>{@code (-infinity, bucket_bounds[i]) for i == 0}
+     *   <li>{@code [bucket_bounds[i-1], bucket_bounds[i]) for 0 < i < N-2}
+     *   <li>{@code [bucket_bounds[i-1], +infinity) for i == N-1}
+     * </ul>
+     *
+     * <p>i.e. an underflow bucket (number 0), zero or more finite buckets (1 through N - 2, and an
+     * overflow bucket (N - 1), with inclusive lower bounds and exclusive upper bounds.
+     *
+     * <p>If bucket_bounds has no elements (zero size), then there is no histogram associated with
+     * the Distribution. If bucket_bounds has only one element, there are no finite buckets, and
+     * that single element is the common boundary of the overflow and underflow buckets. The values
+     * must be monotonically increasing.
+     *
+     * @return the bucket boundaries of this distribution.
+     * @since 0.17
+     */
+    public abstract List<Double> getBucketBoundaries();
+  }
 
   /**
    * The histogram bucket of the population values.

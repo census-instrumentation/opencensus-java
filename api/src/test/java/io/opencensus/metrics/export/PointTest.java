@@ -21,6 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.testing.EqualsTester;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.BucketOptions;
+import io.opencensus.metrics.export.Distribution.Explicit;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +40,7 @@ public class PointTest {
               10,
               6.6,
               678.54,
-              Arrays.asList(-1.0, 0.0, 1.0),
+              BucketOptions.create(Explicit.create(Arrays.asList(1.0, 2.0, 5.0))),
               Arrays.asList(
                   Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))));
   private static final Timestamp TIMESTAMP_1 = Timestamp.create(1, 2);
