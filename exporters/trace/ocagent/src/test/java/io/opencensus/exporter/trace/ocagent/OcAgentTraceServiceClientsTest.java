@@ -27,6 +27,7 @@ import io.grpc.MethodDescriptor;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.exporter.trace.ocagent.OcAgentTraceServiceClients.AgentConnectionWorker;
+import io.opencensus.proto.agent.common.v1.Node;
 import io.opencensus.proto.agent.trace.v1.CurrentLibraryConfig;
 import io.opencensus.proto.agent.trace.v1.ExportTraceServiceRequest;
 import io.opencensus.proto.agent.trace.v1.ExportTraceServiceResponse;
@@ -120,8 +121,10 @@ public class OcAgentTraceServiceClientsTest {
     Mockito.doReturn(fakeClientCall)
         .when(mockChannel)
         .newCall((MethodDescriptor<?, ?>) any(), any(CallOptions.class));
+    ExportTraceServiceRequest request =
+        ExportTraceServiceRequest.newBuilder().setNode(Node.getDefaultInstance()).build();
     AgentConnectionWorker.initiateExportStream(
-        fakeStub, RETRY_INTERVAL_MILLIS, mockExportResponseObserver);
+        fakeStub, RETRY_INTERVAL_MILLIS, mockExportResponseObserver, request);
     assertThat(OcAgentTraceServiceClients.exportRequestObserverRef.get()).isNotNull();
   }
 
@@ -130,8 +133,10 @@ public class OcAgentTraceServiceClientsTest {
     Mockito.doReturn(fakeErrorClientCall)
         .when(mockChannel)
         .newCall((MethodDescriptor<?, ?>) any(), any(CallOptions.class));
+    ExportTraceServiceRequest request =
+        ExportTraceServiceRequest.newBuilder().setNode(Node.getDefaultInstance()).build();
     AgentConnectionWorker.initiateExportStream(
-        fakeStub, RETRY_INTERVAL_MILLIS, mockExportResponseObserver);
+        fakeStub, RETRY_INTERVAL_MILLIS, mockExportResponseObserver, request);
     assertThat(OcAgentTraceServiceClients.exportRequestObserverRef.get()).isNull();
   }
 
@@ -140,8 +145,10 @@ public class OcAgentTraceServiceClientsTest {
     Mockito.doReturn(fakeClientCall)
         .when(mockChannel)
         .newCall((MethodDescriptor<?, ?>) any(), any(CallOptions.class));
+    CurrentLibraryConfig currentLibraryConfig =
+        CurrentLibraryConfig.newBuilder().setNode(Node.getDefaultInstance()).build();
     AgentConnectionWorker.initiateConfigStream(
-        fakeStub, RETRY_INTERVAL_MILLIS, mockUpdatedConfigObserver);
+        fakeStub, RETRY_INTERVAL_MILLIS, mockUpdatedConfigObserver, currentLibraryConfig);
     assertThat(OcAgentTraceServiceClients.currentConfigObserverRef.get()).isNotNull();
   }
 
@@ -150,8 +157,10 @@ public class OcAgentTraceServiceClientsTest {
     Mockito.doReturn(fakeErrorClientCall)
         .when(mockChannel)
         .newCall((MethodDescriptor<?, ?>) any(), any(CallOptions.class));
+    CurrentLibraryConfig currentLibraryConfig =
+        CurrentLibraryConfig.newBuilder().setNode(Node.getDefaultInstance()).build();
     AgentConnectionWorker.initiateConfigStream(
-        fakeStub, RETRY_INTERVAL_MILLIS, mockUpdatedConfigObserver);
+        fakeStub, RETRY_INTERVAL_MILLIS, mockUpdatedConfigObserver, currentLibraryConfig);
     assertThat(OcAgentTraceServiceClients.currentConfigObserverRef.get()).isNull();
   }
 

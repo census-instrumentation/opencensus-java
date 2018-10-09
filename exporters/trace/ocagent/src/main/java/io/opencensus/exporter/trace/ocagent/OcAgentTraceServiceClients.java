@@ -80,10 +80,15 @@ final class OcAgentTraceServiceClients {
   // during the lifetime of application, and will keep trying to connect to Agent at a configured
   // frequency (retryIntervalMillis).
   static void startAttemptsToConnectToAgent(
-      String endPoint, boolean useInsecure, String serviceName, long retryIntervalMillis) {
+      String endPoint,
+      boolean useInsecure,
+      String serviceName,
+      long retryIntervalMillis,
+      boolean enableConfig) {
     factory
         .newThread(
-            new AgentConnectionWorker(endPoint, useInsecure, serviceName, retryIntervalMillis))
+            new AgentConnectionWorker(
+                endPoint, useInsecure, serviceName, retryIntervalMillis, enableConfig))
         .start();
   }
 
@@ -115,15 +120,21 @@ final class OcAgentTraceServiceClients {
 
     private final String endPoint;
     private final boolean useInsecure;
-    private final String serviceName;
+    private final Node node;
     private final long retryIntervalMillis;
+    private final boolean enableConfig;
 
     AgentConnectionWorker(
-        String endPoint, boolean useInsecure, String serviceName, long retryIntervalMillis) {
+        String endPoint,
+        boolean useInsecure,
+        String serviceName,
+        long retryIntervalMillis,
+        boolean enableConfig) {
       this.endPoint = endPoint;
       this.useInsecure = useInsecure;
-      this.serviceName = serviceName;
+      this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
       this.retryIntervalMillis = retryIntervalMillis;
+      this.enableConfig = enableConfig;
     }
 
     @Override
@@ -132,12 +143,13 @@ final class OcAgentTraceServiceClients {
         // Infinite outer loop to keep this thread alive.
         // This thread should never exit unless interrupted.
         while (true) {
-          // There's another inner loop in tryOpenStreamsAndWaitForConfig that attempts to connect
-          // to remote Agent. Once connection is established, tryOpenStreamsAndWaitForConfig will be
-          // blocked watching UpdatedLibraryConfig from Agent.
-          tryOpenStreamsAndWaitForConfig(endPoint, useInsecure, serviceName, retryIntervalMillis);
-          // tryOpenStreamsAndWaitForConfig would exit only when connection is lost after it is
-          // established. In that case wait for the configured interval, then start over again.
+          // There's another inner loop in checkStreamsHeartbeat that attempts to connect
+          // to remote Agent.
+          // Once connection is established, checkStreamsHeartbeat will be blocked watching
+          // UpdatedLibraryConfig from Agent if enableConfig is true.
+          checkStreamsHeartbeat(endPoint, useInsecure, node, retryIntervalMillis, enableConfig);
+
+          // Check the heartbeat again after the configured time interval.
           Thread.sleep(retryIntervalMillis);
         }
       } catch (InterruptedException e) {
@@ -145,15 +157,23 @@ final class OcAgentTraceServiceClients {
       }
     }
 
-    // Tries to establish connections to Agent server at the given endPoint.
-    // 1. If connection succeeded, the callback request stream observer will be stored locally, and
-    //    this thread will be blocked waiting for the next UpdatedLibraryConfig.
-    // 2. If connection failed, this method will retry connection at the given retry time interval.
-    // 3. If connection succeeded but then lost, this method will exit and the
-    //    AgentConnectionWorker will return to the initial infinite loop which tries to establish
-    //    connections to Agent.
-    private static void tryOpenStreamsAndWaitForConfig(
-        String endPoint, boolean useInsecure, String serviceName, long retryIntervalMillis)
+    // Heartbeat check on stream RPC connection. If not connected, tries to establish connections to
+    // Agent server at the given endPoint.
+    // 1. If connection failed, this method will retry connection at the given retry time interval.
+    // 2. If connection succeeded, the callback request stream observer will be stored locally.
+    //    2-1. If enableConfig is true, this thread will be blocked waiting for the next
+    //         UpdatedLibraryConfig. If later the connection for config service is dropped,
+    //         this method will exit and the AgentConnectionWorker will try to re-establish the
+    //         connection again.
+    //    2-2. If enableConfig is false, this method will exit. Worker thread will invoke this
+    //         method again to check the connection of export() after 5 minutes (or other configured
+    //         time).
+    private static void checkStreamsHeartbeat(
+        String endPoint,
+        boolean useInsecure,
+        Node node,
+        long retryIntervalMillis,
+        boolean enableConfig)
         throws InterruptedException {
       ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forTarget(endPoint);
       if (useInsecure) {
@@ -161,30 +181,31 @@ final class OcAgentTraceServiceClients {
       }
       ManagedChannel channel = channelBuilder.build();
       TraceServiceStub stub = TraceServiceGrpc.newStub(channel);
-      Node node = OcAgentNodeUtils.getNodeInfo(serviceName);
 
       // First message must have Node set.
       ExportTraceServiceRequest firstExportReq =
           ExportTraceServiceRequest.newBuilder().setNode(node).build();
-      CurrentLibraryConfig firstConfig = TraceProtoUtils.getCurrentLibraryConfig(node);
 
       while (!isExportConnected()) {
         // If export stream is still alive, this will be skipped.
-        initiateExportStream(stub, retryIntervalMillis, exportResponseObserver);
+        initiateExportStream(stub, retryIntervalMillis, exportResponseObserver, firstExportReq);
       }
-      exportRequestObserverRef.get().onNext(firstExportReq);
 
-      while (!isConfigConnected()) {
-        // If config stream is still alive, this will be skipped.
-        initiateConfigStream(stub, retryIntervalMillis, updatedLibraryConfigObserver);
-      }
-      currentConfigObserverRef.get().onNext(firstConfig);
+      if (enableConfig) {
+        // First message must have Node set.
+        CurrentLibraryConfig firstConfig = TraceProtoUtils.getCurrentLibraryConfig(node);
+        while (!isConfigConnected()) {
+          // If config stream is still alive, this will be skipped.
+          initiateConfigStream(
+              stub, retryIntervalMillis, updatedLibraryConfigObserver, firstConfig);
+        }
 
-      while (isConfigConnected() && isExportConnected()) {
-        // Block current thread so as to wait for the next UpdatedLibraryConfig message from Agent.
-        // If either of the two clients observes an error (e.g network failure, server
-        // shutdown), we'll escape from this loop and return to the outer loop. Then the outer loop
-        // will try to re-establish connections for the two services.
+        while (isConfigConnected()) {
+          // Block current thread so as to wait for the next UpdatedLibraryConfig message from
+          // Agent. If either of the two clients observes an error (e.g network failure, server
+          // shutdown), we'll escape from this loop and return to the outer loop. Then the outer
+          // loop will try to re-establish connections for the two services.
+        }
       }
     }
 
@@ -218,8 +239,12 @@ final class OcAgentTraceServiceClients {
           @Override
           public void onNext(UpdatedLibraryConfig value) {
             TraceProtoUtils.applyUpdatedConfig(value);
-            // Bouncing back CurrentLibraryConfig to Agent.
-            currentConfigObserverRef.get().onNext(TraceProtoUtils.getCurrentLibraryConfig(null));
+
+            // Add a check in case that connection dropped while config is being updated.
+            if (isConfigConnected()) {
+              // Bouncing back CurrentLibraryConfig to Agent.
+              currentConfigObserverRef.get().onNext(TraceProtoUtils.getCurrentLibraryConfig(null));
+            }
           }
 
           @Override
@@ -240,12 +265,14 @@ final class OcAgentTraceServiceClients {
     static void initiateExportStream(
         TraceServiceStub stub,
         long retryIntervalMillis,
-        StreamObserver<ExportTraceServiceResponse> exportResponseObserver)
+        StreamObserver<ExportTraceServiceResponse> exportResponseObserver,
+        ExportTraceServiceRequest firstExportReq)
         throws InterruptedException {
       try {
         StreamObserver<ExportTraceServiceRequest> exportRequestObserver =
             stub.export(exportResponseObserver);
         exportRequestObserverRef.set(exportRequestObserver);
+        exportRequestObserver.onNext(firstExportReq);
       } catch (Exception e) {
         // If there are other exceptions not caught by exportResponseObserver.onError,
         // reset the reference to exportRequestObserver.
@@ -258,12 +285,14 @@ final class OcAgentTraceServiceClients {
     static void initiateConfigStream(
         TraceServiceStub stub,
         long retryIntervalMillis,
-        StreamObserver<UpdatedLibraryConfig> updatedLibraryConfigObserver)
+        StreamObserver<UpdatedLibraryConfig> updatedLibraryConfigObserver,
+        CurrentLibraryConfig firstConfig)
         throws InterruptedException {
       try {
         StreamObserver<CurrentLibraryConfig> currentConfigObserver =
             stub.config(updatedLibraryConfigObserver);
         currentConfigObserverRef.set(currentConfigObserver);
+        currentConfigObserver.onNext(firstConfig);
       } catch (Exception e) {
         // If there are other exceptions not caught by updatedLibraryConfigObserver.onError,
         // reset the reference to currentConfigObserver.
