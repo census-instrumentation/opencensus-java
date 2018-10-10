@@ -89,10 +89,9 @@ public class GaugeTest {
             Metric.create(
                 MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEYS),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         LABEL_VALUES,
-                        Collections.singletonList(
-                            Point.create(Value.longValue(OBJ.hashCode()), TEST_TIME)),
+                        Point.create(Value.longValue(OBJ.hashCode()), TEST_TIME),
                         null))));
   }
 
@@ -103,10 +102,9 @@ public class GaugeTest {
             Metric.create(
                 MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEYS),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         LABEL_VALUES,
-                        Collections.singletonList(
-                            Point.create(Value.doubleValue(OBJ.hashCode()), TEST_TIME)),
+                        Point.create(Value.doubleValue(OBJ.hashCode()), TEST_TIME),
                         null))));
   }
 }

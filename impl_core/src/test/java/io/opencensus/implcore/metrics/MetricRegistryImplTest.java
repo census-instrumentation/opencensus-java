@@ -159,9 +159,9 @@ public class MetricRegistryImplTest {
                     Type.GAUGE_DOUBLE,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Collections.singletonList(Point.create(Value.doubleValue(5.0), TEST_TIME)),
+                        Point.create(Value.doubleValue(5.0), TEST_TIME),
                         null))));
   }
 
@@ -263,9 +263,9 @@ public class MetricRegistryImplTest {
                     Type.GAUGE_INT64,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Collections.singletonList(Point.create(Value.longValue(7), TEST_TIME)),
+                        Point.create(Value.longValue(7), TEST_TIME),
                         null))));
   }
 
@@ -305,9 +305,9 @@ public class MetricRegistryImplTest {
                     Type.GAUGE_INT64,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Collections.singletonList(Point.create(Value.longValue(7), TEST_TIME)),
+                        Point.create(Value.longValue(7), TEST_TIME),
                         null))),
             Metric.create(
                 MetricDescriptor.create(
@@ -317,9 +317,9 @@ public class MetricRegistryImplTest {
                     Type.GAUGE_DOUBLE,
                     Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Collections.singletonList(Point.create(Value.doubleValue(5.0), TEST_TIME)),
+                        Point.create(Value.doubleValue(5.0), TEST_TIME),
                         null))));
   }
 

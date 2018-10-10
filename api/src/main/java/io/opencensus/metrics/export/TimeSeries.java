@@ -64,6 +64,28 @@ public abstract class TimeSeries {
   }
 
   /**
+   * Creates a {@link TimeSeries}.
+   *
+   * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
+   * @param point the single data {@code Point} of this {@code TimeSeries}.
+   * @param startTimestamp the start {@code Timestamp} of this {@code TimeSeries}. Must be non-null
+   *     for cumulative {@code Point}s.
+   * @return a {@code TimeSeries}.
+   * @since 0.17
+   */
+  public static TimeSeries createWithOnePoint(
+      List<LabelValue> labelValues, Point point, @Nullable Timestamp startTimestamp) {
+    // Fail fast on null lists to prevent NullPointerException when copying the lists.
+    Utils.checkNotNull(labelValues, "labelValues");
+    Utils.checkNotNull(point, "point");
+    Utils.checkListElementNotNull(labelValues, "labelValue");
+    return new AutoValue_TimeSeries(
+        Collections.unmodifiableList(labelValues),
+        Collections.singletonList(point),
+        startTimestamp);
+  }
+
+  /**
    * Returns the set of {@link LabelValue}s that uniquely identify this {@link TimeSeries}.
    *
    * <p>Apply to all {@link Point}s.
