@@ -63,10 +63,9 @@ abstract class Gauge {
 
     @Override
     TimeSeries getTimeSeries(Clock clock) {
-      return TimeSeries.create(
+      return TimeSeries.createWithOnePoint(
           getLabelValues(),
-          Collections.singletonList(
-              Point.create(Value.doubleValue(function.applyAsDouble(obj)), clock.now())),
+          Point.create(Value.doubleValue(function.applyAsDouble(obj)), clock.now()),
           null);
     }
   }
@@ -92,10 +91,9 @@ abstract class Gauge {
 
     @Override
     TimeSeries getTimeSeries(Clock clock) {
-      return TimeSeries.create(
+      return TimeSeries.createWithOnePoint(
           getLabelValues(),
-          Collections.singletonList(
-              Point.create(Value.longValue(function.applyAsLong(obj)), clock.now())),
+          Point.create(Value.longValue(function.applyAsLong(obj)), clock.now()),
           null);
     }
   }

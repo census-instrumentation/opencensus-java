@@ -90,6 +90,40 @@ public class TimeSeriesTest {
   }
 
   @Test
+  public void testGet_WithOnePointTimeSeries() {
+    TimeSeries cumulativeTimeSeries =
+        TimeSeries.createWithOnePoint(
+            Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), POINT_1, TIMESTAMP_1);
+    assertThat(cumulativeTimeSeries.getStartTimestamp()).isEqualTo(TIMESTAMP_1);
+    assertThat(cumulativeTimeSeries.getLabelValues())
+        .containsExactly(LABEL_VALUE_1, LABEL_VALUE_2)
+        .inOrder();
+    assertThat(cumulativeTimeSeries.getPoints()).containsExactly(POINT_1).inOrder();
+  }
+
+  @Test
+  public void createWithOnePoint_WithNullLabelValueList() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage(CoreMatchers.equalTo("labelValues"));
+    TimeSeries.createWithOnePoint(null, POINT_1, TIMESTAMP_1);
+  }
+
+  @Test
+  public void createWithOnePoint_WithNullLabelValue() {
+    List<LabelValue> labelValues = Arrays.asList(LABEL_VALUE_1, null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage(CoreMatchers.equalTo("labelValue"));
+    TimeSeries.createWithOnePoint(labelValues, POINT_1, TIMESTAMP_1);
+  }
+
+  @Test
+  public void createWithOnePoint_WithNullPointList() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage(CoreMatchers.equalTo("point"));
+    TimeSeries.createWithOnePoint(Collections.<LabelValue>emptyList(), null, TIMESTAMP_1);
+  }
+
+  @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(

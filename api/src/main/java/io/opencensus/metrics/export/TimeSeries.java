@@ -52,14 +52,45 @@ public abstract class TimeSeries {
    */
   public static TimeSeries create(
       List<LabelValue> labelValues, List<Point> points, @Nullable Timestamp startTimestamp) {
+    Utils.checkNotNull(points, "points");
+    Utils.checkListElementNotNull(points, "point");
+    return createInternal(
+        labelValues, Collections.unmodifiableList(new ArrayList<Point>(points)), startTimestamp);
+  }
+
+  /**
+   * Creates a {@link TimeSeries}.
+   *
+   * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
+   * @param point the single data {@code Point} of this {@code TimeSeries}.
+   * @param startTimestamp the start {@code Timestamp} of this {@code TimeSeries}. Must be non-null
+   *     for cumulative {@code Point}s.
+   * @return a {@code TimeSeries}.
+   * @since 0.17
+   */
+  public static TimeSeries createWithOnePoint(
+      List<LabelValue> labelValues, Point point, @Nullable Timestamp startTimestamp) {
+    Utils.checkNotNull(point, "point");
+    return createInternal(labelValues, Collections.singletonList(point), startTimestamp);
+  }
+
+  /**
+   * Creates a {@link TimeSeries}.
+   *
+   * @param labelValues the {@code LabelValue}s that uniquely identify this {@code TimeSeries}.
+   * @param points the data {@code Point}s of this {@code TimeSeries}.
+   * @param startTimestamp the start {@code Timestamp} of this {@code TimeSeries}. Must be non-null
+   *     for cumulative {@code Point}s.
+   * @return a {@code TimeSeries}.
+   */
+  private static TimeSeries createInternal(
+      List<LabelValue> labelValues, List<Point> points, @Nullable Timestamp startTimestamp) {
     // Fail fast on null lists to prevent NullPointerException when copying the lists.
     Utils.checkNotNull(labelValues, "labelValues");
-    Utils.checkNotNull(points, "points");
     Utils.checkListElementNotNull(labelValues, "labelValue");
-    Utils.checkListElementNotNull(points, "point");
     return new AutoValue_TimeSeries(
         Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
-        Collections.unmodifiableList(new ArrayList<Point>(points)),
+        points,
         startTimestamp);
   }
 

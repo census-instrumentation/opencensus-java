@@ -127,10 +127,8 @@ public class DropWizardMetrics extends MetricProducer {
         MetricDescriptor.create(
             metricName, metricDescription, DEFAULT_UNIT, type, Collections.<LabelKey>emptyList());
     TimeSeries timeSeries =
-        TimeSeries.create(
-            Collections.<LabelValue>emptyList(),
-            Collections.singletonList(Point.create(value, clock.now())),
-            null);
+        TimeSeries.createWithOnePoint(
+            Collections.<LabelValue>emptyList(), Point.create(value, clock.now()), null);
     return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
   }
 
@@ -154,10 +152,9 @@ public class DropWizardMetrics extends MetricProducer {
             Type.GAUGE_INT64,
             Collections.<LabelKey>emptyList());
     TimeSeries timeSeries =
-        TimeSeries.create(
+        TimeSeries.createWithOnePoint(
             Collections.<LabelValue>emptyList(),
-            Collections.singletonList(
-                Point.create(Value.longValue(counter.getCount()), clock.now())),
+            Point.create(Value.longValue(counter.getCount()), clock.now()),
             null);
     return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
   }
@@ -181,9 +178,9 @@ public class DropWizardMetrics extends MetricProducer {
             Type.CUMULATIVE_INT64,
             Collections.<LabelKey>emptyList());
     TimeSeries countTimeSeries =
-        TimeSeries.create(
+        TimeSeries.createWithOnePoint(
             Collections.<LabelValue>emptyList(),
-            Collections.singletonList(Point.create(Value.longValue(meter.getCount()), clock.now())),
+            Point.create(Value.longValue(meter.getCount()), clock.now()),
             null);
 
     // Collect rate related metric
@@ -196,25 +193,21 @@ public class DropWizardMetrics extends MetricProducer {
 
     List<TimeSeries> timeSeriesList =
         Arrays.asList(
-            TimeSeries.create(
+            TimeSeries.createWithOnePoint(
                 RATE_MEAN_LABEL_VALUE,
-                Collections.singletonList(
-                    Point.create(Value.doubleValue(meter.getMeanRate()), clock.now())),
+                Point.create(Value.doubleValue(meter.getMeanRate()), clock.now()),
                 null),
-            TimeSeries.create(
+            TimeSeries.createWithOnePoint(
                 RATE_ONE_MINUTE_LABEL_VALUE,
-                Collections.singletonList(
-                    Point.create(Value.doubleValue(meter.getOneMinuteRate()), clock.now())),
+                Point.create(Value.doubleValue(meter.getOneMinuteRate()), clock.now()),
                 null),
-            TimeSeries.create(
+            TimeSeries.createWithOnePoint(
                 RATE_FIVE_MINUTE_LABEL_VALUE,
-                Collections.singletonList(
-                    Point.create(Value.doubleValue(meter.getFiveMinuteRate()), clock.now())),
+                Point.create(Value.doubleValue(meter.getFiveMinuteRate()), clock.now()),
                 null),
-            TimeSeries.create(
+            TimeSeries.createWithOnePoint(
                 RATE_FIFTEEN_MINUTE_LABEL_VALUE,
-                Collections.singletonList(
-                    Point.create(Value.doubleValue(meter.getFifteenMinuteRate()), clock.now())),
+                Point.create(Value.doubleValue(meter.getFifteenMinuteRate()), clock.now()),
                 null));
 
     return Collections.unmodifiableList(
@@ -287,10 +280,8 @@ public class DropWizardMetrics extends MetricProducer {
             Type.SUMMARY,
             Collections.<LabelKey>emptyList());
     TimeSeries timeSeries =
-        TimeSeries.create(
-            Collections.<LabelValue>emptyList(),
-            Collections.singletonList(point),
-            cumulativeStartTimestamp);
+        TimeSeries.createWithOnePoint(
+            Collections.<LabelValue>emptyList(), point, cumulativeStartTimestamp);
 
     return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
   }

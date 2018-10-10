@@ -139,8 +139,7 @@ abstract class MutableViewData {
           tagValueAggregationMap.entrySet()) {
         List<LabelValue> labelValues = MetricUtils.tagValuesToLabelValues(entry.getKey());
         Point point = entry.getValue().toPoint(now);
-        timeSeriesList.add(
-            TimeSeries.create(labelValues, Collections.singletonList(point), startTime));
+        timeSeriesList.add(TimeSeries.createWithOnePoint(labelValues, point, startTime));
       }
       return Metric.create(metricDescriptor, timeSeriesList);
     }
