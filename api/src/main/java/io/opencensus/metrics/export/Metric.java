@@ -23,6 +23,8 @@ import io.opencensus.metrics.export.Value.ValueDistribution;
 import io.opencensus.metrics.export.Value.ValueDouble;
 import io.opencensus.metrics.export.Value.ValueLong;
 import io.opencensus.metrics.export.Value.ValueSummary;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
@@ -48,7 +50,8 @@ public abstract class Metric {
    */
   public static Metric create(MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
     checkTypeMatch(metricDescriptor.getType(), timeSeriesList);
-    return new AutoValue_Metric(metricDescriptor, timeSeriesList);
+    return new AutoValue_Metric(
+        metricDescriptor, Collections.unmodifiableList(new ArrayList<TimeSeries>(timeSeriesList)));
   }
 
   /**
