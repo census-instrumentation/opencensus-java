@@ -30,7 +30,7 @@ final class OcAgentTraceExporterHandler extends Handler {
   private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
 
   OcAgentTraceExporterHandler() {
-    this(null, null, null, null, null);
+    this(null, null, null, null, /* enableConfig= */ true);
   }
 
   OcAgentTraceExporterHandler(
@@ -38,7 +38,7 @@ final class OcAgentTraceExporterHandler extends Handler {
       @Nullable String serviceName,
       @Nullable Boolean useInsecure,
       @Nullable Duration retryInterval,
-      @Nullable Boolean enableConfig) {
+      boolean enableConfig) {
     if (endPoint == null) {
       endPoint = DEFAULT_END_POINT;
     }
@@ -50,9 +50,6 @@ final class OcAgentTraceExporterHandler extends Handler {
     }
     if (retryInterval == null) {
       retryInterval = DEFAULT_RETRY_INTERVAL;
-    }
-    if (enableConfig == null) {
-      enableConfig = false;
     }
     OcAgentTraceServiceClients.startAttemptsToConnectToAgent(
         endPoint, useInsecure, serviceName, retryInterval.toMillis(), enableConfig);
