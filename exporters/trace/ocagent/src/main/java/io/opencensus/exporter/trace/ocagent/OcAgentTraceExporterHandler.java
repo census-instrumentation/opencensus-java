@@ -16,6 +16,7 @@
 
 package io.opencensus.exporter.trace.ocagent;
 
+import io.opencensus.common.Duration;
 import io.opencensus.trace.export.SpanData;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import java.util.Collection;
@@ -26,29 +27,36 @@ final class OcAgentTraceExporterHandler extends Handler {
 
   private static final String DEFAULT_END_POINT = "localhost:55678";
   private static final String DEFAULT_SERVICE_NAME = "OpenCensus";
-
-  // private final String endPoint;
-  // private final Node node;
-  // private final boolean useInsecure;
+  private static final Duration DEFAULT_RETRY_INTERVAL = Duration.create(300, 0); // 5 minutes
 
   OcAgentTraceExporterHandler() {
-    this(null, null, null);
+    this(null, null, null, null, /* enableConfig= */ true);
   }
 
   OcAgentTraceExporterHandler(
-      @Nullable String endPoint, @Nullable String serviceName, @Nullable Boolean useInsecure) {
-    // this.endPoint = endPoint == null ? DEFAULT_END_POINT : endPoint;
-    // if (serviceName == null) {
-    //   serviceName = DEFAULT_SERVICE_NAME;
-    // }
-    // this.node = OcAgentNodeUtils.getNodeInfo(serviceName);
-    // this.useInsecure = useInsecure == null ? false : useInsecure;
+      @Nullable String endPoint,
+      @Nullable String serviceName,
+      @Nullable Boolean useInsecure,
+      @Nullable Duration retryInterval,
+      boolean enableConfig) {
+    if (endPoint == null) {
+      endPoint = DEFAULT_END_POINT;
+    }
+    if (serviceName == null) {
+      serviceName = DEFAULT_SERVICE_NAME;
+    }
+    if (useInsecure == null) {
+      useInsecure = false;
+    }
+    if (retryInterval == null) {
+      retryInterval = DEFAULT_RETRY_INTERVAL;
+    }
+    // OcAgentTraceServiceClients.startAttemptsToConnectToAgent(
+    //     endPoint, useInsecure, serviceName, retryInterval.toMillis(), enableConfig);
   }
 
   @Override
   public void export(Collection<SpanData> spanDataList) {
-    // TODO(songya): implement this.
-    // for (SpanData spanData : spanDataList) {
-    // }
+    // OcAgentTraceServiceClients.onExport(spanDataList);
   }
 }
