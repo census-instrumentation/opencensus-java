@@ -27,7 +27,7 @@ def useErrorProne = !useCheckerFramework
 
 subprojects {
     // OC-Agent exporter depends on grpc-core which depends on errorprone annotations, and it
-    // doesn't wort with checker framework.
+    // doesn't work with checker framework.
     def mustUseErrorprone = project.name == "opencensus-exporter-trace-ocagent"
 
     apply plugin: "checkstyle"

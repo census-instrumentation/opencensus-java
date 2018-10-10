@@ -62,7 +62,7 @@ public abstract class OcAgentTraceExporterConfiguration {
   /**
    * Returns the retry time interval when trying to connect to Agent.
    *
-   * @return the retry time interval
+   * @return the retry time interval.
    * @since 0.17
    */
   @Nullable
@@ -74,8 +74,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * @return whether the {@code OcAgentTraceExporter} should handle the config streams.
    * @since 0.17
    */
-  @Nullable
-  public abstract Boolean getEnableConfig();
+  public abstract boolean getEnableConfig();
 
   /**
    * Returns a new {@link Builder}.
@@ -84,7 +83,7 @@ public abstract class OcAgentTraceExporterConfiguration {
    * @since 0.17
    */
   public static Builder builder() {
-    return new AutoValue_OcAgentTraceExporterConfiguration.Builder();
+    return new AutoValue_OcAgentTraceExporterConfiguration.Builder().setEnableConfig(true);
   }
 
   /**
@@ -141,7 +140,7 @@ public abstract class OcAgentTraceExporterConfiguration {
      * @return this.
      * @since 0.17
      */
-    public abstract Builder setEnableConfig(Boolean enableConfig);
+    public abstract Builder setEnableConfig(boolean enableConfig);
 
     // TODO(songya): add an option that controls whether to always keep the RPC connection alive.
 

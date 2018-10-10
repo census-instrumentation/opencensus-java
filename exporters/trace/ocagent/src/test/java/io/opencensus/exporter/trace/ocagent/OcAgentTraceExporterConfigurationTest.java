@@ -35,7 +35,7 @@ public class OcAgentTraceExporterConfigurationTest {
     assertThat(configuration.getServiceName()).isNull();
     assertThat(configuration.getUseInsecure()).isNull();
     assertThat(configuration.getRetryInterval()).isNull();
-    assertThat(configuration.getEnableConfig()).isNull();
+    assertThat(configuration.getEnableConfig()).isTrue();
   }
 
   @Test
@@ -47,12 +47,12 @@ public class OcAgentTraceExporterConfigurationTest {
             .setServiceName("service")
             .setUseInsecure(true)
             .setRetryInterval(oneMinute)
-            .setEnableConfig(true)
+            .setEnableConfig(false)
             .build();
     assertThat(configuration.getEndPoint()).isEqualTo("192.168.0.1:50051");
     assertThat(configuration.getServiceName()).isEqualTo("service");
     assertThat(configuration.getUseInsecure()).isTrue();
     assertThat(configuration.getRetryInterval()).isEqualTo(oneMinute);
-    assertThat(configuration.getEnableConfig()).isTrue();
+    assertThat(configuration.getEnableConfig()).isFalse();
   }
 }
