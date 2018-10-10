@@ -31,20 +31,16 @@ import javax.annotation.concurrent.ThreadSafe;
  * class YourClass {
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
- *   DoubleGauge totalMemory = metricRegistry.addDoubleGauge(
- *       "Total_memory", "Total CPU Memory", "1", new ArrayList<LabelKey>());
- *
- *   Point defaultPoint = totalMemory.getDefaultTimeSeries();
+ *   DoubleGauge httpDuration = metricRegistry.addDoubleGauge(
+ *       "http_request_duration", "Duration of the last http request", "second",
+ *       new ArrayList<LabelKey>());
  *
  *   void doWork() {
  *      // add values
- *      totalMemory.getDefaultTimeSeries().add(10);
+ *      httpDuration.getDefaultTimeSeries().add(10);
  *
- *      // Your code here.
- *      totalMemory.getDefaultTimeSeries().add(-4);
- *
- *      // Your code here.
- *      // you can also use point objects to add/set values.
+ *      // Or, you can also use point objects to add/set values.
+ *      Point defaultPoint = httpDuration.getDefaultTimeSeries();
  *      defaultPoint.set(100);
  *   }
  * }
@@ -57,18 +53,21 @@ import javax.annotation.concurrent.ThreadSafe;
  * class YourClass {
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
+ *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Type", "desc"));
+ *   List<LabelValue> getLabelValues = Arrays.asList(LabelValue.create("GET"));
+ *   List<LabelValue> postLabelValues = Arrays.asList(LabelValue.create("POST"));
  *
- *   List<LabelKey> keys = Collections.singletonList(LabelKey.create("Type","desc"));
- *   DoubleGauge totalMemory = metricRegistry.addDoubleGauge(
- *       "Total_Memory", "Total CPU Memory", "1", keys);
+ *   DoubleGauge httpDuration = metricRegistry.addDoubleGauge(
+ *       "http_request_duration", "Duration of the last http request", "second", labelKeys);
  *
- *   List<LabelValue> usedMemory = Collections.singletonList(LabelValue.create("Used"));
- *   Point point = totalMemory.getOrCreateTimeSeries(usedMemory);
- *
- *   void doSomeWork() {
- *      totalMemory.getOrCreateTimeSeries(usedMemory).set(12.5);
+ *   void doSomeGetWork() {
  *      // Your code here.
- *      totalMemory.getOrCreateTimeSeries(usedMemory).add(-2.5);
+ *      httpDuration.getOrCreateTimeSeries(getLabelValues).set(1.8);
+ *   }
+ *
+ *   void doSomePostWork() {
+ *      // Your code here.
+ *      httpDuration.getOrCreateTimeSeries(postLabelValues).set(12.5);
  *   }
  *
  * }
@@ -80,10 +79,10 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class DoubleGauge {
 
   /**
-   * Creates a TimeSeries and returns a {@code Point}, which is part of the TimeSeries. This is more
-   * convenient form when you can want to manually increase and decrease values as per your service
-   * requirements. The number of label values must be the same to that of the label keys passed to
-   * {@link MetricRegistry#addDoubleGauge}.
+   * Creates a {@code TimeSeries} and returns a {@code Point}, which is part of the TimeSeries. This
+   * is more convenient form when you can want to manually increase and decrease values as per your
+   * service requirements. The number of label values must be the same to that of the label keys
+   * passed to {@link MetricRegistry#addDoubleGauge}.
    *
    * @param labelValues the list of label values.
    * @return a {@code Point} the value of single gauge.

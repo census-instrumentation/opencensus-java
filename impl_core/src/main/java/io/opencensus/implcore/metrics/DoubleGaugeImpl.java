@@ -33,36 +33,35 @@ import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /** Implementation of {@link DoubleGauge}. */
 public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
-  private volatile Map<List<LabelValue>, PointImpl> registeredPoints =
-      Collections.unmodifiableMap(new LinkedHashMap<List<LabelValue>, PointImpl>());
+  private volatile Map<List<LabelValue>, PointImpl> registeredPoints = Collections.emptyMap();
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
 
   DoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
-    defaultLabelValues = new ArrayList<LabelValue>(labelKeysSize);
+    defaultLabelValues = Collections.unmodifiableList(new ArrayList<LabelValue>(labelKeysSize));
     this.metricDescriptor =
         MetricDescriptor.create(name, description, unit, Type.GAUGE_DOUBLE, labelKeys);
   }
 
   @Override
   public Point getOrCreateTimeSeries(List<LabelValue> labelValues) {
-    checkNotNull(labelValues, "labelValues should not be null.");
-    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
-    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
-
     // lock free point retrieval, if it is present
     PointImpl existingPoint = registeredPoints.get(labelValues);
     if (existingPoint != null) {
       return existingPoint;
     }
+
+    checkNotNull(labelValues, "labelValues should not be null.");
+    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
+    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+
     return registerTimeSeries(new ArrayList<LabelValue>(labelValues));
   }
 
@@ -119,8 +118,9 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
   @Override
   public Metric getMetric(Clock clock) {
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredPoints.size());
-    for (Map.Entry<List<LabelValue>, PointImpl> entry : registeredPoints.entrySet()) {
+    Map<List<LabelValue>, PointImpl> currentRegisteredPoints = registeredPoints;
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(currentRegisteredPoints.size());
+    for (Map.Entry<List<LabelValue>, PointImpl> entry : currentRegisteredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }
     return Metric.create(metricDescriptor, timeSeriesList);
@@ -149,11 +149,9 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
     @Override
     public TimeSeries getTimeSeries(Clock clock) {
-      return TimeSeries.create(
+      return TimeSeries.createWithOnePoint(
           labelValues,
-          Collections.singletonList(
-              io.opencensus.metrics.export.Point.create(
-                  Value.doubleValue(value.get()), clock.now())),
+          io.opencensus.metrics.export.Point.create(Value.doubleValue(value.get()), clock.now()),
           null);
     }
   }

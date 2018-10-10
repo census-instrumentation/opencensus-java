@@ -30,10 +30,10 @@ import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -42,7 +42,7 @@ import javax.annotation.Nullable;
 public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
   private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredPoints =
-      Collections.unmodifiableMap(new LinkedHashMap<List<LabelValue>, TimeSeriesProducer>());
+      Collections.emptyMap();
   private final int labelKeysSize;
 
   DerivedDoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
@@ -104,8 +104,10 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
 
   @Override
   public Metric getMetric(Clock clock) {
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(registeredPoints.size());
-    for (Map.Entry<List<LabelValue>, TimeSeriesProducer> entry : registeredPoints.entrySet()) {
+    Map<List<LabelValue>, TimeSeriesProducer> currentRegisteredPoints = registeredPoints;
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(currentRegisteredPoints.size());
+    for (Map.Entry<List<LabelValue>, TimeSeriesProducer> entry :
+        currentRegisteredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }
     return Metric.create(metricDescriptor, timeSeriesList);
@@ -114,24 +116,25 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
   /** Implementation of {@link PointWithFunction} with a obj and function. */
   public static final class PointWithFunction<T> implements TimeSeriesProducer {
     private final List<LabelValue> labelValues;
-    @Nullable private final T obj;
+    @Nullable private final WeakReference<T> ref;
     private final ToDoubleFunction<T> function;
-    private static final double DEFAULT_VALUE = 0.0;
 
     PointWithFunction(List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function) {
       this.labelValues = labelValues;
-      this.obj = obj;
+      ref = obj != null ? new WeakReference<T>(obj) : null;
       this.function = function;
     }
 
     @Override
     public TimeSeries getTimeSeries(Clock clock) {
-      return TimeSeries.create(
+      final T obj = ref != null ? ref.get() : null;
+
+      @SuppressWarnings("incompatible") // if obj is null
+      double value = function.applyAsDouble(obj);
+
+      return TimeSeries.createWithOnePoint(
           labelValues,
-          Collections.singletonList(
-              io.opencensus.metrics.export.Point.create(
-                  Value.doubleValue(obj != null ? function.applyAsDouble(obj) : DEFAULT_VALUE),
-                  clock.now())),
+          io.opencensus.metrics.export.Point.create(Value.doubleValue(value), clock.now()),
           null);
     }
   }

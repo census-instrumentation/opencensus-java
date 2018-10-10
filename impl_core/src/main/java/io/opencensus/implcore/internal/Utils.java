@@ -30,7 +30,7 @@ public final class Utils {
    * @param errorMessage the message to use for the exception. Will be converted to a string using
    *     {@link String#valueOf(Object)}.
    */
-  public static <T /*>>> extends @NonNull Object*/> void checkListElementNotNull(
+  public static <T> void checkListElementNotNull(
       List<T> list, @javax.annotation.Nullable Object errorMessage) {
     for (T element : list) {
       if (element == null) {

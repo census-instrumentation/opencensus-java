@@ -18,6 +18,7 @@ package io.opencensus.metrics;
 
 import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.internal.Utils;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -32,19 +33,22 @@ import javax.annotation.concurrent.ThreadSafe;
  * class YourClass {
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
+ *
+ *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
+ *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
+ *
  *   DoubleGauge requestQueue = metricRegistry.addDoubleGauge(
- *       "Queue_Size", "Total Queue Size", "1", new ArrayList<LabelKey>());
+ *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
+ *
+ *   QueueManager queueManager = new QueueManager();
+ *   requestQueue.createTimeSeries(labelValues, queueManager,
+ *         new ToDoubleFunction<QueueManager>() {
+ *           public double applyAsDouble(QueueManager queue) {
+ *             return queue.size();
+ *           }
+ *         });
  *
  *   void doWork() {
- *      SimpleQueue simpleQueue = new SimpleQueue();
- *      requestQueue.createTimeSeries(new ArrayList<LabelValue>(), simpleQueue,
- *            new ToDoubleFunction<SimpleQueue>() {
- *              @Override
- *              public double applyAsDouble(SimpleQueue queue) {
- *                return queue.getValue();
- *              }
- *            });
- *
  *      // Your code here.
  *   }
  * }
@@ -57,14 +61,16 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class DerivedDoubleGauge {
 
   /**
-   * Creates a TimeSeries, that reports the value of the object after the function. This is,
-   * slightly more common form of gauge is one that monitors some non-numeric object. The last
-   * argument establishes the function that is used to determine the value of the gauge when the
-   * gauge is collected. The number of label values must be the same to that of the label keys
+   * Creates a {@code TimeSeries}. This gauge is self sufficient once created, so users should never
+   * need to interact with it. The value of the gauge is observed from the obj and function. The
+   * last argument establishes the function that is used to determine the value of the gauge when
+   * the gauge is collected. The number of label values must be the same to that of the label keys
    * passed to {@link MetricRegistry#addDerivedDoubleGauge}.
    *
    * @param labelValues the list of label values.
-   * @param obj the state object from which the function derives a measurement.
+   * @param obj the state object from which the function derives a measurement. We keep a {@link
+   *     WeakReference} to the object and it is the user's responsibility to manage the lifetime of
+   *     the object.
    * @param function the function to be called.
    * @param <T> the type of the object upon which the function derives a measurement.
    * @since 0.17

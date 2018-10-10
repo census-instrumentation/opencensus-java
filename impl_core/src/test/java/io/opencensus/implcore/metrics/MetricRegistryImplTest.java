@@ -126,7 +126,7 @@ public class MetricRegistryImplTest {
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Point.create(Value.doubleValue(5.0), TEST_TIME),
+                        Point.create(Value.doubleValue(2.13), TEST_TIME),
                         null))));
   }
 
@@ -238,7 +238,7 @@ public class MetricRegistryImplTest {
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Point.create(Value.doubleValue(5.0), TEST_TIME),
+                        Point.create(Value.doubleValue(2.13), TEST_TIME),
                         null))));
   }
 

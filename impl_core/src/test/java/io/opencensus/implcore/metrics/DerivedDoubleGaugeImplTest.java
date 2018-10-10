@@ -97,11 +97,39 @@ public class DerivedDoubleGaugeImplTest {
                     Type.GAUGE_DOUBLE,
                     Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         Collections.singletonList(LABEL_VALUES),
-                        Collections.singletonList(
-                            io.opencensus.metrics.export.Point.create(
-                                Value.doubleValue(2.13), TEST_TIME)),
+                        io.opencensus.metrics.export.Point.create(
+                            Value.doubleValue(2.13), TEST_TIME),
+                        null))));
+  }
+
+  @Test
+  public void addTimeSeries_WithoutObj() {
+    derivedDoubleGauge.createTimeSeries(
+        labelValues,
+        null,
+        new ToDoubleFunction<Object>() {
+          @Override
+          public double applyAsDouble(Object value) {
+            return 2.13;
+          }
+        });
+
+    assertThat(derivedDoubleGauge.getMetric(testClock))
+        .isEqualTo(
+            Metric.create(
+                MetricDescriptor.create(
+                    METRIC_NAME,
+                    METRIC_DESCRIPTION,
+                    METRIC_UNIT,
+                    Type.GAUGE_DOUBLE,
+                    Collections.singletonList(LABEL_KEY)),
+                Collections.singletonList(
+                    TimeSeries.createWithOnePoint(
+                        Collections.singletonList(LABEL_VALUES),
+                        io.opencensus.metrics.export.Point.create(
+                            Value.doubleValue(2.13), TEST_TIME),
                         null))));
   }
 

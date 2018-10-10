@@ -95,11 +95,10 @@ public class DoubleGaugeMetricImplTest {
                     Type.GAUGE_DOUBLE,
                     Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         Collections.singletonList(LABEL_VALUES),
-                        Collections.singletonList(
-                            io.opencensus.metrics.export.Point.create(
-                                Value.doubleValue(500.12), TEST_TIME)),
+                        io.opencensus.metrics.export.Point.create(
+                            Value.doubleValue(500.12), TEST_TIME),
                         null))));
   }
 
