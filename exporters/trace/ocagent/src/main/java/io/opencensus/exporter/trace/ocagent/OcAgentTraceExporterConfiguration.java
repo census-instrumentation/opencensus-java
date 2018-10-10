@@ -17,6 +17,7 @@
 package io.opencensus.exporter.trace.ocagent;
 
 import com.google.auto.value.AutoValue;
+import io.opencensus.common.Duration;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -59,13 +60,30 @@ public abstract class OcAgentTraceExporterConfiguration {
   public abstract String getServiceName();
 
   /**
+   * Returns the retry time interval when trying to connect to Agent.
+   *
+   * @return the retry time interval.
+   * @since 0.17
+   */
+  @Nullable
+  public abstract Duration getRetryInterval();
+
+  /**
+   * Returns whether the {@link OcAgentTraceExporter} should handle the config streams.
+   *
+   * @return whether the {@code OcAgentTraceExporter} should handle the config streams.
+   * @since 0.17
+   */
+  public abstract boolean getEnableConfig();
+
+  /**
    * Returns a new {@link Builder}.
    *
    * @return a {@code Builder}.
    * @since 0.17
    */
   public static Builder builder() {
-    return new AutoValue_OcAgentTraceExporterConfiguration.Builder();
+    return new AutoValue_OcAgentTraceExporterConfiguration.Builder().setEnableConfig(true);
   }
 
   /**
@@ -105,6 +123,26 @@ public abstract class OcAgentTraceExporterConfiguration {
      * @since 0.17
      */
     public abstract Builder setServiceName(String serviceName);
+
+    /**
+     * Sets the retry time interval when trying to connect to Agent.
+     *
+     * @param retryInterval the retry time interval.
+     * @return this.
+     * @since 0.17
+     */
+    public abstract Builder setRetryInterval(Duration retryInterval);
+
+    /**
+     * Sets whether {@link OcAgentTraceExporter} should handle the config streams.
+     *
+     * @param enableConfig whether {@code OcAgentTraceExporter} should handle the config streams.
+     * @return this.
+     * @since 0.17
+     */
+    public abstract Builder setEnableConfig(boolean enableConfig);
+
+    // TODO(songya): add an option that controls whether to always keep the RPC connection alive.
 
     /**
      * Builds a {@link OcAgentTraceExporterConfiguration}.
