@@ -23,6 +23,7 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -100,6 +101,36 @@ public class MetricTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(errorMessage);
     Metric.create(metricDescriptor, timeSeriesList);
+  }
+
+  @Test
+  public void create_WithNullMetricDescriptor() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("metricDescriptor");
+    Metric.create(null, Collections.<TimeSeries>emptyList());
+  }
+
+  @Test
+  public void create_WithNullTimeSeriesList() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("timeSeriesList");
+    Metric.create(METRIC_DESCRIPTOR_1, null);
+  }
+
+  @Test
+  public void create_WithNullTimeSeries() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("timeSeries");
+    Metric.create(METRIC_DESCRIPTOR_1, Arrays.asList(GAUGE_TIME_SERIES_1, null));
+  }
+
+  @Test
+  public void immutableTimeSeriesList() {
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>();
+    timeSeriesList.add(GAUGE_TIME_SERIES_1);
+    Metric metric = Metric.create(METRIC_DESCRIPTOR_1, timeSeriesList);
+    timeSeriesList.add(GAUGE_TIME_SERIES_2);
+    assertThat(metric.getTimeSeriesList()).containsExactly(GAUGE_TIME_SERIES_1);
   }
 
   @Test
