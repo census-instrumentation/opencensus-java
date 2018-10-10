@@ -23,7 +23,7 @@ import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
-import io.opencensus.metrics.export.Distribution.Explicit;
+import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.Summary.Snapshot;
 import io.opencensus.metrics.export.Summary.Snapshot.ValueAtPercentile;
 import io.opencensus.metrics.export.Value.ValueDistribution;
@@ -48,7 +48,7 @@ public class ValueTest {
           10,
           10,
           1,
-          BucketOptions.create(Explicit.create(Arrays.asList(1.0, 2.0, 5.0))),
+          BucketOptions.explicitOptions(Arrays.asList(1.0, 2.0, 5.0)),
           Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)));
   private static final Summary SUMMARY =
       Summary.create(
@@ -98,7 +98,7 @@ public class ValueTest {
                     7,
                     10,
                     23.456,
-                    BucketOptions.create(Explicit.create(Arrays.asList(1.0, 2.0, 5.0))),
+                    BucketOptions.explicitOptions(Arrays.asList(1.0, 2.0, 5.0)),
                     Arrays.asList(
                         Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4)))))
         .testEquals();
@@ -137,7 +137,18 @@ public class ValueTest {
               actual.add(arg.getSum());
               actual.add(arg.getCount());
               actual.add(arg.getSumOfSquaredDeviations());
-              actual.addAll(arg.getBucketOptions().getExplicitBuckets().getBucketBoundaries());
+
+              arg.getBucketOptions()
+                  .match(
+                      new Function<ExplicitOptions, Object>() {
+                        @Override
+                        public Object apply(ExplicitOptions arg) {
+                          actual.addAll(arg.getBucketBoundaries());
+                          return null;
+                        }
+                      },
+                      Functions.throwAssertionError());
+
               for (Bucket bucket : arg.getBuckets()) {
                 actual.add(bucket.getCount());
               }

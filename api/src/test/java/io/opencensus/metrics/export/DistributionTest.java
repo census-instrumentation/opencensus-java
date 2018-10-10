@@ -19,11 +19,14 @@ package io.opencensus.metrics.export;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.testing.EqualsTester;
+import io.opencensus.common.Function;
+import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
+import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.Distribution.Exemplar;
-import io.opencensus.metrics.export.Distribution.Explicit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -77,16 +80,53 @@ public class DistributionTest {
   @Test
   public void createAndGet_ExplicitBuckets() {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 3.0);
-    Explicit explicitBuckets = Explicit.create(bucketBounds);
-    assertThat(explicitBuckets.getBucketBoundaries())
-        .containsExactlyElementsIn(bucketBounds)
-        .inOrder();
+
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
+    final List<Double> actual = new ArrayList<Double>();
+    bucketOptions.match(
+        new Function<ExplicitOptions, Object>() {
+          @Override
+          public Object apply(ExplicitOptions arg) {
+            actual.addAll(arg.getBucketBoundaries());
+            return null;
+          }
+        },
+        Functions.throwAssertionError());
+
+    assertThat(actual).containsExactlyElementsIn(bucketBounds).inOrder();
+  }
+
+  @Test
+  public void createAndGet_ExplicitBucketsNegativeBounds() {
+    List<Double> bucketBounds = Arrays.asList(-1.0);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("bucket boundaries should be > 0");
+    BucketOptions.explicitOptions(bucketBounds);
   }
 
   @Test
   public void createAndGet_PreventNullExplicitBuckets() {
     thrown.expect(NullPointerException.class);
-    Explicit.create(Arrays.asList(1.0, null, 3.0));
+    BucketOptions.explicitOptions(Arrays.asList(1.0, null, 3.0));
+  }
+
+  @Test
+  public void createAndGet_ExplicitBucketsEmptyBounds() {
+    List<Double> bucketBounds = new ArrayList<Double>();
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
+
+    final List<Double> actual = new ArrayList<Double>();
+    bucketOptions.match(
+        new Function<ExplicitOptions, Object>() {
+          @Override
+          public Object apply(ExplicitOptions arg) {
+            actual.addAll(arg.getBucketBoundaries());
+            return null;
+          }
+        },
+        Functions.throwAssertionError());
+
+    assertThat(actual).isEmpty();
   }
 
   @Test
@@ -94,15 +134,20 @@ public class DistributionTest {
     List<Double> bucketBounds = Arrays.asList(1.0, 5.0, 2.0);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("bucket boundaries not sorted.");
-    BucketOptions.create(Explicit.create(bucketBounds));
+    BucketOptions.explicitOptions(bucketBounds);
+  }
+
+  @Test
+  public void createAndGet_PreventNullBucketOptions() {
+    thrown.expect(NullPointerException.class);
+    BucketOptions.explicitOptions(null);
   }
 
   @Test
   public void createAndGet_Distribution() {
     Exemplar exemplar = Exemplar.create(15.0, TIMESTAMP, ATTACHMENTS);
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
-    Explicit explicitBuckets = Explicit.create(bucketBounds);
-    BucketOptions bucketOptions = BucketOptions.create(explicitBuckets);
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
     List<Bucket> buckets =
         Arrays.asList(
             Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4, exemplar));
@@ -110,9 +155,22 @@ public class DistributionTest {
     assertThat(distribution.getCount()).isEqualTo(10);
     assertThat(distribution.getSum()).isWithin(TOLERANCE).of(6.6);
     assertThat(distribution.getSumOfSquaredDeviations()).isWithin(TOLERANCE).of(678.54);
-    assertThat(distribution.getBucketOptions().getExplicitBuckets().getBucketBoundaries())
-        .containsExactlyElementsIn(bucketBounds)
-        .inOrder();
+
+    final List<Double> actual = new ArrayList<Double>();
+    distribution
+        .getBucketOptions()
+        .match(
+            new Function<ExplicitOptions, Object>() {
+              @Override
+              public Object apply(ExplicitOptions arg) {
+                actual.addAll(arg.getBucketBoundaries());
+                return null;
+              }
+            },
+            Functions.throwAssertionError());
+
+    assertThat(actual).containsExactlyElementsIn(bucketBounds).inOrder();
+
     assertThat(distribution.getBuckets()).containsExactlyElementsIn(buckets).inOrder();
   }
 
@@ -149,7 +207,7 @@ public class DistributionTest {
   @Test
   public void createDistribution_NegativeCount() {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
-    BucketOptions bucketOptions = BucketOptions.create(Explicit.create(bucketBounds));
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
 
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
@@ -161,7 +219,7 @@ public class DistributionTest {
   @Test
   public void createDistribution_NegativeSumOfSquaredDeviations() {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
-    BucketOptions bucketOptions = BucketOptions.create(Explicit.create(bucketBounds));
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
 
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
@@ -173,7 +231,7 @@ public class DistributionTest {
   @Test
   public void createDistribution_ZeroCountAndPositiveMean() {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
-    BucketOptions bucketOptions = BucketOptions.create(Explicit.create(bucketBounds));
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
 
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
@@ -185,7 +243,7 @@ public class DistributionTest {
   @Test
   public void createDistribution_ZeroCountAndSumOfSquaredDeviations() {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
-    BucketOptions bucketOptions = BucketOptions.create(Explicit.create(bucketBounds));
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(0), Bucket.create(0), Bucket.create(0), Bucket.create(0));
     thrown.expect(IllegalArgumentException.class);
@@ -199,13 +257,22 @@ public class DistributionTest {
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucketBoundaries list should not be null.");
-    Distribution.create(10, 6.6, 678.54, BucketOptions.create(Explicit.create(null)), buckets);
+    Distribution.create(10, 6.6, 678.54, BucketOptions.explicitOptions(null), buckets);
+  }
+
+  @Test
+  public void createDistribution_NullBucketOptions() {
+    List<Bucket> buckets =
+        Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("bucketOptions");
+    Distribution.create(10, 6.6, 678.54, null, buckets);
   }
 
   @Test
   public void createDistribution_NullBucketList() {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
-    BucketOptions bucketOptions = BucketOptions.create(Explicit.create(bucketBounds));
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("bucket list should not be null.");
     Distribution.create(10, 6.6, 678.54, bucketOptions, null);
@@ -214,7 +281,7 @@ public class DistributionTest {
   @Test
   public void createDistribution_NullBucket() {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
-    BucketOptions bucketOptions = BucketOptions.create(Explicit.create(bucketBounds));
+    BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), null, Bucket.create(4));
     thrown.expect(NullPointerException.class);
@@ -231,14 +298,14 @@ public class DistributionTest {
                 10,
                 10,
                 1,
-                BucketOptions.create(Explicit.create(bucketBounds)),
+                BucketOptions.explicitOptions(bucketBounds),
                 Arrays.asList(
                     Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))),
             Distribution.create(
                 10,
                 10,
                 1,
-                BucketOptions.create(Explicit.create(bucketBounds)),
+                BucketOptions.explicitOptions(bucketBounds),
                 Arrays.asList(
                     Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))))
         .addEqualityGroup(
@@ -246,7 +313,7 @@ public class DistributionTest {
                 7,
                 10,
                 23.456,
-                BucketOptions.create(Explicit.create(bucketBounds)),
+                BucketOptions.explicitOptions(bucketBounds),
                 Arrays.asList(
                     Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4))))
         .testEquals();

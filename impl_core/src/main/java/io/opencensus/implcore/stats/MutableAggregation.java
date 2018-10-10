@@ -23,7 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Timestamp;
 import io.opencensus.metrics.export.Distribution;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
-import io.opencensus.metrics.export.Distribution.Explicit;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.stats.Aggregation;
@@ -429,14 +428,15 @@ abstract class MutableAggregation {
         }
         buckets.add(metricBucket);
       }
+
+      // TODO(mayurkale): Drop the first bucket when converting to metrics.
+      // Reason: In Stats API, bucket bounds begin with -infinity (first bucket is (-infinity, 0)).
+      BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBoundaries.getBoundaries());
+
       return Point.create(
           Value.distributionValue(
               Distribution.create(
-                  count,
-                  mean * count,
-                  sumOfSquaredDeviations,
-                  BucketOptions.create(Explicit.create(bucketBoundaries.getBoundaries())),
-                  buckets)),
+                  count, mean * count, sumOfSquaredDeviations, bucketOptions, buckets)),
           timestamp);
     }
 

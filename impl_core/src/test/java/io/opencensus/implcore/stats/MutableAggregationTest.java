@@ -31,7 +31,6 @@ import io.opencensus.implcore.stats.MutableAggregation.MutableSumLong;
 import io.opencensus.metrics.export.Distribution;
 import io.opencensus.metrics.export.Distribution.Bucket;
 import io.opencensus.metrics.export.Distribution.BucketOptions;
-import io.opencensus.metrics.export.Distribution.Explicit;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.stats.AggregationData;
@@ -310,7 +309,7 @@ public class MutableAggregationTest {
                         0,
                         0,
                         0,
-                        BucketOptions.create(Explicit.create(BUCKET_BOUNDARIES.getBoundaries())),
+                        BucketOptions.explicitOptions(BUCKET_BOUNDARIES.getBoundaries()),
                         Arrays.asList(
                             Bucket.create(0),
                             Bucket.create(0),
