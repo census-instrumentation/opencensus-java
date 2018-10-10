@@ -39,18 +39,18 @@ final class OcAgentTraceExporterHandler extends Handler {
       @Nullable Boolean useInsecure,
       @Nullable Duration retryInterval,
       boolean enableConfig) {
-    if (endPoint == null) {
-      endPoint = DEFAULT_END_POINT;
-    }
-    if (serviceName == null) {
-      serviceName = DEFAULT_SERVICE_NAME;
-    }
-    if (useInsecure == null) {
-      useInsecure = false;
-    }
-    if (retryInterval == null) {
-      retryInterval = DEFAULT_RETRY_INTERVAL;
-    }
+    // if (endPoint == null) {
+    //   endPoint = DEFAULT_END_POINT;
+    // }
+    // if (serviceName == null) {
+    //   serviceName = DEFAULT_SERVICE_NAME;
+    // }
+    // if (useInsecure == null) {
+    //   useInsecure = false;
+    // }
+    // if (retryInterval == null) {
+    //   retryInterval = DEFAULT_RETRY_INTERVAL;
+    // }
     // OcAgentTraceServiceClients.startAttemptsToConnectToAgent(
     //     endPoint, useInsecure, serviceName, retryInterval.toMillis(), enableConfig);
   }
