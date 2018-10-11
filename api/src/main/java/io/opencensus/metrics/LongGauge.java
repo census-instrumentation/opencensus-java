@@ -16,10 +16,8 @@
 
 package io.opencensus.metrics;
 
-import io.opencensus.common.ToLongFunction;
 import io.opencensus.internal.Utils;
 import java.util.List;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -33,17 +31,23 @@ import javax.annotation.concurrent.ThreadSafe;
  * class YourClass {
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
- *   LongGauge jobsInQueue = metricRegistry.addLongGauge(
- *       "Queue_Size", "Number of jobs in queue", "1", new ArrayList<LabelKey>());
  *
- *   Point defaultPoint = jobsInQueue.getDefaultTimeSeries();
+ *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
+ *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
+ *
+ *   LongGauge requestQueue = metricRegistry.addLongGauge(
+ *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   void doWork() {
- *      defaultPoint.inc();
- *      // Your code here.
- *      defaultPoint.dec();
+ *      // add values
+ *      requestQueue.getDefaultTimeSeries().add(10);
+ *
+ *      // Or, you can also use LongPoint objects to add/set values.
+ *      LongPoint defaultPoint = requestQueue.getDefaultTimeSeries();
+ *      defaultPoint.set(100);
  *   }
  * }
+ *
  * }</pre>
  *
  * <p>Example 2: You can also use labels(keys and values) to track different types of metric.
@@ -53,27 +57,17 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
  *
- *   List<LabelKey> keys = Collections.singletonList(LabelKey.create("queue_name","desc"));
- *   LongGauge jobsInQueue = metricRegistry.addLongGauge(
- *       "Queue_Size", "Number of jobs in queue", "1", keys);
+ *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
+ *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   List<LabelValue> inboundQueue = Collections.singletonList(LabelValue.create("Inbound"));
- *   Point inboundQueuePoint = jobsInQueue.addTimeSeries(inboundQueue);
+ *   LongGauge requestQueue = metricRegistry.addLongGauge(
+ *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
- *   List<LabelValue> callbackQueue = Collections.singletonList(LabelValue.create("Callback"));
- *   Point callbackQueuePoint = jobsInQueue.addTimeSeries(callbackQueue);
- *
- *   void processInboundRequest() {
- *      inboundQueuePoint.inc();
+ *   void doSomeWork() {
  *      // Your code here.
- *      inboundQueuePoint.dec();
+ *      requestQueue.getOrCreateTimeSeries(labelValues).set(15);
  *   }
  *
- *   void processCallbackRequest() {
- *      callbackQueuePoint.inc();
- *      // Your code here.
- *      callbackQueuePoint.dec();
- *   }
  * }
  * }</pre>
  *
@@ -83,40 +77,40 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class LongGauge {
 
   /**
-   * Adds a TimeSeries and returns a {@code Point}, which is part of the TimeSeries. This is more
-   * convenient form when you can want to manually increase and decrease values as per your service
-   * requirements. The number of label values must be the same to that of the label keys passed to
-   * {@link MetricRegistry#addLongGauge}.
+   * Creates a {@code TimeSeries} and returns a {@code LongPoint}, which is part of the TimeSeries.
+   * This is more convenient form when you want to manually increase and decrease values as per your
+   * service requirements. The number of label values must be the same to that of the label keys
+   * passed to {@link MetricRegistry#addLongGauge}.
    *
    * @param labelValues the list of label values.
-   * @return a {@code Point} the value of single gauge.
+   * @return a {@code LongPoint} the value of single gauge.
    * @since 0.17
    */
-  public abstract Point addTimeSeries(List<LabelValue> labelValues);
+  public abstract LongPoint getOrCreateTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Adds a TimeSeries, that reports the value of the object after the function. This is a self
-   * sufficient gauge, slightly more common form of gauge is one that monitors some non-numeric
-   * object. The last argument establishes the function that is used to determine the value of the
-   * gauge when the gauge is collected. The number of label values must be the same to that of the
-   * label keys passed to {@link MetricRegistry#addLongGauge}.
+   * Returns a {@code LongPoint} for a gauge with all labels not set, or default labels.
+   *
+   * @return a {@code LongPoint} the value of default gauge.
+   * @since 0.17
+   */
+  public abstract LongPoint getDefaultTimeSeries();
+
+  /**
+   * Removes the {@code TimeSeries} from the gauge metric, if it is present. i.e. references to
+   * previous {@code LongPoint} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
-   * @param obj the state object from which the function derives a measurement.
-   * @param function the function to be called.
-   * @param <T> the type of the object upon which the function derives a measurement.
    * @since 0.17
    */
-  public abstract <T> void addTimeSeries(
-      List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function);
+  public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Returns a {@code Point} for a gauge with all labels not set, or default labels.
+   * References to all previous {@code LongPoint} objects are invalid (not part of the metric).
    *
-   * @return a {@code Point} the value of default gauge.
    * @since 0.17
    */
-  public abstract Point getDefaultTimeSeries();
+  public abstract void clear();
 
   /**
    * Returns the no-op implementation of the {@code LongGauge}.
@@ -134,42 +128,19 @@ public abstract class LongGauge {
    *
    * @since 0.17
    */
-  public abstract static class Point {
-
+  public abstract static class LongPoint {
     /**
-     * Increments the gauge value by one.
+     * Adds the given value to the current value. The values can be negative.
      *
+     * @param amt the value to add
      * @since 0.17
      */
-    public abstract void inc();
+    public abstract void add(long amt);
 
     /**
-     * Increments the gauge by the given amount.
+     * Sets the given value.
      *
-     * @param amt amount to add to the gauge.
-     * @since 0.17
-     */
-    public abstract void inc(long amt);
-
-    /**
-     * Decrements the gauge value by one.
-     *
-     * @since 0.17
-     */
-    public abstract void dec();
-
-    /**
-     * Decrements the gauge by the given amount.
-     *
-     * @param amt amount to subtract from the gauge.
-     * @since 0.17
-     */
-    public abstract void dec(long amt);
-
-    /**
-     * Sets the gauge to the given value.
-     *
-     * @param val to assign to the gauge.
+     * @param val the new value.
      * @since 0.17
      */
     public abstract void set(long val);
@@ -183,7 +154,7 @@ public abstract class LongGauge {
       return new NoopLongGauge(name, description, unit, labelKeys);
     }
 
-    /** Creates a new {@code NoopLongGauge}. */
+    /** Creates a new {@code NoopLongPoint}. */
     NoopLongGauge(String name, String description, String unit, List<LabelKey> labelKeys) {
       Utils.checkNotNull(name, "name");
       Utils.checkNotNull(description, "description");
@@ -193,51 +164,43 @@ public abstract class LongGauge {
     }
 
     @Override
-    public NoopPoint addTimeSeries(List<LabelValue> labelValues) {
+    public NoopLongPoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
-      return NoopPoint.getInstance();
+      return NoopLongPoint.getInstance();
     }
 
     @Override
-    public <T> void addTimeSeries(
-        List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
-      Utils.checkNotNull(labelValues, "labelValues should not be null.");
-      Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
-      Utils.checkNotNull(function, "function");
+    public NoopLongPoint getDefaultTimeSeries() {
+      return NoopLongPoint.getInstance();
     }
 
     @Override
-    public NoopPoint getDefaultTimeSeries() {
-      return NoopPoint.getInstance();
+    public void removeTimeSeries(List<LabelValue> labelValues) {
+      Utils.checkNotNull(labelValues, "labelValues should not be null.");
+      Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
     }
 
-    /** No-op implementations of Point class. */
-    private static final class NoopPoint extends Point {
-      private static final NoopPoint INSTANCE = new NoopPoint();
+    @Override
+    public void clear() {}
 
-      private NoopPoint() {}
+    /** No-op implementations of LongPoint class. */
+    private static final class NoopLongPoint extends LongPoint {
+      private static final NoopLongPoint INSTANCE = new NoopLongPoint();
+
+      private NoopLongPoint() {}
 
       /**
        * Returns a {@code NoopPoint}.
        *
        * @return a {@code NoopPoint}.
        */
-      static NoopPoint getInstance() {
+      static NoopLongPoint getInstance() {
         return INSTANCE;
       }
 
       @Override
-      public void inc() {}
-
-      @Override
-      public void inc(long amt) {}
-
-      @Override
-      public void dec() {}
-
-      @Override
-      public void dec(long amt) {}
+      public void add(long amt) {}
 
       @Override
       public void set(long val) {}

@@ -71,6 +71,19 @@ public abstract class MetricRegistry {
   public abstract DerivedDoubleGauge addDerivedDoubleGauge(
       String name, String description, String unit, List<LabelKey> labelKeys);
 
+  /**
+   * Build a new derived double gauge to be added to the registry.
+   *
+   * @param name the name of the metric.
+   * @param description the description of the metric.
+   * @param unit the unit of the metric.
+   * @param labelKeys the list of label keys.
+   * @since 0.17
+   */
+  @ExperimentalApi
+  public abstract DerivedLongGauge addDerivedLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
+
   static MetricRegistry newNoopMetricRegistry() {
     return new NoopMetricRegistry();
   }
@@ -93,6 +106,12 @@ public abstract class MetricRegistry {
     public DerivedDoubleGauge addDerivedDoubleGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
       return DerivedDoubleGauge.getNoopDerivedDoubleGauge(name, description, unit, labelKeys);
+    }
+
+    @Override
+    public DerivedLongGauge addDerivedLongGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      return DerivedLongGauge.getNoopDerivedLongGauge(name, description, unit, labelKeys);
     }
   }
 }

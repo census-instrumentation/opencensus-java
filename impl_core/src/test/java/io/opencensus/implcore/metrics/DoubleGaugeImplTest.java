@@ -40,7 +40,7 @@ import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link DoubleGaugeImpl}. */
 @RunWith(JUnit4.class)
-public class DoubleGaugeMetricImplTest {
+public class DoubleGaugeImplTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   private static final String METRIC_NAME = "name";

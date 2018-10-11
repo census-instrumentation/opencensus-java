@@ -16,9 +16,8 @@
 
 package io.opencensus.metrics;
 
-import io.opencensus.common.ToLongFunction;
 import io.opencensus.metrics.DoubleGauge.DoublePoint;
-import io.opencensus.metrics.LongGauge.Point;
+import io.opencensus.metrics.LongGauge.LongPoint;
 import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
@@ -96,22 +95,11 @@ public class MetricRegistryTest {
   public void addLongGauge_NoopPoint() {
     LongGauge longGaugeMetric =
         metricRegistry.addLongGauge("name", "description", "1", new ArrayList<LabelKey>());
-    Point dp = longGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
-    dp.inc();
-    dp.inc(12);
+    LongPoint dp = longGaugeMetric.getOrCreateTimeSeries(new ArrayList<LabelValue>());
+    dp.add(12);
     dp.set(12);
-    dp.dec(12);
-    dp.dec();
 
     longGaugeMetric.getDefaultTimeSeries();
-    longGaugeMetric.addTimeSeries(
-        new ArrayList<LabelValue>(),
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 10;
-          }
-        });
+    longGaugeMetric.getOrCreateTimeSeries(new ArrayList<LabelValue>());
   }
 }

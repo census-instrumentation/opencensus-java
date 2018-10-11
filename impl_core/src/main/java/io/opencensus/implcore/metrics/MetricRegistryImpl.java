@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.metrics.DerivedDoubleGauge;
+import io.opencensus.metrics.DerivedLongGauge;
 import io.opencensus.metrics.DoubleGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LongGauge;
@@ -101,6 +102,25 @@ public final class MetricRegistryImpl extends MetricRegistry {
 
     registeredMeters.registerMeter(derivedDoubleGauge);
     return derivedDoubleGauge;
+  }
+
+  @Override
+  public DerivedLongGauge addDerivedLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    checkNotNull(name, "name");
+    checkNotNull(labelKeys, "labelKeys should not be null.");
+    checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
+    checkDuplicateMetric(name, "A different metric with the same name is already registered.");
+
+    DerivedLongGaugeImpl derivedLongGauge =
+        new DerivedLongGaugeImpl(
+            name,
+            checkNotNull(description, "description"),
+            checkNotNull(unit, "unit"),
+            Collections.unmodifiableList(labelKeys));
+
+    registeredMeters.registerMeter(derivedLongGauge);
+    return derivedLongGauge;
   }
 
   private synchronized void checkDuplicateMetric(String metricName, @Nullable String errorMessage) {

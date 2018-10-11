@@ -77,13 +77,13 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class DoubleGauge {
 
   /**
-   * Creates a {@code TimeSeries} and returns a {@code DoublePoint}, which is part of the TimeSeries. This
-   * is more convenient form when you want to manually increase and decrease values as per your
-   * service requirements. The number of label values must be the same to that of the label keys
-   * passed to {@link MetricRegistry#addDoubleGauge}.
+   * Creates a {@code TimeSeries} and returns a {@code DoublePoint}, which is part of the
+   * TimeSeries. This is more convenient form when you want to manually increase and decrease values
+   * as per your service requirements. The number of label values must be the same to that of the
+   * label keys passed to {@link MetricRegistry#addDoubleGauge}.
    *
-   * <p>It is strongly recommended to keep a reference to the DoublePoint instead of always calling this
-   * method.
+   * <p>It is strongly recommended to keep a reference to the DoublePoint instead of always calling
+   * this method.
    *
    * @param labelValues the list of label values.
    * @return a {@code DoublePoint} the value of single gauge.
@@ -195,9 +195,9 @@ public abstract class DoubleGauge {
       private NoopDoublePoint() {}
 
       /**
-       * Returns a {@code NoopPoint}.
+       * Returns a {@code NoopDoublePoint}.
        *
-       * @return a {@code NoopPoint}.
+       * @return a {@code NoopDoublePoint}.
        */
       static NoopDoublePoint getInstance() {
         return INSTANCE;

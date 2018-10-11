@@ -22,9 +22,9 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.common.ToLongFunction;
 import io.opencensus.metrics.DerivedDoubleGauge;
+import io.opencensus.metrics.DerivedLongGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -156,8 +156,9 @@ public class MetricRegistryImplTest {
 
   @Test
   public void addLongGauge_GetMetrics() {
-    LongGauge longGaugeMetric = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
-    longGaugeMetric.addTimeSeries(
+    DerivedLongGauge derivedLongGauge =
+      metricRegistry.addDerivedLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
+    derivedLongGauge.createTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToLongFunction<TotalMemory>() {
@@ -191,8 +192,10 @@ public class MetricRegistryImplTest {
 
   @Test
   public void multipleMetrics_GetMetrics() {
-    LongGauge longGaugeMetric = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
-    longGaugeMetric.addTimeSeries(
+    DerivedLongGauge derivedLongGauge =
+      metricRegistry.addDerivedLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
+
+    derivedLongGauge.createTimeSeries(
         labelValues,
         new TotalMemory(),
         new ToLongFunction<TotalMemory>() {

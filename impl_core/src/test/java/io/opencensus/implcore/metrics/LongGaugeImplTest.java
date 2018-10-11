@@ -19,10 +19,9 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
-import io.opencensus.common.ToLongFunction;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.LongGauge.Point;
+import io.opencensus.metrics.LongGauge.LongPoint;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -41,7 +40,7 @@ import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link LongGaugeImpl}. */
 @RunWith(JUnit4.class)
-public class LongGaugeMetricImplTest {
+public class LongGaugeImplTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   private static final String METRIC_NAME = "name";
@@ -68,43 +67,6 @@ public class LongGaugeMetricImplTest {
     longGaugeMetric = new LongGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
   }
 
-  // helper class
-  public static class JobsInQueue {
-    public long getValue() {
-      return 7;
-    }
-  }
-
-  @Test
-  public void addTimeSeries_WithObjFunction() {
-    longGaugeMetric.addTimeSeries(
-        labelValues,
-        new JobsInQueue(),
-        new ToLongFunction<JobsInQueue>() {
-          @Override
-          public long applyAsLong(JobsInQueue jobsInQueue) {
-            return jobsInQueue.getValue();
-          }
-        });
-
-    assertThat(longGaugeMetric.getMetric(testClock))
-        .isEqualTo(
-            Metric.create(
-                MetricDescriptor.create(
-                    METRIC_NAME,
-                    METRIC_DESCRIPTION,
-                    METRIC_UNIT,
-                    Type.GAUGE_INT64,
-                    Collections.singletonList(LABEL_KEY)),
-                Collections.singletonList(
-                    TimeSeries.create(
-                        Collections.singletonList(LABEL_VALUES),
-                        Collections.singletonList(
-                            io.opencensus.metrics.export.Point.create(
-                                Value.longValue(7), TEST_TIME)),
-                        null))));
-  }
-
   @Test
   public void empty_GetMetrics() {
     assertThat(longGaugeMetric.getMetric(testClock))
@@ -116,13 +78,10 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void addTimeSeries_WithLabels() {
-    Point point = longGaugeMetric.addTimeSeries(labelValues);
-
-    point.inc();
-    point.inc(120);
-    point.dec();
-    point.dec(100);
+  public void getOrCreateTimeSeries_WithLabels() {
+    LongPoint point = longGaugeMetric.getOrCreateTimeSeries(labelValues);
+    point.add(100);
+    point.add(-60);
     point.set(500);
 
     assertThat(longGaugeMetric.getMetric(testClock))
@@ -135,22 +94,20 @@ public class LongGaugeMetricImplTest {
                     Type.GAUGE_INT64,
                     Collections.singletonList(LABEL_KEY)),
                 Collections.singletonList(
-                    TimeSeries.create(
+                    TimeSeries.createWithOnePoint(
                         Collections.singletonList(LABEL_VALUES),
-                        Collections.singletonList(
-                            io.opencensus.metrics.export.Point.create(
-                                Value.longValue(500), TEST_TIME)),
+                        io.opencensus.metrics.export.Point.create(Value.longValue(500), TEST_TIME),
                         null))));
   }
 
   @Test
   public void getDefaultTimeSeries() {
-    Point point = longGaugeMetric.getDefaultTimeSeries();
-    point.inc();
-    point.inc(120);
-    point.dec();
-    point.dec(100);
+    LongPoint point = longGaugeMetric.getDefaultTimeSeries();
+    point.add(100);
     point.set(500);
+
+    LongPoint point1 = longGaugeMetric.getDefaultTimeSeries();
+    point1.add(-100);
 
     assertThat(longGaugeMetric.getMetric(testClock))
         .isEqualTo(
@@ -166,29 +123,18 @@ public class LongGaugeMetricImplTest {
                         Collections.<LabelValue>emptyList(),
                         Collections.singletonList(
                             io.opencensus.metrics.export.Point.create(
-                                Value.longValue(500), TEST_TIME)),
+                                Value.longValue(400), TEST_TIME)),
                         null))));
   }
 
   @Test
   public void multipleMetrics_GetMetric() {
-    Point point = longGaugeMetric.addTimeSeries(labelValues);
-    point.inc();
-    point.inc();
-    point.inc();
+    LongPoint point = longGaugeMetric.getOrCreateTimeSeries(labelValues);
+    point.add(1);
+    point.add(2);
 
-    Point point1 = longGaugeMetric.getDefaultTimeSeries();
+    LongPoint point1 = longGaugeMetric.getDefaultTimeSeries();
     point1.set(100);
-
-    longGaugeMetric.addTimeSeries(
-        labelValues1,
-        new JobsInQueue(),
-        new ToLongFunction<JobsInQueue>() {
-          @Override
-          public long applyAsLong(JobsInQueue jobsInQueue) {
-            return jobsInQueue.getValue();
-          }
-        });
 
     List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>();
     timeSeriesList.add(
@@ -202,12 +148,6 @@ public class LongGaugeMetricImplTest {
             Collections.<LabelValue>emptyList(),
             Collections.singletonList(
                 io.opencensus.metrics.export.Point.create(Value.longValue(100), TEST_TIME)),
-            null));
-    timeSeriesList.add(
-        TimeSeries.create(
-            Collections.singletonList(LABEL_VALUES_1),
-            Collections.singletonList(
-                io.opencensus.metrics.export.Point.create(Value.longValue(7), TEST_TIME)),
             null));
 
     Metric metric = longGaugeMetric.getMetric(testClock);
@@ -224,67 +164,8 @@ public class LongGaugeMetricImplTest {
   }
 
   @Test
-  public void multipleMetrics_GetMetricSamePoint() {
-    Point point = longGaugeMetric.addTimeSeries(labelValues);
-    point.inc();
-    Point point1 = longGaugeMetric.addTimeSeries(labelValues);
-    point1.inc();
-
+  public void getOrCreateTimeSeries_IncorrectLabels() {
     thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addTimeSeries(
-        labelValues,
-        null,
-        new ToLongFunction<JobsInQueue>() {
-          @Override
-          public long applyAsLong(JobsInQueue jobsInQueue) {
-            return jobsInQueue.getValue();
-          }
-        });
-  }
-
-  @Test
-  public void multipleMetrics_GetMetricSamePoint_1() {
-    longGaugeMetric.addTimeSeries(
-        labelValues,
-        null,
-        new ToLongFunction<JobsInQueue>() {
-          @Override
-          public long applyAsLong(JobsInQueue jobsInQueue) {
-            return jobsInQueue.getValue();
-          }
-        });
-
-    longGaugeMetric.addTimeSeries(
-        labelValues,
-        null,
-        new ToLongFunction<JobsInQueue>() {
-          @Override
-          public long applyAsLong(JobsInQueue jobsInQueue) {
-            return jobsInQueue.getValue();
-          }
-        });
-
-    thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addTimeSeries(labelValues);
-  }
-
-  @Test
-  public void addTimeSeries_IncorrectLabels() {
-    thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addTimeSeries(new ArrayList<LabelValue>());
-  }
-
-  @Test
-  public void addTimeSeries_IncorrectLabelsWithObjFunction() {
-    thrown.expect(IllegalArgumentException.class);
-    longGaugeMetric.addTimeSeries(
-        new ArrayList<LabelValue>(),
-        null,
-        new ToLongFunction<JobsInQueue>() {
-          @Override
-          public long applyAsLong(JobsInQueue jobsInQueue) {
-            return jobsInQueue.getValue();
-          }
-        });
+    longGaugeMetric.getOrCreateTimeSeries(new ArrayList<LabelValue>());
   }
 }
