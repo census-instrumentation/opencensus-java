@@ -23,8 +23,6 @@ import com.google.protobuf.UInt32Value;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
-import io.opencensus.proto.agent.common.v1.Node;
-import io.opencensus.proto.agent.trace.v1.CurrentLibraryConfig;
 import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
@@ -106,7 +104,6 @@ final class TraceProtoUtils {
    * @param spanData the {@code SpanData}.
    * @return proto representation of {@code Span}.
    */
-  @SuppressWarnings("DefaultCharset")
   static Span toSpanProto(SpanData spanData) {
     SpanContext spanContext = spanData.getContext();
     TraceId traceId = spanContext.getTraceId();
@@ -296,7 +293,6 @@ final class TraceProtoUtils {
     }
   }
 
-  @SuppressWarnings("DefaultCharset")
   private static Link toLinkProto(io.opencensus.trace.Link link) {
     return Link.newBuilder()
         .setTraceId(toByteString(link.getTraceId().getBytes()))
@@ -375,15 +371,10 @@ final class TraceProtoUtils {
     return builder.build();
   }
 
-  // Creates a CurrentLibraryConfig message with the given Node and current TraceParams.
-  static CurrentLibraryConfig getCurrentLibraryConfig(
-      @javax.annotation.Nullable Node node, io.opencensus.trace.config.TraceConfig traceConfig) {
+  // Creates a TraceConfig proto message with current TraceParams.
+  static TraceConfig getCurrentTraceConfig(io.opencensus.trace.config.TraceConfig traceConfig) {
     TraceParams traceParams = traceConfig.getActiveTraceParams();
-    TraceConfig traceConfigProto = toTraceConfigProto(traceParams);
-    CurrentLibraryConfig.Builder builder =
-        CurrentLibraryConfig.newBuilder().setConfig(traceConfigProto);
-    // Node is only required for the first message.
-    return node == null ? builder.build() : builder.setNode(node).build();
+    return toTraceConfigProto(traceParams);
   }
 
   // Creates an updated TraceParams with the given UpdatedLibraryConfig message and current

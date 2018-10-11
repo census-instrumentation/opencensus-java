@@ -26,7 +26,6 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.UInt32Value;
 import io.opencensus.common.Timestamp;
 import io.opencensus.proto.agent.common.v1.Node;
-import io.opencensus.proto.agent.trace.v1.CurrentLibraryConfig;
 import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
@@ -145,7 +144,6 @@ public class TraceProtoUtilsTest {
         .updateActiveTraceParams(Mockito.any(TraceParams.class));
   }
 
-  @SuppressWarnings("DefaultCharset")
   @Test
   public void toSpanProto() {
     SpanData spanData =
@@ -332,10 +330,9 @@ public class TraceProtoUtilsTest {
   }
 
   @Test
-  public void getCurrentLibraryConfig() {
+  public void getCurrentTraceConfig() {
     TraceConfig configProto = TraceProtoUtils.toTraceConfigProto(DEFAULT_PARAMS);
-    assertThat(TraceProtoUtils.getCurrentLibraryConfig(NODE, mockTraceConfig))
-        .isEqualTo(CurrentLibraryConfig.newBuilder().setNode(NODE).setConfig(configProto).build());
+    assertThat(TraceProtoUtils.getCurrentTraceConfig(mockTraceConfig)).isEqualTo(configProto);
     Mockito.verify(mockTraceConfig, Mockito.times(1)).getActiveTraceParams();
   }
 
