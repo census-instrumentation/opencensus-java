@@ -41,7 +41,9 @@ import javax.annotation.Nullable;
 /** Implementation of {@link DerivedLongGauge}. */
 public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
-  private volatile Map<List<LabelValue>, TimeSeriesProducer> registeredPoints =
+
+  @SuppressWarnings("rawtypes")
+  private volatile Map<List<LabelValue>, PointWithFunction> registeredPoints =
       Collections.emptyMap();
   private final int labelKeysSize;
 
@@ -77,9 +79,10 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     registeredPoints.clear();
   }
 
+  @SuppressWarnings("rawtypes")
   private synchronized void removeInternal(List<LabelValue> labelValues) {
-    Map<List<LabelValue>, TimeSeriesProducer> registeredPointsCopy =
-        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredPoints);
+    Map<List<LabelValue>, PointWithFunction> registeredPointsCopy =
+        new HashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
     if (registeredPointsCopy.remove(labelValues) == null) {
       // The element not present, no need to update the current map of time series.
       return;
@@ -87,28 +90,30 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
 
+  @SuppressWarnings("rawtypes")
   private synchronized <T> void registerTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
-    TimeSeriesProducer existingTimeSeries = registeredPoints.get(labelValues);
+    PointWithFunction existingTimeSeries = registeredPoints.get(labelValues);
     if (existingTimeSeries != null) {
       throw new IllegalArgumentException(
           "A different time series with the same labels already exists.");
     }
 
-    TimeSeriesProducer newTimeSeries = new PointWithFunction<T>(labelValues, obj, function);
+    PointWithFunction newTimeSeries = new PointWithFunction<T>(labelValues, obj, function);
     // Updating the map of time series happens under a lock to avoid multiple add operations
     // to happen in the same time.
-    Map<List<LabelValue>, TimeSeriesProducer> registeredPointsCopy =
-        new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredPoints);
+    Map<List<LabelValue>, PointWithFunction> registeredPointsCopy =
+        new HashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
     registeredPointsCopy.put(labelValues, newTimeSeries);
     registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public Metric getMetric(Clock clock) {
-    Map<List<LabelValue>, TimeSeriesProducer> currentRegisteredPoints = registeredPoints;
+    Map<List<LabelValue>, PointWithFunction> currentRegisteredPoints = registeredPoints;
     List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(currentRegisteredPoints.size());
-    for (Map.Entry<List<LabelValue>, TimeSeriesProducer> entry :
+    for (Map.Entry<List<LabelValue>, PointWithFunction> entry :
         currentRegisteredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }
@@ -116,7 +121,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   }
 
   /** Implementation of {@link PointWithFunction} with a obj and function. */
-  public static final class PointWithFunction<T> implements TimeSeriesProducer {
+  public static final class PointWithFunction<T> {
     private final List<LabelValue> labelValues;
     @Nullable private final WeakReference<T> ref;
     private final ToLongFunction<T> function;
@@ -127,8 +132,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
       this.function = function;
     }
 
-    @Override
-    public TimeSeries getTimeSeries(Clock clock) {
+    private TimeSeries getTimeSeries(Clock clock) {
       final T obj = ref != null ? ref.get() : null;
 
       @SuppressWarnings("incompatible") // if obj is null

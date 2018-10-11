@@ -61,9 +61,11 @@ import javax.annotation.concurrent.ThreadSafe;
  *   DoubleGauge gauge = metricRegistry.addDoubleGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
+ *   DoublePoint inboundPoint = gauge.getOrCreateTimeSeries(labelValues);
+ *
  *   void doSomeWork() {
  *      // Your code here.
- *      gauge.getOrCreateTimeSeries(labelValues).set(15);
+ *      inboundPoint.set(15);
  *   }
  *
  * }
@@ -131,7 +133,7 @@ public abstract class DoubleGauge {
   }
 
   /**
-   * The value of a single Gauge.
+   * The value of a single point in the Gauge.TimeSeries.
    *
    * @since 0.17
    */

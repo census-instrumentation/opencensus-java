@@ -127,7 +127,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   }
 
   /** Implementation of {@link LongGauge.LongPoint}. */
-  public static final class PointImpl extends LongPoint implements TimeSeriesProducer {
+  public static final class PointImpl extends LongPoint {
 
     // TODO(mayurkale): Consider to use LongAdder here, once we upgrade to Java8.
     private final AtomicLong value = new AtomicLong(0);
@@ -147,8 +147,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
       value.set(val);
     }
 
-    @Override
-    public TimeSeries getTimeSeries(Clock clock) {
+    private TimeSeries getTimeSeries(Clock clock) {
       return TimeSeries.createWithOnePoint(
           labelValues,
           io.opencensus.metrics.export.Point.create(Value.longValue(value.get()), clock.now()),

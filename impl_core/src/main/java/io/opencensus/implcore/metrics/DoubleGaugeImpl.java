@@ -127,7 +127,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
   }
 
   /** Implementation of {@link DoubleGauge.DoublePoint}. */
-  public static final class PointImpl extends DoublePoint implements TimeSeriesProducer {
+  public static final class PointImpl extends DoublePoint {
 
     // TODO(mayurkale): Consider to use DoubleAdder here, once we upgrade to Java8.
     private final AtomicDouble value = new AtomicDouble(0);
@@ -147,8 +147,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
       value.set(val);
     }
 
-    @Override
-    public TimeSeries getTimeSeries(Clock clock) {
+    private TimeSeries getTimeSeries(Clock clock) {
       return TimeSeries.createWithOnePoint(
           labelValues,
           io.opencensus.metrics.export.Point.create(Value.doubleValue(value.get()), clock.now()),
