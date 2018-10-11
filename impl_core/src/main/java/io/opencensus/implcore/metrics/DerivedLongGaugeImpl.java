@@ -45,6 +45,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   @SuppressWarnings("rawtypes")
   private volatile Map<List<LabelValue>, PointWithFunction> registeredPoints =
       Collections.emptyMap();
+
   private final int labelKeysSize;
 
   DerivedLongGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {

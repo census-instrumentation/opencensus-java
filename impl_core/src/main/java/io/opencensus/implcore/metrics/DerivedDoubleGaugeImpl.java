@@ -45,6 +45,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
   @SuppressWarnings("rawtypes")
   private volatile Map<List<LabelValue>, PointWithFunction> registeredPoints =
       Collections.emptyMap();
+
   private final int labelKeysSize;
 
   DerivedDoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
