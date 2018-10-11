@@ -80,7 +80,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     checkNotNull(labelValues, "labelValues should not be null.");
     Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
-    remove(labelValues);
+    removeInternal(Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)));
   }
 
   @Override
@@ -88,7 +88,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     registeredPoints.clear();
   }
 
-  private synchronized void remove(List<LabelValue> labelValues) {
+  private synchronized void removeInternal(List<LabelValue> labelValues) {
     Map<List<LabelValue>, PointImpl> registeredPointsCopy =
         new HashMap<List<LabelValue>, PointImpl>(registeredPoints);
     if (registeredPointsCopy.remove(labelValues) == null) {

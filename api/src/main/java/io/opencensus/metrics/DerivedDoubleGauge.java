@@ -25,7 +25,8 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Derived Double Gauge metric, to report instantaneous measurement of a double value. Gauges can go
- * both up and down. The gauges values can be negative.
+ * both up and down. The gauges values can be negative. See {@link
+ * io.opencensus.metrics.MetricRegistry} for an example of its use.
  *
  * <p>Example: Create a Gauge with object and function.
  *
@@ -37,12 +38,13 @@ import javax.annotation.concurrent.ThreadSafe;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   DerivedDoubleGauge requestQueue = metricRegistry.addDerivedDoubleGauge(
+ *   DerivedDoubleGauge gauge = metricRegistry.addDerivedDoubleGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   QueueManager queueManager = new QueueManager();
- *   requestQueue.createTimeSeries(labelValues, queueManager,
+ *   gauge.createTimeSeries(labelValues, queueManager,
  *         new ToDoubleFunction<QueueManager>() {
+ *           {@literal @}Override
  *           public double applyAsDouble(QueueManager queue) {
  *             return queue.size();
  *           }
@@ -73,7 +75,11 @@ public abstract class DerivedDoubleGauge {
    *     the object.
    * @param function the function to be called.
    * @param <T> the type of the object upon which the function derives a measurement.
-   * @throws IllegalArgumentException if different time series with the same labels already exists.
+   * @throws NullPointerException if {@code labelValues} is null OR element of {@code labelValues}
+   *     is null OR {@code function} is null.
+   * @throws IllegalArgumentException if different time series with the same labels already exists
+   *     OR if number of {@code labelValues}s are not equal to the label keys passed to {@link
+   *     MetricRegistry#addDerivedDoubleGauge}.
    * @since 0.17
    */
   public abstract <T> void createTimeSeries(
@@ -83,6 +89,8 @@ public abstract class DerivedDoubleGauge {
    * Removes the {@code TimeSeries} from the gauge metric, if it is present.
    *
    * @param labelValues the list of label values.
+   * @throws NullPointerException if {@code labelValues} is null or element of {@code labelValues}
+   *     is null.
    * @since 0.17
    */
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
@@ -105,7 +113,7 @@ public abstract class DerivedDoubleGauge {
     return NoopDerivedDoubleGauge.getInstance(name, description, unit, labelKeys);
   }
 
-  /** No-op implementations of DoubleGauge class. */
+  /** No-op implementations of DerivedDoubleGauge class. */
   private static final class NoopDerivedDoubleGauge extends DerivedDoubleGauge {
 
     static NoopDerivedDoubleGauge getInstance(

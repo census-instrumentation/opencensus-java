@@ -33,17 +33,15 @@ import javax.annotation.concurrent.ThreadSafe;
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
  *
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
- *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
- *
- *   DoubleGauge requestQueue = metricRegistry.addDoubleGauge(
+ *   DoubleGauge gauge = metricRegistry.addDoubleGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   void doWork() {
  *      // add values
- *      requestQueue.getDefaultTimeSeries().add(10);
+ *      gauge.getDefaultTimeSeries().add(10);
  *
  *      // Or, you can also use DoublePoint objects to add/set values.
- *      DoublePoint defaultPoint = requestQueue.getDefaultTimeSeries();
+ *      DoublePoint defaultPoint = gauge.getDefaultTimeSeries();
  *      defaultPoint.set(100);
  *   }
  * }
@@ -60,12 +58,12 @@ import javax.annotation.concurrent.ThreadSafe;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   DoubleGauge requestQueue = metricRegistry.addDoubleGauge(
+ *   DoubleGauge gauge = metricRegistry.addDoubleGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   void doSomeWork() {
  *      // Your code here.
- *      requestQueue.getOrCreateTimeSeries(labelValues).set(15);
+ *      gauge.getOrCreateTimeSeries(labelValues).set(15);
  *   }
  *
  * }
@@ -83,10 +81,14 @@ public abstract class DoubleGauge {
    * label keys passed to {@link MetricRegistry#addDoubleGauge}.
    *
    * <p>It is strongly recommended to keep a reference to the DoublePoint instead of always calling
-   * this method.
+   * this method for manual operations.
    *
    * @param labelValues the list of label values.
    * @return a {@code DoublePoint} the value of single gauge.
+   * @throws NullPointerException if {@code labelValues} is null OR element of {@code labelValues}
+   *     is null.
+   * @throws IllegalArgumentException if number of {@code labelValues}s are not equal to the label
+   *     keys passed to {@link MetricRegistry#addDoubleGauge}.
    * @since 0.17
    */
   public abstract DoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues);
@@ -104,6 +106,8 @@ public abstract class DoubleGauge {
    * previous {@code DoublePoint} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
+   * @throws NullPointerException if {@code labelValues} is null or element of {@code labelValues}
+   *     is null.
    * @since 0.17
    */
   public abstract void removeTimeSeries(List<LabelValue> labelValues);

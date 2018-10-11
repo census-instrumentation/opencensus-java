@@ -69,7 +69,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
     checkNotNull(labelValues, "labelValues should not be null.");
     Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
-    remove(labelValues);
+    removeInternal(Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)));
   }
 
   @Override
@@ -77,7 +77,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
     registeredPoints.clear();
   }
 
-  private synchronized void remove(List<LabelValue> labelValues) {
+  private synchronized void removeInternal(List<LabelValue> labelValues) {
     Map<List<LabelValue>, TimeSeriesProducer> registeredPointsCopy =
         new HashMap<List<LabelValue>, TimeSeriesProducer>(registeredPoints);
     if (registeredPointsCopy.remove(labelValues) == null) {

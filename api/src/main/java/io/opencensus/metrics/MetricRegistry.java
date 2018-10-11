@@ -31,8 +31,6 @@ public abstract class MetricRegistry {
   /**
    * Build a new long gauge to be added to the registry.
    *
-   * <p>Must be called only once.
-   *
    * @param name the name of the metric.
    * @param description the description of the metric.
    * @param unit the unit of the metric.
@@ -45,8 +43,6 @@ public abstract class MetricRegistry {
 
   /**
    * Build a new double gauge to be added to the registry.
-   *
-   * <p>Must be called only once.
    *
    * @param name the name of the metric.
    * @param description the description of the metric.
@@ -72,7 +68,7 @@ public abstract class MetricRegistry {
       String name, String description, String unit, List<LabelKey> labelKeys);
 
   /**
-   * Build a new derived double gauge to be added to the registry.
+   * Build a new derived long gauge to be added to the registry.
    *
    * @param name the name of the metric.
    * @param description the description of the metric.

@@ -33,17 +33,15 @@ import javax.annotation.concurrent.ThreadSafe;
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
  *
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
- *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
- *
- *   LongGauge requestQueue = metricRegistry.addLongGauge(
+ *   LongGauge gauge = metricRegistry.addLongGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   void doWork() {
  *      // add values
- *      requestQueue.getDefaultTimeSeries().add(10);
+ *      gauge.getDefaultTimeSeries().add(10);
  *
  *      // Or, you can also use LongPoint objects to add/set values.
- *      LongPoint defaultPoint = requestQueue.getDefaultTimeSeries();
+ *      LongPoint defaultPoint = gauge.getDefaultTimeSeries();
  *      defaultPoint.set(100);
  *   }
  * }
@@ -60,12 +58,12 @@ import javax.annotation.concurrent.ThreadSafe;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   LongGauge requestQueue = metricRegistry.addLongGauge(
+ *   LongGauge gauge = metricRegistry.addLongGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   void doSomeWork() {
  *      // Your code here.
- *      requestQueue.getOrCreateTimeSeries(labelValues).set(15);
+ *      gauge.getOrCreateTimeSeries(labelValues).set(15);
  *   }
  *
  * }
@@ -82,8 +80,15 @@ public abstract class LongGauge {
    * service requirements. The number of label values must be the same to that of the label keys
    * passed to {@link MetricRegistry#addLongGauge}.
    *
+   * <p>It is strongly recommended to keep a reference to the LongPoint instead of always calling
+   * this method for manual operations.
+   *
    * @param labelValues the list of label values.
    * @return a {@code LongPoint} the value of single gauge.
+   * @throws NullPointerException if {@code labelValues} is null OR element of {@code labelValues}
+   *     is null.
+   * @throws IllegalArgumentException if number of {@code labelValues}s are not equal to the label
+   *     keys passed to {@link MetricRegistry#addLongGauge}.
    * @since 0.17
    */
   public abstract LongPoint getOrCreateTimeSeries(List<LabelValue> labelValues);
@@ -101,6 +106,8 @@ public abstract class LongGauge {
    * previous {@code LongPoint} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
+   * @throws NullPointerException if {@code labelValues} is null or element of {@code labelValues}
+   *     is null.
    * @since 0.17
    */
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
@@ -129,6 +136,7 @@ public abstract class LongGauge {
    * @since 0.17
    */
   public abstract static class LongPoint {
+
     /**
      * Adds the given value to the current value. The values can be negative.
      *
@@ -191,9 +199,9 @@ public abstract class LongGauge {
       private NoopLongPoint() {}
 
       /**
-       * Returns a {@code NoopPoint}.
+       * Returns a {@code NoopLongPoint}.
        *
-       * @return a {@code NoopPoint}.
+       * @return a {@code NoopLongPoint}.
        */
       static NoopLongPoint getInstance() {
         return INSTANCE;

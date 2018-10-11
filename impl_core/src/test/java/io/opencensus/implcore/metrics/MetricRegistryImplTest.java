@@ -157,7 +157,7 @@ public class MetricRegistryImplTest {
   @Test
   public void addLongGauge_GetMetrics() {
     DerivedLongGauge derivedLongGauge =
-      metricRegistry.addDerivedLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
+        metricRegistry.addDerivedLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
     derivedLongGauge.createTimeSeries(
         labelValues,
         new TotalMemory(),
@@ -193,7 +193,7 @@ public class MetricRegistryImplTest {
   @Test
   public void multipleMetrics_GetMetrics() {
     DerivedLongGauge derivedLongGauge =
-      metricRegistry.addDerivedLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
+        metricRegistry.addDerivedLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
 
     derivedLongGauge.createTimeSeries(
         labelValues,
