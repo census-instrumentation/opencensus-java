@@ -59,7 +59,9 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
     Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
     registerTimeSeries(
-        new ArrayList<LabelValue>(labelValues), obj, checkNotNull(function, "function"));
+        Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)),
+        obj,
+        checkNotNull(function, "function"));
   }
 
   @Override

@@ -19,7 +19,7 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
-import io.opencensus.metrics.DoubleGauge.Point;
+import io.opencensus.metrics.DoubleGauge.DoublePoint;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
@@ -80,7 +80,7 @@ public class DoubleGaugeMetricImplTest {
 
   @Test
   public void getOrCreateTimeSeries_WithLabels() {
-    Point point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
+    DoublePoint point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
     point.add(100);
     point.add(-60);
     point.set(500.12);
@@ -104,11 +104,11 @@ public class DoubleGaugeMetricImplTest {
 
   @Test
   public void getDefaultTimeSeries() {
-    Point point = doubleGaugeMetric.getDefaultTimeSeries();
+    DoublePoint point = doubleGaugeMetric.getDefaultTimeSeries();
     point.add(100);
     point.set(500.12);
 
-    Point point1 = doubleGaugeMetric.getDefaultTimeSeries();
+    DoublePoint point1 = doubleGaugeMetric.getDefaultTimeSeries();
     point1.add(-100);
 
     assertThat(doubleGaugeMetric.getMetric(testClock))
@@ -131,11 +131,11 @@ public class DoubleGaugeMetricImplTest {
 
   @Test
   public void multipleMetrics_GetMetric() {
-    Point point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
+    DoublePoint point = doubleGaugeMetric.getOrCreateTimeSeries(labelValues);
     point.add(1);
     point.add(2);
 
-    Point point1 = doubleGaugeMetric.getDefaultTimeSeries();
+    DoublePoint point1 = doubleGaugeMetric.getDefaultTimeSeries();
     point1.set(100);
 
     List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>();

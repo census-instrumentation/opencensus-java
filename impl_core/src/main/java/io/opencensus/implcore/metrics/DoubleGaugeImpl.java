@@ -51,7 +51,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
   }
 
   @Override
-  public Point getOrCreateTimeSeries(List<LabelValue> labelValues) {
+  public DoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
     // lock free point retrieval, if it is present
     PointImpl existingPoint = registeredPoints.get(labelValues);
     if (existingPoint != null) {
@@ -62,11 +62,11 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
     Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
-    return registerTimeSeries(new ArrayList<LabelValue>(labelValues));
+    return registerTimeSeries(Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)));
   }
 
   @Override
-  public Point getDefaultTimeSeries() {
+  public DoublePoint getDefaultTimeSeries() {
     // lock free default point retrieval, if it is present
     PointImpl existingPoint = registeredPoints.get(defaultLabelValues);
     if (existingPoint != null) {
@@ -98,7 +98,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
 
-  private synchronized Point registerTimeSeries(List<LabelValue> labelValues) {
+  private synchronized DoublePoint registerTimeSeries(List<LabelValue> labelValues) {
     PointImpl existingPoint = registeredPoints.get(labelValues);
     if (existingPoint != null) {
       // Return a Point that are already registered.
@@ -126,8 +126,8 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
-  /** Implementation of {@link DoubleGauge.Point}. */
-  public static final class PointImpl extends Point implements TimeSeriesProducer {
+  /** Implementation of {@link DoubleGauge.DoublePoint}. */
+  public static final class PointImpl extends DoublePoint implements TimeSeriesProducer {
 
     // TODO(mayurkale): Consider to use DoubleAdder here, once we upgrade to Java8.
     private final AtomicDouble value = new AtomicDouble(0);

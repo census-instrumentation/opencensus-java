@@ -31,16 +31,19 @@ import javax.annotation.concurrent.ThreadSafe;
  * class YourClass {
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
- *   DoubleGauge httpDuration = metricRegistry.addDoubleGauge(
- *       "http_request_duration", "Duration of the last http request", "second",
- *       new ArrayList<LabelKey>());
+ *
+ *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
+ *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
+ *
+ *   DoubleGauge requestQueue = metricRegistry.addDoubleGauge(
+ *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   void doWork() {
  *      // add values
- *      httpDuration.getDefaultTimeSeries().add(10);
+ *      requestQueue.getDefaultTimeSeries().add(10);
  *
- *      // Or, you can also use point objects to add/set values.
- *      Point defaultPoint = httpDuration.getDefaultTimeSeries();
+ *      // Or, you can also use DoublePoint objects to add/set values.
+ *      DoublePoint defaultPoint = requestQueue.getDefaultTimeSeries();
  *      defaultPoint.set(100);
  *   }
  * }
@@ -53,21 +56,16 @@ import javax.annotation.concurrent.ThreadSafe;
  * class YourClass {
  *
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
- *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Type", "desc"));
- *   List<LabelValue> getLabelValues = Arrays.asList(LabelValue.create("GET"));
- *   List<LabelValue> postLabelValues = Arrays.asList(LabelValue.create("POST"));
  *
- *   DoubleGauge httpDuration = metricRegistry.addDoubleGauge(
- *       "http_request_duration", "Duration of the last http request", "second", labelKeys);
+ *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
+ *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   void doSomeGetWork() {
+ *   DoubleGauge requestQueue = metricRegistry.addDoubleGauge(
+ *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
+ *
+ *   void doSomeWork() {
  *      // Your code here.
- *      httpDuration.getOrCreateTimeSeries(getLabelValues).set(1.8);
- *   }
- *
- *   void doSomePostWork() {
- *      // Your code here.
- *      httpDuration.getOrCreateTimeSeries(postLabelValues).set(12.5);
+ *      requestQueue.getOrCreateTimeSeries(labelValues).set(15);
  *   }
  *
  * }
@@ -79,28 +77,31 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class DoubleGauge {
 
   /**
-   * Creates a {@code TimeSeries} and returns a {@code Point}, which is part of the TimeSeries. This
-   * is more convenient form when you can want to manually increase and decrease values as per your
+   * Creates a {@code TimeSeries} and returns a {@code DoublePoint}, which is part of the TimeSeries. This
+   * is more convenient form when you want to manually increase and decrease values as per your
    * service requirements. The number of label values must be the same to that of the label keys
    * passed to {@link MetricRegistry#addDoubleGauge}.
    *
+   * <p>It is strongly recommended to keep a reference to the DoublePoint instead of always calling this
+   * method.
+   *
    * @param labelValues the list of label values.
-   * @return a {@code Point} the value of single gauge.
+   * @return a {@code DoublePoint} the value of single gauge.
    * @since 0.17
    */
-  public abstract Point getOrCreateTimeSeries(List<LabelValue> labelValues);
+  public abstract DoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Returns a {@code Point} for a gauge with all labels not set, or default labels.
+   * Returns a {@code DoublePoint} for a gauge with all labels not set, or default labels.
    *
-   * @return a {@code Point} the value of default gauge.
+   * @return a {@code DoublePoint} the value of default gauge.
    * @since 0.17
    */
-  public abstract Point getDefaultTimeSeries();
+  public abstract DoublePoint getDefaultTimeSeries();
 
   /**
    * Removes the {@code TimeSeries} from the gauge metric, if it is present. i.e. references to
-   * previous {@code Point} objects are invalid (not part of the metric).
+   * previous {@code DoublePoint} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
    * @since 0.17
@@ -108,7 +109,7 @@ public abstract class DoubleGauge {
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * References to all previous {@code Point} objects are invalid (not part of the metric).
+   * References to all previous {@code DoublePoint} objects are invalid (not part of the metric).
    *
    * @since 0.17
    */
@@ -130,7 +131,7 @@ public abstract class DoubleGauge {
    *
    * @since 0.17
    */
-  public abstract static class Point {
+  public abstract static class DoublePoint {
 
     /**
      * Adds the given value to the current value. The values can be negative.
@@ -167,15 +168,15 @@ public abstract class DoubleGauge {
     }
 
     @Override
-    public NoopPoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
+    public NoopDoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
-      return NoopPoint.getInstance();
+      return NoopDoublePoint.getInstance();
     }
 
     @Override
-    public NoopPoint getDefaultTimeSeries() {
-      return NoopPoint.getInstance();
+    public NoopDoublePoint getDefaultTimeSeries() {
+      return NoopDoublePoint.getInstance();
     }
 
     @Override
@@ -187,18 +188,18 @@ public abstract class DoubleGauge {
     @Override
     public void clear() {}
 
-    /** No-op implementations of Point class. */
-    private static final class NoopPoint extends Point {
-      private static final NoopPoint INSTANCE = new NoopPoint();
+    /** No-op implementations of DoublePoint class. */
+    private static final class NoopDoublePoint extends DoublePoint {
+      private static final NoopDoublePoint INSTANCE = new NoopDoublePoint();
 
-      private NoopPoint() {}
+      private NoopDoublePoint() {}
 
       /**
        * Returns a {@code NoopPoint}.
        *
        * @return a {@code NoopPoint}.
        */
-      static NoopPoint getInstance() {
+      static NoopDoublePoint getInstance() {
         return INSTANCE;
       }
 

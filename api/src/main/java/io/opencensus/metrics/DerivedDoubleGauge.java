@@ -73,14 +73,14 @@ public abstract class DerivedDoubleGauge {
    *     the object.
    * @param function the function to be called.
    * @param <T> the type of the object upon which the function derives a measurement.
+   * @throws IllegalArgumentException if different time series with the same labels already exists.
    * @since 0.17
    */
   public abstract <T> void createTimeSeries(
       List<LabelValue> labelValues, @Nullable T obj, ToDoubleFunction<T> function);
 
   /**
-   * Removes the {@code TimeSeries} from the gauge metric, if it is present. i.e. references to
-   * previous {@code Point} objects are invalid (not part of the metric).
+   * Removes the {@code TimeSeries} from the gauge metric, if it is present.
    *
    * @param labelValues the list of label values.
    * @since 0.17
@@ -88,7 +88,7 @@ public abstract class DerivedDoubleGauge {
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * References to all previous {@code Point} objects are invalid (not part of the metric).
+   * Removes all the {@code TimeSeries}s from the gauge metric.
    *
    * @since 0.17
    */
