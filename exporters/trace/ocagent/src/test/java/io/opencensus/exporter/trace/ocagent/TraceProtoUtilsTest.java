@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.UInt32Value;
 import io.opencensus.common.Timestamp;
-import io.opencensus.proto.agent.common.v1.Node;
 import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
@@ -66,7 +65,6 @@ public class TraceProtoUtilsTest {
   @Mock private io.opencensus.trace.config.TraceConfig mockTraceConfig;
 
   private static final TraceParams DEFAULT_PARAMS = TraceParams.DEFAULT;
-  private static final Node NODE = Node.getDefaultInstance();
 
   private static final Timestamp startTimestamp = Timestamp.create(123, 456);
   private static final Timestamp eventTimestamp1 = Timestamp.create(123, 457);
