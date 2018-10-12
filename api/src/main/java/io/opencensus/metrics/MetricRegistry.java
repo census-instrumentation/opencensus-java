@@ -17,10 +17,7 @@
 package io.opencensus.metrics;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.common.ToLongFunction;
-import io.opencensus.internal.Utils;
-import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Creates and manages your application's set of metrics. The default implementation of this creates
@@ -34,42 +31,54 @@ public abstract class MetricRegistry {
   /**
    * Build a new long gauge to be added to the registry.
    *
-   * <p>Must be called only once.
-   *
    * @param name the name of the metric.
    * @param description the description of the metric.
    * @param unit the unit of the metric.
-   * @param obj the function argument.
-   * @param function the function to be called.
+   * @param labelKeys the list of label keys.
    * @since 0.17
    */
-  public abstract <T> void addLongGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToLongFunction<T> function);
+  @ExperimentalApi
+  public abstract LongGauge addLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
 
   /**
    * Build a new double gauge to be added to the registry.
    *
-   * <p>Must be called only once.
+   * @param name the name of the metric.
+   * @param description the description of the metric.
+   * @param unit the unit of the metric.
+   * @param labelKeys the list of label keys.
+   * @since 0.17
+   */
+  @ExperimentalApi
+  public abstract DoubleGauge addDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
+
+  /**
+   * Build a new derived double gauge to be added to the registry.
    *
    * @param name the name of the metric.
    * @param description the description of the metric.
    * @param unit the unit of the metric.
-   * @param obj the function argument.
-   * @param function the function to be called.
+   * @param labelKeys the list of label keys.
    * @since 0.17
    */
-  public abstract <T> void addDoubleGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToDoubleFunction<T> function);
+  @ExperimentalApi
+  public abstract DerivedDoubleGauge addDerivedDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
+
+  /**
+   * Build a new derived long gauge to be added to the registry.
+   *
+   * @param name the name of the metric.
+   * @param description the description of the metric.
+   * @param unit the unit of the metric.
+   * @param labelKeys the list of label keys.
+   * @since 0.17
+   */
+  @ExperimentalApi
+  public abstract DerivedLongGauge addDerivedLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
 
   static MetricRegistry newNoopMetricRegistry() {
     return new NoopMetricRegistry();
@@ -78,33 +87,27 @@ public abstract class MetricRegistry {
   private static final class NoopMetricRegistry extends MetricRegistry {
 
     @Override
-    public <T> void addLongGauge(
-        String name,
-        String description,
-        String unit,
-        LinkedHashMap<LabelKey, LabelValue> labels,
-        T obj,
-        ToLongFunction<T> function) {
-      Utils.checkNotNull(name, "name");
-      Utils.checkNotNull(description, "description");
-      Utils.checkNotNull(unit, "unit");
-      Utils.checkNotNull(labels, "labels");
-      Utils.checkNotNull(function, "function");
+    public LongGauge addLongGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      return LongGauge.getNoopLongGauge(name, description, unit, labelKeys);
     }
 
     @Override
-    public <T> void addDoubleGauge(
-        String name,
-        String description,
-        String unit,
-        LinkedHashMap<LabelKey, LabelValue> labels,
-        T obj,
-        ToDoubleFunction<T> function) {
-      Utils.checkNotNull(name, "name");
-      Utils.checkNotNull(description, "description");
-      Utils.checkNotNull(unit, "unit");
-      Utils.checkNotNull(labels, "labels");
-      Utils.checkNotNull(function, "function");
+    public DoubleGauge addDoubleGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      return DoubleGauge.getNoopDoubleGauge(name, description, unit, labelKeys);
+    }
+
+    @Override
+    public DerivedDoubleGauge addDerivedDoubleGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      return DerivedDoubleGauge.getNoopDerivedDoubleGauge(name, description, unit, labelKeys);
+    }
+
+    @Override
+    public DerivedLongGauge addDerivedLongGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      return DerivedLongGauge.getNoopDerivedLongGauge(name, description, unit, labelKeys);
     }
   }
 }
