@@ -94,14 +94,6 @@ Given a DropWizard Meter with name `get_requests`, the following values are repo
 * type: CUMULATIVE_INT64
 * unit: 1
 
-rate metrics:
-* name: codahale_<initial_metric_name>_<initial_type> (ex: codahale_get_requests_meter_rate)
-* description: Collected from Dropwizard (metric=<metric_name>, type=<class_name>)
-* type: GAUGE_DOUBLE
-* unit: "events/second"
-* labelkeys: rate (with 4 TimeSeries, one corresponding to each rate: mean_rate, m1_rate, 
-m5_rate m15_rate)
-
 ### DropWizard Histograms
 
 Given a DropWizard Histogram with name `results`, the following values are reported:

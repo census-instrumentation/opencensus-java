@@ -18,11 +18,6 @@ package io.opencensus.contrib.dropwizard;
 
 import static com.google.common.truth.Truth.assertThat;
 import static io.opencensus.contrib.dropwizard.DropWizardMetrics.DEFAULT_UNIT;
-import static io.opencensus.contrib.dropwizard.DropWizardMetrics.RATE_FIFTEEN_MINUTE_LABEL_VALUE;
-import static io.opencensus.contrib.dropwizard.DropWizardMetrics.RATE_FIVE_MINUTE_LABEL_VALUE;
-import static io.opencensus.contrib.dropwizard.DropWizardMetrics.RATE_LABEL_KEY;
-import static io.opencensus.contrib.dropwizard.DropWizardMetrics.RATE_MEAN_LABEL_VALUE;
-import static io.opencensus.contrib.dropwizard.DropWizardMetrics.RATE_ONE_MINUTE_LABEL_VALUE;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
@@ -127,7 +122,7 @@ public class DropWizardMetricsTest {
     context.stop();
 
     ArrayList<Metric> metrics = new ArrayList<Metric>(dropWizardMetrics.getMetrics());
-    assertThat(metrics.size()).isEqualTo(10);
+    assertThat(metrics.size()).isEqualTo(9);
 
     assertThat(metrics.get(0).getMetricDescriptor())
         .isEqualTo(
@@ -244,43 +239,37 @@ public class DropWizardMetricsTest {
     assertThat(metrics.get(7).getMetricDescriptor())
         .isEqualTo(
             MetricDescriptor.create(
-                "codahale_get_requests_meter_rate",
-                "Collected from codahale (metric=get_requests, "
-                    + "type=com.codahale.metrics.Meter)",
-                "events/second",
-                Type.GAUGE_DOUBLE,
-                RATE_LABEL_KEY));
-    assertThat(metrics.get(7).getTimeSeriesList().size()).isEqualTo(4);
-    assertThat(metrics.get(7).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(1);
-    assertThat(metrics.get(7).getTimeSeriesList().get(0).getLabelValues())
-        .isEqualTo(RATE_MEAN_LABEL_VALUE);
+                "codahale_result_histogram",
+                "Collected from codahale (metric=result, " + "type=com.codahale.metrics.Histogram)",
+                DEFAULT_UNIT,
+                Type.SUMMARY,
+                Collections.<LabelKey>emptyList()));
+    assertThat(metrics.get(7).getTimeSeriesList().size()).isEqualTo(1);
+    assertThat(metrics.get(7).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
     assertThat(metrics.get(7).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
-    assertThat(metrics.get(7).getTimeSeriesList().get(0).getPoints()).isNotEmpty();
-    assertThat(metrics.get(7).getTimeSeriesList().get(0).getStartTimestamp()).isEqualTo(null);
-
-    assertThat(metrics.get(7).getTimeSeriesList().get(1).getLabelValues())
-        .isEqualTo(RATE_ONE_MINUTE_LABEL_VALUE);
-    assertThat(metrics.get(7).getTimeSeriesList().get(1).getPoints().size()).isEqualTo(1);
-    assertThat(metrics.get(7).getTimeSeriesList().get(1).getPoints()).isNotEmpty();
-    assertThat(metrics.get(7).getTimeSeriesList().get(1).getStartTimestamp()).isEqualTo(null);
-
-    assertThat(metrics.get(7).getTimeSeriesList().get(2).getLabelValues())
-        .isEqualTo(RATE_FIVE_MINUTE_LABEL_VALUE);
-    assertThat(metrics.get(7).getTimeSeriesList().get(2).getPoints().size()).isEqualTo(1);
-    assertThat(metrics.get(7).getTimeSeriesList().get(2).getPoints()).isNotEmpty();
-    assertThat(metrics.get(7).getTimeSeriesList().get(2).getStartTimestamp()).isEqualTo(null);
-
-    assertThat(metrics.get(7).getTimeSeriesList().get(3).getLabelValues())
-        .isEqualTo(RATE_FIFTEEN_MINUTE_LABEL_VALUE);
-    assertThat(metrics.get(7).getTimeSeriesList().get(3).getPoints().size()).isEqualTo(1);
-    assertThat(metrics.get(7).getTimeSeriesList().get(3).getPoints()).isNotEmpty();
-    assertThat(metrics.get(7).getTimeSeriesList().get(3).getStartTimestamp()).isEqualTo(null);
+    assertThat(metrics.get(7).getTimeSeriesList().get(0).getPoints().get(0).getValue())
+        .isEqualTo(
+            Value.summaryValue(
+                Summary.create(
+                    1L,
+                    0.0,
+                    Snapshot.create(
+                        1L,
+                        0.0,
+                        Arrays.asList(
+                            ValueAtPercentile.create(50.0, 200.0),
+                            ValueAtPercentile.create(75.0, 200.0),
+                            ValueAtPercentile.create(98.0, 200.0),
+                            ValueAtPercentile.create(99.0, 200.0),
+                            ValueAtPercentile.create(99.9, 200.0))))));
+    assertThat(metrics.get(7).getTimeSeriesList().get(0).getStartTimestamp())
+        .isInstanceOf(Timestamp.class);
 
     assertThat(metrics.get(8).getMetricDescriptor())
         .isEqualTo(
             MetricDescriptor.create(
-                "codahale_result_histogram",
-                "Collected from codahale (metric=result, " + "type=com.codahale.metrics.Histogram)",
+                "codahale_requests_timer",
+                "Collected from codahale (metric=requests, " + "type=com.codahale.metrics.Timer)",
                 DEFAULT_UNIT,
                 Type.SUMMARY,
                 Collections.<LabelKey>emptyList()));
@@ -297,35 +286,6 @@ public class DropWizardMetricsTest {
                         1L,
                         0.0,
                         Arrays.asList(
-                            ValueAtPercentile.create(50.0, 200.0),
-                            ValueAtPercentile.create(75.0, 200.0),
-                            ValueAtPercentile.create(98.0, 200.0),
-                            ValueAtPercentile.create(99.0, 200.0),
-                            ValueAtPercentile.create(99.9, 200.0))))));
-    assertThat(metrics.get(8).getTimeSeriesList().get(0).getStartTimestamp())
-        .isInstanceOf(Timestamp.class);
-
-    assertThat(metrics.get(9).getMetricDescriptor())
-        .isEqualTo(
-            MetricDescriptor.create(
-                "codahale_requests_timer",
-                "Collected from codahale (metric=requests, " + "type=com.codahale.metrics.Timer)",
-                DEFAULT_UNIT,
-                Type.SUMMARY,
-                Collections.<LabelKey>emptyList()));
-    assertThat(metrics.get(9).getTimeSeriesList().size()).isEqualTo(1);
-    assertThat(metrics.get(9).getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(0);
-    assertThat(metrics.get(9).getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
-    assertThat(metrics.get(9).getTimeSeriesList().get(0).getPoints().get(0).getValue())
-        .isEqualTo(
-            Value.summaryValue(
-                Summary.create(
-                    1L,
-                    0.0,
-                    Snapshot.create(
-                        1L,
-                        0.0,
-                        Arrays.asList(
                             ValueAtPercentile.create(50.0, timer.getSnapshot().getMedian()),
                             ValueAtPercentile.create(75.0, timer.getSnapshot().get75thPercentile()),
                             ValueAtPercentile.create(98.0, timer.getSnapshot().get98thPercentile()),
@@ -333,7 +293,7 @@ public class DropWizardMetricsTest {
                             ValueAtPercentile.create(
                                 99.9, timer.getSnapshot().get999thPercentile()))))));
 
-    assertThat(metrics.get(9).getTimeSeriesList().get(0).getStartTimestamp())
+    assertThat(metrics.get(8).getTimeSeriesList().get(0).getStartTimestamp())
         .isInstanceOf(Timestamp.class);
   }
 
