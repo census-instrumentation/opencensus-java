@@ -23,6 +23,7 @@ import com.google.protobuf.UInt32Value;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.common.Timestamp;
+import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
 import io.opencensus.proto.trace.v1.ProbabilitySampler;
@@ -58,12 +59,8 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
-/**
- * Utilities for converting the Tracing data models in OpenCensus Java to/from OpenCensus Proto.
- *
- * @since 0.17
- */
-public final class TraceProtoUtils {
+/** Utilities for converting the Tracing data models in OpenCensus Java to/from OpenCensus Proto. */
+final class TraceProtoUtils {
 
   // Constant functions for AttributeValue.
   private static final Function<String, /*@Nullable*/ AttributeValue> stringAttributeValueFunction =
@@ -106,10 +103,8 @@ public final class TraceProtoUtils {
    *
    * @param spanData the {@code SpanData}.
    * @return proto representation of {@code Span}.
-   * @since 0.17
    */
-  @SuppressWarnings("DefaultCharset")
-  public static Span toSpanProto(SpanData spanData) {
+  static Span toSpanProto(SpanData spanData) {
     SpanContext spanContext = spanData.getContext();
     TraceId traceId = spanContext.getTraceId();
     SpanId spanId = spanContext.getSpanId();
@@ -298,7 +293,6 @@ public final class TraceProtoUtils {
     }
   }
 
-  @SuppressWarnings("DefaultCharset")
   private static Link toLinkProto(io.opencensus.trace.Link link) {
     return Link.newBuilder()
         .setTraceId(toByteString(link.getTraceId().getBytes()))
@@ -322,9 +316,8 @@ public final class TraceProtoUtils {
    *
    * @param traceParams the {@code TraceParams}.
    * @return {@code TraceConfig}.
-   * @since 0.17
    */
-  public static TraceConfig toTraceConfigProto(TraceParams traceParams) {
+  static TraceConfig toTraceConfigProto(TraceParams traceParams) {
     TraceConfig.Builder traceConfigProtoBuilder = TraceConfig.newBuilder();
     Sampler librarySampler = traceParams.getSampler();
 
@@ -360,7 +353,7 @@ public final class TraceProtoUtils {
    * @return updated {@code TraceParams}.
    * @since 0.17
    */
-  public static TraceParams fromTraceConfigProto(
+  static TraceParams fromTraceConfigProto(
       TraceConfig traceConfigProto, TraceParams currentTraceParams) {
     TraceParams.Builder builder = currentTraceParams.toBuilder();
     if (traceConfigProto.hasConstantSampler()) {
@@ -376,6 +369,21 @@ public final class TraceProtoUtils {
               traceConfigProto.getProbabilitySampler().getSamplingProbability()));
     } // TODO: add support for RateLimitingSampler.
     return builder.build();
+  }
+
+  // Creates a TraceConfig proto message with current TraceParams.
+  static TraceConfig getCurrentTraceConfig(io.opencensus.trace.config.TraceConfig traceConfig) {
+    TraceParams traceParams = traceConfig.getActiveTraceParams();
+    return toTraceConfigProto(traceParams);
+  }
+
+  // Creates an updated TraceParams with the given UpdatedLibraryConfig message and current
+  // TraceParams, then applies the updated TraceParams.
+  static TraceParams getUpdatedTraceParams(
+      UpdatedLibraryConfig config, io.opencensus.trace.config.TraceConfig traceConfig) {
+    TraceParams currentParams = traceConfig.getActiveTraceParams();
+    TraceConfig traceConfigProto = config.getConfig();
+    return fromTraceConfigProto(traceConfigProto, currentParams);
   }
 
   private TraceProtoUtils() {}

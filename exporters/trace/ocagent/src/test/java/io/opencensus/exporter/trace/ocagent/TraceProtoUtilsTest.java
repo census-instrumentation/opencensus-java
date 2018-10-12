@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.UInt32Value;
 import io.opencensus.common.Timestamp;
+import io.opencensus.proto.agent.trace.v1.UpdatedLibraryConfig;
 import io.opencensus.proto.trace.v1.AttributeValue;
 import io.opencensus.proto.trace.v1.ConstantSampler;
 import io.opencensus.proto.trace.v1.ProbabilitySampler;
@@ -49,13 +50,19 @@ import io.opencensus.trace.export.SpanData.TimedEvent;
 import io.opencensus.trace.export.SpanData.TimedEvents;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link TraceProtoUtils}. */
 @RunWith(JUnit4.class)
 public class TraceProtoUtilsTest {
+
+  @Mock private io.opencensus.trace.config.TraceConfig mockTraceConfig;
 
   private static final TraceParams DEFAULT_PARAMS = TraceParams.DEFAULT;
 
@@ -126,7 +133,15 @@ public class TraceProtoUtilsTest {
       TimedEvents.create(networkEventsList, DROPPED_NETWORKEVENTS_COUNT);
   private static final SpanData.Links links = SpanData.Links.create(linksList, DROPPED_LINKS_COUNT);
 
-  @SuppressWarnings("DefaultCharset")
+  @Before
+  public void setUp() {
+    MockitoAnnotations.initMocks(this);
+    Mockito.when(mockTraceConfig.getActiveTraceParams()).thenReturn(DEFAULT_PARAMS);
+    Mockito.doNothing()
+        .when(mockTraceConfig)
+        .updateActiveTraceParams(Mockito.any(TraceParams.class));
+  }
+
   @Test
   public void toSpanProto() {
     SpanData spanData =
@@ -310,6 +325,30 @@ public class TraceProtoUtilsTest {
             .build();
     assertThat(TraceProtoUtils.fromTraceConfigProto(traceConfig, DEFAULT_PARAMS).getSampler())
         .isEqualTo(Samplers.probabilitySampler(0.01));
+  }
+
+  @Test
+  public void getCurrentTraceConfig() {
+    TraceConfig configProto = TraceProtoUtils.toTraceConfigProto(DEFAULT_PARAMS);
+    assertThat(TraceProtoUtils.getCurrentTraceConfig(mockTraceConfig)).isEqualTo(configProto);
+    Mockito.verify(mockTraceConfig, Mockito.times(1)).getActiveTraceParams();
+  }
+
+  @Test
+  public void applyUpdatedConfig() {
+    TraceConfig configProto =
+        TraceConfig.newBuilder()
+            .setProbabilitySampler(
+                ProbabilitySampler.newBuilder().setSamplingProbability(0.01).build())
+            .build();
+    UpdatedLibraryConfig updatedLibraryConfig =
+        UpdatedLibraryConfig.newBuilder().setConfig(configProto).build();
+    TraceParams traceParams =
+        TraceProtoUtils.getUpdatedTraceParams(updatedLibraryConfig, mockTraceConfig);
+    TraceParams expectedParams =
+        DEFAULT_PARAMS.toBuilder().setSampler(Samplers.probabilitySampler(0.01)).build();
+    Mockito.verify(mockTraceConfig, Mockito.times(1)).getActiveTraceParams();
+    assertThat(traceParams).isEqualTo(expectedParams);
   }
 
   private static TraceParams getTraceParams(Sampler sampler) {
