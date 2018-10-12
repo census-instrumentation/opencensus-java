@@ -22,8 +22,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Long Gauge metric, to report instantaneous measurement of an int64 value. Gauges can go both up
- * and down. The gauges values can be negative. For example, the number of pending jobs in the
- * queue. See {@link io.opencensus.metrics.MetricRegistry} for an example of its use.
+ * and down. The gauges values can be negative.
  *
  * <p>Example 1: Create a Gauge with default labels.
  *
@@ -35,7 +34,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
  *
- *   // It is strongly recommended to keep a reference of a point for manual operations.
+ *   // It is recommended to keep a reference of a point for manual operations.
  *   LongPoint defaultPoint = gauge.getDefaultTimeSeries();
  *
  *   void doWork() {
@@ -58,7 +57,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
  *
- *   // It is strongly recommended to keep a reference of a point for manual operations.
+ *   // It is recommended to keep a reference of a point for manual operations.
  *   LongPoint inboundPoint = gauge.getOrCreateTimeSeries(labelValues);
  *
  *   void doSomeWork() {
@@ -75,18 +74,18 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class LongGauge {
 
   /**
-   * Creates a {@code TimeSeries} and returns a {@code LongPoint}, which is part of the TimeSeries.
-   * This is more convenient form when you want to manually increase and decrease values as per your
-   * service requirements. The number of label values must be the same to that of the label keys
-   * passed to {@link MetricRegistry#addLongGauge}.
+   * Creates a {@code TimeSeries} and returns a {@code LongPoint} if the specified {@code
+   * labelValues} is not already associated with this gauge, else returns a existing {@code
+   * LongPoint}.
    *
-   * <p>It is strongly recommended to keep a reference to the LongPoint instead of always calling
-   * this method for manual operations.
+   * <p>It is recommended to keep a reference to the LongPoint instead of always calling this method
+   * for manual operations.
    *
-   * @param labelValues the list of label values.
+   * @param labelValues the list of label values. The number of label values must be the same to
+   *     that of the label keys passed to {@link MetricRegistry#addLongGauge}.
    * @return a {@code LongPoint} the value of single gauge.
-   * @throws NullPointerException if {@code labelValues} is null OR element of {@code labelValues}
-   *     is null.
+   * @throws NullPointerException if {@code labelValues} is null OR any element of {@code
+   *     labelValues} is null.
    * @throws IllegalArgumentException if number of {@code labelValues}s are not equal to the label
    *     keys passed to {@link MetricRegistry#addLongGauge}.
    * @since 0.17
@@ -106,8 +105,8 @@ public abstract class LongGauge {
    * previous {@code LongPoint} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
-   * @throws NullPointerException if {@code labelValues} is null or element of {@code labelValues}
-   *     is null.
+   * @throws NullPointerException if {@code labelValues} is null or any element of {@code
+   *     labelValues} is null.
    * @since 0.17
    */
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
@@ -156,6 +155,7 @@ public abstract class LongGauge {
 
   /** No-op implementations of LongGauge class. */
   private static final class NoopLongGauge extends LongGauge {
+    private final int labelKeysSize;
 
     static NoopLongGauge getInstance(
         String name, String description, String unit, List<LabelKey> labelKeys) {
@@ -169,12 +169,14 @@ public abstract class LongGauge {
       Utils.checkNotNull(unit, "unit");
       Utils.checkNotNull(labelKeys, "labelKeys should not be null.");
       Utils.checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
+      labelKeysSize = labelKeys.size();
     }
 
     @Override
     public NoopLongPoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+      Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
       return NoopLongPoint.getInstance();
     }
 
@@ -187,6 +189,7 @@ public abstract class LongGauge {
     public void removeTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+      Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
     }
 
     @Override

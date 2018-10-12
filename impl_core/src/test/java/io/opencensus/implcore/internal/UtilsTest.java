@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package io.opencensus.metrics;
+package io.opencensus.implcore.internal;
 
-import java.util.ArrayList;
+import io.opencensus.metrics.LabelKey;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,36 +25,24 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link MetricRegistry}. */
+/** Tests for {@link Utils}. */
 @RunWith(JUnit4.class)
-public class MetricRegistryTest {
+public class UtilsTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
-  private final MetricRegistry metricRegistry =
-      MetricsComponent.newNoopMetricsComponent().getMetricRegistry();
-  private static final List<LabelKey> EMPTY_LABEL_KEYS = new ArrayList<LabelKey>();
-
   @Test
-  public void addLongGauge_NullName() {
+  public void checkListElementNull() {
+    List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("key", "desc"), null);
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(null, "description", "1", EMPTY_LABEL_KEYS);
+    thrown.expectMessage("null");
+    Utils.checkListElementNotNull(labelKeys, null);
   }
 
   @Test
-  public void addLongGauge_NullDescription() {
+  public void checkListElementNull_WithMessage() {
+    List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("key", "desc"), null);
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge("name", null, "1", EMPTY_LABEL_KEYS);
-  }
-
-  @Test
-  public void addLongGauge_NullUnit() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge("name", "description", null, EMPTY_LABEL_KEYS);
-  }
-
-  @Test
-  public void addLongGauge_NullLabels() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge("name", "description", "1", null);
+    thrown.expectMessage("labelValues should not be null.");
+    Utils.checkListElementNotNull(labelKeys, "labelValues should not be null.");
   }
 }

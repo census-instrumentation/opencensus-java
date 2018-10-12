@@ -29,7 +29,8 @@ import java.util.List;
 @ExperimentalApi
 public abstract class MetricRegistry {
   /**
-   * Build a new long gauge to be added to the registry.
+   * Build a new long gauge to be added to the registry. This is more convenient form when you want
+   * to manually increase and decrease values as per your service requirements.
    *
    * @param name the name of the metric.
    * @param description the description of the metric.

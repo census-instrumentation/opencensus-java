@@ -19,6 +19,7 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.Utils;
 import io.opencensus.metrics.LabelKey;
@@ -27,6 +28,7 @@ import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
+import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
@@ -39,6 +41,8 @@ import javax.annotation.Nullable;
 
 /** Implementation of {@link LongGauge}. */
 public final class LongGaugeImpl extends LongGauge implements Meter {
+  @VisibleForTesting static final LabelValue UNSET_VALUE = LabelValue.create(null);
+
   private final MetricDescriptor metricDescriptor;
   private volatile Map<List<LabelValue>, PointImpl> registeredPoints = Collections.emptyMap();
   private final int labelKeysSize;
@@ -46,9 +50,14 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
 
   LongGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
-    defaultLabelValues = Collections.unmodifiableList(new ArrayList<LabelValue>(labelKeysSize));
     this.metricDescriptor =
         MetricDescriptor.create(name, description, unit, Type.GAUGE_INT64, labelKeys);
+
+    // initialize defaultLabelValues
+    defaultLabelValues = new ArrayList<LabelValue>(labelKeysSize);
+    for (int i = 0; i < labelKeysSize; i++) {
+      defaultLabelValues.add(UNSET_VALUE);
+    }
   }
 
   @Override
@@ -60,8 +69,6 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     }
 
     checkNotNull(labelValues, "labelValues should not be null.");
-    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
-    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
     return registerTimeSeries(Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)));
   }
@@ -80,6 +87,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   public synchronized void removeTimeSeries(List<LabelValue> labelValues) {
     checkNotNull(labelValues, "labelValues should not be null.");
     Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
 
     List<LabelValue> labelValuesCopy =
         Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues));
@@ -95,7 +103,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
 
   @Override
   public synchronized void clear() {
-    registeredPoints.clear();
+    registeredPoints = Collections.emptyMap();
   }
 
   private synchronized LongPoint registerTimeSeries(List<LabelValue> labelValues) {
@@ -105,6 +113,9 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
       // concurrently try to register the same {@code TimeSeries}.
       return existingPoint;
     }
+
+    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
+    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
 
     PointImpl newPoint = new PointImpl(labelValues);
     // Updating the map of points happens under a lock to avoid multiple add operations
@@ -156,9 +167,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
 
     private TimeSeries getTimeSeries(Clock clock) {
       return TimeSeries.createWithOnePoint(
-          labelValues,
-          io.opencensus.metrics.export.Point.create(Value.longValue(value.get()), clock.now()),
-          null);
+          labelValues, Point.create(Value.longValue(value.get()), clock.now()), null);
     }
   }
 }
