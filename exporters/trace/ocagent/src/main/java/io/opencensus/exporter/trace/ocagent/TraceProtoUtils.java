@@ -379,12 +379,11 @@ final class TraceProtoUtils {
 
   // Creates an updated TraceParams with the given UpdatedLibraryConfig message and current
   // TraceParams, then applies the updated TraceParams.
-  static void applyUpdatedConfig(
+  static TraceParams getUpdatedTraceParams(
       UpdatedLibraryConfig config, io.opencensus.trace.config.TraceConfig traceConfig) {
     TraceParams currentParams = traceConfig.getActiveTraceParams();
     TraceConfig traceConfigProto = config.getConfig();
-    TraceParams updatedParams = fromTraceConfigProto(traceConfigProto, currentParams);
-    traceConfig.updateActiveTraceParams(updatedParams);
+    return fromTraceConfigProto(traceConfigProto, currentParams);
   }
 
   private TraceProtoUtils() {}

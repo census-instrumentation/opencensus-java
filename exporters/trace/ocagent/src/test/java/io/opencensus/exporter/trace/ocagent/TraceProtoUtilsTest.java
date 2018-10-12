@@ -343,12 +343,12 @@ public class TraceProtoUtilsTest {
             .build();
     UpdatedLibraryConfig updatedLibraryConfig =
         UpdatedLibraryConfig.newBuilder().setConfig(configProto).build();
-    TraceProtoUtils.applyUpdatedConfig(updatedLibraryConfig, mockTraceConfig);
+    TraceParams traceParams =
+        TraceProtoUtils.getUpdatedTraceParams(updatedLibraryConfig, mockTraceConfig);
     TraceParams expectedParams =
         DEFAULT_PARAMS.toBuilder().setSampler(Samplers.probabilitySampler(0.01)).build();
     Mockito.verify(mockTraceConfig, Mockito.times(1)).getActiveTraceParams();
-    Mockito.verify(mockTraceConfig, Mockito.times(1))
-        .updateActiveTraceParams(Mockito.eq(expectedParams));
+    assertThat(traceParams).isEqualTo(expectedParams);
   }
 
   private static TraceParams getTraceParams(Sampler sampler) {
