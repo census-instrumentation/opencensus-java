@@ -98,9 +98,9 @@ public class DistributionTest {
 
   @Test
   public void createAndGet_ExplicitBucketsNegativeBounds() {
-    List<Double> bucketBounds = Arrays.asList(-1.0);
+    List<Double> bucketBounds = Collections.singletonList(-1.0);
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("bucket boundaries should be > 0");
+    thrown.expectMessage("bucket boundary should be > 0");
     BucketOptions.explicitOptions(bucketBounds);
   }
 
@@ -252,12 +252,22 @@ public class DistributionTest {
   }
 
   @Test
-  public void createDistribution_NullBucketBounds() {
+  public void createDistribution_NullBucketBoundaries() {
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("bucketBoundaries list should not be null.");
+    thrown.expectMessage("bucketBoundaries");
     Distribution.create(10, 6.6, 678.54, BucketOptions.explicitOptions(null), buckets);
+  }
+
+  @Test
+  public void createDistribution_NullBucketBoundary() {
+    List<Bucket> buckets =
+        Arrays.asList(Bucket.create(3), Bucket.create(1), Bucket.create(2), Bucket.create(4));
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("bucketBoundary");
+    Distribution.create(
+        10, 6.6, 678.54, BucketOptions.explicitOptions(Arrays.asList(2.5, null)), buckets);
   }
 
   @Test
@@ -274,7 +284,7 @@ public class DistributionTest {
     List<Double> bucketBounds = Arrays.asList(1.0, 2.0, 5.0);
     BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBounds);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("bucket list should not be null.");
+    thrown.expectMessage("buckets");
     Distribution.create(10, 6.6, 678.54, bucketOptions, null);
   }
 
@@ -285,7 +295,7 @@ public class DistributionTest {
     List<Bucket> buckets =
         Arrays.asList(Bucket.create(3), Bucket.create(1), null, Bucket.create(4));
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("bucket should not be null.");
+    thrown.expectMessage("bucket");
     Distribution.create(10, 6.6, 678.54, bucketOptions, buckets);
   }
 
