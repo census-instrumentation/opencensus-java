@@ -300,7 +300,7 @@ public class MutableAggregationTest {
         .isEqualTo(Point.create(Value.doubleValue(0), TIMESTAMP));
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("bucket boundaries should be > 0");
+    thrown.expectMessage("bucket boundary should be > 0");
     assertThat(MutableDistribution.create(BUCKET_BOUNDARIES).toPoint(TIMESTAMP))
         .isEqualTo(
             Point.create(

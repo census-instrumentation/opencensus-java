@@ -69,16 +69,11 @@ public abstract class Distribution {
           sumOfSquaredDeviations == 0, "sum of squared deviations should be 0 if count is 0.");
     }
     Utils.checkNotNull(bucketOptions, "bucketOptions");
-
+    List<Bucket> bucketsCopy =
+        Collections.unmodifiableList(new ArrayList<Bucket>(Utils.checkNotNull(buckets, "buckets")));
+    Utils.checkListElementNotNull(bucketsCopy, "bucket");
     return new AutoValue_Distribution(
-        count, sum, sumOfSquaredDeviations, bucketOptions, copyBucketCount(buckets));
-  }
-
-  private static List<Bucket> copyBucketCount(List<Bucket> buckets) {
-    Utils.checkNotNull(buckets, "bucket list should not be null.");
-    List<Bucket> bucketsCopy = new ArrayList<Bucket>(buckets);
-    Utils.checkListElementNotNull(bucketsCopy, "bucket should not be null.");
-    return Collections.unmodifiableList(bucketsCopy);
+        count, sum, sumOfSquaredDeviations, bucketOptions, bucketsCopy);
   }
 
   /**
@@ -204,24 +199,23 @@ public abstract class Distribution {
        * @since 0.17
        */
       private static ExplicitOptions create(List<Double> bucketBoundaries) {
-        Utils.checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
-        return new AutoValue_Distribution_BucketOptions_ExplicitOptions(
-            checkBucketBoundsAreSorted(bucketBoundaries));
+        Utils.checkNotNull(bucketBoundaries, "bucketBoundaries");
+        List<Double> bucketBoundariesCopy =
+            Collections.unmodifiableList(new ArrayList<Double>(bucketBoundaries));
+        checkBucketBoundsAreSorted(bucketBoundariesCopy);
+        return new AutoValue_Distribution_BucketOptions_ExplicitOptions(bucketBoundariesCopy);
       }
 
-      private static List<Double> checkBucketBoundsAreSorted(List<Double> bucketBoundaries) {
-        List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries); // Deep copy.
-        // Check if sorted.
-        if (bucketBoundariesCopy.size() >= 1) {
-          double previous = bucketBoundariesCopy.get(0);
-          Utils.checkArgument(previous > 0, "bucket boundaries should be > 0");
-          for (int i = 1; i < bucketBoundariesCopy.size(); i++) {
-            double next = bucketBoundariesCopy.get(i);
+      private static void checkBucketBoundsAreSorted(List<Double> bucketBoundaries) {
+        if (bucketBoundaries.size() >= 1) {
+          double previous = Utils.checkNotNull(bucketBoundaries.get(0), "bucketBoundary");
+          Utils.checkArgument(previous > 0, "bucket boundary should be > 0");
+          for (int i = 1; i < bucketBoundaries.size(); i++) {
+            double next = Utils.checkNotNull(bucketBoundaries.get(i), "bucketBoundary");
             Utils.checkArgument(previous < next, "bucket boundaries not sorted.");
             previous = next;
           }
         }
-        return Collections.unmodifiableList(bucketBoundariesCopy);
       }
 
       /**
