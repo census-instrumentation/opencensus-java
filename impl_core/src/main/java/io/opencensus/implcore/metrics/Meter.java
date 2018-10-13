@@ -26,6 +26,7 @@ interface Meter {
    * io.opencensus.metrics.export.TimeSeries}.
    *
    * @param clock the clock used to get the time.
+   * @throws NullPointerException if {@code TimeSeries} is not present in {@code Metric}.
    * @return a {@code Metric}.
    */
   @Nullable

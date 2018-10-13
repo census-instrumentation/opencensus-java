@@ -32,6 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
  *
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
+ *   // TODO(mayurkale): Plugs-in the LongGauge into the registry.
  *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
  *
  *   // It is recommended to keep a reference of a point for manual operations.
@@ -55,6 +56,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
+ *   // TODO(mayurkale): Plugs-in the LongGauge into the registry.
  *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
  *
  *   // It is recommended to keep a reference of a point for manual operations.
@@ -124,9 +126,9 @@ public abstract class LongGauge {
    * @return the no-op implementation of the {@code LongGauge}.
    * @since 0.17
    */
-  static LongGauge getNoopLongGauge(
+  static LongGauge newNoopLongGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    return NoopLongGauge.getInstance(name, description, unit, labelKeys);
+    return NoopLongGauge.create(name, description, unit, labelKeys);
   }
 
   /**
@@ -157,7 +159,7 @@ public abstract class LongGauge {
   private static final class NoopLongGauge extends LongGauge {
     private final int labelKeysSize;
 
-    static NoopLongGauge getInstance(
+    static NoopLongGauge create(
         String name, String description, String unit, List<LabelKey> labelKeys) {
       return new NoopLongGauge(name, description, unit, labelKeys);
     }
@@ -177,12 +179,12 @@ public abstract class LongGauge {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
       Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
-      return NoopLongPoint.getInstance();
+      return NoopLongPoint.INSTANCE;
     }
 
     @Override
     public NoopLongPoint getDefaultTimeSeries() {
-      return NoopLongPoint.getInstance();
+      return NoopLongPoint.INSTANCE;
     }
 
     @Override
@@ -200,15 +202,6 @@ public abstract class LongGauge {
       private static final NoopLongPoint INSTANCE = new NoopLongPoint();
 
       private NoopLongPoint() {}
-
-      /**
-       * Returns a {@code NoopLongPoint}.
-       *
-       * @return a {@code NoopLongPoint}.
-       */
-      static NoopLongPoint getInstance() {
-        return INSTANCE;
-      }
 
       @Override
       public void add(long amt) {}

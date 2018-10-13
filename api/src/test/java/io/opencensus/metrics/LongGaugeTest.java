@@ -16,10 +16,10 @@
 
 package io.opencensus.metrics;
 
-import com.google.common.testing.EqualsTester;
-import io.opencensus.metrics.LongGauge.LongPoint;
+import static com.google.common.truth.Truth.assertThat;
+
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,88 +32,73 @@ import org.junit.runners.JUnit4;
 public class LongGaugeTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
-  private final MetricRegistry metricRegistry =
-      MetricsComponent.newNoopMetricsComponent().getMetricRegistry();
+  private static final String NAME = "name";
+  private static final String DESCRIPTION = "description";
+  private static final String UNIT = "1";
+  private static final List<LabelKey> LABEL_KEY =
+      Collections.singletonList(LabelKey.create("key", "key description"));
+  private static final List<LabelValue> LABEL_VALUES =
+      Collections.singletonList(LabelValue.create("value"));
   private static final List<LabelKey> EMPTY_LABEL_KEYS = new ArrayList<LabelKey>();
-  private final LongGauge longGauge =
-      metricRegistry.addLongGauge("name", "description", "1", EMPTY_LABEL_KEYS);
+  private static final List<LabelValue> EMPTY_LABEL_VALUES = new ArrayList<LabelValue>();
+
+  // TODO(mayurkale): Add more tests, once LongGauge plugs-in into the registry.
 
   @Test
-  public void getOrCreateTimeSeries_WithNullLabelValues() {
+  public void noopGetOrCreateTimeSeries_WithNullLabelValues() {
+    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, EMPTY_LABEL_KEYS);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValues should not be null.");
     longGauge.getOrCreateTimeSeries(null);
   }
 
   @Test
-  public void getOrCreateTimeSeries_WithNullElement() {
-    List<LabelKey> labelKeys =
-        Arrays.asList(LabelKey.create("key1", "desc"), LabelKey.create("key2", "desc"));
-    List<LabelValue> labelValues = Arrays.asList(LabelValue.create("value1"), null);
-
-    LongGauge longGauge1 = metricRegistry.addLongGauge("name", "description", "1", labelKeys);
+  public void noopGetOrCreateTimeSeries_WithNullElement() {
+    List<LabelValue> labelValues = Collections.singletonList(null);
+    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValues element should not be null.");
-    longGauge1.getOrCreateTimeSeries(labelValues);
-  }
-
-  @Test
-  public void getOrCreateTimeSeries_WithInvalidLabelSize() {
-    List<LabelValue> labelValues =
-        Arrays.asList(LabelValue.create("value1"), LabelValue.create("value2"));
-
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Incorrect number of labels.");
     longGauge.getOrCreateTimeSeries(labelValues);
   }
 
   @Test
-  public void removeTimeSeries_WithNullLabelValues() {
+  public void noopGetOrCreateTimeSeries_WithInvalidLabelSize() {
+    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Incorrect number of labels.");
+    longGauge.getOrCreateTimeSeries(EMPTY_LABEL_VALUES);
+  }
+
+  @Test
+  public void noopRemoveTimeSeries_WithNullLabelValues() {
+    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValues should not be null.");
     longGauge.removeTimeSeries(null);
   }
 
   @Test
-  public void removeTimeSeries_WithNullElement() {
-    List<LabelKey> labelKeys =
-        Arrays.asList(LabelKey.create("key1", "desc"), LabelKey.create("key2", "desc"));
-    List<LabelValue> labelValues = Arrays.asList(LabelValue.create("value1"), null);
-
-    LongGauge longGauge1 = metricRegistry.addLongGauge("name", "description", "1", labelKeys);
+  public void noopRemoveTimeSeries_WithNullElement() {
+    List<LabelValue> labelValues = Collections.singletonList(null);
+    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelValues element should not be null.");
-    longGauge1.removeTimeSeries(labelValues);
-  }
-
-  @Test
-  public void removeTimeSeries_WithInvalidLabelSize() {
-    List<LabelValue> labelValues =
-        Arrays.asList(LabelValue.create("value1"), LabelValue.create("value2"));
-
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Incorrect number of labels.");
     longGauge.removeTimeSeries(labelValues);
   }
 
   @Test
-  public void getDefaultTimeSeries() {
+  public void noopRemoveTimeSeries_WithInvalidLabelSize() {
+    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Incorrect number of labels.");
+    longGauge.removeTimeSeries(EMPTY_LABEL_VALUES);
+  }
 
-    List<LabelKey> labelKeys =
-        Arrays.asList(LabelKey.create("key1", "desc"), LabelKey.create("key2", "desc"));
-    List<LabelValue> labelValues =
-        Arrays.asList(LabelValue.create("value1"), LabelValue.create("value2"));
-
-    LongGauge longGauge1 = metricRegistry.addLongGauge("name", "description", "1", labelKeys);
-
-    LongPoint defaultPoint1 = longGauge1.getDefaultTimeSeries();
-    LongPoint defaultPoint2 = longGauge1.getDefaultTimeSeries();
-
-    LongPoint longPoint1 = longGauge1.getOrCreateTimeSeries(labelValues);
-    LongPoint longPoint2 = longGauge1.getOrCreateTimeSeries(labelValues);
-
-    new EqualsTester()
-        .addEqualityGroup(defaultPoint1, defaultPoint2, longPoint1, longPoint2)
-        .testEquals();
+  @Test
+  public void noopSameAs() {
+    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
+    assertThat(longGauge.getDefaultTimeSeries())
+        .isSameAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
   }
 }

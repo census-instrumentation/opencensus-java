@@ -16,7 +16,6 @@
 
 package io.opencensus.implcore.internal;
 
-import io.opencensus.metrics.LabelKey;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
@@ -25,24 +24,24 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests for {@link Utils}. */
+/** Unit tests for {@link Utils}. */
 @RunWith(JUnit4.class)
 public class UtilsTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void checkListElementNull() {
-    List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("key", "desc"), null);
+    List<Double> list = Arrays.asList(0.0, 1.0, 2.0, null);
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("null");
-    Utils.checkListElementNotNull(labelKeys, null);
+    Utils.checkListElementNotNull(list, null);
   }
 
   @Test
   public void checkListElementNull_WithMessage() {
-    List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("key", "desc"), null);
+    List<Double> list = Arrays.asList(0.0, 1.0, 2.0, null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
-    Utils.checkListElementNotNull(labelKeys, "labelValues should not be null.");
+    thrown.expectMessage("list should not be null.");
+    Utils.checkListElementNotNull(list, "list should not be null.");
   }
 }

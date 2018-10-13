@@ -68,9 +68,11 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
       return existingPoint;
     }
 
-    checkNotNull(labelValues, "labelValues should not be null.");
-
-    return registerTimeSeries(Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues)));
+    List<LabelValue> labelValuesCopy =
+        Collections.unmodifiableList(
+            new ArrayList<LabelValue>(
+                checkNotNull(labelValues, "labelValues should not be null.")));
+    return registerTimeSeries(labelValuesCopy);
   }
 
   @Override
@@ -89,12 +91,9 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
     checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
 
-    List<LabelValue> labelValuesCopy =
-        Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues));
-
     Map<List<LabelValue>, PointImpl> registeredPointsCopy =
         new HashMap<List<LabelValue>, PointImpl>(registeredPoints);
-    if (registeredPointsCopy.remove(labelValuesCopy) == null) {
+    if (registeredPointsCopy.remove(labelValues) == null) {
       // The element not present, no need to update the current map of points.
       return;
     }
