@@ -30,6 +30,7 @@ import io.opencensus.implcore.stats.MutableAggregation.MutableSumDouble;
 import io.opencensus.implcore.stats.MutableAggregation.MutableSumLong;
 import io.opencensus.metrics.export.Distribution;
 import io.opencensus.metrics.export.Distribution.Bucket;
+import io.opencensus.metrics.export.Distribution.BucketOptions;
 import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.stats.AggregationData;
@@ -297,6 +298,9 @@ public class MutableAggregationTest {
         .isEqualTo(Point.create(Value.longValue(0), TIMESTAMP));
     assertThat(MutableMean.create().toPoint(TIMESTAMP))
         .isEqualTo(Point.create(Value.doubleValue(0), TIMESTAMP));
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("bucket boundaries should be > 0");
     assertThat(MutableDistribution.create(BUCKET_BOUNDARIES).toPoint(TIMESTAMP))
         .isEqualTo(
             Point.create(
@@ -305,17 +309,13 @@ public class MutableAggregationTest {
                         0,
                         0,
                         0,
-                        BUCKET_BOUNDARIES.getBoundaries(),
+                        BucketOptions.explicitOptions(BUCKET_BOUNDARIES.getBoundaries()),
                         Arrays.asList(
                             Bucket.create(0),
                             Bucket.create(0),
                             Bucket.create(0),
                             Bucket.create(0)))),
                 TIMESTAMP));
-    assertThat(MutableLastValueDouble.create().toPoint(TIMESTAMP))
-        .isEqualTo(Point.create(Value.doubleValue(Double.NaN), TIMESTAMP));
-    assertThat(MutableLastValueLong.create().toPoint(TIMESTAMP))
-        .isEqualTo(Point.create(Value.longValue(0), TIMESTAMP));
   }
 
   private static void verifyMutableDistribution(
