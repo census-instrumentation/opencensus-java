@@ -78,23 +78,6 @@ public class LongGaugeTest {
   }
 
   @Test
-  public void noopRemoveTimeSeries_WithNullElement() {
-    List<LabelValue> labelValues = Collections.singletonList(null);
-    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues element should not be null.");
-    longGauge.removeTimeSeries(labelValues);
-  }
-
-  @Test
-  public void noopRemoveTimeSeries_WithInvalidLabelSize() {
-    LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Incorrect number of labels.");
-    longGauge.removeTimeSeries(EMPTY_LABEL_VALUES);
-  }
-
-  @Test
   public void noopSameAs() {
     LongGauge longGauge = LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());

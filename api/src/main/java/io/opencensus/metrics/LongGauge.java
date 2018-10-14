@@ -190,8 +190,6 @@ public abstract class LongGauge {
     @Override
     public void removeTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
-      Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
-      Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
     }
 
     @Override

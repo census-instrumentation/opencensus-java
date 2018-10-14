@@ -179,25 +179,6 @@ public class LongGaugeImplTest {
   }
 
   @Test
-  public void removeTimeSeries_WithNullElement() {
-    List<LabelKey> labelKeys =
-        Arrays.asList(LabelKey.create("key1", "desc"), LabelKey.create("key2", "desc"));
-    List<LabelValue> labelValues = Arrays.asList(LabelValue.create("value1"), null);
-
-    LongGaugeImpl longGauge1 = new LongGaugeImpl("name", "description", "1", labelKeys);
-    thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues element should not be null.");
-    longGauge1.removeTimeSeries(labelValues);
-  }
-
-  @Test
-  public void removeTimeSeries_WithInvalidLabelsSize() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Incorrect number of labels.");
-    longGaugeMetric.removeTimeSeries(new ArrayList<LabelValue>());
-  }
-
-  @Test
   public void clear() {
     LongPoint longPoint = longGaugeMetric.getOrCreateTimeSeries(LABEL_VALUES);
     longPoint.add(-11);

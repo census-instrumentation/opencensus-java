@@ -88,8 +88,6 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   @Override
   public synchronized void removeTimeSeries(List<LabelValue> labelValues) {
     checkNotNull(labelValues, "labelValues should not be null.");
-    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
-    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
 
     Map<List<LabelValue>, PointImpl> registeredPointsCopy =
         new HashMap<List<LabelValue>, PointImpl>(registeredPoints);
@@ -138,6 +136,8 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
       for (Map.Entry<List<LabelValue>, PointImpl> entry : currentRegisteredPoints.entrySet()) {
         timeSeriesList.add(entry.getValue().getTimeSeries(clock));
       }
+
+      // TODO(mayurkale): optimize this for 1 timeseries (issue #1491).
       return Metric.create(metricDescriptor, timeSeriesList);
     }
     return null;
