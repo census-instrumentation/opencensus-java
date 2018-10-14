@@ -107,11 +107,10 @@ public class LongGaugeImplTest {
     assertThat(metric).isNotEqualTo(null);
     assertThat(metric)
         .isEqualTo(
-            Metric.create(
+            Metric.createWithOneTimeSeries(
                 METRIC_DESCRIPTOR,
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        LABEL_VALUES, Point.create(Value.longValue(500), TEST_TIME), null))));
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.longValue(500), TEST_TIME), null)));
     new EqualsTester().addEqualityGroup(point, point1).testEquals();
   }
 
@@ -146,13 +145,10 @@ public class LongGaugeImplTest {
     assertThat(metric).isNotEqualTo(null);
     assertThat(metric)
         .isEqualTo(
-            Metric.create(
+            Metric.createWithOneTimeSeries(
                 METRIC_DESCRIPTOR,
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        DEFAULT_LABEL_VALUES,
-                        Point.create(Value.longValue(400), TEST_TIME),
-                        null))));
+                TimeSeries.createWithOnePoint(
+                    DEFAULT_LABEL_VALUES, Point.create(Value.longValue(400), TEST_TIME), null)));
     new EqualsTester().addEqualityGroup(point, point1).testEquals();
   }
 
@@ -161,11 +157,10 @@ public class LongGaugeImplTest {
     longGaugeMetric.getOrCreateTimeSeries(LABEL_VALUES);
     assertThat(longGaugeMetric.getMetric(testClock))
         .isEqualTo(
-            Metric.create(
+            Metric.createWithOneTimeSeries(
                 METRIC_DESCRIPTOR,
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        LABEL_VALUES, Point.create(Value.longValue(0), TEST_TIME), null))));
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.longValue(0), TEST_TIME), null)));
 
     longGaugeMetric.removeTimeSeries(LABEL_VALUES);
     assertThat(longGaugeMetric.getMetric(testClock)).isEqualTo(null);

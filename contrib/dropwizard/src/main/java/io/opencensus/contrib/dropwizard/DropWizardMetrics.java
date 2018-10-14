@@ -107,7 +107,7 @@ public class DropWizardMetrics extends MetricProducer {
     TimeSeries timeSeries =
         TimeSeries.createWithOnePoint(
             Collections.<LabelValue>emptyList(), Point.create(value, clock.now()), null);
-    return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
+    return Metric.createWithOneTimeSeries(metricDescriptor, timeSeries);
   }
 
   /**
@@ -134,7 +134,7 @@ public class DropWizardMetrics extends MetricProducer {
             Collections.<LabelValue>emptyList(),
             Point.create(Value.longValue(counter.getCount()), clock.now()),
             null);
-    return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
+    return Metric.createWithOneTimeSeries(metricDescriptor, timeSeries);
   }
 
   /**
@@ -161,7 +161,7 @@ public class DropWizardMetrics extends MetricProducer {
             Point.create(Value.longValue(meter.getCount()), clock.now()),
             null);
 
-    return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
+    return Metric.createWithOneTimeSeries(metricDescriptor, timeSeries);
   }
 
   /**
@@ -231,7 +231,7 @@ public class DropWizardMetrics extends MetricProducer {
         TimeSeries.createWithOnePoint(
             Collections.<LabelValue>emptyList(), point, cumulativeStartTimestamp);
 
-    return Metric.create(metricDescriptor, Collections.singletonList(timeSeries));
+    return Metric.createWithOneTimeSeries(metricDescriptor, timeSeries);
   }
 
   @Override

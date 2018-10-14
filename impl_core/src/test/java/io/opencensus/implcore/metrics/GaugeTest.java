@@ -86,25 +86,21 @@ public class GaugeTest {
   public void longGauge_GetMetric() {
     assertThat(longGauge.getMetric(testClock))
         .isEqualTo(
-            Metric.create(
+            Metric.createWithOneTimeSeries(
                 MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEYS),
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        LABEL_VALUES,
-                        Point.create(Value.longValue(OBJ.hashCode()), TEST_TIME),
-                        null))));
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.longValue(OBJ.hashCode()), TEST_TIME), null)));
   }
 
   @Test
   public void doubleGauge_GetMetric() {
     assertThat(doubleGauge.getMetric(testClock))
         .isEqualTo(
-            Metric.create(
+            Metric.createWithOneTimeSeries(
                 MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEYS),
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        LABEL_VALUES,
-                        Point.create(Value.doubleValue(OBJ.hashCode()), TEST_TIME),
-                        null))));
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES,
+                    Point.create(Value.doubleValue(OBJ.hashCode()), TEST_TIME),
+                    null)));
   }
 }

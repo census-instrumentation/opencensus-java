@@ -50,7 +50,11 @@ public class MetricTest {
           METRIC_NAME_1, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, Arrays.asList(KEY_1, KEY_2));
   private static final MetricDescriptor METRIC_DESCRIPTOR_2 =
       MetricDescriptor.create(
-          METRIC_NAME_2, DESCRIPTION, UNIT, Type.CUMULATIVE_INT64, Arrays.asList(KEY_1));
+          METRIC_NAME_2,
+          DESCRIPTION,
+          UNIT,
+          Type.CUMULATIVE_INT64,
+          Collections.singletonList(KEY_1));
   private static final LabelValue LABEL_VALUE_1 = LabelValue.create("value1");
   private static final LabelValue LABEL_VALUE_2 = LabelValue.create("value1");
   private static final LabelValue LABEL_VALUE_EMPTY = LabelValue.create("");
@@ -64,11 +68,16 @@ public class MetricTest {
   private static final Point POINT_2 = Point.create(VALUE_DOUBLE_2, TIMESTAMP_3);
   private static final Point POINT_3 = Point.create(VALUE_LONG, TIMESTAMP_3);
   private static final TimeSeries GAUGE_TIME_SERIES_1 =
-      TimeSeries.create(Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_1), null);
+      TimeSeries.create(
+          Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Collections.singletonList(POINT_1), null);
   private static final TimeSeries GAUGE_TIME_SERIES_2 =
-      TimeSeries.create(Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Arrays.asList(POINT_2), null);
+      TimeSeries.create(
+          Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2), Collections.singletonList(POINT_2), null);
   private static final TimeSeries CUMULATIVE_TIME_SERIES =
-      TimeSeries.create(Arrays.asList(LABEL_VALUE_EMPTY), Arrays.asList(POINT_3), TIMESTAMP_1);
+      TimeSeries.create(
+          Collections.singletonList(LABEL_VALUE_EMPTY),
+          Collections.singletonList(POINT_3),
+          TIMESTAMP_1);
 
   @Test
   public void testGet() {
@@ -84,7 +93,7 @@ public class MetricTest {
   public void typeMismatch_GaugeDouble_Long() {
     typeMismatch(
         METRIC_DESCRIPTOR_1,
-        Arrays.asList(CUMULATIVE_TIME_SERIES),
+        Collections.singletonList(CUMULATIVE_TIME_SERIES),
         String.format("Type mismatch: %s, %s.", Type.GAUGE_DOUBLE, "ValueLong"));
   }
 
@@ -92,7 +101,7 @@ public class MetricTest {
   public void typeMismatch_CumulativeInt64_Double() {
     typeMismatch(
         METRIC_DESCRIPTOR_2,
-        Arrays.asList(GAUGE_TIME_SERIES_1),
+        Collections.singletonList(GAUGE_TIME_SERIES_1),
         String.format("Type mismatch: %s, %s.", Type.CUMULATIVE_INT64, "ValueDouble"));
   }
 
@@ -134,6 +143,27 @@ public class MetricTest {
   }
 
   @Test
+  public void createWithOneTimeSeries_WithNullTimeSeries() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("timeSeries");
+    Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_1, null);
+  }
+
+  @Test
+  public void createWithOneTimeSeries_WithNullMetricDescriptor() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("metricDescriptor");
+    Metric.createWithOneTimeSeries(null, GAUGE_TIME_SERIES_1);
+  }
+
+  @Test
+  public void testGet_WithOneTimeSeries() {
+    Metric metric = Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_1, GAUGE_TIME_SERIES_1);
+    assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR_1);
+    assertThat(metric.getTimeSeriesList()).containsExactly(GAUGE_TIME_SERIES_1);
+  }
+
+  @Test
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(
@@ -142,7 +172,8 @@ public class MetricTest {
             Metric.create(
                 METRIC_DESCRIPTOR_1, Arrays.asList(GAUGE_TIME_SERIES_1, GAUGE_TIME_SERIES_2)))
         .addEqualityGroup(Metric.create(METRIC_DESCRIPTOR_1, Collections.<TimeSeries>emptyList()))
-        .addEqualityGroup(Metric.create(METRIC_DESCRIPTOR_2, Arrays.asList(CUMULATIVE_TIME_SERIES)))
+        .addEqualityGroup(
+            Metric.createWithOneTimeSeries(METRIC_DESCRIPTOR_2, CUMULATIVE_TIME_SERIES))
         .addEqualityGroup(Metric.create(METRIC_DESCRIPTOR_2, Collections.<TimeSeries>emptyList()))
         .testEquals();
   }

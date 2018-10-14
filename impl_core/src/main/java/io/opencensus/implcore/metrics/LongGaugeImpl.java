@@ -137,8 +137,9 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
         timeSeriesList.add(entry.getValue().getTimeSeries(clock));
       }
 
-      // TODO(mayurkale): optimize this for 1 timeseries (issue #1491).
-      return Metric.create(metricDescriptor, timeSeriesList);
+      return pointCount == 1
+          ? Metric.createWithOneTimeSeries(metricDescriptor, timeSeriesList.get(0))
+          : Metric.create(metricDescriptor, timeSeriesList);
     }
     return null;
   }
