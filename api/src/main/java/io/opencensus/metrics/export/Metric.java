@@ -49,8 +49,8 @@ public abstract class Metric {
    * @since 0.17
    */
   public static Metric create(MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
-    Utils.checkNotNull(timeSeriesList, "timeSeriesList");
-    Utils.checkListElementNotNull(timeSeriesList, "timeSeries");
+    Utils.checkListElementNotNull(
+        Utils.checkNotNull(timeSeriesList, "timeSeriesList"), "timeSeries");
     return createInternal(
         metricDescriptor, Collections.unmodifiableList(new ArrayList<TimeSeries>(timeSeriesList)));
   }
@@ -65,8 +65,8 @@ public abstract class Metric {
    */
   public static Metric createWithOneTimeSeries(
       MetricDescriptor metricDescriptor, TimeSeries timeSeries) {
-    Utils.checkNotNull(timeSeries, "timeSeries");
-    return createInternal(metricDescriptor, Collections.singletonList(timeSeries));
+    return createInternal(
+        metricDescriptor, Collections.singletonList(Utils.checkNotNull(timeSeries, "timeSeries")));
   }
 
   /**
