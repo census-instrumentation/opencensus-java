@@ -16,9 +16,10 @@
 
 package io.opencensus.metrics;
 
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.common.ToLongFunction;
-import java.util.LinkedHashMap;
+import static com.google.common.truth.Truth.assertThat;
+
+import java.util.Collections;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,156 +31,64 @@ import org.junit.runners.JUnit4;
 public class MetricRegistryTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
+  private static final String NAME = "name";
+  private static final String DESCRIPTION = "description";
+  private static final String UNIT = "1";
+  private static final List<LabelKey> LABEL_KEY =
+      Collections.singletonList(LabelKey.create("key", "key description"));
+  private static final List<LabelValue> LABEL_VALUES =
+      Collections.singletonList(LabelValue.create("value"));
   private final MetricRegistry metricRegistry =
       MetricsComponent.newNoopMetricsComponent().getMetricRegistry();
 
   @Test
-  public void addDoubleGauge_NullName() {
+  public void noopAddLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        null,
-        "description",
-        "1",
-        new LinkedHashMap<LabelKey, LabelValue>(),
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
+    thrown.expectMessage("name");
+    metricRegistry.addLongGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
   }
 
   @Test
-  public void addDoubleGauge_NullDescription() {
+  public void noopAddLongGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        "name",
-        null,
-        "1",
-        new LinkedHashMap<LabelKey, LabelValue>(),
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
+    thrown.expectMessage("description");
+    metricRegistry.addLongGauge(NAME, null, UNIT, LABEL_KEY);
   }
 
   @Test
-  public void addDoubleGauge_NullUnit() {
+  public void noopAddLongGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        "name",
-        "description",
-        null,
-        new LinkedHashMap<LabelKey, LabelValue>(),
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
+    thrown.expectMessage("unit");
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, null, LABEL_KEY);
   }
 
   @Test
-  public void addDoubleGauge_NullLabels() {
+  public void noopAddLongGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        "name",
-        "description",
-        "1",
-        null,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
+    thrown.expectMessage("labelKeys should not be null.");
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, null);
   }
 
   @Test
-  public void addDoubleGauge_NullFunction() {
+  public void noopAddLongGauge_WithNullElement() {
+    List<LabelKey> labelKeys = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        "name", "description", "1", new LinkedHashMap<LabelKey, LabelValue>(), null, null);
+    thrown.expectMessage("labelKeys element should not be null.");
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
   }
 
   @Test
-  public void addLongGauge_NullName() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        null,
-        "description",
-        "1",
-        new LinkedHashMap<LabelKey, LabelValue>(),
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
+  public void noopSameAs() {
+    LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
+    assertThat(longGauge.getDefaultTimeSeries())
+        .isSameAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
   }
 
   @Test
-  public void addLongGauge_NullDescription() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        "name",
-        null,
-        "1",
-        new LinkedHashMap<LabelKey, LabelValue>(),
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
-  }
-
-  @Test
-  public void addLongGauge_NullUnit() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        "name",
-        "description",
-        null,
-        new LinkedHashMap<LabelKey, LabelValue>(),
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
-  }
-
-  @Test
-  public void addLongGauge_NullLabels() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        "name",
-        "description",
-        "1",
-        null,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
-  }
-
-  @Test
-  public void addLongGauge_NullFunction() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        "name", "description", "1", new LinkedHashMap<LabelKey, LabelValue>(), null, null);
+  public void noopInstanceOf() {
+    LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    assertThat(longGauge)
+        .isInstanceOf(LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY).getClass());
   }
 }

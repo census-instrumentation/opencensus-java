@@ -19,10 +19,9 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.common.ToLongFunction;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -30,9 +29,9 @@ import io.opencensus.metrics.export.Point;
 import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
 import io.opencensus.testing.common.TestClock;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import org.junit.Before;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,289 +41,82 @@ import org.junit.runners.JUnit4;
 /** Unit tests for {@link MetricRegistryImpl}. */
 @RunWith(JUnit4.class)
 public class MetricRegistryImplTest {
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
   private static final String NAME = "name";
   private static final String DESCRIPTION = "description";
   private static final String UNIT = "1";
-  private static final LabelKey LABEL_KEY = LabelKey.create("key", "key description");
-  private static final LabelValue LABEL_VALUES = LabelValue.create("value");
+  private static final List<LabelKey> LABEL_KEY =
+      Collections.singletonList(LabelKey.create("key", "key description"));
+  private static final List<LabelValue> LABEL_VALUES =
+      Collections.singletonList(LabelValue.create("value"));
+
   private static final Timestamp TEST_TIME = Timestamp.create(1234, 123);
-
-  @Rule public ExpectedException thrown = ExpectedException.none();
-
   private final TestClock testClock = TestClock.create(TEST_TIME);
   private final MetricRegistryImpl metricRegistry = new MetricRegistryImpl(testClock);
-  private final LinkedHashMap<LabelKey, LabelValue> labels =
-      new LinkedHashMap<LabelKey, LabelValue>();
 
-  @Before
-  public void setUp() {
-    labels.put(LABEL_KEY, LABEL_VALUES);
-  }
-
-  @Test
-  public void addDoubleGauge_NullName() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        null,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
-  }
-
-  @Test
-  public void addDoubleGauge_NullDescription() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        NAME,
-        null,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
-  }
-
-  @Test
-  public void addDoubleGauge_NullUnit() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        null,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
-  }
-
-  @Test
-  public void addDoubleGauge_NullLabels() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        null,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
-  }
-
-  @Test
-  public void addDoubleGauge_NullFunction() {
-    thrown.expect(NullPointerException.class);
-    metricRegistry.addDoubleGauge(NAME, DESCRIPTION, UNIT, labels, null, null);
-  }
-
-  @Test
-  public void addDoubleGauge_GetMetrics() {
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
-    assertThat(metricRegistry.getMetricProducer().getMetrics())
-        .containsExactly(
-            Metric.create(
-                MetricDescriptor.create(
-                    NAME,
-                    DESCRIPTION,
-                    UNIT,
-                    Type.GAUGE_DOUBLE,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Point.create(Value.doubleValue(5.0), TEST_TIME),
-                        null))));
-  }
+  private static final MetricDescriptor METRIC_DESCRIPTOR =
+      MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEY);
 
   @Test
   public void addLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        null,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 7;
-          }
-        });
+    thrown.expectMessage("name");
+    metricRegistry.addLongGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
   }
 
   @Test
   public void addLongGauge_NullDescription() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        NAME,
-        null,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
+    thrown.expectMessage("description");
+    metricRegistry.addLongGauge(NAME, null, UNIT, LABEL_KEY);
   }
 
   @Test
   public void addLongGauge_NullUnit() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        null,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
+    thrown.expectMessage("unit");
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, null, LABEL_KEY);
   }
 
   @Test
   public void addLongGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        null,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 5;
-          }
-        });
+    thrown.expectMessage("labelKeys should not be null.");
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, null);
   }
 
   @Test
-  public void addLongGauge_NullFunction() {
+  public void addLongGauge_WithNullElement() {
+    List<LabelKey> labelKeys = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    metricRegistry.addLongGauge("name", DESCRIPTION, UNIT, labels, null, null);
+    thrown.expectMessage("labelKeys element should not be null.");
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
   }
 
   @Test
   public void addLongGauge_GetMetrics() {
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 7;
-          }
-        });
-    assertThat(metricRegistry.getMetricProducer().getMetrics())
-        .containsExactly(
-            Metric.create(
-                MetricDescriptor.create(
-                    NAME,
-                    DESCRIPTION,
-                    UNIT,
-                    Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Point.create(Value.longValue(7), TEST_TIME),
-                        null))));
-  }
+    LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    longGauge.getOrCreateTimeSeries(LABEL_VALUES);
 
-  @Test
-  public void multipleMetrics_GetMetrics() {
-    metricRegistry.addLongGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToLongFunction<Object>() {
-          @Override
-          public long applyAsLong(Object value) {
-            return 7;
-          }
-        });
-    metricRegistry.addDoubleGauge(
-        NAME,
-        DESCRIPTION,
-        UNIT,
-        labels,
-        null,
-        new ToDoubleFunction<Object>() {
-          @Override
-          public double applyAsDouble(Object value) {
-            return 5.0;
-          }
-        });
-    assertThat(metricRegistry.getMetricProducer().getMetrics())
+    Collection<Metric> metricCollections = metricRegistry.getMetricProducer().getMetrics();
+    assertThat(metricCollections.size()).isEqualTo(1);
+    assertThat(metricCollections)
         .containsExactly(
-            Metric.create(
-                MetricDescriptor.create(
-                    NAME,
-                    DESCRIPTION,
-                    UNIT,
-                    Type.GAUGE_INT64,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Point.create(Value.longValue(7), TEST_TIME),
-                        null))),
-            Metric.create(
-                MetricDescriptor.create(
-                    NAME,
-                    DESCRIPTION,
-                    UNIT,
-                    Type.GAUGE_DOUBLE,
-                    Collections.unmodifiableList(Collections.singletonList(LABEL_KEY))),
-                Collections.singletonList(
-                    TimeSeries.createWithOnePoint(
-                        Collections.unmodifiableList(Collections.singletonList(LABEL_VALUES)),
-                        Point.create(Value.doubleValue(5.0), TEST_TIME),
-                        null))));
+            Metric.createWithOneTimeSeries(
+                METRIC_DESCRIPTOR,
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.longValue(0), TEST_TIME), null)));
   }
 
   @Test
   public void empty_GetMetrics() {
     assertThat(metricRegistry.getMetricProducer().getMetrics()).isEmpty();
+  }
+
+  @Test
+  public void checkInstanceOf() {
+    LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    assertThat(longGauge).isInstanceOf(LongGaugeImpl.class);
   }
 }

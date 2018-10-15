@@ -17,10 +17,8 @@
 package io.opencensus.metrics;
 
 import io.opencensus.common.ExperimentalApi;
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.common.ToLongFunction;
 import io.opencensus.internal.Utils;
-import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Creates and manages your application's set of metrics. The default implementation of this creates
@@ -32,44 +30,21 @@ import java.util.LinkedHashMap;
 @ExperimentalApi
 public abstract class MetricRegistry {
   /**
-   * Build a new long gauge to be added to the registry.
-   *
-   * <p>Must be called only once.
-   *
-   * @param name the name of the metric.
-   * @param description the description of the metric.
-   * @param unit the unit of the metric.
-   * @param obj the function argument.
-   * @param function the function to be called.
-   * @since 0.17
-   */
-  public abstract <T> void addLongGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToLongFunction<T> function);
-
-  /**
-   * Build a new double gauge to be added to the registry.
-   *
-   * <p>Must be called only once.
+   * Build a new long gauge to be added to the registry. This is more convenient form when you want
+   * to manually increase and decrease values as per your service requirements.
    *
    * @param name the name of the metric.
    * @param description the description of the metric.
    * @param unit the unit of the metric.
-   * @param obj the function argument.
-   * @param function the function to be called.
+   * @param labelKeys the list of the label keys.
+   * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
+   *     is null OR {@code name}, {@code description}, {@code unit} is null.
+   * @throws IllegalArgumentException if different metric with the same name already registered.
    * @since 0.17
    */
-  public abstract <T> void addDoubleGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToDoubleFunction<T> function);
+  @ExperimentalApi
+  public abstract LongGauge addLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
 
   static MetricRegistry newNoopMetricRegistry() {
     return new NoopMetricRegistry();
@@ -78,33 +53,16 @@ public abstract class MetricRegistry {
   private static final class NoopMetricRegistry extends MetricRegistry {
 
     @Override
-    public <T> void addLongGauge(
-        String name,
-        String description,
-        String unit,
-        LinkedHashMap<LabelKey, LabelValue> labels,
-        T obj,
-        ToLongFunction<T> function) {
-      Utils.checkNotNull(name, "name");
-      Utils.checkNotNull(description, "description");
-      Utils.checkNotNull(unit, "unit");
-      Utils.checkNotNull(labels, "labels");
-      Utils.checkNotNull(function, "function");
-    }
-
-    @Override
-    public <T> void addDoubleGauge(
-        String name,
-        String description,
-        String unit,
-        LinkedHashMap<LabelKey, LabelValue> labels,
-        T obj,
-        ToDoubleFunction<T> function) {
-      Utils.checkNotNull(name, "name");
-      Utils.checkNotNull(description, "description");
-      Utils.checkNotNull(unit, "unit");
-      Utils.checkNotNull(labels, "labels");
-      Utils.checkNotNull(function, "function");
+    public LongGauge addLongGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      Utils.checkListElementNotNull(
+          Utils.checkNotNull(labelKeys, "labelKeys should not be null."),
+          "labelKeys element should not be null.");
+      return LongGauge.newNoopLongGauge(
+          Utils.checkNotNull(name, "name"),
+          Utils.checkNotNull(description, "description"),
+          Utils.checkNotNull(unit, "unit"),
+          labelKeys);
     }
   }
 }
