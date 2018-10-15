@@ -92,7 +92,7 @@ public abstract class DerivedLongGauge {
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Removes all the {@code TimeSeries}s from the gauge metric.
+   * Removes all {@code TimeSeries} from the gauge metric.
    *
    * @since 0.17
    */

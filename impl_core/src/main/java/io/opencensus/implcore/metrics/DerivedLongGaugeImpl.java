@@ -34,7 +34,7 @@ import io.opencensus.metrics.export.Value;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -76,7 +76,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     // Updating the map of time series happens under a lock to avoid multiple add operations
     // to happen in the same time.
     Map<List<LabelValue>, PointWithFunction> registeredPointsCopy =
-        new HashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
+        new LinkedHashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
     registeredPointsCopy.put(labelValuesCopy, newPoint);
     registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
   }
@@ -87,7 +87,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     checkNotNull(labelValues, "labelValues should not be null.");
 
     Map<List<LabelValue>, PointWithFunction> registeredPointsCopy =
-        new HashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
+        new LinkedHashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
     if (registeredPointsCopy.remove(labelValues) == null) {
       // The element not present, no need to update the current map of time series.
       return;
@@ -109,13 +109,12 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
       return null;
     }
 
-    int pointCount = currentRegisteredPoints.size();
-    if (pointCount == 1) {
+    if (currentRegisteredPoints.size() == 1) {
       PointWithFunction point = currentRegisteredPoints.values().iterator().next();
       return Metric.createWithOneTimeSeries(metricDescriptor, point.getTimeSeries(clock));
     }
 
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(pointCount);
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(currentRegisteredPoints.size());
     for (Map.Entry<List<LabelValue>, PointWithFunction> entry :
         currentRegisteredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
