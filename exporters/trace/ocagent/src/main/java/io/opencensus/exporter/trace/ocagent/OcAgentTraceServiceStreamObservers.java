@@ -42,48 +42,52 @@ final class OcAgentTraceServiceStreamObservers {
       Logger.getLogger(OcAgentTraceServiceStreamObservers.class.getName());
 
   /*
-   * gRPC-Java has good abstractions over the transport layer, and there's no way we can know the
-   * connection status directly (nothing like *grpc.ClientConn in Go). Instead, we should verify the
-   * connection when initiating and sending streams:
+   * We can use ManagedChannel.getState() to determine the state of current connection.
    *
-   * 0. On client side we defined exportResponseObserver and updatedLibraryConfigObserver. On server
-   * side we defined exportRequestObserver and currentConfigObserver.
-   * Note: client == Agent Exporter, server == OC-Agent.
+   * 0. For export RPC we hold a reference "exportRequestObserverRef" to a StreamObserver for
+   * request stream, and "exportRequestObserverRef" to a StreamObserver for response stream.
+   * For config RPC we have "currentConfigObserverRef" and "updatedConfigObserverRef". Note that
+   * exportRequestObserver and currentConfigObserver are defined by and returned from Agent, while
+   * exportRequestObserver and updatedConfigObserver are defined in this class and will be passed to
+   * Agent.
    *
    * Think of the whole process as a Finite State Machine.
    *
+   * Note: "Exporter" = Agent Exporter and "Agent" = OC-Agent in the sections below.
+   *
    * STATE 1: Unconnected/Disconnected.
    *
-   * 1. First, client will try to establish the streams by calling TraceServiceStub.export and
+   * 1. First, Exporter will try to establish the streams by calling TraceServiceStub.export and
    * TraceServiceStub.config in a daemon thread.
    *
-   *   1-1. If the initial attempt succeeded, the server side observers should be returned to client
-   *   as callbacks, and we keep a reference of them in the exportRequestObserverRef and
-   *   currentConfigObserverRef. Same thing happen for client side observers.
+   *   1-1. If the initial attempt succeeded, exportRequestObserver and currentConfigObserver
+   *   should be returned to Exporter as callbacks, and we keep a reference of them in the
+   *   exportRequestObserverRef and currentConfigObserverRef. At the same time,
+   *   exportRequestObserver and updatedConfigObserver will be passed to Agent.
    *
    *   1-2. If the attempt failed, TraceServiceStub.export or TraceServiceStub.config will throw
-   *   an exception. We should catch the exceptions and keep retrying. Server side observers will
-   *   not be returned to client and the references are null.
+   *   an exception. We should catch the exceptions and keep retrying. exportRequestObserver and
+   *   currentConfigObserver will not be returned to Exporter and the references are null.
    *
-   *   1-3. Therefore, after each attempt, we will be able to know if the connection succeeded or
-   *   not by checking the references of exportRequestObserverRef and currentConfigObserverRef.
-   *   If they're non-null, that means connection succeeded and we can move forward and start
-   *   sending/receiving streams (move to STATE 2). Otherwise client should retry.
+   *   1-3. After each attempt, we should check if the connection succeeded or not.
+   *   If connection succeeded and Exporter has the reference to exportRequestObserver and
+   *   currentConfigObserver, we can move forward and start sending/receiving streams
+   *   (move to STATE 2). Otherwise Exporter should retry.
    *
    * STATE 2: Already connected.
    *
-   * 2. Once streams are open, they should be kept alive. Client sends spans to server by using
-   * exportRequestObserver.onNext (the callback provided by server). In addition, in another daemon
-   * thread client watches config updates from server, which is done by server calling back
+   * 2. Once streams are open, they should be kept alive. Exporter sends spans to Agent by calling
+   * exportRequestObserver.onNext (the callback provided by Agent). In addition, in another daemon
+   * thread Exporter watches config updates from Agent, which is done by Agent calling back
    * updatedConfigObserver.onNext.
    *
    *   2-1. If for some reason the connection is interrupted, the errors will be caught by
    *   the onError method of exportResponseObserver and updatedLibraryConfigObserver. In that case,
-   *   we consider the connections as disconnected, and reset references of server stream observers
-   *   to null. Then we will create a new channel and stub, try to connect to server, and try to
-   *   get another exportRequestObserver and currentConfigObserver from server. (Back to STATE 1.)
+   *   we should reset references of exportRequestObserver and currentConfigObserver to null.
+   *   Then we will create a new channel and stub, try to connect to Agent, and try to get new
+   *   exportRequestObserver and currentConfigObserver from Agent. (Back to STATE 1.)
    *
-   *   2-2. If for some reason server decided to end the stream by calling onComplete, do the same
+   *   2-2. If for some reason Agent decided to end the stream by calling onComplete, do the same
    *   thing as onError.
    *
    *
@@ -104,27 +108,19 @@ final class OcAgentTraceServiceStreamObservers {
   static final AtomicReference</*@Nullable*/ StreamObserver<CurrentLibraryConfig>>
       currentConfigObserverRef = new AtomicReference<>();
 
-  // Check if the export() connection is open and alive.
-  static boolean isExportConnected() {
-    return exportRequestObserverRef.get() != null;
-  }
-
-  // Check if the config() connection is open and alive.
-  static boolean isConfigConnected() {
-    return currentConfigObserverRef.get() != null;
-  }
-
-  static void resetExportClient() {
+  // After resetting, the channel should also be closed.
+  static void resetExportRequestObserverRef() {
     exportRequestObserverRef.set(null);
   }
 
-  static void resetConfigClient() {
+  // After resetting, the channel should also be closed.
+  static void resetCurrentConfigObserverRef() {
     currentConfigObserverRef.set(null);
   }
 
   // Stream observer for ExportTraceServiceResponse.
   // This observer ignores the ExportTraceServiceResponse and won't block the thread.
-  static final StreamObserver<ExportTraceServiceResponse> exportResponseObserver =
+  private static final StreamObserver<ExportTraceServiceResponse> exportResponseObserver =
       new StreamObserver<ExportTraceServiceResponse>() {
         @Override
         public void onNext(ExportTraceServiceResponse value) {
@@ -136,25 +132,35 @@ final class OcAgentTraceServiceStreamObservers {
           // If there's an error, reset the reference to exportRequestObserver to force
           // re-establish a connection.
           // TODO(songya): add retries on this connection before starting a new connection.
-          logger.log(Level.WARNING, "Export stream is disconnected because of: {0}", t);
+          logger.log(Level.WARNING, "Export stream is disconnected.", t);
           /*@Nullable*/ StreamObserver<ExportTraceServiceRequest> exportRequestObserver =
               exportRequestObserverRef.get();
           if (exportRequestObserver != null) {
             exportRequestObserver.onError(t); // Tries to notify OC-Agent about the error.
-            resetExportClient();
+            resetExportRequestObserverRef();
           }
         }
 
         @Override
         public void onCompleted() {
-          resetExportClient();
+          resetExportRequestObserverRef();
         }
       };
 
   // Stream observer for UpdatedLibraryConfig messages. Once there's a new UpdatedLibraryConfig,
   // apply it to the global TraceConfig.
-  static final StreamObserver<UpdatedLibraryConfig> updatedLibraryConfigObserver =
+  private static final StreamObserver<UpdatedLibraryConfig> updatedLibraryConfigObserver =
       new UpdatedLibraryConfigObserver(Tracing.getTraceConfig());
+
+  // A reference to the exportResponseObserver defined in this class.
+  // Could be shared between multiple threads.
+  static final AtomicReference<StreamObserver<ExportTraceServiceResponse>>
+      exportResponseObserverRef = new AtomicReference<>(exportResponseObserver);
+
+  // A reference to the updatedLibraryConfigObserver defined in this class.
+  // Could be shared between multiple threads.
+  static final AtomicReference<StreamObserver<UpdatedLibraryConfig>> updateConfigObserverRef =
+      new AtomicReference<>(updatedLibraryConfigObserver);
 
   @VisibleForTesting
   static class UpdatedLibraryConfigObserver implements StreamObserver<UpdatedLibraryConfig> {
@@ -162,6 +168,7 @@ final class OcAgentTraceServiceStreamObservers {
     // Inject a mock TraceConfig in unit tests.
     private final TraceConfig traceConfig;
 
+    @VisibleForTesting
     UpdatedLibraryConfigObserver(TraceConfig traceConfig) {
       this.traceConfig = traceConfig;
     }
@@ -189,18 +196,18 @@ final class OcAgentTraceServiceStreamObservers {
       // If there's an error, reset the reference to currentConfigObserver to force
       // re-establish a connection.
       // TODO(songya): add retries on this connection before starting a new connection.
-      logger.log(Level.WARNING, "Config stream is disconnected because of: {0}", t);
+      logger.log(Level.WARNING, "Config stream is disconnected.", t);
       /*@Nullable*/ StreamObserver<CurrentLibraryConfig> currentConfigObserver =
           currentConfigObserverRef.get();
       if (currentConfigObserver != null) {
         currentConfigObserver.onError(t); // Tries to notify OC-Agent about the error.
-        resetConfigClient();
+        resetCurrentConfigObserverRef();
       }
     }
 
     @Override
     public void onCompleted() {
-      resetConfigClient();
+      resetCurrentConfigObserverRef();
     }
   }
 }
