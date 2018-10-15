@@ -197,10 +197,10 @@ public class DerivedLongGaugeImplTest {
     assertThat(metric.getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeriesList);
     assertThat(metric.getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(1);
     assertThat(metric.getTimeSeriesList().get(0).getLabelValues().get(0))
-        .isEqualTo(LabelValue.create("value1"));
+        .isEqualTo(LabelValue.create("value"));
     assertThat(metric.getTimeSeriesList().get(1).getLabelValues().size()).isEqualTo(1);
     assertThat(metric.getTimeSeriesList().get(1).getLabelValues().get(0))
-        .isEqualTo(LabelValue.create("value"));
+        .isEqualTo(LabelValue.create("value1"));
   }
 
   @Test
