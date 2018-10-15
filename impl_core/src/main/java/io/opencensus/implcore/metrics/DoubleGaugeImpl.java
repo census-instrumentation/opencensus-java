@@ -20,11 +20,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.util.concurrent.AtomicDouble;
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.Utils;
+import io.opencensus.metrics.DoubleGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
-import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -36,11 +37,10 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 
-/** Implementation of {@link LongGauge}. */
-public final class LongGaugeImpl extends LongGauge implements Meter {
+/** Implementation of {@link DoubleGauge}. */
+public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
   @VisibleForTesting static final LabelValue UNSET_VALUE = LabelValue.create(null);
 
   private final MetricDescriptor metricDescriptor;
@@ -48,10 +48,10 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
 
-  LongGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
+  DoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
     this.metricDescriptor =
-        MetricDescriptor.create(name, description, unit, Type.GAUGE_INT64, labelKeys);
+        MetricDescriptor.create(name, description, unit, Type.GAUGE_DOUBLE, labelKeys);
 
     // initialize defaultLabelValues
     defaultLabelValues = new ArrayList<LabelValue>(labelKeysSize);
@@ -61,7 +61,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   }
 
   @Override
-  public LongPoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
+  public DoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
     // lock free point retrieval, if it is present
     PointImpl existingPoint = registeredPoints.get(labelValues);
     if (existingPoint != null) {
@@ -76,7 +76,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   }
 
   @Override
-  public LongPoint getDefaultTimeSeries() {
+  public DoublePoint getDefaultTimeSeries() {
     // lock free default point retrieval, if it is present
     PointImpl existingPoint = registeredPoints.get(defaultLabelValues);
     if (existingPoint != null) {
@@ -103,7 +103,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     registeredPoints = Collections.emptyMap();
   }
 
-  private synchronized LongPoint registerTimeSeries(List<LabelValue> labelValues) {
+  private synchronized DoublePoint registerTimeSeries(List<LabelValue> labelValues) {
     PointImpl existingPoint = registeredPoints.get(labelValues);
     if (existingPoint != null) {
       // Return a Point that are already registered. This can happen if a multiple threads
@@ -145,11 +145,11 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
-  /** Implementation of {@link LongGauge.LongPoint}. */
-  public static final class PointImpl extends LongPoint {
+  /** Implementation of {@link DoubleGauge.DoublePoint}. */
+  public static final class PointImpl extends DoublePoint {
 
-    // TODO(mayurkale): Consider to use LongAdder here, once we upgrade to Java8.
-    private final AtomicLong value = new AtomicLong(0);
+    // TODO(mayurkale): Consider to use DoubleAdder here, once we upgrade to Java8.
+    private final AtomicDouble value = new AtomicDouble(0);
     private final List<LabelValue> labelValues;
 
     PointImpl(List<LabelValue> labelValues) {
@@ -157,18 +157,18 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     }
 
     @Override
-    public void add(long amt) {
+    public void add(double amt) {
       value.addAndGet(amt);
     }
 
     @Override
-    public void set(long val) {
+    public void set(double val) {
       value.set(val);
     }
 
     private TimeSeries getTimeSeries(Clock clock) {
       return TimeSeries.createWithOnePoint(
-          labelValues, Point.create(Value.longValue(value.get()), clock.now()), null);
+          labelValues, Point.create(Value.doubleValue(value.get()), clock.now()), null);
     }
   }
 }

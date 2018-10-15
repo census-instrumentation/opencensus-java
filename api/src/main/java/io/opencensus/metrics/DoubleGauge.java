@@ -21,7 +21,7 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Long Gauge metric, to report instantaneous measurement of an int64 value. Gauges can go both up
+ * Double Gauge metric, to report instantaneous measurement of a double value. Gauges can go both up
  * and down. The gauges values can be negative.
  *
  * <p>Example 1: Create a Gauge with default labels.
@@ -32,11 +32,12 @@ import javax.annotation.concurrent.ThreadSafe;
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
  *
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
- *   // TODO(mayurkale): Plugs-in the LongGauge into the registry.
- *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
+ *   // TODO(mayurkale): Plugs-in the DoubleGauge into the registry.
+ *   DoubleGauge gauge = metricRegistry.addDoubleGauge("queue_size",
+ *                       "Pending jobs", "1", labelKeys);
  *
  *   // It is recommended to keep a reference of a point for manual operations.
- *   LongPoint defaultPoint = gauge.getDefaultTimeSeries();
+ *   DoublePoint defaultPoint = gauge.getDefaultTimeSeries();
  *
  *   void doWork() {
  *      // Your code here.
@@ -56,11 +57,12 @@ import javax.annotation.concurrent.ThreadSafe;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   // TODO(mayurkale): Plugs-in the LongGauge into the registry.
- *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
+ *   // TODO(mayurkale): Plugs-in the DoubleGauge into the registry.
+ *   DoubleGauge gauge = metricRegistry.addDoubleGauge("queue_size",
+ *                       "Pending jobs", "1", labelKeys);
  *
  *   // It is recommended to keep a reference of a point for manual operations.
- *   LongPoint inboundPoint = gauge.getOrCreateTimeSeries(labelValues);
+ *   DoublePoint inboundPoint = gauge.getOrCreateTimeSeries(labelValues);
  *
  *   void doSomeWork() {
  *      // Your code here.
@@ -73,38 +75,38 @@ import javax.annotation.concurrent.ThreadSafe;
  * @since 0.17
  */
 @ThreadSafe
-public abstract class LongGauge {
+public abstract class DoubleGauge {
 
   /**
-   * Creates a {@code TimeSeries} and returns a {@code LongPoint} if the specified {@code
+   * Creates a {@code TimeSeries} and returns a {@code DoublePoint} if the specified {@code
    * labelValues} is not already associated with this gauge, else returns an existing {@code
-   * LongPoint}.
+   * DoublePoint}.
    *
-   * <p>It is recommended to keep a reference to the LongPoint instead of always calling this method
-   * for manual operations.
+   * <p>It is recommended to keep a reference to the DoublePoint instead of always calling this
+   * method for manual operations.
    *
    * @param labelValues the list of label values. The number of label values must be the same to
-   *     that of the label keys passed to {@link MetricRegistry#addLongGauge}.
-   * @return a {@code LongPoint} the value of single gauge.
+   *     that of the label keys passed to {@link MetricRegistry#addDoubleGauge}.
+   * @return a {@code DoublePoint} the value of single gauge.
    * @throws NullPointerException if {@code labelValues} is null OR any element of {@code
    *     labelValues} is null.
    * @throws IllegalArgumentException if number of {@code labelValues}s are not equal to the label
-   *     keys passed to {@link MetricRegistry#addLongGauge}.
+   *     keys passed to {@link MetricRegistry#addDoubleGauge}.
    * @since 0.17
    */
-  public abstract LongPoint getOrCreateTimeSeries(List<LabelValue> labelValues);
+  public abstract DoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * Returns a {@code LongPoint} for a gauge with all labels not set, or default labels.
+   * Returns a {@code DoublePoint} for a gauge with all labels not set, or default labels.
    *
-   * @return a {@code LongPoint} for a gauge with all labels not set, or default labels.
+   * @return a {@code DoublePoint} for a gauge with all labels not set, or default labels.
    * @since 0.17
    */
-  public abstract LongPoint getDefaultTimeSeries();
+  public abstract DoublePoint getDefaultTimeSeries();
 
   /**
    * Removes the {@code TimeSeries} from the gauge metric, if it is present. i.e. references to
-   * previous {@code LongPoint} objects are invalid (not part of the metric).
+   * previous {@code DoublePoint} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
    * @throws NullPointerException if {@code labelValues} is null or any element of {@code
@@ -115,21 +117,21 @@ public abstract class LongGauge {
 
   /**
    * Removes all {@code TimeSeries} from the gauge metric. i.e. references to all previous {@code
-   * LongPoint} objects are invalid (not part of the metric).
+   * DoublePoint} objects are invalid (not part of the metric).
    *
    * @since 0.17
    */
   public abstract void clear();
 
   /**
-   * Returns the no-op implementation of the {@code LongGauge}.
+   * Returns the no-op implementation of the {@code DoubleGauge}.
    *
-   * @return the no-op implementation of the {@code LongGauge}.
+   * @return the no-op implementation of the {@code DoubleGauge}.
    * @since 0.17
    */
-  static LongGauge newNoopLongGauge(
+  static DoubleGauge newNoopDoubleGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    return NoopLongGauge.create(name, description, unit, labelKeys);
+    return NoopDoubleGauge.create(name, description, unit, labelKeys);
   }
 
   /**
@@ -137,7 +139,7 @@ public abstract class LongGauge {
    *
    * @since 0.17
    */
-  public abstract static class LongPoint {
+  public abstract static class DoublePoint {
 
     /**
      * Adds the given value to the current value. The values can be negative.
@@ -145,7 +147,7 @@ public abstract class LongGauge {
      * @param amt the value to add
      * @since 0.17
      */
-    public abstract void add(long amt);
+    public abstract void add(double amt);
 
     /**
      * Sets the given value.
@@ -153,20 +155,20 @@ public abstract class LongGauge {
      * @param val the new value.
      * @since 0.17
      */
-    public abstract void set(long val);
+    public abstract void set(double val);
   }
 
-  /** No-op implementations of LongGauge class. */
-  private static final class NoopLongGauge extends LongGauge {
+  /** No-op implementations of DoubleGauge class. */
+  private static final class NoopDoubleGauge extends DoubleGauge {
     private final int labelKeysSize;
 
-    static NoopLongGauge create(
+    static NoopDoubleGauge create(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      return new NoopLongGauge(name, description, unit, labelKeys);
+      return new NoopDoubleGauge(name, description, unit, labelKeys);
     }
 
-    /** Creates a new {@code NoopLongPoint}. */
-    NoopLongGauge(String name, String description, String unit, List<LabelKey> labelKeys) {
+    /** Creates a new {@code NoopDoublePoint}. */
+    NoopDoubleGauge(String name, String description, String unit, List<LabelKey> labelKeys) {
       Utils.checkNotNull(name, "name");
       Utils.checkNotNull(description, "description");
       Utils.checkNotNull(unit, "unit");
@@ -176,16 +178,16 @@ public abstract class LongGauge {
     }
 
     @Override
-    public NoopLongPoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
+    public NoopDoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
       Utils.checkNotNull(labelValues, "labelValues should not be null.");
       Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
       Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
-      return NoopLongPoint.INSTANCE;
+      return NoopDoublePoint.INSTANCE;
     }
 
     @Override
-    public NoopLongPoint getDefaultTimeSeries() {
-      return NoopLongPoint.INSTANCE;
+    public NoopDoublePoint getDefaultTimeSeries() {
+      return NoopDoublePoint.INSTANCE;
     }
 
     @Override
@@ -196,17 +198,17 @@ public abstract class LongGauge {
     @Override
     public void clear() {}
 
-    /** No-op implementations of LongPoint class. */
-    private static final class NoopLongPoint extends LongPoint {
-      private static final NoopLongPoint INSTANCE = new NoopLongPoint();
+    /** No-op implementations of DoublePoint class. */
+    private static final class NoopDoublePoint extends DoublePoint {
+      private static final NoopDoublePoint INSTANCE = new NoopDoublePoint();
 
-      private NoopLongPoint() {}
-
-      @Override
-      public void add(long amt) {}
+      private NoopDoublePoint() {}
 
       @Override
-      public void set(long val) {}
+      public void add(double amt) {}
+
+      @Override
+      public void set(double val) {}
     }
   }
 }
