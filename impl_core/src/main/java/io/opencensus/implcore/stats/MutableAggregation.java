@@ -287,7 +287,20 @@ abstract class MutableAggregation {
      */
     static MutableDistribution create(BucketBoundaries bucketBoundaries) {
       checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
-      return new MutableDistribution(bucketBoundaries);
+
+      List<Double> currentBucketBoundaries = bucketBoundaries.getBoundaries();
+      int ignoreBucketBounds = 0;
+      for (Double bucketBound : currentBucketBoundaries) {
+        if (bucketBound < 0) {
+          ignoreBucketBounds++;
+        } else {
+          break;
+        }
+      }
+      List<Double> newBucketBoundaries =
+          currentBucketBoundaries.subList(ignoreBucketBounds, currentBucketBoundaries.size());
+
+      return new MutableDistribution(BucketBoundaries.create(newBucketBoundaries));
     }
 
     @Override
@@ -429,8 +442,6 @@ abstract class MutableAggregation {
         buckets.add(metricBucket);
       }
 
-      // TODO(mayurkale): Drop the first bucket when converting to metrics.
-      // Reason: In Stats API, bucket bounds begin with -infinity (first bucket is (-infinity, 0)).
       BucketOptions bucketOptions = BucketOptions.explicitOptions(bucketBoundaries.getBoundaries());
 
       return Point.create(
