@@ -104,14 +104,14 @@ public class LongGaugeImplTest {
     point1.set(500);
 
     Metric metric = longGaugeMetric.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric)
         .isEqualTo(
             Metric.createWithOneTimeSeries(
                 METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
                     LABEL_VALUES, Point.create(Value.longValue(500), TEST_TIME), null)));
-    new EqualsTester().addEqualityGroup(point, point1).testEquals();
+    assertThat(point).isSameAs(point1);
   }
 
   @Test
@@ -121,7 +121,7 @@ public class LongGaugeImplTest {
     point.add(-33);
 
     Metric metric = longGaugeMetric.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR);
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(1);
     assertThat(metric.getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
@@ -129,7 +129,7 @@ public class LongGaugeImplTest {
         .isEqualTo(Value.longValue(-133));
     assertThat(metric.getTimeSeriesList().get(0).getPoints().get(0).getTimestamp())
         .isEqualTo(TEST_TIME);
-    assertThat(metric.getTimeSeriesList().get(0).getStartTimestamp()).isEqualTo(null);
+    assertThat(metric.getTimeSeriesList().get(0).getStartTimestamp()).isNull();
   }
 
   @Test
@@ -142,14 +142,14 @@ public class LongGaugeImplTest {
     point1.add(-100);
 
     Metric metric = longGaugeMetric.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric)
         .isEqualTo(
             Metric.createWithOneTimeSeries(
                 METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
                     DEFAULT_LABEL_VALUES, Point.create(Value.longValue(400), TEST_TIME), null)));
-    new EqualsTester().addEqualityGroup(point, point1).testEquals();
+    assertThat(point).isSameAs(point1);
   }
 
   @Test
@@ -163,7 +163,7 @@ public class LongGaugeImplTest {
                     LABEL_VALUES, Point.create(Value.longValue(0), TEST_TIME), null)));
 
     longGaugeMetric.removeTimeSeries(LABEL_VALUES);
-    assertThat(longGaugeMetric.getMetric(testClock)).isEqualTo(null);
+    assertThat(longGaugeMetric.getMetric(testClock)).isNull();
   }
 
   @Test
@@ -181,12 +181,12 @@ public class LongGaugeImplTest {
     defaultPoint.set(100);
 
     Metric metric = longGaugeMetric.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR);
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(2);
 
     longGaugeMetric.clear();
-    assertThat(longGaugeMetric.getMetric(testClock)).isEqualTo(null);
+    assertThat(longGaugeMetric.getMetric(testClock)).isNull();
   }
 
   @Test
@@ -199,7 +199,7 @@ public class LongGaugeImplTest {
     defaultPoint.set(-230);
 
     Metric metric = longGauge.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(1);
     assertThat(metric.getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(2);
     assertThat(metric.getTimeSeriesList().get(0).getLabelValues().get(0)).isEqualTo(UNSET_VALUE);
@@ -225,27 +225,27 @@ public class LongGaugeImplTest {
     longPoint1.add(-100);
     longPoint1.add(-20);
 
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>();
-    timeSeriesList.add(
+    List<TimeSeries> expectedTimeSeriesList = new ArrayList<TimeSeries>();
+    expectedTimeSeriesList.add(
         TimeSeries.createWithOnePoint(
             LABEL_VALUES, Point.create(Value.longValue(3), TEST_TIME), null));
-    timeSeriesList.add(
+    expectedTimeSeriesList.add(
         TimeSeries.createWithOnePoint(
             DEFAULT_LABEL_VALUES, Point.create(Value.longValue(100), TEST_TIME), null));
-    timeSeriesList.add(
+    expectedTimeSeriesList.add(
         TimeSeries.createWithOnePoint(
             LABEL_VALUES1, Point.create(Value.longValue(-120), TEST_TIME), null));
 
     Metric metric = longGaugeMetric.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR);
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(3);
-    assertThat(metric.getTimeSeriesList()).containsExactlyElementsIn(timeSeriesList);
+    assertThat(metric.getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeriesList);
   }
 
   @Test
   public void empty_GetMetrics() {
-    assertThat(longGaugeMetric.getMetric(testClock)).isEqualTo(null);
+    assertThat(longGaugeMetric.getMetric(testClock)).isNull();
   }
 
   @Test

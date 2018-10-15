@@ -79,7 +79,7 @@ public abstract class DoubleGauge {
 
   /**
    * Creates a {@code TimeSeries} and returns a {@code DoublePoint} if the specified {@code
-   * labelValues} is not already associated with this gauge, else returns a existing {@code
+   * labelValues} is not already associated with this gauge, else returns an existing {@code
    * DoublePoint}.
    *
    * <p>It is recommended to keep a reference to the DoublePoint instead of always calling this
@@ -99,7 +99,7 @@ public abstract class DoubleGauge {
   /**
    * Returns a {@code DoublePoint} for a gauge with all labels not set, or default labels.
    *
-   * @return a {@code DoublePoint} the value of default gauge.
+   * @return a {@code DoublePoint} for a gauge with all labels not set, or default labels.
    * @since 0.17
    */
   public abstract DoublePoint getDefaultTimeSeries();
@@ -116,7 +116,8 @@ public abstract class DoubleGauge {
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * References to all previous {@code DoublePoint} objects are invalid (not part of the metric).
+   * Removes all {@code TimeSeries} from the gauge metric. i.e. references to all previous {@code
+   * DoublePoint} objects are invalid (not part of the metric).
    *
    * @since 0.17
    */

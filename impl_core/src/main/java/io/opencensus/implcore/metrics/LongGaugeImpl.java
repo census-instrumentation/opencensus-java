@@ -33,7 +33,7 @@ import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -82,7 +82,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     if (existingPoint != null) {
       return existingPoint;
     }
-    return registerTimeSeries(defaultLabelValues);
+    return registerTimeSeries(Collections.unmodifiableList(defaultLabelValues));
   }
 
   @Override
@@ -90,7 +90,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     checkNotNull(labelValues, "labelValues should not be null.");
 
     Map<List<LabelValue>, PointImpl> registeredPointsCopy =
-        new HashMap<List<LabelValue>, PointImpl>(registeredPoints);
+        new LinkedHashMap<List<LabelValue>, PointImpl>(registeredPoints);
     if (registeredPointsCopy.remove(labelValues) == null) {
       // The element not present, no need to update the current map of points.
       return;
@@ -118,7 +118,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     // Updating the map of points happens under a lock to avoid multiple add operations
     // to happen in the same time.
     Map<List<LabelValue>, PointImpl> registeredPointsCopy =
-        new HashMap<List<LabelValue>, PointImpl>(registeredPoints);
+        new LinkedHashMap<List<LabelValue>, PointImpl>(registeredPoints);
     registeredPointsCopy.put(labelValues, newPoint);
     registeredPoints = Collections.unmodifiableMap(registeredPointsCopy);
 
@@ -133,13 +133,12 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
       return null;
     }
 
-    int pointCount = currentRegisteredPoints.size();
-    if (pointCount == 1) {
+    if (currentRegisteredPoints.size() == 1) {
       PointImpl point = currentRegisteredPoints.values().iterator().next();
       return Metric.createWithOneTimeSeries(metricDescriptor, point.getTimeSeries(clock));
     }
 
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(pointCount);
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(currentRegisteredPoints.size());
     for (Map.Entry<List<LabelValue>, PointImpl> entry : currentRegisteredPoints.entrySet()) {
       timeSeriesList.add(entry.getValue().getTimeSeries(clock));
     }

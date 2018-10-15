@@ -104,7 +104,7 @@ public class DoubleGaugeImplTest {
     point1.set(500);
 
     Metric metric = doubleGauge.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric)
         .isEqualTo(
             Metric.create(
@@ -112,7 +112,7 @@ public class DoubleGaugeImplTest {
                 Collections.singletonList(
                     TimeSeries.createWithOnePoint(
                         LABEL_VALUES, Point.create(Value.doubleValue(500), TEST_TIME), null))));
-    new EqualsTester().addEqualityGroup(point, point1).testEquals();
+    assertThat(point).isSameAs(point1);
   }
 
   @Test
@@ -122,7 +122,7 @@ public class DoubleGaugeImplTest {
     point.add(-33);
 
     Metric metric = doubleGauge.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR);
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(1);
     assertThat(metric.getTimeSeriesList().get(0).getPoints().size()).isEqualTo(1);
@@ -130,7 +130,7 @@ public class DoubleGaugeImplTest {
         .isEqualTo(Value.doubleValue(-133));
     assertThat(metric.getTimeSeriesList().get(0).getPoints().get(0).getTimestamp())
         .isEqualTo(TEST_TIME);
-    assertThat(metric.getTimeSeriesList().get(0).getStartTimestamp()).isEqualTo(null);
+    assertThat(metric.getTimeSeriesList().get(0).getStartTimestamp()).isNull();
   }
 
   @Test
@@ -143,7 +143,7 @@ public class DoubleGaugeImplTest {
     point1.add(-100);
 
     Metric metric = doubleGauge.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric)
         .isEqualTo(
             Metric.create(
@@ -153,7 +153,7 @@ public class DoubleGaugeImplTest {
                         DEFAULT_LABEL_VALUES,
                         Point.create(Value.doubleValue(400), TEST_TIME),
                         null))));
-    new EqualsTester().addEqualityGroup(point, point1).testEquals();
+    assertThat(point).isSameAs(point1);
   }
 
   @Test
@@ -168,7 +168,7 @@ public class DoubleGaugeImplTest {
                         LABEL_VALUES, Point.create(Value.doubleValue(0), TEST_TIME), null))));
 
     doubleGauge.removeTimeSeries(LABEL_VALUES);
-    assertThat(doubleGauge.getMetric(testClock)).isEqualTo(null);
+    assertThat(doubleGauge.getMetric(testClock)).isNull();
   }
 
   @Test
@@ -186,12 +186,12 @@ public class DoubleGaugeImplTest {
     defaultPoint.set(100);
 
     Metric metric = doubleGauge.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR);
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(2);
 
     doubleGauge.clear();
-    assertThat(doubleGauge.getMetric(testClock)).isEqualTo(null);
+    assertThat(doubleGauge.getMetric(testClock)).isNull();
   }
 
   @Test
@@ -204,7 +204,7 @@ public class DoubleGaugeImplTest {
     defaultPoint.set(-230);
 
     Metric metric = doubleGauge.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(1);
     assertThat(metric.getTimeSeriesList().get(0).getLabelValues().size()).isEqualTo(2);
     assertThat(metric.getTimeSeriesList().get(0).getLabelValues().get(0)).isEqualTo(UNSET_VALUE);
@@ -230,27 +230,27 @@ public class DoubleGaugeImplTest {
     doublePoint1.add(-100);
     doublePoint1.add(-20);
 
-    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>();
-    timeSeriesList.add(
+    List<TimeSeries> expectedTimeSeriesList = new ArrayList<TimeSeries>();
+    expectedTimeSeriesList.add(
         TimeSeries.createWithOnePoint(
             LABEL_VALUES, Point.create(Value.doubleValue(3), TEST_TIME), null));
-    timeSeriesList.add(
+    expectedTimeSeriesList.add(
         TimeSeries.createWithOnePoint(
             DEFAULT_LABEL_VALUES, Point.create(Value.doubleValue(100), TEST_TIME), null));
-    timeSeriesList.add(
+    expectedTimeSeriesList.add(
         TimeSeries.createWithOnePoint(
             LABEL_VALUES1, Point.create(Value.doubleValue(-120), TEST_TIME), null));
 
     Metric metric = doubleGauge.getMetric(testClock);
-    assertThat(metric).isNotEqualTo(null);
+    assertThat(metric).isNotNull();
     assertThat(metric.getMetricDescriptor()).isEqualTo(METRIC_DESCRIPTOR);
     assertThat(metric.getTimeSeriesList().size()).isEqualTo(3);
-    assertThat(metric.getTimeSeriesList()).containsExactlyElementsIn(timeSeriesList);
+    assertThat(metric.getTimeSeriesList()).containsExactlyElementsIn(expectedTimeSeriesList);
   }
 
   @Test
   public void empty_GetMetrics() {
-    assertThat(doubleGauge.getMetric(testClock)).isEqualTo(null);
+    assertThat(doubleGauge.getMetric(testClock)).isNull();
   }
 
   @Test

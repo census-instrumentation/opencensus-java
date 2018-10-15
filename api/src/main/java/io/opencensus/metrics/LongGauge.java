@@ -77,7 +77,7 @@ public abstract class LongGauge {
 
   /**
    * Creates a {@code TimeSeries} and returns a {@code LongPoint} if the specified {@code
-   * labelValues} is not already associated with this gauge, else returns a existing {@code
+   * labelValues} is not already associated with this gauge, else returns an existing {@code
    * LongPoint}.
    *
    * <p>It is recommended to keep a reference to the LongPoint instead of always calling this method
@@ -97,7 +97,7 @@ public abstract class LongGauge {
   /**
    * Returns a {@code LongPoint} for a gauge with all labels not set, or default labels.
    *
-   * @return a {@code LongPoint} the value of default gauge.
+   * @return a {@code LongPoint} for a gauge with all labels not set, or default labels.
    * @since 0.17
    */
   public abstract LongPoint getDefaultTimeSeries();
@@ -114,7 +114,8 @@ public abstract class LongGauge {
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
 
   /**
-   * References to all previous {@code LongPoint} objects are invalid (not part of the metric).
+   * Removes all {@code TimeSeries} from the gauge metric. i.e. references to all previous {@code
+   * LongPoint} objects are invalid (not part of the metric).
    *
    * @since 0.17
    */
