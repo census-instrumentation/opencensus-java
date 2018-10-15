@@ -37,7 +37,7 @@ abstract class Gauge {
   private final List<LabelValue> labelValues;
 
   final Metric getMetric(Clock clock) {
-    return Metric.create(metricDescriptor, Collections.singletonList(getTimeSeries(clock)));
+    return Metric.createWithOneTimeSeries(metricDescriptor, getTimeSeries(clock));
   }
 
   abstract TimeSeries getTimeSeries(Clock clock);

@@ -49,12 +49,39 @@ public abstract class Metric {
    * @since 0.17
    */
   public static Metric create(MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
-    Utils.checkNotNull(metricDescriptor, "metricDescriptor");
-    Utils.checkNotNull(timeSeriesList, "timeSeriesList");
-    Utils.checkListElementNotNull(timeSeriesList, "timeSeries");
-    checkTypeMatch(metricDescriptor.getType(), timeSeriesList);
-    return new AutoValue_Metric(
+    Utils.checkListElementNotNull(
+        Utils.checkNotNull(timeSeriesList, "timeSeriesList"), "timeSeries");
+    return createInternal(
         metricDescriptor, Collections.unmodifiableList(new ArrayList<TimeSeries>(timeSeriesList)));
+  }
+
+  /**
+   * Creates a {@link Metric}.
+   *
+   * @param metricDescriptor the {@link MetricDescriptor}.
+   * @param timeSeries the single {@link TimeSeries} for this metric.
+   * @return a {@code Metric}.
+   * @since 0.17
+   */
+  public static Metric createWithOneTimeSeries(
+      MetricDescriptor metricDescriptor, TimeSeries timeSeries) {
+    return createInternal(
+        metricDescriptor, Collections.singletonList(Utils.checkNotNull(timeSeries, "timeSeries")));
+  }
+
+  /**
+   * Creates a {@link Metric}.
+   *
+   * @param metricDescriptor the {@link MetricDescriptor}.
+   * @param timeSeriesList the {@link TimeSeries} list for this metric.
+   * @return a {@code Metric}.
+   * @since 0.17
+   */
+  private static Metric createInternal(
+      MetricDescriptor metricDescriptor, List<TimeSeries> timeSeriesList) {
+    Utils.checkNotNull(metricDescriptor, "metricDescriptor");
+    checkTypeMatch(metricDescriptor.getType(), timeSeriesList);
+    return new AutoValue_Metric(metricDescriptor, timeSeriesList);
   }
 
   /**

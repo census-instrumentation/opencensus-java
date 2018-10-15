@@ -129,18 +129,21 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   @Override
   public Metric getMetric(Clock clock) {
     Map<List<LabelValue>, PointImpl> currentRegisteredPoints = registeredPoints;
+    if (currentRegisteredPoints.isEmpty()) {
+      return null;
+    }
 
     int pointCount = currentRegisteredPoints.size();
-    if (pointCount > 0) {
-      List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(pointCount);
-      for (Map.Entry<List<LabelValue>, PointImpl> entry : currentRegisteredPoints.entrySet()) {
-        timeSeriesList.add(entry.getValue().getTimeSeries(clock));
-      }
-
-      // TODO(mayurkale): optimize this for 1 timeseries (issue #1491).
-      return Metric.create(metricDescriptor, timeSeriesList);
+    if (pointCount == 1) {
+      PointImpl point = currentRegisteredPoints.values().iterator().next();
+      return Metric.createWithOneTimeSeries(metricDescriptor, point.getTimeSeries(clock));
     }
-    return null;
+
+    List<TimeSeries> timeSeriesList = new ArrayList<TimeSeries>(pointCount);
+    for (Map.Entry<List<LabelValue>, PointImpl> entry : currentRegisteredPoints.entrySet()) {
+      timeSeriesList.add(entry.getValue().getTimeSeries(clock));
+    }
+    return Metric.create(metricDescriptor, timeSeriesList);
   }
 
   /** Implementation of {@link LongGauge.LongPoint}. */
