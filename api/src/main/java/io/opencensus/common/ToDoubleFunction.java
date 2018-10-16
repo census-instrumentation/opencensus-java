@@ -16,6 +16,10 @@
 
 package io.opencensus.common;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /**
  * Represents a function that produces a double-valued result. See {@link
  * io.opencensus.metrics.MetricRegistry} for an example of its use.
@@ -25,7 +29,7 @@ package io.opencensus.common;
  *
  * @since 0.16
  */
-public interface ToDoubleFunction<T> {
+public interface ToDoubleFunction</*@Nullable*/ T> {
 
   /**
    * Applies this function to the given argument.
@@ -33,5 +37,5 @@ public interface ToDoubleFunction<T> {
    * @param value the function argument.
    * @return the function result.
    */
-  double applyAsDouble(T value);
+  double applyAsDouble(/*@Nullable*/ T value);
 }
