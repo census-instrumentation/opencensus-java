@@ -68,6 +68,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
     private synchronized void registerMeter(String meterName, Meter meter) {
       Meter existingMeter = registeredMeters.get(meterName);
       if (existingMeter != null) {
+        // TODO(mayurkale): Allow users to register the same Meter multiple times without exception.
         throw new IllegalArgumentException(
             "A different metric with the same name already registered.");
       }
