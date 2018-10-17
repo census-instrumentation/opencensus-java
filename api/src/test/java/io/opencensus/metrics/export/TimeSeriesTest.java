@@ -60,6 +60,16 @@ public class TimeSeriesTest {
   }
 
   @Test
+  public void setPoint_TimeSeries() {
+    TimeSeries timeSeries = TimeSeries.create(Arrays.asList(LABEL_VALUE_1, LABEL_VALUE_2));
+    TimeSeries timeSeries1 = timeSeries.setPoint(POINT_1);
+    assertThat(timeSeries1.getLabelValues())
+        .containsExactly(LABEL_VALUE_1, LABEL_VALUE_2)
+        .inOrder();
+    assertThat(timeSeries1.getPoints()).containsExactly(POINT_1).inOrder();
+  }
+
+  @Test
   public void create_WithNullLabelValueList() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage(CoreMatchers.equalTo("labelValues"));

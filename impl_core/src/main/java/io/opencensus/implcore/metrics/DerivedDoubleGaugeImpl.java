@@ -130,7 +130,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
 
   /** Implementation of {@link PointWithFunction} with an object and a callback function. */
   public static final class PointWithFunction<T> {
-    private final List<LabelValue> labelValues;
+    private final TimeSeries defaultTimeSeries;
     @javax.annotation.Nullable private final WeakReference<T> ref;
     private final ToDoubleFunction</*@Nullable*/ T> function;
 
@@ -138,7 +138,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
         List<LabelValue> labelValues,
         /*@Nullable*/ T obj,
         ToDoubleFunction</*@Nullable*/ T> function) {
-      this.labelValues = labelValues;
+      defaultTimeSeries = TimeSeries.create(labelValues);
       ref = obj != null ? new WeakReference<T>(obj) : null;
       this.function = function;
     }
@@ -146,10 +146,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
     private TimeSeries getTimeSeries(Clock clock) {
       final T obj = ref != null ? ref.get() : null;
       double value = function.applyAsDouble(obj);
-
-      // TODO(mayurkale): OPTIMIZATION: Avoid re-evaluate the labelValues all the time (issue#1490).
-      return TimeSeries.createWithOnePoint(
-          labelValues, Point.create(Value.doubleValue(value), clock.now()), null);
+      return defaultTimeSeries.setPoint(Point.create(Value.doubleValue(value), clock.now()));
     }
   }
 }

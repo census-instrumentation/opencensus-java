@@ -151,10 +151,10 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
 
     // TODO(mayurkale): Consider to use LongAdder here, once we upgrade to Java8.
     private final AtomicLong value = new AtomicLong(0);
-    private final List<LabelValue> labelValues;
+    private final TimeSeries defaultTimeSeries;
 
     PointImpl(List<LabelValue> labelValues) {
-      this.labelValues = labelValues;
+      defaultTimeSeries = TimeSeries.create(labelValues);
     }
 
     @Override
@@ -168,8 +168,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
     }
 
     private TimeSeries getTimeSeries(Clock clock) {
-      return TimeSeries.createWithOnePoint(
-          labelValues, Point.create(Value.longValue(value.get()), clock.now()), null);
+      return defaultTimeSeries.setPoint(Point.create(Value.longValue(value.get()), clock.now()));
     }
   }
 }

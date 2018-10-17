@@ -128,7 +128,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
 
   /** Implementation of {@link PointWithFunction} with an object and a callback function. */
   public static final class PointWithFunction<T> {
-    private final List<LabelValue> labelValues;
+    private final TimeSeries defaultTimeSeries;
     @javax.annotation.Nullable private final WeakReference<T> ref;
     private final ToLongFunction</*@Nullable*/ T> function;
 
@@ -136,7 +136,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
         List<LabelValue> labelValues,
         /*@Nullable*/ T obj,
         ToLongFunction</*@Nullable*/ T> function) {
-      this.labelValues = labelValues;
+      defaultTimeSeries = TimeSeries.create(labelValues);
       ref = obj != null ? new WeakReference<T>(obj) : null;
       this.function = function;
     }
@@ -144,10 +144,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     private TimeSeries getTimeSeries(Clock clock) {
       final T obj = ref != null ? ref.get() : null;
       long value = function.applyAsLong(obj);
-
-      // TODO(mayurkale): OPTIMIZATION: Avoid re-evaluate the labelValues all the time (issue#1490).
-      return TimeSeries.createWithOnePoint(
-          labelValues, Point.create(Value.longValue(value), clock.now()), null);
+      return defaultTimeSeries.setPoint(Point.create(Value.longValue(value), clock.now()));
     }
   }
 }

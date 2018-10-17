@@ -151,10 +151,10 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
     // TODO(mayurkale): Consider to use DoubleAdder here, once we upgrade to Java8.
     private final AtomicDouble value = new AtomicDouble(0);
-    private final List<LabelValue> labelValues;
+    private final TimeSeries defaultTimeSeries;
 
     PointImpl(List<LabelValue> labelValues) {
-      this.labelValues = labelValues;
+      defaultTimeSeries = TimeSeries.create(labelValues);
     }
 
     @Override
@@ -168,8 +168,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     }
 
     private TimeSeries getTimeSeries(Clock clock) {
-      return TimeSeries.createWithOnePoint(
-          labelValues, Point.create(Value.doubleValue(value.get()), clock.now()), null);
+      return defaultTimeSeries.setPoint(Point.create(Value.doubleValue(value.get()), clock.now()));
     }
   }
 }
