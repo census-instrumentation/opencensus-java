@@ -24,10 +24,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.opencensus.common.Scope;
-import io.opencensus.stats.Stats;
-import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewManager;
+import io.opencensus.metrics.Metrics;
+import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.MetricDescriptor;
+import io.opencensus.metrics.export.MetricProducer;
+import io.opencensus.metrics.export.MetricProducerManager;
 import io.opencensus.trace.Sampler;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Status;
@@ -41,7 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * OpenCensus Stats {@link Collector} for Prometheus.
+ * OpenCensus Metrics {@link Collector} for Prometheus.
  *
  * @since 0.12
  */
@@ -52,7 +53,7 @@ public final class PrometheusStatsCollector extends Collector implements Collect
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
 
-  private final ViewManager viewManager;
+  private final MetricProducerManager metricProducerManager;
 
   /**
    * Creates a {@link PrometheusStatsCollector} and registers it to Prometheus {@link
@@ -69,7 +70,8 @@ public final class PrometheusStatsCollector extends Collector implements Collect
    * @since 0.12
    */
   public static void createAndRegister() {
-    new PrometheusStatsCollector(Stats.getViewManager()).register();
+    new PrometheusStatsCollector(Metrics.getExportComponent().getMetricProducerManager())
+        .register();
   }
 
   /**
@@ -88,7 +90,8 @@ public final class PrometheusStatsCollector extends Collector implements Collect
     if (registry == null) {
       registry = CollectorRegistry.defaultRegistry;
     }
-    new PrometheusStatsCollector(Stats.getViewManager()).register(registry);
+    new PrometheusStatsCollector(Metrics.getExportComponent().getMetricProducerManager())
+        .register(registry);
   }
 
   @Override
@@ -103,25 +106,23 @@ public final class PrometheusStatsCollector extends Collector implements Collect
     span.addAnnotation("Collect Prometheus Metric Samples.");
     Scope scope = tracer.withSpan(span);
     try {
-      for (View view : viewManager.getAllExportedViews()) {
-        if (containsDisallowedLeLabelForHistogram(
-            convertToLabelNames(view.getColumns()),
-            getType(view.getAggregation(), view.getWindow()))) {
-          continue; // silently skip Distribution views with "le" tag key
-        }
-        try {
-          ViewData viewData = viewManager.getView(view.getName());
-          if (viewData == null) {
-            continue;
-          } else {
-            samples.add(PrometheusExportUtils.createMetricFamilySamples(viewData));
+      for (MetricProducer metricProducer : metricProducerManager.getAllMetricProducer()) {
+        for (Metric metric : metricProducer.getMetrics()) {
+          MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
+          if (containsDisallowedLeLabelForHistogram(
+              convertToLabelNames(metricDescriptor.getLabelKeys()),
+              getType(metricDescriptor.getType()))) {
+            continue; // silently skip Distribution metricdescriptor with "le" label key
           }
-        } catch (Throwable e) {
-          logger.log(Level.WARNING, "Exception thrown when collecting metric samples.", e);
-          span.setStatus(
-              Status.UNKNOWN.withDescription(
-                  "Exception thrown when collecting Prometheus Metric Samples: "
-                      + exceptionMessage(e)));
+          try {
+            samples.add(PrometheusExportUtils.createMetricFamilySamples(metric));
+          } catch (Throwable e) {
+            logger.log(Level.WARNING, "Exception thrown when collecting metric samples.", e);
+            span.setStatus(
+                Status.UNKNOWN.withDescription(
+                    "Exception thrown when collecting Prometheus Metric Samples: "
+                        + exceptionMessage(e)));
+          }
         }
       }
       span.addAnnotation("Finish collecting Prometheus Metric Samples.");
@@ -144,14 +145,18 @@ public final class PrometheusStatsCollector extends Collector implements Collect
     span.addAnnotation("Describe Prometheus Metrics.");
     Scope scope = tracer.withSpan(span);
     try {
-      for (View view : viewManager.getAllExportedViews()) {
-        try {
-          samples.add(PrometheusExportUtils.createDescribableMetricFamilySamples(view));
-        } catch (Throwable e) {
-          logger.log(Level.WARNING, "Exception thrown when describing metrics.", e);
-          span.setStatus(
-              Status.UNKNOWN.withDescription(
-                  "Exception thrown when describing Prometheus Metrics: " + exceptionMessage(e)));
+      for (MetricProducer metricProducer : metricProducerManager.getAllMetricProducer()) {
+        for (Metric metric : metricProducer.getMetrics()) {
+          try {
+            samples.add(
+                PrometheusExportUtils.createDescribableMetricFamilySamples(
+                    metric.getMetricDescriptor()));
+          } catch (Throwable e) {
+            logger.log(Level.WARNING, "Exception thrown when describing metrics.", e);
+            span.setStatus(
+                Status.UNKNOWN.withDescription(
+                    "Exception thrown when describing Prometheus Metrics: " + exceptionMessage(e)));
+          }
         }
       }
       span.addAnnotation("Finish describing Prometheus Metrics.");
@@ -163,8 +168,8 @@ public final class PrometheusStatsCollector extends Collector implements Collect
   }
 
   @VisibleForTesting
-  PrometheusStatsCollector(ViewManager viewManager) {
-    this.viewManager = viewManager;
+  PrometheusStatsCollector(MetricProducerManager metricProducerManager) {
+    this.metricProducerManager = metricProducerManager;
     Tracing.getExportComponent()
         .getSampledSpanStore()
         .registerSpanNamesForCollection(
