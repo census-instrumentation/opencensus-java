@@ -69,7 +69,7 @@ public class DoubleGaugeImplTest {
   @Test
   public void getOrCreateTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     doubleGauge.getOrCreateTimeSeries(null);
   }
 
@@ -82,7 +82,7 @@ public class DoubleGaugeImplTest {
     DoubleGaugeImpl doubleGauge =
         new DoubleGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues element should not be null.");
+    thrown.expectMessage("labelValue element should not be null.");
     doubleGauge.getOrCreateTimeSeries(labelValues);
   }
 
@@ -174,7 +174,7 @@ public class DoubleGaugeImplTest {
   @Test
   public void removeTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     doubleGauge.removeTimeSeries(null);
   }
 

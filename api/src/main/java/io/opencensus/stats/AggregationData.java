@@ -288,15 +288,15 @@ public abstract class AggregationData {
         Utils.checkArgument(min <= max, "max should be greater or equal to min.");
       }
 
-      Utils.checkNotNull(bucketCounts, "bucket counts should not be null.");
+      Utils.checkNotNull(bucketCounts, "bucketCounts");
       List<Long> bucketCountsCopy = Collections.unmodifiableList(new ArrayList<Long>(bucketCounts));
       for (Long bucket : bucketCountsCopy) {
-        Utils.checkNotNull(bucket, "bucket should not be null.");
+        Utils.checkNotNull(bucket, "bucket");
       }
 
       Utils.checkNotNull(exemplars, "exemplar list should not be null.");
       for (Exemplar exemplar : exemplars) {
-        Utils.checkNotNull(exemplar, "exemplar should not be null.");
+        Utils.checkNotNull(exemplar, "exemplar");
       }
 
       return new AutoValue_AggregationData_DistributionData(

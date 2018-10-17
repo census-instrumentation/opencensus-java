@@ -70,8 +70,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
     List<LabelValue> labelValuesCopy =
         Collections.unmodifiableList(
-            new ArrayList<LabelValue>(
-                checkNotNull(labelValues, "labelValues should not be null.")));
+            new ArrayList<LabelValue>(checkNotNull(labelValues, "labelValues")));
     return registerTimeSeries(labelValuesCopy);
   }
 
@@ -87,7 +86,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
   @Override
   public synchronized void removeTimeSeries(List<LabelValue> labelValues) {
-    checkNotNull(labelValues, "labelValues should not be null.");
+    checkNotNull(labelValues, "labelValues");
 
     Map<List<LabelValue>, PointImpl> registeredPointsCopy =
         new LinkedHashMap<List<LabelValue>, PointImpl>(registeredPoints);
@@ -112,7 +111,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
     }
 
     checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
-    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+    Utils.checkListElementNotNull(labelValues, "labelValue element should not be null.");
 
     PointImpl newPoint = new PointImpl(labelValues);
     // Updating the map of points happens under a lock to avoid multiple add operations

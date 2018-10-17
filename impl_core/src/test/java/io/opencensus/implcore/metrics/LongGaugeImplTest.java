@@ -69,7 +69,7 @@ public class LongGaugeImplTest {
   @Test
   public void getOrCreateTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     longGaugeMetric.getOrCreateTimeSeries(null);
   }
 
@@ -82,7 +82,7 @@ public class LongGaugeImplTest {
     LongGaugeImpl longGauge =
         new LongGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues element should not be null.");
+    thrown.expectMessage("labelValue element should not be null.");
     longGauge.getOrCreateTimeSeries(labelValues);
   }
 
@@ -169,7 +169,7 @@ public class LongGaugeImplTest {
   @Test
   public void removeTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     longGaugeMetric.removeTimeSeries(null);
   }
 

@@ -42,7 +42,7 @@ public abstract class BucketBoundaries {
    * @since 0.8
    */
   public static final BucketBoundaries create(List<Double> bucketBoundaries) {
-    Utils.checkNotNull(bucketBoundaries, "bucketBoundaries list should not be null.");
+    Utils.checkNotNull(bucketBoundaries, "bucketBoundaries");
     List<Double> bucketBoundariesCopy = new ArrayList<Double>(bucketBoundaries); // Deep copy.
     // Check if sorted.
     if (bucketBoundariesCopy.size() > 1) {

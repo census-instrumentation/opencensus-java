@@ -171,8 +171,8 @@ public abstract class LongGauge {
 
     @Override
     public NoopLongPoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
-      Utils.checkNotNull(labelValues, "labelValues should not be null.");
-      Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+      Utils.checkListElementNotNull(
+          Utils.checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
       Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
       return NoopLongPoint.INSTANCE;
     }
@@ -184,7 +184,7 @@ public abstract class LongGauge {
 
     @Override
     public void removeTimeSeries(List<LabelValue> labelValues) {
-      Utils.checkNotNull(labelValues, "labelValues should not be null.");
+      Utils.checkNotNull(labelValues, "labelValues");
     }
 
     @Override
