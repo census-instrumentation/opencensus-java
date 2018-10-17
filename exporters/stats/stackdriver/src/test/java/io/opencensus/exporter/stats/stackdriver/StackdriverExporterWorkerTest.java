@@ -117,6 +117,7 @@ public class StackdriverExporterWorkerTest {
         .when(mockCreateMetricDescriptorCallable)
         .call(any(CreateMetricDescriptorRequest.class));
     doReturn(null).when(mockCreateTimeSeriesCallable).call(any(CreateTimeSeriesRequest.class));
+    doReturn(ImmutableSet.of(metricProducer)).when(metricProducerManager).getAllMetricProducer();
   }
 
   @Test
@@ -130,9 +131,7 @@ public class StackdriverExporterWorkerTest {
 
   @Test
   public void export() {
-    doReturn(ImmutableSet.of(metricProducer)).when(metricProducerManager).getAllMetricProducer();
     doReturn(Collections.singletonList(METRIC)).when(metricProducer).getMetrics();
-
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
@@ -170,9 +169,7 @@ public class StackdriverExporterWorkerTest {
 
   @Test
   public void doNotExportForEmptyMetrics() {
-    doReturn(ImmutableSet.of(metricProducer)).when(metricProducerManager).getAllMetricProducer();
     doReturn(Collections.EMPTY_LIST).when(metricProducer).getMetrics();
-
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
             PROJECT_ID,
@@ -181,7 +178,6 @@ public class StackdriverExporterWorkerTest {
             metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-
     worker.export();
     verify(mockStub, times(0)).createMetricDescriptorCallable();
     verify(mockStub, times(0)).createTimeSeriesCallable();
@@ -189,7 +185,6 @@ public class StackdriverExporterWorkerTest {
 
   @Test
   public void doNotExportIfFailedToRegisterMetric() {
-    doReturn(ImmutableSet.of(metricProducer)).when(metricProducerManager).getAllMetricProducer();
     doThrow(new IllegalArgumentException()).when(mockStub).createMetricDescriptorCallable();
     StackdriverExporterWorker worker =
         new StackdriverExporterWorker(
@@ -200,7 +195,7 @@ public class StackdriverExporterWorkerTest {
             DEFAULT_RESOURCE,
             null);
 
-    assertThat(worker.registerMetric(METRIC)).isFalse();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isFalse();
     worker.export();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
     verify(mockStub, times(0)).createTimeSeriesCallable();
@@ -216,10 +211,10 @@ public class StackdriverExporterWorkerTest {
             metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-    assertThat(worker.registerMetric(METRIC)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
 
-    assertThat(worker.registerMetric(METRIC_2)).isFalse();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR_2)).isFalse();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
@@ -233,10 +228,10 @@ public class StackdriverExporterWorkerTest {
             metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-    assertThat(worker.registerMetric(METRIC)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
 
-    assertThat(worker.registerMetric(METRIC)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 
@@ -250,10 +245,10 @@ public class StackdriverExporterWorkerTest {
             metricProducerManager,
             DEFAULT_RESOURCE,
             null);
-    assertThat(worker.registerMetric(METRIC)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
 
-    assertThat(worker.registerMetric(METRIC)).isTrue();
+    assertThat(worker.registerMetricDescriptor(METRIC_DESCRIPTOR)).isTrue();
     verify(mockStub, times(1)).createMetricDescriptorCallable();
   }
 

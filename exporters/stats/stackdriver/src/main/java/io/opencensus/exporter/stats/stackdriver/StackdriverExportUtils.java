@@ -100,6 +100,15 @@ final class StackdriverExportUtils {
           return builder.build();
         }
       };
+  private static final Function<io.opencensus.metrics.export.Distribution, TypedValue>
+      typedValueDistributionFunction =
+          new Function<io.opencensus.metrics.export.Distribution, TypedValue>() {
+            @Override
+            public TypedValue apply(io.opencensus.metrics.export.Distribution arg) {
+              TypedValue.Builder builder = TypedValue.newBuilder();
+              return builder.setDistributionValue(createDistribution(arg)).build();
+            }
+          };
   private static final Function<Summary, TypedValue> typedValueSummaryFunction =
       new Function<Summary, TypedValue>() {
         @Override
@@ -217,14 +226,10 @@ final class StackdriverExportUtils {
   // Convert metric's timeseries to a list of TimeSeries, so that metric can be uploaded to
   // StackDriver.
   static List<TimeSeries> createTimeSeriesList(
-      @javax.annotation.Nullable io.opencensus.metrics.export.Metric metric,
+      io.opencensus.metrics.export.Metric metric,
       MonitoredResource monitoredResource,
       String domain) {
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
-    if (metric == null) {
-      return timeSeriesList;
-    }
-
     io.opencensus.metrics.export.MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
 
     // Shared fields for all TimeSeries generated from the same Metric
@@ -258,8 +263,7 @@ final class StackdriverExportUtils {
     Map<String, String> stringTagMap = Maps.newHashMap();
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
 
-    checkArgument(
-        labelKeys.size() == labelValues.size(), "LabelKeys and LabelValues don't have same size.");
+    checkArgument(labelKeys.size() == labelValues.size(), "Keys and Values don't have same size.");
 
     for (int i = 0; i < labelValues.size(); i++) {
       String value = labelValues.get(i).getValue();
@@ -297,13 +301,7 @@ final class StackdriverExportUtils {
     return value.match(
         typedValueDoubleFunction,
         typedValueLongFunction,
-        new Function<io.opencensus.metrics.export.Distribution, TypedValue>() {
-          @Override
-          public TypedValue apply(io.opencensus.metrics.export.Distribution arg) {
-            TypedValue.Builder builder = TypedValue.newBuilder();
-            return builder.setDistributionValue(createDistribution(arg)).build();
-          }
-        },
+        typedValueDistributionFunction,
         typedValueSummaryFunction,
         Functions.<TypedValue>throwIllegalArgumentException());
   }
@@ -315,6 +313,7 @@ final class StackdriverExportUtils {
         .setBucketOptions(createBucketOptions(distribution.getBucketOptions()))
         .addAllBucketCounts(createBucketCounts(distribution.getBuckets()))
         .setCount(distribution.getCount())
+        .setMean(distribution.getCount() == 0 ? 0 : distribution.getSum() / distribution.getCount())
         .setSumOfSquaredDeviation(distribution.getSumOfSquaredDeviations())
         .build();
   }

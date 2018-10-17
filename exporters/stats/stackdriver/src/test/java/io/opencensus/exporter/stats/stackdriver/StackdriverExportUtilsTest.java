@@ -203,7 +203,7 @@ public class StackdriverExportUtilsTest {
   @Test
   public void createMetric_throwWhenTagKeysAndValuesHaveDifferentSize() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("LabelKeys and LabelValues don't have same size.");
+    thrown.expectMessage("Keys and Values don't have same size.");
     StackdriverExportUtils.createMetric(
         METRIC_DESCRIPTOR, EMPTY_LABEL_VALUE, CUSTOM_OPENCENSUS_DOMAIN);
   }
@@ -244,6 +244,7 @@ public class StackdriverExportUtilsTest {
         .isEqualTo(
             com.google.api.Distribution.newBuilder()
                 .setCount(3)
+                .setMean(0.6666666666666666)
                 .setBucketOptions(StackdriverExportUtils.createBucketOptions(BUCKET_OPTIONS))
                 .addAllBucketCounts(Arrays.asList(3L, 1L, 2L, 4L))
                 .setSumOfSquaredDeviation(14)
@@ -294,17 +295,6 @@ public class StackdriverExportUtilsTest {
                         .build())
                 .setValue(StackdriverExportUtils.createTypedValue(VALUE_DOUBLE))
                 .build());
-  }
-
-  @Test
-  public void createMetricDescriptor_NotNull() {
-    assertThat(
-            StackdriverExportUtils.createMetricDescriptor(
-                METRIC_DESCRIPTOR,
-                PROJECT_ID,
-                CUSTOM_OPENCENSUS_DOMAIN,
-                DEFAULT_DISPLAY_NAME_PREFIX))
-        .isNotNull();
   }
 
   @Test

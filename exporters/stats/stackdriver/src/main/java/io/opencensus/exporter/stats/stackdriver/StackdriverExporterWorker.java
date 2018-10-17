@@ -39,7 +39,7 @@ import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -80,7 +80,8 @@ final class StackdriverExporterWorker implements Runnable {
   private final MonitoredResource monitoredResource;
   private final String domain;
   private final String displayNamePrefix;
-  private final Map<String, Metric> registeredMetrics = new HashMap<String, Metric>();
+  private final Map<String, io.opencensus.metrics.export.MetricDescriptor>
+      registeredMetricDescriptors = new LinkedHashMap<>();
 
   private static final Tracer tracer = Tracing.getTracer();
   private static final Sampler probabilitySampler = Samplers.probabilitySampler(0.0001);
@@ -107,35 +108,37 @@ final class StackdriverExporterWorker implements Runnable {
             Collections.singletonList("ExportStatsToStackdriverMonitoring"));
   }
 
-  // Returns true if the given metric is successfully registered to Stackdriver Monitoring, or the
+  // Returns true if the given metricDescriptor is successfully registered to Stackdriver
+  // Monitoring, or the
   // exact same metric has already been registered. Returns false otherwise.
   @VisibleForTesting
-  boolean registerMetric(Metric metric) {
-    Metric existingMetric = registeredMetrics.get(metric.getMetricDescriptor().getName());
-    if (existingMetric != null) {
-      if (existingMetric.getMetricDescriptor().equals(metric.getMetricDescriptor())) {
-        // Ignore metric that are already registered.
+  boolean registerMetricDescriptor(io.opencensus.metrics.export.MetricDescriptor metricDescriptor) {
+    io.opencensus.metrics.export.MetricDescriptor existingMetricDescriptor =
+        registeredMetricDescriptors.get(metricDescriptor.getName());
+    if (existingMetricDescriptor != null) {
+      if (existingMetricDescriptor.equals(metricDescriptor)) {
+        // Ignore metricDescriptor that are already registered.
         return true;
       } else {
         logger.log(
             Level.WARNING,
             "A different metric with the same name is already registered: "
-                + existingMetric.getMetricDescriptor());
+                + existingMetricDescriptor);
         return false;
       }
     }
-    registeredMetrics.put(metric.getMetricDescriptor().getName(), metric);
+    registeredMetricDescriptors.put(metricDescriptor.getName(), metricDescriptor);
 
     Span span = tracer.getCurrentSpan();
     span.addAnnotation("Create Stackdriver Metric.");
-    MetricDescriptor metricDescriptor =
+    MetricDescriptor stackDriverMetricDescriptor =
         StackdriverExportUtils.createMetricDescriptor(
-            metric.getMetricDescriptor(), projectId, domain, displayNamePrefix);
+            metricDescriptor, projectId, domain, displayNamePrefix);
 
     CreateMetricDescriptorRequest request =
         CreateMetricDescriptorRequest.newBuilder()
             .setName(projectName.toString())
-            .setMetricDescriptor(metricDescriptor)
+            .setMetricDescriptor(stackDriverMetricDescriptor)
             .build();
     try {
       metricServiceClient.createMetricDescriptor(request);
@@ -158,21 +161,21 @@ final class StackdriverExporterWorker implements Runnable {
     }
   }
 
-  // Polls MetricProducerManager from Metrics library for all registered metrics, and upload them as
-  // TimeSeries to StackDriver.
+  // Polls MetricProducerManager from Metrics library for all registered MetricDescriptors, and
+  // upload them as TimeSeries to StackDriver.
   @VisibleForTesting
   void export() {
-    List</*@Nullable*/ Metric> metricsList = Lists.newArrayList();
+    List<Metric> metricsList = Lists.newArrayList();
     for (MetricProducer metricProducer : metricProducerManager.getAllMetricProducer()) {
       for (Metric metric : metricProducer.getMetrics()) {
-        if (registerMetric(metric)) {
+        if (registerMetricDescriptor(metric.getMetricDescriptor())) {
           metricsList.add(metric);
         }
       }
     }
 
     List<TimeSeries> timeSeriesList = Lists.newArrayList();
-    for (/*@Nullable*/ Metric metric : metricsList) {
+    for (Metric metric : metricsList) {
       timeSeriesList.addAll(
           StackdriverExportUtils.createTimeSeriesList(metric, monitoredResource, domain));
     }
