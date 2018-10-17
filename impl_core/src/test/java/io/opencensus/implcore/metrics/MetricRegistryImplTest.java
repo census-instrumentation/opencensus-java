@@ -82,7 +82,7 @@ public class MetricRegistryImplTest {
   @Test
   public void addLongGauge_NullLabels() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKeys should not be null.");
+    thrown.expectMessage("labelKeys");
     metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, null);
   }
 
@@ -90,7 +90,7 @@ public class MetricRegistryImplTest {
   public void addLongGauge_WithNullElement() {
     List<LabelKey> labelKeys = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKeys element should not be null.");
+    thrown.expectMessage("labelKey element should not be null.");
     metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
   }
 

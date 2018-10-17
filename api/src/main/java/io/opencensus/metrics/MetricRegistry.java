@@ -56,8 +56,7 @@ public abstract class MetricRegistry {
     public LongGauge addLongGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
       Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelKeys, "labelKeys should not be null."),
-          "labelKeys element should not be null.");
+          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
       return LongGauge.newNoopLongGauge(
           Utils.checkNotNull(name, "name"),
           Utils.checkNotNull(description, "description"),
