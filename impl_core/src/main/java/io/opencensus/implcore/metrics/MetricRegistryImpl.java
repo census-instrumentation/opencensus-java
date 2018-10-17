@@ -19,12 +19,9 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
-import io.opencensus.common.ToDoubleFunction;
-import io.opencensus.common.ToLongFunction;
-import io.opencensus.implcore.metrics.Gauge.DoubleGauge;
-import io.opencensus.implcore.metrics.Gauge.LongGauge;
+import io.opencensus.implcore.internal.Utils;
 import io.opencensus.metrics.LabelKey;
-import io.opencensus.metrics.LabelValue;
+import io.opencensus.metrics.LongGauge;
 import io.opencensus.metrics.MetricRegistry;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricProducer;
@@ -32,8 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
 /** Implementation of {@link MetricRegistry}. */
 public final class MetricRegistryImpl extends MetricRegistry {
@@ -46,56 +43,38 @@ public final class MetricRegistryImpl extends MetricRegistry {
   }
 
   @Override
-  public <T> void addLongGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToLongFunction<T> function) {
-    checkNotNull(labels, "labels");
-    registeredMeters.registerMeter(
-        new LongGauge<T>(
+  public LongGauge addLongGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    Utils.checkListElementNotNull(
+        checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+    LongGaugeImpl longGaugeMetric =
+        new LongGaugeImpl(
             checkNotNull(name, "name"),
             checkNotNull(description, "description"),
             checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labels.keySet())),
-            Collections.unmodifiableList(new ArrayList<LabelValue>(labels.values())),
-            obj,
-            checkNotNull(function, "function")));
-  }
-
-  @Override
-  public <T> void addDoubleGauge(
-      String name,
-      String description,
-      String unit,
-      LinkedHashMap<LabelKey, LabelValue> labels,
-      T obj,
-      ToDoubleFunction<T> function) {
-    checkNotNull(labels, "labels");
-    registeredMeters.registerMeter(
-        new DoubleGauge<T>(
-            checkNotNull(name, "name"),
-            checkNotNull(description, "description"),
-            checkNotNull(unit, "unit"),
-            Collections.unmodifiableList(new ArrayList<LabelKey>(labels.keySet())),
-            Collections.unmodifiableList(new ArrayList<LabelValue>(labels.values())),
-            obj,
-            checkNotNull(function, "function")));
+            Collections.unmodifiableList(new ArrayList<LabelKey>(labelKeys)));
+    registeredMeters.registerMeter(name, longGaugeMetric);
+    return longGaugeMetric;
   }
 
   private static final class RegisteredMeters {
-    private volatile Set<Gauge> registeredGauges = Collections.emptySet();
+    private volatile Map<String, Meter> registeredMeters = Collections.emptyMap();
 
-    private Set<Gauge> getRegisteredMeters() {
-      return registeredGauges;
+    private Map<String, Meter> getRegisteredMeters() {
+      return registeredMeters;
     }
 
-    private synchronized void registerMeter(Gauge gauge) {
-      Set<Gauge> newGaguesList = new LinkedHashSet<Gauge>(registeredGauges);
-      newGaguesList.add(gauge);
-      registeredGauges = Collections.unmodifiableSet(newGaguesList);
+    private synchronized void registerMeter(String meterName, Meter meter) {
+      Meter existingMeter = registeredMeters.get(meterName);
+      if (existingMeter != null) {
+        // TODO(mayurkale): Allow users to register the same Meter multiple times without exception.
+        throw new IllegalArgumentException(
+            "A different metric with the same name already registered.");
+      }
+
+      Map<String, Meter> registeredMetersCopy = new LinkedHashMap<String, Meter>(registeredMeters);
+      registeredMetersCopy.put(meterName, meter);
+      registeredMeters = Collections.unmodifiableMap(registeredMetersCopy);
     }
   }
 
@@ -110,14 +89,18 @@ public final class MetricRegistryImpl extends MetricRegistry {
 
     @Override
     public Collection<Metric> getMetrics() {
-      // Get a snapshot of the current registered gauges.
-      Set<Gauge> gaguges = registeredMeters.getRegisteredMeters();
-      if (gaguges.isEmpty()) {
+      // Get a snapshot of the current registered meters.
+      Map<String, Meter> meters = registeredMeters.getRegisteredMeters();
+      if (meters.isEmpty()) {
         return Collections.emptyList();
       }
-      ArrayList<Metric> metrics = new ArrayList<Metric>();
-      for (Gauge gauge : gaguges) {
-        metrics.add(gauge.getMetric(clock));
+
+      List<Metric> metrics = new ArrayList<Metric>(meters.size());
+      for (Map.Entry<String, Meter> entry : meters.entrySet()) {
+        Metric metric = entry.getValue().getMetric(clock);
+        if (metric != null) {
+          metrics.add(metric);
+        }
       }
       return metrics;
     }

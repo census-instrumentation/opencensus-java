@@ -32,7 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
  *   private static final MetricRegistry metricRegistry = Metrics.getMetricRegistry();
  *
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
- *   // TODO(mayurkale): Plugs-in the LongGauge into the registry.
+ *
  *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
  *
  *   // It is recommended to keep a reference of a point for manual operations.
@@ -56,7 +56,6 @@ import javax.annotation.concurrent.ThreadSafe;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   // TODO(mayurkale): Plugs-in the LongGauge into the registry.
  *   LongGauge gauge = metricRegistry.addLongGauge("queue_size", "Pending jobs", "1", labelKeys);
  *
  *   // It is recommended to keep a reference of a point for manual operations.
@@ -167,11 +166,6 @@ public abstract class LongGauge {
 
     /** Creates a new {@code NoopLongPoint}. */
     NoopLongGauge(String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkNotNull(name, "name");
-      Utils.checkNotNull(description, "description");
-      Utils.checkNotNull(unit, "unit");
-      Utils.checkNotNull(labelKeys, "labelKeys should not be null.");
-      Utils.checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
       labelKeysSize = labelKeys.size();
     }
 
