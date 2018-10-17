@@ -140,6 +140,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
       @SuppressWarnings("incompatible") // if obj is null
       long value = function.applyAsLong(obj);
 
+      // TODO(mayurkale): OPTIMIZATION: Avoid re-evaluate the labelValues all the time (issue#1490).
       return TimeSeries.createWithOnePoint(
           labelValues, Point.create(Value.longValue(value), clock.now()), null);
     }

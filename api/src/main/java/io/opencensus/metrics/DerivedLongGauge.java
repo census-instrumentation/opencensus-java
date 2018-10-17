@@ -62,15 +62,13 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class DerivedLongGauge {
   /**
-   * Creates a {@code TimeSeries}. This gauge is self sufficient once created, so users should never
-   * need to interact with it. The value of the gauge is observed from the obj and function. The
-   * last argument establishes the function that is used to determine the value of the gauge when
-   * the gauge is collected.
+   * Creates a {@code TimeSeries}. The value of a single point in the TimeSeries is observed from a
+   * callback function. This function is invoked whenever metrics are collected, meaning the
+   * reported value is up-to-date. It keeps a {@link WeakReference} to the object and it is the
+   * user's responsibility to manage the lifetime of the object.
    *
    * @param labelValues the list of label values.
-   * @param obj the state object from which the function derives a measurement. We keep a {@link
-   *     WeakReference} to the object and it is the user's responsibility to manage the lifetime of
-   *     the object.
+   * @param obj the state object from which the function derives a measurement.
    * @param function the function to be called.
    * @param <T> the type of the object upon which the function derives a measurement.
    * @throws NullPointerException if {@code labelValues} is null OR any element of {@code
