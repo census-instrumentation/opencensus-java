@@ -99,11 +99,12 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public synchronized void clear() {
-    registeredPoints = Collections.emptyMap();
+    registeredPoints = Collections.<List<LabelValue>, PointWithFunction>emptyMap();
   }
 
-  @javax.annotation.Nullable
+  /*@Nullable*/
   @Override
   @SuppressWarnings("rawtypes")
   public Metric getMetric(Clock clock) {
@@ -125,7 +126,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
-  /** Implementation of {@link PointWithFunction} with a obj and a callback function. */
+  /** Implementation of {@link PointWithFunction} with an object and a callback function. */
   public static final class PointWithFunction<T> {
     private final List<LabelValue> labelValues;
     @javax.annotation.Nullable private final WeakReference<T> ref;

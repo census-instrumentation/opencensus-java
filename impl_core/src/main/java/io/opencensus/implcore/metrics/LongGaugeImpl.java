@@ -100,7 +100,7 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
 
   @Override
   public synchronized void clear() {
-    registeredPoints = Collections.emptyMap();
+    registeredPoints = Collections.<List<LabelValue>, PointImpl>emptyMap();
   }
 
   private synchronized LongPoint registerTimeSeries(List<LabelValue> labelValues) {

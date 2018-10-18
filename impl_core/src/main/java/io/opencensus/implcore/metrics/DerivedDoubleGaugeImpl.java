@@ -101,11 +101,12 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public synchronized void clear() {
-    registeredPoints = Collections.emptyMap();
+    registeredPoints = Collections.<List<LabelValue>, PointWithFunction>emptyMap();
   }
 
-  @javax.annotation.Nullable
+  /*@Nullable*/
   @Override
   @SuppressWarnings("rawtypes")
   public Metric getMetric(Clock clock) {
@@ -127,7 +128,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
-  /** Implementation of {@link PointWithFunction} with a obj and function. */
+  /** Implementation of {@link PointWithFunction} with an object and a callback function. */
   public static final class PointWithFunction<T> {
     private final List<LabelValue> labelValues;
     @javax.annotation.Nullable private final WeakReference<T> ref;

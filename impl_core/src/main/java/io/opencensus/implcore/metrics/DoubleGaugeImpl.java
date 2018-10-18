@@ -100,7 +100,7 @@ public final class DoubleGaugeImpl extends DoubleGauge implements Meter {
 
   @Override
   public synchronized void clear() {
-    registeredPoints = Collections.emptyMap();
+    registeredPoints = Collections.<List<LabelValue>, PointImpl>emptyMap();
   }
 
   private synchronized DoublePoint registerTimeSeries(List<LabelValue> labelValues) {

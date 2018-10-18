@@ -30,7 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Derived Long Gauge metric, to report instantaneous measurement of an int64 value. Gauges can go
  * both up and down. The gauges values can be negative.
  *
- * <p>Example: Create a Gauge with object and function.
+ * <p>Example: Create a Gauge with an object and a callback function.
  *
  * <pre>{@code
  * class YourClass {

@@ -30,7 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Derived Double Gauge metric, to report instantaneous measurement of a double value. Gauges can go
  * both up and down. The gauges values can be negative.
  *
- * <p>Example: Create a Gauge with a object and a callback function.
+ * <p>Example: Create a Gauge with an object and a callback function.
  *
  * <pre>{@code
  * class YourClass {
