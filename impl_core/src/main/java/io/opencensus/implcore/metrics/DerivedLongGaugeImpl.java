@@ -122,7 +122,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     return Metric.create(metricDescriptor, timeSeriesList);
   }
 
-  /** Implementation of {@link PointWithFunction} with a obj and function. */
+  /** Implementation of {@link PointWithFunction} with a obj and a callback function. */
   public static final class PointWithFunction<T> {
     private final List<LabelValue> labelValues;
     @Nullable private final WeakReference<T> ref;
@@ -136,8 +136,6 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
 
     private TimeSeries getTimeSeries(Clock clock) {
       final T obj = ref != null ? ref.get() : null;
-
-      @SuppressWarnings("incompatible") // if obj is null
       long value = function.applyAsLong(obj);
 
       // TODO(mayurkale): OPTIMIZATION: Avoid re-evaluate the labelValues all the time (issue#1490).

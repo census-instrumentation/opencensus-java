@@ -16,6 +16,10 @@
 
 package io.opencensus.common;
 
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
+
 /**
  * Represents a function that produces a long-valued result. See {@link
  * io.opencensus.metrics.MetricRegistry} for an example of its use.
@@ -25,12 +29,12 @@ package io.opencensus.common;
  *
  * @since 0.16
  */
-public interface ToLongFunction<T> {
+public interface ToLongFunction</*@Nullable*/ T> {
   /**
    * Applies this function to the given argument.
    *
    * @param value the function argument.
    * @return the function result.
    */
-  long applyAsLong(T value);
+  long applyAsLong(/*@Nullable*/ T value);
 }
