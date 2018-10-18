@@ -54,7 +54,7 @@ public class DerivedLongGaugeTest {
   @Test
   public void noopCreateTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     derivedLongGauge.createTimeSeries(null, null, longFunction);
   }
 
@@ -62,7 +62,7 @@ public class DerivedLongGaugeTest {
   public void noopCreateTimeSeries_WithNullElement() {
     List<LabelValue> labelValues = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues element should not be null.");
+    thrown.expectMessage("labelValue element should not be null.");
     derivedLongGauge.createTimeSeries(labelValues, null, longFunction);
   }
 
@@ -83,7 +83,7 @@ public class DerivedLongGaugeTest {
   @Test
   public void noopRemoveTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     derivedLongGauge.removeTimeSeries(null);
   }
 }

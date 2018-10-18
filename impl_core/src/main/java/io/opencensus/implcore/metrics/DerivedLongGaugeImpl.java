@@ -37,7 +37,10 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /** Implementation of {@link DerivedLongGauge}. */
 public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Meter {
@@ -57,9 +60,9 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   @Override
   @SuppressWarnings("rawtypes")
   public synchronized <T> void createTimeSeries(
-      List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
-    checkNotNull(labelValues, "labelValues should not be null.");
-    Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+      List<LabelValue> labelValues, /*@Nullable*/ T obj, ToLongFunction</*@Nullable*/ T> function) {
+    Utils.checkListElementNotNull(
+        checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
     checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
     checkNotNull(function, "function");
 
@@ -84,7 +87,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   @Override
   @SuppressWarnings("rawtypes")
   public synchronized void removeTimeSeries(List<LabelValue> labelValues) {
-    checkNotNull(labelValues, "labelValues should not be null.");
+    checkNotNull(labelValues, "labelValues");
 
     Map<List<LabelValue>, PointWithFunction> registeredPointsCopy =
         new LinkedHashMap<List<LabelValue>, PointWithFunction>(registeredPoints);
@@ -100,7 +103,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     registeredPoints = Collections.emptyMap();
   }
 
-  @Nullable
+  @javax.annotation.Nullable
   @Override
   @SuppressWarnings("rawtypes")
   public Metric getMetric(Clock clock) {
@@ -125,10 +128,13 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   /** Implementation of {@link PointWithFunction} with a obj and a callback function. */
   public static final class PointWithFunction<T> {
     private final List<LabelValue> labelValues;
-    @Nullable private final WeakReference<T> ref;
-    private final ToLongFunction<T> function;
+    @javax.annotation.Nullable private final WeakReference<T> ref;
+    private final ToLongFunction</*@Nullable*/ T> function;
 
-    PointWithFunction(List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
+    PointWithFunction(
+        List<LabelValue> labelValues, /*@Nullable*/
+        T obj,
+        ToLongFunction</*@Nullable*/ T> function) {
       this.labelValues = labelValues;
       ref = obj != null ? new WeakReference<T>(obj) : null;
       this.function = function;

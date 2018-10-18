@@ -96,7 +96,7 @@ public class DerivedLongGaugeImplTest {
   @Test
   public void createTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     derivedLongGauge.createTimeSeries(null, null, longFunction);
   }
 
@@ -109,7 +109,7 @@ public class DerivedLongGaugeImplTest {
     DerivedLongGaugeImpl derivedLongGauge =
         new DerivedLongGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues element should not be null.");
+    thrown.expectMessage("labelValue element should not be null.");
     derivedLongGauge.createTimeSeries(labelValues, null, longFunction);
   }
 
@@ -173,7 +173,7 @@ public class DerivedLongGaugeImplTest {
   @Test
   public void removeTimeSeries_WithNullLabelValues() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     derivedLongGauge.removeTimeSeries(null);
   }
 

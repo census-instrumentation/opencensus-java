@@ -20,8 +20,11 @@ import io.opencensus.common.ToLongFunction;
 import io.opencensus.internal.Utils;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+
+/*>>>
+import org.checkerframework.checker.nullness.qual.Nullable;
+*/
 
 /**
  * Derived Long Gauge metric, to report instantaneous measurement of an int64 value. Gauges can go
@@ -78,7 +81,7 @@ public abstract class DerivedLongGauge {
    * @since 0.17
    */
   public abstract <T> void createTimeSeries(
-      List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function);
+      List<LabelValue> labelValues, /*@Nullable*/ T obj, ToLongFunction</*@Nullable*/ T> function);
 
   /**
    * Removes the {@code TimeSeries} from the gauge metric, if it is present.
@@ -121,23 +124,25 @@ public abstract class DerivedLongGauge {
       Utils.checkNotNull(name, "name");
       Utils.checkNotNull(description, "description");
       Utils.checkNotNull(unit, "unit");
-      Utils.checkNotNull(labelKeys, "labelKeys should not be null.");
-      Utils.checkListElementNotNull(labelKeys, "labelKeys element should not be null.");
+      Utils.checkListElementNotNull(
+          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
       labelKeysSize = labelKeys.size();
     }
 
     @Override
     public <T> void createTimeSeries(
-        List<LabelValue> labelValues, @Nullable T obj, ToLongFunction<T> function) {
-      Utils.checkNotNull(labelValues, "labelValues should not be null.");
-      Utils.checkListElementNotNull(labelValues, "labelValues element should not be null.");
+        List<LabelValue> labelValues, /*@Nullable*/
+        T obj,
+        ToLongFunction</*@Nullable*/ T> function) {
+      Utils.checkListElementNotNull(
+          Utils.checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
       Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
       Utils.checkNotNull(function, "function");
     }
 
     @Override
     public void removeTimeSeries(List<LabelValue> labelValues) {
-      Utils.checkNotNull(labelValues, "labelValues should not be null.");
+      Utils.checkNotNull(labelValues, "labelValues");
     }
 
     @Override
