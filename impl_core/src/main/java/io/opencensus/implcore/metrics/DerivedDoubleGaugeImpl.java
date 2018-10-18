@@ -20,9 +20,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
-import io.opencensus.common.ToLongFunction;
+import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.implcore.internal.Utils;
-import io.opencensus.metrics.DerivedLongGauge;
+import io.opencensus.metrics.DerivedDoubleGauge;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
@@ -42,8 +42,8 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
-/** Implementation of {@link DerivedLongGauge}. */
-public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Meter {
+/** Implementation of {@link DerivedDoubleGauge}. */
+public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements Meter {
   private final MetricDescriptor metricDescriptor;
   private final int labelKeysSize;
 
@@ -51,23 +51,25 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   private volatile Map<List<LabelValue>, PointWithFunction> registeredPoints =
       Collections.<List<LabelValue>, PointWithFunction>emptyMap();
 
-  DerivedLongGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
+  DerivedDoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
     this.metricDescriptor =
-        MetricDescriptor.create(name, description, unit, Type.GAUGE_INT64, labelKeys);
+        MetricDescriptor.create(name, description, unit, Type.GAUGE_DOUBLE, labelKeys);
   }
 
   @Override
   @SuppressWarnings("rawtypes")
   public synchronized <T> void createTimeSeries(
-      List<LabelValue> labelValues, /*@Nullable*/ T obj, ToLongFunction</*@Nullable*/ T> function) {
+      List<LabelValue> labelValues,
+      /*@Nullable*/ T obj,
+      ToDoubleFunction</*@Nullable*/ T> function) {
     Utils.checkListElementNotNull(
         checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
     checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
     checkNotNull(function, "function");
 
     List<LabelValue> labelValuesCopy =
-        Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues));
+        Collections.<LabelValue>unmodifiableList(new ArrayList<LabelValue>(labelValues));
 
     PointWithFunction existingPoint = registeredPoints.get(labelValuesCopy);
     if (existingPoint != null) {
@@ -130,12 +132,12 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
   public static final class PointWithFunction<T> {
     private final List<LabelValue> labelValues;
     @javax.annotation.Nullable private final WeakReference<T> ref;
-    private final ToLongFunction</*@Nullable*/ T> function;
+    private final ToDoubleFunction</*@Nullable*/ T> function;
 
     PointWithFunction(
         List<LabelValue> labelValues,
         /*@Nullable*/ T obj,
-        ToLongFunction</*@Nullable*/ T> function) {
+        ToDoubleFunction</*@Nullable*/ T> function) {
       this.labelValues = labelValues;
       ref = obj != null ? new WeakReference<T>(obj) : null;
       this.function = function;
@@ -143,11 +145,11 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
 
     private TimeSeries getTimeSeries(Clock clock) {
       final T obj = ref != null ? ref.get() : null;
-      long value = function.applyAsLong(obj);
+      double value = function.applyAsDouble(obj);
 
       // TODO(mayurkale): OPTIMIZATION: Avoid re-evaluate the labelValues all the time (issue#1490).
       return TimeSeries.createWithOnePoint(
-          labelValues, Point.create(Value.longValue(value), clock.now()), null);
+          labelValues, Point.create(Value.doubleValue(value), clock.now()), null);
     }
   }
 }

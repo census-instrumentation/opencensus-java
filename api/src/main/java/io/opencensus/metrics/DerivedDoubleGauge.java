@@ -16,7 +16,7 @@
 
 package io.opencensus.metrics;
 
-import io.opencensus.common.ToLongFunction;
+import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.internal.Utils;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -27,7 +27,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 */
 
 /**
- * Derived Long Gauge metric, to report instantaneous measurement of an int64 value. Gauges can go
+ * Derived Double Gauge metric, to report instantaneous measurement of a double value. Gauges can go
  * both up and down. The gauges values can be negative.
  *
  * <p>Example: Create a Gauge with an object and a callback function.
@@ -40,15 +40,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   // TODO(mayurkale): Plugs-in the DerivedLongGauge into the registry.
- *   DerivedLongGauge gauge = metricRegistry.addDerivedLongGauge(
+ *   // TODO(mayurkale): Plugs-in the DerivedDoubleGauge into the registry.
+ *   DerivedDoubleGauge gauge = metricRegistry.addDerivedDoubleGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
  *   QueueManager queueManager = new QueueManager();
  *   gauge.createTimeSeries(labelValues, queueManager,
- *         new ToLongFunction<QueueManager>() {
+ *         new ToDoubleFunction<QueueManager>() {
  *           {@literal @}Override
- *           public long applyAsLong(QueueManager queue) {
+ *           public double applyAsDouble(QueueManager queue) {
  *             return queue.size();
  *           }
  *         });
@@ -63,7 +63,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 0.17
  */
 @ThreadSafe
-public abstract class DerivedLongGauge {
+public abstract class DerivedDoubleGauge {
   /**
    * Creates a {@code TimeSeries}. The value of a single point in the TimeSeries is observed from a
    * callback function. This function is invoked whenever metrics are collected, meaning the
@@ -81,7 +81,9 @@ public abstract class DerivedLongGauge {
    * @since 0.17
    */
   public abstract <T> void createTimeSeries(
-      List<LabelValue> labelValues, /*@Nullable*/ T obj, ToLongFunction</*@Nullable*/ T> function);
+      List<LabelValue> labelValues,
+      /*@Nullable*/ T obj,
+      ToDoubleFunction</*@Nullable*/ T> function);
 
   /**
    * Removes the {@code TimeSeries} from the gauge metric, if it is present.
@@ -100,27 +102,27 @@ public abstract class DerivedLongGauge {
   public abstract void clear();
 
   /**
-   * Returns the no-op implementation of the {@code DerivedLongGauge}.
+   * Returns the no-op implementation of the {@code DerivedDoubleGauge}.
    *
-   * @return the no-op implementation of the {@code DerivedLongGauge}.
+   * @return the no-op implementation of the {@code DerivedDoubleGauge}.
    * @since 0.17
    */
-  static DerivedLongGauge newNoopDerivedLongGauge(
+  static DerivedDoubleGauge newNoopDerivedDoubleGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    return NoopDerivedLongGauge.create(name, description, unit, labelKeys);
+    return NoopDerivedDoubleGauge.create(name, description, unit, labelKeys);
   }
 
-  /** No-op implementations of DerivedLongGauge class. */
-  private static final class NoopDerivedLongGauge extends DerivedLongGauge {
+  /** No-op implementations of DerivedDoubleGauge class. */
+  private static final class NoopDerivedDoubleGauge extends DerivedDoubleGauge {
     private final int labelKeysSize;
 
-    static NoopDerivedLongGauge create(
+    static NoopDerivedDoubleGauge create(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      return new NoopDerivedLongGauge(name, description, unit, labelKeys);
+      return new NoopDerivedDoubleGauge(name, description, unit, labelKeys);
     }
 
-    /** Creates a new {@code NoopDerivedLongGauge}. */
-    NoopDerivedLongGauge(String name, String description, String unit, List<LabelKey> labelKeys) {
+    /** Creates a new {@code NoopDerivedDoubleGauge}. */
+    NoopDerivedDoubleGauge(String name, String description, String unit, List<LabelKey> labelKeys) {
       Utils.checkNotNull(name, "name");
       Utils.checkNotNull(description, "description");
       Utils.checkNotNull(unit, "unit");
@@ -133,7 +135,7 @@ public abstract class DerivedLongGauge {
     public <T> void createTimeSeries(
         List<LabelValue> labelValues,
         /*@Nullable*/ T obj,
-        ToLongFunction</*@Nullable*/ T> function) {
+        ToDoubleFunction</*@Nullable*/ T> function) {
       Utils.checkListElementNotNull(
           Utils.checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
       Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
