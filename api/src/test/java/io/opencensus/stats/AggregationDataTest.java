@@ -108,14 +108,14 @@ public class AggregationDataTest {
   @Test
   public void preventNullBucketCountList() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("bucket counts should not be null.");
+    thrown.expectMessage("bucketCounts");
     DistributionData.create(1, 1, 1, 1, 0, null);
   }
 
   @Test
   public void preventNullBucket() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("bucket should not be null.");
+    thrown.expectMessage("bucket");
     DistributionData.create(1, 1, 1, 1, 0, Arrays.asList(0L, 1L, null));
   }
 
@@ -129,7 +129,7 @@ public class AggregationDataTest {
   @Test
   public void preventNullExemplar() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("exemplar should not be null.");
+    thrown.expectMessage("exemplar");
     DistributionData.create(
         1, 1, 1, 1, 0, Arrays.asList(0L, 1L, 1L), Collections.<Exemplar>singletonList(null));
   }

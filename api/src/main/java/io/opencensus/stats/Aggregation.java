@@ -180,7 +180,7 @@ public abstract class Aggregation {
      * @since 0.8
      */
     public static Distribution create(BucketBoundaries bucketBoundaries) {
-      Utils.checkNotNull(bucketBoundaries, "bucketBoundaries should not be null.");
+      Utils.checkNotNull(bucketBoundaries, "bucketBoundaries");
       return new AutoValue_Aggregation_Distribution(bucketBoundaries);
     }
 

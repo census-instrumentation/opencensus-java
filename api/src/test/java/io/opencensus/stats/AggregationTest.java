@@ -50,7 +50,7 @@ public class AggregationTest {
   @Test
   public void testNullBucketBoundaries() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("bucketBoundaries should not be null.");
+    thrown.expectMessage("bucketBoundaries");
     Distribution.create(null);
   }
 

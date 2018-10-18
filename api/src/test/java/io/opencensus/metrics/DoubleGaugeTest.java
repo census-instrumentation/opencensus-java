@@ -49,7 +49,7 @@ public class DoubleGaugeTest {
     DoubleGauge doubleGauge =
         DoubleGauge.newNoopDoubleGauge(NAME, DESCRIPTION, UNIT, EMPTY_LABEL_KEYS);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     doubleGauge.getOrCreateTimeSeries(null);
   }
 
@@ -58,7 +58,7 @@ public class DoubleGaugeTest {
     List<LabelValue> labelValues = Collections.singletonList(null);
     DoubleGauge doubleGauge = DoubleGauge.newNoopDoubleGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues element should not be null.");
+    thrown.expectMessage("labelValue element should not be null.");
     doubleGauge.getOrCreateTimeSeries(labelValues);
   }
 
@@ -74,7 +74,7 @@ public class DoubleGaugeTest {
   public void noopRemoveTimeSeries_WithNullLabelValues() {
     DoubleGauge doubleGauge = DoubleGauge.newNoopDoubleGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValues should not be null.");
+    thrown.expectMessage("labelValues");
     doubleGauge.removeTimeSeries(null);
   }
 
