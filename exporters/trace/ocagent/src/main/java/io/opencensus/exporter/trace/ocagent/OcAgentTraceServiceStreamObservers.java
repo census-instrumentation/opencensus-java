@@ -42,14 +42,16 @@ final class OcAgentTraceServiceStreamObservers {
       Logger.getLogger(OcAgentTraceServiceStreamObservers.class.getName());
 
   /*
-   * We can use ManagedChannel.getState() to determine the state of current connection.
+   * We should use ManagedChannel.getState() to determine the state of current connection.
+   *
+   * // TODO(songya): avoid going into too much details of each stream and use generic
+   * request/response if that's more clear.
    *
    * 0. For export RPC we hold a reference "exportRequestObserverRef" to a StreamObserver for
-   * request stream, and "exportRequestObserverRef" to a StreamObserver for response stream.
+   * request stream, and "exportResponseObserverRef" to a StreamObserver for response stream.
    * For config RPC we have "currentConfigObserverRef" and "updatedConfigObserverRef". Note that
-   * exportRequestObserver and currentConfigObserver are defined by and returned from Agent, while
-   * exportRequestObserver and updatedConfigObserver are defined in this class and will be passed to
-   * Agent.
+   * exportRequestObserver and currentConfigObserver are defined by Agent, while
+   * exportResponseObserver and updatedConfigObserver are defined in this class.
    *
    * Think of the whole process as a Finite State Machine.
    *
@@ -60,17 +62,18 @@ final class OcAgentTraceServiceStreamObservers {
    * 1. First, Exporter will try to establish the streams by calling TraceServiceStub.export and
    * TraceServiceStub.config in a daemon thread.
    *
-   *   1-1. If the initial attempt succeeded, exportRequestObserver and currentConfigObserver
-   *   should be returned to Exporter as callbacks, and we keep a reference of them in the
-   *   exportRequestObserverRef and currentConfigObserverRef. At the same time,
-   *   exportRequestObserver and updatedConfigObserver will be passed to Agent.
+   *   1-1. If the initial attempt succeeded, references of exportRequestObserver and
+   *   currentConfigObserver should be returned to Exporter as callbacks. We keep a reference of
+   *   them in exportRequestObserverRef and currentConfigObserverRef. At the same time, references
+   *   of exportRequestObserver and updatedConfigObserver will be passed to Agent as callbacks.
    *
    *   1-2. If the attempt failed, TraceServiceStub.export or TraceServiceStub.config will throw
-   *   an exception. We should catch the exceptions and keep retrying. exportRequestObserver and
-   *   currentConfigObserver will not be returned to Exporter and the references are null.
+   *   an exception. We should catch the exceptions and keep retrying. References of
+   *   exportRequestObserver and currentConfigObserver must be null.
    *
-   *   1-3. After each attempt, we should check if the connection succeeded or not.
-   *   If connection succeeded and Exporter has the reference to exportRequestObserver and
+   *   1-3. After each attempt, we should check if the connection succeeded or not with
+   *   ManagedChannel.getState(). (This is done in the daemon thread.)
+   *   If connection succeeded and Exporter has the references to exportRequestObserver and
    *   currentConfigObserver, we can move forward and start sending/receiving streams
    *   (move to STATE 2). Otherwise Exporter should retry.
    *
@@ -94,15 +97,44 @@ final class OcAgentTraceServiceStreamObservers {
    * Therefore we have an invariant throughout the entire process: if the references of
    * currentConfigObserverRef and exportRequestObserverRef are non-null, the streams must still be
    * open and alive; otherwise streams must be disconnected and we should attempt to re-connect.
+   *
+   * FYI the method signatures on both sides:
+   *
+   * Agent has:
+   *
+   * public abstract static class TraceServiceImplBase {
+   *
+   *   public abstract StreamObserver<CurrentLibraryConfig> config(
+   *     StreamObserver<UpdatedLibraryConfig> responseObserver);
+   *
+   *   public abstract StreamObserver<ExportTraceServiceRequest> export(
+   *     StreamObserver<ExportTraceServiceResponse> responseObserver);
+   * }
+   *
+   * Exporter has:
+   *
+   * public static final class TraceServiceStub {
+   *
+   *   public StreamObserver<CurrentLibraryConfig> config(
+   *     StreamObserver<UpdatedLibraryConfig> responseObserver) {
+   *     // implementation
+   *   }
+   *
+   *   public StreamObserver<ExportTraceServiceRequest> export(
+   *     StreamObserver<ExportTraceServiceResponse> responseObserver) {
+   *     // implementation
+   *   }
+   *
+   * }
    */
 
-  // A reference to the callback exportRequestObserver returned from Agent server.
+  // A reference to the callback exportRequestObserver returned from Agent.
   // Shared between multiple thread.
   // The reference is non-null only when the connection succeeded.
   static final AtomicReference</*@Nullable*/ StreamObserver<ExportTraceServiceRequest>>
       exportRequestObserverRef = new AtomicReference<>();
 
-  // A reference to the callback currentConfigObserver returned from Agent server.
+  // A reference to the callback currentConfigObserver returned from Agent.
   // Shared between multiple threads.
   // The reference is non-null only when the connection succeeded.
   static final AtomicReference</*@Nullable*/ StreamObserver<CurrentLibraryConfig>>
