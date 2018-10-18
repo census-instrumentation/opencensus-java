@@ -106,8 +106,7 @@ public abstract class LongGauge {
    * previous {@code LongPoint} objects are invalid (not part of the metric).
    *
    * @param labelValues the list of label values.
-   * @throws NullPointerException if {@code labelValues} is null or any element of {@code
-   *     labelValues} is null.
+   * @throws NullPointerException if {@code labelValues} is null.
    * @since 0.17
    */
   public abstract void removeTimeSeries(List<LabelValue> labelValues);
