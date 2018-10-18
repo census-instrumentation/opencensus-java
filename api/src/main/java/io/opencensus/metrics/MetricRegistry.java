@@ -46,6 +46,23 @@ public abstract class MetricRegistry {
   public abstract LongGauge addLongGauge(
       String name, String description, String unit, List<LabelKey> labelKeys);
 
+  /**
+   * Builds a new double gauge to be added to the registry. This is more convenient form when you
+   * want to manually increase and decrease values as per your service requirements.
+   *
+   * @param name the name of the metric.
+   * @param description the description of the metric.
+   * @param unit the unit of the metric.
+   * @param labelKeys the list of the label keys.
+   * @throws NullPointerException if {@code labelKeys} is null OR any element of {@code labelKeys}
+   *     is null OR {@code name}, {@code description}, {@code unit} is null.
+   * @throws IllegalArgumentException if different metric with the same name already registered.
+   * @since 0.17
+   */
+  @ExperimentalApi
+  public abstract DoubleGauge addDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys);
+
   static MetricRegistry newNoopMetricRegistry() {
     return new NoopMetricRegistry();
   }
@@ -58,6 +75,18 @@ public abstract class MetricRegistry {
       Utils.checkListElementNotNull(
           Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
       return LongGauge.newNoopLongGauge(
+          Utils.checkNotNull(name, "name"),
+          Utils.checkNotNull(description, "description"),
+          Utils.checkNotNull(unit, "unit"),
+          labelKeys);
+    }
+
+    @Override
+    public DoubleGauge addDoubleGauge(
+        String name, String description, String unit, List<LabelKey> labelKeys) {
+      Utils.checkListElementNotNull(
+          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+      return DoubleGauge.newNoopDoubleGauge(
           Utils.checkNotNull(name, "name"),
           Utils.checkNotNull(description, "description"),
           Utils.checkNotNull(unit, "unit"),

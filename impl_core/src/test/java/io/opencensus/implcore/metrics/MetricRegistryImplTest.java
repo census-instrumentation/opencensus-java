@@ -19,9 +19,12 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.metrics.DoubleGauge;
+import io.opencensus.metrics.DoubleGauge.DoublePoint;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.LongGauge;
+import io.opencensus.metrics.LongGauge.LongPoint;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
@@ -44,6 +47,7 @@ public class MetricRegistryImplTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   private static final String NAME = "name";
+  private static final String NAME_2 = "name2";
   private static final String DESCRIPTION = "description";
   private static final String UNIT = "1";
   private static final List<LabelKey> LABEL_KEY =
@@ -55,8 +59,10 @@ public class MetricRegistryImplTest {
   private final TestClock testClock = TestClock.create(TEST_TIME);
   private final MetricRegistryImpl metricRegistry = new MetricRegistryImpl(testClock);
 
-  private static final MetricDescriptor METRIC_DESCRIPTOR =
+  private static final MetricDescriptor LONG_METRIC_DESCRIPTOR =
       MetricDescriptor.create(NAME, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEY);
+  private static final MetricDescriptor DOUBLE_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(NAME_2, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEY);
 
   @Test
   public void addLongGauge_NullName() {
@@ -95,6 +101,42 @@ public class MetricRegistryImplTest {
   }
 
   @Test
+  public void addDoubleGauge_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addDoubleGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void addDoubleGauge_NullDescription() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("description");
+    metricRegistry.addDoubleGauge(NAME_2, null, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void addDoubleGauge_NullUnit() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("unit");
+    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, null, LABEL_KEY);
+  }
+
+  @Test
+  public void addDoubleGauge_NullLabels() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKeys");
+    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, null);
+  }
+
+  @Test
+  public void addDoubleGauge_WithNullElement() {
+    List<LabelKey> labelKeys = Collections.singletonList(null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKey element should not be null.");
+    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, labelKeys);
+  }
+
+  @Test
   public void addLongGauge_GetMetrics() {
     LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     longGauge.getOrCreateTimeSeries(LABEL_VALUES);
@@ -104,9 +146,23 @@ public class MetricRegistryImplTest {
     assertThat(metricCollections)
         .containsExactly(
             Metric.createWithOneTimeSeries(
-                METRIC_DESCRIPTOR,
+                LONG_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
                     LABEL_VALUES, Point.create(Value.longValue(0), TEST_TIME), null)));
+  }
+
+  @Test
+  public void addDoubleGauge_GetMetrics() {
+    DoubleGauge doubleGauge = metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY);
+    doubleGauge.getOrCreateTimeSeries(LABEL_VALUES);
+    Collection<Metric> metricCollections = metricRegistry.getMetricProducer().getMetrics();
+    assertThat(metricCollections.size()).isEqualTo(1);
+    assertThat(metricCollections)
+        .containsExactly(
+            Metric.createWithOneTimeSeries(
+                DOUBLE_METRIC_DESCRIPTOR,
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.doubleValue(0.0), TEST_TIME), null)));
   }
 
   @Test
@@ -116,7 +172,40 @@ public class MetricRegistryImplTest {
 
   @Test
   public void checkInstanceOf() {
+    assertThat(metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY))
+        .isInstanceOf(LongGaugeImpl.class);
+    assertThat(metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY))
+        .isInstanceOf(DoubleGaugeImpl.class);
+  }
+
+  @Test
+  public void getMetrics() {
     LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    assertThat(longGauge).isInstanceOf(LongGaugeImpl.class);
+    LongPoint longPoint = longGauge.getOrCreateTimeSeries(LABEL_VALUES);
+    longPoint.set(200);
+    DoubleGauge doubleGauge = metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY);
+    DoublePoint doublePoint = doubleGauge.getOrCreateTimeSeries(LABEL_VALUES);
+    doublePoint.set(-300.13);
+
+    Collection<Metric> metricCollections = metricRegistry.getMetricProducer().getMetrics();
+    assertThat(metricCollections.size()).isEqualTo(2);
+    assertThat(metricCollections)
+        .containsExactly(
+            Metric.createWithOneTimeSeries(
+                LONG_METRIC_DESCRIPTOR,
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.longValue(200), TEST_TIME), null)),
+            Metric.createWithOneTimeSeries(
+                DOUBLE_METRIC_DESCRIPTOR,
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.doubleValue(-300.13), TEST_TIME), null)));
+  }
+
+  @Test
+  public void registerDifferentMetricSameName() {
+    metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("A different metric with the same name already registered.");
+    metricRegistry.addDoubleGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
   }
 }
