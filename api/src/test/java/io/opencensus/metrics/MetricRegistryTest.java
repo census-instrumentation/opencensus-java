@@ -32,6 +32,7 @@ public class MetricRegistryTest {
   @Rule public ExpectedException thrown = ExpectedException.none();
 
   private static final String NAME = "name";
+  private static final String NAME_2 = "name2";
   private static final String DESCRIPTION = "description";
   private static final String UNIT = "1";
   private static final List<LabelKey> LABEL_KEY =
@@ -78,17 +79,60 @@ public class MetricRegistryTest {
   }
 
   @Test
+  public void noopAddDoubleGauge_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addDoubleGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void noopAddDoubleGauge_NullDescription() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("description");
+    metricRegistry.addDoubleGauge(NAME_2, null, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void noopAddDoubleGauge_NullUnit() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("unit");
+    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, null, LABEL_KEY);
+  }
+
+  @Test
+  public void noopAddDoubleGauge_NullLabels() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKeys");
+    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, null);
+  }
+
+  @Test
+  public void noopAddDoubleGauge_WithNullElement() {
+    List<LabelKey> labelKeys = Collections.singletonList(null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKey element should not be null.");
+    metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, labelKeys);
+  }
+
+  @Test
   public void noopSameAs() {
     LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
     assertThat(longGauge.getDefaultTimeSeries())
         .isSameAs(longGauge.getOrCreateTimeSeries(LABEL_VALUES));
+
+    DoubleGauge doubleGauge = metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY);
+    assertThat(doubleGauge.getDefaultTimeSeries()).isSameAs(doubleGauge.getDefaultTimeSeries());
+    assertThat(doubleGauge.getDefaultTimeSeries())
+        .isSameAs(doubleGauge.getOrCreateTimeSeries(LABEL_VALUES));
   }
 
   @Test
   public void noopInstanceOf() {
-    LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
-    assertThat(longGauge)
+    assertThat(metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY))
         .isInstanceOf(LongGauge.newNoopLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY).getClass());
+    assertThat(metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY))
+        .isInstanceOf(
+            DoubleGauge.newNoopDoubleGauge(NAME_2, DESCRIPTION, UNIT, LABEL_KEY).getClass());
   }
 }
