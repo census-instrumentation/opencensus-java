@@ -49,7 +49,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
 
   @SuppressWarnings("rawtypes")
   private volatile Map<List<LabelValue>, PointWithFunction> registeredPoints =
-      Collections.emptyMap();
+      Collections.<List<LabelValue>, PointWithFunction>emptyMap();
 
   DerivedDoubleGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
@@ -60,8 +60,8 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
   @Override
   @SuppressWarnings("rawtypes")
   public synchronized <T> void createTimeSeries(
-      List<LabelValue> labelValues, /*@Nullable*/
-      T obj,
+      List<LabelValue> labelValues,
+      /*@Nullable*/ T obj,
       ToDoubleFunction</*@Nullable*/ T> function) {
     Utils.checkListElementNotNull(
         checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
@@ -69,7 +69,7 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
     checkNotNull(function, "function");
 
     List<LabelValue> labelValuesCopy =
-        Collections.unmodifiableList(new ArrayList<LabelValue>(labelValues));
+        Collections.<LabelValue>unmodifiableList(new ArrayList<LabelValue>(labelValues));
 
     PointWithFunction existingPoint = registeredPoints.get(labelValuesCopy);
     if (existingPoint != null) {
@@ -134,8 +134,8 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
     private final ToDoubleFunction</*@Nullable*/ T> function;
 
     PointWithFunction(
-        List<LabelValue> labelValues, /*@Nullable*/
-        T obj,
+        List<LabelValue> labelValues,
+        /*@Nullable*/ T obj,
         ToDoubleFunction</*@Nullable*/ T> function) {
       this.labelValues = labelValues;
       ref = obj != null ? new WeakReference<T>(obj) : null;

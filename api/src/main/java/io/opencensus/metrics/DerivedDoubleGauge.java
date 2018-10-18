@@ -81,8 +81,8 @@ public abstract class DerivedDoubleGauge {
    * @since 0.17
    */
   public abstract <T> void createTimeSeries(
-      List<LabelValue> labelValues, /*@Nullable*/
-      T obj,
+      List<LabelValue> labelValues,
+      /*@Nullable*/ T obj,
       ToDoubleFunction</*@Nullable*/ T> function);
 
   /**
@@ -133,8 +133,8 @@ public abstract class DerivedDoubleGauge {
 
     @Override
     public <T> void createTimeSeries(
-        List<LabelValue> labelValues, /*@Nullable*/
-        T obj,
+        List<LabelValue> labelValues,
+        /*@Nullable*/ T obj,
         ToDoubleFunction</*@Nullable*/ T> function) {
       Utils.checkListElementNotNull(
           Utils.checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");

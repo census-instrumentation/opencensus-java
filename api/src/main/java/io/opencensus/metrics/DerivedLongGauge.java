@@ -131,8 +131,8 @@ public abstract class DerivedLongGauge {
 
     @Override
     public <T> void createTimeSeries(
-        List<LabelValue> labelValues, /*@Nullable*/
-        T obj,
+        List<LabelValue> labelValues,
+        /*@Nullable*/ T obj,
         ToLongFunction</*@Nullable*/ T> function) {
       Utils.checkListElementNotNull(
           Utils.checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");

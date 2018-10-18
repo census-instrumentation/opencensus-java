@@ -49,7 +49,7 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
 
   @SuppressWarnings("rawtypes")
   private volatile Map<List<LabelValue>, PointWithFunction> registeredPoints =
-      Collections.emptyMap();
+      Collections.<List<LabelValue>, PointWithFunction>emptyMap();
 
   DerivedLongGaugeImpl(String name, String description, String unit, List<LabelKey> labelKeys) {
     labelKeysSize = labelKeys.size();
@@ -132,8 +132,8 @@ public final class DerivedLongGaugeImpl extends DerivedLongGauge implements Mete
     private final ToLongFunction</*@Nullable*/ T> function;
 
     PointWithFunction(
-        List<LabelValue> labelValues, /*@Nullable*/
-        T obj,
+        List<LabelValue> labelValues,
+        /*@Nullable*/ T obj,
         ToLongFunction</*@Nullable*/ T> function) {
       this.labelValues = labelValues;
       ref = obj != null ? new WeakReference<T>(obj) : null;

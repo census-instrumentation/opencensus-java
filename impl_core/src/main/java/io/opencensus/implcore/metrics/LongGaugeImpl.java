@@ -44,7 +44,8 @@ public final class LongGaugeImpl extends LongGauge implements Meter {
   @VisibleForTesting static final LabelValue UNSET_VALUE = LabelValue.create(null);
 
   private final MetricDescriptor metricDescriptor;
-  private volatile Map<List<LabelValue>, PointImpl> registeredPoints = Collections.emptyMap();
+  private volatile Map<List<LabelValue>, PointImpl> registeredPoints =
+      Collections.<List<LabelValue>, PointImpl>emptyMap();
   private final int labelKeysSize;
   private final List<LabelValue> defaultLabelValues;
 
