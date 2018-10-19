@@ -40,7 +40,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *   List<LabelKey> labelKeys = Arrays.asList(LabelKey.create("Name", "desc"));
  *   List<LabelValue> labelValues = Arrays.asList(LabelValue.create("Inbound"));
  *
- *   // TODO(mayurkale): Plugs-in the DerivedDoubleGauge into the registry.
  *   DerivedDoubleGauge gauge = metricRegistry.addDerivedDoubleGauge(
  *       "queue_size", "Pending jobs in a queue", "1", labelKeys);
  *
