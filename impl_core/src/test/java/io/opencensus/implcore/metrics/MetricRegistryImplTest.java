@@ -19,7 +19,9 @@ package io.opencensus.implcore.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import io.opencensus.common.Timestamp;
+import io.opencensus.common.ToDoubleFunction;
 import io.opencensus.common.ToLongFunction;
+import io.opencensus.metrics.DerivedDoubleGauge;
 import io.opencensus.metrics.DerivedLongGauge;
 import io.opencensus.metrics.DoubleGauge;
 import io.opencensus.metrics.DoubleGauge.DoublePoint;
@@ -51,6 +53,7 @@ public class MetricRegistryImplTest {
   private static final String NAME = "name";
   private static final String NAME_2 = "name2";
   private static final String NAME_3 = "name3";
+  private static final String NAME_4 = "name4";
   private static final String DESCRIPTION = "description";
   private static final String UNIT = "1";
   private static final List<LabelKey> LABEL_KEY =
@@ -68,12 +71,21 @@ public class MetricRegistryImplTest {
       MetricDescriptor.create(NAME_2, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEY);
   private static final MetricDescriptor DERIVED_LONG_METRIC_DESCRIPTOR =
       MetricDescriptor.create(NAME_3, DESCRIPTION, UNIT, Type.GAUGE_INT64, LABEL_KEY);
+  private static final MetricDescriptor DERIVED_DOUBLE_METRIC_DESCRIPTOR =
+      MetricDescriptor.create(NAME_4, DESCRIPTION, UNIT, Type.GAUGE_DOUBLE, LABEL_KEY);
 
   private static final ToLongFunction<Object> longFunction =
       new ToLongFunction<Object>() {
         @Override
         public long applyAsLong(Object value) {
           return 5;
+        }
+      };
+  private static final ToDoubleFunction<Object> doubleFunction =
+      new ToDoubleFunction<Object>() {
+        @Override
+        public double applyAsDouble(Object value) {
+          return 5.0;
         }
       };
 
@@ -153,7 +165,7 @@ public class MetricRegistryImplTest {
   public void addDerivedLongGauge_NullName() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("name");
-    metricRegistry.addLongGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
+    metricRegistry.addDerivedLongGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
   }
 
   @Test
@@ -183,6 +195,42 @@ public class MetricRegistryImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("labelKey element should not be null.");
     metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, labelKeys);
+  }
+
+  @Test
+  public void addDerivedDoubleGauge_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addDerivedDoubleGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void addDerivedDoubleGauge_NullDescription() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("description");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, null, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void addDerivedDoubleGauge_NullUnit() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("unit");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, null, LABEL_KEY);
+  }
+
+  @Test
+  public void addDerivedDoubleGauge_NullLabels() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKeys");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, null);
+  }
+
+  @Test
+  public void addDerivedDoubleGauge_WithNullElement() {
+    List<LabelKey> labelKeys = Collections.singletonList(null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKey element should not be null.");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, labelKeys);
   }
 
   @Test
@@ -230,6 +278,21 @@ public class MetricRegistryImplTest {
   }
 
   @Test
+  public void addDerivedDoubleGauge_GetMetrics() {
+    DerivedDoubleGauge derivedDoubleGauge =
+        metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEY);
+    derivedDoubleGauge.createTimeSeries(LABEL_VALUES, null, doubleFunction);
+    Collection<Metric> metricCollections = metricRegistry.getMetricProducer().getMetrics();
+    assertThat(metricCollections.size()).isEqualTo(1);
+    assertThat(metricCollections)
+        .containsExactly(
+            Metric.createWithOneTimeSeries(
+                DERIVED_DOUBLE_METRIC_DESCRIPTOR,
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.doubleValue(5.0), TEST_TIME), null)));
+  }
+
+  @Test
   public void empty_GetMetrics() {
     assertThat(metricRegistry.getMetricProducer().getMetrics()).isEmpty();
   }
@@ -242,6 +305,8 @@ public class MetricRegistryImplTest {
         .isInstanceOf(DoubleGaugeImpl.class);
     assertThat(metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, LABEL_KEY))
         .isInstanceOf(DerivedLongGaugeImpl.class);
+    assertThat(metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEY))
+        .isInstanceOf(DerivedDoubleGaugeImpl.class);
   }
 
   @Test
@@ -255,9 +320,12 @@ public class MetricRegistryImplTest {
     DerivedLongGauge derivedLongGauge =
         metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, LABEL_KEY);
     derivedLongGauge.createTimeSeries(LABEL_VALUES, null, longFunction);
+    DerivedDoubleGauge derivedDoubleGauge =
+        metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEY);
+    derivedDoubleGauge.createTimeSeries(LABEL_VALUES, null, doubleFunction);
 
     Collection<Metric> metricCollections = metricRegistry.getMetricProducer().getMetrics();
-    assertThat(metricCollections.size()).isEqualTo(3);
+    assertThat(metricCollections.size()).isEqualTo(4);
     assertThat(metricCollections)
         .containsExactly(
             Metric.createWithOneTimeSeries(
@@ -271,7 +339,11 @@ public class MetricRegistryImplTest {
             Metric.createWithOneTimeSeries(
                 DERIVED_LONG_METRIC_DESCRIPTOR,
                 TimeSeries.createWithOnePoint(
-                    LABEL_VALUES, Point.create(Value.longValue(5), TEST_TIME), null)));
+                    LABEL_VALUES, Point.create(Value.longValue(5), TEST_TIME), null)),
+            Metric.createWithOneTimeSeries(
+                DERIVED_DOUBLE_METRIC_DESCRIPTOR,
+                TimeSeries.createWithOnePoint(
+                    LABEL_VALUES, Point.create(Value.doubleValue(5.0), TEST_TIME), null)));
   }
 
   @Test

@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.opencensus.common.Clock;
 import io.opencensus.implcore.internal.Utils;
+import io.opencensus.metrics.DerivedDoubleGauge;
 import io.opencensus.metrics.DerivedLongGauge;
 import io.opencensus.metrics.DoubleGauge;
 import io.opencensus.metrics.LabelKey;
@@ -87,6 +88,21 @@ public final class MetricRegistryImpl extends MetricRegistry {
             Collections.unmodifiableList(new ArrayList<LabelKey>(labelKeys)));
     registeredMeters.registerMeter(name, derivedLongGauge);
     return derivedLongGauge;
+  }
+
+  @Override
+  public DerivedDoubleGauge addDerivedDoubleGauge(
+      String name, String description, String unit, List<LabelKey> labelKeys) {
+    Utils.checkListElementNotNull(
+        checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+    DerivedDoubleGaugeImpl derivedDoubleGauge =
+        new DerivedDoubleGaugeImpl(
+            checkNotNull(name, "name"),
+            checkNotNull(description, "description"),
+            checkNotNull(unit, "unit"),
+            Collections.unmodifiableList(new ArrayList<LabelKey>(labelKeys)));
+    registeredMeters.registerMeter(name, derivedDoubleGauge);
+    return derivedDoubleGauge;
   }
 
   private static final class RegisteredMeters {

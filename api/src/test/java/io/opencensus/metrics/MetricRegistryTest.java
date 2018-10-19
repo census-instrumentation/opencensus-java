@@ -34,6 +34,7 @@ public class MetricRegistryTest {
   private static final String NAME = "name";
   private static final String NAME_2 = "name2";
   private static final String NAME_3 = "name3";
+  private static final String NAME_4 = "name4";
   private static final String DESCRIPTION = "description";
   private static final String UNIT = "1";
   private static final List<LabelKey> LABEL_KEY =
@@ -152,6 +153,42 @@ public class MetricRegistryTest {
   }
 
   @Test
+  public void noopAddDerivedDoubleGauge_NullName() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("name");
+    metricRegistry.addDerivedDoubleGauge(null, DESCRIPTION, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void noopAddDerivedDoubleGauge_NullDescription() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("description");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, null, UNIT, LABEL_KEY);
+  }
+
+  @Test
+  public void noopAddDerivedDoubleGauge_NullUnit() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("unit");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, null, LABEL_KEY);
+  }
+
+  @Test
+  public void noopAddDerivedDoubleGauge_NullLabels() {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKeys");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, null);
+  }
+
+  @Test
+  public void noopAddDerivedDoubleGauge_WithNullElement() {
+    List<LabelKey> labelKeys = Collections.singletonList(null);
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("labelKey element should not be null.");
+    metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, labelKeys);
+  }
+
+  @Test
   public void noopSameAs() {
     LongGauge longGauge = metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, LABEL_KEY);
     assertThat(longGauge.getDefaultTimeSeries()).isSameAs(longGauge.getDefaultTimeSeries());
@@ -174,6 +211,10 @@ public class MetricRegistryTest {
     assertThat(metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, LABEL_KEY))
         .isInstanceOf(
             DerivedLongGauge.newNoopDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, LABEL_KEY)
+                .getClass());
+    assertThat(metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEY))
+        .isInstanceOf(
+            DerivedDoubleGauge.newNoopDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, LABEL_KEY)
                 .getClass());
   }
 }
