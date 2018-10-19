@@ -171,16 +171,15 @@ public abstract class DoubleGauge {
       Utils.checkNotNull(name, "name");
       Utils.checkNotNull(description, "description");
       Utils.checkNotNull(unit, "unit");
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
       labelKeysSize = labelKeys.size();
     }
 
     @Override
     public NoopDoublePoint getOrCreateTimeSeries(List<LabelValue> labelValues) {
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
-      Utils.checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
+      Utils.checkListElementNotNull(Utils.checkNotNull(labelValues, "labelValues"), "labelValue");
+      Utils.checkArgument(
+          labelKeysSize == labelValues.size(), "Label Keys and Label Values don't have same size.");
       return NoopDoublePoint.INSTANCE;
     }
 

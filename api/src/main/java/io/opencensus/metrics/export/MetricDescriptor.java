@@ -50,8 +50,7 @@ public abstract class MetricDescriptor {
    */
   public static MetricDescriptor create(
       String name, String description, String unit, Type type, List<LabelKey> labelKeys) {
-    Utils.checkNotNull(labelKeys, "labelKeys");
-    Utils.checkListElementNotNull(labelKeys, "labelKey");
+    Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
     return new AutoValue_MetricDescriptor(
         name,
         description,

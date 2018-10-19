@@ -109,7 +109,7 @@ public class DerivedLongGaugeImplTest {
     DerivedLongGaugeImpl derivedLongGauge =
         new DerivedLongGaugeImpl(METRIC_NAME, METRIC_DESCRIPTION, METRIC_UNIT, labelKeys);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelValue element should not be null.");
+    thrown.expectMessage("labelValue");
     derivedLongGauge.createTimeSeries(labelValues, null, longFunction);
   }
 
@@ -119,7 +119,7 @@ public class DerivedLongGaugeImplTest {
         Arrays.asList(LabelValue.create("value1"), LabelValue.create("value2"));
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Incorrect number of labels.");
+    thrown.expectMessage("Label Keys and Label Values don't have same size.");
     derivedLongGauge.createTimeSeries(labelValues, null, longFunction);
   }
 

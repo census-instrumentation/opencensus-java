@@ -48,8 +48,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
   @Override
   public LongGauge addLongGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(
-        checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
     LongGaugeImpl longGaugeMetric =
         new LongGaugeImpl(
             checkNotNull(name, "name"),
@@ -63,8 +62,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
   @Override
   public DoubleGauge addDoubleGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(
-        checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
     DoubleGaugeImpl doubleGaugeMetric =
         new DoubleGaugeImpl(
             checkNotNull(name, "name"),
@@ -78,8 +76,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
   @Override
   public DerivedLongGauge addDerivedLongGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(
-        checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
     DerivedLongGaugeImpl derivedLongGauge =
         new DerivedLongGaugeImpl(
             checkNotNull(name, "name"),
@@ -93,8 +90,7 @@ public final class MetricRegistryImpl extends MetricRegistry {
   @Override
   public DerivedDoubleGauge addDerivedDoubleGauge(
       String name, String description, String unit, List<LabelKey> labelKeys) {
-    Utils.checkListElementNotNull(
-        checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+    Utils.checkListElementNotNull(checkNotNull(labelKeys, "labelKeys"), "labelKey");
     DerivedDoubleGaugeImpl derivedDoubleGauge =
         new DerivedDoubleGaugeImpl(
             checkNotNull(name, "name"),

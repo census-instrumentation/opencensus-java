@@ -66,8 +66,8 @@ public class DropWizardMetrics extends MetricProducer {
    * @since 0.17
    */
   public DropWizardMetrics(List<com.codahale.metrics.MetricRegistry> metricRegistryList) {
-    Utils.checkNotNull(metricRegistryList, "metricRegistryList");
-    Utils.checkListElementNotNull(metricRegistryList, "metricRegistryList");
+    Utils.checkListElementNotNull(
+        Utils.checkNotNull(metricRegistryList, "metricRegistryList"), "metricRegistry");
     this.metricRegistryList = metricRegistryList;
     clock = MillisClock.getInstance();
     cumulativeStartTimestamp = clock.now();

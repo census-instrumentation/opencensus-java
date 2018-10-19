@@ -76,7 +76,7 @@ public class MetricRegistryTest {
   public void noopAddLongGauge_WithNullElement() {
     List<LabelKey> labelKeys = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey element should not be null.");
+    thrown.expectMessage("labelKey");
     metricRegistry.addLongGauge(NAME, DESCRIPTION, UNIT, labelKeys);
   }
 
@@ -112,7 +112,7 @@ public class MetricRegistryTest {
   public void noopAddDoubleGauge_WithNullElement() {
     List<LabelKey> labelKeys = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey element should not be null.");
+    thrown.expectMessage("labelKey");
     metricRegistry.addDoubleGauge(NAME_2, DESCRIPTION, UNIT, labelKeys);
   }
 
@@ -148,7 +148,7 @@ public class MetricRegistryTest {
   public void noopAddDerivedLongGauge_WithNullElement() {
     List<LabelKey> labelKeys = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey element should not be null.");
+    thrown.expectMessage("labelKey");
     metricRegistry.addDerivedLongGauge(NAME_3, DESCRIPTION, UNIT, labelKeys);
   }
 
@@ -184,7 +184,7 @@ public class MetricRegistryTest {
   public void noopAddDerivedDoubleGauge_WithNullElement() {
     List<LabelKey> labelKeys = Collections.singletonList(null);
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("labelKey element should not be null.");
+    thrown.expectMessage("labelKey");
     metricRegistry.addDerivedDoubleGauge(NAME_4, DESCRIPTION, UNIT, labelKeys);
   }
 

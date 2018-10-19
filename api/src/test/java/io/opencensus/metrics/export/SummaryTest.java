@@ -109,7 +109,7 @@ public class SummaryTest {
   @Test
   public void createSnapshot_OneNullValueAtPercentile() {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("value in valueAtPercentiles");
+    thrown.expectMessage("valueAtPercentile");
     Snapshot.create(10L, 87.07, Collections.<ValueAtPercentile>singletonList(null));
   }
 

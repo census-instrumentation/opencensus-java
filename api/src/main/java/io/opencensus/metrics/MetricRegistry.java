@@ -108,8 +108,7 @@ public abstract class MetricRegistry {
     @Override
     public LongGauge addLongGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
       return LongGauge.newNoopLongGauge(
           Utils.checkNotNull(name, "name"),
           Utils.checkNotNull(description, "description"),
@@ -120,8 +119,7 @@ public abstract class MetricRegistry {
     @Override
     public DoubleGauge addDoubleGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
       return DoubleGauge.newNoopDoubleGauge(
           Utils.checkNotNull(name, "name"),
           Utils.checkNotNull(description, "description"),
@@ -132,8 +130,7 @@ public abstract class MetricRegistry {
     @Override
     public DerivedLongGauge addDerivedLongGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
       return DerivedLongGauge.newNoopDerivedLongGauge(
           Utils.checkNotNull(name, "name"),
           Utils.checkNotNull(description, "description"),
@@ -144,8 +141,7 @@ public abstract class MetricRegistry {
     @Override
     public DerivedDoubleGauge addDerivedDoubleGauge(
         String name, String description, String unit, List<LabelKey> labelKeys) {
-      Utils.checkListElementNotNull(
-          Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey element should not be null.");
+      Utils.checkListElementNotNull(Utils.checkNotNull(labelKeys, "labelKeys"), "labelKey");
       return DerivedDoubleGauge.newNoopDerivedDoubleGauge(
           Utils.checkNotNull(name, "name"),
           Utils.checkNotNull(description, "description"),

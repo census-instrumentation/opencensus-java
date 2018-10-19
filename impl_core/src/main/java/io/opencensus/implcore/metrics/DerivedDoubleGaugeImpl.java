@@ -63,9 +63,9 @@ public final class DerivedDoubleGaugeImpl extends DerivedDoubleGauge implements 
       List<LabelValue> labelValues,
       /*@Nullable*/ T obj,
       ToDoubleFunction</*@Nullable*/ T> function) {
-    Utils.checkListElementNotNull(
-        checkNotNull(labelValues, "labelValues"), "labelValue element should not be null.");
-    checkArgument(labelKeysSize == labelValues.size(), "Incorrect number of labels.");
+    Utils.checkListElementNotNull(checkNotNull(labelValues, "labelValues"), "labelValue");
+    checkArgument(
+        labelKeysSize == labelValues.size(), "Label Keys and Label Values don't have same size.");
     checkNotNull(function, "function");
 
     List<LabelValue> labelValuesCopy =
